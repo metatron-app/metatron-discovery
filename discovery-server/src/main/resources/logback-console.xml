@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<configuration>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <property name="CONSOLE_PATTERN"
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([%X{ip}-%X{username}]){magenta} %clr([%thread]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!-- tomcat 8 workaround
+         http://stackoverflow.com/questions/26893297/tomcat-8-throwing-org-apache-catalina-webresources-cache-getresource-unable-to
+    -->
+    <!--<logger name="org.apache.catalina.webresources.Cache" level="error"/>-->
+
+    <!-- show hibernate sql -->
+    <logger name="org.hibernate.SQL" level="info"/>
+
+    <!-- show bound hibernate parameters with trace -->
+    <logger name="org.hibernate.type" level="info"/>
+
+    <logger name="org.springframework.web" level="info"/>
+
+    <logger name="org.springframework.web.client" level="info"/>
+
+    <logger name="org.springframework.web.servlet.mvc" level="info"/>
+
+    <logger name="org.apache.http" level="info"/>
+
+    <logger name="org.springframework.data.rest" level="info"/>
+
+    <logger name="org.springframework.security" level="info"/>
+
+    <logger name="org.springframework.session" level="info"/>
+
+    <logger name="org.apache.hadoop" level="warn"/>
+
+    <logger name="app.metatron.discovery" level="info"/>
+
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <jmxConfigurator/>
+
+</configuration>

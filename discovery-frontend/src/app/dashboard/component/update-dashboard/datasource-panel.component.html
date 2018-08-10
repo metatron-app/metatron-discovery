@@ -1,0 +1,181 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div [class.ddp-selected]="showDatasourcePanel"
+     class="ddp-wrap-datasource" style="z-index:126;">
+  <div class="ddp-label-datasorce"
+       (click)="toggleDatasourcePanel()">{{'msg.board.th.datasource' | translate}}</div>
+  <div class="ddp-ui-drop-contents" *ngIf="showDatasourcePanel" >
+    <div class="ddp-wrap-source-name">
+      <dashboard-datasource-combo
+        [enableInfo]="true"
+        [dataSources]="dataSourceList"
+        [initialValue]="dataSource"
+        (selectOption)="selectDataSource($event)"
+        (showInfo)="onDataPreviewPopup()"></dashboard-datasource-combo>
+    </div>
+
+    <!-- // Name -->
+    <div class="ddp-ui-drop-option">
+      <!-- 검색 -->
+      <div class="ddp-form-search">
+        <em class="ddp-icon-search"></em>
+        <input #srchText type="text"
+               placeholder="{{'msg.board.ui.board.dsource.ph' | translate}}"
+               [ngModel]="searchText"
+               (keyup.esc)="clearSearch()" (clickOutside)="restoreSearch()"
+               (keypress)="searchField($event)" >
+      </div>
+      <!-- // 검색 -->
+    </div>
+    <!-- 차원값 영역 -->
+    <div class="ddp-wrap-drop-submenu ddp-selected">
+      <!-- 차원값 제목 -->
+      <div class="ddp-ui-sub-title">
+        <div class="ddp-ui-sub-titlein ddp-dimension">
+          <em class="ddp-icon-menumove"></em> {{ 'msg.comm.name.dim' | translate }}
+          <a href="javascript:" class="ddp-btn-addplus" (click)="openCustomFieldPopup( 'DIMENSION' )"></a>
+        </div>
+      </div>
+      <!-- // 차원값 제목 -->
+      <!-- 차원값 목록 -->
+      <div class="ddp-wrap-list-source">
+        <ul class="ddp-list-source ddp-list-dimension">
+          <li class="ddp-ui-dimension" *ngFor="let field of displayDimensions" >
+            <em class="ddp-icon-datause" *ngIf="field.useChart"></em>
+            <!-- Type -->
+            <em class="{{getDimensionTypeIconClass(field)}}"></em>
+
+            <!-- icons -->
+            <div class="ddp-wrap-icons">
+              <!-- 사용자 정보 미리보기 -->
+              <div class="ddp-wrap-user-preview" *ngIf="field.type === 'user_expr'">
+                <em class="ddp-icon-control-user ddp-type"
+                    (click)="openCustomFieldPopup( 'DIMENSION', field)"></em>
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-top"></em>
+                  <span class="ddp-txt-tooltip">{{unescapeCustomColumnExpr(field.expr)}}</span>
+                </div>
+              </div>
+              <!-- //사용자 정보 미리보기 -->
+              <em class="ddp-icon-control-filter ddp-type"
+                  *ngIf="!field.useChartFilter" (click)="toggleFilter($event,field)"
+                  [ngClass]="{'ddp-selected' : field.useFilter}" ></em>
+              <!-- btn control -->
+              <div class="ddp-btn-control" >
+                <em class="ddp-icon-control-more ddp-type" (click)="openFieldDetailLayer($event, field)"></em>
+              </div>
+              <!-- //btn control -->
+            </div>
+            <!-- //icons -->
+            <!-- Name -->
+            <span class="ddp-data-name" [class.ddp-alias]="field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name">
+              <span class="ddp-data-in">
+                {{field.name}}
+                <em *ngIf="field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name" class="ddp-icon-alias"></em>
+              </span>
+            </span>
+            <!-- // Name -->
+          </li>
+        </ul>
+        <div class="ddp-ui-page">
+          <a href="javascript:" class="ddp-prev" (click)="prevDimPage()">&lt; Previous</a>
+          <a href="javascript:" class="ddp-next" (click)="nextDimPage()">Next &gt;</a>
+        </div>
+      </div>
+      <!-- // 차원값 목록 -->
+    </div>
+    <!-- // 차원값 영역 -->
+    <!-- 측정값 영역 -->
+    <div class="ddp-wrap-drop-submenu ddp-selected">
+      <!-- 측정값 제목 -->
+      <div class="ddp-ui-sub-title">
+        <div class="ddp-ui-sub-titlein ddp-measure">
+          <em class="ddp-icon-menumove"></em> {{ 'msg.comm.name.mea' | translate }}
+          <a href="javascript:" class="ddp-btn-addplus" (click)="openCustomFieldPopup( 'MEASURE' )"></a>
+        </div>
+      </div>
+      <!-- // 측정값 제목 -->
+      <!-- 측정값 목록 -->
+      <div class="ddp-wrap-list-source">
+        <ul class="ddp-list-source ddp-list-measure">
+          <li class="ddp-ui-measure" *ngFor="let field of displayMeasures" >
+            <em class="ddp-icon-datause" *ngIf="field.useChart"></em>
+            <!-- Type -->
+            <em class="{{getMeasureTypeIconClass(field)}}"></em>
+
+            <!-- icons -->
+            <div class="ddp-wrap-icons">
+              <!-- 사용자 정보 미리보기 -->
+              <div class="ddp-wrap-user-preview" *ngIf="field.type === 'user_expr'">
+                <em class="ddp-icon-control-calculat ddp-type"
+                    (click)="openCustomFieldPopup( 'MEASURE', field)"></em>
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-top"></em>
+                  <span class="ddp-txt-tooltip">{{field.expr}}</span>
+                </div>
+              </div>
+              <!-- //사용자 정보 미리보기 -->
+              <em *ngIf="!field.useChartFilter && !field['isCustomMeasure']" (click)="toggleFilter($event,field)"
+                  [ngClass]="{'ddp-selected' : field.useFilter, 'ddp-disabled' : field.aggregated}"
+                  class="ddp-icon-control-filter ddp-type" ></em>
+              <!-- 클릭시 ddp-selected -->
+              <div class="ddp-btn-control" >
+                <em class="ddp-icon-control-more ddp-type"  (click)="openFieldDetailLayer($event, field)"></em>
+              </div>
+              <!-- //btn control -->
+            </div>
+            <!-- //icons -->
+            <!-- Name -->
+            <span class="ddp-data-name" [class.ddp-alias]="field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name">
+              <span class="ddp-data-in">
+                {{field.name}}
+                <em *ngIf="field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name" class="ddp-icon-alias"></em>
+              </span>
+            </span>
+            <!-- // Name -->
+          </li>
+        </ul>
+        <div class="ddp-ui-page">
+          <a href="javascript:" class="ddp-prev" (click)="prevMeaPage()">&lt; Previous</a>
+          <a href="javascript:" class="ddp-next" (click)="nextMeaPage()">Next &gt;</a>
+        </div>
+      </div>
+      <!-- // 측정값 목록 -->
+    </div>
+    <!-- // 측정값 영역 -->
+  </div>
+</div>
+<!-- // Datasource Side Menu -->
+
+<!-- LNB > Data Detail -->
+<data-preview *ngIf="isShowDataPreview"
+              [field]="selectedField"
+              [singleTab]="isColumnDetail"
+              [source]="dashboard"
+              (close)="isShowDataPreview = false"></data-preview>
+<app-custom-field *ngIf="isShowCustomFiled"
+                  [fields]="dsFields"
+                  [dataSource]="boardDs"
+                  [customFields]="dsCustomFields"
+                  [customField]="selectedCustomField"
+                  [selectedColumnType]="customFieldPopupType"
+                  (updateColumn)="updateCustomField($event)"
+                  (close)="isShowCustomFiled = false">
+</app-custom-field>
+<!-- Field Context Menu layer more -->
+<page-data-context (openCustomFieldEvent)="openCustomFieldPopup($event)"
+                   (openColumnDetailEvent)="onColumnDetailPopup($event)"
+                   (deleteCustomFieldEvent)="deleteCustomField($event)"
+                   (changeAlias)="changeDatasourceFieldAlias($event)"></page-data-context>

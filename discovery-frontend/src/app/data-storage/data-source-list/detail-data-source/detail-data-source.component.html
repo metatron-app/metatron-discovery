@@ -1,0 +1,168 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents2">
+  <!-- top -->
+  <div class="ddp-top-flow">
+    <!-- navi wrap -->
+    <div class="ddp-top-flow">
+      <!-- 수정 data -->
+      <div class="ddp-data-form">
+        <span class="ddp-txt-date" *ngIf="datasource.modifiedBy">
+          <!--최근수정 {{datasource.modifiedTime  | date : 'yyyy.MM.dd hh:mm'}} by {{datasource.modifiedBy.fullName ? datasource.modifiedBy.fullName : datasource.modifiedBy}}-->
+          {{'msg.common.ui.updated' | translate : {modifiedTime :datasource.modifiedTime  | mdate : 'YYYY-MM-DD HH:mm', fullName : datasource.modifiedBy.fullName ? datasource.modifiedBy.fullName : datasource.modifiedBy } }}
+        </span>
+        <!-- more -->
+        <!-- more 버튼 클릭시 ddp-selected 추가 -->
+        <div class="ddp-ui-more" [ngClass]="{'ddp-selected' : moreFl}" (click)="moreFl = !moreFl" (clickOutside)="moreFl = false">
+          <a href="javascript:" class="ddp-icon-more"></a>
+          <!-- popup -->
+          <div class="ddp-data-box">
+            <a href="javascript:" class="ddp-list-link" (click)="deleteModalOpen()"><em class="ddp-icon-delete"></em>{{'msg.storage.btn.del.dsource' | translate}}</a>
+            <span class="ddp-data-by" *ngIf="datasource.createdBy">
+              <!--생성 {{datasource.createdTime | date : 'yyyy.MM.dd hh:mm'}} by {{datasource.createdBy.fullName ? datasource.createdBy.fullName : datasource.createdBy}}-->
+            {{'msg.common.ui.created' | translate : {createdTime :datasource.createdTime | mdate : 'YYYY-MM-DD HH:mm', fullName: datasource.createdBy.fullName ? datasource.createdBy.fullName : datasource.createdBy } }}
+            </span>
+          </div>
+          <!-- //popup -->
+        </div>
+        <!-- //more -->
+      </div>
+      <!-- //수정 data -->
+      <!-- navi wrap -->
+      <div class="ddp-wrap-navi">
+        <a href="javascript:" class="ddp-btn-back" (click)="prevDatasourceList()"></a>
+        <!-- navi -->
+        <div class="ddp-ui-naviarea">
+          <!-- name -->
+          <!-- 클릭시 ddp-selected 추가 -->
+          <div class="ddp-box-navi" [ngClass]="{'ddp-selected' : nameFl}" (clickOutside)="nameFl = false">
+            <div class="ddp-wrap-naviname" (click)="changeNameMode()">
+              <span class="ddp-data-naviname">{{datasource.name}}
+              <em class="ddp-icon-edit2"></em></span>
+            </div>
+            <div class="ddp-wrap-input">
+              <input #nameElement type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.name' | translate}}"
+                     [(ngModel)]="reName"
+                     [focus]="nameFl"
+                     (keyup.enter)="renameDatasource()">
+              <span class="ddp-btn-check" (click)="renameDatasource()"></span>
+            </div>
+          </div>
+          <!-- //name -->
+          <!-- description -->
+          <!-- 클릭시 ddp-selected 추가 -->
+          <div class="ddp-box-navidet" [ngClass]="{'ddp-selected' : descFl}" (clickOutside)="descFl = false">
+            <div class="ddp-wrap-navidet" (click)="changeDescMode()">
+              <span class="ddp-data-navidet">{{datasource.description || 'msg.comm.ui.create.desc' | translate}}
+              <em class="ddp-icon-edit2"></em></span>
+            </div>
+            <div class="ddp-wrap-input">
+              <input #descElement type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                        [(ngModel)]="reDesc"
+                        [focus]="descFl"
+                        (keyup.enter)="redescDatasource()">
+              <span class="ddp-btn-check" (click)="redescDatasource()"></span>
+            </div>
+          </div>
+          <!-- //description -->
+        </div>
+        <!-- //navi -->
+      </div>
+      <!-- //navi wrap -->
+    </div>
+    <!-- //navi wrap -->
+
+  </div>
+  <!-- //top -->
+
+  <div class="ddp-wrap-datadetail">
+    <!-- tab -->
+    <div class="ddp-wrap-tab">
+      <ul class="ddp-ui-tab ddp-clear">
+        <!-- information -->
+        <li [ngClass]="{'ddp-selected' : mode === 'information'}"
+            (click)="onChangeMode('information')">
+          <a href="javascript:">{{'msg.storage.btn.info' | translate}}</a>
+        </li>
+        <!-- //information -->
+        <!-- Grid data -->
+        <li [ngClass]="{'ddp-selected' : mode ==='grid'}"
+            (click)="onChangeMode('grid')"
+            *ngIf="isEnabled()">
+          <a href="javascript:">{{'msg.storage.btn.grid' | translate}}</a>
+        </li>
+        <!-- //Grid data -->
+        <!-- Column details -->
+        <li [ngClass]="{'ddp-selected' : mode ==='columns'}"
+            (click)="onChangeMode('columns')"
+            *ngIf="isEnabled() && datasource.connType.toString() !== 'LINK'">
+          <a href="javascript:">{{'msg.storage.btn.columns' | translate}}</a>
+        </li>
+        <!-- //Column details -->
+        <!-- monitoring -->
+        <li [ngClass]="{'ddp-selected' : mode ==='monitoring'}"
+            (click)="onChangeMode('monitoring')"
+            *ngIf="isEnabled()">
+          <a href="javascript:">{{'msg.storage.btn.monitoring' | translate}}</a>
+        </li>
+        <!-- //monitoring -->
+        <!--<li [ngClass]="{'ddp-selected' : mode === 'lineage'}">-->
+          <!--<a href="javascript:">Lineage</a>-->
+        <!--</li>-->
+        <!--<li [ngClass]="{'ddp-selected' : mode === 'dictionary'}">-->
+          <!--<a href="javascript:">Dictionary</a>-->
+        <!--</li>-->
+      </ul>
+    </div>
+    <!-- //tab -->
+    <!-- contents -->
+    <div class="ddp-wrap-tab-contents">
+      <!-- Information -->
+      <information-data-source *ngIf="mode === 'information'"
+                               [datasource]="datasource"
+                               [(mode)]="mode"
+                               (confirm)="confirmModalOpen($event)"
+      ></information-data-source>
+      <!-- //Information -->
+      <!-- Grid data -->
+      <data-grid-datasource *ngIf="mode === 'grid'"
+                            [metaData]="metaData"
+                            [datasource]="datasource">
+      </data-grid-datasource>
+      <!-- //Grid data -->
+      <!-- Column detail -->
+      <column-detail-datasource *ngIf="mode === 'columns'"
+                                (changeDatasource)="changedDatasourceData($event)"
+                                [metaData]="metaData"
+                                [datasource]="datasource">
+      </column-detail-datasource>
+      <!-- //Column detail -->
+      <!-- Monitoring -->
+      <monitoring-data-source *ngIf="mode === 'monitoring'"
+                               [datasource]="datasource"
+                               (logEvent)="onOpenLogModal($event)"
+                               [(mode)]="mode"
+      ></monitoring-data-source>
+      <!-- //Monitoring -->
+    </div>
+    <!-- //contents -->
+  </div>
+</div>
+
+<!-- 공통 모달 -->
+<app-delete-modal (deleteConfirm)="deleteDatasource()"></app-delete-modal>
+<app-confirm-modal (confirm)="updateDatasource({published: !datasource.published})"></app-confirm-modal>
+<!-- 로그 컴포넌트 -->
+<app-log-component></app-log-component>

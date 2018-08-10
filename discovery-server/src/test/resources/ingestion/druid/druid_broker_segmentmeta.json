@@ -1,0 +1,6 @@
+{
+  "queryType":"segmentMetadata",
+  "dataSource":"datasource_name",
+  "merge": true,
+  "intervals":["1970-01-01/2030-01-01"]
+}

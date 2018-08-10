@@ -1,0 +1,428 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-chart-side ddp-show">
+
+  <div class="ddp-ui-side-title">
+    {{'msg.page.ui.data.label.title' | translate}}
+  </div>
+  <div class="ddp-wrap-downmenu">
+    <!-- box down -->
+    <div class="ddp-box-down">
+      <div class="ddp-wrap-divide ">
+        <div class="ddp-wrap-option-slider" *ngIf="possibleChartCheck('valueLabel', uiOption.type)">
+          <span class="ddp-label-slider">{{'msg.page.ui.show.value.chart' | translate}}</span>
+          <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+            <input type="checkbox" id="cbValueLabel" [ngModel]="uiOption.dataLabel.showValue" (click)="showValueLabel(!uiOption.dataLabel.showValue);">
+            <label for="cbValueLabel"><span class="ddp-slide"></span></label>
+          </div>
+        </div>
+        <div *ngIf="uiOption.dataLabel.showValue" class="ddp-list-sub2">
+          <!-- divide -->
+          <div class="ddp-divide2 ">
+            <div class="ddp-list-label">{{'msg.page.chart.datalabel.display.label' | translate}}</div>
+            <div class="ddp-list-sub2">
+              <div *ngIf="possibleChartCheck('labelCategoryName', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox ddp-check-full">
+                  <input type="checkbox"
+                         [ngModel]="checkCategoryNameDisable() && (uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('CATEGORY_NAME') != -1)"
+                         [disabled]="!checkCategoryNameDisable()"
+                         (click)="toggleDisplayType('CATEGORY_NAME', 0)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.category.name' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="possibleChartCheck('labelCategoryValue', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox ">
+                  <input type="checkbox"
+                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('CATEGORY_VALUE') != -1)"
+                         (click)="toggleDisplayType('CATEGORY_VALUE', 1)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.category.value' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="possibleChartCheck('labelCategoryPercent', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox">
+                  <input type="checkbox"
+                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('CATEGORY_PERCENT') != -1)"
+                         (click)="toggleDisplayType('CATEGORY_PERCENT', 2)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.category.percent' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="possibleChartCheck('labelSeriesName', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox ">
+                  <input type="checkbox"
+                         [ngModel]="checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_NAME') != -1"
+                         [disabled]="!checkSeriesDisable()"
+                         (click)="toggleDisplayType('SERIES_NAME', 3)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.name' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="possibleChartCheck('labelSeriesValue', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox">
+                  <input type="checkbox"
+                         [ngModel]="checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_VALUE') != -1"
+                         [disabled]="!checkSeriesDisable()"
+                         (click)="toggleDisplayType('SERIES_VALUE', 4)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.value' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="possibleChartCheck('labelSeriesPercent', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox">
+                  <input type="checkbox"
+                         [ngModel]="checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_PERCENT') != -1"
+                         [disabled]="!checkSeriesDisable()"
+                         (click)="toggleDisplayType('SERIES_PERCENT', 5)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.percent' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="possibleChartCheck('labelXAxisValue', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox">
+                  <input type="checkbox"
+                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('XAXIS_VALUE') != -1)"
+                         (click)="toggleDisplayType('XAXIS_VALUE', 6)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.xaxis.value' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="possibleChartCheck('labelYAxisValue', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox">
+                  <input type="checkbox"
+                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('YAXIS_VALUE') != -1)"
+                         (click)="toggleDisplayType('YAXIS_VALUE', 7)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.yaxis.value' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="possibleChartCheck('labelValue', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox">
+                  <input type="checkbox"
+                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('VALUE') != -1)"
+                         (click)="toggleDisplayType('VALUE', 8)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.value' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="possibleChartCheck('labelNodeName', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox">
+                  <input type="checkbox"
+                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('NODE_NAME') != -1)"
+                         (click)="toggleDisplayType('NODE_NAME', 9)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.node.name' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="possibleChartCheck('labelLinkValue', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox">
+                  <input type="checkbox"
+                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('LINK_VALUE') != -1)"
+                         (click)="toggleDisplayType('LINK_VALUE', 10)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.link.value' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="possibleChartCheck('labelNodeValue', uiOption.type)" class="ddp-part-check-b">
+                <label class="ddp-label-checkbox">
+                  <input type="checkbox"
+                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('NODE_VALUE') != -1)"
+                         (click)="toggleDisplayType('NODE_VALUE', 11)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.node.value' | translate}}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <!-- //divide -->
+          <!-- divide -->
+          <div *ngIf="possibleChartCheck('labelUseOutSideLabel', uiOption.type)" class="ddp-divide2">
+            <div class="ddp-part-check-b ">
+              <label class="ddp-label-checkbox ddp-position">
+                <input type="checkbox" [ngModel]="uiOption['dataLabel']['showOutside']" (click)="toggleOutsideLabel(!uiOption['dataLabel']['showOutside'])">
+                <i class="ddp-icon-checkbox"></i>
+                <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.use.outside.label' | translate}}</span>
+              </label>
+            </div>
+          </div>
+          <!-- //divide -->
+          <!-- divide -->
+          <div class="ddp-divide2" *ngIf="possibleChartCheck('labelPosition', uiOption.type)">
+            <div class="ddp-wrap-option-multy ddp-clear">
+              <div class="ddp-col-5">
+                <span class="ddp-label-txt">{{'msg.page.chart.datalabel.position' | translate}}</span>
+              </div>
+              <div class="ddp-col-7">
+                <!-- selectbox -->
+                <component-select
+                  [array]="getPositionList(uiOption)"
+                  [viewKey]="'name'"
+                  [defaultIndex]="getPositionIndex(uiOption?.dataLabel?.pos)"
+                  (onSelected)="changePosition($event)"
+                ></component-select>
+                <!-- //selectbox -->
+              </div>
+            </div>
+          </div>
+          <!-- divide -->
+
+          <!-- divide -->
+          <div class="ddp-divide2" *ngIf="'combine' === uiOption.type.toString()">
+            <div class="ddp-wrap-option-multy ddp-clear">
+              <div class="ddp-col-5">
+                <span class="ddp-label-txt">{{'msg.page.chart.datalabel.position.bar' | translate}}</span>
+              </div>
+              <div class="ddp-col-7">
+                <!-- selectbox -->
+                <component-select
+                  [array]="getPositionList(uiOption, 'bar')"
+                  [viewKey]="'name'"
+                  [defaultIndex]="getPositionIndex(uiOption?.dataLabel?.pos)"
+                  (onSelected)="changePosition($event)"
+                ></component-select>
+                <!-- //selectbox -->
+              </div>
+            </div>
+          </div>
+          <!-- //divide -->
+          <!-- divide -->
+          <div class="ddp-divide2" *ngIf="possibleChartCheck('labelRotation', uiOption.type)">
+            <div class="ddp-part-check-b">
+              <label class="ddp-label-checkbox ddp-position">
+                <input type="checkbox" [ngModel]="uiOption?.dataLabel?.enableRotation" (click)="changeRotation(!uiOption?.dataLabel?.enableRotation);"
+                       [disabled]="uiOption?.align?.toString() == 'HORIZONTAL'">
+                <i class="ddp-icon-checkbox"></i>
+                <span class="ddp-txt-checkbox">{{'msg.page.chart.axis.label.rotation' | translate}}</span>
+              </label>
+            </div>
+          </div>
+          <!-- //divide -->
+          <!-- divide -->
+          <div class="ddp-divide2" *ngIf="'combine' === uiOption.type.toString()">
+            <div class="ddp-wrap-option-multy ddp-clear">
+              <div class="ddp-col-5">
+                <span class="ddp-label-txt">{{'msg.page.chart.datalabel.position.line' | translate}}</span>
+              </div>
+              <div class="ddp-col-7">
+                <!-- selectbox -->
+                <component-select
+                  [array]="getPositionList(uiOption)"
+                  [viewKey]="'name'"
+                  [defaultIndex]="getPositionIndex(uiOption?.dataLabel?.secondaryPos)"
+                  (onSelected)="changeLinePosition($event)"
+                ></component-select>
+                <!-- //selectbox -->
+              </div>
+            </div>
+          </div>
+          <!-- divide -->
+          <ng-container *ngIf="'treemap' == uiOption.type.toString()">
+            <!-- divide -->
+            <div class="ddp-divide2">
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.common.align.horizontal' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ddp-txt-right">
+                  <ul class="ddp-list-express ddp-tab3 ddp-type">
+                    <li [class.ddp-selected]="uiOption?.dataLabel?.hAlign?.toString() == 'LEFT'"
+                      (click)="changeHAlign('LEFT')">
+                      <em class="ddp-icon-left"></em>
+                    </li>
+                    <li [class.ddp-selected]="uiOption?.dataLabel?.hAlign?.toString() == 'CENTER'"
+                      (click)="changeHAlign('CENTER')">
+                      <em class="ddp-icon-center"></em>
+                    </li>
+                    <li [class.ddp-selected]="uiOption?.dataLabel?.hAlign?.toString() == 'RIGHT'"
+                      (click)="changeHAlign('RIGHT')">
+                      <em class="ddp-icon-right"></em>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <!-- divide -->
+            <!-- divide -->
+            <div class="ddp-divide2">
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.common.align.vertical' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ddp-txt-right">
+                  <ul class="ddp-list-express ddp-tab3 ddp-type">
+                    <li [class.ddp-selected]="uiOption?.dataLabel?.vAlign?.toString() == 'TOP'"
+                      (click)="changeVAlign('TOP')">
+                      <em class="ddp-icon-top"></em>
+                    </li>
+                    <li [class.ddp-selected]="uiOption?.dataLabel?.vAlign?.toString() == 'CENTER'"
+                      (click)="changeVAlign('CENTER')">
+                      <em class="ddp-icon-middle"></em>
+                    </li>
+                    <li [class.ddp-selected]="uiOption?.dataLabel?.vAlign?.toString() == 'BOTTOM'"
+                      (click)="changeVAlign('BOTTOM')">
+                      <em class="ddp-icon-bottom"></em>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <!-- divide -->
+            <!-- divide -->
+            <div class="ddp-divide2">
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.calrow.label.font.color' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ddp-txt-right">
+                  <!-- selectbox -->
+                  <div class="ddp-type-selectbox ddp-color-selectbox2">
+                    <color-picker [showAlpha]="true" [color]="uiOption?.dataLabel?.textColor ? uiOption?.dataLabel?.textColor : '#FFF'" [showInitial]="true"
+                                  [showInput]="true" [showUserColor]="true" (selected)="uiOption.dataLabel.textColor = $event; apply();"></color-picker>
+                  </div>
+                  <!-- //selectbox -->
+                </div>
+              </div>
+            </div>
+            <!-- divide -->
+          </ng-container>
+        </div>
+      </div>
+
+      <div *ngIf="uiOption.dataLabel.showValue" class="ddp-wrap-divide">
+          <!-- divide -->
+          <div *ngIf="possibleChartCheck('labelColor', uiOption.type)" class="ddp-divide2">
+            <div class="ddp-wrap-option-slider">
+              <span class="ddp-label-slider">{{'msg.page.chart.datalabel.text.color.setting' | translate}}</span>
+              <!-- Slide THREE -->
+              <div class="ddp-checkbox-slide ddp-checkbox-automatic3 ddp-en ddp-change">
+                <input type="checkbox" id="checkTextSetting" [ngModel]="uiOption?.dataLabel?.textColor ? true : false" (click)="showColorSetting()">
+                <label for="checkTextSetting"><span class="ddp-slide"></span></label>
+              </div>
+              <!-- //Slide THREE -->
+            </div>
+            <!-- sub -->
+            <div *ngIf="uiOption?.dataLabel?.textColor" class="ddp-list-sub2">
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-7">
+                  <span class="ddp-label-txt">{{'msg.page.chart.datalabel.text.color' | translate}}</span>
+                </div>
+                <div class="ddp-col-5 ddp-txt-right">
+                  <!-- selectbox -->
+                  <div class="ddp-type-selectbox ddp-color-selectbox2">
+                    <color-picker [showAlpha]="true" [color]="uiOption?.dataLabel?.textColor ? uiOption?.dataLabel?.textColor : 'auto'" [showInitial]="true"
+                                  [showInput]="true" [showUserColor]="true" (selected)="uiOption.dataLabel.textColor = $event; apply();"></color-picker>
+                  </div>
+                  <!-- //selectbox -->
+                </div>
+              </div>
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-7 ">
+
+                  <label class="ddp-label-checkbox ddp-size">
+                    <input type="checkbox" [ngModel]="uiOption?.dataLabel?.textBackgroundColor" (click)="changeBackgroundColor();">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.text.background' | translate}}</span>
+                  </label>
+
+                </div>
+                <div class="ddp-col-5 ddp-txt-right">
+                  <!-- selectbox -->
+                  <div [class.ddp-disabled]="!uiOption?.dataLabel?.textBackgroundColor" class="ddp-type-selectbox ddp-color-selectbox2">
+                    <color-picker [showAlpha]="true" [color]="uiOption?.dataLabel?.textBackgroundColor ? uiOption?.dataLabel?.textBackgroundColor : 'transparent'" [showInitial]="true"
+                                  [showInput]="true" [showUserColor]="true" (selected)="uiOption.dataLabel.textBackgroundColor = $event; apply();"></color-picker>
+                  </div>
+                  <!-- //selectbox -->
+                </div>
+              </div>
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-7 ">
+
+                  <label class="ddp-label-checkbox ddp-size">
+                    <input type="checkbox" [ngModel]="uiOption?.dataLabel?.textOutlineColor" (click)="changeTextOutlineColor();">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.text.outline' | translate}}</span>
+                  </label>
+                </div>
+                <div class="ddp-col-5 ddp-txt-right">
+                  <!-- selectbox -->
+                  <div [class.ddp-disabled]="!uiOption?.dataLabel?.textOutlineColor" class="ddp-type-selectbox ddp-color-selectbox2">
+                    <color-picker [showAlpha]="true" [color]="uiOption?.dataLabel?.textOutlineColor ? uiOption?.dataLabel?.textOutlineColor : 'transparent'" [showInitial]="true"
+                                  [showInput]="true" [showUserColor]="true" (selected)="uiOption.dataLabel.textOutlineColor = $event; apply();"></color-picker>
+                  </div>
+                  <!-- //selectbox -->
+                </div>
+              </div>
+            </div>
+            <!-- //sub -->
+          </div>
+          <!-- //divide -->
+          <!-- divide -->
+          <!-- 현재 link value까지 선택되어 displayTypes가 두개이더라도 두줄이 안되므로 network는 표현되지 않게 설정 -->
+          <div class="ddp-divide2" *ngIf="displayTypes?.length >= 2 && 'network' !== uiOption.type.toString()">
+            <!-- multy -->
+            <div class="ddp-wrap-option-multy ddp-clear">
+              <div class="ddp-col-6">
+
+                <span class="ddp-label-txt">{{'msg.page.chart.datalabel.text.align' | translate}}</span>
+
+              </div>
+              <div class="ddp-col-6 ddp-txt-right">
+                <ul class="ddp-list-express ddp-tab3 ddp-type" [ngClass]="{'ddp-disabled' :uiOption['dataLabel']['showOutside']}">
+                  <li [class.ddp-selected]="uiOption?.dataLabel?.textAlign == 'LEFT'"
+                      (click)="changeTextAlign('LEFT')">
+                    <em class="ddp-icon-left"></em>
+                  </li>
+                  <li [class.ddp-selected]="!uiOption?.dataLabel?.textAlign || uiOption?.dataLabel?.textAlign == 'CENTER'"
+                      (click)="changeTextAlign('CENTER')">
+                    <em class="ddp-icon-center"></em>
+                  </li>
+                  <li [class.ddp-selected]="uiOption?.dataLabel?.textAlign == 'RIGHT'"
+                      (click)="changeTextAlign('RIGHT')">
+                    <em class="ddp-icon-right"></em>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <!-- //multy -->
+          </div>
+          <!-- //divide -->
+          <!-- divide -->
+          <div *ngIf="possibleChartCheck('labelAxisScaleFormat', uiOption.type)" class="ddp-divide2">
+            <div class="ddp-part-check-b">
+              <label class="ddp-label-checkbox ddp-position">
+                <input type="checkbox" [ngModel]="false === uiOption?.dataLabel?.useDefaultFormat ? true : false" (click)="changeUseDefaultFormat();">
+                <i class="ddp-icon-checkbox"></i>
+                <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.use.axis.scale.format' | translate}}</span>
+              </label>
+            </div>
+          </div>
+          <!-- //divide -->
+          <!-- divide -->
+          <div class="ddp-divide2">
+            <div class="ddp-list-label">{{'msg.page.format.preview' | translate}}</div>
+            <div class="ddp-preview2">
+              <p *ngFor="let item of uiOption.dataLabel.previewList"
+                 [class.ddp-txt-right]="uiOption.dataLabel?.displayTypes && uiOption.dataLabel?.displayTypes.length >= 2 && uiOption?.dataLabel?.textAlign == 'RIGHT'"
+                 [class.ddp-txt-center]="uiOption.dataLabel?.displayTypes && uiOption.dataLabel?.displayTypes.length >= 2 && (uiOption?.dataLabel?.textAlign || uiOption?.dataLabel?.textAlign == 'CENTER')"
+                 [class.ddp-txt-left]="uiOption.dataLabel?.displayTypes && uiOption.dataLabel?.displayTypes.length >= 2 && uiOption?.dataLabel?.textAlign == 'LEFT'">{{item.name}}</p>
+            </div>
+          </div>
+          <!-- //divide -->
+        </div>
+    </div>
+    <!-- //box down -->
+  </div>
+</div>

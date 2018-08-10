@@ -1,0 +1,185 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-chart-side ddp-show">
+
+  <div class="ddp-ui-side-title">
+    {{'msg.page.common.kpi.indocator.setting' | translate}}
+  </div>
+  <div class="ddp-wrap-downmenu">
+    <div class="ddp-box-down">
+      <!-- wrap divide -->
+      <div class="ddp-wrap-divide ">
+
+        <!--  divide -->
+        <div class="ddp-divide2">
+          <!-- slider -->
+          <div class="ddp-wrap-option-slider">
+            <span class="ddp-label-slider">{{'msg.page.common.kpi.indocator.use' | translate}}</span>
+            <!-- Slide THREE -->
+            <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+              <input type="checkbox" (click)="$event.stopPropagation(); changeTargetUse();" [ngModel]="isShow()">
+              <label><span class="ddp-slide"></span></label>
+            </div>
+            <!-- //Slide THREE -->
+          </div>
+          <!-- //slider -->
+          <div [class.ddp-disabled]="!isShow()"
+               class="ddp-list-sub2 ddp-wrap-disabled">
+            <!-- divide -->
+            <div class="ddp-divide2">
+              <div class="ddp-list-label">{{'msg.page.common.kpi.indocator.target' | translate}}</div>
+              <component-select
+                #targetListComp
+                [array]="targetList"
+                [viewKey]="'name'"
+                (onSelected)="changeTarget($event)"
+              ></component-select>
+            </div>
+            <!-- //divide -->
+            <!-- divide -->
+            <div class="ddp-divide2">
+              <div class="ddp-list-label">{{'msg.page.common.kpi.indocator.type' | translate}}</div>
+              <component-select
+                #indicatorListComp
+                [array]="indicatorList"
+                [viewKey]="'name'"
+                (onSelected)="changeIndicatorType($event['value'])"
+              ></component-select>
+            </div>
+            <!-- //divide -->
+
+            <!-- 목표값 -->
+            <div class="ddp-list-sub3">
+              <!-- divide -->
+              <div class="ddp-divide2">
+                <!-- 목표값 -->
+                <div *ngIf="!isPeriod" class="ddp-wrap-option-multy ddp-clear">
+                  <div class="ddp-col-4">
+                    <span class="ddp-label-txt">{{'msg.page.common.kpi.indocator.standard' | translate}}</span>
+                  </div>
+                  <div class="ddp-col-8">
+                    <input type="text" class="ddp-input-typebasic"
+                           [(ngModel)]="standardValueTemp"
+                           (keyup.enter)="applyStandardValue()"
+                           (clickOutside)="revokeTargetValue()"
+                           maxlength="50">
+                  </div>
+                </div>
+                <!-- //목표값 -->
+                <!-- 비교기간 -->
+                <div *ngIf="isPeriod" class="ddp-wrap-option-multy ddp-clear">
+                  <div class="ddp-col-4">
+                    <span class="ddp-label-txt">{{'msg.page.common.kpi.indocator.period' | translate}}</span>
+                  </div>
+                  <div class="ddp-col-8">
+                    <component-select
+                      #periodListComp
+                      [array]="periodList"
+                      [viewKey]="'name'"
+                      (onSelected)="changePeriodType($event['value'])"
+                    ></component-select>
+                  </div>
+                </div>
+                <!-- //비교기간 -->
+              </div>
+              <!-- //divide -->
+              <!-- divide -->
+              <div class="ddp-divide2">
+                <div class="ddp-list-label">{{'msg.page.common.kpi.indocator.display' | translate}}</div>
+                <ul class="ddp-list-express ddp-type2">
+                  <li [class.ddp-selected]="getMarkSelected('INCREMENTAL')" (click)="changeMarkType('INCREMENTAL');">
+                    <em class="ddp-icon-updown"></em> {{'msg.page.common.kpi.indocator.incremental' | translate}}
+                  </li>
+                  <li [class.ddp-selected]="getMarkSelected('PERCENTAGE')" (click)="changeMarkType('PERCENTAGE');">
+                    <em class="ddp-icon-percent-type"></em> {{'msg.page.common.kpi.indocator.percentage' | translate}}
+                  </li>
+                </ul>
+
+              </div>
+              <!-- //divide -->
+              <!-- divide -->
+              <div class="ddp-divide2">
+                <div class="ddp-part-check-b">
+                  <label class="ddp-label-checkbox ddp-position">
+                    <input type="checkbox" [ngModel]="getEmphasizedSelected()" (click)="changeEmphasized();">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{'msg.page.common.kpi.indocator.emphasized' | translate}}</span>
+                  </label>
+                </div>
+              </div>
+              <!-- //divide -->
+            </div>
+            <!-- //목표값 -->
+
+            <!-- 비교기간 -->
+            <!--<div class="ddp-list-sub3">-->
+              <!--&lt;!&ndash; divide &ndash;&gt;-->
+              <!--<div class="ddp-divide2">-->
+                <!--<div class="ddp-list-label">비교기간</div>-->
+
+                <!--<div class="ddp-type-selectbox  ddp-nowrap-r">-->
+                  <!--<span class="ddp-txt-selectbox">작년 대비</span>-->
+                  <!--<ul class="ddp-list-selectbox ddp-selectdown">-->
+                    <!--<li>-->
+                      <!--<a href="#">-->
+                        <!--전체-->
+                      <!--</a>-->
+                    <!--</li>-->
+                    <!--<li>-->
+                      <!--<a href="#">-->
+                        <!--aa-->
+                      <!--</a>-->
+                    <!--</li>-->
+                  <!--</ul>-->
+                <!--</div>-->
+              <!--</div>-->
+              <!--&lt;!&ndash; //divide &ndash;&gt;-->
+              <!--&lt;!&ndash; divide &ndash;&gt;-->
+              <!--<div class="ddp-divide2">-->
+                <!--<div class="ddp-list-label">표시방식</div>-->
+                <!--<ul class="ddp-list-express ddp-type2">-->
+                  <!--<li class="ddp-selected">-->
+                    <!--<em class="ddp-icon-updown"></em> 증감분-->
+                  <!--</li>-->
+                  <!--<li>-->
+                    <!--<em class="ddp-icon-percent-type"></em> 퍼센티지-->
+                  <!--</li>-->
+                <!--</ul>-->
+
+              <!--</div>-->
+              <!--&lt;!&ndash; //divide &ndash;&gt;-->
+              <!--&lt;!&ndash; divide &ndash;&gt;-->
+              <!--<div class="ddp-divide2">-->
+                <!--<div class="ddp-part-check-b">-->
+                  <!--<label class="ddp-label-checkbox ddp-position">-->
+                    <!--<input type="checkbox">-->
+                    <!--<i class="ddp-icon-checkbox"></i>-->
+                    <!--<span class="ddp-txt-checkbox">보조지표 강조</span>-->
+                  <!--</label>-->
+                <!--</div>-->
+              <!--</div>-->
+              <!--&lt;!&ndash; //divide &ndash;&gt;-->
+            <!--</div>-->
+            <!-- //비교기간 -->
+          </div>
+
+        </div>
+        <!--  //divide -->
+      </div>
+      <!-- //wrap divide -->
+    </div>
+  </div>
+</div>
+<!-- //보조 지표 설정 -->

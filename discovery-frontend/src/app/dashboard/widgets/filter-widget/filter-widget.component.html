@@ -1,0 +1,205 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-box-widget" >
+  <!-- Top Control -->
+  <div *ngIf="isAuthMgmtViewMode" class="ddp-top-control ddp-clear"
+       [ngStyle]="{'margin-right': isVisibleScrollbar ? '20px' : '' }">
+    <div class="ddp-ui-buttons">
+      <div class="ddp-box-btn2" (click)="editWidget()">
+        <em class="ddp-icon-widget-edit"></em>
+        <!-- 툴팁 -->
+        <div class="ddp-ui-tooltip-info">
+          <em class="ddp-icon-view-down"></em>
+          {{  'msg.comm.ui.edit' | translate }}
+        </div>
+        <!-- //툴팁 -->
+      </div>
+    </div>
+  </div>
+  <!-- // Top Control -->
+
+  <div *ngIf="filter" #filterWidget class="ddp-view-widget ddp-view-widget-filter" >
+    <!-- title -->
+    <div *ngIf="isViewMode && isShowTitle" class="ddp-ui-title">
+      <em class="ddp-icon-filter"></em>
+      {{getWidgetName()}}
+    </div>
+    <!-- //title -->
+
+    <!-- 차원값 필터 -->
+    <div class="ddp-ui-widget-contents" *ngIf="filter.type === 'include'">
+      <!-- 복수 선택 콤보 박스 -->
+      <component-filter-multi-select *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_COMBO"
+                                     [array]="candidateList"
+                                     [selectedArray]="selectedItems"
+                                     [viewKey]="'name'"
+                                     [viewType]="'widget'"
+                                     [mockup]="isEditMode"
+                                     (onSelected)="onSelectInclude($event)"
+                                     (changeDisplayOptions)="toggleOptionsSelectComp($event)">
+      </component-filter-multi-select>
+      <!-- // 복수 선택 콤보 박스 -->
+
+      <!-- 단일 선택 콤보 박스 -->
+      <component-filter-select *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.SINGLE_COMBO"
+                               [array]="candidateList"
+                               [selectedItem]="selectedItems ? selectedItems[0] : null"
+                               [viewKey]="'name'"
+                               [viewType]="'widget'"
+                               [mockup]="isEditMode"
+                               (onSelected)="onSelectInclude($event)"
+                               (onCheckAll)="checkAllInclude()"
+                               (changeDisplayOptions)="toggleOptionsSelectComp($event)">
+      </component-filter-select>
+      <!-- // 단일 선택 콤보 박스 -->
+
+      <!-- 복수 선택 목록 -->
+      <ul *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_LIST"
+          class="ddp-list-checktype" >
+        <li>
+          <label class="ddp-label-checkbox">
+            <input type="checkbox" (click)="checkAllInclude($event)"
+                   [disabled]="isEditMode"
+                   [checked]="convertToIncludeFilter(filter).valueList.length > 0
+                   && convertToIncludeFilter(filter).valueList.length === candidateList.length">
+            <i class="ddp-icon-checkbox ddp-dark"></i>
+            <span class="ddp-txt-checkbox">({{'msg.board.filter.ui.all' | translate}})</span>
+          </label>
+        </li>
+        <li *ngFor="let item of candidateList">
+          <label class="ddp-label-checkbox">
+            <input type="checkbox" (click)="onSelectInclude(item, $event)"
+                   [disabled]="isEditMode"
+                   [checked]="convertToIncludeFilter(filter).valueList.indexOf(item.name) > -1">
+            <i class="ddp-icon-checkbox ddp-dark"></i>
+            <span class="ddp-txt-checkbox">{{item.name}}</span>
+          </label>
+        </li>
+      </ul>
+      <!-- // 복수 선택 목록 -->
+      <!-- 단일 선택 목록 -->
+      <ul *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.SINGLE_LIST"
+          class="ddp-list-checktype" >
+        <li>
+          <label class="ddp-label-radio">
+            <input type="radio" name="{{filter.field + widget.id}}" (click)="checkAllInclude($event)"
+                   [disabled]="isEditMode"
+                   [checked]="convertToIncludeFilter(filter).valueList.length === 0">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">({{'msg.board.filter.ui.all' | translate}})</span>
+          </label>
+        </li>
+        <li *ngFor="let item of candidateList">
+          <label class="ddp-label-radio">
+            <input type="radio" name="{{filter.field + widget.id}}" (click)="onSelectInclude(item, $event)"
+                   [disabled]="isEditMode"
+                   [checked]="convertToIncludeFilter(filter).valueList.indexOf(item.name) > -1">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{item.name}}</span>
+          </label>
+        </li>
+      </ul>
+      <!-- // 단일 선택 목록 -->
+    </div>
+    <!-- // 차원값 필터 -->
+    <!-- 측정값 필터 -->
+    <div class="ddp-ui-widget-contents" *ngIf="filter.type === 'bound'">
+      <div class="ddp-display-table" >
+        <div class="ddp-table-in" >
+          <bound-filter [filter]="filter" (change)="applyValue()"></bound-filter>
+        </div>
+      </div>
+    </div>
+    <!-- // 측정값 필터 -->
+    <!-- 타임스탬프 필터 -->
+    <div class="ddp-ui-widget-contents" *ngIf="isTimeFilter">
+      <!-- 연속 형식 - None Granularity -->
+      <div *ngIf="!isDiscontinuousFilter && isContinuousByAll" class="ddp-ui-divide">
+        <!-- 탭별 내용 영역 -->
+        <div class="ddp-wrap-toggle-contents">
+          <!-- 전체 기간 선택 탭 영역 -->
+          <div *ngIf="isAllTypeTimeFilter" class="ddp-ui-toggle-contents">
+            <span class="ddp-txt-preview">(No time filtering)</span>
+          </div>
+          <!-- // 전체 기간 선택 탭 영역 -->
+          <!-- 상대적인 기간 선택 탭 영역 -->
+          <div *ngIf="isRelativeTypeTimeFilter" class="ddp-ui-toggle-contents">
+            <app-time-relative-filter
+              [mode]="'WIDGET'" [filter]="filter"
+              (change)="changeFilterEvent($event)">
+            </app-time-relative-filter>
+          </div>
+          <!-- // 상대적인 기간 선택 탭 영역 -->
+          <!-- 특정 기간 선택 탭 영역 -->
+          <div *ngIf="isRangeTypeTimeFilter" class="ddp-ui-toggle-contents">
+            <app-time-range-filter
+              [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
+              (change)="changeFilterEvent($event)">
+            </app-time-range-filter>
+          </div>
+          <!-- // 특정 기간 선택 탭 영역 -->
+        </div>
+        <!-- // 탭별 내용 영역 -->
+      </div>
+      <!-- // 연속 형식 - None Granularity -->
+      <!-- 연속 형식 - Granularity -->
+      <div *ngIf="!isDiscontinuousFilter && !isContinuousByAll" class="ddp-ui-divide" >
+        <!-- 탭별 내용 영역 -->
+        <div class="ddp-wrap-toggle-contents">
+          <!-- 전체 기간 선택 탭 영역 -->
+          <div *ngIf="isListTypeTimeFilter" class="ddp-ui-toggle-contents">
+            <app-time-list-filter
+              [mode]="'WIDGET'" [filter]="filter"
+              [dashboard]="widget.dashBoard" [field]="field"
+              (change)="changeFilterEvent($event)">
+            </app-time-list-filter>
+          </div>
+          <!-- // 전체 기간 선택 탭 영역 -->
+          <!-- 특정 기간 선택 탭 영역 -->
+          <div *ngIf="isRangeTypeTimeFilter" class="ddp-ui-toggle-contents">
+            <app-time-range-filter
+              [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
+              (change)="changeFilterEvent($event)">
+            </app-time-range-filter>
+          </div>
+          <!-- // 특정 기간 선택 탭 영역 -->
+        </div>
+        <!-- // 탭별 내용 영역 -->
+      </div>
+      <!-- // 연속 형식 - Granularity -->
+      <!-- 불연속 형식 -->
+      <div *ngIf="isDiscontinuousFilter" class="ddp-ui-divide" >
+        <!-- //summary -->
+        <div class="ddp-filter-form">
+          <app-time-list-filter
+            [mode]="'WIDGET'" [filter]="filter"
+            [dashboard]="widget.dashBoard" [field]="field"
+            (change)="changeFilterEvent($event)">
+          </app-time-list-filter>
+        </div>
+      </div>
+      <!-- // 불연속 형식 -->
+    </div>
+    <!-- // 타임스탬프 필터 -->
+  </div>
+
+  <!-- 수정 버튼 레이어 -->
+  <div *ngIf="isEditMode" class="ddp-hover-edit">
+    <div class="ddp-hover-edit-in" >
+      <a (click)="editWidget()" href="javascript:" class="ddp-btn-edit" ></a>
+    </div>
+  </div>
+  <!-- // 수정 버튼 레이어 -->
+</div>

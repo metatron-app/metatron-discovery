@@ -1,0 +1,188 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- 닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.metadata.ui.metadata.create.hive.title' | translate}}
+      <em class="ddp-bg-order-line3-type"></em>
+    </div>
+    <span class="ddp-txt-info">{{'msg.storage.create-dsource.db.sub.title' | translate}}</span>
+  </div>
+  <!-- import -->
+  <div class="ddp-type-contents-in">
+    <!-- dp connection -->
+    <div class="ddp-wrap-meatadata">
+      <component-paging-search-select
+        (onSelected)="onSelectedConnectionPreset($event)"
+        (onLoadPage)="onScrollSelectBoxPage($event)"
+        [defaultIndex]="getConnectionDefaultIndex()"
+        [array]="connectionPresetList"
+        [isEnableObjectKey]="true"
+        [objectKey]="'name'"
+        [pageNum]="pageResult.number"
+        [usePlaceholder]="true"
+        [unselectedMessage]="'msg.storage.ui.load.dconn' | translate">
+      </component-paging-search-select>
+      <!-- edit -->
+      <div class="ddp-wrap-edit2 ddp-inline">
+        <label class="ddp-label-type">{{'msg.storage.ui.conn.url.type' | translate}}</label>
+        <div class="ddp-inline">
+          <label class="ddp-label-radio" *ngFor="let type of urlTypes">
+            <input type="radio"
+                   [disabled]="type.disabled"
+                   [checked]="type.value === selectedUrlType">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{type.label}}</span>
+          </label>
+        </div>
+      </div>
+      <!-- //edit -->
+      <!-- meta 설정 -->
+      <div class="ddp-ui-meta-option">
+        <div class="ddp-clear">
+          <!-- edit -->
+          <!-- 필수 일때 ddp-error 추가 -->
+          <div class="ddp-wrap-edit2 ddp-col-8" *ngIf="!isUrlType()">
+            <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}</label>
+            <input type="text" class="ddp-input-type"
+                   readonly="readonly"
+                   placeholder="{{'msg.comm.th.host' | translate}}"
+                   [ngModel]="hostname"
+                   (ngModelChange)="hostname = $event; initConnectionPresetData()">
+            <!-- error -->
+            <!--<span class="ddp-ui-error">-->
+                            <!--필수 입력-->
+                        <!--</span>-->
+            <!-- error -->
+          </div>
+          <!-- //edit -->
+          <!-- edit -->
+          <div class="ddp-wrap-edit2 ddp-col-4" *ngIf="!isUrlType()">
+            <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}</label>
+            <input type="text" class="ddp-input-type"
+                   readonly="readonly"
+                   maxlength="5"
+                   input-mask="number"
+                   placeholder="{{'msg.comm.th.port' | translate}}"
+                   [ngModel]="port"
+                   (ngModelChange)="port = $event; initConnectionPresetData()">
+          </div>
+          <!-- //edit -->
+        </div>
+        <!-- URL(url only) -->
+        <div class="ddp-wrap-edit2" *ngIf="isUrlType()">
+          <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}</label>
+          <input type="text" class="ddp-input-type"
+                 readonly="readonly"
+                 placeholder="{{'msg.storage.ui.conn.url.ph' | translate}}"
+                 [ngModel]="url"
+                 (ngModelChange)="url = $event; initConnectionFlag()">
+        </div>
+        <!-- //URL(url only) -->
+
+
+        <div class="ddp-clear">
+          <div class="ddp-col-6">
+            <!-- edit -->
+            <div class="ddp-wrap-edit2 ">
+              <label class="ddp-label-type">{{'msg.storage.th.user_name' | translate}}</label>
+              <input type="text" class="ddp-input-type"
+                     readonly="readonly"
+                     placeholder="{{'msg.storage.th.user_name.ph' | translate}}"
+                     [ngModel]="username"
+                     (ngModelChange)="username = $event; initConnectionPresetData()">
+            </div>
+            <!-- //edit -->
+          </div>
+
+          <div class="ddp-col-6">
+            <!-- edit -->
+            <div class="ddp-wrap-edit2 ">
+              <label class="ddp-label-type">{{'msg.storage.th.pwd' | translate}}</label>
+              <input type="password" class="ddp-input-type"
+                     readonly="readonly"
+                     placeholder="{{'msg.storage.th.pwd.ph' | translate}}"
+                     [ngModel]="password"
+                     (ngModelChange)="password = $event; initConnectionPresetData()">
+            </div>
+            <!-- //edit -->
+          </div>
+        </div>
+        <!-- folding -->
+        <!-- 검증 -->
+        <div class="ddp-ui-buttons ddp-inline">
+          <a href="javascript:" class="ddp-btn-type4"
+             [class.ddp-disabled]="!isEnabledConnectionTest()"
+             (click)="onClickConnectionTest()">{{'msg.storage.btn.test' | translate}}</a>
+          <div class="ddp-ui-message ddp-ui-info ">
+            <span class="ddp-data-error2" *ngIf="isShowValidationMessage()"> {{getValidationMessage()}}</span>
+            <span class="ddp-data-error" *ngIf="connectionResultFl === false"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.conn' | translate}}</span>
+            <span class="ddp-data-ok" *ngIf="connectionResultFl"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.conn' | translate}}</span>
+          </div>
+        </div>
+        <!-- //검증 -->
+
+      </div>
+      <!-- //meta 설정 -->
+      <!-- 클릭시 ddp-selected 추가 -->
+      <!--<div class="ddp-ui-folding ddp-selected">-->
+        <!--<div class="ddp-fold-label">-->
+          <!--Advanced setting (Opt.)-->
+          <!--<em class="ddp-icon-view"></em>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; option in &ndash;&gt;-->
+        <!--<div class="ddp-ui-option-in">-->
+          <!--<span class="ddp-type-label">Socket timeout</span>-->
+          <!--<div class="ddp-box-option-input ddp-inline">-->
+            <!--<input type="text" value="220">-->
+            <!--<span class="ddp-txt-input">Sec.</span>-->
+          <!--</div>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; //option in &ndash;&gt;-->
+      <!--</div>-->
+      <!-- //folding -->
+      <!-- 커넥션 생성시 이름 -->
+      <div class="ddp-ui-db-option2 ddp-meta">
+        <!--<label class="ddp-label-checkbox" (click)="onClickCreateConnection()">-->
+          <!--<input type="checkbox" [disabled]="!connectionResultFl" [checked]="createConnectionFl">-->
+          <!--<i class="ddp-icon-checkbox"></i>-->
+          <!--<span class="ddp-txt-checkbox">{{'msg.storage.dconn.save.description' | translate}}</span>-->
+        <!--</label>-->
+        <!--<div class="ddp-wrap-error-type" *ngIf="connectionResultFl && createConnectionFl">-->
+          <!--<input  [(ngModel)]="connectionName"-->
+                  <!--(keyup)="nameFirstFl = false"-->
+                  <!--type="text" class="ddp-input-typebasic" placeholder="{{'msg.storage.dconn.name.ph' | translate}}">-->
+          <!--<div class="ddp-ui-message" *ngIf="isShowNameValidationMessage()">-->
+            <!--<span class="ddp-data-error2">{{getConnectionNameValidationMessage()}}</span>-->
+          <!--</div>-->
+        <!--</div>-->
+      </div>
+      <!-- //커넥션 생성시 이름 -->
+    </div>
+    <!-- //dp connection -->
+  </div>
+  <!-- //import -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
+       [class.ddp-disabled]="!isNextValidation()"
+       (click)="onClickNext()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+</div>

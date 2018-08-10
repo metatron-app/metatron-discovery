@@ -1,0 +1,126 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype" *ngIf="showFl">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+         {{'msg.metadata.ui.dictionary.choose.dictionary.title' | translate}}
+      </span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="onClickCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="onClickDone()">{{'msg.comm.btn.add' | translate}}</a>
+      </div>
+      <!-- det -->
+    </div>
+    <!-- //title -->
+    <div class="ddp-ui-popup-contents">
+      <div class="ddp-ui-dataset-new">
+        <div class="ddp-type-top-option ddp-clear">
+          <!-- 검색 -->
+          <div class="ddp-form-search ddp-fleft">
+            <em class="ddp-icon-search"></em>
+            <input type="text" placeholder="{{'msg.metadata.ui.dictionary.search.ph' | translate}}"
+                   [ngModel]="searchText"
+                   (keyup.esc)="onSearchTextInit()"
+                   (keypress)="onSearchText($event)">
+            <em class="ddp-btn-search-close" *ngIf="searchText" (click)="onSearchTextInit()"></em>
+          </div>
+          <!-- //검색 -->
+        </div>
+
+        <div class="ddp-wrap-viewtable ">
+          <!-- 테이블 -->
+          <div class="ddp-box-viewtable">
+            <!-- gridhead -->
+            <div class="ddp-ui-gridhead">
+              <table class="ddp-table-form ddp-table-type2">
+                <colgroup>
+                  <col width="20%">
+                  <col width="20%">
+                  <col width="*">
+                </colgroup>
+                <thead>
+                <tr>
+                  <th class="ddp-cursor" (click)="onClickSort('logicalName')">
+                    {{'msg.metadata.th.dictionary.column.name' | translate}}
+                    <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'logicalName' || selectedContentSort.sort === 'default'"></em>
+                    <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'logicalName' && selectedContentSort.sort === 'asc'"></em>
+                    <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'logicalName' && selectedContentSort.sort === 'desc'"></em>
+                  </th>
+                  <th class="ddp-cursor" (click)="onClickSort('name')">
+                    {{'msg.metadata.ui.dictionary.create.recommendation.column.name' | translate}}
+                    <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
+                    <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
+                    <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
+                  </th>
+                  <th>
+                    {{'msg.metadata.th.dictionary.description' | translate}}
+                  </th>
+                </tr>
+                </thead>
+
+              </table>
+            </div>
+            <!--// gridhead -->
+
+            <!-- gridbody -->
+            <div class="ddp-ui-gridbody">
+              <table class="ddp-table-form ddp-table-type2 ddp-cursor ddp-inherit">
+                <colgroup>
+                  <col width="20%">
+                  <col width="20%">
+                  <col width="*">
+                </colgroup>
+
+                <tbody>
+                <tr [class.ddp-selected]="selectedColumnDictionary && dictionary.id === selectedColumnDictionary.id"
+                    (click)="onSelectColumnDictionary(dictionary)"
+                    *ngFor="let dictionary of columnDictionaryList">
+                  <td>
+                    <a href="javascript:" class="ddp-link-detail ddp-type" (click)="onClickDictionaryName(dictionary.id)">
+                      {{dictionary.logicalName}}
+                      <em class="ddp-icon-window"></em>
+                    </a>
+                  </td>
+                  <td>
+                    {{dictionary.name}}
+                  </td>
+
+                  <td>
+                    <div class=" ddp-txt-long">
+                      {{dictionary.description}}
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+
+            </div>
+            <!--// gridbody -->
+          </div>
+          <!-- //테이블 -->
+          <!-- 더보기 -->
+          <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreList()">
+            <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+          </div>
+          <!-- //더보기 -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

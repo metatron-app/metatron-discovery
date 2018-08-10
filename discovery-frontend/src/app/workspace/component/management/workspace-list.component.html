@@ -1,0 +1,191 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-popup" *ngIf="isShow">
+  <a href="javascript:" (click)="close()" class="ddp-btn-close"></a>
+  <!-- 상단 영역 -->
+  <div class="ddp-wrap-pop-header">
+    <!-- 상단 타이틀 -->
+    <div class="ddp-ui-pop-header">
+      <div class="ddp-ui-name">
+        <em class="ddp-icon-group2"></em>
+        {{'msg.comm.menu.space.share' | translate}} <span class="ddp-data-num">({{sharedWorkspace.length}})</span>
+        <a *ngIf="sharedWorkspaceManager" (click)="createWorkspace()" href="javascript:" class="ddp-btn-add2" ></a>
+      </div>
+
+      <a href="javascript:" (click)="moveWorkspace()" class="ddp-btn-line2">
+        <em class="ddp-icon-moveto"></em> {{'msg.space.btn.workspace.personal' | translate}}
+      </a>
+    </div>
+    <!-- // 상단 타이틀 -->
+
+    <!-- 상단 검색 및 필터 -->
+    <div class="ddp-ui-pop-option ddp-clear">
+      <!-- 검색바 -->
+      <div class="ddp-form-search">
+        <em class="ddp-icon-search"></em>
+        <input #inputSearch type="text" placeholder="{{'msg.space.list.search.name' | translate}}"
+               [ngModel]="searchText"
+               (keypress)="searchEventPressKey($event)"
+               (keyup.esc)="resetSearchText(false)"
+               (clickOutside)="resetSearchText(false)">
+        <em class="ddp-btn-search-close" *ngIf="searchText" (click)="resetSearchText(true);searchEvent();"></em>
+      </div>
+      <!-- // 검색바 -->
+      <!-- 버튼모음 -->
+      <div class="ddp-wrap-buttons">
+        <!-- 즐겨찾기 필터링 -->
+        <span class="ddp-ui-btn-list">
+            <a href="javascript:" class="ddp-btn-list ddp-btn-fav"
+               [ngClass]="{'ddp-selected' : isFavorFl}" (click)="filterFavoriteWorkspace()">
+              <em class="ddp-icon-btnfav"></em>{{'msg.comm.ui.list.favorite' | translate}}
+            </a>
+        </span>
+        <!-- // 즐겨찾기 필터링 -->
+        <!-- 전체공개 워크스페이스만 보기 -->
+        <span class="ddp-ui-btn-list">
+            <a href="javascript:" class="ddp-btn-list" >
+                <label class="ddp-label-checkbox ddp-form">
+                    <input type="checkbox" [checked]="isOpenWorkspaceFl"
+                           (change)="filterOpenWorkspace();">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{ 'msg.comm.btn.public.only' | translate }}</span>
+                </label>
+            </a>
+        </span>
+        <!-- // 전체공개 워크스페이스만 보기 -->
+        <!-- 본인이 관리자인 워크스페이스만 보기 -->
+        <span class="ddp-ui-btn-list">
+            <a href="javascript:" class="ddp-btn-list">
+                <label class="ddp-label-checkbox ddp-form">
+                    <input type="checkbox" [checked]="isMyWokrspaceFl"
+                           (change)="filterOwnWorkspaces();">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{'msg.space.btn.only-owner' | translate}}</span>
+                </label>
+            </a>
+        </span>
+        <!-- // 본인이 관리자인 워크스페이스만 보기 -->
+        <!-- 정렬 변경 -->
+        <span class="ddp-ui-btn-list">
+          <div class="ddp-type-dropdown"  [ngClass]="{'ddp-selected' : isSortFl}"
+               (click)="isSortFl=!isSortFl" (clickOutside)="isSortFl=false">
+            <a href="javascript:" class="ddp-data-sort">{{sortText.name}}
+              <em class="ddp-icon-array-asc2" *ngIf="sortText.value == 'name,asc'"></em>
+              <em class="ddp-icon-array-des2" *ngIf="sortText.value == 'name,desc'"></em>
+            </a>
+            <!-- popup -->
+            <div class="ddp-wrap-popup2">
+              <ul class="ddp-list-popup">
+                <li [ngClass]="{'ddp-selected' : item.selected}" *ngFor="let item of sort">
+                  <a href="javascript:" (click)="selectSort(item)">
+                    {{item.name}} <em class="ddp-icon-check"></em>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- // popup -->
+          </div>
+        </span>
+        <!-- // 정렬 변경 -->
+      </div>
+      <!-- // 버튼모음 -->
+    </div>
+    <!-- // 상단 검색 및 필터 -->
+  </div>
+  <!-- // 상단 영역 -->
+
+  <!-- 목록 영역 -->
+  <div class="ddp-wrap-pop-contents">
+    <ul class="ddp-list-form2">
+      <li *ngFor="let workspace of sharedWorkspace" (click)="moveWorkspace(workspace)"
+          [class.ddp-disabled]="!workspace.active">
+        <!-- 줄겨찾기 -->
+        <em class="ddp-icon-fav" [ngClass]="{'ddp-selected' : workspace.favorite}"
+            (click)="favoriteEvent(workspace); $event.stopPropagation(); $event.preventDefault()"></em>
+
+        <div class="ddp-wrap-data-info">
+          <!-- 권한 -->
+          <div class="ddp-wrap-power">
+            <div *ngIf="workspace.owner && loginUserId === workspace.owner.username" class="ddp-box-power ddp-owner" >Owner</div>
+          </div>
+          <!-- //권한 -->
+          <!-- tag -->
+          <div class="ddp-wrap-tag">
+            <div class="ddp-box-tag ddp-workbook">
+              {{'msg.space.ui.tag.workbook' | translate}} <strong>{{workspace.countByBookType.workBook}}</strong>
+            </div>
+            <div class="ddp-box-tag ddp-notebook">
+              {{'msg.space.ui.tag.notebook' | translate}} <strong>{{workspace.countByBookType.notebook}}</strong>
+            </div>
+            <div class="ddp-box-tag ddp-workbench">
+              {{'msg.space.ui.tag.workbench' | translate}} <strong>{{workspace.countByBookType.workBench}}</strong>
+            </div>
+          </div>
+          <!-- // tag -->
+          <!-- number -->
+          <div class="ddp-wrap-number" *ngIf="!workspace.published">
+            <span class="ddp-data-user"><strong>{{workspace.countByMemberType.user}}</strong> {{'msg.space.ui.member' | translate}}</span>
+            <span class="ddp-data-user"><strong>{{workspace.countByMemberType.group}}</strong> {{'msg.space.ui.group' | translate}}</span>
+          </div>
+          <div class="ddp-wrap-number" *ngIf="workspace.published">
+            <span class="ddp-data-user"><strong>{{'msg.spaces.spaces.ui.allowance.tag'|translate}}</strong> </span>
+          </div>
+          <!-- //number -->
+          <!-- owner -->
+          <!--<div class="ddp-wrap-owner">-->
+            <!--{{'msg.space.ui.owner' | translate}} <span class="ddp-data-owner">{{workspace.owner.username}}</span>-->
+          <!--</div>-->
+          <!--// owner -->
+        </div>
+
+        <!-- name -->
+        <div class="ddp-wrap-name">
+          <span class="ddp-data-name" [class.ddp-data-new]="workspace.createdTime | moment: 'isNew'" >
+            <span class="ddp-data-in">{{workspace.name}}</span>
+            <em class="ddp-icon-new" *ngIf="workspace.createdTime | moment: 'isNew'">
+              {{'msg.common.ui.new' | translate}}
+            </em>
+          </span>
+          <span class="ddp-data-detail" *ngIf="workspace.description">- {{workspace.description}}</span>
+        </div>
+        <!-- // name -->
+
+        <!-- control button -->
+        <div *ngIf="getPermissionChecker(workspace).isManageWorkspace()"
+             (click)="removeWorkspace($event, workspace.id)"
+             class="ddp-btn-control" >
+          <em class="ddp-icon-control-cut"></em>
+        </div>
+        <!-- //control button -->
+      </li>
+    </ul>
+
+    <!-- 더보기 -->
+    <div class="ddp-box-add-link2" *ngIf="page.page < pageResult.totalPages" (click)="getSharedWorkspace()">
+      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+    </div>
+    <!-- //더보기 -->
+  </div>
+  <!-- // 목록 영역 -->
+
+</div>
+
+<!-- 공유 워크스페이스 생성 모달 컴포넌트 -->
+<app-create-workspace (createComplete)="getSharedWorkspace(0)"></app-create-workspace>
+<!-- //공유 워크스페이스 생성 모달 컴포넌트 -->
+
+<!-- 확인 모달 팝업 -->
+<app-confirm-modal (confirm)="onModalConfirm($event)"></app-confirm-modal>
+

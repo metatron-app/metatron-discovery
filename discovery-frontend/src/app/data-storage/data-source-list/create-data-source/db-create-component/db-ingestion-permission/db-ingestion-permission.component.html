@@ -1,0 +1,384 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.db.title' | translate}})
+      <em class="ddp-bg-order-line5-type4"></em>
+    </div>
+    <span class="ddp-txt-info ddp-type">{{'msg.storage.create.ingesting.description' | translate}}</span>
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in">
+    <div class="ddp-box-popupcontents2 ddp-box-source-create ddp-box-type">
+      <!-- ingestion -->
+      <div class="ddp-wrap-edit3 ddp-type">
+        <label class="ddp-label-type">{{getSettingType()}}</label>
+        <!-- 연결형 -->
+        <div class="ddp-ui-edit-option" *ngIf="isLinkType()">
+          <!-- sub -->
+          <div class="ddp-ui-option-sub">
+            <label class="ddp-ui-label-name">
+              {{'msg.storage.th.time-interval' | translate}}
+            </label>
+            <div class="ddp-type-selectbox"
+                 [ngClass]="{'ddp-selected' : expirationShowFl}"
+                 (click)="expirationShowFl = !expirationShowFl"
+                 (clickOutside)="expirationShowFl=false">
+              <span class="ddp-txt-selectbox">{{getSelectedExpiration()}}</span>
+              <ul class="ddp-list-selectbox ddp-selectdown ddp-box-s">
+                <li *ngFor="let expiration of expirationTimeList" (click)="onSelectedExpiration(expiration)">
+                  <a href="javascript:">
+                    {{expiration.label}}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!-- //sub -->
+        </div>
+        <!-- //연결형 -->
+        <!-- 수집형 -->
+        <div class="ddp-ui-edit-option" *ngIf="isEngineType()">
+          <label class="ddp-label-radio"
+                 *ngFor="let ingestion of ingestionTypeList"
+                 (change)="onChangeIngestion(ingestion)">
+            <input type="radio"
+                   [checked]="isEqualTypeValue(ingestion, selectedIngestionType)">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{ingestion.label}}</span>
+          </label>
+          <!-- period -->
+          <div class="ddp-box-sub" *ngIf="isIngestionPeriodType()">
+            <!-- 수집범위 -->
+            <div class="ddp-box-sub-option">
+              <label class="ddp-label-type">{{'msg.storage.th.scope-ingest' | translate}}</label>
+              <div class="ddp-option-in">
+                <label class="ddp-label-radio" *ngFor="let scope of ingestionScopeTypeList | baseFilter : ['value','ROW',true]"
+                       (change)="onChangeIngestionScope(scope)">
+                  <input type="radio"
+                         [checked]="isEqualTypeValue(scope, selectedScopeType)">
+                  <i class="ddp-icon-radio"></i>
+                  <span class="ddp-txt-radio">{{scope.label}}</span>
+                </label>
+              </div>
+            </div>
+            <!-- //수집범위 -->
+            <!-- Batch cycle -->
+            <div class="ddp-box-sub-option">
+              <label class="ddp-label-type">{{'msg.storage.th.batch-cycle' | translate}}</label>
+              <div class="ddp-option-in">
+                <!-- cycle -->
+                <div class="ddp-ui-cycle ddp-clear">
+                  <!-- batch -->
+                  <div class="ddp-type-selectbox ddp-type-cycle"
+                       [ngClass]="{'ddp-selected' : batchShowFl}" (click)="batchShowFl = !batchShowFl" (clickOutside)="batchShowFl=false">
+                    <span class="ddp-txt-selectbox">{{getSelectedBatchType()}}</span>
+                    <ul class="ddp-list-selectbox ddp-selectdown">
+                      <li *ngFor="let batch of ingestionBatchTypeList" (click)="onChangeBatchType(batch)">
+                        <a href="javascript:">{{batch.label}}</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <!-- //batch -->
+                  <!-- Hour -->
+                  <div class="ddp-type-selectbox ddp-type-cycle" *ngIf="isSelectedBatchTypeHour()"
+                       [ngClass]="{'ddp-selected' : hourShowFl}" (click)="hourShowFl = !hourShowFl" (clickOutside)="hourShowFl=false">
+                    <span class="ddp-txt-selectbox">{{getSelectedHour()}}</span>
+                    <ul class="ddp-list-selectbox ddp-selectdown">
+                      <li *ngFor="let hour of hourType" (click)="onSelectedHour(hour)">
+                        <a href="javascript:">{{hour}}</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <!-- //Hour -->
+                  <!-- Minute -->
+                  <div class="ddp-type-selectbox ddp-type-cycle" *ngIf="isSelectedBatchTypeMinute()"
+                       [ngClass]="{'ddp-selected' : minShowFl}" (click)="minShowFl = !minShowFl" (clickOutside)="minShowFl=false">
+                    <span class="ddp-txt-selectbox">{{getSelectedMinute()}}</span>
+                    <ul class="ddp-list-selectbox ddp-selectdown">
+                      <li *ngFor="let minute of minuteType" (click)="onSelectedMinute(minute)">
+                        <a href="javascript:">{{minute}}</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <!-- //Minute -->
+                  <!-- Weekly -->
+                  <div class="ddp-form-wrapper" *ngIf="isSelectedBatchTypeWeek()">
+                    <!-- selectbox -->
+                    <!-- 선택시 ddp-selected 추가 -->
+                    <div class="ddp-type-selectbox"
+                         [ngClass]="{'ddp-selected' : dayShowFl}" (click)="dayShowFl = !dayShowFl" (clickOutside)="dayShowFl=false">
+                      <span class="ddp-txt-selectbox">{{'msg.storage.btn.sel.day' | translate}}</span>
+                      <div class="ddp-wrap-popup2">
+                        <ul class="ddp-list-selectbox2">
+                          <li *ngFor="let day of dateType" (click)="onSelectedDay(day)">
+                            <label class="ddp-label-checkbox">
+                              <input type="checkbox" [checked]="day.checked">
+                              <i class="ddp-icon-checkbox"></i>
+                              <span class="ddp-txt-checkbox">{{day.label}}</span>
+                            </label>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <!-- //selectbox -->
+                    <!-- time -->
+                    <component-time
+                      [defaultTime]="selectedWeekTime"
+                      (changeDate)="selectedWeekTime = $event"></component-time>
+                    <!-- //time -->
+                  </div>
+                  <!-- //Weekly -->
+                  <!-- DAILY -->
+                  <component-time *ngIf="isSelectedBatchTypeDay()"
+                                  [defaultTime]="selectedDayTime"
+                                  (changeDate)="selectedDayTime = $event"></component-time>
+                  <!-- //DAILY -->
+                  <!-- Cron expression -->
+                  <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.storage.ui.crontab.ph' | translate}}"
+                         [(ngModel)]="cronText"
+                         (keyup)="cronValidation($event)"
+                         *ngIf="isSelectedBatchTypeCron()"/>
+                  <div class="ddp-txt-error"  *ngIf="isSelectedBatchTypeCron() && !cronResultFl">
+                    <em class="ddp-icon-error-s"></em>{{getCronValidationMessage()}}
+                  </div>
+                  <!-- Cron expression -->
+                </div>
+                <!-- //cycle -->
+              </div>
+            </div>
+            <!-- //sub opton -->
+            <!-- sub opton -->
+            <div class="ddp-box-sub-option">
+              <label class="ddp-label-type">{{'msg.storage.th.max-query-row' | translate}}</label>
+              <div class="ddp-option-in">
+                <input type="text" class="ddp-input-typebasic ddp-size-s"
+                       placeholder="10000"
+                       maxlength="5"
+                       input-mask="number"
+                       (keyup)="maxIngestionPeriodRow()"
+                       [(ngModel)]="ingestionPeriodRow">
+              </div>
+            </div>
+            <!-- //sub opton -->
+          </div>
+          <!-- //period -->
+          <!-- once -->
+          <div class="ddp-box-sub" *ngIf="isIngestionOnceType()">
+            <div class="ddp-box-sub-option">
+              <label class="ddp-label-type">{{'msg.storage.th.scope-ingest' | translate}}</label>
+              <div class="ddp-option-in">
+                <label class="ddp-label-radio" *ngFor="let scope of ingestionScopeTypeList | baseFilter : ['value','INCREMENTAL',true]"
+                       (change)="onChangeIngestionScope(scope)">
+                  <input type="radio" [checked]="isEqualTypeValue(scope, selectedScopeType)">
+                  <i class="ddp-icon-radio"></i>
+                  <span class="ddp-txt-radio">{{scope.label}}</span>
+                </label>
+                <div class="ddp-box-option-input ddp-inline">
+                  <input type="text"
+                         placeholder="10000"
+                         maxlength="5"
+                         input-mask="number"
+                         [disabled]="selectedScopeType.value !== 'ROW'"
+                         [(ngModel)]="ingestionOnceRow" (keyup)="maxIngestionOnceRow()">
+                  <span class="ddp-txt-input">rows</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- //once -->
+        </div>
+        <!-- //수집형 -->
+      </div>
+      <!-- //ingestion -->
+      <!-- Granularity -->
+      <div class="ddp-wrap-edit3 ddp-type">
+        <label class="ddp-label-type">{{'msg.storage.th.gran.settings' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <!-- 저장 단위 -->
+          <div class="ddp-ui-option-sub">
+            <label class="ddp-ui-label-name">
+              {{'msg.storage.th.segment.gran' | translate}}
+              <!-- info -->
+              <div class="ddp-wrap-hover-info ddp-type">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4">
+                  <div class="ddp-data-title">
+                    {{'msg.storage.ui.segment-gran.title' | translate}}
+                  </div>
+                  <div class="ddp-data-det">
+                    {{'msg.storage.ui.segment-gran.description' | translate}}
+                  </div>
+                </div>
+                <!-- //popup -->
+              </div>
+              <!-- //info -->
+            </label>
+            <div class="ddp-type-selectbox"
+                 [ngClass]="{'ddp-selected' : segGranularShowFl}" (click)="segGranularShowFl = !segGranularShowFl"
+                 (clickOutside)="segGranularShowFl=false">
+              <span class="ddp-txt-selectbox">{{selectedSegGranularity.label}}</span>
+              <ul class="ddp-list-selectbox ddp-selectdown ddp-box-s">
+                <li *ngFor="let granularity of segGranularityList" (click)="onSelectedSegGranularity(granularity)">
+                  <a href="javascript:">
+                    {{granularity.label}}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!-- //저장 단위 -->
+          <!-- 집계 단위 -->
+          <div class="ddp-ui-option-sub">
+            <label class="ddp-ui-label-name">
+              {{'msg.storage.th.query.gran' | translate}}
+              <!-- info -->
+              <div class="ddp-wrap-hover-info ddp-type">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4">
+                  <div class="ddp-data-title">
+                    {{'msg.storage.th.query.gran.title' | translate}}
+                  </div>
+                  <div class="ddp-data-det">
+                    {{'msg.storage.th.query.gran.description' | translate}}
+                  </div>
+                </div>
+                <!-- //popup -->
+              </div>
+              <!-- //info -->
+            </label>
+            <div class="ddp-type-selectbox"
+                 [ngClass]="{'ddp-selected' : granularShowFl}" (click)="granularShowFl = !granularShowFl"
+                 (clickOutside)="granularShowFl=false">
+              <span class="ddp-txt-selectbox">{{selectedGranularity.label}}</span>
+              <ul class="ddp-list-selectbox ddp-selectdown ddp-box-s">
+                <li *ngFor="let granularity of getGranularityList()" (click)="onSelectedGranularity(granularity)">
+                  <a href="javascript:">
+                    {{granularity.label}}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!-- //집계 단위 -->
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //Granularity -->
+      <!-- roll up -->
+      <div class="ddp-wrap-edit3 ddp-type">
+        <label class="ddp-label-type ddp-info-inline">
+          {{'msg.storage.th.rollup.settings' | translate}}
+          <div class="ddp-wrap-hover-info ddp-type">
+            <em class="ddp-icon-info3"></em>
+            <!-- popup -->
+            <div class="ddp-box-layout4">
+              <div class="ddp-data-title">
+                {{'msg.storage.th.rollup.description.title' | translate}}
+              </div>
+              <div class="ddp-data-det">
+                {{'msg.storage.th.rollup.description' | translate}} <br/><br/>
+                {{'msg.storage.th.rollup.description.selection' | translate}}<br/>
+                - {{'msg.storage.th.rollup.description.true' | translate}}<br/>
+                - {{'msg.storage.th.rollup.description.false' | translate}}
+              </div>
+            </div>
+            <!-- //popup -->
+          </div>
+
+        </label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <label class="ddp-label-radio" (change)="onSelectedRollup(true)">
+            <input type="radio" [checked]="selectedRollup === true">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.storage.ui.set.true' | translate}}</span>
+          </label>
+          <label class="ddp-label-radio" (change)="onSelectedRollup(false)">
+            <input type="radio" [checked]="selectedRollup === false">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.storage.ui.set.false' | translate}}</span>
+          </label>
+
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //roll up -->
+      <!-- advanced setting -->
+      <div class="ddp-edit-setting" [ngClass]="{'ddp-selected' : advancedShowFl}">
+        <label class="ddp-label-name"
+               (click)="advancedShowFl = !advancedShowFl; $event.preventDefault()">{{'msg.storage.ui.dsource.create.advanced.setting' | translate}}<em class="ddp-icon-drop"></em></label>
+        <div class="ddp-wrap-down">
+          <div class="ddp-edit-sub">
+            <label class="ddp-label-sub ddp-info-inline">
+              {{'msg.storage.ui.tuning.settings' | translate}}
+              <div class="ddp-wrap-hover-info ddp-type">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4 ddp-bottom">
+                  <div class="ddp-data-title">
+                    {{'msg.storage.ui.tuning.description.title' | translate}}
+                  </div>
+                  <div class="ddp-data-det">
+                    {{'msg.storage.ui.tuning.description' | translate}}<br/><br/>
+                    &#123;maxRowsInMemory : 75000,<br/>
+                    maxOccupationInMemory : -1,<br/>
+                    maxShardLength : -2147483648,  <br/>
+                    leaveIntermediate : false,<br/>
+                    cleanupOnFailure : true,<br/>
+                    overwriteFiles : false,<br/>
+                    ignoreInvalidRows : false,<br/>
+                    assumeTimeSorted : false&#125;
+                  </div>
+                </div>
+                <!-- //popup -->
+              </div>
+            </label>
+            <textarea rows="5"
+                      (focusout)="onClickTuningTest()"
+                      [(ngModel)]="tuningConfig"
+                      (keyup)="tuningResultInit()">
+            </textarea>
+            <!-- message -->
+            <div class="ddp-ui-message">
+              <span class="ddp-data-ok" *ngIf="tuningConfigResultFl"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.json' | translate}}</span>
+              <span class="ddp-data-error" *ngIf="tuningConfigResultFl === false"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.json' | translate}}</span>
+              <!-- disabled : ddp-disabled 추가 -->
+            </div>
+            <!-- //message -->
+          </div>
+        </div>
+      </div>
+      <!-- //advanced setting -->
+    </div>
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [ngClass]="{'ddp-disabled' : !getNextValidation()}" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+</div>
+
+

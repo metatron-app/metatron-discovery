@@ -1,0 +1,247 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype" *ngIf="isShow">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <div class="ddp-ui-popup-title">
+            <span class="ddp-txt-title-name">
+              {{'msg.comm.ui.profile.title' | translate}}
+            </span>
+
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+      </div>
+    </div>
+
+    <!-- import -->
+    <div class="ddp-type-contents-in">
+      <!-- user new -->
+      <div class="ddp-ui-user-new">
+        <!-- user type -->
+        <div class="ddp-ui-user-type">
+          <label class="ddp-label-type">{{'msg.comm.ui.profile.photo' | translate}}
+            <div class="ddp-ui-tooltip">
+              <em class="ddp-icon-question"></em>
+              <div class="ddp-ui-tooltip-info">
+                <em class="ddp-icon-view-down"></em>
+                {{'msg.comm.ui.profile.photo.desc' | translate}}
+              </div>
+            </div>
+
+
+          </label>
+          <!-- photo -->
+          <div class="ddp-wrap-photo">
+                        <span class="ddp-data-user-photo">
+                            <img src="{{getProfileImage()}}" #profileImage>
+                        </span>
+            <div class="ddp-ui-file-button" fileHover>
+              <a href="javascript:" class="ddp-btn-small">
+                <input type="file"
+                       style="cursor: pointer;"
+                       #profileImageFile
+                       (change)="profilePreview($event)"
+                       ng2FileSelect
+                       [uploader]="uploader">{{'msg.login.join.btn.file.load' | translate}}
+              </a>
+              <a href="javascript:" class="ddp-btn-small ddp-bg-gray" (click)="onClickDeleteProfileImage()">{{'msg.comm.btn.del' | translate}}</a>
+            </div>
+          </div>
+
+          <!-- //photo -->
+        </div>
+        <!-- //user type -->
+        <!-- user 설정 -->
+
+        <div class="ddp-ui-user-option ddp-ui-user-contet">
+
+          <div class="ddp-ui-input-form ddp-line">
+            <label class="ddp-label-type ">
+              {{'msg.comm.ui.profile.join' | translate}}
+              <span class="ddp-info">{{user.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}</span>
+            </label>
+
+          </div>
+
+          <!-- input form -->
+          <div class="ddp-ui-input-form">
+            <label class="ddp-label-type">{{'msg.comm.ui.profile.id' | translate}}</label>
+            <div class="ddp-data-form">
+              {{user.username}}
+            </div>
+          </div>
+          <!-- //input form -->
+          <!-- input form -->
+          <!--
+              error 일때 ddp-type-error 추가
+              ok 일 경우 ddp-type-ok 추가
+           -->
+          <div class="ddp-ui-input-form" [class.ddp-type-error]="resultEmail === false">
+            <label class="ddp-label-type">{{'msg.comm.ui.profile.email' | translate}}
+              <!-- tooltip -->
+              <div class="ddp-ui-tooltip">
+                <em class="ddp-icon-question"></em>
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-left"></em>
+                  {{'msg.comm.ui.profile.email.desc' | translate}}
+                </div>
+              </div>
+              <!-- //tooltip -->
+
+            </label>
+            <div class="ddp-input-check" >
+              <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ph.profile.email' | translate}}"
+                     [(ngModel)]="user.email"
+                     (keyup)="initEmailValidation()"
+                     (blur)="emailValidation()"/>
+              <em class="ddp-icon-ok" *ngIf="resultEmail"></em>
+              <em class="ddp-icon-error" (click)="user.email = ''; initEmailValidation()"></em>
+            </div>
+            <!-- error 메시지 -->
+            <span class="ddp-ui-error">{{emailMessage}}</span>
+            <!-- //error 메시지 -->
+          </div>
+          <!-- //input form -->
+          <!-- input form -->
+          <!-- error 일때 ddp-type-error 추가 -->
+          <div class="ddp-ui-input-form" [class.ddp-type-error]="resultName === false">
+            <label class="ddp-label-type">{{'msg.comm.ui.profile.name' | translate}}
+              <!-- tooltip -->
+              <div class="ddp-ui-tooltip">
+                <em class="ddp-icon-question"></em>
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-left"></em>
+                  {{'msg.comm.ui.profile.name.desc' | translate}}
+                </div>
+              </div>
+              <!-- //tooltip -->
+            </label>
+            <div class="ddp-input-check">
+              <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ph.profile.name' | translate}}"
+                     [(ngModel)]="user.fullName"
+                     maxlength="50"
+                     (keyup)="initNameValidation()"
+                     (blur)="nameValidation()"/>
+              <em class="ddp-icon-ok" *ngIf="resultName"></em>
+              <em class="ddp-icon-error" (click)="user.fullName = ''; initNameValidation()"></em>
+            </div>
+            <!-- error 메시지 -->
+            <span class="ddp-ui-error">{{nameMessage}}</span>
+            <!-- //error 메시지 -->
+          </div>
+          <!-- //input form -->
+          <div class="ddp-ui-input-form">
+            <label class="ddp-label-type">{{'msg.login.join.passwd' | translate}}</label>
+            <div class="ddp-data-form">
+              <input type="password" value="" readonly="readonly">
+              <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickChangePassword()"><em class="ddp-icon-key"></em>{{'msg.comm.btn.profile.password.change' | translate}}</a>
+            </div>
+          </div>
+          <!-- input form -->
+          <!--
+              error 일때 ddp-type-error 추가
+              ok 일 경우 ddp-type-ok 추가
+           -->
+          <div class="ddp-ui-input-form">
+            <label class="ddp-label-type">{{'msg.comm.ui.profile.phone' | translate}}
+              <!-- tooltip -->
+              <div class="ddp-ui-tooltip">
+                <em class="ddp-icon-question"></em>
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-left"></em>
+                  {{'msg.comm.ui.profile.phone.desc' | translate}}
+                </div>
+              </div>
+              <!-- //tooltip -->
+
+            </label>
+            <div class="ddp-input-check">
+              <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ph.profile.phone' | translate}}"
+                     input-mask="number"
+                     [(ngModel)]="user.tel"/>
+            </div>
+          </div>
+          <!-- //input form -->
+          <!-- permission -->
+          <div class="ddp-ui-input-form">
+            <label class="ddp-label-type">
+              <span class="ddp-label">Permission</span>
+              <span class="ddp-info2">{{permissions}}</span>
+            </label>
+          </div>
+          <!-- //permission -->
+          <!-- input form -->
+          <div class="ddp-ui-input-form">
+            <label class="ddp-label-type">
+              <span class="ddp-label">{{'msg.comm.ui.profile.groups' | translate}} ({{getGroupLength()}})</span>
+              <span class="ddp-info2">{{getGroup()}}</span>
+              <!--<span class="ddp-info2" *ngIf="getGroupLength() === 1">{{getGroup()[0].name}}</span>-->
+              <!--<span class="ddp-info2" *ngIf="getGroupLength() > 1">{{'msg.comm.ui.profile.groups.detail' | translate: {group: getGroup()[0].name, etc: getGroupLength() - 1} }}</span>-->
+            </label>
+
+          </div>
+          <!-- //input form -->
+
+
+          <!-- Workspace -->
+          <div class="ddp-ui-input-form">
+            <label class="ddp-label-type">
+              <span class="ddp-label">Workspace ({{ privateWorkspace ? sharedWorkspaces.length + 1 : sharedWorkspaces.length }})</span>
+              <span class="ddp-info2">
+                <!-- group -->
+                <div class="ddp-wrap-data-group">
+                  <!-- data group -->
+                  <span *ngIf="privateWorkspace" class="ddp-data-group">
+                      <em class="ddp-icon-user-s2"></em>
+                      Personal Workspace
+                      <span class="ddp-data-det" (click)="moveToWorkspace()" style="cursor: pointer;">
+                        {{privateWorkspace.name}}
+                      </span>
+                  </span>
+                  <!-- //data group -->
+                  <span *ngIf="0 < sharedWorkspaces.length" class="ddp-data-group">
+                      <em class="ddp-icon-group-s2"></em>
+                      public workspaces
+                      <span class="ddp-data-det">
+                        <span *ngFor="let wsItem of sharedWorkspaces; let last = last;"
+                              (click)="moveToWorkspace(wsItem)" style="cursor: pointer;">
+                          {{ wsItem.name }}<span *ngIf="!last">,</span>
+                        </span>
+                      </span>
+                  </span>
+                </div>
+                <!-- //group -->
+              </span>
+            </label>
+          </div>
+          <!-- //iWorkspace -->
+
+        </div>
+        <!-- //user 설정 -->
+
+      </div>
+      <!-- //user new -->
+
+    </div>
+    <!-- //import -->
+  </div>
+</div>
+<!-- 비밀번호 변경 -->
+<app-change-password></app-change-password>
+<!-- //비밀번호 변경 -->
+
+<!-- 확인 모달 팝업 -->
+<app-confirm-modal></app-confirm-modal>

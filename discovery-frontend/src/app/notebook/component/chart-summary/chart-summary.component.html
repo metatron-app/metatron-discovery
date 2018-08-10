@@ -1,0 +1,112 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 설명 -->
+<div class="ddp-box-grid-detail ddp-type" *ngIf="chartId">
+  <a href="javascript:" class="ddp-btn-close-s" (click)="closeBtn()"></a>
+  <div class="ddp-data-detailinfo">
+    <span class="ddp-data-name">{{chartSummary.name}}</span>
+  </div>
+
+  <!-- part -->
+  <div class="ddp-wrap-datadetail">
+    <!-- detail -->
+    <dl class="ddp-dl-detail">
+      <dt>
+        {{'msg.comm.ui.list.created' | translate}}
+      </dt>
+      <dd>
+        {{chartSummary.createdTime | date : 'yyyy-MM-dd'}}
+      </dd>
+    </dl>
+    <!-- //detail -->
+
+  </div>
+  <!-- 스키마 리스트 -->
+  <div class="ddp-data-listview">
+
+    <table class="ddp-table-listview">
+      <colgroup>
+        <col width="40px" />
+        <col width="80px" />
+        <col width="10%" />
+        <col width="*" />
+      </colgroup>
+      <tbody>
+      <tr *ngFor="let item of columns">
+        <td class="ddp-txt-center">
+          <em class="ddp-icon-columns"></em>
+        </td>
+        <td class="ddp-txt-center">
+          <span class="ddp-box-tag-value"
+                [class.ddp-measure]="item.type.toString() == 'measure'"
+                [class.ddp-dimension]="item.type.toString() != 'measure'">
+            {{item.type.toString() == 'measure' ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}
+          </span>
+        </td>
+        <td class="ddp-txt-center">
+          <!--
+              em.ddp-icon-type-calen
+              em.ddp-icon-type-ab
+              em.ddp-icon-type-local
+              em.ddp-icon-type-sharp
+              em.ddp-icon-type-account
+              em.ddp-icon-type-tf
+              em.ddp-icon-type-maplink
+              em.ddp-icon-type-float
+              em.ddp-icon-type-int
+          -->
+          <!--<em class="ddp-icon-type-ab"></em>-->
+          <em ngClass="{{getIconClass(item.type === 'measure'? item.subType : item.type)}}"></em>
+        </td>
+        <td>
+          {{item.alias}}
+        </td>
+      </tr>
+      <tr *ngFor="let item of rows">
+        <td class="ddp-txt-center">
+          <em class="ddp-icon-columns"></em>
+        </td>
+        <td class="ddp-txt-center">
+          <span class="ddp-box-tag-value"
+                [class.ddp-measure]="item.type.toString() == 'measure'"
+                [class.ddp-dimension]="item.type.toString() != 'measure'">
+            {{item.type.toString() == 'measure' ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}
+          </span>
+        </td>
+        <td class="ddp-txt-center">
+          <!--
+              em.ddp-icon-type-calen
+              em.ddp-icon-type-ab
+              em.ddp-icon-type-local
+              em.ddp-icon-type-sharp
+              em.ddp-icon-type-account
+              em.ddp-icon-type-tf
+              em.ddp-icon-type-maplink
+              em.ddp-icon-type-float
+              em.ddp-icon-type-int
+          -->
+          <!--<em class="ddp-icon-type-ab"></em>-->
+          <em ngClass="{{getIconClass(item.type)}}"></em>
+        </td>
+        <td>
+          {{item.alias}}
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- //스키마 리스트 -->
+</div>
+<!-- //설명 -->

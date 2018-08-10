@@ -1,0 +1,214 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- contents -->
+<div class="ddp-layout-contents2">
+
+  <div class="ddp-top-flow">
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-btn-back" (click)="onClickPrev()"></a>
+      <!-- navi -->
+      <div class="ddp-ui-naviarea">
+        <!-- name -->
+        <div class="ddp-box-navi">
+          <div class="ddp-wrap-naviname">
+            <span class="ddp-data-naviname ddp-readonly">{{roleSet.name}}</span>
+          </div>
+        </div>
+        <!-- //name -->
+      </div>
+      <!-- //navi -->
+    </div>
+    <!-- //navi wrap -->
+  </div>
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail">
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.comm.th.created.on' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{roleSet.createdTime |mdate : 'YYYY-MM-DD HH:mm'}}
+            <div class="ddp-wrap-link-detail2">
+              <a href="javascript:" class="ddp-link-info">{{roleSet.createdBy?.fullName}}
+              </a>
+              <user-information
+                [left]="true"
+                [name]="roleSet.createdBy?.fullName"
+                [id]="roleSet.createdBy?.username"
+                [email]="roleSet.createdBy?.email">
+              </user-information>
+            </div>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.comm.th.updated.on' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{roleSet.modifiedTime |mdate : 'YYYY-MM-DD HH:mm'}}
+            <div class="ddp-wrap-link-detail2">
+              <a href="javascript:" class="ddp-link-info">{{roleSet.modifiedBy?.fullName}}
+              </a>
+              <user-information
+                [left]="true"
+                [name]="roleSet.modifiedBy?.fullName"
+                [id]="roleSet.modifiedBy?.username"
+                [email]="roleSet.modifiedBy?.email">
+              </user-information>
+            </div>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+
+      <!-- right -->
+      <div class="ddp-ui-rightoption">
+        <a *ngIf="!roleSet.readOnly" (click)="onClickClonePermissionSchema()"
+           href="javascript:" class="ddp-btn-selection ddp-line" >
+          <em class="ddp-icon-clone"></em>Clone this schema
+        </a>
+        <a *ngIf="!roleSet.predefined && !roleSet.readOnly" (click)="onClickDeletePermissionSchema()"
+           href="javascript:" class="ddp-btn-selection ddp-reject" >
+          <em class="ddp-icon-delete"></em>Delete this schema
+        </a>
+      </div>
+      <!-- //right -->
+    </div>
+    <div class="ddp-ui-datadetail">
+      <label class="ddp-label-detail">{{'msg.comm.ui.info' | translate}}</label>
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="160px">
+          <col width="*">
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>{{'msg.comm.ui.name' | translate}}</th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="editNameFl"
+                 (click)="schemaNameEditMode()"
+                 (clickOutside)="editNameFl = false">
+              <!-- data -->
+              <span class="ddp-data-name">
+                  {{roleSet.name}} <em class="ddp-icon-edit2"></em>
+              </span>
+              <!-- //data -->
+
+              <!-- edit -->
+              <div class="ddp-wrap-input">
+                <input type="text" class="ddp-input-edit" placeholder="{{'msg.comm.ui.create.name' | translate}}"
+                       [(ngModel)]="editName"
+                       [focus]="editNameFl"
+                       (keyup.enter)="updateSchemaName()">
+                <span class="ddp-btn-check" (click)="updateSchemaName()"></span>
+              </div>
+              <!-- //edit -->
+            </div>
+
+          </td>
+        </tr>
+        <tr>
+          <th>{{'msg.comm.ui.description' | translate}}</th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="editDescFl"
+                 (click)="schemaDescEditMode()"
+                 (clickOutside)="editDescFl = false">
+              <!-- data -->
+              <span class="ddp-data-name" [class.ddp-data-none]="!roleSet.description">
+                  {{roleSet.description ? roleSet.description : 'msg.permission.ui.no.description' | translate}}
+                  <em class="ddp-icon-edit2"></em>
+              </span>
+
+              <!-- //data -->
+              <!-- edit -->
+              <div class="ddp-wrap-input">
+                <input type="text" class="ddp-input-edit" placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                       [(ngModel)]="editDesc"
+                       [focus]="editDescFl"
+                       (keyup.enter)="updateSchemaDesc()">
+                <span class="ddp-btn-check" (click)="updateSchemaDesc()"></span>
+              </div>
+              <!-- //edit -->
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.permission.ui.linked-ws' | translate}}({{roleSet.linkedWorkspaces}})
+          </th>
+          <td>
+            <!-- 연계된 워크스페이스 목록 -->
+            <div *ngIf="firstWorkspace" [class.ddp-selected]="isOpenWorkspaceList"
+                 (click)="showHideOtherWorkspaces()" class="ddp-ui-dropdown" >
+              <div class="ddp-label-dropdown">
+                <em *ngIf="1 < totalWsCnt" class="ddp-icon-drop"></em>
+                <div class="ddp-wrap-link-detail2">
+                  <a  (click)="onClickWorkspace(firstWorkspace)" href="javascript:" class="ddp-link-info">
+                    {{firstWorkspace.name}}
+                  </a>
+                </div>
+                <span *ngIf="1 < totalWsCnt" >
+                  and <span class="ddp-data">{{totalWsCnt}}</span> more workspaces.
+                </span>
+              </div>
+              <div *ngIf="0 < otherWorkspaces.length" class="ddp-det-dropdown">
+                <!-- link detail -->
+                <div *ngFor="let wsItem of otherWorkspaces" class="ddp-wrap-link-detail2">
+                  <a (click)="onClickWorkspace(wsItem)" href="javascript:" class="ddp-link-info ddp-type">
+                    {{wsItem.name}}<em class="ddp-icon-window"></em>
+                  </a>
+                </div>
+                <!-- //link detail -->
+              </div>
+            </div>
+            <!-- // 연계된 워크스페이스 목록 -->
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <!-- Role 상세정보 테이블 표시 영역 -->
+      <div class="ddp-wrap-table-detail" *ngIf="roleSet">
+        <div class="ddp-type-plan">
+          <label class="ddp-label-detail">
+            {{ 'msg.spaces.permission.schema.userroles' | translate }}
+            <a *ngIf="!roleSet.readOnly" (click)="onClickOpenPermissionSchemaSet()"
+               href="javascript:" class="ddp-btn-option2"></a>
+          </label>
+          <app-permission-schema [roleSet]="roleSet" [editMode]="false"></app-permission-schema>
+        </div>
+      </div>
+      <!-- // Role 상세정보 테이블 표시 영역 -->
+
+    </div>
+  </div>
+  <!-- //상세 -->
+</div>
+<!-- //contents -->
+
+<!-- 확인 모달 팝업 -->
+<app-confirm-modal (confirm)="confirmHandler($event)"></app-confirm-modal>
+<!-- 워크스페이스 권한 스키마 설정 -->
+<app-permission-schema-set (afterUpdate)="afterUpdatePermissionRoles()" ></app-permission-schema-set>

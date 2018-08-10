@@ -1,0 +1,259 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 미리보기 팝업 -->
+<!-- 스키마정보팝업 ddp-type-scheme 추가 -->
+<div class="ddp-pop-preview ddp-column-detail ddp-type-scheme" [class.ddp-full]="isFull" *ngIf="isShow">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      <em class="ddp-icon-scheme"></em>
+      {{'msg.bench.ui.scheme' | translate}}
+    </div>
+    <a href="javascript:" class="ddp-btn-window" (click)="changeWindowMode()"></a>
+    <em class="ddp-btn-popup-close" (click)="close()"></em>
+  </div>
+  <!-- //top -->
+  <!-- contents -->
+  <div class="ddp-ui-preview-contents ddp-preview-type">
+    <!-- data list -->
+    <div class="ddp-wrap-list">
+      <!-- top -->
+      <div class="ddp-ui-dataname">
+        <div class="ddp-top-title">
+          <span class="ddp-txt-name">{{dataConnection.name}}</span>
+          <!-- 클릭시 ddp-selected 추가 -->
+          <div class="ddp-wrap-info"
+               [class.ddp-selected]="connectionInfoShowFl">
+            <a href="javascript:" class="ddp-btn-info2"
+               (clickOutside)="connectionInfoShowFl = false"
+               (click)="connectionInfoShowFl = !connectionInfoShowFl"></a>
+            <!-- box layout -->
+            <div class="ddp-box-layout4" >
+              <div class="ddp-data-explain">
+                {{'msg.bench.ui.auth.type'|translate}} : {{dataConnection.authenticationType}}
+              </div>
+              <table class="ddp-table-info">
+                <colgroup>
+                  <col width="75px">
+                  <col width="*">
+                </colgroup>
+                <tbody>
+                <tr>
+                  <th>
+                    {{'msg.bench.th.db.type'|translate}}
+                  </th>
+                  <td>
+                    {{dataConnection.type}}
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    {{'msg.comm.th.host'|translate}}
+                  </th>
+                  <td>
+                    {{dataConnection.hostname}}
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    {{'msg.comm.th.port'|translate}}
+                  </th>
+                  <td>
+                    {{dataConnection.port}}
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- //box layout -->
+          </div>
+        </div>
+        <!-- database name -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-data-namesub"
+             (clickOutside)="databaseListShowFl = false"
+             [class.ddp-selected]="databaseListShowFl">
+          <div class="ddp-data-in" (click)="databaseListShowFl = !databaseListShowFl">
+            <em class="ddp-icon-database3"></em>
+            <span class="ddp-txt-dataname">{{selectedDatabaseName}}</span>
+            <em class="ddp-icon-view"></em>
+          </div>
+          <!-- box layout -->
+          <div class="ddp-box-layout4">
+            <div class="ddp-wrap-search">
+              <!-- search -->
+              <div class="ddp-form-search">
+                <em class="ddp-icon-search"></em>
+                <input #inputSearch
+                       [ngModel]="searchDatabaseText"
+                       (keypress)="onSearchDatabase($event)"
+                       (keyup.esc)="onSearchDatabaseInit()"
+                       type="text" placeholder="{{'msg.bench.ui.db.name.search'|translate}}">
+                <em class="ddp-btn-search-close" *ngIf="searchDatabaseText !== ''" (click)="onSearchDatabaseInit()"></em>
+              </div>
+              <!-- //search -->
+            </div>
+            <div class="ddp-ui-list-type">
+              <ul class="ddp-list-type ddp-list-popup">
+                <li *ngFor="let database of databaseList" [class.ddp-selected]="selectedDatabaseName === database">
+                  <a href="javascript:" (click)="onChangeDatabase(database)">
+                    <em class="ddp-icon-database-s"></em>
+                    <span class="ddp-data-name">{{database}}</span>
+                    <em class="ddp-icon-check"></em>
+                  </a>
+                </li>
+              </ul>
+              <a href="javascript:" class="ddp-btn-more" *ngIf="isMoreDatabaseList()">+ {{'msg.comm.ui.more' | translate}}</a>
+            </div>
+          </div>
+          <!-- //box layout -->
+        </div>
+        <!-- //database name -->
+      </div>
+      <!-- //top -->
+      <!-- title -->
+      <div class="ddp-ui-title ddp-bottom">
+
+        <div class="ddp-ui-topTit">
+          {{'msg.bench.ui.table.list' | translate}}
+          <!-- view option -->
+          <!-- 선택시 ddp-selected 추가 -->
+          <div class="ddp-view-option">
+            <span class="ddp-txt-tbNum">{{schemaTableList.length}}</span>
+            <span class="ddp-txt-table">{{'msg.bench.ui.tables' | translate}}</span>
+            <em class="ddp-icon-refresh3" (click)="getTableList()"></em>
+          </div>
+
+          <!-- //view option -->
+        </div>
+
+        <!-- search -->
+        <div class="ddp-form-search">
+          <em class="ddp-icon-search"></em>
+          <input type="text" placeholder="{{'msg.bench.ui.search.table.ph' | translate}}" [ngModel]="searchTableText"
+                 (keyup.enter)="onSearchTable($event)" (keyup.esc)="onSearchTableInit()">
+          <em class="ddp-btn-search-close" (click)="onSearchTableInit()"></em>
+        </div>
+        <!-- //search -->
+      </div>
+      <!-- //title -->
+      <div class="ddp-pop-wrapList" grid-component #schemaMain (selectedEvent)="onSelectedTable($event)">
+      </div>
+    </div>
+    <!-- //data list -->
+
+    <!-- detail -->
+    <div class="ddp-ui-datadetail2">
+      <!-- option -->
+      <div class="ddp-type-top-option">
+        <ul class="ddp-ui-tab ddp-type">
+          <li [ngClass]="{'ddp-selected':schemaSelectedTab === 'column'}" >
+            <a href="javascript:" (click)="getColumnList()">{{'msg.bench.th.schema.columns' | translate}}</a>
+          </li>
+          <li [ngClass]="{'ddp-selected':schemaSelectedTab === 'metadata'}">
+            <a href="javascript:" (click)="getMetaData();">{{'msg.bench.th.schema.metadata' | translate}}</a>
+          </li>
+          <li [ngClass]="{'ddp-selected':schemaSelectedTab === 'data'}">
+            <a href="javascript:" (click)="getTableDetailData();">{{'msg.bench.th.schema.data' | translate}}</a>
+          </li>
+        </ul>
+
+        <!-- column contents -->
+        <div class="ddp-ui-tab-contents" *ngIf="schemaSelectedTab == 'column'">
+          <div class="ddp-wrap-searching">
+            <div class="ddp-form-search">
+              <em class="ddp-icon-search"></em>
+              <input type="text" placeholder="{{'msg.bench.ui.search.column.ph' | translate}}"
+                     [ngModel]="searchColumnText"
+                     (keyup.enter)="onSearchColumn($event)" (keyup.esc)="onSearchColumnInit()">
+              <em class="ddp-btn-search-close" (click)="onSearchColumnInit()"></em>
+            </div>
+
+          </div>
+          <!-- columntable -->
+          <div [ngStyle]="{'visibility': schemaTableColumnList.length !== 0 ? 'visible':'hidden'}" class="ddp-wrap-viewtable" grid-component #schemaColumn >
+          </div>
+          <div class="ddp-nodata" *ngIf="schemaTableColumnList.length === 0">
+            {{'msg.space.ui.no.data' | translate}}
+          </div>
+          <!-- //columntable -->
+        </div>
+        <!-- //column contents -->
+
+        <!-- metadata contents -->
+        <div class="ddp-ui-tab-contents" *ngIf="schemaSelectedTab == 'metadata'">
+          <!--<div class="ddp-wrap-searching">-->
+          <!--<div class="ddp-form-search">-->
+          <!--<em class="ddp-icon-search"></em>-->
+          <!--<input type="text" placeholder="Search data" [(ngModel)]="schemaMetaSeachText" >-->
+          <!--<em class="ddp-btn-search-close" ></em>-->
+          <!--</div>-->
+
+          <!--</div>-->
+          <div class="ddp-wrap-datadetail ddp-full" *ngIf="schemaTableMetadataList.length !== 0">
+
+            <table class="ddp-table-detail">
+              <colgroup>
+                <col width="40%">
+                <col width="*">
+              </colgroup>
+              <tbody>
+              <tr *ngFor="let item of schemaTableMetadataList">
+                <th>
+                  {{item.itemkey}}
+                </th>
+                <td>
+                  {{item.item}}
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="ddp-nodata" *ngIf="schemaTableMetadataList.length === 0">
+            {{'msg.space.ui.no.data' | translate}}
+          </div>
+        </div>
+        <!-- //metadata contents -->
+
+        <!-- data contents -->
+        <div class="ddp-ui-tab-contents" *ngIf="schemaSelectedTab == 'data'">
+          <div class="ddp-wrap-searching">
+            <div class="ddp-form-search">
+              <em class="ddp-icon-search"></em>
+              <input type="text" placeholder="{{'msg.bench.ui.search.data.ph' | translate}}"
+                     [ngModel]="searchDataText"
+                     (keyup.enter)="onSearchData($event)" (keyup.esc)="onSearchDataInit()">
+              <em class="ddp-btn-search-close" (click)="onSearchDataInit()"></em>
+            </div>
+
+          </div>
+          <!-- columntable -->
+          <div  [ngStyle]="{'visibility': schemaTableDataDataList.length !== 0 ? 'visible':'hidden'}" class="ddp-wrap-viewtable" grid-component #schemaData >
+          </div>
+          <!-- //columntable -->
+          <div class="ddp-nodata" *ngIf="schemaTableDataDataList.length === 0">
+            {{'msg.space.ui.no.data' | translate}}
+          </div>
+        </div>
+        <!-- //data contents -->
+      </div>
+      <!-- //option -->
+    </div>
+    <!-- //detail -->
+  </div>
+  <!-- //contents -->
+</div>
+<!-- //미리보기 팝업 -->

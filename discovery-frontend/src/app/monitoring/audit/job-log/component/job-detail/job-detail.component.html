@@ -1,0 +1,360 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- contents -->
+<div class="ddp-type-contents2" *ngIf="audit">
+  <div class="ddp-top-flow">
+
+    <!-- 수정 data -->
+    <div class="ddp-data-form">
+      <span class="ddp-txt-date">
+        {{'msg.log.ui.perform.date' | translate : {startTime : audit.startTime | mdate: 'YYYY-MM-DD HH:mm', fullName : audit.user } }}
+      </span>
+    </div>
+    <!-- //수정 data -->
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-btn-back" (click)="close()"></a>
+      <!-- navi -->
+      <div class="ddp-ui-naviarea">
+        <!-- name -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-box-navi">
+          <div class="ddp-wrap-naviname ddp-type ddp-full">
+            <span class="ddp-data-naviname">{{audit.jobName}}</span>
+          </div>
+        </div>
+        <!-- //name -->
+        <!-- description -->
+      </div>
+      <!-- //navi -->
+
+    </div>
+    <!-- //navi wrap -->
+
+  </div>
+
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail">
+    <div class="ddp-ui-datadetail ddp-border-none">
+      <label class="ddp-label-detail">{{'msg.log.ui.data.info'| translate}}</label>
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="133px">
+          <col width="*">
+        </colgroup>
+        <tbody>
+        <tr *ngIf="audit.status">
+          <th>
+            {{'msg.log.th.status' | translate}}
+          </th>
+          <td>
+            <span class="ddp-data-state"
+                  [ngClass]="{'ddp-fail' : audit.status.toString() === 'FAIL', 'ddp-success' : audit.status.toString() === 'SUCCESS'}">
+              {{audit.status}}
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.log.th.log' | translate}}
+          </th>
+          <td>
+            <div class="ddp-data-detail" *ngFor="let log of audit.logsLink">
+              <div class="ddp-link">
+                <a href="javascript:" class="ddp-link-url2" title="{{log}}" (click)="onClickLog(log)">{{log}}
+                </a>
+              </div>
+            </div>
+            <div class="ddp-data-none" *ngIf="!audit.logsLink">No log</div>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.log.th.job.name' | translate}}
+          </th>
+          <td>
+            <div class="ddp-data-detail">
+              <span class="ddp-txt-detail" [ngClass]="{'ddp-detail' : (audit.jobName).length > 71 }">{{audit.jobName}}
+                <a href="javascript:" class="ddp-link-detail" (click)="onClickOpenLogModal('name')">{{'msg.log.btn.detail' | translate}}</a>
+              </span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.log.th.started.time' | translate}}
+          </th>
+          <td>
+            {{audit.startTime | mdate: 'YYYY-MM-DD HH:mm'}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.log.th.elapsed.time' | translate}}
+          </th>
+          <td>
+            {{convertMilliseconds(audit.elapsedTime)}}
+          </td>
+        </tr>
+        <tr *ngIf="audit.incrementMemorySeconds || audit.incrementVcoreSeconds">
+          <th>
+            Resource
+          </th>
+          <td>
+            <!-- edit -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="audit.incrementMemorySeconds">
+              <label class="ddp-label-type">Memory
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{audit.incrementMemorySeconds}} MB-seconds
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //edit -->
+            <!-- edit -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="audit.incrementVcoreSeconds">
+              <label class="ddp-label-type">CPU
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{audit.incrementVcoreSeconds}} vcore-seconds
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //edit -->
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.log.th.user' | translate}}
+          </th>
+          <td>
+            {{audit.user}}
+          </td>
+        </tr>
+        <tr *ngIf="audit.queue">
+          <th>
+            {{'msg.log.th.queue' | translate}}
+          </th>
+          <td>
+            {{audit.queue}}
+          </td>
+        </tr>
+        <tr *ngIf="audit.applicationType || audit.applicationName || audit.applicationId">
+          <th>
+            {{'msg.log.th.application' | translate}}
+          </th>
+          <td>
+            <!-- edit -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="audit.applicationType">
+              <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{audit.applicationType}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //edit -->
+            <!-- edit -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="audit.applicationName">
+              <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{audit.applicationName}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //edit -->
+            <!-- edit -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="audit.applicationId">
+              <label class="ddp-label-type">{{'msg.comm.th.id' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{audit.applicationId}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //edit -->
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- query information -->
+      <div class="ddp-wrap-table-detail" *ngIf="audit.type.toString() === 'QUERY'">
+        <label class="ddp-label-detail">{{'msg.log.ui.query.info' | translate}}</label>
+        <!-- connection -->
+        <table class="ddp-table-detail">
+          <colgroup>
+            <col width="133px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              {{'msg.log.th.conn' | translate}}
+            </th>
+            <td>
+              <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{audit.dataConnectionImplementor}}
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //edit -->
+              <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{audit.dataConnectionHostName}}
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //edit -->
+              <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{audit.dataConnectionPort}}
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //edit -->
+              <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type" *ngIf="audit.dataConnectionDatabase">
+                <label class="ddp-label-type">{{'msg.log.th.db' | translate}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{audit.dataConnectionDatabase}}
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //edit -->
+              <!-- edit -->
+              <!-- edit -->
+              <div class="ddp-wrap-edit3 ddp-type">
+                <label class="ddp-label-type">{{'msg.log.th.jdbc.url' | translate}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{audit.dataConnectionConnectUrl}}
+                </div>
+                <!-- //edit option -->
+              </div>
+              <!-- //edit -->
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <!-- //connection -->
+        <!-- recent query -->
+        <div class="ddp-wrap-table2">
+          <div class="ddp-label-table" style="width:133px;">{{'msg.log.ui.query.hist' | translate}}</div>
+          <div class="ddp-ui-table">
+            <table class="ddp-table-form ddp-table-type3">
+              <colgroup>
+                <col width="*" />
+                <col width="20%" />
+                <col width="130px" />
+                <col width="110px" />
+                <col width="90px" />
+              </colgroup>
+              <thead>
+              <tr>
+                <th class="ddp-cursor" (click)="onClickSort('queryStartTime')">
+                  {{'msg.log.ui.query.date' | translate}}
+                  <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'queryStartTime' || selectedContentSort.sort === 'default'"></em>
+                  <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'queryStartTime' && selectedContentSort.sort === 'asc'"></em>
+                  <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'queryStartTime' && selectedContentSort.sort === 'desc'"></em>
+                </th>
+                <th>
+                  {{'msg.log.th.user' | translate}}
+                </th>
+                <th class="ddp-cursor" (click)="onClickSort('queryTimeTaken')">
+                  {{'msg.log.th.elapsed.time' | translate}}
+                  <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'queryTimeTaken' || selectedContentSort.sort === 'default'"></em>
+                  <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'queryTimeTaken' && selectedContentSort.sort === 'asc'"></em>
+                  <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'queryTimeTaken' && selectedContentSort.sort === 'desc'"></em>
+                </th>
+                <th>
+                  {{'msg.log.th.rslt' | translate}}
+                </th>
+                <th>
+
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let query of queryHistoryList">
+                <td>
+                  {{query.queryStartTime | mdate: 'YYYY-MM-DD HH:mm'}}
+                </td>
+                <td>
+                  {{query.createdBy.fullName}}
+                </td>
+                <td>
+                  {{query.queryTimeTakenFormatted}}
+                </td>
+                <td>
+              <span class="ddp-data-state"
+                    [ngClass]="{'ddp-fail' : query.queryResultStatus.toString() === 'FAIL', 'ddp-success' : query.queryResultStatus.toString() === 'SUCCESS'}">
+                {{query.queryResultStatus}}
+              </span>
+                </td>
+                <td>
+                  <a href="javascript:" class="ddp-link-detail" (click)="onClickOpenQueryModal(query)">{{'msg.log.btn.detail' | translate}} ></a>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- //recent query -->
+      </div>
+      <!-- //query information -->
+      <!-- plan detail -->
+      <div class="ddp-wrap-table-detail">
+        <div class="ddp-type-plan">
+          <label class="ddp-label-detail">{{'msg.log.ui.plan' | translate}}</label>
+          <a href="javascript:" class="ddp-btn-pop ddp-bg-gray ddp-type"
+             [ngClass]="{'ddp-disabled' : isPlanNull()}"
+             (click)="onClickOpenPlanModal()">{{'msg.log.btn.run.plan.query' | translate}}</a>
+        </div>
+      </div>
+      <!-- //plan detail -->
+    </div>
+  </div>
+  <!-- //상세 -->
+</div>
+<!-- //contents -->
+
+<!-- 로그 컴포넌트 -->
+<app-log-component></app-log-component>
+<!-- 로그 에디터 컴포넌트 -->
+<app-log-editor-component></app-log-editor-component>
+
+

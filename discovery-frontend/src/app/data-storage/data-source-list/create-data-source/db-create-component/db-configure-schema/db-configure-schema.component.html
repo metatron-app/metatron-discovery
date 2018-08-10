@@ -1,0 +1,278 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.db.title' | translate}})
+      <em class="ddp-bg-order-line5-type3"></em>
+    </div>
+    <span class="ddp-txt-info ddp-type">{{'msg.storage.ui.configure.schema' | translate}}</span>
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in">
+    <div class="ddp-box-popupcontents3 ">
+      <!-- TOP -->
+      <div class="ddp-type-top-option ddp-clear">
+        <!-- 검색 -->
+        <div class="ddp-form-search ddp-fleft">
+          <em class="ddp-icon-search"></em>
+          <input type="text" placeholder="{{'msg.storage.ui.column.search.description' | translate}}" [(ngModel)]="searchText" (keyup.esc)="searchText = ''">
+          <em class="ddp-btn-search-close" *ngIf="searchText !== ''" (click)="searchText = ''"></em>
+        </div>
+        <!-- //검색 -->
+        <!-- 필터링 -->
+        <div class="ddp-ui-rightoption">
+          <!-- role 필터 -->
+          <div class="ddp-wrap-edit ddp-fleft">
+            <label class="ddp-label-type">{{'msg.comm.th.role' | translate}}</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ddp-inline">
+              <label class="ddp-label-radio" *ngFor="let role of roleTypeList" (change)="onSelectedRole(role)">
+                <input type="radio" [checked]="isEqualType(role.value, selectedRoleType)">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio">{{role.label}}</span>
+              </label>
+            </div>
+            <!-- //edit option -->
+          </div>
+          <!-- //role 필터 -->
+          <!-- 추천 필터 -->
+          <a href="javascript:" class="ddp-link-toggle ddp-fleft"
+             [ngClass]="{'ddp-selected' : recommendAndEssentialFl}" (click)="recommendAndEssentialFl = !recommendAndEssentialFl">
+            <em class="ddp-icon-recommend"></em>{{(getConnectionType === 'ENGINE' ? 'msg.storage.btn.recommend.filter' : 'msg.storage.btn.essential.filter') | translate}}
+          </a>
+          <!-- //추천 필터 -->
+          <!-- 타입 필터 -->
+          <div class="ddp-form-label2 ddp-fleft">
+            <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
+            <div class="ddp-wrap-dropdown">
+              <!-- select box -->
+              <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : typeShowFl}" (click)="typeShowFl = !typeShowFl" (clickOutside)="typeShowFl = false">
+                <span class="ddp-txt-selectbox">{{selectedType.label}}</span>
+                <ul class="ddp-list-selectbox ddp-selectdown">
+                  <li *ngFor="let type of typeList" (click)="onSelectedType(type)">
+                    <a href="javascript:">
+                      {{type.label}}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <!-- //select box -->
+            </div>
+          </div>
+          <!-- //타입 필터 -->
+        </div>
+        <!-- //필터링 -->
+      </div>
+      <!-- //TOP -->
+      <div class=" ddp-box-schema ddp-clear">
+        <!-- left -->
+        <div class="ddp-wrap-fleft">
+          <!-- view table -->
+          <div class="ddp-box-viewtable">
+            <!-- check box -->
+            <div class="ddp-ui-gridhead">
+              <table class="ddp-table-form ddp-table-type2">
+                <colgroup>
+                  <col width="51px">
+                  <col width="*">
+                </colgroup>
+                <thead>
+                <tr>
+                  <th class="ddp-txt-center">
+                    <div class="ddp-ui-checkbox" (click)="onCheckedAllColumns()" >
+                      <input type="checkbox" [checked]="isAllCheckedColumns()">
+                      <i class="ddp-icon-checkbox"></i>
+                    </div>
+                  </th>
+                  <th>
+                    {{'msg.storage.th.column' | translate}}
+                  </th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+            <!--// check box -->
+            <!-- columns -->
+            <div class="ddp-ui-gridbody" [ngClass]="{'ddp-action' : getCheckedColumns().length > 0}">
+              <table class="ddp-table-form ddp-table-type2 ddp-table-view ddp-inherit">
+                <colgroup>
+                  <col width="51px">
+                  <col width="*">
+                </colgroup>
+                <tbody>
+                <!-- column -->
+                <tr  *ngFor="let column of getColumnList()"
+                     (click)="onSelectedColumn(column)"
+                     [ngClass]="{'ddp-selected' : isSelectedColumn(column), 'ddp-disabled' : isDeletedColumn(column)}">
+                  <!-- check -->
+                  <td class="ddp-txt-center">
+                    <div class="ddp-ui-checkbox" (click)="onCheckedColumn(column)">
+                      <input type="checkbox" [checked]="isCheckedColumn(column)">
+                      <i class="ddp-icon-checkbox"></i>
+                    </div>
+                  </td>
+                  <!-- //check -->
+                  <!-- column data -->
+                  <td>
+                    <!-- value -->
+                    <div class="ddp-wrap-value-icon ddp-type">
+                      <em *ngIf="getTimestampIcon(column)" class="ddp-icon-time"></em>
+                      <div *ngIf="isFilterColumn(column)" class="ddp-wrap-datarecommend">
+                        {{column.filteringSeq + 1}}
+                        <em class="ddp-icon-recommend-s"></em>
+                      </div>
+                      <em class="ddp-icon-view"></em>
+                    </div>
+                    <!-- //value -->
+                    <div class="ddp-td-schema">
+                      <span class="ddp-box-tag-value" [class.ddp-measure]="column.role === 'MEASURE'" [class.ddp-dimension]="column.role === 'DIMENSION'">
+                        {{column.role === 'MEASURE' ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}
+                      </span>
+                      <div class="ddp-type-icon">
+                        <em class="{{getFieldTypeIconClass(column.logicalType)}}"></em>
+                      </div>
+                      <div class="ddp-form-name">
+                        <span class="ddp-data-name">{{column.name}}
+                          <em class="ddp-icon-error2" *ngIf="getErrorIcon(column)"></em>
+                        </span>
+                      </div>
+                      <a href="javascript:" class="ddp-btn-box" (click)="onClickRevival(column)" *ngIf="isDeletedColumn(column)">{{'msg.storage.ui.revival' | translate}}</a>
+                    </div>
+                    <!-- tooltip -->
+                    <div class="ddp-ui-tooltip-info ddp-left2" style="display:;">
+                      <em class="ddp-icon-view-top"></em>{{column.name}}
+                    </div>
+                    <!-- //tooltip -->
+                  </td>
+                  <!-- //column data -->
+                </tr>
+                <!-- //column -->
+                <!-- current time column -->
+                <tr *ngIf="showCurrentColumn()">
+                  <td></td>
+                  <td>
+                    <!-- value -->
+                    <div class="ddp-wrap-value-icon ddp-type">
+                      <em class="ddp-icon-time"></em>
+                      <em class="ddp-icon-view"></em>
+                    </div>
+                    <!-- //value -->
+                    <div class="ddp-td-schema">
+                      <span class="ddp-box-tag-value ddp-dimension">
+                        {{'msg.comm.name.dim' | translate}}
+                      </span>
+                      <div class="ddp-type-icon">
+                        <em class="ddp-icon-type-calen"></em>
+                      </div>
+                      <div class="ddp-form-name">
+                        <!-- 메세지 작업 절대 하면 안됨, 컬럼값-->
+                        <span class="ddp-data-name">Current time</span>
+                        <!--// 메세지 작업 절대 하면 안됨, 컬럼값-->
+                      </div>
+                    </div>
+                    <!-- tooltip -->
+                    <div class="ddp-ui-tooltip-info ddp-left2" style="display:;">
+                      <em class="ddp-icon-view-top"></em>Current time
+                    </div>
+                    <!-- //tooltip -->
+                  </td>
+                </tr>
+                <!-- //current time column -->
+                </tbody>
+              </table>
+            </div>
+            <!--// columns -->
+            <!-- box action -->
+            <schema-change-action *ngIf="getCheckedColumns().length > 0"
+              [items]="getCheckedColumns()"
+              (unselectActionEvent)="onClickUnselectAll($event)"
+              (changeActionEvent)="onClickApplyAction($event)"></schema-change-action>
+            <!-- //box action -->
+          </div>
+
+          <!-- //view table -->
+        </div>
+        <!-- //left -->
+        <!-- right -->
+        <app-schema-detail
+          (changeEvent)="initTimestampColumn()"
+          (filtering)="setFilterSeq($event)"
+          (editOrder)="openEditFilterOrder()"
+          [connType]="getConnectionType"
+          [columnData]="selectedColumnData"
+          [selectedTime]="selectedTimestampColumn"
+          [selectedTimestampType]="selectedTimestampType"
+          [recommendation]="getRecommendationLength()"
+          [column]="selectedColumn">
+        </app-schema-detail>
+        <!-- //right -->
+      </div>
+      <!-- timestamp bottom option -->
+      <div class="ddp-ui-timestamp">
+                <span class="ddp-txt-timestamp">
+                    <em class="ddp-icon-time2"></em>
+                    {{'msg.storage.ui.timestamp.description' | translate}}
+                </span>
+        <div class="ddp-ui-setting">
+          <label class="ddp-label-radio" (change)="onSelectedTimestampType('CURRENT')">
+            <input type="radio" [checked]="selectedTimestampType === 'CURRENT'">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.storage.th.current-time' | translate}}</span>
+          </label>
+          <label class="ddp-label-radio" (change)="onSelectedTimestampType('COLUMN')">
+            <input type="radio" [checked]="selectedTimestampType === 'COLUMN'" [disabled]="isTimestampColumnEmpty()">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.storage.th.time-column' | translate}}</span>
+          </label>
+          <!-- select box -->
+          <div class="ddp-type-selectbox"
+               [ngClass]="{'ddp-selected' : timestampShowFl, 'ddp-disabled' : isTimestampColumnEmpty()}"
+               (click)="onShowTimestampColumns()" (clickOutside)="timestampShowFl = false">
+            <span class="ddp-txt-selectbox">{{selectedTimestampColumn ? selectedTimestampColumn.name : ('msg.storage.ui.ph.timestamp.column' | translate)}}</span>
+            <ul class="ddp-list-selectbox ddp-selectdown">
+              <li *ngIf="isTimestampColumnEmpty()">
+                <span class="ddp-noresult">No result</span>
+              </li>
+              <li *ngFor="let column of getTimeTypeColumns()" (click)="onSelectedTimestamp(column)">
+                <a href="javascript:">
+                  {{column.name}}
+                </a>
+              </li>
+            </ul>
+          </div>
+          <!-- //select box -->
+        </div>
+      </div>
+      <!-- //timestamp bottom option -->
+
+    </div>
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" *ngIf="!isWorkbenchCreate"
+       (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" [ngClass]="{'ddp-disabled' : !getNextValidation()}"
+       (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+
+</div>
+
+<app-set-filter-order [connType]="getConnectionType"></app-set-filter-order>

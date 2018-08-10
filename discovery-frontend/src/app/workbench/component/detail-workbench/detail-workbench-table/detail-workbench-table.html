@@ -1,0 +1,78 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!--  테이블 리스트 -->
+<div class="ddp-wrap-tablelist">
+  <!-- search -->
+  <div class="ddp-form-search">
+    <em class="ddp-icon-search"></em>
+    <input type="text" placeholder="{{'msg.bench.ui.search'|translate}}" [(ngModel)]="searchText"
+           (keyup.esc)="searchTableTextInit()"
+           (keypress)="searchTableText($event)">
+    <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchTableTextInit()"></em>
+  </div>
+  <!-- //search -->
+  <div class="ddp-ui-tablelist">
+    <ul class="ddp-list-table">
+      <li *ngFor="let item of tables; let index = index" (click)="setTableSql(item.name)">
+        <em class="ddp-icon-table"></em>
+        <span class="ddp-data-tablename">{{item.name}}</span>
+        <!-- 버튼 -->
+        <div class="ddp-ui-buttons">
+          <!-- 클릭시 ddp-selected 추가 -->
+          <em class="ddp-icon-info" id="info{{index}}"  (click)="showTableInfo(item.name, index)"></em>
+          <!-- 클릭시 ddp-selected 추가 -->
+          <em class="ddp-icon-tableinfo" id="tableInfo{{index}}" (click)="showTableSchemaInfo(item.name, index)"></em>
+        </div>
+        <!-- //버튼 -->
+      </li>
+    </ul>
+    <!-- page -->
+    <div class="ddp-ui-pageing">
+      <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled': isDisabledPrev}"
+         *ngIf="pageMode === 'PAGE'" (click)="setPage('prev')">&lt; {{'msg.comm.btn.previous'|translate}}</a>
+      <a href="javascript:" class="ddp-btn-prev" [ngClass]="{'ddp-disabled': isDisabledPrev}"
+         *ngIf="pageMode === 'MEMORY'" (click)="setPageMemory('prev')">&lt; {{'msg.comm.btn.previous'|translate}}</a>
+      <a href="javascript:" class="ddp-btn-next" [ngClass]="{'ddp-disabled': isDisabledNext}"
+         *ngIf="pageMode === 'PAGE'" (click)="setPage('next')"> {{'msg.comm.btn.next'|translate}} &gt;</a>
+      <a href="javascript:" class="ddp-btn-next" [ngClass]="{'ddp-disabled': isDisabledNext}"
+         *ngIf="pageMode === 'MEMORY'" (click)="setPageMemory('next')"> {{'msg.comm.btn.next'|translate}} &gt;</a>
+    </div>
+    <!-- //page -->
+  </div>
+</div>
+<!--  //테이블 리스트 -->
+
+
+<detail-workbench-table-info-desc
+  *ngIf="selectedTableInfoLayer === true"
+  [tableParams]="tableParams"
+  (showLayer)="tableInfoClose($event)"
+  (clickOutside)="selectedTableInfoLayer = false"
+  [excludeBeforeClick]="true"
+  [exclude]="'.ddp-icon-info'">
+</detail-workbench-table-info-desc>
+<detail-workbench-table-info-schema *ngIf="selectedTableSchemaLayer === true"
+                                    [schemaParams]="schemaParams"
+                                    (insertName)="tableSchemaInsert($event)"
+                                    (showLayer)="tableSchemaClose()">
+</detail-workbench-table-info-schema>
+
+<!--<detail-workbench-table-info-schema *ngIf="selectedTableSchemaLayer === true" [dataconnection]="workbench.dataConnection"  [selectedTable]="selectedTable"  [top]="detailWorkbenchTableInfoSchemaTop" (showLayer)="setTableSchemaClose()" ></detail-workbench-table-info-schema>-->
+<!--[dataconnection]="workbench.dataConnection"-->
+<!--[selectedTable]="selectedTable"-->
+<!--[top]="detailWorkbenchTableInfoDescTop"-->
+<!--(clickOutside)="selectedTableSchemaLayer=false" [excludeBeforeClick]="true" [exclude]="'.ddp-icon-info'"-->
+<!--(showLayer)="setTableInfoClose()">-->
+

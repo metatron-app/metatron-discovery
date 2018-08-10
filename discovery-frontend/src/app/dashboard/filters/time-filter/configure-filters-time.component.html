@@ -1,0 +1,94 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 연속 형식 -->
+<div *ngIf="isShow && !isDiscontinuousFilter && isContinuousByAll">
+  <!-- 선택 범위 표시 영역 -->
+  <timeUnit-select *ngIf="isShowGranularitySelect && targetFilter"
+                      [mode]="'CHANGE'" [filter]="targetFilter"
+                      (change)="changeTimeUnit($event)"></timeUnit-select>
+  <!-- // 선택 범위 표시 영역 -->
+  <!-- 탭 영역 -->
+  <div class="ddp-toggle">
+    <ul class="ddp-list-buttons">
+      <li (click)="setTimeAllFilter()" [class.ddp-selected]="isAllType">All time</li>
+      <li *ngIf="isLiveStatus" (click)="setTimeRelativeFilter()" [class.ddp-selected]="isRelativeType">Relative</li>
+      <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeType">Specific</li>
+    </ul>
+  </div>
+  <!-- // 탭 영역 -->
+  <!-- 탭별 내용 영역 -->
+  <div class="ddp-wrap-toggle-contents">
+    <!-- 전체 기간 선택 탭 영역 -->
+    <div *ngIf="isAllType" class="ddp-ui-toggle-contents">
+      <span class="ddp-txt-preview">(No time filtering)</span>
+    </div>
+    <!-- // 전체 기간 선택 탭 영역 -->
+    <!-- 상대적인 기간 선택 탭 영역 -->
+    <div *ngIf="isRelativeType" class="ddp-ui-toggle-contents">
+      <app-time-relative-filter [filter]="targetFilter"></app-time-relative-filter>
+    </div>
+    <!-- // 상대적인 기간 선택 탭 영역 -->
+    <!-- 특정 기간 선택 탭 영역 -->
+    <div *ngIf="isRangeType" class="ddp-ui-toggle-contents">
+      <app-time-range-filter [filter]="targetFilter" [dashboard]="dashboard" ></app-time-range-filter>
+    </div>
+    <!-- // 특정 기간 선택 탭 영역 -->
+  </div>
+  <!-- // 탭별 내용 영역 -->
+</div>
+<div *ngIf="isLiveStatus && isShow && !isDiscontinuousFilter && !isContinuousByAll">
+  <!-- 선택 범위 표시 영역 -->
+  <timeUnit-select *ngIf="isShowGranularitySelect && targetFilter"
+                      [mode]="'CHANGE'" [filter]="targetFilter"
+                      (change)="changeTimeUnit($event)"></timeUnit-select>
+  <!-- // 선택 범위 표시 영역 -->
+  <!-- 탭 영역 -->
+  <div class="ddp-toggle">
+    <ul class="ddp-list-buttons">
+      <li (click)="setTimeListFilter()" [class.ddp-selected]="isListType">All time lists</li>
+      <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeType">Specific</li>
+    </ul>
+  </div>
+  <!-- // 탭 영역 -->
+  <!-- 탭별 내용 영역 -->
+  <div class="ddp-wrap-toggle-contents">
+    <!-- 전체 기간 선택 탭 영역 -->
+    <div *ngIf="isListType" class="ddp-ui-toggle-contents">
+      <app-time-list-filter
+        [filter]="targetFilter" [dashboard]="dashboard" [field]="targetField" ></app-time-list-filter>
+    </div>
+    <!-- // 전체 기간 선택 탭 영역 -->
+    <!-- 특정 기간 선택 탭 영역 -->
+    <div *ngIf="isRangeType" class="ddp-ui-toggle-contents">
+      <app-time-range-filter [filter]="targetFilter" [dashboard]="dashboard" ></app-time-range-filter>
+    </div>
+    <!-- // 특정 기간 선택 탭 영역 -->
+  </div>
+  <!-- // 탭별 내용 영역 -->
+</div>
+<!-- // 연속 형식 -->
+<!-- 불연속 형식 -->
+<div *ngIf="isLiveStatus && isShow && isDiscontinuousFilter">
+  <!-- summary -->
+  <timeUnit-select *ngIf="isShowGranularitySelect && targetFilter"
+                      [mode]="'CHANGE'" [filter]="targetFilter"
+                      (change)="changeTimeUnit($event)"></timeUnit-select>
+  <!-- //summary -->
+  <div class="ddp-filter-form">
+    <app-time-list-filter
+      [filter]="targetFilter" [dashboard]="dashboard" [field]="targetField" ></app-time-list-filter>
+  </div>
+</div>
+<!-- // 불연속 형식 -->

@@ -1,0 +1,191 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-pop-preview ddp-type" *ngIf="isShow">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      {{ selectedDataSnapshot.dsName }}
+    </div>
+    <em class="ddp-btn-popup-close" (click)="close()"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+  <div class="ddp-ui-preview-contents ddp-type-preview">
+    <div class="ddp-type-top-option">
+      <ul class="ddp-ui-tab ddp-type">
+        <li [ngClass]="{'ddp-selected' : currentTab === 0 }" (click)="onTabClick(0)">
+          <a href="javascript:">Detail</a>
+        </li>
+        <!--<li (click)="onTabClick(1)" [ngClass]="{'ddp-selected' : currentTab === 1 }">-->
+          <!--<a href="javascript:">log</a>-->
+        <!--</li>-->
+
+      </ul>
+
+    </div>
+    <div class="ddp-layout-pop-contents ddp-wrap-snapshot" >
+
+      <div class="ddp-wrap-tab-contents" [hidden]= "currentTab !== 0">
+        <!-- 요약 -->
+        <div class="ddp-wrap-summary">
+          <div class="ddp-data-summary">
+            <span class="ddp-txt-label">{{'msg.dp.th.ss.valid' | translate}}</span>
+            <span class="ddp-data-per">100%</span>
+          </div>
+          <div class="ddp-data-summary ddp-mismatch">
+            <span class="ddp-txt-label">{{'msg.dp.th.ss.mismatched' | translate}}</span>
+            <span class="ddp-data-per">0%</span>
+          </div>
+          <div class="ddp-data-summary ddp-missing">
+            <span class="ddp-txt-label">{{'msg.dp.th.ss.missing' | translate}}</span>
+            <span class="ddp-data-per">0%</span>
+          </div>
+        </div>
+
+        <div class="ddp-grid-label">
+          <span class="ddp-txt-label">Grid</span>
+          <!--
+              loading 시 ddp-load 추가
+          -->
+          <a href="javascript:" class="ddp-btn-bg " (click)="downloadSnapshot()" ><em class="ddp-icon-link-down"></em><em class="ddp-icon-spin-loading"></em>Download CSV</a>
+        </div>
+        <!-- //요약 -->
+        <!-- grid -->
+        <div class="ddp-wrap-grid">
+          <div *ngIf="selectedDataSnapshot.status==='SUCCESS'" class="ddp-box-gridarea" grid-component style="width:100%; height: 100%;"> suc </div>
+          <div *ngIf="selectedDataSnapshot.status==='FAIL'" class="ddp-box-gridarea" style="width:100%; height: 100%;">
+            <p [innerHTML]="selectedDataSnapshot.custom.fail_msg">
+            </p>
+          </div>
+        </div>
+        <!-- //grid -->
+      </div>
+      <div class="ddp-wrap-tab-contents" [hidden]= "currentTab !== 1">
+        <div class="ddp-data-log">
+          log
+        </div>
+      </div>
+    </div>
+    <!-- right -->
+
+    <div *ngIf="ruleList" class="ddp-wrap-rules-flow ddp-snapshot">
+      <!-- title -->
+      <div class="ddp-box-title">
+        <em class="ddp-data-num">{{ruleList?.length}}</em>
+        {{'msg.dp.ui.rules' | translate}}
+      </div>
+      <!-- //title -->
+      <div class="ddp-ui-rule-flow">
+        <ul class="ddp-list-rule2">
+          <li *ngFor="let rule of ruleList">
+            <span class="ddp-data-type">
+              <em class="ddp-ui-round">{{rule.alias}}</em>
+              {{rule.name}}
+            </span>
+            <div class="ddp-ui-code">
+              {{rule.ruleString}}
+            </div>
+        </ul>
+      </div>
+    </div>
+    <div class="ddp-layout-pop-right">
+      <!-- 상세 -->
+      <div class="ddp-view-detail">
+        <dl class="ddp-dl-detail" *ngIf="selectedDataSnapshot.tblName">
+          <dt>
+            {{'msg.dp.th.ss.table' | translate}}
+          </dt>
+          <dd>
+            {{selectedDataSnapshot.tblName}}
+          </dd>
+        </dl>
+        <dl class="ddp-dl-detail">
+          <dt>
+            {{'msg.dp.th.summary' | translate}}
+          </dt>
+          <dd>
+            {{getRows()}} / {{getCols()}} {{'msg.dp.th.ss.cols' | translate}}
+          </dd>
+        </dl>
+        <dl *ngIf="selectedDataSnapshot.totalBytes" class="ddp-dl-detail">
+          <dt>
+            {{'msg.comm.detail.size' | translate}}
+          </dt>
+          <dd>
+            {{getSize()}}
+          </dd>
+        </dl>
+        <dl class="ddp-dl-detail">
+          <dt>
+            {{'msg.dp.th.et' | translate}}
+          </dt>
+          <dd>
+            {{getElapsedTime(selectedDataSnapshot)}}
+          </dd>
+        </dl>
+        <dl class="ddp-dl-detail">
+          <dt>
+            {{'msg.comm.th.created' | translate}}
+          </dt>
+          <dd>
+            {{selectedDataSnapshot.launchTime | mdate:'YYYY-MM-DD HH:mm'}}
+          </dd>
+        </dl>
+      </div>
+      <!-- //상세 -->
+      <!-- info -->
+      <div class="ddp-box-info">
+        <dl class="ddp-dl-detail2">
+          <dt>
+            {{ 'msg.comm.menu.manage.prep.set' | translate }}
+          </dt>
+          <dd>
+            <a href="javascript:" (click)="navigateDataflow(dfId)" class="ddp-link-data"><strong>{{ selectedDataSnapshot.dsName }}</strong> in {{ selectedDataSnapshot.creatorDfName }} </a>
+            <div class="ddp-ui-sub">
+              <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.createdTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>
+              <span class="ddp-data-sub">{{'msg.comm.ui.list.updated' | translate}} <em class="ddp-data-result">{{selectedDataSnapshot.modifiedTime | mdate:'YYYY-MM-DD HH:mm:ss'}}</em></span>
+            </div>
+          </dd>
+          <dt>
+            {{'msg.dp.th.origin.imported.ds' | translate}}
+          </dt>
+          <dd>
+
+            <div class="ddp-ui-sub">
+              <span class="ddp-data-sub">{{'msg.board.th.datasource' | translate}} <em class="ddp-data-result">{{ originDsInfo.dsName }}</em></span>
+            </div>
+            <div class="ddp-ui-sub" *ngIf="originDsInfo.qryStmt">
+              <span class="ddp-data-sub">{{'msg.dp.th.query.stmt' | translate}} <em class="ddp-data-result">{{ originDsInfo.qryStmt }}</em></span>
+            </div>
+            <div class="ddp-ui-sub" *ngIf="originDsInfo.filePath">
+              <span class="ddp-data-sub">{{'msg.dp.th.file.path' | translate}} <em class="ddp-data-result">{{ originDsInfo.filePath }}</em></span>
+            </div>
+            <div class="ddp-ui-sub">
+              <span class="ddp-data-sub">{{'msg.comm.ui.list.created' | translate}} <em class="ddp-data-result">{{originDsInfo.createdTime | mdate:'YYYY-MM-DD HH:mm'}}</em></span>
+            </div>
+
+          </dd>
+
+        </dl>
+      </div>
+      <!-- //info -->
+
+
+    </div>
+    <!-- //right -->
+
+  </div>
+  <!-- //cpmtemts -->
+</div>

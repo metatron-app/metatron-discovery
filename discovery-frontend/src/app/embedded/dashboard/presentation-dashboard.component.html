@@ -1,0 +1,99 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-presentation">
+  <!-- 대시보드 타이틀 -->
+  <div class="ddp-ui-board-title ddp-clear">
+    <span *ngIf="selectedDashboard" class="ddp-data-name">{{selectedDashboard.name}}</span>
+
+    <!-- page -->
+    <div class="ddp-ui-page2">
+      <a *ngFor="let dashboard of dashboards ; let idx = index" href="javascript:" class="ddp-icon-page"
+         [ngClass]="{'ddp-selected' : idx === selectedIdx}" (click)="moveToDashboard(idx)">
+      </a>
+    </div>
+    <!-- //page -->
+
+    <div class="ddp-ui-setting">
+      <!-- show setting -->
+      <div class="ddp-wrap-show" (click)="openOptionsTimerInterval()" (clickOutSide)="isShowIntervalLayer=false;"
+           [class.ddp-selected]="isShowIntervalLayer">
+        <span class="ddp-lik-set" >
+          <em class="ddp-icon-showtime"></em> {{'msg.board.ui.num.sec' | translate : {value : selectedInterval} }}
+        </span>
+        <!-- popup -->
+        <div class="ddp-wrap-popup2" *ngIf="isShowIntervalLayer" >
+          <ul class="ddp-list-popup">
+            <li *ngFor="let interval of timerInterval" [class.ddp-selected]="interval === selectedInterval">
+              <a href="javascript:" (click)="selectTimerInterval($event, interval)">
+                {{'msg.board.ui.num.sec' | translate : {value : interval} }} <em class="ddp-icon-check"></em>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <!-- //popup -->
+      </div>
+      <!-- //show setting -->
+
+      <!-- show setting -->
+      <!--<div class="ddp-wrap-show" *ngIf="selectedDashboard"-->
+      <div class="ddp-wrap-show" *ngIf="false"
+           [class.ddp-selected]="isShowFitLayer"
+           (click)="isShowFitLayer=true;" (clickOutSide)="isShowFitLayer=false;" >
+        <span class="ddp-lik-set">
+          <em class="ddp-icon-fitscreen" [style.display]="isFitScreenType() ? 'inline-block' : 'none'"></em>
+          <em class="ddp-icon-fitheight" [style.display]="isFitScreenType() ? 'none' : 'inline-block'"></em>
+          {{ isFitScreenType() ? ('msg.board.li.fit-to-screen' | translate) : ('msg.board.li.fit-to-height' | translate) }}
+        </span>
+        <!-- popup -->
+        <div class="ddp-wrap-popup2" *ngIf="isShowFitLayer" >
+          <ul class="ddp-list-popup">
+            <li [class.ddp-selected]="isFitScreenType()">
+              <a href="javascript:" (click)="changeFitType($event,'SCREEN')"> {{'msg.board.li.fit-to-screen' | translate}} <em class="ddp-icon-check"></em> </a>
+            </li>
+            <li [class.ddp-selected]="!isFitScreenType()">
+              <a href="javascript:" (click)="changeFitType($event,'HEIGHT')"> {{'msg.board.li.fit-to-height' | translate}} <em class="ddp-icon-check"></em> </a>
+            </li>
+          </ul>
+        </div>
+        <!-- //popup -->
+      </div>
+      <!-- //show setting -->
+      <a href="javascript:" class="ddp-btn-play" [class.ddp-toggle]="isPlayShow">
+        <span class="ddp-txt-play" *ngIf="!isPlayShow" (click)="toggleShow()">
+          <em class="ddp-icon-play"></em> {{'msg.board.btn.play' | translate}}
+        </span>
+        <span class="ddp-txt-pause" *ngIf="isPlayShow" (click)="toggleShow()">
+          <em class="ddp-icon-pause"></em> {{'msg.board.btn.pause' | translate}}
+        </span>
+      </a>
+      <a href="javascript:" class="ddp-btn-out" (click)="close()"></a>
+    </div>
+
+  </div>
+  <!-- //대시보드 타이틀 -->
+
+  <!-- 프리젠 태이션 -->
+  <div class="ddp-ui-presentation" >
+    <a href="javascript:" class="ddp-btn-slider ddp-btn-prev" style="z-index:150;"
+       (click)="prevDashboard()" ></a>
+    <a href="javascript:" class="ddp-btn-slider ddp-btn-next" style="z-index:150;"
+       (click)="nextDashboard()" ></a>
+  </div>
+  <!-- //프리젠 태이션 -->
+
+  <app-dashboard *ngIf="selectedDashboard" [dashboard]="selectedDashboard" [standalone]="true"
+                 (dashboardEvent)="onDashboardEvent($event)"
+                 style="position: absolute;top: 50px; left: 0px; right: 0px; bottom: 0px;overflow-y: auto;"></app-dashboard>
+</div>

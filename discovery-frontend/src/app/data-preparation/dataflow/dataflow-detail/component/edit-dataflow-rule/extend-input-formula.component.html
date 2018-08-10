@@ -1,0 +1,159 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div *ngIf="isShow" class="ddp-layout-popuptype">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- 상단 타이틀 및 확인 버튼 영역 -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">수식 입력</span>
+
+      <div class="ddp-ui-pop-buttons">
+        <a (click)="close()" href="javascript:" class="ddp-btn-pop" >{{'msg.comm.btn.cancl' | translate}}</a>
+        <a (click)="done()"
+           [ngClass]="{'ddp-disabled' : verifyStateFormula !== 'S'}" href="javascript:" class="ddp-btn-pop ddp-bg-black" >
+          {{'msg.comm.btn.done' | translate}}
+        </a>
+      </div>
+
+      <!-- det -->
+      <div class="ddp-ui-info-det" *ngIf="verifyStateFormula !== 'S'">
+        <em class="ddp-icon-error-info"></em> {{'msg.board.custom.ui.val.un.check' | translate}}
+      </div>
+    </div>
+    <!-- // 상단 타이틀 및 확인 버튼 영역 -->
+
+    <!-- 메인 영역 -->
+    <div class="ddp-ui-popup-contents">
+      <div>
+        <!-- 수식 입력 영역 -->
+        <div class="ddp-ui-accout-textarea" >
+          <!-- 입력 영역 -->
+          <div class="ddp-wrap-edit">
+            <div #calculationInput (keydown)="verifyStateFormula = null" contentEditable="true" class="ddp-ui-edit" ></div>
+          </div>
+          <!-- // 입력 영역 -->
+          <!-- 유효성 체크 메시지 영역 및 버튼 영역 -->
+          <div class="ddp-ui-message">
+            <span class="ddp-data-ok" *ngIf="verifyStateFormula == 'S'"><em class="ddp-icon-ok"></em>{{'msg.board.custom.ui.val.success' | translate}}</span>
+            <span class="ddp-data-error" *ngIf="verifyStateFormula == 'F'"><em class="ddp-icon-error"></em>{{'msg.board.custom.ui.val.fail' | translate}}</span>
+            <!-- disabled : ddp-disabled 추가 -->
+            <a (click)="verifyFormula()" [ngClass]="{'ddp-disabled' : isDisableVerifyButton}"
+               href="javascript:" class="ddp-btn-pop ddp-bg-black2 " >{{'msg.board.custom.ui.val.check' | translate}}</a>
+          </div>
+          <!-- // 유효성 체크 메시지 영역 및 버튼 영역 -->
+        </div>
+        <!-- // 수식 입력 영역 -->
+        <!-- 필드 목록 및 함수 목록 영역 -->
+        <div class="ddp-ui-account-search ddp-clear">
+          <div class="ddp-label-pop-title"> {{'msg.board.custom.th.recommendation' | translate}} </div>
+          <!-- 필드 목록 -->
+          <div class="ddp-wrap-add-list">
+            <!-- top -->
+            <div class="ddp-ui-top">
+              <span class="ddp-ui-sub-title">{{'msg.board.custom.th.add.column' | translate}}</span>
+              <!-- 페이징 번호 -->
+              <div class="ddp-ui-page">
+                <a (click)="prevFieldPage()" [ngClass]="{'ddp-disabled' : currentPage === 1}"
+                   href="javascript:" class="ddp-btn-prev" ></a>
+                <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+                <a (click)="nextFieldPage()" [ngClass]="{'ddp-disabled' : currentPage == lastPage}"
+                   href="javascript:" class="ddp-btn-next ddp-disabled" ></a>
+              </div>
+              <!-- // 페이징 번호 -->
+            </div>
+            <!-- //top -->
+
+            <!-- 목록 -->
+            <ul class="ddp-list-typebasic ddp-typeicon">
+              <li *ngFor="let field of pageFields" (click)="selectField(field)">
+                <a href="javascript:">
+                  <em class="ddp-icon-type-ab"  *ngIf="field.type === 'STRING' || field.type === 'USER_DEFINED' || field.type === 'TEXT'"></em>
+                  <em class="ddp-icon-type-local" *ngIf="field.type === 'LNG' || field.type === 'LNT'"></em>
+                  <em class="ddp-icon-type-calen" *ngIf="field.type === 'TIMESTAMP'"></em>
+                  <em class="ddp-icon-type-sharp" *ngIf="field.type === 'LONG' || field.type === 'INTEGER' || field.type === 'DOUBLE' || field.type === 'CALCULATED'"></em>
+                  {{field.name}}
+                  <em class="ddp-icon-plus"></em>
+                </a>
+              </li>
+            </ul>
+            <!-- // 목록 -->
+          </div>
+          <!-- // 필드 목록 -->
+
+          <!-- 함수 목록 영역 -->
+          <div class="ddp-wrap-formula">
+            <!-- top -->
+            <div class="ddp-ui-top">
+              <span class="ddp-ui-sub-title">{{'msg.board.custom.th.add.formula' | translate}}</span>
+            </div>
+            <!-- //top -->
+            <div class="ddp-view-formula">
+              <div class="ddp-ui-formula">
+                <!-- 검색 -->
+                <div class="ddp-form-search">
+                  <em class="ddp-icon-search"></em>
+                  <input [(ngModel)]="searchFunction" (keyup.esc)="searchFunction = ''"
+                         type="text" placeholder="{{'msg.board.custom.ui.placeholder' | translate}}" >
+                  <em class="ddp-btn-search-close" (click)="searchFunction = ''"></em>
+                </div>
+                <!-- //검색 -->
+
+                <!-- select box -->
+                <!-- 클릭시 ddp-selected 추가 -->
+                <component-select [array]="totalFunctionCategoryList"
+                                  [viewKey]="'label'"
+                                  (onSelected)="selectCategory($event)"
+                ></component-select>
+                <!-- //select box -->
+                <!-- list -->
+                <div class="ddp-ui-typebasic" (mouseleave)="setCalculationDescription(null, false)">
+                  <div *ngFor="let category of functionCategoryList">
+                    <span class="ddp-list-name">{{category.label}}</span>
+                    <ul class="ddp-list-typebasic ddp-typeplus">
+                      <li *ngFor="let funcItem of category.functions | baseFilter : ['name', searchFunction]"
+                          (mouseenter)="setCalculationDescription(funcItem, true)" >
+                        <a (click)="selectFunction(funcItem)" href="javascript:" >
+                          {{funcItem.name}}
+                          <em class="ddp-icon-plus"></em>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <!-- list -->
+              </div>
+
+              <!-- 설명 -->
+              <div class="ddp-ui-detail">
+                <em class="ddp-btn-close" *ngIf="selectedFunction" (click)="selectedFunction = null;setCalculationDescription(null, false)"></em>
+                <span class="ddp-ui-det-title">{{displayDescFunction?.name}}</span>
+                <span class="ddp-ui-det-category">{{displayDescFunction?.category}}</span>
+                <span class="ddp-txt-det" [innerHtml]="displayDescFunction?.description"></span>
+              </div>
+              <!-- // 설명 -->
+            </div>
+          </div>
+          <!-- // 함수 목록 영역 -->
+
+        </div>
+        <!-- // 필드 목록 및 함수 목록 영역 -->
+      </div>
+
+
+    </div>
+    <!-- // 메인 영역 -->
+
+  </div>
+</div>

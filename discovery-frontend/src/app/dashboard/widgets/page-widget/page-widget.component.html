@@ -1,0 +1,446 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div (mouseover)="setForceStyle(true)" (mouseout)="setForceStyle(false)"
+     [class.ddp-active]="isShowDownloadPopup" class="ddp-box-widget ddp-box-graph">
+
+  <!-- Top Control -->
+  <div class="ddp-top-control ddp-clear" *ngIf="isViewMode && !isShowHierarchyView">
+
+    <!-- 버튼 목록 -->
+    <div class="ddp-ui-buttons" >
+      <!-- 차트 영역 선택 버튼 -->
+      <div class="ddp-box-btn-hover"
+           *ngIf="!isGridType() && chartFuncValidator.checkUseMultiSelectionByTypeString( chartType )">
+        <a href="javascript:" class="ddp-btn-tool">
+          <em [ngClass]="{'ddp-icon-tool-pointer' : 'SINGLE' === mouseMode,
+                'ddp-icon-tool-elliptical' : 'MULTI_RECT' === mouseMode,
+                'ddp-icon-tool-freeshape' : 'MULTI_POLY' === mouseMode }"></em>
+        </a>
+        <a (click)="changeMouseSelectMode('single', 'single')" href="javascript:" class="ddp-btn-tool">
+          <em class="ddp-icon-tool-pointer"></em>
+        </a>
+        <a (click)="changeMouseSelectMode('multi', 'rect')" href="javascript:" class="ddp-btn-tool">
+          <em class="ddp-icon-tool-elliptical"></em>
+        </a>
+        <a (click)="changeMouseSelectMode('multi', 'polygon')" href="javascript:" class="ddp-btn-tool">
+          <em class="ddp-icon-tool-freeshape"></em>
+        </a>
+      </div>
+      <!-- // 차트 영역 선택 버튼 -->
+
+      <!-- 차트 확대 버튼 -->
+      <div class="ddp-box-btn-hover"
+           *ngIf="!isGridType() && chartFuncValidator.checkUseZoomByTypeString( chartType )">
+        <a (click)="changeMouseZoomMode( 'dragzoomin' )" href="javascript:" class="ddp-btn-tool">
+          <em class="ddp-icon-tool-rectangular"></em>
+        </a>
+        <a (click)="changeMouseZoomMode( 'zoomin' )" href="javascript:" class="ddp-btn-tool">
+          <em class="ddp-icon-tool-zoomin"></em>
+        </a>
+        <a (click)="changeMouseZoomMode( 'zoomout' )" href="javascript:" class="ddp-btn-tool">
+          <em class="ddp-icon-tool-zoomout"></em>
+        </a>
+        <a (click)="changeMouseZoomMode( 'revert' )" href="javascript:" class="ddp-btn-tool">
+          <em class="ddp-icon-tool-revert"></em>
+        </a>
+      </div>
+      <!-- // 차트 확대 버튼 -->
+
+      <!-- 차트 정보 영역 -->
+      <div class="ddp-box-btn2" >
+        <em (dblclick)="copyWidgetIdToClipboard()" class="ddp-icon-widget-info" (mouseover)="showInfoLayer($event)"></em>
+        <!-- popup -->
+        <div class="ddp-box-layout4" style="position:fixed;">
+          <div class="ddp-wrap-data-detail">
+            <div class="ddp-ui-top-title">{{'msg.board.ui.title.chartinfo' | translate }}</div>
+            <table class="ddp-table-pop">
+              <colgroup>
+                <col width="70px">
+                <col width="">
+              </colgroup>
+              <tbody>
+                <tr>
+                  <th>{{'msg.page.ui.datasource' | translate }}</th>
+                  <td>{{getDataSourceName()}}</td>
+                </tr>
+                <tr *ngIf="existPivot('columns')">
+                  <th>{{'msg.page.ui.col' | translate }}</th>
+                  <td>{{getPivotFieldsStr('columns')}}</td>
+                </tr>
+                <tr *ngIf="existPivot('rows')">
+                  <th>{{'msg.page.ui.row' | translate }}</th>
+                  <td>{{getPivotFieldsStr('rows')}}</td>
+                </tr>
+                <tr *ngIf="existPivot('aggregations')">
+                  <th>{{'msg.page.ui.intersect' | translate }}</th>
+                  <td>{{getPivotFieldsStr('aggregations')}}</td>
+                </tr>
+                <tr *ngIf="existChartFilter()">
+                  <th>{{'msg.page.ui.filter' | translate }}</th>
+                  <td>{{getChartFilterStr()}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+        <!-- //popup -->
+      </div>
+      <!-- // 차트 정보 영역 -->
+
+      <!-- 데이터 저장 버튼 -->
+      <div (click)="showDownPivotData($event)" [class.ddp-box-download]="duringDataDown" class="ddp-box-btn2" >
+        <em *ngIf="duringDataDown" class="ddp-icon-widget-loading"></em>
+        <span *ngIf="duringDataDown" class="ddp-txt">{{ 'msg.comm.ui.downloading' | translate }}</span>
+        <em *ngIf="!duringDataDown" class="ddp-icon-widget-gridsave" ></em>
+        <!-- 툴팁 -->
+        <div class="ddp-ui-tooltip-info" >
+          <em class="ddp-icon-view-down"></em>
+          {{ useCustomField ? ( 'msg.book.widget.header.notsavetable' | translate ) : ( 'msg.book.widget.header.savetable' | translate ) }}
+        </div>
+        <!-- //툴팁 -->
+      </div>
+      <div *ngIf="!isGridType()" (click)="downloadChartImage()" class="ddp-box-btn2" >
+        <em *ngIf="duringImageDown" class="ddp-icon-widget-loading"></em>
+        <em *ngIf="!duringImageDown" class="ddp-icon-widget-save"></em>
+        <!-- 툴팁 -->
+        <div class="ddp-ui-tooltip-info" >
+          <em class="ddp-icon-view-down"></em>
+          {{  'msg.book.widget.header.savechart' | translate }}
+        </div>
+        <!-- //툴팁 -->
+      </div>
+      <!-- // 데이터 저장 버튼 -->
+
+      <!-- 차트 편집 버튼 -->
+      <div class="ddp-box-btn2" *ngIf="isAuthMgmtViewMode" (click)="editWidget()">
+        <em class="ddp-icon-widget-edit"></em>
+        <!-- 툴팁 -->
+        <div class="ddp-ui-tooltip-info">
+          <em class="ddp-icon-view-down"></em> {{  'msg.comm.ui.edit' | translate }}
+        </div>
+        <!-- // 툴팁 -->
+      </div>
+      <!-- // 차트 편집 버튼 -->
+
+      <!-- 확대/축소 버튼 -->
+      <div class="ddp-box-btn2">
+        <em [ngClass]="{'ddp-icon-widget-downsize': isMaximize, 'ddp-icon-widget-full': !isMaximize}"
+            (click)="toggleWidgetSize()"></em>
+        <!-- 툴팁 -->
+        <div class="ddp-ui-tooltip-info" *ngIf="isMaximize">
+          <em class="ddp-icon-view-down"></em>
+          {{ 'msg.comm.ui.contraction' | translate }}
+        </div>
+        <div class="ddp-ui-tooltip-info" *ngIf="!isMaximize">
+          <em class="ddp-icon-view-down"></em>
+          {{ 'msg.comm.ui.expansion' | translate }}
+        </div>
+        <!-- //툴팁 -->
+      </div>
+      <!-- 확대/축소 버튼 -->
+
+      <!-- 그리드/그래프 뷰 버튼 -->
+      <div class="ddp-ui-btnview" *ngIf="false">
+        <div class="ddp-box-btn" [class.ddp-selected]="'chart' === widget.mode"
+             (click)="changeMode('chart');">
+          <em class="ddp-icon-widget-graph"></em>
+          <!-- 툴팁 -->
+          <div class="ddp-ui-tooltip-info">
+            <em class="ddp-icon-view-down"></em>
+            {{  'msg.book.widget.header.chartview' | translate }}
+          </div>
+          <!-- //툴팁 -->
+        </div>
+        <div class="ddp-box-btn" [class.ddp-selected]="'grid' === widget.mode"
+             (click)="changeMode('grid');" >
+          <em class="ddp-icon-widget-grid"></em>
+          <!-- 툴팁 -->
+          <div class="ddp-ui-tooltip-info">
+            <em class="ddp-icon-view-down"></em>
+            {{  'msg.book.widget.header.tableview' | translate }}
+          </div>
+          <!-- //툴팁 -->
+        </div>
+      </div>
+      <!-- 그리드/그래프 뷰 버튼 -->
+    </div>
+    <!-- // 버튼 목록 -->
+
+  </div>
+  <!-- // Top Control -->
+
+  <!-- 열람 모드일 때 이름 표시 영역 -->
+  <div *ngIf="isShowWidgetName()"
+       class="ddp-ui-graph-name" >
+    <span class="ddp-data-name">{{widget.name}}</span>
+    <!-- tooltip -->
+    <div class="ddp-ui-tooltip-info">
+      <em class="ddp-icon-view-top"></em>{{widget.name}}
+    </div>
+    <!-- //tooltip -->
+  </div>
+  <!-- // 열람 모드일 때 이름 표시 영역 -->
+
+  <!-- Chart 영역 -->
+  <div class="ddp-view-widget ddp-view-widget-chart" *ngIf="widget"
+       [class.ddp-view-name]="isShowWidgetName()"
+       [style.display]="(!isShowNoData && widget.mode === 'chart') ? 'block' : 'none'" >
+    <bar-chart #chart
+               *ngIf="chartType === 'bar' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+               (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+               (chartSelectInfo)="chartSelectInfo($event)"
+               (noData)="showNoData()"
+               (drawFinished)="updateComplete()"
+               >
+    </bar-chart>
+
+    <grid-chart #chart
+                *ngIf="chartType === 'grid' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                (chartSelectInfo)="chartSelectInfo($event)"
+                (noData)="showNoData()"
+                (drawFinished)="updateComplete()">
+    </grid-chart>
+
+    <line-chart #chart
+                *ngIf="chartType === 'line' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                (chartSelectInfo)="chartSelectInfo($event)"
+                (noData)="showNoData()"
+                (drawFinished)="updateComplete()"
+                >
+    </line-chart>
+
+    <scatter-chart #chart
+                   *ngIf="chartType === 'scatter' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                   (chartSelectInfo)="chartSelectInfo($event)"
+                   (noData)="showNoData()"
+                   (drawFinished)="updateComplete()"
+                   >
+    </scatter-chart>
+
+    <heatmap-chart #chart
+                   *ngIf="chartType === 'heatmap' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                   (chartSelectInfo)="chartSelectInfo($event)"
+                   (noData)="showNoData()"
+                   (drawFinished)="updateComplete()">
+    </heatmap-chart>
+
+    <pie-chart #chart
+               *ngIf="chartType === 'pie' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+               (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+               (chartSelectInfo)="chartSelectInfo($event)"
+               (noData)="showNoData()"
+               (drawFinished)="updateComplete()">
+    </pie-chart>
+
+    <!-- MapView 예정 -->
+
+    <control-chart #chart
+                   *ngIf="chartType === 'control' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                   (chartSelectInfo)="chartSelectInfo($event)"
+                   (noData)="showNoData()"
+                   (drawFinished)="updateComplete()"
+                   >
+    </control-chart>
+
+    <label-chart #chart
+                 *ngIf="chartType === 'label' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                 (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                 (chartSelectInfo)="chartSelectInfo($event)"
+                 [query]="query"
+                 [widget]="widget"
+                 (noData)="showNoData()"
+                 (drawFinished)="updateComplete()">
+    </label-chart>
+
+    <boxplot-chart #chart
+                   *ngIf="chartType === 'boxplot' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                   (chartSelectInfo)="chartSelectInfo($event)"
+                   (noData)="showNoData()"
+                   (drawFinished)="updateComplete()">
+    </boxplot-chart>
+
+    <waterfall-chart #chart
+                     *ngIf="chartType === 'waterfall' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                     (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                     (chartSelectInfo)="chartSelectInfo($event)"
+                     (noData)="showNoData()"
+                     (drawFinished)="updateComplete()">
+    </waterfall-chart>
+
+    <wordcloud-chart #chart
+                     *ngIf="chartType === 'wordcloud' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                     (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                     (chartSelectInfo)="chartSelectInfo($event)"
+                     (noData)="showNoData()"
+                     (drawFinished)="updateComplete()">
+    </wordcloud-chart>
+
+    <combine-chart #chart
+                   *ngIf="chartType === 'combine' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                   (chartSelectInfo)="chartSelectInfo($event)"
+                   (noData)="showNoData()"
+                   (drawFinished)="updateComplete()">
+    </combine-chart>
+
+    <treemap-chart #chart
+                   *ngIf="chartType === 'treemap' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                   (chartSelectInfo)="chartSelectInfo($event)"
+                   (noData)="showNoData()"
+                   (drawFinished)="updateComplete()">
+    </treemap-chart>
+
+    <radar-chart #chart
+                 *ngIf="chartType === 'radar' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                 (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                 (chartSelectInfo)="chartSelectInfo($event)"
+                 (noData)="showNoData()"
+                 (drawFinished)="updateComplete()">
+    </radar-chart>
+
+    <network-chart #chart
+                   *ngIf="chartType === 'network' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                   (chartSelectInfo)="chartSelectInfo($event)"
+                   (noData)="showNoData()"
+                   (drawFinished)="updateComplete()">
+    </network-chart>
+    <sankey-chart #chart
+                 *ngIf="chartType === 'sankey' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                 (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                 (chartSelectInfo)="chartSelectInfo($event)"
+                 (noData)="showNoData()"
+                 (drawFinished)="updateComplete()">
+    </sankey-chart>
+    <gauge-chart #chart
+                   *ngIf="chartType === 'gauge' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                   (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                   (chartSelectInfo)="chartSelectInfo($event)"
+                   (noData)="showNoData()"
+                   (drawFinished)="updateComplete()">
+    </gauge-chart>
+
+    <map-chart #chart
+                 *ngIf="chartType === 'mapview' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                 (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
+                 (chartSelectInfo)="chartSelectInfo($event)"
+                 (noData)="showNoData()"
+                 (drawFinished)="updateComplete()">
+    </map-chart>
+
+  </div>
+  <!-- // Chart 영역 -->
+
+  <!-- Data Grid 영역 -->
+  <div [style.display]="( !isShowNoData && widget.mode === 'grid') ? 'block' : 'none'"
+       style="width:100%;height:100%;"
+       *ngIf="isAvaliableGrid(widget)">
+    <grid-chart
+      #gridChart
+      *ngIf="resultData && gridUiOption"
+      [uiOption]="gridUiOption"
+      [viewMode]="true"
+      (uiOptionUpdated)="gridUiOptionUpdatedHandler($event)"
+      >
+    </grid-chart>
+  </div>
+  <!-- // Data Grid 영역 -->
+
+  <!-- Hierarchy 표시 영역 -->
+  <div *ngIf="isShowHierarchyView" class="ddp-view-widget ddp-view-widget-grid">
+    <div class="ddp-box-data-none">
+      <div class="ddp-wrap-data-none">
+        <div class="ddp-ui-data-none">
+          <div class="ddp-txt-none">
+            <em class="ddp-img-chartnodata"></em>
+            <span class="ddp-data-name">{{widget.name}}</span>
+            <span class="ddp-txt-det" [innerHTML]="'msg.board.ui.select-data' | translate : { value : parentWidget.name}">
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- // Hierarchy 표시 영역 -->
+
+  <!-- Invalid Pivot -->
+  <div [style.display]="isInvalidPivot ? 'block' : 'none'" class="ddp-view-widget ddp-view-widget-grid">
+    <div class="ddp-box-data-none">
+      <div class="ddp-wrap-data-none">
+        <div class="ddp-ui-data-none">
+          <div class="ddp-txt-none">
+            <em class="{{getChartIconClass()}} ddp-error"></em>
+            <span class="ddp-data-name">{{widget.name}}</span>
+            <span class="ddp-txt-det" [innerHTML]="'msg.board.ui.invalid-pivot' | translate"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Invalid Pivot -->
+
+  <!-- No Data 영역 -->
+  <div [style.display]="isShowNoData ? 'block' : 'none'" class="ddp-view-widget ddp-view-widget-grid">
+    <div class="ddp-box-data-none">
+      <div class="ddp-wrap-data-none">
+        <div class="ddp-ui-data-none">
+          <div class="ddp-txt-none">
+            <em class="{{getChartIconClass()}}"></em>
+            <span class="ddp-data-name">{{widget.name}}</span>
+            <span class="ddp-txt-det">
+              {{'msg.page.ui.no.data.show' | translate}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- // No Data 영역 -->
+
+  <!-- Error 표시 영역 -->
+  <div *ngIf="isError" class="ddp-view-widget ddp-view-widget-grid">
+    <div class="ddp-box-data-none">
+      <div class="ddp-wrap-data-none">
+        <div class="ddp-ui-data-none">
+          <div class="ddp-txt-none">
+            <em class="{{getChartIconClass()}} ddp-error"></em>
+            <span class="ddp-data-name">{{widget.name}}</span>
+            <span class="ddp-txt-det">{{ 'msg.page.ui.no.data.error' | translate }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- // Error 표시 영역 -->
+
+  <!-- 수정 버튼 레이어 -->
+  <div *ngIf="isEditMode" class="ddp-hover-edit">
+    <div class="ddp-hover-edit-in">
+      <a (click)="editWidget()" href="javascript:" class="ddp-btn-edit"></a>
+    </div>
+  </div>
+  <!-- // 수정 버튼 레이어 -->
+</div>
+
+<data-download (close)="isShowDownloadPopup = false"
+               (startDownload)="duringDataDown = true" (endDownload)="duringDataDown = false"></data-download>

@@ -1,0 +1,164 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.dp.ui.ds.create.title' | translate : {type : type === 'FILE' ? 'File' : type  === 'DB' ? 'DB': 'Staging DB'} }}
+      <em class="ddp-bg-order-line3-type3" *ngIf="type === 'DB'"></em>
+      <em class="ddp-bg-order-line2-type2" *ngIf="type !== 'DB'"></em>
+    </div>
+    <span class="ddp-txt-info ddp-type">{{'msg.dp.ui.create-staging-db.sub.title' | translate}}</span>
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in">
+    <div class="ddp-box-popupcontents2">
+
+      <!-- edit -->
+      <div class="ddp-wrap-boxtype">
+
+        <table class="ddp-wrap-boxdata">
+          <colgroup>
+            <col width="120px" />
+            <col width="*" />
+          </colgroup>
+
+          <tbody>
+
+          <tr *ngIf="type === 'STAGING' && datasetHive.databaseName">
+            <th>
+              {{'msg.dp.th.database' | translate}}
+            </th>
+            <td>
+              {{datasetHive.databaseName}}
+            </td>
+          </tr>
+          <tr *ngIf="type === 'STAGING' && datasetHive.tableName">
+            <th>
+              {{'msg.lineage.ui.list.search.table' | translate}}
+            </th>
+            <td>
+              {{datasetHive.tableName}}
+            </td>
+          </tr>
+          <tr *ngIf="type === 'STAGING' && datasetHive.databaseName === '' && datasetHive.tableName === '' ">
+            <th>
+              {{'msg.dp.btn.query' | translate}}
+            </th>
+            <td>
+              {{datasetHive.queryStmt}}
+            </td>
+          </tr>
+          <tr *ngIf="type === 'FILE' && datasetFile.filename">
+            <th>
+              {{'msg.dp.ui.list.file' | translate}}
+            </th>
+            <td>
+              {{datasetFile.filename}}
+            </td>
+          </tr>
+          <tr *ngIf="type === 'FILE' && datasetFile.sheets.length > 1">
+            <th>
+              {{'msg.dp.th.sheet' | translate}}
+            </th>
+            <td>
+              {{datasetFile.sheets[datasetFile.sheetIndex]}}
+            </td>
+          </tr>
+          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.implementor">
+            <th>
+              Type
+            </th>
+            <td>
+              {{datasetJdbc.dataconnection.implementor}}
+            </td>
+          </tr>
+          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.hostname">
+            <th>
+              Host
+            </th>
+            <td>
+              {{datasetJdbc.dataconnection.hostname}}
+            </td>
+          </tr>
+          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.port">
+            <th>
+              Port
+            </th>
+            <td>
+              {{datasetJdbc.dataconnection.port}}
+            </td>
+          </tr>
+          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.sid">
+            <th>
+              SID
+            </th>
+            <td>
+              {{datasetJdbc.dataconnection.sid}}
+            </td>
+          </tr>
+          <tr *ngIf="type === 'DB' && datasetJdbc.databaseName">
+            <th>
+              Database / Table
+            </th>
+            <td>
+              {{datasetJdbc.databaseName}} / {{datasetJdbc.tableName}}
+            </td>
+          </tr>
+          <tr *ngIf="type === 'DB' && datasetJdbc.queryStmt">
+            <th>
+              Query
+            </th>
+            <td>
+              {{datasetJdbc.queryStmt}}
+            </td>
+          </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+      <!-- //edit -->
+
+      <!-- edit -->
+      <div class="ddp-wrap-edit2" [ngClass]="{'ddp-error':showNameError}">
+        <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
+        <input type="text" #nameElement class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}" (keydown)="showNameError? hideNameError() :null" [(ngModel)]="name" maxlength="50" (keyup)="$event.keyCode == 13 ? complete() : null;">
+        <span class="ddp-ui-error">{{nameErrorDesc}}</span>
+      </div>
+      <!-- //edit -->
+
+      <!-- edit -->
+      <div class="ddp-wrap-edit2" [ngClass]="{'ddp-error':showDescError}">
+        <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
+        <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.desc' | translate}}" (keydown)="showDescError ? hideDescError(): null" [(ngModel)]="description" maxlength="150" (keyup)="$event.keyCode == 13 ? complete() : null;">
+        <span class="ddp-ui-error">{{nameDescErrorDesc}}</span>
+      </div>
+      <!-- //edit -->
+    </div>
+
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="complete()">{{'msg.comm.btn.done' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+
+</div>

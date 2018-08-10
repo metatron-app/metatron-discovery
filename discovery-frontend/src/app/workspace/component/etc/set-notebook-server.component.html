@@ -1,0 +1,205 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype" style="display:;" *ngIf="isShow">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+            {{'msg.space.set.notebook.server' | translate}}
+        </span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+      </div>
+      <!-- det -->
+      <div class="ddp-ui-info-det" *ngIf="selectedJupyter.name == null && selectedZeppelin.name == null">
+        <em class="ddp-icon-error-info"></em> {{'msg.space.ui.create.notebook.warning' | translate}}
+      </div>
+    </div>
+    <!-- //title -->
+    <div class="ddp-ui-popup-contents">
+      <div class="ddp-ui-notebook-server">
+
+
+        <!-- tab -->
+        <div class="ddp-wrap-tab">
+          <ul class="ddp-ui-tab ddp-clear">
+            <li [ngClass]="{'ddp-selected' : selectedTab === 'jupyter'}">
+              <a href="javascript:" (click)="selectedTab = 'jupyter';searchJupyter='';searchZeppelin='';searchEvent('jupyter')"><em class="ddp-icon-jupyter"></em>{{'msg.space.ui.jupyter' | translate}}</a>
+            </li>
+            <li [ngClass]="{'ddp-selected' : selectedTab === 'zeppelin'}">
+              <a href="javascript:" (click)="selectedTab = 'zeppelin';searchJupyter='';searchZeppelin=''; searchEvent('zeppelin')"><em class="ddp-icon-zeppelin"></em>{{'msg.space.ui.zeppelin' | translate}}</a>
+            </li>
+          </ul>
+        </div>
+        <!-- //tab -->
+
+        <!-- tab contents -->
+        <div class="ddp-ui-tab-contents" style="display:block;">
+          <div class="ddp-ui-sublabel">
+            {{'msg.space.ui.conn.server' | translate}}<em>:</em> {{selectedTab === 'jupyter' ? (selectedJupyter.name ? selectedJupyter.name : 'msg.space.ui.none' | translate ) : (selectedZeppelin.name ? selectedZeppelin.name : 'msg.space.ui.none' | translate)}}
+          </div>
+          <div class="ddp-type-top-option">
+            <!-- 검색 -->
+            <div class="ddp-form-search" *ngIf="selectedTab === 'jupyter'">
+              <em class="ddp-icon-search"></em>
+              <input type="text" placeholder="Search by sever name"
+                     [(ngModel)]="searchJupyter"
+                     (keyup.enter)="searchEvent('jupyter')" (keyup.esc)="searchJupyter=''; searchEvent('jupyter')">
+              <em class="ddp-btn-search-close" *ngIf="searchJupyter !== ''"
+                  (click)="searchJupyter=''; searchEvent('jupyter')"></em>
+            </div>
+            <div class="ddp-form-search" *ngIf="selectedTab === 'zeppelin'">
+              <em class="ddp-icon-search"></em>
+              <input type="text" placeholder="Search by sever name"
+                     [(ngModel)]="searchZeppelin"
+                     (keyup.enter)="searchEvent('zeppelin')" (keyup.esc)="searchZeppelin=''; searchEvent('zeppelin')">
+              <em class="ddp-btn-search-close"  *ngIf="searchZeppelin !== ''"
+                  (click)="searchZeppelin=''; searchEvent('zeppelin')"></em>
+            </div>
+            <!-- //검색 -->
+          </div>
+
+          <div class="ddp-wrap-viewtable">
+            <!-- 테이블 -->
+            <div class="ddp-box-viewtable">
+              <!-- gridhead -->
+              <div class="ddp-ui-gridhead">
+                <table class="ddp-table-form ddp-table-type2">
+                  <colgroup>
+                    <col width="51px">
+                    <col width="*">
+                    <col width="25%">
+                    <col width="15%">
+                  </colgroup>
+                  <thead>
+                  <tr>
+                    <th>
+
+                    </th>
+                    <th>
+                      {{'msg.space.th.server' | translate}}
+                    </th>
+                    <th class="ddp-cursor" (click)="changeOrder('hostname')">
+                      {{'msg.comm.th.host' | translate}}
+                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'hostname' || selectedContentSort.sort === 'default'"></em>
+                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'hostname' && selectedContentSort.sort === 'asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'hostname' && selectedContentSort.sort === 'desc'"></em>
+                    </th>
+                    <th class="ddp-cursor" (click)="changeOrder('port')">
+                      {{'msg.comm.th.port' | translate}}
+                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'port' || selectedContentSort.sort === 'default'"></em>
+                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'port' && selectedContentSort.sort === 'asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'port' && selectedContentSort.sort === 'desc'"></em>
+                    </th>
+                  </tr>
+                  </thead>
+
+                </table>
+              </div>
+              <!--// gridhead -->
+
+              <!-- gridbody -->
+              <div class="ddp-ui-gridbody" *ngIf="selectedTab === 'jupyter'">
+                <table class="ddp-table-form ddp-table-type2">
+                  <colgroup>
+                    <col width="51px">
+                    <col width="*">
+                    <col width="25%">
+                    <col width="15%">
+                  </colgroup>
+                  <tbody>
+                  <tr *ngFor="let server of jupyter.servers" (click)="selectedJupyter = server" style="cursor:pointer">
+                    <td class="ddp-txt-center">
+                      <div class="ddp-ui-radio">
+                        <input type="radio" [checked]="selectedJupyter.id === server.id">
+                        <i class="ddp-icon-radio"></i>
+                      </div>
+                    </td>
+                    <td>
+                      <div class=" ddp-txt-long">
+                        {{server.name}}
+                        <span class="ddp-txt-colortype" *ngIf="server.description">-{{server.description}}</span>
+                      </div>
+                    </td>
+                    <td>
+                      {{server.hostname}}
+                    </td>
+                    <td>
+                      {{server.port}}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!--// gridbody -->
+              <!-- gridbody -->
+              <div class="ddp-ui-gridbody" *ngIf="selectedTab === 'zeppelin'">
+                <table class="ddp-table-form ddp-table-type2">
+                  <colgroup>
+                    <col width="51px">
+                    <col width="*">
+                    <col width="25%">
+                    <col width="15%">
+                  </colgroup>
+                  <tbody>
+                  <tr *ngFor="let server of zeppelin.servers" (click)="selectedZeppelin = server" style="cursor:pointer">
+                    <td class="ddp-txt-center">
+                      <div class="ddp-ui-radio">
+                        <input type="radio" [checked]="selectedZeppelin.id === server.id">
+                        <i class="ddp-icon-radio"></i>
+                      </div>
+                    </td>
+                    <td>
+                      <div class=" ddp-txt-long">
+                        {{server.name}}
+                        <span class="ddp-txt-colortype" *ngIf="server.description">-{{server.description}}</span>
+                      </div>
+                    </td>
+                    <td>
+                      {{server.hostname}}
+                    </td>
+                    <td>
+                      {{server.port}}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+
+              </div>
+              <!--// gridbody -->
+
+            </div>
+            <!-- //테이블 -->
+            <!-- 더보기 -->
+            <div class="ddp-box-add-link"
+                 *ngIf="selectedTab === 'jupyter' && (jupyter.page.page < jupyter.pageResult.totalPages)"
+                 (click)="getMoreList('jupyter')">
+              <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+            </div>
+            <div class="ddp-box-add-link"
+                 *ngIf="selectedTab === 'zeppelin' && (zeppelin.page.page < zeppelin.pageResult.totalPages)"
+                 (click)="getMoreList('zeppelin')">
+              <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+            </div>
+            <!-- //더보기 -->
+          </div>
+        </div>
+        <!-- //tab contents -->
+      </div>
+    </div>
+  </div>
+</div>

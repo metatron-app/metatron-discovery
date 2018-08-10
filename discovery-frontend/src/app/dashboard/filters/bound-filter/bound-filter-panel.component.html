@@ -1,0 +1,112 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 상단 영역 -->
+<div class="ddp-ui-divide">
+  <div class="ddp-ui-down-title2" [attr.data-gl-dragsource]="isDraggable ? 'enable' : 'disable'">
+    <!-- 필터 속성 표시 영역 -->
+    <div *ngIf="filter" class="ddp-ui-buttons">
+      <em class="ddp-icon-global-s" *ngIf="isBoardFilter"></em>
+      <!-- 추천/필수 필터 경우 -->
+      <div *ngIf="filter.filteringSeq > 0" class="ddp-wrap-datarecommend">
+        {{filter.filteringSeq}} <em class="ddp-icon-recommend-s2"></em>
+      </div>
+      <!-- // 추천/필수 필터 경우 -->
+      <!-- 더보기 버튼 영역 -->
+      <div class="ddp-wrap-morebutton ddp-hover-tooltip"
+           [class.ddp-selected]="isShowDetailMenu"
+           (click)="toggleDetailMenu()" (clickOutside)="isShowDetailMenu = false">
+        <em class="ddp-icon-more"></em>
+        <div class="ddp-ui-tooltip-info ddp-down">
+          <em class="ddp-icon-view-top"></em> {{"msg.comm.ui.more" | translate}}
+        </div>
+        <!-- 더보기 팝업 -->
+        <div class="ddp-wrap-popup2 ddp-types">
+          <!-- 기능 버튼 목록 -->
+          <ul class="ddp-list-popup">
+            <li *ngIf="!isDashboardMode && isBoardFilter && isChangeable">
+              <a href="javascript:" (click)="changeGlobalToChart(filter)">
+                <em class="ddp-icon-drop-global2"></em>
+                {{'msg.board.filter.ui.turn.chart' | translate}}
+              </a>
+            </li>
+            <li *ngIf="false" >
+              <!--<li *ngIf="!isDashboardMode && !isBoardFilter && isChangeable">-->
+              <a href="javascript:" (click)="changeChartToGlobal(filter)">
+                <em class="ddp-icon-drop-global"></em>
+                {{'msg.board.filter.ui.turn.global' | translate}}
+              </a>
+            </li>
+            <li>
+              <a href="javascript:" (click)="resetFilter(filter)">
+                <em class="ddp-icon-drop-refresh"></em>
+                {{'msg.board.filter.ui.reset' | translate}}
+              </a>
+            </li>
+            <li *ngIf="isEditable">
+              <a href="javascript:" (click)="openUpdateFilterPopup(originalFilter)">
+                <em class="ddp-icon-drop-editmodify" ></em>
+                {{'msg.board.filter.ui.edit' | translate}}
+              </a>
+            </li>
+            <li *ngIf="isDeletable">
+              <a href="javascript:" (click)="deleteFilter(filter)">
+                <em class="ddp-icon-drop-editdel3"></em>
+                {{'msg.board.filter.ui.remove' | translate}}
+              </a>
+            </li>
+          </ul>
+          <!-- // 기능 버튼 목록 -->
+        </div>
+        <!-- // 더보기 팝업 -->
+      </div>
+      <!-- // 더보기 버튼 영역 -->
+    </div>
+    <!-- // 필터 속성 표시 영역 -->
+    <!-- 필드 이름 표시 영역 -->
+    <div *ngIf="filter" class="ddp-itemtype-title">
+      <div class="ddp-data-itemtype ddp-type">
+        <span class="ddp-icon-box ddp-measure">
+          <em class="{{getMeasureTypeIconClass(field)}}" ></em>
+          <em class="ddp-icon-use3" *ngIf="isWidgetInLayout"></em>
+        </span>
+        <span class="ddp-txt-itemtype">
+          <span class="ddp-data-name">{{filter.field}}</span>
+          <span class="ddp-data-sub">{{dataSource?.name}}</span>
+          <span *ngIf="!isBoardFilter" class="ddp-txt-chartname ">
+            {{ 'msg.board.ui.filter.used-this-chart' | translate }}
+          </span>
+        </span>
+      </div>
+    </div>
+    <!-- // 필드 이름 표시 영역 -->
+  </div>
+</div>
+<!-- // 상단 영역 -->
+
+<!-- Range 설정 영역 -->
+<div *ngIf="isShowFilter" class="ddp-contents-divide ">
+  <!-- divide -->
+  <div class="ddp-ui-divide">
+    <bound-filter [filter]="filter" (change)="applyValue()"></bound-filter>
+  </div>
+  <!-- // divide -->
+  <!--
+  <div class="ddp-ui-divide ddp-txt-right">
+    <a (click)="applyValue()"
+       href="javascript:" class="ddp-btn-line-s">{{'msg.comm.ui.apply' | translate}}</a>
+  </div>
+  -->
+</div>
+<!-- // Range 설정 영역 -->

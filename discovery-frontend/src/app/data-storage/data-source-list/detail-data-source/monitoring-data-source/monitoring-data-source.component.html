@@ -1,0 +1,172 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-tab-contents">
+  <!-- 트랜잭션 추이 -->
+  <div class="ddp-ui-datadetail ddp-border-none">
+    <label class="ddp-label-detail">{{'msg.storage.ui.change.trnstn' | translate}}</label>
+    <div #transactionChart class="ddp-box-monitoring">
+
+    </div>
+  </div>
+  <!-- //트랜잭션 추이 -->
+  <!-- 용량 추이 -->
+  <div class="ddp-ui-datadetail ddp-border-none">
+    <label class="ddp-label-detail">{{'msg.storage.ui.change.size' | translate}}</label>
+    <div #sizeChart class="ddp-box-monitoring">
+
+    </div>
+  </div>
+  <!-- //용량 추이 -->
+  <!-- part -->
+  <div class="ddp-part ddp-clear">
+    <!-- 사용자별 파이차트 -->
+    <div class="ddp-ui-datadetail ddp-border-none">
+      <label class="ddp-label-detail">{{'msg.storage.ui.distr.user' | translate}}</label>
+      <div #distributionUserChart class="ddp-box-monitoring">
+
+      </div>
+    </div>
+    <!-- //사용자별 파이차트 -->
+    <!-- 시간별 파이차트 -->
+    <div class="ddp-ui-datadetail ddp-border-none">
+      <label class="ddp-label-detail">{{'msg.storage.ui.elapse.time' | translate}}</label>
+      <div #distributionTimeChart class="ddp-box-monitoring">
+
+      </div>
+    </div>
+    <!-- //시간별 파이차트 -->
+  </div>
+  <!-- // part -->
+  <!-- 쿼리 히스토리  -->
+  <div class="ddp-ui-datadetail ddp-border-none ddp-box-type">
+    <label class="ddp-label-detail">{{'msg.storage.ui.query.log' | translate}}</label>
+    <div class="ddp-wrap-result">
+      <!-- option -->
+      <div class="ddp-wrap-grid-option ddp-clear">
+        <!-- search -->
+        <component-period
+          [title]="'Query date'"
+          [roundSecond]="true"
+          (changeDate)="onChagePeriod($event)"
+        ></component-period>
+        <!-- //search -->
+        <!-- query type -->
+        <div class="ddp-wrap-edit">
+          <label class="ddp-label-type">{{'msg.storage.th.query.type' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option">
+            <component-select
+              [array]="queryTypes"
+              [viewKey]="'label'"
+              (onSelected)="onChangeQueryType($event)">
+            </component-select>
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //query type -->
+        <!-- result -->
+        <div class="ddp-wrap-edit">
+          <label class="ddp-label-type">{{'msg.storage.th.rslt' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option">
+            <component-select
+              [array]="resultTypes"
+              [viewKey]="'label'"
+              (onSelected)="onChangeResultType($event)">
+            </component-select>
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //result -->
+      </div>
+      <!-- //option -->
+      <table class="ddp-table-form ddp-table-type3">
+        <colgroup>
+          <col width="70px">
+          <col width="*">
+          <col width="14%">
+          <col width="14%">
+          <col width="14%">
+          <col width="20%">
+        </colgroup>
+        <thead>
+        <tr>
+          <th class="ddp-txt-center">
+            {{'msg.comm.th.no' | translate}}
+          </th>
+          <th class="ddp-cursor" (click)="sort('createdTime')">
+            {{'msg.storage.th.query.date' | translate}}
+            <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
+          </th>
+          <th>
+            {{'msg.storage.th.query.type' | translate}}
+          </th>
+          <th>
+            {{'msg.storage.th.user' | translate}}
+          </th>
+          <th class="ddp-cursor" (click)="sort('elapsedTime')">
+            {{'msg.log.th.elapsed.time' | translate}}
+            <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'elapsedTime' || selectedContentSort.sort === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'elapsedTime' && selectedContentSort.sort === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'elapsedTime' && selectedContentSort.sort === 'desc'"></em>
+          </th>
+          <th>
+            {{'msg.comm.th.rslt' | translate}}
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngIf="queryHistories?.length === 0">
+          <td class="ddp-data-none" colspan="6">
+            {{'msg.storage.ui.no.data' | translate}}
+          </td>
+        </tr>
+        <tr *ngFor="let history of queryHistories; let i = index">
+          <td>
+            {{i + 1}}
+          </td>
+          <td>
+            {{history.createdTime | mdate : 'YYYY-MM-DD HH:mm'}}
+          </td>
+          <td>
+            {{history.queryType}}
+          </td>
+          <td>
+            {{history.createdBy}}
+          </td>
+          <td>
+            {{convertMilliseconds(history.elapsedTime)}}
+          </td>
+          <td>
+            <span class="ddp-data-state"
+                  [ngClass]="{'ddp-success' : history.succeed, 'ddp-fail' : !history.succeed}">
+              <em class="ddp-icon-state"></em>{{(history.succeed ? 'msg.storage.ui.success' : 'msg.storage.ui.fail') | translate}}
+            </span>
+            <a href="javascript:" (click)="openLogModal(history)" class="ddp-link-edit2">{{'msg.storage.btn.detail' | translate}} ></a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- 더보기 -->
+      <div class="ddp-box-add-link" *ngIf="checkMoreContents()" (click)="getMoreList()">
+        <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+      </div>
+      <!-- //더보기 -->
+    </div>
+  </div>
+  <!-- //쿼리 히스토리 -->
+</div>

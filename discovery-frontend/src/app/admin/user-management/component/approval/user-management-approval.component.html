@@ -1,0 +1,200 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-contents-list">
+  <div class="ddp-wrap-option">
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.log.th.status' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option ddp-inline">
+          <label class="ddp-label-radio">
+            <input [checked]="'requested,rejected' == statusId" type="radio" (change)="changeStatus('requested,rejected')">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.comm.ui.list.all' | translate}}</span>
+          </label>
+          <label class="ddp-label-radio" (change)="changeStatus('REQUESTED')">
+            <input [checked]="'REQUESTED' == statusId" type="radio">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.mem.th.pending' | translate}}</span>
+          </label>
+          <!--<label class="ddp-label-radio">-->
+            <!--<input [checked]="'APPROVED' == statusId" type="radio">-->
+            <!--<i class="ddp-icon-adio"></i>-->
+            <!--<span class="ddp-txt-radio">Approved(102)</span>-->
+          <!--</label>-->
+          <label class="ddp-label-radio" (change)="changeStatus('REJECTED')">
+            <input [checked]="'REJECTED' == statusId" type="radio">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.mem.th.rejected' | translate }}</span>
+          </label>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <div class="ddp-ui-rightoption" (click)="refreshFilters()">
+        <a href="javascript:" class="ddp-link-reset"><em class="ddp-btn-reset3"></em>{{'msg.mem.btn.refresh' | translate}}</a>
+      </div>
+    </div>
+    <!-- //option -->
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <component-period
+        [title]="'Request date'"
+        [dateType]="false"
+        (changeDate)="onChangeDate($event)"
+      ></component-period>
+      <!-- //edit -->
+    </div>
+    <!-- //option -->
+
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- 검색 -->
+      <div class="ddp-form-search ddp-fleft">
+        <em class="ddp-icon-search"></em>
+        <input type="text" placeholder="{{'msg.mem.search.description' | translate}}" [(ngModel)]="searchKeyword" (keyup)="searchUser($event)" >
+        <em class="ddp-btn-search-close" (click)="searchKeyword = ''; getUsers()"></em>
+      </div>
+      <!-- //검색 -->
+      <div class="ddp-ui-rightoption">
+        <span class="ddp-data-total ddp-only">{{'msg.log.ui.num.lists' | translate : { value : pageResult.totalElements } }}</span>
+      </div>
+    </div>
+    <!-- //option -->
+  </div>
+
+  <table class="ddp-table-form ddp-table-type3">
+    <colgroup>
+      <col width="25%">
+      <col width="25%">
+      <col width="*">
+      <col width="15%">
+      <col width="20%">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>
+          {{'msg.comm.usr.id.title' | translate}}
+        </th>
+        <th>
+          {{'msg.comm.ui.name' | translate}}
+        </th>
+        <th>
+          {{'msg.login.join.email' | translate}}
+        </th>
+        <th (click)="sortList('createdTime')">
+          {{'msg.mem.th.request.date' | translate}}
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'desc'"></em>
+        </th>
+        <th >
+          {{'msg.log.th.status' | translate}}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of userList; let index = index">
+        <td>
+          {{item.username}}
+        </td>
+        <td>
+          {{item.fullName}}
+        </td>
+        <td>
+          {{item.email}}
+        </td>
+        <td>
+          {{item.createdTime | mdate : 'YYYY-MM-DD HH:mm'}}
+        </td>
+        <td>
+          <!--<span class="ddp-status-pending">{{item.status.toString()}}</span>-->
+          <a href="javascript:" (click)="changeUserStatus('APPROVE', item.username)" *ngIf="item.status !== 'REJECTED'" class="ddp-link-selection"><em class="ddp-icon-check"></em>{{'msg.mem.btn.approve' | translate}}</a>
+          <a href="javascript:" (click)="changeUserStatus('REJECT', item.username)" *ngIf="item.status !== 'REJECTED'" class="ddp-link-selection ddp-reject"><em class="ddp-icon-close"></em>{{'msg.mem.btn.reject' | translate}}</a>
+
+          <!-- info -->
+          <div class="ddp-type-txt ddp-info" *ngIf="item.status === 'REJECTED'">
+            <span class="ddp-status-rejected">{{'msg.approval.th.rejected' | translate}}</span>
+            <div class="ddp-ui-info">
+            <em class="ddp-icon-error2 ddp-relative"></em>
+            <div class="ddp-box-layout4 ddp-basic">{{item.statusMessage}}</div>
+            </div>
+          </div>
+        </td>
+        <!--<td>-->
+
+        <!--</td>-->
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="ddp-box-add-link" *ngIf="pageResult && pageResult.totalPages && page.page < pageResult.totalPages -1" (click)="loadMore()">
+    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+  </div>
+</div>
+
+<!-- approveModal -->
+<div class="ddp-wrap-layout-popup" *ngIf="isApproveModalOpen">
+
+  <div class="ddp-box-popup ddp-box-popup-type2">
+    <a href="javascript:" class="ddp-btn-close" (click)="isApproveModalOpen = false"></a>
+    <!-- title -->
+    <div class="ddp-pop-title">{{ 'msg.approval.ui.member.approve' | translate : {value : selectedUser} }}</div>
+    <!-- //title -->
+
+    <!-- button -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="isApproveModalOpen=false">{{'msg.comm.btn.cancl' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="approveUser()">{{'msg.mem.btn.approve' | translate}}</a>
+    </div>
+    <!-- //button -->
+  </div>
+
+</div>
+<!-- //approveModal -->
+
+<!-- rejectModal -->
+<div class="ddp-wrap-layout-popup" *ngIf="isRejectModalOpen">
+  <div class="ddp-box-popup ddp-box-popup-type3">
+    <a href="javascript:" class="ddp-btn-close" (click)="isRejectModalOpen = false; selectedUser = ''; rejectReason = ''"></a>
+    <div class="ddp-pop-title">{{ 'msg.approval.alert.user-reject.description'| translate : {value : selectedUser} }}</div>
+    <div class="ddp-box-detail">
+      <div class="ddp-box-detail-in">
+        <div class="ddp-box-edit">
+          <div class="ddp-ui-input-form" [ngClass]="{'ddp-type-error':isErrorMsgShow}">
+            <label class="ddp-label-type">{{'msg.approval.th.reason' | translate}}</label>
+            <div class="ddp-input-check">
+              <input type="text" class="ddp-input-type" placeholder="{{'msg.approval.ui.reject.ph' | translate}}" [(ngModel)]="rejectReason" (keydown)="isErrorMsgShow ? isErrorMsgShow = false : null">
+            </div>
+            <span class="ddp-ui-error" *ngIf="isErrorMsgShow">{{'msg.approval.alert.reject.reason' | translate}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- button -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="isRejectModalOpen = false; selectedUser = ''; rejectReason = ''">{{'msg.comm.btn.cancl' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="rejectUser()">{{'msg.approval.btn.reject' | translate}}</a>
+    </div>
+    <!-- //button -->
+  </div>
+</div>
+<!-- //rejectModal -->

@@ -1,0 +1,53 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-chart-side ddp-show">
+
+  <div class="ddp-ui-side-title">
+    {{'msg.page.ui.yaxis.title' | translate}}
+  </div>
+  <div class="ddp-wrap-downmenu">
+    <!-- box down -->
+    <div *ngIf="possibleChartCheck('axis', uiOption.type)" class="ddp-box-down">
+
+      <div class="ddp-wrap-divide" *ngIf="possibleChartCheck('yAxisTitle', uiOption.type)">
+        <div class="ddp-divide2">
+          <!-- slider -->
+          <div class="ddp-wrap-option-slider">
+            <span class="ddp-label-slider">{{'msg.page.chart.axis.show.axis.title' | translate}}</span>
+            <!-- Slide THREE -->
+            <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+              <input type="checkbox" (click)="showAxisName('column', !uiOption.yAxis.showName)" [ngModel]="uiOption.yAxis.showName">
+              <label><span class="ddp-slide"></span></label>
+            </div>
+            <!-- //Slide THREE -->
+          </div>
+          <!-- //slider -->
+
+          <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.page.ui.y-axis.title.ph' | translate}}"
+                 [(ngModel)]="nameUiOption.yAxis.customName" (keyup.enter)="axisName('column', 1, $event)" [disabled]="!uiOption.yAxis.showName">
+        </div>
+      </div>
+
+      <!-- 축이 category타입일때에만 show -->
+      <axis-category-option *ngIf="'category' == uiOption.yAxis?.label?.type.toString()" [axis]="uiOption.yAxis" [firstFl]="!possibleChartCheck('yAxisTitle', uiOption.type)" (changeCategoryAxis)="changeYAxisValue($event)"></axis-category-option>
+      <!-- //축이 category타입일때에만 show -->
+
+      <!-- 축이 value타입일때에만 show -->
+      <axis-value-option *ngIf="'value' == uiOption.yAxis?.label?.type.toString()" [axis]="uiOption.yAxis" [uiOption]="uiOption" (changeValueAxis)="changeYAxisValue($event)" (changeBaseline)="changeBaseline($event)"></axis-value-option>
+      <!-- //축이 value타입일때에만 show -->
+    </div>
+    <!-- //box down -->
+  </div>
+</div>

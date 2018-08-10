@@ -1,0 +1,89 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 로그인 하기전 웰컴 페이지 -->
+<div class="ddp-wrap-login sso-loading" *ngIf="!isLoggedIn">
+  <em class="ddp-blur"></em>
+  <!-- sso loading -->
+  <div class="ddp-sso-loading">
+    <div class="ddp-wrap-logo">
+      <em class="ddp-icon-logo"></em>
+    </div>
+    <!-- loading -->
+    <div class="ddp-icon-loading">
+      <div class="lds-wedges">
+        <div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div></div>
+      </div>
+    </div>
+    <!-- //loading -->
+    <div class="ddp-txt-welcome">{{ 'msg.sso.ui.welcome.title' | translate }}</div>
+    <div class="ddp-txt-message">{{ 'msg.sso.ui.loading' | translate }}</div>
+  </div>
+  <!-- // sso loading -->
+</div>
+<!-- // 로그인 하기전 웰컴 페이지 -->
+
+<!-- 로그인 후 로딩 레이어 -->
+<div class="ddp-loading" *ngIf="isLoggedIn" [style.display]="routerLoading ? 'block' : 'none'">
+  <div style="width:100%;height:100%" class="lds-wedges">
+    <div>
+      <div>
+        <div></div>
+      </div>
+      <div>
+        <div></div>
+      </div>
+      <div>
+        <div></div>
+      </div>
+      <div>
+        <div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- // 로그인 후 로딩 레이어 -->
+
+<router-outlet></router-outlet>
+
+<!-- 공통 확인 팝업 -->
+<div class="sys-global-confirm-popup ddp-wrap-layout-popup" style="display: none;">
+  <!-- 스크롤 팝업 : ddp-box-popup-type3 / 고정 팝업 : ddp-box-popup-type1 -->
+  <div class="ddp-box-popup">
+    <a href="javascript:" class="ddp-btn-close" ></a>
+    <!-- title -->
+    <div class="ddp-pop-title"></div>
+    <!-- //title -->
+
+    <div class="ddp-pop-detail" ></div>
+    <div style="display:none" class="ddp-box-detail">
+      <div class="ddp-box-detail-in">
+        <div class="ddp-txt-detail"></div>
+      </div>
+    </div>
+
+    <!-- button -->
+    <div class="ddp-ui-buttons">
+      <a style="display:none" href="javascript:" class="ddp-btn-type-popup"
+         attr.data-defaultMsg="{{'msg.comm.btn.cancl' | translate}}"></a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
+         attr.data-defaultMsg="{{'msg.comm.btn.done' | translate}}"></a>
+    </div>
+    <!-- //button -->
+  </div>
+</div>
+<!-- // 공통 확인 팝업 -->
+
+

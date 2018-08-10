@@ -1,0 +1,77 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-board-filter" [style.padding-right]="showBtnWidget ? '96px' : '0px'">
+  <!-- button -->
+  <div class="ddp-btn-slider" style="display: none;">
+    <a href="javascript:" class="ddp-btn-prev"></a>
+    <a href="javascript:" class="ddp-btn-next"></a>
+    <em class="ddp-bg-shadow"></em>
+  </div>
+  <!-- //button -->
+  <div class="ddp-wrap-board-filter" [class.ddp-initial]="scrollFreezing">
+    <!-- filter list -->
+    <div class="ddp-list-board-filter ddp-clear">
+      <div class="ddp-box-board-filter" *ngIf="selectionFilterList.length == 0">
+        <div class="ddp-box-dataselect">
+          {{'msg.board.filter.sel.data' | translate}}
+        </div>
+      </div>
+      <div class="ddp-box-board-filter" *ngFor="let selectFilter of selectionFilterList"
+           [class.ddp-time]="'interval' === selectFilter.type">
+        <div (click)="toggleLayer(selectFilter, $event)"
+             [class.ddp-selected]="selectFilter.selected" class="ddp-type-selectbox ddp-type-filter">
+          <em (click)="remove(selectFilter, true)" class="ddp-icon-sclose2"></em>
+          <!-- 차원값 표시 -->
+          <span *ngIf="!isTimeRangeFilter( selectFilter )" class="ddp-data-filter" >
+            <span class="ddp-txt-data">{{selectFilter.getLabel()}}</span>
+            <em *ngIf="1 < selectFilter.getValueCnt()" class="ddp-out" >
+                {{'msg.board.filter.ui.more.cnt' | translate : { cnt : selectFilter.getValueCnt() - 1 } }}
+            </em>
+          </span>
+          <!-- 차원값 표시 -->
+          <!-- timestamp 표시 -->
+          <span class="ddp-data-filter ddp-data-date" *ngIf="isTimeRangeFilter( selectFilter )" >
+            <span class="ddp-txt-data">
+                {{selectFilter.minTime}}<br>-{{selectFilter.maxTime}}
+            </span>
+            <!--<em class="ddp-out">외 1</em>-->
+          </span>
+          <!-- timestamp 표시 -->
+          <span class="ddp-txt-selectbox">{{selectFilter.getDisplayName()}}</span>
+          <!-- 필터 선택 옵션 목록 -->
+          <ul class="ddp-list-selectbox ddp-selectdown" *ngIf="selectFilter.selected" (clickOutside)="closeFilter()">
+            <li *ngFor="let item of selectFilter.valueList">
+              <a href="javascript:"> {{item}} </a>
+            </li>
+          </ul>
+          <!-- // 필터 선택 옵션 목록 -->
+        </div>
+      </div>
+    </div>
+    <!-- //filter list -->
+
+  </div>
+  <div class="ddp-wrap-right" [style.padding-right]="showBtnWidget ? '145px' : '5px'">
+    <a href="javascript:" class="ddp-btn-reset ddp-hover-tooltip" (click)="resetFilter()" *ngIf="selectionFilterList.length != 0">
+      <em class="ddp-bg-shadow"></em>
+      {{'msg.board.filter.btn.refresh' | translate}}
+      <!-- tooltip -->
+      <div class="ddp-ui-tooltip-info ddp-down">
+        <em class="ddp-icon-view-top"></em> {{'msg.board.filter.refresh.filter' | translate}}
+      </div>
+      <!-- //tooltip -->
+    </a>
+  </div>
+</div>

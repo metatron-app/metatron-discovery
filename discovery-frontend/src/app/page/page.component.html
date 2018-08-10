@@ -1,0 +1,1634 @@
+
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-chart">
+
+  <div class="ddp-layout-contents2">
+
+    <div class="ddp-wrap-chart">
+      <!-- lnb -->
+      <div class="ddp-wrap-chart-lnb">
+        <div class="ddp-view-chart-lnb">
+
+          <div class="ddp-ui-chart-lnb">
+          <!-- down menu -->
+          <div class="ddp-wrap-dropmenu">
+            <div class="ddp-ui-dropmenu" [class.ddp-selected]="'data' === dataLayerKey">
+              <div class="ddp-ui-drop-title" (click)="clickDataPanel('data')">
+                {{'msg.page.ui.panel.title' | translate}}
+                <span class="ddp-data-det">
+                {{'msg.page.ui.num.dimensions.measures' | translate : { dimensions : getSelectedDataItemsCnt(dimensions) , measures : getSelectedDataItemsCnt(measures) } }}
+                </span>
+                <em class="ddp-icon-drop-view"></em>
+              </div>
+              <!-- drop contents -->
+              <div class="ddp-ui-drop-contents">
+                <!-- name -->
+                <div class="ddp-wrap-source-name">
+                  <dashboard-datasource-combo
+                    [enableInfo]="true"
+                    [dataSources]="dataSourceList"
+                    [initialValue]="dataSource"
+                    (selectOption)="selectDataSource($event)"
+                    (showInfo)="onDataDetailPopup()"></dashboard-datasource-combo>
+                </div>
+                <!-- // name -->
+                <div class="ddp-ui-drop-option">
+                  <!-- 검색 -->
+                  <div class="ddp-form-search">
+                    <em class="ddp-icon-search"></em>
+                    <!--<input type="text" placeholder="search"/>-->
+                    <input type="text" placeholder="{{'msg.page.ui.search.ph' | translate}}" [(ngModel)]="fieldSearchText"
+                           (keyup)="setFieldTotalPage()"
+                           (keyup.esc)="fieldSearchText=''"/>
+                  </div>
+                  <!-- //검색 -->
+                </div>
+                <!-- drop down -->
+                <div class="ddp-wrap-drop-submenu" [class.ddp-selected]="isDataDimensionLayerShow">
+                  <!-- title -->
+                  <div class="ddp-ui-sub-title" (click)="isDataDimensionLayerShow=!isDataDimensionLayerShow">
+                    <div class="ddp-ui-sub-titlein ddp-dimension">
+                      <em class="ddp-icon-menumove"></em>
+                      {{'msg.page.th.dimension' | translate}}
+                      <a href="javascript:" (click)="$event.stopPropagation();openCustomFieldPopup(null, 'DIMENSION')" class="ddp-btn-addplus"></a>
+                    </div>
+                  </div>
+                  <!-- //title -->
+
+
+                  <!-- source list -->
+                  <div class="ddp-wrap-list-source">
+                    <ul class="ddp-list-source ddp-list-dimension" [dragula]="'dragbag'" [dragulaModel]="pageDimensions">
+                      <li class="ddp-ui-dimension" *ngFor="let field of pageDimensions; let idx = index"
+                          (click)="onPivotSelect(field, true)"
+                          [style.display]="isContainSearchText(fieldSearchText, field.name) ? 'block' : 'none'"
+                          [attr.data-name]="field.name" [attr.data-source]="'dimension'"
+                          [class.ddp-selected]="fieldDetailLayer == field && showFieldIconsFl">
+                        <!-- 네트워크 차트가 아닐때 -->
+                        <em *ngIf="'network' !== selectChart"
+                            [class.ddp-icon-columns]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'ROWS'"
+                            [class.ddp-icon-rows]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'COLUMNS'"
+                            [class.ddp-icon-cross]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'AGGREGATIONS'"
+                            class="type-apply"></em>
+                        <!-- //네트워크 차트가 아닐때 -->
+                        <!-- 네트워크 차트일때 -->
+                        <em *ngIf="'network' === selectChart"
+                            [class.icon-source]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'ROWS'"
+                            [class.icon-target]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'COLUMNS'"
+                            [class.icon-link]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'AGGREGATIONS'"
+                            class="ddp-icon-network"></em>
+                        <!-- //네트워크 차트일때 -->
+                        <!-- 문자열 -->
+                        <em class="ddp-icon-dimension-ab"
+                            *ngIf="field.logicalType?.toString() === 'STRING' || field.type === 'user_expr'"></em>
+                        <!--*ngIf="field.type === 'TEXT' || field.type === 'STRING' || field.type === 'USER_DEFINED'"></em>-->
+                        <!-- //문자열 -->
+                        <!-- 위도 / 경도 -->
+                        <em class="ddp-icon-dimension-local" *ngIf="field.logicalType?.toString() === 'LNG' || field.logicalType?.toString() === 'LNT'"></em>
+                        <!-- //위도 / 경도 -->
+                        <!-- 시간 -->
+                        <em class="ddp-icon-dimension-calen" *ngIf="field.logicalType?.toString() === 'TIMESTAMP'"></em>
+                        <!-- //시간 -->
+                        <!-- 숫자 -->
+                        <em class="ddp-icon-dimension-float"
+                            *ngIf="field.logicalType?.toString() === 'DOUBLE' || field.logicalType?.toString() === 'INTEGER'"></em>
+                            <!--*ngIf="field.type === 'INT' || field.type === 'INTEGER' || field.type === 'DOUBLE' || field.type === 'CALCULATED'"></em>-->
+                        <!-- //숫자 -->
+                        <!-- boolean -->
+                        <em class="ddp-icon-dimension-tf"
+                            *ngIf="field.logicalType?.toString() === 'BOOLEAN'"></em>
+                        <!-- //boolean -->
+                        <!-- icons -->
+                        <div class="ddp-wrap-icons">
+                          <!-- 사용자 정보 미리보기 -->
+                          <div class="ddp-wrap-user-preview" *ngIf="field.type === 'user_expr'">
+                            <em class="ddp-icon-control-user ddp-type" (click)="$event.stopPropagation();openCustomFieldPopup(field)"></em>
+                            <div class="ddp-ui-tooltip-info">
+                              <em class="ddp-icon-view-top"></em>
+                              <span class="ddp-txt-tooltip">{{unescapeCustomColumnExpr(field.expr)}}</span>
+                            </div>
+                          </div>
+                          <!-- //사용자 정보 미리보기 -->
+                          <!-- TODO 아이콘추가 필요 -->
+                          <!--<div class="ddp-wrap-user-preview">-->
+                            <!--<em class="ddp-icon-control-link ddp-type"></em>-->
+
+                            <!--<div class="ddp-ui-tooltip-info">-->
+                              <!--<em class="ddp-icon-view-top"></em>-->
+                              <!--<span class="ddp-txt-tooltip">Datasource B:</span>-->
+                            <!--</div>-->
+                          <!--</div>-->
+                          <!-- //TODO 아이콘추가 필요 -->
+                          <em class="ddp-icon-control-filter ddp-type" [ngClass]="{'ddp-selected' : field.useFilter}" (click)="toggleFilter(field,$event)"></em>
+                          <!-- 클릭시 ddp-selected -->
+                          <div class="ddp-btn-control">
+                            <em class="ddp-icon-control-more ddp-type" (click)="openFieldDetailLayer($event, field)"></em>
+                          </div>
+                        </div>
+                        <!-- //icons -->
+                        <!-- Name -->
+                        <span class="ddp-data-name" [class.ddp-alias]="field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name">
+                          <span class="ddp-data-in">
+                            {{field.name}}
+                            <em *ngIf="field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name" class="ddp-icon-alias"></em>
+                          </span>
+                        </span>
+                        <!-- // Name -->
+                      </li>
+                    </ul>
+                    <!-- page -->
+                    <div class="ddp-ui-page">
+                      <a (click)="$event.stopPropagation(); this.fieldPrev(true)"
+                         [class.ddp-disabled]="dimensionPage == 1"
+                         href="javascript:" class="ddp-prev"><em><</em>{{'msg.comm.btn.previous' | translate}}</a>
+                      <a (click)="$event.stopPropagation(); this.fieldNext(true)"
+                         [class.ddp-disabled]="dimensionPage == dimensionTotalPage"
+                         href="javascript:" class="ddp-next">{{'msg.comm.btn.next' | translate}} <em>></em></a>
+                    </div>
+                    <!-- //page -->
+                  </div>
+                  <!-- //source list -->
+                </div>
+                <!-- //drop down -->
+                <!-- drop down -->
+                <div class="ddp-wrap-drop-submenu" [class.ddp-selected]="isDataMeasureLayerShow">
+                  <!-- title -->
+                  <div class="ddp-ui-sub-title" (click)="isDataMeasureLayerShow=!isDataMeasureLayerShow">
+                    <div class="ddp-ui-sub-titlein ddp-measure">
+                      <em class="ddp-icon-menumove"></em>
+                      {{'msg.page.th.measure' | translate}}
+                      <a href="javascript:" (click)="$event.stopPropagation();openCustomFieldPopup(null, 'MEASURE')" class="ddp-btn-addplus"></a>
+                    </div>
+                  </div>
+                  <!-- //title -->
+
+
+                  <!-- source list -->
+                  <div class="ddp-wrap-list-source">
+                    <ul class="ddp-list-source ddp-list-measure" [dragula]="'dragbag'" [dragulaModel]="pageMeasures">
+
+                      <li class="ddp-ui-measure" *ngFor="let field of pageMeasures"
+                          (click)="onPivotSelect(field, false)"
+                          [style.display]="isContainSearchText(fieldSearchText, field.name) ? 'block' : 'none'"
+                          [attr.data-name]="field.name" [attr.data-source]="'measure'"
+                          [class.ddp-selected]="fieldDetailLayer == field && showFieldIconsFl">
+                        <!-- ddp-icon-rows, ddp-icon-columns, ddp-icon-cross 선반에 있는지 체크 -->
+                        <!-- 네트워크 차트가 아닐때 -->
+                        <em *ngIf="'network' !== selectChart"
+                            [class.ddp-icon-columns]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'ROWS'"
+                            [class.ddp-icon-rows]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'COLUMNS'"
+                            [class.ddp-icon-cross]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'AGGREGATIONS'"
+                            class="type-apply"></em>
+                        <!-- //네트워크 차트가 아닐때 -->
+                        <!-- 네트워크 차트일때 -->
+                        <em *ngIf="'network' === selectChart"
+                            [class.icon-source]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'ROWS'"
+                            [class.icon-target]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'COLUMNS'"
+                            [class.icon-link]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'AGGREGATIONS'"
+                            class="ddp-icon-network"></em>
+                        <!-- //네트워크 차트일때 -->
+                        <em class="ddp-icon-dimension-ab"
+                            *ngIf="field.logicalType?.toString() === 'STRING'"></em>
+                        <em class="ddp-icon-dimension-local" *ngIf="field.logicalType?.toString() === 'LNG' || field.logicalType?.toString() === 'LNT'"></em>
+                        <em class="ddp-icon-dimension-calen" *ngIf="field.logicalType?.toString() === 'TIMESTAMP'"></em>
+                        <em class="ddp-icon-measure-sharp"
+                            *ngIf="field.logicalType?.toString() === 'DOUBLE' || field.logicalType?.toString() === 'INTEGER' || field.type === 'user_expr'"></em>
+                        <!-- boolean -->
+                        <em class="ddp-icon-measure-tf" *ngIf="field.logicalType?.toString() === 'BOOLEAN'"></em>
+                        <!-- //boolean -->
+
+                        <!-- icons -->
+                        <div class="ddp-wrap-icons" (clickOutside)="showFieldIconsFl = false">
+                          <!-- ddp-selected -->
+                          <!-- 사용자 정보 미리보기 -->
+                          <div class="ddp-wrap-user-preview" *ngIf="field.type === 'user_expr'">
+                            <em class="ddp-icon-control-calculat ddp-type ddp-selected" (click)="$event.stopPropagation();openCustomFieldPopup(field);"></em>
+                            <div class="ddp-ui-tooltip-info">
+                              <em class="ddp-icon-view-top"></em>
+                              <span class="ddp-txt-tooltip">{{field.expr}}</span>
+                            </div>
+                          </div>
+                          <!-- //사용자 정보 미리보기 -->
+                          <em *ngIf="!isCustomMeasureField(field)"
+                              class="ddp-icon-control-filter ddp-type" [ngClass]="{'ddp-selected' : field.useFilter, 'ddp-disabled' : field.aggregated}" (click)="toggleFilter(field,$event)"></em>
+                          <!-- 클릭시 ddp-selected -->
+                          <div class="ddp-btn-control">
+                            <em class="ddp-icon-control-more ddp-type" (click)="openFieldDetailLayer($event, field)"></em>
+                          </div>
+                        </div>
+                        <!-- //icons -->
+                        <!-- Name -->
+                        <span class="ddp-data-name" [class.ddp-alias]="'user_expr' !== field.type && field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name">
+                          <span class="ddp-data-in">
+                            {{field.name}}
+                            <em *ngIf="'user_expr' !== field.type && field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name" class="ddp-icon-alias"></em>
+                          </span>
+                        </span>
+                        <!-- // Name -->
+                      </li>
+                    </ul>
+                    <!-- page -->
+                    <div class="ddp-ui-page">
+                      <a (click)="$event.stopPropagation(); this.fieldPrev(false)"
+                         [class.ddp-disabled]="measurePage == 1"
+                         href="javascript:" class="ddp-prev"><em><</em>{{'msg.comm.btn.previous' | translate}}</a>
+                      <a (click)="$event.stopPropagation(); this.fieldNext(false)"
+                         [class.ddp-disabled]="measurePage == measureTotalPage"
+                         href="javascript:" class="ddp-next">{{'msg.comm.btn.next' | translate}} <em>></em></a>
+                    </div>
+                    <!-- //page -->
+                  </div>
+                  <!-- //source list -->
+                </div>
+                <!-- //drop down -->
+              </div>
+              <!-- //drop contents -->
+
+
+            </div>
+          </div>
+          <!-- //down menu -->
+
+          <!-- down menu -->
+          <div class="ddp-wrap-dropmenu">
+            <div class="ddp-ui-dropmenu" [class.ddp-selected]="'chart' === dataLayerKey">
+              <div class="ddp-ui-drop-title" (click)="clickDataPanel('chart')">
+                {{'msg.page.ui.chart' | translate}}
+
+                <span class="ddp-data-det">{{getChartTypeTransLate(selectChart)}}</span>
+                <em class="ddp-icon-drop-view"></em>
+              </div>
+              <div class="ddp-ui-drop-contents">
+                <div class="ddp-ui-chart-list">
+                  <!--
+                      추천시 li class="ddp-recommend"
+                      선택시 li class="ddp-selected"
+                  -->
+                  <ul class="ddp-list-chart-img">
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('bar') > -1" [class.ddp-selected]="selectChart == 'bar'" (click)="selectChart = 'bar'" (mouseenter)="showInfoChart='bar'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-bar"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('grid') > -1" [class.ddp-selected]="selectChart == 'grid'" (click)="selectChart = 'grid'" (mouseenter)="showInfoChart='grid'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-txt"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('line') > -1" [class.ddp-selected]="selectChart == 'line'" (click)="selectChart = 'line'" (mouseenter)="showInfoChart='line'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-line"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('scatter') > -1" [class.ddp-selected]="selectChart == 'scatter'" (click)="selectChart = 'scatter'" (mouseenter)="showInfoChart='scatter'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-scatter"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('heatmap') > -1" [class.ddp-selected]="selectChart == 'heatmap'" (click)="selectChart = 'heatmap'" (mouseenter)="showInfoChart='heatmap'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-heatmap"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('pie') > -1" [class.ddp-selected]="selectChart == 'pie'" (click)="selectChart = 'pie'" (mouseenter)="showInfoChart='pie'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-pie"></em>
+                      </a>
+                    </li>
+                    <li *ngIf="isChartTest" [class.ddp-recommend]="recommendCharts.indexOf('mapview') > -1" [class.ddp-selected]="selectChart == 'mapview'" (click)="selectChart = 'mapview'" (mouseenter)="showInfoChart='mapview'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-map"></em>
+                      </a>
+                    </li>
+                    <!-- 컨트롤차트 지원중단 -->
+                    <!--<li [class.ddp-recommend]="recommendCharts.indexOf('control') > -1" [class.ddp-selected]="selectChart == 'control'" (click)="selectChart = 'control'" (mouseenter)="showInfoChart='control'" (mouseleave)="showInfoChart=''">-->
+                      <!--<a href="javascript:">-->
+                        <!--<em class="ddp-s-graph-cont"></em>-->
+                      <!--</a>-->
+                    <!--</li>-->
+                    <!-- //컨트롤차트 지원중단 -->
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('label') > -1" [class.ddp-selected]="selectChart == 'label'" (click)="selectChart = 'label'" (mouseenter)="showInfoChart='label'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-kpi"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('boxplot') > -1" [class.ddp-selected]="selectChart == 'boxplot'" (click)="selectChart = 'boxplot'" (mouseenter)="showInfoChart='boxplot'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-boxplot"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('waterfall') > -1" [class.ddp-selected]="selectChart == 'waterfall'" (click)="selectChart = 'waterfall'" (mouseenter)="showInfoChart='waterfall'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-waterfall"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('wordcloud') > -1" [class.ddp-selected]="selectChart == 'wordcloud'" (click)="selectChart = 'wordcloud'" (mouseenter)="showInfoChart='wordcloud'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-wordcloud"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('combine') > -1" [class.ddp-selected]="selectChart == 'combine'" (click)="selectChart = 'combine'" (mouseenter)="showInfoChart='combine'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-combo"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('treemap') > -1" [class.ddp-selected]="selectChart == 'treemap'" (click)="selectChart = 'treemap'" (mouseenter)="showInfoChart='treemap'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-treemap"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('radar') > -1" [class.ddp-selected]="selectChart == 'radar'" (click)="selectChart = 'radar'" (mouseenter)="showInfoChart='radar'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-radar"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('network') > -1" [class.ddp-selected]="selectChart == 'network'" (click)="selectChart = 'network'" (mouseenter)="showInfoChart='network'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-network"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('gauge') > -1" [class.ddp-selected]="selectChart == 'gauge'" (click)="selectChart = 'gauge'" (mouseenter)="showInfoChart='gauge'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-gauge"></em>
+                      </a>
+                    </li>
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('sankey') > -1" [class.ddp-selected]="selectChart == 'sankey'" (click)="selectChart = 'sankey'" (mouseenter)="showInfoChart='sankey'" (mouseleave)="showInfoChart=''">
+                      <a href="javascript:">
+                        <em class="ddp-s-graph-sankey"></em>
+                      </a>
+                    </li>
+                  </ul>
+
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('bar')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.bar' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.more-than-one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('grid')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.text-table' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.row-or-col' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.more-than-one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('line')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.line' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.more-than-one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('scatter')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.scatter' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.one.measured.value' | translate}}<br />
+                      {{'msg.page.ui.col' | translate}} : {{'msg.page.ui.one.measured.value' | translate}}<br />
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('heatmap')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.heat-map' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.row-or-col' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('pie')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.pie' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}, {{'msg.page.ui.more-than-one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <!--
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('mapview')">
+                    <span class="ddp-ui-name">맵뷰</span>
+                    <div class="ddp-data-det">
+                      교차 : 차원값 위도 1개, 경도 1개<br />
+                      측정값 : 1개이상
+                    </div>
+                  </div>
+                  -->
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <!-- 컨트롤차트 지원중단 -->
+                  <!--<div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('control')">-->
+                    <!--<span class="ddp-ui-name">{{'msg.page.ui.control-chart' | translate}}</span>-->
+                    <!--<div class="ddp-data-det">-->
+                      <!--{{'msg.page.ui.row' | translate}} : {{'msg.page.ui.one.time.dimension.value' | translate}}<br />-->
+                      <!--{{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.more-than-one.measured.value' | translate}}-->
+                    <!--</div>-->
+                  <!--</div>-->
+                  <!-- 컨트롤차트 지원중단 -->
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('label')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.kpi' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.more-than-one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('boxplot')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.box-plot' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.col' | translate}} : {{'msg.page.ui.one.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('waterfall')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.water-fall' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.one.time.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('wordcloud')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.word-cloud' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}, {{'msg.page.ui.one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('combine')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.combine-chart' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.two-to-four.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('treemap')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.tree-map' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.one.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.col' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('radar')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.radar-chart'  | translate }}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.one.dimension.value' | translate}}, {{'msg.page.ui.more-than-one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('network')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.network' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.sub.shelf' | translate}} : {{'msg.page.ui.one.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.target.shelf' | translate}} : {{'msg.page.ui.one.dimension.value' | translate}}<br />
+                      {{'msg.page.ui.conn.shelf' | translate}} : {{'msg.page.ui.one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('gauge')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.gauge-chart' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.col' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}<br/>
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('sankey')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.sankey' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.more-than-three.dimension.value' | translate}}<br/>
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!-- //down menu -->
+
+          <!-- down menu -->
+          <!--<div class="ddp-wrap-dropmenu">-->
+            <!--<div class="ddp-ui-dropmenu ddp-disabled">-->
+              <!--<div class="ddp-ui-drop-title">-->
+                <!--Analysis-->
+                <!--<em class="ddp-icon-drop-view"></em>-->
+              <!--</div>-->
+              <!--<div class="ddp-ui-drop-contents">-->
+                <!--Analysis-->
+              <!--</div>-->
+
+            <!--</div>-->
+          <!--</div>-->
+          <!-- //down menu -->
+
+          <!-- down menu -->
+          <!--
+            고급분석
+            [pivot]="pivot"
+          -->
+          <analysis-component [selectChart]="selectChart"
+                              [isChartShow]="isChartShow"
+                              [widgetConfiguration]="widgetConfiguration"
+                              [dataLayerKey]="dataLayerKey"
+                              (clickDataPanelNoti)="clickDataPanel($event);"
+                              (changeAnalysisPredictionNoti)="changeAnalysisPredictionLine();"
+                              (changeForecastNoti)="changeForecast();"
+                              (changeConfidenceNoti)="changeConfidence();">
+          </analysis-component>
+          <!-- //down menu -->
+
+        </div>
+        </div>
+      </div>
+      <!-- //lnb -->
+
+      <!-- contents -->
+      <div class="ddp-wrap-chart-contents"
+           [ngClass]="{'ddp-size' : (rnbMenu !== 'filter' && !isChartShow) || '' === rnbMenu || (rnbMenu !== 'filter' && !possibleChartCheck(rnbMenu,selectChart))}">
+        <div class="ddp-view-chart-contents">
+          <!-- navi -->
+          <div class="ddp-wrap-naviarea ddp-clear" *ngIf="widget">
+            <em class="ddp-icon-chart2"></em>
+            <div class="ddp-ui-naviarea">
+              <!-- name -->
+              <!-- 클릭시 ddp-selected 추가 -->
+              <div class="ddp-box-navi" (click)="!isPageNameEdit ? onNameEdit($event) : $event.stopPropagation();"
+              [class.ddp-selected]="isPageNameEdit">
+                <!-- 클릭시 ddp-selected 추가 -->
+                <div class="ddp-wrap-naviname ddp-full">
+                  <span class="ddp-data-naviname">{{widget.name}}
+                    <em *ngIf="!isPageNameEdit"
+                        class="ddp-icon-edit2"></em></span>
+                </div>
+                <!-- 편집 input -->
+                <div class="ddp-wrap-input">
+                  <input #pageName
+                         class="ddp-input-navi" [(ngModel)]="editingPageName"
+                         (keyup.enter)="pageName.blur(); isPageNameEdit ? onNameChange() : null;"
+                         (clickOutside)="onNameEditCancel()"
+                         maxlength="50"
+                         type="text" />
+                  <span #pageNameCheck (click)="$event.stopPropagation(); onNameChange()" class="ddp-btn-check"></span>
+                </div>
+                <!-- //편집 input -->
+              </div>
+              <!-- //name -->
+            </div>
+
+            <!-- control -->
+            <div *ngIf="!uiOption.split" class="ddp-ui-control">
+              <div class="ddp-box-btnselect">
+                <!-- 선택시 ddp-selected 추가 -->
+                <!-- TODO GAUGE -->
+                <a href="javascript:" class="ddp-btn-selected" *ngIf="uiOption.legend && (uiOption['type'] && (uiOption['type'].toString() != 'gauge' || (uiOption['type'].toString() == 'gauge' && 'measure' == uiOption?.color?.type.toString())) && uiOption['type'].toString() != 'sankey')" [ngClass]="{'ddp-selected': uiOption.legend.auto}" (click)="showLegend(!uiOption.legend.auto)">
+                  <em class="ddp-icon-tool-legend"></em>
+                  {{'msg.page.ui.legend' | translate}}
+                </a>
+
+                <!-- 선택시 ddp-selected 추가 -->
+                <a href="javascript:" class="ddp-btn-selected" *ngIf="uiOption.chartZooms" [ngClass]="{'ddp-selected': uiOption.chartZooms[0].auto}" (click)="showDataZoom(!uiOption.chartZooms[0].auto)">
+                  <em class="ddp-icon-tool-minimap"></em>
+                  {{'msg.page.ui.minimap' | translate}}
+                </a>
+              </div>
+            </div>
+            <!-- //control -->
+
+          </div>
+          <!-- //navi -->
+          <!-- 선반 -->
+          <page-pivot
+            #pagePivot
+            *ngIf="pivot && selectChart != 'mapview'"
+            [(pivot)]="pivot"
+            [(uiOption)]="uiOption"
+            [widget]="widget"
+            [(widgetConfig)]="widgetConfiguration"
+            [chartType]="selectChart"
+            [globalFilters]="widget.dashBoard.configuration['filters']"
+            (deletePivotItem)="onDeletePivotItem($event)"
+            (changePivotItem)="onChangePivotItem($event)"
+            (changePivot)="onChangePivot($event)"
+            (toggleFilter)="toggleFilter($event)"
+            (changeFormat)="onChangePivotFormat($event)"
+            (customField)="openCustomFieldPopup($event)"
+            (showPopup)="onShowPopup($event)">
+          </page-pivot>
+          <map-page-pivot
+            #mapPivot
+            *ngIf="pivot && selectChart == 'mapview'"
+            [(pivot)]="pivot"
+            [(uiOption)]="uiOption"
+            [widget]="widget"
+            [(widgetConfig)]="widgetConfiguration"
+            [chartType]="selectChart"
+            [globalFilters]="widget.dashBoard.configuration['filters']"
+            (deletePivotItem)="onDeletePivotItem($event)"
+            (changePivotItem)="onChangePivotItem($event)"
+            (changePivot)="onChangePivot($event)"
+            (toggleFilter)="toggleFilter($event)"
+            (changeFormat)="onChangePivotFormat($event)"
+            (customField)="openCustomFieldPopup($event)"
+            (showPopup)="onShowPopup($event)">
+          </map-page-pivot>
+          <!-- //선반 -->
+          <div class="ddp-ui-chart-contents">
+            <div class="ddp-wrap-chart-layout">
+              <!-- 차트 기본 선택 화면 -->
+              <div class="ddp-ui-chart-basic" *ngIf="selectChart==''">
+                <span class="ddp-ui-info">{{'msg.page.ui.sel.chart.type' | translate}}</span>
+                <!--
+                    추천일때 li class="ddp-recommend" 추가
+                    선택시 li class="ddp-selected" 추가
+                -->
+                <ul class="ddp-list-chart-type">
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('bar') > -1" [class.ddp-selected]="selectChart == 'bar'" (click)="selectChart = 'bar'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-bar"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.bar' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('grid') > -1" [class.ddp-selected]="selectChart == 'grid'" (click)="selectChart = 'grid'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-txt"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.text-table' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('line') > -1" [class.ddp-selected]="selectChart == 'line'" (click)="selectChart = 'line'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-line"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.line' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('scatter') > -1" [class.ddp-selected]="selectChart == 'scatter'" (click)="selectChart = 'scatter'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-scatter"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.scatter' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('heatmap') > -1" [class.ddp-selected]="selectChart == 'heatmap'" (click)="selectChart = 'heatmap'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-heatmap"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.heat-map' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('pie') > -1" [class.ddp-selected]="selectChart == 'pie'" (click)="selectChart = 'pie'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-pie"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.pie' | translate}}</span>
+                    </a>
+                  </li>
+                  <li *ngIf="isChartTest"  [class.ddp-recommend]="recommendCharts.indexOf('mapview') > -1" [class.ddp-selected]="selectChart == 'mapview'" (click)="selectChart = 'mapview'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-map"></em>
+                      <span class="ddp-txt-name">맵뷰</span>
+                    </a>
+                  </li>
+                  <!-- 컨트롤차트 지원중단 -->
+                  <!--<li [class.ddp-recommend]="recommendCharts.indexOf('control') > -1" [class.ddp-selected]="selectChart == 'control'" (click)="selectChart = 'control'">-->
+                    <!--<a href="javascript:">-->
+                      <!--<em class="ddp-img-graph-cont"></em>-->
+                      <!--<span class="ddp-txt-name">{{'msg.page.ui.control-chart' | translate}}</span>-->
+                    <!--</a>-->
+                  <!--</li>-->
+                  <!-- //컨트롤차트 지원중단 -->
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('label') > -1" [class.ddp-selected]="selectChart == 'label'" (click)="selectChart = 'label'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-kpi"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.kpi' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('boxplot') > -1" [class.ddp-selected]="selectChart == 'boxplot'" (click)="selectChart = 'boxplot'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-boxplot"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.box-plot' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('waterfall') > -1" [class.ddp-selected]="selectChart == 'waterfall'" (click)="selectChart = 'waterfall'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-waterfall"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.water-fall' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('wordcloud') > -1" [class.ddp-selected]="selectChart == 'wordcloud'" (click)="selectChart = 'wordcloud'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-wordcloud"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.word-cloud' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('combine') > -1" [class.ddp-selected]="selectChart == 'combine'" (click)="selectChart = 'combine'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-combo"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.combine-chart' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('treemap') > -1" [class.ddp-selected]="selectChart == 'treemap'" (click)="selectChart = 'treemap'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-treemap"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.tree-map' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('radar') > -1" [class.ddp-selected]="selectChart == 'radar'" (click)="selectChart = 'radar'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-radar"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.radar-chart' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('network') > -1" [class.ddp-selected]="selectChart == 'network'" (click)="selectChart = 'network'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-network"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.network' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('gauge') > -1" [class.ddp-selected]="selectChart == 'gauge'" (click)="selectChart = 'gauge'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-gauge"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.gauge-chart' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('sankey') > -1" [class.ddp-selected]="selectChart == 'sankey'" (click)="selectChart = 'sankey'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-sankey"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.sankey' | translate}}</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <!-- //차트 기본 선택 화면 -->
+
+              <!-- 차트 가이드 -->
+              <div *ngIf="selectChart!='' && !isChartShow" style="width: 100%; height: 100%">
+
+                <!-- layout 5 -->
+                <div class="ddp-ui-cahrt-layout ddp-box-layout2" *ngIf="isShowGuide && this.guideLayout['layout5'].indexOf(selectChart) > -1">
+
+                  <div class="ddp-ui-layout-center" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'aggregation-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore ddp-ui-condition">
+                      <em class="ddp-icon-cross2"></em>
+                      <span class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.desc' | translate: { value : '1' } }}</span>
+                    </div>
+                    <!-- //조건 -->
+                    <em class="ddp-bg-chart-gauge" *ngIf="selectChart == 'gauge'"></em>
+
+                  </div>
+                  <div class="ddp-ui-layout-bottom" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'row-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore dragIgnore ddp-ui-condition">
+                      <em class="ddp-icon-columns2"></em>
+                      <span class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }}</span>
+                    </div>
+                    <!-- //조건 -->
+
+                  </div>
+                </div>
+                <!-- //layout 5 -->
+
+                <!-- layout 4 -->
+                <div class="ddp-ui-cahrt-layout ddp-box-layout3" *ngIf="isShowGuide && this.guideLayout['layout4'].indexOf(selectChart) > -1">
+                  <div class="ddp-ui-layout-left" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'row-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore ddp-ui-condition">
+                      <em *ngIf="'network' !== selectChart" class="ddp-icon-columns2"></em>
+                      <em *ngIf="'network' === selectChart" class="ddp-icon-target"></em>
+                      <span *ngIf="selectChart != 'scatter' && selectChart != 'network' && selectChart != 'boxplot'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'network' || selectChart == 'boxplot'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'scatter'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.desc' | translate: { value : '1' } }}</span>
+                    </div>
+                    <!-- //조건 -->
+
+                  </div>
+                  <div class="ddp-ui-layout-center" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'aggregation-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore ddp-ui-condition">
+                      <em *ngIf="'network' !== selectChart" class="ddp-icon-cross2"></em>
+                      <em *ngIf="'network' === selectChart" class="ddp-icon-link"></em>
+                      <span *ngIf="selectChart != 'scatter' && selectChart != 'network' && selectChart != 'heatmap' && selectChart != 'boxplot' && selectChart != 'treemap'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.over.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'network' || selectChart == 'heatmap' || selectChart == 'boxplot' || selectChart == 'treemap'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'scatter'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }}</span>
+                    </div>
+                    <!-- //조건 -->
+                    <em class="ddp-bg-chart-bar" *ngIf="selectChart == 'bar'"></em>
+                    <em class="ddp-bg-chart-boxplot" *ngIf="selectChart == 'boxplot'"></em>
+                    <em class="ddp-bg-chart-combo" *ngIf="selectChart == 'combine'"></em>
+                    <!-- 컨트롤차트 지원중단 -->
+                    <!--<em class="ddp-bg-chart-cont" *ngIf="selectChart == 'control'"></em>-->
+                    <!-- //컨트롤차트 지원중단 -->
+                    <em class="ddp-bg-chart-heatmap" *ngIf="selectChart == 'heatmap'"></em>
+                    <em class="ddp-bg-chart-kpi" *ngIf="selectChart == 'label'"></em>
+                    <em class="ddp-bg-chart-line" *ngIf="selectChart == 'line'"></em>
+                    <!--
+                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'mapview'"></em>
+                    -->
+                    <em class="ddp-bg-chart-network" *ngIf="selectChart == 'network'"></em>
+                    <em class="ddp-bg-chart-pie" *ngIf="selectChart == 'pie'"></em>
+                    <em class="ddp-bg-chart-randar" *ngIf="selectChart == 'radar'"></em>
+                    <em class="ddp-bg-chart-scatter" *ngIf="selectChart == 'scatter'"></em>
+                    <em class="ddp-bg-chart-table" *ngIf="selectChart == 'grid'"></em>
+                    <em class="ddp-bg-chart-treemap" *ngIf="selectChart == 'treemap'"></em>
+                    <em class="ddp-bg-chart-waterfall" *ngIf="selectChart == 'waterfall'"></em>
+                    <em class="ddp-bg-chart-wordcloud" *ngIf="selectChart == 'wordcloud'"></em>
+
+                  </div>
+                  <div class="ddp-ui-layout-bottom" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'column-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore ddp-ui-condition">
+                      <em *ngIf="'network' !== selectChart" class="ddp-icon-rows2"></em>
+                      <em *ngIf="'network' === selectChart" class="ddp-icon-source"></em>
+                      <span *ngIf="selectChart != 'scatter' && selectChart != 'network' && selectChart != 'treemap'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'network' || selectChart == 'treemap'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'scatter'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.desc' | translate: { value : '1' } }}</span>
+                    </div>
+                    <!-- //조건 -->
+
+                  </div>
+                </div>
+                <!-- //layout 4 -->
+
+                <!-- layout 3 -->
+                <div class="ddp-ui-cahrt-layout ddp-box-layout2" *ngIf="isShowGuide && this.guideLayout['layout3'].indexOf(selectChart) > -1">
+                  <div class="ddp-ui-layout-center" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'column-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore ddp-ui-condition">
+                      <em class="ddp-icon-rows2"></em>
+                      <!-- 컨트롤차트 지원중단 -->
+                      <span *ngIf="selectChart == 'waterfall'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.datetime.desc' | translate: { value : '1' } }}</span>
+                      <!--<span *ngIf="selectChart == 'waterfall' || selectChart == 'control'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.datetime.desc' | translate: { value : '1' } }}</span>-->
+                      <!-- //컨트롤차트 지원중단 -->
+                      <span *ngIf="selectChart == 'sankey'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '3' } }}</span>
+                    </div>
+                    <!-- //조건 -->
+                    <em class="ddp-bg-chart-bar" *ngIf="selectChart == 'bar'"></em>
+                    <em class="ddp-bg-chart-boxplot" *ngIf="selectChart == 'boxplot'"></em>
+                    <em class="ddp-bg-chart-combo" *ngIf="selectChart == 'combine'"></em>
+                    <!-- 컨트롤차트 지원중단 -->
+                    <!--<em class="ddp-bg-chart-cont" *ngIf="selectChart == 'control'"></em>-->
+                    <!-- //컨트롤차트 지원중단 -->
+                    <em class="ddp-bg-chart-heatmap" *ngIf="selectChart == 'heatmap'"></em>
+                    <em class="ddp-bg-chart-kpi" *ngIf="selectChart == 'label'"></em>
+                    <em class="ddp-bg-chart-line" *ngIf="selectChart == 'line'"></em>
+                    <!--
+                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'mapview'"></em>
+                    -->
+                    <em class="ddp-bg-chart-network" *ngIf="selectChart == 'network'"></em>
+                    <em class="ddp-bg-chart-pie" *ngIf="selectChart == 'pie'"></em>
+                    <em class="ddp-bg-chart-randar" *ngIf="selectChart == 'radar'"></em>
+                    <em class="ddp-bg-chart-scatter" *ngIf="selectChart == 'scatter'"></em>
+                    <em class="ddp-bg-chart-table" *ngIf="selectChart == 'grid'"></em>
+                    <em class="ddp-bg-chart-treemap" *ngIf="selectChart == 'treemap'"></em>
+                    <em class="ddp-bg-chart-waterfall" *ngIf="selectChart == 'waterfall'"></em>
+                    <em class="ddp-bg-chart-wordcloud" *ngIf="selectChart == 'wordcloud'"></em>
+
+                  </div>
+                  <div class="ddp-ui-layout-bottom" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'aggregation-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore ddp-ui-condition">
+                      <em class="ddp-icon-cross2"></em>
+                      <!-- 컨트롤차트 지원중단 -->
+                      <!--<span *ngIf="selectChart == 'control'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.over.desc' | translate: { value : '1' } }}</span>-->
+                      <!-- //컨트롤차트 지원중단 -->
+                      <span *ngIf="selectChart != 'control'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.desc' | translate: { value : '1' } }}</span>
+                    </div>
+                    <!-- //조건 -->
+
+                  </div>
+                </div>
+                <!-- //layout 3 -->
+
+                <!-- layout 2 -->
+                <div class="ddp-ui-cahrt-layout ddp-box-layout2" *ngIf="isShowGuide && this.guideLayout['layout2'].indexOf(selectChart) > -1">
+
+                  <div class="ddp-ui-layout-center" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'aggregation-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore ddp-ui-condition">
+                      <em class="ddp-icon-cross2"></em>
+                      <!--<span *ngIf="selectChart != 'combine'" class="ddp-txt-measure">1+ Dimension</span>-->
+                      <span *ngIf="selectChart != 'combine'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.over.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'combine'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.over.desc' | translate: { value : '2' } }}</span>
+                    </div>
+                    <!-- //조건 -->
+                    <em class="ddp-bg-chart-bar" *ngIf="selectChart == 'bar'"></em>
+                    <em class="ddp-bg-chart-boxplot" *ngIf="selectChart == 'boxplot'"></em>
+                    <em class="ddp-bg-chart-combo" *ngIf="selectChart == 'combine'"></em>
+                    <!-- 컨트롤차트 지원중단 -->
+                    <!--<em class="ddp-bg-chart-cont" *ngIf="selectChart == 'control'"></em>-->
+                    <!-- //컨트롤차트 지원중단 -->
+                    <em class="ddp-bg-chart-heatmap" *ngIf="selectChart == 'heatmap'"></em>
+                    <em class="ddp-bg-chart-kpi" *ngIf="selectChart == 'label'"></em>
+                    <em class="ddp-bg-chart-line" *ngIf="selectChart == 'line'"></em>
+                    <!--
+                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'mapview'"></em>
+                    -->
+                    <em class="ddp-bg-chart-network" *ngIf="selectChart == 'network'"></em>
+                    <em class="ddp-bg-chart-pie" *ngIf="selectChart == 'pie'"></em>
+                    <em class="ddp-bg-chart-randar" *ngIf="selectChart == 'radar'"></em>
+                    <em class="ddp-bg-chart-scatter" *ngIf="selectChart == 'scatter'"></em>
+                    <em class="ddp-bg-chart-table" *ngIf="selectChart == 'grid'"></em>
+                    <em class="ddp-bg-chart-treemap" *ngIf="selectChart == 'treemap'"></em>
+                    <em class="ddp-bg-chart-waterfall" *ngIf="selectChart == 'waterfall'"></em>
+                    <em class="ddp-bg-chart-wordcloud" *ngIf="selectChart == 'wordcloud'"></em>
+
+                  </div>
+                  <div class="ddp-ui-layout-bottom" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'column-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore ddp-ui-condition">
+                      <em class="ddp-icon-rows2"></em>
+                      <span class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }}</span>
+                    </div>
+                    <!-- //조건 -->
+
+                  </div>
+                </div>
+                <!-- //layout 2 -->
+
+                <!-- layout 1 -->
+                <div class="ddp-ui-cahrt-layout ddp-box-layout1" *ngIf="isShowGuide && this.guideLayout['layout1'].indexOf(selectChart) > -1">
+
+                  <div class="ddp-ui-layout-center" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'aggregation-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore ddp-ui-condition">
+                      <em class="ddp-icon-cross2"></em>
+                      <span *ngIf="selectChart != 'wordcloud' && selectChart != 'radar' && selectChart != 'pie'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.over.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'radar'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.over.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'radar'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.and.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'wordcloud'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'wordcloud'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.and.over.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'pie'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'pie'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.and.desc' | translate: { value : '1' } }}</span>
+                      <!--
+                      <span class="ddp-txt-dimension"> or 1+ Dimension</span>
+                      -->
+                    </div>
+                    <!-- //조건 -->
+                    <em class="ddp-bg-chart-bar" *ngIf="selectChart == 'bar'"></em>
+                    <em class="ddp-bg-chart-boxplot" *ngIf="selectChart == 'boxplot'"></em>
+                    <em class="ddp-bg-chart-combo" *ngIf="selectChart == 'combine'"></em>
+                    <!-- 컨트롤차트 지원중단 -->
+                    <!--<em class="ddp-bg-chart-cont" *ngIf="selectChart == 'control'"></em>-->
+                    <!-- //컨트롤차트 지원중단 -->
+                    <em class="ddp-bg-chart-heatmap" *ngIf="selectChart == 'heatmap'"></em>
+                    <em class="ddp-bg-chart-kpi" *ngIf="selectChart == 'label'"></em>
+                    <em class="ddp-bg-chart-line" *ngIf="selectChart == 'line'"></em>
+                    <!--
+                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'mapview'"></em>
+                    -->
+                    <em class="ddp-bg-chart-network" *ngIf="selectChart == 'network'"></em>
+                    <em class="ddp-bg-chart-pie" *ngIf="selectChart == 'pie'"></em>
+                    <em class="ddp-bg-chart-randar" *ngIf="selectChart == 'radar'"></em>
+                    <em class="ddp-bg-chart-scatter" *ngIf="selectChart == 'scatter'"></em>
+                    <em class="ddp-bg-chart-table" *ngIf="selectChart == 'grid'"></em>
+                    <em class="ddp-bg-chart-waterfall" *ngIf="selectChart == 'waterfall'"></em>
+                    <em class="ddp-bg-chart-wordcloud" *ngIf="selectChart == 'wordcloud'"></em>
+                    <em class="ddp-bg-chart-treemap" *ngIf="selectChart == 'treemap'"></em>
+                  </div>
+
+                </div>
+                <!-- //layout 1 -->
+
+              </div>
+              <!-- //차트 가이드 -->
+
+              <!-- 차트 메인 -->
+              <div class="ddp-ui-chart-main" [style.display]="selectChart == '' || isChartShow == false? 'none' : 'block'">
+                <!-- top -->
+                <div class="ddp-ui-top ddp-clear">
+
+                  <!-- control -->
+                  <div class="ddp-ui-control">
+                    <!-- part -->
+                    <!--
+                    <div class="ddp-ui-part">
+                      <div class="ddp-box-btn-hover" data-type="select-gruop">
+                        <a href="javascript:" class="ddp-btn-tool" data-mode="single" data-type="" (click)="changeMouseSelectMode($event)">
+                          <em class="ddp-icon-tool-pointer"></em>
+                        </a>
+                        <a href="javascript:" class="ddp-btn-tool" data-mode="single" data-type="" (click)="changeMouseSelectMode($event)" *ngIf="possibleMouseModeCheck('single', uiOption.type)">
+                          <em class="ddp-icon-tool-pointer"></em>
+                        </a>
+                        <a href="javascript:" class="ddp-btn-tool" data-mode="multi" data-type="rect" (click)="changeMouseSelectMode($event)" *ngIf="possibleMouseModeCheck('multi', uiOption.type)">
+                          <em class="ddp-icon-tool-elliptical"></em>
+                        </a>
+                        <a href="javascript:" class="ddp-btn-tool" data-mode="multi" data-type="polygon" (click)="changeMouseSelectMode($event)" *ngIf="possibleMouseModeCheck('multi', uiOption.type)">
+                          <em class="ddp-icon-tool-freeshape"></em>
+                        </a>
+                      </div>
+                      <div class="ddp-box-btn-hover" data-type="zoom-group" *ngIf="possibleMouseModeCheck('zoom', uiOption.type)">
+                        <a href="javascript:" class="ddp-btn-tool" (click)="changeMouseZoomMode('dragzoomin')">
+                          <em class="ddp-icon-tool-rectangular"></em>
+                        </a>
+                        <a href="javascript:" class="ddp-btn-tool" (click)="changeMouseZoomMode('zoomin')">
+                          <em class="ddp-icon-tool-zoomin"></em>
+                        </a>
+                        <a href="javascript:" class="ddp-btn-tool" (click)="changeMouseZoomMode('zoomout')">
+                          <em class="ddp-icon-tool-zoomout"></em>
+                        </a>
+                        <a href="javascript:" class="ddp-btn-tool" (click)="changeMouseZoomMode('revert')">
+                          <em class="ddp-icon-tool-revert"></em>
+                        </a>
+                      </div>
+                    </div>
+                    -->
+                    <!-- //part -->
+
+                    <!-- //part -->
+                    <!-- part -->
+                    <!--<div class="ddp-ui-part">-->
+                    <!--&lt;!&ndash;-->
+                    <!--<div (click)="onTableDataDownload()" class="ddp-box-btn2 ddp-box-selected">-->
+                    <!--<em class="ddp-icon-widget-gridsave"></em>-->
+                    <!--<div class="ddp-ui-tooltip-info">-->
+                    <!--<em class="ddp-icon-view-down"></em>-->
+                    <!--테이블 데이터 저장-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--<div (click)="onChartDataDownload()" class="ddp-box-btn2 ddp-box-selected">-->
+                    <!--<em class="ddp-icon-widget-save"></em>-->
+                    <!--<div class="ddp-ui-tooltip-info">-->
+                    <!--<em class="ddp-icon-view-down"></em>-->
+                    <!--차트 데이터 저장-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--&ndash;&gt;-->
+                    <!--&lt;!&ndash; box button &ndash;&gt;-->
+                    <!--<div class="ddp-ui-btnview ddp-selected">-->
+                    <!--&lt;!&ndash; 선택시 ddp-selected 추가 &ndash;&gt;-->
+                    <!--<div [class.ddp-selected]="!isChartView"-->
+                    <!--(click)="onModeChange(false)"-->
+                    <!--class="ddp-box-btn">-->
+                    <!--<em class="ddp-icon-widget-grid"></em>-->
+                    <!--&lt;!&ndash; 툴팁 &ndash;&gt;-->
+                    <!--<div class="ddp-ui-tooltip-info">-->
+                    <!--<em class="ddp-icon-view-down"></em>-->
+                    <!--테이블 뷰-->
+                    <!--</div>-->
+                    <!--&lt;!&ndash; //툴팁 &ndash;&gt;-->
+                    <!--</div>-->
+                    <!--&lt;!&ndash; 선택시 ddp-selected 추가 &ndash;&gt;-->
+                    <!--<div [class.ddp-selected]="isChartView"-->
+                    <!--(click)="onModeChange(true)"-->
+                    <!--class="ddp-box-btn">-->
+                    <!--<em class="ddp-icon-widget-graph"></em>-->
+                    <!--&lt;!&ndash; 툴팁 &ndash;&gt;-->
+                    <!--<div class="ddp-ui-tooltip-info">-->
+                    <!--<em class="ddp-icon-view-down"></em>-->
+                    <!--그래프 뷰-->
+                    <!--</div>-->
+                    <!--&lt;!&ndash; //툴팁 &ndash;&gt;-->
+                    <!--</div>-->
+
+                    <!--</div>-->
+                    <!--&lt;!&ndash; //box button &ndash;&gt;-->
+                    <!--</div>-->
+                    <!-- //part -->
+
+                  </div>
+                  <!-- //control -->
+                </div>
+                <!-- //top -->
+
+                <!-- 차트 영역 -->
+                <div [class.ddp-sankey]="isSankeyNotAllNode && !isNoData && isChartView && selectChart == 'sankey'" class="ddp-ui-chart-area">
+
+                  <!-- Sankey Information -->
+                  <div *ngIf="isSankeyNotAllNode && !isNoData && isChartView && selectChart == 'sankey'" class="ddp-txt-detail">※ {{'msg.page.ui.sankey.data.part' | translate}}</div>
+                  <!-- //Sankey Information -->
+
+                  <!-- data none -->
+                  <div *ngIf="isNoData" class="ddp-box-data-none">
+                    <div class="ddp-wrap-data-none">
+                      <div class="ddp-ui-data-none">
+                        <div class="ddp-txt-none">
+                          {{'msg.page.ui.no.data.show' | translate}}
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  <!-- //data none -->
+
+                  <!-- page -->
+                  <!-- 차트 개발 붙이고 디자인 수정 예정 -->
+                  <div class="ddp-ui-page" style="display: none">
+                    <a href="javascript:" class="ddp-btn-prev ddp-disabled"></a>
+                    <span class="ddp-data-page"><em>1</em>/<em>5</em></span>
+                    <a href="javascript:" class="ddp-btn-next ddp-disabled"></a>
+                  </div>
+
+                  <div style="width: 100%; height: 100%"
+                       [style.display]="!isChartView ? 'block' : 'none'"
+                       *ngIf="!isNoData && isAvaliableGrid()">
+                    <grid-chart
+                      #gridChart
+                      *ngIf="!isChartView && resultData && gridUiOption"
+                      [uiOption]="gridUiOption"
+                      [viewMode]="true"
+                      (uiOptionUpdated)="gridUiOptionUpdatedHandler($event)"
+                      (noData)="onNoData()"
+                      [resizeDelay]="800">
+                    </grid-chart>
+                  </div>
+
+                  <div style="width: 100%; height: 100%"
+                       [style.display]="!isNoData && isChartView ? 'block' : 'none'">
+                    <bar-chart #chart
+                               [isPage]="true"
+                               *ngIf="selectChart == 'bar'"
+                               [uiOption]="uiOption"
+                               (noData)="onNoData()">
+                    </bar-chart>
+
+                    <line-chart #chart
+                                [isPage]="true"
+                                *ngIf="selectChart == 'line'"
+                                [uiOption]="uiOption"
+                                (uiOptionUpdated)="updateUIOption($event); analysisComponent.changeOption();"
+                                (noData)="onNoData()"
+                                (chartSelectInfo)="chartSelectInfo($event)"
+                                (drawFinished)="lineChartDrawComplete($event);"
+                                [resizeDelay]="500">
+                    </line-chart>
+
+                    <scatter-chart #chart
+                                   [isPage]="true"
+                                   *ngIf="selectChart  == 'scatter'"
+                                   [uiOption]="uiOption"
+                                   (uiOptionUpdated)="updateUIOption($event)"
+                                   (noData)="onNoData()"
+                                   (chartSelectInfo)="chartSelectInfo($event)"
+                                   [resizeDelay]="500">
+                    </scatter-chart>
+
+                    <!-- 컨트롤차트 지원중단 -->
+                    <!--<control-chart #chart-->
+                                   <!--[isPage]="true"-->
+                                   <!--*ngIf="selectChart == 'control'"-->
+                                   <!--[uiOption]="uiOption"-->
+                                   <!--(uiOptionUpdated)="updateUIOption($event)"-->
+                                   <!--(noData)="onNoData()"-->
+                                   <!--(chartSelectInfo)="chartSelectInfo($event)"-->
+                                   <!--[resizeDelay]="500">-->
+                    <!--</control-chart>-->
+                    <!-- //컨트롤차트 지원중단 -->
+
+                    <grid-chart #chart
+                                [isPage]="true"
+                                *ngIf="selectChart == 'grid'"
+                                [uiOption]="uiOption"
+                                (uiOptionUpdated)="updateUIOption($event)"
+                                (noData)="onNoData()"
+                                (chartSelectInfo)="chartSelectInfo($event)"
+                                [resizeDelay]="500">
+                    </grid-chart>
+
+                    <heatmap-chart #chart
+                                   [isPage]="true"
+                                   *ngIf="selectChart == 'heatmap'"
+                                   [uiOption]="uiOption"
+                                   (uiOptionUpdated)="updateUIOption($event)"
+                                   (noData)="onNoData()"
+                                   (chartSelectInfo)="chartSelectInfo($event)"
+                                   [resizeDelay]="500">
+                    </heatmap-chart>
+
+                    <boxplot-chart #chart
+                                   [isPage]="true"
+                                   *ngIf="selectChart == 'boxplot'"
+                                   [uiOption]="uiOption"
+                                   (uiOptionUpdated)="updateUIOption($event)"
+                                   (noData)="onNoData()"
+                                   (chartSelectInfo)="chartSelectInfo($event)"
+                                   [resizeDelay]="500">
+                    </boxplot-chart>
+
+                    <pie-chart #chart
+                               [isPage]="true"
+                               *ngIf="selectChart == 'pie'"
+                               [uiOption]="uiOption"
+                               (uiOptionUpdated)="updateUIOption($event)"
+                               (noData)="onNoData()"
+                               (chartSelectInfo)="chartSelectInfo($event)"
+                               [resizeDelay]="500">
+                    </pie-chart>
+
+                    <label-chart #chart
+                                 [isPage]="true"
+                                 *ngIf="selectChart == 'label'"
+                                 [uiOption]="uiOption"
+                                 (uiOptionUpdated)="updateUIOption($event)"
+                                 (noData)="onNoData()"
+                                 (chartSelectInfo)="chartSelectInfo($event)"
+                                 [query]="query"
+                                 [widget]="widget"
+                                 [resizeDelay]="500">
+                    </label-chart>
+
+                    <wordcloud-chart #chart
+                                     [isPage]="true"
+                                     *ngIf="selectChart == 'wordcloud'"
+                                     [uiOption]="uiOption"
+                                     (uiOptionUpdated)="updateUIOption($event)"
+                                     (noData)="onNoData()"
+                                     (chartSelectInfo)="chartSelectInfo($event)"
+                                     [resizeDelay]="500">
+                    </wordcloud-chart>
+
+                    <waterfall-chart #chart
+                                     [isPage]="true"
+                                     *ngIf="selectChart == 'waterfall'"
+                                     [uiOption]="uiOption"
+                                     (uiOptionUpdated)="updateUIOption($event)"
+                                     (noData)="onNoData()"
+                                     (chartSelectInfo)="chartSelectInfo($event)"
+                                     [resizeDelay]="500">
+                    </waterfall-chart>
+
+                    <combine-chart #chart
+                                   [isPage]="true"
+                                   *ngIf="selectChart == 'combine'"
+                                   [uiOption]="uiOption"
+                                   (uiOptionUpdated)="updateUIOption($event)"
+                                   (noData)="onNoData()"
+                                   (chartSelectInfo)="chartSelectInfo($event)"
+                                   [resizeDelay]="500">
+                    </combine-chart>
+
+                    <treemap-chart #chart
+                                   [isPage]="true"
+                                   *ngIf="selectChart == 'treemap'"
+                                   [uiOption]="uiOption"
+                                   (uiOptionUpdated)="updateUIOption($event)"
+                                   (noData)="onNoData()"
+                                   (chartSelectInfo)="chartSelectInfo($event)"
+                                   [resizeDelay]="500">
+                    </treemap-chart>
+
+                    <radar-chart #chart
+                                 [isPage]="true"
+                                 *ngIf="selectChart == 'radar'"
+                                 [uiOption]="uiOption"
+                                 (uiOptionUpdated)="updateUIOption($event)"
+                                 (noData)="onNoData()"
+                                 (chartSelectInfo)="chartSelectInfo($event)"
+                                 [resizeDelay]="500">
+                    </radar-chart>
+
+                    <network-chart #chart
+                                   [isPage]="true"
+                                   *ngIf="selectChart == 'network'"
+                                   [uiOption]="uiOption"
+                                   (uiOptionUpdated)="updateUIOption($event)"
+                                   (noData)="onNoData()"
+                                   (chartSelectInfo)="chartSelectInfo($event)"
+                                   [resizeDelay]="500">
+                    </network-chart>
+
+                    <sankey-chart #chart
+                                  [isPage]="true"
+                                  *ngIf="selectChart == 'sankey'"
+                                  [uiOption]="uiOption"
+                                  (uiOptionUpdated)="updateUIOption($event)"
+                                  (noData)="onNoData()"
+                                  (notAllNode)="isSankeyNotAllNode = $event"
+                                  (chartSelectInfo)="chartSelectInfo($event)"
+                                  [resizeDelay]="500">
+                    </sankey-chart>
+                    <gauge-chart #chart
+                                 [isPage]="true"
+                                 *ngIf="selectChart == 'gauge'"
+                                 [uiOption]="uiOption"
+                                 (uiOptionUpdated)="updateUIOption($event)"
+                                 (noData)="onNoData()"
+                                 (changePivotData)="onChangePivotData($event)"
+                                 (showGuide)="onShowGuide()"
+                                 (chartSelectInfo)="chartSelectInfo($event)"
+                                 [resizeDelay]="500">
+                    </gauge-chart>
+                    <map-chart #chart
+                                 [isPage]="true"
+                                 *ngIf="selectChart == 'mapview'"
+                                 [uiOption]="uiOption"
+                                 (uiOptionUpdated)="updateUIOption($event)"
+                                 (noData)="onNoData()"
+                                 (chartSelectInfo)="chartSelectInfo($event)"
+                                 [resizeDelay]="500">
+                    </map-chart>
+
+
+                  </div>
+                  <!-- //page -->
+
+                </div>
+                <!-- //차트 영역 -->
+
+              </div>
+              <!-- //차트 메인 -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- //contents -->
+
+      <!-- side -->
+      <div class="ddp-wrap-chart-side" [ngClass]="{'ddp-selected': rnbMenu === 'filter' || (isChartShow && rnbMenu!='' && possibleChartCheck(rnbMenu,selectChart))}"
+           *ngIf="rnbMenu == 'filter' || ('' !== rnbMenu && isChartShow && possibleChartCheck(rnbMenu,selectChart))">
+        <div class="ddp-chart-side-in">
+            <common-option #commonOption *ngIf="isChartShow && 'common' === rnbMenu" [(uiOption)]="uiOption" [(pivot)]="pivot" [isChartTest]="isChartTest"
+                          (drawChartParam)="onSetDrawChartParam($event)"
+                          (changeAxisByStack)="changeAxisByStack($event)" (showConfirmPopup)="onShowPopup($event)"></common-option>
+            <color-option #colorOption *ngIf="isChartShow && possibleChartCheck('color',selectChart) && 'color' === rnbMenu" [(uiOption)]="uiOption" [(resultData)]="resultData" [pivot]="pivot" (drawChartParam)="onSetDrawChartParam($event)"></color-option>
+            <legend-option #legendOption *ngIf="isChartShow && possibleChartCheck('legend',selectChart) && 'legend' === rnbMenu" [(uiOption)]="uiOption"></legend-option>
+            <format-option #formatOption *ngIf="isChartShow && possibleChartCheck('format',selectChart) && 'format' === rnbMenu"  (changeCommon)="onFormatCommonChange($event)" (changeEach)="onFormatEachChange($event)" (drawChartParam)="onSetDrawChartParam($event)"
+                          [(pivot)]="pivot" [(uiOption)]="uiOption">
+            </format-option>
+            <yaxis-option #yAxisOption *ngIf="isChartShow && possibleChartCheck('yAxis',selectChart) && 'yAxis' === rnbMenu" [(uiOption)]="uiOption" [(pivot)]="pivot" (drawChartParam)="onSetDrawChartParam($event)"></yaxis-option>
+            <xaxis-option #xAxisOption *ngIf="isChartShow && possibleChartCheck('xAxis',selectChart) && 'xAxis' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)"></xaxis-option>
+            <datalabel-option #dataLabelOption *ngIf="isChartShow && possibleChartCheck('dataLabel',selectChart) && 'dataLabel' === rnbMenu" [(uiOption)]="uiOption" [pivot]="pivot"></datalabel-option>
+            <tooltip-option #tooltipOption *ngIf="isChartShow && possibleChartCheck('tooltip',selectChart) && 'tooltip' === rnbMenu" [(uiOption)]="uiOption" [pivot]="pivot"></tooltip-option>
+            <secondary-indicator-option #secondaryIndicatorOption *ngIf="isChartShow && possibleChartCheck('secondaryIndicator',selectChart) && 'secondaryIndicator' === rnbMenu" [(uiOption)]="uiOption" [(pivot)]="pivot" [widget]="widget"></secondary-indicator-option>
+            <split-option #splitOption *ngIf="isChartShow && possibleChartCheck('split',selectChart) && 'split' === rnbMenu"  (drawChartParam)="onSetDrawChartParam($event)"
+                          [(uiOption)]="uiOption"></split-option>
+            <page-filter-panel  *ngIf="'filter' === rnbMenu"
+                                [dashboard]="widget.dashBoard"
+                                [boardFilters]="boardFilters"
+                                [chartFilters]="widgetConfiguration.filters"
+                                (updateFilter)="updateFilter($event)"
+                                (deleteFilter)="deleteFilter($event)"
+                                (openUpdateFilterPopup)="openUpdateFilterPopup($event)"
+                                (changeGlobalToChart)="openConfirmPopup($event, 'toChartFilter' )" >
+            </page-filter-panel>
+            <calrow-option #calculateOption *ngIf="isChartShow && possibleChartCheck('calculatedRow', selectChart) && 'calculatedRow' === rnbMenu" [(uiOption)]="uiOption"></calrow-option>
+            <!-- MapView -->
+            <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu" [(uiOption)]="uiOption"></map-common-option>
+            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer' === rnbMenu" [(uiOption)]="uiOption"></map-layer-option>
+            <map-legend-option #mapLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption"></map-legend-option>
+            <map-format-option #mapFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu" [(uiOption)]="uiOption"></map-format-option>
+            <map-tooltip-option #mapTooltipOption *ngIf="isChartShow && 'mapTooltip' === rnbMenu" [(uiOption)]="uiOption"></map-tooltip-option>
+            <!-- //MapView -->
+        </div>
+
+      </div>
+      <!-- //side -->
+      <!-- side menu -->
+      <div class="ddp-wrap-chart-menu">
+
+        <a href="javascript:" (click)="toggleRnb('filter')" [class.ddp-selected]="rnbMenu=='filter'"><em class="ddp-icon-menu-filter"></em></a>
+        <span class="ddp-ui-menu-layout" (mouseover)="drawChartTooltip($event)">
+            <!-- 공통패널 -->
+            <a *ngIf="possibleChartCheck('common', selectChart)" href="javascript:" (click)="(uiOption && uiOption.split) ? null : toggleRnb('common')" [ngClass]="{'ddp-disabled': !isChartShow || (uiOption && uiOption.split)}" [class.ddp-selected]="isChartShow && rnbMenu=='common'">
+              <em class="ddp-icon-menu-general"></em>
+              <!-- 툴팁 -->
+              <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  {{'msg.page.first.draw.chart' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </a>
+            <!-- //공통패널 -->
+            <!-- 색상패널 -->
+            <a *ngIf="possibleChartCheck('color', selectChart)" href="javascript:" (click)="(uiOption && uiOption.split) ? null : toggleRnb('color')" [ngClass]="{'ddp-disabled': !isChartShow || (uiOption && uiOption.split)}" [class.ddp-selected]="isChartShow && rnbMenu=='color'">
+              <em class="ddp-icon-menu-color"></em>
+              <!-- 툴팁 -->
+              <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  {{'msg.page.first.draw.chart' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </a>
+            <!-- //색상패널 -->
+            <!-- 범례패널 -->
+            <a *ngIf="possibleChartCheck('legend', selectChart)" href="javascript:" (click)="(uiOption && uiOption.split) ? null : toggleRnb('legend')" [ngClass]="{'ddp-disabled': !isChartShow || (uiOption && uiOption.split)}" [class.ddp-selected]="isChartShow && rnbMenu=='legend'">
+              <em class="ddp-icon-menu-legend"></em>
+              <!-- 툴팁 -->
+              <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  {{'msg.page.first.draw.chart' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </a>
+            <!-- //범례패널 -->
+            <!-- 포멧패널 -->
+            <a *ngIf="possibleChartCheck('format', selectChart)" href="javascript:" (click)="(uiOption && uiOption.split) ? null : toggleRnb('format')" [ngClass]="{'ddp-disabled': !isChartShow || (uiOption && uiOption.split)}" [class.ddp-selected]="isChartShow && rnbMenu=='format'">
+              <em class="ddp-icon-menu-num"></em>
+              <!-- 툴팁 -->
+              <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  {{'msg.page.first.draw.chart' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </a>
+            <!-- //포멧패널 -->
+            <!-- y축 패널 -->
+            <a *ngIf="possibleChartCheck('yAxis', selectChart)" href="javascript:" (click)="(uiOption && uiOption.split) ? null : toggleRnb('yAxis')" [ngClass]="{'ddp-disabled': !isChartShow || (uiOption && uiOption.split)}" [class.ddp-selected]="isChartShow && rnbMenu=='yAxis'">
+              <em class="ddp-icon-menu-axis-y"></em>
+            <!-- 툴팁 -->
+              <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  {{'msg.page.first.draw.chart' | translate}}
+              </div>
+            <!-- //툴팁 -->
+            </a>
+            <!-- y축 패널 -->
+            <!-- x축 패널 -->
+            <a *ngIf="possibleChartCheck('xAxis', selectChart)" href="javascript:" (click)="(uiOption && uiOption.split) ? null : toggleRnb('xAxis')" [ngClass]="{'ddp-disabled': !isChartShow || (uiOption && uiOption.split)}" [class.ddp-selected]="isChartShow && rnbMenu=='xAxis'">
+              <em class="ddp-icon-menu-axis-x"></em>
+              <!-- 툴팁 -->
+              <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  {{'msg.page.first.draw.chart' | translate}}
+              </div>
+            <!-- //툴팁 -->
+            </a>
+            <!-- //x축 패널 -->
+            <!-- 데이터 레이블 패널 -->
+            <a *ngIf="possibleChartCheck('dataLabel', selectChart)" href="javascript:" (click)="(uiOption && uiOption.split) ? null : toggleRnb('dataLabel')" [ngClass]="{'ddp-disabled': !isChartShow || (uiOption && uiOption.split)}" [class.ddp-selected]="isChartShow && rnbMenu=='dataLabel'">
+              <em class="ddp-icon-menu-label"></em>
+              <!-- 툴팁 -->
+              <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  {{'msg.page.first.draw.chart' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </a>
+            <!-- //데이터 레이블 패널 -->
+            <!-- 툴팁 레이블 패널 -->
+            <a *ngIf="possibleChartCheck('tooltip', selectChart)" href="javascript:" (click)="(uiOption && uiOption.split) ? null : toggleRnb('tooltip')" [ngClass]="{'ddp-disabled': !isChartShow || (uiOption && uiOption.split)}" [class.ddp-selected]="isChartShow && rnbMenu=='tooltip'">
+              <em class="ddp-icon-menu-tooltip"></em>
+              <!-- 툴팁 -->
+              <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  {{'msg.page.first.draw.chart' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </a>
+            <a *ngIf="false && possibleChartCheck('split', selectChart)" href="javascript:" (click)="toggleRnb('split')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='split'">
+              <em class="ddp-icon-menu-split"></em>
+              <!-- 툴팁 -->
+              <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  {{'msg.page.first.draw.chart' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </a>
+            <!-- 연상 행 패널 -->
+            <a *ngIf="possibleChartCheck('calculatedRow', selectChart)" href="javascript:" (click)="toggleRnb('calculatedRow')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='calculatedRow'">
+              <em class="ddp-icon-menu-calculated"></em>
+              <!-- 툴팁 -->
+              <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  {{'msg.page.first.draw.chart' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </a>
+            <!-- //연상 행 패널 -->
+            <!-- 보조지표 패널 -->
+            <a *ngIf="possibleChartCheck('secondaryIndicator', selectChart)" href="javascript:" (click)="(uiOption && uiOption.split) ? null : toggleRnb('secondaryIndicator')" [ngClass]="{'ddp-disabled': !isChartShow || (uiOption && uiOption.split)}" [class.ddp-selected]="isChartShow && rnbMenu=='secondaryIndicator'">
+              <em class="ddp-icon-menu-tooltip"></em>
+              <!-- 툴팁 -->
+              <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-right"></em>
+                  {{'msg.page.first.draw.chart' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </a>
+            <!-- //보조지표 패널 -->
+            <!-- 맵뷰: 공통 설정 -->
+              <a *ngIf="selectChart == 'mapview'" href="javascript:" (click)="toggleRnb('mapCommon')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapCommon'">
+                <em class="ddp-icon-menu-general"></em>
+                <!-- 툴팁 -->
+                <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                    <em class="ddp-icon-view-right"></em>
+                    {{'msg.page.first.draw.chart' | translate}}
+                </div>
+                <!-- //툴팁 -->
+              </a>
+            <!-- //맵뷰: 공통 설정 -->
+            <!-- 맵뷰: 레이어 설정 -->
+              <a *ngIf="selectChart == 'mapview'" href="javascript:" (click)="toggleRnb('mapLayer')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer'">
+                <em class="ddp-icon-menu-color"></em>
+                <!-- 툴팁 -->
+                <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                    <em class="ddp-icon-view-right"></em>
+                    {{'msg.page.first.draw.chart' | translate}}
+                </div>
+                <!-- //툴팁 -->
+              </a>
+            <!-- //맵뷰: 레이어 설정 -->
+            <!-- 맵뷰: 범례 설정 -->
+              <a *ngIf="selectChart == 'mapview'" href="javascript:" (click)="toggleRnb('mapLegend')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLegend'">
+                <em class="ddp-icon-menu-legend"></em>
+                <!-- 툴팁 -->
+                <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                    <em class="ddp-icon-view-right"></em>
+                    {{'msg.page.first.draw.chart' | translate}}
+                </div>
+                <!-- //툴팁 -->
+              </a>
+            <!-- //맵뷰: 범례 설정 -->
+            <!-- 맵뷰: 숫자 포멧 -->
+              <a *ngIf="selectChart == 'mapview'" href="javascript:" (click)="toggleRnb('mapFormat')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapFormat'">
+                <em class="ddp-icon-menu-num"></em>
+                <!-- 툴팁 -->
+                <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                    <em class="ddp-icon-view-right"></em>
+                    {{'msg.page.first.draw.chart' | translate}}
+                </div>
+                <!-- //툴팁 -->
+              </a>
+            <!-- //맵뷰: 숫자 포멧 -->
+            <!-- 맵뷰: 툴팁 설정 -->
+              <a *ngIf="selectChart == 'mapview'" href="javascript:" (click)="toggleRnb('mapTooltip')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapTooltip'">
+                <em class="ddp-icon-menu-tooltip"></em>
+                <!-- 툴팁 -->
+                <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                    <em class="ddp-icon-view-right"></em>
+                    {{'msg.page.first.draw.chart' | translate}}
+                </div>
+                <!-- //툴팁 -->
+              </a>
+            <!-- //맵뷰: 툴팁 설정 -->
+        </span>
+
+
+      </div>
+      <!-- //side menu -->
+
+      <!--<div class="ddp-ui-navibuttons">-->
+        <!--<a *ngIf="isDashboard" [ngClass]="{'ddp-disabled': !isChartShow}" href="javascript:" class="ddp-btn-line3" (click)="save()"><em class="ddp-icon-btnsave"></em>{{'msg.page.btn.save' | translate}}</a>-->
+        <!--<a href="javascript:" class="ddp-btn-blank" (click)="close()"><em class="ddp-icon-btnclose"></em></a>-->
+      <!--</div>-->
+
+      <div class="ddp-ui-buttons2">
+        <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" *ngIf="isDashboard" [ngClass]="{'ddp-disabled': !isChartShow}" (click)="save()">{{'msg.page.btn.save' | translate}}</a>
+      </div>
+    </div>
+
+  </div>
+
+  <app-custom-field *ngIf="isShowCustomFiled"
+                    [fields]="fields"
+                    [dataSource]="widget.configuration.dataSource"
+                    [customFields]="widget.configuration.customFields"
+                    [customField]="selectedCustomField"
+                    [selectedColumnType]="columnType"
+                    (updateColumn)="updateCustomFields($event)"
+                    (close)="isShowCustomFiled=false;">
+  </app-custom-field>
+  <app-confirm-modal (confirm)="confirm($event)" ></app-confirm-modal>
+  <!-- LNB > Data Detail -->
+  <data-preview *ngIf="isShowDataDetail"
+                [field]="selectedField"
+                [singleTab]="isColumnDetail"
+                [source]="widget.dashBoard" (close)="isShowDataDetail = false"></data-preview>
+</div>
+
+<!-- LNB > DATA > Field Context Menu layer more -->
+<page-data-context (openCustomFieldEvent)="openCustomFieldPopup($event)"
+                   (openColumnDetailEvent)="onColumnDetailPopup($event)"
+                   (deleteCustomFieldEvent)="deleteCustomField($event)"
+                   (changeAlias)="changeDatasourceFieldAlias($event)"></page-data-context>
+<!-- //LNB > DATA > Field Context Menu layer more -->
+
+<app-config-filter (done)="configureFilter($event)"
+                   (close)="closeFilterPopup()"></app-config-filter>

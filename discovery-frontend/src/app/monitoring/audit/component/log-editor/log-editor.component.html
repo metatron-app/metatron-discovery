@@ -1,0 +1,43 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-pop-preview ddp-type" *ngIf="isShow">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      {{log.title}}
+      <!-- 정보 -->
+      <div class="ddp-wrap-info" *ngIf="subTitles">
+        <span class="ddp-data-info" *ngFor="let sub of subTitles">{{sub}}</span>
+      </div>
+      <!-- //정보 -->
+      <a href="javascript:" class="ddp-link-top" (click)="copyToClipboard()" *ngIf="log.isShowCopy">{{'msg.log.btn.copy.clip' | translate }}</a>
+    </div>
+
+    <em class="ddp-btn-popup-close" (click)="close()"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+  <div class="ddp-ui-preview-contents ddp-type-preview ddp-query">
+    <div editor-component
+         #editor
+         [sCursorDisable]="true"
+         [sOptions]="options"
+         [(sText)]="log.data"
+         [sReadOnly]="true"
+         [sShowGutter]="false">
+    </div>
+  </div>
+  <!-- //cpmtemts -->
+</div>

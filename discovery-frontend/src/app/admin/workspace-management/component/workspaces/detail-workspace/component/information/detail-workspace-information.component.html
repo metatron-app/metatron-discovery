@@ -1,0 +1,97 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<label class="ddp-label-detail">{{'msg.spaces.spaces.detail.info.ui.title' | translate}}</label>
+<table class="ddp-table-detail">
+  <colgroup>
+    <col width="160px">
+    <col width="*">
+  </colgroup>
+  <tbody>
+  <tr>
+    <th>
+      {{'msg.spaces.spaces.detail.info.ui.name' | translate}}
+    </th>
+    <td>
+      {{workspace.name}}
+    </td>
+  </tr>
+  <tr *ngIf="isPublicWorkspace()">
+    <th>
+      {{'msg.spaces.spaces.detail.info.ui.description' | translate}}
+    </th>
+    <td>
+      {{workspace.description}}
+    </td>
+  </tr>
+  </tbody>
+</table>
+<!-- table detail -->
+<div class="ddp-wrap-table-detail">
+  <label class="ddp-label-detail">{{'msg.spaces.shared.detail.setting' | translate}}</label>
+  <table class="ddp-table-detail">
+    <colgroup>
+      <col width="160px">
+      <col width="*">
+    </colgroup>
+    <tbody>
+    <tr>
+      <th>
+        {{'msg.spaces.spaces.detail.info.ui.space.schema' | translate}}
+      </th>
+      <td *ngIf="'PUBLIC' === roleset?.scope">
+        <a href="javascript:" class="ddp-link-window" (click)="onOpenDetailPermissionSchema()">{{roleset?.name}}</a>
+      </td>
+      <td *ngIf="'PRIVATE' === roleset?.scope"> {{'msg.permission.ui.custom-schema' | translate }} </td>
+    </tr>
+    <tr>
+      <th>
+        {{(isPublicWorkspace() ? 'msg.spaces.shared.detail.space.members.title' : 'msg.spaces.shared.detail.space.member.title') | translate}}
+      </th>
+      <td>
+
+        <!-- data list -->
+        <div class="ddp-data-list">
+          <div class="ddp-box-power ddp-owner">
+            {{'msg.space.ui.owner' | translate}}
+          </div>
+
+          <span class="ddp-data-name ddp-hover">{{getUserFullName(owner)}}
+          <user-information [name]="getUserFullName(owner)"
+                            [id]="owner?.username"
+                            [email]="owner?.email">
+              </user-information>
+          </span>
+        </div>
+        <!-- //data list -->
+        <!-- data list -->
+        <div class="ddp-data-list" *ngIf="isPublicWorkspace()">
+          <a href="javascript:" class="ddp-link-member" (click)="onOpenMemberGroupView()">
+            <strong>{{workspace.countByMemberType?.user}}</strong> {{'msg.spaces.shared.detail.space.members' | translate}} & <strong>{{workspace.countByMemberType?.group}}</strong> {{'msg.spaces.shared.detail.space.groups' | translate}}
+          </a>
+        </div>
+        <!-- //data list -->
+        <!-- 이메일 보내기 -->
+        <!--<div class="ddp-btn-link">-->
+          <!--<a href="javascript:" class="ddp-btn-pop" (click)="onClickEmailToUsers()"><em class="ddp-icon-email"></em>{{'msg.spaces.shared.detail.btn.email.users' | translate}}</a>-->
+        <!--</div>-->
+        <!-- //이메일 보내기 -->
+      </td>
+    </tr>
+
+    </tbody>
+  </table>
+</div>
+<!-- //table detail -->
+<app-member-group-view id="member-group-view"></app-member-group-view>

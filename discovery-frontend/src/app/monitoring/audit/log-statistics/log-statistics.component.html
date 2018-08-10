@@ -1,0 +1,540 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<em class="ddp-bg-back"></em>
+<div class="ddp-ui-contents-in">
+  <!-- top -->
+  <div class="ddp-ui-contents-top">
+    <div class="ddp-ui-title">
+      {{'msg.comm.menu.manage.monitoring' | translate}}
+    </div>
+
+    <!-- tab -->
+    <ul class="ddp-list-top-tab">
+      <li class="ddp-selected">
+        <a [routerLink]="['/management/monitoring/statistics']">{{'msg.comm.menu.manage.monitoring.statistics' | translate}}</a>
+      </li>
+      <li>
+        <a [routerLink]="['/management/monitoring/audit']">{{'msg.comm.menu.manage.monitoring.audit' | translate}}</a>
+      </li>
+      <li>
+        <a [routerLink]="['/management/monitoring/lineage']">{{'msg.comm.menu.manage.monitoring.data-lineage' | translate}}</a>
+      </li>
+    </ul>
+    <!-- //tab -->
+
+  </div>
+  <!-- //top -->
+  <div class="ddp-ui-contents-list ddp-log-statistics">
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.lineage.ui.property.title.log-type' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <!-- selectbox -->
+          <!-- 선택시 : ddp-selected 추가 -->
+          <component-select
+            [array]="taskType"
+            [viewKey]="'label'"
+            (onSelected)="onChangeTaskType($event)">
+          </component-select>
+          <!-- //selectbox -->
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <component-period
+          [title]="'Performed Start Time'"
+          [roundSecond]="true"
+          (changeDate)="onChangeDate($event)"
+          [useAllButton]=false
+        ></component-period>
+      </div>
+      <!-- //edit -->
+
+    </div>
+    <!-- //option -->
+    <!-- option -->
+    <div class="ddp-ui-option ddp-optiontype ddp-clear">
+      <!-- 검색 -->
+      <div class="ddp-form-search ddp-fleft">
+        <em class="ddp-icon-search"></em>
+        <input type="text" placeholder="{{'msg.statistics.ui.search.ph' | translate}}" [(ngModel)]="searchText" (keydown)="search($event)">
+        <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchText = ''; getStatisticData()"></em>
+      </div>
+      <!-- //검색 -->
+
+    </div>
+    <!-- //option -->
+    <!-- clear -->
+    <div class="ddp-clear">
+      <!-- col -->
+      <div class="ddp-col-8">
+        <div class="ddp-data-title">
+          {{'msg.statistics.ui.daily.query.success-fail' | translate}}
+        </div>
+        <!-- box chart -->
+        <div #dailyJobRateChart class="ddp-box-chart"></div>
+        <!-- //box chart -->
+      </div>
+      <!-- //col -->
+      <!-- col -->
+      <div class="ddp-col-4">
+        <div class="ddp-data-title">
+          {{'msg.statistics.ui.daily.query.frequency' | translate}}
+        </div>
+        <!-- box chart -->
+        <div #queryDistributeChart class="ddp-box-chart"></div>
+        <!-- //box chart -->
+      </div>
+      <!-- //col -->
+    </div>
+    <!-- //clear -->
+
+    <!-- clear -->
+    <div class="ddp-clear">
+      <!-- col -->
+      <div class="ddp-col-8">
+        <div class="ddp-data-title">
+          {{'msg.statistics.ui.longest' | translate}}
+          <a href="javascript:" class="ddp-more" *ngIf="queryLists.countQueryTimeList.length !== 0" (click)="openPopupDetail({name : 'msg.statistics.ui.longest', label : 'elapsedTime', arrayList : 'countQueryTimeList'}, {sort : 'desc', size : 15, name : 'elapsedTime'})">{{'msg.comm.ui.more' | translate}}</a>
+        </div>
+        <div class="ddp-fix-size">
+          <table class="ddp-table-form ddp-table-type3">
+          <colgroup>
+            <col width="*">
+
+            <col width="190px">
+            <col width="100px">
+            <col width="80px">
+            <col width="96px">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              {{'msg.statistics.th.query' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.query.time' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.user' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.result' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.elapsed.time' | translate}}
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of queryLists.countQueryTimeList" (click)="auditDetailOpen(data.id)">
+            <td class="ddp-hover-tooltip" >
+              <span class="ddp-txt-long">{{data.jobName}}</span>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                {{data.jobName}}
+              </div>
+            </td>
+            <td>
+              <span class="ddp-txt-long">{{data.startTime | mdate: 'YYYY-MM-DD HH:mm'}}</span>
+            </td>
+            <td>
+              <span class="ddp-txt-long">{{data.user}}</span>
+            </td>
+            <td>
+              <span class="ddp-data-state"
+                    [ngClass]="{'ddp-fail' : data.status.toString() === 'FAIL', 'ddp-success' : data.status.toString() === 'SUCCESS'}">
+                {{data.status}}
+              </span>
+            </td>
+            <td>
+              <span class="ddp-txt-long">{{convertMilliseconds(data.elapsedTime)}}</span>
+            </td>
+          </tr>
+
+          </tbody>
+
+        </table>
+          <div class="ddp-nodata" *ngIf="queryLists.countQueryTimeList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
+        </div>
+      </div>
+      <!-- //col -->
+      <!-- col -->
+      <div class="ddp-col-4">
+        <div class="ddp-data-title">
+          {{'msg.statistics.ui.query.success.frequency' | translate}}
+          <a href="javascript:" class="ddp-more" *ngIf="queryLists.countSuccessList.length !== 0" (click)="openPopupDetail({name : 'msg.statistics.ui.query.success.frequency', label : 'success', arrayList : 'countSuccessList'}, {status : 'SUCCESS' , size : 15, sort : 'desc', name : 'status' })">{{'msg.comm.ui.more' | translate}}</a>
+        </div>
+        <div class="ddp-fix-size">
+          <table class="ddp-table-form ddp-table-type3 ddp-cursor-none">
+          <colgroup>
+            <col width="*">
+            <col width="98px">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              {{'msg.statistics.th.query' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.count' | translate}}
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of queryLists.countSuccessList">
+            <td class="ddp-hover-tooltip" >
+              <span class="ddp-txt-long">{{data.keyword}}</span>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                {{data.keyword}}
+              </div>
+            </td>
+            <td>
+              <span class="ddp-txt-long">{{data.count}}</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+          <div class="ddp-nodata" *ngIf="queryLists.countSuccessList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
+        </div>
+      </div>
+      <!-- //col -->
+    </div>
+    <!-- //clear -->
+
+    <!-- clear -->
+    <div class="ddp-clear">
+      <!-- col -->
+      <div class="ddp-col-8">
+        <div class="ddp-data-title">
+          {{'msg.statistics.ui.scan.data.volume' | translate}}
+          <a href="javascript:" class="ddp-more" *ngIf="queryLists.countNumRowsList.length !== 0" (click)="openPopupDetail({name : 'msg.statistics.ui.scan.data.volume', label : 'numRows', arrayList : 'countNumRowsList'}, {sort : 'desc', size : 15, name : 'numRows'})">{{'msg.comm.ui.more' | translate}}</a>
+        </div>
+        <div class="ddp-fix-size">
+          <table class="ddp-table-form ddp-table-type3">
+          <colgroup>
+            <col width="*">
+            <col width="190px">
+            <col width="100px">
+            <col width="80px">
+            <col width="96px">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              {{'msg.statistics.th.query' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.query.time' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.user' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.result' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.row.count' | translate}}
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of queryLists.countNumRowsList" (click)="auditDetailOpen(data.id)">
+            <td class="ddp-hover-tooltip" >
+              <span class="ddp-txt-long">{{data.jobName}}</span>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                {{data.jobName}}
+              </div>
+            </td>
+            <td>
+              <span class="ddp-txt-long">{{data.startTime | mdate: 'YYYY-MM-DD HH:mm'}}</span>
+            </td>
+            <td>
+              <span class="ddp-txt-long">
+              {{data.user}}
+              </span>
+            </td>
+            <td>
+              <span class="ddp-data-state"
+                    [ngClass]="{'ddp-fail' : data.status.toString() === 'FAIL', 'ddp-success' : data.status.toString() === 'SUCCESS'}">
+                {{data.status}}
+              </span>
+            </td>
+            <td>
+              <span class="ddp-txt-long">{{data.numRows | numberCommas}}</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+          <div class="ddp-nodata" *ngIf="queryLists.countNumRowsList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
+        </div>
+      </div>
+      <!-- //col -->
+      <!-- col -->
+      <div class="ddp-col-4">
+        <div class="ddp-data-title">
+          {{'msg.statistics.ui.query.fail.frequency' | translate}}
+          <a href="javascript:" class="ddp-more" *ngIf="queryLists.countFailList.length !== 0" (click)="openPopupDetail({name : 'msg.statistics.ui.query.fail.frequency', label : 'fail' , arrayList : 'countFailList'}, { status : 'FAIL' , size :  15, sort : 'desc', name: 'status' })">{{'msg.comm.ui.more' | translate}}</a>
+        </div>
+        <div class="ddp-fix-size">
+          <table class="ddp-table-form ddp-table-type3 ddp-cursor-none">
+          <colgroup>
+            <col width="*">
+            <col width="98px">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              {{'msg.statistics.th.query' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.count' | translate}}
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of queryLists.countFailList">
+            <td class="ddp-hover-tooltip" >
+              <span class="ddp-txt-long">{{data.keyword}}</span>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                {{data.keyword}}
+              </div>
+            </td>
+            <td>
+              <span class="ddp-txt-long">{{data.count}}</span>
+            </td>
+          </tr>
+          </tbody>
+
+          </table>
+          <div class="ddp-nodata" *ngIf="queryLists.countFailList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
+        </div>
+      </div>
+      <!-- //col -->
+    </div>
+    <!-- //clear -->
+
+    <div class="ddp-clear">
+      <!-- col -->
+      <div class="ddp-col-6">
+        <div class="ddp-data-title">
+          {{'msg.statistics.th.total.mem.usage' | translate}}
+          <a href="javascript:" class="ddp-more" *ngIf="queryLists.totalMemoryUsageList.length !== 0" (click)="openPopupDetail({name : 'msg.statistics.th.total.mem.usage', label :'incrementMemorySeconds' , arrayList : 'totalMemoryUsageList'},{name : 'incrementMemorySeconds', size : 15 , sort : 'desc'})">{{'msg.comm.ui.more' | translate}}</a>
+        </div>
+        <div class="ddp-fix-size">
+          <table class="ddp-table-form ddp-table-type3">
+            <col width="*">
+            <col width="190px">
+            <col width="80px">
+            <col width="96px">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              {{'msg.statistics.th.query' | translate}}
+            </th>
+            <th>
+              {{'msg.log.th.application.id' | translate}}
+            </th>
+            <th>
+              {{'msg.log.th.queue' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.memory' | translate}}
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4">
+                  <div class="ddp-data-det">
+                    Memory unit is MB.
+                  </div>
+                </div>
+                <!-- //popup -->
+              </div>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of queryLists.totalMemoryUsageList" (click)="auditDetailOpen(data.id)">
+            <td class="ddp-hover-tooltip" >
+              <span class="ddp-txt-long">{{data.query}}</span>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                {{data.query}}
+              </div>
+            </td>
+            <td><span class="ddp-txt-long">{{data.applicationId || '-' }}</span></td>
+            <td><span class="ddp-txt-long">{{data.queue || '-' }}</span></td>
+            <td><span class="ddp-txt-long">{{data.incrementMemorySeconds || '-'  | numberCommas}}</span></td>
+          </tr>
+          </tbody>
+
+        </table>
+          <div class="ddp-nodata" *ngIf="queryLists.totalMemoryUsageList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
+        </div>
+      </div>
+      <!-- //col -->
+      <!-- col -->
+      <div class="ddp-col-6">
+        <div class="ddp-data-title">
+          {{'msg.statistics.th.total.cpu.usage' | translate }}
+          <a href="javascript:" class="ddp-more" *ngIf="queryLists.totalCPUUsageList.length !== 0" (click)="openPopupDetail({name : 'msg.statistics.th.total.cpu.usage', label :'incrementVcoreSeconds', arrayList : 'totalCPUUsageList'},{name : 'incrementVcoreSeconds', size : 15 , sort : 'desc'})">{{'msg.comm.ui.more' | translate}}</a>
+        </div>
+        <div class="ddp-fix-size">
+          <table class="ddp-table-form ddp-table-type3">
+          <colgroup>
+            <col width="*">
+            <col width="190px">
+            <col width="80px">
+            <col width="96px">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              {{'msg.statistics.th.query' | translate}}
+            </th>
+            <th>
+              {{'msg.log.th.application.id' | translate}}
+            </th>
+            <th>
+              {{'msg.log.th.queue' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.cpu' | translate}}
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4">
+                  <div class="ddp-data-det">
+                    CPU unit is vCore. vCore means virtual core
+                  </div>
+                </div>
+                <!-- //popup -->
+              </div>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of queryLists.totalCPUUsageList" (click)="auditDetailOpen(data.id)">
+            <td class="ddp-hover-tooltip" >
+              <span class="ddp-txt-long">{{data.query}}</span>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                {{data.query}}
+              </div>
+            </td>
+            <td><span class="ddp-txt-long">{{data.applicationId || '-' }}</span></td>
+            <td><span class="ddp-txt-long">{{data.queue || '-' }}</span></td>
+            <td><span class="ddp-txt-long">{{data.incrementVcoreSeconds || '-'  | numberCommas}}</span></td>
+          </tr>
+          </tbody>
+
+        </table>
+          <div class="ddp-nodata" *ngIf="queryLists.totalCPUUsageList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
+        </div>
+      </div>
+      <!-- //col -->
+    </div>
+
+    <div class="ddp-clear">
+      <!-- col -->
+      <div class="ddp-col-6">
+        <div class="ddp-data-title">
+          {{'msg.statistics.th.resource.usage' | translate}}
+          <a href="javascript:" class="ddp-more" *ngIf="queryLists.resourceList.length !== 0" (click)="openPopupDetail({name : 'msg.statistics.th.resource.usage', label :'resource', arrayList : 'resourceList'},{size : 15, name : 'incrementMemorySeconds' , sort : 'desc'})">{{'msg.comm.ui.more' | translate}}</a>
+        </div>
+        <div class="ddp-fix-size">
+          <table class="ddp-table-form ddp-table-type3 ddp-cursor-none">
+          <colgroup>
+            <col width="*">
+            <col width="30%">
+            <col width="30%">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>
+              {{'msg.log.th.queue' | translate}}
+            </th>
+            <th>
+              {{'msg.statistics.th.mem.usage' | translate}}
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4">
+                  <div class="ddp-data-det">
+                    Memory unit is MB.
+                  </div>
+                </div>
+                <!-- //popup -->
+              </div>
+            </th>
+            <th>
+              {{'msg.statistics.th.cpu.usage' | translate}}
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4">
+                  <div class="ddp-data-det">
+                    CPU unit is vCore. vCore means virtual core
+                  </div>
+                </div>
+                <!-- //popup -->
+              </div>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr  *ngFor="let data of queryLists.resourceList">
+            <td class="ddp-hover-tooltip" >
+              <span class="ddp-txt-long">{{data.keyword}}</span>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                {{data.keyword}}
+              </div>
+            </td>
+            <td>
+              <span class="ddp-txt-long">{{data.sumMemorySeconds || '-' | numberCommas}}</span>
+            </td>
+            <td>
+              <span class="ddp-txt-long">{{data.sumVCoreSeconds || '-' | numberCommas}}</span>
+            </td>
+          </tr>
+          </tbody>
+
+        </table>
+          <div class="ddp-nodata" *ngIf="queryLists.resourceList.length === 0">{{'msg.storage.ui.no.data' | translate}}</div>
+        </div>
+      </div>
+      <!-- //col -->
+
+    </div>
+  </div>
+
+</div>
+
+<!-- audit 디테일 페이지 -->
+<!--<app-job-detail *ngIf="mode==='detail-job-log'"-->
+                <!--[setAuditId]="selectedId"-->
+                <!--(close)="mode=''"></app-job-detail>-->
+<app-log-statistics-detail *ngIf="isDetailPopupOpen" (closeOutput)="closeDetail()" [statisticsData]="statisticsData" (sortOutput)="sortDetail($event)" [selectedContentSort]="selectedContentSort" [pageResult]="pageResult" (getMoreContentsOutput)="getMoreContents($event)"></app-log-statistics-detail>

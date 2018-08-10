@@ -1,0 +1,31 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* You can add global styles to this file, and also import other style files */
+@charset "utf-8";
+
+/************************************************************************************************************
+   Common css Import
+***********************************************************************************************************/
+@import url('lib/gradX/gradX.css');
+@import url('assets/css/spectrum/spectrum.css');
+@import url('assets/css/rome.css');
+@import url('assets/css/polaris.v2.css');
+@import url('assets/css/polaris.v2.editor.css');
+@import url('assets/css/dnd/style.css');
+@import url('lib/pivot-grid/pivot.view.css');
+@import url('lib/at/jquery.atwho.css');
+input:-webkit-autofill {
+  background-color: red !important;
+}

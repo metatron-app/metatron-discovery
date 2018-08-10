@@ -1,0 +1,17 @@
+{  
+   "ssType":"HIVE",
+   "dbName":"default",
+   "format":"ORC",
+   "partKeys":[  
+
+   ],
+   "tblName":"s5",
+   "extHdfsDir":null,
+   "ssId":"f0bfb6e0-2bea-4af5-893e-ea75a078accd",
+   "url":"jdbc:mysql://localhost:3306/polaris_v2_2?useUnicode=true&amp;characterEncoding=utf8",
+   "mode":"OVERWRITE",
+   "codec":"SNAPPY",
+   "password":"polaris",
+   "driver-class-name":"com.mysql.jdbc.Driver",
+   "username":"polaris"
+}

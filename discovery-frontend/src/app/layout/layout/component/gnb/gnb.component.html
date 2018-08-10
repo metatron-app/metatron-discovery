@@ -1,0 +1,42 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-headright">
+  <!--<a href="javascript:" class="ddp-btn-search"></a>-->
+  <!-- photo -->
+  <!-- 클릭시 ddp-selected 추가 -->
+  <div class="ddp-wrap-myinfo" [ngClass]="{'ddp-selected' : isMyInfoShow}" (click)="isMyInfoShow = !isMyInfoShow" (clickOutside)="isMyInfoShow=false;">
+    <a href="javascript:" class="ddp-data-photo">
+      <img [src]="getUserImage()" />
+    </a>
+    <!-- my info -->
+    <div class="ddp-ui-sub-myinfo">
+      <div class="ddp-wrap-data">
+        <span class="ddp-data-name">{{user.fullName}}</span>
+        <!--<span class="ddp-data-team">전략 2팀</span>-->
+        <span class="ddp-data-mail">{{user.email}}</span>
+      </div>
+
+      <ul class="ddp-list-sub-myinfo">
+        <li><a href="javascript:" (click)="userProfile()">{{'msg.comm.menu.usr.information.mngt' | translate}}</a></li>
+        <li><a href="javascript:" (click)="logout()">{{'msg.comm.menu.logout' | translate}}</a></li>
+      </ul>
+    </div>
+    <!-- //my info -->
+  </div>
+  <!-- //photo -->
+
+</div>
+
+<app-profile (completeUpdate)="updatedUser($event)"></app-profile>

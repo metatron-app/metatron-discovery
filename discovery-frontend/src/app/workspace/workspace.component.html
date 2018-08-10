@@ -1,0 +1,624 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- contents -->
+<em class="ddp-bg-back"></em> <!-- Background -->
+<div class="ddp-ui-space-contents">
+  <!-- top -->
+  <div class="ddp-ui-top-info">
+    <!-- title -->
+    <div class="ddp-ui-title" >
+      <div class="ddp-ui-title-in" style="padding-right: 100px;">
+        <span class="ddp-data-title">{{workspaceName}} </span>
+        <span *ngIf="''!== workspaceDescription" class="ddp-data-detail">{{workspaceDescription}}</span>
+        <!-- button -->
+        <div class="ddp-btn-control">
+          <em class="ddp-icon-control-fav" *ngIf="isShareType" [ngClass]="{'ddp-selected' : workspace.favorite }" (click)="setFavorite()"></em>
+          <span *ngIf="workspace && workspace.owner && loginUserId === workspace.owner.username" class="ddp-box-power ddp-owner">
+            {{'msg.space.ui.owner' | translate}}
+          </span>
+        </div>
+        <!-- //button -->
+      </div>
+      <!-- 워크스페이스 전체 리스트 페이지 -->
+      <a draggable="false" href="javascript:" class="ddp-btn-line2" (click)="workspaceList()">
+        <em class="ddp-icon-spacelist"></em> {{'msg.space.btn.workspace.list' | translate}}
+      </a>
+      <!-- //워크스페이스 전체 리스트 페이지 -->
+    </div>
+    <!-- //title -->
+    <!-- summary -->
+    <div *ngIf="workspace.id" class="ddp-wrap-info-summary ddp-clear">
+      <!-- left -->
+      <div class="ddp-data-info-left">
+        <div class="ddp-ui-number">
+          <span class="ddp-box-tag ddp-workbook">{{'msg.space.ui.tag.workbook' | translate}}<strong>{{countByBookType.workBook}}</strong></span>
+          <span class="ddp-box-tag ddp-notebook">{{'msg.space.ui.tag.notebook' | translate}}<strong>{{countByBookType.notebook}}</strong></span>
+          <span class="ddp-box-tag ddp-workbench">{{'msg.space.ui.tag.workbench' | translate}}<strong>{{countByBookType.workBench}}</strong></span>
+        </div>
+        <div class="ddp-ui-info-tab">
+        <!-- 데이터소스 관리 페이지 -->
+        <div (click)="datasourceView()" [ngClass]="{'ddp-selected' : isInfoType=='datasource'}" class="ddp-ui-number" >
+          <em class="ddp-icon-result-source"></em>
+          <span class="ddp-data-num">{{countOfDataSources}}</span>
+          {{'msg.space.ui.ds' | translate}}
+        </div>
+        <!-- //데이터소스 관리 페이지-->
+        <!-- 공유멤버 뷰 페이지 -->
+        <div class="ddp-ui-number"
+             *ngIf="isShareType && permissionChecker && !permissionChecker.isWorkspaceGuest()"
+             [ngClass]="{'ddp-selected' : isInfoType=='member'}" (click)="sharedMemberView()">
+          <em class="ddp-icon-result-user"></em>
+          <span>
+            <span class="ddp-data-num">{{countByMemberType.user}}</span> {{'msg.space.ui.member' | translate}}
+            <span class="ddp-data-num">{{countByMemberType.group}}</span> {{'msg.space.ui.group' | translate}}
+          </span>
+        </div>
+        <!-- //공유멤버 관리 페이지-->
+        </div>
+      </div>
+      <!-- //left -->
+
+      <!-- right -->
+      <div class="ddp-data-info-right">
+        <span class="ddp-data-create">
+          <!--{{'msg.comm.ui.list.created' | translate}} {{workspace.createdTime | mdate:'yyyy.MM.dd'}}-->
+          <!--by <span class="ddp-data-name">{{owner.fullName}}</span>-->
+          <!---->
+          {{'msg.common.ui.created' | translate : {createdTime :workspace.createdTime | mdate:'YYYY-MM-DD', fullName : owner.fullName } }}
+        </span>
+        <!-- more -->
+        <div *ngIf="permissionChecker && permissionChecker.isManageWorkspace()"
+             [class.ddp-selected]="isShowMenuLayer" class="ddp-ui-more ddp-hover-tooltip"
+             (click)="isShowMenuLayer = !isShowMenuLayer" (clickOutside)="isShowMenuLayer=false"
+             style="z-index:51;">
+          <a draggable="false" href="javascript:" class="ddp-icon-more"></a>
+          <!-- tooltip -->
+          <div class="ddp-ui-tooltip-info ddp-down">
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.comm.ui.more' | translate}}
+          </div>
+          <!-- //tooltip -->
+          <!-- popup -->
+          <div class="ddp-wrap-popup2 ddp-types">
+            <ul class="ddp-list-popup">
+              <li *ngIf="permissionChecker && permissionChecker.isManageWorkspace()">
+                <a draggable="false" href="javascript:" (click)="editWorkspace()">
+                  <em class="ddp-icon-drop-editmodify"></em> {{'msg.space.edit.name' | translate}}
+                </a>
+              </li>
+              <li *ngIf="isShareType && permissionChecker && permissionChecker.isManageWorkspace()">
+                <a draggable="false" href="javascript:" (click)="sharedMemberManage()">
+                  <em class="ddp-icon-drop-member"></em> {{'msg.space.set.member' | translate}}
+                </a>
+              </li>
+              <li *ngIf="permissionChecker && permissionChecker.isManageNotebook()" >
+                <a draggable="false" href="javascript:" (click)="setNotebookServer()">
+                  <em class="ddp-icon-drop-set"></em> {{'msg.space.set.notebook.server' | translate}}
+                </a>
+              </li>
+              <li *ngIf="isShareType && permissionChecker && permissionChecker.isManageWorkspace()">
+                <a draggable="false" href="javascript:" (click)="openPopupSetPermissionSchema()">
+                  <em class="ddp-icon-drop-schema"></em> {{'msg.space.ui.set-permission-schema' | translate}}
+                </a>
+              </li>
+              <li *ngIf="isShareType && loginUserId === workspace.owner.username">
+                <a draggable="false" href="javascript:" (click)="openPopupChangeOwner()">
+                  <em class="ddp-icon-drop-change"></em> {{'msg.space.ui.change-owner' | translate}}
+                </a>
+              </li>
+              <li *ngIf="isShareType && permissionChecker && permissionChecker.isManageWorkspace()">
+                <a draggable="false" href="javascript:" (click)="deleteWorkspace()">
+                  <em class="ddp-icon-drop-editdel3"></em> {{'msg.space.del.workspace' | translate}}
+                </a>
+              </li>
+            </ul>
+
+          </div>
+          <!-- //popup -->
+        </div>
+        <!-- //more -->
+      </div>
+      <!-- //right -->
+    </div>
+    <!-- //summary -->
+  </div>
+  <!-- //top -->
+
+  <div *ngIf="workspace.id" class="ddp-ui-space-option ddp-clear">
+    <!-- nav -->
+    <div class="ddp-ui-space-nav">
+      <div (click)="topFolder()" class="ddp-data-nav">
+        <em class="ddp-icon-space" ></em>
+        {{workspaceName}}
+      </div>
+      <div *ngFor="let hierarchies of folder.hierarchies" class="ddp-data-nav" >
+        <span class="ddp-data-namefolder" (click)="detailFolder(hierarchies.id)">{{hierarchies.name}}</span>
+      </div>
+      <!-- 폴더 생성 -->
+      <a draggable="false" href="javascript:" class="ddp-btn-folderplus"
+         (click)="createFolder()" *ngIf="permissionChecker && permissionChecker.isManageWsFolder()"></a>
+      <!-- //폴더 생성 -->
+    </div>
+    <!-- //nav -->
+
+    <!-- nodata -->
+    <div *ngIf="!getList() || 0 === getList().length"
+         class="ddp-ui-datanone">
+      <div class="ddp-view-datanone">
+        <em class="ddp-bg-img"></em>
+        <span class="ddp-txt-datanon">{{'msg.space.ui.no.data' | translate}}</span>
+      </div>
+    </div>
+    <!-- //nodata -->
+
+    <!-- right -->
+    <div class="ddp-ui-option-right">
+      <div class="ddp-form-search">
+        <em class="ddp-icon-search"></em>
+        <input type="text" placeholder="{{ 'msg.space.ui.ph-search-ws-contents' | translate }}"
+               (keypress)="searchData($event)" [ngModel]="srchText"  >
+        <em class="ddp-btn-search-close" *ngIf="srchText && srchText !== ''" (click)="clearSrchText()" ></em>
+      </div>
+      <!-- dropdown -->
+      <component-drop-box
+        [array]="contentFilter"
+        [viewKey]="'value'"
+        (onSelected)="selectedFilter($event)"
+      ></component-drop-box>
+      <!-- //dropdown -->
+      <!-- sort -->
+      <!-- 클릭시 ddp-selected 추가 -->
+      <component-sort-drop-box
+        [array]="contentSort"
+        [defaultIndex]="3"
+        [viewKey]="'value'"
+        (onSelected)="selectedSort($event)"
+      ></component-sort-drop-box>
+
+      <!-- tab button -->
+      <ul class="ddp-list-tab-button">
+        <li [ngClass]="{'ddp-selected' : viewType == 'CARD'}">
+          <a draggable="false" href="javascript:" (click)="setViewType('CARD')"><em class="ddp-icon-grid"></em></a>
+          <div class="ddp-ui-tooltip-info">
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.board.ui.card.view' | translate}}
+          </div>
+        </li>
+        <li [ngClass]="{'ddp-selected' : viewType == 'LIST'}">
+          <a draggable="false" href="javascript:" (click)="setViewType('LIST')"><em class="ddp-icon-listgrid"></em></a>
+          <div class="ddp-ui-tooltip-info">
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.comm.ui.list.list.view' | translate}}
+          </div>
+        </li>
+      </ul>
+      <!-- //tab button -->
+    </div>
+    <!-- //right -->
+  </div>
+
+  <!-- block 타입 -->
+  <div class="ddp-wrap-block-type" *ngIf="viewType == 'CARD'">
+    <!-- folder -->
+    <div class="ddp-wrap-folder ddp-clear" >
+      <!-- 상위 폴더로 이동 -->
+      <div class="ddp-box-folder ddp-box-back" *ngIf="!isRoot" (click)="previouseFolder()">
+        <em class="ddp-icon-folder-back"></em>
+        <span class="ddp-data-name">{{'msg.comm.ui.list.parent.folder' | translate}}</span>
+      </div>
+      <!-- //상위 폴더로 이동 -->
+      <!-- box folder -->
+      <div class="ddp-box-folder"
+           *ngFor="let folderData of (getList()
+           | baseFilter:['type','folder']
+           | baseFilter:['name', srchText]
+           | baseSort : [selectedContentSort.key, selectedContentSort.type])"
+           (click)="detailFolder(folderData.id); $event.stopPropagation();"
+           [ngClass]="{'ddp-box-edit' : folderData.edit, 'ddp-selected' : folderData.checked}">
+        <!-- check 되었을때. ddp-selected 추가 -->
+          <!-- checkbox -->
+          <div class="ddp-ui-checkbox" (click)="checkEvent($event, folderData); $event.stopPropagation();">
+            <input type="checkbox"  [checked] = "folderData.checked">
+            <i class="ddp-icon-checkbox"></i>
+          </div>
+          <!-- //checkbox -->
+          <!-- new 일떼 ddp-data-new 추가 -->
+          <span class="ddp-data-name ddp-data-new">
+            {{folderData.name}}
+            <em class="ddp-icon-new" *ngIf="folderData.createdTime | moment: 'isNew'">{{'msg.common.ui.new' | translate}}</em>
+          </span>
+          <!-- 편집 -->
+          <div class="ddp-data-input" (click)="$event.stopPropagation();" *ngIf="folderData.edit">
+            <input [(ngModel)]="folderData.name" [focus]="folderData.edit"
+                   (keypress)="updateFolderNamePressEnter($event, folderData)"
+                   (keyup.esc)="cancelEditFolderName(folderData)"
+                   (clickOutside)="cancelEditFolderName(folderData)"
+                   type="text" placeholder="new Folder" maxlength="50" />
+            <em class="ddp-icon-control-check" (click)="updateFolderName(folderData);$event.stopPropagation();"></em>
+          </div>
+          <!-- //편집 -->
+          <!-- button -->
+          <div class="ddp-btn-control" (click)="$event.stopPropagation();"
+               *ngIf="permissionChecker && permissionChecker.isManageWsFolder()">
+            <em class="ddp-icon-control-edit2 ddp-hover-tooltip" (click)="folderData.edit=true;folderData['orgName']=folderData.name">
+              <!-- 툴팁 -->
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em> {{'msg.comm.ui.edit' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </em>
+            <em *ngIf="checkEditAuth(folderData)" (click)="deleteModalOpen(folderData)"
+                class="ddp-icon-control-cut ddp-hover-tooltip" >
+              <!-- 툴팁 -->
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em> {{'msg.comm.ui.del' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </em>
+          </div>
+          <!-- //button -->
+      </div>
+      <!-- //box folder -->
+    </div>
+    <!-- //folder -->
+    <!-- 리스트 -->
+    <div class="ddp-wrap-box-block">
+      <!-- box -->
+      <!-- checkbox 선택시 ddp-selected 추가 -->
+      <div class="ddp-box-block"
+           *ngFor="let book of (getList()
+           | baseFilter:['type', 'folder', true]
+           | baseFilter:['type', selectedContentFilter.key]
+           | baseFilter:['name', srchText]
+           | baseSort : [selectedContentSort.key, selectedContentSort.type])"
+           (click)="detailPage(book.id, book.type); $event.stopPropagation();"
+           [ngClass]="{'ddp-box-workbench' : book.type === 'workbench' , 'ddp-selected' : book.checked}">
+        <em *ngIf="checkEditAuth(book)" (click)="deleteModalOpen(book); $event.stopPropagation();"
+            class="ddp-icon-control-cut ddp-hover-tooltip" >
+          <!-- 툴팁 -->
+          <div class="ddp-ui-tooltip-info ddp-down">
+            <em class="ddp-icon-view-top"></em> {{'msg.comm.ui.del' | translate}}
+          </div>
+          <!-- //툴팁 -->
+        </em>
+        <!-- top -->
+        <div class="ddp-ui-box-top">
+          <div class="ddp-ui-checkbox" (click)="checkEvent($event, book); $event.stopPropagation();">
+            <input type="checkbox" [checked] = "book.checked"/>
+            <i class="ddp-icon-checkbox"></i>
+          </div>
+          <div class="ddp-box-tag ddp-{{book.type}}">
+            {{book.type}}
+          </div>
+          <em class="ddp-icon-new" *ngIf="book.createdTime | moment: 'isNew'">{{'msg.common.ui.new' | translate}}</em>
+        </div>
+        <!-- //top -->
+        <!-- box contents -->
+        <div class="ddp-ui-box-contents">
+          <span class="ddp-data-name" [ngClass]="{'ddp-data-line2' : book.type != 'notebook'}">{{book.name}}</span>
+          <span class="ddp-data-date">{{'msg.comm.ui.list.last' | translate}} <span class="ddp-data-ago">{{book.modifiedTime | amTimeAgo}}</span></span>
+        </div>
+        <!-- //box contents -->
+
+        <!-- box botom -->
+        <!-- workbook -->
+        <div class="ddp-box-bottom" *ngIf="book.type == 'workbook'" >
+          <div class="ddp-wrap-num" >
+            <span class="ddp-data-num"><em class="ddp-icon-result-data"></em>{{book.contents.dataSource}}</span>
+            <span class="ddp-data-num"><em class="ddp-icon-result-workbook"></em>{{book.contents.dashboard}}</span>
+          </div>
+        </div>
+        <!-- //workbook -->
+        <!-- notebook -->
+        <div class="ddp-box-bottom" *ngIf="false">
+          <div class="ddp-wrap-data">
+            <!--<span class="ddp-data-name"><em class="ddp-icon-dashboard3"></em> Dashboard name</span>-->
+            <!--<span class="ddp-data-name"><em class="ddp-icon-chart2"></em>chart name</span>-->
+            <span class="ddp-data-name"><em class="ddp-icon-result-data" *ngIf="book.dsName"></em> {{book.dsName}}</span>
+            <span class="ddp-data-name ddp-data-lang-r" *ngIf="book.kernelType === 'R'"> {{'msg.nbook.ui.r' | translate}}</span>
+            <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'PYTHON'"> {{'msg.nbook.ui.python' | translate}}</span>
+          </div>
+        </div>
+        <!-- //notebook -->
+        <!-- //box botom -->
+      </div>
+      <!-- //box -->
+    </div>
+    <!-- //리스트 -->
+  </div>
+  <!-- //block 타입 -->
+  <!-- list 타입 -->
+  <div class="ddp-wrap-list-type" *ngIf="viewType == 'LIST'">
+    <ul class="ddp-list-workspace">
+      <!-- 최상단 폴더가 아닐 시 -->
+      <li class="ddp-list-back" *ngIf="!isRoot">
+        <a (click)="previouseFolder()" href="javascript:" draggable="false">
+          <em class="ddp-icon-folder-back"></em>
+          <div class="ddp-wrap-name">
+            <span class="ddp-data-name">{{'msg.comm.ui.list.parent.folder' | translate}}</span>
+          </div>
+        </a>
+      </li>
+      <!-- 폴더만 보여줌 -->
+      <li *ngFor="let folderData of (getList()
+        | baseFilter:['type', 'folder']
+        | baseFilter:['name', srchText]
+        | baseSort : [selectedContentSort.key, selectedContentSort.type]); let i=index"
+          (click)="detailFolder(folderData.id); $event.stopPropagation();"
+          [ngClass]="{'ddp-box-edit' : folderData.edit, 'ddp-selected' : folderData.checked}">
+        <a href="javascript:" draggable="false">
+          <!-- checkbox -->
+          <div class="ddp-ui-checkbox" (click)="checkEvent($event, folderData); $event.stopPropagation();">
+            <input type="checkbox" [checked] = "folderData.checked"/>
+            <i class="ddp-icon-checkbox"></i>
+          </div>
+          <!-- //checkbox -->
+          <!-- Type -->
+          <em class="ddp-icon-folder"></em>
+          <!-- // Type -->
+          <!-- Name Label -->
+          <div class="ddp-wrap-name">
+            <span class="ddp-data-name" [class.ddp-data-new]="folderData.createdTime | moment: 'isNew'">
+              <span class="ddp-data-in"> {{folderData.name}} </span>
+              <em class="ddp-icon-new" *ngIf="folderData.createdTime | moment: 'isNew'">{{'msg.common.ui.new' | translate}}</em>
+            </span>
+          </div>
+          <!-- // Name Label -->
+          <!-- 편집 -->
+          <div class="ddp-data-input" (click)="$event.stopPropagation();" *ngIf="folderData.edit">
+            <input [(ngModel)]="folderData.name" [focus]="folderData.edit"
+                   (keypress)="updateFolderNamePressEnter($event, folderData)"
+                   (keyup.esc)="cancelEditFolderName(folderData)"
+                   (clickOutside)="cancelEditFolderName(folderData)"
+                   type="text" placeholder="new Folder" maxlength="50" />
+            <em class="ddp-icon-control-check" (click)="updateFolderName(folderData);$event.stopPropagation();"></em>
+          </div>
+          <!-- //편집 -->
+          <!-- button -->
+          <div class="ddp-btn-control" (click)="$event.stopPropagation();"
+               *ngIf="permissionChecker && permissionChecker.isManageWsFolder()">
+            <em class="ddp-icon-control-edit2 ddp-hover-tooltip" (click)="folderData.edit=true;folderData['orgName']=folderData.name;">
+              <!-- 툴팁 -->
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em> {{'msg.comm.ui.edit' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </em>
+            <em *ngIf="checkEditAuth(folderData)" (click)="deleteModalOpen(folderData)"
+                class="ddp-icon-control-cut ddp-hover-tooltip" >
+              <!-- 툴팁 -->
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em> {{'msg.comm.ui.del' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </em>
+          </div>
+          <!-- //button -->
+        </a>
+      </li >
+      <!-- //폴더만 보여줌 -->
+      <!-- 폴더 타입을 제외한 나머지 컨텐츠 -->
+      <li *ngFor="let book of (getList()
+        | baseFilter:['type', 'folder', true]
+        | baseFilter:['type', selectedContentFilter.key]
+        | baseFilter:['name', srchText]
+        | baseSort : [selectedContentSort.key, selectedContentSort.type]); let i=index" (click)="detailPage(book.id, book.type); $event.stopPropagation();"
+        [ngClass]="{'ddp-selected' : book.checked}">
+        <a href="javascript:" draggable="false">
+          <!-- checkbox -->
+          <div class="ddp-ui-checkbox" (click)="checkEvent($event, book);">
+            <input type="checkbox" [checked] = "book.checked"/>
+            <i class="ddp-icon-checkbox"></i>
+          </div>
+          <!-- //checkbox -->
+          <div class="ddp-box-tag ddp-{{book.type}}">{{book.type}}</div>
+          <!-- Item Information -->
+          <div class="ddp-ui-data-list">
+            <!-- workbook -->
+            <div class="ddp-wrap-num" *ngIf="book.type == 'workbook'">
+              <span class="ddp-data-num"><em class="ddp-icon-result-data"></em>{{book.contents.dataSource}}</span>
+              <span class="ddp-data-num"><em class="ddp-icon-result-workbook"></em>{{book.contents.dashboard}}</span>
+            </div>
+            <!-- notebook -->
+            <div class="ddp-data-info" *ngIf="book.type == 'notebook'">
+              <span class="ddp-data-name"><em class="ddp-icon-result-data" *ngIf="book.dsName"></em> {{book.dsName}}</span>
+              <span class="ddp-data-name ddp-data-lang-r" *ngIf="book.kernelType === 'R'">R</span>
+              <span class="ddp-data-name ddp-data-lang-python" *ngIf="book.kernelType === 'PYTHON'">{{'msg.nbook.ui.python' | translate}}</span>
+            </div>
+            <div class="ddp-data-date">
+              {{'msg.comm.ui.list.last' | translate}} <span class="ddp-data-ago">{{book.modifiedTime | amTimeAgo}}</span>
+            </div>
+          </div>
+          <!-- // Item Information -->
+
+          <!-- Name -->
+          <div class="ddp-wrap-name">
+            <span class="ddp-data-name" [class.ddp-data-new]="book.createdTime | moment: 'isNew'">
+              {{book.name}}
+              <em class="ddp-icon-new" *ngIf="book.createdTime | moment: 'isNew'">{{'msg.common.ui.new' | translate}}</em>
+            </span>
+            <span class="ddp-data-detail" *ngIf="book.description">- {{book.description}}</span>
+          </div>
+          <!-- // Name -->
+
+          <div class="ddp-btn-control" *ngIf="permissionChecker && permissionChecker.isManageWorkspace()">
+            <em *ngIf="checkEditAuth(book)" (click)="deleteModalOpen(book); $event.stopPropagation();"
+                class="ddp-icon-control-cut ddp-hover-tooltip">
+              <!-- 툴팁 -->
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                {{'msg.comm.ui.del' | translate}}
+              </div>
+              <!-- //툴팁 -->
+            </em>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <!-- //list 타입 -->
+
+  <!-- space bottom -->
+  <div class="ddp-ui-space-bottom">
+    <!-- left -->
+    <div class="ddp-bottom-left" *ngIf="permissionChecker && permissionChecker.isManageWorkspace()">
+      <!-- 전체선택 -->
+      <div class="ddp-ui-link">
+        <label class="ddp-label-checkbox ddp-checkboxtype" >
+          <input type="checkbox" [checked]="isAllChecked" (click)="checkAllEvent()"/>
+          <i class="ddp-icon-checkbox"></i>
+          <span class="ddp-txt-checkbox">{{'msg.comm.ui.list.sel.all' | translate}}</span>
+        </label>
+      </div>
+      <!-- // 전체선택 -->
+      <!-- Clone Workbook -->
+      <div class="ddp-ui-link" [ngClass]="{'ddp-disabled' : checkBookCopyAvailable()}" (click)="cloneWorkbooks()">
+        <a draggable="false" href="javascript:">
+          <em class="ddp-icon-select-clone"></em>
+          {{'msg.space.ui.workbook.copy' | translate}}
+        </a>
+      </div>
+      <!-- // Clone Workbook -->
+      <!-- Move Workbook -->
+      <div class="ddp-ui-link"
+           [ngClass]="{'ddp-selected' : moveSelectionFl, 'ddp-disabled' : isDisableMoveContent }"
+           (click)="openMoveContents()" (clickOutside)="moveSelectionFl=false">
+        <a draggable="false" href="javascript:">
+          <em class="ddp-icon-select-move"></em>
+          {{'msg.space.ui.sel.mov' | translate}}
+        </a>
+
+        <!-- popup -->
+        <div class="ddp-box-popup2">
+          <!-- Layer Title - move Workspace-->
+          <div *ngIf="isCheckedWorkbook && !moveCandidateLoc" class="ddp-box-title">{{'msg.comm.ui.list.workspace' | translate}}</div>
+          <a href="javascript:"
+             (click)="selectTarget($event, moveCandidateLoc.id, 'FOLDER')" class="ddp-link-space"
+             *ngIf="isCheckedWorkbook && moveCandidateLoc">
+            <em (click)="selectTargetLocation($event, moveCandidateLoc, true);" class="ddp-btn-back"></em>{{moveCandidateLoc.name}}
+          </a>
+          <!-- // Layer Title - move Workspace-->
+          <!-- Layer Title - move other -->
+          <a href="javascript:"
+             (click)="selectTarget($event, 'ROOT', 'FOLDER' )"
+             class="ddp-link-space" [ngClass]="{'ddp-selected' : moveTargetFolderId === 'ROOT'}"
+             *ngIf="!isCheckedWorkbook && moveCandidateLoc && !moveCandidateLoc.hierarchies">
+            <em class="ddp-icon-user"></em>{{moveCandidateLoc.name}}
+          </a>
+          <a href="javascript:"
+             (click)="selectTarget($event, moveCandidateLoc.id, 'FOLDER')"
+             class="ddp-link-space" [ngClass]="{'ddp-selected' : moveTargetFolderId === moveCandidateLoc.id}"
+             *ngIf="!isCheckedWorkbook && moveCandidateLoc && moveCandidateLoc.hierarchies">
+            <em (click)="selectTargetLocation($event, moveCandidateLoc, true);" class="ddp-btn-back"></em>{{moveCandidateLoc.name}}
+          </a>
+          <!-- // Layer Title - move other -->
+          <!-- Layer List - Workspace -->
+          <ul class="ddp-list-folder" *ngIf="importAvailWorkspaces && !moveCandidateLoc" >
+            <li *ngFor="let wsItem of importAvailWorkspaces"
+              (click)="selectTarget($event, wsItem.id, 'WORKSPACE')"
+              [class.ddp-selected]="moveTargetWorkspaceId === wsItem.id">
+              <em [ngClass]="{'ddp-icon-user' : 'PRIVATE' === wsItem.publicType.toString(),
+                              'ddp-icon-shape' : 'SHARED' === wsItem.publicType.toString()}"></em>
+              <span class="ddp-txt-name">{{wsItem.name}}</span>
+              <span class="ddp-btn-view" (click)="selectTargetLocation($event, wsItem)"></span>
+            </li>
+          </ul>
+          <!-- // Layer List - Workspace -->
+          <!-- Layer List - Folder -->
+          <ul class="ddp-list-folder" *ngIf="moveCandidateLoc">
+            <li *ngFor="let content of moveCandidateLoc.books | baseFilter : ['type','folder']"
+                (click)="selectTarget($event, content.id, 'FOLDER')"
+                [ngClass]="{
+                  'ddp-selected' : moveTargetFolderId === content.id,
+                  'ddp-disabled' : isDisableMove( content.id )
+                }" >
+              <em class="ddp-icon-folder2"></em>
+              <span class="ddp-txt-name">{{content.name}}</span>
+              <span class="ddp-btn-view" (click)="selectTargetLocation($event, content);"></span>
+            </li>
+          </ul>
+          <div *ngIf="importAvailWorkspaces && !moveCandidateLoc && pageAvailableSpaces.number < pageAvailableSpaces.totalPages -1 "
+            style="position: absolute;bottom: 50px;left: 0;right: 0;text-align: center;">
+            <a href="javascript:" class="ddp-btn-moretype"
+            (click)="$event.stopPropagation();loadWorkspaceImportAvailable(pageAvailableSpaces.number + 1)">More</a>
+          </div>
+          <!-- // Layer List - Folder -->
+          <!-- Layer Bottom -->
+          <div class="ddp-ui-buttons">
+            <a draggable="false" href="javascript:" (click)="moveSelectionFl = false; $event.stopPropagation();" class="ddp-btn-type-popup2">{{'msg.comm.btn.cancl' | translate}}</a>
+            <a draggable="false" href="javascript:" (click)="moveContents($event);" class="ddp-btn-type-popup2 ddp-bg-black">{{'msg.comm.btn.mov' | translate}}</a>
+          </div>
+          <!-- // Layer Bottom -->
+        </div>
+        <!-- //popup -->
+      </div>
+      <!-- // Move Workbook -->
+      <!-- Delete Workbook -->
+      <div class="ddp-ui-link" [ngClass]="{'ddp-disabled' : checkContents.length < 1}" (click)="deleteMultiModalOpen()">
+        <a draggable="false" href="javascript:">
+          <em class="ddp-icon-select-delete"></em>
+          {{'msg.comm.ui.sel.del' | translate}}
+        </a>
+      </div>
+      <!-- // Delete Workbook -->
+    </div>
+    <!-- //left -->
+
+    <!-- Create Buttons -->
+    <div class="ddp-bottom-right">
+      <a *ngIf="permissionChecker && permissionChecker.isWriteWorkbook()"
+         draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="createWorkbook()">
+        <em class="ddp-icon-btnplus"></em>{{'msg.space.btn.workbook' | translate}}
+      </a>
+      <a *ngIf="permissionChecker && permissionChecker.isWriteNotebook()"
+         draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="createNotebook()">
+        <em class="ddp-icon-btnplus"></em>{{'msg.space.btn.notebook' | translate}}
+      </a>
+      <a *ngIf="permissionChecker && permissionChecker.isWriteWorkbench()"
+         draggable="false" href="javascript:" class="ddp-btn-solid2 ddp-dark" (click)="createWorkbench()">
+        <em class="ddp-icon-btnplus"></em>{{'msg.space.btn.workbench' | translate}}
+      </a>
+    </div>
+    <!-- // Create Buttons -->
+
+  </div>
+  <!-- //space bottom -->
+
+</div>
+
+<!-- 워크북 생성 -->
+<app-create-workbook (createComplete)="createCompleteWorkBook($event)"></app-create-workbook>
+<!-- 데이터소스 뷰 -->
+<app-datasource-view (showComplete)="isInfoType=null"></app-datasource-view>
+<!-- 공유멤버 뷰 -->
+<app-shared-member (showComplete)="completeMemeber($event)"></app-shared-member>
+<!-- 공유멤버 관리 -->
+<app-shared-member-manage (manageComplete)="loadWorkspace($event)"></app-shared-member-manage>
+<!-- 워크스페이스 수정 -->
+<app-update-workspace (updateComplete)="loadWorkspace($event)"></app-update-workspace>
+<!-- 워크스페이스 삭제 -->
+<app-delete-workspace></app-delete-workspace>
+<!-- 워크스페이스 권한 스키마 설정 -->
+<app-workspace-permission-schema-set (afterUpdate)="loadWorkspace(true)"></app-workspace-permission-schema-set>
+<!-- 워크스페이스 리스트 -->
+<app-workspace-list (updateComplete)="loadWorkspace($event)"></app-workspace-list>
+<!-- 노트북 생성 -->
+<app-create-notebook (createComplete)="loadWorkspace($event)" [step]="notebookStep"></app-create-notebook>
+<!-- 워크벤치 생성 -->
+<app-create-workbench *ngIf="workbenchStep" [workspaceId]="workspaceId" [folderId]="currentFolderId" [step]="workbenchStep"></app-create-workbench>
+<!-- 노트북 서버 설정 -->
+<app-set-notebook-server (updateComplete)="loadWorkspace($event)"></app-set-notebook-server>
+<!-- 소유자 변경 -->
+<app-change-workspace-owner (afterChange)="loadWorkspace($event)"></app-change-workspace-owner>

@@ -1,0 +1,116 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-rnb-contents">
+  <div class="ddp-ui-title">
+    {{'msg.bench.ui.query.hist'|translate}}
+  </div>
+  <div class="ddp-ui-option">
+    <!-- search -->
+    <div class="ddp-form-search">
+      <em class="ddp-icon-search"></em>
+      <input type="text" placeholder="" [(ngModel)]="searchText" (keyup.esc)="searchText ='';getSearch()" (keyup.Enter)="getSearch()">
+      <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchText ='';getSearch()"></em>
+    </div>
+    <!-- //search -->
+    <div class="ddp-ui-reset">
+      <a href="javascript:" class="ddp-btn-reset2" (click)="deleteAll()"></a>
+      <div class="ddp-ui-tooltip-info">
+        <em class="ddp-icon-view-top"></em>
+        {{'msg.comm.ui.list.del.all'|translate}}
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="ddp-wrap-table-simple">
+    <!-- thead -->
+    <div class="ddp-table-thead">
+      <table class="ddp-table-simple">
+        <colgroup>
+          <col width="55px"/>
+          <col width="100px"/>
+          <col width="*"/>
+          <col width="65px"/>
+          <col width="60px"/>
+        </colgroup>
+        <thead>
+        <tr>
+          <th class="ddp-txt-center">
+            {{'msg.comm.th.no'|translate}}
+          </th>
+          <th>
+            {{'msg.comm.th.time'|translate}}
+          </th>
+          <th>
+            {{'msg.comm.th.action'|translate}}
+          </th>
+          <th>
+            {{'msg.comm.th.rspns'|translate}}
+          </th>
+          <th class="ddp-txt-center">
+            {{'msg.comm.th.rslt'|translate}}
+          </th>
+        </tr>
+        </thead>
+
+      </table>
+    </div>
+    <!-- //thead -->
+    <!-- tbody -->
+    <div class="ddp-table-tbody">
+      <table class="ddp-table-simple">
+        <colgroup>
+          <col width="55px"/>
+          <col width="100px"/>
+          <col width="*"/>
+          <col width="65px"/>
+          <col width="60px"/>
+        </colgroup>
+        <tbody>
+        <tr *ngFor="let item of histories; let idx = index" (click)="setTableSql(item.query)">
+          <td class="ddp-txt-center">
+            {{pageResult.totalElements - idx}}
+          </td>
+          <td>
+            <!--{{item.modifiedTime | date 'yyyy.MM.dd hh:mm'}}-->
+            <!--15.12.10<br/>13:54:54-->
+            {{item.queryStartTime | mdate:'MM-DD HH:mm'}}<br/>
+            {{item.queryFinishTime | mdate:'MM-DD HH:mm'}}
+            by {{item.createdBy.fullName}}
+          </td>
+          <td>
+            <div class="ddp-ui-action">
+              {{item.query}}<br/>
+
+            </div>
+          </td>
+          <td>
+            {{item.queryTimeTakenFormatted}}
+          </td>
+          <td class="ddp-txt-center">
+            <em class="ddp-result-fail" *ngIf="item.queryResultStatus === 'FAIL'">Fail</em>
+            <em class="ddp-result-scuccess" *ngIf="item.queryResultStatus === 'SUCCESS'">Success</em>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <a *ngIf="page.page < pageResult.totalPages" href="javascript:" class="ddp-btn-more" (click)="getQueryHistories()">+ {{'msg.comm.ui.more'|translate}}</a>
+    </div>
+    <!-- //tbody -->
+
+  </div>
+
+</div>

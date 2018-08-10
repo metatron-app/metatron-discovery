@@ -1,0 +1,157 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-contents-list">
+  <div class="ddp-wrap-option">
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <!--<div class="ddp-wrap-edit">-->
+        <!--<label class="ddp-label-type">{{'msg.groups.ui.note.existence' | translate}}</label>-->
+        <!--&lt;!&ndash; edit option &ndash;&gt;-->
+        <!--<div class="ddp-ui-edit-option ddp-inline">-->
+          <!--<label class="ddp-label-radio" (change)="onClickNoteFilter()">-->
+            <!--<input type="radio" [checked]="noteFilterFl">-->
+            <!--<i class="ddp-icon-radio"></i>-->
+            <!--<span class="ddp-txt-radio">{{'msg.groups.ui.note.existence.desc' | translate}}</span>-->
+          <!--</label>-->
+
+        <!--</div>-->
+        <!--&lt;!&ndash; //edit option &ndash;&gt;-->
+      <!--</div>-->
+      <!-- //edit -->
+
+    </div>
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <!-- edit -->
+      <component-period
+        [title]="'msg.groups.th.create.date' | translate"
+        [roundSecond]="true"
+        (changeDate)="onChangeDate($event)"
+        [returnFormat]="'YYYY-MM-DDTHH:mm:ss.sssZ'"
+      ></component-period>
+      <!-- //edit -->
+      <!-- //edit -->
+
+      <div class="ddp-ui-rightoption">
+        <a href="javascript:" (click)="initFilters()" class="ddp-link-reset"><em class="ddp-btn-reset3"></em>{{'msg.mem.btn.refresh' | translate}}</a>
+      </div>
+
+    </div>
+    <!-- //option -->
+
+    <!-- option -->
+    <div class="ddp-ui-option ddp-optiontype ddp-clear">
+      <!-- 검색 -->
+      <div class="ddp-form-search ddp-fleft">
+        <em class="ddp-icon-search"></em>
+        <input type="text" placeholder="{{'msg.groups.ui.search.description' | translate}}"
+               [ngModel]="searchKeyword"
+               (keypress)="onSearchText($event)"
+               (keyup.esc)="onSearchTextInit()">
+        <em (click)="onSearchTextInit()" class="ddp-btn-search-close" *ngIf="searchKeyword"></em>
+      </div>
+      <!-- //검색 -->
+      <!-- right -->
+      <div class="ddp-ui-rightoption">
+        <span class="ddp-data-total">{{'msg.log.ui.num.lists' | translate : { value : groupList.length} }}</span>
+        <a href="javascript:" class="ddp-btn-link" (click)="onClickCreateModal()"><em class="ddp-icon-link-add"></em>{{'msg.groups.ui.create.grp' | translate}}</a>
+      </div>
+      <!-- //right -->
+    </div>
+    <!-- //option -->
+  </div>
+
+
+  <table class="ddp-table-form ddp-table-type3">
+    <colgroup>
+      <col width="25%">
+      <col width="*">
+      <!--<col width="20%">-->
+      <col width="7%">
+      <col width="150px">
+      <col width="100px">
+    </colgroup>
+    <thead>
+    <tr>
+      <th class="ddp-cursor" (click)="onFilterSort('name')">
+        {{'msg.groups.th.group' | translate}}
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th>
+        {{'msg.groups.th.description' | translate}}
+      </th>
+      <!--<th>-->
+        <!--{{'msg.groups.th.note' | translate}}-->
+      <!--</th>-->
+      <th class="ddp-cursor" (click)="onFilterSort('memberCount')">
+        {{'msg.groups.th.members' | translate}}
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'memberCount' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'memberCount' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'memberCount' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th colspan="2" class="ddp-cursor" (click)="onFilterSort('createdTime')">
+        {{'msg.groups.th.create.date' | translate}}
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let item of groupList; let index = index"
+        (click)="showDetailGroup(item)">
+      <td>
+        {{item.name}}
+        <em *ngIf="item.createdTime | moment: 'isNew'" class="ddp-icon-new">{{'msg.common.ui.new' | translate}}</em>
+      </td>
+      <td>
+        {{item.description}}
+      </td>
+      <!--<td>-->
+
+      <!--</td>-->
+      <td>
+        {{item.memberCount}}
+      </td>
+      <td>
+        {{item.createdTime | mdate:'YYYY-MM-DD HH:mm'}}
+      </td>
+      <td>
+        <a href="javascript:" class="ddp-link-delete"
+           *ngIf="isEnableDelete(item)"
+           (click)="onClickGroupDelete(item)">
+          <em class="ddp-icon-delete"></em>
+          {{'msg.groups.th.delete' | translate}}
+        </a>
+      </td>
+    </tr>
+    </tbody>
+
+  </table>
+
+  <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreContents()">
+    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+  </div>
+</div>
+
+<!-- 그룹 생성 팝업 -->
+<app-create-user-management-groups (createComplete)="getGroupListInit()"></app-create-user-management-groups>
+<!-- //그룹 생성 팝업 -->
+<!-- 삭제확인 공통팝업 -->
+<app-confirm-modal (confirm)="confirmDeleteGroup($event)"></app-confirm-modal>
+<!-- 삭제확인 공통팝업 -->

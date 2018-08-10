@@ -1,0 +1,310 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-chart-side ddp-wrap-color-by ddp-show">
+  <div class="ddp-ui-scroll">
+    <div class="ddp-ui-side-title">
+      {{'msg.page.ui.data.color.title' | translate}}
+    </div>
+    <div class="ddp-wrap-downmenu"  *ngIf="possibleChartCheck('color', uiOption.type)">
+      <!-- box down -->
+      <div class="ddp-box-down">
+        <!-- 사용자 색상 설정 'on' 인 경우 ddp-disabled 추가 -->
+        <div class="ddp-wrap-divide" [ngClass]="{'ddp-disabled' :'measure' == uiOption.color.type.toString() && uiOption.color['customMode']}">
+          <!-- part -->
+          <div class="ddp-list-part ddp-divide">
+            <div class="ddp-type-selectbox" (click)="colorTypeFlag=!colorTypeFlag;colorListFlag=false;" (clickOutside)="colorTypeFlag=false" [excludeBeforeClick]="true">
+              <span class="ddp-txt-selectbox">{{ capitalize(uiOption.color.type.toString() === 'single' ? 'none' : uiOption.color.type) }}</span>
+              <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
+                <li (click)="changeColorType('single')" *ngIf="possibleChartCheck('colorN', uiOption.type)"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
+                <li (click)="changeColorType('series')" *ngIf="possibleChartCheck('colorS', uiOption.type)"><a href="javascript:">{{'msg.page.li.color.series' | translate}}</a></li>
+                <li (click)="changeColorType('dimension')" *ngIf="possibleChartCheck('colorD', uiOption.type) && lineChartCheck(uiOption.type)"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
+                <li (click)="changeColorType('measure')" *ngIf="possibleChartCheck('colorV', uiOption.type)"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+              </ul>
+            </div>
+          </div>
+          <!-- //part -->
+
+          <!-- part -->
+          <div class="ddp-list-part ddp-divide" *ngIf="'line' !== uiOption.type.toString()
+            && 'gauge' !== uiOption.type.toString()
+            && 'network' !== uiOption.type.toString()
+            && 'sankey' !== uiOption.type.toString()
+            && 'treemap' !== uiOption.type.toString()
+            && uiOption.color.type.toString() === 'dimension'">
+            <!-- SELECTBOX -->
+            <component-select
+              [array]="uiOption.fieldList"
+              [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.color['targetField'])"
+              (onSelected)="colorByDimension($event)"
+            ></component-select>
+          </div>
+          <!-- //part -->
+
+          <!-- part -->
+          <div class="ddp-list-part">
+            <div class="ddp-ui-colorby">
+
+              <!-- colorby button -->
+              <div *ngIf="'single' !== uiOption.color.type.toString() && 'measure' !== uiOption.color.type.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                <em class="ddp-icon-colorby"></em>
+                <!-- series, dimension 색일때 -->
+                <button class="ddp-btn-color-series{{checkDefaultSelectedColor()}} ddp-type"></button>
+                <!-- //series, dimension 색일때 -->
+              </div>
+              <!-- //colorby button -->
+
+              <!-- colorby button -->
+              <div *ngIf="'single' !== uiOption.color.type.toString() && 'measure' === uiOption.color.type.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                <em class="ddp-icon-colorby"></em>
+                <!-- measure 색일때 -->
+                <button class="ddp-btn-color-type{{checkMeasureSelectedColor()}} ddp-type"></button>
+                <!-- measure 색일때 -->
+              </div>
+              <!-- //colorby button -->
+
+              <!-- popup -->
+              <div class="ddp-popup-side" *ngIf="colorListFlag">
+                <!-- top -->
+                <div class="ddp-pop-side-top">
+                  {{'msg.page.ui.color.palette' | translate}}
+                  <a href="javascript:" class="ddp-btn-close" (click)="colorListFlag=false"></a>
+                </div>
+                <!-- //top -->
+                <!-- contents -->
+                <div *ngIf="'measure' !== uiOption.color.type.toString()" class="ddp-pop-side-contents">
+                  <ul class="ddp-list-series">
+                    <li *ngFor="let item of defaultColorList" (click)="changeColor(item)">
+                      <!-- 선택시 ddp-selected 추가 -->
+                      <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.color['schema']}"></button>
+                    </li>
+                  </ul>
+                </div>
+                <!-- //contents -->
+                <!--uiOption.type.toString() == 'grid' ? gridMeasureColorList : measureColorList-->
+                <!-- contents -->
+                <div *ngIf="'measure' === uiOption.color.type.toString()"  class="ddp-pop-side-contents">
+                  <span class="ddp-pop-sub-title">{{'msg.page.th.seq.display' | translate}}</span>
+                  <ul class="ddp-list-series">
+                    <li *ngFor="let item of measureColorList; let num = index" (click)="changeColor(item, measureColorList[num])">
+                      <!-- 선택시 ddp-selected 추가 -->
+                      <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.color['schema']}"></button>
+                    </li>
+                  </ul>
+
+                  <span class="ddp-pop-sub-title">{{'msg.page.th.contrast.display' | translate}}</span>
+                  <ul class="ddp-list-series">
+                    <li *ngFor="let item of measureReverseColorList; let num = index" (click)="changeColor(item, measureReverseColorList[num])">
+                      <!-- 선택시 ddp-selected 추가 -->
+                      <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.color['schema']}"></button>
+                    </li>
+                  </ul>
+                </div>
+                <!-- //contents -->
+
+              </div>
+              <!-- //popup -->
+            </div>
+
+          </div>
+          <!-- //part -->
+        </div>
+
+        <!-- color by series part -->
+        <div *ngIf="uiOption.color.type.toString() == 'series'" class="ddp-wrap-divide">
+
+          <div class="ddp-wrap-option-slider">
+            <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
+            <!-- Slide THREE -->
+            <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+              <input type="checkbox" [checked]="uiOption.color['settingUseFl']"
+                     (click)="showUserColorSet()">
+              <label><span class="ddp-slide"></span></label>
+            </div>
+            <!-- //Slide THREE -->
+          </div>
+          <!-- series -->
+          <div *ngIf="uiOption.color['settingUseFl']" class="ddp-list-sub2">
+            <!-- color select --->
+            <div *ngFor="let item of uiOption.color['mappingArray']; let index = index" class="ddp-ui-color-select">
+              <div class="ddp-txt-label">
+                <!-- 사용자가 바꾼 color : ddp-user 추가 -->
+                <div class="ddp-box-color">
+                  <!-- 사용자가 바꾼 color : ddp-user 추가 -->
+                  <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
+                                [showInput]="true" [showUserColor]="true" #colorPicker (selected)="colorPaletteSelected($event, item)"></color-picker>
+                </div>
+                {{item.alias}}
+                <a href="javascript:" *ngIf="uiOption.color['settingUseFl']" (click)="resetUserColorSet(item, index)" class="ddp-btn-reset3"></a>
+              </div>
+            </div>
+            <!-- //color select --->
+          </div>
+          <!--//series-->
+        </div>
+        <!-- //color by series part -->
+
+        <!-- color by dimension part -->
+        <div *ngIf="'gauge' == uiOption.type.toString() && uiOption.color.type.toString() == 'dimension'" class="ddp-wrap-divide">
+
+          <div class="ddp-wrap-option-slider">
+            <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
+            <!-- Slide THREE -->
+            <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+              <input type="checkbox" [checked]="uiOption.color['settingUseFl']"
+                     (click)="showUserColorSet()">
+              <label><span class="ddp-slide"></span></label>
+            </div>
+            <!-- //Slide THREE -->
+          </div>
+          <!-- series -->
+          <div *ngIf="uiOption.color['settingUseFl']" class="ddp-list-sub2">
+            <!-- color select --->
+            <div *ngFor="let item of uiOption.color['mappingArray']; let index = index" class="ddp-ui-color-select">
+              <div class="ddp-txt-label">
+                <!-- 사용자가 바꾼 color : ddp-user 추가 -->
+                <div class="ddp-box-color">
+                  <!-- 사용자가 바꾼 color : ddp-user 추가 -->
+                  <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
+                                [showInput]="true" [showUserColor]="true" #colorPicker (selected)="colorGaugePaletteSelected($event, item)"></color-picker>
+                </div>
+                {{item.alias}}
+                <a href="javascript:" *ngIf="uiOption.color['settingUseFl']" (click)="resetGaugeUserColorSet(item, index)" class="ddp-btn-reset3"></a>
+              </div>
+            </div>
+            <!-- //color select --->
+          </div>
+          <!--//series-->
+        </div>
+        <!-- //color by dimension part -->
+
+        <!-- color by measure part -->
+        <!-- 사용자 색상 프리셋 box down color by measure일때 -->
+        <div *ngIf="uiOption.color.type.toString() == 'measure'" class="ddp-wrap-divide">
+          <div class="ddp-wrap-option-slider">
+            <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
+            <!-- Slide THREE -->
+            <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+              <input type="checkbox" [checked]="uiOption.color['customMode']" (click)="changeColorRange()" name="check">
+              <label><span class="ddp-slide"></span></label>
+            </div>
+            <!-- //Slide THREE -->
+          </div>
+          <div *ngIf="uiOption.color['customMode']" class="ddp-user-color">
+
+            <div class="ddp-list-part">
+              <!-- selectbox -->
+              <component-select
+                [array]="colorRangeTypeList"
+                [defaultIndex]="!uiOption.color['customMode'] || 'SECTION' == uiOption.color['customMode'] ? 0 : 1"
+                [viewKey]="'name'"
+                (onSelected)="selectColorRangeType($event)">
+              </component-select>
+              <!-- //selectbox -->
+            </div>
+            <div *ngFor="let item of uiOption.color['ranges']; let index = index" class="ddp-wrap-usercolor">
+              <!-- blank -->
+              <div *ngIf="0 !== index && 'SECTION' == uiOption.color['customMode']" (click)="addNewRange(index)" class="ddp-list-blank">
+                {{'msg.page.chart.color.measure.new.range.add.description' | translate}}
+              </div>
+              <!-- //blank -->
+              <!-- list usercolor -->
+              <div *ngIf="'SECTION' == uiOption.color['customMode']" class="ddp-list-usercolor">
+                <div class="ddp-box-color">
+                  <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
+                                [showInput]="true" [showUserColor]="true" #colorPicker (selected)="colorPaletteSelected($event, item)"></color-picker>
+                </div>
+                <div class="ddp-data-range ddp-clear">
+                  <div class="ddp-input-range">
+                    <input [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="number" input-mask="number" class="ddp-input-typebasic" placeholder="0000" [(ngModel)]="item.gt"
+                           (keyup.enter)="changeRangeMinInput(item, index)" (focus)="availableRange(item, index)">
+                    <!-- tooltip -->
+                    <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-down"></em>
+                      {{'msg.page.chart.color.measure.new.range.add.available.range' | translate}} {{availableRangeValue}}
+                    </div>
+                    <!-- //tooltip -->
+                  </div>
+                  <div class="ddp-bar ">
+                    ~
+                  </div>
+                  <div class="ddp-input-range">
+                    <input [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="number" input-mask="number" class="ddp-input-typebasic" placeholder="0000" [(ngModel)]="item.lte"
+                           (keyup.enter)="changeRangeMaxInput(item, index)" (focus)="availableRange(item, index)">
+                    <!-- tooltip -->
+                    <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-down"></em>
+                      {{'msg.page.chart.color.measure.new.range.add.available.range' | translate}} {{availableRangeValue}}
+                    </div>
+                    <!-- //tooltip -->
+                  </div>
+                </div>
+
+                <em *ngIf="uiOption.color['ranges'].length - 1 !== index && 0 !== index && uiOption.color['ranges'].length > 3" (click)="removeColorRange(item, index)" class="ddp-icon-listdelete"></em>
+              </div>
+            </div>
+            <!-- //list usercolor -->
+
+            <!-- gradation -->
+            <div *ngIf="'GRADIENT' == uiOption.color['customMode']" class="ddp-wrap-gradation2">
+
+              <div class="ddp-ui-gradation">
+                <gradation-generator (changeGradation)="changeGradations($event)"
+                (clickOutside)="hideGradationColor()"></gradation-generator>
+
+                <!-- user color -->
+                <div class="ddp-gradx-usercolor">
+                  <!-- value num -->
+
+                  <!-- //value num -->
+                  <div *ngFor="let item of uiOption.color['ranges']; let index = index" class="ddp-wrap-usercolor">
+                    <!-- blank -->
+                    <div *ngIf="separateValue > uiOption.color['ranges']['length']" (click)="addGradientRange(index)" class="ddp-list-blank">
+                      {{'msg.page.chart.color.measure.new.range.add.description' | translate}}
+                    </div>
+                    <!-- //blank -->
+                    <!-- list usercolor -->
+                    <div class="ddp-list-usercolor">
+                      <div class="ddp-box-color" id="ddp-box-color-{{index}}">
+                        <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
+                                      [showInput]="true" [showUserColor]="true" #colorPicker (selected)="gradationColorSelected($event, item)"
+                                      (showPicker)="showGradationColor(item, index)" (hidePicker)="hideGradationColor(index)"></color-picker>
+                      </div>
+                      <div class="ddp-data-range ddp-clear">{{item.value | number: '1.0-0'}}</div>
+                      <em *ngIf="uiOption.color['ranges'].length > 2" (click)="deleteGradientRange(item.index)" class="ddp-icon-listdelete"></em>
+                    </div>
+                    <!-- //list usercolor -->
+                  </div>
+                </div>
+                <!-- //user color -->
+              </div>
+            </div>
+          </div>
+
+            <div *ngIf="uiOption.color['customMode']" class="ddp-data-sum">
+              {{'msg.page.chart.color.measure.new.range.min' | translate}} : {{uiOption.minValue > 0 ? 0 : uiOption.minValue}} ~ {{'msg.page.chart.color.measure.new.range.max' | translate}} : {{uiOption.maxValue | number: '1.0-0'}}
+            </div>
+            <a *ngIf="'SECTION' == uiOption.color['customMode']" (click)="equalColorRange()" href="javascript:" class="ddp-btn-set">
+              {{'msg.page.chart.color.measure.new.range.split.equal' | translate}}
+            </a>
+            <!--<a *ngIf="'GRADIENT' == uiOption.color['customMode']" (click)="equalColorGradation()" href="javascript:" class="ddp-btn-set">-->
+              <!--{{'msg.page.chart.color.measure.new.range.split.equal' | translate}}-->
+            <!--</a>-->
+        </div>
+        <!-- //color by measure part -->
+      </div>
+      <!-- //box down -->
+    </div>
+  </div>
+</div>

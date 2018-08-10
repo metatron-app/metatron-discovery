@@ -1,0 +1,135 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.storage.ui.dsource.create.title' | translate}}  ({{'msg.storage.ui.dsource.create.file.title' | translate}})
+      <em class="ddp-bg-order-line4-type4"></em>
+    </div>
+    <span class="ddp-txt-info">{{'msg.storage.create.complete.description' | translate}}</span>
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in">
+    <div class="ddp-box-popupcontents2">
+      <!-- edit -->
+      <div class="ddp-wrap-boxtype">
+
+        <table class="ddp-wrap-boxdata">
+          <colgroup>
+            <col width="120px" />
+            <col width="*" />
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              {{'msg.storage.th.dsource.create.file' | translate}}
+            </th>
+            <td>
+              {{getFileName}}
+            </td>
+          </tr>
+          <tr *ngIf="isExcelFile()">
+            <th>
+              {{'msg.storage.th.dsource.create.sheet' | translate}}
+            </th>
+            <td>
+              {{getSheetName}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              {{'msg.storage.th.gran.settings' | translate}}
+            </th>
+            <td>
+              <ul class="ddp-list-sub">
+                <li>
+                  {{'msg.storage.th.segment.gran' | translate}} : {{getSegmentGranularity.label}}
+                </li>
+                <li>
+                  {{'msg.storage.th.query.gran' | translate}} : {{getGranularity.label}}
+                </li>
+              </ul>
+            </td>
+          </tr>
+          <!-- roll up -->
+          <tr>
+            <th>
+              {{'msg.storage.th.rollup.settings' | translate}}
+            </th>
+            <td>
+              {{getRollup}}
+            </td>
+          </tr>
+          <!-- //roll up -->
+          <!-- advanced opt -->
+          <tr *ngIf="isUsedTuningConfig()">
+            <th>
+              {{'msg.storage.ui.advanced.opt.enable.alert' | translate}}
+            </th>
+            <td>
+            </td>
+          </tr>
+          <!-- //advanced opt -->
+          </tbody>
+        </table>
+      </div>
+      <!-- //edit -->
+      <!-- 이름 -->
+      <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidName">
+        <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
+        <input type="text" class="ddp-input-type"
+               maxlength="50"
+               placeholder="{{'msg.comm.ui.create.name' | translate}}"
+               (keyup.esc)="datasourceName=''"
+               [(ngModel)]="datasourceName"
+               (focus)="isInvalidName=false"/>
+        <!-- error -->
+        <span class="ddp-ui-error">{{errMsgName}}</span>
+        <!-- error -->
+      </div>
+      <!-- //이름 -->
+      <!-- 설명 -->
+      <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidDesc">
+        <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
+        <input type="text" class="ddp-input-type"
+               maxlength="150"
+               placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+               (keyup.esc)="datasourceDesc=''"
+               [(ngModel)]="datasourceDesc"
+               (focus)="isInvalidDesc=false"/>
+        <!-- error -->
+        <span class="ddp-ui-error">{{errMsgDesc}}</span>
+        <!-- error -->
+      </div>
+      <!-- //설명 -->
+    </div>
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup"
+       (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black"
+       [ngClass]="{'ddp-disabled' : !validationDatasourceName()}"
+       (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+
+</div>
+
+<app-confirm-modal></app-confirm-modal>

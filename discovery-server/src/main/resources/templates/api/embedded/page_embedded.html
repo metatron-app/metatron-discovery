@@ -1,0 +1,430 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html ng-app="App" style="min-width: 0;">
+<head>
+    <!-- Bootstrap -->
+    <link href="/app/css/bootstrap.min.css" rel="stylesheet"/>
+    
+    <link href="/app/css/polaris.css" rel="stylesheet"/>
+    <link href="/app/css/angular.css" rel="stylesheet"/>
+
+    <!-- pivot css -->
+    <link rel="stylesheet" href="/app/css/grid/pivot.view.css"/>
+    <link rel="stylesheet" href="/app/css/polaris.pivottable.css"/>
+
+    <!-- map css -->
+    <link rel="stylesheet" href="/app/js/component/tmap/bower_components/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="/app/js/component/tmap/bower_components/leaflet-providers/css/gh-fork-ribbon.css"/>
+
+    <!-- chart css -->
+    <link rel="stylesheet" href="/app/css/chartcanvas/polaris.chart.bar.css" />
+    <link rel="stylesheet" href="/app/css/chartcanvas/polaris.chart.line.css" />
+    <link rel="stylesheet" href="/app/css/chartcanvas/polaris.chart.scatter.css" />
+    <link rel="stylesheet" href="/app/css/chartcanvas/polaris.chart.pie.css" />
+    <link rel="stylesheet" href="/app/css/chartcanvas/polaris.chart.map.css" />
+    <link rel="stylesheet" href="/app/css/chartcanvas/polaris.chart.heat.css" />
+    <link rel="stylesheet" href="/app/css/chartcanvas/polaris.chart.ctrl.css" />
+    <link rel="stylesheet" href="/app/css/chartcanvas/polaris.chart.kpi.css" />
+    <link rel="stylesheet" href="/app/css/chartcanvas/polaris.chart.table.css" />
+    <link rel="stylesheet" href="/app/css/chartcanvas/polaris.chart.boxplot.css" />
+    <link rel="stylesheet" href="/app/css/chartcanvas/polaris.chart.combine.css" />
+
+    <!--/* =================================================================
+    JS 전역변수 선언
+    ================================================================== */-->
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+        var _pageId = /*[[${pageId}]]*/;
+        var filterNamesSplit = "―";//─
+        // 프로필
+        //var _profile = "${_profile}";
+
+        // 컨텍스트 Path
+        var _ctx		= /*[[${_ctx}]]*/;
+
+        // API Path
+        var _api		= /*[[${_api}]]*/;
+
+        // SERVICE Path
+        //var _service	= "${_service}";
+
+        // 리소스 Path
+        var _resource	= /*[[${_resource}]]*/;
+
+        // 언어
+        var _locale		= /*[[${_locale}]]*/;
+
+        var intervaltime = /*[[${_intervaltime}]]*/;
+
+        /* 콘솔로그 IE 에러방지 */
+        (function() {
+            if (!window.console) {
+                window.console = {};
+            }
+            // union of Chrome, FF, IE, and Safari console methods
+            var m = ["log", "info", "warn", "error", "debug", "trace", "dir", "group",
+                "groupCollapsed", "groupEnd", "time", "timeEnd", "profile", "profileEnd",
+                "dirxml", "assert", "count", "markTimeline", "timeStamp", "clear"];
+            // define undefined methods as noops to prevent errors
+            for (var i = 0; i < m.length; i++) {
+                if (!window.console[m[i]]) {
+                    window.console[m[i]] = function() {};
+                }
+            }
+        })();
+        /* 콘솔로그 IE 에러방지 */
+
+    var sheetConf = /*[[${sheetConf}]]*/;
+    if (typeof sheetConf === 'string') sheetConf = JSON.parse(sheetConf);
+    var sheetData = /*[[${sheetData}]]*/;
+    if (typeof sheetData === 'string') sheetData = JSON.parse(sheetData);
+
+        // 메시지 번들 전역객체
+        var _MESSAGE = {};
+        _MESSAGE.error 			= "<spring:message code='message.common.alert.error'/>";						//데이터 조회 실패 - {0} Error
+        _MESSAGE.saveFail 		= "<spring:message code='message.common.alert.save.fail'/>";    				//데이터 저장 실패 - {0} Error
+        _MESSAGE.saveSuccess 	= "<spring:message code='message.common.alert.save.success'/>";
+
+        // 메시지 번들
+        var message = {};
+        message.app = {};
+
+    //색상 설정 타입
+    colorTypeList = [
+        {type: "single", text: ""},
+        {type: "dimension", text: ""},
+        {type: "measure", text: ""},
+        {type: "series", text: ""}
+    ];
+    //단일 색상 리스트
+    singleColorList = [
+        "#ff8b00", "#ffbf00", "#8bbc00", "#26af5e", "#239a8f", "#1da8dd", "#075288",
+        "#202184", "#8b0067", "#a60000", "#000000", "#222222", "#444444",
+        "#a6a6a6", "#c5c5c5", "#7b868c", "#5d6c75", "#526169", "#3c4950"];
+
+    //차원값 기준 ColorSet리스트
+    dimensionColorSetList = [
+        {
+            schema: "5colors-1",
+            text: "",
+            colors: ["#ff9417", "#ffdba1", "#00ba8c", "#016294", "#3accdc"]
+        },
+        {
+            schema: "5colors-2",
+            text: "",
+            colors: ["#bd6a5b", "#a8d196", "#87a7ca", "#e7d1c8", "#b092cc"]
+        },
+        {
+            schema: "5colors-3",
+            text: "",
+            colors: ["#ffa560", "#a3d9ec", "#c3b173", "#7ff9e8", "#d5d5d5"]
+        },
+        {
+            schema: "5colors-4",
+            text: "",
+            colors: ["#225b9e", "#ff8608", "#3ea971", "#ffd550", "#a7bacb"]
+        },
+        {
+            schema: "5colors-5",
+            text: "",
+            colors: ["#80a9a0", "#ffffa6", "#d29a8f", "#b3c7dd", "#cc3366"]
+        },
+        {
+            schema: "5colors-6",
+            text: "",
+            colors: ["#f99595", "#a5b1e4", "#838383", "#80a9a0", "#f5e4ac"]
+        },
+        {
+            schema: "5colors-7",
+            text: "",
+            colors: ["#3fa4ea", "#f291d0", "#ebe27a", "#f9a16f", "#5861fe"]
+        },
+        {
+            schema: "5colors-8",
+            text: "",
+            colors: ["#334d5c", "#45b29d", "#efc94c", "#e27940", "#993300"]
+        }
+    ];
+
+    //측정값 기준 ColorSet리스트
+    measureColorSetList = [
+        {
+            text: ""
+            , class: "ddp-btn-color-order"
+            , list: [
+            {mode: "linear", colors: ["#1465c0", "#e3f2fd"]},
+            {mode: "linear", colors: ["#53a052", "#dde1a2"]},
+            {mode: "linear", colors: ["#279b8c", "#b9e4d5"]},
+            {mode: "linear", colors: ["#d84315", "#fbe9e7"]}
+        ]
+        },
+        {
+            text: ""
+            , class: "ddp-btn-color-contrast"
+            , list: [
+            {mode: "contrast", colors: ["#990a00",  "#f9f9f9", "#253ba2"]},
+            {mode: "contrast", colors: ["#227181",  "#dce1b6", "#b15618"]},
+            {mode: "contrast", colors: ["#fe5c04",  "#dad3d2", "#4a7899"]},
+            {mode: "contrast", colors: ["#333399",  "#ffff99", "#990a00"]}
+        ]
+        }
+    ];
+
+    //시리즈 기준 ColorSet리스트 (임시)
+    seriesColorSetList = [
+        {schema: "12colors-1", colors: ["#ca4819", "#007e79", "#00936f", "#4c95ce", "#9578bb", "#899bd2", "#d6d0a2", "#ffff99", "#66ccff", "#1e6191", "#ff1966", "#cccccc"]},
+        {schema: "12colors-2", colors: ["#ffbe6a", "#00cbbb", "#54de9a", "#81b8e1", "#c6a9c7", "#c3d7dc", "#a4c2cb", "#aa92c8", "#579ed7", "#18d18e", "#01a99c", "#fb7002"]},
+        {schema: "12colors-3", colors: ["#5eb8de", "#016193", "#6666cc", "#4c9c3d", "#00cc99", "#dac1a8", "#ffd8af", "#ff9906", "#cd3300", "#cc6699", "#993366", "#a7bacb"]},
+        {schema: "12colors-4", colors: ["#225b9e", "#ff8608", "#3ea971", "#ffd550", "#9578bb", "#009999", "#6666cc", "#ff6666", "#66ccff", "#ffcc66", "#ffff13", "#666666"]}
+    ];
+
+    // 사용자 정의 범위 색상 리스트
+    manualRangeColorList = ["#ff8b00", "#ffbf00", "#8bbc00", "#26af5e", "#239a8f", "#1da8dd", "#075288", "#202184", "#8b0067"];
+
+    // 사용자 정의 범위 색상 지정시 범위에 벗어나는 색상
+    outRangeColorCode = "#3c4950";
+
+    // 레이블 디테일 설정 타입
+    labelTypeList = [
+        {type: "horizontal", text: "", angle: 0},
+        {type: "vertical", text: "", angle: 90},
+        {type: "slope", text: "", angle: 45}
+    ];
+
+    //범례 개수 설정 타입
+    legendCountList = [
+        {type: "5", count: 5, text: "5개"},
+        {type: "10", count: 10, text: "10개"}
+    ];
+
+    // 라인 타입 리스트
+    lineTypeList = ['SOLID', 'DASHED', 'DOTTED'];
+    lineWidthList = [2.0, 2.5, 3.0, 3.5, 4, 4.5, 5];
+
+    // 클러스터 섹션 갯수
+    clusterSectionCountList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+    //선택된 색상 타입 - 초기화(임시)
+    selectedColorType = colorTypeList[0];
+    // 단일색상 코드
+    singleColorCode = "";
+    // 차원값 기준 ColorSet
+    dimensionColorSet = null;
+    //측정값 기준 ColorSet
+    measureColorSet = null;
+    //시리즈 기준 ColorSet
+    seriesColorSet = null;
+    // 초기 x, y 라벨 디테일 타입
+    xLabelType = labelTypeList[0];
+    yLabelType = labelTypeList[0];
+    //선택된 범례 개수 정보
+    selectedLegendCountType = legendCountList[0];
+
+    //분석영역
+    timeCompareTypeList = [
+        {
+            type: "YEAR",
+            granularity: "QUARTER",
+            text: "",
+            description: "",
+            isPossible: false
+        },
+        {
+            type: "QUARTER",
+            granularity: "MONTH",
+            text: "",
+            description: "",
+            isPossible: false
+        },
+        {
+            type: "MONTH",
+            granularity: "DAY",
+            text: "",
+            description: "",
+            isPossible: false
+        },
+        {
+            type: "DAY",
+            granularity: "HOUR",
+            text: "",
+            description: "",
+            isPossible: false
+        },
+        {
+            type: "HOUR",
+            granularity: "MINUTE",
+            text: "",
+            description: "",
+            isPossible: false
+        }
+    ];
+
+    timeCompareType = timeCompareTypeList[0];
+
+    /*]]>*/
+    </script>
+    
+    <script src="/app/lib/moment/moment.js"></script>
+    <script src="/app/lib/moment/moment-timezone-with-data-2012-2022.js"></script>
+
+    <script type="text/javascript">
+        /*<![CDATA[*/
+        //var lang = navigator.language || navigator.userLanguage;
+        if(_locale.indexOf("ko") > -1){
+            document.write('<scr'+'ipt type="text/javascript" src="/app/lib/moment/locale/ko.js" ></scr'+'ipt>');
+        }
+        /*]]>*/
+    </script>
+
+    <script src="/app/lib/jquery/jquery-1.11.0.min.js"></script>
+
+    <!-- AngularJS -->
+    <script src="/app/lib/angular/angular.js"></script>
+    <script src="/app/lib/angular/angular-touch.js"></script>
+    <script src="/app/lib/angular/angular-cookies.js"></script>
+    <script src="/app/lib/angular/angular-animate.js"></script>
+    <script src="/app/lib/angular/angular-sanitize.js"></script>
+    <script src="/app/lib/angular/angular-moment.js"></script>
+    <script src="/app/lib/angular/upload/ng-file-upload-shim.js"></script>
+    <script src="/app/lib/angular/upload/ng-file-upload.js"></script>
+    <!-- Dragula -->
+    <script src="/app/lib/angular/angular-dragula.js"></script>
+
+    <!-- Placeholder -->
+    <script src="/app/lib/placeholder/placeholder.js"></script>
+
+    <!-- Common -->
+    <script src="/app/lib/common/toaster.js"></script>
+    <script src="/app/lib/common/common.js"></script>
+    <script src="/app/lib/common/common.ui.js"></script>
+
+    <!-- Async -->
+    <script src="/app/lib/async/async.min.js"></script>
+
+    <!-- Clipboard -->
+    <script src="/app/lib/clipboard/clipboard.min.js"></script>
+
+    <!-- test -->
+    <script src="/app/lib/common/history.js"></script>
+
+    <!--html2canvas-->
+    <script src="/app/lib/html2canvas/html2canvas.js"></script>
+
+    <!-- Google MAP 비지니스키-->
+    <script src="/app/js/component/gmap/markerclusterer.js"></script>
+
+    <!-- WordCloud -->
+    <script src="/app/lib/wordcloud/wordcloud2.js"></script>
+
+    <!-- pivot Grid -->
+    <script src="/app/js/component/grid/pivot/pivot.view.min.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="/app/lib/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- //Dragula -->
+
+    <!-- E-Chart -->
+    <script src="/app/lib/echart3/echarts.min.js"></script>
+    <script src="/app/lib/echart3/extension/dataTool.min.js"></script>
+    <script src="/app/lib/echart3/theme/exntu.js"></script>
+    <script src="/app/lib/echart3/echarts-wordcloud.min.js"></script>
+
+    <!-- E-Chart -->
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0n6ZeBSqLCgaLgG1BnwKPlCpcf6yyXtQ" ></script>
+    <script src="/app/js/component/chart/exntu.chart.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.bar.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.line.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.pie.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.grid.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.gmap.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.scatter.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.label.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.waterfall.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.heatmap.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.treemap.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.wordCloud.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.boxplot.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.control.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.combine.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.radar.js"></script>
+    <script src="/app/js/component/chart/exntu.chart.network.js"></script>
+    <script src="/app/js/app/page/embedded.js"></script>
+    <script src="/app/js/app/workboard/service/workboardService.js"></script>
+    <script src="/app/js/app/workboard/service/pageService.js"></script>
+    <script src="/app/js/app/workboard/service/layoutService.js"></script>
+    <script src="/app/js/app/workboard/service/filterService.js"></script>
+    <script src="/app/js/common/service/analysisService.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_bar.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_line.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_pie.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_grid.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_map.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_scatter.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_label.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_waterfall.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_heatmap.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_treemap.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_wordcloud.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_boxplot.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_control.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_combine.js"></script>
+    <script src="/app/js/app/workboard/directive/directive_chart_radar.js"></script>
+    <script src="/app/js/app/workboard/directive/page_filter.js"></script>
+
+
+    <style>
+        /*워크보드시엔 구글맵 인포팝업의 close 버튼 hide*/
+        .gm-style-iw + div {display: none;}
+    </style>
+</head>
+
+<body ng-controller="AppController" resize="" style=";min-width : inherit !important;">
+<div style="width: 100%;height: 100%">
+    <!-- Loading -->
+    <div id="_loading" class="ddp-loading" style="display: none;">
+        <img src="/app/images/loading.gif" alt="loading bar" />
+    </div>
+    <!-- //Loading -->
+    <div id="canvas" style="width: 100%; height: 100%;"></div>
+</div>
+
+<!-- kpi -->
+<div id="templeteList" style="display:none;">
+    <div class="ddp-wrap-graph-kpi">
+        <!-- top -->
+        <div class="ddp-ui-graph-top">
+            <span class="ddp-txt-name"><!--P A R A M E T E R--></span>
+            <span class="ddp-data-date"><!--2016년 1월 26일 화요일 오후 3:25--></span>
+        </div>
+        <!-- //top -->
+        <div class="ddp-wrap-data-kpi">
+            <span class="ddp-txt-title" ng-bind="label.kpiTitle"><!--올&nbsp;해&nbsp;의&nbsp;&nbsp;&nbsp;&nbsp;총&nbsp;합--></span>
+            <span class="ddp-data-per" ng-bind="label.kpiValue"><!--178.92--> <!--<em></em>--></span>
+            <div class="ddp-ui-data-result" ng-show="label.isTimeCompare">
+                <div class="ddp-data-in">
+                    <span class="ddp-data-term" ng-bind="label.kpiTimeType"><!--최근 1 년간--></span>
+                    <span ng-class="{'ddp-data-up': label.latestValue &gt; label.compareValue, 'ddp-data-down': label.latestValue &lt; label.compareValue}"><em></em><span ng-bind="label.kpiContrast"></span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- //kpi -->
+<!-- //popup toggle -->
+</body>
+</html>

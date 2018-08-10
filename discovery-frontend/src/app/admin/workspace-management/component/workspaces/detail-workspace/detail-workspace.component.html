@@ -1,0 +1,123 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-contents2" id="admin-detail-workspace">
+  <!-- title -->
+  <div class="ddp-top-flow">
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-btn-back" (click)="onClickPrevWorkspaces()"></a>
+      <!-- navi -->
+      <div class="ddp-ui-naviarea">
+        <!-- name -->
+        <div class="ddp-box-navi">
+          <div class="ddp-wrap-naviname">
+            <span class="ddp-data-naviname ddp-readonly">{{workspace.name}}</span>
+          </div>
+          <em *ngIf="workspace.published" style="display: inline-block; position: absolute; top: 50%; margin-top: -9px; padding: 1px 2px; color: #666eb2; font-size: 11px; border: 1px solid #666eb2; border-radius: 2px;">{{'msg.spaces.spaces.ui.allowance.tag' | translate}}</em>
+        </div>
+        <!-- //name -->
+      </div>
+      <!-- //navi -->
+    </div>
+  </div>
+  <!-- //title -->
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail">
+    <div class="ddp-ui-option ddp-clear">
+      <!-- created on -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.spaces.spaces.detail.ui.created' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{workspace.createdTime | mdate:'YYYY-MM-DD HH:mm'}} <span *ngIf="isPublicWorkspace()">{{'msg.spaces.spaces.detail.ui.by' | translate}}</span>
+            <div class="ddp-wrap-link-detail2" *ngIf="isPublicWorkspace()">
+              <a href="javascript:" class="ddp-link-info">{{getUserFullName(workspace.createdBy)}}</a>
+              <user-information [name]="getUserFullName(workspace.createdBy)"
+                                [id]="workspace.createdBy?.username"
+                                [email]="workspace.createdBy?.email">
+              </user-information>
+            </div>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //created on  -->
+      <!-- updated on -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.spaces.spaces.detail.ui.updated' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{workspace.modifiedTime | mdate:'YYYY-MM-DD HH:mm'}} <span *ngIf="isPublicWorkspace()">{{'msg.spaces.spaces.detail.ui.by' | translate}}</span>
+            <div class="ddp-wrap-link-detail2" *ngIf="isPublicWorkspace()">
+              <a href="javascript:" class="ddp-link-info">{{getUserFullName(workspace.modifiedBy)}}</a>
+              <user-information [name]="getUserFullName(workspace.modifiedBy)"
+                                [id]="workspace.modifiedBy?.username"
+                                [email]="workspace.modifiedBy?.email">
+              </user-information>
+            </div>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //updated on -->
+
+      <!-- right -->
+      <div class="ddp-ui-rightoption">
+        <!-- Status -->
+        <div class="ddp-wrap-edit" *ngIf="isPublicWorkspace()">
+          <label class="ddp-label-type">{{'msg.spaces.spaces.detail.ui.status' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option" >
+            <!-- selectbox -->
+            <div class="ddp-type-selectbox"
+                 [class.ddp-selected]="statusShowFl"
+                 (clickOutside)="statusShowFl = false"
+                 (click)="statusShowFl = !statusShowFl">
+              <span class="ddp-txt-selectbox">{{getWorkspaceStatus()}}</span>
+              <ul class="ddp-list-selectbox ddp-selectdown">
+                <li *ngFor="let status of statusList" (click)="onOpenChangeStatus(status.value)">
+                  <a href="javascript:">
+                    {{status.label}}
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- //selectbox -->
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //Status -->
+        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onOpenDeleteWorkspace()" *ngIf="isPublicWorkspace()"><em class="ddp-icon-delete"></em>{{'msg.spaces.spaces.detail.btn.delete' | translate}} </a>
+        <a href="javascript:" class="ddp-btn-selection" (click)="onOpenDiscovery()"><em class="ddp-icon-view"></em>{{'msg.spaces.spaces.detail.btn.discovery' | translate}}</a>
+      </div>
+      <!-- //right -->
+    </div>
+    <div class="ddp-ui-datadetail">
+      <!-- information -->
+      <detail-workspaces-information [workspace]="workspace"></detail-workspaces-information>
+      <!-- //information -->
+      <!-- linked-resources -->
+      <detail-workspaces-linked-resources [workspace]="workspace"></detail-workspaces-linked-resources>
+      <!-- //linked-resources -->
+      <!-- Statistics -->
+      <detail-workspaces-statistics [workspace]="workspace"></detail-workspaces-statistics>
+      <!-- //Statistics -->
+    </div>
+  </div>
+  <!-- //상세 -->
+</div>
+<!-- 공통 모달 -->
+<app-confirm-modal (confirm)="confirmEvent($event)"></app-confirm-modal>

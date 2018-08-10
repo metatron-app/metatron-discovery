@@ -1,0 +1,106 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-chart-side ddp-show">
+
+  <div class="ddp-ui-side-title">
+    {{'msg.page.ui.xaxis.title' | translate}}
+  </div>
+  <div class="ddp-wrap-downmenu">
+
+    <!-- box down -->
+    <div *ngIf="possibleChartCheck('axis', uiOption.type)" class="ddp-box-down">
+
+      <div class="ddp-wrap-divide ">
+        <div class="ddp-divide2">
+          <!-- slider -->
+          <div class="ddp-wrap-option-slider">
+            <span class="ddp-label-slider">{{'msg.page.chart.axis.show.axis.title' | translate}}</span>
+            <!-- Slide THREE -->
+            <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+              <input type="checkbox" (click)="showAxisName('row', !uiOption.xAxis.showName)" [ngModel]="uiOption.xAxis.showName">
+              <label><span class="ddp-slide"></span></label>
+            </div>
+            <!-- //Slide THREE -->
+          </div>
+          <!-- //slider -->
+          <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.page.ui.x-axis.title.ph' | translate}}" [(ngModel)]="nameUiOption.xAxis.customName"
+                 (keyup.enter)="axisName('row', $event)" [disabled]="!uiOption.xAxis.showName">
+        </div>
+      </div>
+
+      <!-- 축이 category타입일때에만 show -->
+      <axis-category-option *ngIf="'category' == uiOption.xAxis?.label?.type.toString()" [axis]="uiOption.xAxis" (changeCategoryAxis)="changeXAxisValue($event)"></axis-category-option>
+      <!-- //축이 category타입일때에만 show -->
+
+      <!-- 축이 value타입일때에만 show -->
+      <axis-value-option *ngIf="'value' == uiOption.xAxis?.label?.type.toString()" [axis]="uiOption.xAxis" [uiOption]="uiOption" (changeValueAxis)="changeXAxisValue($event)" (changeBaseline)="changeBaseline($event)"></axis-value-option>
+      <!-- //축이 value타입일때에만 show -->
+
+      <!-- TODO numeric dimension -->
+      <!--<div class="ddp-wrap-option-checkbox ddp-clear" class="ddp-ui-down-contents2">-->
+        <!--&lt;!&ndash; 라인차트 numeric dimension &ndash;&gt;-->
+        <!--<div *ngIf="'line' == uiOption.type.toString() && numericDimensionCheck()" class="ddp-sub-inner">-->
+          <!--<div class="ddp-wrap-option-slider">-->
+            <!--<span class="ddp-label-slider">{{'msg.page.chart.label.axis.config.title' | translate}}</span>-->
+            <!--&lt;!&ndash; Slide THREE &ndash;&gt;-->
+            <!--<div class="ddp-checkbox-slide ddp-checkbox-automatic2">-->
+              <!--<input type="checkbox" id="axisConfig" name="check" [ngModel]="uiOption.xAxis.axisOption?.showFl"-->
+                     <!--(click)="showAxisConfig(uiOption.xAxis.axisOption)">-->
+              <!--<label for="axisConfig"><span class="ddp-slide"></span></label>-->
+            <!--</div>-->
+            <!--&lt;!&ndash; //Slide THREE &ndash;&gt;-->
+          <!--</div>-->
+          <!--&lt;!&ndash; multy &ndash;&gt;-->
+          <!--<div *ngIf="uiOption.xAxis.axisOption?.showFl" class="ddp-wrap-option-checkbox ddp-wrap-option-multy ddp-clear">-->
+            <!--<div class="ddp-col-4">-->
+              <!--<span class="ddp-label-txt">{{'msg.page.chart.color.axis.config.start' | translate}}</span>-->
+            <!--</div>-->
+            <!--<div class="ddp-col-8 ddp-apply">-->
+              <!--<input type="number" (keyup.enter)="changeAxisConfig(uiOption.xAxis.axisOption.min, 'min')" [(ngModel)]="uiOption.xAxis.axisOption.min" input-mask="float" class="ddp-input-typebasic">-->
+              <!--<a href="javascript:" (click)="changeAxisConfig(uiOption.xAxis.axisOption.min, 'min')" class="ddp-btn-line-s">{{'msg.page.btn.apply' | translate}}</a>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--&lt;!&ndash; //multy &ndash;&gt;-->
+          <!--&lt;!&ndash; multy &ndash;&gt;-->
+          <!--<div *ngIf="uiOption.xAxis.axisOption?.showFl" class="ddp-wrap-option-checkbox ddp-wrap-option-multy ddp-clear">-->
+            <!--<div class="ddp-col-4">-->
+              <!--<span class="ddp-label-txt">{{'msg.page.chart.color.axis.config.end' | translate}}</span>-->
+            <!--</div>-->
+            <!--<div class="ddp-col-8 ddp-apply">-->
+              <!--<input type="number" (keyup.enter)="changeAxisConfig(uiOption.xAxis.axisOption.max, 'max')" [(ngModel)]="uiOption.xAxis.axisOption.max" input-mask="float" class="ddp-input-typebasic">-->
+              <!--<a href="javascript:" (click)="changeAxisConfig(uiOption.xAxis.axisOption.max, 'max')" class="ddp-btn-line-s">{{'msg.page.btn.apply' | translate}}</a>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--&lt;!&ndash; //multy &ndash;&gt;-->
+          <!--&lt;!&ndash; multy &ndash;&gt;-->
+          <!--<div *ngIf="uiOption.xAxis.axisOption?.showFl" class="ddp-wrap-option-checkbox ddp-wrap-option-multy ddp-clear">-->
+            <!--<div class="ddp-col-4">-->
+              <!--<span class="ddp-label-txt">{{'msg.page.chart.color.axis.config.unit' | translate}}</span>-->
+            <!--</div>-->
+            <!--<div class="ddp-col-8 ddp-apply">-->
+              <!--<input type="number" (keyup.enter)="changeAxisConfig(uiOption.xAxis.axisOption.interval, 'interval')" [(ngModel)]="uiOption.xAxis.axisOption.interval" input-mask="float" class="ddp-input-typebasic">-->
+              <!--<a href="javascript:" (click)="changeAxisConfig(uiOption.xAxis.axisOption.interval, 'interval')" class="ddp-btn-line-s">{{'msg.page.btn.apply' | translate}}</a>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--&lt;!&ndash; //multy &ndash;&gt;-->
+        <!--</div>-->
+
+        <!--&lt;!&ndash; //라인차트 numeric dimension &ndash;&gt;-->
+      <!--</div>-->
+
+    </div>
+    <!-- //box down -->
+  </div>
+</div>

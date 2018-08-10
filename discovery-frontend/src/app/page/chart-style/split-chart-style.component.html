@@ -1,0 +1,111 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-chart-side ddp-show">
+
+  <div class="ddp-ui-side-title">
+    Chart split
+  </div>
+  <div class="ddp-wrap-downmenu">
+    <!-- box down -->
+    <div class="ddp-box-down">
+      <!-- slider option -->
+      <div class="ddp-wrap-option-slider">
+        <span class="ddp-label-slider">Chart split</span>
+        <!-- Slide THREE -->
+        <div class="ddp-checkbox-slide ddp-checkbox-automatic2"
+             [ngClass]="{'ddp-disabled': isNotSplit()}">
+          <input type="checkbox" id="checkSplit" [ngModel]="uiOption.split" (click)="onSplitChange();">
+          <label for="checkSplit"><span class="ddp-slide"></span></label>
+        </div>
+        <!-- //Slide THREE -->
+
+      </div>
+      <!-- //slider option -->
+
+      <!-- part -->
+      <div *ngIf="uiOption.split" class="ddp-list-part">
+        <!-- 숫자일때 -->
+        <div class="ddp-wrap-option-multy ddp-clear">
+          <div class="ddp-col-6">
+            <span class="ddp-label-txt">Split by Layout</span>
+          </div>
+          <div class="ddp-col-6">
+            <component-select
+              #splitByListSelect
+              [array]="splitBy"
+              [viewKey]="'name'"
+              (onSelected)="onSplitByChange($event)">
+            </component-select>
+          </div>
+        </div>
+        <!-- //숫자일때 -->
+      </div>
+      <!-- //part -->
+      <!-- part -->
+      <div *ngIf="uiOption.split" class="ddp-list-part">
+        <div class="ddp-wrap-option-multy ddp-clear">
+          <span class="ddp-label-txt">Layout</span>
+        </div>
+        <div class="ddp-list-sub-part">
+          <!-- 숫자일때 -->
+          <div class="ddp-list-part ddp-wrap-option-multy ddp-clear">
+            <div class="ddp-col-6">
+              <span class="ddp-label-txt">Columns</span>
+            </div>
+            <div class="ddp-col-6">
+              <!-- input number -->
+              <div class="ddp-input-number">
+                <input (keyup)="$event.keyCode == 13 ? onLayoutChange(true, columnCount) : null"
+                       (clickOutside)="columnCount = uiOption.split.column"
+                       [(ngModel)]="columnCount" type="number" maxlength="2">
+                <div class="ddp-input-number-nav">
+                  <div (click)="onLayoutChange(true, (columnCount-1))"
+                       [ngClass]="{'ddp-disabled': columnCount <= 1}"
+                       class="ddp-input-number-button ddp-input-number-down"></div>
+                  <div (click)="onLayoutChange(true, (columnCount+1))"
+                       [ngClass]="{'ddp-disabled': columnCount >= 10}"
+                       class="ddp-input-number-button ddp-input-number-up"></div>
+                </div>
+              </div>
+              <!-- //input number -->
+            </div>
+          </div>
+          <!-- 숫자일때 -->
+          <div class="ddp-list-part ddp-wrap-option-multy ddp-clear">
+            <div class="ddp-col-6">
+              <span class="ddp-label-txt">Rows</span>
+            </div>
+            <div class="ddp-col-6">
+              <div class="ddp-input-number">
+                <input (keyup)="$event.keyCode == 13 ? onLayoutChange(false, rowCount) : null"
+                       (clickOutside)="rowCount = uiOption.split.row"
+                       [(ngModel)]="rowCount" type="number" maxlength="2">
+                <div class="ddp-input-number-nav">
+                  <div (click)="onLayoutChange(false, (rowCount-1))"
+                       [ngClass]="{'ddp-disabled': rowCount <= 1}"
+                       class="ddp-input-number-button ddp-input-number-down"></div>
+                  <div (click)="onLayoutChange(false, (rowCount+1))"
+                       [ngClass]="{'ddp-disabled': rowCount >= 10}"
+                       class="ddp-input-number-button ddp-input-number-up"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- //part -->
+  </div>
+</div>
+<!-- //Chart split -->

@@ -1,0 +1,154 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<span *ngIf="targetFilter" class="ddp-txt-preview">{{getPreview()}}</span>
+<!-- filter area -->
+<div *ngIf="targetFilter" class="ddp-filter-area" >
+  <!-- 과거 선택 -->
+  <div class="ddp-filter-type">
+    <span class="ddp-label-name">Previous</span>
+    <ul class="ddp-list-buttons">
+      <li (click)="setRelative( 'PREVIOUS', 'DAY', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'DAY')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'Yesterday' : 'D'  }}
+      </li>
+      <li (click)="setRelative( 'PREVIOUS', 'WEEK', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'WEEK')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'Last Week' : 'W' }}
+      </li>
+      <li (click)="setRelative( 'PREVIOUS', 'MONTH', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'MONTH')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'Last Month' : 'M' }}
+      </li>
+      <!--
+      <li (click)="setRelative( 'PREVIOUS', 'QUARTER', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'QUARTER')">
+        {{ 'CHANGE' === mode ? 'Last Quarter' : 'Q' }}
+      </li>
+      -->
+      <li (click)="setRelative( 'PREVIOUS', 'YEAR', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'YEAR')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'Last Year' : 'Y' }}
+      </li>
+    </ul>
+    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'PREVIOUS')" class="ddp-btn-time">
+      <div class="ddp-form-multy">
+        <span class="ddp-txt-label">Last</span>
+        <div class="ddp-box-multy ddp-clear ddp-form-time">
+          <input #inputLastValue [ngModel]="targetFilter.value"
+                 (keypress)="setLastValue($event)" (blur)="resetLastValue()"
+                 class="ddp-input-typebasic" type="text" title="relvalue" >
+          <!-- Selectbox -->
+          <div (click)="isShowLastComboOpts = !isShowLastComboOpts"
+               (clickOutside)="isShowLastComboOpts = false"
+               [ngClass]="{'ddp-selected' : isShowLastComboOpts}" class="ddp-type-selectbox" >
+            <span class="ddp-txt-selectbox">{{selectedTimeUnitItem.name}}</span>
+            <ul class="ddp-list-selectbox ddp-selectdown ddp-pass">
+              <li *ngFor="let item of timeUnitComboList"
+                  (click)="setRelative('PREVIOUS', item.value.toString());" >
+                <a href="javascript:"> {{item.name}} </a>
+              </li>
+            </ul>
+          </div>
+          <!-- // Selectbox -->
+        </div>
+      </div>
+    </div>
+    <!-- // time -->
+  </div>
+  <!-- // 과거 선택 -->
+  <!-- 현재 선택 -->
+  <div class="ddp-filter-type">
+    <span class="ddp-label-name">Current</span>
+    <ul class="ddp-list-buttons">
+      <li (click)="setRelative( 'CURRENT', 'DAY', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'DAY')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'Today' : 'D' }}
+      </li>
+      <li (click)="setRelative( 'CURRENT', 'WEEK', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'WEEK')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'This Week' : 'W' }}
+      </li>
+      <li (click)="setRelative( 'CURRENT', 'MONTH', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'MONTH')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'This Month' : 'M' }}
+      </li>
+      <!--
+      <li (click)="setRelative( 'CURRENT', 'QUARTER', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'QUARTER')">
+        {{ 'CHANGE' === mode ? 'This Quarter' : 'Q' }}
+      </li>
+      -->
+      <li (click)="setRelative( 'CURRENT', 'YEAR', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'YEAR')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'This Year' : 'Y' }}
+      </li>
+    </ul>
+  </div>
+  <!-- // 현재 선택 -->
+  <!-- 미래 선택 -->
+  <div class="ddp-filter-type">
+    <span class="ddp-label-name">Next</span>
+    <ul class="ddp-list-buttons">
+      <li (click)="setRelative( 'NEXT', 'DAY', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'DAY')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'Tomorrow' : 'D' }}
+      </li>
+      <li (click)="setRelative( 'NEXT', 'WEEK', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'WEEK')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'Next Week' : 'W' }}
+      </li>
+      <li (click)="setRelative( 'NEXT', 'MONTH', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'MONTH')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'Next Month' : 'M' }}
+      </li>
+      <!--
+      <li (click)="setRelative( 'NEXT', 'QUARTER', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'QUARTER')">
+        {{ 'CHANGE' === mode ? 'Next Quarter' : 'Q' }}
+      </li>
+      -->
+      <li (click)="setRelative( 'NEXT', 'YEAR', 1 )"
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'YEAR')" style="width: 25%;">
+        {{ 'CHANGE' === mode ? 'Next Year' : 'Y' }}
+      </li>
+    </ul>
+    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'NEXT')" class="ddp-btn-time">
+      <div class="ddp-form-multy">
+        <span class="ddp-txt-label">Next</span>
+        <div class="ddp-box-multy ddp-clear ddp-form-time">
+          <input #inputNextValue [ngModel]="targetFilter.value"
+                 (keypress)="setNextValue($event)" (blur)="resetNextValue()"
+                 class="ddp-input-typebasic" type="text" title="relvalue" >
+          <!-- Selectbox -->
+          <div (click)="isShowNextComboOpts = !isShowNextComboOpts"
+               (clickOutside)="isShowNextComboOpts = false"
+               [ngClass]="{'ddp-selected' : isShowNextComboOpts}" class="ddp-type-selectbox" >
+            <span class="ddp-txt-selectbox">{{selectedTimeUnitItem.name}}</span>
+            <ul class="ddp-list-selectbox ddp-selectdown ddp-pass">
+              <li *ngFor="let item of timeUnitComboList"
+                  (click)="setRelative('NEXT', item.value.toString());" >
+                <a href="javascript:"> {{item.name}} </a>
+              </li>
+            </ul>
+          </div>
+          <!-- // Selectbox -->
+        </div>
+      </div>
+    </div>
+    <!-- //time -->
+  </div>
+  <!-- // 미래 선택 -->
+</div>
+<!-- // filter area -->

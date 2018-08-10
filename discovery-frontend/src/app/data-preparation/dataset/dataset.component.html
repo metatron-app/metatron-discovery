@@ -1,0 +1,155 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<em class="ddp-bg-back"></em>
+<div class="ddp-ui-contents-in">
+  <!-- top -->
+  <div class="ddp-ui-contents-top">
+    <div class="ddp-ui-title">
+      {{'msg.comm.menu.manage.prep' | translate}}
+    </div>
+
+    <!-- tab -->
+    <ul class="ddp-list-top-tab">
+      <li class="ddp-selected"><a [routerLink]="['/management/datapreparation/dataset']">{{'msg.comm.menu.manage.prep.set' | translate}}</a></li>
+      <li><a [routerLink]="['/management/datapreparation/dataflow']">{{'msg.comm.menu.manage.prep.flow' | translate}}</a></li>
+      <li><a [routerLink]="['/management/datapreparation/datasnapshot']">{{'msg.comm.menu.manage.prep.snapshot' | translate}}</a></li>
+    </ul>
+    <!-- //tab -->
+
+  </div>
+  <!-- //top -->
+  <div class="ddp-ui-contents-list">
+    <!-- option -->
+    <div class="ddp-wrap-option">
+      <div class="ddp-ui-option ddp-clear ddp-optiontype">
+        <!-- 검색 -->
+        <div class="ddp-form-search ddp-fleft">
+          <em class="ddp-icon-search"></em>
+          <input type="text" placeholder="{{'msg.dp.ui.ds.search.description' | translate}}" [(ngModel)]="searchText" (keypress)="searchDataset($event)">
+          <em *ngIf="searchText" class="ddp-btn-search-close" (click)="clearSearch()"></em>
+        </div>
+        <!-- //검색 -->
+        <div class="ddp-ui-rightoption">
+          <div class="ddp-wrap-edit">
+            <label class="ddp-label-type"> Type</label>
+            <!-- edit option -->
+            <div class="ddp-ui-edit-option ddp-inline">
+              <label class="ddp-label-checkbox" *ngFor="let item of datasetTypes">
+                <input type="checkbox" [checked]="item.checked" (click)="changeStatus(item)">
+                <i class="ddp-icon-checkbox"></i>
+                <span class="ddp-box-tag" [ngClass]="{'ddp-imported': item.class === 'ddp-imported', 'ddp-wargled' : item.class === 'ddp-wargled'}">{{item.name}}</span>
+              </label>
+            </div>
+            <!-- //edit option -->
+          </div>
+          <span class="ddp-data-total">{{'msg.log.ui.num.lists' | translate :   { value : pageResult.totalElements} }}</span>
+          <a href="javascript:" class="ddp-btn-link" (click)="createDataSet()"><em class="ddp-icon-link-add"></em>{{'msg.dp.btn.new.ds' | translate}}</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- //option -->
+    <table class="ddp-table-form ddp-table-type3" *ngIf="datasets.length > 0">
+      <colgroup>
+        <col width="100px">
+        <col width="*">
+        <col width="10%">
+        <col width="15%">
+        <col width="20%">
+      </colgroup>
+      <thead>
+      <tr>
+        <th (click)="changeOrder('dsName')" colspan="2">
+          {{'msg.comm.menu.manage.prep.set' | translate}}
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'dsName' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'dsName' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'dsName' && selectedContentSort.sort === 'desc'"></em>
+        </th>
+        <th (click)="changeOrder('refDfCount')">
+          {{'msg.comm.th.used' | translate}}
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'refDfCount' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'refDfCount' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'refDfCount' && selectedContentSort.sort === 'desc'"></em>
+        </th>
+        <th>
+          {{'msg.dp.th.source' | translate}}
+        </th>
+        <th (click)="changeOrder('createdTime')">
+          {{'msg.comm.th.created' | translate}}
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
+        </th>
+
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of datasets; let i = index" [attr.data-index]="i" (click)="itemRowClick(item)">
+        <td>
+          <span class="ddp-box-tag" [ngClass]="{'ddp-wargled' : item.dsType == 'WRANGLED' , 'ddp-imported' : item.dsType == 'IMPORTED'}">{{item.dsType}}</span>
+        </td>
+        <td>
+          <div class="ddp-wrap-long">
+            <div class="ddp-txt-long">
+              {{item.dsName}}
+              <span class="ddp-txt-colortype" *ngIf="item.dsDesc">- {{item.dsDesc}}</span>
+            </div>
+          </div>
+        </td>
+        <td>
+          {{item.refDfCount}}
+        </td>
+        <td>
+          <span class="ddp-data-source" *ngIf="item.dsType.toString() === 'IMPORTED'">
+            <span>
+              <em [ngClass]="{HIVE:'ddp-icon-dbdata2', DB:'ddp-icon-db-s', 'FILE':'ddp-icon-file'}[item.importType.toString()]" ></em>
+              {{item.importType}}
+              </span>
+            </span>
+          <span class="ddp-data-source" *ngIf="item.dsType.toString() === 'WRANGLED'">
+            <em class="ddp-icon-flow"></em>{{item.creatorDfName}}
+          </span>
+        </td>
+
+        <td class="ddp-data-last">
+          {{item.createdTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy}}
+          <div class="ddp-btn-control">
+            <em class="ddp-icon-control-cut" (click)="confirmDelete($event,item);"></em>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+    <!-- 더보기 -->
+    <!-- 데이터 없음 -->
+
+    <div class="ddp-data-source-none" *ngIf="datasets.length === 0">
+      {{'msg.dp.ui.no.ds.description' | translate}}
+    </div>
+    <!-- //데이터 없음 -->
+
+
+    <div class="ddp-box-add-link" *ngIf="datasets.length > 0 && page.page < pageResult.totalPages && pageResult" (click)="getDatasets()">
+      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+    </div>
+    <!-- //더보기 -->
+  </div>
+</div>
+
+<app-create-dataset [step]="step"></app-create-dataset>
+<app-delete-modal (deleteConfirm)="deleteDataset()"></app-delete-modal>
+

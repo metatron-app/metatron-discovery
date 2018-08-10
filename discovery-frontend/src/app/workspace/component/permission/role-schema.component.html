@@ -1,0 +1,114 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<table class="ddp-table-base" *ngIf="role">
+  <colgroup>
+    <col width="180px">
+    <col width="180px">
+    <col width="180px">
+    <col width="104px">
+  </colgroup>
+  <thead>
+  <tr>
+    <th><strong>Workbook</strong></th>
+    <th><strong>Notebook</strong></th>
+    <th><strong>Workbench</strong></th>
+    <th><strong>Workspace</strong></th>
+  </tr>
+  <tr>
+    <th>
+      <div class="ddp-data-name"> View</div>
+      <div class="ddp-data-name"> Create</div>
+      <div class="ddp-data-name"> Edit any</div>
+    </th>
+    <th>
+      <div class="ddp-data-name"> View</div>
+      <div class="ddp-data-name"> Create</div>
+      <div class="ddp-data-name"> Edit any</div>
+    </th>
+    <th>
+      <div class="ddp-data-name"> View</div>
+      <div class="ddp-data-name"> Create</div>
+      <div class="ddp-data-name"> Edit any</div>
+    </th>
+    <th>
+      <div class="ddp-data-name2"> Create <br>folders</div>
+      <div class="ddp-data-name2"> Set <br/>config.</div>
+    </th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <!-- Workbook Permission -->
+    <td>
+      <div class="ddp-data-det">
+        <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_VIEW_WORKBOOK')" class="ddp-icon-checked"></em>
+        <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_VIEW_WORKBOOK')">-</em>
+      </div>
+      <div class="ddp-data-det">
+        <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_EDIT_WORKBOOK')" class="ddp-icon-checked"></em>
+        <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_EDIT_WORKBOOK')">-</em>
+      </div>
+      <div class="ddp-data-det">
+        <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKBOOK')" class="ddp-icon-checked"></em>
+        <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKBOOK')">-</em>
+      </div>
+    </td>
+    <!-- // Workbook Permission -->
+    <!-- Notebook Permission -->
+    <td>
+      <div class="ddp-data-det">
+        <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_VIEW_NOTEBOOK')" class="ddp-icon-checked"></em>
+        <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_VIEW_NOTEBOOK')">-</em>
+      </div>
+      <div class="ddp-data-det">
+        <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_EDIT_NOTEBOOK')" class="ddp-icon-checked"></em>
+        <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_EDIT_NOTEBOOK')">-</em>
+      </div>
+      <div class="ddp-data-det">
+        <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_MANAGE_NOTEBOOK')" class="ddp-icon-checked"></em>
+        <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_MANAGE_NOTEBOOK')">-</em>
+      </div>
+    </td>
+    <!-- // Notebook Permission -->
+    <!-- Workbench Permission -->
+    <td>
+      <div class="ddp-data-det">
+        <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_VIEW_WORKBENCH')" class="ddp-icon-checked"></em>
+        <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_VIEW_WORKBENCH')">-</em>
+      </div>
+      <div class="ddp-data-det">
+        <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_EDIT_WORKBENCH')" class="ddp-icon-checked"></em>
+        <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_EDIT_WORKBENCH')">-</em>
+      </div>
+      <div class="ddp-data-det">
+        <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKBENCH')" class="ddp-icon-checked"></em>
+        <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKBENCH')">-</em>
+      </div>
+    </td>
+    <!-- // Workbench Permission -->
+    <!-- Workspace Permission -->
+    <td>
+      <div class="ddp-data-det2">
+        <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_MANAGE_FOLDER')" class="ddp-icon-checked"></em>
+        <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_MANAGE_FOLDER')">-</em>
+      </div>
+      <div class="ddp-data-det2">
+        <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKSPACE')" class="ddp-icon-checked"></em>
+        <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKSPACE')">-</em>
+      </div>
+    </td>
+  </tr>
+  </tbody>
+</table>

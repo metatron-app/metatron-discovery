@@ -1,0 +1,110 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-contents-list">
+  <div class="ddp-wrap-option">
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <component-period
+        [dateType]="false"
+        [roundSecond]="true"
+        (changeDate)="onChangeData($event)"
+        [title]="'msg.metadata.ui.codetable.created.date' | translate"
+      ></component-period>
+      <!-- //edit -->
+      <div class="ddp-ui-rightoption">
+        <a href="javascript:" class="ddp-link-reset" (click)="onClickResetFilters()"><em class="ddp-btn-reset3"></em>{{'msg.mem.btn.refresh' | translate}}</a>
+      </div>
+    </div>
+    <!-- //option -->
+    <!-- option -->
+    <div class="ddp-ui-option ddp-optiontype ddp-clear">
+      <!-- 검색 -->
+      <div class="ddp-form-search ddp-fleft">
+        <em class="ddp-icon-search"></em>
+        <input type="text" placeholder="{{'msg.metadata.ui.codetable.search.ph' | translate}}"
+               [ngModel]="searchText"
+               (keyup.esc)="onSearchTextInit()"
+               (keypress)="onSearchText($event)">
+        <em class="ddp-btn-search-close" *ngIf="searchText" (click)="onSearchTextInit()"></em>
+      </div>
+      <!-- //검색 -->
+      <!-- right -->
+      <div class="ddp-ui-rightoption">
+        <span class="ddp-data-total" [innerHTML]="'msg.metadata.ui.codetable.lists' | translate : { value : getTotalContentsCount }"></span>
+        <!--<span class="ddp-list-option">-->
+          <!--<a href="#" class="ddp-btn-line-s"><em class="ddp-icon-upload"></em>Upload</a>-->
+          <!--<a href="#" class="ddp-btn-line-s"><em class="ddp-icon-download"></em>Download</a>-->
+        <!--</span>-->
+        <a href="javascript:" class="ddp-btn-link" (click)="onClickCreateCodeTable()"><em class="ddp-icon-link-add"></em>{{'msg.metadata.ui.codetable.create.btn' | translate}}</a>
+      </div>
+      <!-- //right -->
+    </div>
+    <!-- //option -->
+  </div>
+
+
+  <table class="ddp-table-form ddp-table-type3">
+    <colgroup>
+      <col width="20%">
+      <col width="*">
+      <col width="15%">
+    </colgroup>
+    <thead>
+    <tr>
+      <th class="ddp-cursor" (click)="onClickSort('name')">
+        {{'msg.metadata.th.codetable.table.name' | translate}}
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th>
+        {{'msg.metadata.th.codetable.description' | translate}}
+      </th>
+      <th class="ddp-cursor" (click)="onClickSort('createdTime')">
+        {{'msg.metadata.th.codetable.created' | translate}}
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let codeTable of codeTableList" (click)="onClickDetailCodeTable(codeTable.id)">
+      <td>
+        {{codeTable.name}}
+      </td>
+      <td>
+        <span class="ddp-txt-long">{{codeTable.description}}</span>
+      </td>
+      <td>
+        {{codeTable.createdTime | mdate:'YYYY-MM-DD HH:mm'}}
+        <div class="ddp-btn-control" (click)="onClickDeleteCodeTable(codeTable)">
+          <em class="ddp-icon-control-cut"></em>
+        </div>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreList()">
+    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+  </div>
+</div>
+<!-- 코드 테이블 생성 컴포넌트 -->
+<app-create-code-table (createComplete)="getCodeTableListPageInit()"></app-create-code-table>
+<!-- //코드 테이블 생성 컴포넌트 -->
+<!-- 코드 테이블 삭제 모달 -->
+<app-delete-modal (deleteConfirm)="deleteCodeTable($event)"></app-delete-modal>
+<!-- //컬코드 테이블 삭제 모달 -->

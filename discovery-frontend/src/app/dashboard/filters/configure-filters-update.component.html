@@ -1,0 +1,85 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype" *ngIf="isShow">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-pop-filter">
+    <!-- 상단 영역 -->
+    <div class="ddp-top-filter">
+      <!-- tag -->
+      <div class="ddp-ui-tags">
+        <span *ngIf="widget && targetFilter.widgetId" class="ddp-data-chartname">{{getWidgetName()}}</span>
+        <!-- Slide THREE -->
+        <div *ngIf="false && widget" (click)="toggleFilterScope()" class="ddp-tag-type ddp-checkbox-slide ">
+          <input [checked]="!targetFilter.widgetId" type="checkbox" value="None" id="check2" name="check" >
+          <label for="check2"><span class="ddp-slide"></span></label>
+          <span class="ddp-txt-slide"><em class="ddp-icon-global"></em></span>
+        </div>
+        <!-- //Slide THREE -->
+        <span *ngIf="!targetFilter.widgetId" class="ddp-tag-type ddp-type" >
+          <em class="ddp-icon-global"></em>Global
+        </span>
+        <span *ngIf="isRecommend()" class="ddp-tag-type ddp-type" >
+          <em class="ddp-icon-recommend"></em>recommended
+        </span>
+        <span *ngIf="isEssential()" class="ddp-tag-type ddp-type" >
+          <em class="ddp-icon-lock"></em>Essential
+        </span>
+        <span *ngIf="isTimestamp()" class="ddp-tag-type ddp-type" >
+          <em class="ddp-icon-time4"></em>Timestamp
+        </span>
+      </div>
+      <!-- //tag -->
+      <!-- 제목 및 아이콘 영역 -->
+      <div class="ddp-title">
+        <!-- 아이콘 영역 -->
+        <div class="ddp-icons" [ngStyle]="isDirectEdit ? {'padding-left': '7px'} : {}">
+          <a *ngIf="!isDirectEdit" (click)="clickBtnBack()" href="javascript:" class="ddp-btn-back"></a>
+          <span *ngIf="!isMeasure()" class="ddp-icon-box">
+            <em class="{{getDimensionTypeIconClass(targetField)}}" ></em>
+          </span>
+          <span *ngIf="isMeasure()" class="ddp-icon-box ddp-measure">
+            <em class="{{getMeasureTypeIconClass(targetField)}}" ></em>
+          </span>
+        </div>
+        <!-- // 아이콘 영역 -->
+        <!-- 제목 영역 -->
+        <div class="ddp-txt-name ddp-type">
+          <span class="ddp-txt-data"> {{ targetField.name }} </span>
+          <span class="ddp-txt-sub" (mouseover)="isShowDsTooltip = true" (mouseout)="isShowDsTooltip = false"> {{ dataSource.name }} </span>
+        </div>
+        <!-- // 제목 영역 -->
+      </div>
+      <!-- // 제목 및 아이콘 영역 -->
+      <div *ngIf="isShowDsTooltip" class="ddp-ui-tooltip-info" style="display: block;">
+        <em class="ddp-icon-view-top"></em> {{ dataSource.name }}
+      </div>
+    </div>
+    <!-- // 상단 영역 -->
+    <!-- 상세 영역 -->
+    <div
+      [ngClass]="{'ddp-filter1' : 'bound' !== targetFilter.type , 'ddp-filter-range' : 'bound' === targetFilter.type }">
+      <app-config-filter-inclusion></app-config-filter-inclusion>
+      <app-config-filter-time></app-config-filter-time>
+      <app-config-filter-bound></app-config-filter-bound>
+      <div class="ddp-ui-buttons">
+        <a (click)="close()" href="javascript:" class="ddp-btn-type-popup">{{ 'msg.comm.btn.cancl' | translate }}</a>
+        <!-- disabled 시 ddp-disabled 추가 -->
+        <a (click)="emitUpdateFilter()" href="javascript:" class="ddp-btn-type-popup ddp-bg-black ">{{ 'msg.comm.btn.done' | translate }}</a>
+      </div>
+    </div>
+    <!-- // 상세 영역 -->
+
+  </div>
+</div>

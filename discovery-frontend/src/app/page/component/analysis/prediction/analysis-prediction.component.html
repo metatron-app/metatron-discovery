@@ -1,0 +1,442 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-option-down ddp-lnb-down" [class.ddp-selected]="'prediction' === dataSubLayerKey">
+    <div class="ddp-ui-down-title" (click)="clickDataSubPanel('prediction', $event)">
+        <em class="ddp-icon-menumove"></em>
+
+        <!-- label : 예측선 -->
+        {{LABEL.SUB_MENU}}
+    </div>
+
+    <!-- TODO: inline style 은 추후에 제거할 예정 -->
+    <div class="ddp-ui-down-contents" style="display: ;">
+
+        <!-- active -->
+        <!-- 활성화 off 일 때 ddp-disabled 추가 -->
+        <div class="ddp-ui-active ddp-disabled">
+            <div class="ddp-wrap-option-slider">
+
+                <!-- label : 활성화 -->
+                <span class="ddp-label-slider">{{LABEL.ACTIVE}}</span>
+                <!-- Slide THREE -->
+                <!-- ddp-disabled : 사용할 수 없는 경우 data.isPredictionLineDisabled 값이 false 인 경우 -->
+                <div class="ddp-checkbox-slide ddp-checkbox-automatic2"
+                     [ngClass]="{'ddp-disabled' : !data.isPredictionLineDisabled}">
+
+                    <input type="checkbox" id="predictionCheckbox" name="predictionLineCheckBox"
+                           [checked]="data.isPredictionLineActive"
+                           (click)="predictionLineClick();"/>
+                    <label for="predictionCheckbox"><span class="ddp-slide"></span></label>
+
+                </div>
+                <!-- //Slide THREE -->
+            </div>
+
+            <!-- 설명 -->
+            <div class="ddp-data-detail">
+
+                {{LABEL.ACTIVE_FIRST_DESCRIPTION}}<br/>
+                {{LABEL.HYPHEN + ' ' + LABEL.ACTIVE_LAST_DESCRIPTION}}
+            </div>
+            <!-- //설명 -->
+        </div>
+        <!-- //active -->
+
+        <!-- part -->
+        <div *ngIf="data.isPredictionLineActive" class="ddp-list-part">
+
+            <div class="ddp-ui-label">
+                <!-- label : Holt-Winters -->
+                {{LABEL.ALGORITHM_NAME}}
+            </div>
+
+            <div class="ddp-list-part-sub">
+
+                <!-- form -->
+                <div class="ddp-form-multy">
+
+                    <span class="ddp-txt-label">{{LABEL.INTERVAL}}</span>
+
+                    <div class="ddp-box-multy ddp-clear">
+                        <input type="text"
+                               class="ddp-input-typebasic"
+                               #predictionInterval
+                               input-mask="number"
+                               [ngModel]="data.analysis.analysis.interval"
+                               (blur)="blurPredictionInterval(predictionInterval);"
+                               (keyup.enter)="keyupEnterPredictionInterval(predictionInterval.value);">
+                        <!-- selectbox -->
+                        <!-- 클릭시 ddp-selected 추가 -->
+                        <div class="ddp-type-selectbox ddp-non-select">
+                            <span class="ddp-txt-selectbox">{{data.analysis.analysis.timeUnit}}</span>
+                        </div>
+                        <!-- //selectbox -->
+                    </div>
+
+                </div>
+                <!-- //form -->
+
+                <div class="ddp-ui-slider-type type-dark type-per">
+
+                    <!-- label : 신뢰구간 -->
+                    <span class="ddp-txt-label">{{LABEL.SLIDER_TITLE}}</span>
+
+                    <!-- slider -->
+                    <range-slider-component #slider
+                                            [hideFromTo]="predictionLineSliderHideFromTo"
+                                            [hideMinMax]="predictionLineSliderHideMinMax"
+                                            [keyboard]="predictionLineSliderKeyboard"
+                                            [min]="predictionLineSliderMin"
+                                            [max]="predictionLineSliderMax"
+                                            [from]="predictionLineSliderFrom"
+                                            [type]="predictionLineSliderType"
+                                            [step]="predictionLineSliderStep"
+                                            [grid]="predictionLineSliderGrid"
+                                            (onFinish)="sliderCallBack(predictionLineSliderObject, $event)">
+                    </range-slider-component>
+                    <!-- //slider -->
+
+                </div>
+
+                <!-- // 고급분석 제외 multy input -->
+                <div class="ddp-ui-link ddp-setup" [ngClass]="{'ddp-selected' : data.isAnalysisSettingsActive === false }">
+
+                    <!-- label : 고급설정 -->
+                    <a href="javascript:" class="ddp-link-option" (click)="changeForecastParametersAreaDisplayNoneBlockFlag();">
+                        {{LABEL.ANALYSIS_SETTING}}
+                    </a>
+
+                    <!-- 고급설정 -->
+                    <div class="ddp-ui-option" [ngStyle]="{'display': data.isAnalysisSettingsActive === false ? 'block' : 'none'}">
+                        <div class="ddp-ui-option-check">
+                            <!-- Slide THREE -->
+                            <div class="ddp-checkbox-slide ddp-checkbox-automatic3" [ngClass]="{'ddp-en' : currentLang !== 'ko'}">
+                                <input type="checkbox" value="None" id="check2" name="check"
+                                       [checked]="selectedForecastParameter.isAuto"
+                                       (click)="selectedForecastCheckBoxFlag();">
+                                <label for="check2"><span class="ddp-slide"></span></label>
+                            </div>
+                            <!-- //Slide THREE -->
+                        </div>
+
+                        <!-- select box -->
+                        <component-select #selectComponent
+                                          [array]="forecastParameters"
+                                          [(defaultIndex)]="forecastParametersSelectedIndex"
+                                          (onSelected)="onChangeForecastParameter($event)">
+                        </component-select>
+                        <!-- //select box -->
+
+                        <!-- option checkbox -->
+                        <div class="ddp-wrap-option-checkbox ddp-clear">
+                            <div class="ddp-col-8">
+                                <label class="ddp-label-checkbox ddp-type3">
+                                    <input type="checkbox"
+                                           [disabled]="selectedForecastParameter.isAlphaDisabled"
+                                           [checked]="selectedForecastParameter.isAlphaSelected"
+                                           [(ngModel)]="selectedForecastParameter.isAlphaSelected"/>
+                                    <i class="ddp-icon-checkbox"></i>
+
+                                    <!-- label : alpha -->
+                                    <span class="ddp-txt-checkbox">{{LABEL.ALPHA}}</span>
+                                </label>
+                            </div>
+                            <div class="ddp-col-4">
+
+                                <!--(blur)="changeSelectedForecastParameter();"-->
+                                <input type="text" class="ddp-input-typebasic ddp-text-right"
+                                       placeholder="0.000"
+                                       input-mask="float"
+                                       #selectedForecastParameterAlpha
+                                       [disabled]="selectedForecastParameter.isAlphaDisabled || !selectedForecastParameter.isAlphaSelected"
+                                       [ngModel]="selectedForecastParameter.alpha"
+                                       (blur)="blurSelectedForecastParameterAlpha(selectedForecastParameterAlpha);"
+                                       (keyup.enter)="keyupEnterSelectedForecastParameterAlpha(selectedForecastParameterAlpha)"
+                                       maxlength="5"
+                                       max="5">
+                            </div>
+                        </div>
+                        <!-- //option checkbox -->
+
+                        <!-- option checkbox -->
+                        <div class="ddp-wrap-option-checkbox ddp-clear">
+                            <div class="ddp-col-8">
+                                <label class="ddp-label-checkbox ddp-type3">
+                                    <input type="checkbox"
+                                           [disabled]="selectedForecastParameter.isBetaDisabled"
+                                           [checked]="selectedForecastParameter.isBetaSelected"
+                                           [(ngModel)]="selectedForecastParameter.isBetaSelected"/>
+                                    <i class="ddp-icon-checkbox"></i>
+
+                                    <!-- label : beta(trend) -->
+                                    <span class="ddp-txt-checkbox">{{LABEL.BETA + '(' + LABEL.TREND + ')'}}</span>
+                                </label>
+                            </div>
+                            <div class="ddp-col-4">
+                                <!--(blur)="changeSelectedForecastParameter();"-->
+                                <input type="text" class="ddp-input-typebasic ddp-text-right"
+                                       placeholder="0.000"
+                                       input-mask="float"
+                                       #selectedForecastParameterBeta
+                                       [disabled]="selectedForecastParameter.isBetaDisabled || !selectedForecastParameter.isBetaSelected"
+                                       [ngModel]="selectedForecastParameter.beta"
+                                       (blur)="blurSelectedForecastParameterBeta(selectedForecastParameterBeta);"
+                                       (keyup.enter)="keyupEnterSelectedForecastParameterBeta(selectedForecastParameterBeta);"
+                                       maxlength="5"
+                                       max="5">
+                            </div>
+                        </div>
+                        <!-- //option checkbox -->
+
+                        <!-- option checkbox -->
+                        <div class="ddp-wrap-option-checkbox ddp-clear">
+                            <div class="ddp-col-8">
+                                <label class="ddp-label-checkbox ddp-type3">
+                                    <input type="checkbox"
+                                           [disabled]="selectedForecastParameter.isGammaDisabled"
+                                           [checked]="selectedForecastParameter.isGammaSelected"
+                                           [(ngModel)]="selectedForecastParameter.isGammaSelected"
+                                           (change)="changeSelectedForecastParameterGamma();"/>
+                                    <i class="ddp-icon-checkbox"></i>
+
+                                    <!-- label : gamma(seasonal) -->
+                                    <span class="ddp-txt-checkbox">{{LABEL.GAMMA + '(' + LABEL.SEASONAL + ')'}}</span>
+                                </label>
+                            </div>
+                            <div class="ddp-col-4">
+                                <!--(blur)="changeSelectedForecastParameter();"-->
+                                <!--#alpha="ngModel"-->
+                                <input type="text" class="ddp-input-typebasic ddp-text-right"
+                                       placeholder="0.000"
+                                       input-mask="float"
+                                       #selectedForecastParameterGamma
+                                       [disabled]="selectedForecastParameter.isGammaDisabled || !selectedForecastParameter.isGammaSelected"
+                                       [ngModel]="selectedForecastParameter.gamma"
+                                       (blur)="blurSelectedForecastParameterGamma(selectedForecastParameterGamma);"
+                                       (keyup.enter)="keyupEnterSelectedForecastParameterGamma(selectedForecastParameterGamma);"
+                                       maxlength="5"
+                                       max="5">
+                            </div>
+                        </div>
+                        <!-- //option checkbox -->
+                        <!-- option checkbox -->
+                        <div class="ddp-wrap-option-checkbox ddp-clear">
+                          <div class="ddp-col-8">
+                            <label class="ddp-label-checkbox ddp-type3">
+                              <input type="checkbox"
+                                     [disabled]="selectedForecastParameter.isAuto"
+                                     [ngModel]="selectedForecastParameter.isPeriodSelected"
+                                     (change)="changeSelectedForecastParameterPeriod();"/>
+                              <i class="ddp-icon-checkbox"></i>
+
+                              <span class="ddp-txt-checkbox">period</span>
+                            </label>
+                          </div>
+                          <div class="ddp-col-4">
+                            <input type="number" class="ddp-input-typebasic ddp-text-right"
+                                   #advancedPeriod
+                                   placeholder="0.000"
+                                   input-mask="number"
+                                   [disabled]="selectedForecastParameter.isAuto || !selectedForecastParameter.isPeriodSelected"
+                                   [ngModel]="selectedForecastParameter.period"
+                                   (keyup.enter)="changeAdvancedPeriod(advancedPeriod)">
+                          </div>
+                        </div>
+                        <!-- //option checkbox -->
+
+                    </div>
+                    <!-- //고급설정 -->
+                </div>
+
+
+                 sub in
+                <div [ngStyle]="{'display': !data.isAnalysisSettingsActive ? 'block' : 'none'}"
+                     class="ddp-list-sub-in">
+
+                    <!-- 감마가 선택되어 있지 않은 경우 더미 -->
+                    <div *ngIf="selectedForecastParameter.isGammaDisabled"
+                         class="ddp-ui-check-type ddp-inline">
+                        <label class="ddp-label-radio ddp-dark">
+                            <input type="radio" name="gamma" disabled>
+                            <i class="ddp-icon-radio"></i>
+
+                            <!-- label : additive -->
+                            <span class="ddp-txt-radio">{{LABEL.GAMMA_ADDITIVE}}</span>
+                        </label>
+                        <label class="ddp-label-radio ddp-dark">
+                            <input type="radio" name="gamma" disabled>
+                            <i class="ddp-icon-radio"></i>
+
+                            <!-- label : multiplicative -->
+                            <span class="ddp-txt-radio">{{LABEL.GAMMA_MULTIPLICATIVE}}</span>
+                        </label>
+                    </div>
+                    <!-- //감마가 선택되어 있지 않은 경우 더미 -->
+
+                    <!-- 감마가 선택되어 있지 않은 경우 더미 -->
+                    <div *ngIf="!selectedForecastParameter.isGammaDisabled && !selectedForecastParameter.isGammaSelected"
+                         class="ddp-ui-check-type ddp-inline">
+                        <label class="ddp-label-radio ddp-dark">
+                            <input type="radio" name="gamma" disabled>
+                            <i class="ddp-icon-radio"></i>
+
+                            <!-- label : additive -->
+                            <span class="ddp-txt-radio">{{LABEL.GAMMA_ADDITIVE}}</span>
+                        </label>
+                        <label class="ddp-label-radio ddp-dark">
+                            <input type="radio" name="gamma" disabled>
+                            <i class="ddp-icon-radio"></i>
+
+                            <!-- label : multiplicative -->
+                            <span class="ddp-txt-radio">{{LABEL.GAMMA_MULTIPLICATIVE}}</span>
+                        </label>
+                    </div>
+                    <!-- //감마가 선택되어 있지 않은 경우 더미 -->
+
+                    <!-- 감마가 선택되어 있는 경우 -->
+                    <div *ngIf="!selectedForecastParameter.isGammaDisabled && selectedForecastParameter.isGammaSelected"
+                         class="ddp-ui-check-type ddp-inline">
+                        <label class="ddp-label-radio ddp-dark">
+                            <input type="radio" name="gamma"
+                                   [checked]="!selectedForecastParameter.multiple"
+                                   (click)="changeSelectedForecastParameterGammaInMultipleValue(false);">
+                            <i class="ddp-icon-radio"></i>
+
+                            <!-- label : additive -->
+                            <span class="ddp-txt-radio">{{LABEL.GAMMA_ADDITIVE}}</span>
+                        </label>
+                        <label class="ddp-label-radio ddp-dark">
+                            <input type="radio" name="gamma"
+                                   [checked]="selectedForecastParameter.multiple"
+                                   (click)="changeSelectedForecastParameterGammaInMultipleValue(true);">
+                            <i class="ddp-icon-radio"></i>
+
+                            <!-- label : multiplicative -->
+                            <span class="ddp-txt-radio">{{LABEL.GAMMA_MULTIPLICATIVE}}</span>
+                        </label>
+                    </div>
+                    <!-- //감마가 선택되어 있는 경우 -->
+
+                </div>
+                <!-- //sub in -->
+
+            </div>
+
+        </div>
+        <!-- //part -->
+
+        <!-- part -->
+        <div *ngIf="data.isPredictionLineActive" class="ddp-list-part">
+            <div class="ddp-list-part-sub">
+
+                <!-- checkbox -->
+                <label class="ddp-label-checkbox ddp-type3">
+                    <input type="checkbox" [checked]="data.isSelectedForecast"
+                           [(ngModel)]="data.isSelectedForecast">
+                    <i class="ddp-icon-checkbox"></i>
+
+                    <!-- label : Forecast -->
+                    <span class="ddp-txt-checkbox">{{LABEL.FORECAST}}</span>
+                </label>
+                <!-- //checkbox -->
+                <!-- sub in -->
+                <div class="ddp-list-sub-in">
+                    <div class="ddp-ui-color-select" [ngClass]="{ 'ddp-disabled': !data.isSelectedForecast }">
+                        <span class="ddp-box-color"
+                              [ngStyle]="{ 'background': data.analysis.analysis.forecast.style.color === '' ? '' : data.analysis.analysis.forecast.style.color }"
+                              #forecastColorPicker
+                              (click)="forecastColorPickerShow(forecastColorPicker, data.analysis.analysis.forecast.style.color)">
+                        </span>
+
+                        <!--<div class="ddp-type-selectbox">-->
+                        <div class="ddp-size">
+                            <component-select #selectLineTypeComponent
+                                              [ngStyle]="{ 'display': 'inline-block' }"
+                                              [array]="LINE_TYPE_LIST"
+                                              [defaultIndex]="selectLineTypeComponentDefaultIndex"
+                                              (onSelected)="onChangeLineType($event)">
+                            </component-select>
+                        </div>
+                        <!-- //select box -->
+
+                        <!-- select box -->
+                        <component-select #selectLineComponent
+                                          [ngStyle]="{ 'display': 'inline-block' }"
+                                          [array]="LINE_WIDTH_LIST"
+                                          [defaultIndex]="selectLineComponentDefaultIndex"
+                                          (onSelected)="onChangeLineWidth($event)">
+                        </component-select>
+                        <!-- //select box -->
+
+                    </div>
+
+                </div>
+                <!-- //sub in -->
+
+                <!-- checkbox -->
+                <label *ngIf="data.isPredictionLineActive"
+                       class="ddp-label-checkbox ddp-type3">
+                    <input type="checkbox"
+                           [checked]="data.isSelectedConfidence"
+                           [(ngModel)]="data.isSelectedConfidence">
+                    <i class="ddp-icon-checkbox"></i>
+
+                    <!-- label : Confidence -->
+                    <span class="ddp-txt-checkbox">{{LABEL.CONFIDENCE}}</span>
+                </label>
+                <!-- //checkbox -->
+                <!-- sub in -->
+                <div class="ddp-list-sub-in">
+                    <div class="ddp-ui-color-select ddp-mgb0 ddp-clear"
+                         [ngClass]="{ 'ddp-disabled': !data.isSelectedConfidence }">
+                        <div class="ddp-col-8">
+                            <div class="ddp-txt-label">
+
+                                <!-- label : 투명도 -->
+                                <span class="ddp-box-color" #confidenceColorPicker
+                                      [ngStyle]="{ 'background': data.analysis.analysis.confidence.style.color === '' ? '' : data.analysis.analysis.confidence.style.color }"
+                                      (click)="confidenceColorPickerShow(confidenceColorPicker, data.analysis.analysis.confidence.style.color);"></span>
+                                {{LABEL.OPACITY}}
+                            </div>
+                        </div>
+                        <div class="ddp-col-4">
+                            <div class="ddp-box-option-input">
+                                <!--(blur)="changeConfidenceTransparency();"-->
+                                <input type="text"
+                                       #confidenceTransparency
+                                       input-mask="number"
+                                       [ngModel]="data.analysis.analysis.confidence.style.transparency"
+                                       (blur)="blurConfidenceTransparency(confidenceTransparency);"
+                                       (keyup.enter)="keyupConfidenceTransparency(confidenceTransparency);">
+                                <span class="ddp-txt-input ddp-dark">{{LABEL.PROCENT}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- //sub in -->
+            </div>
+            <!-- //part -->
+        </div>
+    </div>
+
+    <!-- Color picker layer popup -->
+    <color-picker-layer [offsetX]="colorPickerLayerOffsetX"
+                        [offsetY]="colorPickerLayerOffsetY"
+                        (selected)="colorPickerLayerSelected($event);">
+    </color-picker-layer>
+    <!-- //Color picker layer popup -->
+
+</div>

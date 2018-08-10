@@ -1,0 +1,304 @@
+= RESTful Metatron API Guide
+Big Data Tech. Lab;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+[[overview]]
+= Overview
+
+[[resources]]
+= Resources
+
+[[resources-workspace]]
+== DataSource
+
+
+[[resources-datasource-overview]]
+=== 개요
+
+[[resources-workspace-overview-representations]]
+==== Resource representations
+
+.DataSource
+|===
+|Name |Type |Description |Note
+
+|id
+|String
+|데이터 소스 Id, 생성시 부여 함, UUID
+|
+
+|name
+|String
+|데이터 소스 이름,
+ENGINE 타입인 경우 ENGINE 내 DataSource 중복 방지를 위해 내부 룰에 따라 이름 변경 postfix 로 Timestamp 를 추가
+하고 표시이름(alias)를 활용
+|writable (POST)
+
+|alias
+|String
+|데이터 소스 표시이름
+|writable
+
+|description
+|String
+|데이터 소스 설명
+|writable
+
+|owner
+|UserProfile
+|데이터 소스 생성자 정보
+|
+
+|owner.username
+|Object
+|생성자 username
+|
+
+|owner.fullName
+|Object
+|생성자 명
+|
+
+|owner.email
+|Object
+|생성자 email
+|
+
+|dsType
+|Enum
+|데이터소스 스키마 유형, MASTER/LOOKUP
+|writable (POST)
+
+|connType
+|Enum
+|데이터소스 연결 유형, 수집형(ENGINE)/연결형(LIVE)
+|writable (POST)
+
+|srcType
+|Enum
+|데이터소스 연결 유형, 수집형(ENGINE)/연결형(LIVE)
+|writable (POST)
+
+|granularity
+|Enum
+|시간 필드에 대한 집계의 최소 단위, SECOND/MINUTE/HOUR/DAY/WEEK/MONTH/QUARTER/YEAR
+|writable
+
+|segGranularity
+|Enum
+|connType 가 ENGINE 타입의 경우만 해당, 엔진내 저장 단위
+|writable (POST)
+
+|status
+|Enum
+|데이터소스 상태, 사용가능(ENABLED)/일부사용 불가(BAD)/준비중(PREPARING)/적재 실패(FAILED)/사용 불가(DISABLED)
+|
+
+|published
+|Boolean
+|데이터소스 전체 공개 여부
+|writable
+
+|workspaces[]
+|Workspace
+|published 가 false 인 경우 유효, 데이터소스가 사용가능한 Workspace 정보
+|
+
+|connection
+|DataConnection
+|데이터소스가 참조하고 있는 연결 정보, 수집형일 경우 적재시 연결 정보이며 연결형일 경우 연결 정보
+|writable (POST, Resource URL)
+
+|ingestion
+|DataIngestion
+|데이터 소스 적재 정보, 수집형일 경우 적재 정보이며, 연결형일 경우 추가 정보
+|
+
+|ingestion.ingestionMinTime
+|DateTime
+|수집형인 경우만 적용, Timestamp 필드 from
+|
+
+|ingestion.ingestionMaxTime
+|DateTime
+|수집형인 경우만 적용, Timestamp 필드 to
+|
+
+|ingestion.size
+|Long
+|수집형인 경우만 적용, 수집된 데이터 사이즈
+|
+
+|ingestion.count
+|Long
+|수집형인 경우만 적용, 수집된 데이터 row count
+|
+
+|ingestion.info
+|IngestionInfo
+|데이터 소스 적재 상세 정보
+|writable (POST)
+
+|fields[]
+|Field
+|데이터 소스내 필드 정보
+|writable (POST)
+
+|fields[].name
+|String
+|필드 명
+|
+
+|fields[].type
+|Enum
+|데이터 타입, 문자형(TEXT)/BOOLEAN/정수형(INT/LONG)/실수형(FLOAT/DOUBLE)/TIMESTAMP
+|
+
+|fields[].biType
+|Enum
+|OLAP 타입
+|
+
+|fields[].seq
+|Long
+|필드 정렬 순서
+|
+
+|fields[].filtering
+|Boolean
+|필수 필터 여부
+|
+
+|fields[].filteringSeq
+|Long
+|필수 필터 순서
+|
+
+|fields[].aggrType
+|Enum
+|수집형인 경우 지정 가능, 사전 집계 타입, NONE/MIN/MAX/COUNT/SUM/AVG/STDDEV/MEDIAN/AREA/RANGE/QUANTILE
+|
+
+|===
+
+.IngestionInfo
+|===
+|Name |Type |Description |Note
+
+|type
+|String
+|적재 타입, 로컬파일(local), HDFS(hdfs), 실시간(realtime), JDBC(single, batch, live)
+|
+
+|format
+|FileFormat
+|적재될 파일(or 데이터) 형태
+|
+
+|format.type
+|String
+|csv/excel/json/orc
+|
+
+|format.delimeter
+|String
+|csv 형태일 경우, 컬럼 구분자
+|
+
+|format.lineSeparator
+|String
+|csv 형태일 경우, 라인 구분자
+|
+
+|format.sheetIndex
+|String
+|excel 형태일 경우, Sheet Index 지정
+|
+
+|dataType
+|Enum
+|JDBC 형태일 경우 적재될 데이터 형태, QUERY/TABLE
+|
+
+|schema
+|String
+|JDBC 형태이고, dataType이 TABLE 인 경우, DB 내 Schema 명 기입
+|
+
+|query
+|String
+|JDBC 형태일 경우, dataType이 TABLE 인 경우 Table 명/ QUERY 인 경우 query 구분 기입
+|
+
+|path
+|String
+|Local File 형태일 경우, 적재할 파일 경로 (서버가 인식할 수 있는 Path)
+|
+
+|removeFirstRow
+|String
+|Local File 형태일 경우, 컬럼 헤더가 존재하는 경우 true
+|
+
+|removeFirstRow
+|String
+|Local File 형태일 경우, 컬럼 헤더가 존재하는 경우 true
+|
+
+|paths
+|String
+|HDFS 형태일 경우, 적재할 경로 목록
+|
+
+|findRecursive
+|Boolean
+|HDFS 형태일 경우, 경로중 디렉토리일 경우, 하위 디렉토리 파일도 적재 목록에 포함 여부
+|
+
+|jobProperties
+|Map
+|적재시 수행하는 MR Job 속성 Overwrite
+|
+
+|===
+
+[[resources-workspace-overview-projection]]
+==== Projection
+
+[[resources-workspaces-list]]
+=== Listing Datasource
+
+A `GET` request will list all of the service's datasource.
+
+==== Response structure
+
+TBD
+
+
+[[resources-workspaces-create]]
+=== Creating a Datasource
+
+A `POST` request is used to create a DataSource
+
+==== Request structure
+TBD
+
+[[resources-workspaces-update]]
+=== Updating a Datasource
+
+A `PATCH` request is used to update a workspace
+
+==== Request structure
+
+TBD
+
+
+[[resources-workspaces-delete]]
+=== Deleting a workspace
+
+A `DELETE` request is used to update a workspace

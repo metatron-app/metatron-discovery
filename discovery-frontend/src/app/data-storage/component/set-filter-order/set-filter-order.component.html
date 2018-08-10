@@ -1,0 +1,60 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype ddp-index" *ngIf="isShow">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+            {{'msg.storage.ui.set.filter.order' | translate}}
+      </span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="changeOrder()">{{'msg.comm.btn.done' | translate}}</a>
+      </div>
+      <!-- det -->
+    </div>
+    <!-- //title -->
+    <div class="ddp-ui-popup-contents">
+
+      <div class="ddp-ui-filter-order">
+        <!-- 총 filter -->
+        <div class="ddp-data-filter">
+          <strong>{{fields.length}}</strong> {{connType === 'ENGINE'
+          ? ('msg.storage.ui.dsource.filter.recommendation' | translate)
+          : ('msg.storage.ui.dsource.filter.essential' | translate)}}
+        </div>
+        <!-- //총 filter -->
+        <ul class="ddp-list-filter-order" dnd-sortable-container [sortableData]="fields">
+          <li *ngFor="let field of fields; let x = index"
+              dnd-sortable
+              [sortableIndex]="x"
+              [dragEnabled]="true"
+              [dragData]="field">
+            <span class="ddp-data-no">{{x+1}}</span>
+            <span class="ddp-data-tag">
+              <span class="ddp-box-tag-value" [class.ddp-measure]="field.role.toString() === 'MEASURE'" [class.ddp-dimension]="field.role.toString() === 'DIMENSION'">
+                          {{field.role.toString() === 'MEASURE' ? ('msg.comm.name.mea' | translate) : ('msg.comm.name.dim' | translate)}}
+              </span>
+            </span>
+            <span class="ddp-data-name">
+                <em class="{{getIconClass(field.logicalType)}}"></em> {{field.name}}
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

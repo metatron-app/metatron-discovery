@@ -1,0 +1,207 @@
+
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- top option -->
+<div class="ddp-type-top-option ddp-type">
+  <ul class="ddp-ui-tab ddp-type">
+    <li (click)="changeTab( tab.PREVIEW )" [class.ddp-selected]="tab.PREVIEW === selectedTab">
+      <a href="javascript:">{{ 'msg.board.create.data-preview' | translate }}</a>
+    </li>
+    <li (click)="changeTab( tab.JOIN )" [class.ddp-selected]="tab.JOIN === selectedTab">
+      <a href="javascript:">{{ 'msg.board.create.join' | translate }}</a>
+    </li>
+    <li *ngIf="isLinkedDataSource" (click)="changeTab( tab.FILTER )"
+        [class.ddp-selected]="tab.FILTER === selectedTab">
+      <a href="javascript:">{{ 'msg.board.create.essential-filter' | translate }}</a>
+    </li>
+  </ul>
+  <!-- right -->
+  <div class="ddp-ui-rightoption ddp-type-option">
+    <a (click)="deleteDataSource()" href="javascript:" class="ddp-link-type">
+      <em class="ddp-icon-link-cut2"></em>{{ 'msg.board.create.delete-datasource' | translate }}
+    </a>
+    <a (click)="closeDsInfo()" href="javascript:" class="ddp-btn-box-close"></a>
+  </div>
+  <!-- //right -->
+</div>
+<!-- //top option -->
+
+<div class="ddp-wrap-tab-contents">
+  <!-- Preview 영역 -->
+  <div [hidden]="tab.PREVIEW !== selectedTab" class="ddp-ui-tab-contents">
+    <!-- 그리드 옵션 -->
+    <div class="ddp-wrap-grid-option ddp-clear">
+      <span class="ddp-txt-title">
+        {{ dataSource.name }}
+        <span *ngIf="dataSource.uiDescription" class="ddp-txt-title-info">{{ dataSource.uiDescription }}</span>
+      </span>
+      <div class="ddp-part-right">
+        <div *ngIf="dataSourceSummary" class="ddp-data-form">
+          <strong>{{ commonUtil.formatBytes( dataSourceSummary.size, 1 ) }}</strong>
+        </div>
+        <div class="ddp-data-form">
+          <strong>{{headerCnt}}</strong> {{'msg.comm.detail.columns' | translate}}
+        </div>
+        <div class="ddp-data-form">
+          <input #inputDsRow
+                 type="text" class="ddp-data-input" input-mask="number"
+                 placeholder="{{'msg.board.ui.search.full-column.ph' | translate}}"
+                 [ngModel]="rowNum"
+                 (keypress)="setGridRow($event)"
+                 (keyup.esc)="resetGridRow()"
+                 (blur)="resetGridRow()">
+          <strong> / {{ dataSourceSummary?.count }}</strong>
+          {{'msg.comm.detail.rows' | translate}}
+        </div>
+        <div *ngIf="colTypes" class="ddp-data-form">
+          <strong (mouseover)="isShowColTypeLayer = true" (mouseout)="isShowColTypeLayer = false"
+                  class="ddp-cursor">{{colTypes.length}}</strong> Types
+          <div *ngIf="isShowColTypeLayer" class="ddp-wrap-popup2 ddp-types">
+            <ul class="ddp-list-popup">
+              <li *ngFor="let colType of colTypes">
+                <a href="javascript:" style="cursor: pointer">
+                  <em class="{{getTypeClass(colType.type)}}"></em> {{colType.cnt}}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 그리드 옵션 -->
+    <!-- 그리드 -->
+    <div class="ddp-ui-grid-form" >
+      <div class="ddp-data-empty" *ngIf="isEmptyMainGrid">
+        <span class="ddp-data-contents"> {{'msg.space.ui.no.data' | translate}} </span>
+      </div>
+      <div grid-component #main style="width:100%;height:100%;"></div>
+    </div>
+    <!-- // 그리드 -->
+  </div>
+  <!-- // Preview 영역 -->
+  <!-- Join 영역 -->
+  <div [hidden]="tab.JOIN !== selectedTab" class="ddp-ui-tab-contents" >
+    <div class="ddp-box-join-option">
+      <!-- view join -->
+      <div class="ddp-view-join">
+        <!-- data name -->
+        <a href="javascript:" class="ddp-data-name">
+          <em class="ddp-icon-database-w"></em> {{dataSource.name}} <em class="ddp-icon-view"></em>
+        </a>
+        <!-- //data name -->
+        <!-- box -->
+        <div class="ddp-box-lookup">
+          <ul class="ddp-list-lookup">
+            <li *ngFor="let join of joinMappings;let i = index;">
+              <!-- 1 Depth join info -->
+              <div class="ddp-ui-lookup">
+                <!-- 조인 아이콘 -->
+                <a href="javascript:" class="ddp-ui-joinicon"
+                   (click)="showJoinPopup(join, dataSource.id)">
+                  <em [class.ddp-icon-join-left]="join.type === 'LEFT_OUTER'"
+                      [class.ddp-icon-join-right]="join.type === 'RIGHT_OUTER'"
+                      [class.ddp-icon-join-inner]="join.type === 'INNER'"
+                      [class.ddp-icon-join-outer]="join.type === 'FULL'"></em>
+                </a>
+                <!-- //조인 아이콘 -->
+                <a href="javascript:" class="ddp-link-joinname">
+                  <em class="ddp-icon-database2"></em>
+                  <span class="ddp-data-joinname">{{join.name}}</span>
+                  <div class="ddp-btn-edit">
+                    <em class="ddp-icon-control-edit"
+                        (click)="showJoinPopup(join, dataSource.id)"></em>
+                    <em class="ddp-icon-editdel" (click)="removeJoin(joinMappings, i)"></em>
+                  </div>
+                </a>
+              </div>
+              <!-- // 1 Depth join info -->
+
+              <!-- 2 Depth new join -->
+              <div class="ddp-ui-add-data" *ngIf="!join.join || !join.join.id">
+                <a href="javascript:" class="ddp-link-add-data" (click)="showJoinPopup(join)">
+                  <em class="ddp-icon-add"></em> {{'msg.board.btn.add.datasource.join' | translate}}
+                </a>
+              </div>
+              <!-- // 2 Depth new join -->
+
+              <!-- 2 Depth join info -->
+              <div class="ddp-ui-lookup" *ngIf="join.join && join.join.id">
+                <!-- 조인 아이콘 -->
+                <a href="javascript:" class="ddp-ui-joinicon" (click)="showJoinPopup(join.join, join.id)">
+                  <em [class.ddp-icon-join-left]="join.join.type === 'LEFT_OUTER'"
+                      [class.ddp-icon-join-right]="join.join.type === 'RIGHT_OUTER'"
+                      [class.ddp-icon-join-inner]="join.join.type === 'INNER'"
+                      [class.ddp-icon-join-outer]="join.join.type === 'FULL'"></em>
+                </a>
+                <!-- //조인 아이콘 -->
+                <a href="javascript:" class="ddp-link-joinname">
+                  <em class="ddp-icon-database2"></em>
+                  <span class="ddp-data-joinname">{{join.join.name}}</span>
+                  <div class="ddp-btn-edit">
+                    <em class="ddp-icon-control-edit" (click)="showJoinPopup(join.join, join.id)"></em>
+                    <em class="ddp-icon-editdel" (click)="join.join = null;"></em>
+                  </div>
+                </a>
+              </div>
+              <!-- // 2 Depth join info -->
+            </li>
+
+            <!-- 1 depth new join -->
+            <li class="ddp-list-add" *ngIf="isEnableJoin">
+              <a href="javascript:" class="ddp-link-add-data"
+                 (click)="showJoinPopup()">
+                <em class="ddp-icon-add"></em> {{'msg.board.btn.add.datasource.join' | translate}}
+              </a>
+            </li>
+            <!-- // 1 depth new join -->
+
+          </ul>
+        </div>
+        <!-- //box -->
+      </div>
+      <!-- //view join -->
+    </div>
+
+  </div>
+  <!-- // Join 영역 -->
+  <!-- Filter 영역 -->
+  <div *ngIf="isLinkedDataSource" [hidden]="tab.FILTER !== selectedTab" class="ddp-ui-tab-contents">
+    <div class="ddp-essential-filter">
+      <!-- result -->
+      <div class="ddp-ui-filter-result">
+        <span [innerHTML]="'msg.board.ui.essential.info' | translate : {count: essentialFilters.length, dsName : dataSource.name}"></span>
+        <a (click)="showEssentialFilerPopup()" href="javascript:" class="ddp-btn-line-s"><em class="ddp-icon-btn-edit2"></em>{{ 'msg.comm.ui.edit' | translate }}</a>
+      </div>
+      <!-- //result -->
+      <!-- list -->
+      <ul class="ddp-list-essential">
+        <li *ngFor="let filter of essentialFilters" >
+          <div class="ddp-data-filter">
+            <span class="ddp-txt-filter">
+              <em *ngIf="filter.type !== 'bound'" class="{{getDimensionTypeIconClass(filter['fieldObj'])}}" ></em>
+              <em *ngIf="filter.type === 'bound'" class="{{getMeasureTypeIconClass(filter['fieldObj'])}}" ></em>
+              {{filter.field}}
+            </span>
+          </div>
+          <div class="ddp-data-det" [innerHTML]="filter['panelContents']"></div>
+        </li>
+      </ul>
+      <!-- //list -->
+    </div>
+  </div>
+  <!-- // Filter 영역 -->
+</div>
+
+<create-board-pop-join (complete)="changeJoin($event)"></create-board-pop-join>

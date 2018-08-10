@@ -1,0 +1,54 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents" *ngIf="isShow">
+  <!-- 닫기 버튼 -->
+  <a (click)="close()" href="javascript:" class="ddp-btn-close"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-ui-name2 ddp-type"> {{ 'msg.spaces.permission.schema.create.title' | translate }}</div>
+
+  <div class="ddp-box-popupcontents4 ">
+    <!-- 이름 입력 -->
+    <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidName">
+      <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
+      <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}"
+             [(ngModel)]="roleSet.name" (focus)="isInvalidName=false" maxlength="50"/>
+      <span class="ddp-ui-error">{{errMsgName}}</span>
+    </div>
+    <!-- // 이름 입력 -->
+
+    <!-- 설명 입력 -->
+    <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidDesc">
+      <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
+      <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+             [(ngModel)]="roleSet.description" (focus)="isInvalidDesc=false" maxlength="150"/>
+      <span class="ddp-ui-error">{{errMsgDesc}}</span>
+    </div>
+    <!-- // 설명 입력 -->
+
+    <!-- edit -->
+    <div class="ddp-wrap-edit2">
+      <label class="ddp-label-type">{{ 'msg.spaces.permission.schema.userroles' | translate }}</label>
+      <app-permission-schema [roleSet]="roleSet" [editMode]="true" ></app-permission-schema>
+    </div>
+    <!-- //edit -->
+  </div>
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a (click)="close()" href="javascript:" class="ddp-btn-type-popup">{{ 'msg.comm.btn.cancl' | translate }}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a (click)="done()" href="javascript:" class="ddp-btn-type-popup ddp-bg-black ">{{ 'msg.comm.btn.done' | translate }}</a>
+  </div>
+  <!-- //buttons -->
+</div>

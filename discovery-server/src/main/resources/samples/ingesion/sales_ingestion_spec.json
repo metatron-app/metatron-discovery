@@ -1,0 +1,153 @@
+{
+  "type": "index_realtime",
+  "spec": {
+    "dataSchema": {
+      "metricsSpec": [
+        {
+          "type": "count",
+          "name": "count"
+        },
+        {
+          "fieldName": "Discount",
+          "type": "sum",
+          "inputType": "double",
+          "name": "Discount"
+        },
+        {
+          "fieldName": "Profit",
+          "type": "sum",
+          "inputType": "double",
+          "name": "Profit"
+        },
+        {
+          "fieldName": "Sales",
+          "type": "sum",
+          "inputType": "double",
+          "name": "Sales"
+        },
+        {
+          "fieldName": "DaystoShipActual",
+          "type": "sum",
+          "inputType": "double",
+          "name": "DaystoShipActual"
+        },
+        {
+          "fieldName": "SalesForecast",
+          "type": "sum",
+          "inputType": "double",
+          "name": "SalesForecast"
+        },
+        {
+          "fieldName": "DaystoShipScheduled",
+          "type": "sum",
+          "inputType": "double",
+          "name": "DaystoShipScheduled"
+        },
+        {
+          "fieldName": "SalesperCustomer",
+          "type": "sum",
+          "inputType": "double",
+          "name": "SalesperCustomer"
+        },
+        {
+          "fieldName": "ProfitRatio",
+          "type": "sum",
+          "inputType": "double",
+          "name": "ProfitRatio"
+        }
+      ],
+      "granularitySpec": {
+        "queryGranularity": "DAY",
+        "segmentGranularity": "MONTH",
+        "type": "uniform",
+        "intervals": [
+          "1970-01-01/2050-01-01"
+        ]
+      },
+      "parser": {
+        "parseSpec": {
+          "dimensionsSpec": {
+            "dimensionExclusions": [],
+            "dimensions": [
+              "Category",
+              "City",
+              "Country",
+              "CustomerName",
+              "OrderID",
+              "PostalCode",
+              "ProductName",
+              "Quantity",
+              "Region",
+              "Segment",
+              "ShipDate",
+              "ShipMode",
+              "State",
+              "Sub-Category",
+              "ShipStatus",
+              "orderprofitable",
+              "SalesAboveTarget",
+              "latitude",
+              "longitude"
+            ],
+            "spatialDimensions": []
+          },
+          "timestampSpec": {
+            "column": "OrderDate",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          },
+          "columns": [
+            "OrderDate",
+            "Category",
+            "City",
+            "Country",
+            "CustomerName",
+            "OrderID",
+            "PostalCode",
+            "ProductName",
+            "Quantity",
+            "Region",
+            "Segment",
+            "ShipDate",
+            "ShipMode",
+            "State",
+            "Sub-Category",
+            "ShipStatus",
+            "orderprofitable",
+            "SalesAboveTarget",
+            "latitude",
+            "longitude",
+            "Discount",
+            "Profit",
+            "Sales",
+            "DaystoShipActual",
+            "SalesForecast",
+            "DaystoShipScheduled",
+            "SalesperCustomer",
+            "ProfitRatio"
+          ],
+          "delimiter":"\t",
+          "format": "tsv"
+        },
+        "type": "string"
+      },
+      "dataSource": "sales"
+    },
+    "tuningConfig": {
+      "rowFlushBoundary": 0,
+      "rejectionPolicy": {
+        "type": "none"
+      },
+      "type": "realtime",
+      "maxRowsInMemory": 5000,
+      "targetPartitionSize": 0
+    },
+    "ioConfig": {
+      "firehose": {
+        "filter": "sales_tab_delimeter.csv",
+        "baseDir": "/home/hadoop",
+        "type": "local"
+      },
+      "type": "realtime"
+    }
+  }
+}

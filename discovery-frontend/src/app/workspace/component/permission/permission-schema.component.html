@@ -1,0 +1,189 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<table class="ddp-table-base" *ngIf="editRoleSet">
+  <colgroup>
+    <col width="*">
+    <col width="{{ editMode ? '95px' : '101px'}}">
+    <col width="{{ editMode ? '156px' : '166px'}}">
+    <col width="{{ editMode ? '156px' : '166px'}}">
+    <col width="{{ editMode ? '156px' : '166px'}}">
+    <col width="{{ editMode ? '104px' : '110px'}}">
+    <col *ngIf="editMode" width="52px">
+  </colgroup>
+  <thead>
+  <tr>
+    <th rowspan="2">User role</th>
+    <th rowspan="2">Default role</th>
+    <th><strong>Workbook</strong></th>
+    <th><strong>Notebook</strong></th>
+    <th><strong>Workbench</strong></th>
+    <th><strong>Workspace</strong></th>
+    <th *ngIf="editMode" rowspan="2"></th>
+  </tr>
+  <tr>
+    <th>
+      <div class="ddp-data-name"> View</div>
+      <div class="ddp-data-name"> Create</div>
+      <div class="ddp-data-name"> Edit any</div>
+    </th>
+    <th>
+      <div class="ddp-data-name"> View</div>
+      <div class="ddp-data-name"> Create</div>
+      <div class="ddp-data-name"> Edit any</div>
+    </th>
+    <th>
+      <div class="ddp-data-name"> View</div>
+      <div class="ddp-data-name"> Create</div>
+      <div class="ddp-data-name"> Edit any</div>
+    </th>
+    <th>
+      <div class="ddp-data-name2"> Create <br>folders</div>
+      <div class="ddp-data-name2"> Set <br/>config.</div>
+    </th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let role of editRoleSet.roles;let idx = index" [class.ddp-line]="role['hover']">
+      <!-- User Role -->
+      <td [class.ddp-error]="role['error']">
+        <span *ngIf="!editMode" class="ddp-data-role">{{ role.name }}</span>
+        <!-- ddp-selected 시 입력바 표시 -->
+        <div *ngIf="editMode" class="ddp-txt-edit" [class.ddp-selected]="role['edit']">
+          <span class="ddp-data-name">
+            {{ role.name }}<em (click)="role['edit'] = true" class="ddp-icon-edit2"></em>
+          </span>
+          <div class="ddp-wrap-input">
+            <input type="text" class="ddp-input-edit" placeholder="{{role.name}}"
+                   [(ngModel)]="role['editName']"
+                   (keypress)="setRoleNameByKeyboard($event, role)" />
+            <span (click)="$event.stopPropagation();setRoleName(role)" class="ddp-btn-check"></span>
+          </div>
+        </div>
+      </td>
+      <!-- // User Role -->
+      <!-- Set Default Role -->
+      <td (click)="clickDefaultRole( role )">
+        <span *ngIf="!editMode && role.defaultRole" class="ddp-select-role"></span>
+        <label *ngIf="editMode" class="ddp-label-radio2">
+          <input name="checkDefaultRole" type="radio" [disabled]="!editMode" [checked]="role.defaultRole">
+          <i class="ddp-icon-radio"></i>
+        </label>
+      </td>
+      <!-- // Set Default Role -->
+      <!-- Workbook Permission -->
+      <td>
+        <div (click)="togglePerm(role,'PERM_WORKSPACE_VIEW_WORKBOOK')" class="ddp-data-det"
+             [ngStyle]="{cursor: editMode ? 'pointer' : 'default'}" >
+          <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_VIEW_WORKBOOK')" class="ddp-icon-checked"></em>
+          <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_VIEW_WORKBOOK')">-</em>
+        </div>
+        <div (click)="togglePerm(role,'PERM_WORKSPACE_EDIT_WORKBOOK')" class="ddp-data-det"
+             [ngStyle]="{cursor: editMode ? 'pointer' : 'default'}" >
+          <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_EDIT_WORKBOOK')" class="ddp-icon-checked"></em>
+          <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_EDIT_WORKBOOK')">-</em>
+        </div>
+        <div (click)="togglePerm(role,'PERM_WORKSPACE_MANAGE_WORKBOOK')" class="ddp-data-det"
+             [ngStyle]="{cursor: editMode ? 'pointer' : 'default'}" >
+          <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKBOOK')" class="ddp-icon-checked"></em>
+          <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKBOOK')">-</em>
+        </div>
+      </td>
+      <!-- // Workbook Permission -->
+      <!-- Notebook Permission -->
+      <td>
+        <div (click)="togglePerm(role,'PERM_WORKSPACE_VIEW_NOTEBOOK')" class="ddp-data-det"
+             [ngStyle]="{cursor: editMode ? 'pointer' : 'default'}" >
+          <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_VIEW_NOTEBOOK')" class="ddp-icon-checked"></em>
+          <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_VIEW_NOTEBOOK')">-</em>
+        </div>
+        <div (click)="togglePerm(role,'PERM_WORKSPACE_EDIT_NOTEBOOK')" class="ddp-data-det"
+             [ngStyle]="{cursor: editMode ? 'pointer' : 'default'}" >
+          <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_EDIT_NOTEBOOK')" class="ddp-icon-checked"></em>
+          <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_EDIT_NOTEBOOK')">-</em>
+        </div>
+        <div (click)="togglePerm(role,'PERM_WORKSPACE_MANAGE_NOTEBOOK')" class="ddp-data-det"
+             [ngStyle]="{cursor: editMode ? 'pointer' : 'default'}" >
+          <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_MANAGE_NOTEBOOK')" class="ddp-icon-checked"></em>
+          <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_MANAGE_NOTEBOOK')">-</em>
+        </div>
+      </td>
+      <!-- // Notebook Permission -->
+      <!-- Workbench Permission -->
+      <td>
+        <div (click)="togglePerm(role,'PERM_WORKSPACE_VIEW_WORKBENCH')" class="ddp-data-det"
+             [ngStyle]="{cursor: editMode ? 'pointer' : 'default'}" >
+          <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_VIEW_WORKBENCH')" class="ddp-icon-checked"></em>
+          <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_VIEW_WORKBENCH')">-</em>
+        </div>
+        <div (click)="togglePerm(role,'PERM_WORKSPACE_EDIT_WORKBENCH')" class="ddp-data-det"
+             [ngStyle]="{cursor: editMode ? 'pointer' : 'default'}" >
+          <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_EDIT_WORKBENCH')" class="ddp-icon-checked"></em>
+          <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_EDIT_WORKBENCH')">-</em>
+        </div>
+        <div (click)="togglePerm(role,'PERM_WORKSPACE_MANAGE_WORKBENCH')" class="ddp-data-det"
+             [ngStyle]="{cursor: editMode ? 'pointer' : 'default'}" >
+          <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKBENCH')" class="ddp-icon-checked"></em>
+          <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKBENCH')">-</em>
+        </div>
+      </td>
+      <!-- // Workbench Permission -->
+      <!-- Workspace Permission -->
+      <td>
+        <div (click)="togglePerm(role,'PERM_WORKSPACE_MANAGE_FOLDER')" class="ddp-data-det2"
+             [ngStyle]="{cursor: editMode ? 'pointer' : 'default'}" >
+          <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_MANAGE_FOLDER')" class="ddp-icon-checked"></em>
+          <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_MANAGE_FOLDER')">-</em>
+        </div>
+        <div (click)="togglePerm(role,'PERM_WORKSPACE_MANAGE_WORKSPACE')" class="ddp-data-det2"
+             [ngStyle]="{cursor: editMode ? 'pointer' : 'default'}" >
+          <em *ngIf="checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKSPACE')" class="ddp-icon-checked"></em>
+          <em *ngIf="!checkValidPerm(role,'PERM_WORKSPACE_MANAGE_WORKSPACE')">-</em>
+        </div>
+      </td>
+      <!-- // Workspace Permission -->
+      <td *ngIf="editMode">
+        <a (click)="removeRole(idx)"
+           (mouseenter)="role['hover'] = true" (mouseleave)="role['hover'] = false"
+           href="javascript:" class="ddp-delete" ></a>
+      </td>
+    </tr>
+    <tr *ngIf="editMode">
+      <td style="text-align:left;">
+        <a (click)="addRole()" href="javascript:" class="ddp-link-add">{{'msg.comm.btn.add' | translate }}</a>
+      </td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<span *ngIf="'' !== errorMsg" style="color:#eb5f58;font-size:12px;">{{errorMsg}}</span>
+
+<!-- 설명 영역 -->
+<div class="ddp-ui-ex" *ngIf="desc">
+  <span class="ddp-label-ex">Explanation</span>
+  <ul class="ddp-list-ex">
+    <li>Default role : Role to be granted when adding new members and groups</li>
+    <li>View of (item) : Enable to access to item and to read contents</li>
+    <li>Create of (item) : Enable to create, modify and delete items</li>
+    <li>Edit any of (item) : Enable to create, modify and delete items which is created by other users</li>
+    <li>Create folders : Enable to create, modify and delete folders</li>
+    <li>Set config. : Enable to edit information and to set configuration of workspace</li>
+  </ul>
+</div>
+<!-- // 설명 영역 -->

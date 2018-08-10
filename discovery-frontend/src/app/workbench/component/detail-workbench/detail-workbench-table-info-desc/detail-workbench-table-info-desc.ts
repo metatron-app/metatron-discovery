@@ -1,0 +1,182 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {
+  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnDestroy, OnInit,
+  Output
+} from '@angular/core';
+import { isUndefined } from 'util';
+import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
+import { Alert } from '../../../../common/util/alert.util';
+import { MetadataService } from '../../../../meta-data-management/metadata/service/metadata.service';
+import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
+import { WorkbenchService } from '../../../service/workbench.service';
+
+@Component({
+  selector: 'detail-workbench-table-info-desc',
+  templateUrl: './detail-workbench-table-info-desc.html',
+  // host: {
+  //   '(document:click)': 'onClickHost($event)',
+  // }
+})
+export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent implements OnInit, OnChanges, OnDestroy {
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * Need for finding top value to locate popup
+   * **/
+  private top: string;
+
+  private params: any = {};
+
+  // request reconnect count
+  private _getTableReconnectCount: number = 0;
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  get getTop(): string {
+    return `${this.params['top']}px`;
+  }
+
+  @Input('top')
+  set setTop(value: string) {
+    this.top = value;
+  }
+
+  @Input('tableParams')
+  public set setParams(params: any) {
+    this.params = params;
+  }
+
+  // Table detail
+  public tables: any[] = [];
+
+  @Output()
+  public showLayer: EventEmitter<string> = new EventEmitter();
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Constructor
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(private _metaDataService: MetadataService,
+              protected workbenchService: WorkbenchService,
+              protected element: ElementRef,
+              protected injector: Injector,
+              protected dataconnectionService: DataconnectionService) {
+    super(workbenchService, element, injector);
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Override Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public ngOnInit(): void {
+    // this.getTable();
+  }
+
+  public ngOnChanges(): void {
+    // 테이블 조회
+    !isUndefined(this.params['dataconnection'].id) && this._getTable();
+  }
+
+  public ngOnDestroy() {
+
+    // Destory
+    super.ngOnDestroy();
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // close the popup
+  public close() {
+    this.showLayer.emit('table-info-close');
+  }
+
+  // public onClickHost(event) {
+  // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
+  // if (!this.elementRef.nativeElement.contains(event.target)) {
+  // 팝업창 닫기
+  // this.showLayer.emit('table-info-schma-close');
+
+  // }
+  // }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 테이블 조회
+   * @private
+   */
+  private _getTable(): void {
+    // 호출 횟수 증가
+    this._getTableReconnectCount++;
+    // 로딩 show
+    this.loadingShow();
+    this.dataconnectionService.getTableInfomation(this.params['dataconnection'].id, this.params['dataconnection'].database, this.params['selectedTable'], WorkbenchService.websocketId, this.page)
+      .then((data) => {
+        // 호출 횟수 초기화
+        this._getTableReconnectCount = 0;
+        // 테이블 목록 초기화
+        this.tables = [];
+        // key-pair
+        for (const key in data) {
+          this.tables.push({
+            itemkey: key,
+            item: data[key]
+          });
+        }
+        // 메타데이터 조회
+        this._getMetaData();
+      })
+      .catch((error) => {
+        if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getTableReconnectCount <= 5) {
+          this.webSocketCheck(() => {
+            this._getTable();
+          });
+        } else {
+          this.commonExceptionHandler(error);
+          // close
+          this.close();
+        }
+      });
+  }
+
+  /**
+   * 메타데이터 조회
+   * @private
+   */
+  private _getMetaData(): void {
+    this._metaDataService.getMetadataByConnection(this.params['dataconnection'].id, this.params['dataconnection'].database, this.params['selectedTable'])
+      .then((result) => {
+        // tables 최상단에 메타데이터 이름 push
+        result.length > 0 && this.tables.unshift({
+          itemkey: this.translateService.instant('msg.bench.ui.table.metadata.name'),
+          item: result[0]['name']
+        });
+        // 로딩 hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
+  }
+}

@@ -1,0 +1,32 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-sort" [ngClass]="{'ddp-selected': isShowSelect}">
+  <a href="javascript:" class="ddp-icon-sort" (click)="isShowSelect = !isShowSelect "></a>
+  <!-- hover -->
+  <div class="ddp-ui-tooltip-info">
+    <em class="ddp-icon-view-top"></em>
+    {{'msg.space.ui.soring.order' | translate}}
+  </div>
+  <!-- //hover -->
+  <!-- popup -->
+  <div class="ddp-wrap-popup2">
+    <ul class="ddp-list-popup">
+      <li *ngFor="let item of array" [ngClass]="{'ddp-selected': selectedItem && (isStringArray ? item : item[viewKey]) === (isStringArray ? selectedItem : selectedItem[viewKey])}">
+        <a href="javascript:" (click)="selected(item);">{{isStringArray ? item : item[viewKey]}}<em class="ddp-icon-check"></em></a>
+      </li>
+    </ul>
+  </div>
+  <!-- //popup -->
+</div>

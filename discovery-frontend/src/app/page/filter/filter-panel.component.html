@@ -1,0 +1,105 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-chart-side ddp-area-boardside ddp-show">
+  <!-- 제목 영역 -->
+  <div class="ddp-ui-side-title">
+    {{'msg.board.filter.title.chart-filter' | translate}}
+    <span class="ddp-data-num">
+      <em>{{(boardFilters ? boardFilters.length : 0) + (chartFilters ? chartFilters.length : 0)}}</em>
+    </span>
+    <a href="javascript:" class="ddp-icon-add" (click)="openUpdateFilterPopup.emit()">
+      <div class="ddp-ui-tooltip-info ddp-down">
+        <em class="ddp-icon-view-top"></em>
+        {{'msg.board.ui.filter.add-edit.filter' | translate}}
+      </div>
+    </a>
+  </div>
+  <!-- // 제목 영역 -->
+  <!-- 필터 목록 영역 -->
+  <div class="ddp-wrap-downmenu">
+    <div class="ddp-box-down ddp-common" >
+      <!-- 대시보드 필터 목록 -->
+      <div class="ddp-wrap-divide">
+        <!-- divide -->
+        <div class="ddp-ui-divide">
+          <!-- dropdown -->
+          <!-- 선택시 ddp-selected 추가 -->
+          <div [class.ddp-selected]="isOpenBoardFilterList"
+               class="ddp-dropdown-filter">
+            <div (click)="isOpenBoardFilterList = !isOpenBoardFilterList" class="ddp-none-bar ddp-select-bar">
+              {{ 'msg.board.filter.title.global-filter' | translate }} <em class="ddp-icon-view"></em>
+            </div>
+            <!-- 컨텐츠 영역 -->
+            <div class="ddp-dropdown-data">
+              <!-- list -->
+              <div *ngFor="let filter of boardFilters" class="ddp-list-data">
+                <!-- name -->
+                <div class="ddp-data-name">
+                  <em *ngIf="filter.type !== 'bound'" class="{{getDimensionTypeIconClass(filter['fieldObj'])}}" ></em>
+                  <em *ngIf="filter.type === 'bound'" class="{{getMeasureTypeIconClass(filter['fieldObj'])}}" ></em>
+                  {{filter.field}}
+                </div>
+                <!-- //name -->
+                <div class="ddp-data-det" [innerHTML]="filter['panelContents']"></div>
+              </div>
+              <!-- //list -->
+            </div>
+            <!-- // 컨텐츠 영역 -->
+          </div>
+          <!-- //dropdown -->
+        </div>
+      </div>
+      <!-- // 대시보드 필터 목록 -->
+      <!-- 차트 필터 목록 -->
+      <div *ngFor="let filter of chartFilters;trackBy:trackByFn" class="ddp-wrap-divide">
+        <time-filter-panel
+          *ngIf="filterUtil.isTimeFilter(filter)"
+          [filter]="filter"
+          [dashboard]="dashboard"
+          [chartFilters]="chartFilters"
+          [isDashboardMode]="false"
+          (changeGlobalToChartEvent)="changeGlobalToChartEvent.emit($event)"
+          (openUpdateFilterPopupEvent)="openUpdateFilterPopup.emit($event)"
+          (updateFilterEvent)="updateFilterEvent.emit($event)"
+          (deleteFilterEvent)="deleteFilterEvent.emit($event)">
+        </time-filter-panel>
+        <inclusion-filter-panel
+          *ngIf="filter.type === 'include'"
+          [filter]="filter"
+          [dashboard]="dashboard"
+          [chartFilters]="chartFilters"
+          [isDashboardMode]="false"
+          (changeGlobalToChartEvent)="changeGlobalToChartEvent.emit($event)"
+          (openUpdateFilterPopupEvent)="openUpdateFilterPopup.emit($event)"
+          (updateFilterEvent)="updateFilterEvent.emit($event)"
+          (deleteFilterEvent)="deleteFilterEvent.emit($event)">
+        </inclusion-filter-panel>
+        <bound-filter-panel
+          *ngIf="filter.type === 'bound'"
+          [filter]="filter"
+          [dashboard]="dashboard"
+          [chartFilters]="chartFilters"
+          [isDashboardMode]="false"
+          (changeGlobalToChartEvent)="changeGlobalToChartEvent.emit($event)"
+          (openUpdateFilterPopupEvent)="openUpdateFilterPopup.emit($event)"
+          (updateFilterEvent)="updateFilterEvent.emit($event)"
+          (deleteFilterEvent)="deleteFilterEvent.emit($event)">
+        </bound-filter-panel>
+      </div>
+      <!-- // 차트 필터 목록 -->
+    </div>
+  </div>
+  <!-- // 필터 목록 영역 -->
+</div>

@@ -1,0 +1,213 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-boardside-in">
+  <div class="ddp-area-boardside">
+    <!-- Title -->
+    <div class="ddp-ui-boardside-title">
+      {{'msg.board.th.Layout' | translate}}
+    </div>
+    <!-- // Title -->
+
+    <!-- Layout Config Contents -->
+    <div class="ddp-wrap-downmenu" style="padding-right:20px;">
+
+      <div class="ddp-box-down">
+        <!-- Layout 형태 결정 메뉴 -->
+        <div class="ddp-ui-option-down ddp-selected">
+          <!-- Layout 형태 결정 메뉴 - Title -->
+          <div class="ddp-ui-down-title">
+            <div class="ddp-ui-down-title-in">
+            <span class="ddp-txt-down-title">
+              <em class="ddp-icon-menumove"></em>{{'msg.comm.ui.dashboard' | translate}}
+            </span>
+            </div>
+          </div>
+          <!-- // Layout 형태 결정 메뉴 - Title -->
+          <!-- Layout 형태 결정 메뉴 - Contents -->
+          <div class="ddp-ui-down-contents">
+            <!-- part -->
+            <div class="ddp-list-part">
+              <div class="ddp-label-txt2">{{'msg.board.th.board' | translate}}</div>
+              <ul class="ddp-list-checktype ddp-overflow-visible">
+                <!-- Layout 형태 결정 메뉴 - Fit to screen -->
+                <li>
+                  <label class="ddp-label-radio">
+                    <input type="radio" name="BoardFitType"
+                           [checked]="isFitToScreen()"
+                           (click)="setFitToScreen()" >
+                    <i class="ddp-icon-radio"></i>
+                    <span class="ddp-txt-radio">{{'msg.board.li.fit-to-screen' | translate}}</span>
+                  </label>
+                </li>
+                <!-- // Layout 형태 결정 메뉴 - Fit to screen -->
+                <!-- Layout 형태 결정 메뉴 - Fit to Height -->
+                <li>
+                  <div class="ddp-wrap-option-multy ddp-clear">
+                    <div class="ddp-col-8">
+                    <span class="ddp-label-txt ddp-info">
+                      <!-- checkbox -->
+                      <label class="ddp-label-radio">
+                        <input type="radio" name="BoardFitType"
+                               [checked]="isFitToHeight()" (click)="setFitToHeight()" >
+                        <i class="ddp-icon-radio"></i>
+                        <span class="ddp-txt-radio">{{'msg.board.li.fit-to-height' | translate}}</span>
+                      </label>
+                      <!-- //checkbox -->
+                      <span class="ddp-txt-det ddp-det-cursor ddp-hover-tooltip">
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip-info ddp-down">
+                          <em class="ddp-icon-view-top"></em>{{'msg.board.ui.fit-to-height.tooltip' | translate}}
+                        </div>
+                        <!-- //tooltip -->
+                      </span>
+                    </span>
+                    </div>
+                    <div class="ddp-col-4">
+                      <div class="ddp-box-option-input">
+                        <input #inputHeight type="text"
+                               [input-mask]="'number'" [ngModel]="layoutHeight"
+                               (keypress)="setLayoutHeight($event)" (clickOutside)="cancelEditHeight()">
+                        <span class="ddp-txt-input">{{'msg.board.ui.px' | translate}}</span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <!-- // Layout 형태 결정 메뉴 - Fit to Height -->
+              </ul>
+              <!-- Layout 형태 결정 메뉴 - Margin & Interval  -->
+              <div class="ddp-label-txt2">{{'msg.board.th.margin' | translate}}</div>
+              <div class="ddp-box-area">
+                <div class="ddp-box-option-input">
+                  <input #inputMargin type="text"
+                         [input-mask]="'number'" [ngModel]="layoutMargin"
+                         (keypress)="setLayoutMargin($event)" (clickOutside)="cancelEditMargin()" >
+                  <span class="ddp-txt-input">{{'msg.board.ui.px' | translate}}</span>
+                </div>
+              </div>
+              <div *ngIf="isLiveDatasource" class="ddp-label-txt2">{{'msg.board.ui.sync_interval' | translate}}</div>
+              <div *ngIf="isLiveDatasource" class="ddp-box-selectbox">
+                <!-- 선택시 ddp-selected 추가 -->
+                <div class="ddp-type-selectbox" [class.ddp-selected]="isShowIntervalList"
+                      (click)="isShowIntervalList = !isShowIntervalList">
+                  <span class="ddp-txt-selectbox">{{selectedInterval.name}}</span>
+                  <ul class="ddp-list-selectbox ddp-selectdown">
+                    <li *ngFor="let interval of syncIntervals"
+                        (click)="selectSyncInterval(interval)">
+                      <a href="javascript:">{{ interval.name }}</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- // Layout 형태 결정 메뉴 - Margin & Interval -->
+            </div>
+            <!-- //part -->
+          </div>
+          <!-- // Layout 형태 결정 메뉴 - Contents -->
+        </div>
+        <!-- // Layout 형태 결정 메뉴 -->
+
+        <!-- Chart 기능 사용 결정 메뉴 -->
+        <div class="ddp-ui-option-down ddp-selected">
+          <!-- Chart 기능 사용 결정 메뉴 - Title -->
+          <div class="ddp-ui-down-title">
+            <div class="ddp-ui-down-title-in">
+            <span class="ddp-txt-down-title">
+                <em class="ddp-icon-menumove"></em>{{'msg.board.th.chart.layout' | translate}}
+            </span>
+            </div>
+          </div>
+          <!-- // Chart 기능 사용 결정 메뉴 - Title -->
+
+          <!-- Chart 기능 사용 결정 메뉴 - Contents -->
+          <div class="ddp-ui-down-contents ddp-list-sideoption">
+
+            <!-- Chart 기능 사용 결정 메뉴 - Chart Title Y/N -->
+            <div class="ddp-list-sidesub">
+              <div class="ddp-txt-label">{{'msg.board.th.chart.title' | translate}}</div>
+              <div class="ddp-checkbox-auto">
+                <!-- Slide THREE -->
+                <div class="ddp-checkbox-slide ddp-slide-text"
+                     [ngClass]="{'ddp-middle' : isByWidgetFeature( 'showTitle' ) }">
+                  <span class=“ddp-txt-slide”>{{getFeatureLabel('showTitle')}}</span>
+                  <input id="chartTitleFlag" type="checkbox" value="None" name="check"
+                         [checked]="isCheckedFeature( 'showTitle' )"
+                         (click)="featureClickHandler( 'showTitle' )">
+                  <label for="chartTitleFlag">
+                    <span class="ddp-slide"></span>
+                  </label>
+                </div>
+                <!-- //Slide THREE -->
+              </div>
+            </div>
+            <!-- // Chart 기능 사용 결정 메뉴 - Chart Title Y/N -->
+
+            <!-- Chart 기능 사용 결정 메뉴 - Legend Y/N -->
+            <div class="ddp-list-sidesub">
+              <div class="ddp-txt-label">{{'msg.board.th.legend' | translate}}</div>
+              <!-- check auto -->
+              <div class="ddp-checkbox-auto">
+                <!-- Slide THREE -->
+                <div class="ddp-checkbox-slide ddp-slide-text"
+                     [ngClass]="{'ddp-middle' : isByWidgetFeature( 'showLegend' ) }">
+                  <span class=“ddp-txt-slide”>{{getFeatureLabel('showLegend')}}</span>
+                  <input id="legendFlag" type="checkbox" value="None" name="check"
+                         [checked]="isCheckedFeature( 'showLegend' )"
+                         (click)="featureClickHandler( 'showLegend' )">
+                  <label for="legendFlag">
+                    <span class="ddp-slide"></span>
+                  </label>
+                </div>
+                <!-- //Slide THREE -->
+              </div>
+              <!-- //check auto -->
+            </div>
+            <!-- // Chart 기능 사용 결정 메뉴 - Legend Y/N -->
+
+            <!-- Chart 기능 사용 결정 메뉴 - Mini-Map Y/N -->
+            <div class="ddp-list-sidesub">
+              <div class="ddp-txt-label">{{'msg.board.th.mini.map' | translate}}</div>
+
+              <!-- check auto -->
+              <div class="ddp-checkbox-auto">
+                <!-- Slide THREE -->
+                <div class="ddp-checkbox-slide ddp-slide-text"
+                     [ngClass]="{'ddp-middle' : isByWidgetFeature( 'showMinimap' ) }">
+                  <span class=“ddp-txt-slide”>{{getFeatureLabel('showMinimap')}}</span>
+                  <input id="miniMapFlag" type="checkbox" value="None" name="check"
+                         [checked]="isCheckedFeature( 'showMinimap' )"
+                         (click)="featureClickHandler( 'showMinimap' )">
+                  <label for="miniMapFlag">
+                    <span class="ddp-slide"></span>
+                  </label>
+                </div>
+                <!-- //Slide THREE -->
+              </div>
+              <!-- //check auto -->
+            </div>
+            <!-- // Chart 기능 사용 결정 메뉴 - Mini-Map Y/N -->
+
+            <span class="ddp-txt-det">{{'msg.board.ui.layout.description' | translate}}</span>
+
+          </div>
+          <!-- // Chart 기능 사용 결정 메뉴 - Contents -->
+        </div>
+        <!-- // Chart 기능 사용 결정 메뉴 -->
+      </div>
+
+    </div>
+    <!-- // Layout Config Contents -->
+  </div>
+
+</div>

@@ -1,0 +1,53 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-box-grid-detail" >
+  <a href="javascript:" class="ddp-btn-close-s" (click)="closeBtn();"></a>
+  <div class="ddp-data-detailinfo">
+    <span class="ddp-data-name">{{dataset.dsName}}</span>
+  </div>
+  <!-- part -->
+  <div class="ddp-wrap-datadetail">
+    <table class="ddp-dl-detail">
+      <colgroup>
+        <col width="120px">
+        <col width="*">
+      </colgroup>
+      <tbody><tr>
+        <th>{{'msg.comm.detail.created' | translate}}</th>
+        <td>
+          {{dataset.createdTime | mdate:'YYYY-MM-DD'}}
+        </td>
+      </tr>
+      <tr>
+        <th>{{'msg.comm.detail.size' | translate}}</th>
+        <td>
+          <div class="ddp-data-det">
+            {{getTotalBytes(dataset.totalBytes)}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th>{{'msg.comm.detail.rows' | translate}}</th>
+        <td>
+          {{dataset.totalLines}}
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="ddp-wrap-datapreview">
+      <div class="ddp-box-preview" grid-component></div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,513 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-tab-contents">
+  <!-- datadetail -->
+  <div class="ddp-ui-datadetail ddp-border-none">
+    <label class="ddp-label-detail">{{'msg.storage.ui.data.info' | translate}}</label>
+    <!-- Data info -->
+    <table class="ddp-table-detail">
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+      <!-- data type -->
+      <tr>
+        <th>
+          {{'msg.storage.th.data_type' | translate}}
+        </th>
+        <td>
+          {{getSrcType}}
+        </td>
+      </tr>
+      <!-- //data type -->
+      <!-- 상태 -->
+      <tr *ngIf="getConnType.toString() === 'ENGINE'">
+        <th>
+          {{'msg.storage.th.status' | translate}}
+        </th>
+        <td>
+          {{getSourceStatus(datasource)}} ({{getSourceStatusDesc(datasource)}})
+        </td>
+      </tr>
+      <!-- //상태 -->
+      <!-- size -->
+      <tr *ngIf="(isEnabled() || isDisabled()) && getSummary">
+        <th>
+          {{'msg.comm.detail.size' | translate}}
+        </th>
+        <td>
+          {{bytesToSize(getSummary.size)}}
+        </td>
+      </tr>
+      <!-- //size -->
+      <!-- duration -->
+      <tr *ngIf="(isEnabled() || isDisabled()) && getSummary">
+        <th>
+          {{'msg.storage.th.duration' | translate}}
+        </th>
+        <td>
+          {{getSummary.ingestionMinTime}} ~ {{getSummary.ingestionMaxTime}}
+        </td>
+      </tr>
+      <!-- //duration -->
+      <!-- Granularity -->
+      <tr>
+        <th>
+          {{'msg.storage.th.gran.settings' | translate}}
+        </th>
+        <td>
+          <span class="ddp-data-form">{{'msg.storage.th.segment.gran' | translate}} : {{getSegGranularity}}</span>
+          <span class="ddp-data-form">{{'msg.storage.th.query.gran' | translate}} : {{getGranularity}}</span>
+        </td>
+      </tr>
+      <!-- //Granularity -->
+      <!-- 히스토그램 -->
+      <tr *ngIf="isEnabled() && !isLinkedSource()">
+        <th>
+          {{'msg.storage.th.histogram' | translate}}
+        </th>
+        <td>
+          <div class="ddp-box-histogram">
+            <div class="ddp-box-graph" #histogram>
+              <div class="ddp-data-empty">
+                <span class="ddp-data-contents ">{{'msg.storage.ui.no.data' | translate}}</span>
+              </div>
+            </div>
+            <div class="ddp-wrap-link-detail" (clickOutside)="detailFl=false">
+              <a href="javascript:" class="ddp-link-detail" (click)="detailFl = !detailFl">{{'msg.storage.th.detail' | translate}}</a>
+              <!-- layout -->
+              <div class="ddp-box-layout4" style="display:block;" *ngIf="detailFl">
+                <a href="javascript:" class="ddp-btn-close" (click)="detailFl = false"></a>
+                <div class="ddp-wrap-data-detail">
+                  <div class="ddp-ui-top-title">
+                    {{'msg.storage.ui.title.data.detail' | translate}}
+                  </div>
+                  <ul class="ddp-list-data-detail">
+                    <!-- 데이터가 없는경우 -->
+                    <li *ngIf="!getSummary">
+                      {{'msg.storage.ui.no.data' | translate}}
+                    </li>
+                    <!-- //데이터가 없는경우 -->
+                    <li *ngIf="getSummary">
+                      <span class="ddp-data-date">Size</span>
+                      <span class="ddp-data-size">{{getSummary.size}}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- //layout -->
+            </div>
+            <!-- //link detail -->
+          </div>
+        </td>
+      </tr>
+      <!-- //히스토그램 -->
+      </tbody>
+    </table>
+    <!-- //Data info -->
+    <!-- Permission -->
+    <div class="ddp-wrap-table-detail" *ngIf="isEnabled() || isDisabled()">
+      <!-- edit -->
+      <div class="ddp-wrap-edit3 ddp-type">
+        <label class="ddp-label-type ddp-normal">{{'msg.storage.ui.permission' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <label class="ddp-label-checkbox">
+            <input type="checkbox" [checked]="getPublished" (click)="confirmModalEvent('published'); $event.preventDefault()">
+            <i class="ddp-icon-checkbox"></i>
+            <span class="ddp-txt-checkbox">{{'msg.storage.ui.permission.choice' | translate}}</span>
+          </label>
+          <div class="ddp-wrap-data-group" *ngIf="!getPublished">
+            <a href="javascript:" class="ddp-link-edit2" (click)="setWorkspaceOpen()">{{'msg.storage.btn.edit' | translate}}</a>
+            <!-- data group -->
+            <span class="ddp-data-group">
+                <em class="ddp-icon-user-s2"></em>
+                <strong>{{getLinkedWorkspaces ? getLinkedWorkspaces : 0}}</strong> {{'msg.storage.ui.conn.create.workspace' | translate}}
+            </span>
+          </div>
+          <div class="ddp-wrap-data-group" *ngIf="getPublished">
+            <span class="ddp-data-group">
+                <em class="ddp-icon-user-s2"></em>
+                {{'msg.storage.ui.conn.create.all.workspace' | translate}}
+            </span>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+    </div>
+    <!-- //Permission -->
+    <!-- file -->
+    <div class="ddp-wrap-table-detail" *ngIf="isFileType()">
+      <label class="ddp-label-detail">{{'msg.storage.ui.ingestion.info' | translate}}</label>
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="170px" />
+          <col width="*" />
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            {{'msg.storage.th.master.data' | translate}}
+          </th>
+          <td>
+            <!-- edit -->
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getFormat.type}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //edit -->
+            <!-- edit -->
+            <!--<div class="ddp-wrap-edit3 ddp-type">-->
+            <!--<label class="ddp-label-type">File name-->
+            <!--</label>-->
+            <!--&lt;!&ndash; edit option &ndash;&gt;-->
+            <!--<div class="ddp-ui-edit-option">-->
+            <!--파일이름-->
+            <!--</div>-->
+            <!--&lt;!&ndash; //edit option &ndash;&gt;-->
+            <!--</div>-->
+            <!--&lt;!&ndash; //edit &ndash;&gt;-->
+            <!--&lt;!&ndash; edit &ndash;&gt;-->
+            <!--<div class="ddp-wrap-edit3 ddp-type" *ngIf="getFormat.type === 'excel'">-->
+            <!--<label class="ddp-label-type">Sheet-->
+            <!--</label>-->
+            <!--&lt;!&ndash; edit option &ndash;&gt;-->
+            <!--<div class="ddp-ui-edit-option">-->
+            <!--시트이름-->
+            <!--</div>-->
+            <!--&lt;!&ndash; //edit option &ndash;&gt;-->
+            <!--</div>-->
+            <!-- //edit -->
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- //file -->
+    <!-- Hive -->
+    <div class="ddp-wrap-table-detail" *ngIf="isHiveType()">
+      <label class="ddp-label-detail">{{'msg.storage.ui.ingestion.info' | translate}}</label>
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="170px" />
+          <col width="*" />
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            {{'msg.storage.th.master.data' | translate}}
+          </th>
+          <td>
+            <!-- type -->
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getSrcType}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //type -->
+            <!-- Database -->
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.storage.li.db' | translate}} / {{'msg.storage.btn.table' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getStagingDbSource}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //Database -->
+            <!-- Partition keys -->
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.storage.th.partition-keys' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getPartitionKeys()}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //Partition keys -->
+            <!-- Partition keys -->
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.storage.th.advanced.setting' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getAdvancedSettingLabel()}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //Partition keys -->
+            <!-- Data range -->
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.storage.th.data-range' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getDataRangeLabel()}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //Data range -->
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- //Hive -->
+    <!-- JDBC -->
+    <div class="ddp-wrap-table-detail" *ngIf="isJdbcType()">
+      <label class="ddp-label-detail">{{'msg.storage.ui.ingestion.info' | translate}}</label>
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="170px" />
+          <col width="*" />
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            {{'msg.storage.th.master.data' | translate}}
+          </th>
+          <td *ngIf="getConnection; else etc">
+            <!-- edit -->
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getConnection.implementor}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //edit -->
+            <!-- host -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="isDefaultType()">
+              <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getConnection.hostname}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //host -->
+            <!-- port -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="isDefaultType()">
+              <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getConnection.port}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //port -->
+            <!-- URL -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="!isDefaultType()">
+              <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getConnection.url}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //URL -->
+            <!-- database -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="isDefaultType() && getConnection.database">
+              <label class="ddp-label-type">{{'msg.storage.li.db' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getConnection.database}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //database -->
+            <!-- catalog -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="isDefaultType() && getConnection.catalog">
+              <label class="ddp-label-type">{{'msg.storage.th.catalog' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getConnection.catalog}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //catalog -->
+            <!-- sid -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="isDefaultType() && getConnection.sid">
+              <label class="ddp-label-type">{{'msg.storage.th.sid' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getConnection.sid}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //sid -->
+            <!-- edit -->
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.storage.li.db' | translate}} / {{'msg.storage.btn.table' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                <div class="ddp-data-detail">
+                  <span class="ddp-txt-detail">{{getIngestionDatabase}} / {{getIngestionTableOrQuery}}
+                  <a href="javascript:" class="ddp-link-detail" *ngIf="getIngestionDataType === 'QUERY'"
+                     (click)="queryDetailOpen()"> {{'msg.storage.btn.detail' | translate}} &gt;</a>
+                  </span>
+                </div>
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //edit -->
+            <!-- JDBC URL -->
+            <div class="ddp-wrap-edit3 ddp-type" *ngIf="getConnection">
+              <label class="ddp-label-type">{{'msg.storage.th.jdbc.url' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                <div class="ddp-data-detail">
+                  <span class="ddp-txt-detail">{{getConnection.connectUrl}}
+                  </span>
+                </div>
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //JDBC URL -->
+          </td>
+          <ng-template #etc>
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                {{getSrcType}}
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- data Type -->
+            <div class="ddp-wrap-edit3 ddp-type">
+              <label class="ddp-label-type">{{'msg.storage.li.db' | translate}} / {{'msg.storage.btn.table' | translate}}
+              </label>
+              <!-- edit option -->
+              <div class="ddp-ui-edit-option">
+                <div class="ddp-data-detail">
+                  <span class="ddp-txt-detail">{{getIngestionDatabase}} / {{getIngestionTableOrQuery}}
+                    <a href="javascript:" class="ddp-link-detail" *ngIf="getIngestionDataType === 'QUERY'"
+                       (click)="queryDetailOpen()"> {{'msg.storage.btn.detail' | translate}} &gt;</a>
+                  </span>
+                </div>
+              </div>
+              <!-- //edit option -->
+            </div>
+            <!-- //data Type -->
+          </ng-template>
+        </tr>
+        <!-- //Engine 형 -->
+        <tr *ngIf="getConnType.toString() === 'ENGINE' && getIngestion">
+          <th>
+            {{'msg.storage.th.ingestion-settings' | translate}}
+          </th>
+          <td>
+            <!-- read only -->
+            <div class="ddp-wrap-edit3 ddp-type">
+              <div class="ddp-ui-edit-option">
+                <div class="ddp-box-sub">
+                  <div class="ddp-wrap-boxdata">
+                    <!--<label class="ddp-label-type">Ingestion settings</label>-->
+                    <div class="ddp-box-form">
+                      <span class="ddp-data-txt">{{getIngestionType === 'single' ? 'Ingest once' : 'Ingest periodically'}}</span>
+                      <ul class="ddp-list-sub">
+                        <li>
+                          {{'msg.storage.th.scope-ingest' | translate}} : {{getIngestionScopeLabel()}}
+                        </li>
+                        <li *ngIf="getIngestionPeriod">
+                          {{'msg.storage.th.batch-cycle' | translate}} : {{getIngestionBatchLabel()}} /
+                          <span *ngIf="getIngestionPeriod.frequency === 'HOURLY'">{{getIngestionPeriod.value}}</span>
+                          <span *ngIf="getIngestionPeriod.frequency === 'MINUTELY'">{{getIngestionPeriod.value}}</span>
+                          <span *ngIf="getIngestionPeriod.frequency === 'DAILY'">{{getIngestionPeriod.time}}</span>
+                          <span *ngIf="getIngestionPeriod.frequency === 'WEEKLY'">{{getIngestionBatchWeekLabel}} / {{getIngestionPeriod.time}}</span>
+                          <span *ngIf="getIngestionPeriod.frequency === 'EXPR'">{{getIngestionPeriod.value}}</span>
+                          <a href="javascript:" class="ddp-link-detail" (click)="batchHistoryOpen()"> {{'msg.storage.ui.batch-history'| translate }} &gt;</a>
+                        </li>
+                        <li *ngIf="getIngestionSize">
+                          {{'msg.storage.th.max-query-row' | translate}} : {{getIngestionSize}}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- //read only -->
+          </td>
+        </tr>
+        <!-- //Engine 형 -->
+        <!-- Link 형 -->
+        <tr  *ngIf="getConnType.toString() === 'LINK'">
+          <th>
+            {{'msg.storage.th.dsource-expire' | translate}}
+          </th>
+          <td>
+            <!-- read only -->
+            <div class="ddp-wrap-edit3 ddp-type">
+              <div class="ddp-ui-edit-option">
+                <div class="ddp-box-sub">
+                  <div class="ddp-wrap-boxdata">
+                    <div class="ddp-box-form">
+                      <ul class="ddp-list-sub">
+                        <li>
+                          {{'msg.storage.th.time-interval' | translate}} : {{getIngestionExpired}}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- //read only -->
+          </td>
+        </tr>
+        <!-- //Link 형 -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- //datadetail -->
+</div>
+
+<!-- 워크스페이스 지정 모달 -->
+<app-set-workspace-published
+  id="set-workspace-modal"
+  (complete)="updateWorkspaces($event)"></app-set-workspace-published>
+<!-- 쿼리 디테일 -->
+<query-detail></query-detail>
+<!-- 배치 히스토리 -->
+<batch-history id="batch-history-modal"></batch-history>
+
+

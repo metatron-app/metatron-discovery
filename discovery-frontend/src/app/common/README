@@ -1,0 +1,8 @@
+## PIPE
+
+- base-filter : array를 특정 키또는 값으로 필터링하는 기능 제공
+  ex) *ngFor="let book of workspace.books | baseFilter:['key', 'value', isExcept:boolean]"
+  * String array는 key를 null로 보내면 됨. isExcept의 기본은 포함이고 true로 보내면 제외한 array를 반환
+  * value가 all일 경우 필터링 없이 전체반환 임시로 all로 잡아둔거고 문제 발생시 다른 키로 재정의 해야함
+
+## SERVICE

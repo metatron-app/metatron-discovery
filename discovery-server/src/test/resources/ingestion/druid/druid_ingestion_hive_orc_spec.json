@@ -1,0 +1,83 @@
+{
+  "type": "index_hynix",
+  "spec": {
+    "dataSchema": {
+      "metricsSpec": [
+        {
+          "type": "count",
+          "name": "count"
+        },
+        {
+          "fieldName": "m1",
+          "type": "sum",
+          "inputType": "double",
+          "name": "m1"
+        },
+        {
+          "fieldName": "m2",
+          "type": "sum",
+          "inputType": "double",
+          "name": "m2"
+        }
+      ],
+      "granularitySpec": {
+        "queryGranularity": "DAY",
+        "segmentGranularity": "MONTH",
+        "type": "uniform",
+        "intervals": [
+          "2011-01-01/2018-01-01"
+        ]
+      },
+      "parser": {
+        "type": "orc",
+        "parseSpec": {
+          "format": "timeAndDims",
+          "timestampSpec": {
+            "column": "time",
+            "format": "auto"
+          },
+          "dimensionsSpec": {
+            "dimensions": [
+              "d", "sd"
+            ],
+            "dimensionExclusions": [],
+            "spatialDimensions": []
+          }
+        },
+        "typeString": "struct<time:date,d:string,sd:string,m1:double,m2:double>"
+      },
+      "dataSource": "test_hive_table_orc_parti_01"
+    },
+    "tuningConfig": {
+      "jobProperties": {
+        "mapreduce.map.memory.mb": "4096",
+        "mapreduce.task.files.preserve.filepattern": ".*",
+        "mapreduce.reduce.memory.mb": "4096",
+        "keep.task.files.pattern": ".*",
+        "mapreduce.reduce.java.opts": "-server -Xmx4096m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps",
+        "mapreduce.map.java.opts": "-server -Xmx4096m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
+      },
+      "type": "hadoop",
+      "ingestionMode":"REDUCE_MERGE",
+      "useCombiner":false,
+      "buildV9Directly":true,
+      "maxRowsInMemory":3000000,
+      "maxOccupationInMemory":1024000000,
+      "maxShardLength":256000000,
+      "partitionsSpec":{
+        "type" : "sized",
+        "xnumShards" : 4,
+        "targetPartitionSize":0,
+        "XnumBackgroundPersistThreads":10
+      }
+    },
+    "ioConfig": {
+      "inputSpec": {
+        "type": "hive",
+        "source": "default.sample_ingestion_time_orc",
+        "metastoreUri": "thrift://metatron-poc-h03:9083"
+      },
+      "type": "hadoop"
+    }
+  }
+}

@@ -1,0 +1,163 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">{{'msg.dp.ui.union' | translate}}
+        <span class="ddp-txt-det"> {{'msg.dp.ui.union.description' | translate}}</span>
+      </span>
+
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black"
+           (click)="applyRule()"
+           [ngClass]="{'ddp-disabled': !isValidUnionState || unionDatasets.length === 0 }" >{{'msg.dp.ui.union' | translate}}</a>
+      </div>
+      <!-- det -->
+
+    </div>
+    <!-- //title -->
+    <div class="ddp-ui-popup-contents">
+      <!-- 유니온 -->
+      <div class="ddp-wrap-union">
+        <!-- output -->
+        <div class="ddp-ui-union-output">
+          <!-- title -->
+          <div class="ddp-ui-title">
+            {{'msg.dp.ui.union.output' | translate}}
+          </div>
+          <!-- //title -->
+          <!-- total -->
+          <div class="ddp-data-total">
+            <span class="ddp-data-num">{{resultFields.length}}</span> {{'msg.dp.ui.columns.in.union' | translate}}
+          </div>
+          <!-- //total -->
+
+          <!-- 유니온 리스트 -->
+          <div class="ddp-wrap-union-list">
+            <!-- 클릭시 li class="ddp-selected" 추가 -->
+            <ul class="ddp-list-union" *ngFor="let colInfo of resultFields; let i = index">
+              <li [ngClass]="{'ddp-selected':editResultColumnName == colInfo.name}">
+                <div class="ddp-box-column" >
+                  <em class="ddp-icon-type-ab"></em>
+                  <span class="ddp-data-column">{{colInfo.name}}</span>
+                  <!--<input type="text"  placeholder="Please enter column name" class="ddp-input-column" (blur)="updateResultColumnName($event, i)">-->
+                  <!--<em class="ddp-icon-control-edit" (click)="focusResultColumnName($event, colInfo.name)" ></em>-->
+                </div>
+              </li>
+            </ul>
+
+          </div>
+          <!-- //유니온 리스트 -->
+        </div>
+        <!-- //output -->
+        <!-- set -->
+        <div class="ddp-ui-union-set">
+          <!-- title -->
+          <div class="ddp-ui-title">
+            {{'msg.dp.ui.ds.to.union' | translate : {value : unionDatasets.length + 1} }}
+            <a href="javascript:" class="ddp-btn-line" (click)="openPopup()"><em class="ddp-icon-link-plus"></em>{{'msg.dp.btn.add.ds' | translate}}</a>
+          </div>
+          <!-- //title -->
+          <div class="ddp-wrap-union-set">
+            <!--
+                매칭이 안되는 컬럼 class="ddp-box-column" 에 ddp-disabled 추가
+                1개 이상의 컬럼이 drop될 경우, 해당 라인에 BG 표시 : tr class="ddp-disabled " 추가
+            -->
+            <div class="ddp-ui-union-table">
+              <!-- Master dataset info -->
+              <table class="ddp-table-union">
+                <thead>
+                <tr>
+                  <th>
+                    <div class="ddp-wrap-top">
+                      <span class="ddp-data-name">{{masterDataset.dsName}}</span>
+                      <div class="ddp-ui-value">
+                        <div class="ddp-data-value">
+                          <strong>{{masterDataset.gridData.fields.length}}</strong>/{{masterDataset.gridData.fields.length}}
+                        </div>
+
+                      </div>
+                    </div>
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of masterDataset.gridData.fields">
+                  <td>
+                    <div class="ddp-box-column">
+                      <em class="ddp-icon-type-ab"></em>
+                      <span class="ddp-data-column">{{data.name}}</span>
+                    </div>
+                  </td>
+                </tr>
+                <!--<tr class="ddp-disabled"><td></td></tr>-->
+                <!--<tr class="ddp-disabled"><td></td></tr>-->
+                <!--<tr class="ddp-disabled"><td></td></tr>-->
+                </tbody>
+              </table>
+              <!-- // Master dataset info -->
+              <!-- Union dataset info -->
+              <table class="ddp-table-union">
+                <!-- Union datasets header -->
+                <thead>
+                <tr>
+                  <th *ngFor="let dsItem of unionDatasets" >
+                    <div class="ddp-wrap-top">
+                      <span class="ddp-data-name">{{dsItem.dsName}}</span>
+                      <div class="ddp-ui-value">
+                        <div class="ddp-data-value">
+                          <strong>{{dsItem.validCount}}</strong>/{{dsItem.gridData ? dsItem.gridData.fields.length : ''}}
+                        </div>
+                        <em class="ddp-icon-control-cut" (click)="deleteDataset(dsItem)"></em>
+                      </div>
+                    </div>
+                  </th>
+                </tr>
+                </thead>
+                <!-- // Union datasets header -->
+                <!-- Union datasets fields -->
+                <tbody>
+                <tr *ngFor="let fieldList of fieldMatrix" [class.ddp-disabled]="isDisableFieldRow(fieldList)">
+                  <td *ngFor="let field of fieldList" >
+                    <div [ngClass]="{
+                            'ddp-box-column' : 'LACK' !== field.unionType,
+                            'ddp-disabled' : 'CORRECT' !== field.unionType
+                          }" >
+                      <em *ngIf="''!==field.name && 'NONE' !== field.unionType" class="ddp-icon-type-ab"></em>
+                      <span class="ddp-data-column">{{field.name}}</span>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+                <!-- // Union datasets fields -->
+              </table>
+              <!-- // Union dataset info -->
+            </div>
+
+          </div>
+        </div>
+        <!-- //set -->
+
+      </div>
+      <!-- //유니온 -->
+    </div>
+  </div>
+</div>
+<app-union-add-datasets
+  [editInfo]="editInfo" [isUpdate]="isUpdate" [existingDatasets]="datasets" [dataflow]="dataflow" (complete)="selectedDatasets($event);" *ngIf="isAddDatasetsModal">
+</app-union-add-datasets>

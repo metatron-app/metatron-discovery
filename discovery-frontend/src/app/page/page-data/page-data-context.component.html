@@ -1,0 +1,98 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- LNB > DATA > Field Context Menu layer more -->
+<div #fieldDetailLayer [style.display]="isShowLayer? 'block' : 'none'" class="ddp-ui-layer-box ddp-layer-more">
+
+  <em *ngIf="isShowLayer && selectedField.type !== 'user_expr'" (click)="columDetail(selectedField)" class="ddp-btn-info ddp-type"></em>
+
+  <!-- MetaData -->
+  <div *ngIf="isShowLayer" class="ddp-detail-more">
+    <dl class="ddp-dl-more">
+      <dt>Logical column name</dt>
+      <dd>{{selectedField.uiMetaData?.name}}</dd>
+    </dl>
+    <dl class="ddp-dl-more">
+      <dt>Logical type</dt>
+      <dd>{{selectedField.uiMetaData?.type}}</dd>
+    </dl>
+  </div>
+  <!-- // MetaData -->
+
+  <ul *ngIf="isShowLayer" (clickOutside)="isShowLayer=false"
+      [excludeBeforeClick]="true" [exclude]="'.ddp-icon-control-more'"
+      class="ddp-list-layer-option ddp-list-radio" >
+    <!--
+    <li *ngIf="selectedField.type !== 'user_expr'">
+      <a (click)="columDetail(selectedField)" href="javascript:">
+        {{'msg.page.ui.col.detail' | translate}}
+        <em class="ddp-btn-info"></em>
+      </a>
+    </li>
+    -->
+    <!-- 필드명 Alias -->
+    <li *ngIf="isAllowNameAlias(selectedField)" [class.ddp-hover]="fix2DepthContext">
+      <a href="javascript:">
+        Alias
+        <div class="ddp-data-result">
+          {{selectedField.nameAlias ? selectedField.nameAlias.nameAlias : 'NONE'}}
+          <em class="ddp-icon-view"></em>
+        </div>
+      </a>
+      <!-- 2depth (알라ㅣ아스 있을 경우) -->
+      <div class="ddp-ui-layer-sub">
+        <div class="ddp-box-layer">
+          <input [(ngModel)]="editingFieldAlias" type="text" class="ddp-input-typebasic"
+                 placeholder="{{selectedField.name}}"
+                 (focus)="fix2DepthContext = true;" (keyup.enter)="onAliasApply($event)"/>
+          <a *ngIf="selectedField.nameAlias && selectedField.nameAlias.fieldName !== selectedField.nameAlias.nameAlias"
+             (click)="onAliasReset($event)"
+             href="javascript:"
+             class="ddp-btn-line">{{'msg.page.btn.reset' | translate}}</a>
+          <a href="javascript:"
+             (click)="onAliasApply($event)"
+             [class.ddp-full]="selectedField.nameAlias && selectedField.nameAlias.fieldName === selectedField.nameAlias.nameAlias"
+             class="ddp-btn-solid">{{'msg.page.btn.apply' | translate}}</a>
+        </div>
+      </div>
+      <!-- // 2depth -->
+    </li>
+    <!-- 필드명 Alias -->
+    <!-- 필드값 Alias -->
+    <li *ngIf="isAllowValueAlias(selectedField)" >
+      <a (click)="showAliasValue(selectedField)" href="javascript:">
+        {{'msg.board.datasource.alias.for.value.title' | translate}}
+      </a>
+    </li>
+    <!-- 필드값 Alias -->
+    <!-- custom dimension 일때 -->
+    <li *ngIf="selectedField.type =='user_expr'">
+      <a href="javascript:">
+        {{'msg.page.th.edit-cond' | translate}}
+        <div class="ddp-data-result">
+          <span class="ddp-txt-result">{{unescapeCustomColumnExpr(selectedField.expr)}}</span>
+          <em (click)="customFieldEmit(selectedField)" class="ddp-btn-option"></em>
+        </div>
+      </a>
+    </li>
+    <li *ngIf="selectedField.type === 'user_expr'">
+      <a (click)="deleteCustomField()" href="javascript:">
+        {{'msg.page.btn.del' | translate}}
+      </a>
+    </li>
+  </ul>
+</div>
+<!-- //LNB > DATA > Field Context Menu layer more -->
+
+<popup-value-alias (changeAlias)="changeValueAlias($event)"></popup-value-alias>

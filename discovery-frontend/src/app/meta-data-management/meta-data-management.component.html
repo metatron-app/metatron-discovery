@@ -1,0 +1,51 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<em class="ddp-bg-back"></em>
+<div class="ddp-ui-contents-in">
+  <!-- top -->
+  <div class="ddp-ui-contents-top">
+    <div class="ddp-ui-title">
+      {{'msg.metadata.ui.title' | translate}}
+    </div>
+    <!-- tab -->
+    <ul class="ddp-list-top-tab">
+      <li [class.ddp-selected]="tabId === 'metadata'">
+        <a href="javascript:" (click)="gotoTab('metadata')">{{'msg.comm.menu.manage.metadata.metadata' | translate}}</a>
+      </li>
+      <li [class.ddp-selected]="tabId === 'column-dictionary'">
+        <a href="javascript:" (click)="gotoTab('column-dictionary')">{{'msg.metadata.ui.dictionary.title' | translate}}</a>
+      </li>
+      <li [class.ddp-selected]="tabId === 'code-table'">
+        <a href="javascript:" (click)="gotoTab('code-table')">{{'msg.metadata.ui.codetable.title' | translate}}</a>
+      </li>
+      <li [class.ddp-selected]="tabId === 'catalog'">
+        <a href="javascript:" (click)="gotoTab('catalog')">{{'msg.metadata.ui.catalog' | translate }}</a>
+      </li>
+    </ul>
+    <!-- //tab -->
+  </div>
+  <!-- //top -->
+  <!-- metadata -->
+  <app-metadata *ngIf="tabId === 'metadata'"></app-metadata>
+  <!-- //metadatra -->
+  <!-- column-dictionary -->
+  <app-column-dictionary *ngIf="tabId === 'column-dictionary'"></app-column-dictionary>
+  <!-- //column-dictionary -->
+  <!-- code-table -->
+  <app-code-table *ngIf="tabId === 'code-table'"></app-code-table>
+  <!-- //code-table -->
+
+  <app-catalog *ngIf="tabId === 'catalog'"></app-catalog>
+</div>

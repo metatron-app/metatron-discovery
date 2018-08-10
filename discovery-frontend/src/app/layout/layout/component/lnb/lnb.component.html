@@ -1,0 +1,330 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- lnb -->
+<div class="ddp-layout-lnb" [ngClass]="{'ddp-selected' : isShow}"  (clickOutside)="isShow=false;isShowFolderNavi=false;">
+  <!-- hamburg menu -->
+  <a href="javascript:" class="ddp-btn-lnbmenu" (click)="lnbEvent()"></a>
+
+  <!-- Logo -->
+  <h1 class="ddp-h1-logo">
+    <a (click)="goMain()" href="javascript:" >
+      <!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+      <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 203.2 13.4" style="enable-background:new 0 0 203.2 13.4;" xml:space="preserve">
+        <g>
+          <g>
+            <path class="st10" d="M0,0.2h4.5l2.3,9.4L9,0.2h4.5v12.9h-2.6v-10h-0.3l-2.5,9.4H5.4L2.9,3.2H2.6v10H0V0.2z"></path>
+            <path class="st10" d="M17.3,0.2h8.4v2.3h-5.7v3h4.6v2.2h-4.6v3.1h5.7v2.3h-8.4V0.2z"></path>
+            <path class="st10" d="M27.6,0.2h9.5v2.3h-3.4v10.6H31V2.5h-3.5V0.2z"></path>
+            <path class="st10" d="M40.8,0.2h5l2.9,12.9h-2.6l-0.5-2.3H41l-0.5,2.3h-2.6L40.8,0.2z M41.5,8.5h3.5l-1.3-6.1h-0.9L41.5,8.5z"></path>
+            <path class="st10" d="M49.5,0.2H59v2.3h-3.4v10.6H53V2.5h-3.5V0.2z"></path>
+            <path class="st10" d="M64.2,8.8v4.3h-2.6V0.2h5c2.9,0,4.6,1.3,4.6,4.3c0,1.8-0.7,3-1.9,3.7l1.8,4.9h-2.9l-1.5-4.3H64.2z M66.6,2.5h-2.4v4.1h2.4c1.3,0,1.8-0.9,1.8-2.1C68.5,3.3,67.9,2.5,66.6,2.5z"></path>
+            <path class="st10" d="M73.8,6.8c0-4.4,1.3-6.8,5.4-6.8s5.4,2.4,5.4,6.8c0,4.4-1.3,6.6-5.4,6.6S73.8,11.1,73.8,6.8z M81.8,6.8c0-3-0.5-4.5-2.7-4.5c-2.1,0-2.7,1.5-2.7,4.5c0,3,0.5,4.3,2.7,4.3C81.2,11.1,81.8,9.7,81.8,6.8z"></path>
+            <path class="st10" d="M87.7,0.2h4.4l3.1,10.6h0.2V0.2H98v12.9h-4.3L90.5,2.5h-0.2v10.6h-2.6V0.2z"></path>
+          </g>
+          <g>
+            <path class="st11" d="M102.8,13.1V0.2h4.4c4.5,0,5.5,1.9,5.5,6.2c0,4.4-0.9,6.7-5.5,6.7H102.8z M107.1,2.5h-1.7v8.4h1.7c2.5,0,2.8-1.6,2.8-4.4C109.9,3.6,109.7,2.5,107.1,2.5z"></path>
+            <path class="st11" d="M115.9,0.2h2.6v12.9h-2.6V0.2z"></path>
+            <path class="st11" d="M130,2.6c0,0-2.7-0.3-3.8-0.3c-1.4,0-2.1,0.5-2.1,1.4c0,0.8,0.5,1.1,2.7,1.8c2.8,0.9,3.6,1.7,3.6,3.8c0,2.8-1.9,4.1-4.5,4.1c-1.8,0-4.3-0.6-4.3-0.6l0.3-2c0,0,2.5,0.3,3.9,0.3c1.4,0,2-0.7,2-1.7c0-0.8-0.5-1.2-2.3-1.7c-2.9-0.8-4-1.8-4-3.9c0-2.7,1.8-3.8,4.4-3.8c1.7,0,4.3,0.5,4.3,0.5L130,2.6z"></path>
+            <path class="st11" d="M141.7,12.9c-0.9,0.2-2.6,0.4-3.8,0.4c-4,0-4.9-2.2-4.9-6.7c0-4.9,1.1-6.7,4.9-6.7c1.3,0,3,0.3,3.8,0.5l-0.1,2.1c-0.9-0.1-2.5-0.3-3.3-0.3c-2,0-2.6,0.7-2.6,4.4c0,3.5,0.5,4.4,2.7,4.4c0.9,0,2.5-0.2,3.2-0.3L141.7,12.9z"></path>
+            <path class="st11" d="M144.1,6.8c0-4.4,1.3-6.8,5.4-6.8s5.4,2.4,5.4,6.8c0,4.4-1.3,6.6-5.4,6.6S144.1,11.1,144.1,6.8z M152.1,6.8c0-3-0.5-4.5-2.7-4.5c-2.1,0-2.7,1.5-2.7,4.5c0,3,0.5,4.3,2.7,4.3C151.6,11.1,152.1,9.7,152.1,6.8z"></path>
+            <path class="st11" d="M167.6,0.2l-3,12.9h-4.8l-3-12.9h2.8l2.2,10.6h0.9l2.2-10.6H167.6z"></path>
+            <path class="st11" d="M170.2,0.2h8.4v2.3h-5.7v3h4.6v2.2h-4.6v3.1h5.7v2.3h-8.4V0.2z"></path>
+            <path class="st11" d="M184.3,8.8v4.3h-2.6V0.2h5c2.9,0,4.6,1.3,4.6,4.3c0,1.8-0.7,3-1.9,3.7l1.8,4.9h-2.9l-1.5-4.3H184.3zM186.7,2.5h-2.4v4.1h2.4c1.3,0,1.8-0.9,1.8-2.1C188.6,3.3,188,2.5,186.7,2.5z"></path>
+            <path class="st11" d="M199.2,13.1h-2.6V7.9l-4-7.7h2.9l2.4,5.1l2.4-5.1h2.9l-4,7.7V13.1z"></path>
+          </g>
+        </g>
+      </svg>
+    </a>
+  </h1>
+  <!-- // Logo -->
+
+  <ul class="ddp-list-lnb">
+    <!-- WORKSPACE -->
+    <li [ngClass]="{'ddp-selected': lnbManager.workspace.fold == false}" *ngIf="permission.workspace">
+      <div class="ddp-wrap-listmenu">
+        <!-- Workspace title -->
+        <a href="javascript:" >
+          <span class="ddp-txt-lnbmenu" (click)="depth1Menu1ClickListener( 'WORKSPACE' ); $event.stopImmediatePropagation()" >
+              <span class="ddp-link-lnbmenu">{{'msg.comm.menu.title.workspace' | translate}}</span>
+          </span>
+          <em class="ddp-icon-menuview"></em>
+        </a>
+        <!-- // Workspace title -->
+        <!-- sub -->
+        <div class="ddp-list-sub">
+          <!-- 개인 워크스페이스 -->
+          <span *ngIf="permission.myWorkspace" class="ddp-txt-title" (click)="moveToWorkspace()" >
+            <em class="ddp-icon-personal"></em>
+            {{privateWorkspace.name}}
+            <em class="ddp-icon-view" (click)="onOffFolderNavigation($event)"></em>
+          </span>
+          <!-- // 개인 워크스페이스 -->
+
+          <!-- favorites - exist list -->
+          <div class="ddp-wrap-favorites" *ngIf="sharedWorkspace.length > 0">
+            <span class="ddp-label-type">{{ 'msg.comm.ui.list.favorite' | translate }}</span>
+            <ul class="ddp-list-submenu" >
+              <li *ngFor="let workspace of sharedWorkspace"  [class.ddp-disabled]="!workspace.active" >
+                <a href="javascript:" (click)="moveToWorkspace(workspace)" >
+                  <em class="ddp-icon-share"></em>
+                  <span class="ddp-data-listmenu" [class.ddp-new]="workspace.createdTime | moment: 'isNew'">
+                    {{workspace.name}} <em class="ddp-icon-new" *ngIf="workspace.createdTime | moment: 'isNew'">NEW</em>
+                  </span>
+                  <em class="ddp-icon-view" (click)="onOffFolderNavigation($event, workspace)"></em>
+                </a>
+              </li>
+            </ul>
+            <div class="ddp-link-type">
+              <a  (click)="workspaceList(); $event.stopImmediatePropagation()" href="javascript:">{{ 'msg.lnb.btn.workspace-list' | translate }}</a>
+            </div>
+          </div>
+          <!-- // favorites - exist list -->
+
+          <!-- favorites - empty list -->
+          <div class="ddp-wrap-favorites" *ngIf="0 === sharedWorkspace.length">
+            <span class="ddp-label-type">{{ 'msg.comm.ui.list.favorite' | translate }}</span>
+            <div class="ddp-txt-info">{{ 'msg.lnb.label.set-favorite-workspace' | translate }}
+              <div class="ddp-link-type">
+                <a  (click)="workspaceList(); $event.stopImmediatePropagation()" href="javascript:">{{ 'msg.lnb.btn.workspace-list' | translate }}</a>
+              </div>
+            </div>
+          </div>
+          <!-- // favorites - empty list -->
+
+        </div>
+        <!-- //sub -->
+      </div>
+    </li>
+    <!-- //WORKSPACE -->
+    <!-- MANAGEMENT -->
+    <li *ngIf="permission.management" [ngClass]="{'ddp-selected': lnbManager.management.fold == false}" >
+      <div class="ddp-wrap-listmenu">
+        <a href="javascript:" (click)="depth1Menu1ClickListener( 'MANAGEMENT' )">
+          <span class="ddp-txt-lnbmenu">{{'msg.comm.menu.title.management' | translate}}</span>
+          <em class="ddp-icon-menuview"></em>
+        </a>
+        <!-- sub -->
+        <div class="ddp-list-sub">
+          <!-- submenu -->
+          <ul class="ddp-list-sublnb">
+            <li *ngIf="permission.managementMetadata" [ngClass]="{'ddp-selected': lnbManager.management.metadata.fold == false}">
+              <a href="javascript:" (click)="mgmtMenuClickListener('METADATA')">
+                <em class="ddp-icon-dot"></em>
+                {{'msg.comm.menu.manage.metadata' | translate}}
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li>
+                  <a href="javascript:" (click)="move('management/metadata/metadata')">
+                    {{'msg.comm.menu.manage.metadata.metadata' | translate}}
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/metadata/column-dictionary')">
+                    {{'msg.comm.menu.manage.metadata.column-dictionary' | translate}}
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/metadata/code-table')">
+                    {{'msg.comm.menu.manage.metadata.code-table' | translate}}
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/metadata/catalog')">
+                    {{'msg.comm.menu.manage.metadata.catalog' | translate}}
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li *ngIf="permission.managementDatasource" [ngClass]="{'ddp-selected': lnbManager.management.dataStorage.fold == false}">
+              <a href="javascript:" (click)="mgmtMenuClickListener('DATASTORAGE')">
+                <em class="ddp-icon-dot"></em>
+                {{'msg.comm.menu.manage.storage' | translate}}
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li>
+                  <a href="javascript:" (click)="move('management/storage/datasource')">{{'msg.comm.menu.manage.storage.ds' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/storage/data-connection')">{{'msg.comm.menu.manage.storage.conn' | translate}}</a>
+                </li>
+              </ul>
+            </li>
+            <li *ngIf="permission.managementDatasource" [ngClass]="{'ddp-selected': lnbManager.management.dataPreparation.fold == false}">
+              <a href="javascript:" (click)="mgmtMenuClickListener('DATAPREPARATION')">
+                <em class="ddp-icon-dot"></em>
+                {{'msg.comm.menu.manage.prep' | translate}}
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li>
+                  <a href="javascript:" (click)="move('management/datapreparation/dataset')">{{'msg.comm.menu.manage.prep.set' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/datapreparation/dataflow')">{{'msg.comm.menu.manage.prep.flow' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/datapreparation/datasnapshot')">{{'msg.comm.menu.manage.prep.snapshot' | translate}}</a>
+                </li>
+              </ul>
+            </li>
+            <li *ngIf="permission.managementDatasource" [ngClass]="{'ddp-selected': lnbManager.management.modelManager.fold == false}">
+              <a href="javascript:" (click)="mgmtMenuClickListener('MODELMANAGER')">
+                <em class="ddp-icon-dot"></em>
+                {{'msg.comm.menu.manage.model' | translate}}
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <!--<li>-->
+                <!--<a href="javascript:" (click)="move('management/model/approval')">{{'msg.comm.menu.manage.model.approval' | translate}}</a>-->
+                <!--</li>-->
+                <li>
+                  <a href="javascript:" (click)="move('management/model/notebook')">{{'msg.comm.menu.manage.model.notebook' | translate}}</a>
+                </li>
+              </ul>
+            </li>
+            <li *ngIf="false && permission.managementDatasource" [ngClass]="{'ddp-selected': lnbManager.management.dataMonitoring.fold == false}">
+              <a href="javascript:" (click)="mgmtMenuClickListener('DATAMONITORING')">
+                <em class="ddp-icon-dot"></em>
+                {{'msg.comm.menu.manage.monitoring' | translate}}
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li>
+                  <a href="javascript:" (click)="move('management/monitoring/statistics')">{{'msg.comm.menu.manage.monitoring.statistics' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/monitoring/audit')">{{'msg.comm.menu.manage.monitoring.audit' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('management/monitoring/lineage')">{{'msg.comm.menu.manage.monitoring.data-lineage' | translate}}</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <!-- //submenu -->
+        </div>
+        <!-- //sub -->
+      </div>
+    </li>
+    <!-- //MANAGEMENT -->
+    <!-- ADMINSTRATION -->
+    <li [ngClass]="{'ddp-selected': lnbManager.administration.fold == false}" *ngIf="permission.userAdmin || permission.workspaceAdmin">
+      <div class="ddp-wrap-listmenu">
+        <a href="javascript:" (click)="depth1Menu1ClickListener( 'ADMINISTRATION' )">
+          <span class="ddp-txt-lnbmenu">{{'msg.comm.menu.title.administration' | translate}}</span>
+          <em class="ddp-icon-menuview"></em>
+        </a>
+        <!-- sub -->
+        <div class="ddp-list-sub">
+          <!-- submenu -->
+          <ul class="ddp-list-sublnb">
+            <li [ngClass]="{'ddp-selected': lnbManager.administration.users.fold == false}" *ngIf="permission.userAdmin" >
+              <a (click)="adminMenuClickListener('USER')" href="javascript:">
+                <em class="ddp-icon-dot"></em> {{ 'msg.comm.menu.admin.user' | translate }}
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li >
+                  <a href="javascript:" (click)="move('admin/user/approval')">{{'msg.comm.menu.admin.user.approval' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('admin/user/members')">{{'msg.comm.menu.admin.user.user' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('admin/user/groups')">{{'msg.comm.menu.admin.user.grp' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('admin/user/permission')">{{'msg.comm.menu.admin.user.permission' | translate}}</a>
+                </li>
+              </ul>
+            </li>
+            <li [ngClass]="{'ddp-selected': lnbManager.administration.workspaces.fold == false}" *ngIf="permission.workspaceAdmin" >
+              <a (click)="adminMenuClickListener('WORKSPACE')" href="javascript:">
+                <em class="ddp-icon-dot"></em> {{'msg.comm.menu.admin.workspace' | translate}}
+              </a>
+              <ul class="ddp-list-sublnb-2depth">
+                <li>
+                  <a href="javascript:" (click)="move('admin/workspaces/shared')">{{'msg.comm.menu.admin.workspace.shared' | translate}}</a>
+                </li>
+                <li>
+                  <a href="javascript:" (click)="move('admin/workspaces/permission')">{{'msg.comm.menu.admin.workspace.permission' | translate}}</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <!-- //submenu -->
+        </div>
+        <!-- //sub -->
+      </div>
+    </li>
+    <!-- //ADMINSTRATION -->
+  </ul>
+
+  <!-- help -->
+  <div class="ddp-ui-help">
+    <span class="ddp-label-type">
+      {{'msg.lnb.label.help' | translate }}
+      <a (click)="downloadManual()" href="javascript:" class="ddp-btn-box">
+        <em class="ddp-icon-manual"></em>{{'msg.lnb.btn.Manual' | translate}}
+      </a>
+    </span>
+    <div class="ddp-data-help">
+      <dl>
+        <dt>{{ 'msg.lnb.label.data-manager' | translate }}</dt>
+        <dd><a href="mailto:metatron@sk.com">metatron@sk.com</a></dd>
+        <dt>{{ 'msg.lnb.label.admin' | translate }}</dt>
+        <dd><a href="mailto:metatron@sk.com">metatron@sk.com</a></dd>
+      </dl>
+    </div>
+  </div>
+  <!-- //help -->
+
+</div>
+<!-- //lnb -->
+
+<!-- Navigation Folder -->
+<div class="ddp-wrap-folder-nav" *ngIf="isShowFolderNavi">
+  <em class="ddp-bg-shadow" style="display: none;"></em>
+  <!-- title nav -->
+  <div class="ddp-ui-title-nav" style="min-width: 840px;">
+    <div class="ddp-list-locate">
+      <span *ngFor="let navi of folderNavigation">{{navi}}</span>
+    </div>
+  </div>
+  <!-- // title nav -->
+  <div class="ddp-ui-folder-nav ddp-selected">
+    <ul class="ddp-list-folder-nav"
+        *ngFor="let bookItemList of folderStructure; let idx = index">
+      <li *ngFor="let bookItem of bookItemList"
+          [class.ddp-list-folder]="'folder' === bookItem.type" >
+        <a href="javascript:" (click)="moveToNavigationContent($event, bookItem)">
+          <em [ngClass]="{'folder' : 'ddp-icon-folder',
+          'workbook' : 'ddp-icon-workbook',
+          'notebook' : 'ddp-icon-notebook',
+          'workbench' : 'ddp-icon-workbench' }[bookItem.type]"></em>{{bookItem.name}}
+          <em *ngIf="bookItem.hasSubBooks" class="ddp-box-view"
+              (click)="exploreFolderNavigation($event, bookItem, idx)"></em>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+<!-- // Navigation Folder -->
+
+<!-- 공유 워크스페이스 생성 모달 컴포넌트 -->
+<app-create-workspace (createComplete)="moveWorkspace($event)"></app-create-workspace>
+<!-- //공유 워크스페이스 생성 모달 컴포넌트 -->
+
+<!-- 워크스페이스 리스트 -->
+<app-workspace-list></app-workspace-list>
+
+<!-- 확인 모달 팝업 -->
+<app-confirm-modal></app-confirm-modal>

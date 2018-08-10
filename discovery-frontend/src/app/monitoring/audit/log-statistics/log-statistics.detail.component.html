@@ -1,0 +1,108 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-pop-preview ddp-type" *ngIf="statisticsData">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      {{statisticsData.name | translate }}
+    </div>
+    <em class="ddp-btn-popup-close" (click)="closeOutput.emit()"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+
+  <div class="ddp-ui-preview-contents ddp-more-table">
+
+    <div class="ddp-ui-gridhead2">
+    <!-- table -->
+    <table class="ddp-table-form ddp-table-type3">
+      <colgroup class="tableColgroup">
+      </colgroup>
+      <thead>
+      <tr>
+        <th *ngFor="let field of statisticsData.fields; let index = index" (click)="sortList(field.key, index)" [attr.id]="field.key">
+          {{field.name}}
+          <span *ngIf="(statisticsData.fields.length === index+1 && statisticsData.value !== 'resource')
+           || statisticsData.value === 'resource' && field.key !== 'keyword'
+           || (statisticsData.value !=='resource' && field.key === 'startTime' && statisticsData.value !== 'elapsedTime' && statisticsData.value !== 'numRows')">
+            <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== field.key || selectedContentSort.sort === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === field.key && selectedContentSort.sort === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === field.key && selectedContentSort.sort === 'desc'"></em>
+          </span>
+        </th>
+      </tr>
+      </thead>
+    </table>
+    </div>
+    <div class="ddp-ui-gridbody2">
+      <table class="ddp-table-form ddp-table-type3" [ngClass]="{'ddp-cursor-none': statisticsData.value === 'resource' || statisticsData.value === 'success' || statisticsData.value === 'fail'}">
+        <colgroup class="tableColgroup">
+        </colgroup>
+      <tbody>
+      <tr *ngFor="let data of statisticsData.data; let idx=index" (click)="getDetail(data)" (click)="auditDetailOpen(data)">
+        <td *ngFor="let field of statisticsData.fields; let index = index" [class.ddp-logdetail]="index === 0" [ngSwitch]="field.key">
+
+          <span class="ddp-data-state" *ngSwitchCase="'status'"
+                [ngClass]="{'ddp-fail' : (data[field.key] && data[field.key] === 'FAIL'), 'ddp-success' : (data[field.key] && data[field.key] === 'SUCCESS')}">{{data[field.key]}}</span>
+
+          <span *ngSwitchCase="'startTime'">
+            {{data[field.key] | mdate: 'YYYY-MM-DD HH:mm'}}
+          </span>
+
+          <span *ngSwitchCase="'elapsedTime'">
+            {{convertMilliseconds(data[field.key])}}
+          </span>
+
+          <span *ngSwitchDefault>
+            <span class="ddp-data-logdet" [ngClass]="{'ddp-long':isDataLongEnough(field.key, idx + field.key)}" *ngIf="statisticsData.value !== 'resource' && index === 0; else other">
+              <span id="{{idx + field.key}}">{{data[field.key] || '-' }}</span>
+            </span>
+            <!--<span #other>{{data[field.key]}}</span>-->
+            <ng-template #other>{{thousandSeparator(data[field.key],field.key) || '-'}}</ng-template>
+          </span>
+
+          <div class="ddp-wrap-logdetail"
+               style="display: block;"
+               (clickOutside)="closePopup()" [excludeBeforeClick]="true" [exclude]="'.ddp-pop-logdetail'"
+               *ngIf="statisticsData.value !== 'resource' && index === 0"
+               [ngClass]="{'ddp-selected':isQueryDetailShow && currentNumber===idx}">
+            <a href="javascript:" class="ddp-btn-detail" (click)="openQueryDetail($event,idx)" *ngIf="isDataLongEnough(field.key,idx + field.key)"></a>
+            <div class="ddp-pop-logdetail">
+              <div class="ddp-logdetal-contents">
+                {{data[field.key]}}
+              </div>
+              <!-- buttons -->
+              <div class="ddp-log-buttons">
+
+                <a href="javascript:" class="ddp-link-copy" (click)="copyToClipboard(data[field.key])">{{'msg.comm.btn.copy.clipboard' | translate}}</a>
+                <a href="javascript:" class="ddp-btn-line" (click)="closePopup()">{{'msg.comm.btn.close' | translate}}</a>
+
+              </div>
+              <!-- //buttons -->
+            </div>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+    </div>
+    <!--// table -->
+    <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreContents()">
+      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+    </div>
+  </div>
+  <!-- //cpmtemts -->
+</div>

@@ -1,0 +1,61 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-layout-popup">
+  <div class="ddp-ui-layout-popup">
+    <div class="ddp-box-popup ddp-popup-type">
+      <!-- title -->
+      <div class="ddp-pop-title">{{'msg.space.create.notebook.title' | translate}}</div>
+      <!-- //title -->
+      <div class="ddp-pop-detail">
+        <!-- 데이터 선택 -->
+        <div class="ddp-ui-data-select">
+          <!-- 선택시 ddp-selected 추가 -->
+          <a href="javascript:" class="ddp-btn-select" (click)="next('datasource')">
+            <em class="ddp-icon-boxbtn-data"></em>
+            {{'msg.comm.btn.ds' | translate}}
+            <em class="ddp-icon-check"></em>
+          </a>
+
+          <a href="javascript:" class="ddp-btn-select" (click)="next('dashboard')">
+            <em class="ddp-icon-boxbtn-dashboard"></em>
+            {{'msg.comm.btn.board' | translate}}
+            <em class="ddp-icon-check"></em>
+          </a>
+
+          <a href="javascript:" class="ddp-btn-select" (click)="next('chart')">
+            <em class="ddp-icon-boxbtn-chart"></em>
+            {{'msg.comm.btn.chart' | translate}}
+            <em class="ddp-icon-check"></em>
+          </a>
+
+          <a href="javascript:" class="ddp-btn-select" (click)="next('none')">
+            <em class="ddp-icon-boxbtn-chart"></em>
+            {{'msg.comm.btn.none' | translate}}
+            <em class="ddp-icon-check"></em>
+          </a>
+
+        </div>
+        <!-- //데이터 선택 -->
+
+      </div>
+
+      <!-- button -->
+      <div class="ddp-ui-buttons">
+        <a href="javascript:" class="ddp-btn-type-popup" (click)="close();">{{'msg.comm.btn.cancl' | translate}}</a>
+      </div>
+      <!-- //button -->
+    </div>
+  </div>
+</div>

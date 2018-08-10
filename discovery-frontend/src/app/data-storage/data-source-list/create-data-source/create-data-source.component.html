@@ -1,0 +1,124 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 생성 타입 선택 -->
+<select-type *ngIf="step == '' || step == 'complete-create'"
+             [(step)]="step"
+             (close)="createClose()">
+</select-type>
+
+<!-- 데이터소스 생성 set connection DB 1/5 -->
+<db-data-connection *ngIf="step=='db-data-connection'"
+                    [sourceData]="sourceData"
+                    [(step)]="step"
+                    (close)="createClose()">
+</db-data-connection>
+
+<!-- 데이터소스 생성 select data DB 2/5 -->
+<db-select-data *ngIf="step=='db-select-data'"
+                [sourceData]="sourceData"
+                [(step)]="step"
+                (close)="createClose()">
+</db-select-data>
+
+<!-- 데이터소스 생성 select data DB 3/5 -->
+<db-configure-schema *ngIf="step=='db-configure-schema'"
+                     [sourceData]="sourceData"
+                     [(step)]="step"
+                     (close)="createClose()">
+</db-configure-schema>
+
+<!-- 데이터소스 생성 select data DB 4/5 -->
+<db-ingestion-permission *ngIf="step=='db-ingestion-permission'"
+                         [sourceData]="sourceData"
+                         [(step)]="step"
+                         (close)="createClose()">
+</db-ingestion-permission>
+
+<!-- 데이터소스 생성 complete db 5/5 -->
+<db-complete *ngIf="step=='db-complete'"
+             [sourceData]="sourceData"
+             [(step)]="step"
+             (dbComplete)="createComplete()"
+             (close)="createClose()">
+</db-complete>
+
+
+
+
+<!-- file 선택 1/4 -->
+<file-select *ngIf="step=='file-select'"
+             [sourceData]="sourceData"
+             [(step)]="step"
+             (close)="createClose()">
+</file-select>
+
+<!-- file 스키마 설정 2/4 -->
+<file-configure-schema *ngIf="step=='file-configure-schema'"
+                       [sourceData]="sourceData"
+                       [(step)]="step"
+                       (close)="createClose()">
+</file-configure-schema>
+
+<!-- file ingestion, 권한 설정 3/4 -->
+<file-ingestion *ngIf="step=='file-ingestion'"
+                [sourceData]="sourceData"
+                [(step)]="step"
+                (close)="createClose()">
+</file-ingestion>
+<!-- file complete 4/4 -->
+<file-complete *ngIf="step==='file-complete'"
+               [sourceData]="sourceData"
+               [(step)]="step"
+               (fileComplete)="createComplete()"
+               (close)="createClose()">
+</file-complete>
+
+
+<!-- staging 선택 1/4 -->
+<staging-db-select *ngIf="step==='staging-db-select'"
+                   [sourceData]="sourceData"
+                   [(step)]="step"
+                   (close)="createClose()">
+</staging-db-select>
+
+<!-- staging 스키마 설정 2/4 -->
+<staging-db-configure-schema *ngIf="step==='staging-db-configure-schema'"
+                             [sourceData]="sourceData"
+                             [(step)]="step"
+                             (close)="createClose()">
+</staging-db-configure-schema>
+
+<!-- staging ingestion 설정 3/4 -->
+<staging-db-ingestion *ngIf="step==='staging-db-ingestion'"
+                      [sourceData]="sourceData"
+                      [(step)]="step"
+                      (close)="createClose()">
+</staging-db-ingestion>
+
+<!-- staging complete 4/4 -->
+<staging-db-complete *ngIf="step==='staging-db-complete'"
+                     [sourceData]="sourceData"
+                     [(step)]="step"
+                     (stagingComplete)="createComplete()"
+                     (close)="createClose()">
+
+</staging-db-complete>
+
+<!-- druid select 1/1 -->
+<druid-select *ngIf="step==='druid-select'"
+              [sourceData]="sourceData"
+              [(step)]="step"
+              (druidComplete)="createComplete()"
+              (close)="createClose()"></druid-select>

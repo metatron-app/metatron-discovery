@@ -1,0 +1,178 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<em class="ddp-bg-back"></em>
+<div class="ddp-ui-contents-in">
+  <!-- top -->
+  <div class="ddp-ui-contents-top">
+    <div class="ddp-ui-title">
+      {{'msg.comm.menu.manage.prep' | translate}}
+    </div>
+
+    <!-- tab -->
+    <ul class="ddp-list-top-tab">
+      <li><a [routerLink]="['/management/datapreparation/dataset']">{{'msg.comm.menu.manage.prep.set' | translate}}</a></li>
+      <li><a [routerLink]="['/management/datapreparation/dataflow']">{{'msg.comm.menu.manage.prep.flow' | translate}}</a></li>
+      <li class="ddp-selected"><a [routerLink]="['/management/datapreparation/datasnapshot']">{{'msg.comm.menu.manage.prep.snapshot' | translate}}</a></li>
+    </ul>
+    <!-- //tab -->
+
+  </div>
+  <!-- //top -->
+  <div class="ddp-ui-contents-list">
+    <!-- option -->
+    <div class="ddp-wrap-option">
+      <div class="ddp-ui-option ddp-clear">
+        <div class="ddp-wrap-edit">
+          <label class="ddp-label-type">{{'msg.dp.th.status' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option ddp-inline">
+            <label class="ddp-label-radio ddp-inline">
+              <input type="radio" name="datasetRadio" (change)="changeStatus('all')" checked>
+              <i class="ddp-icon-radio "></i>
+              <span class="ddp-txt-radio">{{'msg.comm.ui.list.all' | translate}}</span>
+            </label>
+            <label class="ddp-label-radio ddp-inline">
+              <input type="radio" name="datasetRadio" (change)="changeStatus('success')">
+              <i class="ddp-icon-radio "></i>
+              <span class="ddp-txt-radio">{{'msg.dp.ui.success' | translate}}</span>
+            </label>
+            <label class="ddp-label-radio ddp-inline" (change)="changeStatus('fail')">
+              <input type="radio" name="datasetRadio">
+              <i class="ddp-icon-radio "></i>
+              <span class="ddp-txt-radio">{{'msg.dp.ui.fail' | translate}}</span>
+            </label>
+            <!--<label class="ddp-label-radio ddp-inline" (change)="changeStatus('preparing')">-->
+              <!--<input type="radio" name="datasetRadio">-->
+              <!--<i class="ddp-icon-radio "></i>-->
+              <!--<span class="ddp-txt-radio">{{'msg.dp.ui.preparing' | translate}}</span>-->
+            <!--</label>-->
+
+          </div>
+          <!-- //edit option -->
+        </div>
+      </div>
+      <div class="ddp-ui-option ddp-optiontype ddp-clear">
+        <!-- 검색 -->
+        <div class="ddp-form-search ddp-fleft">
+          <em class="ddp-icon-search"></em>
+          <input type="text" placeholder="{{'msg.dp.ui.ss.search.description' | translate}}" [(ngModel)]="searchText" (keypress)="searchDataSnapshot($event);">
+          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchText = ''; page.page = 0; getDatasnapshots();"></em>
+        </div>
+        <!-- //검색 -->
+
+        <div class="ddp-ui-rightoption">
+          <span class="ddp-data-total ddp-only">{{'msg.log.ui.num.lists' | translate : { value : pageResult.totalElements} }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- //option -->
+
+    <!-- 데이터 없음 -->
+    <div class="ddp-data-source-none" *ngIf="datasnapshots.length === 0">
+      {{'msg.dp.ui.no.ss.description' | translate}}
+    </div>
+    <!-- //데이터 없음 -->
+
+    <table class="ddp-table-form ddp-table-type3" *ngIf="datasnapshots.length > 0">
+      <colgroup>
+        <col width="*">
+        <col width="20%">
+        <col width="10%">
+        <col width="10%">
+        <col width="20%">
+      </colgroup>
+      <thead>
+      <tr>
+        <th (click)="changeOrder('ssName')">
+          {{'msg.dp.th.ss' | translate}}
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'ssName' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'ssName' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'ssName' && selectedContentSort.sort === 'desc'"></em>
+        </th>
+        <th>
+          {{'msg.comm.menu.manage.prep.flow' | translate}} | {{'msg.comm.menu.manage.prep.set' | translate}}
+        </th>
+        <th>
+          {{'msg.dp.th.status' | translate}}
+        </th>
+        <th>
+          {{'msg.dp.th.et' | translate}}
+        </th>
+        <th (click)="changeOrder('createdTime')">
+          {{'msg.comm.th.created' | translate}}
+          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
+        </th>
+
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of datasnapshots; let i = index" [attr.data-index]="i" (click)="snapshotDetail(item)" >
+        <!--<td [style.cursor]="!item.finishTime ? 'no-drop' : 'pointer'">-->
+        <td >
+          <div class="ddp-wrap-long">
+            <div class="ddp-txt-long">
+              {{item.ssName}}
+            </div>
+          </div>
+        </td>
+        <!--<td [style.cursor]="!item.finishTime ? 'no-drop' : 'pointer'">-->
+          <!--<span *ngIf="item.dsName === ''" class="ddp-data-delete">{{'msg.dp.ui.ds.del.success' | translate}}</span>-->
+          <!--{{item.creatorDfName}} | {{item.dsName}}-->
+        <!--</td>-->
+        <td>
+          <span *ngIf="item.dsName === ''" class="ddp-data-delete">{{'msg.dp.ui.ds.del.success' | translate}}</span>
+          {{item.creatorDfName}} | {{item.dsName}}
+        </td>
+        <td>
+          <span class="ddp-data-state ddp-rejected" *ngIf="item.status === 'FAIL'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.fail' | translate}}</span>
+          <span class="ddp-data-state ddp-success" *ngIf="item.status === 'SUCCESS'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.success' | translate}}</span>
+          <span class="ddp-data-state ddp-inprogress" *ngIf="item.status === 'PREPARING'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.preparing' | translate}}
+            <em class="ddp-icon-error2" *ngIf="false"></em>
+            <!-- 툴팁 -->
+                  <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-left"></em>
+                      데이터 소스 삭제로 생성이 지연되고 있습니다.
+                  </div>
+            <!-- //툴팁 -->
+          </span>
+        </td>
+        <td>
+          <span *ngIf="getElapsedDay() > 0">{{getElapsedDay(item) + '일'}}</span>
+          {{getElapsedTime(item)}}
+        </td>
+
+        <td class="ddp-data-last">
+          {{item.launchTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy}}
+          <div class="ddp-btn-control">
+            <em class="ddp-icon-control-cut" (click)="confirmDelete($event, item)"></em>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+    <!-- 더보기 -->
+    <div class="ddp-box-add-link" *ngIf="pageResult.totalElements > page.size" (click)="morePages()">
+      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+    </div>
+    <!-- //더보기 -->
+  </div>
+</div>
+
+<app-delete-modal (deleteConfirm)="deleteDataSnapshot()" [enableCloseOutput]="true" (closeOutput)="closeDetail()"></app-delete-modal>
+<app-data-snapshot-detail></app-data-snapshot-detail>

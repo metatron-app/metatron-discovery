@@ -1,0 +1,101 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-layout-popup">
+  <div class="ddp-ui-layout-popup">
+    <div class="ddp-box-popup3">
+      <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+      <!-- title -->
+      <div class="ddp-pop-title">{{'msg.nbook.ui.api.info'|translate}}</div>
+      <!-- //title -->
+      <!-- detail -->
+      <div class="ddp-box-detail">
+        <div class="ddp-wrap-edit3 ddp-type">
+          <label class="ddp-label-type">{{'msg.nbook.th.return_type'|translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option">
+            <div class="ddp-wrap-label">
+              <label class="ddp-label-radio" (click)="selectedType = 'HTML'; $event.preventDefault()">
+                <input type="radio" name="returnType" [checked]="selectedType === 'HTML'" *ngIf="kernel === 'SPARK'" disabled>
+                <input type="radio" name="returnType" [checked]="selectedType === 'HTML'" *ngIf="kernel !== 'SPARK'">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio">{{'msg.nbook.ui.html' | translate}}</span>
+              </label>
+              <label class="ddp-label-radio" (click)="selectedType = 'JSON'; $event.preventDefault()">
+                <input type="radio" [checked]="selectedType === 'JSON'" *ngIf="kernel === 'SPARK'" disabled>
+                <input type="radio" [checked]="selectedType === 'JSON'" *ngIf="kernel !== 'SPARK'">
+                <i class="ddp-icon-radio" ></i>
+                <span class="ddp-txt-radio">{{'msg.nbook.ui.json' | translate}}</span>
+                <!-- info -->
+                <div class="ddp-wrap-hover-info ddp-type">
+                  <em class="ddp-icon-info3"></em>
+                  <!-- popup -->
+                  <div class="ddp-box-layout4">
+                    <div class="ddp-data-title">
+                      {{'msg.nbook.ui.json.return_type' | translate}}
+                    </div>
+                    <div class="ddp-data-det">
+                      {{'msg.nbook.ui.json.return_type.expl' | translate}}
+                      <div class="ddp-txt-tip">
+                        {{'msg.nbook.ui.json.eg' | translate}}<br>
+                        {{'msg.nbook.ui.json.return_type.eg' | translate}}
+
+                      </div>
+                    </div>
+                  </div>
+                  <!-- //popup -->
+                </div>
+                <!-- //info -->
+              </label>
+              <label class="ddp-label-radio" (click)="selectedType = 'Void'; $event.preventDefault()" >
+                <input type="radio" name="returnType" [checked]="selectedType === 'Void'">
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio">{{'msg.nbook.ui.none' | translate}}</span>
+              </label>
+            </div>
+
+          </div>
+          <!-- //edit option -->
+        </div>
+
+        <!-- 필수 일때 ddp-error 추가 -->
+        <div class="ddp-wrap-edit2" [ngClass]="{'ddp-error':showError}">
+          <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
+          <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}" (keydown)="showError? hideError(): null" [(ngModel)]="argName" maxlength="50">
+          <!-- error -->
+          <span class="ddp-ui-error">
+            {{'msg.common.ui.required' | translate}}
+          </span>
+          <!-- error -->
+        </div>
+        <!-- 필수 일때 ddp-error 추가 -->
+        <div class="ddp-wrap-edit2">
+          <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
+          <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.desc'| translate}}" [(ngModel)]="argDescription" maxlength="90">
+
+        </div>
+
+      </div>
+      <!-- detail -->
+
+      <!-- button -->
+      <div class="ddp-ui-buttons">
+        <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <!-- disabled 시 ddp-disabled 추가 -->
+        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="saveApi()">{{'msg.comm.btn.done' | translate}}</a>
+      </div>
+      <!-- //button -->
+    </div>
+  </div>
+</div>

@@ -1,0 +1,141 @@
+
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-divide">
+  <!-- divide2 -->
+  <div class="ddp-divide2">
+
+    <div class="ddp-list-label">{{'msg.page.format.format.title' | translate}}</div>
+    <component-select
+      #typeListSelect
+      [array]="typeList"
+      [viewKey]="'name'"
+      (onSelected)="onTypeChange($event)">
+    </component-select>
+  </div>
+  <!-- //divide2 -->
+
+  <!-- 통화일때 -->
+  <!-- divide2 -->
+  <div class="ddp-divide2" *ngIf="selectedType['value'] == 'currency'">
+    <!-- SELECTBOX -->
+    <component-select
+      #signListSelect
+      [array]="currencySignList"
+      [viewKey]="'name'"
+      (onSelected)="onSignChange($event)">
+    </component-select>
+    <!-- //SELECTBOX -->
+  </div>
+  <!-- //divide2 -->
+  <!-- //통화일때 -->
+
+  <!-- 숫자일때 -->
+  <!-- divide2 -->
+  <div class="ddp-divide2" *ngIf="selectedType['value'] != 'currency'">
+    <div class="ddp-list-label">{{'msg.page.th.decimal.place' | translate}}</div>
+    <!-- number -->
+    <div class="ddp-input-number">
+      <input (keyup)="$event.keyCode == 13 ? onDigitValid() : null"
+             (clickOutside)="decimalCopy = decimal"
+             [(ngModel)]="decimalCopy" type="number" maxlength="1">
+      <div class="ddp-input-number-nav">
+        <div (click)="onDigitChange(false)" class="ddp-input-number-button ddp-input-number-down"></div>
+        <div (click)="onDigitChange(true)" class="ddp-input-number-button ddp-input-number-up"></div>
+      </div>
+    </div>
+    <!-- //number -->
+  </div>
+  <!-- //divide2 -->
+  <!-- //숫자일때 -->
+
+  <!-- 수치표기 약어설정 -->
+  <div class="ddp-divide2">
+    <div class="ddp-list-label">{{'msg.page.format.numeric.alias' | translate}}</div>
+    <!-- SELECTBOX -->
+    <component-select
+      #numericAliasListSelect
+      [array]="numericAliasList"
+      [viewKey]="'name'"
+      (onSelected)="onNumericAliasChange($event)">
+    </component-select>
+    <!-- //SELECTBOX -->
+  </div>
+  <!-- //divide2 -->
+
+  <!-- 천단위 구분자 -->
+  <div class="ddp-divide2">
+    <div class="ddp-part-check">
+
+      <label (click)="$event.preventDefault(); onThousandsSepChange()" class="ddp-label-checkbox ddp-check-full">
+        <input [checked]="useThousandsSep" type="checkbox">
+        <i class="ddp-icon-checkbox"></i>
+        <span class="ddp-txt-checkbox">{{'msg.page.th.thousand.sep' | translate}}</span>
+      </label>
+    </div>
+  </div>
+  <!-- //천단위 구분자 -->
+</div>
+
+<!-- 사용자 기호 설정-->
+<div class="ddp-wrap-divide">
+  <!-- slider -->
+  <div class="ddp-wrap-option-slider">
+    <span class="ddp-label-slider">{{'msg.page.format.custom.symbol' | translate}}</span>
+    <!-- Slide THREE -->
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+      <input type="checkbox" id="customSymbol" [ngModel]="customSymbol" (click)="showCustomSymbol()">
+      <label for="customSymbol"><span class="ddp-slide"></span></label>
+    </div>
+    <!-- //Slide THREE -->
+  </div>
+  <!-- //slider -->
+  <div *ngIf="customSymbol" class="ddp-list-sub2">
+    <div class="ddp-divide2">
+      <div class="ddp-list-label">{{'msg.page.format.custom.symbol.enter' | translate}}</div>
+      <input type="text" class="ddp-input-typebasic" [(ngModel)]="customSymbol['value']"
+      (keyup.enter)="changeSymbol()">
+    </div>
+    <div class="ddp-divide2">
+      <div class="ddp-list-label">{{'msg.page.format.custom.symbol.position' | translate}}</div>
+      <!-- SELECTBOX -->
+      <component-select
+        [array]="positionList"
+        [viewKey]="'name'"
+        [defaultIndex]="'BEFORE' === customSymbol?.pos?.toString() ? 0 : 1"
+        (onSelected)="changePosition($event)"
+      ></component-select>
+      <!-- //SELECTBOX -->
+    </div>
+    <!--<div *ngIf="selectedNumericAlias && selectedNumericAlias['value'] && selectedNumericAlias['value'] != 'NONE'" class="ddp-divide2">-->
+      <!--<div class="ddp-part-check-b">-->
+        <!--<label class="ddp-label-checkbox ddp-position">-->
+          <!--<input [ngModel]="!(customSymbol.abbreviations)" (click)="$event.stopPropagation(); changeNumberSymbol()" type="checkbox">-->
+          <!--<i class="ddp-icon-checkbox"></i>-->
+          <!--<span class="ddp-txt-checkbox">숫자기호 표시</span>-->
+        <!--</label>-->
+      <!--</div>-->
+    <!--</div>-->
+  </div>
+</div>
+<!-- //사용자 기호 설정-->
+<!-- 미리보기 -->
+<div class="ddp-wrap-divide">
+  <div class="ddp-divide2">
+    <div class="ddp-list-label">{{'msg.page.format.preview' | translate}}</div>
+    <div class="ddp-preview">{{preview}}</div>
+  </div>
+</div>
+<!-- //미리보기 -->

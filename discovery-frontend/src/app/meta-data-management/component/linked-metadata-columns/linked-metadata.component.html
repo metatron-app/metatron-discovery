@@ -1,0 +1,83 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 미리보기 팝업 -->
+<div class="ddp-pop-preview ddp-type" *ngIf="isShowFl">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      {{'msg.metadata.dictionary.used.metadata' | translate}} ({{pageResult?.totalElements}})
+    </div>
+    <em class="ddp-btn-popup-close" (click)="onClickClose()"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+
+  <div class="ddp-ui-preview-contents ddp-add">
+    <div class="ddp-table-scroll">
+      <!-- table -->
+      <table class="ddp-table-form ddp-table-type3">
+        <colgroup>
+          <col width="*">
+          <col width="20%">
+          <col width="15%">
+          <col width="15%">
+        </colgroup>
+        <thead>
+        <tr>
+          <th (click)="onClickSort('metadataName')">
+            {{'msg.comm.detail.metadata-name' | translate}}
+            <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'metadataName' || selectedContentSort.sort === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'metadataName' && selectedContentSort.sort === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'metadataName' && selectedContentSort.sort === 'desc'"></em>
+          </th>
+          <th>
+            {{'msg.metadata.th.name' | translate}}
+          </th>
+          <th>
+            {{'msg.storage.ui.th.logical.type' | translate}}
+          </th>
+          <th>
+            {{'msg.storage.ui.th.format' | translate}}
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let metadata of metaDataList">
+          <td>
+          <span class=" ddp-txt-long" (click)="onClickMetadataName(metadata)">
+            {{metadata.metadataName}}
+          </span>
+          </td>
+          <td>
+            {{metadata.name}}
+          </td>
+          <td>
+            {{metadata.type}}
+          </td>
+          <td>
+            {{metadata.format}}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <!--// table -->
+    </div>
+    <div class="ddp-box-add-link " *ngIf="isMoreContents()" (click)="onClickMoreList()">
+      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+    </div>
+  </div>
+  <!-- //cpmtemts -->
+</div>
+<!-- //미리보기 팝업 -->

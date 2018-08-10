@@ -1,0 +1,201 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- contents -->
+<div class="ddp-type-contents2">
+
+  <div class="ddp-top-flow">
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-btn-back" (click)="onClickPrevUserList()"></a>
+      <!-- navi -->
+      <div class="ddp-ui-naviarea">
+        <!-- name -->
+        <div class="ddp-box-navi">
+          <div class="ddp-wrap-naviname">
+            <span class="ddp-data-naviname ddp-readonly">{{userData.fullName}}</span>
+          </div>
+
+        </div>
+        <!-- //name -->
+      </div>
+      <!-- //navi -->
+
+    </div>
+    <!-- //navi wrap -->
+
+
+  </div>
+
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail">
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.mem.ui.detail.join.on' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{userData.createdTime| mdate:'YYYY-MM-DD HH:mm'}}
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <!-- edit -->
+      <!--<div class="ddp-wrap-edit">-->
+        <!--<label class="ddp-label-type">{{'msg.mem.ui.last.access' | translate}}</label>-->
+        <!--&lt;!&ndash; edit option &ndash;&gt;-->
+        <!--<div class="ddp-ui-edit-option">-->
+          <!--<div class="ddp-data-txt">-->
+            <!--2011.01.01 00:00:00-->
+          <!--</div>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; //edit option &ndash;&gt;-->
+      <!--</div>-->
+      <!-- //edit -->
+
+      <!-- right -->
+      <div class="ddp-ui-rightoption">
+        <!-- edit -->
+        <div class="ddp-wrap-edit">
+          <label class="ddp-label-type">{{'msg.mem.th.status' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option">
+            <!-- selectbox -->
+            <!-- 선택시 : ddp-selected 추가 -->
+            <div class="ddp-type-selectbox"
+                 [class.ddp-selected]="statusShowFl"
+                 (click)="statusShowFl = !statusShowFl" (clickOutside)="statusShowFl = false">
+              <span class="ddp-txt-selectbox">{{getUserStatus()}}</span>
+              <ul class="ddp-list-selectbox ddp-selectdown">
+                <li *ngFor="let status of userStatusList">
+                  <a href="javascript:" (click)="onChangeStatus(status.value)">
+                    {{status.label}}
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- //selectbox -->
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //edit -->
+        <a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickResetPassword()"><em class="ddp-icon-key"></em>{{'msg.mem.btn.reset.pw' | translate}}</a>
+        <!--<a href="javascript:" class="ddp-btn-selection ddp-line" (click)="onClickLoginUser()"><em class="ddp-icon-view"></em>{{'msg.mem.btn.login.usr' | translate}}</a>-->
+        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteUser()"><em class="ddp-icon-delete"></em>{{'msg.mem.btn.delete.usr' | translate}}</a>
+
+      </div>
+      <!-- //right -->
+    </div>
+    <div class="ddp-ui-datadetail">
+      <label class="ddp-label-detail">{{'msg.mem.ui.detail.info' | translate}}</label>
+      <div class="ddp-ui-userdetail">
+        <!-- 사진 -->
+        <div class="ddp-data-photo">
+          <img src="{{getUserImage()}}" class="ddp">
+        </div>
+
+        <!-- //사진 -->
+
+        <table class="ddp-table-detail">
+          <colgroup>
+            <col width="160px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr>
+            <th>
+              {{'msg.mem.ui.detail.info.name' | translate}}
+            </th>
+            <td>
+              {{userData.fullName}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              {{'msg.mem.ui.detail.info.id' | translate}}
+            </th>
+            <td>
+              {{userData.id}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              {{'msg.mem.ui.detail.info.email' | translate}}
+            </th>
+            <td>
+              <a href="mailto:{{userData.email}}" class="ddp-link-window">{{userData.email}}</a>
+            </td>
+          </tr>
+          <tr>
+            <th>
+              {{'msg.mem.ui.detail.info.permission' | translate}}
+            </th>
+            <td>
+              {{getRoleNames(userData.roleNames)}}
+            </td>
+          </tr>
+          <tr>
+            <th>
+              {{'msg.mem.ui.detail.info.phone' | translate}}
+            </th>
+            <td>
+              <span class="ddp-data-none">{{userData.tel ? userData.tel : ('msg.groups.ui.none' | translate)}}</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- table detail -->
+      <div class="ddp-wrap-table-detail">
+        <div class="ddp-type-plan">
+          <label class="ddp-label-detail">{{'msg.mem.ui.detail.groups' | translate}} ({{getGroupLength()}})
+            <a href="javascript:" class="ddp-btn-option2" (click)="onClickEditGroups()"></a></label>
+          <!--<a href="#" class="ddp-btn-pop "><em class="ddp-icon-email"></em>email to all users</a>-->
+        </div>
+        <table class="ddp-list-form2" *ngIf="getGroupList().length > 0">
+          <colgroup>
+            <col width="25%">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr *ngFor="let group of getGroupList()">
+            <td>
+              <a href="javascript:" class="ddp-link-info ddp-group" (click)="onClickLinkGroup(group.id)">{{group.name}} <em class="ddp-icon-window"></em>
+              </a>
+            </td>
+            <td >{{getRoleNames(group.roleNames)}}</td>
+          </tr>
+          </tbody>
+        </table>
+
+      </div>
+      <!-- //table detail -->
+
+    </div>
+  </div>
+  <!-- //상세 -->
+
+
+</div>
+<!-- //contents -->
+
+<!-- confirm modal -->
+<app-confirm-modal (confirm)="confirmHandler($event)"></app-confirm-modal>
+<!-- //confirm modal -->
+
+<!-- group component -->
+<app-update-user-management-members (groupComplete)="getUserDetail()"></app-update-user-management-members>
+<!-- //group component -->

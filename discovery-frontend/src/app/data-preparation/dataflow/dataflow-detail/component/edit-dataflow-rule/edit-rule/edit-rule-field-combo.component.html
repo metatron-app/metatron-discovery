@@ -1,0 +1,56 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- Multi Combo Box -->
+<div *ngIf="isMulti" class="ddp-type-selectbox ddp-selected" tabindex="tabIndex" [ngClass]="{'ddp-selected':isShowOptions}" (click)="showOptions($event)">
+  <span class="ddp-txt-selectbox">{{isEmptyCheckedItems() ? ('msg.dp.ui.none.selected' | translate) : selectedItemsNameString() }}</span>
+  <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isShowOptions" (clickOutside)="isShowOptions = false;">
+    <li *ngFor="let col of fields;trackBy:trackByFn">
+      <a href="javascript:">
+        <label class="ddp-label-checkbox">
+          <input type="checkbox" [checked]="isItemChecked( col.name )"  (click)="checkItem(col.name)">
+          <i class="ddp-icon-checkbox"></i>
+          <span class="ddp-txt-checkbox">{{col.name}}</span>
+        </label>
+      </a>
+    </li>
+  </ul>
+</div>
+<!-- // Multi Combo Box -->
+
+<!-- Single Combo Box -->
+<!-- (keydown)="navigateWithKeyboardShortList($event, filteredColumnList, 'column1')" -->
+<div *ngIf="!isMulti" class="ddp-type-selectbox ddp-type-search-select" tabindex="2"
+     [ngClass]="{'ddp-selected':isShowOptions, 'ddp-result' : 0 < selectedItemKeys.length}"
+     (click)="showOptions($event)" >
+  <input #inputSearch
+         [(ngModel)]="columnSearchText"
+         placeholder="{{'msg.dp.ui.column.search.description' | translate}}"
+         type="text" class="ddp-input-selectbox" >
+  <span class="ddp-txt-selectbox">
+    {{0 < selectedItemKeys.length ? selectedItemKeys[0] : 'msg.dp.ui.none.selected' | translate}}
+  </span>
+  <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isShowOptions" (clickOutside)="isShowOptions = false;">
+    <li *ngFor="let col of filteredColumnList;trackBy:trackByFn;" (click)="checkItem(col.name)" >
+      <a href="javascript:"> {{col.name}} </a>
+    </li>
+    <li *ngIf="filteredColumnList.length === 0">
+        <span class="ddp-noresult">
+          {{'msg.dp.ui.search.no.rslt' | translate}}
+        </span>
+    </li>
+  </ul>
+</div>
+<!-- // Single Combo Box -->
+

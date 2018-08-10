@@ -1,0 +1,270 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-index ddp-layout-popuptype" *ngIf="showFl">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+            {{'msg.storage.ui.permission' | translate}}
+      </span>
+      <!-- create -->
+      <div class="ddp-ui-pop-buttons" *ngIf="mode === 'create'">
+        <a href="javascript:" class="ddp-btn-pop" (click)="showFl = false">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+      </div>
+      <!-- //create -->
+      <!-- update -->
+      <div class="ddp-ui-pop-buttons" *ngIf="mode !== 'create'">
+        <a href="javascript:" class="ddp-btn-pop" (click)="done()">{{'msg.comm.btn.close' | translate}}</a>
+      </div>
+      <!-- //update -->
+    </div>
+    <!-- //title -->
+    <div class="ddp-ui-popup-contents">
+      <div class="ddp-wrap-permission">
+        <!-- tab -->
+        <div class="ddp-wrap-tab">
+          <ul class="ddp-ui-tab ddp-clear">
+            <li [ngClass]="{'ddp-selected' : tabChange === 'PRIVATE'}" (click)="tabChange='PRIVATE'">
+              <a href="javascript:" ><em class="ddp-icon-user-s2"></em>{{'msg.storage.ui.space.personal' | translate}} <span class="ddp-data-num">({{getLinkedPersonalWorkspace()}}/{{getTotalPersonalWorkspace()}})</span></a>
+            </li>
+            <li [ngClass]="{'ddp-selected' : tabChange === 'SHARED'}" (click)="tabChange='SHARED'">
+              <a href="javascript:" ><em class="ddp-icon-group-s2"></em>{{'msg.storage.ui.space.public' | translate}} <span class="ddp-data-num">({{getLinkedPublicWorkspace()}}/{{getTotalPublicWorkspace()}})</span></a>
+            </li>
+          </ul>
+        </div>
+        <!-- //tab -->
+
+        <!-- Personal tab contents -->
+        <div class="ddp-ui-tab-contents" *ngIf="tabChange === 'PRIVATE'">
+          <div class="ddp-wrap-switch">
+            <!-- 검색 -->
+            <div class="ddp-form-search">
+              <em class="ddp-icon-search"></em>
+              <input type="text" placeholder="Search by workspace"
+                     [ngModel]="searchPersonal"
+                     (keypress)="searchPrivateSpace($event)"
+                     (keyup.esc)="searchText('PRIVATE', $event, true)">
+              <em class="ddp-btn-search-close" *ngIf="searchPersonal !== ''"
+                  (click)="searchText('PRIVATE', $event, true)"></em>
+            </div>
+            <!-- //검색 -->
+            <!-- on 일때 ddp-selected 추가 -->
+            <a href="javascript:" class="ddp-btn-switch"
+               [ngClass]="{'ddp-selected' : filterPersonalFl}"
+               (click)="filtering('PRIVATE')"></a>
+          </div>
+
+          <!-- viewtable -->
+          <div class="ddp-wrap-viewtable">
+            <!-- 테이블 -->
+            <div class="ddp-box-viewtable">
+              <!-- gridhead -->
+              <div class="ddp-ui-gridhead">
+                <table class="ddp-table-form ddp-table-type2">
+                  <colgroup>
+                    <col width="51px">
+                    <col width="*">
+                    <col width="20%">
+                  </colgroup>
+                  <thead>
+                  <tr>
+                    <th class="ddp-txt-center">
+                      <div class="ddp-ui-checkbox" (click)="onCheckAll(checkAllWorkspace(), 'PRIVATE')" *ngIf="mode === 'create'">
+                        <input type="checkbox" class="ddp-checkbox-form" [checked]="checkAllWorkspace()">
+                        <i class="ddp-icon-checkbox"></i>
+                      </div>
+                    </th>
+                    <th class="ddp-cursor" (click)="sort('PRIVATE')">
+                      {{'msg.storage.th.space' | translate}}
+                      <em class="ddp-icon-array-asc2" *ngIf="personalWorkspaces.sort === 'name,asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="personalWorkspaces.sort === 'name,desc'"></em>
+                    </th>
+                    <th>
+                      {{'msg.storage.th.owner' | translate}}
+                    </th>
+                  </tr>
+                  </thead>
+
+                </table>
+              </div>
+              <!--// gridhead -->
+
+              <!-- gridbody -->
+              <div class="ddp-ui-gridbody">
+                <table class="ddp-table-form ddp-table-type2">
+                  <colgroup>
+                    <col width="51px">
+                    <col width="*">
+                    <col width="20%">
+                  </colgroup>
+                  <tbody>
+                  <!-- 체크시 상태 tr class="ddp-tr-select" 추가 -->
+                  <tr *ngFor="let workspace of personalWorkspaceList()"
+                      [ngClass]="{'ddp-tr-select' : checkInWorkspaces(workspace)}"
+                      (click)="onCheckedWorkspace(workspace, 'PRIVATE')">
+                    <td class="ddp-txt-center">
+                      <div class="ddp-ui-checkbox">
+                        <input type="checkbox" class="ddp-checkbox-form" [checked]="checkInWorkspaces(workspace)">
+                        <i class="ddp-icon-checkbox"></i>
+                      </div>
+                    </td>
+                    <td>
+                      <div class=" ddp-txt-long">
+                        {{workspace.name}}
+                        <span class="ddp-txt-colortype" *ngIf="workspace.description">-{{workspace.description}}</span>
+                      </div>
+                    </td>
+                    <td>
+                      {{workspace.owner.fullName}}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!--// gridbody -->
+            </div>
+            <!-- //테이블 -->
+            <!-- 더보기 -->
+            <div class="ddp-box-add-link" (click)="moreWorkspace(tabChange)" *ngIf="personalWorkspaces.page.number < personalWorkspaces.page.totalPages - 1">
+              <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+            </div>
+            <!-- //더보기 -->
+          </div>
+          <!-- //viewtable -->
+        </div>
+        <!-- //tab contents -->
+
+        <!-- Public tab contents -->
+        <div class="ddp-ui-tab-contents" *ngIf="tabChange === 'SHARED'">
+
+          <div class="ddp-wrap-switch">
+            <!-- 검색 -->
+            <div class="ddp-form-search">
+              <em class="ddp-icon-search"></em>
+              <input type="text" placeholder="Search by workspace"
+                     [ngModel]="searchPublic"
+                     (keyup.enter)="searchSharedSpace($event)"
+                     (keyup.esc)="searchText('SHARED', $event, true)">
+              <em class="ddp-btn-search-close" *ngIf="searchPublic !== ''"
+                  (click)="searchText('SHARED', $event, true)"></em>
+            </div>
+            <!-- //검색 -->
+            <!-- on 일때 ddp-selected 추가 -->
+            <a href="javascript:" class="ddp-btn-switch"
+               [ngClass]="{'ddp-selected' : filterPublicFl}"
+               (click)="filtering('SHARED')"></a>
+          </div>
+
+          <!-- viewtable -->
+          <div class="ddp-wrap-viewtable">
+            <!-- 테이블 -->
+            <div class="ddp-box-viewtable">
+              <!-- gridhead -->
+              <div class="ddp-ui-gridhead">
+                <table class="ddp-table-form ddp-table-type2">
+                  <colgroup>
+                    <col width="51px">
+                    <col width="*">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="20%">
+                  </colgroup>
+                  <thead>
+                  <tr>
+                    <th class="ddp-txt-center">
+                      <div class="ddp-ui-checkbox" (click)="onCheckAll(checkAllWorkspace(), 'SHARED')" *ngIf="mode === 'create'">
+                        <input type="checkbox" class="ddp-checkbox-form" [checked]="checkAllWorkspace()">
+                        <i class="ddp-icon-checkbox"></i>
+                      </div>
+                    </th>
+                    <th class="ddp-cursor" (click)="sort('SHARED')">
+                      {{'msg.storage.th.space' | translate}}
+                      <em class="ddp-icon-array-asc2" *ngIf="publicWorkspaces.sort === 'name,asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="publicWorkspaces.sort === 'name,desc'"></em>
+                    </th>
+                    <th>
+                      {{'msg.storage.th.mem' | translate}}
+                    </th>
+                    <th>
+                      {{'msg.storage.th.group' | translate}}
+                    </th>
+                    <th>
+                      {{'msg.storage.th.owner' | translate}}
+                    </th>
+                  </tr>
+                  </thead>
+
+                </table>
+              </div>
+              <!--// gridhead -->
+
+              <!-- gridbody -->
+              <div class="ddp-ui-gridbody">
+                <table class="ddp-table-form ddp-table-type2">
+                  <colgroup>
+                    <col width="51px">
+                    <col width="*">
+                    <col width="10%">
+                    <col width="10%">
+                    <col width="20%">
+                  </colgroup>
+                  <tbody>
+                  <tr *ngFor="let workspace of publicWorkspaceList()"
+                      [ngClass]="{'ddp-tr-select' : checkInWorkspaces(workspace)}"
+                      (click)="onCheckedWorkspace(workspace, 'SHARED')">
+                    <td class="ddp-txt-center">
+                      <div class="ddp-ui-checkbox">
+                        <input type="checkbox" class="ddp-checkbox-form" [checked]="checkInWorkspaces(workspace)">
+                        <i class="ddp-icon-checkbox"></i>
+                      </div>
+                    </td>
+                    <td>
+                      <div class=" ddp-txt-long">
+                        {{workspace.name}}
+                        <span class="ddp-txt-colortype" *ngIf="workspace.description">-{{workspace.description}}</span>
+                      </div>
+                    </td>
+                    <td>
+                     {{workspace.countByMemberType.user}}
+                    </td>
+                    <td>
+                      {{workspace.countByMemberType.group}}
+                    </td>
+                    <td>
+                      {{workspace.owner.fullName}}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+
+              </div>
+              <!--// gridbody -->
+            </div>
+            <!-- //테이블 -->
+            <!-- 더보기 -->
+            <div class="ddp-box-add-link" (click)="moreWorkspace(tabChange)" *ngIf="publicWorkspaces.page.number < publicWorkspaces.page.totalPages - 1">
+              <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+            </div>
+            <!-- //더보기 -->
+          </div>
+          <!-- //viewtable -->
+        </div>
+        <!-- //tab contents -->
+      </div>
+    </div>
+  </div>
+</div>

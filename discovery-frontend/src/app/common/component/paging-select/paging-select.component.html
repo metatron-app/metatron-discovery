@@ -1,0 +1,30 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div [class.ddp-selectbox-disabled]="disabled">
+  <div class="ddp-type-selectbox" [class.ddp-selected]="isShowOptions" (click)="onOffShowOptions()" >
+    <span class="ddp-txt-selectbox">{{selectedItem == null ? unselectedMessage : viewKey ? selectedItem[viewKey] : selectedItem }}</span>
+    <ul [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-pass' : isOptionToLeft, 'ddp-pass2' : !isOptionToLeft }"
+        class="ddp-list-selectbox"
+        infinite-scroll
+        [scrollWindow]="false"
+        [infiniteScrollDistance]="5"
+        [infiniteScrollThrottle]="150"
+        (scrolled)="onScroll()" >
+      <li *ngFor="let item of array">
+        <a href="javascript:" (click)="selectItem(item);">{{viewKey ? item[viewKey] : item}}</a>
+      </li>
+    </ul>
+  </div>
+</div>

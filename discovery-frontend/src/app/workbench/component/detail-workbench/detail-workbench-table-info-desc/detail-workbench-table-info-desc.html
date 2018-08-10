@@ -1,0 +1,36 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-box-layout4 ddp-layout-info " [ngStyle]="{'top':getTop}">
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!--<div class="ddp-data-title">-->
+    <!--{{tables}} &lt;!&ndash; 빌드 오류로 변수 이름 변경해둡니다.. 로직에 맞춰 다시 변경해주세요 &ndash;&gt;-->
+  <!--</div>-->
+  <table class="ddp-table-info">
+    <colgroup>
+      <col width="130px" />
+      <col width="" />
+    </colgroup>
+    <tbody>
+    <tr *ngFor="let data of tables">
+      <th>
+        {{data.itemkey}}
+      </th>
+      <td>
+        {{data.item}}
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

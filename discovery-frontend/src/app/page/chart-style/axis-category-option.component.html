@@ -1,0 +1,109 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 축이 category타입일때에만 show -->
+<!-- 레이블 표시 -->
+<div class="ddp-wrap-divide" [ngClass]="{'ddp-first': firstFl}">
+  <!-- slider -->
+  <div class="ddp-wrap-option-slider">
+    <span class="ddp-label-slider">{{'msg.page.chart.axis.show.axis.label' | translate}}</span>
+    <!-- Slide THREE -->
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+      <input type="checkbox" (click)="showAxisLabel(axis.mode, !axis.showLabel)" [checked]="axis.showLabel">
+      <label><span class="ddp-slide"></span></label>
+    </div>
+    <!-- //Slide THREE -->
+  </div>
+  <!-- //slider -->
+  <div *ngIf="axis.showLabel" class="ddp-list-sub2">
+    <div class="ddp-divide2">
+      <div class="ddp-list-label">{{'msg.page.chart.axis.label.rotation' | translate}}</div>
+      <!-- SELECTBOX -->
+      <div class="ddp-type-selectbox" (click)="axis.showLabel ? xAxisRotateFlag=!xAxisRotateFlag : null" (clickOutside)="xAxisRotateFlag=false" [excludeBeforeClick]="true">
+        <span *ngIf="!axis.label || !axis.label['rotation'] || 0 == axis.label['rotation']" class="ddp-txt-selectbox" translate [translateParams]="{value: 0}">{{'msg.page.format.xaxis.rotation'}}</span>
+        <span *ngIf="axis.label && axis.label['rotation'] && 90 == axis.label['rotation']" class="ddp-txt-selectbox" translate [translateParams]="{value: 90}">{{'msg.page.format.xaxis.rotation'}}</span>
+        <span *ngIf="axis.label && 45 == axis.label['rotation']" class="ddp-txt-selectbox" translate [translateParams]="{value: 45}">{{'msg.page.format.xaxis.rotation'}}</span>
+        <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="xAxisRotateFlag">
+          <li (click)="rotateAxisLabel(axis.mode, 0);">
+            <a href="javascript:" translate [translateParams]="{value: 0}">
+              {{'msg.page.format.xaxis.rotation'}}
+            </a>
+          </li>
+          <li (click)="rotateAxisLabel(axis.mode, 45);">
+            <a href="javascript:" translate [translateParams]="{value: 45}">
+              {{'msg.page.format.xaxis.rotation'}}
+            </a>
+          </li>
+          <li (click)="rotateAxisLabel(axis.mode, 90);">
+            <a href="javascript:" translate [translateParams]="{value: 90}">
+              {{'msg.page.format.xaxis.rotation'}}
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- //SELECTBOX -->
+    </div>
+    <div class="ddp-divide2">
+      <div class="ddp-list-label">{{'msg.page.chart.axis.label.max.length' | translate}}</div>
+      <input type="number" input-mask="number" (keyup.enter)="setMaxLength()" class="ddp-input-typebasic" [(ngModel)]="axis.label['maxLength']">
+    </div>
+  </div>
+</div>
+<!-- //레이블 표시 -->
+<!-- //배경 표시 -->
+<div class="ddp-wrap-divide">
+  <!-- slider -->
+  <div class="ddp-wrap-option-slider">
+    <span class="ddp-label-slider">{{'msg.page.xaxis.show.background' | translate}}</span>
+    <!-- Slide THREE -->
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+      <input type="checkbox" [checked]="axis['background']" (click)="toggleBackground()">
+      <label><span class="ddp-slide"></span></label>
+    </div>
+    <!-- //Slide THREE -->
+  </div>
+  <!-- //slider -->
+  <div *ngIf="axis['background']" class="ddp-list-sub2">
+    <div class="ddp-wrap-option-multy ddp-clear">
+      <div class="ddp-col-7">
+        <span class="ddp-label-txt">{{'msg.page.xaxis.background.color' | translate}}</span>
+      </div>
+      <div class="ddp-col-5 ddp-txt-right">
+        <!-- selectbox -->
+        <div class="ddp-type-selectbox ddp-color-selectbox2 ">
+          <color-picker [showAlpha]="true" [color]="axis['background']['color']" [showInitial]="true"
+                        [showInput]="true" [showUserColor]="true"  (selected)="changeBackgroundColor($event)"></color-picker>
+        </div>
+        <!-- //selectbox -->
+      </div>
+    </div>
+    <div class="ddp-wrap-option-multy ddp-clear">
+      <div class="ddp-col-5">
+        <span class="ddp-label-txt">{{'msg.page.xaxis.background.transparency' | translate}}</span>
+      </div>
+      <div class="ddp-col-7">
+        <!-- SELECTBOX -->
+        <component-select
+          [array]="transparencyList"
+          [defaultIndex]="getTransparencyIndex()"
+          [viewKey]="'name'"
+          (onSelected)="changeTransprency($event)"
+        ></component-select>
+        <!-- SELECTBOX -->
+      </div>
+    </div>
+  </div>
+</div>
+<!-- //배경 표시 -->
+<!-- 축이 category타입일때에만 show -->

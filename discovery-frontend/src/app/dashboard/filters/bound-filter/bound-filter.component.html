@@ -1,0 +1,53 @@
+
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-slider-type type-per ddp-slider-bg">
+  <!-- Input Range -->
+  <div class="ddp-range-num">
+    <div class="ddp-data-num ddp-min">
+      <span class="ddp-label">Minimum</span>
+      <div class="ddp-input-apply" >
+        <input #inputMinValue [ngModel]="filter.min"
+               (keypress)="setMinValueByEnter($event)" (keyup.esc)="resetMinValue()"
+               type="text" class="ddp-input-txt" />
+        <em (click)="setMinValue()" class="ddp-icon-apply"></em>
+        <em class="ddp-icon-apply-loading"></em>
+      </div>
+    </div>
+    <div class="ddp-data-num ddp-max">
+      <span class="ddp-label">Maximum</span>
+      <div class="ddp-input-apply" >
+        <input #inputMaxValue [ngModel]="filter.max"
+               (keypress)="setMaxValueByEnter($event)" (keyup.esc)="resetMaxValue()"
+               type="text" class="ddp-input-txt">
+        <em (click)="setMaxValue()" class="ddp-icon-apply"></em>
+        <em class="ddp-icon-apply-loading"></em>
+      </div>
+    </div>
+  </div>
+  <!-- // Input Range -->
+
+  <input #rangeSlider type="text" value="" name="range" />
+
+  <!-- data range -->
+  <div class="ddp-data-range">
+    <span class="ddp-label-range">Available input range</span>
+    <span class="ddp-view-range">
+      <span>{{filter.minValue}} ~</span>
+      <span>{{filter.maxValue}}</span>
+    </span>
+  </div>
+  <!-- // data range -->
+</div>

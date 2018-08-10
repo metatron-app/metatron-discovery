@@ -1,0 +1,296 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype" *ngIf="isShow">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+        {{'msg.space.set.member' | translate}}
+      </span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="updateUser()">{{'msg.comm.btn.done' | translate}}</a>
+      </div>
+      <!-- det -->
+    </div>
+    <!-- //title -->
+    <div class="ddp-ui-popup-contents">
+
+      <div class="ddp-wrap-share-set">
+        <!-- tab -->
+        <div class="ddp-wrap-tab">
+          <ul class="ddp-ui-tab ddp-clear">
+            <li [ngClass]="{'ddp-selected' : isShowUserTab}" (click)="clickUserTab()">
+              <a href="javascript:">{{'msg.space.ui.shared.member' | translate}} <span class="ddp-data-num">{{totalUsers}}</span></a>
+            </li>
+            <li [ngClass]="{'ddp-selected' : !isShowUserTab}" (click)="clickGroupTab()">
+              <a href="javascript:">{{'msg.space.ui.shared.group' | translate}} <span class="ddp-data-num">{{totalGroups}}</span></a>
+            </li>
+          </ul>
+        </div>
+        <!-- //tab -->
+
+        <!-- 멤버 tab contents -->
+        <div class="ddp-ui-tab-contents">
+          <!-- left -->
+          <div class="ddp-ui-left">
+            <div class="ddp-wrap-switch">
+              <!-- 검색 -->
+              <div class="ddp-form-search">
+                <em class="ddp-icon-search"></em>
+                <input #inputSearch type="text"
+                       placeholder="{{ isShowUserTab ? ( 'msg.comm.search.usr' | translate ) : 'msg.comm.search.grp' | translate}}"
+                       [ngModel]="searchText"
+                       (keypress)="searchDataPressKey($event)"
+                       (keyup.esc)="resetSearchText(false)"
+                       (clickOutside)="resetSearchText(false)">
+                <em class="ddp-btn-search-close" *ngIf="searchText != ''" (click)="resetSearchText(true);searchData();"></em>
+              </div>
+              <!-- //검색 -->
+            </div>
+
+            <!-- member -->
+            <div class="ddp-ui-member">
+              <ul class="ddp-list-checktype" *ngIf="isShowUserTab">
+                <li class="ddp-all">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox" [checked]="isCheckAllUser" (click)="clickCheckAll()" >
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{ 'msg.comm.btn.data.all' | translate }}</span>
+                  </label>
+                </li>
+                <li *ngFor="let user of users">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox"  [checked]="checkIsSharedTarget(user)" (click)="setSharedTarget(user)">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{user.fullName}} ({{user.id}})</span>
+                  </label>
+                </li>
+              </ul>
+              <ul class="ddp-list-checktype" *ngIf="!isShowUserTab">
+                <li class="ddp-all">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox" [checked]="isCheckAllGroup" (click)="clickCheckAll()" >
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{ 'msg.comm.btn.data.all' | translate }}</span>
+                  </label>
+                </li>
+                <li *ngFor="let group of groups" >
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox" [checked]="checkIsSharedTarget(group)" (click)="setSharedTarget(group)">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{getPredefinedName(group.name)}}</span>
+                  </label>
+                </li>
+              </ul>
+            </div>
+            <!-- //member -->
+
+            <!-- 더보기 -->
+            <div class="ddp-ui-moretype">
+              <a (click)="getMore()" href="javascript:" class="ddp-btn-moretype">{{'msg.comm.ui.more' | translate}}</a>
+            </div>
+            <!-- //더보기 -->
+          </div>
+          <!-- //left -->
+
+          <!-- right -->
+          <div class="ddp-ui-right ddp-wrap-member-table">
+            <!-- 멤버 -->
+            <div class="ddp-ui-member-table" *ngIf="isShowUserTab">
+
+              <span class="ddp-data-total2"><strong>{{workspaceUsers.length}}</strong> selections</span>
+              <!-- roles -->
+              <div class="ddp-wrap-roles" [class.ddp-selected]="isShowPermSchemaPopup">
+                <span class="ddp-label" (click)="isShowPermSchemaPopup = true">
+                  {{ 'msg.spaces.permission.schema.userroles' | translate }}
+                </span>
+                <!-- popup -->
+                <div class="ddp-pop-form" *ngIf="roleSet">
+                  <a (click)="isShowPermSchemaPopup = false" href="javascript:" class="ddp-close"></a>
+                  <div class="ddp-label-title">Dashboard data information</div>
+                  <app-permission-schema [roleSet]="roleSet" [editMode]="false"></app-permission-schema>
+                </div>
+                <!-- //popup -->
+              </div>
+              <!-- roles -->
+              <div class="ddp-box-viewtable2 ddp-user" *ngIf="roleSet">
+                <!-- head -->
+                <div class="ddp-ui-gridhead2">
+                  <table class="ddp-table-form2">
+                    <colgroup>
+                      <col width="*">
+                      <col width="20%">
+                      <col width="45%">
+                      <col width="30px">
+                    </colgroup>
+                    <thead>
+                    <tr>
+                      <th> {{'msg.comm.th.id' | translate}}</th>
+                      <th> {{'msg.comm.th.usr.name' | translate}}</th>
+                      <th> {{'msg.comm.th.role' | translate}}</th>
+                      <th class="ddp-table-icons"></th>
+                    </tr>
+                    </thead>
+                  </table>
+                </div>
+                <!-- //head -->
+                <!-- body -->
+                <div class="ddp-ui-gridbody2">
+                  <table class="ddp-table-form2">
+                    <colgroup>
+                      <col width="*">
+                      <col width="20%">
+                      <col width="45%">
+                      <col width="30px">
+                    </colgroup>
+                    <tbody>
+                    <tr *ngFor="let userItem of workspaceUsers">
+                      <td>
+                        <div class="ddp-ui-photo">
+                          <img [src]="getUserImage(userItem.member)" class="ddp-data-photo"/> {{userItem.member.username}}
+                        </div>
+                      </td>
+                      <td> {{userItem.member.fullName}} </td>
+                      <td class="ddp-inherit">
+                        <!-- Select box -->
+                        <div class="ddp-ui-selected-option" [class.ddp-selected]="userItem['selected']"
+                             (click)="clickRoleCombobox(userItem)" >
+                          <span class="ddp-link-text">
+                            {{userItem.role}} <span class="ddp-wrap-icons"></span>
+                          </span>
+                          <div class="ddp-wrap-popup2">
+                            <ul class="ddp-list-popup">
+                              <li *ngFor="let roleItem of roleSet.roles"
+                                  [class.ddp-selected]="userItem.role === roleItem.name"
+                                  (click)="userItem.role = roleItem.name;">
+                                <a href="javascript:">{{roleItem.name}}<em class="ddp-icon-check"></em></a>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                        <!-- // Select box -->
+                      </td>
+                      <td class="ddp-table-icons">
+                        <em class="ddp-icon-sclose" (click)="setSharedTarget(userItem.member)"></em>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <!-- //body -->
+              </div>
+              <!-- 더보기 -->
+              <div class="ddp-ui-moretype">
+                <a (click)="getWsMemberMore()" href="javascript:" class="ddp-btn-moretype">{{'msg.comm.ui.more' | translate}}</a>
+              </div>
+              <!-- //더보기 -->
+            </div>
+            <!-- //멤버 -->
+
+            <!-- 그룹 -->
+            <div class="ddp-ui-member-table" *ngIf="!isShowUserTab">
+              <span class="ddp-data-total2"><strong>{{workspaceGroups.length}}</strong> selections</span>
+              <!-- roles -->
+              <div class="ddp-wrap-roles" [class.ddp-selected]="isShowPermSchemaPopup">
+                <span class="ddp-label" (click)="isShowPermSchemaPopup = true">
+                  {{ 'msg.spaces.permission.schema.userroles' | translate }}
+                </span>
+                <!-- popup -->
+                <div class="ddp-pop-form" *ngIf="roleSet">
+                  <a (click)="isShowPermSchemaPopup = false" href="javascript:" class="ddp-close"></a>
+                  <div class="ddp-label-title">Dashboard data information</div>
+                  <app-permission-schema [roleSet]="roleSet" [editMode]="false"></app-permission-schema>
+                </div>
+                <!-- //popup -->
+              </div>
+              <!-- roles -->
+              <div class="ddp-box-viewtable2 ddp-user" *ngIf="roleSet">
+                <!-- head -->
+                <div class="ddp-ui-gridhead2">
+                  <table class="ddp-table-form2">
+                    <colgroup>
+                      <col width="*">
+                      <col width="45%">
+                      <col width="30px">
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th>{{'msg.comm.th.grp.name' | translate}}</th>
+                        <th>{{'msg.comm.th.role' | translate}}</th>
+                        <th class="ddp-table-icons"></th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+                <!-- //head -->
+                <!-- body -->
+                <div class="ddp-ui-gridbody2">
+                  <table class="ddp-table-form2">
+                    <colgroup>
+                      <col width="*">
+                      <col width="45%">
+                      <col width="30px">
+                    </colgroup>
+                    <tbody>
+                      <tr *ngFor="let groupItem of workspaceGroups">
+                        <td>
+                          <em class="ddp-icon-group"></em> {{getPredefinedName(groupItem.member.name)}}
+                        </td>
+                        <td class="ddp-inherit">
+
+                          <!-- Select box -->
+                          <div class="ddp-ui-selected-option" [class.ddp-selected]="groupItem['selected']"
+                               (click)="groupItem['selected'] = !groupItem['selected']" >
+                            <span class="ddp-link-text">
+                              {{groupItem.role}} <span class="ddp-wrap-icons"></span>
+                            </span>
+                            <div class="ddp-wrap-popup2">
+                              <ul class="ddp-list-popup">
+                                <li *ngFor="let roleItem of roleSet.roles"
+                                    [class.ddp-selected]="groupItem.role === roleItem.name"
+                                    (click)="groupItem.role = roleItem.name;">
+                                  <a href="javascript:">{{roleItem.name}}<em class="ddp-icon-check"></em></a>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                          <!-- // Select box -->
+                        </td>
+                        <td class="ddp-table-icons">
+                          <em class="ddp-icon-sclose" (click)="setSharedTarget(groupItem.member)"></em>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <!-- //body -->
+              </div>
+              <!-- 더보기 -->
+              <div class="ddp-ui-moretype">
+                <a (click)="getWsMemberMore()" href="javascript:" class="ddp-btn-moretype">{{'msg.comm.ui.more' | translate}}</a>
+              </div>
+              <!-- //더보기 -->
+            </div>
+            <!-- //그룹 -->
+          </div>
+          <!-- right -->
+        </div>
+        <!-- //tab contents -->
+      </div>
+    </div>
+  </div>
+</div>

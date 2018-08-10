@@ -1,0 +1,44 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div *ngIf="isLiveStatus" [class.ddp-selected]="isOpenOpts" class="ddp-dropdown-filter">
+  <div (click)="isOpenOpts = !isOpenOpts"
+       [ngClass]="{'CHANGE': 'ddp-top-summary', 'PANEL': 'ddp-none-bar ddp-select-bar'}[mode]" >
+    {{timeUnitLabel}} <em class="ddp-icon-view"></em>
+  </div>
+  <!-- popup -->
+  <div class="ddp-wrap-popup2">
+    <div class="ddp-label-type">Continuous type</div>
+    <ul class="ddp-list-popup">
+      <li *ngFor="let unit of dpContinuousList"
+          (click)="selectTimeUnit( false, unit.toUpperCase() )"
+          [class.ddp-selected]="isSelectedContinuous(unit)">
+        <a href="javascript:">
+          {{unit}} <em class="ddp-icon-check"></em>
+        </a>
+      </li>
+    </ul>
+    <div class="ddp-label-type">DisContinuous type</div>
+    <ul class="ddp-list-popup">
+      <li *ngFor="let byUnit of dpDiscontinuousList"
+          (click)="selectTimeUnit( true, byUnit['unit'], byUnit['byUnit'] )"
+          [class.ddp-selected]="isSelectedDiscontinuous(byUnit)">
+        <a href="javascript:">
+          {{ byUnit['name'] }} <em class="ddp-icon-check"></em>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <!-- //popup -->
+</div>

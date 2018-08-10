@@ -1,0 +1,215 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<em class="ddp-bg-back"></em>
+<div class="ddp-ui-contents-in">
+  <!-- top -->
+  <div class="ddp-ui-contents-top">
+    <div class="ddp-ui-title">
+      {{'msg.comm.menu.manage.storage' | translate}}
+    </div>
+
+    <!-- tab -->
+    <ul class="ddp-list-top-tab">
+      <li class="ddp-selected">
+        <a [routerLink]="['/management/storage/datasource']">{{'msg.comm.menu.manage.storage.ds' | translate}}</a>
+      </li>
+      <li>
+        <a [routerLink]="['/management/storage/data-connection']">{{'msg.comm.menu.manage.storage.conn' | translate}}</a>
+      </li>
+    </ul>
+    <!-- //tab -->
+
+  </div>
+  <!-- //top -->
+
+  <div class="ddp-ui-contents-list">
+    <div class="ddp-wrap-option">
+      <!-- option -->
+      <div class="ddp-ui-option ddp-clear">
+
+        <!-- edit -->
+        <div class="ddp-wrap-edit">
+          <label class="ddp-label-type">{{'msg.storage.th.data_type' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option">
+            <!-- select box -->
+            <component-select
+              [array]="dataTypes"
+              [viewKey]="'name'"
+              (onSelected)="onChangeType($event)">
+            </component-select>
+            <!-- //select box -->
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //edit -->
+
+        <!-- edit -->
+        <div class="ddp-wrap-edit">
+          <label class="ddp-label-type">{{'msg.storage.th.ingestion_type' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option">
+            <!-- select box -->
+            <component-select
+              [array]="ingestionTypes"
+              [viewKey]="'name'"
+              (onSelected)="onChangeIngestionType($event)">
+            </component-select>
+            <!-- //select box -->
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //edit -->
+        <!-- edit -->
+        <div class="ddp-wrap-edit">
+          <label class="ddp-label-type">{{'msg.storage.th.status' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option">
+            <!-- select box -->
+            <component-select
+              [array]="status"
+              [viewKey]="'name'"
+              (onSelected)="onChangeStatus($event)">
+            </component-select>
+            <!-- //select box -->
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //edit -->
+        <!-- edit -->
+        <div class="ddp-wrap-edit">
+          <label class="ddp-label-type">{{'msg.storage.th.allowance' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option ddp-inline">
+            <label class="ddp-label-checkbox" (click)="onChangeAllowed(!searchPublished)">
+              <input type="checkbox" [checked]="searchPublished">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.space.th.allowance' | translate}}</span>
+            </label>
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //edit -->
+        <div class="ddp-ui-rightoption">
+          <a href="javascript:" class="ddp-link-reset" (click)="initFilters()"><em class="ddp-btn-reset3"></em>{{'msg.mem.btn.refresh' | translate}}</a>
+        </div>
+      </div>
+      <!-- //option -->
+      <!-- option -->
+      <div class="ddp-ui-option ddp-clear">
+        <!-- edit -->
+        <component-period
+          [dateType]="true"
+          [roundSecond]="true"
+          (changeDate)="onChangeData($event)"
+        ></component-period>
+        <!-- //edit -->
+      </div>
+      <!-- //option -->
+
+      <!-- option -->
+      <div class="ddp-ui-option ddp-clear ddp-optiontype">
+        <!-- 검색 -->
+        <div class="ddp-form-search ddp-fleft">
+          <em class="ddp-icon-search"></em>
+          <input type="text" placeholder="{{'msg.storage.ui.dsource.search.description' | translate}}"
+                 [(ngModel)]="searchText"
+                 (keypress)="searchDatasourceEvent($event);" (keyup.esc)="searchEvent(false);">
+          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchEvent(false)"></em>
+        </div>
+        <!-- //검색 -->
+        <!-- right -->
+        <div class="ddp-ui-rightoption">
+          <span class="ddp-data-total" [innerHTML]="'msg.storage.ui.dsource.num.lists' | translate : { value : getTotalContentsCount} "></span>
+          <!-- disabled 시 class="ddp-disabled" 추가 -->
+          <a href="javascript:" class="ddp-btn-link" (click)="changeMode('create-data-source')"><em class="ddp-icon-link-add"></em>{{'msg.storage.btn.create.dsource' | translate}}</a>
+        </div>
+        <!-- //right -->
+      </div>
+      <!-- //option -->
+    </div>
+
+
+    <table class="ddp-table-form ddp-table-type3">
+      <colgroup>
+        <col width="*">
+        <col width="10%">
+        <col width="13%">
+        <col width="7%">
+        <col width="20%">
+      </colgroup>
+      <thead>
+      <tr>
+        <th>
+          {{'msg.comm.th.ds' | translate}}
+        </th>
+        <th>
+          {{'msg.storage.th.data_type' | translate}}
+        </th>
+        <th>
+          {{'msg.storage.th.ingestion_type' | translate}}
+        </th>
+        <th>
+          {{'msg.storage.th.status' | translate}}
+        </th>
+        <th class="ddp-cursor" (click)="sort('createdTime')">
+          {{'msg.comm.th.created' | translate}}
+          <!--<em class="ddp-icon-array-default2"></em>-->
+          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let datasource of datasources" (click)="openDatasourceDetail(datasource.id)">
+        <td>
+          <div class="ddp-txt-long" [class.ddp-global]="datasource.published">
+            {{datasource.name}}
+            <span class="ddp-txt-colortype" *ngIf="datasource.description">-{{datasource.description}}</span>
+            <em class="ddp-tag-global" *ngIf="datasource.published">{{'msg.comm.ui.list.ds.opendata' | translate}}</em>
+          </div>
+        </td>
+        <td>
+          {{getDataTypeChange(datasource.srcType)}}
+        </td>
+        <td>
+          {{(datasource.connType.toString() == 'ENGINE' ? 'msg.storage.ui.list.ingested.data':'msg.storage.ui.list.linked.data') | translate}}
+        </td>
+        <td>
+          <span class="{{getSourceStatusIcon(datasource.status)}}">{{getSourceStatus(datasource)}}</span>
+        </td>
+        <td class="ddp-data-last">
+          {{datasource.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}  <em class="ddp-icon-by">{{'msg.storage.ui.by' | translate}}</em>{{datasource.createdBy.fullName}}
+          <div class="ddp-btn-control">
+            <em class="ddp-icon-control-cut" (click)="deleteModalOpen(datasource)"></em>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <!-- 더보기 -->
+    <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="getMoreList()">
+      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+    </div>
+    <!-- //더보기 -->
+  </div>
+</div>
+<!-- 데이터소스 생성 -->
+<app-create-data-source *ngIf="mode=='create-data-source'"
+                        (sourceCreateClose)="changeMode( '' )"
+                        (sourceCreateComplete)="createComplete()"></app-create-data-source>
+<!-- 삭제 모달 -->
+<app-delete-modal (deleteConfirm)="deleteSource()"></app-delete-modal>
+<!-- 데이터소스 상세 -->

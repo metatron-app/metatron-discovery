@@ -1,0 +1,88 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 미리보기 팝업 -->
+<div class="ddp-pop-preview ddp-type" *ngIf="batchFl">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      {{'msg.storage.ui.batch-history' | translate}}
+    </div>
+    <em class="ddp-btn-popup-close" (click)="batchFl=false"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+
+  <div class="ddp-ui-preview-contents">
+    <!-- table -->
+    <table class="ddp-table-form ddp-table-type3">
+      <colgroup>
+        <col width="51px">
+        <col width="10%">
+        <col width="*">
+        <col width="15%">
+        <col width="15%">
+      </colgroup>
+      <thead>
+      <tr>
+        <th class="ddp-txt-center">
+          {{'msg.comm.th.no' | translate}}
+        </th>
+        <th>
+          {{'msg.storage.th.status' | translate}}
+        </th>
+        <th>
+          {{'msg.storage.th.detail' | translate}}
+        </th>
+        <th>
+          {{'msg.storage.th.start.time' | translate}}
+        </th>
+        <th>
+          {{'msg.storage.th.elapsed.time' | translate}}
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let history of histories; let i = index">
+          <td class="ddp-txt-center">
+            {{i + 1}}
+          </td>
+          <td>
+            <span class="ddp-data-state {{getIconStatus(history)}}">
+              <em class="ddp-icon-state"></em>{{getStatus(history)}}</span>
+          </td>
+          <td>
+            <div class=" ddp-txt-long">
+              {{history.cause}}
+            </div>
+          </td>
+          <td>
+            <span class="ddp-data-date">{{history.createdTime | mdate : 'YYYY-MM-DD HH:mm'}}</span>
+          </td>
+          <td>
+            <span class="ddp-data-date">{{convertMilliseconds(history.duration)}}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!--// table -->
+    <!-- 더보기 -->
+    <div class="ddp-box-add-link" *ngIf="checkMoreContents()" (click)="moreList()">
+      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+    </div>
+    <!-- //더보기 -->
+  </div>
+  <!-- //cpmtemts -->
+</div>
+<!-- //미리보기 팝업 -->

@@ -1,0 +1,117 @@
+/* Ion.RangeSlider, Flat UI Skin
+// css version 2.0.3
+// © Denis Ineshin, 2014    https://github.com/IonDen
+// ===================================================================================================================*/
+
+/* =====================================================================================================================
+// Skin details */
+
+.irs-line-mid,
+.irs-line-left,
+.irs-line-right,
+.irs-bar,
+.irs-bar-edge,
+.irs-slider {}
+
+.irs {
+    height: 28px;
+}
+.irs-with-grid {
+    height: 60px;
+}
+.irs-line {
+    height: 12px; top: 25px;
+}
+    .irs-line-left {
+        height: 3px;
+        background-color:#ddd;;
+        border-radius:1px 0 0 1px;
+    }
+    .irs-line-mid {
+        height: 3px;
+        background-color:#ddd;
+    }
+    .irs-line-right {
+        height: 3px;
+        background-color:#ddd;
+        border-radius:0 1px 1px 0;
+    }
+
+.irs-bar {
+    height: 3px; top: 25px;
+    background-position: 0 -60px;
+    background-color:#90969f;
+}
+    .irs-bar-edge {
+        top: 25px;
+        height: 12px; width: 9px;
+        background-position: 0 -90px;
+    }
+
+.irs-shadow {
+    height: 3px; top: 34px;
+    background: #000;
+    opacity: 0.25;
+}
+.lt-ie9 .irs-shadow {
+    filter: alpha(opacity=25);
+}
+
+.irs-slider {
+    width: 7px; height: 7px;
+    top: 23px;
+    background-color:#4b515b;
+    border-radius:45%;
+
+}
+.irs-slider.state_hover, .irs-slider:hover {
+    background-position: 0 -150px;
+}
+
+.irs-min, .irs-max {
+    color: #999;
+    font-size: 10px; line-height: 1.333;
+    text-shadow: none;
+    top: 0; padding: 1px 3px;
+    background: #e1e4e9;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.irs-from, .irs-to, .irs-single {
+    color: #a4aab0;
+    font-size: 12px;
+	padding: 1px 0;
+    /*
+	text-shadow: none;
+    background: #ed5565;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+	*/
+}/*
+.irs-from:after, .irs-to:after, .irs-single:after {
+    position: absolute; display: block; content: "";
+    bottom: -6px; left: 50%;
+    width: 0; height: 0;
+    margin-left: -3px;
+    overflow: hidden;
+    border: 3px solid transparent;
+    border-top-color: #ed5565;
+}*/
+
+
+.irs-grid-pol {
+    background: #e1e4e9;
+}
+.irs-grid-text {
+    color: #999;
+}
+
+.irs-disabled {
+}
+
+.irs-from {display:block !important; left:0.0519751% !important; visibility:visible !important;}
+.irs-to {display:block !important; text-align:right !important; visibility:visible !important;}
+.irs-single {margin-top:35px; color:#4b515b; font-size:10px;}
+.irs-from:before {content:'최소'; margin-right:7px;}
+.irs-to:before {content:'최대';  margin-right:7px;}

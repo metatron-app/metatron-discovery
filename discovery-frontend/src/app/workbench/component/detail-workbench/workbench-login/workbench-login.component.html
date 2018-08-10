@@ -1,0 +1,63 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- popup wrap -->
+<div class="ddp-wrap-popup" style="z-index:100;" *ngIf="isShow">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup-in">
+    <!-- popup -->
+    <div class="ddp-ui-popup">
+      <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+      <span class="ddp-ui-pop-title">{{'msg.space.ui.tag.workbench'|translate}} {{'msg.comm.usr.login'|translate}}</span>
+      <div class="ddp-txt-pop-info ddp-padt0">
+        {{'msg.bench.ui.wb.login.msg'|translate}}
+      </div>
+
+      <!-- contents -->
+      <div class="ddp-ui-user-contet">
+
+        <!-- error 일때 ddp-type-error 추가 -->
+        <div class="ddp-ui-input-form">
+          <label class="ddp-label-type">{{'msg.comm.usr.id.title'|translate}}</label>
+          <div class="ddp-input-check">
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.bench.ui.input.db.id'|translate}}" [(ngModel)]="loginId" (keyup.ESC)="loginId = ''" (keyup.Enter)="checkConnection()"/>
+          </div>
+
+          <!-- error 메시지 -->
+          <!--<span class="ddp-ui-error">-->
+          <!--<em class="ddp-icon-error"></em>Invalid User Name-->
+          <!--</span>-->
+          <!-- //error 메시지 -->
+        </div>
+
+        <!-- error 일때 ddp-type-error 추가 -->
+        <div class="ddp-ui-input-form">
+          <label class="ddp-label-type">{{'msg.comm.usr.pw.title'|translate}}</label>
+          <div class="ddp-input-check">
+            <input type="password" class="ddp-input-type" placeholder="{{'msg.bench.ui.input.db.passwd'|translate}}" [(ngModel)]="loginPw" (keyup.ESC)="loginPw = ''" (keyup.Enter)="checkConnection()"/>
+          </div>
+        </div>
+      </div>
+      <!-- //contents -->
+      <!-- buttons -->
+      <div class="ddp-ui-buttons2">
+        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " (click)="checkConnection()">{{'msg.comm.usr.login'|translate}}</a>
+      </div>
+      <!-- //buttons -->
+
+    </div>
+    <!-- //popup -->
+  </div>
+</div>
+<!-- //popup wrap -->

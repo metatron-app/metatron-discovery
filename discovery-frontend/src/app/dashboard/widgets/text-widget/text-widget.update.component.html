@@ -1,0 +1,46 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- popup -->
+<div class="ddp-wrap-layout-popup ddp-wrap-edit">
+
+  <div class="ddp-box-popup ddp-box-popup-type1">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <em class="ddp-icon-btntext"></em>Text
+    </div>
+    <!-- //title -->
+
+    <!-- edit -->
+    <div class="ddp-box-edit" style="height:283px;" >
+      <text-widget-editor-component #editor
+                                    (onEditorCreated)="editorCreated();">
+      </text-widget-editor-component>
+    </div>
+    <!-- //edit -->
+
+    <!-- button -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" (click)="isShow = false; close()" class="ddp-btn-type-popup">
+        {{'msg.comm.btn.cancl' | translate}}
+      </a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" (click)="isShow = false; done()"
+         class="ddp-btn-type-popup ddp-bg-black ">{{'msg.comm.btn.done' | translate}}</a>
+    </div>
+    <!-- //button -->
+  </div>
+
+</div>
+<!-- //popup -->

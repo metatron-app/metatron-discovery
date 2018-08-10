@@ -1,0 +1,132 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype" >
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup ddp-ui-popup-join">
+    <!-- 상단 제목/버튼 영역 -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+        {{'msg.board.ui.essential.title' | translate}}
+        <span class="ddp-txt-det">{{'msg.board.ui.essential.desc' | translate}}</span>
+      </span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="closeEvent.emit()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="ingest()">{{'msg.comm.btn.done' | translate}}</a>
+      </div>
+    </div>
+    <!-- // 상단 제목/버튼 영역 -->
+    <!-- 목록 영역 -->
+    <div class="ddp-ui-eessential">
+      <!-- 제목 -->
+      <div class="ddp-data-filter">
+        {{'msg.board.ui.essential' | translate }} ( {{ essentialFilters.length }} )
+      </div>
+      <!-- // 제목 -->
+      <!-- 목록 아이템 -->
+      <div class="ddp-type-setup" *ngFor="let filter of essentialFilters">
+        <!-- 상단 제목 및 타입 표시 -->
+        <div class="ddp-ui-top">
+          <div class="ddp-ui-tags">
+            <span *ngIf="'essential' === filter.importanceType" class="ddp-tag-type ddp-type">
+              <div class="ddp-wrap-datalock">
+                {{filter.filteringSeq + 1}}
+                <em class="ddp-icon-lock-s2"></em>
+              </div>
+              {{'msg.board.ui.essential' | translate}}
+            </span>
+          </div>
+          <div class="ddp-tag-name">
+            <span [class.ddp-measure]="'bound' === filter.type" class="ddp-icon-box">
+              <em style="top:-3px;" class="{{getIconClass(filter, ('bound' !== filter.type) )}}"></em>
+            </span>
+            {{filter.field}}
+          </div>
+        </div>
+        <!-- // 상단 제목 및 타입 표시 -->
+        <!-- 목록 내용 영역 -->
+        <div class="ddp-setup-contents" >
+          <div class="ddp-filter1" >
+            <app-config-filter-time
+              *ngIf="filterUtil.isTimeFilter(filter)" (invoke)="startComponent($event,filter)"></app-config-filter-time>
+            <app-config-filter-inclusion
+              *ngIf="filter.type === 'include'" (invoke)="startComponent($event,filter)"></app-config-filter-inclusion>
+            <app-config-filter-bound
+              *ngIf="filter.type === 'bound'" (invoke)="startComponent($event,filter)"></app-config-filter-bound>
+          </div>
+        </div>
+        <!-- // 목록 내용 영역 -->
+      </div>
+      <!-- // 목록 아이템 -->
+    </div>
+    <!-- // 목록 영역 -->
+  </div>
+</div>
+
+
+<!-- 데이터소스 생성 진행 프로그레스 표시 영역 -->
+<div *ngIf="isShowProgress" class="ddp-wrap-loading" style="z-index: 140;">
+  <!-- 데이터 소스 상태 : Preparing 1. 계산중 -->
+  <div *ngIf="1 === ingestionStatus.step" class="ddp-box-loading ddp-pop" >
+    <span class="ddp-data-loading">
+      {{ 'msg.board.filter.ui.waiting' | translate }}
+    </span>
+    <!--<a href="javascript:" class="ddp-btn-cancel">Cancel</a>-->
+    <!-- bar -->
+    <div class="ddp-type-progressbar">
+      <em class="ddp-data-progressbar"></em>
+    </div>
+    <!-- //bar -->
+  </div>
+  <!-- // 데이터 소스 상태 : Preparing 1. 계산중 -->
+
+  <!-- 데이터 소스 상태 : Preparing 3. 진행중 -->
+  <div *ngIf="2 === ingestionStatus.step" class="ddp-box-loading ddp-pop" >
+    <span *ngIf="'PROGRESS_GET_DATA_FROM_LINK_DATASOURCE' === ingestionStatus.message" class="ddp-data-loading">
+      {{ 'msg.board.filter.ui.ingestion-step-1' | translate }}
+    </span>
+    <span *ngIf="'PROGRESS_LOAD_TEMP_DATASOURCE' === ingestionStatus.message" class="ddp-data-loading">
+      {{ 'msg.board.filter.ui.ingestion-step-2' | translate }}
+    </span>
+    <!--<a href="javascript:" class="ddp-btn-cancel">Cancel</a>-->
+    <!-- bar -->
+    <div class="ddp-type-progressbar2">
+      <em class="ddp-data-progressbar" [style.right]="(100 - ingestionStatus.progress) + '%'"></em>
+    </div>
+    <!-- //bar -->
+  </div>
+  <!-- //데이터 소스 상태 : Preparing 3. 진행중  -->
+
+  <!-- box -->
+  <div *ngIf="10 == ingestionStatus.step" class="ddp-box-loading ddp-box-s ddp-pop" >
+    <div class="ddp-box-in">
+      <a (click)="isShowProgress = false" href="javascript:" class="ddp-btn-close"></a>
+      <em class="ddp-icon-success"></em>
+      <span class="ddp-txt-success">{{ 'msg.board.filter.ui.success' | translate }}</span>
+    </div>
+  </div>
+  <!-- //box -->
+
+  <!-- condition 데이터 소스 상태 : Preparing 4. 진행중 > 중단 -->
+  <div *ngIf="-1 === ingestionStatus.step" class="ddp-box-loading ddp-box-s ddp-pop" >
+    <div class="ddp-box-in">
+      <a (click)="isShowProgress = false" href="javascript:" class="ddp-btn-close"></a>
+      <a (click)="ingest()" href="javascript:" class="ddp-btn-again"></a>
+      <span class="ddp-txt-fail"> {{ 'msg.board.filter.ui.fail-retry' | translate }} </span>
+    </div>
+  </div>
+  <!-- condition 데이터 소스 상태 : Preparing 4. 진행중 > 중단 -->
+
+</div>
+<!-- // 데이터소스 생성 진행 프로그레스 표시 영역 -->

@@ -1,0 +1,74 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-popup" *ngIf="isShow">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup-in">
+    <!-- popup -->
+    <div class="ddp-ui-popup ddp-type">
+      <a (click)="close()" href="javascript:" class="ddp-btn-close"></a>
+      <span class="ddp-ui-pop-title">change owner</span>
+      <div *ngIf="selectedUser" class="ddp-txt-pop-info ddp-padt0">
+        <strong>{{selectedUser.member.fullName}}</strong> 님을 새로운 오너로 지정하시겠습니까?
+      </div>
+
+      <!-- contents -->
+      <div class="ddp-ui-user-content">
+        <div class="ddp-box-owner">
+          <!-- search -->
+          <div class="ddp-form-search">
+            <em class="ddp-icon-search"></em>
+            <input #inputSearch type="text"
+                   placeholder="{{'msg.comm.search.usr' | translate }}"
+                   [ngModel]="searchText"
+                   (keypress)="searchDataPressKey($event)"
+                   (keyup.esc)="resetSearchText(false)"
+                   (clickOutside)="resetSearchText(false)">
+            <em class="ddp-btn-search-close" *ngIf="searchText != ''" (click)="resetSearchText(true);searchData();"></em>
+          </div>
+          <!-- // search -->
+
+          <!-- List -->
+          <ul class="ddp-list-owner">
+            <li *ngFor="let userInfo of users" (click)="selectNewOwner( userInfo )">
+              <label class="ddp-label-radio ddp-radiotype">
+                <input name="checkNewOwner" type="radio"
+                       [checked]="userInfo['checked']" >
+                <i class="ddp-icon-radio"></i>
+                <span class="ddp-txt-radio">{{userInfo.member.fullName}}</span>
+              </label>
+            </li>
+          </ul>
+          <!-- // List -->
+
+          <!-- More -->
+          <div *ngIf="isDisplayBtnUserMore" class="ddp-ui-moretype">
+            <a (click)="moreMember()" href="javascript:" class="ddp-btn-moretype">{{ 'msg.comm.ui.more' | translate }}</a>
+          </div>
+          <!-- // More -->
+        </div>
+      </div>
+      <!-- //contents -->
+
+      <!-- buttons -->
+      <div class="ddp-ui-buttons2">
+        <a (click)="close()" href="javascript:" class="ddp-btn-type-popup ">{{'msg.comm.btn.cancl' | translate }}</a>
+        <a (click)="done()" href="javascript:" class="ddp-btn-type-popup ddp-bg-black ">{{ 'msg.comm.btn.done' | translate }}</a>
+      </div>
+      <!-- //buttons -->
+
+    </div>
+    <!-- //popup -->
+  </div>
+</div>

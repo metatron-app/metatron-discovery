@@ -1,0 +1,103 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 미리보기 팝업 -->
+<div class="ddp-pop-preview ddp-type" *ngIf="isShowFl">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      {{getTitleName()}} ({{totalCount}})
+    </div>
+    <em class="ddp-btn-popup-close" (click)="isShowFl=false"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+
+  <div class="ddp-ui-preview-contents ddp-more-table">
+
+    <div class="ddp-table-header">
+      <table class="ddp-table-form ddp-table-type2">
+        <colgroup>
+          <col width="*">
+          <col width="15%">
+          <col width="15%">
+          <col width="15%">
+
+        </colgroup>
+        <thead>
+        <tr>
+          <!-- datasource | connection | server -->
+          <th class="ddp-cursor" (click)="onClickSort('name')">
+            {{getTitleName()}}
+            <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
+            <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
+            <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
+          </th>
+          <!-- ingestion type | db type | type -->
+          <th>
+            {{getTableNameIngestionTypeOrDbTypeOrType()}}
+          </th>
+          <!-- data type | host | host -->
+          <th>
+            {{getTableNameDataTypeOrHost()}}
+          </th>
+          <!-- status | port | port -->
+          <th>
+            {{getTableNameStatusOrPort()}}
+          </th>
+        </tr>
+        </thead>
+
+      </table>
+    </div>
+    <div class="ddp-table-tbody">
+      <table class="ddp-table-form ddp-table-type2">
+        <colgroup>
+          <col width="*">
+          <col width="15%">
+          <col width="15%">
+          <col width="15%">
+        </colgroup>
+
+        <tbody>
+        <tr *ngFor="let data of dataList">
+          <td>
+            <!-- tag global 있을 경우에만 ddp-global 추가 -->
+            <div class=" ddp-txt-long ddp-global" [class.ddp-en-connection]="data.published && isBrowserLangEng()">
+              {{data.name}}
+              <span class="ddp-txt-colortype" *ngIf="data.description">-{{data.description}}</span>
+              <em class="ddp-tag-global" *ngIf="data.published">{{getOpenLabel()}}</em>
+            </div>
+          </td>
+          <td>
+            {{getIngestedTypeOrImplementorOrType(data)}}
+          </td>
+          <td>
+            {{getImplementorOrHostname(data)}}
+          </td>
+          <td>
+            {{getStatusOrPort(data)}}
+            <span class="ddp-tag-connect" *ngIf="isNotebookMode()">{{'msg.spaces.shared.detail.nbook.linked' | translate}}</span>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreList()">
+      <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}}<em class="ddp-icon-view"></em></span>
+    </div>
+  </div>
+  <!-- //cpmtemts -->
+</div>
+<!-- //미리보기 팝업 -->

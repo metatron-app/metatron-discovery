@@ -1,0 +1,543 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-naviarea ddp-naviarea2 ddp-clear" *ngIf="mainViewShow == true">
+
+  <div class="ddp-ui-navidata ddp-type">
+
+    <!-- 버튼 -->
+    <div class="ddp-ui-work-buttons" (click)="showOption()" (clickOutside)="isWorkbenchOptionShow = false">
+      <!-- more -->
+      <!-- more 버튼 클릭시 ddp-selected 추가 -->
+      <div *ngIf="isChangeAuthUser" class="ddp-ui-more" [ngClass]="{'ddp-selected':isWorkbenchOptionShow}">
+        <a href="javascript:" class="ddp-icon-more"></a>
+        <!-- popup -->
+        <div class="ddp-wrap-popup2 ddp-types">
+          <ul class="ddp-list-popup">
+            <li>
+              <a href="javascript:" (click)="confirmDelete()">
+                <em class="ddp-icon-drop-editdel3"></em>
+                {{'msg.bench.ui.del' | translate}}
+              </a>
+            </li>
+          </ul>
+          <!-- date -->
+          <div class="ddp-ui-date">
+            <span class="ddp-data-date" *ngIf="workbench.modifiedBy">{{'msg.common.ui.updated' | translate : { modifiedTime : workbench.modifiedTime | mdate : 'YYYY-MM-DD HH:mm', fullName :workbench.modifiedBy.fullName } }}</span>
+            <span class="ddp-data-date">{{'msg.common.ui.created' | translate : { createdTime : workbench.createdTime | mdate : 'YYYY-MM-DD HH:mm', fullName :workbench.createdBy.fullName } }}</span>
+          </div>
+          <!-- //date -->
+        </div>
+        <!-- //popup -->
+      </div>
+      <!-- //more -->
+    </div>
+    <!-- //버튼 -->
+  </div>
+  <div class="ddp-wrap-navi">
+    <!--<a href="javascript:" class="ddp-link-naviarea" (click)="onClickBackButton()"><em class="ddp-icon-navi"></em></a>-->
+    <a href="javascript:" class="ddp-link-naviarea" (click)="goBack()"><em class="ddp-icon-navi"></em></a>
+    <em class="ddp-box-tag ddp-workbench">{{'msg.comm.ui.list.workbench'| translate}}</em>
+    <div class="ddp-ui-naviarea">
+      <!-- name -->
+      <!-- 클릭시 ddp-selected 추가 -->
+      <div class="ddp-box-navi" [class.ddp-selected]="isWorkbenchNameEditMode">
+        <div class="ddp-wrap-naviname"
+             (click)="!isWorkbenchNameEditMode ? onWorkbenchNameEdit($event):$event.stopPropagation();">
+        <span class="ddp-data-naviname">{{workbenchName}}
+          <em class="ddp-icon-edit2"></em>
+        </span>
+        </div>
+        <!-- 편집 input -->
+        <div class="ddp-wrap-input">
+          <input type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.name'|translate}}"
+                 #wbName
+                 [(ngModel)]="workbenchName"
+                 (keyup.enter)="isWorkbenchNameEditMode ? updateWorkbench() : null;"
+                 (clickOutside)="isWorkbenchNameEditMode ? setWorkbenchName(): null;" maxlength="50">
+          <span class="ddp-btn-check" (click)="$event.stopPropagation();updateWorkbench();"></span>
+        </div>
+        <!-- //편집 input -->
+
+      </div>
+      <!-- //name -->
+
+      <!-- description -->
+      <!-- 클릭시 ddp-selected 추가 -->
+      <div class="ddp-box-navidet" [class.ddp-selected]="isWorkbenchDescEditMode">
+        <div class="ddp-wrap-navidet"
+             (click)="!isWorkbenchDescEditMode ? onWorkbenchDescEdit($event):$event.stopPropagation();">
+        <span class="ddp-data-navidet">{{workbenchDesc || 'msg.comm.ui.create.desc' | translate }}
+          <em class="ddp-icon-edit2"></em>
+        </span>
+        </div>
+
+        <!-- 편집 input -->
+        <div class="ddp-wrap-input">
+          <input class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.desc' | translate }}"
+                 #wbDesc
+                 [(ngModel)]="workbenchDesc"
+                 (keyup.enter)="isWorkbenchDescEditMode ? updateWorkbench() : null;"
+                 (clickOutside)="isWorkbenchDescEditMode? setWorkbenchDesc() : null;" maxlength="150">
+          <span class="ddp-btn-check" (click)="$event.stopPropagation();updateWorkbench();"></span>
+        </div>
+        <!-- //편집 input -->
+      </div>
+      <!-- //description -->
+    </div>
+  </div>
+</div>
+<em class="ddp-bg-back"></em>
+<div class="ddp-layout-contents2 ddp-wrap-workbench">
+  <!-- lnb --->
+  <!-- 닫힐때 ddp-close 추가 -->
+  <div class="ddp-ui-benchlnb" [ngClass]="{'ddp-close':!isLeftMenuOpen || isQueryEditorFull===true}">
+    <a href="javascript:" class="ddp-btn-folding" (click)="leftMenuOpen()"></a>
+    <div class="ddp-box-benchlnb">
+      <!-- wrap name -->
+      <div class="ddp-wrap-name">
+        <!-- name -->
+        <div class="ddp-data-name">
+          <div class="ddp-txt-dataname">
+            <span class="ddp-txt-in">{{workbench.dataConnection.name}}</span>
+            <!-- info 버튼 클릭시 ddp-selected 추가 -->
+            <div class="ddp-wrap-info" [ngClass]="{'ddp-selected':isDataConnectionInfoShow}">
+              <a href="javascript:" class="ddp-btn-info2"
+                 (click)="dataConnectionInfoShow()"></a>
+              <!-- box layout -->
+              <detail-workbench-dataconnection-info *ngIf="isDataConnectionInfoShow"
+                                                    [dataconnection]="workbench.dataConnection"
+                                                    (clickOutside)="isDataConnectionInfoShow = false"
+                                                    [excludeBeforeClick]="true"
+                                                    [exclude]="'.ddp-btn-info2'">
+              </detail-workbench-dataconnection-info>
+              <!-- //box layout -->
+            </div>
+            <!-- //button -->
+          </div>
+        </div>
+        <!-- //name -->
+        <!-- data base name-->
+        <detail-workbench-database [params]="databaseParam"
+                                   (selectedDatabaseEvent)="setChangeDatabase($event)"
+                                   (schemaBrowserEvent)="setSchemaBrowser()"
+                                   (initDatabaseEvent)="setInitDatabase($event)"></detail-workbench-database>
+        <!-- //data base name-->
+      </div>
+      <!-- //wrap name -->
+      <!--  테이블 리스트 -->
+      <detail-workbench-table [inputParams]="tableParam"
+                              [setClose]="closeEvent"
+                              (sqlIntoEditorEvent)="sqlIntoEditorEvent($event)"
+                              (tableDataEvent)="setTableDataEvent($event)"></detail-workbench-table>
+      <!--  //테이블 리스트 -->
+    </div>
+  </div>
+  <!-- //lnb --->
+  <!-- 쿼리 contents -->
+  <div id="workbenchQuery" class="ddp-ui-query" [ngClass]="{'ddp-full':!isLeftMenuOpen}">
+    <horizontal-split-pane #box1 primary-component-minsize="150" secondary-component-minsize="200"
+                           local-storage-key="split-pane" (on-ended-resizing)="onEndedResizing()">
+      <!--(on-change)="onHChange($event)"-->
+      <div class="split-pane-content-primary" style="height:100%;">
+        <div class="upper" style="height:100%;">
+          <!-- query editor -->
+          <!-- full size 일때 ddp-full 추가 -->
+          <div class="ddp-box-editer" [ngClass]="{'ddp-full':isQueryEditorFull===true}"
+               style="position:relative;top:0; left:0; right:0; bottom:0; height:100%; padding-bottom:0;">
+            <!-- tab -->
+            <div class="ddp-wrap-tabs-edit" #editorListMax>
+              <div class="ddp-wrap-btn">
+                <!-- //초기화 -->
+                <!-- 스크린 사이즈 버튼 -->
+                <div class="ddp-btn-size"
+                     #editorListSizeBtn
+                     (click)="resizeQueryEditor()">
+                  <!-- full size -->
+                  <div class="ddp-box-full">
+                    <em class="ddp-icon-fullsize"></em>
+                    <!-- 툴팁 -->
+                    <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-top"></em>
+                      {{'msg.bench.btn.maximize' | translate}}
+                    </div>
+                    <!-- //툴팁 -->
+                  </div>
+                  <!-- //full size -->
+                  <!-- full size -->
+                  <div class="ddp-box-reduce">
+                    <em class="ddp-icon-reducesize"></em>
+                    <!-- 툴팁 -->
+                    <div class="ddp-ui-tooltip-info">
+                      <em class="ddp-icon-view-top"></em>
+                      {{'msg.bench.btn.minimize' | translate}}
+                    </div>
+                    <!-- //툴팁 -->
+                  </div>
+                  <!-- //full size -->
+
+                </div>
+                <!-- //스크린 사이즈 버튼 -->
+              </div>
+              <!-- //스크린 사이즈 버튼 -->
+              <!-- list 가 있을 때 ddp-slide 추가 -->
+              <div class="ddp-ui-tabs"
+                   #editorListTabs
+                   [class.ddp-slide]="editorListObj.showBtnFl">
+                <div class="ddp-btn-listslider">
+                  <a href="javascript:" class="ddp-btn-sliderprev" (click)="onClickPrevSlideBtn(editorListObj)"></a>
+                  <a href="javascript:" class="ddp-btn-slidernext" (click)="onClickNextSlideBtn(editorListObj)"></a>
+                </div>
+                <ul class="ddp-list-tabs">
+                  <li *ngFor="let item of getFilteringList(textList, editorListObj)"
+                      (click)="tabChangeHandler(findIndexInList(textList, item), false, item )"
+                      [ngClass]="{'ddp-selected': item['selected'],'ddp-edit': item['editorMode']}">
+                    <div class="ddp-data-tab">
+                      {{item['name']}}
+                      <!-- more -->
+                      <div class="ddp-wrap-morebutton">
+                        <em class="ddp-icon-more" id="tabLayer{{findIndexInList(textList, item)}}"
+                            (click)="setTabLayer($event, findIndexInList(textList, item)); tabChangeHandler(findIndexInList(textList, item), false)"></em>
+                      </div>
+                      <!-- //more -->
+                    </div>
+                    <input type="text" class="ddp-input-edit" value="{{item['name']}}"
+                           (keyup.Enter)="tabLayerEnter($event)" (blur)="tabLayerBlur(item, $event)" maxlength="50"/>
+
+                  </li>
+                </ul>
+
+                <a href="javascript:" class="ddp-btn-plus" (click)="tabCreateHandler('', true, true)"><em
+                  class="ddp-icon-plus"></em></a>
+              </div>
+            </div>
+            <!-- //tab -->
+            <div class="ddp-wrap-editor">
+              <codemirror [config]="config" (keyup)="editorKeyEvent($event)"
+                          (textChanged)="editorTextChange($event)"></codemirror>
+            </div>
+
+            <div class="ddp-wrap-edit-foot">
+              <!-- row 수 -->
+              <div class="ddp-data-rows">
+                <em class="ddp-icon-row"></em>
+                <div class="ddp-data-input">
+                  <input type="number" input-mask="number"
+                         [(ngModel)]="queryResultNumber"
+                         (keyup.esc)="queryResultNumber = 1000; setExecuteSql('ALL')"
+                         (keyup.enter)="setExecuteSql('ALL')">
+                  <a href="javascript:" class="ddp-btn-check2" (click)="setExecuteSql('ALL')"></a>
+                </div>
+              </div>
+              <!-- //row 수 -->
+              <!-- SQL BEAUTIFIER -->
+              <a href="javascript:" class="ddp-btn-beautifier" (click)="setSqlFormatter()" title="SQL BEAUTIFIER"></a>
+              <!-- //SQL BEAUTIFIER -->
+              <!-- foot button -->
+              <div class="ddp-ui-edit-foot">
+                <a href="javascript:" class="ddp-btn-play" (click)="setExecuteSql('ALL')" title="ALL SQL EXECUTE"></a>
+                <a href="javascript:" class="ddp-btn-stop" (click)="setExecuteSql('SELECTED')"
+                   title="SELECTED  SQL EXECUTE"></a>
+                <a href="javascript:" class="ddp-btn-delete" (click)="clearSql()" title="CLEAR SQL"></a>
+              </div>
+              <!-- //foot button -->
+              <!-- 클릭시 ddp-selected 추가 -->
+              <div class="ddp-wrap-question" [class.ddp-selected]="shortcutsFl" #questionWrap>
+                <a href="javascript:" class="ddp-btn-question" (click)="onClickShowShortcutsBtn()">
+                </a>
+                <!-- popup -->
+                <div class="ddp-box-layout4" #questionLayout>
+                  <a href="javascript:" class="ddp-btn-close" (click)="shortcutsFl = false"></a>
+                  <div class="ddp-data-title">
+                   {{'msg.bench.ui.editor.shortcut.title' | translate}}
+                  </div>
+                  <div class="ddp-wrap-data-detail">
+                    <table class="ddp-table-pop">
+                      <colgroup>
+                        <col width="136px">
+                        <col width="*">
+                      </colgroup>
+                      <tbody>
+                      <tr>
+                        <th>{{'msg.bench.ui.editor.shortcut.all.select' | translate}}</th>
+                        <td>Ctrl-A (Windows), Cmd-A (MacOS)</td>
+                      </tr>
+                      <tr>
+                        <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
+                        <td>Ct기-D (Windows), Cmd-D (MacOS)</td>
+                      </tr>
+                      <tr>
+                        <th>{{'msg.bench.ui.editor.shortcut.all.delete' | translate}}</th>
+                        <td>CTRL + Q</td>
+                      </tr>
+                      <tr>
+                        <th>{{'msg.bench.ui.editor.shortcut.indent' | translate}}</th>
+                        <td> Tab</td>
+                      </tr>
+                      <tr>
+                        <th>{{'msg.bench.ui.editor.shortcut.outdent' | translate}}</th>
+                        <td>Alt-Tab</td>
+                      </tr>
+                      <tr>
+                        <th>{{'msg.bench.ui.editor.shortcut.comment' | translate}}</th>
+                        <td>CTRL + /</td>
+                      </tr>
+                      <tr>
+                        <th>{{'msg.bench.ui.editor.shortcut.align' | translate}}</th>
+                        <td>CTRL + .</td>
+                      </tr>
+                      <tr>
+                        <th>{{'msg.bench.ui.editor.shortcut.cancl' | translate}}</th>
+                        <td>Ctrl-Z (Windows), Cmd-Z (MacOS)</td>
+                      </tr>
+                      <tr>
+                        <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
+                        <td>Ctrl+Spacebar (Windows)<br/>Cmd+Shift+Spacebar (MacOS)<br/>Cmd+Spacebar (MacOS)</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <!-- //popup -->
+
+                </div>
+              </div>
+              <!-- //question -->
+            </div>
+            <!-- //foot button -->
+          </div>
+        </div>
+      </div>
+      <div class="split-pane-content-secondary" style="height:100%;">
+        <div class="lower" style="height:100%;">
+          <!-- query result -->
+          <div class="ddp-box-query-result" style="position:relative;top:0; left:0; right:0; bottom:0; height:100%;">
+            <div class="ddp-box-in">
+              <!-- tab -->
+              <div class="ddp-wrap-tabs-query" #editorResultListMax>
+                <!-- list 있을때 ddp-slide 추가 -->
+                <div class="ddp-ui-tabs"
+                     #editorResultListTabs
+                     [class.ddp-slide]="datagridCurList.length > 0 && editorResultListObj.showBtnFl">
+                  <div class="ddp-btn-listslider">
+                    <a href="javascript:" class="ddp-btn-sliderprev" (click)="onClickPrevSlideBtn(editorResultListObj)"></a>
+                    <a href="javascript:" class="ddp-btn-slidernext" (click)="onClickNextSlideBtn(editorResultListObj)"></a>
+                  </div>
+                  <!-- li 클릭시 ddp-selected 추가 -->
+                  <ul class="ddp-list-tabs">
+                    <!-- ddp-selected -->
+                    <li *ngFor="let item of getFilteringList(datagridCurList, editorResultListObj)"
+                        [ngClass]="{'ddp-selected': item['selected']}" (click)="tabGridChangeHandler(findIndexInList(datagridCurList, item))">
+                      <div class="ddp-data-tab" [ngStyle]="{'color': item.output === 'text' ? 'red' : 'black'}">
+                        {{item.name}}
+                        <a href="javascript:" class="ddp-btn-close-s" (click)="tabGridCloseHandler(findIndexInList(datagridCurList, item))"></a>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- tab -->
+              <!-- 결과 -->
+              <div class="ddp-view-result">
+                <div loading #loading [cancel]="mimeType !== 'HIVE'" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
+                <div class="ddp-wrap-result"
+                     [ngStyle]="{'visibility': datagridCurList.length !== 0 ? 'visible':'hidden'}">
+                  <div class="ddp-ui-setting">
+                    <!-- 검색 -->
+                    <div class="ddp-form-search">
+                      <em class="ddp-icon-search"></em>
+                      <input type="text"
+                             placeholder="{{'msg.comm.search.col' | translate}}"
+                             #gridSearchInput
+                             [(ngModel)]="searchText"
+                             (keyup)="gridSearch($event)" [disabled]="datagridCurList.length === 0">
+                      <em class="ddp-btn-search-close" *ngIf="searchText" (click)="gridSearchClear()"></em>
+                    </div>
+                    <!-- //검색 -->
+
+                    <!--<a href="javascript:" class="ddp-btn-allcheck" (click)="gridAllSelection()">{{'msg.bench.btn.data.sel.all'-->
+                      <!--| translate}}</a>-->
+
+                    <!-- button -->
+                    <div class="ddp-ui-buttons">
+                      <a href="javascript:" class="ddp-btn-link" (click)="createDatasourceTemporary()">
+                        <em class="ddp-icon-chart"></em>
+                        <div class="ddp-ui-tooltip-info">
+                          <em class="ddp-icon-view-top"></em>
+                          {{'msg.bench.btn.chart.preview' | translate}}
+                        </div>
+                      </a>
+                      <a *ngIf="isDataManager" href="javascript:" class="ddp-btn-link" (click)="createDatasource()">
+                        <em class="ddp-icon-save"></em>
+                        <div class="ddp-ui-tooltip-info">
+                          <em class="ddp-icon-view-top"></em>
+                          {{'msg.bench.btn.save.as.datasource' | translate}}
+                        </div>
+                      </a>
+                      <!-- 일괄 엑셀 다운로드 -->
+                      <!--<div class="ddp-ui-link">-->
+                        <!--<a href="javascript:" class="ddp-btn-link" (click)="setDownloadLocal()">-->
+                          <!--<em class="ddp-icon-export"></em>-->
+                          <!--<div class="ddp-ui-tooltip-info">-->
+                            <!--<em class="ddp-icon-view-top"></em>-->
+                            <!--{{'msg.bench.btn.export.file' | translate}}-->
+                          <!--</div>-->
+                        <!--</a>-->
+                      <!--</div>-->
+                      <!-- //일괄 엑셀 다운로드 -->
+                      <!-- 엑셀 다운로드 -->
+                      <div class="ddp-ui-link" [ngClass]="{'ddp-selected':csvDownloadLayer}">
+                        <a href="javascript:" class="ddp-btn-link" (click)="downloadExcel()"
+                           (clickOutside)="downloadExcelClose()">
+                          <em class="ddp-icon-export"></em>
+                          <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            {{'msg.bench.btn.export.file' | translate}}
+                          </div>
+
+                        </a>
+                        <div class="ddp-wrap-popup2" *ngIf="csvDownloadLayer === true">
+                          <ul class="ddp-list-popup">
+                            <li>
+                              <a href="javascript:" (click)="setDownloadLocal()">
+                                {{'msg.bench.btn.download.rows' | translate}}
+                              </a>
+                            </li>
+                            <li>
+                              <a href="javascript:" (click)="downloadServerExcel()">
+                                {{'msg.bench.btn.all.data' | translate}}
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      <!-- //엑셀 다운로드 -->
+                    </div>
+                    <!-- //button -->
+                    <!--[ngStyle]="{'width':valid}"-->
+                  </div>
+                  <div class="ddp-box-grid" #gridWrapElement
+                       [ngStyle]="{'visibility': resultMode === 'grid' &&  datagridCurList.length !== 0 ? 'visible':'hidden'}">
+                    <div grid-component #main style="width:100%; height: 100%;"></div>
+                    <!-- [ngStyle]="{'visibility': datagridShow ? 'visible':'hidden'}" -->
+                  </div>
+                  <div class="ddp-box-grid"
+                       [ngStyle]="{'visibility': resultMode === 'text' &&  datagridCurList.length !== 0 ? 'visible':'hidden'}">
+                    <div class="ddp-text-result" style="color:red">
+                      {{resultTextOutput}}
+                    </div>
+                  </div>
+                  <!--<span class="ddp-data-number">{{resultRow | numberCommas}} rows | {{resultTime}}</span>-->
+                  <span class="ddp-data-number">{{resultRow}} {{'msg.comm.detail.rows'|translate}}</span>
+                </div>
+              </div>
+              <!-- //결과 -->
+            </div>
+          </div>
+          <!-- //query result -->
+        </div>
+      </div>
+    </horizontal-split-pane>
+
+  </div>
+
+  <!-- //쿼리 contents -->
+  <!-- rnb --->
+  <div class="ddp-ui-rnb">
+    <ul class="ddp-list-rnb">
+      <li [ngClass]="{'ddp-selected':isGlobalVariableMenuShow}">
+        <a href="javascript:" (click)="openGlobalVariableMenu()">
+          <em class="ddp-icon-globalvar"></em>
+        </a>
+      </li>
+      <li [ngClass]="{'ddp-selected':isQueryHistoryMenuShow}">
+        <a href="javascript:" (click)="openQueryHistoryMenu()">
+          <em class="ddp-icon-history"></em>
+        </a>
+      </li>
+      <li [ngClass]="{'ddp-selected':isNavigationMenuShow}">
+        <a href="javascript:" (click)="openNavigationMenu()">
+          <em class="ddp-icon-navimenu"></em>
+        </a>
+
+      </li>
+    </ul>
+    <div class="ddp-wrap-rnb-contents">
+      <!-- rnb contents variable -->
+      <detail-workbench-variable *ngIf="isGlobalVariableMenuShow" [workbench]="workbench"
+                                 (addVariableEvent)="addEditorVariable($event)"></detail-workbench-variable>
+      <!-- //rnb contents -->
+      <!-- rnb contents history -->
+      <detail-workbench-history *ngIf="isQueryHistoryMenuShow" [editorId]="selectedEditorId"
+                                (sqlIntoEditorEvent)="sqlIntoEditorEvent($event)"></detail-workbench-history>
+      <!-- //rnb contents -->
+      <!-- rnb contents navigation-->
+      <detail-workbench-navigation *ngIf="isNavigationMenuShow"
+                                   [workbenchId]="workbenchId"></detail-workbench-navigation>
+      <!-- //rnb contents -->
+    </div>
+  </div>
+  <!-- //rnb --->
+</div>
+<!-- 로그인 -->
+<app-workbench-login [isShow]="loginLayerShow" [workbench]="workbenchTemp"
+                     (connectionComplete)="loginComplete($event);"></app-workbench-login>
+
+<!--  삭제 -->
+<app-delete-modal (deleteConfirm)="deleteWorkBench()"></app-delete-modal>
+<!-- //삭제 -->
+
+<app-create-data-source *ngIf="mode=='db-configure-schema'"
+                        (sourceCreateClose)="mainViewShow = true; mode=''"
+                        [step]="mode"
+                        [sourceData]="setDatasource"
+                        (sourceCreateComplete)="createDatasourceComplete()">
+</app-create-data-source>
+<!--<app-page #page *ngIf="isShowPage" [widget]="selectedPageWidget" (close)="isShowPage=false"></app-page>-->
+<app-page #page *ngIf="isShowPage" [widget]="selectedPageWidget" [dashboard]="false"
+          (close)="mainViewShow = true; isShowPage=false"></app-page>
+<!---->
+<!-- 탭 레이어 -->
+<div class="ddp-wrap-popup2 ddp-types ddp-pop-more" id="tabLayer" *ngIf="tabLayer === true"
+     [ngStyle]="{'top': tabLayerY, 'left': tabLayerX}" (clickOutside)="setTabLayerClose()">
+  <ul class="ddp-list-popup">
+    <li>
+      <a href="javascript:" (click)="tabLayerModify()">
+        <em class="ddp-icon-drop-dashboard"></em>
+        {{'msg.comm.ui.edit.name'| translate}}
+      </a>
+    </li>
+    <li>
+      <a href="javascript:" (click)="tabLayerDelete()">
+        <em class="ddp-icon-drop-editdel3"></em>
+        {{'msg.comm.ui.del' | translate}}
+      </a>
+    </li>
+  </ul>
+</div>
+
+<iframe id="downloadCsvIframe" name="downloadCsvIframe" frameborder="0" marginwidth="0" marginheight="0" scrolling="">
+</iframe>
+<form enctype="application/x-www-form-urlencoded" id="downloadCsvForm" name="downloadCsvForm" method="post"
+      target="downloadCsvIframe">
+  <input type="hidden" name="access_token" value=""/>
+  <input type="hidden" name="webSocketId" value=""/>
+  <input type="hidden" name="fileName" value=""/>
+  <input type="hidden" name="query" value=""/>
+  <input type="hidden" name="connectionId" value=""/>
+  <input type="hidden" name="workbenchId" value=""/>
+  <input type="hidden" name="tempTable" value=""/>
+</form>
+<!-- schema browser -->
+<detail-workbench-schema-browser></detail-workbench-schema-browser>
+<!-- //schema browser -->

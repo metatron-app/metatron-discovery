@@ -1,0 +1,415 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- tab contents -->
+<div class="ddp-ui-tab-contents" *ngIf="metadataModelService.getMetadata()">
+  <!-- datadetail -->
+  <div class="ddp-ui-datadetail ddp-border-none">
+    <label class="ddp-label-detail">{{'msg.metadata.ui.info' | translate}}</label>
+    <table class="ddp-table-detail">
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+      <tr>
+        <th>
+          {{'msg.comm.ui.description' | translate}}
+        </th>
+        <td>
+          <!-- 클릭시 ddp-selected 추가 -->
+          <div class="ddp-txt-edit" (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();" [class.ddp-selected]="isDescEdit">
+            <!-- data -->
+            <span class="ddp-data-name" [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata().description === ''}">
+                {{ '' === metadataModelService.getMetadata().description ? ('msg.metadata.ui.no.description' | translate ) : metadataModelService.getMetadata().description }}
+                <em *ngIf="!isDescEdit" class="ddp-icon-edit2"></em>
+            </span>
+            <!-- //data -->
+
+            <!-- edit -->
+            <div class="ddp-wrap-input">
+              <textarea #metadataDesc
+                     (keyup.enter)="metadataDesc.blur(); isDescEdit ? onDescChange() : null;"
+                     (clickOutside)="isDescEdit ? onDescEditCancel() : null"
+                     maxlength="150"
+                     class="ddp-input-edit" placeholder="{{metadataModelService.getMetadata().description}}" [(ngModel)]="editingDesc">
+              </textarea>
+              <span class="ddp-btn-check" (click)="$event.stopPropagation(); onDescChange()"></span>
+            </div>
+            <!-- //edit -->
+          </div>
+        </td>
+
+        <!--<td>-->
+          <!--{{metadataService.selectedMetadata.description}}-->
+        <!--</td>-->
+      </tr>
+
+      </tbody>
+
+    </table>
+    <table class="ddp-table-detail">
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+
+      <tr>
+        <th>
+          {{'msg.metadata.md.ui.data.type' | translate}}
+        </th>
+        <td>
+          <span class="ddp-box-tag-value ddp-hive">
+            {{ 'ENGINE' == metadataModelService.getMetadata().sourceType.toString() ? ( 'msg.comm.th.ds' | translate) : 'STAGING' == metadataModelService.getMetadata().sourceType.toString() ? 'Staging DB' : 'JDBC' == metadataModelService.getMetadata().sourceType.toString() ? 'HIVE'  :  metadataModelService.getMetadata().sourceType }}
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <th>
+          {{'msg.metadata.md.th.popularity' | translate}}
+        </th>
+        <td>
+          <div class="ddp-bar">
+            <span [style.width]="metadataModelService.getMetadata().popularity ? metadataModelService.getMetadata().popularity + '%' : 0 + '%'"></span>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+    <table class="ddp-table-detail" >
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+
+      <tr>
+        <th>
+          {{'msg.metadata.md.th.catalogs' | translate}}
+        </th>
+        <td>
+          <div class="ddp-ui-catalogs" *ngFor="let catalog of metadataModelService.getMetadata().catalogs">
+            <div class="ddp-box-catalogs">
+              <span *ngFor="let hierarchy of catalog['hierarchies']">{{hierarchy.name}}</span>
+              <a href="javascript:" class="ddp-btn-delete" (click)="deleteCatalogFromMetadata(catalog.id)"></a>
+            </div>
+          </div>
+          <div class="ddp-ui-buttons">
+            <a href="javascript:" (click)="addCatalog()" class="ddp-btn-add"><em class="ddp-icon-plus"></em> {{'msg.comm.btn.add' | translate}}</a>
+          </div>
+        </td>
+      </tr>
+
+      </tbody>
+
+    </table>
+
+    <table class="ddp-table-detail" *ngIf="metadataModelService.getMetadata().tags">
+      <colgroup>
+        <col width="170px">
+        <col width="*">
+      </colgroup>
+      <tbody>
+
+      <tr>
+        <th>
+          {{'msg.metadata.md.ui.tags' | translate}}
+        </th>
+        <td>
+          <div class="ddp-ui-tags">
+            <div *ngFor="let tag of metadataModelService.getMetadata().tags; let index = index" [ngClass]="{'ddp-tags' : tag.name !== '','ddp-tag-default': tag.name === ''}">#{{tag.name}}
+              <a href="javascript:" class="ddp-btn-delete" (click)="deleteTag(tag)" *ngIf="'' !== tag.name"></a>
+            </div>
+            <div class="ddp-tag-default ddp-wrap-drop-search" [ngClass]="{'ddp-selected': filteredTagsList.length > 0}" (clickOutside)="tagClickOutsideEvent()">
+              <input id="tagInput" type="text" placeholder="{{'msg.metadata.ui.enter.tag' | translate}}" (keyup.enter)="addTag()" [(ngModel)]="tagValue">
+              <div class="ddp-ui-drop-search">
+                <ul class="ddp-list-selectbox2">
+                  <li *ngFor="let tag of filteredTagsList" (click)="setTagValue(tag)">
+                    {{tag}}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+  <!-- //datadetail -->
+  <!--<div class="ddp-ui-datadetail">-->
+    <!--<label class="ddp-label-detail">Physical Ingestion Info</label>-->
+    <!--&lt;!&ndash; hive/staging db 인 경우 &ndash;&gt;-->
+    <!--<table *ngIf="'ENGINE' === metadataModelService.getMetadata().sourceType.toString()" class="ddp-table-detail">-->
+      <!--<colgroup>-->
+        <!--<col width="170px">-->
+        <!--<col width="*">-->
+      <!--</colgroup>-->
+      <!--<tbody>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Database-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--adw_temp_utf9-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Owner-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--hive-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Table type-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--Managed table-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Location-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--<div class="ddp-link">-->
+            <!--<a href="javascript:" class="ddp-link-url2">SQL+INFORMATION+SQL+INFORMATION+SQL+INFO+SINFORMATIONINFORMATIONINFORMATIONINFORMATIONINFORMATIONQL+INFO+SQL+INFO+SQL+INFO+SQL+INFO-->
+            <!--</a>-->
+          <!--</div>-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Escape charater-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--text-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Field delimiter-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--t-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Line delimiter-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--\n-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Create time-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--2019.10.10 20:11:11-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Last access time-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--UNKNOWN-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Number of files-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--1-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Number of partitions-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--1-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Number of rows-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--1-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Number of buckets-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--1-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Raw data size-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--14.44MB-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Total size-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--14.44MB-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Sort by columns-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--1-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Cluster by columns-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--1-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Compression-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--No-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Retention-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--0-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Protect mode-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--0-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--Serialzation format-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--\t-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--</tbody>-->
+    <!--</table>-->
+    <!--&lt;!&ndash; //hive/staging db 인 경우 &ndash;&gt;-->
+    <!--&lt;!&ndash; datasource 인 경우 &ndash;&gt;-->
+    <!--<table class="ddp-table-detail ddp-mgt20" *ngIf="'JDBC' === metadataModelService.getMetadata().sourceType.toString()">-->
+      <!--<colgroup>-->
+        <!--<col width="170px">-->
+        <!--<col width="*">-->
+      <!--</colgroup>-->
+      <!--<tbody>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--HOST-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--{{ metadataModelService.getSource().hostname }}-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--PORT-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--{{ metadataModelService.getSource().port }}-->
+        <!--</td>-->
+      <!--</tr>-->
+      <!--<tr>-->
+        <!--<th>-->
+          <!--JDBC URL-->
+        <!--</th>-->
+        <!--<td>-->
+          <!--{{ metadataModelService.getSource().connectUrl }}-->
+        <!--</td>-->
+      <!--</tr>-->
+
+      <!--</tbody>-->
+    <!--</table>-->
+    <!--&lt;!&ndash; datasource 인 경우 &ndash;&gt;-->
+    <!--&lt;!&ndash; file 인 경우 &ndash;&gt;-->
+    <!--&lt;!&ndash;<table class="ddp-table-detail ddp-mgt20">&ndash;&gt;-->
+      <!--&lt;!&ndash;<colgroup>&ndash;&gt;-->
+        <!--&lt;!&ndash;<col width="170px">&ndash;&gt;-->
+        <!--&lt;!&ndash;<col width="*">&ndash;&gt;-->
+      <!--&lt;!&ndash;</colgroup>&ndash;&gt;-->
+      <!--&lt;!&ndash;<tbody>&ndash;&gt;-->
+      <!--&lt;!&ndash;<tr>&ndash;&gt;-->
+        <!--&lt;!&ndash;<th>&ndash;&gt;-->
+          <!--&lt;!&ndash;Type&ndash;&gt;-->
+        <!--&lt;!&ndash;</th>&ndash;&gt;-->
+        <!--&lt;!&ndash;<td>&ndash;&gt;-->
+          <!--&lt;!&ndash;DB(MySQL)&ndash;&gt;-->
+        <!--&lt;!&ndash;</td>&ndash;&gt;-->
+      <!--&lt;!&ndash;</tr>&ndash;&gt;-->
+      <!--&lt;!&ndash;<tr>&ndash;&gt;-->
+        <!--&lt;!&ndash;<th>&ndash;&gt;-->
+          <!--&lt;!&ndash;File name&ndash;&gt;-->
+        <!--&lt;!&ndash;</th>&ndash;&gt;-->
+        <!--&lt;!&ndash;<td>&ndash;&gt;-->
+          <!--&lt;!&ndash;namename&ndash;&gt;-->
+        <!--&lt;!&ndash;</td>&ndash;&gt;-->
+      <!--&lt;!&ndash;</tr>&ndash;&gt;-->
+      <!--&lt;!&ndash;<tr>&ndash;&gt;-->
+        <!--&lt;!&ndash;<th>&ndash;&gt;-->
+          <!--&lt;!&ndash;Sheet&ndash;&gt;-->
+        <!--&lt;!&ndash;</th>&ndash;&gt;-->
+        <!--&lt;!&ndash;<td>&ndash;&gt;-->
+          <!--&lt;!&ndash;Sheet name&ndash;&gt;-->
+        <!--&lt;!&ndash;</td>&ndash;&gt;-->
+      <!--&lt;!&ndash;</tr>&ndash;&gt;-->
+      <!--&lt;!&ndash;</tbody>&ndash;&gt;-->
+    <!--&lt;!&ndash;</table>&ndash;&gt;-->
+    <!--&lt;!&ndash; file 인 경우 &ndash;&gt;-->
+
+
+
+  <!--</div>-->
+
+</div>
+<!-- //tab contents -->
+<app-select-catalog></app-select-catalog>

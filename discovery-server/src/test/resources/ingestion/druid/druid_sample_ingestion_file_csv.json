@@ -1,0 +1,72 @@
+{
+  "type": "index_realtime",
+  "spec": {
+    "dataSchema": {
+      "metricsSpec": [
+        {
+          "type": "count",
+          "name": "count"
+        },
+        {
+          "fieldName": "m1",
+          "type": "sum",
+          "inputType": "double",
+          "name": "m1"
+        },
+        {
+          "fieldName": "m2",
+          "type": "sum",
+          "inputType": "double",
+          "name": "m2"
+        }
+      ],
+      "granularitySpec": {
+        "queryGranularity": "DAY",
+        "segmentGranularity": "MONTH",
+        "type": "uniform",
+        "intervals": [
+          "1970-01-01/2050-01-01"
+        ]
+      },
+      "parser": {
+        "parseSpec": {
+          "dimensionsSpec": {
+            "dimensionExclusions": [],
+            "dimensions": [
+              "d",
+              "sd"
+            ],
+            "spatialDimensions": []
+          },
+          "timestampSpec": {
+            "column": "time",
+            "format": "yyyy-MM-dd"
+          },
+          "columns": [
+            "time","d","sd","m1", "m2"
+          ],
+          "format": "csv"
+        },
+        "type": "string"
+      },
+      "dataSource": "sample_ingestion_01"
+    },
+    "tuningConfig": {
+      "rowFlushBoundary": 0,
+      "rejectionPolicy": {
+        "type": "none"
+      },
+      "type": "realtime",
+      "maxRowsInMemory": 5000,
+      "targetPartitionSize": 0
+    },
+    "ioConfig": {
+      "firehose": {
+        "filter": "sample_ingestion.csv",
+        "baseDir": "/tmp",
+        "type": "local"
+      },
+      "type": "realtime"
+    }
+  }
+}

@@ -1,0 +1,125 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+
+  <!-- 제목 영역 -->
+  <div class="ddp-icon-name" >
+    <div class="ddp-ui-name2">
+      <em class="ddp-icon-newlink2"></em>
+      {{'msg.book.create.notebook.title' | translate}}
+      <em class="ddp-bg-order-line2-type2"></em>
+    </div>
+    <span class="ddp-txt-info">{{'msg.book.create.notebook.cmplt' | translate}}</span>
+  </div>
+  <!-- // 제목 영역 -->
+
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in">
+    <div class="ddp-box-popupcontents2">
+      <!-- edit -->
+      <div class="ddp-wrap-boxtype ddp-box-size">
+
+        <table class="ddp-wrap-boxdata">
+          <colgroup>
+            <col width="120px" />
+            <col width="*" />
+          </colgroup>
+          <tbody>
+          <tr *ngIf="notebook.datasource.dsType === 'DATASOURCE'">
+            <th>
+              {{'msg.comm.ui.sel.ds' | translate}}
+            </th>
+            <td>
+              {{notebook.datasource.name}}
+            </td>
+          </tr>
+          <tr *ngIf="notebook.datasource.dsType === 'DASHBOARD'">
+            <th>
+              {{'msg.comm.btn.board' | translate}}
+            </th>
+            <td>
+              {{notebook.path}} > {{notebook.datasource.name}}
+            </td>
+          </tr>
+          <tr  *ngIf="notebook.datasource.dsType === 'CHART'">
+            <th>
+              {{'msg.comm.btn.chart' | translate}}
+            </th>
+            <td>
+              {{notebook.path}} > {{notebook.datasource.name}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- //edit -->
+      <div class="ddp-wrap-edit3 ddp-type">
+        <label class="ddp-label-type">{{'msg.comm.ui.server.type' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <!-- 선택시 ddp-selected 추가 -->
+          <component-select [array]="serverType"
+                            [viewKey]="'type'"
+                            [defaultIndex]="defaultIndex"
+                            (onSelected)="selectedType($event)">
+          </component-select>
+          <!-- //선택시 ddp-selected 추가 -->
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <div class="ddp-wrap-edit3 ddp-type">
+        <label class="ddp-label-type">{{'msg.comm.ui.develop.language' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <!-- 선택시 ddp-selected 추가 -->
+          <component-select [array]="developLanguage"
+                            [viewKey]="'value'"
+                            (onSelected)="selectedLanguage($event)">
+          </component-select>
+          <!-- //선택시 ddp-selected 추가 -->
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- edit -->
+      <div class="ddp-wrap-edit2" [ngClass]="{'ddp-error':showError}">
+        <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
+        <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}" (keydown)="showError? hideError(): null" [(ngModel)]="name" maxlength="50"/>
+        <span class="ddp-ui-error">{{'msg.comm.ui.create.name' | translate}}</span>
+      </div>
+      <!-- //edit -->
+
+      <!-- edit -->
+      <div class="ddp-wrap-edit2">
+        <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
+        <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.desc' | translate}}" [(ngModel)]="description" maxlength="150"/>
+      </div>
+      <!-- //edit -->
+    </div>
+
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="notebook.datasource.dsType === 'NONE' ? close() : prev()">{{notebook.datasource.dsType === 'NONE' ? ('msg.comm.btn.cancl' | translate) : ('msg.comm.btn.previous' | translate) }}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black " (click)="confirm();">{{'msg.comm.btn.done' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+
+</div>

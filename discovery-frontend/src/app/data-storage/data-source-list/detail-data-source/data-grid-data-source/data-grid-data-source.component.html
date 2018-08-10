@@ -1,0 +1,123 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- tab contents -->
+<div class="ddp-ui-tab-contents">
+  <!-- datagrid -->
+  <div class="ddp-datagrid">
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <div class="ddp-wrap-edit">
+        <!-- search -->
+        <div class="ddp-form-search">
+          <em class="ddp-icon-search"></em>
+          <input type="text" placeholder="{{'msg.storage.ui.search.data'| translate}}"
+                 (keyup)="onSearchText($event)"
+                 (keyup.esc)="initSearchText(true)"
+                 [ngModel]="searchText">
+          <em class="ddp-btn-search-close" *ngIf="searchText && searchText !== ''"
+              (click)="initSearchText(true)"></em>
+        </div>
+        <!-- //search -->
+      </div>
+      <!-- label -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.comm.th.role' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option ddp-inline">
+          <div class="ddp-ui-option-in">
+            <label class="ddp-label-radio">
+              <input type="radio"
+                     (change)="onChangeRoleType(fieldRoleType.ALL)"
+                     [checked]="selectedFieldRole === fieldRoleType.ALL">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">{{'msg.comm.ui.list.all' | translate}}</span>
+            </label>
+            <label class="ddp-label-radio">
+              <input type="radio"
+                     (change)="onChangeRoleType(fieldRoleType.DIMENSION)"
+                     [checked]="selectedFieldRole === fieldRoleType.DIMENSION">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">{{'msg.comm.name.dim' | translate}}</span>
+            </label>
+            <label class="ddp-label-radio">
+              <input type="radio"
+                     (change)="onChangeRoleType(fieldRoleType.MEASURE)"
+                     [checked]="selectedFieldRole === fieldRoleType.MEASURE">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">{{'msg.comm.name.mea' | translate}}</span>
+            </label>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //label -->
+
+      <!-- label -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.storage.ui.type' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option"
+             (click)="isShowLogicalTypesFl = !isShowLogicalTypesFl"
+             (clickOutside)="isShowLogicalTypesFl = false">
+          <!-- selectbox -->
+          <!-- 선택시 : ddp-selected 추가 -->
+          <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : isShowLogicalTypesFl}">
+            <span class="ddp-txt-selectbox">{{selectedLogicalType.label}}</span>
+            <div class="ddp-wrap-popup2 ddp-types">
+              <ul class="ddp-list-popup">
+                <li [ngClass]="{'ddp-selected' : selectedLogicalType.value === type.value}"
+                    (click)="onChangeLogicalType($event,type)" *ngFor="let type of logicalTypes">
+                  <a href="javascript:">
+                    <em class="{{getFieldTypeIconClass(type.value)}}"></em>
+                    {{type.label}}
+                    <em class="ddp-icon-check" *ngIf="selectedLogicalType.value === type.value"></em>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!-- //selectbox -->
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //label -->
+      <div class="ddp-reset">
+        <a href="javascript:" class="ddp-btn-reset3" (click)="onClickResetFilter()"></a>
+      </div>
+      <!-- right -->
+      <div class=" ddp-fright">
+        <div class="ddp-data-form">
+          <input type="text" class="ddp-data-input"
+                 [ngModel]="rowNum"
+                 (keyup)="onChangeRowNumber($event)"
+                 input-mask="number">
+          <!--<strong>/ 2,333</strong>-->
+          {{'msg.storage.ui.row' | translate}}
+        </div>
+        <a href="javascript:" class="ddp-btn-bg" (click)="onClickExcelDownload()"><em class="ddp-icon-link-down"></em>{{'msg.log.btn.download.csv' | translate}}</a>
+      </div>
+      <!-- //right -->
+    </div>
+    <!-- //option -->
+    <!-- fix grid -->
+    <div class="ddp-fix-grid" [class.meta-grid]="isExistMetaData()"
+         #main grid-component
+         (onHeaderRowCellRendered)="createMetaDataHeader($event)">
+    </div>
+    <!-- //fix grid -->
+  </div>
+  <!-- //datagrid -->
+</div>
+<!-- //tab contents -->

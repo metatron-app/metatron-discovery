@@ -1,0 +1,69 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-input-info"
+     [ngClass]="{'ddp-selected':isFocus}"
+     (clickOutside)="isAutoCompleteSuggestionListOpen=false" *ngIf="command && command !== 'aggregate' && command !== 'pivot'">
+  <input type="text"
+         id="rule-delete-input"
+         tabindex="{{tabIndex}}"
+         class="ddp-input-typebasic"
+         placeholder="{{'msg.dp.th.condition.ph' | translate}}"
+         [(ngModel)]="ruleVO.row"
+         (focus)="isFocus=true;changeRule($event)"
+         (blur)="isFocus=false"
+         (click)="changeRule($event)"
+         (keydown)="changeRule($event)">
+  <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isAutoCompleteSuggestionListOpen"  [ngStyle]="{'width':selectBoxWidth + 'px'}">
+    <li *ngFor="let item of autoCompleteSuggestions;let idx=index" (click)="onautoCompleteSuggestionsSelect(item)">
+      <a [ngStyle]="idx==autoCompleteSuggestions_selectedIdx?{'background-color':'#f6f6f7','color':item.class}:{'color':item.class}" href="javascript:">
+        {{item.value}}
+      </a>
+    </li>
+    <li *ngIf="autoCompleteSuggestions.length === 0">
+          <span class="ddp-noresult">
+            {{'msg.dp.ui.search.no.rslt' | translate}}
+          </span>
+    </li>
+  </ul>
+</div>
+
+<div *ngIf="command && command === 'pivot' || command === 'aggregate'"
+     class="ddp-wrap-input-info"
+     [ngClass]="{'ddp-selected':isFocus}"
+     (clickOutside)="isAutoCompleteSuggestionListOpen=false">
+  <input type="text" id="rule-pivot-input-{{idx}}"
+         class="ddp-input-typebasic"
+         tabindex="3"
+         placeholder="{{'msg.dp.alert.insert.formula' | translate}}"
+         [(ngModel)]="pivotFormulaValueList[idx]"
+         (focus)="isFocus=true;changeRule($event)"
+         (blur)="isFocus=false"
+         (click)="changeRule($event)"
+         (keydown)="changeRule($event)">
+  <ul class="ddp-list-selectbox ddp-list-command"
+      *ngIf="isAutoCompleteSuggestionListOpenPivot('rule-pivot-input',idx)" >
+    <li *ngFor="let item_sug of autoCompleteSuggestions;let idx_sug=index"
+        (click)="onautoCompleteSuggestionsSelectPivot(item_sug,pivotFormulaValueList,idx)">
+      <a [ngStyle]="idx_sug==autoCompleteSuggestions_selectedIdx?{'background-color':'#f6f6f7','color':item_sug.class}:{'color':item_sug.class}" href="javascript:">
+        {{item_sug.value}}
+      </a>
+    </li>
+    <li *ngIf="autoCompleteSuggestions.length === 0">
+        <span class="ddp-noresult">
+          {{'msg.dp.ui.search.no.rslt' | translate}}ㅗㅑㅗㅑ
+        </span>
+    </li>
+  </ul>
+</div>

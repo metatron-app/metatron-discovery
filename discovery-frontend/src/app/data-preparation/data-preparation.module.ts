@@ -1,0 +1,149 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { NgModule } from '@angular/core';
+import { DataPreparationComponent } from './data-preparation.component';
+import { DataPreparationGuard } from './data-preparation.guard';
+import { RouterModule, Routes } from '@angular/router';
+import { DataPreparationService } from './service/data-preparation.service';
+import { CommonModule } from '../common/common.module';
+import { DataflowComponent } from './dataflow/dataflow.component';
+import { DatasetComponent } from './dataset/dataset.component';
+import { DataSnapshotComponent } from './data-snapshot/data-snapshot.component';
+import { CreateDataflowComponent } from './dataflow/create-dataflow/create-dataflow.component';
+import { CreateDataflowDatasetComponent } from './dataflow/create-dataflow/create-dataflow-dataset/create-dataflow-dataset.component';
+import { CreateDataflowNameComponent } from './dataflow/create-dataflow/create-dataflow-name/create-dataflow-name.component';
+import { DataflowService } from './dataflow/service/dataflow.service';
+import { CreateDatasetComponent } from './dataset/create-dataset/create-dataset.component';
+import { CreateDatasetDataTypeComponent } from './dataset/create-dataset/create-dataset-datatype/create-dataset-datatype.component';
+import { CreateDatasetSelectfileComponent } from './dataset/create-dataset/create-dataset-selectfile/create-dataset-selectfile.component';
+import { CreateDatasetSelectsheetComponent } from './dataset/create-dataset/create-dataset-selectsheet/create-dataset-selectsheet.component';
+import { CreateDatasetStagingSelectdataComponent } from './dataset/create-dataset/create-dataset-staging-selectdata/create-dataset-staging-selectdata.component';
+import { DatasetService } from './dataset/service/dataset.service';
+import { DataSnapshotDetailComponent } from './data-snapshot/data-snapshot-detail.component';
+import { DataSnapshotService } from './data-snapshot/service/data-snapshot.service';
+import { FileModule } from '../common/file.module';
+import { CreateDatasetDbSelectComponent } from './dataset/create-dataset/create-dataset-db-select/create-dataset-db-select.component';
+import { CreateDatasetDbQueryComponent } from './dataset/create-dataset/create-dataset-db-query/create-dataset-db-query.component';
+import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
+import { WorkbenchEditorModule } from '../workbench/workbench.editor.module';
+import { DataflowDetailComponent } from './dataflow/dataflow-detail/dataflow-detail.component';
+import { AddDatasetModalComponent } from './dataflow/dataflow-detail/component/add-dataset-modal/add-dataset-modal.component';
+import { EditDataflowRuleComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-dataflow-rule.component';
+import { RuleJoinPopupComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-join-popup/rule-join-popup.component';
+import { RuleUnionPopupComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-union-popup/rule-union-popup.component';
+import { UnionAddDatasetsComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-union-popup/union-add-datasets/union-add-datasets.component';
+import { DatasetDetailComponent } from './dataset/detail-dataset/dataset-detail.component';
+import { DatasetInfoPopupComponent } from './dataflow/dataflow-detail/component/dataset-info-popup/dataset-info-popup.component';
+import { CreateDatasetNameComponent } from './dataset/create-dataset/create-dataset-name.component';
+import { RuleListComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-list.component';
+import { RuleEditComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-edit.component';
+import { MulticolumnRenameComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/multicolumn-rename.component';
+import { RuleContextMenuComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-context-menu.component';
+import { ExtendInputFormulaComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/extend-input-formula.component';
+import { ScrollLoadingGridComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule-grid/scroll-loading-grid.component';
+import { EditDataflowRule2Component } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-dataflow-rule-2.component';
+import { EditRuleGridComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule-grid/edit-rule-grid.component';
+import { RuleSnapshotListComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-snapshot-list.component';
+import { CreateDataflowNameDescComponent } from './dataflow/create-dataflow-name-desc.component';
+import { AddDatasetComponent } from './dataflow/dataflow-detail/add-dataset.component';
+import { DatasetSummaryComponent } from './dataflow/dataflow-detail/dataset-summary.component';
+import { EditRuleHeaderComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-header.component';
+import { EditRuleKeepComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-keep.component';
+import { EditRuleDeleteComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-delete.component';
+import { EditRuleDropComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-drop.component';
+import { CreateSnapshotPopup } from './component/create-snapshot-popup.component';
+import { SnapshotLoadingComponent } from './component/snapshot-loading.component';
+import {RuleConditionInputComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/rule-condition-input.component";
+import { EditRuleFieldComboComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-field-combo.component';
+import { EditRuleDeriveComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-derive.component';
+import { EditRuleSetComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-set.component';
+
+const dataPreparationRoutes: Routes = [
+  { path: '', component: DatasetComponent },
+  { path: 'dataflow', component: DataflowComponent },
+  { path: 'dataflow/:id', component: DataflowDetailComponent, canDeactivate: [DataPreparationGuard] },
+  { path: 'dataset', component: DatasetComponent },
+  { path: 'dataset/new', component: DatasetComponent },
+  { path: 'dataset/:id', component: DatasetDetailComponent },
+  { path: 'datasnapshot', component: DataSnapshotComponent }
+];
+
+@NgModule({
+  imports: [
+    CommonModule,
+    FileModule,
+    RouterModule.forChild(dataPreparationRoutes),
+    SplitPaneModule,
+    WorkbenchEditorModule
+  ],
+  declarations: [
+    DataPreparationComponent,
+    DataflowComponent,
+    CreateDataflowComponent,
+    CreateDataflowDatasetComponent,
+    CreateDataflowNameComponent,
+    DatasetComponent,
+    CreateDatasetComponent,
+    CreateDatasetDataTypeComponent,
+    CreateDatasetSelectfileComponent,
+    CreateDatasetSelectsheetComponent,
+    CreateDatasetStagingSelectdataComponent,
+    DataSnapshotComponent,
+    DataSnapshotDetailComponent,
+    CreateDatasetDbSelectComponent,
+    CreateDatasetDbQueryComponent,
+    DatasetDetailComponent,
+    DataflowDetailComponent,
+    AddDatasetModalComponent,
+    EditDataflowRuleComponent,
+    RuleJoinPopupComponent,
+    RuleUnionPopupComponent,
+    UnionAddDatasetsComponent,
+    DatasetInfoPopupComponent,
+    CreateDatasetNameComponent,
+    RuleListComponent,
+    RuleEditComponent,
+    MulticolumnRenameComponent,
+    RuleContextMenuComponent,
+    ExtendInputFormulaComponent,
+    EditRuleGridComponent,
+    ScrollLoadingGridComponent,
+    EditDataflowRule2Component,
+    EditRuleFieldComboComponent,
+    EditRuleHeaderComponent,
+    EditRuleKeepComponent,
+    EditRuleDeleteComponent,
+    EditRuleDropComponent,
+    EditRuleDeriveComponent,
+    EditRuleSetComponent,
+    RuleSnapshotListComponent,
+    AddDatasetComponent,
+    CreateDataflowNameDescComponent,
+    DatasetSummaryComponent,
+    CreateSnapshotPopup,
+    SnapshotLoadingComponent,
+    RuleConditionInputComponent
+  ],
+  providers: [
+    DataPreparationService,
+    DataflowService,
+    DatasetService,
+    DataSnapshotService,
+    DataPreparationGuard
+  ],
+  exports: [
+  ]
+})
+export class DataPreparationModule { }

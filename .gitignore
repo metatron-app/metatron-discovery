@@ -1,0 +1,73 @@
+# project level
+**/h2db
+**/indexes
+**/metastore_db
+
+# Language compiled files
+*.class
+*.pyc
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+# Temporaries
+tmp/
+*.tmp
+*.bak
+*.swp
+
+# eclipse project files
+**/.classpath
+**/.project
+**/.settings/
+.project
+.loadpath
+.settings/
+
+# intelliJ IDEA project files
+.idea/
+*.iml
+
+# Angular
+**/node
+**/node_modules
+
+# maven target files
+target/
+**/target/
+
+
+# Git properties
+**/git.properties
+
+# Log file
+*.log
+
+# Package Files
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+hive-site.xml
+!/discovery-server/src/main/java/com/metatron/discovery/domain/workspace/WorkspaceFavoriteRepository.java
+
+# local config
+discovery-server/src/main/resources/hive-site.xml
+!/discovery-server/src/main/java/com/metatron/discovery/domain/workbook/configurations/PageConfiguration.java
+!/discovery-server/src/main/java/com/metatron/discovery/domain/workbook/configurations/filter/ExpressionFilter.java
+
+# dataprep local base dir
+dataprep/uploads
+dataprep/snapshots
+dataprep/previews

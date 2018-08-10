@@ -1,0 +1,1015 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-chart-side ddp-show">
+
+  <div class="ddp-ui-side-title">
+    {{'msg.page.ui.common' | translate}}
+  </div>
+  <div class="ddp-wrap-downmenu">
+    <!-- box down -->
+    <div class="ddp-box-down">
+
+      <!-- 지도 정보 -->
+      <div class="ddp-wrap-express" *ngIf="false">
+        <ul class="ddp-list-express">
+          <li class="ddp-selected">
+            <em class="ddp-icon-world"></em> 세계지도
+          </li>
+          <li>
+            <em class="ddp-icon-domestic"></em> 국내지도
+          </li>
+        </ul>
+      </div>
+      <!-- //지도 정보 -->
+
+      <!-- [표] -->
+      <ng-container *ngIf="possibleChartCheck('gridExpress', uiOption.type)">
+        <!-- wrap divide -->
+        <div class="ddp-wrap-divide">
+          <!-- divide -->
+          <div class="ddp-divide2">
+
+            <div class="ddp-list-label">{{'msg.page.common.chart.type' | translate}}</div>
+            <ul class="ddp-list-express ddp-type2">
+              <li [ngClass]="{'ddp-selected': uiOption.dataType === 'PIVOT'}" (click)="gridViewType('PIVOT');">
+                <em class="ddp-icon-pivot"></em> {{'msg.page.btn.pivot' | translate}}
+              </li>
+              <li [ngClass]="{'ddp-selected': uiOption.dataType === 'MASTER'}" (click)="gridViewType('MASTER');"
+                [class.ddp-disabled]="isNoOriginData || uiOption['totalValueStyle']">
+                <em class="ddp-icon-original"></em> {{'msg.page.btn.original' | translate}}
+
+                <!-- tooltip -->
+                <div *ngIf="isNoOriginData" class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-top"></em>
+                  {{'msg.page.chart.grid.chart.nodata.origin.description' | translate}}, {{'msg.page.chart.grid.chart.nodata.origin.description2' | translate}}
+                </div>
+                <!-- //tooltip -->
+              </li>
+            </ul>
+          </div>
+          <!-- //divide -->
+          <!-- divide -->
+          <div class="ddp-divide2">
+            <ul class="ddp-list-express ddp-type2">
+              <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'VERTICAL'}" (click)="gridLayout('VERTICAL');">
+                <em class="ddp-icon-column-view"></em> {{'msg.page.btn.vertically' | translate}}
+              </li>
+              <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'HORIZONTAL'}" (click)="gridLayout('HORIZONTAL');">
+                <em class="ddp-icon-horizontal-view"></em> {{'msg.page.btn.horizontally' | translate}}
+              </li>
+            </ul>
+          </div>
+          <!-- //divide -->
+        </div>
+
+        <!-- wrap divide -->
+        <div *ngIf="uiOption?.headerStyle" class="ddp-wrap-divide">
+          <!--  divide -->
+          <div class="ddp-divide2">
+
+            <div class="ddp-list-label">{{'msg.page.common.grid.header.style.title' | translate}}</div>
+            <div class="ddp-list-sub2">
+              <!-- slider -->
+              <div class="ddp-wrap-option-slider">
+                <span class="ddp-label-slider">{{'msg.page.common.grid.header.show.header' | translate}}</span>
+                <!-- Slide THREE -->
+                <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                  <input type="checkbox" value="None" id="ckShowHeader" [checked]="uiOption?.headerStyle?.showHeader"
+                  (click)="changeShowHeader(!uiOption?.headerStyle?.showHeader)">
+                  <label for="ckShowHeader"><span class="ddp-slide"></span></label>
+                </div>
+                <!-- //Slide THREE -->
+              </div>
+              <!-- //slider -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.common.align.horizontal' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ">
+                  <!-- selectbox -->
+                  <component-select
+                    #bodyHalign
+                    [array]="hAlignList"
+                    [defaultIndex]="!uiOption?.headerStyle?.hAlign || 'AUTO' == uiOption?.headerStyle?.hAlign? 0 : 'LEFT' == uiOption?.headerStyle?.hAlign ? 1 : 'CENTER' == uiOption?.headerStyle?.hAlign ? 2 : 3"
+                    [viewKey]="'name'"
+                    (onSelected)="textAlign($event, true)">
+                  </component-select>
+                </div>
+              </div>
+              <!-- //multy -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.common.align.vertical' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ddp-txt-right">
+                  <ul class="ddp-list-express ddp-tab3 ddp-type">
+                    <li [ngClass]="{'ddp-selected': uiOption.headerStyle.vAlign === 'TOP'}" (click)="textVAlign('TOP', true);">
+                      <em class="ddp-icon-top"></em>
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.headerStyle.vAlign === 'MIDDLE'}" (click)="textVAlign('MIDDLE', true);">
+                      <em class="ddp-icon-middle"></em>
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.headerStyle.vAlign === 'BOTTOM'}" (click)="textVAlign('BOTTOM', true);">
+                      <em class="ddp-icon-bottom"></em>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- //multy -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.common.font.size' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ddp-txt-right">
+                  <ul class="ddp-list-express ddp-tab3 ddp-type">
+                    <li [ngClass]="{'ddp-selected': 'SMALL' == uiOption?.headerStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('SMALL', true)">
+                      <em class="ddp-icon-font-s"></em>
+                    </li>
+                    <li [ngClass]="{'ddp-selected': 'NORMAL' == uiOption?.headerStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('NORMAL', true)">
+                      <em class="ddp-icon-font-m"></em>
+                    </li>
+                    <li [ngClass]="{'ddp-selected': 'LARGE' == uiOption?.headerStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('LARGE', true)">
+                      <em class="ddp-icon-font-l"></em>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- //multy -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-8">
+                  <span class="ddp-label-txt">{{'msg.page.calrow.label.font.color' | translate}}</span>
+                </div>
+                <div class="ddp-col-4 ddp-txt-right">
+                  <!-- selectbox -->
+                  <div class="ddp-type-selectbox ddp-color-selectbox2 ddp-full ">
+                    <color-picker #fontColorPicker (selected)="changeHeaderFontColor($event)"></color-picker>
+                  </div>
+                  <!-- //selectbox -->
+                </div>
+              </div>
+              <!-- //multy -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-8">
+                  <span class="ddp-label-txt">{{'msg.page.calrow.label.font.background.color' | translate}}</span>
+                </div>
+                <div class="ddp-col-4 ddp-txt-right">
+                  <!-- selectbox -->
+                  <div class="ddp-type-selectbox ddp-color-selectbox2 ddp-full ">
+                    <color-picker #backgroundColorPicker (selected)="changeHeaderBackgroundColor($event)"></color-picker>
+                  </div>
+                  <!-- //selectbox -->
+                </div>
+              </div>
+              <!-- //multy -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-8">
+                  <span class="ddp-label-txt">{{'msg.page.common.grid.body.font.style' | translate}}</span>
+                </div>
+                <div class="ddp-col-4 ddp-txt-right">
+                  <ul class="ddp-list-express  ddp-type">
+                    <li [ngClass]="{'ddp-selected': uiOption?.headerStyle?.fontStyles && uiOption?.headerStyle?.fontStyles.indexOf('BOLD') != -1}" (click)="gridFontStyle('BOLD', true)">
+                      <em class="ddp-icon-font-bold"></em>
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption?.headerStyle?.fontStyles && uiOption?.headerStyle?.fontStyles.indexOf('ITALIC') != -1}" (click)="gridFontStyle('ITALIC', true)">
+                      <em class="ddp-icon-font-italic"></em>
+                    </li>
+
+                  </ul>
+                </div>
+              </div>
+              <!-- //multy -->
+            </div>
+          </div>
+          <!-- // divide -->
+        </div>
+        <!-- //wrap divide -->
+
+        <!-- wrap divide -->
+        <div *ngIf="uiOption?.contentStyle" class="ddp-wrap-divide">
+          <!--  divide -->
+          <div class="ddp-divide2">
+            <div class="ddp-list-label">{{'msg.page.common.grid.body.style.title' | translate}}</div>
+            <div class="ddp-list-sub2">
+              <!-- checkbox -->
+              <div class="ddp-part-check-b">
+                <label class="ddp-label-checkbox ddp-position">
+                  <input type="checkbox" [ngModel]="uiOption?.contentStyle?.showHeader" (click)="showValueColumn(!uiOption?.contentStyle?.showHeader)">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.page.th.head.col' | translate}}</span>
+                </label>
+              </div>
+              <!-- //checkbox -->
+
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.common.align.horizontal' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ">
+                  <!-- selectbox -->
+                  <component-select
+                    #bodyHalign
+                    [array]="hAlignList"
+                    [defaultIndex]="!uiOption?.contentStyle?.hAlign || 'AUTO' == uiOption?.contentStyle?.hAlign? 0 : 'LEFT' == uiOption?.contentStyle?.hAlign ? 1 : 'CENTER' == uiOption?.contentStyle?.hAlign ? 2 : 3"
+                    [viewKey]="'name'"
+                    (onSelected)="textAlign($event, false)">
+                  </component-select>
+                </div>
+              </div>
+              <!-- //multy -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.common.align.vertical' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ddp-txt-right">
+                  <ul class="ddp-list-express ddp-tab3 ddp-type">
+                    <li [ngClass]="{'ddp-selected': uiOption.contentStyle.vAlign === 'TOP'}" (click)="textVAlign('TOP', false);">
+                      <em class="ddp-icon-top"></em>
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.contentStyle.vAlign === 'MIDDLE'}" (click)="textVAlign('MIDDLE', false);">
+                      <em class="ddp-icon-middle"></em>
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.contentStyle.vAlign === 'BOTTOM'}" (click)="textVAlign('BOTTOM', false);">
+                      <em class="ddp-icon-bottom"></em>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- //multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.common.font.size' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ddp-txt-right">
+                  <ul class="ddp-list-express ddp-tab3 ddp-type">
+                    <li [ngClass]="{'ddp-selected': 'SMALL' == uiOption?.contentStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('SMALL', false)">
+                      <em class="ddp-icon-font-s"></em>
+                    </li>
+                    <li [ngClass]="{'ddp-selected': 'NORMAL' == uiOption?.contentStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('NORMAL', false)">
+                      <em class="ddp-icon-font-m"></em>
+                    </li>
+                    <li [ngClass]="{'ddp-selected': 'LARGE' == uiOption?.contentStyle?.fontSize?.toString()}" (click)="gridChangeFontSize('LARGE', false)">
+                      <em class="ddp-icon-font-l"></em>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- //multy -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.calrow.label.font.color' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ddp-txt-right">
+                  <ul class="ddp-list-express ddp-tab2 ddp-type">
+                    <li [ngClass]="{'ddp-selected' : !uiOption?.contentStyle?.fontColor || '' == uiOption?.contentStyle?.fontColor}"
+                        (click)="changeContentFontColor('')">
+                      {{'msg.page.common.font.color.default' | translate}}
+                    </li>
+                    <li [ngClass]="{'ddp-selected' : uiOption?.contentStyle?.fontColor}" class="ddp-colorpicker">
+                      <color-picker #contentFontcolorPicker (selected)="changeContentFontColor($event)"></color-picker>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <!-- //multy -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-8">
+                  <span class="ddp-label-txt">{{'msg.page.common.grid.body.color.style' | translate}}</span>
+                </div>
+                <div class="ddp-col-4 ddp-txt-right">
+                  <ul class="ddp-list-express  ddp-type">
+                    <li [ngClass]="{'ddp-selected': uiOption.color.colorTarget === 'TEXT'}" (click)="gridColorByMeasure('TEXT');">
+                      <em class="ddp-icon-textcolor"></em>
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.color.colorTarget === 'BACKGROUND'}" (click)="gridColorByMeasure('BACKGROUND');">
+                      <em class="ddp-icon-areacolor"></em>
+                    </li>
+
+                  </ul>
+                </div>
+              </div>
+              <!-- //multy -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-8">
+                  <span class="ddp-label-txt">{{'msg.page.common.grid.body.font.style' | translate}}</span>
+                </div>
+                <div class="ddp-col-4 ddp-txt-right">
+                  <ul class="ddp-list-express  ddp-type">
+                    <li [ngClass]="{'ddp-selected': uiOption?.contentStyle?.fontStyles && uiOption?.contentStyle?.fontStyles.indexOf('BOLD') != -1}" (click)="gridFontStyle('BOLD', false)">
+                      <em class="ddp-icon-font-bold"></em>
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption?.contentStyle?.fontStyles && uiOption?.contentStyle?.fontStyles.indexOf('ITALIC') != -1}" (click)="gridFontStyle('ITALIC', false)">
+                      <em class="ddp-icon-font-italic"></em>
+                    </li>
+
+                  </ul>
+                </div>
+              </div>
+              <!-- //multy -->
+            </div>
+          </div>
+        </div>
+
+        <!-- wrap divide -->
+        <div class="ddp-wrap-divide">
+          <!--  divide -->
+          <div class="ddp-divide2">
+            <!-- slider -->
+            <div class="ddp-wrap-option-slider">
+              <span class="ddp-label-slider">{{'msg.page.common.grid.add.remark' | translate}}</span>
+              <!-- Slide THREE -->
+              <div class="ddp-checkbox-slide ddp-checkbox-automatic2" (click)="addAnnotation()">
+                <input type="checkbox" id="checkAnno" [ngModel]="uiOption['annotation']">
+                <label for="checkAnno"><span class="ddp-slide"></span></label>
+              </div>
+              <!-- //Slide THREE -->
+            </div>
+            <!-- //slider -->
+            <div *ngIf="uiOption['annotation']" class="ddp-list-sub2">
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.common.grid.enter.remark' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ">
+                  <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.page.common.grid.enter.remark' | translate}}"
+                   (keyup.enter)="changeRemarkLabel(uiOption['annotation'])"
+                  [(ngModel)]="uiOption['annotation']['label']">
+                </div>
+              </div>
+              <!-- //multy -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-6">
+                  <span class="ddp-label-txt">{{'msg.page.common.grid.enter.position' | translate}}</span>
+                </div>
+                <div class="ddp-col-6 ">
+                  <component-select
+                    [array]="remarkPositionList"
+                    [defaultIndex]="getPositionIndex()"
+                    [viewKey]="'name'"
+                    (onSelected)="changePosition($event)"
+                    [noWrapFl]="true"
+                  ></component-select>
+                </div>
+              </div>
+              <!-- //multy -->
+
+            </div>
+
+          </div>
+          <!--  //divide -->
+        </div>
+        <!-- //wrap divide -->
+      </ng-container>
+      <!--// [표] -->
+
+      <!-- [막대 차트] -->
+      <!-- wrap divide -->
+      <div class="ddp-wrap-divide" *ngIf="possibleChartCheck('barExpress', uiOption.type)">
+        <!-- divide -->
+        <div class="ddp-divide2">
+          <div class="ddp-list-label">{{'msg.page.common.chart.type' | translate}}</div>
+          <ul class="ddp-list-express ddp-type2">
+            <li [ngClass]="{'ddp-selected': uiOption.align === 'VERTICAL'}" (click)="barOrientType('VERTICAL');">
+              <em class="ddp-icon-vertical"></em> {{'msg.page.li.vertical' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.align === 'HORIZONTAL'}" (click)="barOrientType('HORIZONTAL');">
+              <em class="ddp-icon-horizontal"></em> {{'msg.page.li.horizontal' | translate}}
+            </li>
+          </ul>
+        </div>
+        <!-- //divide -->
+        <!-- divide -->
+        <div class="ddp-divide2" *ngIf="uiOption.type.toString() === 'bar'">
+          <ul class="ddp-list-express ddp-type2">
+            <li [ngClass]="{'ddp-selected': uiOption.mark === 'MULTIPLE'}" (click)="barSeriesViewType('MULTIPLE');">
+              <em class="ddp-icon-multi"></em> {{'msg.page.btn.parallel' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.mark === 'STACKED'}" (click)="barSeriesViewType('STACKED');">
+              <em class="ddp-icon-stack"></em> {{'msg.page.btn.stacked' | translate}}
+            </li>
+          </ul>
+        </div>
+        <!-- //divide -->
+      </div>
+      <!-- //wrap divide -->
+      <!--<div class="ddp-wrap-express" *ngIf="possibleChartCheck('barExpress', uiOption.type)">-->
+        <!--<div *ngIf="uiOption.type.toString() === 'bar'" class="ddp-wrap-option-checkbox ddp-clear">-->
+          <!--<div class="ddp-col-5">-->
+            <!--<label class="ddp-label-checkbox" (click)="-->
+              <!--$event.preventDefault();-->
+              <!--onLimitChange(uiOption.size);uiOption.limitCheck = !uiOption.limitCheck">-->
+              <!--<input type="checkbox" [(ngModel)]="uiOption.limitCheck">-->
+              <!--<i class="ddp-icon-checkbox"></i>-->
+              <!--<span class="ddp-txt-checkbox">{{'msg.page.chart.presentation.checkbox.limit' | translate}}</span>-->
+            <!--</label>-->
+          <!--</div>-->
+          <!--<div class="ddp-col-7">-->
+            <!--&lt;!&ndash; input number &ndash;&gt;-->
+            <!--<div class="ddp-input-number" [ngClass]="{'ddp-disabled' : !uiOption.limitCheck}">-->
+              <!--<input (keyup.enter)="onLimitChange(uiOption.size)" [readonly]="!uiOption.limitCheck" [(ngModel)]="uiOption.size" type="number" input-mask="number">-->
+              <!--<div class="ddp-input-number-nav">-->
+                <!--<div (click)="onLimitChange(uiOption.size - 1)" class="ddp-input-number-button ddp-input-number-down"></div>-->
+                <!--<div (click)="onLimitChange(uiOption.size + 1)" class="ddp-input-number-button ddp-input-number-up"></div>-->
+              <!--</div>-->
+            <!--</div>-->
+            <!--&lt;!&ndash; //input number &ndash;&gt;-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</div>-->
+      <!-- //[막대 차트] -->
+
+      <!-- 표현 그래프 line -->
+      <!-- [선형 차트] -->
+      <!-- wrap divide -->
+      <div class="ddp-wrap-divide" *ngIf="possibleChartCheck('lineExpress', uiOption.type)">
+        <!-- divide -->
+        <div class="ddp-divide2">
+
+          <div class="ddp-list-label">{{'msg.page.common.chart.type' | translate}}</div>
+          <ul class="ddp-list-express ddp-type2">
+            <li [ngClass]="{'ddp-selected': uiOption.mark === 'LINE'}" (click)="lineSeriesViewType('LINE');">
+              <em class="ddp-icon-line-type"></em> {{'msg.page.btn.line-style' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.mark === 'AREA'}" (click)="lineSeriesViewType('AREA');">
+              <em class="ddp-icon-area-type"></em> {{'msg.page.btn.area-style' | translate}}
+            </li>
+          </ul>
+        </div>
+        <!-- //divide -->
+        <!-- divide -->
+        <div class="ddp-divide2">
+          <ul class="ddp-list-express ddp-type2">
+            <li [ngClass]="{'ddp-selected': !uiOption.curveStyle || uiOption.curveStyle === 'STRAIGHT'}" (click)="lineSeriesCornerType('STRAIGHT');">
+              <em class="ddp-icon-line-straigt"></em> {{'msg.page.btn.corner-straight' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.curveStyle === 'SMOOTH'}" (click)="lineSeriesCornerType('SMOOTH');">
+              <em class="ddp-icon-line-curve"></em> {{'msg.page.btn.corner-round' | translate}}
+            </li>
+          </ul>
+        </div>
+        <!-- //divide -->
+        <!-- divide -->
+        <div class="ddp-divide2">
+          <ul class="ddp-list-express ddp-tab3 ddp-type2">
+            <li [ngClass]="{'ddp-selected': 'POINT_LINE' === uiOption.lineStyle}" (click)="showLine('POINT_LINE');">
+              <em class="ddp-icon-link-circle"></em> {{'msg.page.btn.standard' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': 'POINT' === uiOption.lineStyle}" (click)="showLine('POINT');">
+              <em class="ddp-icon-link-point"></em> {{'msg.page.btn.linking-plots' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': 'LINE' === uiOption.lineStyle}" (click)="showLine('LINE');">
+              <em class="ddp-icon-link-none"></em> {{'msg.page.btn.line' | translate}}
+            </li>
+          </ul>
+        </div>
+        <!-- //divide -->
+        <!-- divide -->
+        <div class="ddp-divide2">
+          <ul class="ddp-list-express ddp-type2">
+            <li [ngClass]="{'ddp-selected': 'NORMAL' === uiOption.lineMode}" (click)="cumulativeMode('NORMAL');">
+              <em class="ddp-icon-basic-line"></em> {{'msg.page.btn.standard.line' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': 'CUMULATIVE' === uiOption.lineMode}" (click)="cumulativeMode('CUMULATIVE');">
+              <em class="ddp-icon-accrue"></em> {{'msg.page.btn.accum.line' | translate}}
+            </li>
+          </ul>
+        </div>
+        <!-- //divide -->
+      </div>
+      <!-- //wrap divide -->
+      <!-- [//선형 차트] -->
+
+      <!-- [분산형 차트] -->
+      <!-- wrap divide -->
+      <div class="ddp-wrap-divide" *ngIf="possibleChartCheck('scatterExpress', uiOption.type)">
+        <div class="ddp-divide2 ">
+          <div class="ddp-list-label">{{'msg.page.common.symbol.type' | translate}}</div>
+          <!-- express -->
+          <ul class="ddp-list-express ddp-tab6 ddp-type2">
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'CIRCLE'}" (click)="symbolType('CIRCLE');">
+              <em class="ddp-icon-circle"></em> {{'msg.page.btn.circle' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'RECT'}" (click)="symbolType('RECT');">
+              <em class="ddp-icon-square"></em> {{'msg.page.btn.square' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'TRIANGLE'}" (click)="symbolType('TRIANGLE');">
+              <em class="ddp-icon-triangle"></em> {{'msg.page.btn.triangle' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'DIAMOND'}" (click)="symbolType('DIAMOND');">
+              <em class="ddp-icon-diamond"></em> {{'msg.page.btn.diamond' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'PIN'}" (click)="symbolType('PIN');">
+              <em class="ddp-icon-pin"></em> {{'msg.page.btn.pin' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.pointShape === 'ARROW'}" (click)="symbolType('ARROW');">
+              <em class="ddp-icon-arrow"></em> {{'msg.page.btn.arrow' | translate}}
+            </li>
+          </ul>
+          <!-- //express -->
+        </div>
+        <div class="ddp-divide2 ">
+          <div class="ddp-list-label">{{'msg.page.common.symbol.transparency' | translate}}</div>
+          <!-- TODO 디자인 변경필요 -->
+          <ul class="ddp-list-express ddp-type2">
+            <li [ngClass]="{'ddp-selected': uiOption.pointTransparency === 1}" (click)="symbolFill(1);">
+              <em class="ddp-icon-single-color"></em> {{'msg.page.btn.single' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.pointTransparency === 0.5}" (click)="symbolFill(0.5);">
+              <em class="ddp-icon-translucence"></em> {{'msg.page.btn.transparent' | translate}}
+            </li>
+          </ul>
+          <!-- // TODO 디자인 변경필요 -->
+        </div>
+      </div>
+      <!-- //wrap divide -->
+      <!-- //[분산형 차트] -->
+
+      <!-- 표현 그래프 heat -->
+      <div class="ddp-wrap-express" style="" *ngIf="false">
+
+        <span class="ddp-ui-express-name">차원값 레이블A</span>
+        <ul class="ddp-list-express ddp-tab3">
+          <li class="ddp-selected">
+            <em class="ddp-icon-color"></em> 색상
+          </li>
+          <li>
+            <em class="ddp-icon-size"></em> 크기
+          </li>
+          <li>
+            <em class="ddp-icon-shape"></em> 모양
+          </li>
+        </ul>
+
+        <span class="ddp-ui-express-name">측정값 레이블A</span>
+        <ul class="ddp-list-express ddp-tab3">
+          <li class="ddp-selected">
+            <em class="ddp-icon-color"></em> 색상
+          </li>
+          <li>
+            <em class="ddp-icon-size"></em> 크기
+          </li>
+          <li>
+            <em class="ddp-icon-shape"></em> 모양
+          </li>
+        </ul>
+      </div>
+      <!-- //표현 그래프 heat -->
+
+      <!-- [파이 차트] -->
+      <!-- wrap divide -->
+      <div class="ddp-wrap-divide" *ngIf="possibleChartCheck('pieExpress', uiOption.type)">
+        <div class="ddp-list-label">{{'msg.page.common.chart.type' | translate}}</div>
+        <!-- divide -->
+        <div class="ddp-divide2">
+          <ul class="ddp-list-express ddp-type2">
+            <li [ngClass]="{'ddp-selected': uiOption.markType === 'SECTOR'}" (click)="pieSeriesViewType('SECTOR');">
+              <em class="ddp-icon-pie1"></em> {{'msg.page.btn.sectoral' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.markType === 'DONUT'}" (click)="pieSeriesViewType('DONUT');">
+              <em class="ddp-icon-pie2"></em> {{'msg.page.btn.donut' | translate}}
+            </li>
+          </ul>
+        </div>
+        <!-- //divide -->
+        <!-- divide -->
+        <!--<div class="ddp-divide2">-->
+          <!--<ul class="ddp-list-express ddp-type2">-->
+            <!--<li class="">-->
+              <!--<em class="ddp-icon-column-repeat"></em> 세로 반복-->
+            <!--</li>-->
+            <!--<li class="ddp-selected">-->
+              <!--<em class="ddp-icon-horizontal-repeat"></em> 가로 반복-->
+            <!--</li>-->
+          <!--</ul>-->
+        <!--</div>-->
+        <!-- //divide -->
+      </div>
+      <!-- //wrap divide -->
+      <!-- //[파이 차트] -->
+
+      <!-- [컴바인 차트] -->
+      <!-- wrap divide -->
+      <div class="ddp-wrap-divide" *ngIf="possibleChartCheck('combineExpress', uiOption.type)">
+        <!-- divide -->
+        <div class="ddp-divide2">
+
+          <div class="ddp-list-label">{{'msg.page.common.chart.type' | translate}}</div>
+          <ul class="ddp-list-express ddp-type2">
+            <li [ngClass]="{'ddp-selected': uiOption.barMarkType === 'MULTIPLE'}" (click)="combineSeriesViewType('bar', 'MULTIPLE')">
+              <em class="ddp-icon-multi"></em> {{'msg.page.btn.parallel' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.barMarkType === 'STACKED'}" (click)="combineSeriesViewType('bar', 'STACKED')">
+              <em class="ddp-icon-stack"></em> {{'msg.page.btn.stacked' | translate}}
+            </li>
+          </ul>
+        </div>
+        <!-- //divide -->
+        <!-- divide -->
+        <div class="ddp-divide2">
+          <ul class="ddp-list-express ddp-type2">
+            <li [ngClass]="{'ddp-selected': uiOption.lineMarkType === 'LINE'}" (click)="combineSeriesViewType('line', 'LINE')">
+              <em class="ddp-icon-line-type"></em> {{'msg.page.btn.line-style' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption.lineMarkType === 'AREA'}" (click)="combineSeriesViewType('line', 'AREA')">
+              <em class="ddp-icon-area-type"></em> {{'msg.page.btn.area-style' | translate}}
+            </li>
+          </ul>
+        </div>
+        <!-- //divide -->
+      </div>
+      <!-- //wrap divide -->
+      <!-- //[컴바인 차트] -->
+
+      <!-- 표현 그래프 map -->
+      <div class="ddp-wrap-express" *ngIf="false">>
+        <ul class="ddp-list-express ddp-tab3">
+          <li class="ddp-selected">
+            <em class="ddp-icon-single-color"></em> 단색
+          </li>
+          <li>
+            <em class="ddp-icon-outline"></em> 외곽선
+          </li>
+          <li>
+            <em class="ddp-icon-translucence"></em> 반투명
+          </li>
+        </ul>
+        <ul class="ddp-list-express ddp-tab6">
+          <li>
+            <em class="ddp-icon-circle"></em> 동그라미
+          </li>
+          <li>
+            <em class="ddp-icon-square"></em> 네모
+          </li>
+          <li>
+            <em class="ddp-icon-triangle"></em> 세모
+          </li>
+          <li>
+            <em class="ddp-icon-diamond"></em> 마름모
+          </li>
+          <li>
+            <em class="ddp-icon-cross"></em> 십자
+          </li>
+          <li>
+            <em class="ddp-icon-scissors"></em> 가위
+          </li>
+        </ul>
+        <span class="ddp-ui-express-name">차원값 레이블A</span>
+        <ul class="ddp-list-express ddp-tab3">
+          <li class="ddp-selected">
+            <em class="ddp-icon-color"></em> 색상
+          </li>
+          <li>
+            <em class="ddp-icon-size"></em> 크기
+          </li>
+          <li>
+            <em class="ddp-icon-shape"></em> 모양
+          </li>
+        </ul>
+        <span class="ddp-ui-express-name">측정값 레이블A</span>
+        <ul class="ddp-list-express ddp-tab3">
+          <li class="ddp-selected">
+            <em class="ddp-icon-color"></em> 색상
+          </li>
+          <li>
+            <em class="ddp-icon-size"></em> 크기
+          </li>
+          <li>
+            <em class="ddp-icon-shape"></em> 모양
+          </li>
+        </ul>
+      </div>
+      <!-- //표현 그래프 map -->
+
+      <!-- 표현 그래프 radar -->
+      <!-- wrap divide -->
+      <div class="ddp-wrap-divide" *ngIf="possibleChartCheck('radarExpress', uiOption.type)">
+        <div class="ddp-divide2">
+          <ul class="ddp-list-express ddp-type2">
+            <li [ngClass]="{'ddp-selected': uiOption?.mark === 'LINE'}" (click)="radarSeriesViewType('LINE')">
+              <em class="ddp-icon-link-none"></em> {{'msg.page.li.line' | translate}}
+            </li>
+            <li [ngClass]="{'ddp-selected': uiOption?.mark === 'AREA'}" (click)="radarSeriesViewType('AREA')">
+              <em class="ddp-icon-radar-area"></em> {{'msg.page.li.area' | translate}}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!-- //wrap divide -->
+      <!-- //표현 그래프 radar -->
+
+      <ng-container *ngIf="possibleChartCheck('kpiExpress', uiOption.type)">
+        <!-- wrap divide -->
+        <div class="ddp-wrap-divide ">
+          <div class="ddp-list-label">{{'msg.page.common.kpi.type' | translate}}</div>
+          <div class="ddp-divide2">
+            <ul class="ddp-list-express ddp-type2">
+              <li [class.ddp-selected]="!uiOption?.layout || uiOption?.layout != 'VERTICAL'"
+                  (click)="kpiChangeLayout('HORIZONTAL')">
+                <em class="ddp-icon-horizontal-view"></em> {{'msg.page.common.kpi.type.horizontal' | translate}}
+              </li>
+              <li [class.ddp-selected]="uiOption?.layout == 'VERTICAL'"
+                  (click)="kpiChangeLayout('VERTICAL')">
+                <em class="ddp-icon-column-view"></em> {{'msg.page.common.kpi.type.vertical' | translate}}
+              </li>
+            </ul>
+          </div>
+          <div class="ddp-divide2">
+            <ul class="ddp-list-express ddp-type2">
+              <li [class.ddp-selected]="!uiOption?.chartStyle || uiOption?.chartStyle == 'LINE'"
+                  (click)="kpiChangeStyle('LINE')">
+                <em class="ddp-icon-line-chart"></em> {{'msg.page.common.kpi.type.line' | translate}}
+              </li>
+              <li [class.ddp-selected]="uiOption?.chartStyle == 'SOLID'"
+                  (click)="kpiChangeStyle('SOLID')">
+                <em class="ddp-icon-solid-chart"></em> {{'msg.page.common.kpi.type.solid' | translate}}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- //wrap divide -->
+
+        <!-- wrap divide -->
+        <div class="ddp-wrap-divide ">
+          <div class="ddp-divide2">
+            <!-- 폰트크기 -->
+            <div class="ddp-wrap-option-multy ddp-clear">
+              <div class="ddp-col-6">
+                <span class="ddp-label-txt">{{'msg.page.common.font.size' | translate}}</span>
+              </div>
+              <div class="ddp-col-6 ddp-txt-right">
+                <ul class="ddp-list-express ddp-tab3 ddp-type">
+                  <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'SMALL' == uiOption.fontSize?.toString()}" (click)="changeFontSize('SMALL')">
+                    <em class="ddp-icon-font-s"></em>
+                  </li>
+                  <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'NORMAL' == uiOption.fontSize?.toString()}" (click)="changeFontSize('NORMAL')">
+                    <em class="ddp-icon-font-m"></em>
+                  </li>
+                  <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'LARGE' == uiOption.fontSize?.toString()}" (click)="changeFontSize('LARGE')">
+                    <em class="ddp-icon-font-l"></em>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <!-- //폰트크기 -->
+            <!-- 레이블 표시 -->
+            <div class="ddp-part-check-b">
+              <label (click)="$event.preventDefault(); kpiShowLabel(idx, !uiOption['showLabel']);" class="ddp-label-checkbox ddp-position">
+                <input [(ngModel)]="uiOption['showLabel']" type="checkbox">
+                <i class="ddp-icon-checkbox"></i>
+                <span class="ddp-txt-checkbox">{{'msg.page.th.show.label' | translate}}</span>
+              </label>
+            </div>
+            <!-- //레이블 표시 -->
+          </div>
+        </div>
+        <!-- //wrap divide -->
+        <!-- wrap divide -->
+        <div class="ddp-wrap-divide ">
+          <!--  divide -->
+          <div class="ddp-divide2">
+            <!-- slider -->
+            <div class="ddp-wrap-option-slider">
+              <span class="ddp-label-slider">{{'msg.page.common.kpi.color' | translate}}</span>
+              <!-- Slide THREE -->
+              <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                <input type="checkbox" (click)="$event.stopPropagation(); kpiChangeColor();" [ngModel]="uiOption?.positiveNegativeColor?.positiveColor">
+                <label><span class="ddp-slide"></span></label>
+              </div>
+              <!-- //Slide THREE -->
+            </div>
+            <!-- //slider -->
+            <div class="ddp-list-sub2">
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-8">
+                  <span class="ddp-label-txt">{{'msg.page.common.kpi.color.positive' | translate}}</span>
+                </div>
+
+                <div class="ddp-col-4 ddp-txt-right">
+                  <div [class.ddp-disabled]="!(uiOption?.positiveNegativeColor?.positiveColor)" class="ddp-type-selectbox ddp-color-selectbox2 ddp-full">
+                    <color-picker [showAlpha]="true" [color]="uiOption?.positiveNegativeColor?.positiveColor ? uiOption?.positiveNegativeColor?.positiveColor : '#08b496'" [showInitial]="true"
+                                  [showInput]="true" [showUserColor]="true" (selected)="kpiChangePositiveColor($event)"></color-picker>
+                  </div>
+                </div>
+              </div>
+              <!-- //multy -->
+              <!-- multy -->
+              <div class="ddp-wrap-option-multy ddp-clear">
+                <div class="ddp-col-8">
+                  <span class="ddp-label-txt">{{'msg.page.common.kpi.color.negative' | translate}} </span>
+                </div>
+
+                <div class="ddp-col-4 ddp-txt-right">
+
+                  <div [class.ddp-disabled]="!(uiOption?.positiveNegativeColor?.negativeColor)" class="ddp-type-selectbox ddp-color-selectbox2 ddp-full">
+                    <color-picker [showAlpha]="true" [color]="uiOption?.positiveNegativeColor?.negativeColor ? uiOption?.positiveNegativeColor?.negativeColor : '#eb5f53'" [showInitial]="true"
+                                  [showInput]="true" [showUserColor]="true" (selected)="kpiChangeNegativeColor($event)"></color-picker>
+                  </div>
+                </div>
+              </div>
+              <!-- //multy -->
+
+            </div>
+
+          </div>
+          <!--  //divide -->
+        </div>
+        <!-- //wrap divide -->
+
+
+        <!-- wrap divide -->
+        <div class="ddp-wrap-divide ">
+          <!--  divide -->
+          <div [class.ddp-disabled]="!uiOption?.icons[0]?.show"
+               class="ddp-divide2 ddp-wrap-disabled">
+            <!-- slider -->
+            <div class="ddp-wrap-option-slider">
+              <span class="ddp-label-slider">{{'msg.page.common.kpi.icon' | translate}}</span>
+              <!-- Slide THREE -->
+              <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                <input type="checkbox" (click)="$event.stopPropagation(); kpiChangeIcon();"  [ngModel]="uiOption?.icons[0]?.show">
+                <label><span class="ddp-slide"></span></label>
+              </div>
+              <!-- //Slide THREE -->
+            </div>
+            <!-- //slider -->
+            <div class="ddp-divide2">
+              <component-select
+                [array]="kpiIconTargetList"
+                [viewKey]="'name'"
+                [defaultIndex]="kpiGetIconTargetIndex()"
+                (onSelected)="kpiChangeIconTarget($event)"
+              ></component-select>
+            </div>
+            <div class="ddp-wrap-multy-express">
+              <ul class="ddp-list-express ddp-multy4 ddp-type">
+                <li [class.ddp-selected]="kpiGetIconSelected('USER')" (click)="kpiChangeIconType('USER');">
+                  <em class="ddp-img-kpi-type1"></em>
+                </li>
+                <li [class.ddp-selected]="kpiGetIconSelected('HITS')" (click)="kpiChangeIconType('HITS');">
+                  <em class="ddp-img-kpi-type2"></em>
+                </li>
+                <li [class.ddp-selected]="kpiGetIconSelected('VIEW')" (click)="kpiChangeIconType('VIEW');">
+                  <em class="ddp-img-kpi-type3"></em>
+                </li>
+                <li [class.ddp-selected]="kpiGetIconSelected('TIME')" (click)="kpiChangeIconType('TIME');">
+                  <em class="ddp-img-kpi-type4"></em>
+                </li>
+              </ul>
+              <!-- page -->
+              <!--<div class="ddp-ui-page">-->
+              <!--<a href="#" class="ddp-btn-prev "></a>-->
+              <!--<span class="ddp-data-page"><em>1</em>/<em>5</em></span>-->
+              <!--<a href="#" class="ddp-btn-next ddp-disabled"></a>-->
+              <!--</div>-->
+              <!-- //page -->
+            </div>
+          </div>
+          <!--  //divide -->
+        </div>
+        <!-- //wrap divide -->
+        <!-- wrap divide -->
+        <div class="ddp-wrap-divide ">
+          <div [class.ddp-disabled]="!uiOption?.annotations[0]?.show"
+               class="ddp-divide2 ddp-wrap-disabled">
+            <!--  divide -->
+            <div class="ddp-divide2">
+              <!-- slider -->
+              <div class="ddp-wrap-option-slider">
+                <span class="ddp-label-slider">{{'msg.page.common.kpi.text' | translate}}</span>
+                <!-- Slide THREE -->
+                <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                  <input type="checkbox" (click)="$event.stopPropagation(); kpiChangeText();"  [ngModel]="uiOption?.annotations[0]?.show">
+                  <label ><span class="ddp-slide"></span></label>
+                </div>
+                <!-- //Slide THREE -->
+              </div>
+              <!-- //slider -->
+              <div class="ddp-divide2">
+                <component-select
+                  [class.ddp-disabled]="!uiOption?.annotations[0]?.show"
+                  [array]="kpiIconTargetList"
+                  [viewKey]="'name'"
+                  [defaultIndex]="kpiGetTextTargetIndex()"
+                  (onSelected)="kpiChangeTextTarget($event)"
+                ></component-select>
+              </div>
+              <input type="text" class="ddp-input-typebasic ddp-font-size"
+                     [(ngModel)]="kpiTextTemp"
+                     (keyup.enter)="kpiApplyText()"
+                     (clickOutside)="kpiTextTemp = kpiText"
+                     maxlength="50"/>
+            </div>
+            <!--  //divide -->
+          </div>
+        </div>
+        <!-- //wrap divide -->
+      </ng-container>
+      <!-- //표현 그래프 KPI -->
+
+      <!-- divide -->
+      <!-- grid, kpi일때에는 임시적으로 hide 처리 -->
+      <div *ngIf="'grid' !== uiOption.type.toString() && 'label' !== uiOption.type.toString()" class="ddp-divide2">
+        <!-- multy -->
+        <div class="ddp-wrap-option-multy ddp-clear">
+          <div class="ddp-col-6">
+            <span class="ddp-label-txt">{{'msg.page.common.font.size' | translate}}</span>
+          </div>
+          <div class="ddp-col-6 ddp-txt-right">
+            <ul class="ddp-list-express ddp-tab3 ddp-type">
+              <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'SMALL' == uiOption.fontSize?.toString()}" (click)="changeFontSize('SMALL')">
+                <em class="ddp-icon-font-s"></em>
+              </li>
+              <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'NORMAL' == uiOption.fontSize?.toString()}" (click)="changeFontSize('NORMAL')">
+                <em class="ddp-icon-font-m"></em>
+              </li>
+              <li [ngClass]="{'ddp-selected' : uiOption.fontSize && 'LARGE' == uiOption.fontSize?.toString()}" (click)="changeFontSize('LARGE')">
+                <em class="ddp-icon-font-l"></em>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- //multy -->
+      </div>
+      <!-- //divide -->
+
+      <!-- waterfall차트 wrap divide -->
+      <div *ngIf="'waterfall' == uiOption.type.toString()" class="ddp-wrap-divide ">
+        <!--  divide -->
+        <div class="ddp-divide2">
+          <!-- slider -->
+          <div class="ddp-wrap-option-slider">
+            <span class="ddp-label-slider">{{'msg.page.waterfall.color.direction' | translate}}</span>
+            <!-- Slide THREE -->
+            <div class="ddp-checkbox-slide ddp-checkbox-automatic3 ddp-en ddp-change">
+              <input type="checkbox" id="check2" name="check" (click)="showWaterfallBarColor()" [checked]="uiOption?.barColor">
+              <label for="check2"><span class="ddp-slide"></span></label>
+            </div>
+            <!-- //Slide THREE -->
+          </div>
+          <!-- //slider -->
+          <div *ngIf="uiOption?.barColor" class="ddp-list-sub2">
+            <!-- multy -->
+            <div class="ddp-wrap-option-multy ddp-clear">
+              <div class="ddp-col-8">
+                <span class="ddp-label-txt">{{'msg.page.common.kpi.color.positive' | translate}}</span>
+              </div>
+
+              <div class="ddp-col-4 ddp-txt-right">
+
+                <div class="ddp-type-selectbox ddp-color-selectbox2 ddp-full ">
+                  <color-picker [showAlpha]="true" [color]="uiOption?.barColor?.positive ? uiOption?.barColor?.positive : '#c23531'" [showInitial]="true"
+                                [showInput]="true" [showUserColor]="true" (selected)="changeWaterfallPositiveColor($event)"></color-picker>
+                </div>
+              </div>
+            </div>
+            <!-- //multy -->
+            <!-- multy -->
+            <div class="ddp-wrap-option-multy ddp-clear">
+              <div class="ddp-col-8">
+                <span class="ddp-label-txt">{{'msg.page.common.kpi.color.negative' | translate}}</span>
+              </div>
+
+              <div class="ddp-col-4 ddp-txt-right">
+
+                <div class="ddp-type-selectbox ddp-color-selectbox2 ddp-full ">
+                  <color-picker [showAlpha]="true" [color]="uiOption?.barColor?.negative ? uiOption?.barColor?.negative : '#304554'" [showInitial]="true"
+                                [showInput]="true" [showUserColor]="true" (selected)="changeWaterfallNegativeColor($event)"></color-picker>
+                </div>
+              </div>
+            </div>
+            <!-- //multy -->
+
+          </div>
+
+        </div>
+        <!--  //divide -->
+      </div>
+      <!-- //waterfall차트 wrap divide -->
+    </div>
+  </div>
+</div>

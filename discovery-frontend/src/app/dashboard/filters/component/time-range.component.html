@@ -1,0 +1,71 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-dateinfo ddp-filter-dateinfo" [ngStyle]="{'width' : 'WIDGET' === mode ? '90%' : '' }">
+  <!-- 날짜 -->
+  <div class="ddp-ui-dateinfo ddp-from">
+    <div class="ddp-dateinfo-in">
+      <span class="ddp-txt-date">From</span>
+
+      <div class="ddp-box-rome" *ngIf="isEarliestDateTime" >
+        <div class="ddp-messege"> {{ 'msg.board.filter.ui.time-range.earliest' | translate }} </div>
+      </div>
+
+      <div *ngIf="!isEarliestDateTime" class="ddp-box-rome">
+        <div class="ddp-box-dateinfo ddp-clear">
+          <div [class.ddp-full]="0 === comboList.length" class="ddp-box-date">
+            <em *ngIf="'PANEL' !== mode" class="ddp-icon-calen"></em>
+            <input type="text" class="ddp-txt-calen" #fromPickerInput [disabled]="compData.mockup" />
+          </div>
+          <component-select
+            *ngIf="0 < comboList.length"
+            [array]="comboList"
+            [defaultIndex]="fromComboIdx"
+            [viewKey]="'label'"
+            (onSelected)="onSelectComboItem($event, true)">
+          </component-select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- //날짜 -->
+
+  <!-- 날짜 -->
+  <div class="ddp-ui-dateinfo ddp-to">
+    <div class="ddp-dateinfo-in">
+      <span class="ddp-txt-date">To</span>
+
+      <div class="ddp-box-rome" *ngIf="isLatestDateTime" >
+        <div class="ddp-messege"> {{ 'msg.board.filter.ui.time-range.latest' | translate }} </div>
+      </div>
+
+      <div *ngIf="!isLatestDateTime" class="ddp-box-rome">
+        <div class="ddp-box-dateinfo ddp-clear">
+          <div [class.ddp-full]="0 === comboList.length" class="ddp-box-date">
+            <em *ngIf="'PANEL' !== mode" class="ddp-icon-calen"></em>
+            <input type="text" class="ddp-txt-calen" #toPickerInput [disabled]="compData.mockup" />
+          </div>
+          <component-select
+            *ngIf="0 < comboList.length"
+            [array]="comboList"
+            [defaultIndex]="toComboIdx"
+            [viewKey]="'label'"
+            (onSelected)="onSelectComboItem($event, false)">
+          </component-select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- //날짜 -->
+</div>

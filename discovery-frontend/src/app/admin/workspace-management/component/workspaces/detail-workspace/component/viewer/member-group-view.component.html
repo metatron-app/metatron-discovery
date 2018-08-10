@@ -1,0 +1,139 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 미리보기 팝업 -->
+<div class="ddp-pop-preview ddp-type" *ngIf="showFl">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      {{'msg.space.ui.shared.member.title' | translate}}
+    </div>
+    <em class="ddp-btn-popup-close" (click)="showFl = false"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+  <div class="ddp-ui-preview-contents ddp-preview-group">
+    <!-- col -->
+    <div class="ddp-col-6 ddp-part">
+      <div class="ddp-group-num">
+        {{'msg.spaces.shared.th.detail.member' | translate}} <strong>{{getMemberTotalCount}}</strong>
+      </div>
+      <div class=" ddp-col-table ">
+        <div class="ddp-ui-gridhead2">
+          <table class="ddp-table-form2">
+            <colgroup>
+              <col width="*">
+              <col width="28%">
+              <col width="20%">
+            </colgroup>
+            <thead>
+            <tr>
+              <th> {{'msg.comm.th.usr.name' | translate}} </th>
+              <th> {{'msg.comm.th.id' | translate}} </th>
+              <th> {{'msg.comm.th.role' | translate}} </th>
+            </tr>
+            </thead>
+
+          </table>
+        </div>
+        <div class="ddp-ui-gridbody2">
+          <table class="ddp-table-form2">
+            <colgroup>
+              <col width="*">
+              <col width="28%">
+              <col width="20%">
+            </colgroup>
+            <tbody>
+            <tr *ngFor="let memberInfo of memberList">
+              <td>
+                <div class="ddp-ui-photo">
+                  <img [src]="getProfileImage(memberInfo.member)" class="ddp-data-photo">
+                  {{memberInfo.member.fullName}}
+                </div>
+              </td>
+              <td>
+                {{memberInfo.member.username}}
+              </td>
+              <td class="ddp-inherit">
+                <!-- 선택시 ddp-selected 추가 -->
+                <div class="ddp-ui-selected-option">
+                  <span class="ddp-link-text">{{memberInfo.role}}</span>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+        <div class="ddp-ui-moretype" *ngIf="isMoreMemberList()">
+          <a href="javascript:" class="ddp-btn-moretype" (click)="getMoreMemberList()">{{'msg.comm.ui.more' | translate}}</a>
+        </div>
+      </div>
+    </div>
+    <!-- //col -->
+    <!-- col -->
+    <div class="ddp-col-6 ddp-part">
+      <div class="ddp-group-num">
+        {{'msg.spaces.shared.th.detail.group' | translate}} <strong>{{getGroupTotalCount}}</strong>
+      </div>
+      <div class=" ddp-col-table">
+        <div class="ddp-ui-gridhead2">
+          <table class="ddp-table-form2">
+            <colgroup>
+              <col width="*">
+              <col width="20%">
+            </colgroup>
+            <thead>
+            <tr>
+              <th>
+                {{'msg.comm.th.grp.name' | translate}}
+              </th>
+              <th>
+                {{'msg.comm.th.role' | translate}}
+              </th>
+            </tr>
+            </thead>
+
+          </table>
+        </div>
+        <div class="ddp-ui-gridbody2">
+          <table class="ddp-table-form2 ddp-long">
+            <colgroup>
+              <col width="*">
+              <col width="20%">
+            </colgroup>
+            <tbody>
+            <tr *ngFor="let groupInfo of groupList">
+              <td>
+                <em class="ddp-icon-group"></em>{{groupInfo.member.name}}
+              </td>
+              <td class="ddp-inherit">
+                <!-- 선택시 ddp-selected 추가 -->
+                <div class="ddp-ui-selected-option">
+                  <span class="ddp-link-text">{{groupInfo.role}}</span>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="ddp-ui-moretype" *ngIf="isMoreGroupList()">
+          <a href="javascript:" class="ddp-btn-moretype" (click)="getMoreGroupList()">{{'msg.comm.ui.more' | translate}}</a>
+        </div>
+      </div>
+    </div>
+    <!-- //col -->
+  </div>
+  <!-- //cpmtemts -->
+</div>

@@ -1,0 +1,211 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype" *ngIf="isShow">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-pop-filter">
+    <!-- title -->
+    <div class="ddp-txt-title-name">
+      <em class="ddp-icon-filter"></em>
+      Add {{ widget ? 'chart filter' : 'global filter' }}
+
+      <!-- 데이터소스 선택 콤보박스 -->
+      <div class="ddp-wrap-source-name ddp-white">
+        <dashboard-datasource-combo
+          [dataSources]="dataSources"
+          [initialValue]="selectedDataSource"
+          (selectOption)="selectDataSource($event)" ></dashboard-datasource-combo>
+      </div>
+      <!-- // 데이터소스 선택 콤보박스 -->
+    </div>
+    <!-- // title -->
+
+    <!-- Contents Area -->
+    <div class="ddp-ui-popup-contents">
+      <!-- tab -->
+      <div class="ddp-wrap-tab">
+        <ul class="ddp-ui-tab ddp-clear ddp-type2 ddp-tab2">
+          <li (click)="isShowDimTab = true" [class.ddp-selected]="isShowDimTab" >
+            <a href="javascript:">{{ 'msg.comm.name.dim' | translate }}</a>
+          </li>
+          <li (click)="isShowDimTab = false" [class.ddp-selected]="!isShowDimTab" >
+            <a href="javascript:">{{ 'msg.comm.name.mea' | translate }}</a>
+          </li>
+        </ul>
+      </div>
+      <!-- // tab -->
+
+      <div class="ddp-wrap-tab-contents">
+        <!-- Dimension Field 목록 영역 -->
+        <div class="ddp-ui-tab-contents" *ngIf="isShowDimTab">
+          <div class="ddp-filter0" >
+            <!-- search -->
+            <div class="ddp-form-search ddp-full">
+              <em class="ddp-icon-search"></em>
+              <input #inputSearch placeholder="{{'msg.board.filter.placeholder.search-field' | translate}}"
+                     [ngModel]="searchText"
+                     (keypress)="searchEventPressKey($event)"
+                     (keyup.esc)="resetSearchText(false)"
+                     (clickOutside)="resetSearchText(false)" type="text" >
+              <em class="ddp-btn-search-close" *ngIf="searchText" (click)="resetSearchText(true);searchEvent();"></em>
+            </div>
+            <!-- //search -->
+            <div class="ddp-add-filter">
+              <ul class="ddp-list-filter">
+                <li *ngFor="let field of dimensionFields" (click)="selectField(field)"
+                    [class.ddp-selected]="isSelectedField(field)">
+                  <div class="ddp-data-filter" >
+                    <!-- 필터 설정된 경우 -->
+                    <div *ngIf="field['isEditable']" class="ddp-ui-icons" >
+                    <span *ngIf="field['someChartFilter']" class="ddp-link-filter">
+                      {{ 'msg.board.ui.filter.used-some-chart' | translate }}
+                    </span>
+                      <em *ngIf="field['useBoardFilter']" class="ddp-icon-global-s"></em>
+                      <em *ngIf="'timestamp' === field['importanceType']" class="ddp-icon-time"></em>
+                      <div *ngIf="'recommended' === field['importanceType']" class="ddp-wrap-datarecommend">
+                        {{field['filteringSeq']}} <em class="ddp-icon-recommend-s"></em>
+                      </div>
+                      <a href="javascript:" class="ddp-btn-edit"></a>
+                      <!--<em *ngIf="field['isTimestamp']" class="ddp-icon-view"></em>-->
+                    </div>
+                    <!-- // 필터 설정된 경우 -->
+                    <!-- 필터 설정 안 된 경우 -->
+                    <div *ngIf="!field['isEditable']" class="ddp-ui-icons" >
+                      <a href="javascript:" class="ddp-btn-add"></a>
+                      <!--<em *ngIf="field['isTimestamp']" class="ddp-icon-view"></em>-->
+                    </div>
+                    <!-- // 필터 설정 안 된 경우 -->
+                    <!-- 아이콘 및 라벨 -->
+                    <span class="ddp-txt-filter">
+                    <em class="{{getDimensionTypeIconClass(field)}}"></em>
+                    {{ field.name }}
+                  </span>
+                    <!-- // 아이콘 및 라벨 -->
+                  </div>
+                  <!-- Timestamp Field에 대한 Granularity 목록 -->
+                  <div *ngIf="false && field['isTimestamp']" class="ddp-sub-filter" >
+                    <span class="ddp-label-filter">Continuous type</span>
+                    <ul class="ddp-list-subfilter">
+                      <li *ngFor="let unit of dpContinuousList"
+                          (click)="selectTimestampGranularity( field, false, unit.toUpperCase() )">
+                        {{ unit }}
+                        <div class="ddp-ui-icons" >
+                          <!--
+                          <span *ngIf="field['useBoardFilter']" class="ddp-link-filter">
+                            {{ 'msg.board.ui.filter.global' | translate }}
+                          </span>
+                          -->
+                          <span *ngIf="field['someChartFilter']" class="ddp-link-filter">
+                          {{ 'msg.board.ui.filter.used-some-chart' | translate }}
+                        </span>
+                          <!--<a *ngIf="field['isEditable']" (click)="editTimestampFilter(field, false, unit.toUpperCase() )"-->
+                          <!--href="javascript:" class="ddp-btn-edit"></a>-->
+                          <!--<a *ngIf="!field['isEditable']" (click)="addTimestampFilter(field, false, unit.toUpperCase() )"-->
+                          <!--href="javascript:" class="ddp-btn-add"></a>-->
+                          <a *ngIf="field['isEditable']" href="javascript:" class="ddp-btn-edit"></a>
+                          <a *ngIf="!field['isEditable']" href="javascript:" class="ddp-btn-add"></a>
+                        </div>
+                      </li>
+                    </ul>
+                    <span class="ddp-label-filter">Discontinuous type</span>
+                    <ul class="ddp-list-subfilter">
+                      <li *ngFor="let byUnit of dpDiscontinuousList"
+                          (click)="selectTimestampGranularity( field, true, byUnit['unit'], byUnit['byUnit'] )">
+                        {{ byUnit['name']}}
+                        <div class="ddp-ui-icons" >
+                          <!--
+                          <span *ngIf="field['useBoardFilter']" class="ddp-link-filter">
+                            {{ 'msg.board.ui.filter.global' | translate }}
+                          </span>
+                          -->
+                          <span *ngIf="field['someChartFilter']" class="ddp-link-filter">
+                          {{ 'msg.board.ui.filter.used-some-chart' | translate }}
+                        </span>
+                          <!--
+                          <a *ngIf="field['isEditable']"
+                             (click)="editTimestampFilter(field, true, byUnit['unit'], byUnit['byUnit'] )"
+                             href="javascript:" class="ddp-btn-edit"></a>
+                          <a *ngIf="!field['isEditable']"
+                             (click)="addTimestampFilter(field, true, byUnit['unit'], byUnit['byUnit'] )"
+                             href="javascript:" class="ddp-btn-add"></a>
+                          -->
+                          <a *ngIf="field['isEditable']" href="javascript:" class="ddp-btn-edit"></a>
+                          <a *ngIf="!field['isEditable']" href="javascript:" class="ddp-btn-add"></a>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <!-- // Timestamp Field에 대한 Granularity 목록 -->
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="ddp-ui-buttons">
+            <a (click)="close()" href="javascript:" class="ddp-btn-type-popup">{{ 'msg.comm.btn.cancl' | translate }}</a>
+          </div>
+        </div>
+        <!-- // Dimension Field 목록 영역 -->
+        <!-- Measure Field 목록 영역 -->
+        <div class="ddp-ui-tab-contents" *ngIf="!isShowDimTab">
+          <div class="ddp-filter0">
+            <!-- search -->
+            <div class="ddp-form-search ddp-full">
+              <em class="ddp-icon-search"></em>
+              <input #inputSearch type="text" placeholder="{{'msg.board.filter.placeholder.search-field' | translate}}"
+                     [ngModel]="searchText"
+                     (keypress)="searchEventPressKey($event)"
+                     (keyup.esc)="resetSearchText(false)"
+                     (clickOutside)="resetSearchText(false)">
+              <em class="ddp-btn-search-close" *ngIf="searchText" (click)="resetSearchText(true);searchEvent();"></em>
+            </div>
+            <!-- //search -->
+            <div class="ddp-add-filter">
+              <ul class="ddp-list-filter">
+                <li *ngFor="let field of measureFields" (click)="selectField(field)"
+                    [class.ddp-selected]="isSelectedField(field)">
+                  <div class="ddp-data-filter">
+                    <div class="ddp-ui-icons">
+                    <span *ngIf="field['someChartFilter']" class="ddp-link-filter">
+                      {{ 'msg.board.ui.filter.used-some-chart' | translate }}
+                    </span>
+                      <em *ngIf="field['useBoardFilter']" class="ddp-icon-global-s"></em>
+                      <!--<a *ngIf="field['isEditable']" (click)="editFilter(field)" href="javascript:" class="ddp-btn-edit"></a>-->
+                      <!--<a *ngIf="!field['isEditable']" (click)="addFilter(field)" href="javascript:" class="ddp-btn-add"></a>-->
+                      <a *ngIf="field['isEditable']" href="javascript:" class="ddp-btn-edit"></a>
+                      <a *ngIf="!field['isEditable']" href="javascript:" class="ddp-btn-add"></a>
+                    </div>
+                    <!-- 아이콘 및 라벨 -->
+                    <span class="ddp-txt-filter">
+                    <em class="{{getMeasureTypeIconClass(field)}}"></em>
+                    {{ field.name }}
+                  </span>
+                    <!-- // 아이콘 및 라벨 -->
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="ddp-ui-buttons">
+            <a (click)="close()" href="javascript:" class="ddp-btn-type-popup">{{ 'msg.comm.btn.cancl' | translate }}</a>
+          </div>
+        </div>
+        <!-- // Measure Field 목록 영역 -->
+      </div>
+    </div>
+    <!-- // Contents Area -->
+
+  </div>
+</div>
+
+<app-confirm-modal (confirm)="confirm($event)"></app-confirm-modal>

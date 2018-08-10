@@ -1,0 +1,64 @@
+{
+  "type": "index_realtime",
+  "spec": {
+    "dataSchema": {
+      "metricsSpec": [
+        {
+          "type": "count",
+          "name": "count"
+        }
+      ],
+      "granularitySpec": {
+        "queryGranularity": "DAY",
+        "segmentGranularity": "MONTH",
+        "type": "uniform",
+        "intervals": [
+          "1970-01-01/2050-01-01"
+        ]
+      },
+      "parser": {
+        "parseSpec": {
+          "dimensionsSpec": {
+            "dimensionExclusions": [],
+            "dimensions": [
+              "cat",
+              "abbr",
+              "abbr_name"
+            ],
+            "spatialDimensions": []
+          },
+          "timestampSpec": {
+            "column": "time",
+            "format": "yyyy-MM-dd"
+          },
+          "columns": [
+            "time",
+            "cat",
+            "abbr",
+            "abbr_name"
+          ],
+          "format": "csv"
+        },
+        "type": "string"
+      },
+      "dataSource": "sales_join_category_abbr"
+    },
+    "tuningConfig": {
+      "rowFlushBoundary": 0,
+      "rejectionPolicy": {
+        "type": "none"
+      },
+      "type": "realtime",
+      "maxRowsInMemory": 5000,
+      "targetPartitionSize": 0
+    },
+    "ioConfig": {
+      "firehose": {
+        "filter": "sales_join_category_abbr.csv",
+        "baseDir": "/home/hadoop",
+        "type": "local"
+      },
+      "type": "realtime"
+    }
+  }
+}

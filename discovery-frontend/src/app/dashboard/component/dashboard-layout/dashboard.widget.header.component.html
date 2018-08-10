@@ -1,0 +1,302 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-widget">
+
+  <!-- 해상도 작아질때 ddp-box-size 추가 -->
+  <div #controlContainer class="ddp-box-widget" [class.ddp-box-size] = "isMiniHeader" >
+
+    <!-- Top Control -->
+    <div class="ddp-top-control ddp-clear" >
+
+      <div class="ddp-top-control-in" [ngClass]="{'ddp-size1' : !isMiniHeader, 'ddp-size2' : isMiniHeader}" >
+        <!-- 편집 모드일때의 기능버튼 & 타이틀 표시 영역 -->
+        <div class="ddp-data-top" *ngIf="isEditMode()" >
+          <!-- 기능버튼 -->
+          <div class="ddp-ui-tool" *ngIf="!isMiniHeader">
+            <a *ngIf="!isTextWidget" (click)="toggleTitle()" [class.ddp-selected]="isShowTitle"
+               href="javascript:" class="ddp-btn-tool ddp-hover-tooltip">
+              <em class="ddp-icon-tool-title"></em>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>{{'msg.board.ui.tooltip.chart-name' | translate}}
+              </div>
+            </a>
+            <a *ngIf="isValidLegend()" (click)="toggleLegend()"
+               [class.ddp-selected]="isShowLegend()"
+               href="javascript:" class="ddp-btn-tool ddp-hover-tooltip">
+              <em class="ddp-icon-tool-legend"></em>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                {{'msg.page.ui.legend' | translate}}
+              </div>
+            </a>
+            <a *ngIf="isValidMiniMap()" (click)="toggleMiniMap()"
+               [class.ddp-selected]="isShowMiniMap()"
+               href="javascript:" class="ddp-btn-tool ddp-hover-tooltip">
+              <em class="ddp-icon-tool-minimap"></em>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                {{'msg.page.ui.minimap' | translate}}
+              </div>
+            </a>
+<!--
+            <a href="javascript:" class="ddp-btn-tool ddp-hover-tooltip">
+              <em class="ddp-icon-tool-linked"></em>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                linked
+              </div>
+            </a>
+            <a href="javascript:" class="ddp-btn-tool ddp-hover-tooltip">
+              <em class="ddp-icon-tool-chart"></em>
+              <div class="ddp-ui-tooltip-info ddp-down">
+                <em class="ddp-icon-view-top"></em>
+                chart
+              </div>
+            </a>
+-->
+          </div>
+          <!-- // 기능버튼 -->
+
+          <!-- 이름 -->
+          <div *ngIf="widget && !isTextWidget && isShowTitle " (click)="editModeName($event)"
+               class="ddp-ui-eidt-name" [class.ddp-selected]="isEditTitle" >
+            <div class="ddp-data-enter">
+              <span class="ddp-data-name">{{widget.name}}</span>
+            </div>
+            <input #widgetName type="text" class="ddp-input-edit" maxlength="50"
+                   [ngModel]="widget.name"
+                   (mousedown)="$event.stopPropagation()"
+                   (mousemove)="$event.stopPropagation()"
+                   (keyup)="changeWidgetName($event)" (clickOutside)="cancelEditName()"/>
+          </div>
+          <!-- // 이름 -->
+        </div>
+        <!-- // 편집 모드일때의 기능버튼 & 타이틀 표시 영역 -->
+
+        <!-- 버튼 목록 -->
+        <div class="ddp-ui-buttons" *ngIf="!isMiniHeader" >
+          <!-- 차트 정보 버튼 -->
+          <div class="ddp-box-btn2" *ngIf="isPageWidget">
+            <em class="ddp-icon-widget-info"></em>
+            <!-- popup -->
+            <div class="ddp-box-layout4">
+              <div class="ddp-wrap-data-detail">
+                <div class="ddp-ui-top-title">{{'msg.board.ui.title.chartinfo' | translate }}</div>
+                <table class="ddp-table-pop">
+                  <colgroup>
+                    <col width="70px">
+                    <col width="">
+                  </colgroup>
+                  <tbody>
+                    <tr>
+                      <th>{{'msg.page.ui.datasource' | translate }}</th>
+                      <td>{{getDataSourceName()}}</td>
+                    </tr>
+                    <tr *ngIf="existPivot('columns')">
+                      <th>{{'msg.page.ui.col' | translate }}</th>
+                      <td>{{getPivotFieldsStr('columns')}}</td>
+                    </tr>
+                    <tr *ngIf="existPivot('rows')">
+                      <th>{{'msg.page.ui.row' | translate }}</th>
+                      <td>{{getPivotFieldsStr('rows')}}</td>
+                    </tr>
+                    <tr *ngIf="existPivot('aggregations')">
+                      <th>{{'msg.page.ui.intersect' | translate }}</th>
+                      <td>{{getPivotFieldsStr('aggregations')}}</td>
+                    </tr>
+                    <tr *ngIf="existChartFilter()">
+                      <th>{{'msg.page.ui.filter' | translate }}</th>
+                      <td>{{getChartFilterStr()}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- //popup -->
+          </div>
+          <!-- // 차트 정보 버튼 -->
+
+          <!-- 차트 편집 버튼 -->
+          <div *ngIf="isEditMode()" class="ddp-box-btn2" (click)="editWidget()">
+            <em class="ddp-icon-widget-edit"></em>
+            <!-- 툴팁 -->
+            <div class="ddp-ui-tooltip-info">
+              <em class="ddp-icon-view-down"></em> {{  'msg.comm.ui.edit' | translate }}
+            </div>
+            <!-- //툴팁 -->
+          </div>
+          <!-- // 차트 편집 버튼 -->
+
+          <!-- 차트 복제 버튼 -->
+          <div *ngIf="isEditMode() && isPageWidget" class="ddp-box-btn2" (click)="copyPageWidget()">
+            <em class="ddp-icon-widget-copy"></em>
+            <!-- 툴팁 -->
+            <div class="ddp-ui-tooltip-info">
+              <em class="ddp-icon-view-down"></em> {{  'msg.comm.ui.copy' | translate }}
+            </div>
+            <!-- //툴팁 -->
+          </div>
+          <!-- // 차트 복제 버튼 -->
+
+          <!-- List/Combo 변환 버튼 for FilterWidget -->
+          <div *ngIf="isDimensionFilterWidget" class="ddp-box-btn-hover">
+            <a href="javascript:" class="ddp-btn-tool">
+              <em [ngClass]="{'ddp-icon-tool-list' : isListDimensionFilter, 'ddp-icon-tool-selectbox' : !isListDimensionFilter }" ></em>
+            </a>
+            <a (click)="setSelectorTypeList()" href="javascript:" class="ddp-btn-tool">
+              <em class="ddp-icon-tool-list"></em>
+            </a>
+            <a (click)="setSelectorTypeCombo()" href="javascript:" class="ddp-btn-tool">
+              <em class="ddp-icon-tool-selectbox"></em>
+            </a>
+          </div>
+          <!-- // List/Combo 변환 버튼 for FilterWidget  -->
+
+          <!-- 그리드/그래프 뷰 버튼 -->
+          <div class="ddp-ui-btnview" *ngIf="false">
+            <div class="ddp-box-btn" [class.ddp-selected]="!isGridModePageWidget"
+                 (click)="onChangeWidgetMode('chart');">
+              <em class="ddp-icon-widget-graph"></em>
+              <!-- 툴팁 -->
+              <div class="ddp-ui-tooltip-info">
+                <em class="ddp-icon-view-down"></em>
+                {{  'msg.book.widget.header.chartview' | translate }}
+              </div>
+              <!-- //툴팁 -->
+            </div>
+            <div class="ddp-box-btn" [class.ddp-selected]="isGridModePageWidget"
+                 (click)="onChangeWidgetMode('grid');"
+                 *ngIf="widget.type == 'page' && isAvailableGrid(widget)">
+              <em class="ddp-icon-widget-grid"></em>
+              <!-- 툴팁 -->
+              <div class="ddp-ui-tooltip-info">
+                <em class="ddp-icon-view-down"></em>
+                {{  'msg.book.widget.header.tableview' | translate }}
+              </div>
+              <!-- //툴팁 -->
+            </div>
+          </div>
+          <!-- 그리드/그래프 뷰 버튼 -->
+
+          <!-- 삭제 버튼 -->
+          <div *ngIf="isEditMode()" (click)="removeWidget()" class="ddp-box-btn2">
+            <em class="ddp-icon-widget-cut"></em>
+            <div class="ddp-ui-tooltip-info">
+              <em class="ddp-icon-view-down"></em> {{ 'msg.comm.ui.del' | translate }}
+            </div>
+          </div>
+          <!-- // 삭제 버튼 -->
+
+        </div>
+        <!-- // 버튼 목록 -->
+
+        <!-- 좁은 헤더일 떄의 More 영역 - 편집 모드일때만 사용 -->
+        <div class="ddp-ui-buttons" *ngIf="isMiniHeader" >
+          <div class="ddp-wrap-morebutton ddp-hover-tooltip"
+               [class.ddp-selected]="isShowMore"
+               (click)="isShowMore=!isShowMore" >
+            <em class="ddp-icon-more"></em>
+            <div class="ddp-ui-tooltip-info ddp-down">
+              <em class="ddp-icon-view-top"></em> {{ 'msg.comm.ui.more' | translate }}
+            </div>
+
+            <div class="ddp-wrap-popup2" >
+              <!-- 위젯 속성 변경 버튼 모음 -->
+              <ul class="ddp-list-popup" >
+                <li *ngIf="!isTextWidget" (click)="toggleTitle()">
+                  <a href="javascript:">
+                    <label class="ddp-label-checked">
+                      <em class="ddp-icon-tool-title"></em> {{'msg.board.ui.tooltip.chart-name' | translate}}
+                      <span class="ddp-ui-check">
+                        <input type="checkbox" [checked]="isShowTitle" />
+                        <i></i>
+                        <span class="ddp-txt-check"></span>
+                      </span>
+                    </label>
+                  </a>
+                </li>
+                <li *ngIf="isValidLegend()" (click)="toggleLegend()" >
+                  <a href="javascript:">
+                    <label class="ddp-label-checked">
+                      <em class="ddp-icon-tool-legend"></em> {{'msg.page.ui.legend' | translate}}
+                      <span class="ddp-ui-check">
+                        <input type="checkbox" [checked]="isShowLegend()"/>
+                        <i></i>
+                        <span class="ddp-txt-check"></span>
+                      </span>
+                    </label>
+                  </a>
+                </li>
+                <li *ngIf="isValidMiniMap()" (click)="toggleMiniMap()">
+                  <a href="javascript:">
+                    <label class="ddp-label-checked">
+                      <em class="ddp-icon-tool-minimap"></em> {{'msg.page.ui.minimap' | translate}}
+                      <span class="ddp-ui-check">
+                        <input type="checkbox" [checked]="isShowMiniMap()"/>
+                        <i></i>
+                        <span class="ddp-txt-check"></span>
+                      </span>
+                    </label>
+                  </a>
+                </li>
+              </ul>
+              <!-- // 위젯 속성 변경 버튼 모음 -->
+              <!-- 위젯 변경 버튼 모음 -->
+              <ul class="ddp-list-popup" >
+                <li *ngIf="isDimensionFilterWidget" >
+                  <div class="ddp-list-txt">
+                    <em class="ddp-icon-tool-display"></em> {{ 'msg.board.ui.display' | translate }}
+                  </div>
+                  <!-- tab button -->
+                  <div class="ddp-list-tab-button ddp-type">
+                    <span (click)="setSelectorTypeCombo()" [class.ddp-selected]="!isListDimensionFilter">
+                      <em class="ddp-icon-tool-selectbox"></em>
+                    </span>
+                    <span (click)="setSelectorTypeList()" [class.ddp-selected]="isListDimensionFilter">
+                      <em class="ddp-icon-tool-list"></em>
+                    </span>
+                  </div>
+                  <!-- //tab button -->
+                </li>
+                <li (click)="editWidget()">
+                  <a href="javascript:">
+                    <em class="ddp-icon-tool-edit"></em> {{ 'msg.comm.ui.edit' | translate }}
+                  </a>
+                </li>
+                <li *ngIf="isPageWidget" (click)="copyPageWidget()" >
+                  <a href="javascript:">
+                    <em class="ddp-icon-tool-copy"></em> {{ 'msg.comm.ui.copy' | translate }}
+                  </a>
+                </li>
+                <li (click)="removeWidget()" >
+                  <a href="javascript:">
+                    <em class="ddp-icon-tool-remove"></em> {{ 'msg.comm.ui.del' | translate }}
+                  </a>
+                </li>
+              </ul>
+              <!-- // 위젯 변경 버튼 모음 -->
+            </div>
+
+          </div>
+        </div>
+        <!-- // 좁은 헤더일 떄의 More 영역 - 편집 모드일때만 사용 -->
+
+      </div>
+
+    </div>
+    <!-- // Top Control -->
+
+  </div>
+</div>

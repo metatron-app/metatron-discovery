@@ -1,0 +1,23 @@
+.atwho-view {
+  z-index: 999998 !important;
+}
+
+.atwho-view .atwho-header:hover {
+  cursor: default;
+}
+
+.atwho-view .cur {
+  background: #f6f6f7;
+}
+.atwho-view .cur small {
+  color: white;
+}
+.atwho-view strong {
+  font-weight:bold;
+}
+.atwho-view .cur strong {
+  font-weight:bold;
+}
+.atwho-query {
+  color: #4b515b;
+}

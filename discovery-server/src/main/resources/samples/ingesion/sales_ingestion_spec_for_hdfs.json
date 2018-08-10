@@ -1,0 +1,181 @@
+{
+  "type": "index_hadoop",
+  "spec": {
+    "dataSchema": {
+      "metricsSpec": [
+        {
+          "type": "count",
+          "name": "count"
+        },
+        {
+          "fieldName": "Discount",
+          "type": "sum",
+          "inputType": "double",
+          "name": "Discount"
+        },
+        {
+          "fieldName": "Profit",
+          "type": "sum",
+          "inputType": "double",
+          "name": "Profit"
+        },
+        {
+          "fieldName": "Sales",
+          "type": "sum",
+          "inputType": "double",
+          "name": "Sales"
+        },
+        {
+          "fieldName": "DaystoShipActual",
+          "type": "sum",
+          "inputType": "double",
+          "name": "DaystoShipActual"
+        },
+        {
+          "fieldName": "SalesForecast",
+          "type": "sum",
+          "inputType": "double",
+          "name": "SalesForecast"
+        },
+        {
+          "fieldName": "DaystoShipScheduled",
+          "type": "sum",
+          "inputType": "double",
+          "name": "DaystoShipScheduled"
+        },
+        {
+          "fieldName": "SalesperCustomer",
+          "type": "sum",
+          "inputType": "double",
+          "name": "SalesperCustomer"
+        },
+        {
+          "fieldName": "ProfitRatio",
+          "type": "sum",
+          "inputType": "double",
+          "name": "ProfitRatio"
+        }
+      ],
+      "granularitySpec": {
+        "queryGranularity": "DAY",
+        "segmentGranularity": "MONTH",
+        "type": "uniform",
+        "intervals": [
+          "1970-01-01/2050-01-01"
+        ]
+      },
+      "parser": {
+        "parseSpec": {
+          "dimensionsSpec": {
+            "dimensionExclusions": [],
+            "dimensions": [
+              "Category",
+              "City",
+              "Country",
+              "CustomerName",
+              "OrderID",
+              "PostalCode",
+              "ProductName",
+              "Quantity",
+              "Region",
+              "Segment",
+              "ShipDate",
+              "ShipMode",
+              "State",
+              "Sub-Category",
+              "ShipStatus",
+              "orderprofitable",
+              "SalesAboveTarget",
+              "latitude",
+              "longitude"
+            ],
+            "spatialDimensions": []
+          },
+          "timestampSpec": {
+            "column": "OrderDate",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          },
+          "columns": [
+            "OrderDate",
+            "Category",
+            "City",
+            "Country",
+            "CustomerName",
+            "OrderID",
+            "PostalCode",
+            "ProductName",
+            "Quantity",
+            "Region",
+            "Segment",
+            "ShipDate",
+            "ShipMode",
+            "State",
+            "Sub-Category",
+            "ShipStatus",
+            "orderprofitable",
+            "SalesAboveTarget",
+            "latitude",
+            "longitude",
+            "Discount",
+            "Profit",
+            "Sales",
+            "DaystoShipActual",
+            "SalesForecast",
+            "DaystoShipScheduled",
+            "SalesperCustomer",
+            "ProfitRatio"
+          ],
+          "delimiter":"\t",
+          "format": "tsv"
+        },
+        "type": "hadoopyString"
+      },
+      "dataSource": "sales"
+    },
+    "tuningConfig": {
+      "type" : "hadoop",
+      "partitionsSpec" : {
+        "type" : "hashed",
+        "targetPartitionSize" : 10000000,
+        "maxPartitionSize" : 15000000,
+        "assumeGrouped" : false,
+        "numShards" : -1,
+        "partitionDimensions" : [ ]
+      },
+      "maxRowsInMemory" : 75000,
+      "maxOccupationInMemory" : -1,
+      "maxShardLength" : -2147483648,
+      "leaveIntermediate" : false,
+      "cleanupOnFailure" : true,
+      "overwriteFiles" : false,
+      "ignoreInvalidRows" : false,
+      "assumeTimeSorted" : false,
+      "jobProperties" : {
+        "mapreduce.task.files.preserve.filepattern" : ".*",
+        "keep.task.files.pattern" : ".*",
+        "mapreduce.map.java.opts" : "-server -Xmx8192m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps",
+        "mapreduce.reduce.java.opts" : "-server -Xmx10240m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps",
+        "mapreduce.reduce.memory.mb" : "12000",
+        "mapreduce.map.memory.mb" : "10000"
+      },
+      "ingestionMode" : "MAPRED",
+      "combineText" : false,
+      "useCombiner" : false,
+      "buildV9Directly" : true,
+      "numBackgroundPersistThreads" : 0
+    },
+    "ioConfig": {
+      "type" : "hadoop",
+      "inputSpec" : {
+        "type" : "hynix",
+        "findRecursive" : true,
+        "extractPartition" : true,
+        "inputFormat" : "org.apache.hadoop.mapreduce.lib.input.TextInputFormat",
+        "xbasePath" : "/edw/warehouse/dw/db=d_cem/period=1h/ver=v11/tb=imsi_area_1h",
+        "elements" : [ {
+          "paths" : "/Users/kyungtaak/sales_tab_delimeter.csv"
+        } ]
+      }
+    }
+  }
+}

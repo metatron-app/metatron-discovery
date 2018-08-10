@@ -1,0 +1,55 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- box layout -->
+<div class="ddp-box-layout4">
+  <div class="ddp-data-explain">
+    {{'msg.bench.ui.auth.type'|translate}} : {{dataconnection.authenticationType}}
+  </div>
+  <table class="ddp-table-info">
+    <colgroup>
+      <col width="75px" />
+      <col width="*" />
+    </colgroup>
+    <tbody>
+    <tr>
+      <th>
+        {{'msg.bench.th.db.type'|translate}}
+      </th>
+      <td>
+        {{dataconnection.type}}
+      </td>
+    </tr>
+    <tr *ngIf="isDefaultType()">
+      <th>
+        {{'msg.comm.th.host'|translate}}/{{'msg.comm.th.port'|translate}}
+      </th>
+      <td>
+        {{dataconnection.hostname}} / {{dataconnection.port}}
+      </td>
+    </tr>
+    <tr *ngIf="!isDefaultType()">
+      <th>
+        {{'msg.storage.ui.conn.url'|translate}}
+      </th>
+      <td>
+        <a href="javascript:" class="ddp-link">{{dataconnection.url}}</a>
+      </td>
+    </tr>
+    </tbody>
+
+  </table>
+
+</div>
+<!-- //box layout -->

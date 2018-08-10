@@ -1,0 +1,515 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-contentsin" *ngIf="mode === 'VIEW' || mode === 'NO_DATA'">
+
+  <!-- 워크북 lnb -->
+  <div class="ddp-lnb-dashboard" [class.ddp-close]="isCloseDashboardList">
+    <!-- 접기 Toggle -->
+    <a href="javascript:" class="ddp-btn-folding ddp-hover-tooltip" (click)="toggleFoldDashboardList()">
+      <div class="ddp-ui-tooltip-info ddp-down">
+        <em class="ddp-icon-view-top"></em>
+        {{(isCloseDashboardList ? 'msg.board.ui.unfold' : 'msg.board.ui.fold') | translate}}
+      </div>
+    </a>
+    <!-- // 접기 Toggle -->
+    <!-- 좌측 워크스페이스 제목 영역 -->
+    <div class="ddp-ui-toptitle">
+      <em class="ddp-icon-navi" (click)="gotoWorkspace()"></em>
+      <span class="ddp-data-name">
+          <em class="ddp-box-tag">{{'msg.space.ui.tag.workbook'| translate}}</em>{{workbook.name}}
+      </span>
+      <!-- more -->
+      <div *ngIf="isChangeAuthUser"
+           class="ddp-ui-more ddp-hover-tooltip" [ngClass]="{'ddp-selected' : isShowDetailMenu}"
+           (click)="toggleWorkbookDetailMenu($event)"
+           (clickOutside)="isShowDetailMenu = false">
+        <a href="javascript:" class="ddp-icon-more"></a>
+        <div class="ddp-ui-tooltip-info ddp-down">
+          <em class="ddp-icon-view-top"></em>
+          {{'msg.comm.ui.more' | translate}}
+        </div>
+      </div>
+      <!-- // more -->
+    </div>
+    <!-- // 좌측 워크스페이스 제목 영역 -->
+    <div class="ddp-wrap-tab2">
+      <!-- tab -->
+      <ul class="ddp-list-tab2">
+        <li [ngClass]="{'ddp-selected' : leftTab == 'DASHBOARD'}">
+          <a href="javascript:" (click)="changeTab('DASHBOARD')">
+            {{'msg.comm.ui.dashboard' | translate}}({{dashboardPage.totalElements ? dashboardPage.totalElements : '0' }})
+          </a>
+        </li>
+        <li [ngClass]="{'ddp-selected' : leftTab == 'CHAT'}">
+          <a href="javascript:" (click)="changeTab('CHAT')">
+            {{'msg.comm.ui.comment' | translate}}({{comments && comments.comments ? comments.comments.length : '0'}})
+            <!-- new 아이콘 -->
+            <em class="ddp-icon-new-r" *ngIf="isNewComment" ></em>
+          </a>
+        </li>
+      </ul>
+      <!-- //tab -->
+      <div class="ddp-wrap-tab2-contents">
+
+        <!-- dashboard tab contents -->
+        <div class="ddp-ui-tab2-contents ddp-wrap-tab-dashboard" *ngIf="leftTab == 'DASHBOARD'">
+          <!-- setting -->
+          <div class="ddp-ui-setting ddp-clear">
+            <!-- 그리드뷰, 리스트뷰 -->
+            <ul class="ddp-list-tab-button">
+              <li [ngClass]="{'ddp-selected' : listType == 'CARD'}">
+                <a href="javascript:" (click)="listType = 'CARD'"><em class="ddp-icon-grid"></em></a>
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-top"></em>
+                  {{'msg.comm.ui.list.thumbnail.view' | translate}}
+                </div>
+              </li>
+              <li [ngClass]="{'ddp-selected' : listType == 'LIST'}">
+                <a href="javascript:" (click)="listType = 'LIST'"><em class="ddp-icon-listgrid"></em></a>
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-top"></em>
+                  {{'msg.comm.ui.list.list.view' | translate}}
+                </div>
+              </li>
+            </ul>
+            <!-- //그리드뷰, 리스트뷰 -->
+
+            <!-- 데이터 베이스 수 -->
+            <div class="ddp-wrap-selectbox" [class.ddp-selected]="isShowDatasourceMenu" *ngIf="datasources">
+              <div class="ddp-data-selectbox" (click)="isShowDatasourceMenu = !isShowDatasourceMenu" >
+                <em class="ddp-icon-database3"></em>
+                {{'msg.board.th.datasource' | translate}}
+              </div>
+              <!-- 팝업 -->
+              <div class="ddp-wrap-popup2" (clickOutside)="isShowDatasourceMenu=false"
+                   [excludeBeforeClick]="true" [exclude]="'.ddp-data-selectbox'">
+                <ul class="ddp-list-popup ddp-type">
+                  <li *ngFor="let ds of datasources" [ngClass]="{'ddp-selected' : selectedDatasources.indexOf(ds.id) > -1}">
+                    <a href="javascript:" >
+                      <label class="ddp-label-checkbox">
+                        <input (click)="selectDatasource(ds.id);"
+                               [checked]="selectedDatasources.indexOf(ds.id) > -1" type="checkbox" >
+                        <i class="ddp-icon-checkbox"></i>
+                        <span class="ddp-txt-checkbox" title="{{ds['name']}}">{{ds['name']}}</span>
+                      </label>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <!-- //팝업 -->
+            </div>
+            <!-- //데이터 베이스 수 -->
+            <!-- show -->
+            <label class="ddp-label-checkbox ddp-type-show">
+              <input type="checkbox" [checked]="onlyShowingFlag" (change)="onlyShowingFlag = !onlyShowingFlag;">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">Shown only</span>
+            </label>
+            <!-- //show -->
+          </div>
+          <!-- //setting -->
+          <div class="ddp-wrap-board-view">
+            <div class="ddp-ui-board-view">
+              <!-- search -->
+              <div class="ddp-wrap-search">
+                <div class="ddp-form-search">
+                  <em class="ddp-icon-search"></em>
+                  <input #srchDashboard [ngModel]="dashboardSrchText" (keypress)="searchDashboardByName($event)"
+                         type="text" placeholder="{{'msg.board.ui.board.dsource.ph' | translate}}">
+                  <em *ngIf="isShowBtnClearSrchDashboard()" (click)="clearSearchText()"
+                      class="ddp-btn-search-close" ></em>
+                </div>
+              </div>
+              <!-- //search -->
+              <!-- 리스트 뷰 -->
+              <div class="ddp-ui-board-listview" *ngIf="listType == 'LIST'">
+                <ul class="ddp-list-board-listview"
+                    dnd-sortable-container [sortableData]="filteredDashboard" [dropZones]="['source-dropZone']" >
+                  <li *ngFor="let dashboard of filteredDashboard ; let x = index"
+                      (click)="loadAndSelectDashboard(dashboard)"
+                      dnd-sortable
+                      [sortableIndex]="x"
+                      [dragEnabled]="true"
+                      [dragData]="dashboard"
+                      (onDropSuccess)="changeOrder()"
+                      [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id">
+                    <a href="javascript:">
+                      <span class="ddp-ui-number">{{x + 1}}</span>
+                      <em *ngIf="isChangeAuthUser"
+                          [ngClass]="{'ddp-icon-eyes2' : !dashboard.hiding, 'ddp-icon-eyes2-none' : dashboard.hiding}"
+                          (click)="changeFavorite(dashboard, $event);"></em>
+                      <div class="ddp-ui-name">
+                        <span class="ddp-data-name" [class.ddp-data-new]="dashboard.createdTime | moment: 'isNew'">
+                          <div class="ddp-ui-name">
+                               {{dashboard.name}}
+                              <em class="ddp-icon-new" *ngIf="dashboard.createdTime | moment: 'isNew'">
+                                {{'msg.common.ui.new' | translate}}
+                              </em>
+                          </div>
+                        </span>
+                      </div>
+                      <!-- buttons -->
+                      <div class="ddp-btn-control" *ngIf="isChangeAuthUser" >
+                        <em class="ddp-icon-control-copy-s" (click)="copyDashboard(dashboard); $event.stopPropagation();">
+                          <div class="ddp-ui-tooltip-info ddp-down ddp-right">
+                            <em class="ddp-icon-view-top"></em>
+                            {{'msg.comm.ui.clone' | translate}}
+                          </div>
+                        </em>
+                        <em class="ddp-icon-control-cut-s" (click)="confirmDeleteDashboard(dashboard); $event.stopPropagation();">
+                          <div class="ddp-ui-tooltip-info ddp-down ddp-right">
+                            <em class="ddp-icon-view-top"></em>
+                            {{'msg.comm.ui.del' | translate}}
+                          </div>
+                        </em>
+                      </div>
+                      <!-- //buttons -->
+                    </a>
+                  </li>
+                </ul>
+                <a [style.display]="isShowMoreDashboardList ? 'block':'none'"
+                   (click)="loadDashboardList(dashboardPage.number+1)"
+                   href="javascript:" class="ddp-link-more">+ {{'msg.comm.ui.more' | translate}}</a>
+              </div>
+              <!-- //리스트 뷰 -->
+              <!-- 그리드 뷰 -->
+              <div class="ddp-ui-board-thumbview" *ngIf="listType == 'CARD'">
+                <ul class="ddp-list-board-thumbview"
+                    dnd-sortable-container [sortableData]="filteredDashboard" [dropZones]="['source-dropZone']" >
+                  <li *ngFor="let dashboard of filteredDashboard; let x = index"
+                      (click)="loadAndSelectDashboard(dashboard)"
+                      dnd-sortable
+                      [sortableIndex]="x"
+                      [dragEnabled]="true"
+                      [dragData]="dashboard"
+                      (onDropSuccess)="changeOrder()"
+                      [class.ddp-selected]="selectedDashboard && dashboard.id === selectedDashboard.id" >
+                    <a href="javascript:">
+                      <span class="ddp-icon-number">{{x + 1}}</span>
+                      <span class="ddp-data-name">
+                        <em *ngIf="isChangeAuthUser"
+                            [ngClass]="{'ddp-icon-eyes2' : !dashboard.hiding, 'ddp-icon-eyes2-none' : dashboard.hiding}"
+                            (click)="changeFavorite(dashboard, $event);"></em>
+                        {{dashboard.name}}
+                      </span>
+                      <span class="ddp-wrap-image" >
+                        <img (invoke)="getBoardImage($event, dashboard.imageUrl)" />
+                      </span>
+                      <!-- buttons -->
+                      <div class="ddp-btn-control" *ngIf="isChangeAuthUser">
+                        <em class="ddp-icon-control-copy-s" (click)="copyDashboard(dashboard); $event.stopPropagation();">
+                          <div class="ddp-ui-tooltip-info ddp-down ddp-right">
+                            <em class="ddp-icon-view-top"></em>
+                            {{'msg.comm.ui.clone' | translate}}
+                          </div>
+                        </em>
+                        <em class="ddp-icon-control-cut-s" (click)="confirmDeleteDashboard(dashboard); $event.stopPropagation();">
+                          <div class="ddp-ui-tooltip-info ddp-down ddp-right">
+                            <em class="ddp-icon-view-top"></em>
+                            {{'msg.comm.ui.del' | translate}}
+                          </div>
+                        </em>
+                      </div>
+                      <!-- //buttons -->
+                    </a>
+                  </li>
+                </ul>
+                <a [style.display]="isShowMoreDashboardList ? 'block':'none'"
+                   (click)="loadDashboardList(dashboardPage.number+1)"
+                   href="javascript:" class="ddp-link-more">+ {{'msg.comm.ui.more' | translate}}</a>
+              </div>
+              <!-- // 그리드 뷰 -->
+            </div>
+            <!-- 대시보드 추가 -->
+            <div class="ddp-btn-board-add" *ngIf="isChangeAuthUser">
+              <a href="javascript:" class="ddp-link-board-add" (click)="createDashboard()">
+                <em class="ddp-link-add"></em>
+                {{'msg.comm.ui.create.board' | translate}}
+              </a>
+            </div>
+            <!-- // 대시보드 추가 -->
+          </div>
+        </div>
+        <!-- //dashboard tab contents -->
+        <!-- chat tab contents -->
+        <div class="ddp-ui-tab2-contents ddp-wrap-tab-chat" *ngIf="leftTab == 'CHAT'">
+          <!-- chat -->
+          <div class="ddp-ui-chat">
+            <ul class="ddp-list-chat">
+              <li *ngFor="let comment of comments.comments;" [ngClass]="{'ddp-data-me':username == comment.createdBy.fullName, 'ddp-box-edit': comment.isEdit}">
+                <a href="javascript:">
+                  <div class="ddp-btn-control" *ngIf="username == comment.createdBy.username && !comment.isEdit">
+                    <em class="ddp-icon-control-edit2" (click)="comment.isEdit = !comment.isEdit; comment.modifyContents = comment.contents"></em>
+                    <em class="ddp-icon-control-cut" (click)="confirmDeleteComment(comment.id)" ></em>
+                  </div>
+                  <!-- chat 사용자 -->
+                  <div class="ddp-data-chatuser">
+                    <img src="{{comment.createdBy.imageUrl ? comment.createdBy.imageUrl : '/assets/images/img_photo.png'}}" class="ddp-data-photo" *ngIf="username != comment.createdBy.username"/>
+                    <div class="ddp-data-name">
+                      {{username == comment.createdBy.username ? '나' : comment.createdBy.fullName}}
+                      <span class="ddp-data-time"> {{dateFormatTodayTimeElseDate(comment.createdTime)}}</span>
+                      <em class="ddp-icon-new" *ngIf="comment.isNew"></em>
+                    </div>
+                  </div>
+                  <!-- //chat 사용자 -->
+                  <div class="ddp-data-chatcontent" *ngIf="!comment.isEdit" >{{comment.contents}}</div>
+                </a>
+                <!-- 편집 -->
+                <div class="ddp-data-input" *ngIf="comment.isEdit">
+                  <textarea rows="5" [(ngModel)]="comment.modifyContents" (keypress)="createComments($event, comment)"></textarea>
+                </div>
+                <!-- //편집 -->
+              </li>
+            </ul>
+
+          </div>
+          <!-- // chat -->
+          <!-- input -->
+          <div class="ddp-ui-writechat">
+            <textarea class="ddp-textarea-chat"[(ngModel)]="commentText" (keypress)="createComments($event)" placeholder="{{'msg.book.ui.comment.description' | translate}}"></textarea>
+          </div>
+          <!-- // input -->
+        </div>
+        <!-- //chat tab contents -->
+
+      </div>
+    </div>
+  </div>
+  <!-- //워크북 lnb -->
+
+  <!-- Dashboard navigation -->
+  <div class="ddp-wrap-naviarea ddp-clear" *ngIf="selectedDashboard" >
+
+    <!-- 우측 상단 버튼 모듬 -->
+    <div class="ddp-ui-navidata">
+
+        <span class="ddp-data-time"
+              [innerHTML]="'msg.common.ui.updated.emphasis.name' | translate : {modifiedTime : selectedDashboard.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName :getEditorName() } ">
+        </span>
+      <span class="ddp-data-source ddp-hover-tooltip">
+          <a href="javascript:" class="ddp-icon-source3" (click)="isShowDataPreview=true"></a>
+        <!-- tooltip -->
+          <div class="ddp-ui-tooltip-info ddp-down">
+            <em class="ddp-icon-view-top"></em>{{'msg.comm.ui.sel.ds' | translate}}
+          </div>
+        <!-- //tooltip -->
+        </span>
+
+      <!-- 대시보드 관련 버튼 모음 -->
+      <div class="ddp-ui-work-buttons"  >
+        <a href="javascript:" class="ddp-icon-board-monitoring" (click)="gotoPresentationView()">{{'msg.board.btn.present.view' | translate}}</a>
+        <a
+          *ngIf="isChangeAuthUser" (click)="changeMode('UPDATE')"
+          href="javascript:" class="ddp-icon-board-edit" >
+          {{'msg.board.btn.dashboard.edit' | translate}}
+        </a>
+        <!-- more -->
+        <div *ngIf="isChangeAuthUser" class="ddp-ui-more ddp-hover-tooltip"
+             [class.ddp-selected]="isShowDashboardDetailMenu"
+             (click)="isShowDashboardDetailMenu = !isShowDashboardDetailMenu"
+             (clickOutside)="isShowDashboardDetailMenu = false">
+          <a href="javascript:" class="ddp-icon-more"></a>
+          <!-- tooltip -->
+          <div class="ddp-ui-tooltip-info ddp-down">
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.comm.ui.more' | translate}}
+          </div>
+          <!-- //tooltip -->
+          <!-- popup -->
+          <div class="ddp-wrap-popup2 ddp-types">
+            <ul class="ddp-list-popup">
+              <li>
+                <a href="javascript:" (click)="copyDashboard(selectedDashboard)">
+                  <em class="ddp-icon-drop-dashboard"></em> {{'msg.board.btn.clone.dashboard' | translate}}
+                </a>
+              </li>
+              <li>
+                <a href="javascript:" (click)="confirmDeleteDashboard(selectedDashboard)">
+                  <em class="ddp-icon-drop-editdel3"></em> {{'msg.board.btn.del.dashboard' | translate}}
+                </a>
+              </li>
+            </ul>
+            <!-- date -->
+            <div class="ddp-ui-date" *ngIf="selectedDashboard && selectedDashboard.createdBy" >
+                <span class="ddp-data-date"
+                      [innerHTML]="'msg.common.ui.created.emphasis.name' | translate : {createdTime : selectedDashboard.createdTime | mdate:'YYYY-MM-DD HH:mm', fullName: selectedDashboard.createdBy.fullName }">
+                </span>
+            </div>
+            <!-- //date -->
+          </div>
+          <!-- //popup -->
+        </div>
+        <!-- //more -->
+      </div>
+      <!-- // 대시보드 관련 버튼 모음 -->
+    </div>
+    <!-- // 우측 상단 버튼 모듬 -->
+
+    <!-- 좌측 제목/설명 영역 -->
+    <div class="ddp-wrap-box" >
+      <em (dblclick)="copyBoardIdToClipboard()" class="ddp-icon-dashboard2" ></em>
+      <div class="ddp-ui-naviarea" >
+        <!-- name -->
+        <div class="ddp-box-navi" [ngClass]="{'ddp-selected' : isDashboardNameEditMode}" >
+          <div class="ddp-wrap-naviname" (click)="onChangeModeName($event)">
+            <span class="ddp-data-naviname">{{selectedDashboard.name ? selectedDashboard.name : ''}}<em class="ddp-icon-edit2"></em></span>
+          </div>
+          <div class="ddp-wrap-input" >
+            <input #inputDashboardName type="text" class="ddp-input-navi" maxlength="50"
+                   placeholder="{{'msg.board.ui.name.ph' | translate }}"
+                   [ngModel]="selectedDashboard.name"
+                   (clickOutside)="isDashboardNameEditMode=false"
+                   (keypress)="renameDashboardWithEnterKey($event)"/>
+            <span class="ddp-btn-check" (click)="renameDashboard()"></span>
+          </div>
+        </div>
+        <!-- // name -->
+
+        <!-- description -->
+        <div class="ddp-box-navidet" [ngClass]="{'ddp-selected' : isDashboardDescEditMode}" >
+          <div class="ddp-wrap-navidet" (click)="onChangeModeDesc($event)">
+            <span class="ddp-data-navidet">{{selectedDashboard.description || 'msg.board.ui.description.ph' | translate }}<em class="ddp-icon-edit2"></em></span>
+          </div>
+          <div class="ddp-wrap-input">
+            <input #inputDashboardDesc type="text" class="ddp-input-navi" maxlength="150"
+                   placeholder="{{'msg.board.ui.description.ph' | translate}}"
+                   [ngModel]="selectedDashboard.description"
+                   (clickOutside)="isDashboardDescEditMode=false"
+                   (keypress)="changeDescWithEnterKey($event)" />
+            <span class="ddp-btn-check" (click)="changeDesc()"></span>
+          </div>
+        </div>
+        <!-- // description -->
+      </div>
+    </div>
+    <!-- // 좌측 제목/설명 영역 -->
+
+  </div>
+  <!-- // Dashboard navigation -->
+
+  <div class="ddp-ui-dash-contents" [class.ddp-close]="isCloseDashboardList" >
+    <!-- 대시보드 없음 -->
+    <div class="ddp-box-data-none" *ngIf="mode === 'NO_DATA'" >
+      <div class="ddp-wrap-data-none">
+        <div class="ddp-ui-data-none">
+          <em class="ddp-img-nodata"></em>
+          <span class="ddp-txt-nodata">
+            {{'msg.board.ui.dashboard.none' | translate}}<br />
+            <span *ngIf="isChangeAuthUser">{{'msg.board.ui.dashboard.none.description' | translate}}</span>
+          </span>
+          <a *ngIf="isChangeAuthUser" (click)="step = 'create-select'"
+             href="javascript:" class="ddp-link-board-add" >
+            <em class="ddp-link-add"></em>{{'msg.comm.ui.create.board' | translate}}
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- board buttons -->
+    <div class="ddp-ui-fix-buttons" *ngIf="isChangeAuthUser && selectedDashboard">
+      <div class="ddp-btn-widget">
+        <a (click)="addWidget('NEW_CHART')" href="javascript:" class="ddp-btn-chart">
+          <em class="ddp-icon-chart-new"></em>{{'msg.board.btn.new.chart' | translate}}
+        </a>
+        <!-- 화살표 -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-wrap-view ddp-selected">
+          <a href="javascript:" class="ddp-btn-view"></a>
+          <div class="ddp-wrap-popup2 ddp-types">
+            <ul class="ddp-list-popup">
+              <li>
+                <a (click)="addWidget('NEW_CHART')" href="javascript:" >
+                  <em class="ddp-icon-chart-new"></em> {{'msg.board.btn.new.chart' | translate}}
+                </a>
+              </li>
+              <li>
+                <a (click)="addWidget('NEW_FILTER')" href="javascript:">
+                  <em class="ddp-icon-filter-new"></em> {{'msg.board.btn.new.filter' | translate}}
+                </a>
+              </li>
+              <li *ngIf="false">
+                <a href="javascript:">
+                  <em class="ddp-icon-parameter-new"></em>
+                  Parameter
+                </a>
+              </li>
+              <li>
+                <a (click)="addWidget('NEW_TEXT')" href="javascript:">
+                  <em class="ddp-icon-text-new"></em> {{'msg.board.btn.new.text' | translate}}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- //화살표 -->
+      </div>
+    </div>
+    <!-- //board buttons -->
+    <!-- // 대시보드 없음 -->
+    <app-dashboard [isManagementUser]="isChangeAuthUser" [dashboard]="selectedDashboard" ></app-dashboard>
+  </div>
+
+</div>
+
+<!-- 워크북 부가메뉴 레이어 -->
+<div *ngIf="isShowDetailMenu" style="display:block;" class="ddp-wrap-popup2 ddp-types ddp-popup-lnbmore">
+  <ul class="ddp-list-popup">
+    <li *ngIf="isChangeAuthUser">
+      <a href="javascript:" (click)="updateWorkbook()">
+        <em class="ddp-icon-drop-editmodify"></em>
+        {{'msg.book.ui.edit.name' | translate}}
+      </a>
+    </li>
+    <li *ngIf="isChangeAuthUser">
+      <a href="javascript:" (click)="confirmDeleteWorkbook()">
+        <em class="ddp-icon-drop-editdel3"></em>
+        {{'msg.book.ui.del' | translate}}
+      </a>
+    </li>
+  </ul>
+  <!-- 생성일 및 생성자 정보 -->
+  <div class="ddp-ui-date">
+    <span class="ddp-data-date">
+      {{'msg.common.ui.updated' | translate : { modifiedTime : workbook.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName : workbook.modifiedBy.fullName } }}
+    </span>
+    <span class="ddp-data-date">
+      {{ 'msg.common.ui.created' | translate : { createdTime : workbook.createdTime | mdate:'YYYY-MM-DD HH:mm', fullName :workbook.createdBy.fullName } }}
+    </span>
+  </div>
+  <!-- // 생성일 및 생성자 정보 -->
+</div>
+<!-- // 워크북 부가메뉴 레이어 -->
+
+<popup-input-namedesc (triggerDone)="afterInputInfo($event)" ></popup-input-namedesc>
+<app-delete-modal (deleteConfirm)="deleteContent($event)"></app-delete-modal>
+<app-update-dashboard *ngIf="mode == 'UPDATE'"
+                      [startupCmd]="updateDashboardStartupCmd"
+                      [workbook]="workbook"
+                      [dashboard]="selectedDashboard"
+                      [dashboards]="dashboards"
+                      (changeMode)="changeMode($event)"
+                      (updateComplete)="updateCompleteDashboard($event)"
+                      (createDashboard)="createDashboard()"
+                      (selectedDashboard)="loadAndSelectDashboard($event)">
+</app-update-dashboard>
+<app-create-board *ngIf="isShowCreateDashboard"
+                      [workbookId]="workbook.id" [workbookName]="workbook.name" [workspaceId]="workbook.workspaceId"
+                      (close)="closeCreateDashboard()"></app-create-board>
+<!-- 데이터 미리보기 -->
+<data-preview *ngIf="isShowDataPreview" [source]="selectedDashboard" (close)="isShowDataPreview=false"></data-preview>
+<!-- 추천 필터 설정 -->
+<app-essential-filter *ngIf="isShowDataIngestion" [datasource]="ingestionTargetDatasource"
+                      (close)="isShowDataIngestion = false" (done)="finishDataIngestion($event)">
+</app-essential-filter>
+<!-- // 추천 필터 설정 -->

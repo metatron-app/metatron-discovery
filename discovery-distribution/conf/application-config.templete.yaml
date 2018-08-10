@@ -1,0 +1,42 @@
+spring:
+  profiles: ${METATRON_ENV_MODE:local}
+# METATRON_DB_TYPE 이 mysql 인경우 지정
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/polaris?useUnicode=true&amp;characterEncoding=utf8
+#    username: polaris
+#    password: polaris
+server:
+  port: 8180
+logging:
+  config: classpath:logback-console.xml
+polaris:
+  engine:
+    hostname:
+      broker: http://localhost:8082
+      overlord: http://localhost:8090
+      coordinator: http://localhost:8081
+    ingestion:
+      baseDir: /tmp
+      hosts:
+        "[test.com]":
+          port: 22
+          username: abc
+          password: test
+    query:
+      localResultDir: ${java.io.tmpdir:-/tmp}
+      defaultForwardUrl: local:/tmp
+      hosts:
+        localhost:
+          port: 22
+          username: abc
+          password: test
+# Data Prep. 기능 활용시 Hive 관련 정보 기재
+#  dataprep:
+#    hadoopConfDir: /etc/hadoop
+#    hive:
+#      hostname: hive_hostname
+#      username: hive
+#      password: hive
+#    localBaseDir: ${METATRON_HOME}/dataprep
+#    stagingBaseDir: hdfs://hadoop-cluster/user/hive/dataprep
+

@@ -1,0 +1,131 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- option -->
+<div *ngIf="'CHANGE' === mode" class="ddp-option">
+  <span class="ddp-data-num"><strong>{{totalItemCnt}}</strong> default value</span>
+  <div *ngIf="targetFilter" class="ddp-option-btn">
+
+    <!-- sort -->
+    <!-- 클릭시 ddp-selected 추가 -->
+    <div [class.ddp-selected]="targetFilter['isShowCandidateSort']" class="ddp-ui-sort ddp-btn-box ">
+      <a (click)="targetFilter['isShowCandidateSort'] = !targetFilter['isShowCandidateSort']"
+         href="javascript:" class="ddp-icon-sort"></a>
+      <!-- hover -->
+      <div class="ddp-ui-tooltip-info">
+        <em class="ddp-icon-view-top"></em> {{'msg.comm.ui.soring.order' | translate}}
+      </div>
+      <!-- //hover -->
+      <!-- popup -->
+      <div class="ddp-wrap-popup2">
+        <ul class="ddp-list-popup">
+          <li [class.ddp-selected]="targetFilter['sortTarget'] === 'FREQUENCY' && targetFilter['sortType'] === 'ASC'">
+            <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'FREQUENCY','ASC');">
+              {{'msg.comm.ui.soring.frequency.asc' | translate}} <em class="ddp-icon-check"></em>
+            </a>
+          </li>
+<!--
+          <li [class.ddp-selected]="targetFilter['sortTarget'] === 'FREQUENCY' && targetFilter['sortType'] === 'DESC'">
+            <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'FREQUENCY','DESC');">
+              {{'msg.comm.ui.soring.frequency.desc' | translate}} <em class="ddp-icon-check"></em>
+            </a>
+          </li>
+-->
+          <li [class.ddp-selected]="targetFilter['sortTarget'] === 'ALPHNUMERIC' && targetFilter['sortType'] === 'ASC'">
+            <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'ALPHNUMERIC','ASC');">
+              {{'msg.comm.ui.soring.alphnumeric.asc' | translate}} <em class="ddp-icon-check"></em>
+            </a>
+          </li>
+<!--
+          <li [class.ddp-selected]="targetFilter['sortTarget'] === 'ALPHNUMERIC' && targetFilter['sortType'] === 'DESC'">
+            <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'ALPHNUMERIC','DESC');">
+              {{'msg.comm.ui.soring.alphnumeric.desc' | translate}} <em class="ddp-icon-check"></em>
+            </a>
+          </li>
+-->
+        </ul>
+      </div>
+      <!-- //popup -->
+
+    </div>
+    <!-- //sort -->
+    <!-- 활성 아이템만 보기 버튼 -->
+    <a (click)="setOnlyShowCandidateValues()" [class.ddp-selected]="isOnlyShowCandidateValues"
+       href="javascript:" class="ddp-btn-eyes ddp-btn-box"><em class="ddp-icon-eyes2"></em></a>
+    <!-- // 활성 아이템만 보기 버튼 -->
+  </div>
+
+</div>
+<!-- //option -->
+
+<!-- 아이템 목록 영역 -->
+<div [ngClass]="{ 'ddp-box-item-search ddp-edit-none' : 'CHANGE' === mode }" >
+
+  <!-- 후보값 목록 표시 -->
+  <ul class="ddp-list-checktype"
+      [ngClass]="{'ddp-type-list' : 'CHANGE' === mode, 'ddp-list-padd' : 'CHANGE' !== mode }">
+    <li class="ddp-list-all">
+      <label class="ddp-label-checkbox">
+        <input (click)="candidateSelectAll($event)" [checked]="isCheckedAllItem()" type="checkbox">
+        <i class="ddp-icon-checkbox"></i>
+        <span class="ddp-txt-checkbox">{{ 'msg.comm.ui.list.all' | translate }}</span>
+      </label>
+    </li>
+
+    <li *ngFor="let item of pageCandidateList" >
+      <!-- check -->
+      <label class="ddp-label-checkbox" >
+        <input (click)="candidateSelect(item, $event)" [checked]="isCheckedItem(item)" type="checkbox" >
+        <i class="ddp-icon-checkbox"></i>
+        <span class="ddp-txt-checkbox">
+          {{ ( null === item.name || 'null' === item.name ) ? '(Null)' : ( ( '' === item.name || undefined === item.name ) ? '(Empty)' : item.name ) }}
+          <span class="ddp-data-valuenum">{{item.count}}</span>
+        </span>
+      </label>
+      <em *ngIf="'CHANGE' === mode" (click)="candidateShowToggle(item)"
+          [ngClass]="{'true':'ddp-icon-eyes2-on', 'false':'ddp-icon-eyes2-none'}[isShowItem(item)]"></em>
+    </li>
+
+    <!-- 페이지 번호 표시 -->
+    <div *ngIf="'PANEL' === mode" class="ddp-ui-page ddp-center">
+      <a (click)="setCandidatePage(currentPage-1)"
+         [class.ddp-disabled]="1 === currentPage"
+         href="javascript:" class="ddp-btn-prev"></a>
+      <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+      <a (click)="setCandidatePage(currentPage+1)"
+         [class.ddp-disabled]="lastPage === currentPage"
+         href="javascript:" class="ddp-btn-next"></a>
+    </div>
+    <!-- // 페이지 번호 표시 -->
+
+  </ul>
+  <!-- // 후보값 목록 표시 -->
+  <!-- 페이지 번호 표시 -->
+  <div *ngIf="'CHANGE' === mode" class="ddp-data-result">
+    <!-- page -->
+    <div class="ddp-ui-page">
+      <a (click)="setCandidatePage(currentPage-1)"
+         [class.ddp-disabled]="1 === currentPage"
+         href="javascript:" class="ddp-btn-prev"></a>
+      <span class="ddp-data-page"><em>{{currentPage}}</em>/<em>{{lastPage}}</em></span>
+      <a (click)="setCandidatePage(currentPage+1)"
+         [class.ddp-disabled]="lastPage === currentPage"
+         href="javascript:" class="ddp-btn-next"></a>
+    </div>
+    <!-- //page -->
+  </div>
+  <!-- // 페이지 번호 표시 -->
+
+</div>
+<!-- // 아이템 목록 영역 -->

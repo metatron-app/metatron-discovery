@@ -1,0 +1,466 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Imports
+import {
+  Component,
+  Input,
+  Output,
+  ElementRef,
+  ViewChild,
+  EventEmitter,
+  forwardRef,
+  AfterViewInit,
+  OnDestroy,
+} from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import * as CodeMirror from 'codemirror';
+import { isUndefined } from 'util';
+
+
+declare const codemirror: any;
+/**
+ * CodeMirror component
+ * Usage :
+ * <codemirror [(ngModel)]="data" [config]="{...}"></codemirror>
+ */
+@Component({
+  selector: 'codemirror',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => CodemirrorComponent),
+      multi: true
+    }
+  ],
+  template: `<textarea #host></textarea>`,
+})
+export class CodemirrorComponent implements AfterViewInit, OnDestroy {
+
+  @Input() config;
+  @Output() change = new EventEmitter();
+  @Output() focus = new EventEmitter();
+  @Output() blur = new EventEmitter();
+  @Output() cursorActivity = new EventEmitter();
+
+  @ViewChild('host') host;
+
+  @Output() instance = null;
+
+  _value = '';
+
+  public codeMirror: any;
+  /**
+   * Constructor
+   */
+  constructor() {}
+
+  get value() { return this._value; }
+
+  @Input() set value(v) {
+    if (v !== this._value) {
+      this._value = v;
+      this.onChange(v);
+    }
+  }
+
+  /**
+   * On component destroy
+   */
+  ngOnDestroy() {
+
+  }
+
+  /**
+   * On component view init
+   */
+  ngAfterViewInit() {
+    this.config = this.config || {};
+    this.codemirrorInit(this.config);
+  }
+
+  /**
+   * Initialize codemirror
+   */
+  codemirrorInit(config) {
+    // CodeMirror.k.default["Shift-Tab"] = "indentLess";
+    // CodeMirror.keyMap.default["Tab"] = "indentMore";
+    this.instance = CodeMirror.fromTextArea(this.host.nativeElement, config);
+    this.instance.setValue(this._value);
+
+    this.instance.on('change', () => {
+      this.updateValue(this.instance.getValue());
+    });
+
+    this.instance.on('focus', (instance, event) => {
+      this.focus.emit({instance, event});
+    });
+
+    this.instance.on('cursorActivity', (instance) => {
+      this.cursorActivity.emit({instance});
+    });
+
+    this.instance.on('blur', (instance, event) => {
+      this.blur.emit({instance, event});
+    });
+  }
+
+  /**
+   * Value update process
+   */
+  updateValue(value) {
+    this.value = value;
+    this.onTouched();
+    this.change.emit(value);
+  }
+
+  /**
+   * Implements ControlValueAccessor
+   */
+  writeValue(value) {
+    this._value = value || '';
+    if (this.instance) {
+      this.instance.setValue(this._value);
+    }
+  }
+  onChange(_) {}
+  onTouched() {}
+  registerOnChange(fn) { this.onChange = fn; }
+  registerOnTouched(fn) { this.onTouched = fn; }
+
+  public setText(text: string) : void {
+    if (text === null || text === undefined) {
+      text = '';
+    }
+    this.writeValue(text);
+  }
+
+  public insert(text: string): void {
+    if (text === null || text === undefined) {
+      text = '';
+    }
+    let temp = text;
+    const line:number = this.instance.doc.getCursor().line;
+    const ch:number = this.instance.doc.getCursor().ch;
+
+    const lines:any[] = this.getLines();
+    const beforeText:string = this.instance.doc.getRange({line:0,ch:0}, {line:line,ch:ch})
+    const afterText:string = this.instance.doc.getRange({line:line,ch:ch}, {line:lines.length,ch:0})
+
+    if(beforeText == '' ) {
+      if(text.indexOf('\n') > -1) {
+        temp = beforeText + temp.replace('\n', '') + afterText;
+      } else {
+        temp = beforeText + temp + afterText;
+      }
+      this.writeValue(temp);
+      this.instance.setCursor({ line: line + 1, ch: ch + text.length });
+    } else {
+      temp = beforeText + temp + afterText;
+      this.writeValue(temp);
+      if(text.indexOf('\n') > -1) {
+        this.instance.setCursor({ line: line + 1, ch: ch + text.length });
+      }else {
+        this.instance.setCursor({ line: line, ch: ch + text.length });
+      }
+    }
+    this.instance.focus();
+  }
+
+  public replace(text: string) : void {
+    const range = this.getSelectedRange();
+    const lines:any[] = this.getLines();
+    const beforeText:string = this.instance.doc.getRange({line:0,ch:0}, {line:range.from.line,ch:range.from.ch})
+    const afterText:string = this.instance.doc.getRange({line:range.to.line,ch:range.to.ch}, {line:lines.length,ch:0})
+    text = beforeText + text + afterText;
+    this.writeValue(text);
+    this.instance.setCursor({ line: range.from.line, ch: range.from.ch });
+    this.instance.focus();
+  }
+
+  private getSelectedRange() {
+    return { from: this.instance.getCursor(true), to: this.instance.getCursor(false) };
+  }
+
+  public resize(height:number) : void {
+    this.instance.setSize("100%", height - 2);
+  }
+
+  public getSelection() : string {
+    return this.instance.getSelection();
+  }
+
+  public editorFocus(): void {
+    this.instance.focus();
+  }
+
+  public getEditor() : any {
+    return this.instance;
+  }
+
+  public getFocusSelection(): string {
+    //const lines = this.editor.session.getDocument().$lines;
+    // const lines = this.instance.doc.children[0].lines;
+    const lines:any[] = this.getLines();
+    const crow = this.instance.doc.getCursor().line
+    let qend: number = -1;
+    let qstart: number = -1;
+
+    if (lines[crow].text.indexOf(';') > -1) {
+      for (let i = crow - 1; i >= 0; i = i - 1) {
+        if (lines[i].text.indexOf(';') > -1) {
+          // ; 있으면
+          qstart = i;
+          this.instance.doc.setSelection({ch:0, line: qstart+1}, {ch:0, line:crow+1});
+          break;
+        }
+      }
+      // 없다면.
+      if (qstart === -1) {
+        this.instance.doc.setSelection({ch:0, line: 0}, {ch:0, line:crow+1});
+      }
+    } else {
+      // 현재 행에 ; 가 없을 경우.
+      // 뒤로 조회
+      for (let i = crow; i < lines.length; i = i + 1) {
+        if (lines[i].text.indexOf(';') > -1) {
+          // ; 있으면
+          qend = i;
+          // 뒤로 조회
+          for (let j = crow; j >= 0; j = j - 1) {
+            if (lines[j].text.indexOf(';') > -1) {
+              // ; 있으면
+              qstart = j;
+              break;
+            }
+          }
+          // 없다면
+          if (qstart === -1) {
+            qstart = 0;
+            this.instance.doc.setSelection({ch:0, line: qstart}, {ch:0, line:qend+1});
+          } else {
+            this.instance.doc.setSelection({ch:0, line: qstart + 1}, {ch:0, line:qend+1});
+          }
+          break;
+        }
+        // 없다면.
+        if (qend === -1) {
+          // 뒤로 조회
+          let cnt = 0;
+          for (let j = crow; j >= 0; j = j - 1) {
+            if (lines[j].text.indexOf(';') > -1 && cnt === 0) {
+              // ; 있으면
+              qend = j;
+            }
+            if (lines[j].text.indexOf(';') > -1 && cnt === 1) {
+              qstart = j;
+              break;
+            }
+            if (lines[j].text.indexOf(';') > -1) {
+              cnt = cnt + 1;
+            }
+          }
+          this.instance.doc.setSelection({ch:0, line: qstart + 1}, {ch:0, line:qend+1});
+        }
+      }
+    }
+    return '';
+  }
+
+  private isSubquery(str, parenthesisLevel) {
+    return  parenthesisLevel - (str.replace(/\(/g,'').length - str.replace(/\)/g,'').length )
+  }
+
+  private split_sql(str, tab) {
+
+    return str.replace(/\s{1,}/g," ")
+
+      .replace(/ AND /ig,"~::~"+tab+tab+"AND ")
+      .replace(/ BETWEEN /ig,"~::~"+tab+"BETWEEN ")
+      .replace(/ CASE /ig,"~::~"+tab+"CASE ")
+      .replace(/ ELSE /ig,"~::~"+tab+"ELSE ")
+      .replace(/ END /ig,"~::~"+tab+"END ")
+      .replace(/ FROM /ig,"~::~FROM ")
+      .replace(/ GROUP\s{1,}BY/ig,"~::~GROUP BY ")
+      .replace(/ HAVING /ig,"~::~HAVING ")
+      //.replace(/ SET /ig," SET~::~")
+      .replace(/ IN /ig," IN ")
+
+      .replace(/ JOIN /ig,"~::~JOIN ")
+      .replace(/ CROSS~::~{1,}JOIN /ig,"~::~CROSS JOIN ")
+      .replace(/ INNER~::~{1,}JOIN /ig,"~::~INNER JOIN ")
+      .replace(/ LEFT~::~{1,}JOIN /ig,"~::~LEFT JOIN ")
+      .replace(/ RIGHT~::~{1,}JOIN /ig,"~::~RIGHT JOIN ")
+
+      .replace(/ ON /ig,"~::~"+tab+"ON ")
+      .replace(/ OR /ig,"~::~"+tab+tab+"OR ")
+      .replace(/ ORDER\s{1,}BY/ig,"~::~ORDER BY ")
+      .replace(/ OVER /ig,"~::~"+tab+"OVER ")
+
+      .replace(/\(\s{0,}SELECT /ig,"~::~(SELECT ")
+      .replace(/\)\s{0,}SELECT /ig,")~::~SELECT ")
+
+      .replace(/ THEN /ig," THEN~::~"+tab+"")
+      .replace(/ UNION /ig,"~::~UNION~::~")
+      .replace(/ USING /ig,"~::~USING ")
+      .replace(/ WHEN /ig,"~::~"+tab+"WHEN ")
+      .replace(/ WHERE /ig,"~::~WHERE ")
+      .replace(/ WITH /ig,"~::~WITH ")
+
+      //.replace(/\,\s{0,}\(/ig,",~::~( ")
+      //.replace(/\,/ig,",~::~"+tab+tab+"")
+
+      .replace(/ ALL /ig," ALL ")
+      .replace(/ AS /ig," AS ")
+      .replace(/ ASC /ig," ASC ")
+      .replace(/ DESC /ig," DESC ")
+      .replace(/ DISTINCT /ig," DISTINCT ")
+      .replace(/ EXISTS /ig," EXISTS ")
+      .replace(/ NOT /ig," NOT ")
+      .replace(/ NULL /ig," NULL ")
+      .replace(/ LIKE /ig," LIKE ")
+      .replace(/\s{0,}SELECT /ig,"SELECT ")
+      .replace(/\s{0,}UPDATE /ig,"UPDATE ")
+      .replace(/ SET /ig," SET ")
+
+      .replace(/~::~{1,}/g,"~::~")
+      .split('~::~');
+  }
+
+  private createShiftArr(step) {
+
+    var space = '    ';
+
+    if ( isNaN(parseInt(step)) ) {  // argument is string
+      space = step;
+    } else { // argument is integer
+      switch(step) {
+        case 1: space = ' '; break;
+        case 2: space = '  '; break;
+        case 3: space = '   '; break;
+        case 4: space = '    '; break;
+        case 5: space = '     '; break;
+        case 6: space = '      '; break;
+        case 7: space = '       '; break;
+        case 8: space = '        '; break;
+        case 9: space = '         '; break;
+        case 10: space = '          '; break;
+        case 11: space = '           '; break;
+        case 12: space = '            '; break;
+      }
+    }
+
+    var shift = ['\n']; // array of shifts
+    for(let ix=0;ix<100;ix++){
+      shift.push(shift[ix]+space);
+    }
+    return shift;
+  }
+
+  public formatter(text,step) {
+    const that = this;
+    var ar_by_quote = text.replace(/\s{1,}/g," ")
+        .replace(/\'/ig,"~::~\'")
+        .split('~::~'),
+      len = ar_by_quote.length,
+      ar = [],
+      deep = 0,
+      tab = step,//+this.step,
+      inComment = true,
+      inQuote = false,
+      parenthesisLevel = 0,
+      str = '',
+      ix = 0,
+      shift = step ? that.createShiftArr(step) : shift;
+
+    for(ix=0;ix<len;ix++) {
+      if(ix%2) {
+        ar = ar.concat(ar_by_quote[ix]);
+      } else {
+        ar = ar.concat(that.split_sql(ar_by_quote[ix], tab) );
+      }
+    }
+
+    len = ar.length;
+    for(ix=0;ix<len;ix++) {
+
+      parenthesisLevel = that.isSubquery(ar[ix], parenthesisLevel);
+
+      if( /\s{0,}\s{0,}SELECT\s{0,}/.exec(ar[ix]))  {
+        ar[ix] = ar[ix].replace(/\,/g,",\n"+tab+tab+"")
+      }
+
+      if( /\s{0,}\s{0,}SET\s{0,}/.exec(ar[ix]))  {
+        ar[ix] = ar[ix].replace(/\,/g,",\n"+tab+tab+"")
+      }
+
+      if( /\s{0,}\(\s{0,}SELECT\s{0,}/.exec(ar[ix]))  {
+        deep++;
+        str += shift[deep]+ar[ix];
+      } else
+      if( /\'/.exec(ar[ix]) )  {
+        if(parenthesisLevel<1 && deep) {
+          deep--;
+        }
+        str += ar[ix];
+      }
+      else  {
+        str += shift[deep]+ar[ix];
+        if(parenthesisLevel<1 && deep) {
+          deep--;
+        }
+      }
+      var junk = 0;
+    }
+
+    str = str.replace(/^\n{1,}/,'').replace(/\n{1,}/g,"\n");
+    return str;
+  }
+
+  public setOptions(param) {
+    this.instance.options.hintOptions = {tables: param};
+  }
+
+  public setModeOptions(param) {
+    this.instance.setOption("mode", param);
+    this.instance.refresh();
+  }
+
+  public getLines() {
+    const lines:any[] = [];
+    this.instance.doc.children.forEach((item) => {
+      if(!isUndefined(item.lines)) {
+        item.lines.forEach((item2, idx) => {
+          lines.push(item2);
+        });
+      } else {
+        this.getSubLines(item, lines);
+      }
+    });
+    return lines;
+  }
+
+  public getSubLines(item, lines) {
+    item.children.forEach((item2) => {
+      if(!isUndefined(item2.lines)) {
+        item2.lines.forEach((item3) => {
+          lines.push(item3);
+        });
+      } else {
+        this.getSubLines(item2, lines);
+      }
+    })
+    return lines;
+  }
+}

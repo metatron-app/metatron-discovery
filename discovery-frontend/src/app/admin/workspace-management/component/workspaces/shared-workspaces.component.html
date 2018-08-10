@@ -1,0 +1,230 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-contents-list">
+  <div class="ddp-wrap-option">
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.comm.ui.workspace.type' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option ddp-inline">
+          <label class="ddp-label-radio" (change)="onFilterWorkspaceType('all')">
+            <input type="radio" [checked]="isSelectedWorkspaceType('all')">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.storage.ui.list.all' | translate}}</span>
+          </label>
+          <label class="ddp-label-radio" (change)="onFilterWorkspaceType('PRIVATE')">
+            <input type="radio" [checked]="isSelectedWorkspaceType('PRIVATE')">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-box-tag ddp-personal">{{'msg.comm.ui.personal' | translate}}</span>
+          </label>
+          <label class="ddp-label-radio" (change)="onFilterWorkspaceType('SHARED')">
+            <input type="radio" [checked]="isSelectedWorkspaceType('SHARED')">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-box-tag ddp-shared">{{'msg.comm.ui.shared' | translate}}</span>
+          </label>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <!-- Status -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.spaces.spaces.ui.status' | translate}}</label>
+        <div class="ddp-ui-edit-option ddp-inline">
+          <label class="ddp-label-radio"
+                 (change)="onFilterStatus(status)"
+                 *ngFor="let status of filterStatusList">
+            <input type="radio" [checked]="isSelectedStatus(status)">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{status.label}}</span>
+          </label>
+        </div>
+      </div>
+      <!-- //Status -->
+      <!-- allowance -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.spaces.spaces.ui.allowance' | translate}}</label>
+        <div class="ddp-ui-edit-option ddp-inline">
+          <label class="ddp-label-checkbox" (click)="onFilterAllowance(filterAllowance)">
+            <input type="checkbox" [checked]="filterAllowance">
+            <i class="ddp-icon-checkbox"></i>
+            <span class="ddp-txt-checkbox">{{'msg.spaces.spaces.ui.allowance.description' | translate}}</span>
+          </label>
+        </div>
+      </div>
+      <!-- //allowance -->
+      <!-- 초기화 -->
+      <div class="ddp-ui-rightoption">
+        <a href="javascript:" class="ddp-link-reset" (click)="onFilterReset()"><em class="ddp-btn-reset3"></em>{{'msg.mem.btn.refresh' | translate}}</a>
+      </div>
+      <!-- //초기화 -->
+    </div>
+    <!-- //option -->
+    <!-- date -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <component-period
+        [usedCustomDateType]="true"
+        [customDateTypeList]="customDateTypeList"
+        [roundSecond]="true"
+        (changeDate)="onFilterDate($event)"
+      ></component-period>
+      <!-- //edit -->
+    </div>
+    <!-- //date -->
+
+    <!-- option -->
+    <div class="ddp-ui-option ddp-optiontype ddp-clear">
+      <!-- 검색 -->
+      <div class="ddp-form-search ddp-fleft">
+        <em class="ddp-icon-search"></em>
+        <input type="text" placeholder="{{'msg.space.list.search.name' | translate}}"
+               (keypress)="onSearchText($event)"
+               (keyup.esc)="onSearchTextInit()"
+               [ngModel]="searchText">
+        <em class="ddp-btn-search-close" (click)="onSearchTextInit()" *ngIf="searchText"></em>
+      </div>
+      <!-- //검색 -->
+      <!-- total -->
+      <div class="ddp-ui-rightoption">
+        <span class="ddp-data-total ddp-only" [innerHTML]="'msg.spaces.spaces.ui.num.lists' | translate: {value: getTotalContentsCount}"></span>
+      </div>
+      <!-- //total -->
+    </div>
+    <!-- //option -->
+  </div>
+
+
+  <!--<div class="ddp-data-source-none">-->
+    <!--No data-->
+  <!--</div>-->
+  <table class="ddp-table-form ddp-table-type3">
+    <colgroup>
+      <col width="120px">
+      <col width="*">
+      <col width="28%">
+      <col width="170px">
+      <col width="170px">
+      <col width="100px">
+      <col width="100px">
+    </colgroup>
+    <thead>
+    <tr>
+      <th>
+        {{'msg.comm.th.type' | translate}}
+      </th>
+      <th class="ddp-cursor" (click)="onFilterSort('name')">
+        {{'msg.spaces.spaces.th.shared.space' | translate}}
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th>
+        {{'msg.spaces.spaces.th.description' | translate}}
+      </th>
+      <th class="ddp-cursor" (click)="onFilterSort('lastAccessedTime')">
+        {{'msg.spaces.spaces.th.last.access' | translate}}
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'lastAccessedTime' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'lastAccessedTime' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'lastAccessedTime' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th class="ddp-cursor" (click)="onFilterSort('createdTime')">
+        {{'msg.spaces.spaces.th.created' | translate}}
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th>
+        {{'msg.spaces.spaces.th.status' | translate}}
+      </th>
+      <th>
+
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let workspace of getWorkspaceList" (click)="onOpenWorkspaceDetail(workspace.id)">
+      <td>
+        <!-- ddp-shared -->
+        <span class="ddp-box-tag"
+              [class.ddp-personal]="workspace.publicType.toString() === 'PRIVATE'"
+              [class.ddp-shared]="workspace.publicType.toString() === 'SHARED'">
+          {{(workspace.publicType.toString() === 'SHARED' ? 'msg.comm.ui.shared' : 'msg.comm.ui.personal') | translate}}
+        </span>
+      </td>
+      <td>
+        <!-- ddp-tag ddp-info -->
+        <div class="ddp-type-txt" [class.ddp-tag]="workspace.published">
+          <span class="ddp-txt-long">{{workspace.name}}</span>
+          <!-- only all allowance -->
+          <em class="ddp-tag-annoymous" *ngIf="workspace.published">{{'msg.spaces.spaces.ui.allowance.tag' | translate}}</em>
+          <!-- //only all allowance -->
+        </div>
+      </td>
+      <td>
+        <div class="ddp-txt-long">
+          {{workspace.description}}
+        </div>
+      </td>
+      <td>
+        {{workspace.lastAccessedTime ? (workspace.lastAccessedTime | mdate: 'YYYY-MM-DD HH:mm') : ''}}
+      </td>
+      <td>
+        {{workspace.createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
+      </td>
+      <td>
+        <!--
+            클릭시 ddp-selected 추가
+        -->
+        <div class="ddp-hover-status"
+             *ngIf="isPublicWorkspace(workspace)"
+             [class.ddp-selected]="workspace.statusShowFl">
+          <!-- inactive 일때 ddp-inactive 추가 -->
+          <span class="ddp-status-active ddp-inactive"
+                (clickOutside)="workspace.statusShowFl = false"
+                (click)="onClickShowStatus(workspace, workspace.statusShowFl)">{{getWorkspaceStatus(workspace)}} <em class="ddp-icon-view"></em>
+          </span>
+          <!-- popup -->
+          <div class="ddp-wrap-popup2">
+            <ul class="ddp-list-popup">
+              <li *ngFor="let status of statusList" (click)="onOpenChangeStatus(workspace, status.value)">
+                <a href="javascript:">
+                  {{status.label}}
+                  <em class="ddp-icon-check"></em>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <!-- //popup -->
+        </div>
+      </td>
+      <td>
+        <a href="javascript:" class="ddp-link-delete" (click)="onOpenDeleteWorkspace(workspace.id)" *ngIf="isPublicWorkspace(workspace)">
+          <em class="ddp-icon-delete"></em>
+          {{'msg.spaces.spaces.ui.delete' | translate}}
+        </a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <!-- more contents -->
+  <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreContents()">
+    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+  </div>
+  <!-- //more contents -->
+</div>
+<!-- 공통 모달 -->
+<app-confirm-modal (confirm)="confirmEvent($event)"></app-confirm-modal>

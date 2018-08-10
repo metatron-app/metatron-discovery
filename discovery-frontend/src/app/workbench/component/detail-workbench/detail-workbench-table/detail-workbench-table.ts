@@ -1,0 +1,347 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+///<reference path="../../../../common/util/string.util.ts"/>
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
+import { Dataconnection } from '../../../../domain/dataconnection/dataconnection';
+import { isUndefined } from 'util';
+import { Alert } from '../../../../common/util/alert.util';
+
+@Component({
+  selector: 'detail-workbench-table',
+  templateUrl: './detail-workbench-table.html',
+})
+export class DetailWorkbenchTable extends AbstractComponent implements OnInit, OnDestroy, OnChanges {
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @ViewChild('tableInfo')
+  private tableInfo: ElementRef;
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // @Input()
+  // public dataconnection:Dataconnection;
+  //
+  // @Input()
+  // public websocketId: string;
+
+  @Input()
+  public inputParams: any;
+
+  @Input()
+  public set setClose(event: any) {
+    // schema close 일때만 작동
+    if (event && event.name === 'closeSchema') {
+      this.tableSchemaClose();
+      delete event.name;
+    }
+  }
+
+  @Output()
+  public sqlIntoEditorEvent: EventEmitter<string> = new EventEmitter();
+
+  @Output()
+  public tableDataEvent: EventEmitter<any> = new EventEmitter();
+
+  // List of tables
+  public tables: any[] = [];
+
+  public selectedTable: string = '';
+
+  public schemaParams: {};
+  public tableParams: {};
+
+  // For searching
+  public searchText: string = '';
+
+  // 테이블 정보 Info Layer
+  public selectedTableInfoLayer: boolean = false;
+
+  public selectedTableSchemaLayer: boolean = false;
+
+  // totalPage가 1 MEMORY 아닐 경우 PAGE
+  public pageMode: string = 'PAGE';
+
+  public localPageSize: number = this.page.size;
+
+  public localPagepage: number = 0;
+
+  public localData: any[] = [];
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Constructor
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(protected dataconnectionService: DataconnectionService,
+              protected element: ElementRef,
+              protected injector: Injector) {
+    super(element, injector);
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Override Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  public ngOnInit(): void {
+    super.ngOnInit();
+
+  }
+
+  public ngOnChanges(): void {
+    // 데이터 베이스 가져오기.
+    if (!isUndefined(this.inputParams)) {
+      this.page.page = 0;
+      this.getTables();
+    }
+  }
+
+  public ngOnDestroy() {
+
+    // Destory
+    super.ngOnDestroy();
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // public setChangeDatabase() {
+  //   this.page.page = 0;
+  //   this.getTables();
+  // }
+
+  // close table info popup
+  public tableInfoClose($event) {
+    document.getElementById(`workbenchQuery`).className="ddp-ui-query";
+    this.selectedTableInfoLayer = false;
+  }
+
+  // close schema info popup
+  public tableSchemaClose() {
+    document.getElementById(`workbenchQuery`).className="ddp-ui-query";
+    this.selectedTableSchemaLayer = false;
+  }
+
+  /**
+   * 스키마 클릭시 insert 이벤트
+   * @param $event
+   */
+  public tableSchemaInsert($event) {
+    this.sqlIntoEditorEvent.emit($event + ',');
+  }
+
+  // 데이터 베이스 리스트 가져오기
+  public getTables() {
+    this.page.size = 5000;
+    if (isUndefined(this.inputParams.dataconnection.id)) {
+      return;
+    }
+
+    if (this.page.page === 0) {
+      this.tables = [];
+    }
+    this.loadingShow();
+    this.dataconnectionService.getSearchTables(this.inputParams.dataconnection.id, this.inputParams.dataconnection.database, this.searchText, this.page)
+      .then((data) => {
+        this.loadingHide();
+        if (data['page']['totalPages'] === 1) {
+          this.pageMode = 'MEMORY';
+          this.localPagepage = 0;
+          this.pageResult = data['page'];
+          this.localData = data['tables'];
+          this.tables = this.localData.slice(this.localPagepage * this.localPageSize, this.localPagepage + this.localPageSize);
+        } else {
+          this.pageMode = 'PAGE';
+          this.pageResult = data['page'];
+          this.tables = this.tables.concat(data['tables']);
+        }
+        this.tableDataEvent.emit(data['tables']);
+      })
+      .catch((error) => {
+        this.loadingHide();
+        if (!isUndefined(error.details)) {
+          Alert.error(error.details);
+        } else {
+          Alert.error(error);
+        }
+      });
+  }
+
+  /**
+   * 이전버튼 disable 여부
+   * @returns {boolean}
+   */
+  public get isDisabledPrev() {
+    if (this.pageMode === 'PAGE') {
+      return this.page.page === 0;
+    } else {
+      return this.localPagepage === 0;
+    }
+  }
+
+  /**
+   * 다음버튼 disable 여부
+   * @returns {boolean}
+   */
+  public get isDisabledNext() {
+    if (this.pageMode === 'PAGE') {
+      return this.page.page + 1 >= this.pageResult.totalPages;
+    } else {
+      return this.localPagepage * this.localPageSize + this.localPageSize > this.pageResult.totalElements;
+    }
+  }
+
+  public setPage(param: string) {
+    if (isUndefined(this.inputParams.dataconnection.id)) {
+      return;
+    }
+
+    if (param === 'next') {
+      if (this.page.page + 1 >= this.pageResult.totalPages) {
+        return;
+      }
+      this.page.page = this.page.page + 1;
+    } else if (param === 'prev') {
+      if (this.page.page === 0) {
+        return;
+      }
+      this.page.page = this.page.page - 1;
+    }
+
+    this.loadingShow();
+    this.dataconnectionService.getSearchTables(this.inputParams.dataconnection.id, this.inputParams.dataconnection.database, this.searchText, this.page)
+      .then((data) => {
+        this.loadingHide();
+        this.pageResult = data['page'];
+        this.tables = data['tables'];
+      })
+      .catch((error) => {
+        this.loadingHide();
+        if (!isUndefined(error.details)) {
+          Alert.error(error.details);
+        } else {
+          Alert.error(error);
+        }
+
+      });
+  }
+
+  public setPageMemory(param: string) {
+    if (param === 'next') {
+      if (this.localPagepage * this.localPageSize + this.localPageSize > this.pageResult.totalElements)
+        return;
+
+      this.localPagepage = this.localPagepage + 1;
+      this.tables = this.localData.slice(this.localPagepage * this.localPageSize, this.localPagepage * this.localPageSize + this.localPageSize);
+    } else if (param === 'prev') {
+      if (this.localPagepage === 0)
+        return;
+
+      this.localPagepage = this.localPagepage - 1;
+      this.tables = this.localData.slice(this.localPagepage * this.localPageSize, this.localPagepage * this.localPageSize + this.localPageSize);
+    }
+  }
+
+  // Show/hide Table information popup
+  public showTableInfo(item: string, index: number): void {
+    this.selectedTableInfoLayer = false;
+    this.selectedTableInfoLayer = true;
+    event.stopImmediatePropagation();
+    const offset: ClientRect = document.getElementById(`info${index}`).getBoundingClientRect();
+    this.tableParams = {
+      dataconnection: this.inputParams.dataconnection,
+      selectedTable: item,
+      // top:offset.top,
+      top: 250,
+      websocketId: this.inputParams.webSocketId
+    };
+  }
+
+  // Show/hide Schema information popup
+  public showTableSchemaInfo(item: string, index: number): void {
+    event.stopImmediatePropagation();
+    this.selectedTableInfoLayer = false;
+    this.selectedTableSchemaLayer = false;
+    this.selectedTableSchemaLayer = true;
+    //const offset: ClientRect = document.getElementById(`info${index}`).getBoundingClientRect();
+    document.getElementById(`workbenchQuery`).className="ddp-ui-query ddp-tablepop";
+    this.schemaParams = {
+      dataconnection: this.inputParams.dataconnection,
+      selectedTable: item,
+      top: 250,
+      websocketId: this.inputParams.webSocketId
+    };
+  }
+
+  // 테이블 선택시.
+  public setTableSql(item) {
+    this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '.' + item + ';');
+  }
+
+  /**
+   * 테이블 검색 이벤트
+   * @param {KeyboardEvent} event
+   */
+  public searchTableText(event: KeyboardEvent) {
+    (event.keyCode === 13) && (this.searchTable());
+  }
+
+  /**
+   * 테이블 검색 초기화
+   */
+  public searchTableTextInit() {
+    // 검색어 초기화
+    this.searchText = '';
+    // 테이블 조회
+    this.searchTable();
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 테이블 검색
+   */
+  private searchTable(): void {
+    // page 초기화
+    this.page.page = 0;
+    // 테이블 조회
+    this.getTables();
+  }
+
+}

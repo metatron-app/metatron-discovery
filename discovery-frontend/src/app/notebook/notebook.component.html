@@ -1,0 +1,219 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- top -->
+<div class="ddp-top-flow">
+  <!-- navi wrap -->
+  <div class="ddp-wrap-naviarea ddp-naviarea3 ddp-clear">
+    <!-- 우측 정보 영역 -->
+    <div class="ddp-data-form" *ngIf="isChangeAuthUser">
+        <span class="ddp-txt-date">
+          {{'msg.common.ui.updated' | translate: { modifiedTime : resultData.modifiedTime | mdate : 'YYYY-MM-DD HH:mm', fullName : (resultData.modifiedBy && resultData.modifiedBy.hasOwnProperty('username')? resultData.modifiedBy.username : resultData.modifiedBy) } }}
+        </span>
+      <a href="javascript:" class="ddp-btn-info" [class.ddp-selected]="isOptionShow" (click)="isOptionShow=!isOptionShow;$event.stopPropagation()"><em class="ddp-icon-myinfo"></em></a>
+      <div class="ddp-data-box" *ngIf="isOptionShow" (clickOutside)="isOptionShow=false">
+        <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event,resultData.id)"><em class="ddp-icon-delete"></em>{{'msg.nbook.ui.del'|translate}}</a>
+        <span class="ddp-data-by">
+            {{'msg.common.ui.created' | translate: { createdTime : resultData.createdTime | mdate : 'YYYY-MM-DD HH:mm', fullName : ( resultData.createdBy && resultData.createdBy.hasOwnProperty('username') ? resultData.createdBy.username : resultData.createdBy) } }}
+          </span>
+      </div>
+    </div>
+    <!-- // 우측 정보 영역 -->
+    <!-- 좌측 이름/설명 영역 -->
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-link-naviarea" (click)="goBack()"><em class="ddp-icon-navi"></em></a>
+      <em class="ddp-box-tag ddp-notebook">{{'msg.space.ui.tag.notebook'|translate}}</em>
+      <div class="ddp-ui-naviarea">
+        <!-- name -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-box-navi" [ngClass]="{'ddp-selected': isNotebookNameEditMode}" >
+          <div class="ddp-wrap-naviname" (click)="onNotebookNameEdit($event)">
+          <span class="ddp-data-naviname">{{notebookName}}
+            <em class="ddp-icon-edit2"></em>
+          </span>
+          </div>
+          <!-- 편집 input -->
+          <div class="ddp-wrap-input">
+            <input type="text" class="ddp-input-navi"
+                   #nbName
+                   placeholder="{{'msg.nbook.alert.input.name'|translate}}"
+                   [(ngModel)]="notebookName"
+                   (keyup.enter)="isNotebookNameEditMode? updateNotebook() : null;"
+                   (clickOutside)="isNotebookNameEditMode? setNotebookName() : null;" maxlength="50">
+            <span class="ddp-btn-check" (click)="$event.stopPropagation();updateNotebook();"></span>
+          </div>
+          <!-- //편집 input -->
+
+        </div>
+        <!-- //name -->
+
+        <!-- description -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-box-navidet" [ngClass]="{'ddp-selected': isNotebookDescEditMode}" >
+          <div class="ddp-wrap-navidet" (click)="onNotebookDescEdit($event)">
+          <span class="ddp-data-navidet">{{notebookDesc||'msg.nbook.alert.input.description'|translate}}
+            <em class="ddp-icon-edit2"></em>
+          </span>
+          </div>
+
+          <!-- 편집 input -->
+          <div class="ddp-wrap-input">
+            <input type="text" class="ddp-input-navi"
+                   placeholder="{{'msg.nbook.alert.input.description'|translate}}"
+                   #nbDesc
+                   [(ngModel)]="notebookDesc"
+                   (keyup.enter)="isNotebookDescEditMode ? updateNotebook() : null;"
+                   (clickOutside)="isNotebookDescEditMode? setNotebookDescription() : null" maxlength="300">
+            <span class="ddp-btn-check" (click)="$event.stopPropagation();updateNotebook();"></span>
+          </div>
+          <!-- //description -->
+        </div>
+
+      </div>
+    </div>
+    <!-- 좌측 이름/설명 영역 -->
+  </div>
+  <!-- // navi wrap -->
+
+</div>
+<!-- top -->
+
+<div class="ddp-wrap-datadetail">
+
+  <table class="ddp-table-detail">
+    <colgroup>
+      <col width="133px" />
+      <col width="*" />
+    </colgroup>
+    <tbody>
+    <tr>
+      <th>
+        {{'msg.nbook.th.data_type'|translate}}
+      </th>
+      <td>
+        {{resultData['dsType']}}
+      </td>
+    </tr>
+    <tr>
+      <th>
+        {{'msg.nbook.th.datasource'|translate}}
+      </th>
+      <td>
+        {{resultData['dsName']}}
+      </td>
+    </tr>
+    <tr>
+      <th>
+        {{'msg.nbook.th.dev_lang'|translate}}
+      </th>
+      <td>
+        <span class="ddp-data-lang-r" *ngIf="resultData['kernelType']=='R'">{{'msg.nbook.ui.r' | translate}}</span>
+        <span class="ddp-data-lang-python" *ngIf="resultData['kernelType']=='PYTHON'">{{'msg.nbook.ui.python' | translate}}</span>
+        <span class="ddp-data-lang-python" *ngIf="resultData['kernelType']=='SPARK'">{{'msg.nbook.ui.spark' | translate}}</span>
+      </td>
+    </tr>
+    <tr>
+      <th>
+        {{'msg.nbbok.th.code'|translate}}
+      </th>
+      <td>
+        <a href="javascript:" class="ddp-link-detail" (click)="popupWindow();">{{'msg.nbook.ui.detail'|translate}}<em class="ddp-icon-window"></em></a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="ddp-wrap-table-detail">
+    <table class="ddp-table-detail" *ngIf="resultSet !== null">
+      <colgroup>
+        <col width="133px" />
+        <col width="*" />
+      </colgroup>
+      <tbody>
+      <tr>
+        <th>
+          {{'msg.comm.ui.name'|translate}}
+        </th>
+        <td>
+          {{resultSet.name}}
+        </td>
+      </tr>
+      <tr>
+        <th>
+          {{'msg.comm.ui.description'|translate}}
+        </th>
+        <td>
+          {{resultSet.desc}}
+        </td>
+      </tr>
+      <tr>
+        <th>
+          {{'msg.nbook.th.url'|translate}}
+        </th>
+        <td>
+          {{resultSet.url}}
+          <!--<a href="{{resultSet.url}}" target="_blank"  class="ddp-link-url">{{resultSet.url}}</a>-->
+        </td>
+      </tr>
+      <tr>
+        <th>
+          {{'msg.nbook.th.return_type'|translate}}
+        </th>
+        <td>
+          {{resultSet.returnType}}
+        </td>
+      </tr>
+      <tr>
+        <th>
+          {{'msg.nbook.th.api_rslt'|translate}}
+        </th>
+        <td>
+          <a href="javascript:" class="ddp-btn-pop ddp-bg-black ddp-type" (click)="runResult()">{{'msg.comm.th.rslt' | translate}}</a>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+
+    <table class="ddp-table-detail" *ngIf="resultSet === null">
+      <colgroup>
+        <col width="133px" />
+        <col width="*" />
+      </colgroup>
+      <tbody>
+      <tr>
+        <th>
+          {{'msg.nbook.th.api'|translate}}
+        </th>
+        <td>
+          <div class="ddp-data-none">
+            {{'msg.nbook.ui.no.api.detail'|translate}}
+          </div>
+          <div *ngIf="isChangeAuthUser" class="ddp-ui-button">
+            <a href="javascript:" class="ddp-btn-pop ddp-bg-black ddp-type" (click)="setCreateApi()">{{'msg.nbook.ui.create.api'|translate}}</a>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <br/>
+    <div class="ddp-data-box" *ngIf="resultSet !== null && isChangeAuthUser">
+      <a href="javascript:" class="ddp-list-link" (click)="modifyApi()"><em class="ddp-icon-edit-s"></em>{{'msg.nbook.ui.edit.api'|translate}}</a>
+      <a href="javascript:" class="ddp-list-link" (click)="showConfirmDeleteApi()"><em class="ddp-icon-editdel"></em>{{'msg.nbook.ui.del.api'|translate}}</a>
+    </div>
+  </div>
+</div>
+<app-delete-modal (deleteConfirm)="deleteConfirmHandler($event)"></app-delete-modal>
+<app-create-notebook-api *ngIf="createApiLayerShow === true" [notebookId]="selectedModelId" [result]="resultSet" [kernel]="resultData['kernelType']"></app-create-notebook-api>
+<app-result-notebook-api *ngIf="resultLayerShow === true" [result]="resultSet" (closeResultEvent)="resultClose()"></app-result-notebook-api>

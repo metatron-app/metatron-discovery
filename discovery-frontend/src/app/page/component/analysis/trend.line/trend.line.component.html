@@ -1,0 +1,304 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-option-down ddp-lnb-down" [class.ddp-selected]="'trandLine' === dataSubLayerKey">
+    <div class="ddp-ui-down-title" (click)="clickDataSubPanel('trandLine', $event)">
+        <em class="ddp-icon-menumove"></em>
+        추세선
+    </div>
+    <div class="ddp-ui-down-contents" style="display:;">
+        <!-- active -->
+        <!-- 활성화 off 일 때 ddp-disabled 추가 -->
+        <div class="ddp-ui-active">
+            <div class="ddp-wrap-option-slider">
+                <span class="ddp-label-slider">활성화</span>
+                <!-- Slide THREE -->
+                <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                    <input type="checkbox" value="None" id="check2" name="check">
+                    <label for="check2"><span class="ddp-slide"></span></label>
+                </div>
+                <!-- //Slide THREE -->
+            </div>
+            <!-- 설명 -->
+            <div class="ddp-data-detail">
+                추세선을 사용할 수 있는 차트<br/>
+                - 막대차트, 라인차트, 분산형 차트
+            </div>
+            <!-- //설명 -->
+        </div>
+        <!-- //active -->
+
+        <!-- box button -->
+        <ul class="ddp-list-buttons ddp-dark">
+            <li class="">
+                개별 설정
+            </li>
+            <li class="ddp-selected">
+                일괄 설정
+            </li>
+        </ul>
+        <!-- //box button -->
+        <div class="ddp-list-part">
+            <!-- 측정값 선택 -->
+            <div class="ddp-ui-select-value">
+                <label class="ddp-label-checkbox ddp-type3">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">SUM | 측정값1</span>
+                </label>
+                <div class="ddp-wrap-trendbtn">
+                    <!-- trendbtn -->
+                    <div class="ddp-ui-trendbtn">
+                        <a href="#" class="ddp-btn-linear"></a>
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            Linear
+                        </div>
+                    </div>
+                    <!-- //trendbtn -->
+
+                    <!-- trendbtn -->
+                    <div class="ddp-ui-trendbtn">
+                        <a href="#" class="ddp-btn-logarithmic"></a>
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            Logarithmic
+                        </div>
+                    </div>
+                    <!-- //trendbtn -->
+
+                    <!-- trendbtn -->
+                    <div class="ddp-ui-trendbtn">
+                        <a href="#" class="ddp-btn-exp"></a>
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            Exponential
+                        </div>
+                    </div>
+                    <!-- //trendbtn -->
+
+                    <!-- trendbtn -->
+                    <div class="ddp-ui-trendbtn">
+                        <a href="#" class="ddp-btn-quadratic"></a>
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            Quadratic
+                        </div>
+                    </div>
+                    <!-- //trendbtn -->
+
+                    <!-- trendbtn -->
+                    <div class="ddp-ui-trendbtn">
+                        <a href="#" class="ddp-btn-cubic"></a>
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            Cubic
+                        </div>
+                    </div>
+                    <!-- //trendbtn -->
+                </div>
+                <!-- 측정값 정보 -->
+
+                <div class="ddp-data-info-value">
+                    수식 : Exp (0.2x)<br/>
+                    R 제곱값 : 0.32
+                </div>
+                <!-- //측정값 정보 -->
+                <!-- color select -->
+                <div class="ddp-ui-color-select ">
+                    <div class="ddp-ui-box-color">
+                        <span class="ddp-box-color" style="background:#ffbf00;"></span>
+                    </div>
+                    <!-- selectbox -->
+                    <!-- 선택시 ddp-selected 추가 -->
+                    <div class="ddp-type-selectbox">
+                        <span class="ddp-txt-selectbox">dashed</span>
+                        <ul class="ddp-list-selectbox ddp-selectdown">
+                            <li>
+                                <a href="#">
+                                    1
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    2
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    3
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- //selectbox -->
+                    <!-- selectbox -->
+                    <!-- 선택시 ddp-selected 추가 -->
+                    <div class="ddp-type-selectbox">
+                        <span class="ddp-txt-selectbox">2.5 pt</span>
+                        <ul class="ddp-list-selectbox ddp-selectdown">
+                            <li>
+                                <a href="#">
+                                    1
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    2
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    3
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- //selectbox -->
+                </div>
+                <!-- //color select -->
+
+            </div>
+            <!-- //측정값 선택 -->
+
+        </div>
+
+
+        <div class="ddp-list-part">
+            <!-- 측정값 선택 -->
+            <div class="ddp-ui-select-value">
+                <label class="ddp-label-checkbox ddp-type3">
+                    <input type="checkbox">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">SUM | 측정값1</span>
+                </label>
+                <div class="ddp-wrap-trendbtn">
+                    <!-- trendbtn -->
+                    <div class="ddp-ui-trendbtn">
+                        <a href="#" class="ddp-btn-linear"></a>
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            Linear
+                        </div>
+                    </div>
+                    <!-- //trendbtn -->
+
+                    <!-- trendbtn -->
+                    <div class="ddp-ui-trendbtn">
+                        <a href="#" class="ddp-btn-logarithmic"></a>
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            Logarithmic
+                        </div>
+                    </div>
+                    <!-- //trendbtn -->
+
+                    <!-- trendbtn -->
+                    <div class="ddp-ui-trendbtn">
+                        <a href="#" class="ddp-btn-exp"></a>
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            Exponential
+                        </div>
+                    </div>
+                    <!-- //trendbtn -->
+
+                    <!-- trendbtn -->
+                    <div class="ddp-ui-trendbtn">
+                        <a href="#" class="ddp-btn-quadratic"></a>
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            Quadratic
+                        </div>
+                    </div>
+                    <!-- //trendbtn -->
+
+                    <!-- trendbtn -->
+                    <div class="ddp-ui-trendbtn">
+                        <a href="#" class="ddp-btn-cubic"></a>
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            Cubic
+                        </div>
+                    </div>
+                    <!-- //trendbtn -->
+                </div>
+
+
+                <!-- 측정값 정보 -->
+
+                <div class="ddp-data-info-value">
+                    수식 : Exp (0.2x)<br/>
+                    R 제곱값 : 0.32
+                </div>
+                <!-- //측정값 정보 -->
+                <!-- color select -->
+                <div class="ddp-ui-color-select">
+                    <div class="ddp-ui-box-color">
+                        <span class="ddp-box-color" style="background:#ffbf00;"></span>
+                    </div>
+                    <!-- selectbox -->
+                    <!-- 선택시 ddp-selected 추가 -->
+                    <div class="ddp-type-selectbox">
+                        <span class="ddp-txt-selectbox">dashed</span>
+                        <ul class="ddp-list-selectbox ddp-selectdown">
+                            <li>
+                                <a href="#">
+                                    1
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    2
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    3
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- //selectbox -->
+                    <!-- selectbox -->
+                    <!-- 선택시 ddp-selected 추가 -->
+                    <div class="ddp-type-selectbox">
+                        <span class="ddp-txt-selectbox">2.5 pt</span>
+                        <ul class="ddp-list-selectbox ddp-selectdown">
+                            <li>
+                                <a href="#">
+                                    1
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    2
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    3
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- //selectbox -->
+                </div>
+                <!-- //color select -->
+            </div>
+            <!-- //측정값 선택 -->
+
+        </div>
+    </div>
+</div>

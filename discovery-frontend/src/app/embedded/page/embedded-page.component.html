@@ -1,0 +1,137 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-box-widget ddp-box-graph">
+
+  <!-- 열람 모드일 때 이름 표시 영역 -->
+  <div class="ddp-ui-graph-name" >
+    <span class="ddp-data-name">{{widget.name}}</span>
+    <!-- tooltip -->
+    <div class="ddp-ui-tooltip-info">
+      <em class="ddp-icon-view-top"></em>{{widget.name}}
+    </div>
+    <!-- //tooltip -->
+  </div>
+  <!-- // 열람 모드일 때 이름 표시 영역 -->
+
+  <!-- Chart 영역 -->
+  <div class="ddp-view-widget ddp-view-widget-chart" *ngIf="widget"
+       [class.ddp-view-name]="isShowWidgetName()" >
+    <bar-chart #chart
+               *ngIf="chartType === 'bar' && this.uiOption" [uiOption]="uiOption"
+               (noData)="showNoData()" >
+    </bar-chart>
+
+    <grid-chart #chart
+                *ngIf="chartType === 'grid' && this.uiOption" [uiOption]="uiOption"
+                (noData)="showNoData()" >
+    </grid-chart>
+
+    <line-chart #chart
+                *ngIf="chartType === 'line' && this.uiOption" [uiOption]="uiOption"
+                (noData)="showNoData()" >
+    </line-chart>
+
+    <scatter-chart #chart
+                   *ngIf="chartType === 'scatter' && this.uiOption" [uiOption]="uiOption"
+                   (noData)="showNoData()" >
+    </scatter-chart>
+
+    <heatmap-chart #chart
+                   *ngIf="chartType === 'heatmap' && this.uiOption" [uiOption]="uiOption"
+                   (noData)="showNoData()" >
+    </heatmap-chart>
+
+    <pie-chart #chart
+               *ngIf="chartType === 'pie' && this.uiOption" [uiOption]="uiOption"
+               (noData)="showNoData()" >
+    </pie-chart>
+
+    <!-- MapView 예정 -->
+
+    <control-chart #chart
+                   *ngIf="chartType === 'control' && this.uiOption" [uiOption]="uiOption"
+                   (noData)="showNoData()" >
+    </control-chart>
+
+    <label-chart #chart
+                 *ngIf="chartType === 'label' && this.uiOption" [uiOption]="uiOption"
+                 [query]="query"
+                 [widget]="widget"
+                 (noData)="showNoData()" >
+    </label-chart>
+
+    <boxplot-chart #chart
+                   *ngIf="chartType === 'boxplot' && this.uiOption" [uiOption]="uiOption"
+                   (noData)="showNoData()" >
+    </boxplot-chart>
+
+    <waterfall-chart #chart
+                     *ngIf="chartType === 'waterfall' && this.uiOption" [uiOption]="uiOption"
+                     (noData)="showNoData()" >
+    </waterfall-chart>
+
+    <wordcloud-chart #chart
+                     *ngIf="chartType === 'wordcloud' && this.uiOption" [uiOption]="uiOption"
+                     (noData)="showNoData()" >
+    </wordcloud-chart>
+
+    <combine-chart #chart
+                   *ngIf="chartType === 'combine' && this.uiOption" [uiOption]="uiOption"
+                   (noData)="showNoData()" >
+    </combine-chart>
+
+    <treemap-chart #chart
+                   *ngIf="chartType === 'treemap' && this.uiOption" [uiOption]="uiOption"
+                   (noData)="showNoData()" >
+    </treemap-chart>
+
+    <radar-chart #chart
+                 *ngIf="chartType === 'radar' && this.uiOption" [uiOption]="uiOption"
+                 (noData)="showNoData()" >
+    </radar-chart>
+
+    <network-chart #chart
+                   *ngIf="chartType === 'network' && this.uiOption" [uiOption]="uiOption"
+                   (noData)="showNoData()" >
+    </network-chart>
+    <sankey-chart #chart
+                  *ngIf="chartType === 'sankey' && this.uiOption" [uiOption]="uiOption"
+                  (noData)="showNoData()" >
+    </sankey-chart>
+    <gauge-chart #chart
+                 *ngIf="chartType === 'gauge' && this.uiOption" [uiOption]="uiOption"
+                 (noData)="showNoData()" >
+    </gauge-chart>
+
+  </div>
+  <!-- // Chart 영역 -->
+
+  <!-- No Data 영역 -->
+  <div [style.display]="isShowNoData ? 'block' : 'none'" class="ddp-view-widget ddp-view-widget-grid">
+    <!-- data none -->
+    <div class="ddp-box-data-none">
+      <div class="ddp-wrap-data-none">
+        <div class="ddp-ui-data-none">
+          <div class="ddp-txt-none">
+            {{'msg.page.ui.no.data.show' | translate}}
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- //data none -->
+  </div>
+  <!-- // No Data 영역 -->
+
+</div>

@@ -1,0 +1,199 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- contents -->
+<div class="ddp-type-contents2">
+
+  <div class="ddp-top-flow">
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-btn-back" (click)="onClickPrevGroupList()"></a>
+      <!-- navi -->
+      <div class="ddp-ui-naviarea">
+        <!-- name -->
+        <div class="ddp-box-navi">
+          <div class="ddp-wrap-naviname">
+            <span class="ddp-data-naviname ddp-readonly">{{groupData.name}}</span>
+          </div>
+        </div>
+        <!-- //name -->
+      </div>
+      <!-- //navi -->
+    </div>
+    <!-- //navi wrap -->
+  </div>
+
+  <!-- 상세 -->
+  <div class="ddp-wrap-datadetail">
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.groups.ui.detail.created.on' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+           {{groupData.createdTime| mdate:'YYYY-MM-DD HH:mm'}} {{'msg.groups.ui.detail.by' | translate}}
+            <div class="ddp-wrap-link-detail2">
+              <a href="javascript:" class="ddp-link-info">{{groupData.createdBy?.fullName}}
+              </a>
+              <user-information [name]="groupData.createdBy?.fullName"
+                                [id]="groupData.createdBy?.username"
+                                [email]="groupData.createdBy?.email">
+              </user-information>
+            </div>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.groups.ui.detail.last.updated' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option">
+          <div class="ddp-data-txt">
+            {{groupData.modifiedTime| mdate:'YYYY-MM-DD HH:mm'}} {{'msg.groups.ui.detail.by' | translate}}
+            <div class="ddp-wrap-link-detail2">
+              <a href="javascript:" class="ddp-link-info">{{groupData.modifiedBy?.fullName}}
+              </a>
+              <user-information [name]="groupData.modifiedBy?.fullName"
+                                [id]="groupData.modifiedBy?.username"
+                                [email]="groupData.modifiedBy?.email">
+              </user-information>
+            </div>
+          </div>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+
+      <!-- right -->
+      <div class="ddp-ui-rightoption" *ngIf="isEnableDelete()">
+        <a href="javascript:" class="ddp-btn-selection ddp-reject" (click)="onClickDeleteGroup()"><em class="ddp-icon-delete"></em>{{'msg.groups.btn.detail.delete.group' | translate}}</a>
+      </div>
+      <!-- //right -->
+    </div>
+    <div class="ddp-ui-datadetail">
+      <label class="ddp-label-detail">{{'msg.groups.ui.detail.info' | translate}}</label>
+      <table class="ddp-table-detail">
+        <colgroup>
+          <col width="160px">
+          <col width="*">
+        </colgroup>
+        <tbody>
+        <tr>
+          <th>
+            {{'msg.groups.ui.detail.info.name' | translate}}
+          </th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="editNameFl"
+                 (click)="groupNameEditMode()"
+                 (clickOutside)="editNameFl = false">
+              <!-- data -->
+              <span class="ddp-data-name">{{groupData.name}}
+                  <em class="ddp-icon-edit2" ></em>
+              </span>
+              <!-- //data -->
+              <!-- edit -->
+              <div class="ddp-wrap-input">
+                <input type="text" class="ddp-input-edit" placeholder="{{'msg.groups.ui.create.ph.name' | translate}}"
+                       [(ngModel)]="editName"
+                       [focus]="editNameFl"
+                       (keyup.enter)="updateGroupName()">
+                <span class="ddp-btn-check" (click)="updateGroupName()"></span>
+              </div>
+              <!-- //edit -->
+            </div>
+
+          </td>
+        </tr>
+        <tr>
+          <th>
+            {{'msg.groups.ui.detail.info.desc' | translate}}
+          </th>
+          <td>
+            <!-- 클릭시 ddp-selected 추가 -->
+            <div class="ddp-txt-edit" [class.ddp-selected]="editDescFl"
+                 (click)="groupDescEditMode()"
+                 (clickOutside)="editDescFl = false">
+              <!-- data -->
+              <span class="ddp-data-name">
+                {{groupData.description}}
+                  <em class="ddp-icon-edit2"></em>
+              </span>
+              <!-- //data -->
+              <!-- edit -->
+              <div class="ddp-wrap-input">
+                <input type="text" class="ddp-input-edit" placeholder="{{'msg.groups.ui.create.ph.desc' | translate}}"
+                       [(ngModel)]="editDesc"
+                       [focus]="editDescFl"
+                       (keyup.enter)="updateGroupDesc()">
+                <span class="ddp-btn-check" (click)="updateGroupDesc()"></span>
+              </div>
+              <!-- //edit -->
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th> {{'msg.mem.ui.detail.info.permission' | translate}} </th>
+          <td>{{getPermissions()}}</td>
+        </tr>
+        </tbody>
+      </table>
+      <!-- table detail -->
+      <div class="ddp-wrap-table-detail">
+        <div class="ddp-type-plan">
+          <label class="ddp-label-detail">{{'msg.groups.th.members' | translate}}({{groupData.memberCount}})
+            <a *ngIf="!groupData.readOnly" href="javascript:" class="ddp-btn-option2" (click)="onClickEditMembers()"></a>
+          </label>
+          <a href="mailto:{{getAllEmailAddress()}}" class="ddp-btn-pop "><em class="ddp-icon-email"></em>{{'msg.groups.btn.detail.email.users' | translate}}</a>
+        </div>
+        <table class="ddp-list-form2" *ngIf="members.length > 0">
+          <colgroup>
+            <col width="25%">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <tr *ngFor="let member of members">
+            <td>
+              <div class="ddp-wrap-link-detail2">
+                <a href="javascript:" class="ddp-link-info ddp-normal">{{member.memberId}}
+                </a>
+                <user-information
+                  [left]="true"
+                  [name]="member?.profile.fullName"
+                  [id]="member?.profile.username"
+                  [email]="member?.profile.email">
+                </user-information>
+              </div>
+            </td>
+            <!--<td>{{'msg.mem.ui.detail.last.access' | translate}} 2017–07-08 00:00:00</td>-->
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- //table detail -->
+    </div>
+  </div>
+  <!-- //상세 -->
+</div>
+<!-- //contents -->
+<!-- confirm modal -->
+<app-confirm-modal (confirm)="deleteGroup()"></app-confirm-modal>
+<!-- //confirm modal -->
+<!-- set members -->
+<app-update-user-management-groups (memberComplete)="completeMembersUpdate()"></app-update-user-management-groups>
+<!-- //set members -->

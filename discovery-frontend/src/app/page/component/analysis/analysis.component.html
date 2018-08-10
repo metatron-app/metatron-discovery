@@ -1,0 +1,60 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-dropmenu">
+
+    <div class="ddp-ui-dropmenu" [class.ddp-selected]="'analysis' === dataLayerKey">
+
+        <div class="ddp-ui-drop-title" #panel>
+
+            <!-- label : Analysis -->
+            <!--{{LABEL.ANALYSIS}}-->
+            {{'msg.page.prediction.analysis' | translate}}
+            <em class="ddp-icon-drop-view"></em>
+        </div>
+
+        <div class="ddp-ui-drop-contents">
+
+            <!-- list drop -->
+            <!-- 클릭시 ddp-selected 추가 -->
+
+            <!-- 고급분석 - 예측선 -->
+            <analysis-prediction [dataSubLayerKey]="dataSubLayerKey"
+                                 [selectChart]="selectChart"
+                                 [isChartShow]="isChartShow"
+                                 [widgetConfiguration]="widgetConfiguration"
+                                 [dataLayerKey]="dataLayerKey"
+                                 (changeAnalysisPredictionNoti)="changeAnalysisPredictionNoti();"
+                                 (changeForecastNoti)="changeForecastNoti();"
+                                 (changeConfidenceNoti)="changeConfidenceNoti();">
+            </analysis-prediction>
+            <!-- //고급분석 - 예측선 -->
+
+            <!-- 고급분석 - 추세선 -->
+            <!--<trend-line-component [dataSubLayerKey]="dataSubLayerKey"></trend-line-component>-->
+            <!-- //고급분석 - 추세선 -->
+
+            <!-- 클러스터 TODO 작업중 by juhee-->
+            <!--<analysis-cluster [dataSubLayerKey]="dataSubLayerKey">-->
+            <!--</analysis-cluster>-->
+            <!-- //클러스터 -->
+
+            <!-- //list drop -->
+
+            <!-- list drop -->
+        </div>
+
+    </div>
+
+</div>

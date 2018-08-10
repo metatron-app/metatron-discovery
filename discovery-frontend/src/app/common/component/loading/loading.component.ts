@@ -1,0 +1,142 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {Component, Injector, ElementRef, Input, Output, EventEmitter} from "@angular/core";
+import {AbstractComponent} from "../abstract.component";
+
+@Component({
+    selector    : '[loading]',
+    templateUrl : './loading.component.html'
+})
+export class LoadingComponent extends AbstractComponent {
+
+    /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    | Private Variables
+    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+    /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    | Protected Variables
+    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+    /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    | Public Variables
+    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+    // 로딩을 보여줄지 여부
+    public visible: boolean = false;
+
+    // Cancel 가능여부
+    @Input()
+    public cancel: boolean = false;
+
+    // 취소 이벤트
+    @Output("cancel")
+    public cancelEvent: EventEmitter<void> = new EventEmitter<void>();
+
+    /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    | Getter & Setter
+    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+    /**
+     * 로딩을 보여줄지 여부
+     * @param isShow
+     */
+    @Input("visible")
+    public set setVisible(visible: boolean) {
+
+        // Set
+        this.visible = visible;
+
+        // Init 전이라면 중단
+        if( !this.isLoaded ) { return; }
+
+        // Element Visible
+        this.visible ? this.$element.show() : this.$element.hide();
+    }
+
+    /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    | Constructor
+    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+    // 생성자
+    constructor(
+        protected elementRef: ElementRef,
+        protected injector: Injector ) {
+
+        super(elementRef, injector);
+    }
+
+    /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    | Override Method
+    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+    // Init
+    public ngOnInit() {
+
+        // Init
+        super.ngOnInit();
+
+        // Element Visible
+        this.visible ? this.$element.show() : this.$element.hide();
+    }
+
+    // Destory
+    public ngOnDestroy() {
+
+        // Destory
+        super.ngOnDestroy();
+    }
+
+    /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    | Public Method
+    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+    /**
+     * 로딩
+     */
+    public show(): void {
+
+        // Set
+        this.visible = true;
+
+        // Init 전이라면 중단
+        if( !this.isLoaded ) { return; }
+
+        // Element Visible
+        this.visible ? this.$element.show() : this.$element.hide();
+    }
+
+    /**
+     * 로딩 해제
+     */
+    public hide(): void {
+
+        // Set
+        this.visible = false ;
+
+        // Init 전이라면 중단
+        if( !this.isLoaded ) { return; }
+
+        // Element Visible
+        this.visible ? this.$element.show() : this.$element.hide();
+    }
+
+    /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    | Protected Method
+    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+    /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    | Private Method
+    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+}

@@ -1,0 +1,31 @@
+INSERT INTO datasource(id, ds_name, ds_alias, ds_owner_id, ds_desc, ds_filter_at_select, ds_type, ds_conn_type, ds_granularity, ds_status, ds_published, version, created_time, created_by, modified_time, modified_by) values
+('ds-sales-for-test', 'sale_02', 'sales', 'polaris', 'sales data (2011~2014)', true, 'MASTER', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris');
+
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037028, 'ds-sales-for-test', 0, 'OrderDate', 'TIMESTAMP', 'TIMESTAMP' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037001, 'ds-sales-for-test', 1, 'Category', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037002, 'ds-sales-for-test', 2, 'City', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037003, 'ds-sales-for-test', 3, 'Country', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037004, 'ds-sales-for-test', 4, 'CustomerName', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037005, 'ds-sales-for-test', 5, 'Discount', 'DOUBLE', 'MEASURE' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037006, 'ds-sales-for-test', 6, 'OrderID', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037007, 'ds-sales-for-test', 7, 'PostalCode', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037008, 'ds-sales-for-test', 8, 'ProductName', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037009, 'ds-sales-for-test', 9, 'Profit', 'DOUBLE', 'MEASURE' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037010, 'ds-sales-for-test', 10, 'Quantity', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037011, 'ds-sales-for-test', 11, 'Region', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037012, 'ds-sales-for-test', 12, 'Sales', 'DOUBLE', 'MEASURE' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037013, 'ds-sales-for-test', 13, 'Segment', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type, field_format ) values(11037014, 'ds-sales-for-test', 14, 'ShipDate', 'TIMESTAMP', 'DIMENSION',  'yyyy. MM. dd.');
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037015, 'ds-sales-for-test', 15, 'ShipMode', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037016, 'ds-sales-for-test', 16, 'State', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037017, 'ds-sales-for-test', 17, 'Sub-Category', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037018, 'ds-sales-for-test', 18, 'DaystoShipActual', 'DOUBLE', 'MEASURE' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037019, 'ds-sales-for-test', 19, 'SalesForecast', 'DOUBLE', 'MEASURE' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037020, 'ds-sales-for-test', 20, 'ShipStatus', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037021, 'ds-sales-for-test', 21, 'DaystoShipScheduled', 'DOUBLE', 'MEASURE' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037022, 'ds-sales-for-test', 22, 'OrderProfitable', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037023, 'ds-sales-for-test', 23, 'SalesperCustomer', 'DOUBLE', 'MEASURE' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037024, 'ds-sales-for-test', 24, 'ProfitRatio', 'DOUBLE', 'MEASURE' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037025, 'ds-sales-for-test', 25, 'SalesaboveTarget', 'TEXT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037026, 'ds-sales-for-test', 26, 'latitude', 'LNT', 'DIMENSION' );
+INSERT INTO field(id, ds_id, seq, field_name, field_type, bi_type) values(11037027, 'ds-sales-for-test', 27, 'longitude', 'LNG', 'DIMENSION' );

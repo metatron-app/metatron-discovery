@@ -1,0 +1,116 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package app.metatron.discovery.domain.datasource.ingestion;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
+import java.util.Map;
+
+import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
+
+/**
+ * 배치 수집 방식 정의
+ */
+@JsonTypeName("realtime")
+public class RealtimeIngestionInfo implements IngestionInfo {
+
+  /**
+   * 데이터를 받아올 Topic Name
+   */
+  String topic;
+
+  /**
+   * Consumer Type
+   */
+  ConsumerType consumerType = ConsumerType.KAFKA;
+
+  /**
+   * 실시간 적재 수행할 Consumer 정의
+   */
+  Map<String, Object> consumerProperties;
+
+  /**
+   * 적재할 데이터 포맷 정의
+   */
+  FileFormat format;
+
+  /**
+   * Rollup 여부
+   */
+  Boolean rollup;
+
+  /**
+   * Tuning Config 지정, 기본값 override
+   */
+  Map<String, Object> tuningOptions;
+
+  public RealtimeIngestionInfo() {
+  }
+
+  @Override
+  public FileFormat getFormat() {
+    return format;
+  }
+
+  public void setFormat(FileFormat format) {
+    this.format = format;
+  }
+
+  @Override
+  public Map<String, Object> getTuningOptions() {
+    return tuningOptions;
+  }
+
+  public void setTuningOptions(Map<String, Object> tuningOptions) {
+    this.tuningOptions = tuningOptions;
+  }
+
+  @Override
+  public Boolean getRollup() {
+    return rollup;
+  }
+
+  public void setRollup(Boolean rollup) {
+    this.rollup = rollup;
+  }
+
+  public String getTopic() {
+    return topic;
+  }
+
+  public void setTopic(String topic) {
+    this.topic = topic;
+  }
+
+  public ConsumerType getConsumerType() {
+    return consumerType;
+  }
+
+  public void setConsumerType(ConsumerType consumerType) {
+    this.consumerType = consumerType;
+  }
+
+  public Map<String, Object> getConsumerProperties() {
+    return consumerProperties;
+  }
+
+  public void setConsumerProperties(Map<String, Object> consumerProperties) {
+    this.consumerProperties = consumerProperties;
+  }
+
+  public enum ConsumerType {
+    KAFKA
+  }
+}

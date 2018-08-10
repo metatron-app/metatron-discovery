@@ -1,0 +1,167 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-layout-popuptype" *ngIf="isShow" >
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup ddp-ui-popup-join">
+    <!-- 상단 제목 영역 -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+        {{ 'msg.comm.ui.sel.ds.description' | translate }}
+        <span class="ddp-txt-det">{{ 'msg.board.filter.ui.ingestion.des' | translate }}</span>
+      </span>
+
+      <div class="ddp-ui-pop-buttons">
+        <a (click)="close()" href="javascript:" class="ddp-btn-pop">{{ 'msg.comm.btn.cancl' | translate }}</a>
+        <a (click)="done()" href="javascript:" class="ddp-btn-pop ddp-bg-black">{{'msg.comm.btn.done' | translate }}</a>
+      </div>
+    </div>
+    <!-- // 상단 제목 영역 -->
+
+    <!-- 내용 영역 -->
+    <div class="ddp-popup-dashboard ddp-type">
+      <!-- 옵션 -->
+      <div class="ddp-type-top-option ddp-clear">
+        <!-- 검색 -->
+        <div class="ddp-form-search ddp-fleft">
+          <em class="ddp-icon-search"></em>
+          <input #inputSearch type="text" placeholder="{{'msg.comm.search.ds' | translate}}"
+                 [ngModel]="searchText"
+                 (keypress)="searchEventPressKey($event)"
+                 (keyup.esc)="resetSearchText(false)"
+                 (clickOutside)="resetSearchText(false)">
+          <em class="ddp-btn-search-close" *ngIf="searchText" (click)="resetSearchText(true);"></em>
+        </div>
+        <!-- //검색 -->
+
+        <!-- 필터 -->
+        <div class="ddp-ui-rightoption">
+
+          <!-- 공개 -->
+          <label class="ddp-label-checkbox" (click)="togglePublished($event)">
+            <input type="checkbox" checked="checked" [checked]="searchPublished" >
+            <i class="ddp-icon-checkbox"></i>
+            <span class="ddp-txt-checkbox">{{'msg.board.th.allowance' | translate}}</span>
+          </label>
+          <!-- //공개 -->
+
+          <!-- Type -->
+          <div class="ddp-form-label2">
+            <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
+            <div class="ddp-wrap-dropdown">
+              <!-- select box -->
+              <component-select
+                [array]="typeFilter"
+                [viewKey]="'label'"
+                (onSelected)="onChangeType($event)">
+              </component-select>
+              <!-- //select box -->
+            </div>
+          </div>
+          <!-- // Type -->
+
+        </div>
+        <!-- // 필터 -->
+
+      </div>
+      <!-- //옵션 -->
+
+      <!-- 그리드 영역 -->
+      <div class="ddp-wrap-grid" [class.ddp-selected]="'' !== summaryTargetDsId">
+
+        <div class="ddp-wrap-viewtable">
+          <!-- 테이블 -->
+          <div class="ddp-box-viewtable">
+            <!-- Grid Head -->
+            <div class="ddp-ui-gridhead">
+              <table class="ddp-table-form ddp-table-type2">
+                <colgroup>
+                  <col width="40px">
+                  <col width="50px">
+                  <col width="*">
+                  <col width="30%">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th class="ddp-txt-center"> </th>
+                    <th class="ddp-txt-center"> {{'msg.comm.th.no' | translate}} </th>
+                    <th (click)="changeOrder('name');">
+                      {{'msg.comm.th.ds' | translate}}
+                      <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
+                      <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
+                      <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
+                    </th>
+                    <th> {{'msg.comm.th.type' | translate}} </th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+            <!-- // Grid Head -->
+
+            <!-- Grid Body -->
+            <div class="ddp-ui-gridbody">
+              <table class="ddp-table-form ddp-table-type2 ddp-table-select">
+                <colgroup>
+                  <col width="40px">
+                  <col width="50px">
+                  <col width="*">
+                  <col width="30%">
+                </colgroup>
+
+                <tbody>
+                  <tr *ngFor="let item of dataSources"
+                      (click)="selectDatasource(item);"
+                      [ngClass]="{'ddp-selected': summaryTargetDsId == item.id}">
+                    <td class="ddp-txt-center">
+                      <div class="ddp-ui-checkbox">
+                        <input type="checkbox"  [checked]="isSelectedDatasource(item)" />
+                        <i class="ddp-icon-checkbox"></i>
+                      </div>
+                    </td>
+                    <td class="ddp-txt-center">{{item.num}}</td>
+                    <td>
+                      <div class="ddp-txt-long" [class.ddp-global]="item.published">
+                        {{item.name}}
+                        <span class="ddp-txt-colortype" *ngIf="item.description">- {{item.description}}</span>
+                        <em class="ddp-tag-global" *ngIf="item.published">{{'msg.comm.ui.list.ds.opendata' | translate}}</em>
+                      </div>
+                    </td>
+                    <td>
+                      {{item.connType && item.connType.toString() === 'ENGINE' ? ('msg.comm.ui.list.ds.type.engine' | translate) : ('msg.comm.ui.list.ds.type.link' | translate)}}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- // Grid Body -->
+          </div>
+          <!-- //테이블 -->
+          <div (click)="getMoreList()"
+               [ngClass]="{'ddp-disabled' : !(page.page < pageResult.totalPages)}" class="ddp-box-add-link3" >
+            <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+          </div>
+        </div>
+
+      </div>
+      <!-- //그리드 영역 -->
+      <!-- 설명 -->
+      <app-datasource-summary *ngIf="'' !== summaryTargetDsId"
+                              [datasource]="summaryTargetDsId" (close)="onCloseSummary()"></app-datasource-summary>
+      <!-- //설명 -->
+
+    </div>
+    <!-- // 내용 영역 -->
+
+  </div>
+</div>

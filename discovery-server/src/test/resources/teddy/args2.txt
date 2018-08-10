@@ -1,0 +1,16 @@
+{  
+   "importType":"FILE",
+   "delimiter":",",
+   "filePath":"hdfs://localhost:9000/user/hive/warehouse/uploads/3405e15c-da62-49c5-856f-b1fbbb0d2313.csv",
+   "upstreamDatasetInfos":[
+
+   ],
+   "ruleStrings":[
+      "replace col: column7 with: '' on: '_' global: true",
+      "replace col: column8 with: '' on: '_' global: true",
+      "header rownum: 1",
+      "rename col: Robbery_ to: '강도'",
+      "replace col: Date with: '-' on: /\\./ global: true"
+   ],
+   "origTeddyDsId":"cdb11508-b701-49e7-b667-e61d005cf16f"
+}

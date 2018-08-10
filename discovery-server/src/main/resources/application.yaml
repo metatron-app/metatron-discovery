@@ -1,0 +1,394 @@
+# 기본 Active Profile 정의
+# 변경시는 실행시점에 별도 인자값으로 정의
+# ex) --spring.profiles.active=local,mysql-local-db
+# --polaris.analyze.pivot=false --polaris.analyze.forward=JSON
+spring:
+  profiles:
+    active: local,h2-default-db,logging-console-debug,spark-local-yarn,scheduling # cloud-local #, saml-azure #, initial #,dataprep, bcrypt-encoder, encode-password-initial
+  application:
+    name: ${METATRON_NAME:metatron}
+  datasource:
+    initialize: false
+  http:
+    multipart:
+      max-file-size: 300Mb
+      max-request-size: 300Mb
+  mvc:
+    favicon:
+        enabled: false
+  boot:
+    admin:
+      client:
+        enabled: false
+server:
+  port: 8180
+  display-name: polaris
+  error:
+    whitelabel:
+      enabled: false
+  tomcat:
+    ajp:
+      enabled: false
+      protocol: AJP/1.3
+      port: 8280
+    # https://stackoverflow.com/questions/43264890/after-upgrade-from-spring-boot-1-2-to-1-5-2-filenotfoundexception-during-tomcat
+    additional-tld-skip-patterns: "*.jar"
+
+logging:
+  config: classpath:logback-console.xml
+
+endpoints:
+  enabled: false
+
+polaris:
+  title: metatron
+  common:
+    manualLinks:
+     ko: file://${METATRON_HOME:/metatron}/doc/metatronDiscovery.user.manual.ko.pdf
+     en: file://${METATRON_HOME:/metatron}/doc/metatronDiscovery.user.manual.en.pdf
+  oauth2:
+    permitAll:
+      -
+        method: POST
+        api: /api/users/signup
+      -
+        method: GET
+        api: /api/common/manual/download
+      -
+        method: GET
+        api: /api/users/**/duplicated
+      -
+        method: GET
+        api: /api/jobs/**
+      -
+        method: POST
+        api: /api/datasources/*/data
+      -
+        method: POST
+        api: /api/dashboards/*/data
+      -
+        method: POST
+        api: /api/widgets/*/data
+      -
+        method: POST
+        api: /api/auth/**
+      -
+        method: GET
+        api: /api/auth/**
+      -
+        method: POST
+        api: /api/admin/reindex
+      -
+        method: GET
+        api: /api/admin/**
+      -
+        method: POST
+        api: /api/images/**
+  datasource:
+    connections:
+      ORACLE: ["ENGINE", "LIVE"]
+      MYSQL: ["ENGINE", "LIVE"]
+      POSTGRESQL: ["ENGINE", "LIVE"]
+      HIVE: ["ENGINE", "LIVE"]
+      PRESTO: ["LIVE"]
+      PHOENIX: ["LIVE"]
+  engine:
+    api:
+      query:
+        target: broker
+        method: POST
+        uri: /druid/v2/
+      load:
+        target: broker
+        method: POST
+        uri: /druid/v2/load/
+      getProgress:
+        target: broker
+        method: GET
+        uri: /druid/v2/progress/{queryId}
+      getLoadDatasources:
+        target: broker
+        method: GET
+        uri: /druid/v2/datasources/local
+      getLoadDatasourceInfo:
+        target: broker
+        method: GET
+        uri: /druid/v2/datasources/local/{datasourceName}/coverage
+      deleteLoadDatasources:
+        target: broker
+        method: DELETE
+        uri: /druid/v2/datasources/local/{datasourceName}
+      cancelQuery:
+        target: broker
+        method: DELETE
+        uri: /druid/v2/{queryId}
+      ingestion:
+        target: overlord
+        method: POST
+        uri: /druid/indexer/v1/task
+      ingestionStatus:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/task/{taskId}/status
+      ingestionShutdown:
+        target: overlord
+        method: POST
+        uri: /druid/indexer/v1/task/{taskId}/shutdown
+      supervisor:
+        target: overlord
+        method: POST
+        uri: /druid/indexer/v1/supervisor
+      supervisorStatus:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/supervisor/{taskId}/status
+      supervisorShutdown:
+        target: overlord
+        method: POST
+        uri: /druid/indexer/v1/supervisor/{taskId}/shutdown
+      workerStatus:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/workers
+      getDatasources:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/datasources
+      datasourceStatus:
+        target: coordinator
+        method: GET
+        uri: /druid/coordinator/v1/datasources/{datasourceId}
+      datasourceDisable:
+        target: coordinator
+        method: DELETE
+        uri: /druid/coordinator/v1/datasources/{datasourceId}
+      datasourcePurge:
+        target: coordinator
+        method: DELETE
+        uri: /druid/coordinator/v1/datasources/{datasourceId}/purge
+  cache:
+    configFile: default-configs/default-jgroups-tcp.xml
+
+#  cors:
+#    -
+#      mapping: "/api/**"
+#      allowedOrigins: "*"
+#      allowedMethods: "GET,HEAD,POST,OPTIONS,PUT,PATCH,DELETE"       # comma seperated
+#      allowedHeaders: "*"
+#      exposedHeaders: "*"
+#      allowCredentials: false
+#      maxAge: 3600
+---
+spring:
+  profiles: initial
+  datasource:
+    initialize: true
+  jpa:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: create
+          import_files: /scripts/default.sql,/scripts/default_expressions.sql
+          import_files_sql_extractor: org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
+---
+spring:
+  profiles: local
+  mail:
+    host: localhost
+    port: 25
+    username:
+    password:
+polaris:
+  format:
+    datetimes:
+      - 'yy-MM-dd'
+      - 'dd/MM/yyyy'
+  chart:
+    profile: default
+  engine:
+    hostname:
+      broker: http://localhost:8082
+      overlord: http://localhost:8090
+      coordinator: http://localhost:8081
+    ingestion:
+      loader:
+        remoteType: LOCAL
+        localBaseDir: ${java.io.tmpdir:-/tmp}
+      hive:
+        hostname: localhost
+        port: 10000
+        username: hive
+        password: hive
+    query:
+      loader:
+        remoteType: LOCAL
+        localBaseDir: ${java.io.tmpdir:-/tmp}
+  notebook:
+    baseDir: ${java.io.tmpdir:-/tmp}
+    sparkDir: /usr/local/spark
+  mail:
+    from: admin@metatron.com
+    baseUrl: http://localhost:8180
+  workbench:
+    defaultResultSize: 1000
+    maxResultSize: 100000
+    maxFetchSize: 10000
+    tempHdfsPath: /tmp/hive
+    tempCSVPath: /tmp
+---
+# (mysql DB 생성 script)
+# create database polaris CHARACTER SET utf8;
+# grant all privileges on polaris.* TO polaris@localhost identified by 'polaris';
+# grant all privileges on polaris.* TO polaris@'%' identified by 'polaris';
+#
+# flush privileges;
+
+spring:
+  profiles: mysql-default-db
+  datasource:
+    platform: mysql
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/polaris_v2?useUnicode=true&amp;characterEncoding=utf8
+    username: polaris
+    password: polaris
+    max-active: 50
+    max-idle: 10
+    min-idle: 10
+    initial-size: 10
+    test-on-borrow: false
+    test-on-return: false
+    test-while-idle: true
+    max-wait: 1000
+    validation-query: SELECT 1
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        search:
+          default:
+            jmx_enabled: true
+            generate_statistics: true
+            directory_provider: filesystem
+            indexBase: ${METATRON_INDEX_DIR:indexes}
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+        hbm2ddl:
+          auto: update
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
+
+---
+spring:
+  profiles: h2-default-db
+  datasource:
+    platform: h2
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:${METATRON_H2_DATA_DIR:.}/h2db/polaris;AUTO_SERVER=TRUE;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: sa
+    max-active: 10
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        search:
+          default:
+            jmx_enabled: true
+            generate_statistics: true
+            directory_provider: filesystem
+            indexBase: ${METATRON_INDEX_DIR:indexes}
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+        hbm2ddl:
+          auto: update
+        dialect: org.hibernate.dialect.H2Dialect
+        naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
+  h2:
+    console:
+      enabled: false
+      path: /console
+
+---
+spring:
+  profiles: h2-in-memory-db
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:polaris;DB_CLOSE_DELAY\=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    platform: h2
+  jpa:
+    properties:
+      hibernate:
+        search:
+          default:
+            jmx_enabled: false
+            generate_statistics: false
+            directory_provider: ram
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+---
+spring:
+  profiles: logging-console-debug
+logging:
+  config: classpath:logback-console.xml
+
+---
+spring:
+  profiles: logging-console-info
+logging:
+  config: classpath:logback-console-info.xml
+
+---
+spring:
+  profiles: managements
+  boot:
+    admin:
+      client:
+        enabled: true
+      context-path: /admin
+      url: http://localhost:8180/admin
+endpoints:
+  actuator:
+    enabled: true
+  enabled: true
+management:
+  context-path: /managements
+  security:
+    enabled: false
+  health:
+    mail:
+      enabled: false
+
+---
+spring:
+  profiles: dataprep
+polaris:
+  dataprep:
+    hadoopConfDir: /home/hadoop/servers/hadoop/etc/hadoop
+    hive:
+      hostname: localhost
+      username: hive
+    localBaseDir: ${METATRON_HOME}/dataprep
+    stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep
+
+# Password Encoder
+---
+spring:
+  profiles: bcrypt-encoder
+polaris:
+  password-encoder: bcrypt
+
+# 기 등록된 사용자의 Password를 BCrypt 암호화 처리
+# 해당 프로필은 한번만 수행할것
+---
+spring:
+  profiles: encode-password-initial

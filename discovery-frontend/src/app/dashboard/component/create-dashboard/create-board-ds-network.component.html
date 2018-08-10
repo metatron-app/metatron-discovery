@@ -1,0 +1,97 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-box-popupcontents3 ddp-type-multidata" [class.ddp-edit]="isRelationEditMode" >
+
+  <!-- Initial Add Button Area -->
+  <div *ngIf="!isRenderedNetwork" class="ddp-ui-multidata" >
+
+    <div class="ddp-view-multidata" >
+
+      <div class="ddp-wrap-add" >
+        <div class="ddp-ui-add">
+          <a (click)="showPopupAddDataSource()" href="javascript:" class="ddp-add-datasource" >
+            <em class="ddp-icon-add"></em>{{ 'msg.board.create.add-ds' | translate }}
+          </a>
+          <div class="ddp-txt-det">{{ 'msg.board.create.add-ds.desc' | translate }}</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <!-- // Initial Add Button Area -->
+
+  <!-- Edit Relation Message Area -->
+  <div *ngIf="isRelationEditMode" class="ddp-multidata-option">
+    <a (click)="offEditRelationMode()" href="javascript:" class="ddp-link-back">{{ 'msg.board.create.edit-associations' | translate }}</a>
+    <a (click)="offEditRelationMode()" href="javascript:" class="ddp-btn-line ddp-type">
+      <em class="ddp-icon-btn-done"></em> {{ 'msg.comm.btn.done' | translate }}
+    </a>
+  </div>
+  <!-- // Edit Relation Message Area -->
+
+  <!-- Board Network Area -->
+  <div *ngIf="isRenderedNetwork" class="sys-create-board-top-panel ddp-ui-multidata"
+       [ngStyle]="selectedDataSource ? {'height': 'calc(45.7666% - 5px);' } : {}" >
+
+    <div class="ddp-view-multidata" >
+
+      <span *ngIf="isRelationEditMode" class="ddp-txt-message">{{ 'msg.board.create.rel-msg2' | translate }}</span>
+      <div *ngIf="!isRelationEditMode" class="ddp-option-button">
+        <a (click)="showPopupAddDataSource()" href="javascript:" class="ddp-btn-add-r" ></a>
+        <a *ngIf="isPossibleSettingRel" (click)="onEditRelationMode()" href="javascript:" class="ddp-btn-edit-r">
+          <em class="ddp-icon-btn-edit"></em>{{ 'msg.board.create.edit-association' | translate }}
+        </a>
+        <span *ngIf="isPossibleSettingRel" class="ddp-txt-info">{{ 'msg.board.create.rel-msg1' | translate }}</span>
+      </div>
+
+      <div class="ddp-size-button">
+        <a (click)="zoomInNetwork()" href="javascript:" class="ddp-btn-sizeup"></a>
+        <a (click)="zoomOutNetwork()" href="javascript:" class="ddp-btn-sizedown"></a>
+        <a (click)="fitNetwork()" href="javascript:" class="ddp-btn-fit"></a>
+      </div>
+
+      <!-- network -->
+      <div class="sys-ds-board" style="width:100%;height:100%;"></div>
+      <!-- //network -->
+
+    </div>
+
+  </div>
+  <!-- // Board Network Area -->
+
+  <!-- Datasource Information Area -->
+  <div *ngIf="selectedDataSource" class="sys-create-board-bottom-panel ddp-box-resultdata"
+       style="height: calc(54.2334% - 5px);" >
+    <create-board-ds-info [workspaceId]="workspaceId" [dataSource]="selectedDataSource" ></create-board-ds-info>
+  </div>
+  <!-- // Datasource Information Area -->
+
+  <!-- Datasource Relation Area -->
+  <create-board-ds-relation *ngIf="selectedRelation && !isRelationEditMode"
+                            [relation]="selectedRelation" ></create-board-ds-relation>
+  <!-- // Datasource Relation Area -->
+</div>
+
+<!-- 데이터소스 연계 정보 선택 -->
+<create-board-pop-relation (addCancel)="cancelAddRelation($event)"></create-board-pop-relation>
+
+<!-- 데이터소스 선택 -->
+<create-board-pop-ds-select (done)="changeDataSources($event)"></create-board-pop-ds-select>
+
+<!-- 추천 필터 설정 -->
+<app-essential-filter *ngIf="isShowDataIngestion" [datasource]="ingestionTargetDatasource"
+                      (close)="isShowDataIngestion = false" (done)="finishDataIngestion($event)">
+</app-essential-filter>

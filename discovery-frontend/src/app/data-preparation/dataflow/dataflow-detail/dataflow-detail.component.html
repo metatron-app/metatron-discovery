@@ -1,0 +1,156 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents2" *ngIf="dataflow">
+  <!-- top -->
+  <div class="ddp-top-flow">
+    <!-- 수정 data -->
+    <div class="ddp-data-form">
+      <span class="ddp-txt-date">
+      {{'msg.common.ui.updated' | translate: { modifiedTime : dataflow.modifiedTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataflow.modifiedBy } }}
+      </span>
+      <a href="javascript:" [class.ddp-selected]="isDataflowOptionShow" class="ddp-btn-info" (click)="showOption($event);"><em class="ddp-icon-myinfo"></em></a>
+      <div class="ddp-data-box" *ngIf="isDataflowOptionShow" (clickOutside)="hideOption();">
+        <a href="javascript:" class="ddp-list-link" (click)="confirmDelete($event,dataflow.dfId)"><em class="ddp-icon-delete" ></em>{{'msg.dp.ui.df.del' | translate}}</a>
+        <span class="ddp-data-by">{{'msg.common.ui.created' | translate: { createdTime : dataflow.createdTime | mdate:'YYYY-MM-DD HH:mm', fullName : dataflow.createdBy } }}</span>
+
+      </div>
+    </div>
+    <!-- //수정 data -->
+    <!-- navi wrap -->
+    <div class="ddp-wrap-navi">
+      <a href="javascript:" class="ddp-btn-back" (click)="close();"></a>
+      <!-- navi -->
+      <div class="ddp-ui-naviarea">
+        <!-- name -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-box-navi" [class.ddp-selected]="isDataflowNameEditMode">
+          <div class="ddp-wrap-naviname" (click)="!isDataflowNameEditMode ? onDataflowNameEdit($event):$event.stopPropagation();">
+            <span class="ddp-data-naviname">{{dataflowName}}
+              <em class="ddp-icon-edit2"></em>
+            </span>
+          </div>
+          <!-- 편집 input -->
+          <div class="ddp-wrap-input" >
+            <input #dfName type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.name' | translate}}"
+                   (keyup.enter)="isDataflowNameEditMode ? updateDataflow() : null;"
+                   (clickOutside)="isDataflowNameEditMode ? setDataflowName(): null;"
+                   [(ngModel)]="dataflowName"
+                   maxlength="50">
+            <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataflow();"></span>
+          </div>
+          <!-- //편집 input -->
+        </div>
+        <!-- //name -->
+
+        <!-- description -->
+        <!-- 클릭시 ddp-selected 추가 -->
+        <div class="ddp-box-navidet" [class.ddp-selected]="isDataflowDescEditMode">
+          <div class="ddp-wrap-navidet" (click)="!isDataflowDescEditMode ? onDataflowDescEdit($event):$event.stopPropagation();" >
+            <span class="ddp-data-navidet">{{dataflowDesc || 'msg.comm.ui.create.desc' | translate}}
+              <em class="ddp-icon-edit2"></em>
+            </span>
+          </div>
+          <!-- 편집 input -->
+          <div class="ddp-wrap-input" >
+            <input #dfDesc type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                   [(ngModel)]="dataflowDesc"
+                   maxlength="150"
+                   (keyup.enter)="isDataflowDescEditMode ? updateDataflow() : null;"
+                   (clickOutside)="isDataflowDescEditMode? setDataflowDesc() : null;">
+            <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataflow();"></span>
+          </div>
+          <!-- //편집 input -->
+        </div>
+        <!-- //description -->
+      </div>
+      <!-- //navi -->
+
+    </div>
+    <!-- //navi wrap -->
+  </div>
+  <!-- //top -->
+
+  <div class="ddp-wrap-flow2" *ngIf="(dataflow && 0 === dataflow.importedDsCount) && (dataflow && 0 === dataflow.wrangledDsCount)">
+
+    <div class="ddp-empty-flow">
+      <em class="ddp-img-flow"></em>
+      <span class="ddp-empty-title">Get started with your dataflow.</span>
+      <span class="ddp-empty-det">Add dataset to your flow from your local file, database, or staging database like HIVE</span>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="addDatasets()"><em class="ddp-icon-add"></em>Add dataset to this flow</a>
+    </div>
+  </div>
+
+
+  <div class="ddp-wrap-flow2 ddp-type" *ngIf="(dataflow && 0 !== dataflow.importedDsCount) ||  (dataflow && 0 !== dataflow.wrangledDsCount)">
+    <div class="sys-dataflow-left-panel ddp-split-chart" >
+      <!-- 데이터 -->
+      <div class="ddp-ui-number">
+        <a href="javascript:" class="ddp-link-set" (click)="addDatasets()"><em class="ddp-icon-add"></em>{{'msg.dp.btn.add.new.ds' | translate}}</a>
+        <div class="ddp-data-number">
+          <em class="ddp-icon-db-s"></em>{{'msg.dp.ui.imported.data' | translate}} <strong class="ddp-data-num">{{dataflow.importedDsCount}}</strong>
+        </div>
+        <div class="ddp-data-number">
+          <em class="ddp-icon-wrangled"></em>{{'msg.dp.ui.wrangled.data' | translate}} <strong class="ddp-data-num">{{dataflow.wrangledDsCount}}</strong>
+        </div>
+      </div>
+      <!-- //데이터 -->
+      <!-- chart 부분 -->
+      <div id="chartCanvas" class="ddp-box-chart" [ngClass]="{'ddp-selected' : selectedDataSet.dsId && selectedDataSet.dsId !== null && selectedDataSet.dsType}"></div>
+      <!-- //chart 부분 -->
+    </div>
+
+    <!-- 그리드 아이콘 클릭시 데이터셋 상세 팝업 -->
+    <div *ngIf="selectedDataSet.dsId"
+         class="sys-dataflow-right-panel ddp-box-flowdetail" >
+      <app-dataset-info-popup
+        [selectedDataSet]="selectedDataSet"
+        [dataflow] = "dataflow"
+        (initEventAfterDelete)="initEventAfterDelete()"
+        (closePopup)="changeChartClickStatus($event)"
+        (datasetEventHandler)="datasetEventHandler($event)"
+        (cloneEventHandler)="datasetClone($event)"
+        (changeDataflow)="selectDataflow($event)"
+        (createSnapshotEvent)="openSnapshotPopup()"
+        (updateDataflow)="getDataflow(); changeChartClickStatus(this.selectedDataSet,true); datasetInfoPopup.setDataset(this.selectedDataSet)">
+      </app-dataset-info-popup>
+    </div>
+    <!-- //그리드 아이콘 클릭시 데이터셋 상세 팝업 -->
+  </div>
+
+
+</div>
+
+
+<!-- 데이터 플로우 삭제 -->
+<app-delete-modal (deleteConfirm)="deleteDataflow()"></app-delete-modal>
+<!-- //데이터 플로우 삭제 -->
+
+<!-- 데이터 셋 추가하기 -->
+<app-add-dataset-modal (datasetComplete)="datasetComplete($event);" [dataflow]="dataflow" *ngIf="isDatasetModalShow"></app-add-dataset-modal>
+<!-- //데이터 셋 추가하기 -->
+
+<!-- 룰 편집 화면 -->
+<app-edit-dataflow-rule-2 *ngIf="step=='update-rules'"
+                        [dataflow]="dataflow"
+                        [selectedDataSet]="selectedDataSet"
+                        (close)="init();"
+                        (changeDataset)="onDatasetChange($event)"
+                        (closeEditRule)="closeEditRule()">
+</app-edit-dataflow-rule-2>
+<!-- //룰 편집 화면 -->
+<app-add-dataset *ngIf="isDatasetAddPopupOpen" (closeEvent)="closeAddDatasetPopup()" (doneEvent)="datasetComplete($event);" [dataflowId]="dataflow.dfId" [originalDatasetList]="dataSetList"></app-add-dataset>
+
+<create-snapshot-popup (snapshotCreateFinishEvent)="snapshotCreateFinish($event)"></create-snapshot-popup>
+<snapshot-loading></snapshot-loading>

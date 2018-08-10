@@ -1,0 +1,178 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-contents-list">
+  <div class="ddp-wrap-option">
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+      <!-- edit -->
+      <div class="ddp-wrap-edit">
+        <label class="ddp-label-type">{{'msg.mem.th.status' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option ddp-inline">
+          <label (change)="onChangeStatus('ALL')" class="ddp-label-radio">
+            <input [checked]="'ALL' == statusId" type="radio">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.comm.ui.list.all' | translate}}</span>
+          </label>
+          <label (change)="onChangeStatus('ACTIVE')" class="ddp-label-radio">
+            <input [checked]="'ACTIVE' == statusId" type="radio">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.mem.ui.active' | translate}}</span>
+          </label>
+          <label (change)="onChangeStatus('INACTIVE')" class="ddp-label-radio">
+            <input [checked]="'INACTIVE' == statusId" type="radio">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{'msg.mem.ui.inactive' | translate}}</span>
+          </label>
+        </div>
+        <!-- //edit option -->
+      </div>
+      <!-- //edit -->
+      <div class="ddp-ui-rightoption">
+        <a (click)="initFilters()" href="javascript:" class="ddp-link-reset"><em class="ddp-btn-reset3"></em>{{'msg.mem.btn.refresh' | translate}}</a>
+      </div>
+
+    </div>
+    <!-- //option -->
+    <!-- option -->
+    <div class="ddp-ui-option ddp-clear">
+
+      <!-- edit -->
+      <component-period
+        [title]="'msg.mem.th.join.date' | translate"
+        [roundSecond]="true"
+        (changeDate)="onChangeDate($event)"
+        [returnFormat]="'YYYY-MM-DDTHH:mm:ss.sssZ'"
+      ></component-period>
+      <!-- //edit -->
+    </div>
+    <!-- //option -->
+
+    <!-- option -->
+    <div class="ddp-ui-option ddp-optiontype ddp-clear">
+      <!-- 검색 -->
+      <div class="ddp-form-search ddp-fleft">
+        <em class="ddp-icon-search"></em>
+        <input type="text" placeholder="{{'msg.mem.search.description' | translate}}"
+               [ngModel]="searchKeyword"
+               (keypress)="onSearchText($event)"
+               (keyup.esc)="onSearchTextInit()">
+        <em (click)="onSearchTextInit()" class="ddp-btn-search-close" *ngIf="searchKeyword"></em>
+      </div>
+      <!-- //검색 -->
+      <!-- right -->
+      <div class="ddp-ui-rightoption">
+        <span class="ddp-data-total ddp-only">{{'msg.log.ui.num.lists' | translate : { value : membersList.length} }}</span>
+        <a href="javascript:" class="ddp-btn-link" (click)="showCreateUser()"><em class="ddp-icon-link-add"></em>{{'msg.mem.btn.create.member' | translate}}</a>
+      </div>
+      <!-- //right -->
+    </div>
+    <!-- //option -->
+  </div>
+
+
+  <table class="ddp-table-form ddp-table-type3">
+    <colgroup>
+      <col width="25%">
+      <col width="25%">
+      <col width="*">
+      <col width="15%">
+      <col width="10%">
+      <col width="100px">
+    </colgroup>
+    <thead>
+    <tr>
+      <th>
+        {{'msg.mem.th.usr.name' | translate}}
+      </th>
+      <th>
+        {{'msg.login.join.id' | translate}}
+      </th>
+      <th>
+        {{'msg.login.join.email' | translate}}
+      </th>
+      <th class="ddp-cursor" (click)="onFilterSort('createdTime')">
+        {{'msg.mem.th.join.date' | translate}}
+        <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'createdTime' || selectedContentSort.sort === 'default'"></em>
+        <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'asc'"></em>
+        <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'createdTime' && selectedContentSort.sort === 'desc'"></em>
+      </th>
+      <th colspan="2">
+        {{'msg.mem.th.status' | translate}}
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let item of membersList; let index = index" (click)="showDetailUser(item)">
+      <td>
+        {{item.fullName}}
+      </td>
+      <td>
+        {{item.username}}
+        <em *ngIf="item.createdTime | moment: 'isNew'" class="ddp-icon-new">{{'msg.common.ui.new' | translate}}</em>
+      </td>
+      <td>
+        {{item.email}}
+      </td>
+      <td>
+        {{item.createdTime | mdate:'YYYY-MM-DD HH:mm'}}
+      </td>
+      <td>
+        <div class="ddp-hover-status" [class.ddp-selected]="item.statusShowFl">
+          <!-- inactive 일때 ddp-inactive 추가 -->
+          <span class="ddp-status-active" [class.ddp-inactive]="item.status.toString() === 'INACTIVATED'">
+            {{getUserStatus(item.status)}}
+            <em class="ddp-icon-view" (click)="onClickShowStatus(item)" (clickOutside)="item.statusShowFl = false"></em></span>
+          <!-- popup -->
+          <div class="ddp-wrap-popup2">
+            <ul class="ddp-list-popup">
+              <li [class.ddp-selected]="item.status.toString() === 'ACTIVATED'">
+                <a href="javascript:" (click)="onChangeUserStatus(item, 'ACTIVATED')">
+                  {{'msg.mem.ui.active' | translate}}
+                  <em class="ddp-icon-check"></em>
+                </a>
+              </li>
+              <li [class.ddp-selected]="item.status.toString() === 'LOCKED'">
+                <a href="javascript:" (click)="onChangeUserStatus(item, 'LOCKED')">
+                  {{'msg.mem.ui.inactive' | translate}}
+                  <em class="ddp-icon-check"></em>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <!-- //popup -->
+        </div>
+      </td>
+      <td>
+        <a href="javascript:" class="ddp-link-delete" (click)="onClickDeleteUser(item)">
+          <em class="ddp-icon-delete"></em>
+          {{'msg.mem.btn.delete' | translate}}
+        </a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="ddp-box-add-link" *ngIf="isMoreContents()" (click)="onClickMoreContents()">
+    <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+  </div>
+</div>
+<!-- create user -->
+<app-create-user-management-members (createComplete)="getMemberListInit()"></app-create-user-management-members>
+<!-- //create user -->
+<!-- confirm modal -->
+<app-confirm-modal (confirm)="confirmHandler($event)"></app-confirm-modal>
+<!-- //confirm modal -->
+

@@ -1,0 +1,99 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-loading" *ngIf="isShow">
+
+  <!-- box -->
+  <div class="ddp-box-loading ddp-pop" [ngClass]="{'ddp-disabled':snapshotCancel}" *ngIf="inProgress">
+    <span class="ddp-data-loading">스냅샷을 생성하고있습니다 <strong></strong></span>
+    <a href="javascript:" class="ddp-btn-cancel" (click)="openCancelSnapshotPopup()">Cancel</a>
+    <!-- bar -->
+    <div class="ddp-type-progressbar2">
+      <em class="ddp-data-progressbar" [ngStyle]="{'width': progressPercentage + '%'}"></em>
+    </div>
+    <!-- //bar -->
+    <span class="ddp-data-date">{{snapshot.ssName}}</span>
+    <!-- button -->
+    <div class="ddp-pop-buttons" *ngIf="!snapshotCancel">
+      <a href="javascript:" class="ddp-btn-line" (click)="close()">Close</a>
+
+      <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="goToSnapshotList()">Go to snapshot list</a>
+    </div>
+
+    <div class="ddp-pop-buttons" *ngIf="snapshotCancel">
+      <div class="ddp-txt-info">Sure to cancel snapshot creation?</div>
+      <a href="javascript:" class="ddp-btn-line" (click)="snapshotCancel = false">No</a>
+
+      <a href="javascript:" class="ddp-btn-solid ddp-bg-black " (click)="cancelSnapshot()">Yes</a>
+    </div>
+    <!-- //button -->
+
+  </div>
+  <!-- //box -->
+
+  <div class="ddp-box-loading ddp-pop"  *ngIf="isCanceled">
+    <span class="ddp-data-loading">Canceled <strong></strong></span>
+    <span class="ddp-data-date">{{snapshot.ssName}}</span>
+    <!-- button -->
+    <div class="ddp-pop-buttons">
+      <a href="javascript:" class="ddp-btn-line" (click)="close()">Close</a>
+    </div>
+    <!-- //button -->
+  </div>
+
+
+
+  <!-- box -->
+  <div class="ddp-box-loading ddp-box-s ddp-pop" *ngIf="snapshotSuccess">
+    <div class="ddp-box-in">
+      <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+      <em class="ddp-icon-success"></em>
+      <div class="ddp-txt-info">
+        <span class="ddp-txt-success">Success!</span>
+        <span class="ddp-data-date">{{snapshot.ssName}}</span>
+      </div>
+
+      <!-- button -->
+      <div class="ddp-pop-buttons">
+        <a href="javascript:" class="ddp-btn-line" (click)="close()">Close</a>
+        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="goToSnapshotList()">Go to snapshot list</a>
+      </div>
+      <!-- //button -->
+    </div>
+
+
+  </div>
+  <!-- //box -->
+
+  <!-- box -->
+  <div class="ddp-box-loading ddp-box-s ddp-pop" *ngIf="snapshotFailed">
+    <div class="ddp-box-in">
+      <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+      <em class="ddp-icon-fail"></em>
+      <div class="ddp-txt-info">
+        <span class="ddp-txt-fail">Failed</span>
+        <span class="ddp-data-date">{{snapshot.ssName}}</span>
+      </div>
+      <!-- button -->
+      <div class="ddp-pop-buttons">
+        <a href="javascript:" class="ddp-btn-line" (click)="close()">Close</a>
+
+        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="goToSnapshotList()">Go to snapshot list</a>
+      </div>
+      <!-- //button -->
+    </div>
+  </div>
+  <!-- //box -->
+</div>
+

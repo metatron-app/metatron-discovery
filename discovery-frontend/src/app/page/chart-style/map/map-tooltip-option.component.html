@@ -1,0 +1,189 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-chart-side ddp-show">
+
+  <div class="ddp-ui-side-title">
+    {{'msg.page.ui.data.tooltip.title' | translate}}
+  </div>
+  <div class="ddp-wrap-downmenu">
+    <div class="ddp-box-down">
+      <!-- divide -->
+      <div class="ddp-divide2 ">
+        <div class="ddp-list-label">{{'msg.page.chart.datalabel.display.label' | translate}}</div>
+        <div class="ddp-list-sub2">
+          <div *ngIf="possibleChartCheck('tooltipCategoryName', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox ddp-check-full">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('CATEGORY_NAME') != -1)"
+                     (click)="toggleDisplayType('CATEGORY_NAME', 0)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.category.name' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('tooltipCategoryValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox ">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('CATEGORY_VALUE') != -1)"
+                     (click)="toggleDisplayType('CATEGORY_VALUE', 1)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.category.value' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('tooltipCategoryPercent', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('CATEGORY_PERCENT') != -1)"
+                     (click)="toggleDisplayType('CATEGORY_PERCENT', 2)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.category.percent' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('tooltipSeriesName', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox ">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('SERIES_NAME') != -1)"
+                     (click)="toggleDisplayType('SERIES_NAME', 3)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.name' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('tooltipSeriesValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('SERIES_VALUE') != -1)"
+                     (click)="toggleDisplayType('SERIES_VALUE', 4)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.value' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('tooltipSeriesPercent', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('SERIES_PERCENT') != -1)"
+                     (click)="toggleDisplayType('SERIES_PERCENT', 5)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.percent' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('labelXAxisValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('XAXIS_VALUE') != -1)"
+                     (click)="toggleDisplayType('XAXIS_VALUE', 6)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.xaxis.value' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('labelYAxisValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('YAXIS_VALUE') != -1)"
+                     (click)="toggleDisplayType('YAXIS_VALUE', 7)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.yaxis.value' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('labelValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('VALUE') != -1)"
+                     (click)="toggleDisplayType('VALUE', 8)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.value' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('labelNodeName', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('NODE_NAME') != -1)"
+                     (click)="toggleDisplayType('NODE_NAME', 9)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.node.name' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('labelLinkValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox"
+                     [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('LINK_VALUE') != -1)"
+                     (click)="toggleDisplayType('LINK_VALUE', 10)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.link.value' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('labelNodeValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox">
+              <input type="checkbox"
+                     [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('NODE_VALUE') != -1)"
+                     (click)="toggleDisplayType('NODE_VALUE', 11)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.node.value' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('tooltipHighValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox ddp-check-full">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('HIGH_VALUE') != -1)"
+                     (click)="toggleDisplayType('HIGH_VALUE', 12)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.high.value' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('tooltip3QValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox ddp-check-full">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('THREE_Q_VALUE') != -1)"
+                     (click)="toggleDisplayType('THREE_Q_VALUE', 13)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.3q.value' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('tooltipMedianValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox ddp-check-full">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('MEDIAN_VALUE') != -1)"
+                     (click)="toggleDisplayType('MEDIAN_VALUE', 14)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.median.value' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('tooltip1QValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox ddp-check-full">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('FIRST_Q_VALUE') != -1)"
+                     (click)="toggleDisplayType('FIRST_Q_VALUE', 15)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.1q.value' | translate}}</span>
+            </label>
+          </div>
+          <div *ngIf="possibleChartCheck('tooltipLowValue', uiOption.type)" class="ddp-part-check-b">
+            <label class="ddp-label-checkbox ddp-check-full">
+              <input type="checkbox" [ngModel]="(uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('LOW_VALUE') != -1)"
+                     (click)="toggleDisplayType('LOW_VALUE', 16)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.display.low.value' | translate}}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <!-- //divide -->
+      <!-- divide -->
+      <div *ngIf="possibleChartCheck('tooltipAxisScaleFormat', uiOption.type)" class="ddp-divide2">
+        <div class="ddp-part-check-b">
+          <label class="ddp-label-checkbox ddp-position">
+            <input type="checkbox" [ngModel]="false === uiOption?.toolTip?.useDefaultFormat ? true : false"
+                   (click)="changeUseDefaultFormat()">
+            <i class="ddp-icon-checkbox"></i>
+            <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.use.axis.scale.format' | translate}}</span>
+          </label>
+        </div>
+      </div>
+      <!-- //divide -->
+      <!-- divide -->
+      <div class="ddp-divide2">
+        <div class="ddp-list-label">{{'msg.page.format.preview' | translate}}</div>
+        <div class="ddp-preview2">
+          <p *ngFor="let item of uiOption.toolTip.previewList">{{item}}</p>
+        </div>
+      </div>
+      <!-- //divide -->
+    </div>
+  </div>
+</div>

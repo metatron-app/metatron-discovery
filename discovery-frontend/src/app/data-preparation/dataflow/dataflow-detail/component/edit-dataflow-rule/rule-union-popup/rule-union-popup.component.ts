@@ -1,0 +1,433 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AbstractPopupComponent } from '../../../../../../common/component/abstract-popup.component';
+import { Dataflow } from '../../../../../../domain/data-preparation/dataflow';
+import { Dataset, DsType } from '../../../../../../domain/data-preparation/dataset';
+import { PopupService } from '../../../../../../common/service/popup.service';
+import { DataflowService } from '../../../../service/dataflow.service';
+import { Alert } from '../../../../../../common/util/alert.util';
+import { PreparationAlert } from '../../../../../util/preparation-alert.util';
+import * as _ from 'lodash';
+
+class Field {
+  public name: string;
+  public type: string;
+  public seq?: number;
+  public unionType?: string;
+  public selected?: boolean;
+} // Structure - Field
+
+@Component({
+  selector: 'app-rule-union-popup',
+  templateUrl: './rule-union-popup.component.html',
+})
+export class RuleUnionPopupComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private maxCntFields: number = 0;    // Union 대상 데이터셋 최대 필드 수
+  public isValidUnionState: boolean = true;  // Union 가능 상태인지 여부
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Protected Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public - Input Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Input() // 기존 데이터 (마스터 데이터 - 오른쪽 컬럼 첫번째로 나와야 한다)
+  public masterDataset: Dataset;
+
+  @Input() // 해당 데이터플로우 정보 필요
+  public dataflow: Dataflow;
+
+  @Input()
+  public editRuleStr?: string;
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public - Output Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Output() // 유니온 팝업을 닫을때 사용하는 eventemitter
+  public unionComplete = new EventEmitter();
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // Result column rename
+  public editResultColumnName: string;
+  public selectedColumnName: string = '';    // 유니온 된 결과 컬럼 목록
+
+  public datasets: Dataset[] = [];        // 전체 데이터 셋
+  public unionDatasets: Dataset[] = [];   // 유니온 될 데이터 셋
+  public resultFields: Field[] = [];        // 유니온 된 결과 컬럼 목록
+
+  public isAddDatasetsModal: boolean = false;    // Add datasets popup show/hide
+
+  // Union 결과 - 필드 배열
+  public fieldMatrix: Field[][] = [];
+
+  public editInfo: Dataset[] = [];
+
+  @Input()
+  public isUpdate: boolean; // 수정 모드 여
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Constructor
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(protected popupService: PopupService,
+              protected dataflowService: DataflowService,
+              protected elementRef: ElementRef,
+              protected injector: Injector) {
+    super(elementRef, injector);
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Override Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // Init
+  public ngOnInit() {
+    super.ngOnInit();
+
+    // 초기 데이터 설정
+    this.datasets = [this.masterDataset];   // masterdataset 을 를 datasets 리스트에 추가
+    this.resultFields = this.masterDataset.gridData.fields;   // 일단 result 에 마스터 넣어둔다
+    this.maxCntFields = this.resultFields.length; // 최소 길이가 결과와는 동일해야 하므로..
+
+    // 수정 정보가 있을 경우 설정해줌
+    if (this.editRuleStr) {
+      let dsIdList: string[] = [];
+      let temp = JSON.parse(this.editRuleStr)['dataset2']['value'];
+      if (typeof temp === 'string') {
+        dsIdList.push(temp.replace(/'|\s/gi, ''));
+      } else {
+        temp.forEach((item) => {
+          dsIdList.push(item.replace(/'|\s/gi, ''));
+        })
+      }
+      const dsInfoList: Dataset[] = dsIdList.map((dsId: string) => {
+        const ds = new Dataset();
+        ds.dsId = dsId;
+        ds.dsType = DsType.WRANGLED;
+        return ds;
+      });
+
+      // 이름이 없어서 찾아서 넣어준다
+      dsInfoList.map((item) => {
+        this.dataflowService.getDataset(item.dsId).then((obj) => {
+          return item.dsName = obj.dsName;
+        })
+      });
+      this.editInfo = dsInfoList;
+      this.unionDatasets = this.unionDatasets.concat(dsInfoList);
+    }
+
+    this.convertDataToUiType();   // 화면 형식에 맞게 데이터 변환
+
+  } // function - ngOnInit
+
+  // Destory
+  public ngOnDestroy() {
+    super.ngOnDestroy();
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 유니온 팝업 닫기
+   */
+  public close() {
+    this.unionComplete.emit('ruleUnionComplete');
+    this.isUpdate = false;
+  } // function - close
+
+  /**
+   * 유니온 룰 적용
+   */
+  public applyRule() {
+    if (!this.isValidUnionState) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.same.type.apply'));
+      return;
+    }
+    const ruleStr = this.generateRuleString();
+    if (!ruleStr[0]) {
+      Alert.error(ruleStr[1]);
+      return;
+    }
+
+    const rule = { command: 'union', op: 'APPEND', ruleString: ruleStr[1] };
+    if (this.editRuleStr) {
+      // for edit
+      rule.op = 'UPDATE';
+    }
+    this.unionComplete.emit({ event: 'ruleUnionComplete', ruleInfo: rule });
+  } // function - applyRule
+
+  /**
+   * 데이터셋 추가 팝업 열기
+   */
+  public openPopup() {
+    this.editInfo = this.unionDatasets;
+    this.isAddDatasetsModal = true;
+  } // function - openPopup
+
+  /**
+   * 데이터셋 추가 팝업 닫기
+   * @param data
+   */
+  public selectedDatasets(data) {
+    if (null != data) {
+      this.unionDatasets = this.unionDatasets.concat(data);
+      this.datasets = [this.masterDataset].concat(this.unionDatasets);
+      this.convertDataToUiType();
+    }
+    this.isAddDatasetsModal = false;
+  } // function - selectedDatasets
+
+  /**
+   * dataset 하나 지우기
+   */
+  public deleteDataset(dsItem: Dataset) {
+    this.unionDatasets = this.unionDatasets.filter(ds => ds.dsId !== dsItem.dsId);
+    this.datasets = [this.masterDataset].concat(this.unionDatasets);
+    this.convertDataToUiType();
+  } // function - deleteDataset
+
+  /**
+   * Focus on result column input
+   */
+  public focusResultColumnName(event, colName) {
+
+    this.editResultColumnName = colName;
+    this.selectedColumnName = colName;
+
+    const $input = $(event.currentTarget).prev();
+    $input.val('');
+  } // function - focusResultColumnName
+
+  /**
+   * Rename result column.
+   */
+  public updateResultColumnName(event, index) {
+    const val = event.currentTarget.value;
+
+    // 자기 자신을 빼고 리스트에서 중복 체크
+    if (val && val.trim().length !== 0) {
+      const nameCheck: boolean = this.resultFields.filter((colInfo, idx) => {
+        return idx !== index;
+      }).every((colName) => {
+        return colName !== event.currentTarget.value;
+      });
+
+      if (nameCheck) {
+        this.resultFields[index]['name'] = event.currentTarget.value;
+      } else {
+        Alert.warning('Column name must be unique');
+        this.resultFields[index]['name'] = this.selectedColumnName;
+      }
+
+    } else {
+      Alert.warning('Please enter column name');
+      this.resultFields[index]['name'] = this.selectedColumnName;
+    }
+
+    this.editResultColumnName = '';
+  } // function - updateResultColumnName
+
+  /**
+   * 유효하지 않은 Row 여부
+   * @param {Field[]} fieldList
+   * @returns {boolean}
+   */
+  public isDisableFieldRow(fieldList: Field[]): boolean {
+    return ( fieldList.length
+      === fieldList.filter(item => item.unionType === 'INCORRECT').length );
+  } // function - getClassFieldRow
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 룰 문자열을 생성한다.
+   */
+  private generateRuleString(): [boolean, string] {
+    if (0 === this.resultFields.length) {
+      return [false, this.translateService.instant('msp.dp.alert.no.union.result')];
+    }
+    if (0 === this.unionDatasets.length) {
+      return [false, this.translateService.instant('msg.dp.alert.no.data.union')];
+    }
+
+    let ruleStr: string = 'union masterCol: ' + this.resultFields.map(col => col.name).join(',')
+      + ' dataset2: ';
+
+    // 유니온 가능한 dataset id 만 필요하기 때문에 ...
+    // this.unionDatasets.map(item => '\'' + item.dsId + '\'').join(', ');
+    let list = this.unionDatasets.filter((item) => {
+      return item.validCount === item.gridData.fields.length;
+    });
+
+    ruleStr += list.map(item => '\'' + item.dsId + '\'').join(', ');
+
+    return [true, ruleStr];
+  } // function - generateRuleString
+
+  /**
+   * 서버상의 데이터를 UI 형식에 맞게 변경
+   */
+  private convertDataToUiType() {
+    this.fieldMatrix = [];
+    if (0 < this.unionDatasets.length) {
+      // 작업 스택
+      const promises = [];
+
+      // 데이터 초기화
+      this.unionDatasets.forEach(dsInfo => {
+        if (DsType.WRANGLED === dsInfo.dsType) {
+          dsInfo.validCount = 0;
+          promises.push(this.getDataset(dsInfo));
+        }
+      });
+
+      this.loadingShow();
+
+      Promise.all(promises).then((res: Dataset[]) => {
+        // 최대 필드수 및 ds별 필드 목록 측정
+        let colFields: Field[][] = [];       // maxCols
+        this.maxCntFields = this.resultFields.length; // 최소 길이가 결과와는 동일해야 하므로..
+        res.forEach(dsInfo => {
+          colFields.push(dsInfo.gridData.fields);
+          this.maxCntFields = (this.maxCntFields > dsInfo.gridData.fields.length ) ? this.maxCntFields : dsInfo.gridData.fields.length;
+        });
+
+        // 데이터 초기 설정
+        this.isValidUnionState = true;
+
+        // Row 별 필드 재배열
+        for (let rowIdx = 0; rowIdx < this.maxCntFields; rowIdx++) {
+          // 결과 필드 설정
+          let resultField: Field;
+          if (rowIdx < this.resultFields.length) {
+            resultField = this.resultFields[rowIdx];
+          } else {
+            this.isValidUnionState = false;
+            resultField = { name: 'NONE', type: 'NONE' };
+          }
+
+          // 각 데이터셋별 필드 일치 여부 판별
+          let rowFields: Field[] = [];
+          colFields.forEach((dsFields: Field[], dsIdx: number) => {
+            if (rowIdx >= dsFields.length) {
+              rowFields.push({ name: '', type: '', unionType: 'LACK' });
+            } else {
+              let dsFieldInRow: Field = dsFields[rowIdx];
+              if ('NONE' === resultField.type) {
+                rowFields.push({
+                  name: ( dsFieldInRow.name ) ? dsFieldInRow.name : '',
+                  type: '',
+                  unionType: 'DROPPED'
+                });
+              } else {
+                if (dsFieldInRow.name === resultField.name && dsFieldInRow.type === resultField.type) {
+                  dsFieldInRow.unionType = 'CORRECT';
+                  this.unionDatasets[dsIdx].validCount = this.unionDatasets[dsIdx].validCount + 1;
+                } else {
+                  dsFieldInRow.unionType = 'INCORRECT';
+                  this.isValidUnionState = false;
+                }
+                rowFields.push(dsFieldInRow);
+              } // end if - fieldType is not 'NONE'
+            }
+          });
+          this.fieldMatrix.push(rowFields);
+
+        } // end for - maxCntFields
+        this.loadingHide();
+      }); // - Promise.all
+    } // end if - unionDatasets
+  } // function - convertDataToUiType
+
+  private getGridDataFromGridResponse(gridResponse: any) {
+    var colCnt = gridResponse.colCnt;
+    var colNames = gridResponse.colNames;
+    var colTypes = gridResponse.colDescs;
+
+    const gridData = {
+      data: [],
+      fields: []
+    };
+
+    for(var idx=0;idx<colCnt;idx++) {
+      gridData.fields.push({
+        name: colNames[idx],
+        type: colTypes[idx].type,
+        seq: idx
+      });
+    }
+
+    gridResponse.rows.forEach((row) => {
+      const obj = {};
+      for(var idx=0;idx<colCnt;idx++) {
+        obj[ colNames[idx] ] = row.objCols[idx];
+      }
+      gridData.data.push(obj);
+    });
+
+    return gridData;
+  } // function - getGridDataFromGridResponse
+
+  /**
+   * 데이터 셋 조회
+   * @param {Dataset} dsInfo 데이터셋
+   * @returns {Promise<Dataset>} callback 콜백
+   */
+  private getDataset(dsInfo: Dataset): Promise<Dataset> {
+    return new Promise((resolve) => {
+      if (dsInfo.gridData) {
+        resolve(dsInfo);
+      } else {
+                  this.loadingShow();
+        this.dataflowService.getDatasetWrangledData(dsInfo.dsId)
+          .then((result) => {
+                  this.loadingHide();
+            const griddata = this.getGridDataFromGridResponse(result['gridResponse']);
+            const data = griddata.data.slice(0, 100);
+            dsInfo.data = JSON.stringify(data);
+            dsInfo.gridData = griddata;
+            resolve(dsInfo);
+          })
+          .catch((error) => {
+                  this.loadingHide();
+                  let prep_error = this.dataprepExceptionHandler(error);
+                  PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+          });
+      } // end if - dsInfo not exist griddata
+    });
+
+  } // function - getDataset
+
+}

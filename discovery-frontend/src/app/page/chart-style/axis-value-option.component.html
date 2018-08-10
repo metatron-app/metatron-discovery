@@ -1,0 +1,196 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- 축이 value타입일때에만 show -->
+<div *ngIf="'value' == axis?.label?.type.toString()" class="ddp-wrap-divide">
+  <!-- slider -->
+  <div class="ddp-wrap-option-slider">
+    <span class="ddp-label-slider">{{'msg.page.chart.axis.show.axis.label' | translate}}</span>
+    <!-- Slide THREE -->
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+      <input type="checkbox" (click)="showAxisLabel(axis.mode, !axis.showLabel)" [checked]="axis.showLabel">
+      <label><span class="ddp-slide"></span></label>
+    </div>
+    <!-- //Slide THREE -->
+  </div>
+  <!-- //slider -->
+
+  <div *ngIf="axis.showLabel" class="ddp-list-sub2">
+    <!-- slider -->
+    <div class="ddp-wrap-option-slider">
+      <span class="ddp-label-slider">{{'msg.page.yaxis.label.setting' | translate}}</span>
+      <!-- Slide THREE -->
+      <div class="ddp-checkbox-slide ddp-checkbox-automatic3 ddp-en ddp-change">
+        <input type="checkbox" (click)="showLabel()" [ngModel]="axis['label']['format']">
+        <label><span class="ddp-slide"></span></label>
+      </div>
+      <!-- //Slide THREE -->
+    </div>
+    <!-- //slider -->
+    <div class="ddp-list-sub3" format-item *ngIf="axis?.label['format']" #commonFormat (changeFormat)="onChange($event)" [format]="axis?.label['format']">
+    </div>
+  </div>
+</div>
+
+<!-- 축 범위 설정 -->
+<div *ngIf="possibleChartCheck('yAxisGrid', uiOption.type)"
+     class="ddp-wrap-divide">
+  <!-- slider -->
+  <div class="ddp-wrap-option-slider">
+    <span class="ddp-label-slider">{{'msg.page.yaxis.grid.setting' | translate}}</span>
+    <!-- Slide THREE -->
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2" [class.ddp-disabled]="axis.baseline">
+      <input type="checkbox" (click)="$event.stopPropagation(); changeGrid();" [ngModel]="axis.grid">
+      <label><span class="ddp-slide"></span></label>
+    </div>
+    <!-- //Slide THREE -->
+  </div>
+  <!-- //slider -->
+  <div *ngIf="axis.grid" class="ddp-list-sub2">
+    <ng-container *ngIf="possibleChartCheck('yAxisMinMax', uiOption.type)">
+      <div class="ddp-wrap-option-multy ddp-clear">
+        <div class="ddp-col-5">
+          <span class="ddp-label-txt">{{'msg.page.yaxis.grid.max' | translate}}</span>
+        </div>
+        <div class="ddp-col-7">
+          <input [(ngModel)]="axisTemp.grid.max" (keyup.enter)="changeMax()" type="text" class="ddp-input-typebasic"
+                 [class.ddp-error]="isOverMax()"
+                 [attr.placeholder]="AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].max">
+        </div>
+      </div>
+      <div class="ddp-wrap-option-multy ddp-clear">
+        <div class="ddp-col-5">
+          <span class="ddp-label-txt">{{'msg.page.yaxis.grid.min' | translate}}</span>
+        </div>
+        <div class="ddp-col-7">
+          <!-- error 일때 ddp-error 추가 -->
+          <input [(ngModel)]="axisTemp.grid.min" (keyup.enter)="changeMin()" type="text" class="ddp-input-typebasic"
+                 [class.ddp-error]="isOverMin()"
+                 [attr.placeholder]="AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].min">
+        </div>
+      </div>
+      <div class="ddp-divide2" *ngIf="isOverMinMax()">
+        <span class="ddp-txt-error ddp-size"><em class="ddp-icon-error"></em>{{'msg.page.yaxis.grid.alert' | translate}}</span>
+      </div>
+    </ng-container>
+    <div class="ddp-divide2">
+      <label (click)="$event.preventDefault(); changeAutoScale();" class="ddp-label-checkbox ddp-check-full">
+        <input type="checkbox" [ngModel]="axis.grid.autoScaled">
+        <i class="ddp-icon-checkbox"></i>
+        <span class="ddp-txt-checkbox">{{'msg.page.yaxis.grid.auto' | translate}}</span>
+      </label>
+    </div>
+  </div>
+</div>
+<!-- //축 범위 설정 -->
+
+<!-- 기준선 / 단위 설정 -->
+<div *ngIf="possibleChartCheck('yAxisBaseline', uiOption.type)" class="ddp-wrap-divide">
+  <div class="ddp-divide2">
+    <div class="ddp-list-label">{{'msg.page.yaxis.baseline' | translate}}</div>
+    <input [(ngModel)]="axisTemp.baseline" (keyup.enter)="changeBaseLine()" type="text" class="ddp-input-typebasic" placeholder="0">
+  </div>
+  <!--
+  <div class="ddp-wrap-option-slider">
+    <span class="ddp-label-slider">단위설정</span>
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+      <input type="checkbox" value="None" id="check2" name="check">
+      <label for="check2"><span class="ddp-slide"></span></label>
+    </div>
+  </div>
+  <input type="text" class="ddp-input-typebasic" placeholder="">
+  -->
+</div>
+<!-- //기준선 / 단위 설정 -->
+
+<!-- 보조선 -->
+<div *ngIf="false" class="ddp-wrap-divide">
+  <!-- slider -->
+  <div class="ddp-wrap-option-slider">
+    <span class="ddp-label-slider">{{'msg.page.yaxis.show.grid.lines' | translate}}</span>
+    <!-- Slide THREE -->
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+      <input type="checkbox" value="None" id="check2" name="check">
+      <label for="check2"><span class="ddp-slide"></span></label>
+    </div>
+    <!-- //Slide THREE -->
+  </div>
+  <!-- //slider -->
+  <div class="ddp-list-sub2">
+    <div class="ddp-wrap-option-multy ddp-clear">
+      <div class="ddp-col-7">
+        <span class="ddp-label-txt">{{'msg.page.yaxis.show.grid.lines.color' | translate}}</span>
+      </div>
+      <div class="ddp-col-5 ddp-txt-right">
+        <!-- selectbox -->
+        <div class="ddp-type-selectbox ddp-color-selectbox2">
+          <color-picker (selected)="changeGridLineColor($event)"></color-picker>
+        </div>
+        <!-- //selectbox -->
+      </div>
+    </div>
+    <div class="ddp-wrap-option-multy ddp-clear">
+      <div class="ddp-col-5">
+        <span class="ddp-label-txt">{{'msg.page.yaxis.show.grid.lines.thickness' | translate}}</span>
+      </div>
+      <div class="ddp-col-7">
+        <!-- selectbox -->
+        <component-select
+          #bodyHalign
+          [array]="lineThickList"
+          [defaultIndex]="0"
+          [viewKey]="'name'"
+          (onSelected)="changeLineThick()">
+        </component-select>
+        <!-- //selectbox -->
+      </div>
+    </div>
+    <div class="ddp-wrap-option-multy ddp-clear">
+      <div class="ddp-col-5">
+        <span class="ddp-label-txt">{{'msg.page.yaxis.show.grid.lines.type' | translate}}</span>
+      </div>
+      <div class="ddp-col-7">
+        <!-- selectbox -->
+        <component-select
+          #bodyHalign
+          [array]="lineTypeList"
+          [defaultIndex]="0"
+          [viewKey]="'name'"
+          (onSelected)="changeLineType()">
+        </component-select>
+        <!-- //selectbox -->
+      </div>
+    </div>
+    <div class="ddp-wrap-option-multy ddp-clear">
+      <div class="ddp-col-5">
+        <span class="ddp-label-txt">{{'msg.page.yaxis.show.grid.lines.split' | translate}}</span>
+      </div>
+      <div class="ddp-col-7">
+        <div class="ddp-input-number">
+          <input type="number" min="1" max="9" step="1" value="1">
+          <div class="ddp-input-number-nav">
+            <div class="ddp-input-number-button ddp-input-number-down"></div>
+            <div class="ddp-input-number-button ddp-input-number-up"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ddp-divide2">
+      <span class="ddp-txt-message">{{'msg.page.yaxis.show.grid.lines.split.description' | translate}}</span>
+    </div>
+
+  </div>
+</div>
+<!-- //보조선 -->
+<!-- //축이 value타입일때에만 show -->

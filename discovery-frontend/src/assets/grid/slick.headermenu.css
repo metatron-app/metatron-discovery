@@ -1,0 +1,96 @@
+/* Menu button */
+:host /deep/.slick-header-menubutton {
+  position: absolute;
+  right: 3px;
+  top: 50%;
+  bottom: 0;
+  width: 12px;
+  height:17px;
+  margin-top:-9px;
+  /*background-repeat: no-repeat;*/
+  /*background-position: left center;*/
+  /*background-image: url(./images/down.gif);*/
+  cursor: pointer;
+
+  display: none;
+}
+:host /deep/.slick-header-menubutton:before {
+  display:inline-block;
+  position:absolute;
+  top:50%; left:50%;
+  margin:-5px 0 0 -1px;
+  width:2px;
+  height:9px;
+  background:url(./images/icon_more2.png);
+  content:'';
+
+}
+
+:host /deep/ .slick-header-column > .slick-header-menubutton,
+.slick-header-column-active .slick-header-menubutton {
+  display: inline-block;
+}
+
+/* Menu */
+:host /deep/ .slick-header-menu {
+  position: fixed;
+  display: inline-block;
+  min-width:150px;
+  margin: 94px 0 0 0;
+  padding: 2px;
+  cursor: default;
+}
+
+
+/* Menu items */
+:host /deep/ .slick-header-menuitem {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+:host /deep/ .slick-header-menuicon {
+  /*display: inline-block;*/
+  /*width: 16px;*/
+  /*height: 16px;*/
+  /*vertical-align: middle;*/
+  /*margin-right: 4px;*/
+  /*background-repeat: no-repeat;*/
+  /*background-position: center center;*/
+}
+
+:host /deep/ .slick-header-menucontent {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+
+/* Disabled */
+:host /deep/ .slick-header-menuitem-disabled {
+  opacity:0.5;
+}
+
+
+/* 여기서 부터는 drop-down menu css */
+
+:host /deep/ .slick-header-menu {
+  border:1px solid #ddd;
+  border-radius:2px;
+  background-color:#fff;
+  -moz-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
+  -webkit-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
+  box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
+  min-width: 100px;
+  z-index: 20;
+}
+:host /deep/ .slick-header-menuitem {
+  padding:5px 10px 5px 10px; color:#707070; font-size:12px;
+}
+:host /deep/ .slick-header-menuitem:hover {
+  background: #f6f6f7;
+}
+:host /deep/ .slick-header-menuitem-disabled {
+  border-color: transparent !important;
+  background: inherit !important;
+}

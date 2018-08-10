@@ -1,0 +1,165 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-table-detail">
+  <div class="ddp-type-plan">
+    <label class="ddp-label-detail">{{'msg.spaces.shared.detail.linked.resources' | translate}}</label>
+
+  </div>
+
+  <table class="ddp-table-detail">
+    <colgroup>
+      <col width="160px">
+      <col width="*">
+    </colgroup>
+    <tbody>
+    <!-- data source -->
+    <tr>
+      <th>
+        {{'msg.spaces.shared.detail.datasource' | translate}} ({{datasourceTotalCount}})
+      </th>
+      <td>
+        <table class="ddp-table-solid">
+          <colgroup>
+            <col width="*">
+            <col width="160px">
+            <col width="200px">
+            <col width="160px">
+
+          </colgroup>
+          <tbody>
+          <tr *ngIf="datasourceTotalCount === 0">
+            <td class="ddp-nolist" colspan="4">
+              {{'msg.spaces.shared.detail.list.none' | translate}}
+            </td>
+          </tr>
+          <tr *ngFor="let source of getDatasourceList()">
+            <td>
+              <div class="ddp-txt-long ddp-global">
+                {{source.name}}
+                <span class="ddp-txt-colortype" *ngIf="source.description">-{{source.description}}</span>
+                <em class="ddp-tag-global" *ngIf="source.published">{{'msg.comm.ui.list.ds.opendata' | translate}}</em>
+              </div>
+            </td>
+            <td>
+              {{getConnectionTypeString(source.connType)}}
+            </td>
+            <td>
+              {{getDataTypeString(source.srcType)}}
+            </td>
+            <td>
+              {{getSourceStatusString(source.status)}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <!-- 목록이 3개 이하일 경우 “more” 버튼 없음 -->
+        <a href="javascript:" class="ddp-btn-moretype2" *ngIf="datasourceTotalCount > 3" (click)="onClickMoreDatasources()">{{'msg.comm.ui.more' | translate}} ></a>
+      </td>
+    </tr>
+    <!-- //data source -->
+    <!-- data connection -->
+    <tr>
+      <th>
+        {{'msg.spaces.shared.detail.dataconnection' | translate}} ({{connectionTotalCount}})
+      </th>
+      <td>
+        <table class="ddp-table-solid">
+          <colgroup>
+            <col width="*">
+            <col width="160px">
+            <col width="200px">
+            <col width="160px">
+
+          </colgroup>
+          <tbody>
+          <tr *ngIf="connectionTotalCount === 0">
+            <td class="ddp-nolist" colspan="4">
+              {{'msg.spaces.shared.detail.list.none' | translate}}
+            </td>
+          </tr>
+          <tr *ngFor="let connection of getConnectionList()">
+            <td>
+              <div class=" ddp-txt-long ddp-global" [class.ddp-connection]="translateService.getBrowserLang() == 'en'">
+                {{connection.name}}
+                <em class="ddp-tag-global" *ngIf="connection.published">{{'msg.spaces.shared.detail.connection.open' | translate}}</em>
+              </div>
+            </td>
+            <td>
+
+              {{connection.implementor}}
+            </td>
+            <td>
+              {{connection.hostname}}
+            </td>
+            <td>
+              {{connection.port}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        <!-- 목록이 3개 이하일 경우 “more” 버튼 없음 -->
+        <a href="javascript:" class="ddp-btn-moretype2" *ngIf="connectionTotalCount > 3" (click)="onClickMoreConnections()">{{'msg.comm.ui.more' | translate}} ></a>
+      </td>
+    </tr>
+    <!-- // data connection -->
+    <!-- notebook connector -->
+    <tr>
+      <th>
+        {{'msg.spaces.shared.detail.nbook.connector' | translate}} ({{connectorTotalCount}})
+      </th>
+      <td>
+        <table class="ddp-table-solid">
+          <colgroup>
+            <col width="*">
+            <col width="160px">
+            <col width="200px">
+            <col width="160px">
+
+          </colgroup>
+          <tbody>
+          <tr *ngIf="connectorTotalCount === 0">
+            <td class="ddp-nolist" colspan="4">
+             {{'msg.spaces.shared.detail.list.none' | translate}}
+            </td>
+          </tr>
+          <tr *ngFor="let connector of getNotebookConnectorList()">
+            <td>
+              <div class=" ddp-txt-long ">
+                {{connector.name}}
+                <span class="ddp-txt-colortype" *ngIf="connector.description">-{{connector.description}}</span>
+              </div>
+            </td>
+            <td>
+              {{connector.type}}
+            </td>
+            <td>
+              {{connector.hostname}}
+            </td>
+            <td>
+              {{connector.port}}
+              <span class="ddp-tag-connect">{{'msg.spaces.shared.detail.nbook.linked' | translate}}</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
+    <!-- //notebook connector -->
+    </tbody>
+  </table>
+
+</div>
+<!-- //table detail -->
+<resources-viewer></resources-viewer>

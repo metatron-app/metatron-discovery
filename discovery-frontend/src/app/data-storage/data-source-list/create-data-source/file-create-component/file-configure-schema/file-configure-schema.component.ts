@@ -1,0 +1,1185 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {
+  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  ViewChild
+} from '@angular/core';
+import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
+import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
+import { SetFilterOrderComponent } from '../../../../component/set-filter-order/set-filter-order.component';
+import { DatasourceService } from '../../../../../datasource/service/datasource.service';
+import { isUndefined } from 'util';
+import * as _ from 'lodash';
+
+
+@Component({
+  selector: 'file-configure-schema',
+  templateUrl: './file-configure-schema.component.html'
+})
+export class FileConfigureSchemaComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성될 데이터소스 정보
+  private sourceData: DatasourceInfo;
+
+  // field list
+  private fields: any[];
+  // data list
+  private data: any[];
+
+  // 선택된 컬럼리스트
+  private checkedColumnList: any[];
+
+  @ViewChild(SetFilterOrderComponent)
+  private filterOrderComponent: SetFilterOrderComponent;
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @Input('sourceData')
+  public set setSourceData(sourceData: DatasourceInfo) {
+    this.sourceData = sourceData;
+  }
+
+  @Input()
+  public step: string;
+
+  @Output()
+  public stepChange: EventEmitter<string> = new EventEmitter();
+
+  // role type list
+  public roleTypeList: any[];
+  // type list
+  public typeList: any[];
+
+  // 선택된 role type
+  public selectedRoleType: any;
+  // 선택된 type
+  public selectedType: any;
+  // 검색어
+  public searchText: string = '';
+
+  // 선택된 타임스탬프 타입
+  public selectedTimestampType: string = 'CURRENT';
+  // 선택된 타임스탬프 컬럼
+  public selectedTimestampColumn: any;
+  // 선택된 컬럼
+  public selectedColumn: any;
+  // 선택된 컬럼의 데이터
+  public selectedColumnData: any[] = [];
+
+  // show flag
+  public typeShowFl: boolean = false;
+  public timestampShowFl: boolean = false;
+
+  // 추천 및 필수필터 flag
+  public recommendAndEssentialFl: boolean = false;
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Constructor
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 생성자
+  constructor(private datasourceService: DatasourceService,
+              protected element: ElementRef,
+              protected injector: Injector) {
+    super(element, injector);
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Override Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // Init
+  public ngOnInit() {
+
+    // Init
+    super.ngOnInit();
+
+    // ui init
+    this.initView();
+
+    // 현재 페이지 schema 정보가 있다면
+    if (this.sourceData.hasOwnProperty('schemaData')) {
+      // init data
+      this.initData(this.sourceData.schemaData);
+    } else {
+      // 파일 데이터 상세데이터
+      this.initColumnData(this.sourceData.fileData);
+      // 필드 init
+      this.initFields(this.fields);
+      // 처음 선택한 컬럼
+      this.onSelectedColumn(this.fields[0]);
+    }
+  }
+
+  // Destory
+  public ngOnDestroy() {
+
+    // Destory
+    super.ngOnDestroy();
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 이전화면으로 이동
+   */
+  public prev() {
+    // 기존 스키마정보 삭제후 생성
+    this.deleteAndSaveSchemaData();
+    // 이전 step 으로 이동
+    this.step = 'file-select';
+    this.stepChange.emit(this.step);
+  }
+
+  /**
+   * 다음화면으로 이동
+   */
+  public next() {
+    // validation
+    if (this.getNextValidation()) {
+      // 기존 스키마정보 삭제후 생성
+      this.deleteAndSaveSchemaData();
+      // 다음 step 으로 이동
+      this.step = 'file-ingestion';
+      this.stepChange.emit(this.step);
+    }
+  }
+
+  /**
+   * 추천 필터 변경모달 오픈
+   */
+  public openEditFilterOrder() {
+    // 추천 필터로 설정된 컬럼만 넘겨줌
+    const fields = this.fields.filter((field) => {
+      return field.filtering;
+    });
+    this.filterOrderComponent.init(fields);
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method - getter
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 컬럼 리스트
+   * @returns {any[]}
+   */
+  public getColumnList() {
+    let columnList = this.fields;
+    // role filter
+    if (this.selectedRoleType.value !== 'ALL') {
+      columnList = this.getColumnsRoleTypeFilter(columnList);
+    }
+    // type filter
+    if (this.selectedType.value !== 'ALL') {
+      columnList = this.getColumnsTypeFilter(columnList);
+    }
+    // 추천 / 필수 filters
+    if (this.recommendAndEssentialFl) {
+      columnList = this.getColumnsRecommendAndEssentialFilter(columnList);
+    }
+    // search filter
+    const searchText = this.searchText.trim();
+    if (searchText !== '') {
+      columnList = this.getColumnsSearchTextFilter(columnList, searchText);
+    }
+    return columnList;
+  }
+
+  /**
+   * 체크표시된 컬럼 리스트
+   * @returns {any[]}
+   */
+  public get getCheckedColumns() {
+    return this.checkedColumnList;
+  }
+
+  /**
+   * 타임타입 컬럼 리스트
+   * @returns {any[]}
+   */
+  public getTimeTypeColumns() {
+    const columnList = this.fields.filter((column) => {
+      return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column);
+    });
+    return columnList;
+  }
+
+  /**
+   * 삭제되지 않은 컬럼리스트
+   * @returns {any[]}
+   */
+  public getNotDeletedColumns() {
+    const columnList = this.fields.filter((column) => {
+      return column.removed === false;
+    });
+    return columnList;
+  }
+
+  /**
+   * 현재 설정된 추천필터 갯수
+   * @returns {number}
+   */
+  public getRecommendationLength() {
+    return this.fields.filter((column) => {
+      return column.hasOwnProperty('filtering');
+    }).length;
+  }
+
+  /**
+   * 현재 데이터소스의 생성 타입
+   * @returns {string}
+   */
+  public get getConnectionType(): string {
+    return this.sourceData.connectionData.connType;
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method - setter
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 추천필터 seq 지정
+   * @param data
+   */
+  public setFilterSeq(data) {
+    this.resortFilteringSeq(data.column, data.seq);
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method - init
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 타임스탬프 컬럼 init
+   */
+  public initTimestampColumn() {
+    const columnList = this.getTimeTypeColumns();
+    if (columnList.length === 0) {
+      this.selectedTimestampType = 'CURRENT';
+      // 기존에 선택된 타임스탬프 컬럼 초기화
+      this.selectedTimestampColumn = null;
+    } else {
+      this.selectedTimestampType = 'COLUMN';
+      // 타임스탬프 컬럼 값
+      this.selectedTimestampColumn = !this.selectedTimestampColumn ? columnList[0] : this.selectedTimestampColumn;
+
+      // 해당 컬럼이 필수필터로 지정되었다면
+      if (this.selectedTimestampColumn.hasOwnProperty('filtering')) {
+        // init filtering seq
+        this.initFilteringSeq(this.selectedTimestampColumn);
+      }
+    }
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method - event
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * role 선택 이벤트
+   * @param role
+   */
+  public onSelectedRole(role) {
+    this.selectedRoleType = role;
+  }
+
+  /**
+   * type 선택 이벤트
+   * @param type
+   */
+  public onSelectedType(type) {
+    this.selectedType = type;
+  }
+
+  /**
+   * 타임스탬프 선택 이벤트
+   * @param column
+   */
+  public onSelectedTimestamp(column) {
+    // 타임스탬프 선택
+    this.selectedTimestampColumn = column;
+    // 사용자 지정 타임스탬프
+    this.selectedTimestampType = 'COLUMN';
+    // 만약 선택한 컬럼에 filtering 이 있는경우
+    if (column.hasOwnProperty('filtering')) {
+      // init filtering seq
+      this.initFilteringSeq(column);
+    }
+  }
+
+  /**
+   * 타임스탬프 타입 변경 이벤트
+   * @param {string} type
+   */
+  public onSelectedTimestampType(type: string) {
+    // 타임스탬프가 없는경우
+    if (this.isTimestampColumnEmpty()) {
+      return;
+    }
+    this.selectedTimestampType = type;
+  }
+
+  /**
+   * 컬럼 체크 선택 이벤트
+   * @param column
+   */
+  public onCheckedColumn(column) {
+    // 현재 컬럼이 선택된 리스트에 있는지
+    const index = this.checkedColumnList.findIndex((item) => {
+      return item.name === column.name;
+    });
+    // 없다면 선택된 리스트에 넣기
+    index === -1 ? this.checkedColumnList.push(column) : this.checkedColumnList.splice(index,1);
+  }
+
+  /**
+   * 모든 컬럼 선택 이벤트
+   */
+  public onCheckedAllColumns() {
+    // 모드 체크된 상태가 아니라면 모든 아이템 제거
+    this.isAllCheckedColumns() ? this._deleteAllItem() : this._addAllItem();
+  }
+
+  /**
+   * 컬럼 선택 이벤트
+   * @param column
+   */
+  public onSelectedColumn(column) {
+    // 삭제된 상태라면 선택 x
+    if (column.removed) {
+      return;
+    }
+    // 컬럼 선택
+    this.selectedColumn = column;
+    // 컬럼의 데이터 선택
+    this.selectedColumnData = this.getColumnDetailData(column);
+  }
+
+  /**
+   * 체크된 컬럼 선택해제 이벤트
+   */
+  public onClickUnselectAll() {
+    // 체크된 리스트 초기화
+    this.checkedColumnList = [];
+  }
+
+  /**
+   * 엑션 클릭 이벤트
+   */
+  public onClickApplyAction(changeEvent) {
+    if (changeEvent.delete) {
+      // 삭제 이벤트
+      this.onDeleteAction(this.checkedColumnList);
+    } else {
+      // 타입 변경 이벤트
+      this.onTypeChangeAction(this.checkedColumnList, changeEvent.role, changeEvent.logicalType);
+    }
+    // 체크된 목록 초기화
+    this.checkedColumnList = [];
+  }
+
+  /**
+   * 삭제된 컬럼 되돌리기 이벤트
+   * @param column
+   */
+  public onClickRevival(column) {
+    // 삭제상태 해제
+    column.removed = false;
+    // init timestamp
+    if (this.selectedTimestampType === 'CURRENT' && column.logicalType === 'TIMESTAMP') {
+      this.initTimestampColumn();
+    }
+  }
+
+  /**
+   * timestamp 컬럼 목록 이벤트
+   */
+  public onShowTimestampColumns(): void {
+    // 타임스탬프가 없는경우
+    if (this.isTimestampColumnEmpty()) {
+      return;
+    }
+    this.timestampShowFl = !this.timestampShowFl;
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Method - validation
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 타임스탬프 컬럼이 없는지 확인
+   * @returns {boolean}
+   */
+  public isTimestampColumnEmpty(): boolean {
+    return this.getTimeTypeColumns().length === 0;
+  }
+
+
+  /**
+   * 모든 컬럼이 체크된 상태인지 확인
+   * @returns {boolean}
+   */
+  public isAllCheckedColumns(): boolean {
+    // 현재 필터링이 된 리스트
+    const list = this._getEnabledColumnList();
+    if (list.length !== 0) {
+      for (let index = 0; index < list.length; index++) {
+        // 목록중 check가 하나라도 없다면 false
+        if (this.checkedColumnList.findIndex((item) => {
+            return item.name === list[index].name;}) === -1) {
+          return false;
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * 현재 컬럼이 체크된 상태인지 확인
+   * @param column
+   * @returns {boolean}
+   */
+  public isCheckedColumn(column): boolean {
+    return this.checkedColumnList.findIndex((item) => {
+      return item.name === column.name;
+    }) !== -1;
+  }
+
+  /**
+   * 컬럼이 삭제된 상태인지 확인
+   * @param column
+   * @returns {boolean}
+   */
+  public isDeletedColumn(column): boolean {
+    return column.removed === true;
+  }
+
+  /**
+   * 필터처리된 컬럼인지 확인
+   * @param column
+   * @returns {boolean}
+   */
+  public isFilterColumn(column): boolean {
+    return column.hasOwnProperty('filtering');
+  }
+
+  /**
+   * 현재 선택된 상태라면
+   * @param column
+   * @returns {boolean}
+   */
+  public isSelectedColumn(column): boolean {
+    // 현재 선택된 컬럼이고 삭제상태가 아닌경우
+    return (!isUndefined(this.selectedColumn)
+      && this.selectedColumn.name === column.name
+      && !column.removed);
+  }
+
+
+  /**
+   * 임의로 형성된 current column 표시 여부
+   * @returns {boolean}
+   */
+  public showCurrentColumn(): boolean {
+    if (this.selectedTimestampType === 'CURRENT'
+      && this.selectedRoleType.value !== 'MEASURE'
+      && (this.selectedType.value === 'ALL' || this.selectedType.value === 'TIMESTAMP')
+      && this.recommendAndEssentialFl === false) {
+      // search text
+      const searchText = this.searchText.trim();
+      // 검색어가 있는경우
+      return searchText !== '' ? this.isIncludeText('Current time', searchText) : true;
+    }
+    return false;
+  }
+
+  /**
+   * error 아이콘 표시 여부
+   * @param column
+   * @returns {boolean}
+   */
+  public getErrorIcon(column): boolean {
+    // 에러가 있으면서 삭제되지 않은 컬럼
+    return (!this.isDeletedColumn(column) && this.isErrorColumn(column));
+  }
+
+  /**
+   * 타임스탬프 아이콘 표시 여부
+   * @param column
+   * @returns {boolean}
+   */
+  public getTimestampIcon(column): boolean {
+    // 타입스탬프로 지정된 컬럼이면서 삭제되지 않은 컬럼
+    return (this.selectedTimestampType === 'COLUMN' && this.isTimestampColumn(column) && !this.isDeletedColumn(column));
+  }
+
+  /**
+   * 다음화면으로 넘어가기 위한 validation
+   * @returns {boolean}
+   */
+  public getNextValidation(): boolean {
+    // 모든 컬럼이 삭제된 상태이거나
+    // 타임스탬프 타입이 컬럼이면서 타임스탬프로 지정된 컬럼이없거나
+    // 컬럼에 error 가 있는경우
+    if (this.getNotDeletedColumns().length === 0
+      || this.selectedTimestampType === 'COLUMN' && this.selectedTimestampColumn === null
+      || this.columnsErrorValidation(this.getNotDeletedColumns())) {
+      return false;
+    }
+    return true;
+  }
+
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 현재 페이지의 schema 데이터 저장
+   * @param {DatasourceInfo} sourceData
+   */
+  private saveSchemaData(sourceData: DatasourceInfo) {
+    const schemaData = {
+      // 선택된 컬럼리스트
+      checkedColumnList: this.checkedColumnList,
+      // 선택된 role type
+      selectedRoleType: this.selectedRoleType,
+      // 선택된 type
+      selectedType: this.selectedType,
+      // 검색어
+      searchText: this.searchText,
+      // 선택된 타임스탬프 타입
+      selectedTimestampType: this.selectedTimestampType,
+      // 선택된 타임스탬프 컬럼
+      selectedTimestampColumn: this.selectedTimestampColumn,
+      // 선택된 컬럼
+      selectedColumn: this.selectedColumn,
+      // 선택된 컬럼의 데이터
+      selectedColumnData: this.selectedColumnData,
+      // show flag
+      typeShowFl: this.typeShowFl,
+      timestampShowFl: this.timestampShowFl,
+      // 추천 및 필수필터 flag
+      recommendAndEssentialFl: this.recommendAndEssentialFl,
+      // field list
+      fields: this.fields,
+      // data list
+      data: this.data,
+    };
+    sourceData['schemaData'] = schemaData;
+  }
+
+  /**
+   * 기존 스키마데이터 삭제후 새로 생성
+   */
+  private deleteAndSaveSchemaData() {
+    // 스키마 정보가 있다면 삭제
+    if (this.sourceData.hasOwnProperty('schemaData')) {
+      delete this.sourceData.schemaData;
+    }
+    // 현재 페이지의 데이터소스 생성정보 저장
+    this.saveSchemaData(this.sourceData);
+  }
+
+
+  /**
+   * 추천 / 필수 필터 관련된 변수 삭제
+   * @param column
+   */
+  private deleteFilteringData(column) {
+    // 필터 관련된 변수 삭제
+    delete column.filtering;
+    delete column.filteringSeq;
+    delete column.filteringOptions;
+  }
+
+  /**
+   * 현재 컬럼 추천 / 필수 필터 seq 재설정
+   * @param column
+   * @param seqNum
+   */
+  private resortFilteringSeq(column, columnSeqNum) {
+    // 필터로 설정된 컬럼 목록
+    const filteringColumns = this.getColumnsRecommendAndEssentialFilter(this.fields);
+    // 목록이 하나도 없다면
+    if (filteringColumns.length === 0) {
+      return;
+    }
+    // seq max number
+    const maxSeqNumber = this.getMaxSeqNumber(filteringColumns);
+    // 해당 컬럼이 기존 필터상태에서 해제라면
+    if (!isUndefined(columnSeqNum)) {
+      // 모든 필터목록 seq 재정렬
+      this.setColumnsFilteringSeq(filteringColumns, columnSeqNum, maxSeqNumber);
+    } else {
+      // 해당 컬럼에 필터링 넘버 부여
+      column.filteringSeq = maxSeqNumber + 1;
+    }
+  }
+
+  /**
+   * 현재 보이고 있는 아이템을 선택한 리스트에서 제거
+   * @private
+   */
+  private _deleteAllItem(): void {
+    // 아이템을 현재 선택된 리스트에서 제거
+    this._getEnabledColumnList().forEach((item) => {
+      this._deleteSelectedItem(item);
+    });
+  }
+
+  /**
+   * 현재 보이고 있는 아이템들 선택한 리스트에 추가
+   * @private
+   */
+  private _addAllItem(): void {
+    // 아이템을 현재 선택된 리스트에 추가
+    this._getEnabledColumnList().forEach((item) => {
+      this._addSelectedItem(item);
+    });
+  }
+
+  /**
+   * 아이템을 선택된 리스트에서 제거
+   * @param item
+   */
+  public _deleteSelectedItem(item: any): void {
+    // 선택된 리스트에 있는 아이템의 index
+    const index = this.checkedColumnList.findIndex((column) => {
+      return column.name === item.name;
+    });
+    // 선택된 리스트에 있을 때만 제거
+    if (index !== -1) {
+      this.checkedColumnList.splice(index, 1);
+    }
+  }
+
+  /**
+   * 아이템을 선택된리스트에서 추가
+   * @param item
+   */
+  public _addSelectedItem(item: any): void {
+    // 선택된 리스트에 있는 아이템의 index
+    const index = this.checkedColumnList.findIndex((column) => {
+      return column.name === item.name;
+    });
+    // 선택된 리스트에 없을 때만 추가
+    if (index === -1) {
+      this.checkedColumnList.push(item);
+    }
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method - getter
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 컬럼명과 일치하는 데이터 얻기
+   * @param column
+   * @returns {Array}
+   */
+  private getColumnDetailData(column: any) {
+    const columnName = column.name;
+    const dataList = [];
+    this.data.forEach((item) => {
+      if (item.hasOwnProperty(columnName) && item[columnName] !== null) {
+        dataList.push(item[columnName]);
+      }
+    });
+    return dataList;
+  }
+
+  /**
+   * 서버에 타임스탬프 포맷 체크 요청
+   * @param columnDetailData
+   * @returns {Promise<any>}
+   */
+  private getTimestampFormat(column, columnDetailData) {
+    return new Promise(((resolve, reject) => {
+      this.datasourceService.checkValidationDateTime({samples: columnDetailData})
+        .then((result) => {
+          // pattern 이 있을경우
+          if (result.hasOwnProperty('pattern')) {
+            column.format = result.pattern;
+          }
+          resolve(result);
+        })
+        .catch((error) => {
+          // Alert.error(error.details);
+          column.errorFl = true;
+          reject(error);
+        });
+    }));
+  }
+
+  /**
+   * 필터설정된 리스트의 seq 최대값
+   * @param {any[]} columnList
+   * @returns {number}
+   */
+  private getMaxSeqNumber(columnList: any[]): number {
+    let maxSeq = -1;
+    columnList.forEach((column) => {
+      if (column.hasOwnProperty('filteringSeq')) {
+        maxSeq = maxSeq < column.filteringSeq ? column.filteringSeq : maxSeq;
+      }
+    });
+    return maxSeq;
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method - setter
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 모든 추천 / 필수 펄티 seq 재정렬
+   * @param {any[]} filteringColumns
+   * @param {number} columnSeqNum
+   * @param {number} maxSeqNum
+   */
+  private setColumnsFilteringSeq(filteringColumns: any[], columnSeqNum: number, maxSeqNum: number) {
+    // 최소 seq
+    let minSeq = columnSeqNum + 1;
+
+    // 모든 seq 값 하나씩 앞으로 당겨짐
+    while (minSeq <= maxSeqNum) {
+      filteringColumns.forEach((column) => {
+        if (column.filteringSeq === minSeq) {
+          column.filteringSeq -= 1;
+          minSeq += 1;
+        }
+      });
+    }
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method - event
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 삭제 엑션
+   * @param {any[]} columnList
+   */
+  private onDeleteAction(columnList: any[]) {
+    columnList.forEach((column) => {
+      // 삭제 플래그
+      column.removed = true;
+      // 필수필터에 대한 처리
+      // 추천 필터 존재시
+      if (column.hasOwnProperty('filtering')) {
+        // filtering seq init
+        this.initFilteringSeq(column);
+      }
+      // 타임스탬프에 대한 처리
+      // 현재 컬럼이 타임스탬프로 지정된 컬럼이였다면
+      if (this.isTimestampColumn(column)) {
+        // 타임스탬프에서 제거
+        this.selectedTimestampColumn = null;
+        // 타임스탬프 init
+        this.initTimestampColumn();
+      }
+    });
+  }
+
+  /**
+   * 타입 변경 엑션
+   * @param {any[]} columnList
+   */
+  private onTypeChangeAction(columnList: any[], role: string, logicalType: string) {
+
+    // 타임스탬프 배열
+    const timestampPromise = [];
+
+    columnList.forEach((column) => {
+      // 선택한 타입하고 같지않을때만 동작
+      if (!this.isEqualType(column.logicalType, logicalType)) {
+
+        // ingestion에 대한 처리
+        this.initIngestionRuleInChangeType(column);
+        // 필수 필터에 대한 처리
+        this.initFilteringInChangeType(column, logicalType, role);
+        // 타임스탬프에 대한 처리
+        this.initTimestampInChangeType(column, logicalType, timestampPromise);
+        // 타입 변경
+        column.logicalType = logicalType;
+        // 롤 타입 변경
+        column.role = role;
+      }
+    });
+
+    // init timestamp
+    this.initTimestampColumn();
+    // 타임포맷 체크를 요청할 컬럼이 있다면
+    if (timestampPromise.length !== 0) {
+      this.initTimestampFormat(timestampPromise);
+    }
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method - filtering
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * role 타입 필터링
+   * @param columnList
+   */
+  private getColumnsRoleTypeFilter(columnList) {
+    return columnList.filter((column) => {
+      return this.isEqualType(column.role, this.selectedRoleType);
+    });
+  }
+
+  /**
+   * 타입 필터링
+   * @param columnList
+   */
+  private getColumnsTypeFilter(columnList) {
+    return columnList.filter((column) => {
+      return this.isEqualType(column.logicalType, this.selectedType);
+    });
+  }
+
+  /**
+   * 검색어 필터링
+   * @param columnList
+   * @param searchText
+   */
+  private getColumnsSearchTextFilter(columnList, searchText) {
+    return columnList.filter((column) => {
+      if (this.isIncludeText(column.name, searchText)) {
+        return column;
+      }
+    });
+  }
+
+  /**
+   * 추천 / 필수 필터링
+   * @param columnList
+   */
+  private getColumnsRecommendAndEssentialFilter(columnList) {
+    return columnList.filter((column) => {
+      if (column.hasOwnProperty('filtering')) {
+        return column;
+      }
+    });
+  }
+
+  /**
+   * 현재 보여지고있는 사용가능한 컬럼 목록
+   * @returns {any[]}
+   * @private
+   */
+  private _getEnabledColumnList() {
+    return this.getColumnList().filter((column) => {
+      return column.removed === false;
+    });
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method - validation
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 컬럼이 선택된 타입과 같은 타입인지 확인
+   * @param {string} column
+   * @param selectedType
+   * @returns {boolean}
+   */
+  private isEqualType(columnType: string, selectedType): boolean {
+    return columnType === selectedType.value;
+  }
+
+  /**
+   * 해당 텍스트를 포함하고 있는지 확인
+   * @param {string} text
+   * @param {string} searchText
+   * @returns {boolean}
+   */
+  private isIncludeText(text: string, searchText: string): boolean {
+    return text.toUpperCase().includes(searchText.toUpperCase());
+  }
+
+  /**
+   * 타입스탬프로 지정된 컬럼인지 확인
+   * @param column
+   * @returns {boolean}
+   */
+  private isTimestampColumn(column): boolean {
+    if (this.selectedTimestampColumn && this.selectedTimestampColumn.name === column.name) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * error 가 있는 컬럼인지 확인
+   * @param column
+   * @returns {boolean}
+   */
+  private isErrorColumn(column): boolean {
+    // ingestion rule
+    if (!this.ingestionRuleValidation(column)) {
+      return true;
+    }
+    // error
+    if (!this.timestampValidation(column)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * ingestionRule validation
+   * @param column
+   * @returns {boolean}
+   */
+  private ingestionRuleValidation(column): boolean {
+    // ingestionRule type이  replace 인 경우 error가 있다면 false
+    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace' && column.replaceFl === false) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * timestamp validation
+   * @param column
+   * @returns {boolean}
+   */
+  private timestampValidation(column): boolean {
+    // timestamp 컬럼이 format이 없거나 error가 있다면 false
+    if (column.logicalType === 'TIMESTAMP'
+      && (isUndefined(column.format) || column.format === '' || column.hasOwnProperty('errorFl'))) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * 컬럼 목록에 error 가 있는지 검사
+   * @param {any[]} columnList
+   * @returns {boolean}
+   */
+  private columnsErrorValidation(columnList: any[]): boolean {
+    const result = columnList.filter((column) => {
+      return this.isErrorColumn(column);
+    });
+    return result.length !== 0;
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method - init
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 필터 넘버 초기화 및 정렬
+   * @param column
+   */
+  private initFilteringSeq(column) {
+    // seq 넘버
+    const seqNum = column.filteringSeq;
+    // 필터 관련된 변수 삭제
+    this.deleteFilteringData(column);
+    // 필터 재정렬
+    this.resortFilteringSeq(column, seqNum);
+  }
+
+  /**
+   * 타입변경 이벤트시 init timestamp
+   * @param column
+   * @param type
+   * @param timestampPromise
+   */
+  private initTimestampInChangeType(column, type, timestampPromise) {
+    // 변경된 타입이 타임일 경우
+    if (this.isEqualType('TIMESTAMP', type)) {
+      timestampPromise.push(column);
+    }
+
+    // 컬럼이 타임스탬프로 지정되었던 경우
+    if (this.isTimestampColumn(column)) {
+      this.selectedTimestampColumn = null;
+    }
+  }
+
+  /**
+   * 타입변경 이벤트시 init filter
+   * @param column
+   * @param type
+   */
+  private initFilteringInChangeType(column, type, role) {
+    // 기존 타입이 타임이고 필터링 옵션이 있었던 경우
+    if (column.hasOwnProperty('filteringOptions') && column.logicalType === 'TIMESTAMP') {
+      delete column.filteringOptions;
+    }
+    // 변경된 타입이 타임이고 필터링이 있었던 경우
+    if (column.hasOwnProperty('filtering')
+      && (this.isEqualType('TIMESTAMP', type) || role === 'MEASURE')) {
+      this.initFilteringSeq(column);
+    }
+  }
+
+  /**
+   * 타입변경 이벤트시 init ingestion rule
+   * @param column
+   */
+  private initIngestionRuleInChangeType(column) {
+    // ingestionRule이 있다면
+    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace') {
+      column.ingestionRule.type = 'default';
+    }
+  }
+
+  /**
+   * init timestamp format
+   * @param column
+   * @param columnDetailData
+   * @returns {Promise<any>}
+   */
+  private initTimestampFormat(columnList) {
+    // 로딩 show
+    this.loadingShow();
+
+    const promise = [];
+    columnList.forEach((column) => {
+      // column DetailData
+      let columnDetailData = this.getColumnDetailData(column);
+
+      // data 가 없다면 타임스탬프를 지정할수 없다.
+      if (columnDetailData.length === 0) {
+        column.errorFl = true;
+      } else {
+        columnDetailData = columnDetailData.length > 20 ? columnDetailData.slice(0, 19) : columnDetailData;
+        promise.push(this.getTimestampFormat(column, columnDetailData));
+      }
+    });
+
+    // 서비스 로직 수행
+    Promise.all(promise)
+      .then(() => {
+        // init timestamp
+        this.initTimestampColumn();
+        // 로딩 hide
+        this.loadingHide();
+      })
+      .catch(() => {
+        // 로딩 hide
+        this.loadingHide();
+      })
+  }
+
+  /**
+   * 필드 init
+   * @param {any[]} fields
+   */
+  private initFields(fields: any[]) {
+    fields.forEach((column) => {
+      column['removed'] = false;
+    });
+    // init timestamp
+    this.initTimestampFormat(this.getTimeTypeColumns());
+  }
+
+  /**
+   * 데이터베이스에서 선택된 데이터 init
+   * @param fileData
+   */
+  private initColumnData(fileData: any) {
+    this.fields = _.cloneDeep(fileData.datasourceFile.selectedFile.fields);
+    this.data = _.cloneDeep(fileData.datasourceFile.selectedFile.data);
+  }
+
+
+  /**
+   * init schema data
+   * @param schemaData
+   */
+  private initData(schemaData: any) {
+    // 선택된 role type
+    this.selectedRoleType = schemaData.selectedRoleType;
+    // 선택된 type
+    this.selectedType = schemaData.selectedType;
+    // 검색어
+    this.searchText = schemaData.searchText;
+    // 선택된 타임스탬프 타입
+    this.selectedTimestampType = schemaData.selectedTimestampType;
+    // 선택된 타임스탬프 컬럼
+    this.selectedTimestampColumn = schemaData.selectedTimestampColumn;
+    // 선택된 컬럼
+    this.selectedColumn = schemaData.selectedColumn;
+    // 선택된 컬럼의 데이터
+    this.selectedColumnData = schemaData.selectedColumnData;
+    // show flag
+    this.typeShowFl = schemaData.typeShowFl;
+    this.timestampShowFl = schemaData.timestampShowFl;
+    // 추천 및 필수필터 flag
+    this.recommendAndEssentialFl = schemaData.recommendAndEssentialFl;
+    // fields
+    this.fields = schemaData.fields;
+    // fields data
+    this.data = schemaData.data;
+    // 체크된 데이터
+    this.checkedColumnList = schemaData.checkedColumnList;
+  }
+
+  /**
+   * ui init
+   */
+  private initView() {
+    // role
+    this.roleTypeList = [
+      { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
+      { label: this.translateService.instant('msg.storage.ui.list.dimension'), value: 'DIMENSION' },
+      { label: this.translateService.instant('msg.storage.ui.list.measure'), value: 'MEASURE' }
+    ];
+    this.selectedRoleType = this.roleTypeList[0];
+    // type
+    this.typeList = [
+      { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
+      { label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING' },
+      { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
+      { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER' },
+      { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE' },
+      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
+      { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
+      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
+    ];
+    this.selectedType = this.typeList[0];
+
+    // 선택된 컬럼리스트
+    this.checkedColumnList = [];
+    // 초기화
+    this.fields = [];
+    this.data = [];
+  }
+}

@@ -1,0 +1,414 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-contentsin ddp-full" style="z-index: 126;" >
+
+  <!-- 워크북 네비게이션 (edit) -->
+  <div *ngIf="dashboard" class="ddp-wrap-naviarea ddp-editnavi ddp-clear ddp-board-naviarea" >
+    <em class="ddp-icon-dashboard2"></em>
+    <div class="ddp-ui-naviarea">
+      <!-- Dashboard Name & List Popup -->
+      <div class="ddp-wrap-naviname" [ngClass]="{'ddp-selected' : isShowDashboardList}"
+           (click)="isShowDashboardList = !isShowDashboardList" (clickOutside)="isShowDashboardList = false;">
+        <span class="ddp-data-naviname">{{dashboard.name}}<em class="ddp-icon-menuview"></em></span>
+        <!-- Dashboard List Popup -->
+        <div class="ddp-wrap-popup2 ddp-wrap-dashname-popup" *ngIf="isShowDashboardList">
+          <!-- setting -->
+          <div class="ddp-ui-top-setting" (click)="$event.stopPropagation()">
+            <span class="ddp-data-name">
+              {{searchText != '' ? searchText : 'Dashboard'}}
+              <em class="ddp-data-num">({{(dashboards | baseFilter : ['name', searchText]).length}})</em>
+            </span>
+            <!-- buttons -->
+            <div class="ddp-btn-control" *ngIf="!isSearchMode">
+              <em class="ddp-icon-editsearch" (click)="isSearchMode = true"></em>
+              <em class="ddp-icon-editadd" (click)="moveOrNewDashboard()"></em>
+            </div>
+            <!-- //buttons -->
+            <!-- 검색 -->
+            <div class="ddp-form-search" *ngIf="isSearchMode">
+              <em class="ddp-icon-search"></em>
+              <input type="text" placeholder="{{'msg.board.custom.ui.placeholder' | translate}}"
+                     [(ngModel)]="searchText" (keyup.enter)="isSearchMode = false;">
+              <a href="javascript:" class="ddp-btn-search-close" (click)="isSearchMode = false;searchText = ''"></a>
+            </div>
+            <!-- //검색 -->
+          </div>
+          <!-- // setting -->
+          <!-- Dashboard List -->
+          <ul class="ddp-list-popup ddp-list-imgchart">
+            <li *ngFor="let dashboardItem of dashboards | baseFilter : ['name', searchText]"
+                [ngClass]="{'ddp-selected' : dashboard.id === dashboardItem.id}">
+              <a href="javascript:" (click)="moveOrNewDashboard(dashboardItem)">
+                <span class="ddp-wrap-images">
+                  <img src="" (invoke)="getBoardImage($event, dashboardItem.imageUrl)" class="ddp-img-chart" />
+                </span>
+                <span class="ddp-data-name">{{dashboardItem.name}}</span>
+              </a>
+            </li>
+          </ul>
+          <!-- // Dashboard List -->
+        </div>
+        <!-- // Dashboard List Popup -->
+      </div>
+      <!-- // Dashboard Name & List Popup -->
+
+      <!-- Description -->
+      <div class="ddp-box-navidet">
+        <div class="ddp-wrap-navidet">
+          <span class="ddp-data-navidet">{{dashboard.description}}</span>
+        </div>
+      </div>
+      <!-- // Description -->
+    </div>
+
+    <!-- Navigation Buttions -->
+    <div class="ddp-ui-navibuttons">
+
+      <!-- New Widget Buttons -->
+      <div class="ddp-ui-fix-buttons">
+        <ul class="ddp-list-buttons2">
+          <li>
+            <a href="javascript:" class="ddp-btn-list" (click)="isAppendLayout=true;addChart();">
+              <em class="ddp-icon-chart-new"></em>{{'msg.board.btn.new.chart' | translate}}
+            </a>
+          </li>
+          <li>
+            <a href="javascript:" class="ddp-btn-list" (click)="isAppendLayout=true;openTextWidgetEditor();">
+              <em class="ddp-icon-text-new"></em>{{'msg.board.btn.new.text' | translate}}
+            </a>
+          </li>
+          <li>
+            <a href="javascript:" class="ddp-btn-list" (click)="isAppendLayout=true;openUpdateFilterPopup();">
+              <em class="ddp-icon-filter-new"></em>{{'msg.board.btn.new.filter' | translate}}
+            </a>
+          </li>
+          <li *ngIf="false">
+            <a href="javascript:" class="ddp-btn-list"><em class="ddp-icon-parameter-new"></em>파라미터</a>
+          </li>
+        </ul>
+        <a href="javascript:" class="ddp-btn-more-plus"></a>
+      </div>
+      <!-- // New Widget Buttons -->
+
+      <a href="javascript:" class="ddp-btn-line3" (click)="openDismissConfirm()">
+        <em class="ddp-icon-dismiss"></em>{{'msg.comm.btn.dismiss' | translate}}
+      </a>
+      <a href="javascript:" class="ddp-btn-buttons2" (click)="updateDashboard();">
+        <em class="ddp-icon-btndone"></em>{{'msg.comm.btn.done' | translate}}
+      </a>
+
+    </div>
+    <!-- // Navigation Buttions -->
+
+  </div>
+  <!-- // 워크북 네비게이션 (edit) -->
+
+  <div class="ddp-wrap-editboard">
+    <!-- 수정 영역 -->
+    <div class="ddp-ui-edit-contents">
+      <div class="ddp-box-boardedit">
+        <!-- 대시보드 영역 -->
+        <div class="ddp-view-boardedit">
+          <div class="ddp-ui-boardedit" #layoutContainer></div>
+        </div>
+        <!-- // 대시보드 영역 -->
+      </div>
+    </div>
+    <!-- // 수정 영역 -->
+
+    <!-- Right Side Contents -->
+    <div *ngIf="selectedRightTab != rightTab.NONE" class="ddp-ui-boardside-contents" style="z-index:126;position:relative;">
+      <div class="ddp-view-boardside" >
+        <!-- Chart List Side Menu -->
+        <div class="ddp-ui-boardside-in ddp-chart-boardside" *ngIf="selectedRightTab == rightTab.CHART">
+          <div class="ddp-area-boardside">
+            <!-- Title -->
+            <div class="ddp-ui-boardside-title">
+              {{'msg.page.ui.chart' | translate}}
+              <span class="ddp-data-num">{{boardUtil.getPageWidgets(dashboard).length}}</span>
+
+              <!-- Chart Panel Tooltip -->
+              <div class="ddp-info" [class.ddp-selected]="isShowChartPanelTooltip"
+                   (mouseenter)="isShowChartPanelTooltip=true" (mouseleave)="isShowChartPanelTooltip=false">
+                <a href="javascript:" class="ddp-btn-info"></a>
+                <!-- Tooltip Popup -->
+                <div class="ddp-box-layout4">
+                  <a href="javascript:" class="ddp-btn-close"
+                     (click)="isShowChartPanelTooltip=false;$event.preventDefault();$event.stopPropagation();"></a>
+
+                  <div class="ddp-data-title">
+                    {{'msg.board.ui.chart.setting.guide' | translate}}
+                  </div>
+
+                  <div class="ddp-data-det2">
+                    <strong>{{'msg.board.th.chart-widget' | translate}}</strong>
+                    <div class="ddp-txt-det">{{'msg.board.th.chart-widget.description' | translate}}</div>
+                    <strong>{{'msg.board.th.hierarchy' | translate}}</strong>
+                    <div class="ddp-txt-det">{{'msg.board.th.hierarchy.description' | translate}}</div>
+                  </div>
+                </div>
+                <!-- // Tooltip Popup -->
+              </div>
+              <!-- // Chart Panel Tooltip -->
+
+              <!-- Add Chart Button -->
+              <a (click)="addChart()" href="javascript:" class="ddp-icon-add">
+                <!-- 툴팁 -->
+                <div class="ddp-ui-tooltip-info ddp-down">
+                  <em class="ddp-icon-view-top"></em>
+                  {{'msg.board.ui.add.chart.tooltip' | translate}}
+                </div>
+                <!-- //툴팁 -->
+              </a>
+              <!-- // Add Chart Button -->
+            </div>
+            <!-- // Title -->
+            <!-- Chart List Contents -->
+            <div class="ddp-wrap-downmenu" >
+              <ul class="ddp-list-chart" *ngIf="hierarchy">
+                <li *ngFor="let widgetRel_1 of hierarchy.get()">
+                  <a href="javascript:"
+                     (invoke)="setDragWidget($event, widgetRel_1)"
+                     [attr.data-gl-dragsource]="isWidgetInLayout(widgetRel_1.id) ? 'disable' : 'enable'">
+                    <div class="ddp-chart-images">
+                      <span class="ddp-wrap-chartimg">
+                        <em class="{{'ddp-img-chart-' + getWidgetType(widgetRel_1.id)}}"></em>
+                      </span>
+                      <em *ngIf="isWidgetInLayout(widgetRel_1.id)" class="ddp-icon-used"></em>
+                    </div>
+
+                    <div class="ddp-data-info">
+                      <span class="ddp-data-name">{{widgetRel_1.name}}</span>
+                      <span class="ddp-data-used">{{getChartFields(widgetRel_1.id)}}</span>
+                    </div>
+
+                    <!-- button -->
+                    <div class="ddp-btn-control">
+                      <em class="ddp-icon-edit-s" (click)="editWidgetEventHandler(widgetRel_1.id)"></em>
+                      <em class="ddp-icon-del-s" (click)="setRemoveWidget(widgetRel_1.id)"></em>
+                    </div>
+                    <!-- // button -->
+                  </a>
+                  <!-- 2 Depth List -->
+                  <ul *ngIf="widgetRel_1.children && 0 < widgetRel_1.children.length" class="ddp-list-chart-2depth">
+                    <li *ngFor="let widgetRel_2 of widgetRel_1.children">
+                      <a href="javascript:"
+                         (invoke)="setDragWidget($event, widgetRel_2)"
+                         [attr.data-gl-dragsource]="isWidgetInLayout(widgetRel_2.id) ? 'disable' : 'enable'">
+                        <div class="ddp-chart-images">
+                          <span class="ddp-wrap-chartimg">
+                            <em class="{{'ddp-img-chart-' + getWidgetType(widgetRel_2.id)}}"></em>
+                          </span>
+                          <em *ngIf="isWidgetInLayout(widgetRel_2.id)" class="ddp-icon-used"></em>
+                        </div>
+
+                        <div class="ddp-data-info">
+                          <span class="ddp-data-name">{{widgetRel_2.name}}</span>
+                          <span class="ddp-data-used">{{getChartFields(widgetRel_2.id)}}</span>
+                        </div>
+
+                        <!-- button -->
+                        <div class="ddp-btn-control">
+                          <em class="ddp-icon-edit-s" (click)="editWidgetEventHandler(widgetRel_2.id)"></em>
+                          <em class="ddp-icon-del-s" (click)="setRemoveWidget(widgetRel_2.id)"></em>
+                        </div>
+                        <!-- //button -->
+                      </a>
+                      <!-- 3 Depth List -->
+                      <ul *ngIf="widgetRel_2.children && 0 < widgetRel_2.children.length" class="ddp-list-chart-3depth">
+                        <li *ngFor="let widgetRel_3 of widgetRel_2.children">
+                          <a href="javascript:"
+                             (invoke)="setDragWidget($event, widgetRel_3)"
+                             [attr.data-gl-dragsource]="isWidgetInLayout(widgetRel_3.id) ? 'disable' : 'enable'">
+                            <div class="ddp-chart-images">
+                              <span class="ddp-wrap-chartimg">
+                                <em class="{{'ddp-img-chart-' + getWidgetType(widgetRel_3.id)}}"></em>
+                              </span>
+                              <em *ngIf="isWidgetInLayout(widgetRel_3.id)" class="ddp-icon-used"></em>
+                            </div>
+
+                            <div class="ddp-data-info">
+                              <span class="ddp-data-name">{{widgetRel_3.name}}</span>
+                              <span class="ddp-data-used">{{getChartFields(widgetRel_3.id)}}</span>
+                            </div>
+
+                            <!-- button -->
+                            <div class="ddp-btn-control">
+                              <em class="ddp-icon-edit-s" (click)="editWidgetEventHandler(widgetRel_3.id)"></em>
+                              <em class="ddp-icon-del-s" (click)="setRemoveWidget(widgetRel_3.id)"></em>
+                            </div>
+                            <!-- //button -->
+                          </a>
+                        </li>
+                      </ul>
+                      <!-- // 3 Depth List -->
+                    </li>
+                  </ul>
+                  <!-- // 2 Depth List -->
+                </li>
+              </ul>
+            </div>
+            <!-- // Chart List Contents -->
+            <!-- Hierarchy Button -->
+            <div class="ddp-foot-buttons">
+              <a href="javascript:" class="ddp-btn-set" (click)="showSetPageRelation()">
+                <em class="ddp-icon-hierarch"></em>
+                {{'msg.board.btn.hierarchy' | translate}}
+              </a>
+            </div>
+            <!-- // Hierarchy Button -->
+          </div>
+        </div>
+        <!-- // Chart List Side Menu -->
+        <!-- Text List Side Menu -->
+        <text-widgets-panel *ngIf="selectedRightTab == rightTab.TEXT"
+                            [dashboard]="dashboard"
+                            [widgetCompsInLayout]="getWidgetComps()"
+                            (invokeEvent)="setDragTextWidget($event)"
+                            (changeEvent)="setTextWidget($event)">
+        </text-widgets-panel>
+        <!-- // Text List Side Menu -->
+        <!-- Filter List Side Menu -->
+        <div class="ddp-ui-boardside-in ddp-filter-boardside" *ngIf="selectedRightTab == rightTab.FILTER">
+          <div class="ddp-area-boardside">
+            <!-- Title -->
+            <div class="ddp-ui-boardside-title">
+              {{'msg.board.filter.title.global-filter' | translate}}
+              <span class="ddp-data-num">
+                {{(boardUtil.getBoardFilters(dashboard) != null ? boardUtil.getBoardFilters(dashboard).length : 0) + (chartFilters != null ? chartFilters.length : 0)}}
+              </span>
+              <a href="javascript:" class="ddp-icon-add" (click)="openUpdateFilterPopup()">
+                <!-- 툴팁 -->
+                <div class="ddp-ui-tooltip-info ddp-down">
+                  <em class="ddp-icon-view-top"></em>
+                  {{'msg.board.ui.filter.tooltip' | translate}}
+                </div>
+                <!-- // 툴팁 -->
+              </a>
+            </div>
+            <!-- // Title -->
+            <!-- Filter List Contents -->
+            <div class="ddp-box-down" >
+              <div *ngFor="let item of boardUtil.getFilterWidgets(dashboard);trackBy:filterListTrackByFn"
+                   class="ddp-wrap-divide">
+                <time-filter-panel
+                  *ngIf="filterUtil.isTimeFilter(getFilterForFilterWidget(item))"
+                  [filter]="getFilterForFilterWidget(item)"
+                  [dashboard]="dashboard"
+                  [isWidgetInLayout]="isWidgetInLayout(item.id)"
+                  [isDraggable]="isDraggableFilterWidget(item)"
+                  (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
+                  (updateFilterEvent)="updateFilter($event)"
+                  (deleteFilterEvent)="deleteFilter($event)"
+                  (changeChartToGlobalEvent)="openChangeFilterConfirm($event)"
+                  (invoke)="setDragFilterWidget($event, item)" >
+                </time-filter-panel>
+                <inclusion-filter-panel
+                  *ngIf="getFilterForFilterWidget(item).type === 'include'"
+                  [filter]="getFilterForFilterWidget(item)"
+                  [dashboard]="dashboard"
+                  [isWidgetInLayout]="isWidgetInLayout(item.id)"
+                  [isDraggable]="isDraggableFilterWidget(item)"
+                  (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
+                  (updateFilterEvent)="updateFilter($event)"
+                  (deleteFilterEvent)="deleteFilter($event)"
+                  (changeChartToGlobalEvent)="openChangeFilterConfirm($event)"
+                  (invoke)="setDragFilterWidget($event, item)" >
+                </inclusion-filter-panel>
+                <bound-filter-panel
+                  *ngIf="getFilterForFilterWidget(item).type === 'bound'"
+                  [filter]="getFilterForFilterWidget(item)"
+                  [dashboard]="dashboard"
+                  [isWidgetInLayout]="isWidgetInLayout(item.id)"
+                  [isDraggable]="isDraggableFilterWidget(item)"
+                  (openUpdateFilterPopupEvent)="openUpdateFilterPopup($event)"
+                  (updateFilterEvent)="updateFilter($event)"
+                  (deleteFilterEvent)="deleteFilter($event)"
+                  (changeChartToGlobalEvent)="openChangeFilterConfirm($event)"
+                  (invoke)="setDragFilterWidget($event, item)" >
+                </bound-filter-panel>
+              </div>
+            </div>
+            <!-- // Filter List Contents -->
+          </div>
+        </div>
+        <!-- // Filter List Side Menu -->
+        <!-- Layout Config Side Menu -->
+        <app-dashboard-layout-config *ngIf="selectedRightTab == rightTab.LAYOUT"
+                                     [dashboard]="dashboard"
+                                     [boardConf]="boardUtil.getBoardConfiguration(dashboard)"
+                                     (changeBoardConf)="changeBoardConf($event)" >
+        </app-dashboard-layout-config>
+        <!-- Layout Config Side Menu -->
+        <!-- Datasource Side Menu -->
+        <datasource-panel
+          [dashboard]="dashboard"
+          [chartFilters]="chartFilters"
+          (changeFilter)="changeFilter($event)"
+          (onFilterClick)="selectedRightTab = rightTab.FILTER"
+          (onUpdateFilter)="addFilter($event)"
+          (onDeleteFilter)="deleteFilter($event)"
+          (onUpdateCustomField)="updateCustomField($event)"
+          (onDeleteCustomField)="deleteCustomField($event)"
+          (changeFieldAlias)="updateFieldAndWidgetPivotAndRender($event)">
+        </datasource-panel>
+        <!-- // Datasource Side Menu -->
+      </div>
+    </div>
+    <!-- // Right Side Contents -->
+
+    <!-- Right Side Menu Buttons -->
+    <div class="ddp-ui-boardside-menu">
+      <a href="javascript:"
+         [ngClass]="{'ddp-selected': selectedRightTab === rightTab.CHART}" (click)="toggleRnb(rightTab.CHART)">
+        <em class="ddp-icon-menu-chart"></em>
+      </a>
+      <a href="javascript:"
+         [ngClass]="{'ddp-selected': selectedRightTab === rightTab.TEXT}" (click)="toggleRnb(rightTab.TEXT)">
+        <em class="ddp-icon-menu-text"></em>
+      </a>
+      <a href="javascript:"
+         [ngClass]="{'ddp-selected': selectedRightTab === rightTab.FILTER}" (click)="toggleRnb(rightTab.FILTER)">
+        <em class="ddp-icon-menu-filter"></em>
+      </a>
+      <span class="ddp-ui-menu-layout">
+        <a href="javascript:"
+           [ngClass]="{'ddp-selected': selectedRightTab === rightTab.LAYOUT}" (click)="toggleRnb(rightTab.LAYOUT)">
+          <em class="ddp-icon-menu-layout"></em>
+        </a>
+      </span>
+      <span class="ddp-ui-menu-layout ddp-bottom">
+        <a href="javascript:" (click)="toggleDatasourcePanel()">
+          <em class="ddp-icon-menu-datasorce" ></em>
+        </a>
+      </span>
+    </div>
+    <!-- // Right Side Menu Buttons -->
+  </div>
+
+</div>
+
+<app-config-filter (done)="configureFilter($event)"
+                   (close)="closeComponent( 'UPDATE-FILTER' )"></app-config-filter>
+<app-page #page *ngIf="isShowPage"
+          [widget]="selectedPageWidget"
+          [isChartTest]="isChartTest"
+          (changeFieldAlias)="updateFieldAndWidgetPivot($event)" (close)="closeComponent( 'PAGE' )"></app-page>
+<app-page-relation (changeRelation)="changePageWidgetRelation($event)"></app-page-relation>
+<app-update-datasource *ngIf="isUpdateDataSource"
+                       [workbookId]="workbook.id" [workbookName]="workbook.name"
+                       [workspaceId]="workbook['workspaceId']" [dashboard]="dashboard"
+                       (done)="changeDataSource($event)"
+                       (close)="closeUpdateDataSource()"></app-update-datasource>

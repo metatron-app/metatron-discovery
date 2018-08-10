@@ -1,0 +1,128 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-wrap-table-detail">
+  <label class="ddp-label-detail">{{'msg.spaces.spaces.detail.statistics.ui.title' | translate}}</label>
+  <!-- 통계 -->
+  <div class="ddp-box-statistic">
+    <div class="ddp-label-name">{{'msg.spaces.spaces.detail.statistics.ui.overall' | translate}}</div>
+    <div class="ddp-col-6 ddp-first">
+      <!-- 전체사용량 -->
+      <div class="ddp-view-statistic">
+        <div class="ddp-data-box">
+          <span class="ddp-label">{{'msg.spaces.spaces.detail.statistics.ui.items' | translate}}</span>
+          <span class="ddp-data">{{getCountBookItems()}}</span>
+        </div>
+        <!-- remark -->
+        <div class="ddp-data-remark">
+          <ul class="ddp-list-remark">
+            <li>
+              <div class="ddp-box-tag ddp-workbook">
+                {{'msg.spaces.spaces.detail.statistics.ui.workbook' | translate}}
+              </div>
+              {{getWorkbookCount()}}
+            </li>
+            <li>
+              <div class="ddp-box-tag ddp-notebook">
+                {{'msg.spaces.spaces.detail.statistics.ui.notebook' | translate}}
+              </div>
+              {{getNotebookCount()}}
+            </li>
+            <li>
+              <div class="ddp-box-tag ddp-workbench">
+                {{'msg.spaces.spaces.detail.statistics.ui.workbench' | translate}}
+              </div>
+              {{getWorkbenchCount()}}
+            </li>
+          </ul>
+          <span class="ddp-data-average">
+            {{'msg.spaces.shared.detail.statistics.dashboard.average' | translate}} <strong>{{avgDashboardByWorkBook}}</strong></span>
+        </div>
+        <!-- //remark -->
+      </div>
+      <!--//전체사용량 -->
+    </div>
+    <div class="ddp-col-6" *ngIf="isPublicWorkspace()">
+      <!-- 즐겨찾기 -->
+      <div class="ddp-view-statistic ddp-setting">
+        <span class="ddp-name"><em class="ddp-icon-favorite"></em>{{'msg.spaces.shared.detail.statistics.favorite.count' | translate}}</span>
+        <span class="ddp-data">{{countFavoriteWorkspace}}</span>
+      </div>
+      <!--//즐겨찾기 -->
+    </div>
+  </div>
+  <!-- //통계 -->
+
+  <!-- 통계 -->
+  <div class="ddp-box-statistic">
+    <div class="ddp-label-name">{{getPeriodRange()}}</div>
+    <!-- option -->
+    <div class="ddp-wrap-option">
+      <!-- select box -->
+      <!-- 선택시 ddp-selected 추가 -->
+      <div class="ddp-type-selectbox"
+           (click)="periodShowFl = !periodShowFl"
+           (clickOutside)="periodShowFl = false"
+           [class.ddp-selected]="periodShowFl">
+        <span class="ddp-txt-selectbox">{{getSelectedPeriod?.label}}</span>
+        <ul class="ddp-list-selectbox ddp-selectdown">
+          <li *ngFor="let period of getPeriodList" (click)="onSelectedPeriod(period)">
+            <a href="javascript:">
+              {{period.label}}
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- //select box -->
+      <!-- select box -->
+      <div class="ddp-type-selectbox"
+           *ngIf="isPeriodMonthly()"
+           (click)="rangeShowFl = !rangeShowFl"
+           (clickOutside)="rangeShowFl = false"
+           [class.ddp-selected]="rangeShowFl">
+        <span class="ddp-txt-selectbox">{{getSelectedRange?.label}}</span>
+        <ul class="ddp-list-selectbox ddp-selectdown">
+          <li *ngFor="let range of getRangeList" (click)="onSelectedRange(range)">
+            <a href="javascript:">
+              {{range.label}}
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- //select box -->
+    </div>
+    <!-- //option -->
+    <div class="ddp-col-6 ddp-first">
+      <!-- view -->
+      <div class="ddp-view-statistic">
+        <span class="ddp-data-label">{{'msg.spaces.shared.detail.statistics.user.access.Cumulative' | translate}}</span>
+        <!-- graph -->
+        <div class="ddp-data-graph" #userAccess></div>
+        <!-- //graph -->
+      </div>
+      <!--//view -->
+    </div>
+    <div class="ddp-col-6">
+      <!-- view -->
+      <div class="ddp-view-statistic">
+        <span class="ddp-data-label">{{'msg.spaces.shared.detail.statistics.item.distribution' | translate}}</span>
+        <!-- graph -->
+        <div class="ddp-data-graph" #itemDistribution></div>
+        <!-- //graph -->
+      </div>
+      <!--//view -->
+    </div>
+  </div>
+  <!-- //통계 -->
+</div>

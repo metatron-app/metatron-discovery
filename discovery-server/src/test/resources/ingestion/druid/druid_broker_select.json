@@ -1,0 +1,18 @@
+{
+  "queryType": "select",
+  "dataSource": "hive_ingestion_datasource_name",
+  "dimensions":["time"],
+  "metrics":[],
+  "granularity": "all",
+  "intervals": [
+    "2000-01-01/2032-01-02"
+  ],
+  "virtualColumns": [
+    {
+      "type": "expr",
+      "outputName": "time",
+      "expression": "time_format(__time,out.format='MMM d, yyyy',out.timezone='UTC',out.locale='en')"
+    }
+  ],
+  "pagingSpec":{"pagingIdentifiers": {}, "threshold":100}
+}

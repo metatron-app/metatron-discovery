@@ -1,0 +1,61 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-ui-boardside-in ddp-text-boardside">
+  <div *ngIf="widgets" class="ddp-garea-boardside">
+    <!-- Title -->
+    <div class="ddp-ui-boardside-title">
+      TEXT <span class="ddp-data-num">{{widgets.length}}</span>
+      <a href="javascript:" class="ddp-icon-add" (click)="addWidget()">
+        <!-- 툴팁 -->
+        <div class="ddp-ui-tooltip-info ddp-down">
+          <em class="ddp-icon-view-top"></em>
+          Add chart
+        </div>
+        <!-- //툴팁 -->
+      </a>
+    </div>
+    <!-- // Title -->
+    <!-- Text Widget List Contents -->
+    <div class="ddp-wrap-downmenu">
+      <div class="ddp-box-down">
+        <ul class="ddp-list-text">
+          <li *ngFor="let widget of widgets">
+            <a href="javascript:"
+               (invoke)="setDragWidget($event, widget)"
+               [attr.data-gl-dragsource]="isInLayout(widget) ?  'disable' : 'enable'">
+              <div class="ddp-chart-images">
+                <em class="ddp-img-txt"></em>
+                <em *ngIf="isInLayout(widget)" class="ddp-icon-used"></em>
+              </div>
+              <div class="ddp-data-info"><span>{{getWidgetContents(widget)}}</span></div>
+              <!-- button -->
+              <div class="ddp-btn-control">
+                <em class="ddp-icon-edit-s" (click)="modifyWidget(widget)"></em>
+                <em class="ddp-icon-del-s" (click)="deleteWidget(widget)"></em>
+              </div>
+              <!-- // button -->
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- // Text Widget List Contents -->
+  </div>
+</div>
+
+<app-update-text *ngIf="showTextEditor"
+                 [widget]="selectedTextWidget"
+                 (change)="setTextWidget($event)"
+                 (close)="showTextEditor = false;"></app-update-text>
