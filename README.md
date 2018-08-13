@@ -35,6 +35,9 @@ Screenshots
 **Use Datasources**
 ![workspacelist](https://user-images.githubusercontent.com/6300003/44014642-f70fd6e6-9f07-11e8-978c-e04ee6dee5f1.png)
 
+**Manage Datasources**
+![datasourece-detail](https://user-images.githubusercontent.com/6300003/44018726-a98d474a-9f17-11e8-849b-dc11a0d8b815.png)
+
 **Using Database**
 ![create_connection](https://user-images.githubusercontent.com/6300003/44014836-ef969138-9f08-11e8-8ebe-136318859aa0.png)
 
