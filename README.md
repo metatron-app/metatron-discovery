@@ -1,16 +1,16 @@
-metatron discovery
+Metatron Discovery
 =========
 
-![logo_metaron_discovery](https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png)
+<img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" width="600px">
 
-**metatron discovery** is a self-service solution for big data discovery
-To know more about metatron discovery, visit our web site [https://metatron.app](https://metatron.app)
+**Metatron discovery** is a self-service solution for big data discovery.
+To learn more about metatron discovery, visit our web site [https://metatron.app](https://metatron.app)
 
 Strengths
 ------------------
-1. Powered by [Apache Druid](http://druid.io/), metatron can process big data super fast.
-2. A single unified product for field users enabling data analytics through interactive web UI.
-3. Experience intuitive UI through creating dashboards with various types of charts. 
+1. Powered by [Apache Druid](http://druid.io/), metatron can process huge size of data super fast.
+2. A single unified product for field users enabling data analytics.
+3. Intuitive web UI for creating dashboards with various types of charts. 
 
 Features
 ------------------
@@ -29,26 +29,23 @@ metatron provides:
 
 Screenshots
 ------------------
-**Create Dashboards**
-![dashboard3](https://user-images.githubusercontent.com/6300003/44020367-a32bf09a-9f1c-11e8-9915-f62a789b3d07.png)
+### Create Dashboards
+<kbd><img title="Dashboard" src="https://user-images.githubusercontent.com/6300003/44020367-a32bf09a-9f1c-11e8-9915-f62a789b3d07.png"></kbd><br />
 
-**Create Charts**
-![chart2](https://user-images.githubusercontent.com/6300003/44020657-90d0d644-9f1d-11e8-88df-7e5af4209676.png)
+### Use Datasources
+<kbd><img title="Workspace-list" src="https://user-images.githubusercontent.com/6300003/44014642-f70fd6e6-9f07-11e8-978c-e04ee6dee5f1.png"></kbd><br />
 
-**Use Datasources**
-![workspacelist](https://user-images.githubusercontent.com/6300003/44014642-f70fd6e6-9f07-11e8-978c-e04ee6dee5f1.png)
+### Manage Datasources
+<kbd><img title="Datasoruce-list" src="https://user-images.githubusercontent.com/6300003/44018726-a98d474a-9f17-11e8-849b-dc11a0d8b815.png"></kbd><br />
 
-**Prepare Origin Data**
-![prep](https://user-images.githubusercontent.com/6300003/44019798-d02e8348-9f1a-11e8-958e-4e95802bd5de.png)
+### Using Database
+<kbd><img title="Create-connection" src="https://user-images.githubusercontent.com/6300003/44014836-ef969138-9f08-11e8-8ebe-136318859aa0.png"></kbd><br />
 
-**Manage Datasources**
-![datasourece-detail](https://user-images.githubusercontent.com/6300003/44018726-a98d474a-9f17-11e8-849b-dc11a0d8b815.png)
+### Prepare Origin Data
+<kbd><img title="Data-preparation" src="https://user-images.githubusercontent.com/6300003/44019798-d02e8348-9f1a-11e8-958e-4e95802bd5de.png"></kbd><br />
 
-**Using Database**
-![create_connection](https://user-images.githubusercontent.com/6300003/44014836-ef969138-9f08-11e8-8ebe-136318859aa0.png)
-
-**Search Meta Data**
-![mdm](https://user-images.githubusercontent.com/6300003/44014761-7a98a6aa-9f08-11e8-8337-6c83cdfe88ba.png)
+### Search Meta Data
+<kbd><img title="MDM" src="https://user-images.githubusercontent.com/6300003/44014761-7a98a6aa-9f08-11e8-8337-6c83cdfe88ba.png"></kbd><br />
 
 Download & Installation
 ----------------------------
