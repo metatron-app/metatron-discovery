@@ -41,6 +41,9 @@ Screenshots
 **Using Database**
 ![create_connection](https://user-images.githubusercontent.com/6300003/44014836-ef969138-9f08-11e8-8ebe-136318859aa0.png)
 
+**Prepare Origin Data**
+![prep](https://user-images.githubusercontent.com/6300003/44019798-d02e8348-9f1a-11e8-958e-4e95802bd5de.png)
+
 **Search Meta Data**
 ![mdm](https://user-images.githubusercontent.com/6300003/44014761-7a98a6aa-9f08-11e8-8337-6c83cdfe88ba.png)
 
