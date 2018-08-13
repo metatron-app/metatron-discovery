@@ -6,12 +6,13 @@ metatron Discovery
 **Metatron Discovery** is a self-service solution for big data discovery
 To know more about metatron Discovery, visit our web site [https://metatron.app](https://metatron.app)
 
-Our strengths
+Strengths
 ------------------
-1. 빠른 aggregation
-2. 하나의 도구에서 모든것을
+1. Powered by [Apache Druid](http://druid.io/), Metatron can process big data super fast.
+2. A single unified product for field users enabling data analytics through interactive web UI.
+3. Experience intuitive UI through creating dashboards with various types of charts. 
 
-features
+Features
 ------------------
 Metatron Discovery is a data discovery web application supports end-to-end features from data management to ananlytics.
 
