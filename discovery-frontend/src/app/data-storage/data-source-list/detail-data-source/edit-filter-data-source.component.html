@@ -1,0 +1,184 @@
+<div class="ddp-layout-popuptype" style="display:;" *ngIf="isShowComponent">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+            {{(isLinkedType ? 'msg.storage.btn.essential.filter' : 'msg.storage.btn.recommend.filter') | translate}}
+      </span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="onClickCancel()">Cancel</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="onClickDone()">Done</a>
+      </div>
+      <!-- det -->
+    </div>
+    <!-- //title -->
+    <div class="ddp-ui-popup-contents">
+      <div class="ddp-ui-dataset-new">
+        <!-- top -->
+        <div class="ddp-type-top-option ddp-clear">
+          <!-- 검색 -->
+          <div class="ddp-form-search ddp-fleft">
+            <em class="ddp-icon-search"></em>
+            <input type="text" placeholder="{{'msg.storage.ui.column.search.description' | translate}}"
+                   [ngModel]="searchTextKeyword"
+                   (keypress)="onSearchText($event)"
+                   (keyup.esc)="searchText('')">
+            <em class="ddp-btn-search-close" *ngIf="searchTextKeyword !== ''" (click)="searchText('')"></em>
+          </div>
+          <!-- //검색 -->
+          <div class="ddp-ui-rightoption">
+
+            <div class="ddp-form-label2 ddp-fleft">
+              <label class="ddp-label-type">{{'msg.comm.th.role' | translate}}</label>
+              <div class="ddp-wrap-dropdown"
+                   (click)="isShowRoleTypeFilterList = !isShowRoleTypeFilterList"
+                   (clickOutside)="isShowRoleTypeFilterList = false">
+                <!-- select box -->
+                <!-- 클릭시 ddp-selected 추가 -->
+                <div class="ddp-type-selectbox" [class.ddp-selected]="isShowRoleTypeFilterList">
+                  <span class="ddp-txt-selectbox">{{selectedRoleTypeFilter.label}}</span>
+                  <ul class="ddp-list-selectbox ddp-selectdown">
+                    <li *ngFor="let type of roleTypeFilterList">
+                      <a href="javascript:" (click)="onChangeRoleTypeFilter(type)">
+                        {{type.label}}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <!-- //select box -->
+              </div>
+            </div>
+            <!-- //form -->
+            <!-- form -->
+            <div class="ddp-form-label2 ddp-fleft">
+              <label class="ddp-label-type">{{'msg.storage.ui.type' | translate}}</label>
+              <div class="ddp-wrap-dropdown"
+                   (click)="isShowTypeFilterList = !isShowTypeFilterList" (clickOutside)="isShowTypeFilterList = false">
+                <!-- select box -->
+                <!-- 클릭시 ddp-selected 추가 -->
+                <div class="ddp-type-selectbox" [class.ddp-selected]="isShowTypeFilterList">
+                  <span class="ddp-txt-selectbox">{{selectedTypeFilter.label}}</span>
+                  <ul class="ddp-list-selectbox ddp-selectdown">
+                    <li *ngFor="let type of typeFilterList">
+                      <a href="javascript:" (click)="onChangeTypeFilter(type)">
+                        {{type.label}}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <!-- //select box -->
+              </div>
+            </div>
+            <!-- //form -->
+            <div class="ddp-switch">
+              <a href="javascript:" class="ddp-btn-switch ddp-hover-tooltip" [class.ddp-selected]="isShowOnlyFilterColumnList"
+                 (click)="onChangeShowFilter()">
+                <!-- tooltip -->
+                <!--<div class="ddp-ui-tooltip-info ddp-down">-->
+                  <!--<em class="ddp-icon-view-top"></em>-->
+                  <!--스위치-->
+                <!--</div>-->
+                <!-- //tooltip -->
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- //top -->
+        <!-- viewtable -->
+        <div class="ddp-wrap-viewtable">
+          <!-- 테이블 -->
+          <div class="ddp-box-viewtable">
+            <!-- gridhead -->
+            <div class="ddp-ui-gridhead">
+              <table class="ddp-table-form ddp-table-type2">
+                <colgroup>
+                  <col width="115px">
+                  <col width="177px">
+                  <col width="250px">
+                  <col width="*">
+                </colgroup>
+                <thead>
+                <tr>
+                  <th>
+                    {{'msg.metadata.th.physical.role' | translate}}
+                  </th>
+                  <th>
+                    {{'msg.metadata.th.physical.type' | translate}}
+                  </th>
+                  <th>
+                    {{'msg.metadata.th.physical.name' | translate}}
+                  </th>
+                  <th>
+                    {{(isLinkedType ? 'msg.storage.btn.essential.filter' : 'msg.storage.btn.recommend.filter') | translate}}
+                  </th>
+                </tr>
+                </thead>
+              </table>
+            </div>
+            <!--// gridhead -->
+            <!-- gridbody -->
+            <div class="ddp-ui-gridbody">
+              <table class="ddp-table-form ddp-table-type2 ddp-inherit">
+                <colgroup>
+                  <col width="115px">
+                  <col width="177px">
+                  <col width="250px">
+                  <col width="*">
+                </colgroup>
+                <tbody>
+                <tr *ngFor="let column of filteredColumnList">
+                  <td>
+                    <span class="ddp-box-tag-value {{getFieldRoleTypeIconClass(column.role)}}">{{(column.role === 'MEASURE' ? 'msg.storage.ui.list.measure' : 'msg.storage.ui.list.dimension') | translate}}</span>
+                  </td>
+                  <td>
+                    <span class="ddp-txt-icon">
+                       <em class="{{getFieldTypeIconClass(column.logicalType)}}"></em>{{getColumnTypeLabel(column.logicalType, typeFilterList)}}
+                    </span>
+                  </td>
+                  <td>
+                    <!-- role이 TIMESTAMP인 경우에만 아이콘 표시 -->
+                    <!-- TODO 만약 TIMESTAMP로 지정된 컬럼도 filteringOptions 설정이 가능하도록 변경해달라고 하면 주석 해제할 것 -->
+                    <!--<div class="ddp-wrap-value-icon" *ngIf="column.role === 'TIMESTAMP'">-->
+                      <!--<em class="ddp-icon-time"></em>-->
+                    <!--</div>-->
+                    <div class="ddp-td-schema">
+                      <div class="ddp-form-name">
+                        <span class="ddp-data-name ddp-padr0">{{column.name}}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="ddp-ui-tooltip-info ddp-left" style="display:;">
+                      <em class="ddp-icon-view-top"></em>{{column.name}}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="ddp-wrap-num-checkbox">
+                      <label class="ddp-num-checkbox" (click)="onClickSetColumnFiltering(column); $event.preventDefault()">
+                        <input type="checkbox" [checked]="isEnableColumnFiltering(column)">
+                        <i class="ddp-txt-checkbox">{{column.filteringSeq + 1}}</i>
+                      </label>
+                      <label class="ddp-label-checkbox" (click)="onClickSetColumnFilteringOptions(column); $event.preventDefault()">
+                        <!-- TODO 만약 TIMESTAMP로 지정된 컬럼도 filteringOptions 설정이 가능하도록 변경해달라고 하면 주석 해제할 것 -->
+                        <!--<input type="checkbox" [disabled]="column.role !== 'TIMESTAMP' && !isEnableColumnFiltering(column)" [checked]="isEnableColumnFilteringOptions(column)">-->
+                        <input type="checkbox" [disabled]="!isEnableColumnFiltering(column)" [checked]="isEnableColumnFilteringOptions(column)">
+                        <i class="ddp-icon-checkbox"></i>
+                        <span class="ddp-txt-checkbox">{{(column.logicalType === 'TIMESTAMP' ? 'msg.storage.btn.sel.recent.period' : 'msg.storage.btn.sel.single.item') | translate}}</span>
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <!--// gridbody -->
+          </div>
+          <!-- //테이블 -->
+        </div>
+        <!-- //viewtable -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-confirm-modal (confirm)="updateColumnList()"></app-confirm-modal>

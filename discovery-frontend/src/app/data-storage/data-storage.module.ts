@@ -58,6 +58,7 @@ import { DataGridDataSourceComponent } from './data-source-list/detail-data-sour
 import { ColumnDetailDataSourceComponent } from './data-source-list/detail-data-source/column-detail-data-source/column-detail-data-source.component';
 import { EditConfigSchemaComponent } from './data-source-list/detail-data-source/column-detail-data-source/edit-config-schema/edit-config-schema.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
+import { EditFilterDataSourceComponent } from './data-source-list/detail-data-source/edit-filter-data-source.component';
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -114,6 +115,7 @@ const storageRoutes: Routes = [
     QueryDetailComponent,
     BatchHistoryComponent,
     EditConfigSchemaComponent,
+    EditFilterDataSourceComponent,
 
     // data connection
     DataConnectionComponent,
