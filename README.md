@@ -11,8 +11,20 @@ Our strengths
 1. 빠른 aggregation
 2. 하나의 도구에서 모든것을
 
-Metatron functions
+features
 ------------------
+Metatron Discovery is a data discovery web application supports end-to-end features from data management to ananlytics.
+
+Metatron provides:
+- Interactive dashboards with 16 types of WSIWYG charts.
+- SQL based data exploration.
+- Connections with advanced analytics tools like [Apache Zeppline](https://zeppelin.apache.org/).
+- Metadata management.
+- Data source creation from local, existing DBs, HIVE, and Kafka streams.
+- GUI based data preparation.
+- Monitoring tools for logs, jobs, and lineages of datasets.
+- Administrations for users and workspaces for high ganularity security model.
+- [Customized Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/) allows for Metatron not only staying blazing-fast while slicing and dicing large, but also overcoming Druid weaknesses.
 
 Screenshots
 ------------------
@@ -36,3 +48,8 @@ Screenshots
 Download & Installation
 ----------------------------
 [See in the website](https://metatron.app/index.php/download/)
+
+License
+----------------------------
+Metatron is available under the Apache License V2.
+
