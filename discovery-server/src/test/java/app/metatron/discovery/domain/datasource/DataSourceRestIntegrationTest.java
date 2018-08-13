@@ -224,6 +224,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     updateField.put("id", field1Id);
     updateField.put("alias", "update field name");
     updateField.put("description", "update description");
+//    updateField.put("filtering", false);
     updateField.put("filteringOptions", new Field.FilterOption("time", "range", Lists.newArrayList("range", "relative")));
 
     Map<String, Object> removeField = Maps.newHashMap();

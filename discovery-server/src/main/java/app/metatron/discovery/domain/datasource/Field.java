@@ -26,7 +26,9 @@ import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.datanucleus.metadata.FieldRole;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -244,8 +246,11 @@ public class Field implements MetatronDomain<Long> {
     this.seq = patch.getLongValue("seq");
 
     this.filtering = patch.getValue("filtering");
-    this.filteringSeq = patch.getLongValue("filteringSeq");
-    setFilteringOptions(patch.getObjectValue("filteringOptions"));
+
+    if(BooleanUtils.isTrue(this.filtering)) {
+      this.filteringSeq = patch.getLongValue("filteringSeq");
+      setFilteringOptions(patch.getObjectValue("filteringOptions"));
+    }
   }
 
   public void updateField(CollectionPatch patch) {
@@ -254,10 +259,19 @@ public class Field implements MetatronDomain<Long> {
     if(patch.hasProperty("description")) this.description = patch.getValue("description");
     if(patch.hasProperty("logicalType")) this.logicalType = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("logicalType"), "logicalType");
     if(patch.hasProperty("format")) this.format = patch.getValue("format");
-    if(patch.hasProperty("filtering")) this.filtering = patch.getValue("filtering");
-    if(patch.hasProperty("filteringOptions")) setFilteringOptions(patch.getObjectValue("filteringOptions"));
-    if(patch.hasProperty("filteringSeq")) this.filteringSeq = patch.getLongValue("filteringSeq");
     if(patch.hasProperty("seq")) this.seq = patch.getLongValue("seq");
+
+    if(patch.hasProperty("filtering")) this.filtering = patch.getValue("filtering");
+
+    if(BooleanUtils.isTrue(this.filtering)) {
+      if (patch.hasProperty("filteringOptions"))
+        setFilteringOptions(patch.getObjectValue("filteringOptions"));
+      if (patch.hasProperty("filteringSeq")) this.filteringSeq = patch.getLongValue("filteringSeq");
+    } else {
+      this.filteringOptions = null;
+      this.filteringSeq = null;
+    }
+
   }
 
   /**
@@ -474,8 +488,12 @@ public class Field implements MetatronDomain<Long> {
   }
 
   public void setFilteringOptions(Object object) {
-    FilterOption option = GlobalObjectMapper.getDefaultMapper().convertValue(object, Field.FilterOption.class);
-    this.filteringOptions = GlobalObjectMapper.writeValueAsString(option);
+    if(object == null) {
+      this.filteringOptions = null;
+    } else {
+      FilterOption option = GlobalObjectMapper.getDefaultMapper().convertValue(object, Field.FilterOption.class);
+      this.filteringOptions = GlobalObjectMapper.writeValueAsString(option);
+    }
   }
 
   public void setFilteringOptions(String filteringOptions) {
