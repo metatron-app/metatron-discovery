@@ -65,6 +65,8 @@ export class FilteringOptions {
  */
 export enum FilteringOptionType {
   INCLUSION = <any>'INCLUSION',
-  INTERVAL = <any>'INTERVAL'
+  //TODO INTERVAL 추후 지울것
+  INTERVAL = <any>'INTERVAL',
+  TIME = <any>'TIME'
 }
 
