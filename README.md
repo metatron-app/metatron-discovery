@@ -30,7 +30,7 @@ metatron provides:
 Screenshots
 ------------------
 **Create Dashboards**
-![dashboard](https://user-images.githubusercontent.com/6300003/44013629-9bca7c6a-9f01-11e8-93f1-8d4998498553.png)
+![dashboard3](https://user-images.githubusercontent.com/6300003/44020367-a32bf09a-9f1c-11e8-9915-f62a789b3d07.png)
 
 **Use Datasources**
 ![workspacelist](https://user-images.githubusercontent.com/6300003/44014642-f70fd6e6-9f07-11e8-978c-e04ee6dee5f1.png)
