@@ -1,4 +1,7 @@
-# metatron Discovery
+metatron Discovery
+=========
+
+![logo_metaron_discovery](https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png)
 
 **metatron Discovery**, a self-service solution for Big Data Discovery
 
