@@ -1,9 +1,9 @@
-metatron Discovery
+metatron discovery
 =========
 
 ![logo_metaron_discovery](https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png)
 
-**Metatron Discovery** is a self-service solution for big data discovery
+**metatron discovery** is a self-service solution for big data discovery
 To know more about metatron Discovery, visit our web site [https://metatron.app](https://metatron.app)
 
 Strengths
@@ -14,9 +14,9 @@ Strengths
 
 Features
 ------------------
-Metatron Discovery is a data discovery web application supports end-to-end features from data management to ananlytics.
+metatron discovery is a data discovery web application supports end-to-end features from data management to ananlytics.
 
-Metatron provides:
+metatron provides:
 - Interactive dashboards with 16 types of WSIWYG charts.
 - SQL based data exploration.
 - Connections with advanced analytics tools like [Apache Zeppline](https://zeppelin.apache.org/).
@@ -41,16 +41,11 @@ Screenshots
 **Search Meta Data**
 ![mdm](https://user-images.githubusercontent.com/6300003/44014761-7a98a6aa-9f08-11e8-8337-6c83cdfe88ba.png)
 
-
-**Login**
-![login](https://user-images.githubusercontent.com/6300003/44014465-0852ec0a-9f07-11e8-9dd8-975f33ed19c4.png)
-
-
 Download & Installation
 ----------------------------
 [See in the website](https://metatron.app/index.php/download/)
 
 License
 ----------------------------
-Metatron is available under the Apache License V2.
+metatron is available under the Apache License V2.
 
