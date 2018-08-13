@@ -308,15 +308,12 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
       } else {
         // 없을 경우 새 options 설정
         column.filteringOptions = new FilteringOptions();
-        column.filteringOptions.type = column.logicalType === 'TIMESTAMP' ? FilteringOptionType.INTERVAL : FilteringOptionType.INCLUSION;
-        column.filteringOptions.defaultSelector = column.logicalType === 'TIMESTAMP' ? 'RELATIVE' : 'SINGLE_LIST';
-        column.filteringOptions.allowSelectors = column.logicalType === 'TIMESTAMP' ? ['RELATIVE'] : ['SINGLE_LIST']
+        column.filteringOptions.type = column.logicalType === 'TIMESTAMP' ? FilteringOptionType.TIME : FilteringOptionType.INCLUSION;
+        column.filteringOptions.defaultSelector = column.logicalType === 'TIMESTAMP' ? 'RANGE' : 'SINGLE_LIST';
+        column.filteringOptions.allowSelectors = column.logicalType === 'TIMESTAMP' ? ['RANGE'] : ['SINGLE_LIST']
       }
     }
   }
-
-
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
