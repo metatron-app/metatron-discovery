@@ -4,11 +4,11 @@ metatron discovery
 ![logo_metaron_discovery](https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png)
 
 **metatron discovery** is a self-service solution for big data discovery
-To know more about metatron Discovery, visit our web site [https://metatron.app](https://metatron.app)
+To know more about metatron discovery, visit our web site [https://metatron.app](https://metatron.app)
 
 Strengths
 ------------------
-1. Powered by [Apache Druid](http://druid.io/), Metatron can process big data super fast.
+1. Powered by [Apache Druid](http://druid.io/), metatron can process big data super fast.
 2. A single unified product for field users enabling data analytics through interactive web UI.
 3. Experience intuitive UI through creating dashboards with various types of charts. 
 
@@ -25,7 +25,7 @@ metatron provides:
 - GUI based data preparation.
 - Monitoring tools for logs, jobs, and lineages of datasets.
 - Administrations for users and workspaces for high ganularity security model.
-- [Customized Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/) allows for Metatron not only staying blazing-fast while slicing and dicing large, but also overcoming Druid weaknesses.
+- [Customized Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/) allows for metatron not only staying blazing-fast while slicing and dicing large, but also overcoming Druid weaknesses.
 
 Screenshots
 ------------------
