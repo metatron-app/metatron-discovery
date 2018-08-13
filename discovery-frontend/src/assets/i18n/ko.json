@@ -1767,6 +1767,10 @@
   "msg.storage.ui.schema.column.rows.desc" : "최대 50개 행",
   "msg.storage.ui.edit.filters" : "필터 편집",
   "msg.storage.ui.time" : "시간",
+  "msg.storage.ui.recommendation.filter.save.title" : "추천 필터 설정을 저장하고 재적재 하시겠습니까?",
+  "msg.storage.ui.essential.filter.save.title" : "필수 필터 설정을 저장하고 재적재 하시겠습니까?",
+  "msg.storage.ui.ingestion.desc" : "재적재하면 기존의 데이터소스로 만든 콘텐츠가 정상 동작하지 않을 수 있습니다.",
+  "msg.storage.btn.re.ingestion" : "재적재",
 
   "msg.log.th.status": "상태",
   "msg.log.ui.search.description" : "잡 이름 또는 어플리케이션 ID로 검색해 주세요",

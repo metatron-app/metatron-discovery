@@ -1766,6 +1766,10 @@
   "msg.storage.ui.schema.column.rows.desc" : "Only up to 50 rows",
   "msg.storage.ui.edit.filters" : "Edit filters",
   "msg.storage.ui.time" : "Time",
+  "msg.storage.ui.recommendation.filter.save.title" : "Do you want to save and re-ingestion the recommendation filter settings?",
+  "msg.storage.ui.essential.filter.save.title" : "Do you want to save and re-ingestion the essential filter settings?",
+  "msg.storage.ui.ingestion.desc" : "Re-ingestion may cause content created from existing datasource to malfunction",
+  "msg.storage.btn.re.ingestion" : "Re-ingestion",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",

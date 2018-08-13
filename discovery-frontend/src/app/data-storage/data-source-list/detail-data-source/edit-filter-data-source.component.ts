@@ -348,9 +348,9 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
    */
   private _openConfirmModal(): void {
     const modal = new Modal();
-    modal.name = '필수 필터 설정을 저장하고 재적재 하시겠습니까?';
-    modal.description = '재적재하면 기존의 데이터소스로 만든 콘텐츠가 정상 동작하지 않을 수 있습니다.'
-    modal.btnName = '재적재';
+    modal.name = this.isLinkedType ? this.translateService.instant('msg.storage.ui.essential.filter.save.title') : this.translateService.instant('msg.storage.ui.recommendation.filter.save.title');
+    modal.description = this.translateService.instant('msg.storage.ui.ingestion.desc');
+    modal.btnName = this.translateService.instant('msg.storage.btn.re.ingestion');
     this._confirmModalComponent.init(modal);
   }
 
