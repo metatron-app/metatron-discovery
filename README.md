@@ -32,7 +32,7 @@ Screenshots
 **Create Dashboards**
 ![dashboard3](https://user-images.githubusercontent.com/6300003/44020367-a32bf09a-9f1c-11e8-9915-f62a789b3d07.png)
 
-**Create Charts**/
+**Create Charts**
 ![chart2](https://user-images.githubusercontent.com/6300003/44020657-90d0d644-9f1d-11e8-88df-7e5af4209676.png)
 
 **Use Datasources**
