@@ -165,22 +165,18 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   @Test
   @OAuthRequest(username = "polaris", value = {"PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void updateDataSourceFields() throws JsonProcessingException {
-    // DataSource + Field 등록
+    // add DataSource with Fields
     //
-    TestUtils.printTestTitle("1. DataSource + Field 등록, filteringOption 포함");
+    TestUtils.printTestTitle("1. add DataSource with Fields include filteringOption property");
 
     Field f1 = new Field("filtering field1", DataType.TIMESTAMP, TIMESTAMP, 0L);
     f1.setFiltering(true);
     f1.setFilteringSeq(0L);
-    f1.setFilteringOptions(
-        GlobalObjectMapper.writeValueAsString(new Field.FilterOption("interval", "relative", Lists.newArrayList("range", "relative")))
-    );
+    f1.setFilteringOptions(new Field.FilterOption("time", "relative", Lists.newArrayList("range", "relative")));
     Field f2 = new Field("filtering field2", DataType.TEXT, DIMENSION, 1L);
     f2.setFiltering(true);
     f2.setFilteringSeq(1L);
-    f2.setFilteringOptions(
-        GlobalObjectMapper.writeValueAsString(new Field.FilterOption("inclusion", "single_list", Lists.newArrayList("single_list", "single_combo")))
-    );
+    f2.setFilteringOptions(new Field.FilterOption("inclusion", "single_list", Lists.newArrayList("single_list", "single_combo")));
     Field f3 = new Field("filtering field3", DataType.TEXT, DIMENSION, 2L);
 
 
@@ -193,14 +189,13 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setConnType(ENGINE);
     dataSource.setSrcType(NONE);
 
-    System.out.println(GlobalObjectMapper.writeValueAsString(dataSource));
-
     // @formatter:off
     Response createResponse =
     given()
       .auth().oauth2(oauth_token)
       .contentType(ContentType.JSON)
       .body(dataSource)
+      .log().all()
     .when()
       .post("/api/datasources");
 
@@ -210,7 +205,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     .log().all();
     // @formatter:on
 
-    TestUtils.printTestTitle("2. Field 수정 ");
+    TestUtils.printTestTitle("2. Update fields ");
     //
     String dataSourceId = from(createResponse.asString()).get("id");
     Integer field1Id = from(createResponse.asString()).get("fields[0].id");
@@ -229,8 +224,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     updateField.put("id", field1Id);
     updateField.put("alias", "update field name");
     updateField.put("description", "update description");
-    updateField.put("filteringOptions",
-                    GlobalObjectMapper.writeValueAsString(new Field.FilterOption("interval", "range", Lists.newArrayList("range", "relative"))));
+    updateField.put("filteringOptions", new Field.FilterOption("time", "range", Lists.newArrayList("range", "relative")));
 
     Map<String, Object> removeField = Maps.newHashMap();
     removeField.put("op", "remove");
@@ -250,7 +244,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     .log().all();
     // @formatter:on
 
-    TestUtils.printTestTitle("3. 결과 조회 ");
+    TestUtils.printTestTitle("3. Result. ");
 
     // @formatter:off
     given()

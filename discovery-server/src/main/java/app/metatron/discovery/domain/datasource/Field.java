@@ -33,6 +33,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -53,6 +54,7 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionRule;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.aggregations.ApproxHistogramFoldAggregation;
 import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
@@ -239,10 +241,11 @@ public class Field implements MetatronDomain<Long> {
     this.logicalType = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("logicalType"), "logicalType");
     this.aggrType = SearchParamValidator.enumUpperValue(MeasureField.AggregationType.class, patch.getValue("aggrType"), "aggrType");
     this.format = patch.getValue("format");
-    this.filtering = patch.getValue("filtering");
-    this.filteringOptions = patch.getValue("filteringOptions");
-    this.filteringSeq = patch.getLongValue("filteringSeq");
     this.seq = patch.getLongValue("seq");
+
+    this.filtering = patch.getValue("filtering");
+    this.filteringSeq = patch.getLongValue("filteringSeq");
+    setFilteringOptions(patch.getObjectValue("filteringOptions"));
   }
 
   public void updateField(CollectionPatch patch) {
@@ -252,7 +255,7 @@ public class Field implements MetatronDomain<Long> {
     if(patch.hasProperty("logicalType")) this.logicalType = SearchParamValidator.enumUpperValue(LogicalType.class, patch.getValue("logicalType"), "logicalType");
     if(patch.hasProperty("format")) this.format = patch.getValue("format");
     if(patch.hasProperty("filtering")) this.filtering = patch.getValue("filtering");
-    if(patch.hasProperty("filteringOptions")) this.filteringOptions = patch.getValue("filteringOptions");
+    if(patch.hasProperty("filteringOptions")) setFilteringOptions(patch.getObjectValue("filteringOptions"));
     if(patch.hasProperty("filteringSeq")) this.filteringSeq = patch.getLongValue("filteringSeq");
     if(patch.hasProperty("seq")) this.seq = patch.getLongValue("seq");
   }
@@ -385,18 +388,13 @@ public class Field implements MetatronDomain<Long> {
     this.seq = seq;
   }
 
+  @JsonIgnore
+  @Deprecated
   public BIType getBiType() {
     if(role == null) {
       return null;
     }
     return BIType.valueOf(role.name());
-  }
-
-  public void setBiType(BIType biType) {
-    if(biType == null) {
-      return;
-    }
-    this.role = FieldRole.valueOf(biType.name());
   }
 
   public FieldRole getRole() {
@@ -473,6 +471,11 @@ public class Field implements MetatronDomain<Long> {
 
   public String getFilteringOptions() {
     return filteringOptions;
+  }
+
+  public void setFilteringOptions(Object object) {
+    FilterOption option = GlobalObjectMapper.getDefaultMapper().convertValue(object, Field.FilterOption.class);
+    this.filteringOptions = GlobalObjectMapper.writeValueAsString(option);
   }
 
   public void setFilteringOptions(String filteringOptions) {
@@ -570,22 +573,26 @@ public class Field implements MetatronDomain<Long> {
   }
 
   public enum AllowFilterOptionType {
-    INTERVAL, INCLUSION;
+    TIME, INCLUSION;
 
     public String checkSelector(String selectorType) {
       Preconditions.checkNotNull(selectorType, "selectorType required");
       switch (this) {
-        case INTERVAL:
-          IntervalFilter.SelectorType intervalType = IntervalFilter.SelectorType.valueOf(selectorType.toUpperCase());
-          return intervalType.name();
+        case TIME:
+          if(TimeFilter.filterOptionTypes.contains(selectorType.toUpperCase())) {
+            return selectorType;
+          }
         case INCLUSION:
-          InclusionFilter.SelectorType inclusionType = InclusionFilter.SelectorType.valueOf(selectorType.toUpperCase());
-          return inclusionType.name();
+          InclusionFilter.SelectorType.valueOf(selectorType.toUpperCase());
+          return selectorType;
       }
-      return null;
+      throw new IllegalArgumentException("Invalid selector name : " + selectorType);
     }
   }
 
+  /**
+   * Recommendation Filter Options
+   */
   public static class FilterOption implements Serializable {
     AllowFilterOptionType type;
     String defaultSelector;
@@ -596,11 +603,11 @@ public class Field implements MetatronDomain<Long> {
         @JsonProperty("type") String type,
         @JsonProperty("defaultSelector") String defaultSelector,
         @JsonProperty("allowSelectors") List<String> allowSelectors) {
+
       this.type = SearchParamValidator.enumUpperValue(AllowFilterOptionType.class,
                                                       type, "type");
 
-      this.defaultSelector = this.type.checkSelector(
-          SearchParamValidator.checkNull(defaultSelector, "defaultSelector"));
+      this.defaultSelector = this.type.checkSelector(defaultSelector);
 
       if(CollectionUtils.isNotEmpty(allowSelectors)) {
         this.allowSelectors = allowSelectors.stream()
