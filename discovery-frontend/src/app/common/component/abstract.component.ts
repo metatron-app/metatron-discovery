@@ -304,14 +304,14 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    */
   public getEnabledConnectionTypes(isDeleteAll: boolean = false) {
     const types = [
-      { label: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
-      // { label: 'oracle', value: 'ORACLE' },
-      { label: 'mysql', value: 'MYSQL' },
-      { label: 'postgre', value: 'POSTGRESQL' },
-      { label: 'hive', value: 'HIVE' },
-      { label: 'presto', value: 'PRESTO' },
-      // { label: 'phoenix', value: 'PHOENIX' },
-      // { label: 'tibero', value: 'TIBERO' }
+      { label: this.translateService.instant('msg.storage.ui.list.all'), value: 'all'},
+      // { label: 'oracle', value: 'ORACLE', icon: 'type-oracle'  },
+      { label: 'mysql', value: 'MYSQL', icon: 'type-mysql' },
+      { label: 'postgre', value: 'POSTGRESQL', icon: 'type-postgre' },
+      { label: 'hive', value: 'HIVE', icon: 'type-hive' },
+      { label: 'presto', value: 'PRESTO', icon: 'type-presto' },
+      // { label: 'phoenix', value: 'PHOENIX', icon: 'type-pache' },
+      // { label: 'tibero', value: 'TIBERO', icon: 'type-tibero' }
     ];
 
     // isDelete all

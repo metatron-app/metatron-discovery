@@ -356,7 +356,6 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
     const params = {
       size: this.pageResult.size,
       page: this.pageResult.number,
-      usageScope: 'WORKBENCH',
       sort: this.selectedContentSort.key + ',' + this.selectedContentSort.sort
     };
 

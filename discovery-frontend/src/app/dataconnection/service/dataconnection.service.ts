@@ -52,8 +52,6 @@ export class DataconnectionService extends AbstractService {
 
     let url = this.API_URL + `connections`;
 
-    // &sort=port%2Cdesc&name=LOC&usageScope=WORKBENCH&implementor=HIVE
-
     if (param) {
       url += '?' + CommonUtil.objectToUrlString(param);
     }
