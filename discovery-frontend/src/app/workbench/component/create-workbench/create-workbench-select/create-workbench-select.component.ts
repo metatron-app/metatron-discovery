@@ -250,15 +250,17 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
     const authenticationType = connection.authenticationType;
     let result;
     switch (authenticationType) {
+      case 'MANUAL':
+        result = this.translateService.instant('msg.storage.li.connect.always');
+        break;
       case 'USERINFO':
-        result = this.translateService.instant('msg.bench.ui.list.account.userinfo');
+        result = this.translateService.instant('msg.storage.li.connect.account');
         break;
       case 'DIALOG':
-        result = this.translateService.instant('msg.bench.ui.list.account.dialog');
+        result = this.translateService.instant('msg.storage.li.connect.id');
         break;
-      case 'MANUAL':
-        result = this.translateService.instant('msg.bench.ui.list.account.manual');
-        break;
+      default:
+        result = this.translateService.instant('msg.storage.li.connect.always');
     }
     return result;
   }
@@ -463,9 +465,9 @@ export class CreateWorkbenchSelectComponent extends AbstractPopupComponent imple
     // 계정 타입
     this.accountTypes = [
       { label: 'All', value: 'all' },
-      { label: this.translateService.instant('msg.bench.ui.list.account.dialog'), value: 'DIALOG' },
-      { label: this.translateService.instant('msg.bench.ui.list.account.userinfo'), value: 'USERINFO' },
-      { label: this.translateService.instant('msg.bench.ui.list.account.manual'), value: 'MANUAL' },
+      { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+      { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+      { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
     ];
     this.selectedAccountType = this.accountTypes[0];
 

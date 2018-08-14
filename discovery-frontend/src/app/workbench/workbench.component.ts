@@ -1414,7 +1414,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             (permissionChecker.isManageWorkbench() || permissionChecker.isEditWorkbench(data.createdBy.username));
 
           this.mimeType = data.dataConnection.implementor.toString();
-          this.authenticationType = data.dataConnection['authenticationType'];
+          this.authenticationType = data.dataConnection['authenticationType'] || 'MANUAL';
           if (data.dataConnection['authenticationType'] === 'DIALOG') {
             this.loginLayerShow = true;
             this.workbenchTemp = data;
