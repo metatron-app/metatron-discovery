@@ -122,7 +122,7 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
     // ui init
     this._initView();
     // 개인 워크스페이스 정보
-    this.addWorkspaces.push(this._getPrivateWorkspace);
+    this.addWorkspaces.push(this._getPrivateWorkspace());
   }
 
   // Destory
