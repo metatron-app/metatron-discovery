@@ -887,9 +887,6 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
             : min;
           option.max = max;
         }
-        else {
-          delete axisOption[index].grid;
-        }
       }
     });
 
