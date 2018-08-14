@@ -456,9 +456,11 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       this.widgetService.createWidget(event.widget, this.dashboard.id).then(result => {
         let textWidget: TextWidget = _.merge(event.widget, result);
         this.dashboard = DashboardUtil.addWidget(this.dashboard, textWidget, this.isAppendLayout);
+        this.dashboard.updateId = CommonUtil.getUUID();
         this.renderLayout();
         this.loadingHide();
         this.isAppendLayout = false;
+        this.safelyDetectChanges();
       });
     } else if ('DELETE' === event.name) {
       this.isAppendLayout = false;
@@ -469,6 +471,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       modal.afterConfirm = () => {
         this.deleteWidgetIds.push(event.widget.id);  // 삭제 위젯 등록
         this.removeWidget(event.widget.id);          // 대시보드상의 위젯 제거
+        this.dashboard.updateId = CommonUtil.getUUID();
+        this.safelyDetectChanges();
       };
       CommonUtil.confirm(modal);
     } else {
