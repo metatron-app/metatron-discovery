@@ -72,7 +72,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
   @Input('axis')
   public set setAxis(axis: UIChartAxis) {
     this.axis = axis;
-    axis.baseline = isUndefined(axis.baseline) || isNaN(axis.baseline) ? 0 : axis.baseline;
+    axis.baseline = !isUndefined(axis.baseline) && !isNaN(axis.baseline) ? axis.baseline : undefined;
     this.axisTemp = _.cloneDeep(axis);
     if( this.axisTemp.grid ) {
       this.axisTemp.grid.min = this.axisTemp.grid.autoScaled || axis.baseline != 0 ? null : this.axisTemp.grid.min;
@@ -230,6 +230,21 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     delete this.axis.grid;
     this.axis.baseline = Number(this.axisTemp.baseline);
     this.changeBaseline.emit(this.axis);
+  }
+
+  /**
+   * 기준선 show / hide 설정
+   */
+  public showBaseLine(): void {
+
+    // off일떄
+    if( isNaN(this.axisTemp.baseline) ) {
+      this.axisTemp.baseline = _.isUndefined(this.axis.baseline) ? 0 : this.axis.baseline;
+
+    // show일떄
+    } else {
+      delete this.axisTemp.baseline;
+    }
   }
 
   /**
