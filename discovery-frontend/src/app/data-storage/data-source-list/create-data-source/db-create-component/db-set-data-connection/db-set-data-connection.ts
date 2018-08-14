@@ -1,4 +1,19 @@
 /*
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,10 +60,6 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
   // 선택한 프리셋 정보
   private selectedConnectionPreset: any;
 
-  // 최초 접근시 flag
-  private firstFl: boolean = true;
-  private nameFirstFl: boolean = true;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -85,27 +96,43 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
   public catalog: string = '';
   // url
   public url: string = '';
-
   // 새로 생성될 커넥션 name
   public connectionName: string = '';
 
+  // ingestion 타입 목록
+  public ingestionTypeList: any[];
+  // 선택한 ingestion 타입 목록
+  public selectedIngestionType: any;
   // DB 타입목록
   public dbTypeList: any[];
   // 선택한 DB
   public selectedDbType: any;
-  // connection 타입목록
-  public connectionTypeList: any[];
-  // 선택한 connection 타입
-  public selectedConnectionType: any;
-  // URL 타입 목
-  public urlTypes: any[];
-  // 선택한 URL 타입
-  public selectedUrlType: string;
+  // security 타입 목록
+  public securityTypeList: any[];
+  // 선택한 security 타입
+  public selectedSecurityType: any;
+  // URL 사용
+  public isEnableUrl: boolean;
 
   // 새로운 커넥션 생성 flag
   public createConnectionFl: boolean = false;
   // 커넥션 연결 success flag
   public connectionResultFl: boolean = null;
+  // 다음 버튼 클릭 flag
+  public isClickedNext: boolean;
+  // 서버 input validation
+  public isShowHostRequired: boolean;
+  public isShowPortRequired: boolean;
+  public isShowSidRequired: boolean;
+  public isShowDatabaseRequired: boolean;
+  public isShowCatalogRequired: boolean;
+  public isShowUrlRequired: boolean;
+  public isShowUsernameRequired: boolean;
+  public isShowPasswordRequired: boolean;
+  // 이름 input validation
+  public isShowConnectionNameRequired: boolean;
+  // 커넥션 이름 메세지
+  public nameErrorMsg: string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -155,8 +182,10 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
    * 다음화면으로 이동
    */
   public next(): void {
+    // 버튼 클릭 flag
+    this.isClickedNext = true;
     // validation
-    if (this.nextValidation() && this.getConnectionNameValidation()) {
+    if (this.nextValidation()) {
       // 커넥션정보가 존재하다면
       if (this.sourceData.hasOwnProperty('connectionData')) {
         // 데이터소스 타입이 바뀌었다면 schema ingestion 삭제
@@ -211,58 +240,9 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     return this.selectedConnectionPreset.id;
   }
 
-  /**
-   * connection validation message
-   * @returns {string}
-   */
-  public getValidationMessage(): string {
-    // URL 타입이 Default 라면
-    if (this.isDefaultType()) {
-      // hostname
-      if (this.hostname.trim() === '') {
-        return this.translateService.instant('msg.storage.alert.host.required');
-      }
-      // port
-      if (!this.port) {
-        return this.translateService.instant('msg.storage.alert.port.required');
-      }
-      // sid
-      if (this.isRequiredSid() && this.sid.trim() === '') {
-        return this.translateService.instant('msg.storage.alert.sid.required');
-      }
-      // database
-      if (this.isRequiredDatabase() && this.database.trim() === '') {
-        return this.translateService.instant('msg.storage.alert.db.required');
-      }
-      // catalog
-      if (this.isRequiredCatalog() && this.catalog.trim() === '') {
-        return this.translateService.instant('msg.storage.alert.catalogue.required');
-      }
-      // username
-      if (this.username.trim() === '') {
-        return this.translateService.instant('msg.storage.alert.user-name.required');
-      }
-      // password
-      if (this.password.trim() === '') {
-        return this.translateService.instant('msg.storage.alert.pw.required');
-      }
-    } else if (this.url.trim() === '') {
-      return this.translateService.instant('msg.storage.alert.url.required');
-    }
-    return '';
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - validation
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * url이 default 타입이라면
-   * @returns {boolean}
-   */
-  public isDefaultType(): boolean {
-    return this.selectedUrlType === 'DEFAULT';
-  }
 
   /**
    * 데이터베이스이름이 필요한 DB 타입인지 확인
@@ -292,61 +272,69 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
   }
 
   /**
-   * connection validation message 를 보여주는지 여부
+   * 사용자 계정으로 연결하는지
    * @returns {boolean}
    */
-  public isShowValidationMessage(): boolean {
-    return !(this.firstFl || this.connectionResultFl !== null);
+  public isConnectUserAccount(): boolean {
+    return this.selectedSecurityType.value === 'USERINFO';
   }
 
   /**
-   * name validation message 를 보여주는지 여부
+   * 아이디와 비번으로 연결하는지
    * @returns {boolean}
    */
-  public isShowNameValidationMessage(): boolean {
-    // 최초 접근이거나 이름이 있을때 return
-    return !(this.nameFirstFl || this.connectionName.trim() !== '');
+  public isConnectWithIdAndPassword(): boolean {
+    return this.selectedSecurityType.value === 'DIALOG';
   }
 
   /**
    * 커넥션 테스트가 사용가능한지 확인
    * @returns {boolean}
    */
-  public isEnabledConnectionTest(): boolean {
-    // URL 타입이 Default 라면
-    if (this.isDefaultType()) {
+  public isEnabledConnectionValidation(): boolean {
+    let result: boolean = true;
+    // URL 허용하지 않는다면
+    if (!this.isEnableUrl) {
       // hostname 없는경우
       if (this.hostname.trim() === '') {
-        return false;
+        this.isShowHostRequired = true;
+        result = false;
       }
       // port 없는경우
       if (!this.port) {
-        return false;
+        this.isShowPortRequired = true;
+        result = false;
       }
       // sid 없는경우
       if (this.isRequiredSid() && this.sid.trim() === '') {
-        return false;
+        this.isShowSidRequired = true;
+        result = false;
       }
       // database 없는경우
       if (this.isRequiredDatabase() && this.database.trim() === '') {
-        return false;
+        this.isShowDatabaseRequired = true;
+        result = false;
       }
       // catalog 없는경우
       if (this.isRequiredCatalog() && this.catalog.trim() === '') {
-        return false;
+        this.isShowCatalogRequired = true;
+        result = false;
       }
       // username
-      if (this.username.trim() === '') {
-        return false;
+      if (!this.isConnectUserAccount() && this.username.trim() === '') {
+        this.isShowUsernameRequired = true;
+        result = false;
       }
       // password
-      if (this.password.trim() === '') {
-        return false;
+      if (!this.isConnectUserAccount() && this.password.trim() === '') {
+        this.isShowPasswordRequired = true;
+        result = false;
       }
-    } else if (this.url.trim() === ''){
-      return false;
+    } else if (this.url.trim() === '') {
+      this.isShowUrlRequired = true;
+      result = false;
     }
-    return true;
+    return result;
   }
 
   /**
@@ -354,32 +342,13 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
    * @returns {boolean}
    */
   public nextValidation(): boolean {
+    let result: boolean = this.connectionResultFl;
     // 새로운 커넥션을 생성한다면
     if (this.createConnectionFl) {
-      return this.connectionName.trim() !== '' && this.connectionResultFl;
-    } else {
-      return this.connectionResultFl;
+      result = this._connectionNameValidation();
     }
-  }
+    return result;
 
-  /**
-   * 커넥션 이름 validation
-   * @returns {boolean}
-   */
-  public getConnectionNameValidation(): boolean {
-    // 새로운 커넥션을 생성할때만 작동
-    if (this.createConnectionFl) {
-      // 이름이 없다면
-      if (this.connectionName.trim() === '') {
-        return false;
-      }
-      // 이름길이 체크
-      if (CommonUtil.getByte(this.connectionName.trim()) > 150) {
-        Alert.warning(this.translateService.instant('msg.alert.edit.name.len'));
-        return false;
-      }
-    }
-    return true;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -387,18 +356,66 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * url 타입 변경 이벤트
-   * @param {string} urlType
+   * 데이터베이스 선택 이벤트
+   * @param type
    */
-  public onSelectedUrlType(urlType: string): void {
-    // 같은 타입이면 return
-    if (this.selectedUrlType === urlType) {
-      return;
+  public onChangeDbType(type): void {
+    // 선택된 데이터베이스가 다를 경우에만 작동
+    if (type !== this.selectedDbType) {
+      // 데이터베이스 타입 변경
+      this.selectedDbType = type;
+      // 프리셋 초기화
+      this.initConnectionPresetData();
+      // 커넥션 input flag 초기화
+      this.initConnectionFlag();
+      // 커넥션 flag 초기화
+      this.initConnectionResultFlag();
     }
-    // url 타입
-    this.selectedUrlType = urlType;
+  }
+
+  /**
+   * security 타입 변경 이벤트
+   * @param type
+   */
+  public onChangeSecurityType(type: any): void {
+    // 선택된 보안 타입이 다를 경우에만 작동
+    if (type !== this.selectedSecurityType) {
+      // 보안 타입 변경
+      this.selectedSecurityType = type;
+      // 커넥션 input flag 초기화
+      this.initConnectionFlag();
+      // 커넥션 flag 초기화
+      this.initConnectionResultFlag();
+    }
+  }
+
+  /**
+   * URL 허용 변경 이벤트
+   */
+  public onChangeEnableURL(): void {
+    this.isEnableUrl = !this.isEnableUrl;
     // 커넥션 플래그 초기화
     this.initConnectionPresetData();
+    // 커넥션 input flag 초기화
+    this.initConnectionFlag();
+    // 커넥션 flag 초기화
+    this.initConnectionResultFlag();
+  }
+
+  /**
+   * 커넥션 체크 클릭 이벤트
+   */
+  public onClickConnectionValidation(): void {
+    // check
+    this.isEnabledConnectionValidation() && this._checkConnection();
+  }
+
+  /**
+   * ingestion 타입 변경 이벤트
+   * @param type
+   */
+  public onChangeIngestionType(type: any): void {
+    this.selectedIngestionType = type;
   }
 
   /**
@@ -408,44 +425,12 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
   public onSelectedConnectionPreset(preset): void {
     // 프리셋 선택
     this.selectedConnectionPreset = preset;
+    // 커넥션 input flag 초기화
+    this.initConnectionFlag();
+    // 커넥션 flag 초기화
+    this.initConnectionResultFlag();
     // 해당 프리셋 상세조회
     this._getConnectionPresetDetailData();
-  }
-
-  /**
-   * 데이터베이스 선택 이벤트
-   * @param type
-   */
-  public onSelectedDbType(type): void {
-    // 같은 타입이면 return
-    if (this.selectedDbType === type) {
-      return;
-    }
-    // 타입선택
-    this.selectedDbType = type;
-    // 커넥션 초기화
-    this.initConnectionPresetData();
-  }
-
-  /**
-   * connection type 선택 이벤트
-   * @param type
-   */
-  public onSelectedConnectionType(type): void {
-    this.selectedConnectionType = type;
-  }
-
-  /**
-   * 커넥션 테스트 클릭 이벤트
-   */
-  public onClickConnectionTest(): void {
-    // connection test validation
-    if (this.isEnabledConnectionTest()) {
-      // 이름 초기화
-      this._initConnectionName();
-      // 커넥션 테스트
-      this._getConnectionTestResult();
-    }
   }
 
   /**
@@ -479,13 +464,29 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   * connection result flag init
+   */
+  public initConnectionResultFlag(): void {
+    // 커넥션 통과
+    this.connectionResultFl = null;
+    // 생성 초기화
+    this.createConnectionFl = false;
+    // 다음 클릭버튼 초기화
+    this.isClickedNext = false;
+  }
+
+  /**
    * connection flag init
    */
   public initConnectionFlag(): void {
-    // 최초 접근 flag
-    this.firstFl = false;
-    // 커넥션 통과
-    this.connectionResultFl = null;
+    this.isShowHostRequired = null;
+    this.isShowPortRequired = null;
+    this.isShowSidRequired = null;
+    this.isShowDatabaseRequired = null;
+    this.isShowCatalogRequired = null;
+    this.isShowUrlRequired = null;
+    this.isShowUsernameRequired = null;
+    this.isShowPasswordRequired = null;
   }
 
   /**
@@ -494,15 +495,6 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
   public initConnectionPresetData(): void {
     // 프리셋 데이터 초기화
     this.selectedConnectionPreset = null;
-    // connection init flag
-    this.initConnectionFlag();
-  }
-
-  /**
-   * name flag init
-   */
-  public initNameFlag(): void {
-    this.nameFirstFl = false;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -512,6 +504,76 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 커넥션 이름 validation
+   * @returns {boolean}
+   */
+  private _connectionNameValidation(): boolean {
+    // 이름이 없다면
+    if (this.connectionName.trim() === '') {
+      this.isShowConnectionNameRequired = true;
+      this.nameErrorMsg = this.translateService.instant('msg.storage.dconn.name.error');
+      return false;
+    }
+    // 이름길이 체크
+    if (CommonUtil.getByte(this.connectionName.trim()) > 150) {
+      this.isShowConnectionNameRequired = true;
+      this.nameErrorMsg = this.translateService.instant('msg.alert.edit.name.len');
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * 커넥션 연결 체크
+   * @private
+   */
+  private _checkConnection(): void {
+    // 로딩 show
+    this.loadingShow();
+    // 데이터커넥션 테스트
+    this.dataconnectionService.checkConnection(this._getConnectionParams())
+      .then((result) => {
+        // 커넥트 결과 flag
+        this.connectionResultFl = result['connected'];
+        // 커넥션 이름 기본값 설정
+        if (this.connectionName === '') {
+          this.connectionName = this._getDefaultConnectionName();
+          this.isShowConnectionNameRequired = false;
+        }
+        // 로딩 hide
+        this.loadingHide();
+      })
+      .catch((error) => {
+        // 커넥트 결과 fail
+        this.connectionResultFl = false;
+        // 로딩 hide
+        this.commonExceptionHandler(error);
+      });
+  }
+
+  /**
+   * 파라메터에서 username 과 password 제거
+   * @param params
+   */
+  private _deleteUsernameAndPassword(params: any): void {
+    delete params.password;
+    delete params.username;
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method - validation
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 더 보여줄 페이지 있는지 여부
+   * @returns {boolean}
+   * @private
+   */
+  private _isMorePage(): boolean {
+    return (this.pageResult.number < this.pageResult.totalPages - 1);
+  }
 
   /**
    * 기존 커넥션에서 변경이 일어났는지 여부
@@ -569,46 +631,9 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     return this.selectedConnectionPreset ? true : false;
   }
 
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method - validation
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 더 보여줄 페이지 있는지 여부
-   * @returns {boolean}
-   * @private
-   */
-  private _isMorePage(): boolean {
-    return (this.pageResult.number < this.pageResult.totalPages - 1);
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method - getter
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 데이터커넥션 테스트 결과
-   * @private
-   */
-  private _getConnectionTestResult(): void {
-    // 로딩 show
-    this.loadingShow();
-    // 데이터커넥션 테스트
-    this.dataconnectionService.checkConnection(this._getConnectionTestParams())
-      .then((result) => {
-        // 커넥트 결과 flag
-        this.connectionResultFl = result['connected'];
-        // 로딩 hide
-        this.loadingHide();
-      })
-      .catch((error) => {
-        // 커넥트 결과 fail
-        this.connectionResultFl = false;
-        // 로딩 hide
-        this.loadingHide();
-      });
-  }
 
   /**
    * 데이터커넥션 프리셋 조회
@@ -630,9 +655,7 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
-        this.commonExceptionHandler(error);
-      });
+     .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -650,16 +673,14 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
         this._initConnectionData();
         // validation 초기화
         this.initConnectionFlag();
-        // url이 존재한다면 url type 설정
-        this.selectedUrlType = StringUtil.isEmpty(result.url) ? this.urlTypes[0].value : this.urlTypes[1].value;
+        // url이 있다면 타입 설정
+        this.isEnableUrl = !StringUtil.isEmpty(result.url);
         // 커넥션 정보 저장
         this._setDataconnection(result);
         // 로딩 hide
         this.loadingHide();
       })
-      .catch((error) => {
-        this.commonExceptionHandler(error);
-      });
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -672,7 +693,6 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     return {
       size: pageResult.size,
       page: pageResult.number,
-      usageScope: 'DEFAULT',
       type: 'jdbc'
     };
   }
@@ -682,15 +702,16 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
    * @returns {Object}
    * @private
    */
-  private _getConnectionTestParams(): object {
+  private _getConnectionParams(): object {
     const params = {
-      implementor: this.selectedDbType.value
+      implementor: this.selectedDbType.value,
+      authenticationType: this.selectedSecurityType.value
     };
     // username과 password를 사용한다면
     !StringUtil.isEmpty(this.password) && (params['password'] = this.password.trim());
     !StringUtil.isEmpty(this.username) && (params['username'] = this.username.trim());
     // default라면 hostname, port, database 추가
-    if (this.isDefaultType()) {
+    if (!this.isEnableUrl) {
       params['hostname'] = this.hostname.trim();
       params['port'] = this.port;
       // catalog 가 있다면
@@ -703,6 +724,8 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     } else {
       params['url'] = this.url.trim();
     }
+    // 사용자 계정으로 연결이라면
+    this.isConnectUserAccount() && this._deleteUsernameAndPassword(params);
     return {connection: params};
   }
 
@@ -717,6 +740,15 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     return list.find((type) => {
       return type.value === selectedType;
     });
+  }
+
+  /**
+   * 커넥션 default 이름
+   * @returns {string}
+   * @private
+   */
+  private _getDefaultConnectionName(): string {
+    return this.isEnableUrl ? (this.selectedDbType.label + '-' + this.url) : (this.selectedDbType.label + '-' + this.hostname + '-' + this.port);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -766,7 +798,7 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
       // 선택된 데이터베이스 타입
       implementor: this.selectedDbType.value,
       // 선택된 커넥션 타입
-      connType: this.selectedConnectionType.value,
+      connType: this.selectedIngestionType.value,
       // 프리셋 목록
       connectionPresetList: this.connectionPresetList,
       // 선택된 프리셋
@@ -777,15 +809,12 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
       createConnectionFl: this.createConnectionFl,
       // 커넥션 연결 success flag
       connectionResultFl: this.connectionResultFl,
-      // 최초 접근시 flag
-      firstFl: this.firstFl,
-      nameFirstFl: this.nameFirstFl,
       // connection 프리셋 사용 여부
       connectionPresetFl: this._isUsedConnectionPreset(),
       // page result
       pageResult: this.pageResult,
       // 선택한 url 타입
-      selectedUrlType : this.selectedUrlType
+      selectedUrlType : this.isEnableUrl
     };
     sourceData['connectionData'] = connectionData;
   }
@@ -795,45 +824,36 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 커넥션 이름 초기화
-   * @private
-   */
-  private _initConnectionName() {
-    // 선택 초기화
-    this.createConnectionFl = false;
-    // 이름 초기화
-    this.connectionName = '';
-  }
-
-  /**
    * ui init
    * @private
    */
   private _initView() {
-    // connection type list
-    this.connectionTypeList = [
+    // ingestion 타입 목록
+    this.ingestionTypeList = [
       { label : this.translateService.instant('msg.storage.ui.list.ingested.data'), value : ConnectionType.ENGINE },
       { label : this.translateService.instant('msg.storage.ui.list.linked.data'), value : ConnectionType.LINK }
     ];
-    // 선택한 connection type
-    this.selectedConnectionType = this.connectionTypeList[0];
+    // 선택한 ingestion 타입 목록
+    this.selectedIngestionType = this.ingestionTypeList[0];
+    // security 타입 목록
+    this.securityTypeList = [
+      { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+      { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+      { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+    ];
+    // 선택한 security 타입
+    this.selectedSecurityType = this.securityTypeList[0];
     // db type list
     this.dbTypeList = this.getEnabledConnectionTypes(true);
     this.selectedDbType = this.dbTypeList[0];
     // URL 타입
-    this.urlTypes = [
-      { label: this.translateService.instant('msg.storage.ui.conn.default'), value: 'DEFAULT' },
-      { label: this.translateService.instant('msg.storage.ui.conn.url.only'), value: 'URL' }
-    ];
-    this.selectedUrlType = this.urlTypes[0].value;
-
+    this.isEnableUrl = false;
     // flag 초기화
-    // 새로운 커넥션 생성 flag
-    this.createConnectionFl = false;
-    // 커넥션 연결 success flag
-    this.connectionResultFl = null;
-    // 최초 접근시 flag
-    this.firstFl = true;
+    this.initConnectionFlag();
+    this.initConnectionPresetData();
+    this.initConnectionResultFlag();
+    // 이름 flag
+    this.isShowConnectionNameRequired = false;
     // page result
     this.pageResult.number = 0;
     this.pageResult.size = 20;
@@ -859,7 +879,7 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     // implementor
     this.selectedDbType = this._getTypeFindInList(connectionData.implementor, this.dbTypeList);
     // connection Type
-    this.selectedConnectionType = this._getTypeFindInList(connectionData.connType ,this.connectionTypeList);
+    this.selectedIngestionType = this._getTypeFindInList(connectionData.connType ,this.ingestionTypeList);
     // 프리셋 목록
     this.connectionPresetList = connectionData.connectionPresetList;
     // 선택된 프리셋
@@ -868,13 +888,10 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
     this.createConnectionFl = connectionData.createConnectionFl;
     // 커넥션 연결 success flag
     this.connectionResultFl = connectionData.connectionResultFl;
-    // 최초 접근시 flag
-    this.firstFl = connectionData.firstFl;
-    this.nameFirstFl = connectionData.nameFirstFl;
     // page result
     this.pageResult = connectionData.pageResult;
     // 선택한 url 타입
-    this.selectedUrlType = connectionData.selectedUrlType;
+    this.isEnableUrl = connectionData.selectedUrlType;
   }
 
   /**
