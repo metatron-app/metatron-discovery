@@ -46,7 +46,7 @@ export class Dashboard extends AbstractHistoryEntity {
 
   // for UI
   public selectDatasource: Datasource;
-  public update: boolean;
+  public updateId:string;
 } // structure - Dashboard
 
 /**
