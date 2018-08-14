@@ -32,7 +32,6 @@ export class Dataconnection extends AbstractHistoryEntity {
   public database: string;
   public catalog: string;
   public dbname: string;
-  public usageScope: UsageScope;
 
 
   public dataSources: any[];
@@ -64,9 +63,4 @@ export enum ConnectionType {
   NVACCEL = <any>'NVACCEL',
   STAGE = <any>'STAGE',
   FILE = <any>'FILE'
-}
-
-export enum UsageScope {
-  DEFAULT = <any>'DEFAULT',
-  WORKBENCH = <any>'WORKBENCH'
 }

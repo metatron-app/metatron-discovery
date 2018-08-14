@@ -2097,7 +2097,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         url: connInfo.url,
         username: id,
         password: pw,
-        usageScope: 'DEFAULT',
         database: connInfo.database,
         authenticationType: this.authenticationType,
         catalog: connInfo.catalog,

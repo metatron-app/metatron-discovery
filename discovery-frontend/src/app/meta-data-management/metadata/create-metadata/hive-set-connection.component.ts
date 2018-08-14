@@ -568,7 +568,6 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
     return {
       size: pageResult.size,
       page: pageResult.number,
-      // usageScope: 'DEFAULT',
       implementor: this.implementor,
       type: 'jdbc'
     };
