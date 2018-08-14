@@ -50,7 +50,7 @@
   <div class="ddp-wrap-option-slider">
     <span class="ddp-label-slider">{{'msg.page.yaxis.grid.setting' | translate}}</span>
     <!-- Slide THREE -->
-    <div class="ddp-checkbox-slide ddp-checkbox-automatic2" [class.ddp-disabled]="axis.baseline">
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2" [class.ddp-disabled]="undefined != axisTemp.baseline">
       <input type="checkbox" (click)="$event.stopPropagation(); changeGrid();" [ngModel]="axis.grid">
       <label><span class="ddp-slide"></span></label>
     </div>
@@ -85,7 +85,7 @@
       </div>
     </ng-container>
     <div class="ddp-divide2">
-      <label (click)="$event.preventDefault(); changeAutoScale();" class="ddp-label-checkbox ddp-check-full">
+      <label (click)="$event.preventDefault(); changeAutoScale();" class="ddp-label-checkbox ddp-position">
         <input type="checkbox" [ngModel]="axis.grid.autoScaled">
         <i class="ddp-icon-checkbox"></i>
         <span class="ddp-txt-checkbox">{{'msg.page.yaxis.grid.auto' | translate}}</span>
@@ -97,10 +97,17 @@
 
 <!-- 기준선 / 단위 설정 -->
 <div *ngIf="possibleChartCheck('yAxisBaseline', uiOption.type)" class="ddp-wrap-divide">
-  <div class="ddp-divide2">
-    <div class="ddp-list-label">{{'msg.page.yaxis.baseline' | translate}}</div>
-    <input [(ngModel)]="axisTemp.baseline" (keyup.enter)="changeBaseLine()" type="text" class="ddp-input-typebasic" placeholder="0">
+  <div class="ddp-wrap-option-slider">
+    <span class="ddp-label-slider">{{'msg.page.yaxis.baseline' | translate}}</span>
+    <!-- Slide THREE -->
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2" [class.ddp-disabled]="axis.grid">
+      <input type="checkbox" (click)="showBaseLine()" [ngModel]="undefined != axisTemp.baseline">
+      <label><span class="ddp-slide"></span></label>
+    </div>
+    <!-- //Slide THREE -->
   </div>
+
+  <input *ngIf="undefined != axisTemp.baseline" [(ngModel)]="axisTemp.baseline" (keyup.enter)="changeBaseLine()" type="text" class="ddp-input-typebasic" placeholder="0">
   <!--
   <div class="ddp-wrap-option-slider">
     <span class="ddp-label-slider">단위설정</span>
