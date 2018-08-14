@@ -2266,7 +2266,7 @@
   "msg.page.yaxis.grid.min.alert": "최솟값이 최댓값보다 클 수 없습니다.",
   "msg.page.yaxis.grid.max.alert": "최댓값이 최솟값보다 작을 수 없습니다.",
   "msg.page.yaxis.grid.alert": "입력값을 벗어나는 데이터가 있습니다.",
-  "msg.page.yaxis.grid.auto": "자동 설정",
+  "msg.page.yaxis.grid.auto": "데이터 범위로 축 고정",
   "msg.page.yaxis.baseline": "축 교차점",
   "msg.page.yaxis.show.grid.lines": "보조선 표시",
   "msg.page.yaxis.show.grid.lines.color": "선 색상",
