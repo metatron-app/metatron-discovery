@@ -158,13 +158,13 @@
                         <input type="checkbox" [checked]="isEnableColumnFiltering(column)">
                         <i class="ddp-txt-checkbox">{{column.filteringSeq + 1}}</i>
                       </label>
-                      <label class="ddp-label-checkbox" (click)="onClickSetColumnFilteringOptions(column); $event.preventDefault()">
-                        <!-- TODO 만약 TIMESTAMP로 지정된 컬럼도 filteringOptions 설정이 가능하도록 변경해달라고 하면 주석 해제할 것 -->
-                        <!--<input type="checkbox" [disabled]="column.role !== 'TIMESTAMP' && !isEnableColumnFiltering(column)" [checked]="isEnableColumnFilteringOptions(column)">-->
-                        <input type="checkbox" [disabled]="!isEnableColumnFiltering(column)" [checked]="isEnableColumnFilteringOptions(column)">
-                        <i class="ddp-icon-checkbox"></i>
-                        <span class="ddp-txt-checkbox">{{(column.logicalType === 'TIMESTAMP' ? 'msg.storage.btn.sel.recent.period' : 'msg.storage.btn.sel.single.item') | translate}}</span>
-                      </label>
+                      <!--<label class="ddp-label-checkbox" (click)="onClickSetColumnFilteringOptions(column); $event.preventDefault()">-->
+                        <!--&lt;!&ndash; TODO 만약 TIMESTAMP로 지정된 컬럼도 filteringOptions 설정이 가능하도록 변경해달라고 하면 주석 해제할 것 &ndash;&gt;-->
+                        <!--&lt;!&ndash;<input type="checkbox" [disabled]="column.role !== 'TIMESTAMP' && !isEnableColumnFiltering(column)" [checked]="isEnableColumnFilteringOptions(column)">&ndash;&gt;-->
+                        <!--<input type="checkbox" [disabled]="!isEnableColumnFiltering(column)" [checked]="isEnableColumnFilteringOptions(column)">-->
+                        <!--<i class="ddp-icon-checkbox"></i>-->
+                        <!--<span class="ddp-txt-checkbox">{{(column.logicalType === 'TIMESTAMP' ? 'msg.storage.btn.sel.recent.period' : 'msg.storage.btn.sel.single.item') | translate}}</span>-->
+                      <!--</label>-->
                     </div>
                   </td>
                 </tr>
