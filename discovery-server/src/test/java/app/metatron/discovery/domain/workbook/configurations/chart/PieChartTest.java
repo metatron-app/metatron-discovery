@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,49 +36,25 @@ public class PieChartTest extends ChartTest {
   }
 
   @Test
-  public void serialize() throws JsonProcessingException {
+  public void de_serialize() throws JsonProcessingException {
 
-    // 범례
-    //
-    ChartLegend legend = new ChartLegend();
-
-    PieChart chart = new PieChart(colorByMeasureForSection(), null, legend, null, fontLargerSize(), null, null,
+    PieChart chart = new PieChart(colorByMeasureForSection(), null, new ChartLegend(), null, fontLargerSize(), null, null,
                                     PieChart.MarkType.SECTOR.name(),
-                                    PieChart.SplitLayout.HORIZONTAL.name());
+                                    PieChart.SplitLayout.HORIZONTAL.name(), 10);
 
 
-    System.out.println(GlobalObjectMapper.writeValueAsString(chart));
+    String chartStr = GlobalObjectMapper.getDefaultMapper().writeValueAsString(chart);
 
-  }
+    System.out.println(chartStr);
 
-  @Test
-  public void deserialize() throws IOException {
+    PieChart deSerialized = (PieChart) GlobalObjectMapper.readValue(chartStr, Chart.class);
 
-    String chartSpec = "{\n" +
-        "  \"type\": \"pie\",\n" +
-        "  \"color\": {\n" +
-        "    \"type\": \"measure\",\n" +
-        "    \"ranges\": [\n" +
-        "      {\n" +
-        "        \"gt\": 0,\n" +
-        "        \"lte\": 20,\n" +
-        "        \"color\": \"#FFFFFF\"\n" +
-        "      },\n" +
-        "      {\n" +
-        "        \"gt\": 21.0,\n" +
-        "        \"lte\": 203.12,\n" +
-        "        \"color\": \"#FFFFFD\"\n" +
-        "      }\n" +
-        "    ]\n" +
-        "  },\n" +
-        "  \"legend\": {},\n" +
-        "  \"markType\": \"SECTOR\",\n" +
-        "  \"splitLayout\": \"HORIZONTAL\"\n" +
-        "}";
+    Assert.assertEquals(chart.getMarkType(), deSerialized.getMarkType());
+    Assert.assertEquals(chart.getSplitLayout(), deSerialized.getSplitLayout());
+    Assert.assertEquals(chart.getMaxCategory(), deSerialized.getMaxCategory());
 
-    Chart chart = GlobalObjectMapper.readValue(chartSpec, Chart.class);
+//    System.out.println("Result : " + deSerialized.toString());
 
-    System.out.println("ToString Result - \n" + ToStringBuilder.reflectionToString(chart, ToStringStyle.MULTI_LINE_STYLE));
   }
 
 }
