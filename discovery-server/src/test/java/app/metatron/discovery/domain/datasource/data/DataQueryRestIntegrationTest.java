@@ -40,8 +40,10 @@ import app.metatron.discovery.domain.datasource.DataSourceAlias;
 import app.metatron.discovery.domain.datasource.SimilarityQueryRequest;
 import app.metatron.discovery.domain.datasource.data.alias.CodeTableAlias;
 import app.metatron.discovery.domain.datasource.data.alias.ValueRefAlias;
+import app.metatron.discovery.domain.datasource.data.forward.CsvResultForward;
 import app.metatron.discovery.domain.datasource.data.forward.JsonResultForward;
 import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
+import app.metatron.discovery.domain.datasource.data.result.FileResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.GraphResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.PivotResultFormat;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
@@ -185,6 +187,47 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
       .post("/api/datasources/query/search")
     .then()
 //      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void searchQueryForSalesForDownload() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(1000000);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    Pivot pivot1 = new Pivot();
+    TimestampField timestampField = new TimestampField("OrderDate", null, new ContinuousTimeFormat(false, TimeFieldFormat.TimeUnit.DAY.name(), null));
+    pivot1.setColumns(Lists.newArrayList(timestampField));
+    pivot1.setAggregations(Lists.newArrayList(
+        new MeasureField("Sales", MeasureField.AggregationType.NONE)
+    ));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot1, limit);
+    CsvResultForward csvResultForward = new CsvResultForward();
+    request.setResultForward(csvResultForward);
+    request.setResultFormat(new FileResultFormat());
+
+    System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request))
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
       .log().all();
     // @formatter:on
 
