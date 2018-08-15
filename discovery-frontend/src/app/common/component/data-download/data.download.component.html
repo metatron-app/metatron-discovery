@@ -15,20 +15,17 @@
 <div *ngIf="isShow" class="ddp-box-layout4 ddp-download" >
   <a (click)="close()" href="javascript:" class="ddp-btn-close"></a>
   <div class="ddp-data-title">
-    원본데이터 다운로드
+    {{ 'msg.board.download.title' | translate }}
     <span > </span>
     <span *ngIf="preview" class="ddp-data">
       {{ commonUtil.numberWithCommas( preview.totalCount ) }} {{'msg.storage.ui.dsource.preview.rows' | translate}} /
       {{ commonUtil.formatBytes( preview.estimatedSize, 1 ) }} </span>
-    <span *ngIf="!preview" class="ddp-data">데이터 용량 계산중...</span>
+    <span *ngIf="!preview" class="ddp-data">{{ 'msg.board.download.calc-size' | translate }}</span>
   </div>
 
   <div class="ddp-wrap-data-detail">
     <a (click)="downloadCSV()" href="javascript:" class="ddp-btn-down"><em class="ddp-icon-csv"></em>CSV</a>
     <a (click)="downloadExcel()" href="javascript:" class="ddp-btn-down"><em class="ddp-icon-xlsx"></em>Excel</a>
-    <div class="ddp-txt-det">
-      최대 100만 건까지 다운로드됩니다,<br>
-      100만 건 이상의 데이터는 관리자에게 문의해 주세요.
-    </div>
+    <div class="ddp-txt-det" [innerHTML]="'msg.board.download.desc' | translate" ></div>
   </div>
 </div>
