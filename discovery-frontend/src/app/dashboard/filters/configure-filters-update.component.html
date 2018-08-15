@@ -19,7 +19,7 @@
     <div class="ddp-top-filter">
       <!-- tag -->
       <div class="ddp-ui-tags">
-        <span *ngIf="widget && targetFilter.widgetId" class="ddp-data-chartname">{{getWidgetName()}}</span>
+        <span *ngIf="widget && targetFilter.ui?.widgetId" class="ddp-data-chartname">{{getWidgetName()}}</span>
         <!-- Slide THREE -->
         <div *ngIf="false && widget" (click)="toggleFilterScope()" class="ddp-tag-type ddp-checkbox-slide ">
           <input [checked]="!targetFilter.widgetId" type="checkbox" value="None" id="check2" name="check" >
@@ -27,7 +27,7 @@
           <span class="ddp-txt-slide"><em class="ddp-icon-global"></em></span>
         </div>
         <!-- //Slide THREE -->
-        <span *ngIf="!targetFilter.widgetId" class="ddp-tag-type ddp-type" >
+        <span *ngIf="!targetFilter.ui?.widgetId" class="ddp-tag-type ddp-type" >
           <em class="ddp-icon-global"></em>Global
         </span>
         <span *ngIf="isRecommend()" class="ddp-tag-type ddp-type" >
@@ -44,7 +44,7 @@
       <!-- 제목 및 아이콘 영역 -->
       <div class="ddp-title">
         <!-- 아이콘 영역 -->
-        <div class="ddp-icons" [ngStyle]="isDirectEdit ? {'padding-left': '7px'} : {}">
+        <div class="ddp-icons" style="height:49px;" [ngStyle]="isDirectEdit ? {'padding-left': '7px'} : {}">
           <a *ngIf="!isDirectEdit" (click)="clickBtnBack()" href="javascript:" class="ddp-btn-back"></a>
           <span *ngIf="!isMeasure()" class="ddp-icon-box">
             <em class="{{getDimensionTypeIconClass(targetField)}}" ></em>
