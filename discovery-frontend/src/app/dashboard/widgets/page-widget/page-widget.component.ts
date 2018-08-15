@@ -760,7 +760,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     let $target: JQuery = $(event.target);
     const btnLeft: number = $target.offset().left;
     const btnTop: number = $target.offset().top;
-    this.$element.find('.ddp-box-layout4').css({ 'left': btnLeft - 150, 'top': btnTop + 25 });
+    this.$element.find('.ddp-box-btn2 .ddp-box-layout4').css({ 'left': btnLeft - 150, 'top': btnTop + 25 });
   } // function - showInfoLayer
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
