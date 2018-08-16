@@ -32,20 +32,20 @@ Screenshots
 ### Create Dashboards
 <kbd><img title="Dashboard" src="https://user-images.githubusercontent.com/6300003/44020367-a32bf09a-9f1c-11e8-9915-f62a789b3d07.png"></kbd><br />
 
+### Create Charts
+<kbd><img title="Chart" src="https://user-images.githubusercontent.com/6300003/44198912-a077f480-a17d-11e8-861a-4a54af522b04.png"></kbd><br />
+
 ### Use Datasources
-<kbd><img title="Workspace-list" src="https://user-images.githubusercontent.com/6300003/44014642-f70fd6e6-9f07-11e8-978c-e04ee6dee5f1.png"></kbd><br />
+<kbd><img title="Use-Datasource" src="https://user-images.githubusercontent.com/6300003/44200744-51808e00-a182-11e8-8fc6-d30d56b4ab26.png"></kbd><br />
 
 ### Manage Datasources
-<kbd><img title="Datasoruce-list" src="https://user-images.githubusercontent.com/6300003/44018726-a98d474a-9f17-11e8-849b-dc11a0d8b815.png"></kbd><br />
+<kbd><img title="Datasource-detail" src="https://user-images.githubusercontent.com/6300003/44200028-95729380-a180-11e8-95fb-070d7ed0d260.png"></kbd><br />
 
-### Using Database
-<kbd><img title="Create-connection" src="https://user-images.githubusercontent.com/6300003/44014836-ef969138-9f08-11e8-8ebe-136318859aa0.png"></kbd><br />
+### Connect Database
+<kbd><img title="Create-connection" src="https://user-images.githubusercontent.com/6300003/44200666-1bdba500-a182-11e8-8b2b-43dfdfe30bf4.png"></kbd><br />
 
 ### Prepare Origin Data
 <kbd><img title="Data-preparation" src="https://user-images.githubusercontent.com/6300003/44019798-d02e8348-9f1a-11e8-958e-4e95802bd5de.png"></kbd><br />
-
-### Search Meta Data
-<kbd><img title="MDM" src="https://user-images.githubusercontent.com/6300003/44014761-7a98a6aa-9f08-11e8-8337-6c83cdfe88ba.png"></kbd><br />
 
 Download & Installation
 ----------------------------
