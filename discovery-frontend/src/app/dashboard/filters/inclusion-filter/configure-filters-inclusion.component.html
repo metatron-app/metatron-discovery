@@ -44,7 +44,8 @@
       <span class="ddp-data-num"><strong>{{totalItemCnt}}</strong> default value</span>
       <div class="ddp-option-btn">
         <!-- 상단 목록 검색 영역 -->
-        <div [class.ddp-selected]="targetFilter['isShowSearch']" class="ddp-ui-search" >
+        <div (clickOutside)="targetFilter['isShowSearch'] = false"
+             [class.ddp-selected]="targetFilter['isShowSearch']" class="ddp-ui-search" >
           <em (click)="targetFilter['isShowSearch'] = true"
               class="ddp-icon-search-default ddp-btn-box"></em>
           <div class="ddp-form-search">
@@ -94,6 +95,7 @@
               </div>
               <div class="ddp-col-3">
                 <component-select
+                  #wildCardContains
                   [array]="wildCardTypeList"
                   [viewKey]="'name'"
                   (onSelected)="wildcard.contains = $event ? $event['value'] : null">
@@ -123,6 +125,7 @@
             <div class="ddp-form-edit-set ddp-clear">
               <div class="ddp-col-4">
                 <component-select
+                  #conditionField
                   [array]="measureFields"
                   [viewKey]="'name'"
                   [usePlaceholder]="true"
@@ -132,6 +135,7 @@
               </div>
               <div class="ddp-col-3">
                 <component-select
+                  #conditionAggregation
                   [array]="aggregationTypeList"
                   [viewKey]="'name'"
                   (onSelected)="condition.aggregation = $event ? $event['value'] : null">
@@ -139,6 +143,7 @@
               </div>
               <div class="ddp-col-2">
                 <component-select
+                  #conditionInequality
                   [array]="conditionTypeList"
                   [viewKey]="'name'"
                   (onSelected)="condition.inequality = $event ? $event['value'] : null"
@@ -170,6 +175,7 @@
             <div class="ddp-form-edit-set ddp-clear">
               <div class="ddp-col-3">
                 <component-select
+                  #limitPosition
                   [array]="limitTypeList"
                   [viewKey]="'name'"
                   (onSelected)="limitation.position = $event ? $event['value'] : null"
@@ -180,6 +186,7 @@
               </div>
               <div class="ddp-col-4">
                 <component-select
+                  #limitField
                   [array]="measureFields"
                   [viewKey]="'name'"
                   [usePlaceholder]="true"
@@ -189,6 +196,7 @@
               </div>
               <div class="ddp-col-3">
                 <component-select
+                  #limitAggregation
                   [array]="aggregationTypeList"
                   [viewKey]="'name'"
                   (onSelected)="limitation.aggregation = $event ? $event['value'] : null"
@@ -213,7 +221,8 @@
         <!-- // 상단 목록 필터링 설정 영역 -->
 
         <!-- 상단 목록 정렬 설정 영역 -->
-        <div [class.ddp-selected]="targetFilter['isShowCandidateSort']" class="ddp-ui-sort ddp-btn-box ">
+        <div (clickOutside)="targetFilter['isShowCandidateSort'] = false"
+             [class.ddp-selected]="targetFilter['isShowCandidateSort']" class="ddp-ui-sort ddp-btn-box">
           <a (click)="targetFilter['isShowCandidateSort'] = !targetFilter['isShowCandidateSort']"
              href="javascript:" class="ddp-icon-sort"></a>
           <!-- hover -->
