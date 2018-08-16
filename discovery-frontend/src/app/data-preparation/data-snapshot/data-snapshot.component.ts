@@ -117,7 +117,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   public getDatasnapshots() {
 
     this.loadingShow();
-    this.dataSnapshotService.getDataSnapshots(this.searchText, this.page, 'listing')
+    this.dataSnapshotService.getDataSnapshotsByStatus(this.searchText, 'SUCCESS' ,this.page, 'listing')
       .then((data) => {
         this.loadingHide();
 
