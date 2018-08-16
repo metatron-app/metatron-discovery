@@ -1236,6 +1236,7 @@
   "msg.board.filter.refresh.filter" : "Refresh filter",
   "msg.board.filter.sel.data" : "Please select data.",
   "msg.board.filter.placeholder.search-field" : "Search by field name",
+  "msg.board.filter.ui.select-measure" : "Select Measure",
   "msg.custom.filter.popup.change.aggregation.title" : "Do you want to continue to change?",
   "msg.custom.filter.popup.change.aggregation.description" : "If you change the condition including aggregations, it can affect all of charts using these columns.",
   "msg.board.ordering,tooltip" : "Ordering",

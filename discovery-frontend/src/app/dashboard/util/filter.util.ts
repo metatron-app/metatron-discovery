@@ -281,9 +281,7 @@ export class FilterUtil {
     }
     keyMap = keyMap.concat(['type', 'field', 'ref', 'dataSource']);
     for (let key of Object.keys(filter)) {
-      if (-1 === keyMap.indexOf(key)) {
-        delete filter[key];
-      }
+      (keyMap.some(item => item === key)) || (delete filter[key]);
     }
 
     // Time Range 필터의 타임 형식 설정
@@ -352,9 +350,7 @@ export class FilterUtil {
     }
     keyMap = keyMap.concat(['type', 'field', 'ref', 'dataSource']);
     for (let key of Object.keys(filter)) {
-      if (-1 === keyMap.indexOf(key)) {
-        delete filter[key];
-      }
+      (keyMap.some(item => item === key)) || (delete filter[key]);
     }
 
     // Time Range 필터의 타임 형식 설정
