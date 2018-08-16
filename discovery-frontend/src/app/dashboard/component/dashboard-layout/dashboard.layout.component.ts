@@ -881,7 +881,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
                 rcmdFilter = FilterUtil.getTimeAllFilter(field, 'recommended');
               }
             } else {
-              rcmdFilter = FilterUtil.getBasicInclusionFilter(field, false, 'recommended');
+              rcmdFilter = FilterUtil.getBasicInclusionFilter(field, 'recommended');
             }
 
             if (rcmdFilter) {
@@ -927,7 +927,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
             return _.merge(new TimeFilter(filterField), savedItem);
           } else {
             // 차원값 필터
-            return _.merge(FilterUtil.getBasicInclusionFilter(filterField, false), savedItem);
+            return _.merge(FilterUtil.getBasicInclusionFilter(filterField), savedItem);
           }
         })
       );
