@@ -21,8 +21,7 @@ import { SearchQueryRequest } from '../../domain/datasource/data/search-query-re
 import * as _ from 'lodash';
 import { PageWidgetConfiguration } from '../../domain/dashboard/widget/page-widget';
 import {
-  ChartType, DataUnit, ShelveFieldType, GridViewType,
-  LineMode
+  ChartType, ShelveFieldType, GridViewType, LineMode
 } from '../../common/component/chart/option/define/common';
 import { Filter } from '../../domain/workbook/configurations/filter/filter';
 import { UILineChart } from '../../common/component/chart/option/ui-option/ui-line-chart';
