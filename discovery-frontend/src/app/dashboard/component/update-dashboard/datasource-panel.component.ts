@@ -448,7 +448,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
         this.onUpdateFilter.emit(FilterUtil.getBasicBoundFilter(field));
       } else {
         // inclusion필터
-        const inclusionFilter = FilterUtil.getBasicInclusionFilter(field, false);
+        const inclusionFilter = FilterUtil.getBasicInclusionFilter(field);
         if (field.type === 'user_expr') {
           inclusionFilter.ref = 'user_defined';
         }
