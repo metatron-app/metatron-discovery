@@ -30,11 +30,12 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public ruleVO: Rule;
+  public isShow: boolean = false;
+  public mode : string = 'APPEND';
+  public ruleVO : Rule;
 
   public fields : Field[];
-
-  public mode : string = 'APPEND';
+  public selectedFields: Field[] = [];
 
   @Output()
   public onEvent:EventEmitter<any> = new EventEmitter();
@@ -73,36 +74,39 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * 컴포넌트의 초기 실행
-   * @param {Field} fields
-   * @param {Rule} rule
-   */
-  public init(fields : Field[], rule ? : Rule) {
+  public init(fields : Field[], selectedFields:Field[], ruleString?:string) {
     this.fields = fields;
 
-    if( isNullOrUndefined( rule ) ) {
-      this.ruleVO = new Rule();
+    if( isNullOrUndefined( ruleString ) ) {
       this.mode = 'APPEND';
+      this.selectedFields = selectedFields;
     } else {
-      this.ruleVO = rule;
       this.mode = 'UPDATE';
+      ruleString = ruleString.replace( /,\s*/g, ',' );  // 각 속성별 값을 얻기 위해서 미리 Comma 사이의 공백을 제거함
+      this.parsingRuleString(ruleString);
     }
+
+    this.beforeShowComp();
+
+    this.isShow = true;
+
+    this.afterShowComp();
   } // function - init
 
+
   /**
-   * 현재 생성된 Rule 정보를 외부에 제공한다.
-   * @return {Rule}
+   * Formula 입력 룰 실행
+   * @param ruleVO
    */
-  public getRuleVO() {
-    return this.ruleVO;
-  } // function - getRuleVO
+  public setRuleVO (ruleVO) {
+    this.ruleVO = ruleVO;
+
+  };
 
   /**
    * Rule 형식 정의 및 반환
@@ -116,6 +120,36 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 컴포넌트 표시 전 실행
+   * @protected
+   */
+  protected abstract beforeShowComp();
+
+  /**
+   * 컴포넌트 표시 후 실행
+   * @protected
+   */
+  protected abstract afterShowComp();
+
+  /**
+   * rule string 을 분석한다.
+   * @param ruleString
+   * @protected
+   */
+  protected abstract parsingRuleString(ruleString:string);
+
+  /**
+   * rule String 내 특정 속성에 대한 값을 얻는다.
+   * @param attr
+   * @param ruleString
+   * @protected
+   */
+  protected getAttrValueInRuleString( attr:string, ruleString:string ) {
+    const parsingResult:string[] = (new RegExp( attr + '\\s?:\\s?(\\S*)' )).exec( ruleString );
+    return ( parsingResult ) ? parsingResult[1] : '';
+  } // function - getAttrValueInRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

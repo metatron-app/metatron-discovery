@@ -69,6 +69,13 @@ import {RuleConditionInputComponent} from "./dataflow/dataflow-detail/component/
 import { EditRuleFieldComboComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-field-combo.component';
 import { EditRuleDeriveComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-derive.component';
 import { EditRuleSetComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-set.component';
+import { EditRuleRenameComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-rename.component';
+import { EditRuleReplaceComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-replace.component';
+import { EditRuleMergeComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-merge.component';
+import { EditRuleSortComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-sort.component';
+import { EditRuleMoveComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-move.component';
+import { EditRuleNestComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-nest.component';
+import { EditRuleUnpivotComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-unpivot.component';
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -128,6 +135,13 @@ const dataPreparationRoutes: Routes = [
     EditRuleDropComponent,
     EditRuleDeriveComponent,
     EditRuleSetComponent,
+    EditRuleRenameComponent,
+    EditRuleReplaceComponent,
+    EditRuleMergeComponent,
+    EditRuleSortComponent,
+    EditRuleMoveComponent,
+    EditRuleNestComponent,
+    EditRuleUnpivotComponent,
     RuleSnapshotListComponent,
     AddDatasetComponent,
     CreateDataflowNameDescComponent,

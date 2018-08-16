@@ -12,20 +12,28 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
+  ViewChild
+} from '@angular/core';
+import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
-import { isUndefined } from 'util';
 import { Alert } from '../../../../../../common/util/alert.util';
+import { RuleConditionInputComponent } from './rule-condition-input.component';
 
 @Component({
-  selector : 'edit-rule-header',
-  templateUrl : './edit-rule-header.component.html'
+  selector: 'edit-rule-unpivot',
+  templateUrl: './edit-rule-unpivot.component.html'
 })
-export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
+export class EditRuleUnpivotComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild(RuleConditionInputComponent)
+  private ruleConditionInputComponent : RuleConditionInputComponent;
 
+  @Output()
+  public advancedEditorClickEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -33,7 +41,7 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public rowNum:number = 1;
+  public inputValue:string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -42,7 +50,7 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -78,28 +86,35 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
 
   /**
    * Rule 형식 정의 및 반환
-   * @return {{command: string, rownum: number, ruleString: string}}
+   * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString:string} {
-    if (isUndefined(this.rowNum) || isNaN(this.rowNum)) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.row'));
+  public getRuleData(): { command: string, col: string, ruleString: string } {
+
+    if (this.selectedFields.length === 0) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined
     }
 
-    if (0 == this.rowNum || this.rowNum > this.fields.length) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.out.of.range'));
-      return undefined
-    }
-
+    // TODO : condition validation
+    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
     return {
-        command: 'header',
-        ruleString: 'header rownum: ' + this.rowNum
+      command: 'unpivot',
+      col: columnsStr,
+      ruleString: `unpivot col: ${columnsStr} groupEvery: ${this.inputValue}`
     };
+
   } // function - getRuleData
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 필드 변경
+   * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
+   */
+  public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+    this.selectedFields = data.selectedList;
+  } // function - changeFields
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -109,23 +124,26 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - beforeShowComp
+  protected beforeShowComp() {} // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
    * @protected
    */
-  protected afterShowComp() {
-  } // function - afterShowComp
+  protected afterShowComp() {} // function - _afterShowComp
 
   /**
    * rule string 을 분석한다.
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
-    // value
-    this.rowNum = Number( this.getAttrValueInRuleString( 'rownum', ruleString ) );
-  } // function - parsingRuleString
+    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
+    if( '' !== strCol ) {
+      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    }
+    this.inputValue = this.getAttrValueInRuleString( 'groupEvery', ruleString );
+  } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

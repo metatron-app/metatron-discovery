@@ -29,6 +29,7 @@ import { isNullOrUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import * as $ from "jquery";
+import { CommonUtil } from '../../../../../../common/util/common.util';
 
 @Component({
   selector : 'edit-rule-field-combo',
@@ -44,6 +45,8 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
   @ViewChild('inputSearch')
   private _inputSearch:ElementRef;
 
+  private readonly _FIELD_COMBO_ID:string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -53,6 +56,9 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public isShowOptions: boolean = false;
   public selectedItemKeys:string[] = [];
+
+  @Input()
+  public effectGrid : boolean = true;
 
   // 검색어
   public columnSearchText:string = '';
@@ -70,7 +76,7 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
   public tabIndex:number = 0;
 
   @Output()
-  public onChange:EventEmitter<{target:Field, isSelect:boolean, selectedList:Field[]}> = new EventEmitter();
+  public onChange:EventEmitter<{target?:Field, isSelect?:boolean, selectedList:Field[]}> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -81,6 +87,7 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
+    this._FIELD_COMBO_ID = CommonUtil.getUUID();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -93,14 +100,29 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
   public ngOnInit() {
     super.ngOnInit();
 
-    // 그리드 컬럼 선택에 대한 이벤트
+    if (this.effectGrid) {
+      // 그리드 컬럼 선택에 대한 이벤트
+      this.subscriptions.push(
+        this.broadCaster.on<any>('EDIT_RULE_GRID_SEL_COL').subscribe((data: { selectedColIds: string[], fields: any[] }) => {
+          if (this.fields) {
+            this.selectedItemKeys = data.selectedColIds;
+            this.onChange.emit({
+              selectedList: this.fields.filter( item => -1 < this.selectedItemKeys.indexOf( item.name ) )
+            });
+          }
+        })
+      );
+    }
+
+    // 필드 펼침/숨김에 대한 이벤트
     this.subscriptions.push(
-      this.broadCaster.on<any>('EDIT_RULE_GRID_SEL_COL').subscribe((data: { id: string, isSelect: boolean, columns: string[], fields: any[] }) => {
-        if (this.fields && this.fields.some(item => item.name === data.id)) {
-          this.checkItem(data.id, false, data.isSelect);
+      this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean }) => {
+        if( data.id !== this._FIELD_COMBO_ID ) {
+          this.isShowOptions = false;
         }
       })
     );
+
   } // function - ngOnInit
 
   /**
@@ -110,7 +132,11 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
   public ngOnChanges(changes: SimpleChanges) {
     const selectedChanges: SimpleChange = changes.selected;
     if (selectedChanges && selectedChanges.firstChange ) {
-      selectedChanges.currentValue.forEach(item => this.checkItem(item.name, true, true));
+      selectedChanges.currentValue.forEach(item => {
+        if( item && this.effectGrid) {
+          this.checkItem(item.name, true, true)
+        }
+      });
     }
   } // function - ngOnChanges
 
@@ -141,18 +167,19 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
   public checkItem(checkedKey: string, isEvent: boolean = true, isSelect?: boolean) {
     let selected: boolean = isSelect;
 
-    if( this.isMulti ) {
+    if( this.isMulti) {
       (isNullOrUndefined(selected)) && (selected = !this.selectedItemKeys.some(item => item === checkedKey));
-      if (selected) {
-        // add key
+        if (selected) {
+          // add key
         this.selectedItemKeys.push(checkedKey);
-      } else {
-        // remove key
+        } else {
+          // remove key
         this.selectedItemKeys = this.selectedItemKeys.filter(item => item !== checkedKey);
-      }
+        }
     } else {
       selected = true;
       this.selectedItemKeys = [checkedKey];
+      this.hideOptions();
     }
 
     this.onChange.emit({
@@ -161,13 +188,16 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
       selectedList: this.fields.filter( item => -1 < this.selectedItemKeys.indexOf( item.name ) )
     });
 
-    if (isEvent) {
+    if (isEvent && this.effectGrid) {
       this.broadCaster.broadcast('EDIT_RULE_COMBO_SEL', { name: checkedKey, isSelectOrToggle: selected, isMulti : this.isMulti });
     }
+
+    this.safelyDetectChanges();
   } // function - checkItem
 
   /**
    * 옵션 표시
+   * @param {MouseEvent} event
    */
   public showOptions(event:MouseEvent) {
     event.stopPropagation();
@@ -176,7 +206,19 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
       this.columnSearchText = ''; // 검색어 초기화
       setTimeout(() => $(this._inputSearch.nativeElement).trigger('focus')); // 포커스
     }
-    this.changeDetect.detectChanges();
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : this._FIELD_COMBO_ID, isShow : true } );
+    this.safelyDetectChanges();
+  }
+
+  /**
+   * 옵션 숨김
+   * @param {MouseEvent} event
+   */
+  public hideOptions(event?:MouseEvent) {
+    ( event ) && ( event.stopPropagation() );
+    this.isShowOptions = false;
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : this._FIELD_COMBO_ID, isShow : false } );
+    this.safelyDetectChanges();
   }
 
   /**

@@ -24,11 +24,11 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
 import {RuleConditionInputComponent} from "./rule-condition-input.component";
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
+import { Rule } from '../../../../../../domain/data-preparation/dataset';
 
 @Component({
   selector : 'edit-rule-delete',
@@ -48,6 +48,8 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public rowNum : string;
+
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
 
@@ -88,18 +90,6 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * 컴포넌트의 초기 실행
-   * @param {Field[]} fields
-   * @param {Rule} rule
-   */
-  public init(fields : Field[], rule ? : Rule) {
-    super.init( fields, rule );
-
-    this.safelyDetectChanges();
-
-    this.ruleConditionInputComponent.init({ruleVO : this.ruleVO, fields : this.fields, command : 'delete'} );
-  } // function - init
 
   /**
    * Rule 형식 정의 및 반환
@@ -109,23 +99,20 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
     let val = this.ruleConditionInputComponent.getCondition();
     if (isUndefined(val) || '' === val || '\'\'' === val) {
       Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
-      return {
-        command: this.ruleVO.command,
-        ruleString: undefined
-      }
+      return undefined
     }
 
     if (!isUndefined(val) && '' !== val.trim() && '\'\'' !== val.trim()) {
       let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
       if (check[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.check.condition'));
-        return;
+        return undefined
       } else {
         val = check[1];
       }
     }
     return {
-      command: this.ruleVO.command,
+      command: 'delete',
       ruleString: 'delete row: ' + val
     };
 
@@ -141,5 +128,33 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   public openPopupFormulaInput(command: string) {
     this.advancedEditorClickEvent.emit();
   } // function - openPopupFormulaInput
+
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 컴포넌트 표시 전 실행
+   * @protected
+   */
+  protected beforeShowComp() {} // function - _beforeShowComp
+
+  /**
+   * 컴포넌트 표시 후 실행
+   * @protected
+   */
+  protected afterShowComp() {
+    this.safelyDetectChanges();
+    this.ruleConditionInputComponent.init({fields : this.fields, command : 'delete', ruleVO : this.ruleVO} );
+  } // function - _afterShowComp
+
+  /**
+   * rule string 을 분석한다.
+   * @param ruleString
+   */
+  protected parsingRuleString(ruleString:string) {
+    this.rowNum = this.getAttrValueInRuleString( 'row', ruleString );
+  } // function - _parsingRuleString
 
 }
