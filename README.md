@@ -33,7 +33,7 @@ Screenshots
 <kbd><img title="Dashboard" src="https://user-images.githubusercontent.com/6300003/44020367-a32bf09a-9f1c-11e8-9915-f62a789b3d07.png"></kbd><br />
 
 ### Create Charts
-<kbd><img title="Chart" src="https://user-images.githubusercontent.com/6300003/44198912-a077f480-a17d-11e8-861a-4a54af522b04.png"></kbd><br />
+<kbd><img title="Chart" src="https://user-images.githubusercontent.com/6300003/44201180-98bb4e80-a183-11e8-81da-54dd59d14330.png"></kbd><br />
 
 ### Use Datasources
 <kbd><img title="Use-Datasource" src="https://user-images.githubusercontent.com/6300003/44200744-51808e00-a182-11e8-8fc6-d30d56b4ab26.png"></kbd><br />
