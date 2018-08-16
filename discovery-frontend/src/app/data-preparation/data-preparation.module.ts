@@ -76,6 +76,9 @@ import { EditRuleSortComponent } from './dataflow/dataflow-detail/component/edit
 import { EditRuleMoveComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-move.component';
 import { EditRuleNestComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-nest.component';
 import { EditRuleUnpivotComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-unpivot.component';
+import { EditRuleCountpatternComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-countpattern.component';
+import { EditRuleExtractComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-extract.component';
+import { EditRuleSplitComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-split.component';
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -142,6 +145,9 @@ const dataPreparationRoutes: Routes = [
     EditRuleMoveComponent,
     EditRuleNestComponent,
     EditRuleUnpivotComponent,
+    EditRuleSplitComponent,
+    EditRuleExtractComponent,
+    EditRuleCountpatternComponent,
     RuleSnapshotListComponent,
     AddDatasetComponent,
     CreateDataflowNameDescComponent,

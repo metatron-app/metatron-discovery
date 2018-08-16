@@ -12,6 +12,7 @@
   ~ limitations under the License.
   -->
 
+<!-- part -->
 <div *ngIf="isShow" class="ddp-box-part" >
   <div class="ddp-box-title">
     {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
@@ -23,7 +24,7 @@
 </div>
 <!-- //part -->
 
-<!-- part -->
+<!-- part : on -->
 <div *ngIf="isShow" class="ddp-box-part" >
   <div class="ddp-box-title">
     {{'msg.dp.th.pattern' | translate}}<em class="ddp-icon-essential"></em>
@@ -53,65 +54,22 @@
 </div>
 <!--//part-->
 
-<!-- part -->
-<div *ngIf="isShow" class="ddp-box-part" >
-  <div class="ddp-box-title"> {{'msg.dp.th.new.value' | translate}} </div>
-  <!-- info -->
-  <div class="ddp-ui-info">
-    <em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>
-    <div class="ddp-box-info">
-      {{'msg.dp.th.new.value.description' | translate}}
-    </div>
-  </div>
-  <!-- //info -->
-
-  <div class="ddp-wrap-datainput">
-    <input [(ngModel)]="newValue" tabindex="4" placeholder="{{'msg.dp.th.new.value.ph' | translate}}"
-           type="text" class="ddp-input-typebasic" >
-    <!-- ddp-selected 추가시 display:block; -->
-  </div>
-</div>
-<!--//part-->
-
-<!-- part -->
+<!-- part : quote -->
 <div *ngIf="isShow" class="ddp-box-part ddp-box-s" >
   <div class="ddp-box-title"> {{'msg.dp.th.quote' | translate}} </div>
   <div class="ddp-wrap-datainput">
-    <input [(ngModel)]="ignore" tabindex="5" placeholder="{{'msg.dp.ui.enter.value' | translate}}"
-           type="text" class="ddp-input-typebasic" >
+    <input [(ngModel)]="ignore" type="text" class="ddp-input-typebasic" tabindex="6" placeholder="{{'msg.dp.ui.enter.value' | translate}}" >
   </div>
 </div>
 <!--//part-->
-
-<!-- part -->
-<div *ngIf="isShow" class="ddp-box-part ddp-box-s" >
-  <div class="ddp-box-title"> {{'msg.dp.th.match.occur' | translate}} </div>
-
-  <ul class="ddp-list-buttons">
-    <li [ngClass]="{'ddp-selected':isGlobal}" (click)="isGlobal = true;"> {{'msg.dp.ui.yes' | translate}} </li>
-    <li [ngClass]="{'ddp-selected':!isGlobal}" (click)="isGlobal = false;"> {{'msg.dp.ui.no' | translate}} </li>
-  </ul>
-</div>
-<!-- //part -->
 
 <!-- part -->
 <div *ngIf="isShow" class="ddp-box-part ddp-box-s" >
   <div class="ddp-box-title"> {{'msg.dp.th.ignore.case' | translate}} </div>
 
   <ul class="ddp-list-buttons">
-    <li [ngClass]="{'ddp-selected':isIgnoreCase}" (click)="isIgnoreCase = true;"> {{'msg.dp.ui.yes' | translate}} </li>
     <li [ngClass]="{'ddp-selected':!isIgnoreCase}" (click)="isIgnoreCase = false;"> {{'msg.dp.ui.no' | translate}} </li>
+    <li [ngClass]="{'ddp-selected':isIgnoreCase}" (click)="isIgnoreCase = true;"> {{'msg.dp.ui.yes' | translate}} </li>
   </ul>
 </div>
 <!-- //part -->
-
-<!-- part -->
-<div *ngIf="isShow" class="ddp-box-part" >
-  <div class="ddp-box-title"> {{'msg.dp.ui.cond' | translate}} </div>
-  <div class="ddp-wrap-datainput">
-    <input [(ngModel)]="condition" tabindex="6" placeholder="{{'msg.dp.ui.cond.ph' | translate}}"
-           type="text" class="ddp-input-typebasic" >
-    <!-- ddp-selected 추가시 display:block; -->
-  </div>
-</div>
-<!--// part-->
