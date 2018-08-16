@@ -52,6 +52,13 @@
             <goals>
               <goal>npm</goal>
             </goals>
+
+            <configuration>
+              <environmentVariables>
+                <METATRON_APP_VERSION>${metatron.app.version}</METATRON_APP_VERSION>
+              </environmentVariables>
+              <arguments>run prebuild</arguments>
+            </configuration>
           </execution>
 
           <execution>
