@@ -337,6 +337,26 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     });
   } // function - candidateWithValidation
 
+  /**
+   * 필터링 설정 레이어 On/Off
+   * @param {InclusionFilter} filter
+   */
+  public toggleConfigFilteringLayer(filter: InclusionFilter) {
+    if (!filter['isShowCandidateFilter']) {
+      this.wildcard = _.cloneDeep( this._wildcard );
+      this.condition = _.cloneDeep( this._condition );
+      this.limitation = _.cloneDeep( this._limitation );
+      this._wildCardContainsCombo.selected( this.wildCardTypeList.find(item => ContainsType[item.value] === this.wildcard.contains) );
+      this._condFieldCombo.selected( this.measureFields.find(item => item.name === this.condition.field) );
+      this._condAggrCombo.selected( this.aggregationTypeList.find(item => AggregationType[item.value] === this.condition.aggregation) );
+      this._condInequalityCombo.selected( this.conditionTypeList.find(item => InequalityType[item.value] === this.condition.inequality) );
+      this._limitFieldCombo.selected( this.measureFields.find(item => item.name === this.limitation.field) );
+      this._limitAggrCombo.selected( this.aggregationTypeList.find(item => AggregationType[item.value] === this.limitation.aggregation) );
+      this._limitPositionCombo.selected( this.limitTypeList.find(item => PositionType[item.value] === this.limitation.position) );
+    }
+    filter['isShowCandidateFilter'] = !filter['isShowCandidateFilter'];
+  } // function - toggleConfigFilteringLayer
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - 목록 정렬 관련
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
