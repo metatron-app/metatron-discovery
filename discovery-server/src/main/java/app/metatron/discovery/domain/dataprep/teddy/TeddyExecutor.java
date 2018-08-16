@@ -25,10 +25,10 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedEx
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.datasource.connection.jdbc.*;
-import com.google.common.collect.Maps;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import com.google.common.collect.Maps;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -147,6 +147,7 @@ public class TeddyExecutor {
 
       long ruleCntTotal = countAllRules(datasetInfo);
       updateSnapshot("ruleCntTotal", String.valueOf(ruleCntTotal));
+      updateAsRunning();
 
       if (snapshotInfo.get("ssType").equals(PrepSnapshot.SS_TYPE.FILE.name())) {
         result = createFileSnapshot(argv);
@@ -155,11 +156,13 @@ public class TeddyExecutor {
       } else if (snapshotInfo.get("ssType").equals(PrepSnapshot.SS_TYPE.HIVE.name())) {
         result = createHiveSnapshot(hadoopConfDir, datasetInfo, snapshotInfo);
       } else {
+        updateAsFailed();
         throw new IllegalArgumentException("run(): ssType not supported: ssType=" + snapshotInfo.get("ssType"));
       }
     } catch (Exception e) {
       LOGGER.error("run(): error while creating a snapshot: ", e);
       updateSnapshot("finishTime", DateTime.now(DateTimeZone.UTC).toString());
+      updateAsFailed();
       StringBuffer sb = new StringBuffer();
 
       for(StackTraceElement ste : e.getStackTrace()) {
@@ -184,6 +187,8 @@ public class TeddyExecutor {
     masterTeddyDsId = ((String) datasetInfo.get("origTeddyDsId"));
     transformRecursive(datasetInfo);
     String masterFullDsId = replaceMap.get(masterTeddyDsId);
+
+    updateAsWriting();
 
     String ssDir = (String) snapshotInfo.get("fileUri");
     if(null==ssDir) {
@@ -212,6 +217,7 @@ public class TeddyExecutor {
     DateTime finishTime = DateTime.now(DateTimeZone.UTC);
     updateSnapshot("finishTime", finishTime.toString());
     updateSnapshot("totalLines", String.valueOf(totalLines));
+    updateAsSucceeded();
 
     return new AsyncResult<>("Success");
   }
@@ -230,6 +236,8 @@ public class TeddyExecutor {
     masterTeddyDsId = ((String) datasetInfo.get("origTeddyDsId"));
     transformRecursive(datasetInfo);
     String masterFullDsId = replaceMap.get(masterTeddyDsId);
+
+    updateAsWriting();
 
     Map<String, Object> snapshotInfo = GlobalObjectMapper.readValue(argv[3], HashMap.class);
     String stagingBaseDir = (String) snapshotInfo.get("stagingBaseDir");
@@ -271,6 +279,7 @@ public class TeddyExecutor {
     DateTime finishTime = DateTime.now(DateTimeZone.UTC);
     updateSnapshot("finishTime", finishTime.toString());
     updateSnapshot("totalLines", String.valueOf(totalLines));
+    updateAsSucceeded();
 
     return new AsyncResult<>("Success");
   }
@@ -314,13 +323,15 @@ public class TeddyExecutor {
     LOGGER.info("createHiveSnapshot() finished");
 
     DateTime finishTime = DateTime.now(DateTimeZone.UTC);
-
     updateSnapshot("finishTime", finishTime.toString());
+    // totalLines is already written in writeToHdfs()
+    updateAsSucceeded();
+
     return new AsyncResult<>("Success");
   }
 
   void updateSnapshot(String colname, String value) {
-    LOGGER.info("updateSnapshot(): ssId={}: update {} as {}", ssId, colname, value);
+    LOGGER.debug("updateSnapshot(): ssId={}: update {} as {}", ssId, colname, value);
 
     URI snapshot_uri = UriComponentsBuilder.newInstance()
             .scheme("http")
@@ -330,7 +341,7 @@ public class TeddyExecutor {
             .path(ssId)
             .build().encode().toUri();
 
-    LOGGER.info("updateSnapshot(): REST URI=" + snapshot_uri);
+    LOGGER.debug("updateSnapshot(): REST URI=" + snapshot_uri);
 
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
@@ -348,7 +359,7 @@ public class TeddyExecutor {
     ResponseEntity<String> responseEntity;
     responseEntity = restTemplate.exchange(snapshot_uri, HttpMethod.PATCH, entity2, String.class);
 
-    LOGGER.info("updateSnapshot(): done with statusCode " + responseEntity.getStatusCode());
+    LOGGER.debug("updateSnapshot(): done with statusCode " + responseEntity.getStatusCode());
   }
 
   // returns slaveFullDsIds
@@ -773,7 +784,10 @@ public class TeddyExecutor {
       assert false : format;  // FIXME: make and throw an appropriate Exception
     }
 
+    updateAsWriting();
     String location = writeToHdfs(masterFullDsId, extHdfsDir, dbName, tblName, enumFormat, enumCompression);
+
+    updateAsTableCreating();
     makeHiveTable(cache.get(masterFullDsId), partKeys, dbName + "." + tblName, location, enumFormat, enumCompression);
 
     LOGGER.trace("createHiveSnapshotInternal(): end");
@@ -863,5 +877,25 @@ public class TeddyExecutor {
 
   private void removeJob(String key) {
     jobList.remove(key);
+  }
+
+  private void updateAsRunning() {
+    updateSnapshot("status", PrepSnapshot.STATUS.RUNNING.name());
+  }
+
+  private void updateAsWriting() {
+    updateSnapshot("status", PrepSnapshot.STATUS.WRITING.name());
+  }
+
+  private void updateAsTableCreating() {
+    updateSnapshot("status", PrepSnapshot.STATUS.TABLE_CREATING.name());
+  }
+
+  private void updateAsSucceeded() {
+    updateSnapshot("status", PrepSnapshot.STATUS.SUCCEEDED.name());
+  }
+
+  private void updateAsFailed() {
+    updateSnapshot("status", PrepSnapshot.STATUS.FAILED.name());
   }
 }
