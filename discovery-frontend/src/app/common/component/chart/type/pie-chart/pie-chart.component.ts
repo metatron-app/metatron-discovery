@@ -18,24 +18,31 @@
 
 import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
 import {
-  CHART_STRING_DELIMITER, ChartColorList, ChartPivotType, ChartType, DataLabelPosition, Orient, PieSeriesViewType,
-  Position, SeriesType,
+  CHART_STRING_DELIMITER,
+  ChartColorList,
+  ChartPivotType,
+  ChartType,
+  Orient,
+  PieSeriesViewType,
+  Position,
+  SeriesType,
   ShelveFieldType,
-  ShelveType, SymbolType, UIChartDataLabelDisplayType
+  ShelveType,
+  SymbolType,
+  UIChartDataLabelDisplayType
 } from '../../option/define/common';
 import { OptionGenerator } from '../../option/util/option-generator';
 import { Series } from '../../option/define/series';
 import * as _ from 'lodash';
-import optGen = OptionGenerator;
 import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import { BaseChart, PivotTableInfo } from '../../base-chart';
 import { BaseOption } from '../../option/base-option';
 import { FormatOptionConverter } from '../../option/converter/format-option-converter';
 import { UIPieChart } from '../../option/ui-option/ui-pie-chart';
-import { Format } from '../../../../../domain/workbook/configurations/format';
 import { UIOption } from '../../option/ui-option';
 import { UIChartFormat } from '../../option/ui-option/ui-format';
 import { LegendOptionConverter } from '../../option/converter/legend-option-converter';
+import optGen = OptionGenerator;
 
 @Component({
   selector: 'pie-chart',
@@ -186,12 +193,11 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         }
       };
 
-      const pieSumData = _.sum(resultSeries.data.map((dataObj) => {
-        return dataObj.value;
-      }));
       let otherList = [];
-      let otherValueList = resultSeries.data.filter((dataObj) => {
-        let isOtherValue = (dataObj.value / pieSumData) * 100 < 2;
+      let otherValueList = resultSeries.data.filter((dataObj, index) => {
+        // maxCategory보다 큰값들을 others로 지정
+        let isOtherValue = null != (<UIPieChart>this.uiOption).maxCategory && undefined != (<UIPieChart>this.uiOption).maxCategory ?
+          (<UIPieChart>this.uiOption).maxCategory <= index : false;
         if( isOtherValue ) {
           otherList.push(dataObj.name);
         }
@@ -200,15 +206,9 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         return dataObj.value;
       });
 
-      // Other 목록이 1개라면 Other를 사용하지 않음
-      let isOtherUse = otherList.length > 1;
-      if( !isOtherUse ) {
-        otherList = [];
-        otherValueList = [];
-      }
-
-      resultSeries.data = resultSeries.data.filter((dataObj) => {
-        return !isOtherUse || (dataObj.value / pieSumData) * 100 > 2;
+      resultSeries.data = resultSeries.data.filter((dataObj, index) => {
+        return null != (<UIPieChart>this.uiOption).maxCategory && undefined != (<UIPieChart>this.uiOption).maxCategory ?
+              (<UIPieChart>this.uiOption).maxCategory > index : true;
       });
 
       // otherList가 있는경우
@@ -590,13 +590,11 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         cols.push(title);
       }
 
-      const pieSumData = _.sum(column.value.map((dataObj) => {
-        return dataObj.value;
-      }));
-
       let otherList = [];
-      column.value.filter((dataObj) => {
-        let isOtherValue = (dataObj.value / pieSumData) * 100 < 2;
+      column.value.filter((dataObj, index) => {
+        // maxCategory보다 큰값들을 others로 지정
+        let isOtherValue = null != (<UIPieChart>this.uiOption).maxCategory && undefined != (<UIPieChart>this.uiOption).maxCategory ?
+                          (<UIPieChart>this.uiOption).maxCategory <= index : false;
         if( isOtherValue ) {
           otherList.push(dataObj.name);
           otherFl = true;

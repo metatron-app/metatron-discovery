@@ -2244,6 +2244,8 @@
   "msg.page.common.kpi.indocator.period.month": "직전 월 대비",
   "msg.page.common.kpi.indocator.period.day": "직전 일 대비",
   "msg.page.common.kpi.indocator.period.hour": "직전 1시간 대비",
+  "msg.page.common.pie.max.category": "‘기타’ 외 표시 개수 설정",
+  "msg.page.common.pie.max.category.placeholder": "모두 표시",
   "msg.page.format.format.title": "표시 형식",
   "msg.page.format.xaxis.rotation": "{{value}} 도",
   "msg.page.format.custom.symbol": "사용자 기호 설정",
