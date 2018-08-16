@@ -1471,7 +1471,7 @@
   </div>
 
 </div>
-<create-snapshot-popup (snapshotCreateFinishEvent)="initSnapshotList(selectedDataSet.dsId, true)"></create-snapshot-popup>
+<create-snapshot-popup (snapshotCreateFinishEvent)="initSnapshotList(selectedDataSet.dsId, true)"  (snapshotCloseEvent)="snapshotCreateClose()"></create-snapshot-popup>
 <app-rule-join-popup [existingDataSet]="selectedDataSet"
                      (joinComplete)="ruleJoinComplete($event);"
                      *ngIf="isRuleJoinModalShow"
