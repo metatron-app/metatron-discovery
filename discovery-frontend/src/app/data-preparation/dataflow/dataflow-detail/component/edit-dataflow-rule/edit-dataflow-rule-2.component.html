@@ -153,190 +153,14 @@
                       <edit-rule-keep #editRule *ngIf="ruleVO.command === 'keep'" (advancedEditorClickEvent)="openPopupFormulaInput('keep')"></edit-rule-keep>
                       <!-- //endKeep-->
 
-                      <!--startReplace-->
-                      <!-- part -->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'replace'">
-                        <div class="ddp-box-title">
-                          {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- select box -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox ddp-selected" tabindex="2" [ngClass]="{'ddp-selected':isMultiColumnListShow}" (click)="showMultiColumnList($event)">
-                          <span class="ddp-txt-selectbox">{{( undefined === ruleVO.cols || ruleVO.cols.length === 0 ) ? ('msg.dp.ui.none.selected' | translate) : ruleVO.cols.join(',') }}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isMultiColumnListShow" (clickOutside)="isMultiColumnListShow = false;">
-                            <li *ngFor="let col of selectedDataSet.gridData.fields">
-                              <a href="javascript:">
-                                <label class="ddp-label-checkbox">
-                                  <input type="checkbox" [checked]="col.selected"  (click)="checkItem(col)">
-                                  <i class="ddp-icon-checkbox"></i>
-                                  <span class="ddp-txt-checkbox">{{col.name}}</span>
-                                </label>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //select box -->
-                      </div>
-                      <!-- //part -->
+                      <!-- startReplace -->
+                      <edit-rule-replace #editRule *ngIf="'replace' === ruleVO.command" ></edit-rule-replace>
+                      <!-- // endReplace -->
 
-                      <!-- part -->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'replace'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.pattern' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <div class="ddp-type-multy2 ddp-clear">
-                          <!-- box scroll -->
-                          <div class="ddp-wrap-box-info" [ngClass]="{'ddp-selected':isFocus}" >
-                            <div class="ddp-box-info">
-                              <div class="ddp-box-info-in">
-                                <span class="ddp-input-title">{{'Patterns' | translate}}</span>
-                                {{'msg.dp.ui.pattern.description' | translate}}<br>
-
-                                <strong class="ddp-ex">{{'msg.dp.ui.examples' | translate}}</strong>
-                                {{'msg.dp.ui.string' | translate}}<br>
-                                <i style="color:darkgrey">'Seoul'</i><br><br>
-
-                                {{'msg.dp.ui.reg.ex' | translate}}<br>
-                                <i style="color:darkgrey">/(\d)+/</i><br><br>
-                              </div>
-                            </div>
-                            <div class="ddp-wrap-boxwrap">
-                              <input type="text" tabindex="3" class="ddp-input-typebasic" placeholder="{{ 'msg.dp.th.pattern.ph' | translate }}" [(ngModel)]="ruleVO.on" (focus)="isFocus = true" (blur)="isFocus=false">
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <!--//part-->
-
-                      <!-- part -->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'replace'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.new.value' | translate}}
-                        </div>
-                        <!-- info -->
-                        <div class="ddp-ui-info">
-                          <em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>
-                          <div class="ddp-box-info">
-                            {{'msg.dp.th.new.value.description' | translate}}
-                          </div>
-                        </div>
-                        <!-- //info -->
-
-                        <div class="ddp-wrap-datainput">
-                          <input type="text" class="ddp-input-typebasic" tabindex="4" placeholder="{{'msg.dp.th.new.value.ph' | translate}}" [(ngModel)]="ruleVO.with">
-                          <!-- ddp-selected 추가시 display:block; -->
-                        </div>
-                      </div>
-                      <!--//part-->
-
-                      <!-- part -->
-                      <div class="ddp-box-part ddp-box-s" *ngIf="ruleVO.command === 'replace'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.quote' | translate}}
-                        </div>
-                        <div class="ddp-wrap-datainput">
-                          <input type="text" class="ddp-input-typebasic" tabindex="5" placeholder="{{'msg.dp.ui.enter.value' | translate}}" [(ngModel)]="ruleVO.quote">
-                        </div>
-                      </div>
-                      <!--//part-->
-
-                      <!-- part -->
-                      <div class="ddp-box-part ddp-box-s" *ngIf="ruleVO.command === 'replace'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.match.occur' | translate}}
-                        </div>
-
-                        <ul class="ddp-list-buttons">
-                          <li [ngClass]="{'ddp-selected':ruleVO.global}" (click)="ruleVO.global = true;">
-                            {{'msg.dp.ui.yes' | translate}}
-                          </li>
-                          <li [ngClass]="{'ddp-selected':!ruleVO.global}" (click)="ruleVO.global = false;">
-                            {{'msg.dp.ui.no' | translate}}
-                          </li>
-                        </ul>
-                      </div>
-                      <!-- //part -->
-
-                      <!-- part -->
-                      <div class="ddp-box-part ddp-box-s" *ngIf="ruleVO.command === 'replace'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.ignore.case' | translate}}
-                        </div>
-
-                        <ul class="ddp-list-buttons">
-                          <li [ngClass]="{'ddp-selected':ruleVO.ignoreCase}" (click)="ruleVO.ignoreCase = true;">
-                            {{'msg.dp.ui.yes' | translate}}
-                          </li>
-                          <li [ngClass]="{'ddp-selected':!ruleVO.ignoreCase}" (click)="ruleVO.ignoreCase = false;">
-                            {{'msg.dp.ui.no' | translate}}
-                          </li>
-                        </ul>
-                      </div>
-                      <!-- //part -->
-
-                      <!-- part -->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'replace'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.ui.cond' | translate}}
-                        </div>
-                        <div class="ddp-wrap-datainput">
-                          <input type="text" class="ddp-input-typebasic" tabindex="6" placeholder="{{'msg.dp.ui.cond.ph' | translate}}" [(ngModel)]="ruleVO.row">
-                          <!-- ddp-selected 추가시 display:block; -->
-                        </div>
-                      </div>
-                      <!--//part-->
-                      <!-- //endReplace-->
-
-
-                      <!--startRename-->
-                      <!-- part -->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'rename'">
-                        <div class="ddp-box-title">
-                          {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- select box -->
-
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox ddp-type-search-select" tabindex="2"
-                             [ngClass]="{'ddp-selected':isColumnListShow}"
-                             [class.ddp-result]="ruleVO.col"
-                             (click)="showColumnList($event)"
-                             (keydown)="navigateWithKeyboardShortList($event, filteredColumnList, 'column1')">
-                          <input type="text" class="ddp-input-selectbox columnSearch" placeholder="{{'msg.dp.ui.column.search.description' | translate}}" [(ngModel)]="columnSearchText">
-                          <span class="ddp-txt-selectbox">{{ruleVO.col ? ruleVO.col : 'msg.dp.ui.none.selected' | translate}}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isColumnListShow" (clickOutside)="isColumnListShow = false;">
-                            <li *ngFor="let col of filteredColumnList; let index = index;"
-                                (click)="selectColumn($event, col)"
-                                (mouseover)="listMouseOver($event, 'column1', index)"
-                                (mouseout)="listMouseOut($event, 'column1')"
-                                (mousemove)="flag === true ? flag = false : flag = true">
-                              <a href="javascript:" [ngStyle]="col.isHover ? {'background-color': '#f6f6f7' }:{}">
-                                {{col.name}}
-                              </a>
-                            </li>
-                            <li *ngIf="filteredColumnList.length === 0">
-                              <span class="ddp-noresult">
-                                {{'msg.dp.ui.search.no.rslt' | translate}}
-                              </span>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //select box -->
-                      </div>
-                      <!-- //part -->
-
-                      <!-- part -->
-                      <div class="ddp-box-part ddp-editor" *ngIf="ruleVO.command === 'rename'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.new-column-name' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <div class="ddp-wrap-datainput">
-                          <input type="text" class="ddp-input-typebasic newColumnInput" tabindex="3" placeholder="{{'msg.dp.th.new-column-name.ph' | translate}}" [(ngModel)]="ruleVO.to" >
-                        </div>
-                        <a href="javascript:" class="ddp-btn-bg" (click)="onMulticolumnRenameClick()">{{ 'msg.dp.btn.multiple.col' | translate }}</a>
-                      </div>
-                      <!-- //part -->
-                      <!-- //endRename-->
+                      <!-- startRename -->
+                      <edit-rule-rename #editRule *ngIf="'rename' === ruleVO.command"
+                                        (onEvent)="onMultiColumnRenameClick()" ></edit-rule-rename>
+                      <!-- // endRename -->
 
                       <!--startSet-->
                       <edit-rule-set #editRule *ngIf="'set' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('derive')"></edit-rule-set>
@@ -790,69 +614,7 @@
                       <!--//endFlatten-->
 
                       <!--startMerge-->
-                      <!--part-->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'merge'">
-                        <div class="ddp-box-title">
-                          {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- select box -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected':isMultiColumnListShow}" (click)="showMultiColumnList($event)" tabindex="2">
-                          <span class="ddp-txt-selectbox">{{( undefined === ruleVO.cols || ruleVO.cols.length === 0 ) ? ('msg.dp.ui.none.selected' | translate) : ruleVO.cols.join(',') }}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isMultiColumnListShow" (clickOutside)="isMultiColumnListShow = false;">
-                            <li *ngFor="let col of selectedDataSet.gridData.fields">
-                              <a href="javascript:">
-                                <label class="ddp-label-checkbox ddp-type-number">
-                                  <input type="checkbox" [checked]="col.selected"  (click)="checkItem(col)">
-                                  <i class="ddp-icon-checkbox">{{col.seq}}</i>
-                                  <span class="ddp-txt-checkbox">{{col.name}}</span>
-                                </label>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //select box -->
-                      </div>
-                      <!--//part-->
-
-                      <!-- part -->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'merge'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.merge.delim' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- info -->
-                        <div class="ddp-ui-info">
-                          <em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>
-                          <div class="ddp-box-info">
-                            {{'msg.dp.ui.merge.delim.tooltip' | translate}}
-                          </div>
-                        </div>
-                        <!-- //info -->
-
-                        <div class="ddp-wrap-datainput">
-                          <input type="text" class="ddp-input-typebasic"  tabindex="3" placeholder="{{'msg.dp.ui.merge.delim.ph' | translate}}" [(ngModel)]="ruleVO.with">
-                        </div>
-                      </div>
-                      <!-- //part -->
-
-                      <!-- part -->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'merge'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.new-column-name' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- info -->
-                        <div class="ddp-ui-info">
-                          <em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>
-                          <div class="ddp-box-info">
-                            {{'msg.dp.ui.merge.col.tooltip' | translate}}
-                          </div>
-                        </div>
-                        <!-- //info -->
-                        <div class="ddp-wrap-datainput">
-                          <input type="text" class="ddp-input-typebasic" tabindex="4" placeholder="{{'msg.dp.th.new-column-name.ph' | translate}}" [(ngModel)]="ruleVO.as">
-                        </div>
-                      </div>
-                      <!-- //part -->
+                      <edit-rule-merge #editRule *ngIf="'merge' === ruleVO.command"></edit-rule-merge>
                       <!--//endMerge-->
 
                       <!--startAggregate-->
@@ -927,153 +689,11 @@
                       <!--//endAggregate-->
 
                       <!--startSort-->
-                      <!-- part -->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'sort'">
-                        <div class="ddp-box-title">
-                          {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- select box -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox ddp-selected" [ngClass]="{'ddp-selected':isMultiColumnListShow}" (click)="showMultiColumnList($event)" tabindex="2">
-                          <span class="ddp-txt-selectbox">{{( undefined === ruleVO.cols || ruleVO.cols.length === 0 ) ? ('msg.dp.ui.none.selected' | translate) : ruleVO.cols.join(',') }}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isMultiColumnListShow" (clickOutside)="isMultiColumnListShow = false;">
-                            <li *ngFor="let col of selectedDataSet.gridData.fields">
-                              <a href="javascript:">
-                                <label class="ddp-label-checkbox">
-                                  <input type="checkbox" [checked]="col.selected"  (click)="checkItem(col)">
-                                  <i class="ddp-icon-checkbox"></i>
-                                  <span class="ddp-txt-checkbox">{{col.name}}</span>
-                                </label>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //select box -->
-                      </div>
-                      <!-- //part -->
-
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'sort'">
-                        <div class="ddp-box-title">
-                          Sort by<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- select box -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox" tabindex="2"
-                             [ngClass]="{'ddp-selected':isTypeListShow}"
-                             [class.ddp-result]="ruleVO.type"
-                             (click)="showTypeList($event)"
-                             (keydown)="navigateWithKeyboardShortList($event, sortList, 'type')">
-                          <span class="ddp-txt-selectbox">{{ruleVO.type ? ruleVO.type : sortList[0].name}}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isTypeListShow" (clickOutside)="isTypeListShow = false; initSelectedCommand(sortList)">
-                            <li *ngFor="let type of sortList; let index=index"
-                                (click)="setColumnType($event, type)"
-                                (mouseover)="listMouseOver($event, 'sort', index)"
-                                (mouseout)="listMouseOut($event, 'sort')"
-                                (mousemove)="flag === true ? flag = false : flag = true">
-                              <a href="javascript:" [ngStyle]="type.isHover ? {'background-color': '#f6f6f7' }:{}">
-                                {{type.name}}
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //select box -->
-                      </div>
-
+                      <edit-rule-sort #editRule *ngIf="'sort' === ruleVO.command"></edit-rule-sort>
                       <!--//endSort-->
 
-
                       <!--startMove-->
-                      <!--part-->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'move'">
-                        <div class="ddp-box-title">
-                          {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- select box -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox ddp-selected" tabindex="2" [ngClass]="{'ddp-selected':isMultiColumnListShow}" (click)="showMultiColumnList($event)">
-                          <span class="ddp-txt-selectbox">{{( undefined === ruleVO.cols || ruleVO.cols.length === 0 ) ? ('msg.dp.ui.none.selected' | translate) : ruleVO.cols.join(',') }}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isMultiColumnListShow" (clickOutside)="isMultiColumnListShow = false;">
-                            <li *ngFor="let col of selectedDataSet.gridData.fields">
-                              <a href="javascript:">
-                                <label class="ddp-label-checkbox">
-                                  <input type="checkbox" [checked]="col.selected"  (click)="checkItem(col)">
-                                  <i class="ddp-icon-checkbox"></i>
-                                  <span class="ddp-txt-checkbox">{{col.name}}</span>
-                                </label>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //select box -->
-                      </div>
-                      <!--//part-->
-
-                      <!--part-->
-                      <div class="ddp-box-part" style="width : 300px" *ngIf="ruleVO.command === 'move'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.move' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- info -->
-                        <div class="ddp-ui-info">
-                          <em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>
-                          <div class="ddp-box-info">
-                            {{'msg.dp.ui.move.tooltip' | translate}}
-                          </div>
-                        </div>
-                        <!-- //info -->
-                        <div class="ddp-type-multi">
-
-                          <!-- select box -->
-                          <!-- 클릭시 ddp-selected 추가 -->
-                          <div class="ddp-type-selectbox ddp-size-s" tabindex="3" style="width : 77px" [ngClass]="{'ddp-selected':isBeforeOrAfterShow}" (click)="showBeforeOrAfterList($event)" (keydown)="navigateWithKeyboardShortList($event, moveList, 'move')">
-                            <span class="ddp-txt-selectbox">{{ruleVO.beforeOrAfter === 'before' ? 'before' : 'after'}}</span>
-                            <ul class="ddp-list-selectbox ddp-list-command"  *ngIf="isBeforeOrAfterShow" (clickOutside)="isBeforeOrAfterShow = false; initSelectedCommand(moveList)">
-                              <li *ngFor="let item of moveList; let index = index"
-                                  (click)="setBeforeOrAfter($event, item)"
-                                  (mouseover)="listMouseOver($event, 'move', index)"
-                                  (mouseout)="listMouseOut($event, 'move')"
-                                  (mousemove)="flag === true ? flag = false : flag = true">
-                                <a href="javascript:" [ngStyle]="item.isHover ? {'background-color': '#f6f6f7' }:{}">
-                                  {{item.name}}
-                                </a>
-                              </li>
-                            </ul>
-                          </div>
-                          <!-- //select box -->
-                          <!-- select box -->
-                          <!-- 클릭시 ddp-selected 추가 -->
-                          <div class="ddp-type-selectbox ddp-type-search-select ddp-size-m" style="width : 200px"
-                               tabindex="4"
-                               [ngClass]="{'ddp-selected':isBeforeOrAfterColumnListShow}"
-                               [class.ddp-result]="ruleVO.colForMove"
-                               (click)="showBeforeOrAfterColumnList($event)"
-                               (keydown)="navigateWithKeyboardShortList($event, filteredMoveDatasetList, 'column2')">
-                            <input type="text" tabindex="4"
-                                   class="ddp-input-selectbox move-search"
-                                   placeholder="{{'msg.dp.ui.column.search.description' | translate}}"
-                                   [(ngModel)]="moveSearchText">
-                            <span class="ddp-txt-selectbox">{{ruleVO.colForMove ? ruleVO.colForMove : 'msg.dp.ui.none.selected' | translate }}</span>
-                            <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isBeforeOrAfterColumnListShow" (clickOutside)="isBeforeOrAfterColumnListShow = false; moveSearchText ='';initSelectedCommand(filteredMoveDatasetList);">
-                              <li *ngFor="let col of filteredMoveDatasetList; let index = index;"
-                                  (click)="selectedBeforeOrAfterColumn($event, col)"
-                                  (mouseover)="listMouseOver($event, 'column2', index)"
-                                  (mouseout)="listMouseOut($event, 'column2')"
-                                  (mousemove)="flag === true ? flag = false : flag = true">
-                                <a href="javascript:" [ngStyle]="col.isHover ? {'background-color': '#f6f6f7' }:{}">
-                                  {{col.name}}
-                                </a>
-                              </li>
-                              <li *ngIf="filteredMoveDatasetList.length === 0">
-                                <span class="ddp-noresult">
-                                {{'msg.dp.ui.search.no.rslt' | translate}}
-                              </span>
-                              </li>
-                            </ul>
-                          </div>
-                          <!-- //select box -->
-                        </div>
-                      </div>
-                      <!--//part-->
+                      <edit-rule-move #editRule *ngIf="ruleVO.command === 'move'"></edit-rule-move>
                       <!--//endMove-->
 
                       <!--start pivot -->
@@ -1172,126 +792,13 @@
                       <!-- end pivot -->
 
                       <!--start unpivot -->
-                      <!--part-->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'unpivot'">
-                        <div class="ddp-box-title">
-                          {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- select box -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox" tabindex="2" [ngClass]="{'ddp-selected':isMultiColumnListShow}" (click)="showMultiColumnList($event)">
-                          <span class="ddp-txt-selectbox">{{( undefined === ruleVO.cols || ruleVO.cols.length === 0 ) ? ('msg.dp.ui.none.selected' | translate) : ruleVO.cols.join(',') }}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isMultiColumnListShow" (clickOutside)="isMultiColumnListShow = false;">
-                            <li *ngFor="let col of selectedDataSet.gridData.fields">
-                              <a href="javascript:">
-                                <label class="ddp-label-checkbox ddp-type-number">
-                                  <input type="checkbox" [checked]="col.selected"  (click)="checkItem(col)">
-                                  <i class="ddp-icon-checkbox">{{col.seq}}</i>
-                                  <span class="ddp-txt-checkbox">{{col.name}}</span>
-                                </label>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //select box -->
-                      </div>
-                      <!--//part-->
+                      <edit-rule-unpivot #editRule *ngIf="ruleVO.command=== 'unpivot'"></edit-rule-unpivot>
 
-                      <!-- part -->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'unpivot'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.group.every' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- info -->
-                        <div class="ddp-ui-info">
-                          <em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>
-                          <div class="ddp-box-info">
-                            {{'msg.dp.ui.unpivot.tooltip' | translate}}
-                          </div>
-                        </div>
-                        <!-- //info -->
-
-                        <div class="ddp-wrap-datainput">
-                          <input type="text" class="ddp-input-typebasic" tabindex="3" placeholder="{{'msg.dp.ui.sel.col.num' | translate}}" [input-mask]="'number'" [(ngModel)]="ruleVO.groupEvery">
-                        </div>
-                      </div>
-                      <!-- //part -->
                       <!--//endUnpivot-->
 
                       <!--startNest-->
                       <!--part-->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'nest'">
-                        <div class="ddp-box-title">
-                          {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- select box -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected':isMultiColumnListShow}" (click)="showMultiColumnList($event)" tabindex="2">
-                          <span class="ddp-txt-selectbox">{{( undefined === ruleVO.cols || ruleVO.cols.length === 0 ) ? ('msg.dp.ui.none.selected' | translate) : ruleVO.cols.join(',') }}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isMultiColumnListShow" (clickOutside)="isMultiColumnListShow = false;">
-                            <li *ngFor="let col of selectedDataSet.gridData.fields">
-                              <a href="javascript:">
-                                <label class="ddp-label-checkbox ddp-type-number">
-                                  <input type="checkbox" [checked]="col.selected"  (click)="checkItem(col)">
-                                  <i class="ddp-icon-checkbox">{{col.seq}}</i>
-                                  <span class="ddp-txt-checkbox">{{col.name}}</span>
-                                </label>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //select box -->
-                      </div>
-                      <!--//part-->
-
-                      <!--part-->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'nest'">
-                        <div class="ddp-box-title">
-                          {{'msg.comm.th.type' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- select box -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox" tabindex="3"
-                             [ngClass]="{'ddp-selected':isNestListShow}"
-                             (click)="showNestList($event)"
-                             (keydown)="navigateWithKeyboardShortList($event, nestList, 'nest')">
-                          <span class="ddp-txt-selectbox">{{ruleVO.into ? ruleVO.into : 'msg.dp.ui.none.selected' | translate}}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isNestListShow" (clickOutside)="isNestListShow = false; initSelectedCommand(nestList)">
-                            <li *ngFor="let item of nestList; let index = index"
-                                (click)="selectType($event, item)"
-                                (mouseover)="listMouseOver($event, 'nest', index)"
-                                (mouseout)="listMouseOut($event, 'nest')"
-                                (mousemove)="flag === true ? flag = false : flag = true">
-                              <a href="javascript:" [ngStyle]="item.isHover ? {'background-color': '#f6f6f7' }:{}">
-                                {{item.name}}
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //select box -->
-                      </div>
-                      <!--//part-->
-
-                      <!-- part -->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'nest'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.new-column-name' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-                        <!-- info -->
-                        <div class="ddp-ui-info">
-                          <em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>
-                          <div class="ddp-box-info">
-                            {{'msg.dp.ui.nest.tooltip' | translate}}
-                          </div>
-                        </div>
-                        <!-- //info -->
-
-                        <div class="ddp-wrap-datainput">
-                          <input type="text" class="ddp-input-typebasic" tabindex="4" placeholder="{{'msg.dp.th.new-column-name.ph' | translate}}" [(ngModel)]="ruleVO.as">
-                          <!-- ddp-selected 추가시 display:block; -->
-                        </div>
-                      </div>
-                      <!-- //part -->
+                      <edit-rule-nest #editRule *ngIf="ruleVO.command === 'nest'"></edit-rule-nest>
                       <!--//endNest-->
 
                       <!--startUnnest-->
@@ -1487,6 +994,7 @@
                       *ngIf="isRuleUnionModalShow">
 </app-rule-union-popup>
 
-<multicolumn-rename (renameEvent)="applyMulticolumnRename($event)"></multicolumn-rename>
 <app-extend-input-formula (done)="doneInputFormula($event)"></app-extend-input-formula>
 <app-data-snapshot-detail (snapshotDetailCloseEvent)="initSnapshotList(selectedDataSet.dsId)" (navigateToDataflow)="prev()"></app-data-snapshot-detail>
+
+<multicolumn-rename (renameEvent)="applyMultiColumnRename($event)"></multicolumn-rename>

@@ -32,6 +32,8 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
 
   private fields : Field[];
   public command : string;
+  public row : string = '';
+  public ruleVO : Rule;
 
   @Input()
   public selectBoxWidth:number = 278;
@@ -49,8 +51,6 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public ruleVO : Rule;
-
   // Auto complete 관련
   public autoCompleteSuggestions: any = [];
   public autoCompleteSuggestions_selectedIdx: number = -1;
@@ -102,10 +102,11 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
    * Initial execution, set data
    * @param {{ruleVO: Rule, fields: Field[]}} data
    */
-  public init(data : {ruleVO : Rule, fields : Field[], command : string, pivotFormulaValueList?: any, idx? : number}) {
-    this.ruleVO = data.ruleVO;
+  public init(data : { fields : Field[], command : string, ruleVO : Rule, pivotFormulaValueList?: any, idx? : number}) {
     this.fields = data.fields;
+    this.ruleVO = data.ruleVO;
     this.command = data.command;
+    this.row = this.ruleVO.row;
     this.pivotFormulaValueList = data.pivotFormulaValueList;
     this.idx = data.idx;
 
@@ -120,7 +121,7 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
    * @returns {string}
    */
   public getCondition() : string {
-    return this.ruleVO.row
+    return this.row
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
@@ -135,9 +136,6 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
       this.autoCompleteSuggestions_selectedIdx = -1;
       return;
     }
-
-    //console.log($event);
-
     let inputId: string = '';
     let value = undefined;
     if (typeof $event === 'string') {
@@ -275,27 +273,26 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
 
     let ruleString = '';
     let rulePart = null;
-    if (!isUndefined(this.ruleVO)) {
-      ruleString = PreparationCommonUtil.makeRuleResult(this.ruleVO);
-      if (undefined !== value) {
-        rulePart = value;
-        if (0 < rulePart.length && 0 < this.autoCompleteSuggestions.length) {
-          for (let suggest of this.autoCompleteSuggestions) {
-            if (rulePart.trim().endsWith(suggest.value)) {
-              if (suggest.type != '@_OPERATOR_@'
-                && suggest.type != '@_STRING_@'
-                && suggest.type != '@_FUNCTION_EXPRESSION_@'
-                && suggest.type != '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
-                let lastIdx = rulePart.lastIndexOf(suggest.value);
-                rulePart = rulePart.substring(0, lastIdx) + suggest.type + rulePart.substring(lastIdx + suggest.value.length);
-              }
-              break;
+    this.ruleVO.row = this.row;
+    ruleString = PreparationCommonUtil.makeRuleResult(this.ruleVO);
+    if (undefined !== value) {
+      rulePart = value;
+      if (0 < rulePart.length && 0 < this.autoCompleteSuggestions.length) {
+        for (let suggest of this.autoCompleteSuggestions) {
+          if (rulePart.trim().endsWith(suggest.value)) {
+            if (suggest.type != '@_OPERATOR_@'
+              && suggest.type != '@_STRING_@'
+              && suggest.type != '@_FUNCTION_EXPRESSION_@'
+              && suggest.type != '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
+              let lastIdx = rulePart.lastIndexOf(suggest.value);
+              rulePart = rulePart.substring(0, lastIdx) + suggest.type + rulePart.substring(lastIdx + suggest.value.length);
             }
+            break;
           }
         }
-      } else {
-        rulePart = '';
       }
+    } else {
+      rulePart = '';
     }
 
     /********************************
@@ -522,7 +519,7 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
     input.selectionEnd = caretPos;
 
     // TODO : shouldn't input.value be assigned to this.ruleVO.row ?
-    this.ruleVO.row = input.value;
+    this.row = input.value;
     input.focus();
   }
 

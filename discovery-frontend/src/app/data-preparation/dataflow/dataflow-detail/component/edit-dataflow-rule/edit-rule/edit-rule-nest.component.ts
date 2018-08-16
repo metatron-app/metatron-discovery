@@ -13,26 +13,28 @@
  */
 
 import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild,
+  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
+  ViewChild
 } from '@angular/core';
+import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
-import {RuleConditionInputComponent} from "./rule-condition-input.component";
 import { Alert } from '../../../../../../common/util/alert.util';
+import { RuleConditionInputComponent } from './rule-condition-input.component';
 import { isUndefined } from "util";
-import { StringUtil } from '../../../../../../common/util/string.util';
-import { Rule } from '../../../../../../domain/data-preparation/dataset';
 
 @Component({
-  selector : 'edit-rule-keep',
-  templateUrl : './edit-rule-keep.component.html'
+  selector: 'edit-rule-nest',
+  templateUrl: './edit-rule-nest.component.html'
 })
-export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
-
+export class EditRuleNestComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild(RuleConditionInputComponent)
   private ruleConditionInputComponent : RuleConditionInputComponent;
+
+  @Output()
+  public advancedEditorClickEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -40,11 +42,10 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public keepRow:string;
-
-  @Output()
-  public advancedEditorClickEvent = new EventEmitter();
-
+  public inputValue:string;
+  public defaultIndex : number = 0;
+  public selectedType : string = '';
+  public nestList : string[] = ['map', 'array'];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -88,27 +89,29 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
 
   /**
    * Rule 형식 정의 및 반환
-   * @return
+   * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString:string} {
-    let val = this.ruleConditionInputComponent.getCondition();
-    if (isUndefined(val) || '' === val || '\'\'' === val) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
-      return undefined
+  public getRuleData(): { command: string, col: string, ruleString: string } {
+
+    if (this.selectedFields.length === 0) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
+      return undefined;
     }
 
-    if (!isUndefined(val) && '' !== val.trim() && '\'\'' !== val.trim()) {
-      let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-      if (check[0] === false) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.check.condition'));
-        return undefined
-      } else {
-        val = check[1];
-      }
+    if (isUndefined(this.selectedType) || '' === this.selectedType) {
+      this.selectedType = 'map';
     }
+
+    if (isUndefined(this.inputValue) || '' === this.inputValue) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
+      return undefined;
+    }
+
+    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
     return {
-      command: 'keep',
-      ruleString: 'keep row: ' + val
+      command: 'nest',
+      col: columnsStr,
+      ruleString: `nest col: ${columnsStr} into: ${this.selectedType} as: ${this.inputValue}`
     };
 
   } // function - getRuleData
@@ -116,13 +119,18 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public selectItem (item){
+    this.selectedType = item;
+  }
+
+
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+   * 필드 변경
+   * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
-  } // function - openPopupFormulaInput
+  public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+    this.selectedFields = data.selectedList;
+  } // function - changeFields
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -132,30 +140,38 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - beforeShowComp
+  protected beforeShowComp() {} // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
    * @protected
    */
   protected afterShowComp() {
-    this.safelyDetectChanges();
-    this.ruleConditionInputComponent.init({fields : this.fields, command : 'keep', ruleVO : this.ruleVO} );
-  } // function - afterShowComp
+
+  } // function - _afterShowComp
 
   /**
    * rule string 을 분석한다.
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
-    // row
-    this.keepRow = this.getAttrValueInRuleString( 'row', ruleString );
-  } // function - parsingRuleString
+    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
+    if( '' !== strCol ) {
+      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    }
 
+    this.selectedType = this.getAttrValueInRuleString( 'into', ruleString );
+    if (this.selectedType.toUpperCase() === 'ARRAY') {
+      this.defaultIndex = 0;
+    } else {
+      this.defaultIndex = 1;
+    }
+    this.inputValue = this.getAttrValueInRuleString( 'as', ruleString );
+  } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 }
-

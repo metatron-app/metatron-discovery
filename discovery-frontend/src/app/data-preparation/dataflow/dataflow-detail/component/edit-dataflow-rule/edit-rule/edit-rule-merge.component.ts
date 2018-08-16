@@ -12,28 +12,23 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
-  ViewChild
-} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { RuleConditionInputComponent } from './rule-condition-input.component';
+import { StringUtil } from '../../../../../../common/util/string.util';
+import { isUndefined } from "util";
+import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 
 @Component({
-  selector: 'edit-rule-set',
-  templateUrl: './edit-rule-set.component.html'
+  selector : 'edit-rule-merge',
+  templateUrl : './edit-rule-merge.component.html'
 })
-export class EditRuleSetComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
+export class EditRuleMergeComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
 
-  @Output()
-  public advancedEditorClickEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -41,16 +36,23 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public inputValue:string;
+  public selectedFields: Field[] = [];
 
+  // 상태 저장용 T/F
+  public isFocus:boolean = false;         // Input Focus 여부
+  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
+
+  // Rule 에 대한 입력 값들
+  public delimiter:string = '';
+  public newValue:string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(
-    protected elementRef: ElementRef,
-    protected injector: Injector) {
+  constructor(protected broadCaster: EventBroadcaster,
+              protected elementRef: ElementRef,
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -77,7 +79,6 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -88,19 +89,44 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string } {
 
-    if (this.selectedFields.length === 0) {
+    const invalidResult = { command: 'merge', ruleString: undefined };
+
+    // 선택된 컬럼
+    if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return undefined
+      return invalidResult
     }
 
-    // TODO : condition validation
-    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
+    // 새로운 컬럼명
+    if (!isUndefined(this.newValue)) {
+      let withVal = StringUtil.checkSingleQuote(this.newValue, { isPairQuote: true, isWrapQuote: true });
+      if (withVal[0] === false) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.merge.col.error'));
+        return invalidResult
+      } else {
+        this.newValue = withVal[1];
+      }
+    } else {
+      this.newValue = '\'\'';
+    }
+
+    // 구분자
+    let check = StringUtil.checkSingleQuote(this.delimiter, { isWrapQuote: true });
+    if (check[0] === false) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.check.delimiter'));
+      return invalidResult
+    } else {
+      this.delimiter = check[1];
+    }
+
+    let ruleString = 'merge col: ' + this.selectedFields.map( item => item.name ).join(', ')
+      + ' with: ' + this.delimiter + ' as: ' + this.newValue;
+
     return {
-      command: 'set',
-      col: columnsStr,
-      ruleString: `set col: ${columnsStr} value: ${this.ruleConditionInputComponent.getCondition()}`
+      command : 'merge',
+      ruleString: ruleString
     };
 
   } // function - getRuleData
@@ -112,17 +138,20 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+    console.info( '>>>> changeFields', data.selectedList );
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+   * 패턴 정보 레이어 표시
+   * @param {boolean} isShow
    */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
-  } // function - openPopupFormulaInput
+  public showHidePatternLayer(isShow:boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+    this.isFocus = isShow;
+  } // function - showHidePatternLayer
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -138,8 +167,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * @protected
    */
   protected afterShowComp() {
-    this.safelyDetectChanges();
-    this.ruleConditionInputComponent.init({fields : this.fields, command : 'set', ruleVO : this.ruleVO} );
+
   } // function - _afterShowComp
 
   /**
@@ -147,13 +175,17 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
+
     const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
     if( '' !== strCol ) {
       const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    // this.inputVal = this.getAttrValueInRuleString( 'value', ruleString );
+    this.newValue = this.getAttrValueInRuleString( 'as', ruleString );
+
+    this.delimiter = this.getAttrValueInRuleString( 'with', ruleString );
+
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

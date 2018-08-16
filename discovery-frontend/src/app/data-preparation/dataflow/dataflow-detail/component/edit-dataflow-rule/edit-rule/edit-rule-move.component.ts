@@ -20,12 +20,13 @@ import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
+import { isNullOrUndefined } from 'util';
 
 @Component({
-  selector: 'edit-rule-set',
-  templateUrl: './edit-rule-set.component.html'
+  selector: 'edit-rule-move',
+  templateUrl: './edit-rule-move.component.html'
 })
-export class EditRuleSetComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
+export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -42,6 +43,11 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public inputValue:string;
+  public defaultIndex : number = -1;
+  public defaultColIndex : number = -1;
+  public beforeOrAfter : string = '';
+  public moveList : string[] = ['before', 'after'];
+  public selectedStandardField : string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -95,12 +101,27 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       return undefined
     }
 
-    // TODO : condition validation
     const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
+
+    if (isNullOrUndefined(this.beforeOrAfter)) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.before.after'));
+      return undefined
+    }
+
+    if (isNullOrUndefined(this.selectedStandardField)) {
+      Alert.warning(this.translateService.instant('msg.dp.ui.move.tooltip'));
+      return undefined
+    }
+
+    if (-1 !== this.selectedFields.map( item => item.name ).indexOf(this.selectedStandardField)) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.overlap.cols'));
+      return undefined
+    }
+
     return {
-      command: 'set',
+      command: 'move',
       col: columnsStr,
-      ruleString: `set col: ${columnsStr} value: ${this.ruleConditionInputComponent.getCondition()}`
+      ruleString: `move col: ${columnsStr} ${this.beforeOrAfter}: ${this.selectedStandardField}`
     };
 
   } // function - getRuleData
@@ -108,6 +129,11 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public selectItem (item){
+    this.beforeOrAfter = item;
+  }
+
+
   /**
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
@@ -117,12 +143,13 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   } // function - changeFields
 
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+   * 필드 변경
+   * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
-  } // function - openPopupFormulaInput
+  public changeStandardFields(data: Field) {
+    this.selectedStandardField = data.name;
+  } // function - changeFields
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -137,10 +164,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * 컴포넌트 표시 후 실행
    * @protected
    */
-  protected afterShowComp() {
-    this.safelyDetectChanges();
-    this.ruleConditionInputComponent.init({fields : this.fields, command : 'set', ruleVO : this.ruleVO} );
-  } // function - _afterShowComp
+  protected afterShowComp() {} // function - _afterShowComp
 
   /**
    * rule string 을 분석한다.
@@ -153,7 +177,19 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    // this.inputVal = this.getAttrValueInRuleString( 'value', ruleString );
+    let str = ruleString.split('before');
+    if (isNullOrUndefined(str[1])) {
+      this.beforeOrAfter = 'after';
+      this.defaultIndex = 1;
+    } else {
+      this.beforeOrAfter = 'before';
+      this.defaultIndex = 0;
+    }
+    this.selectedStandardField = this.getAttrValueInRuleString( this.beforeOrAfter, ruleString );
+    this.defaultColIndex = this.fields.findIndex((item) => {
+      return item.name === this.selectedStandardField
+    });
+
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

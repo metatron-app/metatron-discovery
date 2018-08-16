@@ -12,27 +12,22 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild,
-} from '@angular/core';
+import * as _ from 'lodash';
 import { EditRuleComponent } from './edit-rule.component';
-import {RuleConditionInputComponent} from "./rule-condition-input.component";
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { isUndefined } from "util";
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { Rule } from '../../../../../../domain/data-preparation/dataset';
+import { isUndefined } from 'util';
 
 @Component({
-  selector : 'edit-rule-derive',
-  templateUrl : './edit-rule-derive.component.html'
+  selector: 'edit-rule-rename',
+  templateUrl: './edit-rule-rename.component.html'
 })
-export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
-
+export class EditRuleRenameComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -41,12 +36,9 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public deriveVal:string;
-  public deriveAs:string;
-  public isTooltipShow:boolean = false;
-
-  @Output()
-  public advancedEditorClickEvent = new EventEmitter();
+  public isMultiColumnListShow: boolean = false;
+  public selectedFields: Field[] = [];
+  public newFieldName: string = '';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -91,33 +83,47 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
 
   /**
    * Rule 형식 정의 및 반환
-   * @return
+   * @return {{command: string, to: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString:string} {
-    let val = this.ruleConditionInputComponent.getCondition();
+  public getRuleData(): { command: string, to: string, col: string, ruleString: string } {
 
-    if (isUndefined(val) || '' === val || '\'\'' === val) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
+
+    if (isUndefined(this.selectedFields) || 0 === this.selectedFields.length) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined
     }
-    if (!isUndefined(val) && '' !== val.trim()) {
-      let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-      if (check[0] === false) {
-        Alert.warning('Check value');
-        return undefined
-      } else {
-        val = check[1];
-      }
-    }
-
-    if (isUndefined(this.deriveAs) || '' === this.deriveAs) {
+    if (isUndefined(this.newFieldName) || '' === this.newFieldName) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
       return undefined
     }
-    return {
-      command: 'derive',
-      ruleString: 'derive value: ' + val + ' as: ' + '\'' + this.deriveAs.trim() + '\''
+
+    if (this.fields.some(item => item.name === this.newFieldName)) {
+      Alert.warning('Column name already in use.');
+      return undefined
     }
+
+    let check = StringUtil.checkSingleQuote(this.newFieldName, { isAllowBlank: false, isWrapQuote: true });
+    if (check[0] === false) {
+      Alert.warning('Special characters are not allowed');
+      return undefined
+    } else {
+      const renameReg = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+      if (!renameReg.test(check[1])) {
+        if (check[1].indexOf(' ') > -1) {
+          check[1] = check[1].replace(' ', '_');
+        }
+      }
+      this.newFieldName = check[1];
+    }
+
+    const selectedFieldName:string = this.selectedFields[0].name;
+
+    return {
+      command: 'rename',
+      to: this.newFieldName,
+      col: selectedFieldName,
+      ruleString: 'rename col: ' + selectedFieldName + ' to: ' + this.newFieldName
+    };
 
   } // function - getRuleData
 
@@ -125,12 +131,19 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+   * 필드 변경
+   * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
-  } // function - openPopupFormulaInput
+  public changeFields(data: { target: Field, isSelect: boolean, selectedList: Field[] }) {
+    this.selectedFields = data.selectedList;
+  } // function - changeFields
+
+  /**
+   * Multicolumn rename popup open
+   */
+  public onMultiColumnRenameClick() {
+    this.onEvent.emit({ cmd: 'RENAME_MULTI_COLUMN' });
+  } // function - onMultiColumnRenameClick
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -140,32 +153,32 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - beforeShowComp
+  protected beforeShowComp() {} // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
    * @protected
    */
   protected afterShowComp() {
-    this.safelyDetectChanges();
-    this.ruleConditionInputComponent.init({fields : this.fields, command : 'derive', ruleVO : this.ruleVO} );
-  } // function - afterShowComp
+
+  } // function - _afterShowComp
 
   /**
    * rule string 을 분석한다.
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
-    // value
-    this.deriveVal = this.getAttrValueInRuleString( 'value', ruleString );
+    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
+    if( '' !== strCol ) {
+      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    }
 
-    // as
-    this.deriveAs = this.getAttrValueInRuleString( 'as', ruleString );
-  } // function - parsingRuleString
+    this.newFieldName = this.getAttrValueInRuleString( 'to', ruleString );
+  } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 }
-

@@ -788,6 +788,8 @@
   "msg.dp.alert.teddy.transform.execution.interrupted": "Transform execution interrupted",
   "msg.dp.alert.teddy.wrong.window.function.expression": "Wrong window function usage is detected.",
   "msg.dp.alert.snapshot.cancel.success" : "Snapshot cancel successful",
+  "msg.dp.alert.overlap.cols":"Make sure there are no overlapping columns",
+  "msg.dp.alert.before.after" : "Before or after value needed",
 
   "msg.dp.btn.add": "Add",
   "msg.dp.btn.add.ds" : "Add datasets",
@@ -977,7 +979,7 @@
   "msg.dp.ui.merge.col.tooltip" : "Specifies new column name to store the new string created",
   "msg.dp.ui.merge.delim.ph" : "Please enter separator",
   "msg.dp.ui.merge.delim.tooltip" : "Enter delimiter to separate each element",
-  "msg.dp.ui.move.tooltip" : "Please select reference field",
+  "msg.dp.ui.move.tooltip" : "Please select reference column",
   "msg.dp.ui.nest.tooltip" : "Specify new column name to store the generated Map or Array",
   "msg.dp.ui.no" : "No",
   "msg.dp.ui.no.df.description": "No dataflow was created. Use + button to create new dataflow.",
