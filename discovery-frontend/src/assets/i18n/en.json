@@ -2235,6 +2235,8 @@
   "msg.page.common.kpi.indocator.period.month": "Perevious month",
   "msg.page.common.kpi.indocator.period.day": "Perevious day",
   "msg.page.common.kpi.indocator.period.hour": "Perevious hour",
+  "msg.page.common.pie.max.category": "Maximum Categories before 'Other'",
+  "msg.page.common.pie.max.category.placeholder": "Show All",
   "msg.page.format.format.title": "Format",
   "msg.page.format.xaxis.rotation": "{{value}} degree",
   "msg.page.format.custom.symbol": "Custom Symbol",
