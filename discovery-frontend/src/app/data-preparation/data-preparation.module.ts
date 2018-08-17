@@ -81,6 +81,7 @@ import { EditRuleSplitComponent } from './dataflow/dataflow-detail/component/edi
 import { EditRuleFlattenComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-flatten.component';
 import { EditRuleSetformatComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-setformat.component';
 import { EditRuleUnnestComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-unnest.component';
+import { EditRuleAggregateComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-aggregate.component';
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -149,6 +150,7 @@ const dataPreparationRoutes: Routes = [
     EditRuleSplitComponent,
     EditRuleExtractComponent,
     EditRuleCountpatternComponent,
+    EditRuleAggregateComponent,
     EditRuleFlattenComponent,
     EditRuleSetformatComponent,
     EditRuleUnnestComponent,
