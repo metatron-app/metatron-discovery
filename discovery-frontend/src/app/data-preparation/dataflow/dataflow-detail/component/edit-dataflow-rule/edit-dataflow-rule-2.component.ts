@@ -671,6 +671,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       case 'keep':
       case 'delete':
       case 'set':
+      case 'aggregate' :
         this._editRuleComp.setRuleVO(this.ruleVO);
         this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields );
         break;
@@ -1186,6 +1187,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'nest':
         case 'unpivot':
         case 'move':
+        case 'aggregate' :
           rule = this._editRuleComp.getRuleData();
           if (isUndefined(rule)) {
             return;
@@ -1203,9 +1205,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           break;
         case 'flatten' :
           rule = this.setFlattenRule();
-          break;
-        case 'aggregate' :
-          rule = this.setAggregateRule();
           break;
         case 'splitrows' :
           rule = this.setSplitRowsRule();
@@ -1345,6 +1344,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'nest':
         case 'unpivot':
         case 'move':
+        case 'aggregate' :
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           break;
         case 'settype':
@@ -1365,9 +1365,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           }
           this._setSelectionFields(this.selectedDataSet.gridData.fields, this.ruleVO.cols);
           this.setCountpatternEditInfo(rule);
-          break;
-        case 'aggregate' :
-          this.setAggregateEditInfo(rule);
           break;
         case 'unnest' :
           this.setUnnestEditInfo();
@@ -3269,43 +3266,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   } // function - setPivotRule
 
-  private setAggregateRule(): any {
-
-    // Formula
-    if (this.pivotFormulaValueList.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
-      return;
-    }
-    let checkFormula = this.pivotFormulaValueList.map((field) => {
-      return StringUtil.checkSingleQuote(field, { isWrapQuote: false, isAllowBlank: false })[0];
-    });
-    if (checkFormula.indexOf(false) == -1) {
-      this.pivotFormulaValueList = this.pivotFormulaValueList.map((field) => { // 수식 하나에 ''를 감싼다
-        if (StringUtil.checkFormula(field)) {
-          return '\'' + field + '\'';
-        } else {
-          Alert.warning(this.translateService.instant('msg.dp.alert.check.formula'));
-          return;
-        }
-      });
-      this.ruleVO.value = this.pivotFormulaValueList.join(','); // 수식을 , 로 쪼인한다
-    } else {
-      Alert.warning(this.translateService.instant('msg.dp.alert.check.formula'));
-      return;
-    }
-
-    // 그룹
-    if (this.ruleVO.cols.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
-      return;
-    }
-    this.ruleVO.col = this.ruleVO.cols.join(',');
-
-    return {
-      ruleString: PreparationCommonUtil.makeRuleResult(this.ruleVO)
-    };
-  } // function - setAggregateRule
-
   private setUnnestRule(): any {
 
     if (this.filteredUnnestList.length === 0) {
@@ -3450,34 +3410,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }
     this.ruleVO.quote = jsonRuleString['quote'] ? jsonRuleString['quote']['escapedValue'] : null;
     this.editColumnList = [this.ruleVO.col];
-
-  }
-
-
-  private setAggregateEditInfo(rule) {
-
-    let aggregaterulestring = JSON.parse(rule['jsonRuleString']);
-
-    if (!isUndefined(aggregaterulestring['value'].escapedValue)) {
-      this.pivotFormulaValueList.push(aggregaterulestring['value'].escapedValue);
-    } else {
-      this.pivotFormulaValueList = [];
-      aggregaterulestring['value'].value.filter((field) => {
-        this.pivotFormulaValueList.push(field.substring(1, field.length - 1));
-      });
-    }
-
-    this.pivotFormulaList.length = this.pivotFormulaValueList.length;
-
-    // order is important in multicolumn selectbox. First delete seq
-    this.selectedDataSet.gridData.fields.filter((field) => {
-      delete field.seq;
-    });
-
-    this.ruleVO.cols = [];
-    if (aggregaterulestring['group']) {
-      this.getEditColumnList(rule['jsonRuleString'], 'group');
-    }
 
   }
 

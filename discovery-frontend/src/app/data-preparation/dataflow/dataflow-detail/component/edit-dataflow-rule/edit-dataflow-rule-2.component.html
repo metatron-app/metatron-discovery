@@ -618,74 +618,7 @@
                       <!--//endMerge-->
 
                       <!--startAggregate-->
-
-                      <!--part-->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'aggregate'">
-                        <div class="ddp-box-title">
-                          <span class="ddp-box-title-in">
-                              {{'msg.dp.th.formula' | translate}}<em class="ddp-icon-essential"></em>
-                              <a href="javascript:" class="ddp-btn-plus" (click)="pivotFormulaValueList.push(''); pivotFormulaList.push('');"></a>
-                          </span>
-                        </div>
-
-                        <!-- box scroll -->
-                        <div class="ddp-wrap-box-info" [ngClass]="{'ddp-selected':isFocus}" >
-                          <div class="ddp-wrap-boxwrap">
-                            <div class="ddp-wrap-boxadd" *ngFor="let item of pivotFormulaList; let idx = index">
-
-                              <div class="ddp-wrap-datainput">
-                                <div class="ddp-wrap-input-info" [ngClass]="{'ddp-selected':isFocus}" (clickOutside)="isAutoCompleteSuggestionListOpen=false">
-                                  <input type="text" id="rule-aggregate-input-{{idx}}" tabindex="2" class="ddp-input-typebasic" placeholder="{{'msg.dp.th.formula.ph' | translate}}" [(ngModel)]="pivotFormulaValueList[idx]" (focus)="isFocus=true;changeRule($event)" (blur)="isFocus=false" (click)="changeRule($event)" (keydown)="changeRule($event)">
-                                  <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isAutoCompleteSuggestionListOpenPivot('rule-aggregate-input',idx)" >
-                                    <li *ngFor="let item_sug of autoCompleteSuggestions;let idx_sug=index" (click)="onautoCompleteSuggestionsSelectPivot(item_sug,pivotFormulaValueList,idx)">
-                                      <a [ngStyle]="idx_sug==autoCompleteSuggestions_selectedIdx?{'background-color':'#f6f6f7','color':item_sug.class}:{'color':item_sug.class}" href="javascript:">
-                                        {{item_sug.value}}
-                                      </a>
-                                    </li>
-                                    <li *ngIf="autoCompleteSuggestions.length === 0">
-                                      <span class="ddp-noresult">
-                                        {{'msg.dp.ui.search.no.rslt' | translate}}
-                                      </span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </div>
-
-                              <div class="ddp-ui-buttons">
-                                <a href="javascript:" class="ddp-btn-minus" (click)="deleteFormula(idx)"></a>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                      </div>
-                      <!--//part-->
-                      <!--part-->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'aggregate'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.group.by' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-
-                        <!-- select box -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected':isMultiColumnListShow}" (click)="showMultiColumnList($event)" tabindex="3">
-                          <span class="ddp-txt-selectbox">{{( undefined === ruleVO.cols || ruleVO.cols.length === 0 ) ? ('msg.dp.ui.none.selected' | translate) : ruleVO.cols.join(',') }}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isMultiColumnListShow" (clickOutside)="isMultiColumnListShow = false;">
-                            <li *ngFor="let col of selectedDataSet.gridData.fields">
-                              <a href="javascript:">
-                                <label class="ddp-label-checkbox ddp-type-number">
-                                  <input type="checkbox" [checked]="col.selected"  (click)="checkItem(col)">
-                                  <i class="ddp-icon-checkbox">{{col.seq}}</i>
-                                  <span class="ddp-txt-checkbox">{{col.name}}</span>
-                                </label>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <!-- //select box -->
-                      </div>
-                      <!--//part-->
+                      <edit-rule-aggregate #editRule *ngIf="'aggregate' === ruleVO.command"></edit-rule-aggregate>
                       <!--//endAggregate-->
 
                       <!--startSort-->
