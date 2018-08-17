@@ -17,7 +17,9 @@
     {{'msg.dp.th.val' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
-    <rule-condition-input></rule-condition-input>
+    <rule-condition-input
+      [formula]="deriveVal" [command]="'derive'" [fields]="fields" [tabIndex]="2"
+      (onChange)="deriveVal = $event"></rule-condition-input>
   </div>
   <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput()"><em class="ddp-icon-editor"></em>Advanced editor</a>
 </div>

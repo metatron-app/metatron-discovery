@@ -22,13 +22,10 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  ViewChild
 } from '@angular/core';
-import {RuleConditionInputComponent} from "./rule-condition-input.component";
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
-import { Rule } from '../../../../../../domain/data-preparation/dataset';
 
 @Component({
   selector : 'edit-rule-delete',
@@ -39,8 +36,6 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -48,7 +43,7 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public rowNum : string;
+  public rowNum : string = '';
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
@@ -96,7 +91,7 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    * @return
    */
   public getRuleData(): { command: string, ruleString:string} {
-    let val = this.ruleConditionInputComponent.getCondition();
+    let val = this.rowNum;
     if (isUndefined(val) || '' === val || '\'\'' === val) {
       Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
       return undefined
@@ -145,8 +140,6 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
-    this.safelyDetectChanges();
-    this.ruleConditionInputComponent.init({fields : this.fields, command : 'delete', ruleVO : this.ruleVO} );
   } // function - _afterShowComp
 
   /**
