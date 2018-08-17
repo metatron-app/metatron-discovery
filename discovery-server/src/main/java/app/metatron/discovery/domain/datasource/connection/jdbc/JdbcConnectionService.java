@@ -1102,8 +1102,8 @@ public class JdbcConnectionService {
     LinkIngestionInfo ingestionInfo = (LinkIngestionInfo) metaDataSource.getIngestionInfo();
 
     // TODO: 중복 코드를 해결 필요
-    JdbcDataConnection realConnection = jdbcDataConnection == null ?
-        ingestionInfo.getConnection() : jdbcDataConnection;
+    JdbcDataConnection realConnection = (JdbcDataConnection) metaDataSource.getJdbcConnectionForIngestion();
+
     if (realConnection instanceof MySQLConnection
         || realConnection instanceof HiveConnection
         || realConnection instanceof PrestoConnection) {
