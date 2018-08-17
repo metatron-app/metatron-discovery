@@ -256,6 +256,11 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
    */
   public changeMin(): void {
 
+    // 값이 비어있다면 0으로 치환
+    if( _.eq(this.axisTemp.grid.min, "") ) {
+      this.axisTemp.grid.min = 0;
+    }
+
     // Validation
     if( isNaN(this.axisTemp.grid.min) ) {
       this.axisTemp.grid.min = _.isUndefined(this.axis.grid.min) ? null : this.axis.grid.min;
@@ -264,7 +269,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
 
     let min: number = Number(this.axisTemp.grid.min);
     let max: number = !isNaN(this.axisTemp.grid.max) ? Number(this.axisTemp.grid.max) : 0;
-    if( min >= max ) {
+    if( min > max ) {
       Alert.info(this.translateService.instant('msg.page.yaxis.grid.min.alert'));
       this.axisTemp.grid.min = this.axis.grid.min != 0 ? this.axis.grid.min : null;
       return;
@@ -279,12 +284,22 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
       this.axis.grid.max = 0;
     }
     this.changeBaseline.emit(this.axis);
+
+    // 값이 0이라면 빈값으로 치환
+    if( this.axisTemp.grid.min == 0 ) {
+      this.axisTemp.grid.min = null;
+    }
   }
 
   /**
    * Change Axsi Max Value
    */
   public changeMax(): void {
+
+    // 값이 비어있다면 0으로 치환
+    if( _.eq(this.axisTemp.grid.max, "") ) {
+      this.axisTemp.grid.max = 0;
+    }
 
     // Validation
     if( isNaN(this.axisTemp.grid.max) ) {
@@ -294,7 +309,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
 
     let min: number = Number(this.axisTemp.grid.min);
     let max: number = !isNaN(this.axisTemp.grid.max) ? Number(this.axisTemp.grid.max) : 0;
-    if( max <= min ) {
+    if( max < min ) {
       Alert.info(this.translateService.instant('msg.page.yaxis.grid.max.alert'));
       this.axisTemp.grid.max = this.axis.grid.max != 0 ? this.axis.grid.max : null;
       return;
@@ -309,6 +324,11 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
       this.axis.grid.min = 0;
     }
     this.changeBaseline.emit(this.axis);
+
+    // 값이 0이라면 빈값으로 치환
+    if( this.axisTemp.grid.max == 0 ) {
+      this.axisTemp.grid.max = null;
+    }
   }
 
   /**
