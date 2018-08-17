@@ -2260,7 +2260,7 @@
   "msg.page.yaxis.grid.max.alert": "The maximum value can not be less than the minimum value.",
   "msg.page.yaxis.grid.alert": "There is data beyond value.",
   "msg.page.yaxis.grid.auto": "Fit to Data Scale",
-  "msg.page.yaxis.baseline": "Crossing Points",
+  "msg.page.yaxis.baseline": "Set Crossing Points",
   "msg.page.yaxis.show.grid.lines": "Show Grid Lines",
   "msg.page.yaxis.show.grid.lines.color": "Line Color",
   "msg.page.yaxis.show.grid.lines.thickness": "Line Thickness",
