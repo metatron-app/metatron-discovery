@@ -14,28 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import com.google.common.collect.Lists;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.hibernate.annotations.GenericGenerator;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
-
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -46,6 +24,24 @@ import app.metatron.discovery.domain.dataprep.teddy.Row;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformRule;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformRuleStringinfo;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransition;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import org.hibernate.annotations.GenericGenerator;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.persistence.*;
+import javax.validation.constraints.Size;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity

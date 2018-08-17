@@ -14,23 +14,17 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Join;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.JoinTypeNotSupportedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.LeftPredicateNotFoundException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.PredicateTypeMismatchException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.RightPredicateNotFoundException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 
 public class DfJoin extends DataFrame {
   private static Logger LOGGER = LoggerFactory.getLogger(DfJoin.class);

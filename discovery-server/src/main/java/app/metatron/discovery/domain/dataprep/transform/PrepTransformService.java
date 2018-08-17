@@ -14,20 +14,27 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.*;
+import app.metatron.discovery.domain.dataprep.PrepDataset.OP_TYPE;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.teddy.*;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
-import app.metatron.discovery.prep.parser.preparation.rule.*;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
+import app.metatron.discovery.prep.parser.preparation.rule.*;
+import app.metatron.discovery.prep.parser.preparation.rule.Set;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
@@ -43,36 +50,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.IllegalTransactionStateException;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
+import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.*;
-import app.metatron.discovery.domain.dataprep.PrepDataset.OP_TYPE;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.Histogram;
-import app.metatron.discovery.domain.dataprep.teddy.Row;
-import app.metatron.discovery.domain.dataprep.teddy.TeddyExecutor;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 
 import static app.metatron.discovery.domain.dataprep.PrepDataset.DS_TYPE.WRANGLED;
 
@@ -113,56 +95,6 @@ public class PrepTransformService {
 
   @Autowired(required = false)
   PrepProperties prepProperties;
-
-//  // Properties used in this process (discovery-server)
-//  @Value("${polaris.dataprep.autotyping:true}")
-//  private Boolean autotyping;
-//
-//
-//  // These properties could be considered as being used in ETL programs.
-//  // But technically, they are consumed in this process, resulting the snapshot informations.
-//  @Value("${polaris.dataprep.localBaseDir:MISSING_LOCAL_BASE_DIR}")
-//  private String localBaseDir;
-//
-//  @Value("${polaris.dataprep.stagingBaseDir:MISSING_STAGING_BASE_DIR}")
-//  private String stagingBaseDir;
-//
-//
-//
-//  // Properties used in other ETL programs (discovery-prep-embedded, discovery-prep-spark, etc.)
-//  @Value("${polaris.dataprep.hadoopConfDir:MISSING_HADOOP_CONF_DIR}")
-//  private String hadoopConfDir;
-//
-//  @Value("${polaris.dataprep.hive.hostname:MISSING_HIVE_HOSTNAME}")
-//  private String hiveHostname;
-//
-//  @Value("${polaris.dataprep.hive.port:10000}")
-//  private int hivePort;
-//
-//  @Value("${polaris.dataprep.hive.username:MISSING_HIVE_USERNAME}")
-//  private String hiveUsername;
-//
-//  @Value("${polaris.dataprep.hive.password:#{NULL}}")
-//  private String hivePassword;
-//
-//  @Value("${polaris.dataprep.hive.customUrl:#{NULL}}")
-//  private String hiveCustomUrl;
-//
-//  @Value("${polaris.dataprep.hive.metastoreUris:MISSING_HIVE_METASTORE_URIS}")
-//  private String hiveMetastoreUris;   // twinkle, 즉 spark에서만 사용. teddy에선 사용하지 않음.
-//
-//  @Value("${polaris.dataprep.etl.jar:MISSING_TRANSFORMER_EXECUTABLE_JAR_PATH}")
-//  String executableJarPath;
-//
-//  @Value("${polaris.dataprep.etl.jvmOptions:-Xmx1g}")
-//  String jvmOptions;
-//
-//  @Value("${polaris.dataprep.etl.timeout:-1}")
-//  private int timeout;
-//
-//  @Value("${polaris.dataprep.etl.cores:0}")
-//  private int cores;
-//
 
   @Value("${server.port:8180}")
   private String serverPort;
@@ -314,9 +246,7 @@ public class PrepTransformService {
     this.putAddedInfo(response, wrangledDataset);
 
     //Auto Heading 및 Auto Typing을 위한 로직.
-
     Boolean isNotORC = true;
-//    for(ColumnType ct : gridResponse.colTypes) {
     for(ColumnDescription cd : gridResponse.colDescs) {
       if(cd.getType() != ColumnType.STRING)
         isNotORC = false;
@@ -524,7 +454,7 @@ public class PrepTransformService {
   // needCollect: 결과 matrixResponse를 원하는지 여부
   //      true  --> load해서 grid를 보여주고자 할 때
   //      false --> snapshot을 뽑을 때, 결과 grid 필요 없음. 또 join, union시 slave dataset를 PLM cache에 올려놓는 것만 원할 때.
-  private DataFrame load_internal(String dsId, boolean needCollect) throws Exception {
+  private DataFrame load_internal(String dsId, boolean needCollect) throws Exception, PrepException {
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
 
     LOGGER.trace("load_internal(): start");
@@ -648,11 +578,7 @@ public class PrepTransformService {
 
     LOGGER.trace("load(): start");
 
-    // rebuild transitions always - 171023jhkim
-    // 단, 모든 transition이 APPEND인 경우는 그냥 넘어가도록.
-
     gridResponse = load_internal(dsId, true);
-
     response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
     response.setRuleStringInfos(getRulesInOrder(dsId), false, false);
 
@@ -861,18 +787,7 @@ public class PrepTransformService {
         datasetInfo.put("importType", upstreamDataset.getImportType());
         switch (upstreamDataset.getImportTypeEnum()) {
           case FILE:
-            //datasetInfo.put("filePath", hiveDefaultUploadHDFSPath + "/" + upstreamDataset.getFilekey());
-//            String filePath = datasetFileService.uploadHdfsAndReturnPath(upstreamDataset.getFilekey());
-            /* HDFS upload 처리 이슈에서 변경함
-            String filePath = Paths.get(localBaseDir, "uploads", upstreamDataset.getFilekey()).toString();
-            upstreamDataset.putCustomValue("filePath",filePath);
-            */
             String filePath = upstreamDataset.getCustomValue("filePath");
-            /*
-            String custom = upstreamDataset.getCustom();
-            custom = custom.replaceAll("\"filePath\"\\s*:\\s*\"[^\"]*\"","\"filePath\":\""+filePath+"\"");
-            upstreamDataset.setCustom(custom);
-            */
             datasetInfo.put("filePath", filePath);
             datasetInfo.put("delimiter", upstreamDataset.getDelimiter());
             break;
@@ -916,121 +831,11 @@ public class PrepTransformService {
     return datasetInfo;
   }
 
-  private String runTwinkle(String jsonPrepPropertiesInfo, String jsonDatasetInfo, String jsonSnapshotInfo) {
-    String result = "RUNNING";
-
-    // copied from ProcessFunctionAnalyzer.java
-    String baseName = FilenameUtils.getBaseName(prepProperties.getEtl().getJar());
-    // TODO : sparkProperties 삭제로 인한 임의 수정이므로 별도 수정 부탁드립니다
-//    String appName = sparkProperties.getAppNamePrefix() + "-" + baseName + "-" + System.currentTimeMillis();
-    String appName = baseName + "-" + System.currentTimeMillis();
-//    File workingDir = new File(sparkProperties.getWorkingDir() + File.separator + appName);
-    File workingDir = new File("/tmp" + File.separator + appName);
-    Process process;
-
-    try {
-      FileUtils.forceMkdir(workingDir);
-      if (!workingDir.exists()) {
-        throw new IllegalArgumentException("Fail to create working directory :" + workingDir.getAbsolutePath());
-      }
-
-      LOGGER.info("runTwinkle(): engine=twinkle");
-      List<String> commands = Lists.newArrayList(
-              "java",
-              prepProperties.getEtl().getJvmOptions(),
-              "-jar",
-              prepProperties.getEtl().getJar(),
-              "twinkle",
-              jsonPrepPropertiesInfo,
-              jsonDatasetInfo,
-              jsonSnapshotInfo
-      );
-
-      LOGGER.info("ProcessCommands : {}", commands);
-
-      ProcessBuilder pb = new ProcessBuilder(commands);
-
-      File errFile = new File(workingDir.getAbsolutePath() + File.separator + "transformer_stderr.log");
-      File logFile = new File(workingDir.getAbsolutePath() + File.separator + "transformer_stdout.log");
-      pb.redirectOutput(logFile);
-      pb.redirectError(errFile);
-
-      process = pb.start();
-      if (process.waitFor(100, TimeUnit.MILLISECONDS)) {
-        int errCode = process.exitValue();
-        if (errCode == 0) {
-          result = FileUtils.readFileToString(logFile);
-        } else {
-          LOGGER.error("runTwinkle() failed: logFile: " + FileUtils.readFileToString(logFile));
-          LOGGER.error("runTwinkle() failed: errFile: " + FileUtils.readFileToString(errFile));
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TRANSFORM_SNAPSHOT_FAILED);
-        }
-      }
-    } catch (Exception e) {
-      LOGGER.error("runTwinkle(): failed to create a HIVE snapshot: appName={} errmsg={}", appName, e.getMessage());
-      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TRANSFORM_SNAPSHOT_FAILED);
-    }
-
-    return result;
-  }
-
-  private String getJsonSnapshotInfoForTwinkle(PrepSnapshotRequestPost requestPost, String ssId, String ssName) throws JsonProcessingException {
-    Map<String, Object> snapshotInfo = new HashMap();
-
-    // 공통
-    snapshotInfo.put("ssId",              ssId);
-    snapshotInfo.put("ssName",            requestPost.getSsName());
-    snapshotInfo.put("ssType",            requestPost.getSsType());
-    snapshotInfo.put("engine",            "twinkle");       // 로깅을 위해 포함
-    snapshotInfo.put("format",            requestPost.getFormat().toLowerCase());
-    snapshotInfo.put("fileUri",           requestPost.getUri());
-    snapshotInfo.put("localBaseDir",      prepProperties.getLocalBaseDir());    // FILE snapshot을 읽어들이는데 사용
-    snapshotInfo.put("stagingBaseDir",    prepProperties.getStagingBaseDir());  // extHdfsDir이 따로 안주어졌을 때 사용
-    snapshotInfo.put("partKeys",          requestPost.getPartKeys());
-    snapshotInfo.put("dbName",            requestPost.getDbName());
-    snapshotInfo.put("tblName",           requestPost.getTblName());
-
-    // Twinkle 전용
-    snapshotInfo.put("codec",             requestPost.getCompression().toLowerCase());
-    snapshotInfo.put("mode",              requestPost.getMode().toLowerCase());
-    snapshotInfo.put("driver-class-name", datasourceDriverClassName);
-    snapshotInfo.put("url",               datasourceUrl);
-    snapshotInfo.put("username",          datasourceUsername);
-    snapshotInfo.put("password",          datasourcePassword);
-
-    return GlobalObjectMapper.getDefaultMapper().writeValueAsString(snapshotInfo);
-  }
-
-//  private String getJsonSnapshotInfoForEmbeddedEngine(PrepSnapshotRequestPost requestPost, String ssId, String ssName) throws JsonProcessingException {
-//    Map<String, Object> snapshotInfo = new HashMap();
-//
-//    // 공통
-//    snapshotInfo.put("ssId",           ssId);
-//    snapshotInfo.put("ssName",            requestPost.getSsName());
-//    snapshotInfo.put("ssType",         requestPost.getSsType());
-//    snapshotInfo.put("engine",         "embedded");      // 로깅을 위해 포함
-//    snapshotInfo.put("format",         requestPost.getFormat());
-//    snapshotInfo.put("fileUri",           requestPost.getUri());
-//    snapshotInfo.put("localBaseDir",   localBaseDir);
-//    snapshotInfo.put("stagingBaseDir", stagingBaseDir);
-//    snapshotInfo.put("partKeys",       requestPost.getPartKeys());
-//    snapshotInfo.put("dbName",         requestPost.getDbName());
-//    snapshotInfo.put("tblName",        requestPost.getTblName());
-//
-//    // Embedded engine 전용
-//    snapshotInfo.put("compression",    requestPost.getCompression());
-//    snapshotInfo.put("ssName",         ssName);            // for naming FILE snapshot
-//    snapshotInfo.put("partKeys",       new ArrayList());   // TODO: currently, partitioned table is not supported by embedded engine
-//
-//    return GlobalObjectMapper.getDefaultMapper().writeValueAsString(snapshotInfo);
-//  }
-
   private String getJsonDatasetInfo(String wrangledDsId) throws IOException {
     Map<String, Object> datasetInfo = buildDatasetInfoRecursive(wrangledDsId);
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(datasetInfo);
   }
 
-  // FIXME: 각 snapshot type별로 필요한 코드만 사용하도록 정리. 특히, spark 관련 파라미터 꼭 필요한 것만 사용하도록 하기
   String runTransformer(String wrangledDsId, PrepSnapshotRequestPost requestPost, String ssId, String authorization) throws Throwable {
     // 1. spark, dataprep configuration
     // 2. datasetInfos --> 순차적으로 만들 dataframe의 ruleStrings 및 importInfo
@@ -1059,7 +864,7 @@ public class PrepTransformService {
 
     switch (requestPost.getEngineEnum()) {
       case TWINKLE:
-        return runTwinkle(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo);  // Twinkle doesn't support callback for now.
+        assert false : "Spark engine not supported for a while";
       case EMBEDDED:
         return runTeddy(jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, authorization);
       default:
@@ -1126,6 +931,7 @@ public class PrepTransformService {
     snapshot.setFormat(requestPost.getFormatEnum());
     snapshot.setCompression(requestPost.getCompressionEnum());
     snapshot.setEngine(requestPost.getEngineEnum());
+    snapshot.setStatus(PrepSnapshot.STATUS.INITIALIZING);
     snapshot.setProfile(requestPost.isProfile());
     snapshot.setLaunchTime(launchTime);
 
@@ -1184,7 +990,6 @@ public class PrepTransformService {
       throw new IllegalArgumentException(requestPost.toString());
     }
 
-    //snapshot.setDataset(dataset);
     snapshotRepository.saveAndFlush(snapshot);
 
     response = new PrepSnapshotResponse(snapshot.getSsId(), allFullDsIds, snapshot.getSsName());
@@ -1202,15 +1007,6 @@ public class PrepTransformService {
     }
     assert false : wrangledDsId;
     return null;
-  }
-
-  public PrepStatsResponse transform_stats(String dsId, int ruleIdx) throws Exception
-  {
-    // Not implemented
-
-    Map<String, Object> stats = new HashMap<>();
-    PrepStatsResponse response = new PrepStatsResponse(stats);
-    return response;
   }
 
   // APPEND ////////////////////////////////////////////////////////////

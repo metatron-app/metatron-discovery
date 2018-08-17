@@ -29,7 +29,7 @@ public class PrepSnapshotRequestPost {
     PrepSnapshot.MODE mode;
     PrepSnapshot.ENGINE engine;
     boolean profile;
-    String extHdfsDir;
+    String extHdfsDir;      // TODO: remove with related UI code
     List<String> partKeys;
 
     @JsonIgnore

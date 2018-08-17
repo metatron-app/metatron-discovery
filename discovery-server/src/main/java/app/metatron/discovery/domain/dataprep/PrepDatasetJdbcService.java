@@ -89,8 +89,6 @@ public class PrepDatasetJdbcService {
     Set<Future<Integer>> futures = null;
 
     public class PrepDatasetTotalLinesCallable implements Callable {
-        //private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetTotalLinesCallable.class);
-
         PrepDatasetJdbcService datasetJdbcService;
 
         String dsId;
@@ -222,38 +220,12 @@ public class PrepDatasetJdbcService {
         return new Field(fieldKey, fieldType, fieldBIType, new Long(idx + 1));
     }
 
-    private String getCellValue(Cell cell) {
-        String v = null;
-
-        switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_STRING:
-                v = cell.getRichStringCellValue().getString();
-                break;
-            case Cell.CELL_TYPE_NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    v = new DateTime(cell.getDateCellValue().getTime()).toString();
-                } else {
-                    v = String.valueOf(cell.getNumericCellValue());
-                }
-                break;
-            case Cell.CELL_TYPE_BOOLEAN:
-                v = String.valueOf(cell.getBooleanCellValue());
-                break;
-            case Cell.CELL_TYPE_FORMULA:
-                v = cell.getCellFormula();
-                break;
-            default:
-        }
-        return v;
-    }
-
     DataFrame getPreviewLinesFromJdbcForDataFrame(PrepDataset dataset, String size) throws SQLException {
 
         DataFrame dataFrame = new DataFrame();
 
         try {
             int limitSize = Integer.parseInt(size);
-            int totalRows = 0;
 
             String dcId = dataset.getDcId();
             DataConnection connection = this.connectionRepository.findOne(dcId);
@@ -304,7 +276,6 @@ public class PrepDatasetJdbcService {
                     dataFrame.addColumn(columnName, columnType);
                 }
 
-                totalRows = rs.getFetchSize();
                 int readRows = 0;
                 while (rs.next()) {
                     app.metatron.discovery.domain.dataprep.teddy.Row row = new app.metatron.discovery.domain.dataprep.teddy.Row();
@@ -340,12 +311,10 @@ public class PrepDatasetJdbcService {
 
         try {
             int limitSize = Integer.parseInt(size);
-            int totalRows = 0;
 
             List<Map<String, String>> resultSet = Lists.newArrayList();
             List<Field> fields = Lists.newArrayList();
             List<Map<String, String>> headers = Lists.newArrayList();
-            List<String> columnFields = Lists.newArrayList();
 
             DataConnection dataConnection = this.connectionRepository.findOne(dcId);
             String connectUrl = dataConnection.getConnectUrl();
@@ -382,7 +351,6 @@ public class PrepDatasetJdbcService {
                 int numberOfColumns = resultSetMetaData.getColumnCount();
 
                 for (int i=0;i<numberOfColumns;i++) {
-                    String typeName = resultSetMetaData.getColumnTypeName(i+1);
                     String columnName = resultSetMetaData.getColumnName(i+1);
                     if( true==columnName.contains(".") ) {
                         columnName = columnName.substring(columnName.lastIndexOf(".")+1);

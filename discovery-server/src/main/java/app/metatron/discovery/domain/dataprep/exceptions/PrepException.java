@@ -14,14 +14,13 @@
 
 package app.metatron.discovery.domain.dataprep.exceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
 import app.metatron.discovery.common.exception.ErrorCodes;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnknownError;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnectionException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Preparation Error")
 public class PrepException extends MetatronException {
@@ -55,14 +54,6 @@ public class PrepException extends MetatronException {
     //
     // message가 details가 되고 reason이 message가 되는 것에 주의!!!
     //
-    /*
-    static public PrepException create(ErrorCodes code, String message) {
-        if (System.getProperty("dataprep").equals("disabled")) {
-            return new PrepException(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_CONFIG_CODE, "\"dataprep\" not activated in configuration");
-        } else {
-            return new PrepException(code, PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR, message);
-        }
-    }*/
 
     // 이미 PrepException 형태로 catch가 되면 그냥 던지고, 아니면 Exception의 message를 뽑아서 PrepException으로 만듦.
     static public PrepException create(ErrorCodes code, Exception e) {

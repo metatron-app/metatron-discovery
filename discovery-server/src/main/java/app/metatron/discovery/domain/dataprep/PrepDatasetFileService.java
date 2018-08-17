@@ -15,46 +15,6 @@
 package app.metatron.discovery.domain.dataprep;
 
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.io.ByteOrderMark;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.input.BOMInputStream;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -65,22 +25,34 @@ import app.metatron.discovery.domain.dataprep.teddy.Util;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.util.PolarisUtils;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.input.BOMInputStream;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.*;
 
 @Service
 public class PrepDatasetFileService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetFileService.class);
 
-//    @Autowired
-//    SparkProperties sparkProperties;
-
     @Autowired
     PrepDatasetRepository datasetRepository;
-
-//    @Value("${polaris.dataprep.stagingBaseDir:#{NULL}}")
-//    private String stagingBaseDir;
-//
-//    @Value("${polaris.dataprep.localBaseDir:#{systemProperties['java.io.tmpdir']}}")
-//    private String localBaseDir;
 
     @Autowired(required = false)
     PrepProperties prepProperties;
@@ -90,21 +62,6 @@ public class PrepDatasetFileService {
     private String fileDatasetUploadHdfsPath=null;
 
     private String prefixColumnName = "column";
-
-    private String getImportedFilePath_new() {
-        if (!prepProperties.isHDFSConfigured()) {
-            return null;
-        }
-
-        if(null==fileDatasetUploadHdfsPath) {
-            if (true == prepProperties.getStagingBaseDir().endsWith(File.separator)) {
-                fileDatasetUploadHdfsPath = prepProperties.getStagingBaseDir() + uploadDirectory;
-            } else {
-                fileDatasetUploadHdfsPath = prepProperties.getStagingBaseDir() + File.separator + uploadDirectory;
-            }
-        }
-        return fileDatasetUploadHdfsPath;
-    }
 
     private String getPathLocal_new(String fileKey) {
         String pathStr;
@@ -132,15 +89,6 @@ public class PrepDatasetFileService {
         }
         return pathStr;
     }
-
-    /*
-    public String getPath2(PrepDataset dataset) {
-        if( dataset.getFileType()!=null && dataset.getFileTypeEnum().equals(PrepDataset.FILE_TYPE.LOCAL) ) {
-            return getPathLocal_new(dataset.getFilekey());
-        }
-        return dataset.getFilekey();
-    }
-    */
 
     private Boolean createHeaderRow(Sheet sheet) {
         Boolean hasFields=true;
@@ -301,10 +249,8 @@ public class PrepDatasetFileService {
         Map<String, Object> responseMap = Maps.newHashMap();
 
         try {
-            //String filePath = getPathLocal2( fileKey );
             String filePath = getPathLocal_new( fileKey );
             String extensionType = FilenameUtils.getExtension(fileKey);
-            //boolean hasFields = "Y".equals(hasFieldsFlag);
             boolean hasFields;
             int findSheetIndex = Integer.parseInt(sheetindex);
             int limitSize = Integer.parseInt(size);
@@ -714,57 +660,6 @@ public class PrepDatasetFileService {
 
         return responseMap;
     }
-// TODO: SparkProperties 디펜던시 제거를 의한 임의 주석 처리, 수정 필요
-//    public String uploadHdfsAndReturnPath(String fileKey) {
-//        String hdfsPath = getImportedFilePath_new() + File.separator + fileKey;
-//        String localPath = getPathLocal_new(fileKey);
-//        String filePath = localPath;
-//
-//        FSDataOutputStream fsdos = null;
-//        FileSystem fs = null;
-//        InputStream is = null;
-//        try {
-//
-//            File localFile = new File(localPath);
-//            is = new FileInputStream(localFile);
-//            InputStreamReader isr = new InputStreamReader(is);
-//
-//            Configuration hadoopConf = new Configuration();
-//            String hadoopConfPath = sparkProperties.getHadoopConfPath();
-//            List<String> hadoopConfFiles = sparkProperties.getHadoopConfFiles();
-//            for(String hadoopConfFile : hadoopConfFiles) {
-//                hadoopConf.addResource( "file://" + hadoopConfPath + File.separator + hadoopConfFile );
-//            }
-//
-//            Path path = new Path(hdfsPath);
-//            fs = path.getFileSystem(hadoopConf);
-//            if(false==fs.exists(path)) {
-//                fsdos = fs.create(path);
-//                OutputStreamWriter osw = new OutputStreamWriter(fsdos);
-//
-//                IOUtils.copy(is,fsdos);
-//            }
-//            filePath = hdfsPath;
-//        } catch (Exception e) {
-//            LOGGER.error("Failed to copy localFile : {}", e.getMessage());
-//        } finally {
-//            try {
-//                if (is != null) {
-//                    is.close();
-//                }
-//                if (fsdos != null) {
-//                    fsdos.close();
-//                }
-//                if (fs != null) {
-//                    fs.close();
-//                }
-//            } catch(Exception e) {
-//                LOGGER.error("close exception : {}", e.getMessage());
-//            }
-//        }
-//
-//        return filePath;
-//    }
 
     public String moveExcelToCsv(String fileKey, String sheetName, String delimiter) {
         String csvFileName = null;
