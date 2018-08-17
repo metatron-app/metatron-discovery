@@ -1646,7 +1646,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.loadingShow();
 
     // TODO : jumpRule, applyRule 은 같은 API
-    this.dataflowService.jumpRule(this.selectedDataSet.dsId, 'JUMP', idx)
+    this.dataflowService.jumpRule(this.selectedDataSet.dsId, 'FETCH', idx)
       .then((data) => {
         if (data.errorMsg) {
           Alert.warning(this.translateService.instant('msg.dp.alert.jump.fail'));
@@ -2068,6 +2068,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }
 
     switch (rule.command) {
+      case 'create':
+        result = `Create with DS ${rule.with}`;
+        break;
       case 'header':
         result = `Convert row${rule.rownum} to header`;
         break;
@@ -2754,6 +2757,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   private initViewPage() {
     this.commandList = [
+      { command: 'create',
+        alias: 'Cr',
+        desc: this.translateService.instant('msg.dp.li.cr.description'),
+        isHover:false
+      },
       {
         command: 'header',
         alias: 'He',

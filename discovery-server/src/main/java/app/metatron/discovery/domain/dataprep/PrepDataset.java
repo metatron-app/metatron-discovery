@@ -88,7 +88,7 @@ public class PrepDataset extends AbstractHistoryEntity {
         UPDATE,
         DELETE,
         FETCH,
-        JUMP,
+        JUMP,   // TODO: remove
         UNDO,
         REDO,
         PREVIEW,

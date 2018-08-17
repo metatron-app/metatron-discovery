@@ -21,7 +21,7 @@ import java.io.Serializable;
 public class PrepTransformRequest implements Serializable {
   private String dfId;
   private PrepDataset.OP_TYPE op;
-  private int ruleIdx;
+  private Integer ruleIdx;
   private String ruleString;
 
   public String getDfId() {
@@ -32,7 +32,7 @@ public class PrepTransformRequest implements Serializable {
     return op;
   }
 
-  public int getRuleIdx() {
+  public Integer getRuleIdx() {
     return ruleIdx;
   }
 

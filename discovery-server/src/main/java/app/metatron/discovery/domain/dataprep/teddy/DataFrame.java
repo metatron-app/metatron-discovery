@@ -62,7 +62,6 @@ public class DataFrame implements Serializable, Transformable {
   @JsonIgnore
   protected int newColPos;      // 새로운 컬럼의 위치. derive에서 수식에 유일한 컬럼만 쓰인 경우에 사용됨.
 
-  @JsonIgnore
   public String ruleString;   // debugging purpose
 
   @JsonIgnore
@@ -97,6 +96,14 @@ public class DataFrame implements Serializable, Transformable {
   public DataFrame(String dsName, String ruleString) {
     this(dsName);
     this.ruleString = ruleString;
+  }
+
+  public void setRuleString(String ruleString) {
+    this.ruleString = ruleString;
+  }
+
+  public String getRuleString() {
+    return ruleString;
   }
 
   public static DataFrame getNewDf(Rule rule, String dsName, String ruleString) {
