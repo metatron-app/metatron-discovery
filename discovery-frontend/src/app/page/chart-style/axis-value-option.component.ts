@@ -244,6 +244,10 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     // show일떄
     } else {
       delete this.axisTemp.baseline;
+
+      // hide될때 축교차점값 초기화
+      this.axis.baseline = undefined;
+      this.changeBaseline.emit(this.axis);
     }
   }
 
