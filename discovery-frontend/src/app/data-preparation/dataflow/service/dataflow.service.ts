@@ -242,6 +242,9 @@ export class DataflowService extends AbstractService {
 
   // 룰 적용
   public applyRules(datasetId: string, rule: any): Promise<any> {
+    if( isUndefined(rule['ruleIdx']) ) {
+      rule['ruleIdx'] = -1; // -1 means curIdx
+    }
     let popupService = this.popupService;
     return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform`, rule)
       .catch((error) => {

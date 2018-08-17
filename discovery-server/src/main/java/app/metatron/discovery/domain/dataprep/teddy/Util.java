@@ -14,6 +14,10 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
+import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -23,11 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Util {
+  private  static RuleVisitorParser ruleVisitorParser = null;
+
   // old method. not using except tests
   public static List<String[]> loadGridLocalCsv(String targetUrl, String delimiter, int limitRowCnt) {
 
@@ -236,4 +240,53 @@ public class Util {
     }
     System.out.println("");
   }
+
+  public static String getJsonRuleString(Rule rule) {
+    String jsonRuleString = null;
+
+    try {
+      jsonRuleString = GlobalObjectMapper.getDefaultMapper().writeValueAsString(rule);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
+
+      return jsonRuleString;
+    }
+
+  public static String parseRuleString(String ruleString) {
+    if (ruleString.startsWith(CREATE_RULE_PREFIX)) {
+      return getCreateJsonRuleString(ruleString);
+    }
+
+    if (ruleVisitorParser == null) {
+      ruleVisitorParser = new RuleVisitorParser();
+    }
+    return getJsonRuleString(ruleVisitorParser.parse(ruleString));
+  }
+
+  private static final String CREATE_RULE_PREFIX = "create with: ";
+
+  public static String getCreateRuleString(String dsId) {
+    return CREATE_RULE_PREFIX + dsId;
+  }
+
+  public static String getUpstreamDsId(String ruleString) {
+    return ruleString.substring(CREATE_RULE_PREFIX.length());
+  }
+
+  public static String getCreateJsonRuleString(String ruleString) {
+    Map<String, Object> map = new HashMap();
+    String jsonRuleString = null;
+
+    map.put("name", "create");
+    map.put("with", ruleString.substring(CREATE_RULE_PREFIX.length()));
+    try {
+      jsonRuleString = GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
+
+    return jsonRuleString;
+  }
+
 }

@@ -92,7 +92,7 @@ public class PrepTransformController {
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform", method = RequestMethod.GET, produces = "application/json")
   public @ResponseBody ResponseEntity<?> load(
           @PathVariable("dsId") String wrangledDsId,
-          @RequestParam(value = "ruleIdx", required = false, defaultValue = "-2") String rule_index,
+          @RequestParam(value = "ruleIdx", required = false, defaultValue = "-1") String rule_index,
           @RequestParam(value = "pageNum", required = false, defaultValue = "0") String page_num,
           @RequestParam(value = "count", required = false, defaultValue = "-1") String count
   ) throws IOException {
@@ -109,11 +109,7 @@ public class PrepTransformController {
         toIndex = fromIndex + requestCount;
       }
 
-      if(ruleIdx<-1) {
-        response = transformService.load(wrangledDsId);
-      } else {
-        response = transformService.transform(wrangledDsId, PrepDataset.OP_TYPE.JUMP, ruleIdx, null);
-      }
+      response = transformService.transform(wrangledDsId, PrepDataset.OP_TYPE.FETCH, ruleIdx, null);
       DataFrame gridResponse = response.getGridResponse();
       Integer totalRowCnt = response.getTotalRowCnt();
 
@@ -158,7 +154,11 @@ public class PrepTransformController {
     LOGGER.trace("transform(): start");
 
     try {
-      response = transformService.transform(wrangledDsId, request.getOp(), request.getRuleIdx(), request.getRuleString());
+      // convert UI-side ruleIdx into server-side stageIdx
+      Integer ruleIdx = request.getRuleIdx();
+      int stageIdx = (ruleIdx == null || ruleIdx < 0) ? -1 : ruleIdx;
+
+      response = transformService.transform(wrangledDsId, request.getOp(), stageIdx, request.getRuleString());
     } catch (Exception e) {
       LOGGER.error("transform(): caught an exception: ", e);
       if (System.getProperty("dataprep").equals("disabled")) {
@@ -179,8 +179,10 @@ public class PrepTransformController {
     PrepHistogramResponse response;
     LOGGER.trace("transform_histogram(): start");
 
+    // FIXME: ruleIdx is ignored from now on. request for only current stage is permitted
+
     try {
-      response = transformService.transform_histogram(wrangledDsId, request.getRuleIdx(), request.getColnos(), request.getColWidths());
+      response = transformService.transform_histogram(wrangledDsId, request.getColnos(), request.getColWidths());
     } catch (Exception e) {
       LOGGER.error("transform_histogram(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

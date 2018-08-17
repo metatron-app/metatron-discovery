@@ -95,7 +95,7 @@ public class PrepDataflowController {
                 if (null != datasets) {
                     for (PrepDataset ds : datasets) {
                         String dId = ds.getDsId();
-                        List<String> uIds = this.transformService.getUpstreamDsIds(ds.getDsId(), false);
+                        List<String> uIds = this.transformService.getUpstreamDsIds(ds.getDsId());
                         for(String uDsId : uIds) {
                             PrepUpstream upstream = new PrepUpstream();
                             upstream.setDfId(dataflow.getDfId());
@@ -162,7 +162,7 @@ public class PrepDataflowController {
 
                         if(dataset.getDsTypeForEnum()==PrepDataset.DS_TYPE.WRANGLED) {
                             boolean forUpdateBoolean = forUpdate.equalsIgnoreCase("true") ? true : false;
-                            List<String> upstreamDsIds = this.transformService.getUpstreamDsIds(dataset.getDsId(), forUpdateBoolean);
+                            List<String> upstreamDsIds = this.transformService.getUpstreamDsIds(dataset.getDsId());
                             if(null!=upstreamDsIds) {
                                 for(String upstreamDsId : upstreamDsIds) {
                                     PrepUpstream upstream = new PrepUpstream();
