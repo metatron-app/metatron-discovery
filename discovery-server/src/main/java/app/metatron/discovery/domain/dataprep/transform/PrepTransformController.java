@@ -21,14 +21,14 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import app.metatron.discovery.prep.parser.preparation.PrepRuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Keep;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.spec.SuggestToken;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +57,6 @@ public class PrepTransformController {
     @RequestBody PrepTransformRequest request) throws IOException {
 
     PrepTransformResponse response;
-    List<String> setTypeRules;
     LOGGER.trace("create(): start");
 
     try {
