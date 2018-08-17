@@ -53,6 +53,9 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   @ViewChild(CreateBoardPopRelationComponent)
   private _relationPopComp: CreateBoardPopRelationComponent;
 
+  @ViewChild( 'guideLine' )
+  private _guideLine:ElementRef;
+
   // VIS Data
   private _nodes: any;
   private _edges: any;
@@ -62,6 +65,10 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   private _dataSources: Datasource[] = [];                // 데이터소스 목록
   private _boardDataSources: BoardDataSource[] = [];     // 보드 데이터소스 목록
   private _relations: BoardDataSourceRelation[] = [];    // 연계 정보 목록
+
+  private _isAlreadyViewGuide:boolean = false;
+
+  private _interval:any;    // Guide Timer
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -83,6 +90,8 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   // 선택 정보
   public selectedDataSource: BoardDataSource;           // 선택된 데이터소스
   public selectedRelation: BoardDataSourceRelation;     // 데이터소스 연계 정보
+
+  public isShowMultiDsGuide:boolean = false;             // 가이드 표시 여부
 
   @Input()
   public workspaceId: string;
@@ -231,7 +240,11 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-  }
+    if( this._interval ) {
+      clearInterval(this._interval);
+      this._interval = null;
+    }
+  } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - API
@@ -276,20 +289,65 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   } // function - showPopupAddDataSource
 
   /**
+   * 가이드 표시 On/Off
+   */
+  public toggleGuide(setVisible?:string) {
+    switch( setVisible ) {
+      case 'SHOW' :
+        this.isShowMultiDsGuide = true;
+        break;
+      case 'HIDE' :
+        this.isShowMultiDsGuide = false;
+        break;
+      default :
+        this.isShowMultiDsGuide = !this.isShowMultiDsGuide;
+    }
+
+    if( this.isShowMultiDsGuide ) {
+      localStorage.setItem( 'VIEW_MULTI_DS_GUIDE', 'YES' );
+      this._interval = setInterval( () => {
+        $( this._guideLine.nativeElement ).delay(2000).animate( { paddingLeft:"270" }, 1000 );
+        $( this._guideLine.nativeElement ).delay(2000).animate( { paddingLeft:"0" }, 1000 );
+      }, 2000 );
+    } else {
+      if( this._interval ) {
+        clearInterval(this._interval);
+        this._interval = null;
+      }
+    }
+  } // function - toggleGuide
+
+  /**
    * Relation 변경 모드 활성화
    */
   public onEditRelationMode() {
     this._network.addEdgeMode();
     this.isRelationEditMode = true;
+
+    const isViewGuide:string = localStorage.getItem( 'VIEW_MULTI_DS_GUIDE' );
+    this._isAlreadyViewGuide = ( 'YES' === isViewGuide );
+    ( this._isAlreadyViewGuide  ) || ( this.toggleGuide( 'SHOW' ) );
+
     this._clearSelection();
+    this.safelyDetectChanges();
+
+    // 원래는 calc( 100% - 1px ) 로 적용되어야 하지만.. jquery와 angular 에서 calc를 지원하지 않아..
+    // 아래의 방식으로 처리함
+    $( '.sys-create-board-top-panel' ).css('height', '100%').css('height', '-=1px');
   } // function - onEditRelationMode
 
   /**
-   * Relation 변경 모드 비활성화
+   * Relation 변경 모드 비활성화sys-create-board-top-panel
    */
   public offEditRelationMode() {
     this.isRelationEditMode = false;
     this._network.disableEditMode();
+    this.toggleGuide( 'HIDE' );
+    if( this._interval ) {
+      clearInterval(this._interval);
+      this._interval = null;
+    }
+    this.safelyDetectChanges();
   } // function - offEditRelationMode
 
   /**
