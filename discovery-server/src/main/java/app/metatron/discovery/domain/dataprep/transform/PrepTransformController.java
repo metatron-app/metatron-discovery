@@ -56,7 +56,6 @@ public class PrepTransformController {
     @RequestBody PrepTransformRequest request) throws IOException {
 
     PrepTransformResponse response;
-    List<String> setTypeRules;
     LOGGER.trace("create(): start");
 
     try {

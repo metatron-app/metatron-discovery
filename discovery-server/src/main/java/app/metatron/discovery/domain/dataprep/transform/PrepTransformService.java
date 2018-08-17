@@ -473,7 +473,6 @@ public class PrepTransformService {
       ruleStrings[2] = ruleStrings[2].substring(0, ruleStrings[2].length() - 2) + " type: Double";
       setTypeRules.add(ruleStrings[2]);
     }
-
       return setTypeRules;
   }
 
@@ -582,6 +581,8 @@ public class PrepTransformService {
     return colHists;
   }
 
+  // Although this is not used for now, but it would be better to be used in the initial loading.
+  // FETCH is used for too many purposes.
   // load (and apply transitions if needed) (GET)
 //  @Transactional(rollbackFor = Exception.class)
 //  public PrepTransformResponse load(String dsId) throws Exception {
@@ -620,13 +621,6 @@ public class PrepTransformService {
     if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
       load_internal(dsId);
     }
-
-//    int curStageIdx = teddyImpl.getCurStageIdx(dsId);
-//    if(stageIdx<0) {
-//      stageIdx = curStageIdx;
-//    } else if(stageIdx!=curStageIdx) {
-//      teddyImpl.setStageIdx(dsId, stageIdx);   // set stageIdx of the current revision to the last index.
-//    }
 
     if (stageIdx >= 0) {
       dataset.setRuleCurIdx(stageIdx);
@@ -1143,11 +1137,6 @@ public class PrepTransformService {
     transformRuleRepository.flush();
 
     gridResponse = teddyImpl.delete(dsId);
-
-    // FIXME: sadly, we have changed the meaning of "rule_no" into stageIdx. and for rule_cnt, it's the same.
-//    int newStageCnt = dataset.getRuleCnt() - 1;
-//    int newStageIdx = (newStageCnt == stageIdx) ? stageIdx - 1 : stageIdx;
-//    teddyImpl.setStageIdx(dsId, newStageIdx);
 
     // FIXME: we should not use PrepDataset's rule_no, rule_cnt.
     //        they're confused with stage indice.
@@ -1748,16 +1737,6 @@ public class PrepTransformService {
         LOGGER.error("confirmRuleStringForException(): ruleName is wrong - "+rule.getName());
         throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED, "ruleName is wrong");
       }
-
-      /*
-      ObjectMapper mapper = new ObjectMapper();
-      String json = null;
-      try {
-        json = mapper.writeValueAsString(rule);
-      } catch (JsonProcessingException e) {
-        e.printStackTrace();
-      }
-      */
     } catch (PrepException e) {
       throw e;
     } catch (RuleException e) {
