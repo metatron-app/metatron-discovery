@@ -641,7 +641,10 @@ public class PrepTransformService {
       case REDO:
         response = redo(dsId);
         break;
-      case FETCH:   // used before UPDATE
+      case JUMP:
+        response = jump(dsId);
+        break;
+      case FETCH:
         response = fetch(dsId);
         break;
       case UPDATE:
@@ -1176,6 +1179,13 @@ public class PrepTransformService {
             String.format("ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt());
 
     return response;
+  }
+
+  // Only difference between jump() and fetch() is that jump() changes ruleCurIdx of the entity, and fetch() doesn't.
+  private PrepTransformResponse jump(String dsId) throws PrepException {
+    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    dataset.setRuleCurIdx(teddyImpl.getCurStageIdx(dsId));
+    return fetch(dsId);
   }
 
   private PrepTransformResponse fetch(String dsId) throws PrepException {
