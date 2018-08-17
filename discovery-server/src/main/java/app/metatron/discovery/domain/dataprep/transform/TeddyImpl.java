@@ -171,7 +171,6 @@ public class TeddyImpl {
   public DataFrame loadFileDataset(String dsId, String targetUrl, String delimiter, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
     df.setByGrid(Util.loadGridLocalCsv( targetUrl, delimiter, sampleRows, this.hdfsService.getConf(), null ), null);
-    //df.setByGrid(Util.loadGridLocalCsv(targetUrl, delimiter, sampleRows), null);
 
     List<DataFrame> dfs = new ArrayList<>();
     dfs.add(df);
@@ -222,7 +221,7 @@ public class TeddyImpl {
   public DataFrame loadJdbcDataset(String dsId, DataConnection dataConnection, String dbName, String sql,
                                    String dsName) throws PrepException {
     JdbcDataPrepService jdbcConnectionService = new JdbcDataPrepService();
-    JdbcDataConnection jdbcDataConnection = null;
+    JdbcDataConnection jdbcDataConnection;
     if( dataConnection instanceof JdbcDataConnection ) {
       jdbcDataConnection = (JdbcDataConnection) dataConnection;
     } else {

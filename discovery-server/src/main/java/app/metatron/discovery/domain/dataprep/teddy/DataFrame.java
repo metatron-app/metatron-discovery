@@ -14,11 +14,11 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.*;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Set;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -602,7 +602,6 @@ public class DataFrame implements Serializable, Transformable {
       String colName = ((Identifier.IdentifierExpr) expr).getValue();
       int colno = getColnoByColName(colName);
       resultType = getColType(colno);
-      //newColPos = (newColPos == -1 ? colno + 1 : -2);   // 설정된 적이 없으면 설정. 있으면 유일한 컬럼명은 없는 것으로.
       ruleColumns.add(colName); //ruleString에 등장하는 identifier 들을 리스트업.
     }
     // Constant
@@ -926,7 +925,7 @@ public class DataFrame implements Serializable, Transformable {
               }
               return ((DateTime) obj).toString(format);
             } catch (Exception e) {
-              return ((DateTime) obj).toString();
+              return obj.toString();
             }
           default:
             return obj;
@@ -1936,7 +1935,6 @@ public class DataFrame implements Serializable, Transformable {
 
     if (newColType == ColumnType.ARRAY) {
       List<ColumnDescription> arrColDesc = new ArrayList<>();
-//      newColDesc.arrColDesc =
       for (String targetColName : targetColNames) {
         ColumnDescription colDesc = getColDescByColName(targetColName);
         arrColDesc.add(colDesc);

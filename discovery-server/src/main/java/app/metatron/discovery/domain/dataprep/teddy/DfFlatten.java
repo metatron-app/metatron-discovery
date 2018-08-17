@@ -14,17 +14,15 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayException;
 import app.metatron.discovery.prep.parser.preparation.rule.Flatten;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayException;
 
 public class DfFlatten extends DataFrame {
   private static Logger LOGGER = LoggerFactory.getLogger(DfFlatten.class);

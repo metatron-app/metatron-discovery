@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import com.google.common.collect.Lists;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -23,21 +22,13 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Util {
-
-  private static Logger LOGGER = LoggerFactory.getLogger(Util.class);
-
-  // old method. not using
+  // old method. not using except tests
   public static List<String[]> loadGridLocalCsv(String targetUrl, String delimiter, int limitRowCnt) {
 
     List<String[]> grid = new ArrayList<>();
@@ -200,61 +191,6 @@ public class Util {
   public static Double round(double val) {
     return Double.valueOf(String.format("%.16f", Math.abs(val) < EPSILON ? 0.0 : val));
   }
-
-  // Regards the 1st row as the colnames
-  /*
-  public static List<String[]> loadCsvFileLocal(String dirPath, String delimiter, int targetRowCnt, List<String> colNames) {
-    List<String[]> grid = new ArrayList<>();
-    BufferedReader br = null;
-    String line;
-    String quoteSymbol="\"";
-
-    File dir = new File(dirPath);
-    File[] files = dir.listFiles();
-
-    for (int i = 0 ; i < files.length ; i++){
-      File file = files[i];
-      if (file.isFile() == false) {
-        continue;
-      }
-
-      try {
-        br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-
-        if ((line = br.readLine()) == null) {
-          continue;   // file is empty
-        }
-
-        // get colNames
-        if (colNames.size() == 0) {
-          colNames.addAll(Arrays.asList(csvLineSplitter(line, delimiter, quoteSymbol)));
-        }
-
-        // get rows
-        while ((line = br.readLine()) != null) {
-          String[] strCols = csvLineSplitter(line, delimiter, quoteSymbol);
-          grid.add(strCols);
-          if (grid.size() == targetRowCnt) {
-            break;
-          }
-        }
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
-        e.printStackTrace();
-      } finally {
-        if (br != null) {
-          try {
-            br.close();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
-      }
-    }
-    return grid;
-  }
-  */
 
   static void showSep(List<Integer> widths) {
     System.out.print("+");

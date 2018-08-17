@@ -14,23 +14,21 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnStringException;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Split;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnStringException;
 
 public class DfSplit extends DataFrame {
   private static Logger LOGGER = LoggerFactory.getLogger(DfSplit.class);

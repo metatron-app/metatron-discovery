@@ -14,14 +14,13 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnknownTypeException;
 import org.joda.time.DateTime;
 
 import java.math.BigInteger;
 import java.sql.Types;
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnknownTypeException;
 
 public enum ColumnType {
   STRING,

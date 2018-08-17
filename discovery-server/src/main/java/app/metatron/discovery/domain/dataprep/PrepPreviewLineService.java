@@ -14,31 +14,23 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.io.File;
-
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
 
 @Service
 public class PrepPreviewLineService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepPreviewLineService.class);
 
-//    @Value("${polaris.dataprep.localBaseDir:#{NULL}}")
-//    private String localBaseDir;
-
     @Autowired(required = false)
     PrepProperties prepProperties;
-
-//    private String fileDatasetUploadLocalPath;
 
     @Autowired
     PrepDatasetRepository datasetRepository;
@@ -51,20 +43,6 @@ public class PrepPreviewLineService {
 
     private String getPreviewPath() {
         String tempDirPath = prepProperties.getLocalBaseDir();
-//        if(null==fileDatasetUploadLocalPath) {
-//            if(null!=localBaseDir) {
-//                fileDatasetUploadLocalPath = localBaseDir;
-//            } else {
-//                fileDatasetUploadLocalPath = System.getProperty("user.home");
-//                if (true == fileDatasetUploadLocalPath.endsWith(File.separator)) {
-//                    fileDatasetUploadLocalPath = fileDatasetUploadLocalPath + "dataprep";
-//                } else {
-//                    fileDatasetUploadLocalPath = fileDatasetUploadLocalPath + File.separator + "dataprep";
-//                }
-//            }
-//        }
-//        tempDirPath = fileDatasetUploadLocalPath;
-
 
         if(true==tempDirPath.endsWith(File.separator)) {
             tempDirPath += "previews";
@@ -131,6 +109,5 @@ public class PrepPreviewLineService {
         LOGGER.trace("putPreviewLines(): end");
         return size;
     }
-
 }
 
