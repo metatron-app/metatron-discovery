@@ -97,18 +97,18 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
     // 컬럼
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
+      return undefined;
     }
 
     // 패턴
     if (isUndefined(this.pattern) || '' === this.pattern || this.pattern === '//' || this.pattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
-      return;
+      return undefined;
     }
     const patternResult:[boolean, string] = StringUtil.checkSingleQuote(this.pattern, { isWrapQuote: !StringUtil.checkRegExp(this.pattern) });
     if (!patternResult[0]) {
       Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
-      return;
+      return undefined;
     }
     this.pattern = patternResult[1];
 
@@ -120,7 +120,7 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
       const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
       if (checkIgnore[0] === false) {
         Alert.warning('Check value of ignore between characters');
-        return
+        return undefined;
       } else {
         ruleString += ' quote: ' + checkIgnore[1];
       }

@@ -21,11 +21,10 @@ import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 
 @Component({
-  selector : 'edit-rule-extract',
-  templateUrl : './edit-rule-extract.component.html'
+  selector : 'edit-rule-flatten',
+  templateUrl : './edit-rule-flatten.component.html'
 })
-export class EditRuleExtractComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
-
+export class EditRuleFlattenComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -42,12 +41,6 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
   // 상태 저장용 T/F
   public isFocus:boolean = false;         // Input Focus 여부
   public isTooltipShow:boolean = false;   // Tooltip Show/Hide
-
-  // Rule 에 대한 입력 값들
-  public pattern:string = '';
-  public limit:number;
-  public ignore:string = '';
-  public isIgnoreCase:boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -95,46 +88,19 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    // 컬럼
+    const invalidResult = { command: 'merge', ruleString: undefined };
+
+    // 선택된 컬럼
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return undefined;
+      return invalidResult
     }
 
-    // 패턴
-    if (isUndefined(this.pattern) || '' === this.pattern || this.pattern === '//' || this.pattern === '\'\'') {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
-      return undefined;
-    }
-    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(this.pattern, { isWrapQuote: !StringUtil.checkRegExp(this.pattern) });
-    if (!patternResult[0]) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
-      return undefined;
-    }
-    this.pattern = patternResult[1];
 
-    // 횟수
-    if (isUndefined(this.limit) ) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.times'));
-      return undefined;
-    }
-
-    let ruleString = 'extract col: ' + this.selectedFields.map( item => item.name ).join(', ')
-      + ' on: ' + this.pattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
-
-    // 다음 문자 사이 무시
-    if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
-      const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
-      if (checkIgnore[0] === false) {
-        Alert.warning('Check value of ignore between characters');
-        return undefined;
-      } else {
-        ruleString += ' quote: ' + checkIgnore[1];
-      }
-    }
+    let ruleString = 'flatten col: ' + this.selectedFields.map( item => item.name ).join(', ');
 
     return {
-      command : 'extract',
+      command : 'merge',
       ruleString: ruleString
     };
 
@@ -148,6 +114,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+    console.info( '>>>> changeFields', data.selectedList );
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
@@ -168,7 +135,8 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - _beforeShowComp
+  protected beforeShowComp() {
+  } // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
@@ -189,14 +157,6 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
       const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
-
-    this.limit = Number(this.getAttrValueInRuleString( 'limit', ruleString ));
-
-    this.pattern = this.getAttrValueInRuleString( 'on', ruleString );
-
-    this.isIgnoreCase = Boolean( this.getAttrValueInRuleString( 'ignoreCase', ruleString ) );
-
-    this.ignore = this.getAttrValueInRuleString( 'quote', ruleString );
 
   } // function - _parsingRuleString
 

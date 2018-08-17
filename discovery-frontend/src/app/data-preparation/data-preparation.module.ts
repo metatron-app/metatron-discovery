@@ -48,7 +48,6 @@ import { DatasetDetailComponent } from './dataset/detail-dataset/dataset-detail.
 import { DatasetInfoPopupComponent } from './dataflow/dataflow-detail/component/dataset-info-popup/dataset-info-popup.component';
 import { CreateDatasetNameComponent } from './dataset/create-dataset/create-dataset-name.component';
 import { RuleListComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-list.component';
-import { RuleEditComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-edit.component';
 import { MulticolumnRenameComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/multicolumn-rename.component';
 import { RuleContextMenuComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-context-menu.component';
 import { ExtendInputFormulaComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/extend-input-formula.component';
@@ -79,6 +78,9 @@ import { EditRuleUnpivotComponent } from './dataflow/dataflow-detail/component/e
 import { EditRuleCountpatternComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-countpattern.component';
 import { EditRuleExtractComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-extract.component';
 import { EditRuleSplitComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-split.component';
+import { EditRuleFlattenComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-flatten.component';
+import { EditRuleSetformatComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-setformat.component';
+import { EditRuleUnnestComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-unnest.component';
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -124,7 +126,6 @@ const dataPreparationRoutes: Routes = [
     DatasetInfoPopupComponent,
     CreateDatasetNameComponent,
     RuleListComponent,
-    RuleEditComponent,
     MulticolumnRenameComponent,
     RuleContextMenuComponent,
     ExtendInputFormulaComponent,
@@ -148,6 +149,9 @@ const dataPreparationRoutes: Routes = [
     EditRuleSplitComponent,
     EditRuleExtractComponent,
     EditRuleCountpatternComponent,
+    EditRuleFlattenComponent,
+    EditRuleSetformatComponent,
+    EditRuleUnnestComponent,
     RuleSnapshotListComponent,
     AddDatasetComponent,
     CreateDataflowNameDescComponent,

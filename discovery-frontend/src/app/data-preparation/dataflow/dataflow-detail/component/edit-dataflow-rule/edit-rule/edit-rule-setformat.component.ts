@@ -16,16 +16,14 @@ import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
+import { DataflowService } from '../../../../service/dataflow.service';
 
 @Component({
-  selector : 'edit-rule-extract',
-  templateUrl : './edit-rule-extract.component.html'
+  selector : 'edit-rule-setformat',
+  templateUrl : './edit-rule-setformat.component.html'
 })
-export class EditRuleExtractComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
-
+export class EditRuleSetformatComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -38,17 +36,17 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
+  public timestampFormats : any = [] ;
+  public dsId : string;
 
   // 상태 저장용 T/F
   public isFocus:boolean = false;         // Input Focus 여부
   public isTooltipShow:boolean = false;   // Tooltip Show/Hide
 
-  // Rule 에 대한 입력 값들
-  public pattern:string = '';
-  public limit:number;
-  public ignore:string = '';
-  public isIgnoreCase:boolean = false;
+  public selectedTimestamp : string = '';
+  public customTimestamp: string; // custom format
 
+  public defaultIndex : number = -1;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -56,7 +54,8 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
   // 생성자
   constructor(protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              protected dataflowService: DataflowService) {
     super(elementRef, injector);
   }
 
@@ -88,6 +87,45 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public selectItem(data) {
+    this.selectedTimestamp = data.value;
+  }
+
+  public getTimestampFormats() {
+    let cols = this.selectedFields.map((item) => {
+      return item.name
+    });
+
+    this.dataflowService.getTimestampFormatSuggestions(this.dsId, {colNames : cols} ).then((result) => {
+      let keyList = [];
+      for (let key in result) {
+        if (result.hasOwnProperty(key)) {
+          keyList.push(key);
+        }
+      }
+      this.timestampFormats = [];
+      for (let i in result[keyList[0]]) {
+        if (result[keyList[0]].hasOwnProperty(i)) {
+          this.timestampFormats.push({ value: i, isHover: false, matchValue: result[keyList[0]][i] })
+        }
+      }
+      this.timestampFormats.push({ value: 'Custom format', isHover: false, matchValue : -1 });
+
+      if (cols.length > 0 ) {
+        let max = this.timestampFormats.reduce((max, b) => Math.max(max, b.matchValue), this.timestampFormats[0].matchValue);
+        let idx = this.timestampFormats.map((item) => {
+          return item.matchValue
+        }).findIndex((data) => {
+          return data === max
+        });
+        this.defaultIndex = idx;
+        this.selectedTimestamp = this.timestampFormats[idx].value;
+      } else {
+        this.defaultIndex = -1;
+        this.selectedTimestamp = '';
+      }
+    });
+  }
 
   /**
    * Rule 형식 정의 및 반환
@@ -95,46 +133,22 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    // 컬럼
+    // 선택된 컬럼
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return undefined;
+      return undefined
     }
 
-    // 패턴
-    if (isUndefined(this.pattern) || '' === this.pattern || this.pattern === '//' || this.pattern === '\'\'') {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
-      return undefined;
-    }
-    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(this.pattern, { isWrapQuote: !StringUtil.checkRegExp(this.pattern) });
-    if (!patternResult[0]) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
-      return undefined;
-    }
-    this.pattern = patternResult[1];
-
-    // 횟수
-    if (isUndefined(this.limit) ) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.times'));
-      return undefined;
+    if ('Custom format' === this.selectedTimestamp && '' === this.customTimestamp || '' === this.selectedTimestamp) {
+      Alert.warning('Timestamp format must not be null');
+      return undefined
     }
 
-    let ruleString = 'extract col: ' + this.selectedFields.map( item => item.name ).join(', ')
-      + ' on: ' + this.pattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
-
-    // 다음 문자 사이 무시
-    if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
-      const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
-      if (checkIgnore[0] === false) {
-        Alert.warning('Check value of ignore between characters');
-        return undefined;
-      } else {
-        ruleString += ' quote: ' + checkIgnore[1];
-      }
-    }
+    let ruleString = 'setformat col: ' + this.selectedFields.map( item => item.name ).join(', ') + ' format: ';
+    'Custom format' === this.selectedTimestamp ? ruleString += this.customTimestamp : ruleString += this.selectedTimestamp;
 
     return {
-      command : 'extract',
+      command : 'setformat',
       ruleString: ruleString
     };
 
@@ -149,6 +163,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
     this.selectedFields = data.selectedList;
+    this.getTimestampFormats();
   } // function - changeFields
 
   /**
@@ -168,7 +183,9 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - _beforeShowComp
+  protected beforeShowComp() {
+    this.getTimestampFormats();
+  } // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
@@ -190,13 +207,19 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    this.limit = Number(this.getAttrValueInRuleString( 'limit', ruleString ));
+    this.dsId = this.getAttrValueInRuleString( 'dsId', ruleString );
 
-    this.pattern = this.getAttrValueInRuleString( 'on', ruleString );
+    let items = this.timestampFormats.map((item) => {
+      return item.value;
+    });
 
-    this.isIgnoreCase = Boolean( this.getAttrValueInRuleString( 'ignoreCase', ruleString ) );
-
-    this.ignore = this.getAttrValueInRuleString( 'quote', ruleString );
+    const format:string = this.getAttrValueInRuleString( 'format', ruleString );
+    if (items.indexOf(format) === -1) {
+      this.selectedTimestamp = 'Custom format';
+      this.customTimestamp = format;
+    } else {
+      this.selectedTimestamp = format;
+    }
 
   } // function - _parsingRuleString
 

@@ -163,9 +163,9 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
 
     this.selectedType = this.getAttrValueInRuleString( 'into', ruleString );
     if (this.selectedType.toUpperCase() === 'ARRAY') {
-      this.defaultIndex = 0;
-    } else {
       this.defaultIndex = 1;
+    } else {
+      this.defaultIndex = 0;
     }
     this.inputValue = this.getAttrValueInRuleString( 'as', ruleString );
   } // function - _parsingRuleString

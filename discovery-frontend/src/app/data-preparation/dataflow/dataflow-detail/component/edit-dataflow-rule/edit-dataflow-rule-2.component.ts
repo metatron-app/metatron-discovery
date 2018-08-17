@@ -348,12 +348,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.initViewPage();
 
-    const snapshotPopupSubscription = this.popupService.view$.subscribe((data: SubscribeArg) => {
-      this.step = data.name;
-    });
-
-    this.subscriptions.push(snapshotPopupSubscription);
-
     this.initSnapshotList(this.selectedDataSet.dsId);
 
     this.getTimestampFormatsFromServer(this.selectedColumns, true);
@@ -629,6 +623,34 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }
 
     switch (this.ruleVO.command) {
+      case 'setformat':
+        let setformatList = this.selectedDataSet.gridData.fields.filter((item) => {
+          return item.type === 'TIMESTAMP'
+        });
+        let selectedsetformatList = selectedFields.filter((item) => {
+          return item.type === 'TIMESTAMP'
+        });
+        this._editRuleComp.init(setformatList, selectedsetformatList, `dsId: ${this.selectedDataSet.dsId}`);
+        break;
+      case 'flatten' :
+        let flattenList = this.selectedDataSet.gridData.fields.filter((item) => {
+          return item.type === 'ARRAY'
+        });
+
+        let selectedFlattenList = selectedFields.filter((item) => {
+          return item.type === 'ARRAY'
+        });
+        this._editRuleComp.init(flattenList, selectedFlattenList);
+        break;
+      case 'unnest':
+        let unnestList = this.selectedDataSet.gridData.fields.filter((item) => {
+            return item.type === 'ARRAY' || item.type === 'MAP'
+        });
+        let selectedUnnestList = selectedFields.filter((item) => {
+          return item.type === 'ARRAY' || item.type === 'MAP'
+        });
+        this._editRuleComp.init(unnestList, selectedUnnestList);
+        break;
       case 'join':
         this.rightDataset = new Dataset();
         this.rightDataset.dsId = '';
@@ -637,24 +659,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       case 'union':
         this.editJoinOrUnionRuleStr = '';
         this.isRuleUnionModalShow = true;
-        break;
-      case 'unnest':
-        this.selectedDataSet.gridData.fields.filter((item) => {
-          if (item.name === this.ruleVO.col) {
-            if (item.type !== 'ARRAY' && item.type !== 'MAP') {
-              this.ruleVO.col = '';
-            }
-          }
-        });
-        break;
-      case 'flatten':
-        this.selectedDataSet.gridData.fields.filter((item) => {
-          if (item.name === this.ruleVO.col) {
-            if (item.type !== 'ARRAY') {
-              this.ruleVO.col = '';
-            }
-          }
-        });
         break;
       case 'unpivot':
       case 'nest':
@@ -665,12 +669,16 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       case 'replace':
       case 'merge':
       case 'move':
+      case 'split':
+      case 'extract':
+      case 'countpattern':
         this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields );
         break;
       case 'derive':
       case 'keep':
       case 'delete':
       case 'set':
+      case 'aggregate':
         this._editRuleComp.setRuleVO(this.ruleVO);
         this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields );
         break;
@@ -682,27 +690,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           }).catch((error) => {
           console.info(error);
         });
-        break;
-      case 'setformat':
-
-        let types = [];
-        this.ruleVO.cols = [];
-
-        if (this.selectedColumns.length > 0) {
-          this.selectedColumns.forEach((item) => {
-            if ('TIMESTAMP' === this.selectedDataSet.gridResponse.colDescs[this._findIndexWithNameInGridResponse(item)].type) {
-              types.push(this._findTimestampStyleWithIdxInColDescs(this._findIndexWithNameInGridResponse(item)));
-              this.ruleVO.cols.push(item);
-            }
-          });
-
-          const allEqual = arr => arr.every(v => v === arr[0]);
-          if (types.length > 0 && allEqual(types)) {
-            this.ruleVO.timestamp = types[0];
-          } else {
-            this.ruleVO.timestamp = '';
-          }
-        }
         break;
     }
     this.initSelectedCommand(this.filteredCommandList);
@@ -1186,6 +1173,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'nest':
         case 'unpivot':
         case 'move':
+        case 'flatten':
+        case 'unnest':
+        case 'split' :
+        case 'extract' :
+        case 'countpattern' :
+        case 'setformat' :
           rule = this._editRuleComp.getRuleData();
           if (isUndefined(rule)) {
             return;
@@ -1194,30 +1187,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'settype' :
           rule = this.setSettypeRule();
           break;
-        case 'countpattern' :
-          rule = this.setCountpatternRule();
-          break;
-        case 'split' :
-        case 'extract' :
-          rule = this.setExtractRule();
-          break;
-        case 'flatten' :
-          rule = this.setFlattenRule();
-          break;
         case 'aggregate' :
           rule = this.setAggregateRule();
           break;
-        case 'splitrows' :
-          rule = this.setSplitRowsRule();
-          break;
         case 'pivot' :
           rule = this.setPivotRule();
-          break;
-        case 'unnest' :
-          rule = this.setUnnestRule();
-          break;
-        case 'setformat' :
-          rule = this.setSetformatRule();
           break;
         default :
           break;
@@ -1299,6 +1273,24 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.safelyDetectChanges();
 
       switch (this.ruleVO.command) {
+        case 'setformat':
+          let setformatList = gridData.fields.filter((item) => {
+            return item.type === 'TIMESTAMP'
+          });
+          this._editRuleComp.init(setformatList, [], `${rule.ruleString} dsId: ${this.selectedDataSet.dsId}`);
+          break;
+        case 'flatten' :
+          let flattenList = gridData.fields.filter((item) => {
+            return item.type === 'ARRAY'
+          });
+          this._editRuleComp.init(flattenList, [], rule.ruleString);
+          break;
+        case 'unnest' :
+          let unnest = gridData.fields.filter((item) => {
+            return item.type === 'ARRAY' || item.type === 'MAP'
+          });
+          this._editRuleComp.init(unnest, [], rule.ruleString);
+          break;
         case 'rename':
           if (this.ruleVO.col['value'] && 'string' === typeof this.ruleVO.col['value']) {
             this._editRuleComp.init(gridData.fields, [], rule.ruleString);
@@ -1345,6 +1337,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'nest':
         case 'unpivot':
         case 'move':
+        case 'split' :
+        case 'extract' :
+        case 'countpattern' :
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           break;
         case 'settype':
@@ -1355,26 +1350,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._setSelectionFields(this.selectedDataSet.gridData.fields, this.ruleVO.cols);
           this.setSettypEditInfo(rule);
           break;
-        case 'setformat' :
-          this.setSetFormatEditInfo(rule);
-          break;
-        case 'countpattern' :
-          if (isNullOrUndefined(this.ruleVO.cols)) {
-            const colVal = this.ruleVO['col']['value'];
-            this.ruleVO.cols = (colVal instanceof Array) ? colVal : [colVal];
-          }
-          this._setSelectionFields(this.selectedDataSet.gridData.fields, this.ruleVO.cols);
-          this.setCountpatternEditInfo(rule);
-          break;
         case 'aggregate' :
           this.setAggregateEditInfo(rule);
-          break;
-        case 'unnest' :
-          this.setUnnestEditInfo();
-          break;
-        case 'split' :
-        case 'extract' :
-          this.setExtractEditInfo(rule);
           break;
         case 'pivot' :
           if (isNullOrUndefined(this.ruleVO.cols)) {
@@ -1383,9 +1360,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           }
           this._setSelectionFields(this.selectedDataSet.gridData.fields, this.ruleVO.cols);
           this.setPivotEditInfo(rule);
-          break;
-        case 'flatten' :
-          this.editColumnList = [this.ruleVO.col];
           break;
         case 'union' :
           if (this.selectedDataSet.gridData.data.length > 1) {
@@ -2441,14 +2415,37 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     if (data.more) {
       this.ruleVO.command = data.more.command;
-      const $tab2 = $('[tabIndex=2]');
-      const $tab3 = $('[tabIndex=3]');
       this.safelyDetectChanges();
       switch (data.more.command) {
         case 'nest':
         case 'merge':
         case 'replace':
+        case 'countpattern':
+        case 'split':
+        case 'extract':
+        case 'rename':
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ));
+          break;
+        case 'unnest':
+          let unnestList = this.selectedDataSet.gridData.fields.filter((item) => {
+            return item.type === 'ARRAY' || item.type === 'MAP'
+          });
+          let selectedUnnestList =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ).filter((item) => {
+            return item.type === 'ARRAY' || item.type === 'MAP'
+          });
+          this._editRuleComp.init(unnestList, selectedUnnestList);
+          break;
+        case 'setformat':
+          let setformatList = this.selectedDataSet.gridData.fields.filter((item) => {
+            return item.type === 'TIMESTAMP'
+          });
+          let setformatSel =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ).filter((item) => {
+            return item.type === 'TIMESTAMP'
+          });
+          this._editRuleComp.init(setformatList, setformatSel, `dsId : ${this.selectedDataSet.dsId}`);
+          break;
+        case 'move':
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ), data.more.move);
           break;
         case 'set':
           this.ruleVO.cols = data.more.col;
@@ -2483,22 +2480,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
               this.ruleVO.timestamp = this._findTimestampStyleWithIdxInColDescs(index);
             }
           }
-          break;
-        case 'setformat':
-          this.ruleVO.col = data.more.col;
-          // this._editRuleGridComp.selectColumn(this.ruleVO.col, true);
-          break;
-        case 'move':
-          this.ruleVO.col = data.more.col;
-          this.ruleVO.beforeOrAfter = data.more.move;
-          break;
-        case 'extract':
-        case 'split':
-        case 'countpattern':
-        case 'rename':
-        case 'unnest':
-          this.ruleVO.col = data.more.col;
-          setTimeout(() => $tab3.trigger('focus'));
           break;
       }
     } else {
@@ -2817,8 +2798,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         isHover: false
       },
       { command: 'setformat', alias: 'Sf', desc: 'set timestamp type .... ', isHover: false }
-
-
     ];
 
     this.typeList = [
@@ -2854,6 +2833,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     // pivot formula input box 하나부터 시작
     this.pivotFormulaList.push('');
+
+  }
+
+  // noinspection JSMethodCanBeStatic
+  private _validateSingleQuoteForPattern(on) {
+    let pattern = StringUtil.checkSingleQuote(on, { isWrapQuote: !StringUtil.checkRegExp(on) });
+    if (pattern[0] === false) {
+      return;
+    } else {
+      return pattern[1]
+    }
 
   }
 
@@ -2987,44 +2977,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   | Set return value for each rule .. 22 rules..
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private setRenameRule(): any {
-
-    if (isUndefined(this.ruleVO['col']) || '' === this.ruleVO['col']) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
-    }
-    if (isUndefined(this.ruleVO['to']) || '' === this.ruleVO['to']) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
-      return;
-    }
-
-    if (this.selectedDataSet.gridResponse.colNames.indexOf(this.ruleVO.to) > -1 && this.selectedDataSet.gridResponse.colNames.indexOf(this.ruleVO.to) !== this.selectedDataSet.gridResponse.colNames.indexOf(this.ruleVO.col)) {
-      Alert.warning('Column name already in use.');
-      return;
-    }
-
-    let check = StringUtil.checkSingleQuote(this.ruleVO.to, { isAllowBlank: false, isWrapQuote: true });
-    if (check[0] === false) {
-      Alert.warning('Special characters are not allowed');
-      return;
-    } else {
-      const renameReg = /^[a-zA-Z][a-zA-Z0-9_]*$/;
-      if (!renameReg.test(check[1])) {
-        if (check[1].indexOf(' ') > -1) {
-          check[1] = check[1].replace(' ', '_');
-        }
-      }
-      this.ruleVO.to = check[1];
-    }
-
-    return {
-      command: this.ruleVO['command'],
-      to: this.ruleVO['to'],
-      col: this.ruleVO['col'],
-      ruleString: PreparationCommonUtil.makeRuleResult(this.ruleVO)
-    }
-  }
-
   private setSetformatRule() {
     // 컬럼
     if (this.ruleVO.cols.length === 0) {
@@ -3106,122 +3058,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       return true;
     }
   } // - _surroundQuoteOnTimestamp
-
-
-  private setCountpatternRule(): any {
-
-    // 컬럼
-    if (this.ruleVO.cols.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
-    }
-    this.ruleVO.col = this.ruleVO.cols.join(', ');
-
-    // 패턴
-    if (isUndefined(this.ruleVO.on) || '' === this.ruleVO.on) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
-      return;
-    }
-
-    if (this.ruleVO.on === '//' || this.ruleVO.on === '\'\'') {
-      Alert.warning('The pattern should not be empty');
-      return;
-    }
-
-    if (isUndefined(this.validateSingleQuoteForPattern(this.ruleVO.on))) {
-      Alert.warning('Illegal pattern');
-      return;
-    } else {
-      this.ruleVO.on = this.validateSingleQuoteForPattern(this.ruleVO.on);
-    }
-
-    // 다음 문자 사이 무시
-    if (this.ruleVO.quote && '' !== this.ruleVO.quote.trim() && '\'\'' !== this.ruleVO.quote.trim()) {
-      const quote = StringUtil.checkSingleQuote(this.ruleVO.quote.trim(), { isWrapQuote: true });
-      if (quote[0] === false) {
-        Alert.warning('Check value of ignore between characters');
-        return;
-      } else {
-        this.ruleVO.quote = quote[1];
-      }
-    }
-    return { ruleString: PreparationCommonUtil.makeRuleResult(this.ruleVO) };
-  }
-
-  // noinspection JSMethodCanBeStatic
-  private validateSingleQuoteForPattern(on) {
-    let pattern = StringUtil.checkSingleQuote(on, { isWrapQuote: !StringUtil.checkRegExp(on) });
-    if (pattern[0] === false) {
-      return;
-    } else {
-      return pattern[1]
-    }
-
-  }
-
-  private setExtractRule(): any {
-
-    // 컬럼
-    if (isUndefined(this.ruleVO['col']) || '' === this.ruleVO['col']) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
-    }
-
-    // 패턴
-    if (isUndefined(this.ruleVO['on']) || '' === this.ruleVO['on']) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
-      return;
-    }
-
-    if (this.ruleVO.on === '//' || this.ruleVO.on === '\'\'') {
-      Alert.warning('The pattern should not be empty');
-      return;
-    }
-
-    if (isUndefined(this.validateSingleQuoteForPattern(this.ruleVO.on))) {
-      Alert.warning('Illegal pattern');
-      return;
-    } else {
-      this.ruleVO.on = this.validateSingleQuoteForPattern(this.ruleVO.on);
-    }
-
-    // 횟수
-    if (isUndefined(this.ruleVO['limit']) || '' === this.ruleVO['limit']) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.times'));
-      return;
-    }
-    // 다음 문자 사이 무시
-    if (this.ruleVO.quote && '' !== this.ruleVO.quote.trim() && '\'\'' !== this.ruleVO.quote.trim()) {
-      const quote = StringUtil.checkSingleQuote(this.ruleVO.quote.trim(), { isWrapQuote: true });
-      if (quote[0] === false) {
-        Alert.warning('Check value of ignore between characters');
-        return;
-      } else {
-        this.ruleVO.quote = quote[1];
-      }
-    }
-
-    return { ruleString: PreparationCommonUtil.makeRuleResult(this.ruleVO) };
-
-  }
-
-  private setFlattenRule(): any {
-    if (this.filteredUnnestList.length === 0) {
-      Alert.warning('Rule flatten cannot be applies as there is no array type column.');
-      return;
-    }
-
-    if (isUndefined(this.ruleVO['col']) || '' === this.ruleVO['col']) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
-    }
-
-    return {
-      command: this.ruleVO['command'],
-      col: this.ruleVO['col'],
-      ruleString: PreparationCommonUtil.makeRuleResult(this.ruleVO)
-    };
-  }
 
   private setPivotRule(): any {
 
@@ -3306,83 +3142,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     };
   } // function - setAggregateRule
 
-  private setUnnestRule(): any {
-
-    if (this.filteredUnnestList.length === 0) {
-      Alert.warning('Rule unnest cannot be applies as there is no array or map type column.');
-      return;
-    }
-
-    if (isUndefined(this.ruleVO['col']) || '' === this.ruleVO['col']) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
-    }
-
-    this.selectedDataSet.gridData.fields.forEach((item) => {
-      if (item.name === this.ruleVO['col']) {
-        this.ruleVO['into'] = item['type'].toLowerCase();
-      }
-    });
-
-    if (isUndefined(this.ruleVO['idx']) || '' === this.ruleVO['idx']) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.unnest.warn'));
-      return;
-    }
-    // this.ruleVO['idx'] = '\'' + this.ruleVO['idx'] + '\'';
-    let check = StringUtil.checkSingleQuote(this.ruleVO.idx, { isWrapQuote: true });
-    if (check[0] === false) {
-      Alert.warning(this.translateService.instant('Check element value'));
-      return;
-    } else {
-      this.ruleVO.idx = check[1];
-    }
-
-
-    return {
-      command: this.ruleVO['command'],
-      col: this.ruleVO['col'],
-      into: this.ruleVO['into'],
-      idx: this.ruleVO['idx'],
-      ruleString: PreparationCommonUtil.makeRuleResult(this.ruleVO)
-    };
-
-  }
-
-  private setSplitRowsRule(): any {
-    if (isUndefined(this.ruleVO['col']) || '' === this.ruleVO['col']) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
-    }
-    if (isUndefined(this.ruleVO['on']) || '' === this.ruleVO['on']) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
-      return;
-    }
-
-    if (this.ruleVO.patternType === 'string') {
-      this.ruleVO['on'] = '\'' + this.ruleVO['on'] + '\'';
-    } else {
-      this.ruleVO['on'] = '/' + this.ruleVO['on'] + '/';
-    }
-
-    let rule = {
-      command: this.ruleVO['command'],
-      on: this.ruleVO['on'],
-      ruleString: PreparationCommonUtil.makeRuleResult(this.ruleVO)
-    };
-
-    if (this.ruleVO.hasOwnProperty('quoteType') && this.ruleVO['quoteType'].toLowerCase() !== 'none') {
-      if (this.ruleVO['quoteType'].toLowerCase() === 'single') {
-        this.ruleVO.quote = '';
-      } else {
-        this.ruleVO.quote = '\"';
-      }
-      rule['quote'] = this.ruleVO['quote'];
-    }
-
-    return rule;
-
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Set edit info for each rule .. 20 rules..
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -3427,33 +3186,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   }
 
-  private setCountpatternEditInfo(rule) {
-
-    let jsonRuleString = JSON.parse(rule.jsonRuleString);
-    if (jsonRuleString['on']['value'].startsWith('/') && jsonRuleString['on']['value'].endsWith('/')) {
-      this.ruleVO.on = jsonRuleString['on']['value'];
-    } else {
-      this.ruleVO.on = jsonRuleString['on']['escapedValue']
-    }
-    this.ruleVO.quote = jsonRuleString['quote'] ? jsonRuleString['quote']['escapedValue'] : null;
-    this.getEditColumnList(rule['jsonRuleString'], 'col');
-
-  }
-
-  private setExtractEditInfo(rule) {
-
-    let jsonRuleString = JSON.parse(rule.jsonRuleString);
-    if (jsonRuleString['on']['value'].startsWith('/') && jsonRuleString['on']['value'].endsWith('/')) {
-      this.ruleVO.on = jsonRuleString['on']['value'];
-    } else {
-      this.ruleVO.on = jsonRuleString['on']['escapedValue']
-    }
-    this.ruleVO.quote = jsonRuleString['quote'] ? jsonRuleString['quote']['escapedValue'] : null;
-    this.editColumnList = [this.ruleVO.col];
-
-  }
-
-
   private setAggregateEditInfo(rule) {
 
     let aggregaterulestring = JSON.parse(rule['jsonRuleString']);
@@ -3479,14 +3211,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.getEditColumnList(rule['jsonRuleString'], 'group');
     }
 
-  }
-
-  private setUnnestEditInfo() {
-    if (this.ruleVO['idx']['value'].startsWith('\'') && this.ruleVO['idx']['value'].endsWith('\'')) {
-      this.ruleVO['idx'] = this.ruleVO['idx']['value'].substring(1, this.ruleVO['idx']['value'].length - 1);
-    } else {
-      this.ruleVO['idx'] = this.ruleVO['idx']['value']
-    }
   }
 
   private setPivotEditInfo(rule) {
