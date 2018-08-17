@@ -276,10 +276,10 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     } else {
       // Inclusion 필터
       const preFilterData = {
-        contains: this.wildCardTypeList[0],
-        aggregation: this.aggregationTypeList[0],
-        inequality: this.conditionTypeList[0],
-        position: this.limitTypeList[0]
+        contains: this.wildCardTypeList[0].value,
+        aggregation: this.aggregationTypeList[0].value,
+        inequality: this.conditionTypeList[0].value,
+        position: this.limitTypeList[0].value
       };
       const inclusionFilter = FilterUtil.getBasicInclusionFilter(<Field>field, null, preFilterData);
       if (field.type === 'user_expr') {
