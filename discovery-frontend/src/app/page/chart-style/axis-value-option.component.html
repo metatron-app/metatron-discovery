@@ -66,7 +66,6 @@
         <div class="ddp-col-7">
           <input [(ngModel)]="axisTemp.grid.max" (keyup.enter)="changeMax()" type="text" class="ddp-input-typebasic"
                  [disabled]="axis?.grid?.autoScaled"
-                 [class.ddp-error]="isOverMax()"
                  [attr.placeholder]="AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].max">
         </div>
       </div>
@@ -78,13 +77,14 @@
           <!-- error 일때 ddp-error 추가 -->
           <input [(ngModel)]="axisTemp.grid.min" (keyup.enter)="changeMin()" type="text" class="ddp-input-typebasic"
                  [disabled]="axis?.grid?.autoScaled"
-                 [class.ddp-error]="isOverMin()"
                  [attr.placeholder]="AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].min">
         </div>
       </div>
+      <!--
       <div class="ddp-divide2" *ngIf="isOverMinMax()">
         <span class="ddp-txt-error ddp-size"><em class="ddp-icon-error"></em>{{'msg.page.yaxis.grid.alert' | translate}}</span>
       </div>
+      -->
     </ng-container>
     <div class="ddp-divide2">
       <label (click)="$event.preventDefault(); changeAutoScale();" class="ddp-label-checkbox ddp-position">
