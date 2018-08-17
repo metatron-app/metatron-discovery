@@ -16,11 +16,9 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild,
 } from '@angular/core';
 import { EditRuleComponent } from './edit-rule.component';
-import {RuleConditionInputComponent} from "./rule-condition-input.component";
 import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { Rule } from '../../../../../../domain/data-preparation/dataset';
 
 @Component({
   selector : 'edit-rule-derive',
@@ -31,8 +29,6 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -94,7 +90,7 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * @return
    */
   public getRuleData(): { command: string, ruleString:string} {
-    let val = this.ruleConditionInputComponent.getCondition();
+    let val = this.deriveVal;
 
     if (isUndefined(val) || '' === val || '\'\'' === val) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
@@ -147,8 +143,6 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
-    this.safelyDetectChanges();
-    this.ruleConditionInputComponent.init({fields : this.fields, command : 'derive', ruleVO : this.ruleVO} );
   } // function - afterShowComp
 
   /**

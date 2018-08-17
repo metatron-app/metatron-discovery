@@ -29,7 +29,6 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -136,7 +135,6 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
    * @protected
    */
   protected afterShowComp() {
-    this.safelyDetectChanges();
   } // function - afterShowComp
 
   /**

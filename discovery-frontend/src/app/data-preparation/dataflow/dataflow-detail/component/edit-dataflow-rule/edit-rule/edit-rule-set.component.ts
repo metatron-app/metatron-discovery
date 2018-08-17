@@ -29,8 +29,6 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
@@ -41,7 +39,8 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public inputValue:string;
+  public inputValue: string;
+  public condition: String;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -100,7 +99,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
     return {
       command: 'set',
       col: columnsStr,
-      ruleString: `set col: ${columnsStr} value: ${this.ruleConditionInputComponent.getCondition()}`
+      ruleString: `set col: ${columnsStr} value: ${this.inputValue}`
     };
 
   } // function - getRuleData
@@ -138,8 +137,6 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * @protected
    */
   protected afterShowComp() {
-    this.safelyDetectChanges();
-    this.ruleConditionInputComponent.init({fields : this.fields, command : 'set', ruleVO : this.ruleVO} );
   } // function - _afterShowComp
 
   /**
@@ -153,7 +150,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    // this.inputVal = this.getAttrValueInRuleString( 'value', ruleString );
+    this.inputValue = this.getAttrValueInRuleString( 'value', ruleString );
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
