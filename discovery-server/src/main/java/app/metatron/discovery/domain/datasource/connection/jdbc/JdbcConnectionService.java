@@ -1157,7 +1157,6 @@ public class JdbcConnectionService {
     return baseDir + File.separator + fileName + ".csv";
   }
 
-
   public List<String> selectIncrementalQueryToCsv(JdbcDataConnection connection,
                                                   JdbcIngestionInfo ingestionInfo,
                                                   String dataSourceName,
@@ -1585,7 +1584,10 @@ public class JdbcConnectionService {
     String username;
     String password;
     if (connection.getAuthenticationType() == DataConnection.AuthenticationType.USERINFO) {
-      username = AuthUtils.getAuthUserName();
+      username = StringUtils.isEmpty(connection.getUsername())
+              ? AuthUtils.getAuthUserName()
+              : connection.getUsername();
+
       User user = cachedUserService.findUser(username);
       if (user == null) {
         throw new ResourceNotFoundException("User(" + username + ")");

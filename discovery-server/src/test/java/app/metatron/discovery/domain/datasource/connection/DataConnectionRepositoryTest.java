@@ -14,14 +14,13 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
+import app.metatron.discovery.AbstractIntegrationTest;
+import app.metatron.discovery.domain.datasource.connection.file.LocalFileConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.H2Connection;
 import org.junit.Test;
 import org.springframework.test.annotation.Rollback;
 
 import javax.inject.Inject;
-
-import app.metatron.discovery.AbstractIntegrationTest;
-import app.metatron.discovery.domain.datasource.connection.file.LocalFileConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.H2Connection;
 
 public class DataConnectionRepositoryTest extends AbstractIntegrationTest {
   @Inject
@@ -72,7 +71,6 @@ public class DataConnectionRepositoryTest extends AbstractIntegrationTest {
     h2Conn.setUsername("sa");
     h2Conn.setPassword("sa");
     h2Conn.setPath("/abc/bad");
-    h2Conn.setUsageScope(DataConnection.UsageScope.WORKBENCH);
     dataConnectionRepository.saveAndFlush(h2Conn);
 
 

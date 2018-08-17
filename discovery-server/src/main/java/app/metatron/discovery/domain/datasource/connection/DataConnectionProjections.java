@@ -14,11 +14,10 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
+import app.metatron.discovery.domain.user.UserProfile;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.core.config.Projection;
-
-import app.metatron.discovery.domain.user.UserProfile;
 
 /**
  * Created by kyungtaak on 2016. 11. 12..
@@ -92,8 +91,6 @@ public class DataConnectionProjections {
     String getId();
 
     String getName();
-
-    DataConnection.UsageScope getUsageScope();
 
     String getDescription();
 
