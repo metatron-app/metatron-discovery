@@ -572,7 +572,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
 
         // 기준선 변경시
         let baseline = 0;
-        if( axisOption[index].baseline != 0 ) {
+        if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
           baseline = axisOption[index].baseline
         }
 
