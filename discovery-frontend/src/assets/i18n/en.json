@@ -1097,6 +1097,8 @@
   "msg.board.create.edit-associations" : "Edit associations",
   "msg.board.create.select-association" : "Please select a association key",
   "msg.board.create.association-key" : "Association key",
+  "msg.board.create.guide-msg1" : "Click on a datasource and drag the edge",
+  "msg.board.create.guide-msg2" : "to another datasource to connect them",
   "msg.board.ui.no.widget": "No widgets",
   "msg.board.th.allowance": "Show open data only",
   "msg.board.btn.add.datasource.join": "Add datasource to join",
