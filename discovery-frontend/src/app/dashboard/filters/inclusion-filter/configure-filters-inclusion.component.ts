@@ -38,6 +38,7 @@ import { DatasourceService } from '../../../datasource/service/datasource.servic
 import { AbstractFilterPopupComponent } from '../abstract-filter-popup.component';
 import { StringUtil } from '../../../common/util/string.util';
 import { SelectComponent } from '../../../common/component/select/select.component';
+import { DashboardUtil } from '../../util/dashboard.util';
 
 @Component({
   selector: 'app-config-filter-inclusion',
@@ -163,13 +164,14 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
   public showComponent(board: Dashboard, targetFilter: InclusionFilter, targetField?: (Field | CustomField)) {
     // 데이터 설정
     const preFilterData = {
-      contains: this.wildCardTypeList[0],
-      aggregation: this.aggregationTypeList[0],
-      inequality: this.conditionTypeList[0],
-      position: this.limitTypeList[0]
+      contains: this.wildCardTypeList[0].value,
+      aggregation: this.aggregationTypeList[0].value,
+      inequality: this.conditionTypeList[0].value,
+      position: this.limitTypeList[0].value
     };
 
-    this.measureFields = board.configuration.fields.filter(item => {
+    const dsFields:Field[] = DashboardUtil.getFieldsForMainDataSource( board.configuration, targetFilter.dataSource );
+    this.measureFields = dsFields.filter(item => {
       return item.role === FieldRole.MEASURE && 'user_expr' !== item.type;
     });
 
