@@ -104,8 +104,23 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
       // 그리드 컬럼 선택에 대한 이벤트
       this.subscriptions.push(
         this.broadCaster.on<any>('EDIT_RULE_GRID_SEL_COL').subscribe((data: { selectedColIds: string[], fields: any[] }) => {
-          if (this.fields) {
-            this.selectedItemKeys = data.selectedColIds;
+          // if (this.fields) {
+          //   this.selectedItemKeys = data.selectedColIds;
+          //   this.onChange.emit({
+          //     selectedList: this.fields.filter( item => -1 < this.selectedItemKeys.indexOf( item.name ) )
+          //   });
+          // }
+
+          if (0 < this.fields.length) {
+            let tempFields = this.fields.map((field) => field.name );
+            if (data.selectedColIds.length === 0) {this.selectedItemKeys = []};
+            data.selectedColIds.forEach((item) => {
+              if (-1 !== tempFields.indexOf(item)) {
+                this.selectedItemKeys.push(item);
+              } else {
+                this.selectedItemKeys = [];
+              }
+            });
             this.onChange.emit({
               selectedList: this.fields.filter( item => -1 < this.selectedItemKeys.indexOf( item.name ) )
             });

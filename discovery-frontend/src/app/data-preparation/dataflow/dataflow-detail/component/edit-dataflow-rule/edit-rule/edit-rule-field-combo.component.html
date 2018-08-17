@@ -25,6 +25,11 @@
         </label>
       </a>
     </li>
+    <li *ngIf="fields.length === 0">
+        <span class="ddp-noresult">
+          {{'msg.dp.ui.search.no.rslt' | translate}}
+        </span>
+    </li>
   </ul>
 </div>
 <!-- // Multi Combo Box -->

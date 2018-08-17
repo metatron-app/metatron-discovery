@@ -91,12 +91,10 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    const invalidResult = { command: 'merge', ruleString: undefined };
-
     // 선택된 컬럼
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return invalidResult
+      return undefined
     }
 
     // 새로운 컬럼명
@@ -104,7 +102,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
       let withVal = StringUtil.checkSingleQuote(this.newValue, { isPairQuote: true, isWrapQuote: true });
       if (withVal[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.merge.col.error'));
-        return invalidResult
+        return undefined
       } else {
         this.newValue = withVal[1];
       }
@@ -116,7 +114,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
     let check = StringUtil.checkSingleQuote(this.delimiter, { isWrapQuote: true });
     if (check[0] === false) {
       Alert.warning(this.translateService.instant('msg.dp.alert.check.delimiter'));
-      return invalidResult
+      return undefined
     } else {
       this.delimiter = check[1];
     }
@@ -139,7 +137,6 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
-    console.info( '>>>> changeFields', data.selectedList );
     this.selectedFields = data.selectedList;
   } // function - changeFields
 

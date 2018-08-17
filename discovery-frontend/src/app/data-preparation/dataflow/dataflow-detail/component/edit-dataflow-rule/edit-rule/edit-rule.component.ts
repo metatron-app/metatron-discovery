@@ -81,12 +81,8 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public init(fields : Field[], selectedFields:Field[], ruleString?:string) {
     this.fields = fields;
-
-    if( isNullOrUndefined( ruleString ) ) {
-      this.mode = 'APPEND';
-      this.selectedFields = selectedFields;
-    } else {
-      this.mode = 'UPDATE';
+    this.selectedFields = selectedFields;
+    if( !isNullOrUndefined( ruleString ) ) {
       ruleString = ruleString.replace( /,\s*/g, ',' );  // 각 속성별 값을 얻기 위해서 미리 Comma 사이의 공백을 제거함
       this.parsingRuleString(ruleString);
     }
