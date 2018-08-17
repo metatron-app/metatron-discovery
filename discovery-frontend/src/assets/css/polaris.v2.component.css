@@ -1,17 +1,3 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 @charset "utf-8";
 
 /**************************************************************
@@ -357,18 +343,18 @@ input.ddp-input-type:-ms-input-placeholder {color:#d7d7dc;}
 .ddp-wrap-edit2 .ddp-inline label.ddp-label-radio:first-of-type {margin-left:0;}
 
 .ddp-wrap-edit2.ddp-error .ddp-ui-error{visibility: inherit;}
-.ddp-wrap-edit2.ddp-error .ddp-input-type {border-bottom:1px solid #ff2a1b}
-.ddp-wrap-edit2 .ddp-ui-error {display:block; visibility: hidden; position:absolute; bottom:-20px; left:0; right:0;color:#eb5f58; font-size:12px; }
+.ddp-wrap-edit2.ddp-error .ddp-input-type {border-bottom:1px solid #ff2a1b;}
+.ddp-wrap-edit2 .ddp-ui-error {display:block; visibility: hidden; position:absolute; bottom:-20px; left:0; right:0;color:#eb5f58; font-size:12px;}
 .ddp-wrap-edit2[class*="ddp-col-"] .ddp-ui-error {left:8px;}
 .ddp-wrap-edit2 .ddp-radio-inline {display:inline-block;}
 .ddp-wrap-edit2 .ddp-radio-inline li {display:inline-block; padding-right:30px;}
-.ddp-wrap-edit2 .ddp-radio-inline li .ddp-label-radio {display:inline-block; position:relative; }
+.ddp-wrap-edit2 .ddp-radio-inline li .ddp-label-radio {display:inline-block; position:relative;}
 .ddp-wrap-edit2 .ddp-radio-inline li .ddp-type-selectbox {display:inline-block; margin-left:5px;}
 .ddp-wrap-edit2 .ddp-radio-inline li .ddp-list-selectbox li {display:block; padding-right:0;}
 .ddp-wrap-edit2 .ddp-list-checktype li {padding:5px 0;}
 .ddp-wrap-edit2.ddp-inline {float:left; width:100%;}
 .ddp-wrap-edit2.ddp-inline .ddp-label-type {float:left; width:117px;}
-.ddp-wrap-edit2.ddp-inline .ddp-inline {display:block; }
+.ddp-wrap-edit2.ddp-inline .ddp-inline {display:block;}
 
 .ddp-form-label2 label.ddp-label-type {display:inline-block; padding-right:15px; color:#b7b9c2; font-size:14px; vertical-align:middle;}
 .ddp-form-label2 .ddp-wrap-dropdown {display:inline-block; vertical-align:middle;}
@@ -377,8 +363,8 @@ input.ddp-input-type:-ms-input-placeholder {color:#d7d7dc;}
 .ddp-wrap-edit3.ddp-error .ddp-ui-error{display:inline-block;}
 .ddp-wrap-edit3 .ddp-ui-error {display:none; position:relative; top:-2px; margin-left:5px; color:#eb5f58; font-size:12px; white-space:nowrap;}
 
-.ddp-wrap-edit3 .ddp-ui-label-name {display:block; width:100%; margin-bottom:14px; color:#b7b9c2; font-size:13px;  vertical-align: middle;}
-.ddp-wrap-edit3 label.ddp-label-type {display:table-cell;width: 131px;padding:8px 0;color:#b7b9c2;font-size:13px;vertical-align: top;}
+.ddp-wrap-edit3 .ddp-ui-label-name {display:block; width:100%; margin-bottom:14px; color:#b7b9c2; font-size:13px;  vertical-align:middle;}
+.ddp-wrap-edit3 label.ddp-label-type {display:table-cell; width: 131px; padding:8px 0;color:#b7b9c2;font-size:13px;vertical-align:top;}
 .ddp-table-detail.ddp-setting .ddp-wrap-edit3 label.ddp-label-type {width:195px;}
 .ddp-box-detail.ddp-label-size .ddp-wrap-edit3 label.ddp-label-type {width:150px;}
 .ddp-wrap-edit3 label.ddp-label-type.ddp-text-right {padding-right:15px;}
@@ -834,6 +820,13 @@ input.ddp-input-type:-ms-input-placeholder {color:#d7d7dc;}
 .ddp-type-selectbox.ddp-type-search-select.ddp-result span.ddp-txt-selectbox {color:#4b515b; padding-left:0px;}
 .ddp-type-selectbox.ddp-type-search-select.ddp-result span.ddp-txt-selectbox:before {display:none;}
 
+.ddp-form-search-select {position:relative; padding:0 30px 0 10px; border:1px solid #d0d1d8;}
+.ddp-form-search-select .ddp-input-selectbox {display:block; padding:6px 10px 6px 10px; width:100%; border:none;}
+.ddp-form-search-select:after {display:inline-block; position:absolute; top:50%; right:9px; width:11px; height:11px; margin-top:-6px; background:url(../images/icon_search.png) no-repeat; background-position:-24px top; content:'';}
+.ddp-form-search-select:hover:after,
+.ddp-form-search-select.ddp-selected:after{background-position-x:-12px !important; z-index:1;}
+.ddp-form-search-select .ddp-txt-selectbox {display:block; padding:6px 10px 6px 0;}
+
 .ddp-box-command .ddp-type-selectbox ul.ddp-list-selectbox.ddp-list-command {max-height:344px;}
 .ddp-box-command .ddp-type-selectbox ul.ddp-list-selectbox.ddp-list-command li a:hover {background:none;}
 .ddp-type-selectbox ul.ddp-list-selectbox.ddp-selectdown {bottom:inherit; top:34px; z-index:50}
@@ -907,7 +900,7 @@ ul.ddp-list-typebasic.ddp-view li.ddp-selected a .ddp-icon-plus {display:block;}
 .ddp-type-selectbox ul.ddp-list-selectbox li a:hover {background-color:#f6f6f7;}
 
 .ddp-type-selectbox ul.ddp-list-selectbox li span.ddp-noresult {display:block; padding:5px 10px; color:#b7b9c2 ; cursor: default; font-size:13px;}
-.ddp-type-selectbox ul.ddp-list-selectbox li .ddp-wrap-popup2 {display:; position:absolute; left:100%; bottom:28px;}
+.ddp-type-selectbox ul.ddp-list-selectbox li .ddp-wrap-popup2 {position:absolute; left:100%; bottom:28px;}
 .ddp-type-selectbox ul.ddp-list-selectbox li:hover .ddp-wrap-popup2 {display:block;}
 
 .ddp-wrap-popup2 {border:1px solid #ddd; border-radius:2px; background-color:#fff; z-index:10; text-align:left;
@@ -1275,10 +1268,11 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {border:
 .ddp-form-search2 span.ddp-icon-search {display:inline-block; position:absolute; top:50%; right:4px; width:22px; height:22px; margin:-11px 0 0 0; background-color:#f6f6f7; border-radius:2px; vertical-align:middle; cursor:pointer;}
 .ddp-form-search2 span.ddp-icon-search:hover {background-color:#e3e3e8;}
 .ddp-form-search2 span.ddp-icon-search:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-6px 0 0 -6px; width:12px; height:12px; background:url(../images/btn_search.png) no-repeat; background-position:left -38px; content:'';}
+
 /**************************************************************
     검색 drop down 폼
 **************************************************************/
-.ddp-wrap-drop-search {positioN:relative;}
+.ddp-wrap-drop-search {position:relative;}
 .ddp-wrap-drop-search.ddp-connection {width:390px;}
 .ddp-wrap-drop-search .ddp-type-selectbox2 {position:relative; padding:6px 26px 6px 13px; border-radius:2px; border:1px solid #d0d1d9; background-color:#fff; cursor:pointer;}
 .ddp-type-selectbox2:hover{border:1px solid #8f96a0;}
@@ -1422,7 +1416,7 @@ a.ddp-btn-line > [class*="ddp-icon"] {margin-right:5px;}
 a.ddp-btn-line em.ddp-icon-go {display:inline-block; width:13px; height:11px;  margin-right:5px; background:url(../images/icon_selection.png) no-repeat; background-position:-28px -43px;}
 a.ddp-btn-line em.ddp-view {display:inline-block; width:7px; height:4px; margin-left:5px;background:url(../images/icon_select.png) no-repeat; background-position:-8px top; vertical-align:middle;}
 
-a.ddp-btn-line em.ddp-icon-refresh {display:inline-block; width:14px; height:13px; margin-right:10px; background:Url(../images/btn_refresh.png) no-repeat; background-position:-15px -34px;}
+a.ddp-btn-line em.ddp-icon-refresh {display:inline-block; width:14px; height:13px; margin-right:10px; background:url(../images/btn_refresh.png) no-repeat; background-position:-15px -34px;}
 a.ddp-btn-line:hover em.ddp-icon-refresh {background-position:-30px -34px;}
 a.ddp-btn-line em.ddp-icon-delete {background-position:-24px -21px;}
 a.ddp-btn-line:hover em.ddp-icon-delete {background-position:left -21px;}
@@ -2169,6 +2163,7 @@ em.ddp-icon-control-edit:hover:before {background-position:-11px top;}
 em.ddp-icon-link-cut2 {display:inline-block; position:relative; top:1px; width:11px; height:12px; background:url(../images/icon_control.png) no-repeat; background-position:-26px -14px; vertical-align: middle; cursor: pointer;}
 em.ddp-icon-link-cut2.ddp-disabled,
 em.ddp-icon-link-cut2.ddp-disabled:hover {background-position:-26px -14px; opacity:0.5; cursor:no-drop;}
+
 
 em.ddp-icon-link-plus {display:inline-block; position:relative; width:9px; height:9px; background:url(../images/btn_minus_plus.png) no-repeat; background-position:left -2px; vertical-align: middle; cursor: pointer;}
 em.ddp-icon-link-plus.ddp-disabled:hover {background-position:left -2px;}
@@ -3239,7 +3234,9 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 #gradX2 .gradx_slider.ddp-selected {position:absolute; border:2px solid #4b515b; box-sizing:border-box; width:16px; height:16px;}
 #gradX2 .gradx_slider.ddp-selected:before {position:absolute; top:0; left:0; right:0; bottom:0; border:1px solid #fff; content:'';}
 #gradX2 .gradx_slider:after {height:28px; bottom:14px; left:6px; border:none;border-left:1px solid #000;}
+
 #gradX2 .gradx_slider .sp-preview {width:100%; height:100%;}
+#gradX2 .gradx_slider .sp-preview.ddp-overlap:after {display:inline-block; position:absolute; top:0; left:-7px; right:-7px; bottom:-12px; background:url(../images/bg_grdX_shadow.png) no-repeat;  background-size:100% 100%; content:'';}
 #gradX2 .gradx_slider .sp-replacer {position:absolute; top:0; left:0; right:0; bottom:0; overflow:inherit;}
 #gradX2 .gradx_slider .sp-replacer.sp-active:before {position:absolute; top:0; left:0; right:0; bottom:0; border:1px solid #000; content:''; }
 #gradX2 .gradx_slider .sp-replacer.sp-active:after {position:absolute; top:1px; left:1px; right:1px; bottom:1px; border:1px solid #fff; content:''; }
@@ -3309,7 +3306,6 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 /**************************************************************
   split
 **************************************************************/
-.mynetwork {}
 .gutter.gutter-vertical {position:relative; height:6px; background-color:#e7e7ea; cursor:row-resize;}
 .gutter.gutter-vertical:before {display:inline-block; content:''; position:absolute; top:50%; left:50%;  margin:-7px 0 0 -1px; width:2px; height:13px; background:url(../images/icon_bar.png) no-repeat; transform:rotate(90deg)}
 .gutter.gutter-horizontal {position:relative; float:left; width:6px !important;height:100%; background-color:#e7e7ea;  cursor:col-resize;}

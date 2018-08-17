@@ -1,17 +1,3 @@
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 @charset "utf-8";
 /* CSS Document */
 
@@ -310,22 +296,21 @@ textarea:-ms-input-placeholder {color: #a7adb2;}
     LNB
 ************************************************************************************************************/
 .ddp-layout-lnb {position:fixed; left:0; top:-1px; width:288px;}
-.ddp-layout-lnb a.ddp-btn-lnbmenu {display:inline-block; position:absolute; top:0; left:0; width:55px; height:55px;}
-.ddp-layout-lnb a.ddp-btn-lnbmenu:before {display:inline-block; content:''; position:absolute; top:50%; left:50%; margin:-6px 0 0 -8px; width:16px; height:12px; background:url(../images/btn_lnbmenu.png) no-repeat;}
+.ddp-layout-lnb a.ddp-btn-lnbmenu {display:inline-block; position:absolute; top:0; left:0; width:49px; height:55px;}
+.ddp-layout-lnb a.ddp-btn-lnbmenu:before {display:inline-block; content:''; position:absolute; top:50%; left:23px; margin:-6px 0 0 0; width:16px; height:12px; background:url(../images/btn_lnbmenu.png) no-repeat;}
 .ddp-layout-lnb .ddp-h1-logo {position:absolute;top:21px; left:52px;}
 .ddp-layout-lnb .ddp-h1-logo a {display:inline-block; width:204px; height:14px;}
 .ddp-layout-lnb .ddp-h1-logo a svg {height:100%;}
 .ddp-layout-lnb .ddp-h1-logo a .st10{fill:#646C77;}
 .ddp-layout-lnb .ddp-h1-logo a .st11{fill:#C3C7D2;}
-
 .ddp-layout-lnb.ddp-selected .ddp-h1-logo a .st10{fill:#989EA6;}
-.ddp-layout-lnb.ddp-selected .ddp-h1-logo a .st11{fill:#565B65;}
+.ddp-layout-lnb.ddp-selected .ddp-h1-logo a .st11{fill:#595F6A;}
 
 .ddp-layout-lnb.ddp-selected {position:fixed; left:0; top:0; bottom:0; width:288px; background-color:#35393f;}
 .ddp-layout-lnb.ddp-selected a.ddp-btn-lnbmenu:before {background-position:left -13px;}
 .ddp-layout-lnb.ddp-selected ul.ddp-list-lnb {display:block;}
 
-ul.ddp-list-lnb {display:none; position:absolute; top:55px; left:0; right:0; bottom:99px; overflow-y:auto;}
+ul.ddp-list-lnb {display:none; position:absolute; top:55px; left:0; right:0; bottom:136px; overflow-y:auto;}
 
 ul.ddp-list-lnb::-webkit-scrollbar-track {background:#3f4349;}
 ul.ddp-list-lnb::-webkit-scrollbar-thumb {border:4px solid #3f4349; background-color:#6d7179;}
@@ -404,14 +389,14 @@ ul.ddp-list-lnb li ul.ddp-list-sublnb li ul.ddp-list-sublnb-2depth li a:hover {b
 .ddp-layout-lnb .ddp-ui-help a.ddp-btn-box {display:inline-block; position:relative; padding:7px 9px 6px 24px; margin-left:10px; color:#90969f; font-size:12px; border:1px solid rgba(112, 123, 129, 0.3); border-radius:2px;}
 .ddp-layout-lnb .ddp-ui-help a.ddp-btn-box:hover {border:1px solid rgba(112, 123, 129, 1);}
 .ddp-layout-lnb .ddp-ui-help a.ddp-btn-box em.ddp-icon-manual {display:inline-block; position:absolute; top:50%; left:7px; margin-top:-7px; width:12px; height:14px; background:url(../images/icon_lnb.png) no-repeat; background-position:left -27px; opacity:0.8;}
-.ddp-data-help {padding:10px 23px 19px 23px;}
+.ddp-data-help {padding:10px 23px 20px 23px;}
 .ddp-data-help dl dt {float:left; width:90px; color:rgba(144, 150, 159, 0.4);}
 .ddp-data-help dl dd {display:block; overflow:hidden; color:rgba(144, 150, 159, 0.4);}
 .ddp-data-help dl dd a { color:rgba(144, 150, 159, 0.4);}
-
-/**************************************************************
-    lnb folder
-**************************************************************/
+.ddp-layout-lnb .ddp-ui-help .ddp-viersion {padding:0 0 20px 23px; font-size:13px; color:#90969f; opacity:0.6;}
+    /**************************************************************
+        lnb folder
+    **************************************************************/
 .ddp-wrap-folder-nav {position:fixed; top:54px; left:288px; right:0; bottom:0; padding-top:33px; z-index:30;  white-space:nowrap; overflow-x:auto; font-size:0px; background-color:#fff;}
 
 .ddp-ui-title-nav {position:fixed; top:54px; left:288px; right:0; height:33px; padding-left:18px;  background-color:#90969f; box-sizing:border-box;}
@@ -550,7 +535,13 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-type-contents .ddp-ui-name2.ddp-type {padding:0 0 33px 0; margin-top:-20px;}
 .ddp-type-contents .ddp-ui-name2.ddp-type2 {margin-bottom:0;}
 .ddp-type-contents .ddp-ui-name2.ddp-type3 {padding-top:13px; padding-bottom:15px; margin-bottom:25px;}
+
+
 .ddp-type-contents .ddp-ui-name2 {display:inline-block; position:relative; padding:54px 16px 33px 16px; margin-bottom:52px; color:#666eb2; font-size:18px;}
+.ddp-type-contents.ddp-resize.ddp-type {padding:38px 0 78px 0;}
+.ddp-type-contents.ddp-resize.ddp-type .ddp-ui-name2.ddp-type3 .ddp-txt-info {display:block; color:#90969f; font-size:14px; text-align:center;}
+
+
 
 .ddp-type-contents .ddp-ui-name2 .ddp-icon-newlink2,
 .ddp-type-contents .ddp-ui-name2 .ddp-icon-workbench {display:inline-block; position:absolute; top:0; left:50%; margin-left:-15px; width:30px; height:30px; background:url(../images/icon_popup.png) no-repeat;}
@@ -588,6 +579,9 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-type-contents.ddp-resize .ddp-type-contents-in.ddp-type .ddp-type-multidata {top:86px;}
 
 .ddp-type-contents.ddp-resize .ddp-box-popupcontents3 {position:absolute; top:65px; left:0; right:0; bottom:0; height:auto; margin-top:0;}
+.ddp-type-contents.ddp-resize.ddp-type .ddp-box-popupcontents3 {top:0;}
+.ddp-type-contents.ddp-resize.ddp-type .ddp-box-popupcontents3.ddp-type-multidata.ddp-edit {bottom:-38px; overflow:hidden;}
+.ddp-type-contents.ddp-resize.ddp-type .ddp-type-contents-in {top:140px;}
 .ddp-type-contents.ddp-resize .ddp-ui-buttons {position:absolute; bottom:0; left:0; right:0; padding-bottom:20px;}
 
 .ddp-type-contents.ddp-resize2 {padding:0; }
