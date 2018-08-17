@@ -73,6 +73,19 @@ public class PrepSnapshot extends AbstractHistoryEntity {
         TWINKLE
     }
 
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+    public enum STATUS {
+        NOT_AVAILABLE,
+        INITIALIZING,
+        RUNNING,
+        WRITING,
+        TABLE_CREATING,
+        SUCCEEDED,
+        FAILED,
+        CANCELING,
+        CANCELED
+    }
+
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
@@ -122,6 +135,10 @@ public class PrepSnapshot extends AbstractHistoryEntity {
     @Column(name = "engine")
     @Enumerated(EnumType.STRING)
     private PrepSnapshot.ENGINE engine;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private PrepSnapshot.STATUS status;
 
     @Column(name = "profile", nullable = false)
     private boolean profile = true;
@@ -184,6 +201,85 @@ public class PrepSnapshot extends AbstractHistoryEntity {
     @Column(name = "custom")
     String custom;
 
+    // Getters, setters for enumerations - SS_TYPE, FORMAT, COMPRESSION, MODE, ENGINE, STATUS
+    @JsonIgnore
+    public SS_TYPE getSsTypeEnum() {
+        return (ssType != null) ? ssType : SS_TYPE.FILE;
+    }
+
+    public String getSsType() {
+        return (ssType != null) ? ssType.name() : SS_TYPE.FILE.name();
+    }
+
+    public void setSsType(SS_TYPE ssType) {
+        this.ssType = ssType;
+    }
+
+    @JsonIgnore
+    public FORMAT getFormatEnum() {
+        return (format != null) ? format : FORMAT.CSV;
+    }
+
+    public String getFormat() {
+        return (format != null) ? format.name() : FORMAT.CSV.name();
+    }
+
+    public void setFormat(FORMAT format) {
+        this.format = format;
+    }
+
+    @JsonIgnore
+    public COMPRESSION getCompressionEnum() {
+        return (compression != null) ? compression : COMPRESSION.NONE;
+    }
+
+    public String getCompression() {
+        return (compression != null) ? compression.name() : COMPRESSION.NONE.name();
+    }
+
+    public void setCompression(COMPRESSION compression) {
+        this.compression = compression;
+    }
+
+    @JsonIgnore
+    public MODE getModeEnum() {
+        return (mode != null) ? mode : MODE.OVERWRITE;
+    }
+
+    public String getMode() {
+        return (mode != null) ? mode.name() : MODE.OVERWRITE.name();
+    }
+
+    public void setMode(MODE mode) {
+        this.mode = mode;
+    }
+
+    @JsonIgnore
+    public ENGINE getEngineEnum() {
+        return (engine != null) ? engine : ENGINE.EMBEDDED;
+    }
+
+    public String getEngine() {
+        return (engine != null) ? engine.name() : ENGINE.EMBEDDED.name();
+    }
+
+    public void setEngine(ENGINE engine) {
+        this.engine = engine;
+    }
+
+    @JsonIgnore
+    public STATUS getStatusEnum() {
+        return (status != null) ? status : STATUS.NOT_AVAILABLE;
+    }
+
+    public String getStatus() {
+        return (status != null) ? status.name() : STATUS.NOT_AVAILABLE.name();
+    }
+
+    public void setStatus(STATUS status) {
+        this.status = status;
+    }
+
     public Long getValidLines() {
         return 10000L;
     }
@@ -234,19 +330,6 @@ public class PrepSnapshot extends AbstractHistoryEntity {
 
     public void setUri(String uri) {
         this.uri = uri;
-    }
-
-    @JsonIgnore
-    public FORMAT getFormatEnum() {
-        return format;
-    }
-
-    public void setFormat(FORMAT format) {
-        this.format = format;
-    }
-
-    public void setCompression(COMPRESSION compression) {
-        this.compression = compression;
     }
 
     public boolean isProfile() {
@@ -362,46 +445,6 @@ public class PrepSnapshot extends AbstractHistoryEntity {
 
     public void setTblName(String tblName) {
         this.tblName = tblName;
-    }
-
-    public SS_TYPE getSsType() {
-        return ssType;
-    }
-
-    public void setSsType(SS_TYPE ssType) {
-        this.ssType = ssType;
-    }
-
-    public FORMAT getFormat() {
-        return format;
-    }
-
-    public COMPRESSION getCompression() {
-        return compression;
-    }
-
-    public MODE getMode() {
-        return mode;
-    }
-
-    public void setMode(MODE mode) {
-        this.mode = mode;
-    }
-
-    public ENGINE getEngine() {
-        return engine;
-    }
-
-    public void setEngine(ENGINE engine) {
-        this.engine = engine;
-    }
-
-    public void setEngine(String engine) {
-        if (engine.equalsIgnoreCase(ENGINE.TWINKLE.name())) {
-            this.engine = ENGINE.TWINKLE;
-        } else {
-            this.engine = ENGINE.EMBEDDED;
-        }
     }
 
     public String getExtHdfsDir() {
