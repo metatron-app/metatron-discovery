@@ -148,7 +148,7 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
     const selectedChanges: SimpleChange = changes.selected;
     if (selectedChanges && selectedChanges.firstChange ) {
       selectedChanges.currentValue.forEach(item => {
-        if( item && this.effectGrid) {
+        if( item ) {
           this.checkItem(item.name, true, true)
         }
       });

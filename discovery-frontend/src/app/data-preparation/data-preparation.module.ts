@@ -82,6 +82,7 @@ import { EditRuleFlattenComponent } from './dataflow/dataflow-detail/component/e
 import { EditRuleSetformatComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-setformat.component';
 import { EditRuleUnnestComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-unnest.component';
 import { EditRuleAggregateComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-aggregate.component';
+import { EditRulePivotComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-pivot.component';
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -154,6 +155,7 @@ const dataPreparationRoutes: Routes = [
     EditRuleFlattenComponent,
     EditRuleSetformatComponent,
     EditRuleUnnestComponent,
+    EditRulePivotComponent,
     RuleSnapshotListComponent,
     AddDatasetComponent,
     CreateDataflowNameDescComponent,

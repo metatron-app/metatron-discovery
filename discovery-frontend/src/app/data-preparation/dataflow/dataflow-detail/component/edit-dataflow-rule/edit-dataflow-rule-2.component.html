@@ -308,112 +308,19 @@
                       <!--//endSort-->
 
                       <!--startMove-->
-                      <edit-rule-move #editRule *ngIf="ruleVO.command === 'move'"></edit-rule-move>
+                      <edit-rule-move #editRule *ngIf="'move' === ruleVO.command"></edit-rule-move>
                       <!--//endMove-->
 
                       <!--start pivot -->
-                      <!--part-->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'pivot'">
-                        <div class="ddp-box-title">
-                          {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-
-                        <!-- select box -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox" tabindex="2" [ngClass]="{'ddp-selected':isMultiColumnListShow}" (click)="showMultiColumnList($event)">
-                          <span class="ddp-txt-selectbox">{{( undefined === ruleVO.cols || ruleVO.cols.length === 0 ) ? ('msg.dp.ui.none.selected' | translate) : ruleVO.cols.join(',') }}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isMultiColumnListShow" (clickOutside)="isMultiColumnListShow = false;">
-                            <li *ngFor="let col of selectedDataSet.gridData.fields">
-                              <a href="javascript:">
-                                <label class="ddp-label-checkbox ddp-type-number">
-                                  <input type="checkbox" [checked]="col.selected"  (click)="checkItem(col)">
-                                  <i class="ddp-icon-checkbox">{{col.seq}}</i>
-                                  <span class="ddp-txt-checkbox">{{col.name}}</span>
-                                </label>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //select box -->
-                      </div>
-                      <!--//part-->
-
-                      <!--part-->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'pivot'">
-                        <div class="ddp-box-title">
-                          <span class="ddp-box-title-in">
-                              {{'msg.dp.th.formula' | translate}}<em class="ddp-icon-essential"></em>
-                              <a href="javascript:" class="ddp-btn-plus" (click)="pivotFormulaValueList.push(''); pivotFormulaList.push('');"></a>
-                          </span>
-                        </div>
-                        <div class="ddp-wrap-box-info" [ngClass]="{'ddp-selected':isFocus}">
-                          <!--box scroll -->
-                          <div class="ddp-wrap-boxwrap">
-
-                            <div class="ddp-wrap-boxadd" *ngFor="let item of pivotFormulaList; let idx = index">
-                              <div class="ddp-wrap-datainput">
-                                <div class="ddp-wrap-input-info" [ngClass]="{'ddp-selected':isFocus}" (clickOutside)="isAutoCompleteSuggestionListOpen=false">
-                                  <input type="text" id="rule-pivot-input-{{idx}}" class="ddp-input-typebasic" tabindex="3" placeholder="{{'msg.dp.alert.insert.formula' | translate}}" [(ngModel)]="pivotFormulaValueList[idx]" (focus)="isFocus=true;changeRule($event)" (blur)="isFocus=false" (click)="changeRule($event)" (keydown)="changeRule($event)">
-                                  <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isAutoCompleteSuggestionListOpenPivot('rule-pivot-input',idx)" >
-                                    <li *ngFor="let item_sug of autoCompleteSuggestions;let idx_sug=index" (click)="onautoCompleteSuggestionsSelectPivot(item_sug,pivotFormulaValueList,idx)">
-                                      <a [ngStyle]="idx_sug==autoCompleteSuggestions_selectedIdx?{'background-color':'#f6f6f7','color':item_sug.class}:{'color':item_sug.class}" href="javascript:">
-                                        {{item_sug.value}}
-                                      </a>
-                                    </li>
-                                    <li *ngIf="autoCompleteSuggestions.length === 0">
-                                      <span class="ddp-noresult">
-                                        {{'msg.dp.ui.search.no.rslt' | translate}}
-                                      </span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </div>
-
-                              <div class="ddp-ui-buttons">
-                                <a href="javascript:" class="ddp-btn-minus" (click)="deleteFormula(idx)"></a>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <!--//part-->
-
-                      <!--part-->
-                      <div class="ddp-box-part" *ngIf="ruleVO.command === 'pivot'">
-                        <div class="ddp-box-title">
-                          {{'msg.dp.th.group.by' | translate}}<em class="ddp-icon-essential"></em>
-                        </div>
-
-                        <!-- select box -->
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected':isMultiColumnGroupListShow}" (click)="showMultiColumnGroupList($event)" tabindex="4">
-                          <span class="ddp-txt-selectbox">{{ruleVO.groups.length === 0 ? ('msg.dp.ui.none.selected' | translate) : ruleVO.groups.join(',') }}</span>
-                          <ul class="ddp-list-selectbox ddp-list-command" *ngIf="isMultiColumnGroupListShow" (clickOutside)="isMultiColumnGroupListShow = false;">
-                            <li *ngFor="let col of selectedDataSet.gridData.fields">
-                              <a href="javascript:">
-                                <label class="ddp-label-checkbox ddp-type-number">
-                                  <input type="checkbox" [(ngModel)]="col.ticked" (change)="setGroupColSeq(col);">
-                                  <i class="ddp-icon-checkbox">{{col.groupSeq}}</i>
-                                  <span class="ddp-txt-checkbox">{{col.name}}</span>
-                                </label>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //select box -->
-                      </div>
-                      <!--//part-->
-
+                      <edit-rule-pivot #editRule *ngIf="'pivot' === ruleVO.command"></edit-rule-pivot>
                       <!-- end pivot -->
 
                       <!--start unpivot -->
-                      <edit-rule-unpivot #editRule *ngIf="ruleVO.command=== 'unpivot'"></edit-rule-unpivot>
-
+                      <edit-rule-unpivot #editRule *ngIf="'unpivot' === ruleVO.command"></edit-rule-unpivot>
                       <!--//endUnpivot-->
 
                       <!--startNest-->
-                      <!--part-->
-                      <edit-rule-nest #editRule *ngIf="ruleVO.command === 'nest'"></edit-rule-nest>
+                      <edit-rule-nest #editRule *ngIf="'nest' === ruleVO.command"></edit-rule-nest>
                       <!--//endNest-->
 
                       <!--startUnnest-->
@@ -421,71 +328,6 @@
                       <!--//endUnnest-->
 
                       <!--startSetformat-->
-                      <!-- part -->
-                      <!--<div class="ddp-box-part" *ngIf="ruleVO.command === 'setformat'">-->
-                        <!--<div class="ddp-box-title">-->
-                          <!--{{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>-->
-                        <!--</div>-->
-                        <!--&lt;!&ndash; select box &ndash;&gt;-->
-                        <!--<div class="ddp-type-selectbox ddp-selected" tabindex="2" [ngClass]="{'ddp-selected':isMultiColumnListShow}" (click)="showMultiColumnList($event)">-->
-                          <!--<span class="ddp-txt-selectbox">{{( undefined === ruleVO.cols || ruleVO.cols.length === 0 ) ? ('msg.dp.ui.none.selected' | translate) : ruleVO.cols.join(',') }}</span>-->
-                          <!--<ul class="ddp-list-selectbox ddp-list-command" *ngIf="isMultiColumnListShow" (clickOutside)="isMultiColumnListShow = false;">-->
-                            <!--<li *ngFor="let col of filteredTimestampList">-->
-                              <!--<a href="javascript:">-->
-                                <!--<label class="ddp-label-checkbox">-->
-                                  <!--<input type="checkbox" [checked]="col.selected"  (click)="isTimestampEdit=false;checkItem(col)">-->
-                                  <!--<i class="ddp-icon-checkbox"></i>-->
-                                  <!--<span class="ddp-txt-checkbox">{{col.name}}</span>-->
-                                <!--</label>-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li *ngIf="filteredTimestampList.length === 0">-->
-                              <!--<span class="ddp-noresult">{{'msg.dp.ui.search.no.rslt' | translate}}</span>-->
-                            <!--</li>-->
-                          <!--</ul>-->
-                        <!--</div>-->
-                        <!--&lt;!&ndash; //select box &ndash;&gt;-->
-                      <!--</div>-->
-                      <!--&lt;!&ndash; //part &ndash;&gt;-->
-
-                      <!--&lt;!&ndash; part &ndash;&gt;-->
-                      <!--<div class="ddp-box-part" *ngIf="ruleVO.command === 'setformat'" style = "width :260px">-->
-                        <!--<div class="ddp-box-title">-->
-                          <!--{{'msg.dp.ui.set.pattern' | translate}}<em class="ddp-icon-essential"></em>-->
-                        <!--</div>-->
-                        <!--&lt;!&ndash; select box &ndash;&gt;-->
-                        <!--&lt;!&ndash; 클릭시 ddp-selected 추가 &ndash;&gt;-->
-                        <!--<div class="ddp-type-selectbox ddp-type-search-select" tabindex="4"-->
-                             <!--[ngClass]="{'ddp-selected':isTimestampOpen}"-->
-                             <!--[class.ddp-result]="ruleVO.timestamp"-->
-                             <!--(click)="isTimestampEdit=false; showTimestampList($event)"-->
-                             <!--(keydown)="navigateWithKeyboardShortList($event, timestampTime, 'timestamp')">-->
-                          <!--<span class="ddp-txt-selectbox">{{ruleVO.timestamp ? ruleVO.timestamp : 'msg.dp.ui.none.selected' | translate}}</span>-->
-                          <!--<ul class="ddp-list-selectbox ddp-list-command" *ngIf="isTimestampOpen" (clickOutside)="isTimestampOpen = false; typeSearchText = ''; initSelectedCommand(timestampTime);">-->
-                            <!--<li *ngFor="let time of timestampTime; let index=index"-->
-                                <!--(click)="setTimestamp($event, time)"-->
-                                <!--(mouseover)="listMouseOver($event, 'timestamp', index)"-->
-                                <!--(mouseout)="listMouseOut($event, 'timestamp')"-->
-                                <!--(mousemove)="flag === true ? flag = false : flag = true">-->
-                              <!--<a href="javascript:" [ngStyle]="time.isHover ? {'background-color': '#f6f6f7' }:{}">-->
-                                <!--{{time.value}}-->
-                              <!--</a>-->
-                            <!--</li>-->
-                          <!--</ul>-->
-                        <!--</div>-->
-                        <!--&lt;!&ndash; //select box &ndash;&gt;-->
-                      <!--</div>-->
-                      <!--&lt;!&ndash; //part &ndash;&gt;-->
-                      <!--&lt;!&ndash; part &ndash;&gt;-->
-                      <!--<div class="ddp-box-part" *ngIf="ruleVO.command === 'setformat' && ruleVO.timestamp === 'Custom format'">-->
-                        <!--<div class="ddp-box-title">-->
-                          <!--{{'msg.dp.ui.custom.format' | translate}}<em class="ddp-icon-essential"></em>-->
-                        <!--</div>-->
-                        <!--<div class="ddp-wrap-datainput">-->
-                          <!--<input type="text" class="ddp-input-typebasic newColumnInput" tabindex="5" placeholder="{{'msg.dp.ui.timestamp.ph' | translate}}" [(ngModel)]="timestampVal">-->
-                        <!--</div>-->
-                      <!--</div>-->
-                      <!-- //part -->
                       <edit-rule-setformat #editRule *ngIf="'setformat' === ruleVO.command"></edit-rule-setformat>
                       <!--endSetformat-->
                     </div>

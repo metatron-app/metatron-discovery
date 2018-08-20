@@ -679,6 +679,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       case 'delete':
       case 'set':
       case 'aggregate':
+      case 'pivot':
         this._editRuleComp.setRuleVO(this.ruleVO);
         this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields );
         break;
@@ -1180,6 +1181,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'countpattern' :
         case 'setformat' :
         case 'aggregate' :
+        case 'pivot' :
           rule = this._editRuleComp.getRuleData();
           if (isUndefined(rule)) {
             return;
@@ -1187,9 +1189,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           break;
         case 'settype' :
           rule = this.setSettypeRule();
-          break;
-        case 'pivot' :
-          rule = this.setPivotRule();
           break;
         default :
           break;
@@ -1271,7 +1270,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.safelyDetectChanges();
 
       switch (this.ruleVO.command) {
-        case 'setformat':
+        case 'setformat' :
           let setformatList = gridData.fields.filter((item) => {
             return item.type === 'TIMESTAMP'
           });
@@ -1289,7 +1288,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           });
           this._editRuleComp.init(unnest, [], rule.ruleString);
           break;
-        case 'rename':
+        case 'rename' :
           if (this.ruleVO.col['value'] && 'string' === typeof this.ruleVO.col['value']) {
             this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           } else {
@@ -1312,33 +1311,34 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
             this.ruleVO.to = '';
           }
           break;
-        case 'delete':
-        case 'keep':
-        case 'derive':
+        case 'delete' :
+        case 'keep' :
+        case 'derive' :
           let row = rule.ruleString.split(': ');
           this.ruleVO['row'] = row[1];
           this._editRuleComp.setRuleVO(this.ruleVO);
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           break;
-        case 'set':
+        case 'set' :
           let rowString = rule.ruleString.split('value: ');
           rowString = rowString[1].split(' row: ');
           this.ruleVO.row = rowString[0];
           this._editRuleComp.setRuleVO(this.ruleVO);
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           break;
-        case 'drop':
-        case 'replace':
-        case 'merge':
-        case 'sort':
-        case 'header':
-        case 'nest':
-        case 'unpivot':
-        case 'move':
+        case 'drop' :
+        case 'replace' :
+        case 'merge' :
+        case 'sort' :
+        case 'header' :
+        case 'nest' :
+        case 'unpivot' :
+        case 'move' :
         case 'split' :
         case 'extract' :
         case 'countpattern' :
         case 'aggregate' :
+        case 'pivot' :
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           break;
         case 'settype':
@@ -1348,14 +1348,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           }
           this._setSelectionFields(this.selectedDataSet.gridData.fields, this.ruleVO.cols);
           this.setSettypEditInfo(rule);
-          break;
-        case 'pivot' :
-          if (isNullOrUndefined(this.ruleVO.cols)) {
-            const colVal = this.ruleVO['col']['value'];
-            this.ruleVO.cols = (colVal instanceof Array) ? colVal : [colVal];
-          }
-          this._setSelectionFields(this.selectedDataSet.gridData.fields, this.ruleVO.cols);
-          this.setPivotEditInfo(rule);
           break;
         case 'union' :
           if (this.selectedDataSet.gridData.data.length > 1) {
