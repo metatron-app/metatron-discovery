@@ -110,6 +110,8 @@ public class ChartResultFormat extends SearchResultFormat {
         response = (MatrixResponse) originalResultFormat.makeResult(node);
         response = response.reshapeForTreeMap(columnDelimeter, getOptions(OPTION_SHOW_PERCENTAGE, false));
         break;
+      case "map":
+        return originalResultFormat.makeResult(node);
       case "grid":
         response = (MatrixResponse) originalResultFormat.makeResult(node);
         String columnAggregation = getOptions("columnAggregation", "");
@@ -138,6 +140,7 @@ public class ChartResultFormat extends SearchResultFormat {
     return response;
   }
 
+  @JsonIgnore
   public SearchResultFormat getOriginalFormat() {
     Pivot pivot = request.getPivot();
 
@@ -190,6 +193,9 @@ public class ChartResultFormat extends SearchResultFormat {
       case "treemap":
         originalResultFormat = toTreeMapPivotFormat(pivot);
         break;
+      case "map":
+        originalResultFormat = new RawResultFormat();
+        break;
       case "line":
       case "control":
       case "combine":
@@ -210,6 +216,7 @@ public class ChartResultFormat extends SearchResultFormat {
     return originalResultFormat;
   }
 
+  @JsonIgnore
   public Object getAnalysisResult(JsonNode node) {
 
     Analysis analysis = request.getAnalysis();
