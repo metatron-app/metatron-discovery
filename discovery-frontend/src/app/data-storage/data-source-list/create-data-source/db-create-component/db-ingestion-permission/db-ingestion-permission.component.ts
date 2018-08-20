@@ -19,34 +19,25 @@ import { AbstractPopupComponent } from '../../../../../common/component/abstract
 import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
 import { IngestionSettingComponent } from '../../../component/ingestion-setting.component';
 
+/**
+ * Creating datasource with Database - ingestion step
+ */
 @Component({
   selector: 'db-ingestion-permission',
   templateUrl: './db-ingestion-permission.component.html'
 })
 export class DbIngestionPermissionComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성될 데이터소스 정보
-  private sourceData: DatasourceInfo;
+  // datasource data
+  private _sourceData: DatasourceInfo;
 
   @ViewChild(IngestionSettingComponent)
   private _ingestionSettingComponent: IngestionSettingComponent;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   @Input('sourceData')
   public set setSourceData(sourceData: DatasourceInfo) {
-    this.sourceData = sourceData;
-    this._ingestionSettingComponent.init(this.sourceData, 'DB');
+    this._sourceData = sourceData;
+    this._ingestionSettingComponent.init(this._sourceData, 'DB');
   }
 
   @Input()
@@ -55,71 +46,48 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
   @Output()
   public stepChange: EventEmitter<string> = new EventEmitter();
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Constructor
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
+  // Constructor
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
     super(elementRef, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Override Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
+  /**
+   * ngOnInit
+   */
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
   }
 
-  // Destory
+  /**
+   * ngOnDestroy
+   */
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 이전 화면으로 이동
+   * Move to previous step
    */
-  public prev() {
-    // 이전 step 으로 이동
+  public prev(): void {
     this.step = 'db-configure-schema';
     this.stepChange.emit(this.step);
   }
 
   /**
-   * 다음 화면으로 이동
+   * Move to next step
    */
-  public next() {
-    // 다음 step 으로 이동
+  public next(): void {
     this.step = 'db-complete';
     this.stepChange.emit(this.step);
   }
 
   /**
-   * 페이지 변경 클릭 이벤트
+   * Step change click event
    * @param {string} route
    */
   public onClickPageChange(route: string): void {
     route === 'prev' ? this._ingestionSettingComponent.onClickPrev() : this._ingestionSettingComponent.onClickNext();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
 }
