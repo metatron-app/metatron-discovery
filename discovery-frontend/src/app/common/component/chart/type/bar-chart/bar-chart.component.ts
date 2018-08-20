@@ -50,8 +50,6 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 기존 선반 정보 (병렬 / 중첩에따라서 변경되지않는 선반값)
-  private originPivot: Pivot;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -122,9 +120,6 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     // uiOption에 중첩일때의 최소 / 최대값 설정
     this.uiOption = this.setStackMinMaxValue();
-
-    // 기존 선반값 설정
-    this.originPivot = _.cloneDeep(this.pivot);
 
     // 바차트의 중첩 / 병렬에 따른 shelve 정보 변경
     this.pivot = this.changeShelveData(this.pivot);
