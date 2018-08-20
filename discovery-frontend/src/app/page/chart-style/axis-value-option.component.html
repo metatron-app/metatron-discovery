@@ -65,8 +65,7 @@
         </div>
         <div class="ddp-col-7">
           <input [(ngModel)]="axisTemp.grid.max" (keyup.enter)="changeMax()" type="text" class="ddp-input-typebasic"
-                 [disabled]="axis?.grid?.autoScaled"
-                 [attr.placeholder]="AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].max">
+                 [disabled]="axis?.grid?.autoScaled">
         </div>
       </div>
       <div class="ddp-wrap-option-multy ddp-clear">
@@ -76,8 +75,7 @@
         <div class="ddp-col-7">
           <!-- error 일때 ddp-error 추가 -->
           <input [(ngModel)]="axisTemp.grid.min" (keyup.enter)="changeMin()" type="text" class="ddp-input-typebasic"
-                 [disabled]="axis?.grid?.autoScaled"
-                 [attr.placeholder]="AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].min">
+                 [disabled]="axis?.grid?.autoScaled">
         </div>
       </div>
       <!--
