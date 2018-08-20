@@ -88,19 +88,16 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    const invalidResult = { command: 'merge', ruleString: undefined };
-
     // 선택된 컬럼
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return invalidResult
+      return undefined
     }
-
 
     let ruleString = 'flatten col: ' + this.selectedFields.map( item => item.name ).join(', ');
 
     return {
-      command : 'merge',
+      command : 'flatten',
       ruleString: ruleString
     };
 

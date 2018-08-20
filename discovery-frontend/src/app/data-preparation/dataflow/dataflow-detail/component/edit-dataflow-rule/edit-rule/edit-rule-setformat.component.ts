@@ -18,6 +18,8 @@ import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { DataflowService } from '../../../../service/dataflow.service';
+import { StringUtil } from '../../../../../../common/util/string.util';
+import { isNullOrUndefined } from "util";
 
 @Component({
   selector : 'edit-rule-setformat',
@@ -111,7 +113,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
       }
       this.timestampFormats.push({ value: 'Custom format', isHover: false, matchValue : -1 });
 
-      if (cols.length > 0 ) {
+      if (cols.length > 0 && '' === this.selectedTimestamp) {
         let max = this.timestampFormats.reduce((max, b) => Math.max(max, b.matchValue), this.timestampFormats[0].matchValue);
         let idx = this.timestampFormats.map((item) => {
           return item.matchValue
@@ -120,6 +122,17 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
         });
         this.defaultIndex = idx;
         this.selectedTimestamp = this.timestampFormats[idx].value;
+      } else if ('' !==this.selectedTimestamp) {
+        let items = this.timestampFormats.map((item) => {
+          return item.value;
+        });
+        if (items && items.indexOf(this.selectedTimestamp) === -1) {
+          this.customTimestamp = this.selectedTimestamp;
+          this.selectedTimestamp = 'Custom format';
+        } else {
+          this.defaultIndex = items.indexOf(this.selectedTimestamp);
+          this.selectedTimestamp = items[items.indexOf(this.selectedTimestamp)];
+        }
       } else {
         this.defaultIndex = -1;
         this.selectedTimestamp = '';
@@ -145,7 +158,15 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
     }
 
     let ruleString = 'setformat col: ' + this.selectedFields.map( item => item.name ).join(', ') + ' format: ';
-    'Custom format' === this.selectedTimestamp ? ruleString += this.customTimestamp : ruleString += this.selectedTimestamp;
+    let val = this.selectedTimestamp === 'Custom format' ?  this.customTimestamp : this.selectedTimestamp;
+    let check = StringUtil.checkSingleQuote(val, { isPairQuote: false, isWrapQuote: true });
+    if (check[0] === false) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
+      return;
+    } else {
+      val = check[1];
+    }
+    ruleString += val;
 
     return {
       command : 'setformat',
@@ -208,21 +229,22 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
     }
 
     this.dsId = this.getAttrValueInRuleString( 'dsId', ruleString );
-
-    let items = this.timestampFormats.map((item) => {
-      return item.value;
-    });
-
-    const format:string = this.getAttrValueInRuleString( 'format', ruleString );
-    if (items.indexOf(format) === -1) {
-      this.selectedTimestamp = 'Custom format';
-      this.customTimestamp = format;
-    } else {
-      this.selectedTimestamp = format;
-    }
-
+    this.getTimestampFromRuleString(ruleString);
+    this.getTimestampFormats();
   } // function - _parsingRuleString
 
+  protected getTimestampFromRuleString(ruleString : string ) {
+    let str = ruleString.split('format: ')[1];
+    if (!isNullOrUndefined(str)) {
+      this.selectedTimestamp = str.split(' dsId')[0].substring(1,str.split(' dsId')[0].length-1);
+    } else {
+      let val = ruleString.split('type: ')[1];
+      val = val.split(' dsId: ')[0];
+      if (val.toLowerCase() === 'timestamp') {
+        this.getTimestampFormats();
+      }
+    }
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
