@@ -75,8 +75,8 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     axis.baseline = !isUndefined(axis.baseline) && !isNaN(axis.baseline) ? axis.baseline : undefined;
     this.axisTemp = _.cloneDeep(axis);
     if( this.axisTemp.grid ) {
-      this.axisTemp.grid.min = this.axisTemp.grid.autoScaled || axis.baseline != 0 ? null : this.axisTemp.grid.min;
-      this.axisTemp.grid.max = this.axisTemp.grid.autoScaled || axis.baseline != 0 ? null : this.axisTemp.grid.max;
+      this.axisTemp.grid.min = this.axisTemp.grid.autoScaled || (!_.isUndefined(axis.baseline) && axis.baseline != 0) ? null : this.axisTemp.grid.min;
+      this.axisTemp.grid.max = this.axisTemp.grid.autoScaled || (!_.isUndefined(axis.baseline) && axis.baseline != 0) ? null : this.axisTemp.grid.max;
     }
   }
 
