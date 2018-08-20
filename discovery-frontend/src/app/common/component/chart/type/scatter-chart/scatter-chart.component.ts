@@ -690,133 +690,135 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
 
   protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAsis: boolean): void {
 
-    // 축범위 자동설정일 경우
-    if( grid.autoScaled ) {
-      let min = null;
-      let max = null;
-      result.data.columns.map((column, index) => {
-        column.value.map((value, index) => {
-          if( index == 1 ) {
-            if (min == null || value < min) {
-              min = value;
-            }
-            if (max == null || value > max) {
-              max = value;
-            }
-          }
-        });
-      });
-    }
+    // 스캐터차트는 Override 함으로서 데이터 가공처리를 하지 않음
 
-    // Min / Max값이 없다면 수행취소
-    if( ((_.isUndefined(grid.min) || grid.min == 0)
-      && (_.isUndefined(grid.max) || grid.max == 0)) ) {
-      return;
-    }
-
-    // 멀티시리즈 개수를 구한다.
-    let seriesList = [];
-    result.data.columns.map((column, index) => {
-      let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
-      let name = "";
-      if( nameArr.length > 1 ) {
-        nameArr.map((temp, index) => {
-          if( index < nameArr.length - 1 ) {
-            if( index > 0 ) {
-              name += CHART_STRING_DELIMITER;
-            }
-            name += temp;
-          }
-        });
-      }
-      else {
-        name = nameArr[0];
-      }
-
-      let isAlready = false;
-      seriesList.map((series, index) => {
-        if( series == name ) {
-          isAlready = true;
-          return false;
-        }
-      });
-
-      if( !isAlready ) {
-        seriesList.push(name);
-      }
-    });
-
-    // Min/Max 처리
-    if( !result.data.categories || result.data.categories.length == 0 ) {
-      result.data.columns.map((column, index) => {
-        column.value.map((value, index) => {
-          if( !isYAsis && index == 0 || !index && index == 1 ) {
-            if( value < grid.min ) {
-              column.value[index] = grid.min;
-            }
-            else if( value > grid.max ) {
-              column.value[index] = grid.max;
-            }
-          }
-        });
-      });
-    }
-    else {
-
-      _.each(result.data.categories, (category, categoryIndex) => {
-        let totalValue = [];
-        let seriesValue = [];
-        result.data.columns.map((column, index) => {
-
-          if( column.name.indexOf(category.name) == -1 ) {
-            return true;
-          }
-
-          column.value.map((value, index) => {
-            if( _.isUndefined(totalValue[index]) || isNaN(totalValue[index]) ) {
-              totalValue[index] = 0;
-              seriesValue[index] = 0;
-            }
-
-            if( totalValue[index] > grid.max ) {
-              column.value[index] = 0;
-            }
-            else if( totalValue[index] + value > grid.max ) {
-              if( seriesValue[index] <= 0 ) {
-                column.value[index] = grid.max;
-              }
-              else {
-                column.value[index] = grid.max - totalValue[index];
-              }
-            }
-            else if( totalValue[index] + value < grid.min ) {
-              column.value[index] = 0;
-            }
-            else if( totalValue[index] < grid.min && totalValue[index] + value > grid.min ) {
-              column.value[index] = totalValue[index] + value;
-            }
-            else {
-              column.value[index] = value;
-            }
-            seriesValue[index] += column.value[index];
-            totalValue[index] += value;
-          });
-        });
-
-        // Min값보다 작다면
-        _.each(totalValue, (value, valueIndex) => {
-          if( value < grid.min ) {
-            result.data.columns.map((column, index) => {
-              column.value.map((value, index) => {
-                if( index == valueIndex ) {
-                  column.value[index] = 0;
-                }
-              });
-            });
-          }
-        });
-      });
-    }
+    // // 축범위 자동설정일 경우
+    // if( grid.autoScaled ) {
+    //   let min = null;
+    //   let max = null;
+    //   result.data.columns.map((column, index) => {
+    //     column.value.map((value, index) => {
+    //       if( index == 1 ) {
+    //         if (min == null || value < min) {
+    //           min = value;
+    //         }
+    //         if (max == null || value > max) {
+    //           max = value;
+    //         }
+    //       }
+    //     });
+    //   });
+    // }
+    //
+    // // Min / Max값이 없다면 수행취소
+    // if( ((_.isUndefined(grid.min) || grid.min == 0)
+    //   && (_.isUndefined(grid.max) || grid.max == 0)) ) {
+    //   return;
+    // }
+    //
+    // // 멀티시리즈 개수를 구한다.
+    // let seriesList = [];
+    // result.data.columns.map((column, index) => {
+    //   let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
+    //   let name = "";
+    //   if( nameArr.length > 1 ) {
+    //     nameArr.map((temp, index) => {
+    //       if( index < nameArr.length - 1 ) {
+    //         if( index > 0 ) {
+    //           name += CHART_STRING_DELIMITER;
+    //         }
+    //         name += temp;
+    //       }
+    //     });
+    //   }
+    //   else {
+    //     name = nameArr[0];
+    //   }
+    //
+    //   let isAlready = false;
+    //   seriesList.map((series, index) => {
+    //     if( series == name ) {
+    //       isAlready = true;
+    //       return false;
+    //     }
+    //   });
+    //
+    //   if( !isAlready ) {
+    //     seriesList.push(name);
+    //   }
+    // });
+    //
+    // // Min/Max 처리
+    // if( !result.data.categories || result.data.categories.length == 0 ) {
+    //   result.data.columns.map((column, index) => {
+    //     column.value.map((value, index) => {
+    //       if( !isYAsis && index == 0 || !index && index == 1 ) {
+    //         if( value < grid.min ) {
+    //           column.value[index] = grid.min;
+    //         }
+    //         else if( value > grid.max ) {
+    //           column.value[index] = grid.max;
+    //         }
+    //       }
+    //     });
+    //   });
+    // }
+    // else {
+    //
+    //   _.each(result.data.categories, (category, categoryIndex) => {
+    //     let totalValue = [];
+    //     let seriesValue = [];
+    //     result.data.columns.map((column, index) => {
+    //
+    //       if( column.name.indexOf(category.name) == -1 ) {
+    //         return true;
+    //       }
+    //
+    //       column.value.map((value, index) => {
+    //         if( _.isUndefined(totalValue[index]) || isNaN(totalValue[index]) ) {
+    //           totalValue[index] = 0;
+    //           seriesValue[index] = 0;
+    //         }
+    //
+    //         if( totalValue[index] > grid.max ) {
+    //           column.value[index] = 0;
+    //         }
+    //         else if( totalValue[index] + value > grid.max ) {
+    //           if( seriesValue[index] <= 0 ) {
+    //             column.value[index] = grid.max;
+    //           }
+    //           else {
+    //             column.value[index] = grid.max - totalValue[index];
+    //           }
+    //         }
+    //         else if( totalValue[index] + value < grid.min ) {
+    //           column.value[index] = 0;
+    //         }
+    //         else if( totalValue[index] < grid.min && totalValue[index] + value > grid.min ) {
+    //           column.value[index] = totalValue[index] + value;
+    //         }
+    //         else {
+    //           column.value[index] = value;
+    //         }
+    //         seriesValue[index] += column.value[index];
+    //         totalValue[index] += value;
+    //       });
+    //     });
+    //
+    //     // Min값보다 작다면
+    //     _.each(totalValue, (value, valueIndex) => {
+    //       if( value < grid.min ) {
+    //         result.data.columns.map((column, index) => {
+    //           column.value.map((value, index) => {
+    //             if( index == valueIndex ) {
+    //               column.value[index] = 0;
+    //             }
+    //           });
+    //         });
+    //       }
+    //     });
+    //   });
+    // }
   }
 
   /**
