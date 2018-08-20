@@ -93,14 +93,14 @@
           <div class="ddp-col-5">
             <div class="ddp-txt-label" *ngIf="option.defaultOpt">{{option.key}}</div>
             <ng-container *ngIf="!option.defaultOpt">
-              <input type="text" class="ddp-input-typebasic ddp-full" placeholder="Please enter a configuration key"
+              <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.key' | translate}}"
                      [(ngModel)]="option.key">
             </ng-container>
           </div>
           <!-- //key -->
           <!-- value -->
           <div class="ddp-col-7">
-            <input type="text" class="ddp-input-typebasic ddp-full" placeholder="Please enter a configuration value"
+            <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.value' | translate}}"
                    [(ngModel)]="option.value">
             <span class="ddp-data-error" *ngIf="option.defaultOpt && isTextEmpty(option.value)"> {{'msg.storage.ui.required' | translate}}</span>
           </div>

@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+/**
+ * Advanced setting component
+ */
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { Component, ElementRef, Injector, Input } from '@angular/core';
 import { StringUtil } from '../../../common/util/string.util';
@@ -23,19 +26,7 @@ import { StringUtil } from '../../../common/util/string.util';
 })
 export class AdvancedSettingComponent extends AbstractComponent {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // advanced 목록 show hide flag
+  // advanced list show hide flag
   public isShowAdvancedSetting: boolean = true;
 
   // tuning configuration
@@ -49,38 +40,29 @@ export class AdvancedSettingComponent extends AbstractComponent {
   @Input()
   public createType: string;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
+  // Constructor
   constructor(protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
+  /**
+   * ngOnInit
+   */
   public ngOnInit() {
-    // Init
     super.ngOnInit();
   }
 
-  // Destory
+  /**
+   * ngOnDestroy
+   */
   public ngOnDestroy() {
-    // Destory
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 텍스트가 비어있는지
+   * Is text empty
    * @param {string} text
    * @returns {boolean}
    */
@@ -89,7 +71,7 @@ export class AdvancedSettingComponent extends AbstractComponent {
   }
 
   /**
-   * option 추가 클릭 이벤트
+   * Add option click event
    * @param {string} optionType
    */
   public onClickAddOption(optionType: string): void {
@@ -97,21 +79,11 @@ export class AdvancedSettingComponent extends AbstractComponent {
   }
 
   /**
-   * option 제거 클릭 이벤트
+   * Delete option click event
    * @param {string} optionType
    * @param {number} index
    */
   public onClickRemoveOption(optionType: string, index: number): void {
     this[optionType].splice(index, 1);
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
 }
