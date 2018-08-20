@@ -14,18 +14,27 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.*;
+import app.metatron.discovery.domain.dataprep.PrepDataset.OP_TYPE;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.teddy.*;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
-import app.metatron.discovery.prep.parser.preparation.rule.*;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
+import app.metatron.discovery.prep.parser.preparation.rule.*;
+import app.metatron.discovery.prep.parser.preparation.rule.Set;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.hibernate.Hibernate;
@@ -43,36 +52,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.IllegalTransactionStateException;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.domain.dataprep.*;
-import app.metatron.discovery.domain.dataprep.PrepDataset.OP_TYPE;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.Histogram;
-import app.metatron.discovery.domain.dataprep.teddy.Row;
-import app.metatron.discovery.domain.dataprep.teddy.TeddyExecutor;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 
 import static app.metatron.discovery.domain.dataprep.PrepDataset.DS_TYPE.WRANGLED;
 
@@ -2032,7 +2018,7 @@ public class PrepTransformService {
     return response;
   }
 
-  public Map<String,Object> getConfiguration(String wrangledDsId, PrepSnapshot.SS_TYPE ssType) {
+  public Map<String,Object> getConfiguration(String wrangledDsId) {
     Map<String,Object> configuration = Maps.newHashMap();
     try {
       PrepDataset wrangledDataset = datasetRepository.findOne(wrangledDsId);
@@ -2041,7 +2027,7 @@ public class PrepTransformService {
       String ssName = this.snapshotService.makeSnapshotName(wrangledDataset.getDsName(),launchTime);
       configuration.put("ss_name", ssName);
 
-      if(ssType==PrepSnapshot.SS_TYPE.FILE) {
+      if(PrepSnapshot.SS_TYPE.FILE==PrepSnapshot.SS_TYPE.FILE) {
         Map<String,Object> fileUri = Maps.newHashMap();
 
         String wasDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
@@ -2057,8 +2043,22 @@ public class PrepTransformService {
           }
         } catch (Exception e) {
         }
-
         configuration.put("file_uri", fileUri);
+      }
+
+      if(PrepSnapshot.SS_TYPE.HIVE==PrepSnapshot.SS_TYPE.HIVE) {
+        Map<String,Object> hive = null;
+        PrepProperties.HiveInfo hiveInfo = prepProperties.getHive();
+        if(hiveInfo!=null) {
+          hive = Maps.newHashMap();
+          hive.put("custom_url", hiveInfo.getCustomUrl());
+          hive.put("metastore_uris", hiveInfo.getMetastoreUris());
+          hive.put("hostname", hiveInfo.getHostname());
+          hive.put("port", hiveInfo.getPort());
+          hive.put("username", hiveInfo.getUsername());
+          hive.put("password", hiveInfo.getPassword());
+        }
+        configuration.put("hive_info", hive);
       }
     } catch (Exception e) {
       throw e;
