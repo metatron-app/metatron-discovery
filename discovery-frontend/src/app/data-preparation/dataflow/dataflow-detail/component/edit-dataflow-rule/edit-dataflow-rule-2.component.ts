@@ -632,6 +632,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         });
         this._editRuleComp.init(setformatList, selectedsetformatList, `dsId: ${this.selectedDataSet.dsId}`);
         break;
+      case 'settype':
+        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields, `dsId: ${this.selectedDataSet.dsId}`);
+        this._editRuleComp.setColDescs(this.selectedDataSet.gridResponse.colDescs);
+        break;
       case 'flatten' :
         let flattenList = this.selectedDataSet.gridData.fields.filter((item) => {
           return item.type === 'ARRAY'
@@ -680,17 +684,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       case 'set':
       case 'aggregate':
       case 'pivot':
-        this._editRuleComp.setRuleVO(this.ruleVO);
         this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields );
-        break;
-      case 'settype':
-        this.dataflowService.getTimestampFormatSuggestions(this.selectedDataSet.dsId, { colNames: this.selectedDataSet.gridResponse.colNames })
-          .then((result) => {
-            this.timestampSuggestions = result;
-            // this._setTimestampFormatsByColumn(result);
-          }).catch((error) => {
-          console.info(error);
-        });
         break;
     }
     this.initSelectedCommand(this.filteredCommandList);
@@ -1182,13 +1176,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'setformat' :
         case 'aggregate' :
         case 'pivot' :
+        case 'settype' :
           rule = this._editRuleComp.getRuleData();
           if (isUndefined(rule)) {
             return;
           }
-          break;
-        case 'settype' :
-          rule = this.setSettypeRule();
           break;
         default :
           break;
@@ -1314,16 +1306,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'delete' :
         case 'keep' :
         case 'derive' :
-          let row = rule.ruleString.split(': ');
-          this.ruleVO['row'] = row[1];
-          this._editRuleComp.setRuleVO(this.ruleVO);
-          this._editRuleComp.init(gridData.fields, [], rule.ruleString);
-          break;
         case 'set' :
-          let rowString = rule.ruleString.split('value: ');
-          rowString = rowString[1].split(' row: ');
-          this.ruleVO.row = rowString[0];
-          this._editRuleComp.setRuleVO(this.ruleVO);
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           break;
         case 'drop' :
@@ -1342,12 +1325,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           break;
         case 'settype':
-          if (isNullOrUndefined(this.ruleVO.cols)) {
-            const colVal = this.ruleVO['col']['value'];
-            this.ruleVO.cols = (colVal instanceof Array) ? colVal : [colVal];
-          }
-          this._setSelectionFields(this.selectedDataSet.gridData.fields, this.ruleVO.cols);
-          this.setSettypEditInfo(rule);
+          this._editRuleComp.init(gridData.fields, [], `${rule.ruleString} dsId: ${this.selectedDataSet.dsId}`);
+          this._editRuleComp.setColDescs(this.selectedDataSet.gridResponse.colDescs);
           break;
         case 'union' :
           if (this.selectedDataSet.gridData.data.length > 1) {
@@ -1919,9 +1898,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       case 'keep' :
       case 'derive' :
       case 'delete':
-        this.ruleVO.row = data.formula;
         this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);
-        this._editRuleComp.setRuleVO(this.ruleVO);
         break;
       default :
         this.ruleVO.row = data.formula;
@@ -2216,119 +2193,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       })
     }
 
-    if (this.ruleVO.command === 'rename' || this.ruleVO.command === 'split' || this.ruleVO.command === 'extract') {
-
-      this.ruleVO.col = this.selectedColumns.length === 0 ? '' : this.selectedColumns[0];
-
-    } else if (this.ruleVO.command === 'unnest') {
-      if (this.selectedColumns.length === 1) { // multi select 지원 안함
-        this.selectedDataSet.gridData.fields.filter((item) => { // type 확인
-          if (item.name === this.selectedColumns[0]) {
-            if (item.type === 'ARRAY' || item.type === 'MAP') {
-              this.ruleVO.col = this.selectedColumns[0];
-              // this.moveScrollHorizontally(this.ruleVO.col);
-            } else {
-              this.ruleVO.col = '';
-            }
-          }
-        });
-      } else {
-        this.ruleVO.col = '';
-      }
-    } else if (this.ruleVO.command === 'flatten') {
-      if (this.selectedColumns.length === 1) { // multi select 지원 안함
-        this.selectedDataSet.gridData.fields.filter((item) => { // type 확인
-          if (item.name === this.selectedColumns[0]) {
-            if (item.type === 'ARRAY') {
-              this.ruleVO.col = this.selectedColumns[0];
-              // this.moveScrollHorizontally(this.ruleVO.col);
-
-            } else {
-              this.ruleVO.col = '';
-            }
-          }
-        });
-      } else {
-        this.ruleVO.col = '';
-      }
-    } else if (this.ruleVO.command === 'settype' && this.ruleVO.type) {
-      if ('string' === this.ruleVO.type.toLowerCase()) {
-
-        let timestampStyles = [];
-        this.selectedColumns.forEach((item) => {
-          let idx = this._findIndexWithNameInGridResponse(item);
-          if ('TIMESTAMP' === this._findUpperCaseColumnTypeWithIdx(idx)) {
-            timestampStyles.push(this._findTimestampStyleWithIdxInColDescs(idx));
-          }
-        });
-        const allEqual = arr => arr.every(v => v === arr[0]);
-        if (timestampStyles.length !== 0 && this.selectedColumns.length === timestampStyles.length && allEqual(timestampStyles)) {
-          this.isTypeTimestamp = true;
-          this.ruleVO.timestamp = timestampStyles[0].replace(/'/g, '\\\'');
-        } else if (timestampStyles.length > 0) {
-          this.isTypeTimestamp = true;
-          this.ruleVO.timestamp = '';
-        } else {
-          this.isTypeTimestamp = false;
-        }
-
-      } else if ('timestamp' === this.ruleVO.type.toLowerCase()) {
-        this.isTypeTimestamp = true;
-
-        let timestampStyles = [];
-        let stringTimestampStyles = [];
-        if (this.selectedColumns.length > 0) {
-          this.selectedColumns.forEach((item) => {
-            let idx = this._findIndexWithNameInGridResponse(item);
-            if ('TIMESTAMP' === this._findUpperCaseColumnTypeWithIdx(idx)) {
-              timestampStyles.push(this._findTimestampStyleWithIdxInColDescs(idx));
-            } else if ('STRING' === this._findUpperCaseColumnTypeWithIdx(idx)) {
-              stringTimestampStyles.push(this.timestampSuggestions && this.timestampSuggestions[item][0] ? this.timestampSuggestions[item][0] : '');
-            }
-          });
-          const allEqual = arr => arr.every(v => v === arr[0]);
-          if (timestampStyles.length !== 0 && this.selectedColumns.length === timestampStyles.length && allEqual(timestampStyles)) {
-            this.ruleVO.timestamp = timestampStyles[0].replace(/'/g, '\\\'');
-          } else if (stringTimestampStyles.length !== 0 && this.selectedColumns.length === stringTimestampStyles.length && allEqual(stringTimestampStyles)) {
-            this.ruleVO.timestamp = stringTimestampStyles[0].replace(/'/g, '\\\'');
-          } else {
-            this.ruleVO.timestamp = '';
-          }
-        }
-      } else {
-        this.isTypeTimestamp = false;
-        this.ruleVO.timestamp = '';
-      }
-    } else if ('setformat' === this.ruleVO.command) {
-
-      let selectedColumns = data.columns;
-      let types = [];
-      selectedColumns.forEach((item) => {
-        let idx = this._findIndexWithNameInGridResponse(item);
-        if ('TIMESTAMP' === this._findUpperCaseColumnTypeWithIdx(idx)) {
-          types.push(this._findTimestampStyleWithIdxInColDescs(idx));
-        } else {
-          this.ruleVO.cols.splice(this.ruleVO.cols.indexOf(item), 1);
-        }
-        const allEqual = arr => arr.every(v => v === arr[0]);
-        if (allEqual(types)) {
-          this.ruleVO.timestamp = types[0];
-        } else {
-          this.ruleVO.timestamp = '';
-        }
-      });
-      this.isTimestampEdit = false;
-      this.ruleVO.timestamp = this.ruleVO.timestamp !== '' ? this.ruleVO.timestamp : this.ruleVO.timestamp.replace(/'/g, '\\\'');
-
-    }
-
-    if (this.selectedColumns.length === 0) {
-      this.ruleVO.timestamp = '';
-    }
-
-    if (this.ruleVO.command === 'settype' || this.ruleVO.command === 'setformat') {
-      this.getTimestampFormatsFromServer(this.selectedColumns);
-    }
   } // function - setRuleInfoFromGridHeader
 
 
@@ -2375,21 +2239,21 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     } else {
 
-      this.ruleVO['command'] = args.command;
-      this.ruleVO.col = args.column.id;
-
-      if (this.ruleVO['command'] === 'rename') {
-
-        this.setDefaultValue(true);
-
-        setTimeout(() => $('.newColumnInput').trigger('focus')); // 포커스
-        // setTimeout(() => $('.newColumnInput').select()); // highlight
-
-      } else if (this.ruleVO['command'] === 'settype') {
-
-        setTimeout(() => $('[tabindex=3]').trigger('focus')); // 포커스
-
-      }
+      // this.ruleVO['command'] = args.command;
+      // this.ruleVO.col = args.column.id;
+      //
+      // if (this.ruleVO['command'] === 'rename') {
+      //
+      //   this.setDefaultValue(true);
+      //
+      //   setTimeout(() => $('.newColumnInput').trigger('focus')); // 포커스
+      //   // setTimeout(() => $('.newColumnInput').select()); // highlight
+      //
+      // } else if (this.ruleVO['command'] === 'settype') {
+      //
+      //   setTimeout(() => $('[tabindex=3]').trigger('focus')); // 포커스
+      //
+      // }
 
     }
 
@@ -2430,44 +2294,20 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           let setformatSel =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ).filter((item) => {
             return item.type === 'TIMESTAMP'
           });
-          this._editRuleComp.init(setformatList, setformatSel, `dsId : ${this.selectedDataSet.dsId}`);
+          this._editRuleComp.init(setformatList, setformatSel, `type: timestamp dsId : ${this.selectedDataSet.dsId} `);
           break;
         case 'move':
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ), data.more.move);
           break;
         case 'set':
-          this.ruleVO.cols = data.more.col;
-          this._editRuleComp.setRuleVO(this.ruleVO);
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ));
           break;
         case 'derive':
-          this._editRuleComp.setRuleVO(this.ruleVO);
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);
           break;
         case 'settype':
-          this.ruleVO.cols = data.more.col;
-          // this._editRuleGridComp.selectColumn(this.ruleVO.col, true);
-          this.ruleVO.type = data.more.type;
-          this.isTypeTimestamp = true;
-
-          if (this.ruleVO.type === 'String') { // 스트링일떄는 선택된 컬럼이 타임스탬프 타입임
-            this.ruleVO.timestamp = this._findTimestampStyleWithIdxInColDescs(this._findIndexWithNameInGridResponse(this.ruleVO.col[0]));
-          } else if (this.ruleVO.type === 'Timestamp') {
-            let index = this._findIndexWithNameInGridResponse(data.more.col[0]);
-            if (this._findUpperCaseColumnTypeWithIdx(index) === 'STRING') {
-              this.dataflowService.getTimestampFormatSuggestions(this.selectedDataSet.dsId, { colNames: this.selectedDataSet.gridResponse.colNames })
-                .then((result) => {
-
-                  if (result[this.ruleVO.col][0]) {
-                    this.ruleVO.timestamp = result[this.ruleVO.col][0].replace(/'/g, '\\\'');
-                  }
-                }).catch((error) => {
-                console.info(error);
-              });
-            } else if (this._findUpperCaseColumnTypeWithIdx(index) === 'TIMESTAMP') {
-              this.ruleVO.timestamp = this._findTimestampStyleWithIdxInColDescs(index);
-            }
-          }
+          this._editRuleComp.setColDescs(this.selectedDataSet.gridResponse.colDescs);
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ), `type: ${data.more.type} dsId: ${this.selectedDataSet.dsId}`);
           break;
       }
     } else {
@@ -2479,15 +2319,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * 타임스탬프 타입에 \' 를 \\' 로 바꾸야 하는지 ..
-   * @param value
-   */
-  private _addBackSlashToQuote(value) {
-    return value.replace(/'/g, '\\\'')
-  } // function - addBackSlashToQuote
-
-
   /**
    * Find index of column Name in grid response
    * @param {string} name
@@ -2579,28 +2410,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       });
 
   } // function - _setEditRuleInfo
-
-  /**
-   * 선택 필드 설정
-   * @param {Field[]} fields
-   * @param {string[]} selectColNames
-   * @returns {Field[]}
-   * @private
-   */
-  private _setSelectionFields(fields: any[], selectColNames: string[]): Field[] {
-    fields.forEach(item => {
-      const idx = selectColNames.findIndex(col => col === item.name);
-      if (-1 < idx) {
-        item.seq = idx + 1;
-        item.selected = true;
-        this._editRuleGridComp.selectColumn(item.name, true);
-      } else {
-        delete item.seq;
-        delete item.selected;
-      }
-    });
-    return fields;
-  } // function - _setSelectionFields
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
@@ -2824,17 +2633,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   }
 
-  // noinspection JSMethodCanBeStatic
-  private _validateSingleQuoteForPattern(on) {
-    let pattern = StringUtil.checkSingleQuote(on, { isWrapQuote: !StringUtil.checkRegExp(on) });
-    if (pattern[0] === false) {
-      return;
-    } else {
-      return pattern[1]
-    }
-
-  }
-
   /**
    * apply rule
    * @rule Rule
@@ -2961,209 +2759,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Set return value for each rule .. 22 rules..
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  private setSetformatRule() {
-    // 컬럼
-    if (this.ruleVO.cols.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
-    }
-    this.ruleVO.col = this.ruleVO.cols.join(', ');
-
-    if (this.ruleVO.timestamp !== '' || !isUndefined(this.ruleVO.timestamp)) {
-
-      if (!this._surroundQuoteOnTimestamp(this.ruleVO.timestamp === 'Custom format' ? this.timestampVal : this.ruleVO.timestamp)) {
-        return;
-      }
-    }
-    return {
-      command: this.ruleVO.command,
-      ruleString: PreparationCommonUtil.makeRuleResult(this.ruleVO)
-    }
-  }
-
-  private setSettypeRule(): any {
-
-    // 컬럼
-    if (this.ruleVO.cols.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
-    }
-    this.ruleVO.col = this.ruleVO.cols.join(', ');
-
-    // 타임스템프
-    if (this.isTypeTimestamp) {
-      if ('Timestamp' === this.ruleVO.type) {
-
-        if (!this._surroundQuoteOnTimestamp(this.ruleVO.timestamp === 'Custom format' ? this.timestampVal : this.ruleVO.timestamp)) {
-          return;
-        }
-
-      } else if ('String' === this.ruleVO.type) {
-
-        if (this.ruleVO.timestamp === '' || isUndefined(this.ruleVO.timestamp) || (this.ruleVO.timestamp === 'Custom format' && this.timestampVal === '')) {
-
-          this.ruleVO.timestamp = ''
-
-        } else if ((this.ruleVO.timestamp !== 'Custom format' && this.timestampVal === '') || (this.ruleVO.timestamp === 'Custom format' && this.timestampVal !== '')) {
-
-          if (!this._surroundQuoteOnTimestamp(this.timestampVal !== '' ? this.timestampVal : this.ruleVO.timestamp)) {
-            return;
-          }
-
-        }
-      }
-    }
-
-    // 타입
-    if (isUndefined(this.ruleVO.type) || '' === this.ruleVO.type) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.type'));
-      return;
-    }
-    return {
-      command: this.ruleVO.command,
-      ruleString: PreparationCommonUtil.makeRuleResult(this.ruleVO)
-    };
-
-  } // function - setSettypeRule
-
-  /**
-   * 타임스탬프 값에 '로 감싼다
-   * @param {string} value
-   * @return {boolean}
-   * @private
-   */
-  private _surroundQuoteOnTimestamp(value: string): boolean {
-    let check = StringUtil.checkSingleQuote(value, { isPairQuote: false, isWrapQuote: true });
-    if (check[0] === false) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
-      return false;
-    } else {
-      this.ruleVO.timestamp = check[1];
-      return true;
-    }
-  } // - _surroundQuoteOnTimestamp
-
-  private setPivotRule(): any {
-
-    // 컬럼
-    if (this.ruleVO.cols.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
-    }
-    this.ruleVO.col = this.ruleVO.cols.join(', ');
-
-    // Formula
-    // must enter at least one formula
-    if (this.pivotFormulaValueList.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
-      return;
-    }
-    let checkFormula = this.pivotFormulaValueList.map((field) => {
-      return StringUtil.checkSingleQuote(field, { isWrapQuote: false, isAllowBlank: false })[0];
-    });
-    if (checkFormula.indexOf(false) == -1) {
-      this.pivotFormulaValueList = this.pivotFormulaValueList.map((field) => { // 수식 하나에 ''를 감싼다
-        if (StringUtil.checkFormula(field)) {
-          return '\'' + field + '\'';
-        } else {
-          Alert.warning(this.translateService.instant('msg.dp.alert.check.formula'));
-          return;
-        }
-      });
-      this.ruleVO.value = this.pivotFormulaValueList.join(','); // 수식을 , 로 쪼인한다
-    } else {
-      Alert.warning(this.translateService.instant('msg.dp.alert.check.formula'));
-      return;
-    }
-
-    // 그룹
-    if (this.ruleVO.groups.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
-      return;
-    }
-    this.ruleVO.group = this.ruleVO.groups.join(', ');
-
-    return {
-      ruleString: PreparationCommonUtil.makeRuleResult(this.ruleVO)
-    };
-
-  } // function - setPivotRule
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Set edit info for each rule .. 20 rules..
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private setSettypEditInfo(rule) {
-    this.getEditColumnList(rule['jsonRuleString'], 'col');
-
-    let ruleString = JSON.parse(rule['jsonRuleString']);
-    if (ruleString['format']) {
-      let str = rule.ruleString.split('format: ');
-      str = str[1].substring(1, str[1].length - 1);
-      this.isTypeTimestamp = true;
-      let items = this.timestampTime.map((item) => {
-        return item.value;
-      });
-      if (items.indexOf(str) === -1) {
-        this.ruleVO.timestamp = 'Custom format';
-        this.timestampVal = str;
-      } else {
-        this.ruleVO.timestamp = items[items.indexOf(str)];
-      }
-    }
-
-  }
-
-  private setPivotEditInfo(rule) {
-    let pivotrulestring = JSON.parse(rule['jsonRuleString']);
-    this.selectedDataSet.gridData.fields.filter((field) => {
-      delete field.seq;
-      delete field.groupSeq;
-    });
-
-    if (pivotrulestring['value']['escapedValue']) {
-      this.pivotFormulaValueList[0] = pivotrulestring['value']['escapedValue'];
-    } else {
-      pivotrulestring['value']['value'].filter((item) => {
-        const field = item.substring(1, item.length - 1);
-        this.pivotFormulaValueList.push(field);
-      });
-
-    }
-
-    this.pivotFormulaList.length = this.pivotFormulaValueList.length;
-
-    if (!isUndefined(pivotrulestring['col'].value)) {
-      const pivotFields = this.selectedDataSet.gridData.fields.map((f) => {
-        return f.name;
-      });
-      // this.ruleVO.cols = [];
-      this.ruleVO.groups = [];
-
-      if (pivotrulestring['group']) {
-
-        if (typeof pivotrulestring['group'].value === 'string') {
-          pivotrulestring['group']['value'] = [pivotrulestring['group'].value];
-        }
-
-        pivotrulestring['group']['value'].forEach((colName, index) => {
-          this.ruleVO.groups.push(colName);
-          const idx = pivotFields.indexOf(colName);
-          if (idx > -1) {
-            // only insert seq number into selected fields
-            this.selectedDataSet.gridData.fields[idx].ticked = true;
-            this.selectedDataSet.gridData.fields[idx].groupSeq = index + 1;
-          }
-        });
-      }
-    }
-
-    this.getEditColumnList(rule['jsonRuleString'], 'col');
-  }
-
   private setJoinEditInfo(rule) {
     this.rightDataset = new Dataset();
 
@@ -3212,527 +2807,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.isRuleJoinModalShow = true;
     this.changeDetect.detectChanges();
-  }
-
-  /**
-   * Multi column edit - 어떤 컬럼이 선택 되어있는지
-   * @param jsonRuleString
-   * @param property
-   */
-  private getEditColumnList(jsonRuleString, property) {
-    let ruleString = JSON.parse(jsonRuleString);
-
-    if (!isUndefined(ruleString[property].value)) {
-      this.editColumnList = [];
-
-      if (typeof ruleString[property].value === 'string') {
-        this.editColumnList[0] = ruleString[property].value;
-        return;
-      }
-
-      ruleString[property]['value'].forEach((colName) => {
-        this.editColumnList.push(colName);
-      });
-    }
-  }
-
-  /**
-   * Remove surrounded quotation marks from server
-   * @param property
-   */
-  private removeQuotation(property) {
-    if ('string' !== typeof this.ruleVO[property]) {
-      this.ruleVO[property] = this.ruleVO[property]['escapedValue'];
-    } else {
-      if (this.ruleVO[property].startsWith('\'') && this.ruleVO[property].endsWith('\'')) {
-        this.ruleVO[property] = this.ruleVO[property].substring(1, this.ruleVO[property].length - 1);
-      }
-    }
-
-  }
-
-  /**
-   * Rule 변경
-   * @param $event
-   * @returns {boolean}
-   */
-  public changeRule($event) {
-    if (-2 == this.autoCompleteSuggestions_selectedIdx) {
-      this.autoCompleteSuggestions_selectedIdx = -1;
-      return;
-    }
-
-    //console.log($event);
-
-    let inputId = '';
-    let value = undefined;
-    if (typeof $event === 'string') {
-      value = $event;
-    } else {
-      if ($event.target && $event.target.value) {
-        value = $event.target.value.substring(0, $event.target.selectionStart);
-        if ($event.key) {
-          if (
-            (8 <= $event.keyCode && $event.keyCode <= 9) ||
-            (12 <= $event.keyCode && $event.keyCode <= 13) ||
-            (16 <= $event.keyCode && $event.keyCode <= 21) ||
-            $event.keyCode === 25 ||
-            $event.keyCode === 27 ||
-            (33 <= $event.keyCode && $event.keyCode <= 47) ||
-            (91 <= $event.keyCode && $event.keyCode <= 92) ||
-            (112 <= $event.keyCode && $event.keyCode <= 127) ||
-            (144 <= $event.keyCode && $event.keyCode <= 145)
-          ) {
-            // special key
-          } else {
-            if (($event.metaKey == true || $event.ctrlKey == true) && $event.key == 'v') {
-              // paste
-              /*
-              let input = $event.target;
-              input.blur();
-              input.focus();
-              */
-              return;
-            } else {
-              value += $event.key;
-            }
-          }
-        }
-      }
-      if ($event.target && $event.target.id) {
-        inputId = $event.target.id;
-      }
-      if (this.autoCompleteSuggestions && 0 < this.autoCompleteSuggestions.length) {
-        if ($event.keyCode === 38 || $event.keyCode === 40) {
-          if ($event.keyCode === 38) {
-            this.autoCompleteSuggestions_selectedIdx--;
-          } else if ($event.keyCode === 40) {
-            this.autoCompleteSuggestions_selectedIdx++;
-          }
-
-          if (this.autoCompleteSuggestions_selectedIdx < 0) {
-            this.autoCompleteSuggestions_selectedIdx = this.autoCompleteSuggestions.length - 1;
-          } else if (this.autoCompleteSuggestions.length <= this.autoCompleteSuggestions_selectedIdx) {
-            this.autoCompleteSuggestions_selectedIdx = 0;
-          }
-
-          let height = 25;
-          $('.ddp-list-command').scrollTop(this.autoCompleteSuggestions_selectedIdx * height);
-
-          return false;
-        } else if ($event.keyCode === 27) {
-          this.isAutoCompleteSuggestionListOpen = false;
-          this.autoCompleteSuggestion_inputId = '';
-          this.autoCompleteSuggestions = [];
-          this.autoCompleteSuggestions_selectedIdx = -2;
-          return false;
-        } else if ($event.keyCode === 13 || $event.keyCode === 108) {
-          if (0 <= this.autoCompleteSuggestions_selectedIdx
-            && this.autoCompleteSuggestions_selectedIdx < this.autoCompleteSuggestions.length) {
-            if (inputId.startsWith('rule-pivot') || inputId.startsWith('rule-aggregate')) {
-              let formulaValueIdx = inputId.substring(inputId.lastIndexOf('-') + 1);
-              this.onautoCompleteSuggestionsSelectPivot(this.autoCompleteSuggestions[this.autoCompleteSuggestions_selectedIdx], this.pivotFormulaValueList, formulaValueIdx);
-            } else {
-              this.onautoCompleteSuggestionsSelect(this.autoCompleteSuggestions[this.autoCompleteSuggestions_selectedIdx]);
-            }
-          }
-          return false;
-        } else if ($event.keyCode === 8 || $event.keyCode === 46 || $event.keyCode === 37 || $event.keyCode === 39) {
-
-          let input = $event.target;
-          let input_value = input.value;
-          let start = input.selectionStart;
-          let end = input.selectionEnd;
-
-          if ($event.keyCode === 8) {
-            if (0 <= start && end <= input_value.length) {
-              if (start == end) {
-                start--;
-                end--;
-                input_value = input_value.substring(0, start) + input_value.substring(start + 1);
-              } else if (start < end) {
-                input_value = input_value.substring(0, start) + input_value.substring(end);
-                end = start;
-              }
-            }
-          } else if ($event.keyCode === 46) {
-            if (0 <= start && end <= input_value.length) {
-              if (start == end) {
-                input_value = input_value.substring(0, start + 1) + input_value.substring(end + 2);
-              } else if (start < end) {
-                input_value = input_value.substring(0, start) + input_value.substring(end);
-                end = start;
-              }
-            }
-          } else if ($event.keyCode === 37) {
-            if (0 < start) {
-              start--;
-              end--;
-            }
-          } else if ($event.keyCode === 39) {
-            if (end < input_value.length) {
-              start++;
-              end++;
-            }
-          }
-
-          input.blur();
-
-          input.value = input_value;
-          input.selectionStart = start;
-          input.selectionEnd = end;
-
-          input.dispatchEvent(new Event('input'));
-          input.focus();
-
-          return false;
-        } else if (
-          (8 <= $event.keyCode && $event.keyCode <= 9) ||
-          (12 <= $event.keyCode && $event.keyCode <= 13) ||
-          (16 <= $event.keyCode && $event.keyCode <= 21) ||
-          $event.keyCode === 25 ||
-          $event.keyCode === 27 ||
-          (33 <= $event.keyCode && $event.keyCode <= 47) ||
-          (91 <= $event.keyCode && $event.keyCode <= 92) ||
-          (112 <= $event.keyCode && $event.keyCode <= 127) ||
-          (144 <= $event.keyCode && $event.keyCode <= 145)
-        ) {
-          return false;
-        } else {
-          // normal character
-        }
-      }
-    }
-
-    let ruleString = '';
-    let ruleCommand = null;
-    let rulePart = null;
-    if (!isUndefined(this.ruleVO)) {
-      ruleString = PreparationCommonUtil.makeRuleResult(this.ruleVO);
-      ruleCommand = this.ruleVO['command'];
-      if (undefined !== value) {
-        rulePart = value;
-        if (0 < rulePart.length && 0 < this.autoCompleteSuggestions.length) {
-          for (let suggest of this.autoCompleteSuggestions) {
-            if (rulePart.trim().endsWith(suggest.value)) {
-              if (suggest.type != '@_OPERATOR_@'
-                && suggest.type != '@_STRING_@'
-                && suggest.type != '@_FUNCTION_EXPRESSION_@'
-                && suggest.type != '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
-                let lastIdx = rulePart.lastIndexOf(suggest.value);
-                rulePart = rulePart.substring(0, lastIdx) + suggest.type + rulePart.substring(lastIdx + suggest.value.length);
-              }
-              break;
-            }
-          }
-        }
-      } else {
-        rulePart = '';
-      }
-    }
-
-    /********************************
-     // autocomplete temporary dev
-     *********************************/
-    /*
-    let columnNames = [];
-    if(ruleCommand=='set' && 0<this.selectedDataSet.gridData.fields.length ) {
-      columnNames.push( '$col' );
-    }
-    for(var _column of this.selectedDataSet.gridData.fields) {
-      columnNames.push( _column.name );
-    }
-    var functionNames = [
-      'add_time', 'concat', 'concat_ws', 'day', 'hour', 'if', 'isnan', 'isnull', 'length', 'lower', 'ltrim', 'math.abs', 'math.acos', 'math.asin', 'math.atan', 'math.cbrt', 'math.ceil', 'math.cos', 'math.cosh', 'math.exp', 'math.expm1', 'math.getExponent', 'math.round', 'math.signum', 'math.sin', 'math.sinh', 'math.sqrt', 'math.tan', 'math.tanh', 'millisecond', 'minute', 'month', 'now', 'rtrim', 'second', 'substring', 'time_diff', 'timestamp', 'trim', 'upper','year'
-    ];
-    var functionAggrNames = [
-      'sum','avg','max','min','count',
-    ];
-    console.log(value);
-    */
-
-
-    this.dataflowService.autoComplete(ruleString, ruleCommand, rulePart).then((data) => {
-      let columnNames = [];
-      if (ruleCommand == 'set' && 0 < this.selectedDataSet.gridData.fields.length) {
-        columnNames.push('$col');
-      }
-      for (let _column of this.selectedDataSet.gridData.fields) {
-        columnNames.push(_column.name);
-      }
-      let functionNames = [
-        'add_time', 'concat', 'concat_ws', 'day', 'hour', 'if', 'isnan', 'isnull', 'length', 'lower', 'ltrim', 'math.abs', 'math.acos', 'math.asin', 'math.atan', 'math.cbrt', 'math.ceil', 'math.cos', 'math.cosh', 'math.exp', 'math.expm1', 'math.getExponent', 'math.round', 'math.signum', 'math.sin', 'math.sinh', 'math.sqrt', 'math.tan', 'math.tanh', 'millisecond', 'minute', 'month', 'now', 'rtrim', 'second', 'substring', 'time_diff', 'timestamp', 'trim', 'upper', 'year'
-      ];
-      // 2018.5.23  'now','month','day','hour','minute','second','millisecond','if','isnull','isnan','length','trim','ltrim','rtrim','upper','lower','substring','math.abs','math.acos','math.asin','math.atan','math.cbrt','math.ceil','math.cos','math.cosh','math.exp','math.expm1','math.getExponent','math.round','math.signum','math.sin','math.sinh','math.sqrt','math.tan','math.tanh','left','right','if','substring','add_time','concat','concat_ws'
-      let functionAggrNames = [
-        'sum', 'avg', 'max', 'min', 'count',
-      ];
-      if (!isUndefined(data.suggest)) {
-        let suggests: any = [];
-        let ruleSource = '';
-        let tokenSource0 = data.suggest[0].tokenSource;
-        data.suggest.forEach((item) => {
-          if (0 <= item.start) {
-            if (item.tokenSource == '<EOF>') {
-              item.tokenSource = '';
-            }
-            if (1 < item.tokenString.length && item.tokenString.startsWith('\'') && item.tokenString.endsWith('\'')) {
-              item.tokenString = item.tokenString.substring(1, item.tokenString.length - 1);
-            }
-            if (item.tokenString == '@_COLUMN_NAME_@') {
-              let ts = item.tokenSource;
-              if (false == tokenSource0.endsWith(ts)) {
-                ts = '';
-              }
-              for (let columnName of columnNames) {
-                if (columnName.startsWith(ts)) {
-                  let suggest = {
-                    'type': item.tokenString,
-                    'class': 'DodgerBlue',
-                    'source': item.tokenSource,
-                    'value': columnName
-                  };
-                  suggests.push(suggest);
-                }
-              }
-            } else if (item.tokenString == '@_FUNCTION_EXPRESSION_@') {
-              let ts = item.tokenSource;
-              if (false == tokenSource0.endsWith(ts)) {
-                ts = '';
-              }
-              for (let functionName of functionNames) {
-                if (functionName.startsWith(ts)) {
-                  let suggest = {
-                    'type': item.tokenString,
-                    'class': 'Olive',
-                    'source': item.tokenSource,
-                    'value': functionName
-                  };
-                  suggests.push(suggest);
-                }
-              }
-            } else if (item.tokenString == '@_COMPLETED_BRACKET_@') {
-              let openidx = ruleSource.lastIndexOf('(');
-              let closeidx = ruleSource.lastIndexOf(')');
-              if (0 <= openidx && closeidx < openidx) {
-                //if( item.tokenSource.startsWith('(') ) {
-                let suggest = {
-                  'type': item.tokenString,
-                  'class': 'LightCoral',
-                  'source': item.tokenSource,
-                  'value': ')'
-                };
-                suggests.push(suggest);
-              }
-            } else if (item.tokenString == '@_STRING_@') {
-              if (item.tokenSource.startsWith('\'')) {
-                let suggest = {
-                  'type': item.tokenString,
-                  'class': 'black',
-                  'source': item.tokenSource,
-                  'value': '\''
-                };
-                suggests.push(suggest);
-              }
-            } else if (item.tokenString == 'LONG') {
-            } else if (item.tokenString == 'DOUBLE') {
-            } else if (item.tokenString == 'BOOLEAN') {
-            } else if (item.tokenString == '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
-              for (let functionName of functionAggrNames) {
-                if (functionName.startsWith(item.tokenSource)) {
-                  let suggest = {
-                    'type': item.tokenString,
-                    'class': 'Olive',
-                    'source': item.tokenSource,
-                    'value': functionName
-                  };
-                  suggests.push(suggest);
-                }
-              }
-            } else if (item.tokenString == 'count' || item.tokenString == 'avg' || item.tokenString == 'sum' || item.tokenString == 'min' || item.tokenString == 'max') {
-              if (item.tokenString.startsWith(item.tokenSource)) {
-                let suggest = {
-                  'type': '@_AGGREGATE_FUNCTION_EXPRESSION_@', // item.tokenString,
-                  'class': 'Olive',
-                  'source': item.tokenSource,
-                  'value': item.tokenString
-                };
-                suggests.push(suggest);
-              }
-            } else {
-              let suggest = {
-                'type': '@_OPERATOR_@',
-                'class': 'LightCoral',
-                'source': item.tokenSource,
-                'value': item.tokenString
-              };
-
-              // column name for aggregate function
-              if (suggest.value == ')' &&
-                (tokenSource0.startsWith('sum') || tokenSource0.startsWith('avg') || tokenSource0.startsWith('min') || tokenSource0.startsWith('max'))
-              ) {
-                let colnameIdx = tokenSource0.lastIndexOf('(');
-                let ts = tokenSource0.substring(colnameIdx + 1);
-                for (let columnName of columnNames) {
-                  if (columnName.startsWith(ts)) {
-                    let suggest = {
-                      'type': '@_COLUMN_NAME_@',
-                      'class': 'DodgerBlue',
-                      'source': item.tokenSource,
-                      'value': columnName
-                    };
-                    suggests.push(suggest);
-                  }
-                }
-              }
-              if (suggest.value != '(' && suggest.value != ')') {
-                suggests.push(suggest);
-              }
-            }
-          } else if (-1 == item.start && -1 == item.stop && -1 == item.tokenNum) {
-            ruleSource = item.tokenSource;
-          }
-        });
-        this.autoCompleteSuggestions_selectedIdx = -1;
-        this.autoCompleteSuggestions = suggests;
-        if (0 <= suggests.length) {
-          this.isAutoCompleteSuggestionListOpen = true;
-          this.autoCompleteSuggestion_inputId = inputId;
-        } else {
-          this.isAutoCompleteSuggestionListOpen = false;
-          this.autoCompleteSuggestion_inputId = '';
-        }
-      }
-    }).catch((error) => {
-      this.isAutoCompleteSuggestionListOpen = false;
-      this.autoCompleteSuggestion_inputId = '';
-      this.autoCompleteSuggestions_selectedIdx = -1;
-      this.autoCompleteSuggestions = [];
-
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-    });
-  } // function - changeRule
-
-  public onautoCompleteSuggestionsSelect(item) {
-    /*
-    let value = null;
-    switch (this.ruleVO.command) {
-      case 'keep':
-      case 'delete':
-        value = this.ruleVO.row;
-        break;
-      case 'set' :
-      case 'derive' :
-        value = this.ruleVO.value;
-        break;
-    }
-    if(isUndefined(value)) {
-      value = "";
-    }
-
-    if( item.type!="@_OPERATOR_@" && item.type!="@_FUNCTION_EXPRESSION_@" ) {
-      let lastIdx = value.lastIndexOf(item.source);
-      if(-1!=lastIdx && value.endsWith(item.source) ) {
-          value = value.substring(0,lastIdx) + item.value;
-      } else {
-          value += item.value;
-      }
-    } else {
-      value += item.value;
-    }
-
-    switch (this.ruleVO.command) {
-      case 'keep':
-      case 'delete':
-        this.ruleVO.row = value;
-        break;
-      case 'set' :
-      case 'derive' :
-        this.ruleVO.value = value;
-        break;
-    }
-
-    this.changeRule(value);
-    */
-
-    let input = this.elementRef.nativeElement.querySelector('#' + this.autoCompleteSuggestion_inputId);
-    if (isUndefined(input)) {
-      return;
-    }
-
-    let start = input.selectionStart;
-    let end = input.selectionEnd;
-    let value = input.value.substring(0, input.selectionStart);
-    if (item.type != '@_OPERATOR_@') { // && item.type!="@_FUNCTION_EXPRESSION_@" ) {
-      if (start < end) {
-        value = input.value.substring(0, input.selectionEnd);
-      }
-      let lastIdx = value.lastIndexOf(item.source);
-      if (-1 != lastIdx && value.endsWith(item.source)) {
-        value = value.substring(0, lastIdx);
-      }
-    }
-
-    let len_of_head = value.length;
-    value += item.value;
-    let caretPos = value.length;
-    let tail = input.value.substring(input.selectionEnd);
-    if (start == end && len_of_head <= start) {
-      let part_of_tail = value.substring(start);
-      if (tail.indexOf(part_of_tail) == 0) {
-        tail = tail.substring(part_of_tail.length);
-      }
-    }
-    value += tail;
-
-    input.blur();
-
-    input.value = value;
-    input.selectionStart = caretPos;
-    input.selectionEnd = caretPos;
-
-    input.focus();
-  }
-
-  public isAutoCompleteSuggestionListOpenPivot(id, idx) {
-    return (true == this.isAutoCompleteSuggestionListOpen && this.autoCompleteSuggestion_inputId == id + '-' + idx);
-  }
-
-  public onautoCompleteSuggestionsSelectPivot(item, pivotFormulaValueList, idx) {
-    let input = this.elementRef.nativeElement.querySelector('#' + this.autoCompleteSuggestion_inputId);
-    if (isUndefined(input)) {
-      return;
-    }
-
-    let value = input.value.substring(0, input.selectionStart);
-
-    if (item.type == '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
-      value = item.value;
-    } else if (item.type == '@_COLUMN_NAME_@') {
-      let bracketIdx = value.lastIndexOf('(');
-      value = value.substring(0, bracketIdx);
-      let colname = value.substring(bracketIdx + 1);
-      if (item.value.startsWith(colname)) {
-        value += '(';
-      } else {
-        value += '(' + colname;
-      }
-      value += item.value;
-    } else if (item.type == '@_OPERATOR_@') {
-      value += item.value;
-    }
-
-    pivotFormulaValueList[idx] = value;
-    let caretPos = value.length;
-
-    input.blur();
-
-    input.value = value;
-    input.selectionStart = caretPos;
-    input.selectionEnd = caretPos;
-
-    input.focus();
   }
 
 }

@@ -19,6 +19,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
+import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
   selector : 'edit-rule-split',
@@ -190,7 +191,7 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    this.pattern = this.getAttrValueInRuleString( 'on', ruleString );
+    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
 
     this.limit = Number( this.getAttrValueInRuleString( 'limit', ruleString ) );
 

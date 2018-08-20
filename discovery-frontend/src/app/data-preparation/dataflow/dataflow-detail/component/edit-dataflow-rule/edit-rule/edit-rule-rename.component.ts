@@ -19,6 +19,7 @@ import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from 'util';
+import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
   selector: 'edit-rule-rename',
@@ -174,7 +175,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    this.newFieldName = this.getAttrValueInRuleString( 'to', ruleString );
+    this.newFieldName = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'to', ruleString ));
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

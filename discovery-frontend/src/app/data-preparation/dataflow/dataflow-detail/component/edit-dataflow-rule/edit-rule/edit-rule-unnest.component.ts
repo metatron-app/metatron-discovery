@@ -17,6 +17,9 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } fro
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
+import { isNumber } from 'util';
+import { StringUtil } from '../../../../../../common/util/string.util';
+import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
   selector : 'edit-rule-unnest',
@@ -83,18 +86,28 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * Rule 형식 정의 및 반환
+   * Returns rules tring when add/update button in pressed
    * @return {{command: string, col: string, ruleString: string}}
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    // 컬럼
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return;
     }
 
+    // surround idx with single quotation
+    let check = StringUtil.checkSingleQuote(this.selVal, { isWrapQuote: true });
+    if (check[0] === false) {
+      Alert.warning(this.translateService.instant('Check element value'));
+      return undefined;
+    } else {
+      this.selVal = check[1];
+    }
+
     let ruleString = 'unnest col: ' + this.selectedFields.map( item => item.name ).join(', ');
+    ruleString += ` into: ${this.selectedFields[0].type} idx: ${this.selVal}`;
+
     return{
       command : 'unnest',
       ruleString: ruleString
@@ -151,7 +164,7 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
       const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
-
+    this.selVal = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'idx', ruleString ));
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -19,6 +19,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
+import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
   selector : 'edit-rule-merge',
@@ -179,9 +180,9 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    this.newValue = this.getAttrValueInRuleString( 'as', ruleString );
+    this.newValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'as', ruleString ));
 
-    this.delimiter = this.getAttrValueInRuleString( 'with', ruleString );
+    this.delimiter = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'with', ruleString ));
 
   } // function - _parsingRuleString
 

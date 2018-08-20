@@ -33,6 +33,7 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
   public isShow: boolean = false;
   public mode : string = 'APPEND';
   public ruleVO : Rule;
+  public colDescs : any;
 
   public fields : Field[];
   public selectedFields: Field[] = [];
@@ -94,15 +95,9 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
     this.afterShowComp();
   } // function - init
 
-
-  /**
-   * Formula 입력 룰 실행
-   * @param ruleVO
-   */
-  public setRuleVO (ruleVO) {
-    this.ruleVO = ruleVO;
-
-  };
+  public setColDescs ( cols ) {
+    this.colDescs = cols;
+  }
 
   /**
    * Rule 형식 정의 및 반환
@@ -150,5 +145,6 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
 
 }

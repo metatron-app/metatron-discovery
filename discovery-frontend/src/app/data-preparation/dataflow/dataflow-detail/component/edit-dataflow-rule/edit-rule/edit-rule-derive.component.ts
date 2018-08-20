@@ -19,6 +19,7 @@ import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
 import { StringUtil } from '../../../../../../common/util/string.util';
+import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
   selector : 'edit-rule-derive',
@@ -151,10 +152,12 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    */
   protected parsingRuleString(ruleString:string) {
     // value
-    this.deriveVal = this.getAttrValueInRuleString( 'value', ruleString );
+    // this.deriveVal = this.getAttrValueInRuleString( 'value', ruleString );
+    this.deriveVal = ruleString.split('value: ')[1];
+    this.deriveVal = this.deriveVal.split(' as: ')[0];
 
     // as
-    this.deriveAs = this.getAttrValueInRuleString( 'as', ruleString );
+    this.deriveAs = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'as', ruleString ));
   } // function - parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

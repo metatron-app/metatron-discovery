@@ -147,7 +147,8 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
-    this.rowNum = this.getAttrValueInRuleString( 'row', ruleString );
+    // this.rowNum = this.getAttrValueInRuleString( 'row', ruleString );
+    this.rowNum = ruleString.split('row: ')[1];
   } // function - _parsingRuleString
 
 }

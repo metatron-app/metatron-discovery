@@ -142,8 +142,9 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
-    // row
-    this.keepRow = this.getAttrValueInRuleString( 'row', ruleString );
+    // row this.getAttrValueInRuleString( 'row', ruleString );
+    this.keepRow = ruleString.split('row: ')[1];
+
   } // function - parsingRuleString
 
 

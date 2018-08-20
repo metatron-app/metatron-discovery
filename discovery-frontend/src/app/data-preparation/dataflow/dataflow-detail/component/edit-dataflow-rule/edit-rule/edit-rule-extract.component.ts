@@ -19,6 +19,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
+import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
   selector : 'edit-rule-extract',
@@ -192,7 +193,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
 
     this.limit = Number(this.getAttrValueInRuleString( 'limit', ruleString ));
 
-    this.pattern = this.getAttrValueInRuleString( 'on', ruleString );
+    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
 
     this.isIgnoreCase = Boolean( this.getAttrValueInRuleString( 'ignoreCase', ruleString ) );
 

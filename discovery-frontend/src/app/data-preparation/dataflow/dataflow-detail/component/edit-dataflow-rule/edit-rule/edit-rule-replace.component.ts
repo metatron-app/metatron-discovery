@@ -19,6 +19,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
+import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
   selector : 'edit-rule-replace',
@@ -211,17 +212,17 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    this.newValue = this.getAttrValueInRuleString( 'with', ruleString );
+    this.newValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'with', ruleString ));
 
-    this.pattern = this.getAttrValueInRuleString( 'on', ruleString );
+    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
 
     this.isGlobal = Boolean( this.getAttrValueInRuleString( 'global', ruleString ) );
 
     this.isIgnoreCase = Boolean( this.getAttrValueInRuleString( 'ignoreCase', ruleString ) );
 
-    this.ignore = this.getAttrValueInRuleString( 'quote', ruleString );
+    this.ignore = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'quote', ruleString ));
 
-    this.condition = this.getAttrValueInRuleString( 'row', ruleString );
+    this.condition = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'row', ruleString ));
 
   } // function - _parsingRuleString
 

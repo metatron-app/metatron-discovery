@@ -20,6 +20,7 @@ import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
+import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
   selector: 'edit-rule-set',
@@ -150,7 +151,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    this.inputValue = this.getAttrValueInRuleString( 'value', ruleString );
+    this.inputValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'value', ruleString ));
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
