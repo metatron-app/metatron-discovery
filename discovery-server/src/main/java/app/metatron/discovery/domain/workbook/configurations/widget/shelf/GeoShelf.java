@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.workbook.configurations.widget.shelf;
 
+import com.google.common.collect.Lists;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -33,9 +35,18 @@ public class GeoShelf implements Shelf {
     this.layers = layers;
   }
 
+  @Override
+  public List<Field> getFields() {
+    List<Field> collectedFields = Lists.newArrayList();
+    layers.forEach(fields -> collectedFields.addAll(fields));
+    return collectedFields;
+  }
+
   public List<List<Field>> getLayers() {
     return layers;
   }
+
+
 
   @Override
   public String toString() {

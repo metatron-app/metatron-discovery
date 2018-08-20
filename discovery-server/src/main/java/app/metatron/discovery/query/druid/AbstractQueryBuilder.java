@@ -517,12 +517,12 @@ public abstract class AbstractQueryBuilder {
 
     Pattern pattern = Pattern.compile(String.format(PATTERN_FIELD_NAME_STRING, name));
 
-    List<String> vailidColumn = validColumnNames.parallelStream()
+    List<String> validColumn = validColumnNames.parallelStream()
                                                 .filter(colName -> pattern.matcher(colName).matches())
                                                 .collect(Collectors.toList());
 
-    if (vailidColumn.size() == 1) {
-      return vailidColumn.get(0);
+    if (validColumn.size() == 1) {
+      return validColumn.get(0);
     } else {
       throw new QueryTimeExcetpion(CONFUSING_FIELD_CODE, String.format("Confusing '%s' field name.", name));
     }
