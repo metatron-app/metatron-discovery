@@ -20,20 +20,19 @@ import { DatasourceService } from '../../../datasource/service/datasource.servic
 import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
 
+/**
+ * Ingestion setting component
+ */
 @Component({
   selector: 'ingestion-setting',
   templateUrl: './ingestion-setting.component.html'
 })
 export class IngestionSettingComponent extends AbstractComponent {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성될 데이터소스 정보
+  // datasource data
   private _sourceData: DatasourceInfo;
 
-  // 저장단위 목록
+  // granularity list
   private _granularityList: any[] = [
     { label: this.translateService.instant('msg.storage.li.dsource.granularity-none'), value: 'NONE' },
     // { label: this.translateService.instant('msg.storage.li.dsource.granularity-second'), value: 'SECOND' },
@@ -43,110 +42,105 @@ export class IngestionSettingComponent extends AbstractComponent {
     { label: this.translateService.instant('msg.storage.li.dsource.granularity-month'), value: 'MONTH' },
     { label: this.translateService.instant('msg.storage.li.dsource.granularity-year'), value: 'YEAR' }
   ];
-  // 스코프 타입 목록
+  // scope type list (only engine source type)
   private _scopeTypeList: any[] = [
     { label: this.translateService.instant('msg.storage.th.dsource.scope-incremental'), value: 'INCREMENTAL' },
     { label: this.translateService.instant('msg.storage.th.dsource.scope-all'), value: 'ALL' },
     { label: this.translateService.instant('msg.storage.th.dsource.scope-row'), value: 'ROW' }
   ];
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성 타입
+  // source create type
   public createType: string;
 
-  // roll up 목록
+  // rollup type list
   public rollUpTypeList: any[];
-  // 선택한 roll up
+  // selected rollup type
   public selectedRollUpType: any;
 
-  // 데이터 범위 타입 목록
+  // data range type list (only stagingDB create type)
   public dataRangeTypeList: any[];
-  // 선택한 데이터 범위 타입
+  // selected data range type (only stagingDB create type)
   public selectedDataRangeType: any;
+  // start date time in data range (only stagingDB create type)
+  public startDateTime: string;
+  // end date time in data range (only stagingDB create type)
+  public endDateTime: string;
 
-  // 파티션 타입 목록
+  // partition type list
   public partitionTypeList: any[];
-  // 선택한 파티션 타입
+  // selected partition type
   public selectedPartitionType: any;
 
-  // segment Granularity 목록
+  // segment granularity list
   public segmentGranularityList: any[];
-  // 선택한 segment Granularity
+  // selected segment granularity
   public selectedSegmentGranularity: any;
-  // segement Granularity 목록 show flag
+  // segment granularity list show flag
   public isShowSegmentGranularityList: boolean = false;
 
-  // query Granularity 목록
+  // query granularity list
   public queryGranularityList: any[];
-  // 선택한 query Granularity
+  // selected query granularity
   public selectedQueryGranularity: any;
-  // query Granularity 목록 show flag
+  // query granularity list show flag
   public isShowQueryGranularityList: boolean = false;
 
-  // expiration 목록
+  // expiration list (only linked source type)
   public expirationTimeList: any[];
-  // 선택한 expiration
+  // selected expiration (only linked source type)
   public selectedExpirationTime: any;
-  // expiration 목록 show flag
+  // expiration list show flag (only linked source type)
   public isShowExpirationTimeList: boolean = false;
 
-  // ingestion 수집방식 목록
+  // ingestion type list (only engine source type)
   public ingestionTypeList: any[];
-  // 선택한 ingestion 수집방식
+  // selected ingestion type (only engine source type)
   public selectedIngestionType: any;
 
-  // ingestion 수집방식 scope 목록
+  // ingestion scope type list (only engine source type)
   public ingestionScopeTypeList: any[];
-  // 선택한 ingestion 수집방식 scope 목록
+  // selected ingestion scope type (only engine source type)
   public selectedIngestionScopeType: any;
 
-  // 배치주기 목록
+  // batch type list (only engine source type)
   public batchTypeList: any[];
-  // 선택한 배치주기
+  // selected batch type (only engine source type)
   public selectedBatchType: any;
-
-  // 배치주기 목록 show flag
+  // batch type list show flag (only engine source type)
   public isShowBatchTypeList: boolean = false;
 
-  // 시간 목록
+  // hour list (only engine source type)
   public hourList: any[] = [];
-  // 선택한 시간
+  // selected hour (only engine source type)
   public selectedHour: any;
-  // 시간 목록 show flag
+  // hour list show flag (only engine source type)
   public isShowHourList: boolean = false;
 
-  // 분 목록
+  // minute list (only engine source type)
   public minuteList: any[] = [];
-  // 선택한 분
+  // selected minute (only engine source type)
   public selectedMinute: any;
-  // 분 목록 show flag
+  // minute list show flag (only engine source type)
   public isShowMinuteList: boolean = false;
 
-  // 선택한 초
+  // second list (only engine source type)
   public selectedDailyTime: string;
 
-  // 일 목록
+  // day list (only engine source type)
   public dateList: any[];
-  // 일 목록 show flag
+  // day list show flag (only engine source type)
   public isShowDateList: boolean = false;
-  // 선택한 일의 초
+  // seleted time in week (only engine source type)
   public selectedWeeklyTime: string;
 
-  // cron text
+  // cron text (only engine source type)
   public cronText: string;
-  // cron validation result
+  // cron validation result (only engine source type)
   public cronValidationResult: boolean;
-  // cron validation result message
+  // cron validation result message (only engine source type)
   public cronValidationMessage: string;
 
-  // row
+  // row (only engine source type)
   public ingestionOnceRow: number = 10000;
   public ingestionPeriodRow: number = 10000;
 
@@ -154,58 +148,43 @@ export class IngestionSettingComponent extends AbstractComponent {
   public tuningConfig: any[];
   public jobProperties: any[];
 
-
   // step change
   @Output()
   public prevStep: EventEmitter<any> = new EventEmitter();
   @Output()
   public nextStep: EventEmitter<any> = new EventEmitter();
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
+  // constructor
   constructor(private _dataSourceService: DatasourceService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   // Init
   public ngOnInit() {
-
     // Init
     super.ngOnInit();
   }
 
   // Destory
   public ngOnDestroy() {
-
     // Destory
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * init
+   * Init
    * @param {DatasourceInfo} sourceData
    */
   public init(sourceData: DatasourceInfo, createType: string): void {
     // ui init
     this._initView();
-    // 생성될 데이터소스 정보
+    // datasource data
     this._sourceData = sourceData;
-    // 생성 타입
+    // create datasource type
     this.createType = createType;
-    // 현재 페이지에 ingestion 정보가 있다면
+    // if exist ingestionData
     if (this._sourceData.hasOwnProperty("ingestionData")) {
       this._loadIngestionData(this._sourceData.ingestionData);
     } else {
@@ -214,27 +193,27 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * cron validation check
+   * Cron validation check
    */
   public cronValidation(): void {
-    // cron 이 빈값이면
+    // if crontext is empty
     if (StringUtil.isEmpty(this.cronText)) {
       // result fail
       this.cronValidationResult = false;
       this.cronValidationMessage = this.translateService.instant('msg.storage.ui.cron.empty');
       return;
     }
-    // 로딩 show
+    // loading show
     this.loadingShow();
     this._dataSourceService.checkValidationCron({expr: this.cronText})
       .then((result) => {
-        // validation 결과
+        // validation result
         this.cronValidationResult = result.valid;
-        // 만약 실패라면
+        // if validation fail
         if (!result.valid) {
           this.cronValidationMessage = this.translateService.instant('msg.storage.ui.cron.description');
         }
-        // 로딩 hide
+        // loading hide
         this.loadingHide();
       })
       .catch((error) => {
@@ -245,40 +224,44 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * 데이터소스 연결 타입
+   * Get connection type
    * @returns {string}
    */
   public getConnectionType(): string {
     return this._sourceData.connectionData.connType;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - event
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Get partition field list
+   * @returns {any[]}
+   */
+  public getPartitionFields(): any[] {
+    return this._sourceData.databaseData.selectedTableDetail.partitionFields;
+  }
 
   /**
-   * 이전 클릭 이벤트
+   * Prev button click event
    */
   public onClickPrev(): void {
-    // 기존 스키마 정보가 있다면 삭제
+    // if exist ingestionData, delete IngestionData
     this._sourceData.hasOwnProperty('ingestionData') && (delete this._sourceData.ingestionData);
-    // 현재 페이지 스키마 수정정보 저장
+    // save ingestionData
     this._saveIngestionData(this._sourceData);
-    // 이전 스탭으로 이동
+    // move to prev staff
     this.prevStep.emit();
   }
 
   /**
-   * 다음 클릭 이벤트
+   * Next button click event
    */
   public onClickNext(): void {
-    // 다음화면으로 넘어갈 수 있는지
+    // if enable next
     if (this._isEnableNext()) {
-      // 기존 스키마 정보가 있다면 삭제
+      // if exist ingestionData, delete IngestionData
       this._sourceData.hasOwnProperty('ingestionData') && (delete this._sourceData.ingestionData);
-      // 현재 페이지 스키마 수정정보 저장
+      // save ingestionData
       this._saveIngestionData(this._sourceData);
-      // 다음 스탭으로 이동
+      // move to next staff
       this.nextStep.emit();
     } else {
       Alert.error(this.translateService.instant('msg.comm.alert.error'));
@@ -286,7 +269,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * Query Granularity 변경 이벤트
+   * Query Granularity change event
    * @param granularity
    */
   public onChangeQueryGranularity(granularity: any): void {
@@ -294,21 +277,21 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * Segement Granularity 변경 이벤트
+   * Segment Granularity change event
    * @param granularity
    */
   public onChangeSegmentGranularity(granularity: any): void {
     this.selectedSegmentGranularity = granularity;
-    // 목록 갱신
+    // update query granularity list
     this._updateQueryGranularityList(granularity);
-    // 선택한 query granularity 가 query granularity 목록에 존재하지 않는경우 query granularity를 기본 값으로 수정
+    // if selected query granularity not exist in query granularity list, selected query granularity set default
     if (_.every(this.queryGranularityList, item => item.value !== this.selectedQueryGranularity.value)) {
       this.selectedQueryGranularity = this.queryGranularityList[0];
     }
   }
 
   /**
-   * 롤 업 타입 변경 이벤트
+   * Rollup change event
    * @param rollUp
    */
   public onChangeRollUpType(rollUp: any): void {
@@ -316,7 +299,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * 데이터 범위 타입 변경 이벤트
+   * Data range change event
    * @param dataRangeType
    */
   public onChangeDataRangeType(dataRangeType: any): void {
@@ -324,15 +307,27 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * 파티션 타입 변경 이벤트
-   * @param partitionType
+   * Data range time change vent
+   * @param time
    */
-  public onChangePartitionType(partitionType: any): void {
-    this.selectedPartitionType = partitionType;
+  public onChangeRangeTime(time: any): void {
+    this.startDateTime = time.startDateStr;
+    this.endDateTime = time.endDateStr;
   }
 
   /**
-   * expiration time 변경 이벤트
+   * Partition type change click event
+   * @param partitionType
+   */
+  public onChangePartitionType(partitionType: any): void {
+    // if partition field list length 0
+    if (this.getPartitionFields().length !== 0) {
+      this.selectedPartitionType = partitionType;
+    }
+  }
+
+  /**
+   * Expiration time change event
    * @param expirationTime
    */
   public onChangeExpirationTime(expirationTime: any): void {
@@ -340,22 +335,22 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * ingestion 수집방식 변경 이벤트
+   * Ingestion type change event
    * @param ingestionType
    */
   public onChangeIngestionType(ingestionType: any): void {
-    // 선택한 타입이 다를 경우에만 작동
+    // only operates if the selected type is different
     if (this.selectedIngestionType !== ingestionType) {
       this.selectedIngestionType = ingestionType;
-      // 스코프 타입 목록 갱신
+      // update scope type list
       this._updateIngestionScopeTypeList(ingestionType);
-      // scope 타입 초기화
+      // init selected scope type
       this.selectedIngestionScopeType = this.ingestionScopeTypeList[0];
     }
   }
 
   /**
-   * ingestion 스코프 변경 이벤트
+   * Ingestion scope type change event
    * @param scopeType
    */
   public onChangeIngestionScopeType(scopeType: any): void {
@@ -363,7 +358,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * 배치주기 선택 이벤트
+   * Batch type select event
    * @param type
    */
   public onSelectBatchType(type: any): void {
@@ -371,7 +366,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * 시간 선택 이벤트
+   * Hour select event
    * @param hour
    */
   public onSelectHour(hour: any): void {
@@ -379,7 +374,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * 분 선택 이벤트
+   * Minute select event
    * @param minute
    */
   public onSelectMinute(minute: any): void {
@@ -387,7 +382,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * 일 선택 이벤트
+   * Day select event
    * @param date
    */
   public onSelectDate(date: any): void {
@@ -395,79 +390,70 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * cronText 엔터 이벤트
+   * CronText keypress event
    * @param {KeyboardEvent} event
    */
   public onKeyPressCronText(event: KeyboardEvent): void {
-    // 엔터인 경우에만
+    // only enter
     event.keyCode === 13 && this.cronValidation();
   }
 
   /**
-   * row 최댓값 체크 이벤트
+   * Row check max event
    * @param {string} row
    * @param {number} value
    */
   public onCheckMaxRow(row: string, value: number): void {
-    // 값 변경
+    // change row
     this[row] = value;
-    // 만약 값이 10000이 넘는다면 10000으로 고정
+    // if value is over 10000, set 10000
     if (this[row] > 10000) {
       this[row] = 10000;
     }
   }
-
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * ui init
    * @private
    */
   private _initView(): void {
-    // Segment Granularity 목록 설정
+    // init Segment Granularity list
     this.segmentGranularityList = _.filter(this._granularityList, item => item.value !== 'NONE');
     this.selectedSegmentGranularity = this.segmentGranularityList[3];
-    // Query Granularity 목록 설정
+    // init Query Granularity list
     this.queryGranularityList = this._granularityList;
     this.selectedQueryGranularity = this.queryGranularityList[4];
-    // roll up 타입 목록
+    // init roll up type list
     this.rollUpTypeList = [
       { label: this.translateService.instant('msg.storage.ui.set.true'), value: true },
       { label: this.translateService.instant('msg.storage.ui.set.false'), value: false },
     ];
     this.selectedRollUpType = this.rollUpTypeList[0];
-    // 데이터 범위 타입 목록
+    // init data range type list
     this.dataRangeTypeList = [
       { label: this.translateService.instant('msg.storage.ui.set.disable'), value: 'DISABLE' },
       { label: this.translateService.instant('msg.storage.ui.set.enable'), value: 'ENABLE' }
     ];
     this.selectedDataRangeType = this.dataRangeTypeList[0];
-    // 파티션 타입 목록
+    // init partition type list
     this.partitionTypeList = [
       { label: this.translateService.instant('msg.storage.ui.set.disable'), value: 'DISABLE' },
       { label: this.translateService.instant('msg.storage.ui.set.enable'), value: 'ENABLE' }
     ];
     this.selectedPartitionType = this.partitionTypeList[0];
-    // Expiration time 목록
+    // init expiration time list
     this.expirationTimeList = this._getExpirationTimeList();
     this.selectedExpirationTime = this.expirationTimeList[0];
-    // ingestion 수집방식 목록
+    // init ingestion type list
     this.ingestionTypeList = [
       { label: this.translateService.instant('msg.storage.th.ingest-once'), value: 'single' },
       { label: this.translateService.instant('msg.storage.th.ingest-prcdly'), value: 'batch' },
     ];
     this.selectedIngestionType = this.ingestionTypeList[0];
-    // ingestion scope List
+    // init ingestion scope List
     this.ingestionScopeTypeList = this._scopeTypeList.filter(type => type.value !== 'INCREMENTAL');
     this.selectedIngestionScopeType = this.ingestionScopeTypeList[0];
-    // 배치 주기
+    // init batch type list
     this.batchTypeList = [
       { label: this.translateService.instant('msg.storage.li.dsource.batch-minutely'), value: 'MINUTELY' },
       { label: this.translateService.instant('msg.storage.li.dsource.batch-hourly'), value: 'HOURLY' },
@@ -476,17 +462,17 @@ export class IngestionSettingComponent extends AbstractComponent {
       { label: this.translateService.instant('msg.storage.li.dsource.batch-expr'), value: 'EXPR' },
     ];
     this.selectedBatchType = this.batchTypeList[0];
-    // 시간 목록
+    // init hour list
     for (let i = 1; i < 24 ; i += 1) {
       this.hourList.push(i);
     }
     this.selectedHour = this.hourList[0];
-    // 분 목록
+    // init minute list
     for (let i = 1; i < 60 ; i += 1) {
       this.minuteList.push(i);
     }
     this.selectedMinute = this.minuteList[0];
-    // 일 목록
+    // init day list
     this.dateList = [
       { label: this.translateService.instant('msg.storage.li.dsource.date-mon'), value: 'MON', checked: true },
       { label: this.translateService.instant('msg.storage.li.dsource.date-tue'), value: 'TUE', checked: true },
@@ -496,12 +482,12 @@ export class IngestionSettingComponent extends AbstractComponent {
       { label: this.translateService.instant('msg.storage.li.dsource.date-sat'), value: 'SAT', checked: true },
       { label: this.translateService.instant('msg.storage.li.dsource.date-sun'), value: 'SUN', checked: true }
     ];
-    // 초 설정
+    // init second list
     this.selectedWeeklyTime = this.selectedDailyTime = this._getCurrentTime();
   }
 
   /**
-   * Query Granularity 목록 갱신
+   * Update query granularity list
    * @param granularity
    * @private
    */
@@ -510,7 +496,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * ingestion 스코프 타입 목록 갱신
+   * Update ingestion scope type list
    * @param ingestionType
    * @private
    */
@@ -521,23 +507,23 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * 다음 화면으로 넘어갈 수 있는지
+   * If enable next page
    * @returns {boolean}
    * @private
    */
   private _isEnableNext(): boolean {
-    // 타입이 데이터베이스이고 engine 형이라면
+    // If create type is DB and source type is ENGINE
     if (this.createType === 'DB' && this.getConnectionType() === 'ENGINE' && (
         (this.selectedIngestionType.value === 'batch' && !this.ingestionPeriodRow || (this.selectedBatchType.value === 'EXPR' && !this.cronValidationResult))
         || (this.selectedIngestionType.value === 'single' && this.selectedIngestionScopeType.value === 'ROW' && !this.ingestionOnceRow)
       )) {
       return false;
     }
-    // 타입이 스테이징이라면
-    if (this.createType === 'STAGING') {
-
+    // If create type is StagingDB and value is empty in jobProperties's default option
+    if (this.createType === 'STAGING' && this.jobProperties.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
+      return false;
     }
-    // 고급설정의 옵션 중 default 옵션이 비어있으면
+    // value is empty in tuningConfig's default option
     if (this.tuningConfig.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
       return false;
     }
@@ -545,16 +531,15 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * Ingestion 기본 옵션 설정
+   * Set ingestion default option
    * @private
    */
   private _setDefaultIngestionOption(): void {
-    // 로딩 show
+    // loading show
     this.loadingShow();
-    // TODO f#35 생성타입이 Staging인 경우에만 hadoop 전달
     this._dataSourceService.getDefaultIngestionOptions(this.createType === 'STAGING' ? 'hadoop' : 'batch')
       .then((result) => {
-        // 로딩 hide
+        // loading hide
         this.loadingHide();
         // result
         this.tuningConfig = result.filter(item => item.type === 'TUNING').map((item) => {
@@ -568,7 +553,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * expiration 시간 목록
+   * Get expiration time list
    * @returns {Array}
    * @private
    */
@@ -588,115 +573,120 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * 현재 시간
+   * Get current time
    * @returns {string}
    * @private
    */
   private _getCurrentTime(): string {
-    // date 현재시각
     const date = new Date();
     return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
   }
 
   /**
-   * ingestion 데이터 불러오기
+   * Load ingestion data
    * @param ingestionData
    * @private
    */
   private _loadIngestionData(ingestionData:any): void {
-    // 선택한 Segment Granularity
+    // load selected segment granularity
     this.selectedSegmentGranularity = ingestionData.selectedSegmentGranularity;
-    // Query Granularity 목록 갱신
+    // update query granularity list
     this._updateQueryGranularityList(this.selectedSegmentGranularity);
-    // 선택한 Query Granularity
+    // load selected query granularity
     this.selectedQueryGranularity = ingestionData.selectedQueryGranularity;
-    // 선택한 롤업 타입
+    // load selected rollup type
     this.selectedRollUpType = ingestionData.selectedRollUpType;
-    // tuning configuration
+    // load tuning configuration
     this.tuningConfig = ingestionData.tuningConfig;
-    // 데이터베이스
+    // if create type is DB
     if (this.createType === 'DB') {
-      // 선택한 expiration 타임
+      // load selected expiration time
       this.selectedExpirationTime = ingestionData.selectedExpirationTime;
-      // 선택한 ingestion 타입
+      // load selected ingestion type
       this.selectedIngestionType = ingestionData.selectedIngestionType;
-      // 스코프 타입 목록 갱신
+      // update ingestion scope type list
       this._updateIngestionScopeTypeList(this.selectedIngestionType);
-      // 선택한 scope 타입
+      // load selected scope type
       this.selectedIngestionScopeType = ingestionData.selectedIngestionScopeType;
-      // 선택한 배치 주기
+      // load selected batch type
       this.selectedBatchType = ingestionData.selectedBatchType;
-      // 선택한 시간
+      // load selected hour
       this.selectedHour = ingestionData.selectedHour;
-      // 선택한 분
+      // load selected minute
       this.selectedMinute = ingestionData.selectedMinute;
-      // 일 목록
+      // load day list
       this.dateList = ingestionData.dateList;
-      // 초 설정
+      // load selected time
       this.selectedWeeklyTime = ingestionData.selectedWeeklyTime;
       this.selectedDailyTime = ingestionData.selectedDailyTime;
-      // row
+      // load row
       this.ingestionOnceRow = ingestionData.ingestionOnceRow;
       this.ingestionPeriodRow = ingestionData.ingestionPeriodRow;
     }
-    // 스테이징
+    // if create type is StagingDB
     if (this.createType === 'STAGING') {
-      // 선택한 데이터 범위 타입
+      // load selected data range type
       this.selectedDataRangeType = ingestionData.selectedDataRangeType;
-      // 선택한 파티션 타입
+      // load selected partition type
       this.selectedPartitionType = ingestionData.selectedPartitionType;
-      // job properties
+      // load job properties
       this.jobProperties = ingestionData.jobProperties;
+      // load date time used data range
+      this.startDateTime = ingestionData.startDateTime;
+      this.endDateTime = ingestionData.endDateTime;
     }
   }
 
   /**
-   * 현재 페이지의 ingestion 데이터 저장
+   * Save ingestion data
    * @param {DatasourceInfo} sourceData
    * @private
    */
   private _saveIngestionData(sourceData: DatasourceInfo): void {
     sourceData['ingestionData'] = {
-      // 선택한 Segment Granularity
+      // save selected segment granularity
       selectedSegmentGranularity : this.selectedSegmentGranularity,
-      // 선택한 Query Granularity
+      // save query granularity
       selectedQueryGranularity : this.selectedQueryGranularity,
-      // 선택한 롤업 타입
+      // save selected rollup type
       selectedRollUpType : this.selectedRollUpType,
-      // tuning configuration
+      // save tuning configuration
       tuningConfig : this.tuningConfig
     };
-    // 데이터베이스
+    // if create type DB
     if (this.createType === 'DB') {
-      // 선택한 expiration 타임
+      // save selected expiration type
       sourceData['ingestionData'].selectedExpirationTime = this.selectedExpirationTime;
-      // 선택한 ingestion 타입
+      // save selected ingestion type
       sourceData['ingestionData'].selectedIngestionType = this.selectedIngestionType;
-      // 선택한 scope 타입
+      // save selected scope type
       sourceData['ingestionData'].selectedIngestionScopeType = this.ingestionScopeTypeList[0];
-      // 선택한 배치 주기
+      // save selected batch type
       sourceData['ingestionData'].selectedBatchType = this.selectedBatchType;
-      // 선택한 시간
+      // save selected hour
       sourceData['ingestionData'].selectedHour = this.selectedHour;
-      // 선택한 분
+      // save selected minute
       sourceData['ingestionData'].selectedMinute = this.selectedMinute;
-      // 일 목록
+      // save day list
       sourceData['ingestionData'].dateList = this.dateList;
-      // 초 설정
+      // save time
       sourceData['ingestionData'].selectedWeeklyTime = this.selectedWeeklyTime;
       sourceData['ingestionData'].selectedDailyTime = this.selectedDailyTime;
-      // row 설정
+      // save row
       sourceData['ingestionData'].ingestionOnceRow = this.ingestionOnceRow;
       sourceData['ingestionData'].ingestionPeriodRow = this.ingestionPeriodRow;
     }
-    // 스테이징
+    // if create type Staging
     if (this.createType === 'STAGING') {
-      // 선택한 데이터 범위 타입
+      // save selected data range type
       sourceData['ingestionData'].selectedDataRangeType = this.selectedDataRangeType;
-      // 선택한 파티션 타입
+      // save selected partition type
       sourceData['ingestionData'].selectedPartitionType = this.selectedPartitionType;
-      // job properties
+      // selected job properties
       sourceData['ingestionData'].jobProperties = this.jobProperties;
+      // selected time used data range
+      sourceData['ingestionData'].startDateTime = this.startDateTime;
+      sourceData['ingestionData'].endDateTime = this.endDateTime;
     }
   }
 }

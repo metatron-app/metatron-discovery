@@ -200,18 +200,18 @@
           </div>
           <div class="ddp-radio-hidden">
             <label class="ddp-label-radio" (change)="onChangePartitionType(partitionTypeList[1])">
-              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[1].value">
+              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[1].value" [disabled]="getPartitionFields().length === 0">
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{partitionTypeList[1].label}}</span>
             </label>
             <!-- partition -->
-            <div class="ddp-wrap-partition">
+            <div class="ddp-wrap-partition" *ngIf="getPartitionFields().length !== 0">
               <div class="ddp-ui-partition">
                 <ul class="ddp-list-partition ddp-type">
-                  <li>
-                    <span class="ddp-ui-label">dddd name</span>
+                  <li *ngFor="let partition of getPartitionFields()">
+                    <span class="ddp-ui-label">{{partition.name}}</span>
                     <div class="ddp-data">
-                      <span class="ddp-txt-data">한줄만 보임</span>
+                      <span class="ddp-txt-data">{{partition.value}}</span>
 
                     </div>
                   </li>
@@ -245,17 +245,14 @@
               <span class="ddp-txt-radio">{{dataRangeTypeList[1].label}}</span>
             </label>
             <!-- calen -->
-            <div class="ddp-ui-calen">
-              <!-- disabled 시 ddp-disabled 추가 -->
-              <div class="ddp-box-calen ddp-disabled">
-                <input type="text" id="calen1" class="ddp-input-typebasic ddp-data-calen" value="2017-30-30" data-rome-id="0">
-              </div>
-
-              <span class="ddp-bar">~</span>
-              <div class="ddp-box-calen ddp-disabled">
-                <input type="text" id="calen2" class="ddp-input-typebasic ddp-data-calen" value="2017-30-30" data-rome-id="2">
-              </div>
-            </div>
+            <component-period
+              [isShowButtons]="false"
+              [defaultType]="'YEAR'"
+              [startDateDefault]="startDateTime"
+              [endDateDefault]="endDateTime"
+              (changeDate)="onChangeRangeTime($event)"
+              [disabled]="selectedDataRangeType.value === 'DISABLE'"
+            ></component-period>
             <!-- calen -->
           </div>
         </div>
