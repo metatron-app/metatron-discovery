@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.dataprep;
 
 import com.google.common.collect.Maps;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -26,9 +25,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Map;
-
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 
 @Service
 public class PrepHdfsService {
@@ -97,10 +93,10 @@ public class PrepHdfsService {
     public Map<String, Object> checkHdfs() {
         Map<String, Object> result = Maps.newHashMap();
 
-        try {
-            result.put("stagingBaseDir", stagingBaseDir);
-            result.put("checkConnection", false);
-            if(null!=stagingBaseDir) {
+        result.put("stagingBaseDir", stagingBaseDir);
+        result.put("checkConnection", false);
+        if(null!=stagingBaseDir) {
+            try {
                 Configuration conf = this.getConf();
                 FileSystem fs = FileSystem.get(conf);
 
@@ -112,10 +108,8 @@ public class PrepHdfsService {
                 } else {
                     result.put("checkConnection", true);
                 }
+            } catch (Exception e) {
             }
-        } catch (Exception e) {
-            LOGGER.error("checkHdfs(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
         }
 
         return result;
