@@ -67,18 +67,18 @@ Git clone this project.
 Build through Maven 3.3+.
 <pre><code>$ mvn clean install -DskipTests</code></pre>
 
-If the build succeeds, you can find archive file under "discvoery-distribution/target"
+If the build succeeds, you can find archive file under "discovery-distribution/target"
 
-### Start up metatron Discovery
-Untar the archive file of metatron Discovery.
+### Start up the Metatron Discovery
+Untar the archive file of Metatron Discovery.
 <pre><code>$ tar zxf metatron-discovery-{VERSION}-{TIMESTAMP}-bin.tar.gz</code></pre>
 Initialize and run with the following command.
 <pre><code>$ bin/metatron.sh --init start</code></pre>
 Running options are provided as well.
 <pre><code>$ bin/metatron.sh [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}</code></pre>
-To access metatron Discovery, go to [http://localhost:8180](http://localhost:8180). (The default admin user account is provided as ID: admin, PW: admin.)
+To access Metatron Discovery, go to [http://localhost:8180](http://localhost:8180). (The default admin user account is provided as ID: admin, PW: admin.)
 
 License
 ----------------------------
-metatron Discovery is available under the Apache License V2.
+metatron-discovery is available under the Apache License V2.
 
