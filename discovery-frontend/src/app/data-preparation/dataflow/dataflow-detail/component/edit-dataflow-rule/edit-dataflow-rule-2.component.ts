@@ -12,8 +12,9 @@
  * limitations under the License.
  */
 
-import { isNull, isNullOrUndefined, isUndefined } from 'util';
+import { isNull, isUndefined } from 'util';
 import * as $ from 'jquery';
+import * as _ from 'lodash';
 import {
   AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnDestroy, OnInit,
   Output,
@@ -27,8 +28,6 @@ import { PreparationAlert } from '../../../../util/preparation-alert.util';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../../../common/service/popup.service';
 import { DataflowService } from '../../../service/dataflow.service';
-import { SubscribeArg } from '../../../../../common/domain/subscribe-arg';
-import * as _ from 'lodash';
 import { MulticolumnRenameComponent } from './multicolumn-rename.component';
 import { ExtendInputFormulaComponent } from './extend-input-formula.component';
 import { EditRuleGridComponent } from './edit-rule-grid/edit-rule-grid.component';
@@ -94,10 +93,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   // 검색어
   public commandSearchText: string = ''; // command 검색어
-  public columnSearchText: string = '';
-  public typeSearchText: string = '';
-  public unnestSearchText: string = '';
-  public moveSearchText: string = '';
 
   // 조인 편집시 필요한 데이터
   public rightDataset: Dataset;
@@ -139,10 +134,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   // APPEND (룰 등록) or UPDATE (룰 수정)
   public modeType: string = 'APPEND';
 
-  // pivot - Formula 여러개 입력받는다
-  public pivotFormulaList: any[] = [];
-  public pivotFormulaValueList: any[] = [];
-
   // input focus 여부
   public isFocus = false;
 
@@ -159,11 +150,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public editJoinOrUnionRuleStr: string;
 
   public commandList: any[];
-  public typeList: any[] = [];
   public nestList: any[] = [];
-  public moveList: any[];
-  public sortList: any[];
-  public beforeOrAfterDataSet: any[] = [];    // List for Rule-move
   public editColumnList = [];                 // 수정 할 컬럼 리스트
   public selectedColumns: string[] = [];     // 그리드에서 선택된 컬럼 리스트
   public selectedRows: any = [];             // 그리드에서 선택된 로우 리스트
@@ -176,21 +163,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   // Histogram
   public charts: any = [];
-
-  // Auto complete 관련
-  public autoCompleteSuggestions: any = [];
-  public autoCompleteSuggestions_selectedIdx: number = -1;
-  public isAutoCompleteSuggestionListOpen: boolean = false;
-  public autoCompleteSuggestion_inputId: string = '';
-
-  // Timestamp 관련
-  public isTypeTimestamp: boolean = false;
-  public isTimestampOpen: boolean = false;
-  public timestampTime: any = [];
-  public defaultTimestampTime : any = [];
-  public timestampVal: string = '';
-  public isTimestampEdit: boolean = false;
-  public timestampSuggestions: any;
 
   // 그리드 헤더 클릭 이벤트 제거 ( 임시 )
   public isDisableGridHeaderClickEvent: boolean = false;
@@ -223,96 +195,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       });
     }
     return commandList;
-  }
-
-  // unnest List
-  get filteredUnnestList() {
-    let tempList = this.selectedDataSet.gridData.fields.filter((item) => {
-      return item.type === 'MAP' || item.type === 'ARRAY';
-    });
-
-    const isUnnestSearchTextEmpty = StringUtil.isNotEmpty(this.unnestSearchText);
-
-    // 검색어가 있다면
-    if (isUnnestSearchTextEmpty) {
-      tempList = tempList.filter((item) => {
-        return item.type.toLowerCase().indexOf(this.unnestSearchText.toLowerCase()) > -1;
-      });
-    }
-
-    return tempList;
-  }
-
-  // flatten List
-  get filteredFlattenList() {
-    let tempList = this.selectedDataSet.gridData.fields.filter((item) => {
-      return item.type === 'ARRAY';
-    });
-
-    const isFlattenSearchTextEmpty = StringUtil.isNotEmpty(this.unnestSearchText);
-
-    // 검색어가 있다면
-    if (isFlattenSearchTextEmpty) {
-      tempList = tempList.filter((item) => {
-        return item.type.toLowerCase().indexOf(this.unnestSearchText.toLowerCase()) > -1;
-      });
-    }
-
-    return tempList;
-  }
-
-  // column List (search)
-  get filteredColumnList() {
-    let columnList = this.selectedDataSet.gridData.fields;
-
-    const isColumnSearchTextEmpty = StringUtil.isNotEmpty(this.columnSearchText);
-
-    // 검색어가 있다면
-    if (isColumnSearchTextEmpty) {
-      columnList = columnList.filter((item) => {
-        return item.name.toLowerCase().indexOf(this.columnSearchText.toLowerCase()) > -1;
-      });
-    }
-    return columnList;
-
-  }
-
-  // type List (search)
-  get filteredTypeList() {
-    let tempTypeList = this.typeList;
-
-    const isTypeSearchTextEmpty = StringUtil.isNotEmpty(this.typeSearchText);
-
-
-    // 검색어가 있다면
-    if (isTypeSearchTextEmpty) {
-      tempTypeList = tempTypeList.filter((item) => {
-        return item.name.toLowerCase().indexOf(this.typeSearchText.toLowerCase()) > -1;
-      });
-    }
-    return tempTypeList;
-
-  }
-
-  get filteredMoveDatasetList() {
-    let dsList = this.beforeOrAfterDataSet;
-    const isMoveSearchTextEmpty = StringUtil.isNotEmpty(this.moveSearchText);
-
-
-    // 검색어가 있다면
-    if (isMoveSearchTextEmpty) {
-      dsList = dsList.filter((item) => {
-        return item.name.toLowerCase().indexOf(this.moveSearchText.toLowerCase()) > -1;
-      });
-    }
-    return dsList;
-  }
-
-  // timestamp List
-  get filteredTimestampList() {
-    return this.selectedDataSet.gridData.fields.filter((item) => {
-      return item.type === 'TIMESTAMP';
-    })
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -350,54 +232,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.initSnapshotList(this.selectedDataSet.dsId);
 
-    this.getTimestampFormatsFromServer(this.selectedColumns, true);
-  }
-
-  public getTimestampFormatsFromServer(columns, isInitialLoad : boolean = false) {
-    if (isInitialLoad || this.selectedColumns.length > 0) {
-      this.dataflowService.getTimestampFormatSuggestions(this.selectedDataSet.dsId, {colNames : columns} ).then((result) => {
-        let keyList = [];
-        for (let key in result) {
-          if (result.hasOwnProperty(key)) {
-            keyList.push(key);
-          }
-        }
-        if (isInitialLoad) {
-          this.defaultTimestampTime = [];
-          for (let i in result[keyList[0]]) {
-            if (result[keyList[0]].hasOwnProperty(i)) {
-              this.defaultTimestampTime.push({ value: i, isHover: false, val: result[keyList[0]][i] })
-            }
-          }
-          this.defaultTimestampTime.push({ value: 'Custom format', isHover: false });
-          this.timestampTime = [];
-          this.timestampTime = this.defaultTimestampTime
-        } else {
-          this.timestampTime = [];
-          for (let i in result[keyList[0]]) {
-            if (result[keyList[0]].hasOwnProperty(i)) {
-              this.timestampTime.push( { value : i, isHover : false, val : result[keyList[0]][i]})
-            }
-          }
-          if (this.selectedColumns.length > 0 && this.ruleVO.command === 'settype' &&
-            'STRING' === this._findUpperCaseColumnTypeWithIdx(this._findIndexWithNameInGridResponse(this.selectedColumns[0]))) {
-            let max = this.timestampTime.reduce((max, b) => Math.max(max, b.val), this.timestampTime[0].val);
-            let idx = this.timestampTime.map((item) => {
-              return item.val
-            }).findIndex((data) => {
-              return data === max
-            });
-            this.ruleVO.timestamp = this.timestampTime[idx].value;
-          }
-          this.timestampTime.push({ value: 'Custom format', isHover: false });
-        }
-
-      });
-    } else {
-      this.timestampTime = [];
-      this.timestampTime = this.defaultTimestampTime;
-      this.ruleVO.timestamp = '';
-    }
   }
 
   /**
@@ -535,11 +369,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.isBeforeOrAfterColumnListShow = false;
     this.isNestListShow = false;
 
-    if (!this.isAutoCompleteSuggestionListOpen) {
-      this.autoCompleteSuggestion_inputId = '';
-    }
-    this.isAutoCompleteSuggestionListOpen = false;
-
     this.changeDetect.detectChanges();
 
   }
@@ -630,11 +459,15 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         let selectedsetformatList = selectedFields.filter((item) => {
           return item.type === 'TIMESTAMP'
         });
+        let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
+          return item.type === 'TIMESTAMP'
+        });
         this._editRuleComp.init(setformatList, selectedsetformatList, `dsId: ${this.selectedDataSet.dsId}`);
+        this._editRuleComp.setValue('colTypes', colDescs);
         break;
       case 'settype':
         this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields, `dsId: ${this.selectedDataSet.dsId}`);
-        this._editRuleComp.setColDescs(this.selectedDataSet.gridResponse.colDescs);
+        this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
         break;
       case 'flatten' :
         let flattenList = this.selectedDataSet.gridData.fields.filter((item) => {
@@ -648,7 +481,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         break;
       case 'unnest':
         let unnestList = this.selectedDataSet.gridData.fields.filter((item) => {
-            return item.type === 'ARRAY' || item.type === 'MAP'
+          return item.type === 'ARRAY' || item.type === 'MAP'
         });
         let selectedUnnestList = selectedFields.filter((item) => {
           return item.type === 'ARRAY' || item.type === 'MAP'
@@ -676,8 +509,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       case 'split':
       case 'extract':
       case 'countpattern':
-        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields );
-        break;
       case 'derive':
       case 'keep':
       case 'delete':
@@ -688,188 +519,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         break;
     }
     this.initSelectedCommand(this.filteredCommandList);
-  }
-
-  // column layer show
-  public showColumnList(event) {
-    event.stopImmediatePropagation();
-    this.isColumnListShow = true;
-    this.columnSearchText = ''; // 검색어 초기화
-    setTimeout(() => $('.unnest-search').trigger('focus')); // 포커스
-    setTimeout(() => $('.columnSearch').trigger('focus')); // 포커스
-
-    // isColumnListShow 클릭시 다른 리스트는 모두 닫는다
-    this.isTypeListShow = false;
-    this.isBeforeOrAfterShow = false;
-    this.isCommandListShow = false;
-    this.isMultiColumnListShow = false;
-    this.isBeforeOrAfterColumnListShow = false;
-
-    this.changeDetect.detectChanges();
-  }
-
-  // column layer show for [MOVE] before or after
-  public showBeforeOrAfterColumnList(event) {
-    event.stopImmediatePropagation();
-    this.isBeforeOrAfterColumnListShow = true;
-    setTimeout(() => $('.move-search').trigger('focus'));
-
-    // isBeforeOrAfterColumnListShow 클릭시 다른 리스트는 모두 닫는다
-    this.isCommandListShow = false;
-    this.isBeforeOrAfterShow = false;
-    this.isColumnListShow = false;
-
-    this.changeDetect.detectChanges();
-  }
-
-  // before or after layer show
-  public showBeforeOrAfterList(event) {
-    event.stopImmediatePropagation();
-    this.isBeforeOrAfterShow = !this.isBeforeOrAfterShow;
-
-    // isBeforeOrAfterShow 클릭시 다른 리스트는 모두 닫는다
-    this.isColumnListShow = false;
-    this.isCommandListShow = false;
-    this.isBeforeOrAfterColumnListShow = false;
-
-    this.changeDetect.detectChanges();
-  }
-
-  public showTimestampList(event) {
-    event.stopImmediatePropagation();
-    this.isTimestampOpen = true;
-    if (!isNullOrUndefined(this.ruleVO.timestamp)) {
-      let idx = this.timestampTime.findIndex((item) => {
-        return item.value === this.ruleVO.timestamp
-      });
-      if (idx !== -1) {
-        this.timestampTime[idx].isHover = true;
-        setTimeout(() => {
-          $('.ddp-list-command').scrollTop(idx * 25);
-        });
-      }
-    }
-
-    this.isColumnListShow = false;
-    this.isCommandListShow = false;
-    this.isMultiColumnListShow = false;
-    this.isTypeListShow = false;
-
-    this.changeDetect.detectChanges();
-  }
-
-  // type layer show
-  public showTypeList(event) {
-    event.stopImmediatePropagation();
-    this.isTypeListShow = true;
-
-    setTimeout(() => $('.type-search').trigger('focus')); // 포커스
-
-    // isTypeListShow 클릭시 다른 리스트는 모두 닫는다
-    this.isColumnListShow = false;
-    this.isCommandListShow = false;
-    this.isMultiColumnListShow = false;
-
-    this.changeDetect.detectChanges();
-  }
-
-  /**
-   * 컬럼 산택 (replace, rename, set, setType, countPattern, split, extract, flatten, move, unnest)
-   * @param event 이벤트
-   * @param col 컬럼 정보
-   */
-  public selectColumn(event, col) {
-    event.stopImmediatePropagation();
-    // 선택 된 컬럼 초기화
-    this._editRuleGridComp.unSelectionAll('COL');
-
-    this.ruleVO['col'] = col.name;
-
-    this.selectboxFlag = true; // 셀렉트 박스에서 선택 했는지 flag걸기
-    this._editRuleGridComp.selectColumn(col.name, true, col.type);
-
-    this.columnSearchText = ''; // 검색어 초기화
-    this.unnestSearchText = '';
-
-    setTimeout(() => {
-      this.isColumnListShow = false
-    });
-
-    this.initSelectedCommand(this.filteredColumnList);
-
-  } // function - selectColumn
-
-  /**
-   * 컬럼 택 (move)
-   * @param event 이벤트
-   * @param col 컬럼 정보
-   */
-  public selectedBeforeOrAfterColumn(event, col) {
-    event.stopImmediatePropagation();
-    this.ruleVO['colForMove'] = col.name;
-    this.moveSearchText = '';
-    setTimeout(() => {
-      this.isBeforeOrAfterColumnListShow = false;
-    });
-
-    this.initSelectedCommand(this.filteredMoveDatasetList);
-
-  } // function - selectedBeforeOrAfterColumn
-
-  /**
-   * Array or map 산택 (nest, unnest)
-   * @param event 이벤트
-   * @param type 타입정보
-   */
-  public selectType(event, type) {
-    event.stopImmediatePropagation();
-    this.ruleVO['into'] = type.name;
-
-    setTimeout(() => {
-      this.isNestListShow = false;
-    });
-
-    this.initSelectedCommand(this.nestList);
-  } // function - selectArrayColumn
-
-
-  // multi column layer show
-  public showMultiColumnList(event) {
-    event.stopImmediatePropagation();
-    this.isMultiColumnListShow = true;
-
-    this.isNestListShow = false;
-    this.isColumnListShow = false;
-    this.isCommandListShow = false;
-    this.isMultiColumnGroupListShow = false;
-    this.isTypeListShow = false;
-
-    this.changeDetect.detectChanges();
-  }
-
-  // Pivot -  multi column group layer show
-  public showMultiColumnGroupList(event) {
-    event.stopImmediatePropagation();
-    this.isMultiColumnGroupListShow = true;
-
-    this.isNestListShow = false;
-    this.isColumnListShow = false;
-    this.isCommandListShow = false;
-    this.isMultiColumnListShow = false;
-
-    this.changeDetect.detectChanges();
-  }
-
-  // nest list layer show
-  public showNestList(event) {
-    event.stopImmediatePropagation();
-    this.isNestListShow = !this.isNestListShow;
-
-    this.isMultiColumnListShow = false;
-    this.isColumnListShow = false;
-    this.isCommandListShow = false;
-
-    this.changeDetect.detectChanges();
   }
 
   /**
@@ -911,171 +560,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   }
 
   /**
-   * Select box 클릭 시 (멀티 체크박스)
-   * @param col
-   */
-  public checkItem(col) {
-    this._editRuleGridComp.selectColumn(col.name, !col.selected);
-  }
-
-
-  // rule - pivot
-  public setGroupColSeq(col) {
-    if (col.ticked) {
-      this.ruleVO.groups.push(col.name);
-      col.groupSeq = this.ruleVO.groups.length; // pivot에 seq를 쓰는 곳이 2개라서 groupSeq로 따로 관리
-    } else {
-
-      const fieldNames = this.selectedDataSet.gridData.fields.map((field) => {
-        return field.name;
-      });
-      this.ruleVO.groups.forEach((column) => {
-        const idx = fieldNames.indexOf(column);
-        if (this.selectedDataSet.gridData.fields[idx].groupSeq > col.groupSeq) {
-          this.selectedDataSet.gridData.fields[idx].groupSeq -= 1;
-        }
-      });
-
-      const index = this.ruleVO.groups.indexOf(col.name);
-      this.ruleVO.groups.splice(index, 1);
-    }
-
-  }
-
-  /**
-   * set column type
-   * @param event 이벤트
-   * @param type integer, float ect
-   */
-  public setColumnType(event, type) {
-    event.stopImmediatePropagation();
-    this.ruleVO.type = type.name;
-    this.typeSearchText = '';
-
-    // 컬럼 타입 리스트
-    let colTypes = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
-      return item.type
-    });
-
-    // 스트링으로 변경하려면
-    if ('String' === this.ruleVO.type) {
-
-      if (this.selectedColumns.length === 1) {
-        let idx = this.selectedDataSet.gridResponse.colNames.indexOf(this.selectedColumns[0]);
-        if (colTypes[idx].type.toUpperCase() === 'TIMESTAMP') {
-          this.ruleVO.timestamp = this._findTimestampStyleWithIdxInColDescs(idx);
-          this.isTypeTimestamp = true;
-        } else {
-          this.isTypeTimestamp = false;
-          this.ruleVO.timestamp = '';
-        }
-      } else if (this.selectedColumns.length > 1) {
-        let timestampStyles = [];
-        this.selectedColumns.forEach((item) => {
-          let idx = this._findIndexWithNameInGridResponse(item);
-          if ('TIMESTAMP' === this.selectedDataSet.gridResponse.colDescs[idx].type) {
-            timestampStyles.push(this._findTimestampStyleWithIdxInColDescs(idx));
-          }
-        });
-        const allEqual = arr => arr.every(v => v === arr[0]);
-        if (this.selectedColumns.length === timestampStyles.length && allEqual(timestampStyles)) {
-          this.isTypeTimestamp = true;
-          this.ruleVO.timestamp = timestampStyles[0].replace(/'/g, '\\\'');
-        } else if (timestampStyles.length > 0) {
-          this.isTypeTimestamp = true;
-          this.ruleVO.timestamp = '';
-        } else {
-          this.isTypeTimestamp = false;
-        }
-      } else {
-        this.isTypeTimestamp = false;
-        this.ruleVO.timestamp = '';
-      }
-      // 타임스탬프로 변경한다면
-    } else if ('Timestamp' === this.ruleVO.type) {
-      this.isTypeTimestamp = true;
-      if (this.selectedColumns.length === 1) {
-        let idx = this._findIndexWithNameInGridResponse(this.selectedColumns[0]);
-        if (colTypes[idx].type.toUpperCase() === 'TIMESTAMP') {     // timestamp -> timestamp
-          this.ruleVO.timestamp = this._findTimestampStyleWithIdxInColDescs(idx);
-        } else if (colTypes[idx].type.toUpperCase() === 'STRING') { // string -> timestamp
-          this.getTimestampFormatsFromServer(this.selectedColumns);
-        }
-      } else if (this.selectedColumns.length > 1) {
-
-        let timestampStyles = [];
-        let stringTimestampStyles = [];
-        this.selectedColumns.forEach((item) => {
-          let idx = this._findIndexWithNameInGridResponse(item);
-          if ('TIMESTAMP' === this.selectedDataSet.gridResponse.colDescs[idx].type) {
-            timestampStyles.push(this._findTimestampStyleWithIdxInColDescs(idx));
-
-            const allEqual = arr => arr.every(v => v === arr[0]);
-            if (this.selectedColumns.length === timestampStyles.length && allEqual(timestampStyles)) {
-              this.ruleVO.timestamp = timestampStyles[0].replace(/'/g, '\\\'');
-            } else if (this.selectedColumns.length === stringTimestampStyles.length && allEqual(stringTimestampStyles)) {
-              this.ruleVO.timestamp = stringTimestampStyles[0].replace(/'/g, '\\\'');
-            } else {
-              this.ruleVO.timestamp = '';
-            }
-          } else if ('STRING' === this.selectedDataSet.gridResponse.colDescs[idx].type) {
-            // stringTimestampStyles.push(this.timestampSuggestions && this.timestampSuggestions[item][0] ? this.timestampSuggestions[item][0] : '');
-            this.getTimestampFormatsFromServer(this.selectedColumns);
-          }
-        });
-
-      } else {
-        this.ruleVO.timestamp = '';
-      }
-    } else {
-      this.isTypeTimestamp = false;
-      this.ruleVO.timestamp = '';
-    }
-
-    if (!this.isTypeTimestamp) {
-      this.ruleVO.timestamp = '';
-    }
-
-    setTimeout(() => {
-      this.isTypeListShow = false;
-    });
-
-    this.initSelectedCommand(this.filteredTypeList);
-  } // function - setColumnType
-
-  public setTimestamp(event, type) {
-    event.stopImmediatePropagation();
-    if ('Custom format' === type.value) {
-      this.timestampVal = isUndefined(this.ruleVO.timestamp) ? '' : this.ruleVO.timestamp;
-    } else if ('Custom format' !== type.value) {
-      this.timestampVal = '';
-    }
-    this.ruleVO.timestamp = type.value;
-
-    setTimeout(() => {
-      this.isTimestampOpen = false;
-    });
-    this.initSelectedCommand(this.timestampTime);
-  } // function - setColumnType
-
-  /**
-   * select BEFORE or AFTER (move)
-   * @param event 이벤트
-   * @param type BEFORE or AFTER
-   */
-  public setBeforeOrAfter(event, type) {
-
-    event.stopImmediatePropagation();
-    this.ruleVO.beforeOrAfter = type.name;
-    setTimeout(() => {
-      this.isBeforeOrAfterShow = false;
-    });
-
-    this.initSelectedCommand(this.moveList);
-
-  } // function - setBeforeOrAfter
-
-  /**
    * Rule cancel or 초기 세팅
    * @param data
    */
@@ -1091,31 +575,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.ruleNo = null;
 
     this.ruleVO = new Rule();
-    this.beforeOrAfterDataSet = this.selectedDataSet.gridData.fields;
     this.inputRuleCmd = '';
-    this.timestampInit();
 
     // redo, undo를 초기화 한다.
     if (data) this.initRedoUndo(data);
 
-    // init pivot & aggregate formulas
-    this.initFormulaList();
-
   } // function - initRule
-
-  public timestampInit() {
-    this.isTypeTimestamp = false;
-    this.isTimestampOpen = false;
-  }
-
-  /**
-   * Initialise formula list
-   */
-  public initFormulaList() {
-    this.pivotFormulaList = [];
-    this.pivotFormulaList.push('');
-    this.pivotFormulaValueList = [];
-  } // function - initFormulaList
 
   /**
    * Initialise redo and undo buttons
@@ -1262,11 +727,19 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.safelyDetectChanges();
 
       switch (this.ruleVO.command) {
+        case 'settype':
+          this._editRuleComp.init(gridData.fields, [], `${rule.ruleString} dsId: ${this.selectedDataSet.dsId}`);
+          this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
+          break;
         case 'setformat' :
           let setformatList = gridData.fields.filter((item) => {
             return item.type === 'TIMESTAMP'
           });
+          let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
+            return item.type === 'TIMESTAMP'
+          });
           this._editRuleComp.init(setformatList, [], `${rule.ruleString} dsId: ${this.selectedDataSet.dsId}`);
+          this._editRuleComp.setValue('colTypes', colDescs);
           break;
         case 'flatten' :
           let flattenList = gridData.fields.filter((item) => {
@@ -1281,34 +754,29 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._editRuleComp.init(unnest, [], rule.ruleString);
           break;
         case 'rename' :
-          if (this.ruleVO.col['value'] && 'string' === typeof this.ruleVO.col['value']) {
-            this._editRuleComp.init(gridData.fields, [], rule.ruleString);
-          } else {
-            let tos = [];
-            this.ruleVO.to['value'].forEach((item) => {
-              if (item.startsWith('\'') && item.endsWith('\'')) {
-                tos.push(item.substring(1, item.length - 1));
-              }
-            });
-            let cols = _.cloneDeep(this.ruleVO.col['value']);
-            this.multicolumnRenameComponent.init({
-              data: _.cloneDeep(gridData),
-              datasetName: this.selectedDataSet.dsName,
-              ruleCurIdx: rule['ruleNo'],
-              cols: cols,
-              to: tos
-            });
-            // TODO : ... 지우면 안되는데..
-            this.ruleVO.col = '';
-            this.ruleVO.to = '';
-          }
+          this._editRuleComp.init(gridData.fields, [], this.ruleVO.col['value'] && 'string' === typeof this.ruleVO.col['value'] ? rule.ruleString : '');
+          let tos = [];
+          this.ruleVO.to['value'].forEach((item) => {
+            if (item.startsWith('\'') && item.endsWith('\'')) {
+              tos.push(item.substring(1, item.length - 1));
+            }
+          });
+          let cols = _.cloneDeep(this.ruleVO.col['value']);
+          this.multicolumnRenameComponent.init({
+            data: _.cloneDeep(gridData),
+            datasetName: this.selectedDataSet.dsName,
+            ruleCurIdx: rule['ruleNo'],
+            cols: cols,
+            to: tos
+          });
+          // TODO : ... 지우면 안되는데..
+          this.ruleVO.col = '';
+          this.ruleVO.to = '';
           break;
         case 'delete' :
         case 'keep' :
         case 'derive' :
         case 'set' :
-          this._editRuleComp.init(gridData.fields, [], rule.ruleString);
-          break;
         case 'drop' :
         case 'replace' :
         case 'merge' :
@@ -1323,10 +791,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'aggregate' :
         case 'pivot' :
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
-          break;
-        case 'settype':
-          this._editRuleComp.init(gridData.fields, [], `${rule.ruleString} dsId: ${this.selectedDataSet.dsId}`);
-          this._editRuleComp.setColDescs(this.selectedDataSet.gridResponse.colDescs);
           break;
         case 'union' :
           if (this.selectedDataSet.gridData.data.length > 1) {
@@ -1356,7 +820,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     } catch (e) {
       Alert.error(this.translateService.instant('msg.dp.alert.rule.edit.fail'));
     }
-  } // function - setEditInfo
+  }
 
 
   /**
@@ -1365,7 +829,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public setRuleVO(dataRule) {
 
-    // 전 단계 그리드를 그리기 전에 현재 그리드에 선택된 컬럼을 해제 해야한다.
+    // unselect all columns in current grid
     this._editRuleGridComp.unSelectionAll('COL');
 
     let event = dataRule.event;
@@ -1410,25 +874,23 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     let event = dataEvent.event;
     let data = dataEvent.rule;
-
     if (true == this.jumpLast()) {
       this.deleteRule({ rule: data, event: event });
     }
-
     event.stopPropagation();
-
     const rule = {
       op: 'DELETE',
       ruleIdx: data.ruleNo
     };
 
     this.applyRule(rule, 'msg.dp.alert.rule.del.fail');
-  } // function - deleteRule
+  }
 
   /**
    * Change to different dataset in same dataflow
+   * @param dataset {Dataset}
    */
-  public changeWrangledDataset(dataset) {
+  public changeWrangledDataset(dataset : Dataset) {
     this.loadingShow();
 
     let dataflows = this.selectedDataSet['_embedded'].dataflows ? this.selectedDataSet['_embedded'].dataflows : null;
@@ -1444,23 +906,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }
 
     this.dataflowService.getDatasetWrangledData(dataset.dsId)
-      .then((result) => {
-
-        /*
-          this.selectedDataSet.gridResponse = result.gridResponse;
-          // grid refresh
-          this.selectedDataSet.gridData = this._editRuleGridComp.init(this.selectedDataSet.dsId);
-          // rule refresh
-          this.setRuleList(result['ruleStringInfos']);
-          // init ruleVO
-          this.initRule();
-
-          this.changeDataset.emit(this.selectedDataSet);
-         */
-
+      .then(() => {
         this.selectedDataSet.dsId = dataset.dsId;
         this._setEditRuleInfo();
-
       })
       .catch((error) => {
         this.loadingHide();
@@ -1468,7 +916,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
 
-  } // function - changeWrangledDataset
+  }
 
   /**
    * REDO rule
@@ -1560,20 +1008,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   } // function - jump
 
   /**
-   * Delete formula input box for PIVOT & AGGREGATE
-   * @idx index for deletion
-   */
-  public deleteFormula(idx) {
-
-    if (this.pivotFormulaList.length === 1) {
-      Alert.warning('Cannot delete Formula');
-    } else {
-      this.pivotFormulaValueList.splice(idx, 1);
-      this.pivotFormulaList.splice(idx, 1);
-    }
-  } // function - deleteFormula
-
-  /**
    * Command list 에서 Mouseover 일때 Selected = true, mouseleave 일때 selected = false
    * @param event 이벤트
    * @param index
@@ -1591,91 +1025,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   } // function - commandListHover
 
   /**
-   * nestlist, typelist, movelist 에서 mouseover 일때 Selected = true
-   * @param event
-   * @param list
-   * @param index
-   */
-  public listMouseOver(event, list, index) {
-
-    let tempList = [];
-    switch (list) {
-      case 'nest':
-        tempList = this.nestList;
-        break;
-      case 'move':
-        tempList = this.moveList;
-        break;
-      case 'type':
-        tempList = this.typeList;
-        break;
-      case 'sort':
-        tempList = this.sortList;
-        break;
-      case 'column1' :
-        tempList = this.filteredColumnList;
-        break;
-      case 'column2' :
-        tempList = this.filteredMoveDatasetList;
-        break;
-      case 'flatten' :
-        tempList = this.filteredFlattenList;
-        break;
-      case 'unnest' :
-        tempList = this.filteredUnnestList;
-        break;
-      case 'timestamp' :
-        tempList = this.timestampTime;
-        break;
-    }
-    if (!this.flag) {
-      tempList[index].isHover = true;
-    }
-  } // function - listMouseOver
-
-  /**
-   * nestlist, typelist, patternlist,movelist, quotelist 에서 mouseout 일때 Selected = false
-   * @param event
-   * @param list
-   */
-  public listMouseOut(event, list) {
-
-    let tempList = [];
-    switch (list) {
-      case 'nest':
-        tempList = this.nestList;
-        break;
-      case 'move':
-        tempList = this.moveList;
-        break;
-      case 'type':
-        tempList = this.typeList;
-        break;
-      case 'sort':
-        tempList = this.sortList;
-        break;
-      case 'column1' :
-        tempList = this.filteredColumnList;
-        break;
-      case 'column2' :
-        tempList = this.filteredMoveDatasetList;
-        break;
-      case 'flatten' :
-        tempList = this.filteredFlattenList;
-        break;
-      case 'unnest' :
-        tempList = this.filteredUnnestList;
-        break;
-      case 'timestamp' :
-        tempList = this.timestampTime;
-        break;
-    }
-    if (!this.flag) {
-      this.initSelectedCommand(tempList);
-    }
-  } // function - listMouseOut
-
-  /**
    * Select box for commands - navigate with keyboard
    * @param event 이벤트
    * @param currentList 현재 사용하는 리스트
@@ -1686,32 +1035,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // open select box when arrow up/ arrow down is pressed
     if (event.keyCode === 38 || event.keyCode === 40) {
       switch (clickHandler) {
-        case 'move' :
-          !this.isBeforeOrAfterShow ? this.isBeforeOrAfterShow = true : null;
-          break;
-        case 'nest' :
-          !this.isNestListShow ? this.isNestListShow = true : null;
-          break;
-        case 'type':
-          if (!this.isTypeListShow) {
-            this.isTypeListShow = true;
-            setTimeout(() => $('.type-search').trigger('focus')); // 포커스
-          }
-          break;
-        case 'column1':
-        case 'unnestList':
-        case 'flatten':
-          if (!this.isColumnListShow) {
-            this.isColumnListShow = true;
-            setTimeout(() => $('.columnSearch').trigger('focus')); // 포커스
-          }
-          break;
-        case 'column2':
-          !this.isBeforeOrAfterColumnListShow ? this.isBeforeOrAfterColumnListShow = true : null;
-          break;
-        case 'timestamp':
-          !this.isTimestampOpen ? this.isTimestampOpen = true : null;
-          break;
         case 'command':
           if (!this.isCommandListShow) {
             this.isCommandListShow = true;
@@ -1801,50 +1124,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           return command;
         }
       });
-
-      // 선택된게 없는데 엔터를 눌렀을때
-      if (idx === -1) {
-        // if (this.ruleVO.command === 'settype' && this.timestampInputVal.nativeElement.value !== ''){
-        //   this.ruleVO.timestamp = this.timestampInputVal.nativeElement.value;
-        //   this.timestampInputVal.nativeElement.value = '';
-        //   setTimeout(() => this.isTimestampOpen = false);
-        //
-        // }
-        // return;
-      } else {
-        switch (clickHandler) {
-          case 'move' :
-            this.setBeforeOrAfter(event, currentList[idx]);
-            break;
-          case 'nest' :
-            this.selectType(event, currentList[idx]);
-            break;
-          case 'type':
-            this.setColumnType(event, currentList[idx]);
-            break;
-          case 'column1':
-            this.selectColumn(event, currentList[idx]);
-            $('[tabindex=2]').trigger('focus');
-            break;
-          case 'unnestList':
-            this.selectColumn(event, currentList[idx]);
-            break;
-          case 'column2':
-            this.selectedBeforeOrAfterColumn(event, currentList[idx]);
-            break;
-          case 'command':
-            this.selectCommand(event, currentList[idx]);
-            $('[tabindex=1]').trigger('focus');
-            break;
-          case 'timestamp':
-            this.setTimestamp(event, currentList[idx]);
-            break;
-          default:
-            this.selectColumn(event, currentList[idx]);
-            break;
-
-        }
-      }
+      this.selectCommand(event, currentList[idx]);
+      $('[tabindex=1]').trigger('focus');
       // 스크롤, command select 초기화
       this.initSelectedCommand(currentList);
     }
@@ -1879,31 +1160,22 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   }
 
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+   * Open advanced formula input popup
+   * @param {string} command
    */
   public openPopupFormulaInput(command: string) {
     const fields: Field[] = this.selectedDataSet.gridData.fields;
     this.extendInputFormulaComponent.open(fields, command);
-  } // function - openPopupFormulaInput
+  }
 
   /**
-   * 수식 입력 종료 및 적용
+   * Apply formula using Advanced formula popup
    * @param {{command: string, formula: string}} data
    */
   public doneInputFormula(data: { command: string, formula: string }) {
-    switch (data.command) {
-
-      case 'set' :
-      case 'keep' :
-      case 'derive' :
-      case 'delete':
-        this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);
-        break;
-      default :
-        this.ruleVO.row = data.formula;
-    }
-  } // function - doneInputFormaul
+    // this._editRuleComp.init(this.selectedDataSet.gridData.fields, [], `row: ${data.formula}`);
+    this._editRuleComp.setValue( 'forceRowNum', data.formula );
+  }
 
   /**
    * 전체 컬럼에 대한 Rename 실행
@@ -1919,31 +1191,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.applyRule(data);
     }
   } // function - applyMultiColumnRename
-
-  /**
-   * Removes unnecessary single quotation from string
-   * @param rule rule sent to server
-   */
-  public removeQuotes(rule) {
-
-    if (rule.command === 'aggregate' || rule.command === 'pivot' && rule.value) {
-      let list = rule.value.split(',');
-      list.forEach((item, idx) => {
-        if (item.startsWith('\'') && item.endsWith('\'')) {
-          this.pivotFormulaValueList[idx] = item.substring(1, item.length - 1);
-        }
-      });
-    }
-
-    let tempList = ['idx', 'on', 'with', 'as', 'value', 'timestamp'];
-
-    tempList.filter((item) => {
-
-      if (rule[item] && rule[item].startsWith('\'') && rule[item].endsWith('\'')) {
-        this.ruleVO[item] = rule[item].substring(1, rule[item].length - 1);
-      }
-    })
-  }
 
   /**
    * Simplify Rule List
@@ -2294,7 +1541,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           let setformatSel =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ).filter((item) => {
             return item.type === 'TIMESTAMP'
           });
-          this._editRuleComp.init(setformatList, setformatSel, `type: timestamp dsId : ${this.selectedDataSet.dsId} `);
+          let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
+            return item.type === 'TIMESTAMP'
+          });
+          this._editRuleComp.init(setformatList, setformatSel, `dsId: ${this.selectedDataSet.dsId}`);
+          this._editRuleComp.setValue('colTypes', colDescs);
           break;
         case 'move':
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ), data.more.move);
@@ -2306,8 +1557,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);
           break;
         case 'settype':
-          this._editRuleComp.setColDescs(this.selectedDataSet.gridResponse.colDescs);
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ), `type: ${data.more.type} dsId: ${this.selectedDataSet.dsId}`);
+          this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
           break;
       }
     } else {
@@ -2319,43 +1570,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * Find index of column Name in grid response
-   * @param {string} name
-   * @return {number}
-   * @private
-   */
-  private _findIndexWithNameInGridResponse(name: string): number {
-    return this.selectedDataSet.gridResponse.colNames.indexOf(name)
-  } // function - _findIndexWithNameInGridResponse
-
-  /**
-   * Find timestamp style of timestamp type column
-   * @param {number} idx
-   * @return {string}
-   * @private
-   */
-  private _findTimestampStyleWithIdxInColDescs(idx : number) : string {
-    if (this.selectedDataSet.gridResponse.colDescs[idx].timestampStyle) {
-      return this.selectedDataSet.gridResponse.colDescs[idx].timestampStyle.replace(/'/g, '\\\'');
-    } else {
-      return ''
-    }
-
-  } // function - _findTimestampStyleWithIdxInColDescs
-
-
-  /**
-   * Find type of column with idx ( upper cased)
-   * @param {number} idx
-   * @return {string}
-   * @private
-   */
-  private _findUpperCaseColumnTypeWithIdx(idx: number): string {
-    return this.selectedDataSet.gridResponse.colDescs[idx].type.toUpperCase()
-  } // function - _findUpperCaseColumnTypeWithIdx
-
-
   /**
    * 룰 편집 정보 설정
    * @param {number} ruleIdx
@@ -2434,11 +1648,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.isNestListShow = false;
       this.isCommandListShow = false;
       this.isUpdate = false;
-
-      this.isAutoCompleteSuggestionListOpen = false;
-      this.autoCompleteSuggestion_inputId = '';
-      this.autoCompleteSuggestions = [];
-      this.autoCompleteSuggestions_selectedIdx = -2;
     }
   }
 
@@ -2454,9 +1663,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     if (event.keyCode === 13) {
       if (!this.isColumnListShow && !this.isTypeListShow && !this.isMultiColumnListShow
         && !this.isBeforeOrAfterShow
-        && !this.isBeforeOrAfterColumnListShow && !this.isNestListShow && !this.isCommandListShow && !this.isTimestampOpen
+        && !this.isBeforeOrAfterColumnListShow && !this.isNestListShow && !this.isCommandListShow
         && !this.isRuleUnionModalShow && !this.isRuleJoinModalShow && this.step !== 'create-snapshot' && !hasFocus
-        && this.autoCompleteSuggestions_selectedIdx == -1) {
+      ) {
         this.addRule();
       }
     }
@@ -2597,39 +1806,18 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       { command: 'setformat', alias: 'Sf', desc: 'set timestamp type .... ', isHover: false }
     ];
 
-    this.typeList = [
-      { type: 'long', name: 'Long', isHover: false },
-      { type: 'double', name: 'Double', isHover: false },
-      { type: 'string', name: 'String', isHover: false },
-      { type: 'boolean', name: 'Boolean', isHover: false },
-      { type: 'timestamp', name: 'Timestamp', isHover: false }
-    ];
-
     this.nestList = [
       { type: 'map', name: 'map', isHover: false },
       { type: 'array', name: 'array', isHover: false },
     ];
 
-    this.moveList = [
-      { type: 'before', name: 'before', isHover: false },
-      { type: 'after', name: 'after', isHover: false }
-    ];
-
-    this.sortList = [
-      { type: '', name: 'asc', isHover: false },
-      { type: 'desc', name: 'desc', selected: false }
-    ];
-
-    // 룰 셋팅
+    // set rule
     if (this.selectedDataSet.rules && this.selectedDataSet.rules.length > 0) {
       this.setRuleList(this.selectedDataSet.rules);
     }
 
     // init ruleVO
     this.ruleVO.command = '';
-
-    // pivot formula input box 하나부터 시작
-    this.pivotFormulaList.push('');
 
   }
 
@@ -2643,7 +1831,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     let command = rule['command'];
 
-    // 현재 위치 저장
+    // Save current scroll position
     this._editRuleGridComp.savePosition();
 
     this.loadingShow();
@@ -2652,54 +1840,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         if (data.errorMsg) {
           Alert.warning(this.translateService.instant(msg ? msg : 'msg.dp.alert.apply.rule.fail'));
         } else {
-          /*
-                    // TODO : refresh here ?
-                    this.selectedRows = [];
-                    this.selectedDataSet.gridResponse = data.gridResponse;
-                    this.selectedDataSet.ruleCurIdx = data.ruleCurIdx;
-                    this.selectedDataSet.ruleStringInfos = data['ruleStringInfos'];
-                    this.isJumped = false;
-                    if (command === 'multipleRename') {
-                      this.multicolumnRenameComponent.showFlag = false;
-                    }
-                    // 선택 초기화
-                    this._editRuleGridComp.unSelectionAll('COL');
-                    this.editColumnList = [];
-
-                    // rule refresh
-                    this.setRuleList(data['ruleStringInfos']);
-
-                    // init ruleVO
-                    this.initRule(data);
-
-                    this.currentIndex = data['ruleStringInfos'].length - 1;
-
-                    // grid refresh
-                    this.selectedDataSet.gridData = this._editRuleGridComp.init(this.selectedDataSet.dsId, this.currentIndex);
-
-                    if (data['ruleStringInfos'].length > 0) {
-                      this._editRuleGridComp.setAffectedColumns(
-                        data.gridResponse['interestedColNames'],
-                        data.ruleStringInfos[data.ruleStringInfos.length - 1].command
-                      );
-                    }
-
-                    if (command !== 'join' && command !== 'derive' && command !== 'aggregate' && command !== 'move') {
-                      // 저장된 위치로 이동
-                      this._editRuleGridComp.moveToSavedPosition();
-                    }
-                    // 계속 클릭하는거 방지ser
-                    if (isUndo && this.isUndoRunning) {
-                      this.isUndoRunning = false;
-                    } else if (!isUndo && this.isRedoRunning) {
-                      this.isRedoRunning = false;
-                    }
-          */
           this.selectedRows = [];
           this.isJumped = false;
           (command === 'multipleRename') && (this.multicolumnRenameComponent.showFlag = false);
 
-          // 선택 초기화
+          // Unselect all columns
           this._editRuleGridComp.unSelectionAll('COL');
           this.editColumnList = [];
 
@@ -2726,39 +1871,29 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           });
 
         }
-
-
         this.changeDetect.detectChanges();
+      }).catch((error) => {
+      this.loadingHide();
+      if (isNull(error)) {
+        return;
+      }
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
 
-        // this.loadingHide();
-
-      })
-      .catch((error) => {
-
-        console.error(error);
-
-        this.loadingHide();
-
-        // If error, remove single quotes from input
-        this.removeQuotes(this.ruleVO);
-
-        if (isNull(error)) {
-          return;
-        }
-
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-
-        if (prep_error.code && prep_error.code.startsWith('PR')) {
-        } else if (1 < this.inputRuleCmd.length) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.command.error'));
-        } else {
-          Alert.error(this.translateService.instant('msg.dp.alert.unknown.error'));
-        }
-      });
+      if (prep_error.code && prep_error.code.startsWith('PR')) {
+      } else if (1 < this.inputRuleCmd.length) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.command.error'));
+      } else {
+        Alert.error(this.translateService.instant('msg.dp.alert.unknown.error'));
+      }
+    });
 
   }
 
+  /**
+   * Set join info when editing
+   * @param rule
+   */
   private setJoinEditInfo(rule) {
     this.rightDataset = new Dataset();
 

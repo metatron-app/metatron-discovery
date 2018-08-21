@@ -99,6 +99,18 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
     this.colDescs = cols;
   }
 
+  public setValue( key:string, value:any ) {
+    Object.keys( this ).some( item => {
+      if( key === item && 'function' !== typeof this[key] ) {
+        this[key] = value;
+        return true;
+      } else {
+        return false;
+      }
+    });
+    this.safelyDetectChanges();
+  } // function - setValue
+
   /**
    * Rule 형식 정의 및 반환
    */

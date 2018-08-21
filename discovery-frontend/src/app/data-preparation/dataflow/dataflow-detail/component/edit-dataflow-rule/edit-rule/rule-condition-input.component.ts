@@ -63,6 +63,9 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   @Input('formula')
   public inputFormula: string;
 
+  @Input()
+  public forceFormula: string;
+
   public formula: string;
 
   // Auto complete 관련
@@ -106,8 +109,12 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
    */
   public ngOnChanges(changes: SimpleChanges) {
     const inputFormulaChanges: SimpleChange = changes.inputFormula;
-    if( inputFormulaChanges.firstChange ) {
+    const forceFormulaChanges:SimpleChange = changes.forceFormula;
+    if( inputFormulaChanges && inputFormulaChanges.firstChange ) {
       this.formula = inputFormulaChanges.currentValue;
+    }
+    if( forceFormulaChanges && forceFormulaChanges.currentValue !== forceFormulaChanges.previousValue ) {
+      this.formula = forceFormulaChanges.currentValue;
     }
   } // function - ngOnChanges
 
