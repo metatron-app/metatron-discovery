@@ -13,9 +13,9 @@
   -->
 
 <div class="ddp-type-contents ddp-resize2 ddp-type">
-  <!-- 닫기 버튼 -->
+  <!-- close -->
   <a href="javascript:" class="ddp-btn-close" (click)="cancel()"></a>
-  <!-- 닫기 버튼 -->
+  <!-- close -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
       {{'msg.storage.ui.create.dconn' | translate}}
@@ -43,14 +43,12 @@
         <!-- //edit option -->
       </div>
       <!-- //db type -->
-      <!-- Server 설정 -->
+      <!-- Server -->
       <div class="ddp-wrap-edit2 ">
         <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.server' | translate}}</label>
         <div class="ddp-box-sub">
-          <!-- URL 허용이면 show -->
+          <!-- URL (enable) -->
           <div class="ddp-clear" *ngIf="isEnableUrl">
-            <!-- URL -->
-            <!-- 필수 일때 ddp-error 추가 -->
             <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowUrlRequired && url === ''">
               <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}</label>
               <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.url.ph' | translate}}"
@@ -62,19 +60,18 @@
               <!-- check -->
               <div class="ddp-check">
                 <label class="ddp-label-checkbox" (click)="onChangeEnableURL()">
-                  <input type="checkbox" [checked]="isEnableUrl">
+                  <input type="checkbox" [checked]="isEnableUrl" tabindex="-1">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.storage.ui.conn.url.only' | translate}}</span>
                 </label>
               </div>
               <!-- //check -->
             </div>
-            <!-- //URL -->
           </div>
-          <!-- //URL 허용이면 show -->
+          <!-- //URL (enable) -->
+          <!-- URL (disable) -->
           <div class="ddp-clear" *ngIf="!isEnableUrl">
             <!-- HOST -->
-            <!-- 필수 일때 ddp-error 추가 -->
             <div class="ddp-wrap-edit2 ddp-col-4" [class.ddp-error]="isShowHostRequired && hostname === ''">
               <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}</label>
               <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.host' | translate}}"
@@ -86,7 +83,7 @@
               <!-- check -->
               <div class="ddp-check">
                 <label class="ddp-label-checkbox" (click)="onChangeEnableURL()">
-                  <input type="checkbox" [checked]="isEnableUrl">
+                  <input type="checkbox" [checked]="isEnableUrl" tabindex="-1">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.storage.ui.conn.url.only' | translate}}</span>
                 </label>
@@ -144,9 +141,9 @@
             </div>
             <!-- //Catalog -->
           </div>
+          <!-- //URL (disable) -->
           <div class="ddp-clear" *ngIf="!isConnectUserAccount()">
             <!-- username -->
-            <!-- 필수 일때 ddp-error 추가 -->
             <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowUsernameRequired && username === ''">
               <label class="ddp-label-type">{{'msg.storage.th.user_name' | translate}} <span class="ddp-sub" *ngIf="isConnectWithIdAndPassword()">{{'msg.storage.ui.for.test' | translate}}</span></label>
               <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.user_name.ph' | translate}}"
@@ -194,7 +191,7 @@
           <!-- //Security -->
         </div>
       </div>
-      <!-- //Server 설정 -->
+      <!-- //Server -->
       <!-- permission -->
       <div class="ddp-wrap-edit2 ">
         <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.permission' | translate}}</label>
@@ -258,5 +255,5 @@
   </div>
   <!-- //buttons -->
 </div>
-<!-- 워크스페이스 지정 모달 -->
+<!-- workspace setting modal -->
 <app-set-workspace-published (complete)="closeSetWorkspace($event)"></app-set-workspace-published>

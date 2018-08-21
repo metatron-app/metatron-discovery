@@ -24,39 +24,30 @@ import { CommonUtil } from '../../../../common/util/common.util';
 import { CookieConstant } from '../../../../common/constant/cookie.constant';
 import { StringUtil } from '../../../../common/util/string.util';
 
+/**
+ * Data connection create component
+ */
 @Component({
   selector: 'app-create-connection',
   templateUrl: './create-connection.component.html'
 })
 export class CreateConnectionComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 워크스페이스 지정 팝입
+  // workspace set component
   @ViewChild(SetWorkspacePublishedComponent)
   private _setWorkspaceComponent: SetWorkspacePublishedComponent;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 추가될 워크스페이스 목록
+  // add worksapce list
   public addWorkspaces: any[] = [];
-  // 데이터베이스 타입 목록
+  // database type list
   public dbTypeList: any[];
-  // 선택된 데이터베이스 타입
+  // selected database type
   public selectedDbType: any;
-  // 보안 타입 목록
+  // security type list
   public securityTypeList: any[];
-  // 선택된 보안 타입
+  // selected security type
   public selectedSecurityType: any;
-  // URL 허용 여부
+  // enable URL flag
   public isEnableUrl: boolean = false;
 
   // host
@@ -78,11 +69,11 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
   // connection name
   public connectionName: string = '';
 
-  // 커넥션 연결 success flag
+  // connection result flag
   public connectionResultFl: boolean = null;
-  // 완료 버튼 클릭 flag
+  // clicked done button flag
   public isClickedDone: boolean;
-  // 서버 input validation
+  // connection input validation
   public isShowHostRequired: boolean;
   public isShowPortRequired: boolean;
   public isShowSidRequired: boolean;
@@ -91,19 +82,15 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
   public isShowUrlRequired: boolean;
   public isShowUsernameRequired: boolean;
   public isShowPasswordRequired: boolean;
-  // 이름 input validation
+  // name input validation
   public isShowConnectionNameRequired: boolean;
-  // 커넥션 이름 메세지
+  // name validation message
   public nameErrorMsg: string;
 
   // workspace published
   public published: boolean = false;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
+  // constructor
   constructor(private popupService: PopupService,
               private connectionService: DataconnectionService,
               protected element: ElementRef,
@@ -111,113 +98,105 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
     super(element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
+  /**
+   * ngOnInit
+   */
   public ngOnInit() {
-    // Init
     super.ngOnInit();
     // ui init
     this._initView();
-    // 개인 워크스페이스 정보
+    // set private workspace in add workspace list
     this.addWorkspaces.push(this._getPrivateWorkspace());
   }
 
-  // Destory
+  /**
+   * ngOnDestroy
+   */
   public ngOnDestroy() {
-    // Destory
     super.ngOnDestroy();
   }
 
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 생성 완료
+   * Done click event
    */
   public done(): void {
-    // 버튼 클릭 flag
+    // clicked done button flag
     this.isClickedDone = true;
-    // validation 통과시 커넥션 생성
+    // if enable done button, create connection
     this.doneValidation() && this._createConnection();
   }
 
   /**
-   * 생성 종료
+   * Cancel click event
    */
   public cancel(): void {
     this.close();
   }
 
   /**
-   * 워크스페이스 연결 모달 닫기
+   * if closed workspace setting modal
    * @param event
    */
   public closeSetWorkspace(event): void {
+    // add workspace in add workspace list
     this.addWorkspaces = event;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - event
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 데이터베이스 변경 이벤트
+   * Change database type
    * @param type
    */
   public onChangeDbType(type: any): void {
-    // 선택된 데이터베이스가 다를 경우에만 작동
+    // only works if the selected database type is different
     if (type !== this.selectedDbType) {
-      // 데이터베이스 타입 변경
+      // change database type
       this.selectedDbType = type;
-      // 커넥션 input flag 초기화
+      // init connection flag
       this.initConnectionFlag();
-      // 커넥션 flag 초기화
+      // init connection result flag
       this.initConnectionResultFlag();
     }
   }
 
   /**
-   * 보안 타입 변경 이벤트
+   * Change security type
    * @param type
    */
   public onChangeSecurityType(type: any): void {
-    // 선택된 보안 타입이 다를 경우에만 작동
+    // only works if the selected security type is different
     if (type !== this.selectedSecurityType) {
-      // 보안 타입 변경
+      // change security type
       this.selectedSecurityType = type;
-      // 커넥션 input flag 초기화
+      // init connection flag
       this.initConnectionFlag();
-      // 커넥션 flag 초기화
+      // init connection result flag
       this.initConnectionResultFlag();
     }
   }
 
   /**
-   * URL 허용 변경 이벤트
+   * Change enable URL flag
    */
   public onChangeEnableURL(): void {
+    // change enable URL flag
     this.isEnableUrl = !this.isEnableUrl;
-    // 커넥션 input flag 초기화
+    // init connection flag
     this.initConnectionFlag();
-    // 커넥션 flag 초기화
+    // init connection result flag
     this.initConnectionResultFlag();
   }
 
   /**
-   * 커넥션 체크 클릭 이벤트
+   * Click connection validation
    */
   public onClickConnectionValidation(): void {
-    // check
+    // if enable connection button, check connection
     this.isEnabledConnectionValidation() && this._checkConnection();
   }
 
   /**
-   * 워크스페이스 설정 클릭 이벤트
+   * Click workspace setting open
    */
   public onClickSetWorkspace(): void {
     const workspaces = {
@@ -226,39 +205,32 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
     this._setWorkspaceComponent.init('connection', 'create', workspaces);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - validation
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 데이터베이스이름이 필요한 DB 타입인지 확인
+   * Is required database
    * @returns {boolean}
    */
   public isRequiredDatabase(): boolean {
-    // postgre 만 사용
     return this.selectedDbType.value === 'POSTGRE';
   }
 
   /**
-   * sid가 필요한 DB 타입인지 확인
+   * Is required SID
    * @returns {boolean}
    */
   public isRequiredSid() : boolean {
-    // oracle | tibero 만 사용
     return this.selectedDbType.value === 'TIBERO' || this.selectedDbType.value === 'ORACLE';
   }
 
   /**
-   * catalog가 필요한 DB 타입인지 확인
+   * Is required catalog
    * @returns {boolean}
    */
   public isRequiredCatalog() : boolean {
-    // presto 만 사용
     return this.selectedDbType.value === 'PRESTO';
   }
 
   /**
-   * 사용자 계정으로 연결하는지
+   * Is used user account for connect
    * @returns {boolean}
    */
   public isConnectUserAccount(): boolean {
@@ -266,57 +238,58 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 아이디와 비번으로 연결하는지
-   * @returns {boo+lean}
+   * Is used ID and password for connect
+   * @returns {boolean}
    */
   public isConnectWithIdAndPassword(): boolean {
     return this.selectedSecurityType.value === 'DIALOG';
   }
 
   /**
-   * 커넥션 테스트가 사용가능한지 확인
+   * Is enable connection
    * @returns {boolean}
    */
   public isEnabledConnectionValidation() : boolean {
     let result: boolean = true;
-    // URL 허용하지 않는다면
+    // if disable URL
     if (!this.isEnableUrl) {
-      // hostname 없는경우
-      if (this.hostname.trim() === '') {
+      // if empty host
+      if (StringUtil.isEmpty(this.hostname)) {
         this.isShowHostRequired = true;
         result = false;
       }
-      // port 없는경우
+      // if empty port
       if (!this.port) {
         this.isShowPortRequired = true;
         result = false;
       }
-      // sid 없는경우
-      if (this.isRequiredSid() && this.sid.trim() === '') {
+      // if empty SID
+      if (this.isRequiredSid() && StringUtil.isEmpty(this.sid)) {
         this.isShowSidRequired = true;
         result = false;
       }
-      // database 없는경우
-      if (this.isRequiredDatabase() && this.database.trim() === '') {
+      // if empty database
+      if (this.isRequiredDatabase() && StringUtil.isEmpty(this.database)) {
         this.isShowDatabaseRequired = true;
         result = false;
       }
-      // catalog 없는경우
-      if (this.isRequiredCatalog() && this.catalog.trim() === '') {
+      // if empty catalog
+      if (this.isRequiredCatalog() && StringUtil.isEmpty(this.catalog)) {
         this.isShowCatalogRequired = true;
         result = false;
       }
-      // username
-      if (!this.isConnectUserAccount() && this.username.trim() === '') {
+      // if empty username
+      if (!this.isConnectUserAccount() && StringUtil.isEmpty(this.username)) {
         this.isShowUsernameRequired = true;
         result = false;
       }
-      // password
-      if (!this.isConnectUserAccount() && this.password.trim() === '') {
+      // if empty password
+      if (!this.isConnectUserAccount() && StringUtil.isEmpty(this.password)) {
         this.isShowPasswordRequired = true;
         result = false;
       }
-    } else if (this.url.trim() === '') {
+      // if enable URL and empty URL
+    } else if (StringUtil.isEmpty(this.url)) {
       this.isShowUrlRequired = true;
       result = false;
     }
@@ -331,17 +304,13 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
     return this.connectionResultFl && this._connectionNameValidation();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - init
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * connection result flag init
    */
   public initConnectionResultFlag(): void {
-    // 커넥션 통과
+    // init connection result flag
     this.connectionResultFl = null;
-    // 완료 버튼 클릭 초기화
+    // init clicked done flag
     this.isClickedDone = false;
   }
 
@@ -359,70 +328,60 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
     this.isShowPasswordRequired = null;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 커넥션 연결 체크
+   * Check connection
    * @private
    */
   private _checkConnection(): void {
-    // 로딩 show
+    // loading show
     this.loadingShow();
-    // 커넥션 연결 체크
+    // check connection
     this.connectionService.checkConnection(this._getCheckConnectionParams())
       .then((result) => {
-        // 커넥트 성공시
+        // set connection validation result
         this.connectionResultFl = result['connected'];
-        // 커넥션 이름 기본값 설정
-        if (this.connectionName === '') {
+        // if empty connection name, set connection name
+        if (StringUtil.isEmpty(this.connectionName)) {
           this.connectionName = this._getDefaultConnectionName();
           this.isShowConnectionNameRequired = false;
         }
-
-        // 로딩 hide
+        // loading hide
         this.loadingHide();
       })
       .catch((error) => {
-        // 커넥트 결과 fail
+        // set connection result fail
         this.connectionResultFl = false;
-        // 로딩 hide
+        // loading hide
         this.commonExceptionHandler(error);
       });
   }
 
   /**
-   * 커넥션 생성
+   * Create connection
    * @private
    */
   private _createConnection(): void {
-    // 로딩 show
+    // loading show
     this.loadingShow();
-    // 커넥션 생성
+    // create connection
     this.connectionService.createConnection(this._getCreateConnectionParams())
       .then((result) => {
-        // 생성완료 alert
+        // alert
         Alert.success(`'${this.connectionName.trim()}' ` + this.translateService.instant('msg.storage.alert.dconn.create.success'));
-        // 로딩 hide
+        // loading hide
         this.loadingHide();
-        // 종료
+        // close
         this.popupService.notiPopup({
           name: 'reload-connection',
           data: null
         });
-        // close
         this.close();
       })
       .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
-   * 파라메터에서 username 과 password 제거
+   * Delete username and password in parameter
    * @param params
    * @private
    */
@@ -432,17 +391,17 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 커넥션 이름 validation
+   * Connection name validation
    * @returns {boolean}
    */
   private _connectionNameValidation(): boolean {
-    // 이름이 없다면
-    if (this.connectionName.trim() === '') {
+    // if empty connection name
+    if (StringUtil.isEmpty(this.connectionName)) {
       this.isShowConnectionNameRequired = true;
       this.nameErrorMsg = this.translateService.instant('msg.storage.dconn.name.error');
       return false;
     }
-    // 이름길이 체크
+    // if connection name over 150 byte
     if (CommonUtil.getByte(this.connectionName.trim()) > 150) {
       this.isShowConnectionNameRequired = true;
       this.nameErrorMsg = this.translateService.instant('msg.alert.edit.name.len');
@@ -451,12 +410,8 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
     return true;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 커넥션 생성 파라메터
+   * Get parameter for create connection
    * @returns {Object}
    * @private
    */
@@ -467,15 +422,15 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
     params['type'] = 'JDBC';
     // name
     params['name'] = this.connectionName.trim();
-    // 커넥션 공개여부
+    // published
     params['published'] = this.published;
-    // 비공개일경우 워크스페이스 전달
+    // if not published, add workspaces in params
     !this.published && (params['workspaces'] = this._getWorkspacesParams());
     return params;
   }
 
   /**
-   * 커넥션 연결 파라메터
+   * Get parameter for check connection
    * @returns {Object}
    * @private
    */
@@ -484,7 +439,7 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 커넥션 파라메터
+   * Get parameter for connection
    * @returns {Object}
    * @private
    */
@@ -493,30 +448,30 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
       implementor: this.selectedDbType.value,
       authenticationType: this.selectedSecurityType.value
     };
-    // username과 password를 사용한다면
-    !StringUtil.isEmpty(this.password) && (params['password'] = this.password.trim());
-    !StringUtil.isEmpty(this.username) && (params['username'] = this.username.trim());
-    // default라면 hostname, port, database 추가
+    // if not empty password and username
+    StringUtil.isNotEmpty(this.password) && (params['password'] = this.password.trim());
+    StringUtil.isNotEmpty(this.username) && (params['username'] = this.username.trim());
+    // if disable URL
     if (!this.isEnableUrl) {
       params['hostname'] = this.hostname.trim();
       params['port'] = this.port;
-      // catalog 가 있다면
+      // if enable catalog
       this.isRequiredCatalog() && (params['catalog'] = this.catalog);
-      // sid 가 있다면
+      // if enable SID
       this.isRequiredSid() && (params['sid'] = this.sid);
-      // database 가 있다면
+      // if enable database
       this.isRequiredDatabase() && (params['database'] = this.database);
-    // only url이면 url만 추가
+    // if enable URL
     } else {
       params['url'] = this.url.trim();
     }
-    // 사용자 계정으로 연결이라면
+    // if used user account for connect, delete username and password in parameter
     this.isConnectUserAccount() && this._deleteUsernameAndPassword(params);
     return params;
   }
 
   /**
-   * 워크스페이스 목록 파라메터
+   * Get parameter for workspace
    * @returns {any}
    * @private
    */
@@ -529,7 +484,7 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 현재 접속한 사용자의 개인워크스페이스 정보
+   * Get private workspace of login user
    * @returns {any}
    * @private
    */
@@ -539,7 +494,7 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 커넥션 default 이름
+   * Get default connection name
    * @returns {string}
    * @private
    */
@@ -547,26 +502,22 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
     return this.isEnableUrl ? (this.selectedDbType.label + '-' + this.url) : (this.selectedDbType.label + '-' + this.hostname + '-' + this.port);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - init
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * ui 초기화
+   * init UI
    * @private
    */
   private _initView(): void {
-    // 데이터베이스 타입 목록
+    // init database type list
     this.dbTypeList = this.getEnabledConnectionTypes(true);
-    // 선택한 데이터베이스 타입
+    // init selected database type
     this.selectedDbType = this.dbTypeList[0];
-    // 보안 타입 목록
+    // init security type list
     this.securityTypeList = [
       { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
       { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
       { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
     ];
-    // 선택한 보안 타입
+    // init selected security type
     this.selectedSecurityType = this.securityTypeList[0];
   }
 }
