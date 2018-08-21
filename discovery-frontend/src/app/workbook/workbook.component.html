@@ -466,7 +466,8 @@
     </div>
     <!-- //board buttons -->
     <!-- // 대시보드 없음 -->
-    <app-dashboard [isManagementUser]="isChangeAuthUser" [dashboard]="selectedDashboard" ></app-dashboard>
+    <app-dashboard [isManagementUser]="isChangeAuthUser" [dashboard]="selectedDashboard"
+                   (dashboardEvent)="loadCompleteDashboard($event)"></app-dashboard>
   </div>
 
 </div>
