@@ -13,7 +13,10 @@
  */
 
 import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, SimpleChange,
+  SimpleChanges
+} from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
@@ -39,7 +42,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
   public timestampFormats : any = [] ;
-  public dsId : string;
+  public dsId : string = '';
 
   // 상태 저장용 T/F
   public isFocus:boolean = false;         // Input Focus 여부
@@ -49,6 +52,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
   public customTimestamp: string; // custom format
 
   public defaultIndex : number = -1;
+  public colTypes : any = [];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -89,10 +93,18 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * When timestamp format is selected
+   * @param data
+   */
   public selectItem(data) {
     this.selectedTimestamp = data.value;
   }
 
+  /**
+   * Get timestamp formats from server
+   */
   public getTimestampFormats() {
     let cols = this.selectedFields.map((item) => {
       return item.name
@@ -113,29 +125,16 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
       }
       this.timestampFormats.push({ value: 'Custom format', isHover: false, matchValue : -1 });
 
-      if (cols.length > 0 && '' === this.selectedTimestamp) {
-        let max = this.timestampFormats.reduce((max, b) => Math.max(max, b.matchValue), this.timestampFormats[0].matchValue);
-        let idx = this.timestampFormats.map((item) => {
-          return item.matchValue
-        }).findIndex((data) => {
-          return data === max
-        });
-        this.defaultIndex = idx;
-        this.selectedTimestamp = this.timestampFormats[idx].value;
-      } else if ('' !==this.selectedTimestamp) {
-        let items = this.timestampFormats.map((item) => {
-          return item.value;
-        });
-        if (items && items.indexOf(this.selectedTimestamp) === -1) {
-          this.customTimestamp = this.selectedTimestamp;
-          this.selectedTimestamp = 'Custom format';
-        } else {
-          this.defaultIndex = items.indexOf(this.selectedTimestamp);
-          this.selectedTimestamp = items[items.indexOf(this.selectedTimestamp)];
+      // When at least one column is selected or this.selectedTimestamp is not empty
+      if (cols.length > 0 || '' !== this.selectedTimestamp) {
+        if ('' === this.selectedTimestamp) {
+          let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
+          this.selectedTimestamp = this.colTypes[idx].timestampStyle
         }
+        this.defaultIndex = this._timestampValueArray().indexOf(this.selectedTimestamp);
       } else {
-        this.defaultIndex = -1;
         this.selectedTimestamp = '';
+        this.defaultIndex = -1;
       }
     });
   }
@@ -179,11 +178,12 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 필드 변경
+   * When selected column is changed
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
     this.selectedFields = data.selectedList;
+    this.selectedTimestamp = '';
     this.getTimestampFormats();
   } // function - changeFields
 
@@ -201,15 +201,14 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 컴포넌트 표시 전 실행
+   * Before component is shown
    * @protected
    */
   protected beforeShowComp() {
-    this.getTimestampFormats();
   } // function - _beforeShowComp
 
   /**
-   * 컴포넌트 표시 후 실행
+   * After component is shown
    * @protected
    */
   protected afterShowComp() {
@@ -217,7 +216,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
+   * Rule string parse
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
@@ -228,22 +227,46 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    this.dsId = this.getAttrValueInRuleString( 'dsId', ruleString );
-    this.getTimestampFromRuleString(ruleString);
+    // to request timestamp formats
+    this.dsId = ruleString.split('dsId: ')[1];
+
+    if (!isNullOrUndefined(ruleString.split('dsId: ')[0])) {
+      this.getTimestampFromRuleString(ruleString);
+    }
+
     this.getTimestampFormats();
   } // function - _parsingRuleString
 
+  /**
+   * Sets timestamp format to this.selectedTimestamp from rule string
+   * @param {string} ruleString
+   */
   protected getTimestampFromRuleString(ruleString : string ) {
     let str = ruleString.split('format: ')[1];
     if (!isNullOrUndefined(str)) {
-      this.selectedTimestamp = str.split(' dsId')[0].substring(1,str.split(' dsId')[0].length-1);
-    } else {
-      let val = ruleString.split('type: ')[1];
-      val = val.split(' dsId: ')[0];
-      if (val.toLowerCase() === 'timestamp') {
-        this.getTimestampFormats();
-      }
+      this.selectedTimestamp = str.substring(1,str.length-1);
     }
+  }
+
+  /**
+   * Get field name array
+   * @return {string[]}
+   * @private
+   */
+  private _getFieldNameArray() {
+    return this.fields.map((item) => {
+      return item.name
+    });
+  }
+
+  /**
+   * Get timestamp values in array
+   * @private
+   */
+  private _timestampValueArray() {
+    return this.timestampFormats.map((item) => {
+      return item.value;
+    });
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

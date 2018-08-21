@@ -21,11 +21,12 @@ import {
   Injector,
   OnDestroy,
   OnInit,
-  Output,
+  Output, ViewChild,
 } from '@angular/core';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
+import { RuleConditionInputComponent } from './rule-condition-input.component';
 
 @Component({
   selector : 'edit-rule-delete',
@@ -36,6 +37,9 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @ViewChild(RuleConditionInputComponent)
+  private ruleConditionInputComponent : RuleConditionInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -44,6 +48,7 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public rowNum : string = '';
+  public forceRowNum : string = '';
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
@@ -91,26 +96,28 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    * @return
    */
   public getRuleData(): { command: string, ruleString:string} {
-    let val = this.rowNum;
-    if (isUndefined(val) || '' === val || '\'\'' === val) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
-      return undefined
-    }
 
-    if (!isUndefined(val) && '' !== val.trim() && '\'\'' !== val.trim()) {
-      let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-      if (check[0] === false) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.check.condition'));
+    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
+      let val = this.rowNum;
+      if (isUndefined(val) || '' === val || '\'\'' === val) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
         return undefined
-      } else {
-        val = check[1];
       }
-    }
-    return {
-      command: 'delete',
-      ruleString: 'delete row: ' + val
-    };
 
+      if (!isUndefined(val) && '' !== val.trim() && '\'\'' !== val.trim()) {
+        let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
+        if (check[0] === false) {
+          Alert.warning(this.translateService.instant('msg.dp.alert.check.condition'));
+          return undefined
+        } else {
+          val = check[1];
+        }
+      }
+      return {
+        command: 'delete',
+        ruleString: 'delete row: ' + val
+      };
+    }
   } // function - getRuleData
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

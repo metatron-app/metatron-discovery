@@ -65,7 +65,7 @@ import { EditRuleDeleteComponent } from './dataflow/dataflow-detail/component/ed
 import { EditRuleDropComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-drop.component';
 import { CreateSnapshotPopup } from './component/create-snapshot-popup.component';
 import { SnapshotLoadingComponent } from './component/snapshot-loading.component';
-import {RuleConditionInputComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/rule-condition-input.component";
+import { RuleConditionInputComponent } from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/rule-condition-input.component";
 import { EditRuleFieldComboComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-field-combo.component';
 import { EditRuleDeriveComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-derive.component';
 import { EditRuleSetComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-set.component';

@@ -1811,6 +1811,12 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   private _setTimeStampFormat(value: string, timestampStyle?: string): string {
     (timestampStyle) || (timestampStyle = 'YYYY-MM-DDTHH:mm:ss.000Z');
     return moment(value).format(timestampStyle.replace(/y/g, 'Y').replace(/dd/g, 'DD').replace(/'/g, ''));
+
+    // if (-1 > timestampStyle.indexOf('H')) {
+    //   // return moment(value + `+0000`).format(timestampStyle);
+    // } else {
+    //   return moment(value).format(timestampStyle);
+    // }
   } // function - _setTimeStampFormat
 
   /**
