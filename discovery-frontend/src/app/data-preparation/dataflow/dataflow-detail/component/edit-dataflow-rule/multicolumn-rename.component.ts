@@ -126,7 +126,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
           });
 
           if (list.indexOf(index) > -1) {
-            this.colNames.push({original : item.name, renamed : data.to[list.indexOf(index)]});
+            this.colNames.push({original : item.name, renamed : 'string' === typeof data.to[list.indexOf(index)] ? data.to[list.indexOf(index)] : data.to[list.indexOf(index)]['escapedValue']});
           } else {
             this.colNames.push({original : item.name, renamed : item.name});
           }
