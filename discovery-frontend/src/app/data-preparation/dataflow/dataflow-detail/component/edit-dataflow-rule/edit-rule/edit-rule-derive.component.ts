@@ -20,6 +20,8 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
+import { RuleConditionInputComponent } from './rule-condition-input.component';
+import * as _ from 'lodash';
 
 @Component({
   selector : 'edit-rule-derive',
@@ -30,7 +32,8 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  @ViewChild(RuleConditionInputComponent)
+  private ruleConditionInputComponent : RuleConditionInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -41,6 +44,7 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   public deriveVal:string;
   public deriveAs:string;
   public isTooltipShow:boolean = false;
+  public forceCondition : string = '';
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
@@ -91,29 +95,35 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * @return
    */
   public getRuleData(): { command: string, ruleString:string} {
-    let val = this.deriveVal;
+    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
+      let val = this.deriveVal;
 
-    if (isUndefined(val) || '' === val || '\'\'' === val) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
-      return undefined
-    }
-    if (!isUndefined(val) && '' !== val.trim()) {
-      let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-      if (check[0] === false) {
-        Alert.warning('Check value');
+      if (isUndefined(val) || '' === val || '\'\'' === val) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
         return undefined
-      } else {
-        val = check[1];
       }
-    }
+      if (!isUndefined(val) && '' !== val.trim()) {
+        let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
+        if (check[0] === false) {
+          Alert.warning('Check value');
+          return undefined
+        } else {
+          val = check[1];
+        }
+      }
 
-    if (isUndefined(this.deriveAs) || '' === this.deriveAs) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
-      return undefined
-    }
-    return {
-      command: 'derive',
-      ruleString: 'derive value: ' + val + ' as: ' + '\'' + this.deriveAs.trim() + '\''
+      this.deriveAs = this.ruleConditionInputComponent.getCondition();
+      let deriveVal = _.cloneDeep(this.deriveAs);
+      if (isUndefined(this.deriveAs) || '' === this.deriveAs) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
+        return undefined
+      }
+      return {
+        command: 'derive',
+        ruleString: 'derive value: ' + val + ' as: ' + '\'' + deriveVal + '\''
+      }
+    } else {
+      return undefined;
     }
 
   } // function - getRuleData

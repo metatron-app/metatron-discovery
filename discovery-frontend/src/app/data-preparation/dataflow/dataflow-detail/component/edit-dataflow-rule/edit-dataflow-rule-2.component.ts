@@ -1174,7 +1174,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public doneInputFormula(data: { command: string, formula: string }) {
     // this._editRuleComp.init(this.selectedDataSet.gridData.fields, [], `row: ${data.formula}`);
-    this._editRuleComp.setValue( 'forceRowNum', data.formula );
+    this._editRuleComp.setValue( 'forceCondition', data.formula );
   }
 
   /**
@@ -1557,8 +1557,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);
           break;
         case 'settype':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ), `type: ${data.more.type} dsId: ${this.selectedDataSet.dsId}`);
           this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ), `type: ${data.more.type} dsId: ${this.selectedDataSet.dsId}`);
           break;
       }
     } else {

@@ -95,10 +95,6 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
     this.afterShowComp();
   } // function - init
 
-  public setColDescs ( cols ) {
-    this.colDescs = cols;
-  }
-
   public setValue( key:string, value:any ) {
     Object.keys( this ).some( item => {
       if( key === item && 'function' !== typeof this[key] ) {
