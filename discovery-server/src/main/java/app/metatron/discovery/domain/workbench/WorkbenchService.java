@@ -14,12 +14,6 @@
 
 package app.metatron.discovery.domain.workbench;
 
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
@@ -30,6 +24,11 @@ import app.metatron.discovery.domain.user.User;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import app.metatron.discovery.util.AuthUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class WorkbenchService {
@@ -85,7 +84,9 @@ public class WorkbenchService {
 
       switch (authenticationType){
         case USERINFO:
-          connectionUsername = AuthUtils.getAuthUserName();
+          connectionUsername = StringUtils.isEmpty(jdbcDataConnection.getUsername())
+                  ? AuthUtils.getAuthUserName()
+                  : jdbcDataConnection.getUsername();
           User user = cachedUserService.findUser(connectionUsername);
           if(user == null){
             throw new ResourceNotFoundException("User(" + connectionUsername + ")");

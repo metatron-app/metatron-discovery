@@ -15,34 +15,24 @@
 package app.metatron.discovery.domain.datasource.connection;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.data.projection.ProjectionFactory;
-
-import java.util.Set;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
-
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.connection.file.LocalFileConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MssqlConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.OracleConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PostgresqlConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PrestoConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.TiberoConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.*;
 import app.metatron.discovery.domain.workbench.Workbench;
 import app.metatron.discovery.domain.workspace.Workspace;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.data.projection.ProjectionFactory;
+
+import javax.persistence.*;
+import javax.validation.constraints.Size;
+import java.util.Set;
 
 @Entity
 @Table(name = "dataconnection")
@@ -102,10 +92,6 @@ public abstract class DataConnection extends AbstractHistoryEntity implements Me
 
   @Column(name = "dc_url")
   protected String url;
-
-  @Column(name = "dc_usage_scope")
-  @Enumerated(EnumType.STRING)
-  protected UsageScope usageScope = UsageScope.DEFAULT;
 
   @Column(name = "dc_authentication_type")
   @Enumerated(EnumType.STRING)
@@ -255,14 +241,6 @@ public abstract class DataConnection extends AbstractHistoryEntity implements Me
     this.workbenches = workbenches;
   }
 
-  public UsageScope getUsageScope() {
-    return usageScope;
-  }
-
-  public void setUsageScope(UsageScope usageScope) {
-    this.usageScope = usageScope;
-  }
-
   public AuthenticationType getAuthenticationType() {
     return authenticationType;
   }
@@ -308,7 +286,6 @@ public abstract class DataConnection extends AbstractHistoryEntity implements Me
     return "DataConnection{" +
         "id='" + id + '\'' +
         ", name='" + name + '\'' +
-        ", usageScope='" + usageScope + '\'' +
         ", implementor='" + implementor + '\'' +
         ", description='" + description + '\'' +
         ", type=" + type +
@@ -349,11 +326,20 @@ public abstract class DataConnection extends AbstractHistoryEntity implements Me
     }
   }
 
-  public enum UsageScope {
-    DEFAULT, WORKBENCH, HIVEMETASTORE
-  }
-
   public enum AuthenticationType {
     MANUAL, USERINFO, DIALOG
+  }
+
+  @PrePersist
+  @PreUpdate
+  public void prePersist(){
+    //Authentication Type userinfo, dialog not persist username/password
+    switch(this.getAuthenticationType()){
+      case USERINFO:
+      case DIALOG:
+        this.setUsername(null);
+        this.setPassword(null);
+        break;
+    }
   }
 }

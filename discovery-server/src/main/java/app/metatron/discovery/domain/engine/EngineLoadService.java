@@ -14,10 +14,24 @@
 
 package app.metatron.discovery.domain.engine;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.ProgressResponse;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.common.fileloader.FileLoaderFactory;
+import app.metatron.discovery.common.fileloader.FileLoaderProperties;
+import app.metatron.discovery.domain.datasource.*;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpec;
+import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpecBuilder;
+import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -33,27 +47,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.ProgressResponse;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.common.fileloader.FileLoaderFactory;
-import app.metatron.discovery.common.fileloader.FileLoaderProperties;
-import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceIngetionException;
-import app.metatron.discovery.domain.datasource.DataSourceRepository;
-import app.metatron.discovery.domain.datasource.DataSourceTemporary;
-import app.metatron.discovery.domain.datasource.DataSourceTemporaryRepository;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpec;
-import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpecBuilder;
-import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSource.DataSourceType.VOLATILITY;
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.LoadStatus.ENABLE;
@@ -161,9 +154,7 @@ public class EngineLoadService {
 
     // JDBC 로 부터 File 을 Import 함
     LinkIngestionInfo info = (LinkIngestionInfo) Preconditions.checkNotNull(dataSource.getIngestionInfo());
-    DataConnection connection = Preconditions.checkNotNull(dataSource.getConnection() == null ?
-                                                               info.getConnection() : dataSource.getConnection(),
-                                                           "Connection info. required");
+    DataConnection connection = Preconditions.checkNotNull(dataSource.getJdbcConnectionForIngestion(), "Connection info. required");
 
     List<String> tempResultFile;
     sendTopic(sendTopicUri, new ProgressResponse(5, "PROGRESS_GET_DATA_FROM_LINK_DATASOURCE"));

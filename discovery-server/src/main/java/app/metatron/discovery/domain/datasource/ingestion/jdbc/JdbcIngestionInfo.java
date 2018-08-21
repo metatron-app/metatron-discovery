@@ -14,11 +14,11 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.jdbc;
 
-import java.util.Map;
-
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
+
+import java.util.Map;
 
 /**
  * Created by kyungtaak on 2017. 4. 30..
@@ -59,6 +59,17 @@ public abstract class JdbcIngestionInfo implements IngestionInfo {
    * Tuning Config 지정, 기본값 override
    */
   Map<String, Object> tuningOptions;
+
+  /**
+   * JDBC Connection username
+   */
+  String connectionUsername;
+
+  /**
+   * JDBC Connection password
+   */
+  String connectionPassword;
+
 
   public JdbcIngestionInfo() {
   }
@@ -120,6 +131,22 @@ public abstract class JdbcIngestionInfo implements IngestionInfo {
 
   public void setTuningOptions(Map<String, Object> tuningOptions) {
     this.tuningOptions = tuningOptions;
+  }
+
+  public String getConnectionUsername() {
+    return connectionUsername;
+  }
+
+  public void setConnectionUsername(String connectionUsername) {
+    this.connectionUsername = connectionUsername;
+  }
+
+  public String getConnectionPassword() {
+    return connectionPassword;
+  }
+
+  public void setConnectionPassword(String connectionPassword) {
+    this.connectionPassword = connectionPassword;
   }
 
   public enum DataType {
