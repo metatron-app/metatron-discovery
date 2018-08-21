@@ -112,9 +112,9 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
     const forceFormulaChanges:SimpleChange = changes.forceFormula;
     if( inputFormulaChanges && inputFormulaChanges.firstChange ) {
       this.formula = inputFormulaChanges.currentValue;
-    }
-    if( forceFormulaChanges && forceFormulaChanges.currentValue !== forceFormulaChanges.previousValue ) {
+    } else if( forceFormulaChanges && forceFormulaChanges.currentValue !== forceFormulaChanges.previousValue ) {
       this.formula = forceFormulaChanges.currentValue;
+      this.onChange.emit(this.formula);
     }
   } // function - ngOnChanges
 
@@ -138,7 +138,7 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
    * @returns {string}
    */
   public getCondition(): string {
-    return '';
+    return this.formula;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

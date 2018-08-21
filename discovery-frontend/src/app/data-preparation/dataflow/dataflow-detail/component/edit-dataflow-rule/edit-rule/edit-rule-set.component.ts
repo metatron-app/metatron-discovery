@@ -21,6 +21,7 @@ import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-set',
@@ -30,9 +31,8 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  @Output()
-  public advancedEditorClickEvent = new EventEmitter();
+  @ViewChild(RuleConditionInputComponent)
+  private ruleConditionInputComponent : RuleConditionInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -40,9 +40,11 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Output()
+  public advancedEditorClickEvent = new EventEmitter();
   public inputValue: string;
   public condition: String;
-
+  public forceCondition : string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -89,19 +91,26 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * @return {{command: string, col: string, ruleString: string}}
    */
   public getRuleData(): { command: string, col: string, ruleString: string } {
+    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
+      if (this.selectedFields.length === 0) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
+        return undefined
+      }
 
-    if (this.selectedFields.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return undefined
+      // TODO : condition validation
+      const columnsStr: string = this.selectedFields.map(item => item.name).join(', ');
+
+      this.inputValue = this.ruleConditionInputComponent.getCondition();
+      let val = _.cloneDeep(this.inputValue);
+
+      return {
+        command: 'set',
+        col: columnsStr,
+        ruleString: `set col: ${columnsStr} value: ${val}`
+      };
+    } else {
+      return undefined;
     }
-
-    // TODO : condition validation
-    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
-    return {
-      command: 'set',
-      col: columnsStr,
-      ruleString: `set col: ${columnsStr} value: ${this.inputValue}`
-    };
 
   } // function - getRuleData
 

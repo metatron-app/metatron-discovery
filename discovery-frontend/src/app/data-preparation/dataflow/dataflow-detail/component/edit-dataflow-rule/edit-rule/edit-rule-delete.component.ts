@@ -27,6 +27,7 @@ import { StringUtil } from '../../../../../../common/util/string.util';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
 import { RuleConditionInputComponent } from './rule-condition-input.component';
+import * as _ from 'lodash';
 
 @Component({
   selector : 'edit-rule-delete',
@@ -48,7 +49,7 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public rowNum : string = '';
-  public forceRowNum : string = '';
+  public forceCondition : string = '';
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
@@ -98,7 +99,8 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   public getRuleData(): { command: string, ruleString:string} {
 
     if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
-      let val = this.rowNum;
+      this.rowNum = this.ruleConditionInputComponent.getCondition();
+      let val = _.cloneDeep(this.rowNum);
       if (isUndefined(val) || '' === val || '\'\'' === val) {
         Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
         return undefined
@@ -117,6 +119,8 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
         command: 'delete',
         ruleString: 'delete row: ' + val
       };
+    } else {
+      return undefined;
     }
   } // function - getRuleData
 

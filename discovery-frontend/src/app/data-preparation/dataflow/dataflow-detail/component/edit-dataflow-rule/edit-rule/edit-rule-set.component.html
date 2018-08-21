@@ -30,7 +30,7 @@
   </div>
   <div class="ddp-wrap-datainput">
     <rule-condition-input
-      [formula]="inputValue" [command]="'set'" [fields]="fields" [tabIndex]="2"
+      [formula]="inputValue" [command]="'set'" [forceFormula]="forceCondition" [fields]="fields" [tabIndex]="2"
       (onChange)="inputValue = $event"></rule-condition-input>
   </div>
   <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput()"><em class="ddp-icon-editor"></em>Advanced editor</a>
