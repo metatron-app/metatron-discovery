@@ -3,7 +3,7 @@ Metatron Discovery
 
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" width="600px">
 
-**Metatron discovery** is a self-service solution for big data discovery.
+**metatron discovery** is a self-service solution for big data discovery.
 To learn more about metatron discovery, visit our web site [https://metatron.app](https://metatron.app)
 
 Strengths
@@ -14,9 +14,9 @@ Strengths
 
 Features
 ------------------
-Metatron discovery is a data discovery web application supports end-to-end features from data management to ananlytics.
+metatron discovery is a data discovery web application supports end-to-end features from data management to ananlytics.
 
-Metatron provides:
+metatron provides:
 - Interactive dashboards with 16 types of WSIWYG charts.
 - SQL based data exploration.
 - Connections with advanced analytics tools like [Apache Zeppline](https://zeppelin.apache.org/).
@@ -47,7 +47,7 @@ Screenshots
 ### Prepare Origin Data
 <kbd><img title="Data-preparation" src="https://user-images.githubusercontent.com/6300003/44019798-d02e8348-9f1a-11e8-958e-4e95802bd5de.png"></kbd><br />
 
-Download & Installation
+Installation
 ----------------------------
 ### Requirements
 - MacOS / Linux (Redhat, CentOS)
@@ -56,26 +56,29 @@ Download & Installation
 - Apache Maven 3.3+ for building the project
 
 ### Install the Customized Druid
-[Here is the link for downloading the binary.](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/druid/druid-0.9.1-metatron-3.0.0-hadoop-2.7.3.tar.gz)
-Start | stop the druid with the following commands.
+[Here is the link for downloading the archive.](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/druid/druid-0.9.1-metatron-3.0.0-hadoop-2.7.3.tar.gz)
+
+To install Druid, simply untar the downloaded archive. And start | stop the druid with the following commands.
 <pre><code> $ start-single.sh | stop-single.sh </code></pre>
 
-### Build the Metatron Discovery
+### Build from source
 Git clone this project.
 <pre><code>$ git clone https://github.com/metatron-app/metatron-discovery.git</code></pre>
 Build through Maven 3.3+.
 <pre><code>$ mvn clean install -DskipTests</code></pre>
 
-### Deploy & Run
-Unzip the binary file of Metatron.
+If the build succeeds, you can find archive file under "discvoery-distribution/target"
+
+### Start up metatron Discovery
+Untar the archive file of metatron Discovery.
 <pre><code>$ tar zxf metatron-discovery-{VERSION}-{TIMESTAMP}-bin.tar.gz</code></pre>
 Initialize and run with the following command.
 <pre><code>$ bin/metatron.sh --init start</code></pre>
 Running options are provided as well.
 <pre><code>$ bin/metatron.sh [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}</code></pre>
-Check [http://localhost:8180](http://localhost:8180) for the Metatron Discovery server.
+To access metatron Discovery, go to [http://localhost:8180](http://localhost:8180). (The default admin user account is provided as ID: admin, PW: admin.)
 
 License
 ----------------------------
-Metatron Discovery is available under the Apache License V2.
+metatron Discovery is available under the Apache License V2.
 
