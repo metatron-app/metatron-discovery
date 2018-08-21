@@ -14,9 +14,9 @@ Strengths
 
 Features
 ------------------
-metatron discovery is a data discovery web application supports end-to-end features from data management to ananlytics.
+Metatron discovery is a data discovery web application supports end-to-end features from data management to ananlytics.
 
-metatron provides:
+Metatron provides:
 - Interactive dashboards with 16 types of WSIWYG charts.
 - SQL based data exploration.
 - Connections with advanced analytics tools like [Apache Zeppline](https://zeppelin.apache.org/).
@@ -49,9 +49,33 @@ Screenshots
 
 Download & Installation
 ----------------------------
-[See in the website](https://metatron.app/index.php/download/)
+### Requirements
+- MacOS / Linux (Redhat, CentOS)
+- JDK 1.8
+- Druid customized version for Metatron
+- Apache Maven 3.3+ for building the project
+
+### Install the Customized Druid
+[Here is the link for downloading the binary.](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/druid/druid-0.9.1-metatron-3.0.0-hadoop-2.7.3.tar.gz)
+Start | stop the druid with the following commands.
+<pre><code> $ start-single.sh | stop-single.sh </code></pre>
+
+### Build the Metatron Discovery
+Git clone this project.
+<pre><code>$ git clone https://github.com/metatron-app/metatron-discovery.git</code></pre>
+Build through Maven 3.3+.
+<pre><code>$ mvn clean install -DskipTests</code></pre>
+
+### Deploy & Run
+Unzip the binary file of Metatron.
+<pre><code>$ tar zxf metatron-discovery-{VERSION}-{TIMESTAMP}-bin.tar.gz</code></pre>
+Initialize and run with the following command.
+<pre><code>$ bin/metatron.sh --init start</code></pre>
+Running options are provided as well.
+<pre><code>$ bin/metatron.sh [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}</code></pre>
+Check [http://localhost:8180](http://localhost:8180) for the Metatron Discovery server.
 
 License
 ----------------------------
-metatron is available under the Apache License V2.
+Metatron Discovery is available under the Apache License V2.
 
