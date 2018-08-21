@@ -96,7 +96,8 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    */
   public getRuleData(): { command: string, ruleString:string} {
     if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
-      let val = this.deriveVal;
+      this.deriveVal = this.ruleConditionInputComponent.getCondition();
+      let val = _.cloneDeep(this.deriveVal);
 
       if (isUndefined(val) || '' === val || '\'\'' === val) {
         Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
@@ -111,16 +112,13 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
           val = check[1];
         }
       }
-
-      this.deriveAs = this.ruleConditionInputComponent.getCondition();
-      let deriveVal = _.cloneDeep(this.deriveAs);
       if (isUndefined(this.deriveAs) || '' === this.deriveAs) {
         Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
         return undefined
       }
       return {
         command: 'derive',
-        ruleString: 'derive value: ' + val + ' as: ' + '\'' + deriveVal + '\''
+        ruleString: 'derive value: ' + val + ' as: ' + '\'' + this.deriveAs + '\''
       }
     } else {
       return undefined;

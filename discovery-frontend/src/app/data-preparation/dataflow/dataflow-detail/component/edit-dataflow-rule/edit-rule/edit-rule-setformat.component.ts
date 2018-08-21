@@ -207,7 +207,14 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
     this.selectedFields = data.selectedList;
     this.selectedTimestamp = '';
-    this.getTimestampFormats();
+
+    if (0 === this.selectedFields.length) { // if theres nothing selected
+      this.selectedTimestamp = '';
+      this.defaultIndex = -1;
+    } else {
+      this.getTimestampFormats();
+    }
+
   } // function - changeFields
 
   /**

@@ -137,6 +137,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
    */
   public changeFields(data: { target: Field, isSelect: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
+    this.safelyDetectChanges();
   } // function - changeFields
 
   /**
@@ -176,6 +177,11 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
     }
 
     this.newFieldName = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'to', ruleString ));
+    if (-1  !== this.newFieldName.indexOf( ',' )) {
+      this.newFieldName = '';
+    }
+
+
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

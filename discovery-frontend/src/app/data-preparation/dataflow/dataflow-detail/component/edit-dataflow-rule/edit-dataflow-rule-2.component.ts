@@ -754,24 +754,27 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._editRuleComp.init(unnest, [], rule.ruleString);
           break;
         case 'rename' :
-          this._editRuleComp.init(gridData.fields, [], this.ruleVO.col['value'] && 'string' === typeof this.ruleVO.col['value'] ? rule.ruleString : '');
-          let tos = [];
-          this.ruleVO.to['value'].forEach((item) => {
-            if (item.startsWith('\'') && item.endsWith('\'')) {
-              tos.push(item.substring(1, item.length - 1));
-            }
-          });
-          let cols = _.cloneDeep(this.ruleVO.col['value']);
-          this.multicolumnRenameComponent.init({
-            data: _.cloneDeep(gridData),
-            datasetName: this.selectedDataSet.dsName,
-            ruleCurIdx: rule['ruleNo'],
-            cols: cols,
-            to: tos
-          });
-          // TODO : ... 지우면 안되는데..
-          this.ruleVO.col = '';
-          this.ruleVO.to = '';
+          if (!(this.ruleVO.col['value'] && 'string' === typeof this.ruleVO.col['value'])) {
+            let tos = [];
+            this.ruleVO.to['value'].forEach((item) => {
+              if (item.startsWith('\'') && item.endsWith('\'')) {
+                tos.push(item.substring(1, item.length - 1));
+              }
+            });
+            let cols = _.cloneDeep(this.ruleVO.col['value']);
+            this.multicolumnRenameComponent.init({
+              data: _.cloneDeep(gridData),
+              datasetName: this.selectedDataSet.dsName,
+              ruleCurIdx: rule['ruleNo'],
+              cols: cols,
+              to: tos
+            });
+            // TODO : ... 지우면 안되는데..
+            this.ruleVO.col = '';
+            this.ruleVO.to = '';
+          }
+          this.safelyDetectChanges();
+          this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           break;
         case 'delete' :
         case 'keep' :
