@@ -934,13 +934,22 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
         board.workBook = this.workbook;
         this.selectedDashboard = board;
-        this.isShowDashboardLoading = false;
-        this.changeDetect.detectChanges();    // 변경 갱신
+        this.safelyDetectChanges();
       });
     } else {
-      this.loadingHide();
+      this.isShowDashboardLoading = false;
+      this.safelyDetectChanges();
     }
   } // function - loadAndSelectDashboard
+
+  /**
+   * Dashboard Loading Complete Event Handler
+   * @param {{name: string}} data
+   */
+  public loadCompleteDashboard(data:{name:string}) {
+    this.isShowDashboardLoading = false;
+    this.safelyDetectChanges();
+  } // function - loadCompleteDashboard
 
   /**
    * Data Ingestion 완료 이벤트 핸들러
