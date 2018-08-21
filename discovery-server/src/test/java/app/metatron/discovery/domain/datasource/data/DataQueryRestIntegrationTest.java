@@ -150,7 +150,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     ));
 
     List<UserDefinedField> userDefinedFields = Lists.newArrayList(
-        new ExpressionField("calc", "sumof(\"Sales\")", "measure", null, true)
+        new ExpressionField("calc", "sumof(\"Sales\")", "measure",true)
     );
 
 
@@ -244,7 +244,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
                                                      "Technology", "가전");
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test", "Category + '1'", "measure", null, false)
+        new ExpressionField("test", "Category + '1'", "measure",false)
     );
 
     List<Filter> filters = Lists.newArrayList(
@@ -558,7 +558,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Filter> filters = Lists.newArrayList();
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test", "AVGOF(\"Sales\")", "measure", null, true)
+        new ExpressionField("test", "AVGOF(\"Sales\")", "measure",true)
         //        new ExpressionField("test", "countd(\"City\")", "measure", null,true)
         //        new ExpressionField("test", "Sales + 1", "measure", null,false)
     );
@@ -605,14 +605,14 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Filter> filters = Lists.newArrayList();
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("datediff_dimension", "DATEDIFF( \"OrderDate\",\"ShipDate\" )", "dimension", null, false),
-        new ExpressionField("now_dimension", "NOW(  )", "dimension", null, false),
-        new ExpressionField("orderdate_d", "\"OrderDate\"", "dimension", null, false),
-        new ExpressionField("trim", "TRIM( \"Category\"  )", "dimension", null, false),
-        new ExpressionField("case_dim", "CASE( \"Category\" == 'Furniture', 'F', 'default' )", "dimension", null, false),
-        //        new ExpressionField("switch_dim", "SWITCH( \"Category\", 'Furniture', 'F', 'Technology', 'T')", "dimension", null,false)
-        new ExpressionField("sumof_dim", "(SUMOF([SalesForecase]) - SUMOF( [Sales]  ) ) / SUMOF( [Sales]  ) * 100", "measure", null, true)
-        //        new ExpressionField("test", "Sales + 1", "measure", null,false)
+        new ExpressionField("datediff_dimension", "DATEDIFF( \"OrderDate\",\"ShipDate\" )", "dimension", false),
+        new ExpressionField("now_dimension", "NOW(  )", "dimension", false),
+        new ExpressionField("orderdate_d", "\"OrderDate\"", "dimension", false),
+        new ExpressionField("trim", "TRIM( \"Category\"  )", "dimension", false),
+        new ExpressionField("case_dim", "CASE( \"Category\" == 'Furniture', 'F', 'default' )", "dimension", false),
+        //        new ExpressionField("switch_dim", "SWITCH( \"Category\", 'Furniture', 'F', 'Technology', 'T')", "dimension", false)
+        new ExpressionField("sumof_dim", "(SUMOF([SalesForecase]) - SUMOF( [Sales]  ) ) / SUMOF( [Sales]  ) * 100", "measure", true)
+        //        new ExpressionField("test", "Sales + 1", "measure", false)
     );
 
     // Case1
@@ -657,7 +657,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Filter> filters = Lists.newArrayList();
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test", "$RANK(\"SUMOF(Sales)\",{d})", "measure", null, false)
+        new ExpressionField("test", "$RANK(\"SUMOF(Sales)\",{d})", "measure", false)
     );
 
     // Case1
@@ -702,9 +702,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Filter> filters = Lists.newArrayList();
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        //        new ExpressionField("test", "sumof(\"Sales\")", "measure", null,true)
-        //        new ExpressionField("test", "countd(\"City\")", "measure", null,true)
-        new ExpressionField("test", "\"Category\"", "dimension", null, false)
+        //        new ExpressionField("test", "sumof(\"Sales\")", "measure", true)
+        //        new ExpressionField("test", "countd(\"City\")", "measure", true)
+        new ExpressionField("test", "\"Category\"", "dimension", false)
     );
 
     // Case1
@@ -1391,7 +1391,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     ));
 
     List<UserDefinedField> userDefinedFields = Lists.newArrayList();
-    userDefinedFields.add(new ExpressionField("countof", "countof(\"State\")", "measure", null, true));
+    userDefinedFields.add(new ExpressionField("countof", "countof(\"State\")", "measure", true));
 
     //    limit.setSort(Lists.newArrayList(new Sort("City", "asc")));
 
@@ -2060,7 +2060,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     MeasureField measureField = new MeasureField("Sales");
     //    MeasureField measureField = new MeasureField("dis", "user_defined");
 
-    ExpressionField expressionField = new ExpressionField("dis", "\"Discount\" + 100", "measure", null, false);
+    ExpressionField expressionField = new ExpressionField("dis", "\"Discount\" + 100", "measure", false);
 
     CandidateQueryRequest request = new CandidateQueryRequest();
     request.setDataSource(dataSource1);
@@ -2141,8 +2141,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     request.setContext(TestUtils.makeMap(QueryRequest.CONTEXT_ROUTE_URI, "/route/uri"));
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test1", "AVGOF(\"Sales\")", "measure", null, true),
-        new ExpressionField("test2", "countd(\"City\")", "measure", null, true)
+        new ExpressionField("test1", "AVGOF(\"Sales\")", "measure", true),
+        new ExpressionField("test2", "countd(\"City\")", "measure", true)
         //        new ExpressionField("test", "Sales + 1", "measure", null,false)
     );
 

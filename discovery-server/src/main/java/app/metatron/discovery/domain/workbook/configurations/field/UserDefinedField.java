@@ -15,15 +15,27 @@
 package app.metatron.discovery.domain.workbook.configurations.field;
 
 /**
- * Created by kyungtaak on 2017. 5. 11..
+ * User-Defined Field
  */
 public abstract class UserDefinedField extends Field {
 
   public static final String REF_NAME = "user_defined";
+
+  /**
+   * from datasource name
+   */
+  String dataSource;
 
   @Override
   public String getRef() {
     return REF_NAME;
   }
 
+  public String getDataSource() {
+    return dataSource;
+  }
+
+  public void setDataSource(String dataSource) {
+    this.dataSource = dataSource;
+  }
 }
