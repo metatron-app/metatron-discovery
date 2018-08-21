@@ -116,6 +116,9 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
       this.formula = forceFormulaChanges.currentValue;
       this.onChange.emit(this.formula);
     }
+    if( forceFormulaChanges && forceFormulaChanges.currentValue !== forceFormulaChanges.previousValue ) {
+      this.formula = forceFormulaChanges.currentValue;
+    }
   } // function - ngOnChanges
 
   /**
