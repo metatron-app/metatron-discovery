@@ -14,7 +14,7 @@ Strengths
 
 Features
 ------------------
-metatron discovery is a data discovery web application supports end-to-end features from data management to ananlytics.
+metatron discovery is a data discovery web application which supports end-to-end features from data management to analytics.
 
 metatron provides:
 - Interactive dashboards with 16 types of WSIWYG charts.
