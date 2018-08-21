@@ -426,6 +426,8 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
     params['published'] = this.published;
     // if not published, add workspaces in params
     !this.published && (params['workspaces'] = this._getWorkspacesParams());
+    // if security type is not MANUAL, delete username and password in params
+    this.selectedSecurityType.value !== 'MANUAL' && this._deleteUsernameAndPassword(params);
     return params;
   }
 
@@ -448,25 +450,25 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
       implementor: this.selectedDbType.value,
       authenticationType: this.selectedSecurityType.value
     };
-    // if not empty password and username
-    StringUtil.isNotEmpty(this.password) && (params['password'] = this.password.trim());
-    StringUtil.isNotEmpty(this.username) && (params['username'] = this.username.trim());
+    // if security type is not USERINFO, add password and username
+    if (this.selectedSecurityType.value !== 'USERINFO') {
+      params['password'] = this.password.trim();
+      params['username'] = this.username.trim();
+    }
     // if disable URL
     if (!this.isEnableUrl) {
       params['hostname'] = this.hostname.trim();
       params['port'] = this.port;
       // if enable catalog
-      this.isRequiredCatalog() && (params['catalog'] = this.catalog);
+      this.isRequiredCatalog() && (params['catalog'] = this.catalog.trim());
       // if enable SID
-      this.isRequiredSid() && (params['sid'] = this.sid);
+      this.isRequiredSid() && (params['sid'] = this.sid.trim());
       // if enable database
-      this.isRequiredDatabase() && (params['database'] = this.database);
+      this.isRequiredDatabase() && (params['database'] = this.database.trim());
     // if enable URL
     } else {
       params['url'] = this.url.trim();
     }
-    // if used user account for connect, delete username and password in parameter
-    this.isConnectUserAccount() && this._deleteUsernameAndPassword(params);
     return params;
   }
 
