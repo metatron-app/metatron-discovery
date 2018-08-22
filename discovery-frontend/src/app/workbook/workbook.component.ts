@@ -108,8 +108,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   // 대시보드 생성 팝업 표시 여부
   public isShowCreateDashboard: boolean;
 
-  // LNB/대시보드 로딩 표시 여부
-  public isShowDashboardLoading:boolean = false;
+  // LNB 로딩 표시 여부
   public isShowLnbLoading:boolean = false;
 
   // 대시보드 왼쪽 탭 : DASHBOARD, CHAT
@@ -930,26 +929,18 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public loadAndSelectDashboard(dashboard: Dashboard) {
     if (!this.selectedDashboard || this.selectedDashboard.id !== dashboard.id) {
-      this.isShowDashboardLoading = true;
+      this.dashboardComponent.showBoardLoading();
       this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
+        this.dashboardComponent.hideBoardLoading();
         board.workBook = this.workbook;
         this.selectedDashboard = board;
         this.safelyDetectChanges();
       });
     } else {
-      this.isShowDashboardLoading = false;
+      this.dashboardComponent.hideBoardLoading();
       this.safelyDetectChanges();
     }
   } // function - loadAndSelectDashboard
-
-  /**
-   * Dashboard Loading Complete Event Handler
-   * @param {{name: string}} data
-   */
-  public loadCompleteDashboard(data:{name:string}) {
-    this.isShowDashboardLoading = false;
-    this.safelyDetectChanges();
-  } // function - loadCompleteDashboard
 
   /**
    * Data Ingestion 완료 이벤트 핸들러
