@@ -22,7 +22,7 @@ import {
   ViewChild,
   Input,
   EventEmitter,
-  Output
+  Output, HostListener
 } from '@angular/core';
 import { ConnectionType, Datasource } from '../../../domain/datasource/datasource';
 import { AbstractComponent } from '../../../common/component/abstract.component';
@@ -68,8 +68,6 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
 
   private _isAlreadyViewGuide:boolean = false;
 
-  private _interval:any;    // Guide Timer
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -100,7 +98,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   public dashboard: Dashboard;
 
   @Output()
-  public onChange: EventEmitter<boolean> = new EventEmitter();
+  public onChange: EventEmitter<{isDenyNext?:boolean,isShowButtons?:boolean}> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -240,11 +238,17 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-    if( this._interval ) {
-      clearInterval(this._interval);
-      this._interval = null;
-    }
   } // function - ngOnDestroy
+
+  /**
+   * 차트 Resize
+   *
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  protected onResize(event) {
+    $( '.sys-create-board-top-panel' ).css('height', '100%').css('height', '-=1px');
+  } // function - onResize
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - API
@@ -303,19 +307,25 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
         this.isShowMultiDsGuide = !this.isShowMultiDsGuide;
     }
 
+    this.safelyDetectChanges();
+    this.animateGuide();
+
+  } // function - toggleGuide
+
+  /**
+   * Animate guide
+   */
+  public animateGuide() {
     if( this.isShowMultiDsGuide ) {
       localStorage.setItem( 'VIEW_MULTI_DS_GUIDE', 'YES' );
-      this._interval = setInterval( () => {
-        $( this._guideLine.nativeElement ).delay(2000).animate( { paddingLeft:"270" }, 1000 );
-        $( this._guideLine.nativeElement ).delay(2000).animate( { paddingLeft:"0" }, 1000 );
-      }, 2000 );
-    } else {
-      if( this._interval ) {
-        clearInterval(this._interval);
-        this._interval = null;
-      }
+      const $guideLine = $( this._guideLine.nativeElement );
+      $guideLine.delay( 500 ).animate( { paddingLeft:"270" }, 1000, () => {
+        $guideLine.delay( 500 ).animate( { paddingLeft:"0" }, 1000, () => {
+          this.animateGuide();
+        });
+      });
     }
-  } // function - toggleGuide
+  } // function - animateGuide
 
   /**
    * Relation 변경 모드 활성화
@@ -331,6 +341,9 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     this._clearSelection();
     this.safelyDetectChanges();
 
+    // 변경사항 전파
+    this.onChange.emit({isShowButtons:!this.isRelationEditMode});
+
     // 원래는 calc( 100% - 1px ) 로 적용되어야 하지만.. jquery와 angular 에서 calc를 지원하지 않아..
     // 아래의 방식으로 처리함
     $( '.sys-create-board-top-panel' ).css('height', '100%').css('height', '-=1px');
@@ -343,11 +356,10 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     this.isRelationEditMode = false;
     this._network.disableEditMode();
     this.toggleGuide( 'HIDE' );
-    if( this._interval ) {
-      clearInterval(this._interval);
-      this._interval = null;
-    }
     this.safelyDetectChanges();
+
+    // 변경사항 전파
+    this.onChange.emit({isShowButtons:!this.isRelationEditMode});
   } // function - offEditRelationMode
 
   /**
@@ -640,7 +652,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     }
 
     // 변경사항 전파
-    this.onChange.emit(this.isInvalidate());
+    this.onChange.emit({isDenyNext:this.isInvalidate()});
   } // function - _addDataSource
 
   /**
@@ -677,7 +689,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     }
 
     // 변경사항 전파
-    this.onChange.emit(this.isInvalidate());
+    this.onChange.emit({isDenyNext:this.isInvalidate()});
 
   } // function - _removeDataSource
 
@@ -704,7 +716,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     this._relations.push(relInfo);
 
     // 변경사항 전파
-    this.onChange.emit(this.isInvalidate());
+    this.onChange.emit({isDenyNext:this.isInvalidate()});
   } // function - _addEdgeByRelation
 
   /**
@@ -733,7 +745,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     }
 
     // 변경사항 전파
-    this.onChange.emit(this.isInvalidate());
+    this.onChange.emit({isDenyNext:this.isInvalidate()});
   } // function - _addRelationByEdgeId
 
   /**
@@ -752,7 +764,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     (-1 < removeIdx) && (this._relations.splice(removeIdx, 1));
 
     // 변경사항 전파
-    this.onChange.emit(this.isInvalidate());
+    this.onChange.emit({isDenyNext:this.isInvalidate()});
   } // function - _removeRelation
 
   /**
