@@ -12,28 +12,23 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild,
-} from '@angular/core';
 import { EditRuleComponent } from './edit-rule.component';
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { isUndefined } from "util";
+import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
-import { RuleConditionInputComponent } from './rule-condition-input.component';
-import * as _ from 'lodash';
 
 @Component({
-  selector : 'edit-rule-derive',
-  templateUrl : './edit-rule-derive.component.html'
+  selector : 'edit-rule-unnest',
+  templateUrl : './edit-rule-unnest.component.html'
 })
-export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
-
+export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -41,22 +36,22 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public deriveVal:string;
-  public deriveAs:string;
-  public isTooltipShow:boolean = false;
-  public forceCondition : string = '';
+  public selectedFields: Field[] = [];
 
-  @Output()
-  public advancedEditorClickEvent = new EventEmitter();
+  // 상태 저장용 T/F
+  public isFocus:boolean = false;         // Input Focus 여부
+  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
 
+  // Rule 에 대한 입력 값들
+  public selVal:string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(
-    protected elementRef: ElementRef,
-    protected injector: Injector) {
+  constructor(protected broadCaster: EventBroadcaster,
+              protected elementRef: ElementRef,
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -83,7 +78,6 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -91,38 +85,32 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * Rule 형식 정의 및 반환
-   * @return
+   * Returns rules tring when add/update button in pressed
+   * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString:string} {
-    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
-      this.deriveVal = this.ruleConditionInputComponent.getCondition();
-      let val = _.cloneDeep(this.deriveVal);
+  public getRuleData(): { command: string, ruleString: string } {
 
-      if (isUndefined(val) || '' === val || '\'\'' === val) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
-        return undefined
-      }
-      if (!isUndefined(val) && '' !== val.trim()) {
-        let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-        if (check[0] === false) {
-          Alert.warning('Check value');
-          return undefined
-        } else {
-          val = check[1];
-        }
-      }
-      if (isUndefined(this.deriveAs) || '' === this.deriveAs) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
-        return undefined
-      }
-      return {
-        command: 'derive',
-        ruleString: 'derive value: ' + val + ' as: ' + '\'' + this.deriveAs + '\''
-      }
-    } else {
-      return undefined;
+    if (0 === this.selectedFields.length) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
+      return;
     }
+
+    // surround idx with single quotation
+    let check = StringUtil.checkSingleQuote(this.selVal, { isWrapQuote: true });
+    if (check[0] === false) {
+      Alert.warning(this.translateService.instant('Check element value'));
+      return undefined;
+    } else {
+      this.selVal = check[1];
+    }
+
+    let ruleString = 'unnest col: ' + this.selectedFields.map( item => item.name ).join(', ');
+    ruleString += ` into: ${this.selectedFields[0].type} idx: ${this.selVal}`;
+
+    return{
+      command : 'unnest',
+      ruleString: ruleString
+    };
 
   } // function - getRuleData
 
@@ -130,12 +118,21 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+   * 필드 변경
+   * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
-  } // function - openPopupFormulaInput
+  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+    this.selectedFields = data.selectedList;
+  } // function - changeFields
+
+  /**
+   * 패턴 정보 레이어 표시
+   * @param {boolean} isShow
+   */
+  public showHidePatternLayer(isShow:boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+    this.isFocus = isShow;
+  } // function - showHidePatternLayer
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -145,32 +142,32 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - beforeShowComp
+  protected beforeShowComp() {} // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
    * @protected
    */
   protected afterShowComp() {
-  } // function - afterShowComp
+
+  } // function - _afterShowComp
 
   /**
    * rule string 을 분석한다.
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
-    // value
-    // this.deriveVal = this.getAttrValueInRuleString( 'value', ruleString );
-    this.deriveVal = ruleString.split('value: ')[1];
-    this.deriveVal = this.deriveVal.split(' as: ')[0];
 
-    // as
-    this.deriveAs = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'as', ruleString ));
-  } // function - parsingRuleString
+    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
+    if( '' !== strCol ) {
+      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    }
+    this.selVal = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'idx', ruleString ));
+  } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 }
-

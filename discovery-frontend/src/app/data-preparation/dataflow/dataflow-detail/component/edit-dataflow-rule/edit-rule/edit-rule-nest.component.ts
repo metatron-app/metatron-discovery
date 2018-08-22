@@ -12,35 +12,29 @@
  * limitations under the License.
  */
 
-import { EditRuleComponent } from './edit-rule.component';
 import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Injector,
-  OnDestroy,
-  OnInit,
-  Output, ViewChild,
+  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
+  ViewChild
 } from '@angular/core';
-import { StringUtil } from '../../../../../../common/util/string.util';
+import { Field } from '../../../../../../domain/data-preparation/dataset';
+import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { isUndefined } from "util";
 import { RuleConditionInputComponent } from './rule-condition-input.component';
-import * as _ from 'lodash';
+import { isUndefined } from "util";
 
 @Component({
-  selector : 'edit-rule-delete',
-  templateUrl : './edit-rule-delete.component.html'
+  selector: 'edit-rule-nest',
+  templateUrl: './edit-rule-nest.component.html'
 })
-export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit, OnDestroy, AfterViewInit {
-
+export class EditRuleNestComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   @ViewChild(RuleConditionInputComponent)
   private ruleConditionInputComponent : RuleConditionInputComponent;
+
+  @Output()
+  public advancedEditorClickEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -48,17 +42,18 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public rowNum : string = '';
-  public forceCondition : string = '';
-
-  @Output()
-  public advancedEditorClickEvent = new EventEmitter();
-
+  public inputValue:string;
+  public defaultIndex : number = 0;
+  public selectedType : string = '';
+  public nestList : string[] = ['map', 'array'];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  constructor(protected elementRef : ElementRef,
-              protected injector : Injector) {
+
+  // 생성자
+  constructor(
+    protected elementRef: ElementRef,
+    protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -94,47 +89,48 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
 
   /**
    * Rule 형식 정의 및 반환
-   * @return
+   * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString:string} {
+  public getRuleData(): { command: string, col: string, ruleString: string } {
 
-    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
-      this.rowNum = this.ruleConditionInputComponent.getCondition();
-      let val = _.cloneDeep(this.rowNum);
-      if (isUndefined(val) || '' === val || '\'\'' === val) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.keep.warn'));
-        return undefined
-      }
-
-      if (!isUndefined(val) && '' !== val.trim() && '\'\'' !== val.trim()) {
-        let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-        if (check[0] === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.check.condition'));
-          return undefined
-        } else {
-          val = check[1];
-        }
-      }
-      return {
-        command: 'delete',
-        ruleString: 'delete row: ' + val
-      };
-    } else {
+    if (this.selectedFields.length === 0) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined;
     }
+
+    if (isUndefined(this.selectedType) || '' === this.selectedType) {
+      this.selectedType = 'map';
+    }
+
+    if (isUndefined(this.inputValue) || '' === this.inputValue) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
+      return undefined;
+    }
+
+    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
+    return {
+      command: 'nest',
+      col: columnsStr,
+      ruleString: `nest col: ${columnsStr} into: ${this.selectedType} as: ${this.inputValue}`
+    };
+
   } // function - getRuleData
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
-   */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
-  } // function - openPopupFormulaInput
+  public selectItem (item){
+    this.selectedType = item;
+  }
 
+
+  /**
+   * 필드 변경
+   * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
+   */
+  public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+    this.selectedFields = data.selectedList;
+  } // function - changeFields
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -151,6 +147,7 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
+
   } // function - _afterShowComp
 
   /**
@@ -158,8 +155,23 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
-    // this.rowNum = this.getAttrValueInRuleString( 'row', ruleString );
-    this.rowNum = ruleString.split('row: ')[1];
+    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
+    if( '' !== strCol ) {
+      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    }
+
+    this.selectedType = this.getAttrValueInRuleString( 'into', ruleString );
+    if (this.selectedType.toUpperCase() === 'ARRAY') {
+      this.defaultIndex = 1;
+    } else {
+      this.defaultIndex = 0;
+    }
+    this.inputValue = this.getAttrValueInRuleString( 'as', ruleString );
   } // function - _parsingRuleString
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 }

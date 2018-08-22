@@ -102,7 +102,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
    * Init
    * @param data {any} - {colNames, datasetName,gridResponse, cols, tos, ruleCurIdx}
    */
-  public init(data) {
+  public init(data:{data: any, datasetName: string, ruleCurIdx?: any, cols?: any, to?: any}) {
 
     this.initViewPage();
     this.showFlag = true;
@@ -126,7 +126,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
           });
 
           if (list.indexOf(index) > -1) {
-            this.colNames.push({original : item.name, renamed : data.to[list.indexOf(index)]});
+            this.colNames.push({original : item.name, renamed : 'string' === typeof data.to[list.indexOf(index)] ? data.to[list.indexOf(index)] : data.to[list.indexOf(index)]['escapedValue']});
           } else {
             this.colNames.push({original : item.name, renamed : item.name});
           }
@@ -308,7 +308,8 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
       };
 
       if (this.op === 'UPDATE') {
-        rule['ruleCurIdx'] = this.ruleCurIdx
+        rule['ruleCurIdx'] = this.ruleCurIdx;
+        rule['ruleIdx'] = this.ruleCurIdx;
       }
       this.renameEvent.emit(rule);
     }

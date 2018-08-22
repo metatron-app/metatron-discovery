@@ -16,7 +16,23 @@
   <div class="ddp-box-title">
     {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
   </div>
-
-  <edit-rule-field-combo [isMulti]="true" [fields]="fields" [selected]="selectedFields" [tabIndex]="2"
+  <!-- select box -->
+  <edit-rule-field-combo [fields]="fields" [selected]="selectedFields" [tabIndex]="2"
                          (onChange)="changeFields($event)" ></edit-rule-field-combo>
+  <!-- // select box -->
 </div>
+<!-- //part -->
+
+<!-- part -->
+<div *ngIf="isShow" class="ddp-box-part ddp-editor" >
+  <div class="ddp-box-title">
+    {{'msg.dp.th.new-column-name' | translate}}<em class="ddp-icon-essential"></em>
+  </div>
+  <div class="ddp-wrap-datainput">
+    <input [(ngModel)]="newFieldName" tabindex="3"
+           placeholder="{{'msg.dp.th.new-column-name.ph' | translate}}"
+           type="text" class="ddp-input-typebasic newColumnInput" >
+  </div>
+  <a href="javascript:" class="ddp-btn-bg" (click)="onMultiColumnRenameClick()">{{ 'msg.dp.btn.multiple.col' | translate }}</a>
+</div>
+<!-- //part -->

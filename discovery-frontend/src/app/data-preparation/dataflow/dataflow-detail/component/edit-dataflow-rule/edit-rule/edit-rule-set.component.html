@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-box-part" *ngIf="ruleVO">
+<div class="ddp-box-part" *ngIf="isShow">
   <div class="ddp-box-title">
     {{'msg.lineage.ui.list.search.column' | translate}}
     <em class="ddp-icon-essential"></em>
@@ -24,18 +24,20 @@
 </div>
 <!--//part-->
 <!-- part -->
-<div class="ddp-box-part ddp-editor" *ngIf="ruleVO" style="width : 400px">
+<div class="ddp-box-part ddp-editor" *ngIf="isShow" style="width : 400px">
   <div class="ddp-box-title">
     {{'msg.dp.th.val' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
-    <rule-condition-input [tabIndex]="selectedFields.length > 0 ? 3 : undefined"></rule-condition-input>
+    <rule-condition-input
+      [formula]="inputValue" [command]="'set'" [forceFormula]="forceCondition" [fields]="fields" [tabIndex]="2"
+      (onChange)="inputValue = $event"></rule-condition-input>
   </div>
-  <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput('set')"><em class="ddp-icon-editor"></em>Advanced editor</a>
+  <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput()"><em class="ddp-icon-editor"></em>Advanced editor</a>
 </div>
 <!-- //part -->
 <!-- part -->
-<div class="ddp-box-part" *ngIf="ruleVO">
+<div class="ddp-box-part" *ngIf="isShow">
   <div class="ddp-box-title">
     {{'msg.dp.ui.cond' | translate}}
   </div>
@@ -44,7 +46,7 @@
            class="ddp-input-typebasic"
            tabindex="6"
            placeholder="{{'msg.dp.ui.cond.ph' | translate}}"
-           [(ngModel)]="ruleVO.value">
+           [(ngModel)]="condition">
     <!-- ddp-selected 추가시 display:block; -->
   </div>
 </div>

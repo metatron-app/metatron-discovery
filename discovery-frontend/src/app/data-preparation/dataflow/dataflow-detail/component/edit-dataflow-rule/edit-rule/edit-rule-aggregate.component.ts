@@ -16,12 +16,14 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } fro
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
+import { StringUtil } from '../../../../../../common/util/string.util';
+import { Filter } from '../../../../../../domain/workbook/configurations/filter/filter';
 
 @Component({
-  selector: 'edit-rule-drop',
-  templateUrl: './edit-rule-drop.component.html'
+  selector: 'edit-rule-aggregate',
+  templateUrl: './edit-rule-aggregate.component.html'
 })
-export class EditRuleDropComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
+export class EditRuleAggregateComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -34,6 +36,8 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
+
+  public formulaList:string[] = [''];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -78,27 +82,50 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
 
   /**
    * Rule 형식 정의 및 반환
-   * @return {{command: string, col: string, ruleString: string}}
+   * @return {{command: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string } {
 
     if (this.selectedFields.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return undefined
-    } else if (this.selectedFields.length === this.fields.length) { // at least one column must exist
-      Alert.warning('Cannot delete all columns');
-      return undefined
+      Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
+      return undefined;
     }
-
     const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
 
+    // Formula
+    if (this.formulaList.length === 0) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
+      return undefined;
+    }
+
+    const validFormulaList:string[] = [];
+    const invalidFormula:boolean = this.formulaList.some( formula => {
+      if( StringUtil.checkSingleQuote(formula, { isWrapQuote: false, isAllowBlank: false })[0] ) {
+        if( StringUtil.checkFormula( formula ) ) {
+          validFormulaList.push( '\'' + formula + '\'' );
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    });
+    if( invalidFormula ) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.check.formula'));
+      return undefined;
+    }
+
     return {
-      command: 'drop',
-      col: columnsStr,
-      ruleString: 'drop col: ' + columnsStr
+      command: 'aggregate',
+      ruleString: 'aggregate value: ' + validFormulaList.join(',') + ' group: ' + columnsStr
     };
 
   } // function - getRuleData
+
+  public getRuleDataWithoutValidation() {
+
+  } // function - getRuleDataWithoutValidation
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
@@ -110,6 +137,47 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
   public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
+
+  /**
+   * 신규 수식 추가
+   */
+  public addFormula() {
+    this.formulaList.push('');
+  } // function - addFormula
+
+  /**
+   * 특정 위치의 수식 삭제
+   * @param {number} idx
+   */
+  public deleteFormula(idx:number) {
+    this.formulaList.splice( idx, 1 );
+  } // function - deleteFormula
+
+  // public getTempRuleStringFunc():Function {
+  //   const parentScope = this;
+  //   return (value:string) => {
+  //     const columnsStr: string = parentScope.selectedFields.map( item => item.name ).join(', ');
+  //
+  //     if( StringUtil.checkSingleQuote(value, { isWrapQuote: false, isAllowBlank: false })[0] ) {
+  //       if( StringUtil.checkFormula( value ) ) {
+  //         value = '\'' + value + '\'';
+  //         return false;
+  //       }
+  //     }
+  //
+  //     return 'aggregate value: ' + value + ' group: ' + columnsStr;
+  //   };
+  // } // function - getTempRuleStringFunc
+
+  /**
+   * 리스트의 개별성 체크 함수
+   * @param index
+   * @param {string} formula
+   * @return {number}
+   */
+  public trackByFn(index, formula: string) {
+    return index;
+  } // function - trackByFn
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -132,11 +200,17 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
-    let fieldsStr:string = this.getAttrValueInRuleString( 'col', ruleString );
+    let fieldsStr:string = this.getAttrValueInRuleString( 'group', ruleString );
     if( '' !== fieldsStr ) {
       const arrFields:string[] = ( -1 < fieldsStr.indexOf( ',' ) ) ? fieldsStr.split(',') : [fieldsStr];
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
+
+    let strFormulaList:string = this.getAttrValueInRuleString( 'value', ruleString );
+    if( '' !== strFormulaList) {
+      this.formulaList = strFormulaList.split( ',' ).map( item => item.replace( /'/g, '' ) );
+    }
+
   } // function - parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

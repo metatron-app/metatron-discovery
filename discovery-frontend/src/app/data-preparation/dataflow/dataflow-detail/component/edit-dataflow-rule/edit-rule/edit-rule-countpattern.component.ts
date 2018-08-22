@@ -12,26 +12,25 @@
  * limitations under the License.
  */
 
-import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
-  ViewChild
-} from '@angular/core';
-import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { RuleConditionInputComponent } from './rule-condition-input.component';
-import * as _ from 'lodash';
+import { StringUtil } from '../../../../../../common/util/string.util';
+import { isUndefined } from "util";
+import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
+import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
-  selector: 'edit-rule-set',
-  templateUrl: './edit-rule-set.component.html'
+  selector : 'edit-rule-countpattern',
+  templateUrl : './edit-rule-countpattern.component.html'
 })
-export class EditRuleSetComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
+export class EditRuleCountpatternComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(RuleConditionInputComponent)
-  private ruleConditionInputComponent : RuleConditionInputComponent;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -39,19 +38,25 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @Output()
-  public advancedEditorClickEvent = new EventEmitter();
-  public inputValue: string;
-  public condition: String;
-  public forceCondition : string = '';
+  public selectedFields: Field[] = [];
+
+  // 상태 저장용 T/F
+  public isFocus:boolean = false;         // Input Focus 여부
+  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
+
+  // Rule 에 대한 입력 값들
+  public pattern:string = '';
+  public ignore:string = '';
+  public isIgnoreCase:boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(
-    protected elementRef: ElementRef,
-    protected injector: Injector) {
+  constructor(protected broadCaster: EventBroadcaster,
+              protected elementRef: ElementRef,
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -78,7 +83,6 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -89,27 +93,44 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string } {
-    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
-      if (this.selectedFields.length === 0) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-        return undefined
-      }
+  public getRuleData(): { command: string, ruleString: string } {
 
-      // TODO : condition validation
-      const columnsStr: string = this.selectedFields.map(item => item.name).join(', ');
-
-      this.inputValue = this.ruleConditionInputComponent.getCondition();
-      let val = _.cloneDeep(this.inputValue);
-
-      return {
-        command: 'set',
-        col: columnsStr,
-        ruleString: `set col: ${columnsStr} value: ${val}`
-      };
-    } else {
+    // 컬럼
+    if (0 === this.selectedFields.length) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined;
     }
+
+    // 패턴
+    if (isUndefined(this.pattern) || '' === this.pattern || this.pattern === '//' || this.pattern === '\'\'') {
+      Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
+      return undefined;
+    }
+    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(this.pattern, { isWrapQuote: !StringUtil.checkRegExp(this.pattern) });
+    if (!patternResult[0]) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
+      return undefined;
+    }
+    this.pattern = patternResult[1];
+
+    let ruleString = 'countpattern col: ' + this.selectedFields.map( item => item.name ).join(', ')
+      + ' on: ' + this.pattern + ' ignoreCase: ' + this.isIgnoreCase;
+
+    // 다음 문자 사이 무시
+    if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
+      const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
+      if (checkIgnore[0] === false) {
+        Alert.warning('Check value of ignore between characters');
+        return undefined;
+      } else {
+        ruleString += ' quote: ' + checkIgnore[1];
+      }
+    }
+
+    return {
+      command : 'countpattern',
+      ruleString: ruleString
+    };
 
   } // function - getRuleData
 
@@ -120,17 +141,19 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+   * 패턴 정보 레이어 표시
+   * @param {boolean} isShow
    */
-  public openPopupFormulaInput(command: string) {
-    this.advancedEditorClickEvent.emit();
-  } // function - openPopupFormulaInput
+  public showHidePatternLayer(isShow:boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+    this.isFocus = isShow;
+  } // function - showHidePatternLayer
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -146,6 +169,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * @protected
    */
   protected afterShowComp() {
+
   } // function - _afterShowComp
 
   /**
@@ -153,12 +177,19 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
+
     const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
     if( '' !== strCol ) {
       const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
-    this.inputValue = ruleString.split('value: ')[1];
+
+    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
+
+    this.isIgnoreCase = Boolean( this.getAttrValueInRuleString( 'ignoreCase', ruleString ) );
+
+    this.ignore = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'quote', ruleString ));
+
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

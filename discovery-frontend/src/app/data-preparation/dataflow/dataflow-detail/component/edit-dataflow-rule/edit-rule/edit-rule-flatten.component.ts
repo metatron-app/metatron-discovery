@@ -12,16 +12,17 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
 import { EditRuleComponent } from './edit-rule.component';
-import { isUndefined } from 'util';
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
+import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 
 @Component({
-  selector : 'edit-rule-header',
-  templateUrl : './edit-rule-header.component.html'
+  selector : 'edit-rule-flatten',
+  templateUrl : './edit-rule-flatten.component.html'
 })
-export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
+export class EditRuleFlattenComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -33,16 +34,20 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public rowNum:number = 1;
+  public selectedFields: Field[] = [];
+
+  // 상태 저장용 T/F
+  public isFocus:boolean = false;         // Input Focus 여부
+  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(
-    protected elementRef: ElementRef,
-    protected injector: Injector ) {
+  constructor(protected broadCaster: EventBroadcaster,
+              protected elementRef: ElementRef,
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -69,7 +74,6 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -78,28 +82,45 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
 
   /**
    * Rule 형식 정의 및 반환
-   * @return {{command: string, rownum: number, ruleString: string}}
+   * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, ruleString:string} {
-    if (isUndefined(this.rowNum) || isNaN(this.rowNum)) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.row'));
+  public getRuleData(): { command: string, ruleString: string } {
+
+    // 선택된 컬럼
+    if (0 === this.selectedFields.length) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined
     }
 
-    if (0 == this.rowNum || this.rowNum > this.fields.length) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.out.of.range'));
-      return undefined
-    }
+    let ruleString = 'flatten col: ' + this.selectedFields.map( item => item.name ).join(', ');
 
     return {
-        command: 'header',
-        ruleString: 'header rownum: ' + this.rowNum
+      command : 'flatten',
+      ruleString: ruleString
     };
+
   } // function - getRuleData
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 필드 변경
+   * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
+   */
+  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+    console.info( '>>>> changeFields', data.selectedList );
+    this.selectedFields = data.selectedList;
+  } // function - changeFields
+
+  /**
+   * 패턴 정보 레이어 표시
+   * @param {boolean} isShow
+   */
+  public showHidePatternLayer(isShow:boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+    this.isFocus = isShow;
+  } // function - showHidePatternLayer
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -109,23 +130,30 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
    * 컴포넌트 표시 전 실행
    * @protected
    */
-  protected beforeShowComp() {} // function - beforeShowComp
+  protected beforeShowComp() {
+  } // function - _beforeShowComp
 
   /**
    * 컴포넌트 표시 후 실행
    * @protected
    */
   protected afterShowComp() {
-  } // function - afterShowComp
+
+  } // function - _afterShowComp
 
   /**
    * rule string 을 분석한다.
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
-    // value
-    this.rowNum = Number( this.getAttrValueInRuleString( 'rownum', ruleString ) );
-  } // function - parsingRuleString
+
+    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
+    if( '' !== strCol ) {
+      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    }
+
+  } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

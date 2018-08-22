@@ -12,20 +12,29 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
+  ViewChild
+} from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
+import { RuleConditionInputComponent } from './rule-condition-input.component';
+import { isNullOrUndefined } from 'util';
 
 @Component({
-  selector: 'edit-rule-drop',
-  templateUrl: './edit-rule-drop.component.html'
+  selector: 'edit-rule-move',
+  templateUrl: './edit-rule-move.component.html'
 })
-export class EditRuleDropComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
+export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild(RuleConditionInputComponent)
+  private ruleConditionInputComponent : RuleConditionInputComponent;
 
+  @Output()
+  public advancedEditorClickEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -33,7 +42,12 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public selectedFields: Field[] = [];
+  public inputValue:string;
+  public defaultIndex : number = -1;
+  public defaultColIndex : number = -1;
+  public beforeOrAfter : string = '';
+  public moveList : string[] = ['before', 'after'];
+  public selectedStandardField : string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -85,17 +99,29 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined
-    } else if (this.selectedFields.length === this.fields.length) { // at least one column must exist
-      Alert.warning('Cannot delete all columns');
-      return undefined
     }
 
     const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
 
+    if (isNullOrUndefined(this.beforeOrAfter)) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.before.after'));
+      return undefined
+    }
+
+    if (isNullOrUndefined(this.selectedStandardField)) {
+      Alert.warning(this.translateService.instant('msg.dp.ui.move.tooltip'));
+      return undefined
+    }
+
+    if (-1 !== this.selectedFields.map( item => item.name ).indexOf(this.selectedStandardField)) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.overlap.cols'));
+      return undefined
+    }
+
     return {
-      command: 'drop',
+      command: 'move',
       col: columnsStr,
-      ruleString: 'drop col: ' + columnsStr
+      ruleString: `move col: ${columnsStr} ${this.beforeOrAfter}: ${this.selectedStandardField}`
     };
 
   } // function - getRuleData
@@ -103,12 +129,25 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public selectItem (item){
+    this.beforeOrAfter = item;
+  }
+
+
   /**
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
     this.selectedFields = data.selectedList;
+  } // function - changeFields
+
+  /**
+   * 필드 변경
+   * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
+   */
+  public changeStandardFields(data: Field) {
+    this.selectedStandardField = data.name;
   } // function - changeFields
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -125,19 +164,33 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
    * 컴포넌트 표시 후 실행
    * @protected
    */
-  protected afterShowComp() {} // function - afterShowComp
+  protected afterShowComp() {} // function - _afterShowComp
 
   /**
    * rule string 을 분석한다.
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
-    let fieldsStr:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== fieldsStr ) {
-      const arrFields:string[] = ( -1 < fieldsStr.indexOf( ',' ) ) ? fieldsStr.split(',') : [fieldsStr];
+    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
+    if( '' !== strCol ) {
+      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
-  } // function - parsingRuleString
+
+    let str = ruleString.split('before');
+    if (isNullOrUndefined(str[1])) {
+      this.beforeOrAfter = 'after';
+      this.defaultIndex = 1;
+    } else {
+      this.beforeOrAfter = 'before';
+      this.defaultIndex = 0;
+    }
+    this.selectedStandardField = this.getAttrValueInRuleString( this.beforeOrAfter, ruleString );
+    this.defaultColIndex = this.fields.findIndex((item) => {
+      return item.name === this.selectedStandardField
+    });
+
+  } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

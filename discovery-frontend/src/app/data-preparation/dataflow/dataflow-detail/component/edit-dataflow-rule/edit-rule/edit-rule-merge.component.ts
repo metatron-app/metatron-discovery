@@ -12,16 +12,20 @@
  * limitations under the License.
  */
 
+import { EditRuleComponent } from './edit-rule.component';
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
-import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
+import { StringUtil } from '../../../../../../common/util/string.util';
+import { isUndefined } from "util";
+import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
+import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
-  selector: 'edit-rule-drop',
-  templateUrl: './edit-rule-drop.component.html'
+  selector : 'edit-rule-merge',
+  templateUrl : './edit-rule-merge.component.html'
 })
-export class EditRuleDropComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
+export class EditRuleMergeComponent extends EditRuleComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -35,14 +39,21 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
 
+  // 상태 저장용 T/F
+  public isFocus:boolean = false;         // Input Focus 여부
+  public isTooltipShow:boolean = false;   // Tooltip Show/Hide
+
+  // Rule 에 대한 입력 값들
+  public delimiter:string = '';
+  public newValue:string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(
-    protected elementRef: ElementRef,
-    protected injector: Injector) {
+  constructor(protected broadCaster: EventBroadcaster,
+              protected elementRef: ElementRef,
+              protected injector: Injector) {
     super(elementRef, injector);
   }
 
@@ -69,7 +80,6 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
   } // function - ngOnDestroy
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -80,22 +90,42 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
    * Rule 형식 정의 및 반환
    * @return {{command: string, col: string, ruleString: string}}
    */
-  public getRuleData(): { command: string, col: string, ruleString: string } {
+  public getRuleData(): { command: string, ruleString: string } {
 
-    if (this.selectedFields.length === 0) {
+    // 선택된 컬럼
+    if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return undefined
-    } else if (this.selectedFields.length === this.fields.length) { // at least one column must exist
-      Alert.warning('Cannot delete all columns');
       return undefined
     }
 
-    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
+    // 새로운 컬럼명
+    if (!isUndefined(this.newValue)) {
+      let withVal = StringUtil.checkSingleQuote(this.newValue, { isPairQuote: true, isWrapQuote: true });
+      if (withVal[0] === false) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.merge.col.error'));
+        return undefined
+      } else {
+        this.newValue = withVal[1];
+      }
+    } else {
+      this.newValue = '\'\'';
+    }
+
+    // 구분자
+    let check = StringUtil.checkSingleQuote(this.delimiter, { isWrapQuote: true });
+    if (check[0] === false) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.check.delimiter'));
+      return undefined
+    } else {
+      this.delimiter = check[1];
+    }
+
+    let ruleString = 'merge col: ' + this.selectedFields.map( item => item.name ).join(', ')
+      + ' with: ' + this.delimiter + ' as: ' + this.newValue;
 
     return {
-      command: 'drop',
-      col: columnsStr,
-      ruleString: 'drop col: ' + columnsStr
+      command : 'merge',
+      ruleString: ruleString
     };
 
   } // function - getRuleData
@@ -107,9 +137,18 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
-  public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
+  public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
     this.selectedFields = data.selectedList;
   } // function - changeFields
+
+  /**
+   * 패턴 정보 레이어 표시
+   * @param {boolean} isShow
+   */
+  public showHidePatternLayer(isShow:boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+    this.isFocus = isShow;
+  } // function - showHidePatternLayer
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -125,19 +164,27 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
    * 컴포넌트 표시 후 실행
    * @protected
    */
-  protected afterShowComp() {} // function - afterShowComp
+  protected afterShowComp() {
+
+  } // function - _afterShowComp
 
   /**
    * rule string 을 분석한다.
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
-    let fieldsStr:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== fieldsStr ) {
-      const arrFields:string[] = ( -1 < fieldsStr.indexOf( ',' ) ) ? fieldsStr.split(',') : [fieldsStr];
+
+    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
+    if( '' !== strCol ) {
+      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
-  } // function - parsingRuleString
+
+    this.newValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'as', ruleString ));
+
+    this.delimiter = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'with', ruleString ));
+
+  } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

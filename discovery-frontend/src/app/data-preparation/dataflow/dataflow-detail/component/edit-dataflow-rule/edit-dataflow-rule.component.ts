@@ -918,7 +918,7 @@ export class EditDataflowRuleComponent extends AbstractPopupComponent implements
     this.ruleVO['col'] = col.name;
 
     this.selectboxFlag = true; // 셀렉트 박스에서 선택 했는지 flag걸기
-    this.gridComponent.selectColumn(col.name, true,null, false, col.type);
+    this.gridComponent.selectColumn(col.name, true, col.type);
     // this.gridComponent.selectColumn(col.name, true,null, col.type);
 
     this.columnSearchText = ''; // 검색어 초기화

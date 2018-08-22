@@ -1,0 +1,30 @@
+<div class="ddp-box-part" *ngIf="isShow">
+  <div class="ddp-box-title">
+    {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
+  </div>
+  <!-- select box -->
+  <!-- 클릭시 ddp-selected 추가 -->
+  <edit-rule-field-combo [isMulti]="false" [fields]="fields" [selected]="selectedFields" [tabIndex]="2"
+                         (onChange)="changeFields($event)" ></edit-rule-field-combo>
+  <!-- //select box -->
+</div>
+<!--//part-->
+
+<!-- part -->
+<div class="ddp-box-part" *ngIf="isShow">
+  <div class="ddp-box-title">
+    {{'msg.dp.th.sel.elements' | translate}}<em class="ddp-icon-essential"></em>
+  </div>
+  <!-- info -->
+  <div class="ddp-ui-info">
+    <em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>
+    <div class="ddp-box-info">
+      {{'msg.dp.ui.unnest.tooltip' | translate}}
+    </div>
+  </div>
+  <!-- //info -->
+
+  <div class="ddp-wrap-datainput">
+    <input type="text" class="ddp-input-typebasic" tabindex="3" placeholder="{{'msg.dp.ui.unnest.ph' | translate}}" [(ngModel)]="selVal">
+  </div>
+</div>
