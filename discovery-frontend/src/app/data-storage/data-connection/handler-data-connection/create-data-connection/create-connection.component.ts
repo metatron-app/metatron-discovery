@@ -246,7 +246,7 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * Is enable connection
+   * Is enable connection check
    * @returns {boolean}
    */
   public isEnabledConnectionValidation() : boolean {
@@ -451,7 +451,7 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
       authenticationType: this.selectedSecurityType.value
     };
     // if security type is not USERINFO, add password and username
-    if (this.selectedSecurityType.value !== 'USERINFO') {
+    if (this.isConnectUserAccount()) {
       params['password'] = this.password.trim();
       params['username'] = this.username.trim();
     }
