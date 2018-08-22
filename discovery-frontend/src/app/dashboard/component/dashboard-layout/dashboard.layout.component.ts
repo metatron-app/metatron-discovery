@@ -84,6 +84,9 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public dashboard: Dashboard;
 
+  // 대시보드 로딩 표시 여부
+  public isShowDashboardLoading:boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -115,7 +118,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       this.broadCaster.on<any>('START_PROCESS').subscribe(() => {
         this._cntProcess = this._cntProcess + 1;
         this._isFinishedWidgetLoading = false;
-        this.loadingShow();
+        this.showBoardLoading();
       })
     );
 
@@ -247,7 +250,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         this.updateLayoutSize();
         this.onLayoutInitialised();
       }
-      this.loadingHide();
+      this.hideBoardLoading();
     }
   } // function - updateLayoutFinished
 
@@ -774,7 +777,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
         // 초기 생성 시 로딩바 표시
         if (0 < layoutWidgets.length) {
-          this.loadingShow()
+          this.showBoardLoading();
         }
 
         // 레이아웃을 생성하는 경우
@@ -1043,6 +1046,32 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    | Public Method - API
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public boardUtil = DashboardUtil;
+
+  /**
+   * Show Loading
+   * Display Dashboard loading when in viewing mode
+   * When in edit mode, display as full loading
+   */
+  public showBoardLoading() {
+    if( LayoutMode.VIEW === this._layoutMode || LayoutMode.VIEW_AUTH_MGMT === this._layoutMode ) {
+      this.isShowDashboardLoading = true;
+    } else {
+      this.loadingShow();
+    }
+    this.safelyDetectChanges();
+  } // function - showBoardLoading
+
+  /**
+   * Hide Loading
+   */
+  public hideBoardLoading() {
+    if( LayoutMode.VIEW === this._layoutMode || LayoutMode.VIEW_AUTH_MGMT === this._layoutMode ) {
+      this.isShowDashboardLoading = false;
+    } else {
+      this.loadingHide();
+    }
+    this.safelyDetectChanges();
+  } // function - hideBoardLoading
 
   /**
    * 저장을 위해 스크린에 맞는 형태로 사이즈를 조절한다

@@ -409,13 +409,6 @@
 
   <div class="ddp-ui-dash-contents" [class.ddp-close]="isCloseDashboardList" >
 
-    <!-- 로딩 영역 -->
-    <div *ngIf="isShowDashboardLoading" class="ddp-loading-part">
-      <div style="" class="lds-wedges">
-        <div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div></div></div>
-    </div>
-    <!-- // 로딩 영역 -->
-
     <!-- 대시보드 없음 -->
     <div class="ddp-box-data-none" *ngIf="mode === 'NO_DATA'" >
       <div class="ddp-wrap-data-none">
@@ -473,8 +466,7 @@
     </div>
     <!-- //board buttons -->
     <!-- // 대시보드 없음 -->
-    <app-dashboard [isManagementUser]="isChangeAuthUser" [dashboard]="selectedDashboard"
-                   (dashboardEvent)="loadCompleteDashboard($event)"></app-dashboard>
+    <app-dashboard [isManagementUser]="isChangeAuthUser" [dashboard]="selectedDashboard" ></app-dashboard>
   </div>
 
 </div>
