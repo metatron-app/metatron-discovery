@@ -38,6 +38,12 @@
 
   <!-- dashboard -->
   <div class="ddp-ui-widget" [ngStyle]="isStandAlone ? {'top': '50px'} : {}">
+    <!-- 로딩 영역 -->
+    <div *ngIf="isShowDashboardLoading" class="ddp-loading-part" style="top:150px;" >
+      <div style="" class="lds-wedges">
+        <div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div></div></div>
+    </div>
+    <!-- // 로딩 영역 -->
     <!-- Resize 처리를 위해서 Container Style을 설정해줌 -->
     <div #layoutContainer style="position: absolute;top: 0;left: 0;right: 0;bottom: 0;"></div>
   </div>
