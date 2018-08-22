@@ -37,7 +37,6 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public isMultiColumnListShow: boolean = false;
   public selectedFields: Field[] = [];
   public newFieldName: string = '';
 

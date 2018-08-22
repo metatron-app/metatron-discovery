@@ -113,7 +113,7 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
 
           if (0 < this.fields.length) {
             let tempFields = this.fields.map((field) => field.name );
-            if (data.selectedColIds.length === 0) {this.selectedItemKeys = []};
+            if (data.selectedColIds.length === 0) {this.selectedItemKeys = []}
             data.selectedColIds.forEach((item) => {
               if (-1 !== tempFields.indexOf(item)) {
                 this.selectedItemKeys.push(item);
