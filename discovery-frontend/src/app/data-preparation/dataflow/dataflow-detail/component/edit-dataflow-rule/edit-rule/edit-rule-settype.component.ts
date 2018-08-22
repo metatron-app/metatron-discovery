@@ -45,8 +45,8 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   public colTypes : any = [];
   public isGetTimestampRunning : boolean = false;
 
-  // 상태 저장용 T/F
-  public isFocus:boolean = false;         // Input Focus 여부
+  // for status T/F
+  public isFocus:boolean = false;         // Input Focus t/f
   public isTooltipShow:boolean = false;   // Tooltip Show/Hide
 
   public selectedTimestamp : string = '';
@@ -59,8 +59,6 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector,
@@ -71,32 +69,19 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 컴포넌트 초기 실행
-   */
   public ngOnInit() {
     super.ngOnInit();
-  } // function - ngOnInit
-
-  /**
-   * 화면 초기화
-   */
+  }
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-  } // function - ngAfterViewInit
-
-  /**
-   * 컴포넌트 제거
-   */
+  }
   public ngOnDestroy() {
     super.ngOnDestroy();
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * When type is selected
    * @param data
@@ -140,7 +125,6 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
         if (!isNullOrUndefined(result)) {
           let keyList = [];
 
-          // 받아온 timestamp format 리스트를 ui에 맞게 가공
           for (let key in result) {
             if (result.hasOwnProperty(key)) {
               keyList.push(key);
@@ -154,12 +138,12 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
           }
           this.timestampFormats.push({ value: 'Custom format', isHover: false, matchValue : -1 });
 
-          // 선택된 컬럼이 있거나 선택된 타임스탬프는 없을 때
+          // When column is selected OR has timestamp value
           if (cols.length > 0 ||  '' !== tempTimetampValue) {
-            // 선택된 타임스탬프 타입이 없을 때
+            // timestamp value is empty
             if ('' === tempTimetampValue) {
               if ('string' === this.selectedType) {
-                // 타임스탬프 ->  스트링  (헌재 타입 정보)
+                // timestamp ->  string  (set current column timestamp type)
                 if ('timestamp' === this.selectedFields[0].type.toLowerCase()) {
                   let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
                   this.selectedTimestamp = this.colTypes[idx].timestampStyle;
@@ -169,12 +153,13 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
                   this.defaultTimestampIndex = -1;
                 }
               } else if ('timestamp' === this.selectedType) {
-                // 타음스탬프 -> 타임스탬프 (현재 타입 정보)
                 if ('timestamp' === this.selectedFields[0].type.toLowerCase()) {
+                  // timestamp ->  timestamp  (set current column timestamp type)
                   let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
                   this.selectedTimestamp = this.colTypes[idx].timestampStyle;
                   this.defaultTimestampIndex = this._timestampValueArray().indexOf(this.selectedTimestamp);
-                } else if ('string' === this.selectedFields[0].type.toLowerCase()) { // 스트링 -> 타임스탬프 (추천)
+                } else if ('string' === this.selectedFields[0].type.toLowerCase()) {
+                  // string -> timestamp (suggestion)
                   let max = this.timestampFormats.reduce((max, b) => Math.max(max, b.matchValue), this.timestampFormats[0].matchValue);
                   let idx = this.timestampFormats.map((item) => {
                     return item.matchValue
@@ -186,6 +171,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
                 }
               }
             } else {
+              // when editing
               let idx = this._timestampValueArray().indexOf('' !== tempTimetampValue ? tempTimetampValue : this.selectedTimestamp);
               if (idx === -1 && tempTimetampValue !== '') {
                 this.selectedTimestamp = 'Custom format';
@@ -207,17 +193,18 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   }
 
   /**
-   * Rule 형식 정의 및 반환
+   * Set rule string and returns it
    * @return {{command: string, col: string, ruleString: string}}
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    // 선택된 컬럼
+    // selected column
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined
     }
 
+    // selected type
     if ('' === this.selectedType) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.type'));
       return undefined;
@@ -225,13 +212,14 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     let ruleString = 'settype col: ' + this.selectedFields.map( item => item.name ).join(', ') + ` type: ${this.selectedType}`;
 
+    // Timestamp
     if (this.isTimestamp && '' !== this.selectedTimestamp) {
       ruleString += ' format: ';
       if ('Custom format' === this.selectedTimestamp) {
         let check = StringUtil.checkSingleQuote(this.customTimestamp, { isPairQuote: false, isWrapQuote: true });
         if (check[0] === false) {
           Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
-          return;
+          return undefined;
         } else {
           this.customTimestamp = check[1];
         }
@@ -240,7 +228,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
         let check = StringUtil.checkSingleQuote(this.selectedTimestamp, { isPairQuote: false, isWrapQuote: true });
         if (check[0] === false) {
           Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
-          return;
+          return undefined;
         } else {
           this.selectedTimestamp = check[1];
         }
@@ -259,7 +247,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 필드 변경
+   * Change fields
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
@@ -278,38 +266,35 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     } else {
       this.isTimestamp = false;
     }
-  } // function - changeFields
+  }
 
   /**
-   * 패턴 정보 레이어 표시
+   * Show/hide pattern tooltip
    * @param {boolean} isShow
    */
   public showHidePatternLayer(isShow:boolean) {
     this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
     this.isFocus = isShow;
-  } // function - showHidePatternLayer
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 컴포넌트 표시 전 실행
+   * Before component is shown
    * @protected
    */
-  protected beforeShowComp() {
-  } // function - _beforeShowComp
+  protected beforeShowComp() {}
 
   /**
-   * 컴포넌트 표시 후 실행
+   * After component is shown
    * @protected
    */
-  protected afterShowComp() {
-
-  } // function - _afterShowComp
+  protected afterShowComp() {}
 
   /**
-   * rule string 을 분석한다.
+   * parse rule string
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
@@ -339,8 +324,12 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
         }
       }
     }
-  } // function - _parsingRuleString
+  }
 
+  /**
+   * Set format and type from rulestring
+   * @param {string} ruleString
+   */
   protected getTimestampFromRuleString(ruleString : string ) {
     let str = ruleString.split('format: ')[1];
     if (!isNullOrUndefined(str)) {
@@ -348,7 +337,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       this.selectedTimestamp = str.split(' dsId')[0].substring(1,str.split(' dsId')[0].length-1);
       this.getTimestampFormats();
     } else {
-      // 컨텍스트 메뉴에서 내려온 값
+      // From context menu
       let val = ruleString.split('type: ')[1];
       if (!isNullOrUndefined(val)) {
         val = val.split(' dsId: ')[0];
@@ -364,13 +353,17 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
         }
       }
     }
-
   }
 
+  /**
+   * Find timestamp type with id in colTypes
+   * @param {number} idx
+   * @return {string}
+   * @private
+   */
   private _findTimestampStyleWithIdxInColDescs(idx : number) : string {
     return this.colTypes[idx].timestampStyle.replace(/'/g, '\\\'');
-  } // function - _findTimestampStyleWithIdxInColDescs
-
+  }
 
   /**
    * returns -1 if type does not exist in array
@@ -380,10 +373,9 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * @private
    */
   private _checkIfAtLeastOneColumnIsSelType(selectedFields : Field[], type : string) : number {
-    let idx : number = selectedFields.findIndex((item) => {
+    return selectedFields.findIndex((item) => {
       return item.type === type.toUpperCase();
     });
-    return idx;
   }
 
   /**

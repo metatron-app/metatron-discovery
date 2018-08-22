@@ -135,7 +135,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
         if (cols.length > 0 || '' !== tempTimetampValue) {
           if ('' === tempTimetampValue) {
             let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
-            this.selectedTimestamp = this.colTypes[idx].timestampStyle
+            this.selectedTimestamp = this.colTypes[idx].timestampStyle;
             this.defaultIndex = this._timestampValueArray().indexOf(this.selectedTimestamp);
             if(this.defaultIndex === -1) {
               this.customTimestamp = this.selectedTimestamp;
