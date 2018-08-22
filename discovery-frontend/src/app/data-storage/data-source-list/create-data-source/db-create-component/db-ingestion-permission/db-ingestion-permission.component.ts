@@ -221,6 +221,14 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   * Is used ID and password for conenct
+   * @returns {boolean}
+   */
+  public isConnectWithIdAndPassword(): boolean {
+    return this.sourceData.connectionData.selectedSecurityType.value === 'DIALOG';
+  }
+
+  /**
    * 현재 setting type
    * @returns {string}
    */
@@ -396,7 +404,7 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
    */
   public onChangeIngestion(ingestionType): void {
     // 이미 같은 타입이면 return
-    if (this.isEqualTypeValue(ingestionType, this.selectedIngestionType)) {
+    if (this.isEqualTypeValue(ingestionType, this.selectedIngestionType) || this.isConnectWithIdAndPassword()) {
       return;
     }
     // 타입 변경

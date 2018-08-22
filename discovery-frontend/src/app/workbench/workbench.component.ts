@@ -2109,8 +2109,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         hostname: connInfo.hostname,
         port: connInfo.port,
         url: connInfo.url,
-        username: id,
-        password: pw,
         database: connInfo.database,
         authenticationType: this.authenticationType,
         catalog: connInfo.catalog,
@@ -2125,6 +2123,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     if (selectedSecurityType.value === 'DIALOG') {
       param['ingestion'].connectionUsername = this.webSocketLoginId;
       param['ingestion'].connectionPassword = this.webSocketLoginPw;
+    } else if (selectedSecurityType.value === 'MANUAL') {
+      param['ingestion'].connection.username = id;
+      param['ingestion'].connection.password = pw;
     }
 
 
