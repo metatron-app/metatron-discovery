@@ -245,7 +245,7 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
    * @returns {string}
    */
   public get getConnectionType(): string {
-    return this.sourceData.connectionData.connType;
+    return this.sourceData.connectionData.selectedIngestionType.value;
   }
 
   /**

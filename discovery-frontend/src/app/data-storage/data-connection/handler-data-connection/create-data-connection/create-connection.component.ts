@@ -278,19 +278,19 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
         this.isShowCatalogRequired = true;
         result = false;
       }
-      // if empty username
-      if (!this.isConnectUserAccount() && StringUtil.isEmpty(this.username)) {
-        this.isShowUsernameRequired = true;
-        result = false;
-      }
-      // if empty password
-      if (!this.isConnectUserAccount() && StringUtil.isEmpty(this.password)) {
-        this.isShowPasswordRequired = true;
-        result = false;
-      }
-      // if enable URL and empty URL
+    // if enable URL and empty URL
     } else if (StringUtil.isEmpty(this.url)) {
       this.isShowUrlRequired = true;
+      result = false;
+    }
+    // if empty username
+    if (!this.isConnectUserAccount() && StringUtil.isEmpty(this.username)) {
+      this.isShowUsernameRequired = true;
+      result = false;
+    }
+    // if empty password
+    if (!this.isConnectUserAccount() && StringUtil.isEmpty(this.password)) {
+      this.isShowPasswordRequired = true;
       result = false;
     }
     return result;
@@ -451,7 +451,7 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
       authenticationType: this.selectedSecurityType.value
     };
     // if security type is not USERINFO, add password and username
-    if (this.isConnectUserAccount()) {
+    if (!this.isConnectUserAccount()) {
       params['password'] = this.password.trim();
       params['username'] = this.username.trim();
     }

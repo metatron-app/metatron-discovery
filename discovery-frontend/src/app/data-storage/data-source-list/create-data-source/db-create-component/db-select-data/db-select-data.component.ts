@@ -334,7 +334,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
    * @returns {boolean}
    */
   public isUsedDatabase(): boolean {
-    return this.sourceData.connectionData.implementor === 'MYSQL';
+    return this.sourceData.connectionData.selectedDbType.value === 'MYSQL';
   }
 
   /**
@@ -342,7 +342,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
    * @returns {boolean}
    */
   public isUrlType(): boolean {
-    return this.sourceData.connectionData.selectedUrlType === 'URL';
+    return this.sourceData.connectionData.isEnableUrl;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -557,7 +557,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
    */
   private getDatabaseParams(): object {
     // db type
-    const implementor = this.sourceData.connectionData.implementor;
+    const implementor = this.sourceData.connectionData.selectedDbType.value;
     // params
     const params = {
       connection: {
@@ -676,7 +676,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     this.dataconnectionService.getTableDetailWitoutId(this.getTableDetailParams(databaseName, tableName))
       .then((result) => {
         // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
-        if (this.sourceData.connectionData.implementor === 'HIVE') {
+        if (this.sourceData.connectionData.selectedDbType.value === 'HIVE') {
           result['data'] = this._getReplacedDataList(result['data']);
           result['fields'] = this._getReplacedFieldList(result['fields']);
         }
@@ -716,11 +716,6 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
           this.queryResultFl = false;
           return;
         }
-        // METATRON-1144: 요청에 쿼리조회시만 원본데이터 내려오도록 수정
-        // if (this.sourceData.connectionData.implementor === 'HIVE') {
-        //   result['data'] = this._getReplacedDataList(result['data']);
-        //   result['fields'] = this._getReplacedFieldList(result['fields']);
-        // }
         // 쿼리 데이터 저장
         this.queryDetailData = result;
         // 그리드 show

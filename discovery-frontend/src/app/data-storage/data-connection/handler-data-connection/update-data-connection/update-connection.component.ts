@@ -341,19 +341,19 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
         this.isShowCatalogRequired = true;
         result = false;
       }
-      // if empty username
-      if (!this.isConnectUserAccount() && StringUtil.isEmpty(this.username)) {
-        this.isShowUsernameRequired = true;
-        result = false;
-      }
-      // if empty password
-      if (!this.isConnectUserAccount() && StringUtil.isEmpty(this.password)) {
-        this.isShowPasswordRequired = true;
-        result = false;
-      }
       // if enable URL and empty URL
     } else if (StringUtil.isEmpty(this.url)) {
       this.isShowUrlRequired = true;
+      result = false;
+    }
+    // if empty username
+    if (!this.isConnectUserAccount() && StringUtil.isEmpty(this.username)) {
+      this.isShowUsernameRequired = true;
+      result = false;
+    }
+    // if empty password
+    if (!this.isConnectUserAccount() && StringUtil.isEmpty(this.password)) {
+      this.isShowPasswordRequired = true;
       result = false;
     }
     return result;
@@ -551,7 +551,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
       authenticationType: this.selectedSecurityType.value
     };
     // if security type is not USERINFO, add password and username
-    if (this.isConnectUserAccount()) {
+    if (!this.isConnectUserAccount()) {
       params['password'] = this.password.trim();
       params['username'] = this.username.trim();
     }
@@ -690,9 +690,9 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
     // if enable catalog
     data.catalog && (this.catalog = data.catalog);
     // init selected database type
-    this.selectedDbType = this.dbTypeList[_.findIndex(this.dbTypeList, type => type.value === data.implementor.toString())];
+    this.selectedDbType = this.dbTypeList.find(type => type.value === data.implementor.toString());
     // init selected security type
-    this.selectedSecurityType = this.securityTypeList[_.findIndex(this.securityTypeList, type => type.value === data.authenticationType)] || this.securityTypeList[0];
+    this.selectedSecurityType = this.securityTypeList.find(type => type.value === data.authenticationType) || this.securityTypeList[0];
     // if not exist authenticationType or authenticationType is MANUAL
     if (!data.authenticationType || data.authenticationType === 'MANUAL') {
       this.password = data.password;

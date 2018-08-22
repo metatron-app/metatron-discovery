@@ -49,7 +49,7 @@
         <div class="ddp-box-sub">
           <!-- URL (enable) -->
           <div class="ddp-clear" *ngIf="isEnableUrl">
-            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowUrlRequired && url === ''">
+            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowUrlRequired">
               <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}</label>
               <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.url.ph' | translate}}"
                      [ngModel]="url"
@@ -72,7 +72,7 @@
           <!-- URL (disable) -->
           <div class="ddp-clear" *ngIf="!isEnableUrl">
             <!-- HOST -->
-            <div class="ddp-wrap-edit2 ddp-col-4" [class.ddp-error]="isShowHostRequired && hostname === ''">
+            <div class="ddp-wrap-edit2 ddp-col-4" [class.ddp-error]="isShowHostRequired">
               <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}</label>
               <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.host' | translate}}"
                      [ngModel]="hostname"
@@ -92,7 +92,7 @@
             </div>
             <!-- //HOST -->
             <!-- PORT -->
-            <div class="ddp-wrap-edit2 ddp-col-2" [class.ddp-error]="isShowPortRequired && !port">
+            <div class="ddp-wrap-edit2 ddp-col-2" [class.ddp-error]="isShowPortRequired">
               <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}</label>
               <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.port' | translate}}" maxlength="5" input-mask="number"
                      [ngModel]="port"
@@ -104,7 +104,7 @@
             <!-- //PORT -->
             <!-- SID -->
             <div *ngIf="isRequiredSid()"
-                 [class.ddp-error]="isShowSidRequired && sid === ''"
+                 [class.ddp-error]="isShowSidRequired"
                  class="ddp-wrap-edit2 ddp-col-6" >
               <!--(ngModelChange)="sid = $event; initConnectionPresetData()">-->
               <label class="ddp-label-type">{{'msg.storage.th.sid' | translate}}</label>
@@ -117,7 +117,7 @@
             </div>
             <!-- //SID -->
             <!-- DATABASE -->
-            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowDatabaseRequired && database === ''"
+            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowDatabaseRequired"
                  *ngIf="isRequiredDatabase()">
               <label class="ddp-label-type">{{'msg.storage.th.db_name' | translate}}</label>
               <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.db_name.ph' | translate}}"
@@ -129,7 +129,7 @@
             </div>
             <!-- //DATABASE -->
             <!-- Catalog -->
-            <div class="ddp-wrap-edit2 ddp-col-6"  [class.ddp-error]="isShowCatalogRequired && catalog === ''"
+            <div class="ddp-wrap-edit2 ddp-col-6"  [class.ddp-error]="isShowCatalogRequired"
                  *ngIf="isRequiredCatalog()">
               <label class="ddp-label-type">{{'msg.storage.th.catalog' | translate}}</label>
               <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.catalog.ph' | translate}}"
@@ -144,7 +144,7 @@
           <!-- //URL (disable) -->
           <div class="ddp-clear" *ngIf="!isConnectUserAccount()">
             <!-- username -->
-            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowUsernameRequired && username === ''">
+            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowUsernameRequired">
               <label class="ddp-label-type">{{'msg.storage.th.user_name' | translate}} <span class="ddp-sub" *ngIf="isConnectWithIdAndPassword()">{{'msg.storage.ui.for.test' | translate}}</span></label>
               <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.user_name.ph' | translate}}"
                      [ngModel]="username"
@@ -155,7 +155,7 @@
             </div>
             <!-- //username -->
             <!-- Password -->
-            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowPasswordRequired && password === ''">
+            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowPasswordRequired">
               <label class="ddp-label-type">{{'msg.storage.th.pwd' | translate}} <span class="ddp-sub" *ngIf="isConnectWithIdAndPassword()">{{'msg.storage.ui.for.test' | translate}}</span></label>
               <input type="password" class="ddp-input-type" placeholder="{{'msg.storage.th.pwd.ph' | translate}}"
                      [ngModel]="password"
