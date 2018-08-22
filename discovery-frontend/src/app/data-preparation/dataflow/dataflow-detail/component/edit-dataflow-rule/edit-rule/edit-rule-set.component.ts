@@ -159,8 +159,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
-
-    this.inputValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'value', ruleString ));
+    this.inputValue = ruleString.split('value: ')[1];
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

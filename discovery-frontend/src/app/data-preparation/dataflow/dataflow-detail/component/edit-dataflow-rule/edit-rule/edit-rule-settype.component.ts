@@ -330,7 +330,14 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
     // format
     if ('timestamp' === this.selectedType || 'string' === this.selectedType && !isNullOrUndefined(ruleString.split('dsId: ')[0])) {
-      this.getTimestampFromRuleString(ruleString);
+      if ('string' === this.selectedType ) {
+        if (-1 === this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')){
+          this.isTimestamp = false;
+        } else {
+          this.isTimestamp = true;
+          this.getTimestampFromRuleString(ruleString);
+        }
+      }
     }
   } // function - _parsingRuleString
 
