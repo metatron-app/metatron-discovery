@@ -343,6 +343,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.subscriptions.push(
       this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean }) => {
         this.isMultiColumnListShow = data.isShow;
+        this.isCommandListShow = false;
       })
     );
 
@@ -519,6 +520,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   // command list show
   public showCommandList(event) {
+
+    // Close all opened select box from rule
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : 'commandList', isShow : false } );
 
     if (true == this.jumpLast()) {
       this.showCommandList(event);
