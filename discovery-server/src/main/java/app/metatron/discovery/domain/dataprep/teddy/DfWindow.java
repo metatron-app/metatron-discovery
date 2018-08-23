@@ -3,6 +3,7 @@ package app.metatron.discovery.domain.dataprep.teddy;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Window;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
@@ -30,8 +31,7 @@ public class DfWindow extends DataFrame {
             for(String colName : partitionColNames) {
                 if(!partitionSet.get(colName).equals(row.get(colName))) {
                     partitionSet.clear();
-                    partitionCheck(partitionColNames, partitionSet, row);
-                    break;
+                    return partitionCheck(partitionColNames, partitionSet, row);
                 }
             }
         }
@@ -77,9 +77,7 @@ public class DfWindow extends DataFrame {
         if (valueExpr instanceof Expr.FunctionExpr) {
             functionExprList.add((Expr.FunctionExpr) valueExpr);
         } else if (valueExpr instanceof Expr.FunctionArrayExpr) {
-            for (Expr.FunctionExpr func : ((Expr.FunctionArrayExpr) valueExpr).getFunctions()) {
-                functionExprList.add(func);
-            }
+            functionExprList.addAll(((Expr.FunctionArrayExpr) valueExpr).getFunctions());
         } else {
             throw new InvalidAggregationValueExpressionTypeException("doPivot(): invalid aggregation value expression type: " + valueExpr.toString());
         }
@@ -113,7 +111,6 @@ public class DfWindow extends DataFrame {
     @Override
     public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
         List<Expr.FunctionExpr> functionExprList = (List<Expr.FunctionExpr>) preparedArgs.get(0);
-        List<Expr.FunctionExpr> windowFunctions = new ArrayList<>();
         List<Expr.FunctionExpr> aggrFunctions = new ArrayList<>();
         List<String> newColNames = new ArrayList<>();
         List<String> partitionColNames = (List<String>) preparedArgs.get(1);
@@ -135,15 +132,13 @@ public class DfWindow extends DataFrame {
         List<String> sortColNames = new ArrayList<>();
         sortColNames.addAll(partitionColNames);
         sortColNames.addAll(orderColNames);
+        //DataFrame sortedDf = new DfSort(dsName, null);
         this.sorted(prevDf, sortColNames, SortType.ASCENDING);
 
         //Aggregation Function과 Window Function 나눠담기.
         for (Expr.FunctionExpr func : functionExprList) {
             if("SUM, AVG, MAX, MIN, COUNT".contains(func.getName().toUpperCase())) {
                 aggrFunctions.add(func);
-            }
-            else {
-                windowFunctions.add(func);
             }
         }
 
@@ -159,20 +154,38 @@ public class DfWindow extends DataFrame {
 
         //새로운 column들을 추가한다.
         for (int i = 0; i < functionExprList.size(); i++) {
-            String newColName = "window" + i + "_" + functionExprList.get(i).getName() + "_" + functionExprList.get(i).getArgs().get(0).toString();
-            addColumn(newColName, ColumnType.DOUBLE);
+            String newColName = "window" + i + "_" + functionExprList.get(i).getName();
+            if(!functionExprList.get(i).getArgs().isEmpty()) {
+                newColName = newColName + "_" + functionExprList.get(i).getArgs().get(0).toString();
+            }
+            newColName = addColumn(newColName, ColumnType.DOUBLE);
             newColNames.add(newColName);
         }
 
         //row 별로 새로운 값들 추가한다.
         Map<String, Object> partitionSet = new HashMap<>();
         List<Object> aggregatedValues = new ArrayList<>();
+        List<Integer> partitionNumber = new ArrayList<>();
         int count=0;
-        for (Row row : rows) {
-            //partition 변화여부 체크. 변화 했다면 새로 생성하고 AggregatedValue도 새로 얻어 옴.
+        int partitionIndex=0;
+
+        //각 row 별로 partition을 구분하기 위해서 리스트를 만든다.(rolling sum 등에 사용)
+        for (Row row : this.rows) {
             Boolean isPartitionChanged = partitionCheck(partitionColNames, partitionSet, row);
-            if(isPartitionChanged) {
+            if (isPartitionChanged) {
+                count++;
+            }
+
+            partitionNumber.add(count);
+        }
+
+        for (int i = 0; i<rows.size(); i++) {
+            Row row = rows.get(i);
+            //partition 변화여부 체크. 변화 했다면 partitionSet을 새로 생성하고 AggregatedValue도 새로 얻어 옴.
+            if(partitionIndex != partitionNumber.get(i)) {
+                partitionIndex = partitionNumber.get(i);
                 count=1;
+                partitionCheck(partitionColNames, partitionSet, row);
                 getAggregatedValues(partitionSet, aggregatedValues, aggregatedDf);
             }
 
@@ -190,22 +203,29 @@ public class DfWindow extends DataFrame {
                         case "row_number":
                             value = count++;
                             break;
+                        case "rolling_sum":
+                            String targetColName = func.getArgs().get(0).toString();
+                            int start = i - func.getArgs().get(1).eval(row).asInt();
+                            int end = i + func.getArgs().get(2).eval(row).asInt();
+                            value = 0D;
+                            for(int k = start; k <end; k++) {
+                                if(k>=0 && k<rows.size() && partitionIndex == partitionNumber.get(k)) {
+                                    value =+ (Double) rows.get(k).get(targetColName);
+                                }
+                            }
+                            break;
                         default:
                             throw new WrongWindowFunctionExpressionException("There is no window function like " + func.getName());
                     }
                 }
 
-                row.set(newColNames.get(j), value);
+                row.add(newColNames.get(j), value);
             }
         }
 
         //Dummy 컬럼을 제거해준다.
         if(hasDummyPartition) {
-            String dummyColName = this.addColumn("dummy_Partition_Column", ColumnType.LONG);
-            partitionColNames.add(dummyColName);
-            for(Row row : this.rows) {
-                row.add(dummyColName, 0L);
-            }
+
         }
 
         LOGGER.trace("DfPivot.gather(): end: offset={} length={}", offset, length);

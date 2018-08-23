@@ -2350,7 +2350,10 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   protected String stripSingleQuote(String str) {
-    return str.substring(str.indexOf("'") + 1, str.lastIndexOf("'"));
+    if(str.indexOf("'") == 0)
+      return str.substring(str.indexOf("'") + 1, str.lastIndexOf("'"));
+    else
+      return str;
   }
 
   protected void aggregate(DataFrame prevDf, List<String> groupByColNames, List<String> targetExprStrs) throws TeddyException, InterruptedException {

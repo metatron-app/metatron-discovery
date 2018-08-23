@@ -207,6 +207,8 @@ public interface BuiltinFunctions extends Function.Library {
 
   abstract class WindowFuncDoubleParam extends DoubleParam { }
 
+  abstract class WindowFuncTripleParam extends TripleParam { }
+
   class rank extends WindowFuncNonParam {
 
     @Override
@@ -260,6 +262,22 @@ public interface BuiltinFunctions extends Function.Library {
     @Override
     public String name() {
       return "lead";
+    }
+  }
+
+  class rolling_sum extends  WindowFuncTripleParam {
+
+    @Override
+    public String name() {
+      return "rolling_sum";
+    }
+  }
+
+  class rolling_avg extends  WindowFuncTripleParam {
+
+    @Override
+    public String name() {
+      return "rolling_avg";
     }
   }
 
