@@ -39,11 +39,11 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
 
-  // 상태 저장용 T/F
-  public isFocus:boolean = false;         // Input Focus 여부
+  // T/F
+  public isFocus:boolean = false;         // Input Focus t/f
   public isTooltipShow:boolean = false;   // Tooltip Show/Hide
 
-  // Rule 에 대한 입력 값들
+  // Rule
   public pattern:string = '';
   public newValue:string = '';
   public ignore:string = '';
@@ -54,8 +54,6 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -65,87 +63,77 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 컴포넌트 초기 실행
-   */
   public ngOnInit() {
     super.ngOnInit();
-  } // function - ngOnInit
+  }
 
-  /**
-   * 화면 초기화
-   */
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-  } // function - ngAfterViewInit
+  }
 
-  /**
-   * 컴포넌트 제거
-   */
   public ngOnDestroy() {
     super.ngOnDestroy();
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * Rule 형식 정의 및 반환
+   * Returns rulestring
    * @return {{command: string, col: string, ruleString: string}}
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    // 컬럼
+    // col
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return;
     }
 
-    // 패턴
-    if (isUndefined(this.pattern) || '' === this.pattern || this.pattern === '//' || this.pattern === '\'\'') {
+    // pattern
+    let clonedPattern = this.pattern;
+    if (isUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
       return;
     }
-    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(this.pattern, { isWrapQuote: !StringUtil.checkRegExp(this.pattern) });
+    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(clonedPattern, { isWrapQuote: !StringUtil.checkRegExp(clonedPattern) });
     if (!patternResult[0]) {
       Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
       return;
     }
-    this.pattern = patternResult[1];
+    clonedPattern = patternResult[1];
 
+    // new val
+    let clonedNewValue = this.newValue;
     if (!isUndefined(this.newValue)) {
-      let withVal = StringUtil.checkSingleQuote(this.newValue, { isPairQuote: true, isWrapQuote: true });
+      let withVal = StringUtil.checkSingleQuote(clonedNewValue, { isPairQuote: true, isWrapQuote: true });
       if (withVal[0] === false) {
-        Alert.warning('Check new value');
+        Alert.warning(this.translateService.instant('mgs.dp.alert.check.new.val'));
         return
       } else {
-        this.newValue = withVal[1];
+        clonedNewValue = withVal[1];
       }
     } else {
-      this.newValue = '\'\'';
+      clonedNewValue = '\'\'';
     }
 
+    let ruleString = `replace col: ${this.selectedFields.map( item => item.name ).join(', ')} with: ${clonedNewValue} on: ${clonedPattern} global: ${this.isGlobal} ignoreCase: ${this.isIgnoreCase}`;
 
-    let ruleString = 'replace col: ' + this.selectedFields.map( item => item.name ).join(', ')
-      + ' with: ' + this.newValue + ' on: ' + this.pattern + ' global: ' + this.isGlobal + ' ignoreCase: ' + this.isIgnoreCase;
-
-    // 다음 문자 사이 무시
+    // Ignore between characters
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
       const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
       if (checkIgnore[0] === false) {
-        Alert.warning('Check value of ignore between characters');
+        Alert.warning(this.translateService.instant('msg.dp.alert.check.ignore.char'));
         return
       } else {
         ruleString += ' quote: ' + checkIgnore[1];
       }
     }
 
-
-    // 다음 조건에서만 수행
-    if (!isUndefined(this.condition) && '' !== this.condition.trim() && '\'\'' !== this.condition.trim()) {
-      let check = StringUtil.checkSingleQuote(this.condition, { isPairQuote: true });
+    // condition
+    let clonedCondition = this.condition;
+    if (!isUndefined(clonedCondition) && '' !== clonedCondition.trim() && '\'\'' !== clonedCondition.trim()) {
+      let check = StringUtil.checkSingleQuote(clonedCondition, { isPairQuote: true });
       if (check[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.check.condition'));
         return;
@@ -165,16 +153,15 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 필드 변경
+   * change field
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
-    console.info( '>>>> changeFields', data.selectedList );
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
   /**
-   * 패턴 정보 레이어 표시
+   * show pattern info tooltip
    * @param {boolean} isShow
    */
   public showHidePatternLayer(isShow:boolean) {
@@ -187,13 +174,13 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 컴포넌트 표시 전 실행
+   * Before component is shown
    * @protected
    */
   protected beforeShowComp() {} // function - _beforeShowComp
 
   /**
-   * 컴포넌트 표시 후 실행
+   * After component is shown
    * @protected
    */
   protected afterShowComp() {
@@ -201,7 +188,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
+   * Returns rule string
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
@@ -222,7 +209,9 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
 
     this.ignore = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'quote', ruleString ));
 
-    this.condition = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'row', ruleString ));
+    // condition has white space - removeQuotation doesn't work
+    this.condition = ruleString.split('row: ')[1];
+    // this.condition = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'row', ruleString ));
 
   } // function - _parsingRuleString
 

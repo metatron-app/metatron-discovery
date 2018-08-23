@@ -117,6 +117,10 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public showToolTip(isShow: boolean) {
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
+  }
+
   /**
    * 필드 변경
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data

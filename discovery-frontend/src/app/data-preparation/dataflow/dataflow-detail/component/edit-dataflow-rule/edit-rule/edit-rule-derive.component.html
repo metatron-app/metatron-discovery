@@ -12,9 +12,9 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-box-part ddp-editor" *ngIf="isShow" style="width : 400px">
+<div class="ddp-box-part ddp-editor" *ngIf="isShow" style="margin-right: 125px;">
   <div class="ddp-box-title">
-    {{'msg.dp.th.val' | translate}}<em class="ddp-icon-essential"></em>
+    {{'msg.dp.th.condition' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
     <rule-condition-input
@@ -30,15 +30,6 @@
   <div class="ddp-box-title">
     {{'msg.dp.th.new-column-name' | translate}}<em class="ddp-icon-essential"></em>
   </div>
-  <!-- info -->
-  <div class="ddp-ui-info">
-    <em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>
-    <div class="ddp-box-info">
-      {{'msg.dp.ui.derive.tooltip' | translate}}
-    </div>
-  </div>
-  <!-- //info -->
-
   <div class="ddp-wrap-datainput">
     <input type="text" class="ddp-input-typebasic" tabindex="3" placeholder="{{'msg.dp.th.new-column-name.ph' | translate}}" [(ngModel)]="deriveAs">
   </div>

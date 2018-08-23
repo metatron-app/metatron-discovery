@@ -24,9 +24,9 @@
 </div>
 <!--//part-->
 <!-- part -->
-<div class="ddp-box-part ddp-editor" *ngIf="isShow" style="width : 400px">
+<div class="ddp-box-part ddp-editor" *ngIf="isShow" style="margin-right: 125px;">
   <div class="ddp-box-title">
-    {{'msg.dp.th.val' | translate}}<em class="ddp-icon-essential"></em>
+    {{'msg.dp.th.condition' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
     <rule-condition-input
@@ -37,16 +37,16 @@
 </div>
 <!-- //part -->
 <!-- part -->
-<div class="ddp-box-part" *ngIf="isShow">
-  <div class="ddp-box-title">
-    {{'msg.dp.ui.cond' | translate}}
-  </div>
-  <div class="ddp-wrap-datainput">
-    <input type="text"
-           class="ddp-input-typebasic"
-           tabindex="6"
-           placeholder="{{'msg.dp.ui.cond.ph' | translate}}"
-           [(ngModel)]="condition">
-    <!-- ddp-selected 추가시 display:block; -->
-  </div>
-</div>
+<!-- TODO : // set condition not implemented yet -->
+<!--<div class="ddp-box-part" *ngIf="isShow">-->
+  <!--<div class="ddp-box-title">-->
+    <!--{{'msg.dp.ui.cond' | translate}}-->
+  <!--</div>-->
+  <!--<div class="ddp-wrap-datainput">-->
+    <!--<input type="text"-->
+           <!--class="ddp-input-typebasic"-->
+           <!--tabindex="6"-->
+           <!--placeholder="{{'msg.dp.ui.cond.ph' | translate}}"-->
+           <!--[(ngModel)]="condition">-->
+  <!--</div>-->
+<!--</div>-->
