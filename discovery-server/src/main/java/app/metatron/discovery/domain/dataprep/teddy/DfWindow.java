@@ -153,12 +153,39 @@ public class DfWindow extends DataFrame {
         }
 
         //새로운 column들을 추가한다.
-        for (int i = 0; i < functionExprList.size(); i++) {
-            String newColName = "window" + i + "_" + functionExprList.get(i).getName();
-            if(!functionExprList.get(i).getArgs().isEmpty()) {
-                newColName = newColName + "_" + functionExprList.get(i).getArgs().get(0).toString();
+        for (Expr.FunctionExpr func : functionExprList) {
+            int i = functionExprList.indexOf(func)+1;
+
+            //column name
+            String newColName = "window" + i + "_" + func.getName();
+            if(!func.getArgs().isEmpty()) {
+                newColName = newColName + "_" + func.getArgs().get(0).toString();
             }
-            newColName = addColumn(newColName, ColumnType.DOUBLE);
+
+            //column type
+            ColumnType newColType = ColumnType.UNKNOWN;
+            switch (func.getName()) {
+                case "row_number":
+                    newColType = ColumnType.LONG;
+                    break;
+                case "rolling_avg":
+                    newColType = ColumnType.DOUBLE;
+                    break;
+                case "rolling_sum":
+                    newColType = prevDf.getColTypeByColName(func.getArgs().get(0).toString());
+                    break;
+                case "sum":
+                case "max":
+                case "min":
+                case "avg":
+                case "count":
+                    newColType = aggregatedDf.getColType(partitionColNames.size() + aggrFunctions.indexOf(func));
+                    break;
+                default:
+                    throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Unsupported window function: " + func.getName());
+            }
+
+            newColName = addColumn(newColName, newColType);
             newColNames.add(newColName);
         }
 
@@ -209,8 +236,8 @@ public class DfWindow extends DataFrame {
                             int end = i + func.getArgs().get(2).eval(row).asInt();
                             value = 0D;
                             for(int k = start; k <end; k++) {
-                                if(k>=0 && k<rows.size() && partitionIndex == partitionNumber.get(k)) {
-                                    value =+ (Double) rows.get(k).get(targetColName);
+                                if(k>=0 && k<rows.size() && partitionNumber.get(k)==partitionIndex) {
+                                    value =+  rows.get(k).get(targetColName);
                                 }
                             }
                             break;
@@ -219,7 +246,11 @@ public class DfWindow extends DataFrame {
                     }
                 }
 
-                row.add(newColNames.get(j), value);
+                if(value instanceof Long) {
+                    row.add(newColNames.get(j), ((Long)value).doubleValue());
+                } else {
+                    row.add(newColNames.get(j), value);
+                }
             }
         }
 
