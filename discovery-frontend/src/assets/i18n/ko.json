@@ -2031,6 +2031,7 @@
   "msg.page.pivot.layout.condition.datetime.desc": "{{value}}개의 시간을 포함한 차원값",
   "msg.page.pivot.layout.condition.measure.over.desc": "{{value}}개 이상의 측정값",
   "msg.page.pivot.layout.condition.measure.desc": "{{value}}개의 측정값",
+  "msg.page.pivot.layout.condition.measure.desc.add": "그리고 {{value}}개의 측정값",
   "msg.page.pivot.layout.condition.measure.and.desc": "그리고 {{value}}개 이상의 측정값",
   "msg.page.btn.save" : "저장",
   "msg.page.ui.panel.title" : "데이터",
