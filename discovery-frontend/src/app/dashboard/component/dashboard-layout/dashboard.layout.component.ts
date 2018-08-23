@@ -249,8 +249,8 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         this._isCompleteLayoutLoad = true;
         this.updateLayoutSize();
         this.onLayoutInitialised();
+        this.hideBoardLoading();
       }
-      this.hideBoardLoading();
     }
   } // function - updateLayoutFinished
 
@@ -843,6 +843,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       this.appendWidgetInLayout(newWidgets);
     } else {
       this.onLayoutInitialised();
+      this.hideBoardLoading();
     }
   } // function - renderLayout
 
