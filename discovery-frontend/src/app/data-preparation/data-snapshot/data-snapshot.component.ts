@@ -53,6 +53,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   /** 지울 데이터스냅샷 아이디 */
   public selectedDeletessId: string;
 
+  /** search status */
+  public searchStatus: string ='all';
+
   /** search text */
   public searchText: string = '';
 
@@ -115,9 +118,8 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   /** 데이터 스냅샷 목록 조회 */
   public getDatasnapshots() {
-
     this.loadingShow();
-    this.dataSnapshotService.getDataSnapshotsByStatus(this.searchText, 'SUCCESS' ,this.page, 'listing')
+    this.dataSnapshotService.getDataSnapshotsByStatus(this.searchText, this.searchStatus ,this.page, 'listing')
       .then((data) => {
         this.loadingHide();
 
@@ -133,7 +135,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
             obj.status = 'PREPARING';
           } else {
             statusNum+=1;
-            if( false===isUndefined(obj.custom) && false===isUndefined(obj.custom.fail_msg) ) {
+            if( false===isUndefined(obj.custom) && "fail_msg"==obj.custom.match("fail_msg") ) {
               obj.status = 'FAIL';
             } else {
               obj.status = 'SUCCESS';
@@ -211,9 +213,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   /** 스냅샷 상세 */
   public snapshotDetail(item) {
 
-    if(!item.finishTime) {
-      return;
-    }
+    // if(!item.finishTime) {
+    //   return;
+    // }
 
     // this.step = 'snapshot-detail';
     // this.ssId = item.ssId;
@@ -267,20 +269,24 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   public changeStatus(status) {
     clearInterval(this.interval);
     this.resetPaging();
-    switch(status) {
-      case 'all' :
-      case 'success' :
-        this.initViewPage();
-        break;
-      case 'fail' :
-        this.pageResult.totalElements = 0;
-        this.datasnapshots = [];
-        break;
-      // case 'preparing' :
-      //   this.pageResult.totalElements = 0;
-      //   this.datasnapshots = [];
-      //   break;
-    }
+    this.searchStatus = status;
+    this.pageResult.totalElements = 0;
+    this.datasnapshots = [];
+    this.initViewPage();
+    // switch(status) {
+    //   case 'all' :
+    //   case 'success' :
+    //     this.initViewPage();
+    //     break;
+    //   case 'fail' :
+    //     this.pageResult.totalElements = 0;
+    //     this.datasnapshots = [];
+    //     break;
+    //   case 'preparing' :
+    //     this.pageResult.totalElements = 0;
+    //     this.datasnapshots = [];
+    //     break;
+    // }
   }
 
   public resetPaging() {

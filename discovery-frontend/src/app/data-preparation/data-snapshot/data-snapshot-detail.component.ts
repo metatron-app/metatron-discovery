@@ -87,6 +87,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   public ruleList : any = [];
   public isShow : boolean = false;
+
+  public ruleCntDone : number = 0;
+  public ruleCntTotal : number = 0;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -304,13 +307,24 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       this.valid = this.selectedDataSnapshot.validLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines)  * 100 + '%';
       this.mismatched = this.selectedDataSnapshot.mismatchedLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
 
-      if( this.selectedDataSnapshot.custom && this.selectedDataSnapshot.custom.fail_msg ) {
-          this.selectedDataSnapshot.status = 'FAIL';
-          this.selectedDataSnapshot.custom.fail_msg = this.selectedDataSnapshot.custom.fail_msg.replace(/\n/g, '<br>');
+      if(true===isUndefined(this.selectedDataSnapshot.finishTime)){
+        this.selectedDataSnapshot.status = 'PREPARING';
+      } else if(false===isUndefined(this.selectedDataSnapshot.custom) && "fail_msg"==this.selectedDataSnapshot.custom.match("fail_msg")){
+        //this.selectedDataSnapshot.custom = JSON.parse(this.selectedDataSnapshot.custom.replace(/\n/g, '<br>').replace(/"'"/g, '"'));
+        this.selectedDataSnapshot.custom = JSON.parse(this.selectedDataSnapshot.custom.replace(/\n/g, '<br>').replace(/'/g, '"'));
+        console.log(this.selectedDataSnapshot.custom);
+        this.selectedDataSnapshot.status = 'FAIL';
       } else {
-          this.selectedDataSnapshot.status = 'SUCCESS';
-          this.getGridData();
+        this.selectedDataSnapshot.status = 'SUCCESS';
+        this.getGridData();
       }
+      // if( this.selectedDataSnapshot.custom && this.selectedDataSnapshot.custom.fail_msg ) {
+      //     this.selectedDataSnapshot.status = 'FAIL';
+      //     this.selectedDataSnapshot.custom.fail_msg = this.selectedDataSnapshot.custom.fail_msg.replace(/\n/g, '<br>');
+      // } else {
+      //     this.selectedDataSnapshot.status = 'SUCCESS';
+      //     this.getGridData();
+      // }
     }).catch((error) => {
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
@@ -500,5 +514,34 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       saveAs(snapshotFile, downloadFileName);
     });
   }
-
+  private cancelClick(param:boolean){
+    let elm = $('.ddp-wrap-progress');
+    if (param) {
+      elm[0].style.display = "none";
+      elm[1].style.display = "";
+    } else {
+      elm[0].style.display = "";
+      elm[1].style.display = "none";
+    }
+  }
+  /** 처리 중 스냅샷 취소*/
+  private cancelSnapshot() {
+    console.log('cancel');
+    // this.loadingShow();
+    // this.datasnapshotservice.cancelSnapshot(this.ssId)
+    //   .then((result) => {
+    //     this.loadingHide();
+    //     if(isUndefined(result)){
+    //       //Alert.warning(this.translateService.instant('msg.dp.alert.no.grid'));
+    //       //alert('no result');
+    //       return;
+    //     }
+    //     close();
+    //   })
+    //   .catch((error) => {
+    //     this.loadingHide();
+    //     let prep_error = this.dataprepExceptionHandler(error);
+    //     PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+    //   });
+  }
 } // end of class DataSnapshotDetailComponent
