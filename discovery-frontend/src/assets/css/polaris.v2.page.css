@@ -6929,6 +6929,7 @@ table.ddp-wrap-boxdata tr td ul.ddp-list-sub li .ddp-sub {padding-left:15px;colo
 .ddp-wrap-edit3 .ddp-box-sub .ddp-option-in .ddp-size-s,
 .ddp-wrap-edit2 .ddp-box-sub .ddp-option-in .ddp-size-s{width:80px; box-sizing:border-box;}
 .ddp-wrap-edit3 .ddp-box-sub .ddp-option-in input.ddp-input-typebasic {display:inline-block;}
+.ddp-wrap-edit3.ddp-type .ddp-ui-cycle .ddp-wrap-hover-info:hover .ddp-box-layout4 {right:-20px; top:100%; margin-top:5px;}
 .ddp-ui-cycle .ddp-type-cycle {float:left; width:130px !important; margin-right:4px;}
 .ddp-form-time {position:relative; display:inline-block; border-radius:3px; border:1px solid #d2d2d6; background-color:#fff;}
 .ddp-ui-cycle .ddp-txt-error {display:block; margin-top:5px;}
@@ -7892,11 +7893,12 @@ ul.ddp-list-essential li .ddp-data-det .ddp-txt-label {color:#b7b9c2;}
 /**************************************************************
   멀티데이터 가이드
 **************************************************************/
-.ddp-type-multidata.ddp-edit .ddp-view-guide {position:absolute; top:49px; left:0; right:0; bottom:0; background-color:rgba(125,132,142,0.85); z-index:10;}
+.ddp-type-multidata.ddp-edit .ddp-view-guide {position:absolute; top:49px; left:0; right:0; bottom:0; background-color:rgba(125,132,142,0.85); z-index:20;}
+.ddp-type-multidata.ddp-edit .ddp-view-guide:before {display:inline-block; position:absolute; top:-10px; left:20px; width:18px; height:11px; background:url(../images/icon_guide_arrow.png) no-repeat; content:'';}
 .ddp-type-multidata.ddp-edit .ddp-view-guide .ddp-wrap-guide {display:table; width:100%; height:100%;}
 .ddp-type-multidata.ddp-edit .ddp-view-guide .ddp-wrap-guide .ddp-ui-guide {display:table-cell; width:100%; height:100%; vertical-align:middle; text-align:center;}
-.ddp-type-multidata.ddp-edit .ddp-view-guide .ddp-txt-det {display:block; padding-bottom:15px; color:#fff; font-size:22px; font-weight:bold;}
-.ddp-type-multidata.ddp-edit .ddp-view-guide .ddp-sub-det {display:block; font-weight:300; color:#fff;font-size:22px;}
+.ddp-type-multidata.ddp-edit .ddp-view-guide .ddp-txt-det {display:block; padding-bottom:15px; color:#fff; font-size:22px;}
+.ddp-type-multidata.ddp-edit .ddp-view-guide .ddp-sub-det {display:block;  color:#fff;font-size:22px;}
 .ddp-guide-motion {padding:24px 0 0 0;}
 .ddp-guide-motion .ddp-motion {display:inline-block; position:relative; }
 .ddp-guide-motion .ddp-box-nodes {position:relative; display:inline-block; width:198px; height:72px; padding:27px 0; background-color:#fff; color:#000; font-size:16px; border-radius:50%; box-sizing:border-box; z-index:10;
