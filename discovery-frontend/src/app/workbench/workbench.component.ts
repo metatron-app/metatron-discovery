@@ -511,6 +511,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.webSocketLoginId = param.id;
     this.webSocketLoginPw = param.pw;
     //
+    WorkbenchService.websocketId = CommonConstant.websocketId;
     WorkbenchService.webSocketLoginId = param.id;
     WorkbenchService.webSocketLoginPw = param.pw;
     this.readQuery(this.workbenchTemp, this.workbenchTemp.queryEditors);
