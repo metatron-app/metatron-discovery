@@ -990,7 +990,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       // 1 or more measure & 1 or more dimension
       else if (_.eq(this.chartType, ChartType.PIE)) {
 
-        return isText ? '1 or more measure & 1 or more dimension' : 'ddp-box-measure';
+        return isText ? '1 measure & 1 dimension' : 'ddp-box-measure';
       }
       // 1 or more measure & 1 dimension
       else if (_.eq(this.chartType, ChartType.RADAR)) {
