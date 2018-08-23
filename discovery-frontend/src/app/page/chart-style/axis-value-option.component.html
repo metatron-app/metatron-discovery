@@ -85,11 +85,13 @@
       -->
     </ng-container>
     <div class="ddp-divide2">
-      <label (click)="$event.preventDefault(); changeAutoScale();" class="ddp-label-checkbox ddp-position">
-        <input type="checkbox" [ngModel]="axis.grid.autoScaled">
-        <i class="ddp-icon-checkbox"></i>
-        <span class="ddp-txt-checkbox">{{'msg.page.yaxis.grid.auto' | translate}}</span>
-      </label>
+      <div class="ddp-part-check">
+        <label (click)="$event.preventDefault(); changeAutoScale();" class="ddp-label-checkbox ddp-position">
+          <input type="checkbox" [ngModel]="axis.grid.autoScaled">
+          <i class="ddp-icon-checkbox"></i>
+          <span class="ddp-txt-checkbox">{{'msg.page.yaxis.grid.auto' | translate}}</span>
+        </label>
+      </div>
     </div>
   </div>
 </div>
