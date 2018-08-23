@@ -35,6 +35,9 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
   private snapshotListRefreshEvent = new EventEmitter();
 
   @Output()
+  private retrieveAllSnapshots = new EventEmitter();
+
+  @Output()
   private snapshotIntervalStopEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -75,6 +78,22 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public getSnapshotStatus(status : string) : string[] {
+
+    let result = [];
+    let progress = ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','NOT_AVAILABLE'];
+    if ('SUCCEEDED' === status) {
+      result = ['Success','success'];
+    } else if ('FAILED' === status) {
+      result = ['Failed','failed'];
+    } else if (-1 !== progress.indexOf(status)) {
+      result = ['Preparing','play'];
+    } else {
+      result = [status[0].toUpperCase() + status.slice(1),'cancel'];
+    }
+    return result
+  }
+
   /**
    * Navigate to snapshot list
    */
@@ -124,11 +143,14 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
    */
   public cancelSnapshotConfirm(snapshot) {
     snapshot.isCancel = false;
-    this.snapshotService.cancelSnapshot(snapshot.ssId).then(() => {
+    this.snapshotService.cancelSnapshot(snapshot.ssId).then((result) => {
+      if (result.result === 'OK') {
+        this.retrieveAllSnapshots.emit(snapshot.ssId);
+      }
       // 취소 팝업 띄우고 2초 후에 닫힌다.
       setTimeout(() => {
         this.refreshSnapshotList();
-      },2000)
+      },3000)
 
     }).catch((error) => {
       console.info(error);
