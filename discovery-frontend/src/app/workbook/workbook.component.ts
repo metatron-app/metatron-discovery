@@ -659,8 +659,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * @param {string} selectDashboardName
    */
   public loadDashboardList(page: number = 0, selectDashboardName?: string) {
-    // this.loadingShow();
-    this.isShowLnbLoading = true;
+    this.loadingShow();
 
     if (!this.workspace) return;
 
@@ -717,8 +716,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         }
       }
 
-      // this.loadingHide();
-      this.isShowLnbLoading = false;
+      this.loadingHide();
 
       if (0 < this.dashboards.length) { // 한개가 이미 있으면 선택
         if (selectDashboardName) { // 일치하는 이름이 있으면 선택
@@ -733,7 +731,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
     }).catch(() => {
       Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
-      this.isShowLnbLoading = false;
+      this.loadingHide();
     });
   } // function - loadDashboardList
 
