@@ -35,7 +35,6 @@ import { EditRuleComponent } from './edit-rule/edit-rule.component';
 import { CreateSnapshotPopup } from '../../../../component/create-snapshot-popup.component';
 import { RuleListComponent } from './rule-list.component';
 import { DataSnapshotDetailComponent } from '../../../../data-snapshot/data-snapshot-detail.component';
-import { PreparationCommonUtil } from '../../../../util/preparation-common.util';
 import { EventBroadcaster } from '../../../../../common/event/event.broadcaster';
 
 @Component({
@@ -92,20 +91,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public step: string;
 
   // 검색어
-  public commandSearchText: string = ''; // command 검색어
+  public commandSearchText: string = '';
 
   // 조인 편집시 필요한 데이터
   public rightDataset: Dataset;
 
   // Layer show/hide
-  public isColumnListShow: boolean = false;
-  public isBeforeOrAfterColumnListShow: boolean = false;
-  public isNestListShow: boolean = false;
-  // public isRuleListOptionShow: boolean = false;
-  public isTypeListShow: boolean = false;
-  public isBeforeOrAfterShow: boolean = false;
   public isMultiColumnListShow: boolean = false;
-  public isMultiColumnGroupListShow: boolean = false;
   public isRuleJoinModalShow: boolean = false;
   public isRuleUnionModalShow: boolean = false;
   public isOtherDatasetListShow: boolean = false;
@@ -150,7 +142,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public editJoinOrUnionRuleStr: string;
 
   public commandList: any[];
-  public nestList: any[] = [];
   public editColumnList = [];                 // 수정 할 컬럼 리스트
   public selectedColumns: string[] = [];     // 그리드에서 선택된 컬럼 리스트
   public selectedRows: any = [];             // 그리드에서 선택된 로우 리스트
@@ -289,7 +280,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * open create snapshot popup
    * */
   public createSnapshot() {
-    // this.step = 'create-snapshot';
     this.ruleListComponent.clearSnapshotInterval();
     this.createSnapshotPopup.init({
       id: this.selectedDataSet.dsId,
@@ -365,45 +355,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.isCommandListShow = true;
     this.initSelectedCommand(this.filteredCommandList);
 
-    // isCommandListShow 클릭시 다른 리스트는 모두 닫는다
-    this.isColumnListShow = false;
-    this.isTypeListShow = false;
-    this.isMultiColumnListShow = false;
-    this.isBeforeOrAfterShow = false;
-    this.isBeforeOrAfterColumnListShow = false;
-    this.isNestListShow = false;
-
     this.changeDetect.detectChanges();
 
   }
-
-  /**
-   * Set default input values for derive, merge, nest, rename
-   * isRename {boolean}
-   * */
-  public setDefaultValue(isRename: boolean) {
-
-    let newColumns: number[] = [];
-    this.selectedDataSet.gridData.fields.forEach(item => {
-      if (0 === item.name.indexOf('new_column')) {
-        newColumns.push(item.name.replace(/new_column/gi, '') * 1);
-      }
-    });
-
-    newColumns.sort();
-
-    let idx: number = newColumns.findIndex((item: number, index: number) => {
-      return (item !== index + 1)
-    });
-    (-1 === idx) && (idx = newColumns.length);
-
-    if (isRename) {
-      this.ruleVO.to = 'new_column' + (idx + 1);
-    } else {
-      this.ruleVO.as = 'new_column' + (idx + 1);
-    }
-
-  } // end of setDefaultValue
 
   /**
    * When command is selected from commandList
@@ -426,17 +380,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.ruleVO.cols = this.selectedColumns;
 
-    const singleSelectRule = ['rename', 'split', 'extract'];
-    if (-1 !== singleSelectRule.indexOf(command.command)) {
-      if (this.selectedColumns.length === 1) {
-        this.ruleVO.col = this.selectedColumns[0];
-      } else if (this.selectedColumns.length > 1) {
-        let col = this.selectedColumns[0];
-        this._editRuleGridComp.unSelectionAll();
-        this._editRuleGridComp.selectColumn(col, true);
-        this.ruleVO.col = col;
-      }
-    }
+    // const singleSelectRule = ['rename', 'split', 'extract'];
+    // if (-1 !== singleSelectRule.indexOf(command.command)) {
+    //   if (this.selectedColumns.length === 1) {
+    //     this.ruleVO.col = this.selectedColumns[0];
+    //   } else if (this.selectedColumns.length > 1) {
+    //     let col = this.selectedColumns[0];
+    //     this._editRuleGridComp.unSelectionAll();
+    //     this._editRuleGridComp.selectColumn(col, true);
+    //     this.ruleVO.col = col;
+    //   }
+    // }
 
     this.ruleVO.command = command.command;
     this.ruleVO.alias = command.alias;
@@ -823,7 +777,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       this.isDisableGridHeaderClickEvent = false;
 
-      this.inputRuleCmd = PreparationCommonUtil.makeRuleResult(this.ruleVO);
+      // TODO : for editor
+      // this.inputRuleCmd = PreparationCommonUtil.makeRuleResult(this.ruleVO);
     } catch (e) {
       Alert.error(this.translateService.instant('msg.dp.alert.rule.edit.fail'));
     }
@@ -1647,12 +1602,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       this.isRuleUnionModalShow = false;
       this.isRuleJoinModalShow = false;
-      this.isColumnListShow = false;
-      this.isTypeListShow = false;
-      this.isMultiColumnListShow = false;
-      this.isBeforeOrAfterShow = false;
-      this.isBeforeOrAfterColumnListShow = false;
-      this.isNestListShow = false;
       this.isCommandListShow = false;
       this.isUpdate = false;
     }
@@ -1668,10 +1617,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     let hasFocus = $('#gridSearch').is(':focus');
 
     if (event.keyCode === 13) {
-      if (!this.isColumnListShow && !this.isTypeListShow && !this.isMultiColumnListShow
-        && !this.isBeforeOrAfterShow
-        && !this.isBeforeOrAfterColumnListShow && !this.isNestListShow && !this.isCommandListShow
-        && !this.isRuleUnionModalShow && !this.isRuleJoinModalShow && this.step !== 'create-snapshot' && !hasFocus
+      if ( !this.isCommandListShow
+        && !this.isRuleUnionModalShow
+        && !this.isRuleJoinModalShow
+        && this.step !== 'create-snapshot' && !hasFocus
       ) {
         this.addRule();
       }
@@ -1811,11 +1760,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         isHover: false
       },
       { command: 'setformat', alias: 'Sf', desc: 'set timestamp type .... ', isHover: false }
-    ];
-
-    this.nestList = [
-      { type: 'map', name: 'map', isHover: false },
-      { type: 'array', name: 'array', isHover: false },
     ];
 
     // set rule

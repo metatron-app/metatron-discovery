@@ -85,7 +85,7 @@
                 <!-- //buttons -->
               </div>
               <div class="ddp-wrap-rulecontents"
-                   [ngClass]="{'ddp-inherit': isCommandListShow || isColumnListShow || isTypeListShow || isMultiColumnListShow || isBeforeOrAfterShow || isBeforeOrAfterColumnListShow || isTooltipShow || isMultiColumnGroupListShow || isNestListShow || isFocus }">
+                   [ngClass]="{'ddp-inherit': isCommandListShow || isFocus || isMultiColumnListShow }">
                 <div class="ddp-box-contents ddp-clear">
                   <!-- editor -->
                   <div class="ddp-wrap-switch-editor" style="display:block" *ngIf="editorUseFlag === true">

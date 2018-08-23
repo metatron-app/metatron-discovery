@@ -21,6 +21,8 @@ import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
 import * as _ from 'lodash';
+import { isUndefined } from 'util';
+import { StringUtil } from '../../../../../../common/util/string.util';
 
 @Component({
   selector: 'edit-rule-set',
@@ -47,8 +49,6 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -58,49 +58,53 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 컴포넌트 초기 실행
-   */
   public ngOnInit() {
     super.ngOnInit();
-  } // function - ngOnInit
+  }
 
-  /**
-   * 화면 초기화
-   */
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-  } // function - ngAfterViewInit
+  }
 
-  /**
-   * 컴포넌트 제거
-   */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * Rule 형식 정의 및 반환
+   * Returns rule string
    * @return {{command: string, col: string, ruleString: string}}
    */
   public getRuleData(): { command: string, col: string, ruleString: string } {
+
+    // differentiate between pressing enter key when select box is opened & adding a rule
     if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
+
+      // column
       if (this.selectedFields.length === 0) {
         Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
         return undefined
       }
-
-      // TODO : condition validation
       const columnsStr: string = this.selectedFields.map(item => item.name).join(', ');
 
+      // val
       this.inputValue = this.ruleConditionInputComponent.getCondition();
       let val = _.cloneDeep(this.inputValue);
+      if (isUndefined(val) || '' === val.trim()) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
+        return undefined;
+      }
+      if (!isUndefined(val)) {
+        let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
+        if (check[0] === false) {
+          Alert.warning(this.translateService.instant('msg.dp.alert.check.value'));
+          return undefined;
+        } else {
+          val = check[1];
+        }
+      }
 
       return {
         command: 'set',
@@ -117,7 +121,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 필드 변경
+   * change field
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
@@ -125,31 +129,30 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   } // function - changeFields
 
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+   * open advanced formula popup
    */
-  public openPopupFormulaInput(command: string) {
+  public openPopupFormulaInput() {
     this.advancedEditorClickEvent.emit();
   } // function - openPopupFormulaInput
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 컴포넌트 표시 전 실행
+   * Before component is shown
    * @protected
    */
   protected beforeShowComp() {} // function - _beforeShowComp
 
   /**
-   * 컴포넌트 표시 후 실행
+   * After component is shown
    * @protected
    */
   protected afterShowComp() {
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
+   * parse rule string
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {

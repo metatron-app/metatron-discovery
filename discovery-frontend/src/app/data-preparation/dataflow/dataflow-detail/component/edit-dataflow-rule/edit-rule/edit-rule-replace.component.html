@@ -56,19 +56,9 @@
 <!-- part -->
 <div *ngIf="isShow" class="ddp-box-part" >
   <div class="ddp-box-title"> {{'msg.dp.th.new.value' | translate}} </div>
-  <!-- info -->
-  <div class="ddp-ui-info">
-    <em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>
-    <div class="ddp-box-info">
-      {{'msg.dp.th.new.value.description' | translate}}
-    </div>
-  </div>
-  <!-- //info -->
-
   <div class="ddp-wrap-datainput">
     <input [(ngModel)]="newValue" tabindex="4" placeholder="{{'msg.dp.th.new.value.ph' | translate}}"
            type="text" class="ddp-input-typebasic" >
-    <!-- ddp-selected 추가시 display:block; -->
   </div>
 </div>
 <!--//part-->
