@@ -23,22 +23,24 @@
   <!-- //top -->
   <!-- cpmtemts -->
   <div class="ddp-ui-preview-contents ddp-type-preview">
-    <div class="ddp-type-top-option">
+
+    <!-- tab SUCCESS, PREPARING-->
+    <div class="ddp-type-top-option" *ngIf="selectedDataSnapshot.status==='SUCCESS' || selectedDataSnapshot.status==='PREPARING'">
       <ul class="ddp-ui-tab ddp-type">
         <li [ngClass]="{'ddp-selected' : currentTab === 0 }" (click)="onTabClick(0)">
           <a href="javascript:">Detail</a>
         </li>
-        <!--<li (click)="onTabClick(1)" [ngClass]="{'ddp-selected' : currentTab === 1 }">-->
+        <!--<li [ngClass]="{'ddp-selected' : currentTab === 1 }" (click)="onTabClick(1)">-->
           <!--<a href="javascript:">log</a>-->
         <!--</li>-->
-
       </ul>
-
     </div>
-    <div class="ddp-layout-pop-contents ddp-wrap-snapshot" >
+    <!-- //tab -->
 
-      <div class="ddp-wrap-tab-contents" [hidden]= "currentTab !== 0">
-        <!-- 요약 -->
+    <div class="ddp-layout-pop-contents ddp-wrap-snapshot" *ngIf="selectedDataSnapshot.status==='SUCCESS'">
+
+      <div class="ddp-wrap-tab-contents" [hidden]= "currentTab !== 0" >
+        <!-- 요약 valid,mismatched,missing-->
         <div class="ddp-wrap-summary">
           <div class="ddp-data-summary">
             <span class="ddp-txt-label">{{'msg.dp.th.ss.valid' | translate}}</span>
@@ -65,19 +67,83 @@
         <!-- grid -->
         <div class="ddp-wrap-grid">
           <div *ngIf="selectedDataSnapshot.status==='SUCCESS'" class="ddp-box-gridarea" grid-component style="width:100%; height: 100%;"> suc </div>
-          <div *ngIf="selectedDataSnapshot.status==='FAIL'" class="ddp-box-gridarea" style="width:100%; height: 100%;">
-            <p [innerHTML]="selectedDataSnapshot.custom.fail_msg">
-            </p>
-          </div>
+          <!--<div *ngIf="selectedDataSnapshot.status==='FAIL'" class="ddp-box-gridarea" style="width:100%; height: 100%;">-->
+            <!--<p [innerHTML]="selectedDataSnapshot.custom.fail_msg">-->
+            <!--</p>-->
+          <!--</div>-->
         </div>
         <!-- //grid -->
       </div>
+
       <div class="ddp-wrap-tab-contents" [hidden]= "currentTab !== 1">
         <div class="ddp-data-log">
-          log
+          <!--log-->
         </div>
       </div>
     </div>
+
+    <div class="ddp-layout-pop-contents ddp-wrap-snapshot" *ngIf="selectedDataSnapshot.status==='PREPARING'">
+      <div class="ddp-wrap-tab-contents">
+        <!-- progress (진행중) -->
+        <div class="ddp-wrap-progress" style="">
+          <span class="ddp-data-status">{{'msg.dp.th.ss.generating' | translate}}</span>
+          <!-- loading box -->
+          <div class="ddp-box-loading ddp-pop ddp-progress" style="">
+            <span class="ddp-data-loading">{{'msg.dp.th.ss.generating-ss-table' | translate}} <strong>(1/n)</strong></span>
+            <a href="javascript:" class="ddp-btn-cancel" (click)="cancelClick(true)" >{{'msg.comm.btn.cancl' | translate}}</a>
+            <!-- bar -->
+            <div class="ddp-type-progressbar2">
+              <em class="ddp-data-progressbar" style="width:70%"></em>
+            </div>
+            <!-- //bar -->
+          </div>
+          <!-- //loading box -->
+        </div>
+        <!-- //progress -->
+        <!-- progress (취소) -->
+        <div class="ddp-wrap-progress" style="display:none;">
+          <span class="ddp-data-status"><em class="ddp-icon-info">{{'msg.dp.th.ss.delayed-del-ds' | translate}}</em></span>
+          <!-- loading box -->
+          <div class="ddp-box-loading ddp-pop ddp-progress ddp-disabled" style="">
+            <span class="ddp-data-loading">{{'msg.dp.th.ss.generating-ss-table' | translate}} <strong style="display: none;">(1/n)</strong></span>
+            <a href="javascript:" class="ddp-btn-cancel">{{'msg.comm.btn.cancl' | translate}}</a>
+            <!-- bar -->
+            <div class="ddp-type-progressbar2">
+              <em class="ddp-data-progressbar" style="width:70%"></em>
+            </div>
+            <!-- //bar -->
+          </div>
+          <!-- //loading box -->
+
+          <div class="ddp-box-loading ddp-pop ddp-cancel" style="">
+
+            <!-- buttons -->
+            <div class="ddp-pop-buttons">
+              <div class="ddp-txt-info">Sure to cancel snapshot creation?</div>
+              <a href="javascript:" class="ddp-btn-line" (click)="cancelClick(false)">No</a>
+
+              <a href="javascript:" class="ddp-btn-solid ddp-bg-black " (click)="cancelSnapshot()">Yes</a>
+            </div>
+            <!-- //buttons -->
+
+          </div>
+        </div>
+        <!-- //progress -->
+
+      </div>
+
+    </div>
+
+    <div class="ddp-layout-pop-contents ddp-wrap-snapshot" *ngIf="selectedDataSnapshot.status==='FAIL'" >
+      <div class="ddp-error-log">
+        <div class="ddp-label-title">Error log </div>
+        <div class="ddp-txt-log">
+          <p [innerHTML]="selectedDataSnapshot.custom.fail_msg">
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- right -->
 
     <div *ngIf="ruleList" class="ddp-wrap-rules-flow ddp-snapshot">
