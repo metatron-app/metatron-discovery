@@ -126,11 +126,10 @@ input::-webkit-input-placeholder {color:#b7b9c2; font-family:sans-serif;}
 input:-ms-input-placeholder {color:#b7b9c2; font-family:sans-serif;}
 
 input[type="file"] {cursor:pointer;}
-input[type="file"]::-webkit-file-upload-button { cursor:pointer; }
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {-webkit-appearance: none; margin:0;}
 input[type=number]{ -moz-appearance: textfield;}
-body * {word-break:break-all; word-wrap:break-word; text-shadow:none;}
+body * {word-break:keep-all; word-wrap:break-word; text-shadow:none;}
 label {margin-bottom:0px; font-weight:normal;}
 button:focus {outline:none;}
 label {max-width:inherit;}
