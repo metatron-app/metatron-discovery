@@ -330,9 +330,24 @@ public abstract class DataConnection extends AbstractHistoryEntity implements Me
     MANUAL, USERINFO, DIALOG
   }
 
-  @PrePersist
-  @PreUpdate
-  public void prePersist(){
+  @Override
+  public void prePersist() {
+    super.prePersist();
+
+    //Authentication Type userinfo, dialog not persist username/password
+    switch(this.getAuthenticationType()){
+      case USERINFO:
+      case DIALOG:
+        this.setUsername(null);
+        this.setPassword(null);
+        break;
+    }
+  }
+
+  @Override
+  public void preUpdate() {
+    super.preUpdate();
+
     //Authentication Type userinfo, dialog not persist username/password
     switch(this.getAuthenticationType()){
       case USERINFO:
