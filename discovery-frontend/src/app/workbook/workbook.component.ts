@@ -731,7 +731,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
     }).catch(() => {
       Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
-      this.isShowLnbLoading = false;
+      this.loadingHide();
     });
   } // function - loadDashboardList
 
