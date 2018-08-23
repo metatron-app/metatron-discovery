@@ -43,6 +43,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.opensaml.xml.signature.P;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -2411,16 +2412,23 @@ public class PrepTransformService {
     }
   }
 
-  public void cancelSnapshot(String ssId) throws  Exception{
+  public String cancelSnapshot(String ssId) {
 
     List<Future<List<Row>>> jobs = teddyExecutor.getJob(ssId);
 
-    if(!jobs.isEmpty()) {
+    if( jobs == null || jobs.isEmpty()) {
+      return "NO_MATCHED_SNAPSHOT_ID";
+    }
+    else {
       teddyExecutor.updateAsCanceling(ssId);
 
       for (Future<List<Row>> job : jobs) {
         job.cancel(true);
       }
+
+      return "OK";
     }
+
+
   }
 }

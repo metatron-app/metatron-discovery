@@ -358,14 +358,14 @@ public class PrepTransformController {
 
   @RequestMapping(value="/preparationsnapshots/{ssId}/cancel",method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> cancelSnapshot(
-          @PathVariable("ssId") String ssId,
-          @RequestHeader(value="Authorization") String authorization) {
+          @PathVariable("ssId") String ssId) {
     Map<String,Object> response;
 
     try {
       response = Maps.newHashMap();
 
-      transformService.cancelSnapshot(ssId);
+      String result = transformService.cancelSnapshot(ssId);
+      response.put("result", result);
     } catch (Exception e) {
       LOGGER.error("cancelCreate(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
