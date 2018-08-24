@@ -42,15 +42,13 @@ export class DataSnapshotService extends AbstractService {
   // 데이터 스냅샷 상태별 목록 조회
   public getDataSnapshotsByStatus(searchText: string, status: string, page:Page, projection?: string): Promise<DataSnapshots> {
     let statuses = '';
-    //if( 'SUCCESS'==status ) {
+    // except CANCELED starus
     if( 'all'==status) {
-      statuses = 'SUCCEEDED,FAILED,CANCELED,NOT_AVAILABLE,INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING';
+      statuses = 'SUCCEEDED,FAILED,NOT_AVAILABLE,INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING';
     } else if( 'success'==status ) {
       statuses = 'SUCCEEDED';
-    //} else if( 'FAIL'==status ) {
     } else if( 'fail'==status ) {
       statuses = 'FAILED,CANCELED,NOT_AVAILABLE';
-    //} else if( 'PREPARING'==status ) {
     } else if( 'preparing'==status ) {
       statuses = 'INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING';
     }
