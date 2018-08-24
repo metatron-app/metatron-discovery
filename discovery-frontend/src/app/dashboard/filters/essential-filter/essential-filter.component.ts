@@ -352,7 +352,7 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
           if (field.logicalType === LogicalType.TIMESTAMP) {
             filters.push(FilterUtil.getTimeAllFilter(field, 'essential'));
           } else {
-            const inclusionFilter: InclusionFilter = FilterUtil.getBasicInclusionFilter(field, false, 'essential');
+            const inclusionFilter: InclusionFilter = FilterUtil.getBasicInclusionFilter(field, 'essential');
             // 정렬을 위함 임시정보 설정
             inclusionFilter['showSortLayer'] = false;
             inclusionFilter['sortTarget'] = 'FREQUENCY';
@@ -594,8 +594,8 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
 
     // MeasureFields
     this.summaryMeasureFields.forEach((item) => {
-      if (item.name === condition.field) condition.fieldUI = item;
-      if (item.name === limitation.field) limitation.fieldUI = item;
+      if (item.name === condition.field) condition.field = item.name;
+      if (item.name === limitation.field) limitation.field = item.name;
     });
 
     // selector 변경

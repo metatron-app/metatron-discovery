@@ -195,6 +195,7 @@ export class LayoutWidgetInfo {
   // for UI
   public isSaved:boolean;
   public isInLayout:boolean;
+  public isLoaded:boolean;
 
   constructor(widgetId: string, widgetType: string) {
     this.id = CommonUtil.getUUID();
