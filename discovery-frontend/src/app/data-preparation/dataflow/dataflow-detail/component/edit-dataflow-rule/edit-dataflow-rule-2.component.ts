@@ -572,43 +572,16 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     let rule: any = {};
     if (this.editorUseFlag === false) {
+
       if (isUndefined(this.ruleVO['command']) || '' === this.ruleVO['command']) {
         Alert.warning(this.translateService.instant('msg.dp.alert.no.data'));
         return;
       }
 
-      switch (this.ruleVO['command']) {
-        case 'keep':
-        case 'derive':
-        case 'delete':
-        case 'rename':
-        case 'merge':
-        case 'sort':
-        case 'replace':
-        case 'drop':
-        case 'header':
-        case 'set':
-        case 'nest':
-        case 'unpivot':
-        case 'move':
-        case 'flatten':
-        case 'unnest':
-        case 'split' :
-        case 'extract' :
-        case 'countpattern' :
-        case 'setformat' :
-        case 'aggregate' :
-        case 'pivot' :
-        case 'settype' :
-          rule = this._editRuleComp.getRuleData();
-          if (isUndefined(rule)) {
-            return;
-          }
-          break;
-        default :
-          break;
+      rule = this._editRuleComp.getRuleData();
+      if (isUndefined(rule)) {
+        return;
       }
-
       // 룰 적용하기
       // set operation
       if (!isUndefined(rule)) {
@@ -629,26 +602,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         Alert.warning(this.translateService.instant('msg.dp.alert.editor.warn'));
         return;
       }
-      let cmd = this.inputRuleCmd;
-      cmd = cmd.substring(0, cmd.indexOf(' '));
-      const ruleIdx = this.ruleList.length;
-
-
-      if (this.modeType === 'APPEND') {
-        rule = {
-          command: cmd,
-          op: this.modeType,
-          rownum: ruleIdx + 1,
-          ruleString: this.inputRuleCmd
-        };
-      } else if (this.modeType === 'UPDATE') {
-        rule = {
-          command: cmd,
-          op: this.modeType,
-          rownum: this.ruleVO.rownum,
-          ruleString: this.inputRuleCmd
-        };
-      }
+      rule = {
+        command: this.inputRuleCmd.substring(0, this.inputRuleCmd.indexOf(' ')),
+        op: this.modeType,
+        rownum: this.modeType === 'APPEND' ? this.ruleList.length + 1 : this.ruleVO.rownum,
+        ruleString: this.inputRuleCmd
+      };
     }
     if (!isUndefined(rule)) {
       if ('UPDATE' === rule['op']) {
@@ -1759,7 +1718,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         desc: this.translateService.instant('msg.dp.li.ui.description'),
         isHover: false
       },
-      { command: 'setformat', alias: 'Sf', desc: 'set timestamp type .... ', isHover: false }
+      { command: 'setformat', alias: 'Sf', desc: this.translateService.instant('msg.dp.li.sf.description'), isHover: false }
     ];
 
     // set rule
@@ -1791,6 +1750,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         if (data.errorMsg) {
           Alert.warning(this.translateService.instant(msg ? msg : 'msg.dp.alert.apply.rule.fail'));
         } else {
+          this.changeDetect.detectChanges();
           this.selectedRows = [];
           this.isJumped = false;
           (command === 'multipleRename') && (this.multicolumnRenameComponent.showFlag = false);
@@ -1820,9 +1780,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
             }
 
           });
-
         }
-        this.changeDetect.detectChanges();
       }).catch((error) => {
       this.loadingHide();
       if (isNull(error)) {
