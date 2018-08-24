@@ -27,19 +27,18 @@ import { Alert } from '../../../../../common/util/alert.util';
 import { EditorComponent } from '../../../../../workbench/component/detail-workbench/datail-workbench-editor/editor.component';
 import * as _ from 'lodash';
 import * as pixelWidth from 'string-pixel-width';
-import { StringUtil } from '../../../../../common/util/string.util';
 
+/**
+ * Creating datasource with Database - database step
+ */
 @Component({
   selector: 'db-select-data',
   templateUrl: './db-select-data.component.html'
 })
 export class DbSelectDataComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 새로 생성될 데이터소스 정보
-  private sourceData: DatasourceInfo;
+  // create source data
+  private _sourceData: DatasourceInfo;
 
   @ViewChild('table')
   private tableComponent: GridComponent;
@@ -47,7 +46,6 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
   @ViewChild('query')
   private queryComponent: GridComponent;
 
-  // 에디터
   @ViewChild('editor')
   private editorComponent: EditorComponent;
 
@@ -61,29 +59,23 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
   private databaseList: any[] = [];
   // table list
   private tableList: any[] = [];
-  // 선택된 데이터베이스
-  private selectedDatabase: string = '';
-  // 선택된 테이블
-  private selectedTable: string = '';
-  // 선택된 데이터베이스 쿼리
-  private selectedDatabaseQuery: string = '';
+
   // 선택한 타입
   private selectedType: string = 'TABLE';
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // selected database
+  public selectedDatabase: string = '';
+  // selected table
+  public selectedTable: string = '';
+  // selected database in query
+  public selectedDatabaseQuery: string = '';
 
   // Change Detect
   public changeDetect: ChangeDetectorRef;
 
   @Input('sourceData')
   public set setSourceData(sourceData: DatasourceInfo) {
-    this.sourceData = sourceData;
+    this._sourceData = sourceData;
   }
 
   @Input()
@@ -146,22 +138,19 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
 
   // Init
   public ngOnInit() {
-
     // Init
     super.ngOnInit();
-
     // ui init
     this.initView();
 
     // 현재 페이지 데이터베이스 정보가 있다면
-    if (this.sourceData.hasOwnProperty('databaseData')) {
-      this.initData(_.cloneDeep(this.sourceData.databaseData));
+    if (this._sourceData.hasOwnProperty('databaseData')) {
+      this.initData(_.cloneDeep(this._sourceData.databaseData));
       // 그리드 데이터 존재시
       this.initDataGrid();
-    } else {
-      // 데이터베이스 조회
-      this.setDatabaseList();
     }
+    //if not exist database list, set database list
+    this.databaseList.length === 0 && this.setDatabaseList();
   }
 
   // Destory
@@ -334,15 +323,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
    * @returns {boolean}
    */
   public isUsedDatabase(): boolean {
-    return this.sourceData.connectionData.selectedDbType.value === 'MYSQL';
-  }
-
-  /**
-   * URL 타입인지
-   * @returns {boolean}
-   */
-  public isUrlType(): boolean {
-    return this.sourceData.connectionData.isEnableUrl;
+    return this._sourceData.connectionData.selectedDbType.value === 'MYSQL';
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -475,9 +456,9 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
    */
   private deleteSchemaData() {
     // 데이터 변경이 일어난경우 스키마 삭제
-    if (this.sourceData.hasOwnProperty('schemaData')
+    if (this._sourceData.hasOwnProperty('schemaData')
       && this.isChangeData()) {
-      delete this.sourceData.schemaData;
+      delete this._sourceData.schemaData;
     }
   }
 
@@ -486,11 +467,11 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
    */
   private deleteAndSaveDatabaseData() {
     // 데이터베이스 정보가 있다면 삭제
-    if (this.sourceData.hasOwnProperty('databaseData')) {
-      delete this.sourceData.databaseData;
+    if (this._sourceData.hasOwnProperty('databaseData')) {
+      delete this._sourceData.databaseData;
     }
     // 현재 페이지의 데이터소스 생성정보 저장
-    this.saveDatabaseData(this.sourceData);
+    this.saveDatabaseData(this._sourceData);
   }
 
 
@@ -534,14 +515,14 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
    */
   private isChangeData(): boolean {
     // 데이터 타입이 변경된경우
-    if (this.sourceData.databaseData.selectedType !== this.selectedType) {
+    if (this._sourceData.databaseData.selectedType !== this.selectedType) {
       return true;
     // 현재 데이터 타입이 TABLE 이고 데이터베이스 이름이나 테이블 이름이 변경된 경우
     // 현재 데이터 타입이 QUERY 이고 데이터베이스 이름이나 테이블 이름이 변경된 경우
     } else if ((this.selectedType === 'TABLE'
-        && (this.sourceData.databaseData.selectedDatabase !== this.selectedDatabase || this.sourceData.databaseData.selectedTable !== this.selectedTable))
+        && (this._sourceData.databaseData.selectedDatabase !== this.selectedDatabase || this._sourceData.databaseData.selectedTable !== this.selectedTable))
       || (this.selectedType === 'QUERY'
-        && (this.sourceData.databaseData.selectedDatabaseQuery !== this.selectedDatabaseQuery || this.sourceData.databaseData.queryText !== this.queryText))) {
+        && (this._sourceData.databaseData.selectedDatabaseQuery !== this.selectedDatabaseQuery || this._sourceData.databaseData.queryText !== this.queryText))) {
       return true;
     }
     return false;
@@ -557,36 +538,37 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
    */
   private getDatabaseParams(): object {
     // db type
-    const implementor = this.sourceData.connectionData.selectedDbType.value;
+    const implementor = this._sourceData.connectionData.selectedDbType.value;
     // params
     const params = {
       connection: {
         implementor: implementor
       }
     };
-    // username과 password를 사용한다면
-    !StringUtil.isEmpty(this.sourceData.connectionData.username) && (params.connection['username'] = this.sourceData.connectionData.username);
-    !StringUtil.isEmpty(this.sourceData.connectionData.password) && (params.connection['password'] = this.sourceData.connectionData.password);
+    // if security type is not USERINFO, add username and password in connection
+    if (this._sourceData.connectionData.selectedSecurityType.value !== 'USERINFO') {
+      params.connection['username'] = this._sourceData.connectionData.username;
+      params.connection['password'] = this._sourceData.connectionData.password;
+    }
     // URL 타입이라면
-    if (this.isUrlType()) {
-      params.connection['url'] = this.sourceData.connectionData.url;
+    if (this._sourceData.connectionData.isEnableUrl) {
+      params.connection['url'] = this._sourceData.connectionData.url;
     } else {
       // DEFAULT 타입이라면
-      params.connection['hostname'] = this.sourceData.connectionData.hostname;
-      params.connection['port'] = this.sourceData.connectionData.port;
+      params.connection['hostname'] = this._sourceData.connectionData.hostname;
+      params.connection['port'] = this._sourceData.connectionData.port;
     }
-
     // database
     if (this.isRequiredDatabase(implementor)) {
-      params.connection['database'] = this.sourceData.connectionData.database;
+      params.connection['database'] = this._sourceData.connectionData.database;
     }
     // sid
     if (this.isRequiredSid(implementor)) {
-      params.connection['sid'] = this.sourceData.connectionData.sid;
+      params.connection['sid'] = this._sourceData.connectionData.sid;
     }
     // catalog
     if (this.isRequiredCatalog(implementor)) {
-      params.connection['catalog'] = this.sourceData.connectionData.catalog;
+      params.connection['catalog'] = this._sourceData.connectionData.catalog;
     }
     return params;
   }
@@ -676,7 +658,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     this.dataconnectionService.getTableDetailWitoutId(this.getTableDetailParams(databaseName, tableName))
       .then((result) => {
         // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
-        if (this.sourceData.connectionData.selectedDbType.value === 'HIVE') {
+        if (this._sourceData.connectionData.selectedDbType.value === 'HIVE') {
           result['data'] = this._getReplacedDataList(result['data']);
           result['fields'] = this._getReplacedFieldList(result['fields']);
         }

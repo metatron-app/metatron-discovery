@@ -312,6 +312,8 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
    * Change enable URL flag click event
    */
   public onChangeEnableURL(): void {
+    // checked disable
+    event.preventDefault();
     // if user input type
     if (!this.selectedConnectionPreset.id) {
       // change enable URL flag

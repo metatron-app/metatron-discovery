@@ -373,8 +373,8 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
       },
       type: 'TABLE'
     };
-    // if security type is not DIALOG, add username and password in connection
-    if (connectionData.selectedSecurityType.value !== 'DIALOG') {
+    // if security type is not USERINFO, add username and password in connection
+    if (connectionData.selectedSecurityType.value !== 'USERINFO') {
       params.connection['username'] = connectionData['username'];
       params.connection['password'] = connectionData['password'];
     }

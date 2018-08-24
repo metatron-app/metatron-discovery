@@ -94,7 +94,7 @@
               <!-- check -->
               <div class="ddp-check">
                 <label class="ddp-label-checkbox" (click)="onChangeEnableURL()">
-                  <input type="checkbox" [checked]="isEnableUrl" tabindex="-1" [disabled]="selectedConnectionPreset?.id">
+                  <input type="checkbox" [checked]="isEnableUrl" tabindex="-1">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.storage.ui.conn.url.only' | translate}}</span>
                 </label>
@@ -118,7 +118,7 @@
               <!-- check -->
               <div class="ddp-check">
                 <label class="ddp-label-checkbox" (click)="onChangeEnableURL()">
-                  <input type="checkbox" [checked]="isEnableUrl" [disabled]="selectedConnectionPreset?.id" tabindex="-1">
+                  <input type="checkbox" [checked]="isEnableUrl" tabindex="-1">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.storage.ui.conn.url.only' | translate}}</span>
                 </label>
@@ -212,7 +212,7 @@
             <ul class="ddp-list-checktype">
               <li *ngFor="let type of securityTypeList">
                 <label class="ddp-label-radio" (change)="onChangeSecurityType(type)">
-                  <input type="radio" [checked]="type.value === selectedSecurityType.value" [disabled]="selectedConnectionPreset?.id">
+                  <input type="radio" [checked]="type.value === selectedSecurityType.value" [disabled]="selectedConnectionPreset?.id && type.value !== selectedSecurityType.value">
                   <i class="ddp-icon-radio"></i>
                   <span class="ddp-txt-radio">{{type.label}}</span>
                 </label>
