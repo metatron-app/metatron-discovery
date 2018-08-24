@@ -2161,9 +2161,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       currentDateTimeField.name = 'current_datetime';
       currentDateTimeField.biType = BIType.TIMESTAMP;
       currentDateTimeField.logicalType = LogicalType.TIMESTAMP;
-      currentDateTimeField.uiMasterDsId = boardDataSource.id;
+      currentDateTimeField.dataSource = boardDataSource.engineName;
       // fields = [currentDateTimeField].concat( fields );
-      fields.forEach(item => item.uiMasterDsId = boardDataSource.id);
+      fields.forEach(item => item.dataSource = boardDataSource.engineName);
       dashboard.configuration.fields = fields;
 
       // 대시보드 필터 구성

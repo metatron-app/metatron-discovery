@@ -566,7 +566,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.widget.configuration.filters = [];
       this.widget.configuration.customFields = [];
     }
-    this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.id );
+    this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.engineName );
 
     if (StringUtil.isEmpty(this.widget.name)) {
       this.widget.name = 'New Chart';
@@ -3055,7 +3055,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     let totalFields: Field[] = boardConf.fields;
 
     if (totalFields && totalFields.length > 0) {
-      totalFields = DashboardUtil.getFieldsForMainDataSource(boardConf, this.dataSource.id);
+      totalFields = DashboardUtil.getFieldsForMainDataSource(boardConf, this.dataSource.engineName);
       totalFields.forEach((field) => {
         if (field.biType === BIType.MEASURE) {
           this.measures.push(field);
@@ -3685,8 +3685,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @private
    */
   private _setChartFilter(targetFilter: Filter, isSetPanel: boolean = true) {
+
     // 같은 필드의 대시보드 필터 제거
-    _.remove(this.widget.dashBoard.configuration.filters, { field: targetFilter.field });
+    _.remove(this.widget.dashBoard.configuration.filters, { field: targetFilter.field, dataSource : targetFilter.dataSource });
+
+    // 보드 필터 설정
+    this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.engineName );
 
     // 해당 필터에 차트 위젯 아이디 설정
     targetFilter.ui.widgetId = this.isNewWidget() ? 'NEW' : this.widget.id;
@@ -3703,10 +3707,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // 필터 패널에 데이터 강제 설정
     if (isSetPanel && this._filterPanelComp) {
-      this._filterPanelComp.setFilters(
-        this.widget.dashBoard.configuration.filters,
-        this.widget.configuration.filters
-      );
+      this._filterPanelComp.setFilters( this.boardFilters, this.widget.configuration.filters );
     }
   } // function - _setChartFilter
 

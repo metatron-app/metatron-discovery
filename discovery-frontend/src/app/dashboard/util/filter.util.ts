@@ -109,7 +109,7 @@ export class FilterUtil {
   public static getBoardDataSourceForFilter(filter: Filter, board: Dashboard): BoardDataSource {
     const boardDataSource: BoardDataSource = board.configuration.dataSource;
     if ('multi' === boardDataSource.type) {
-      return boardDataSource.dataSources.find(item => item.id === filter.dataSource);
+      return boardDataSource.dataSources.find(item => item.engineName === filter.dataSource);
     } else {
       return boardDataSource;
     }
@@ -122,7 +122,7 @@ export class FilterUtil {
    * @returns {Datasource}
    */
   public static getDataSourceForFilter(filter: Filter, board: Dashboard): Datasource {
-    return board.dataSources.find(item => item.id === filter.dataSource);
+    return board.dataSources.find(item => item.engineName === filter.dataSource);
   } // function - getDataSourceForFilter
 
   /**
@@ -140,14 +140,14 @@ export class FilterUtil {
     inclusionFilter.preFilters = [];
     inclusionFilter.valueList = [];
     inclusionFilter.ref = field.ref;
-    inclusionFilter.dataSource = field.uiMasterDsId;
+    inclusionFilter.dataSource = field.dataSource;
 
     inclusionFilter.preFilters.push(this.getBasicInequalityFilter(isPreFilterUI, preFilterData));
     inclusionFilter.preFilters.push(this.getBasicPositionFilter(isPreFilterUI, preFilterData));
     inclusionFilter.preFilters.push(this.getBasicwildCardFilter(field.name, isPreFilterUI, preFilterData));
 
-    inclusionFilter.ui.masterDsId = field.uiMasterDsId;
-    inclusionFilter.ui.dsId = field.dsId;
+    // inclusionFilter.ui.masterDsId = field.uiMasterDsId;
+    // inclusionFilter.ui.dsId = field.dsId;
     (importanceType) && (inclusionFilter.ui.importanceType = importanceType);
     (-1 < field.filteringSeq) && (inclusionFilter.ui.filteringSeq = field.filteringSeq + 1);
     if (field.filteringOptions) {
@@ -173,10 +173,10 @@ export class FilterUtil {
     boundFilter.max = 0;
     boundFilter.min = 0;
     boundFilter.ref = field.ref;
-    boundFilter.dataSource = field.uiMasterDsId;
+    boundFilter.dataSource = field.dataSource;
 
-    boundFilter.ui.masterDsId = field.uiMasterDsId;
-    boundFilter.ui.dsId = field.dsId;
+    // boundFilter.ui.masterDsId = field.uiMasterDsId;
+    // boundFilter.ui.dsId = field.dsId;
     (importanceType) && (boundFilter.ui.importanceType = importanceType);
 
     return boundFilter;

@@ -324,13 +324,13 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         const customFields: CustomField[] = changeWidgetData.configuration.customFields;
         this._syncWidgetsAndFilters(customFields, DashboardUtil.getFields(this.dashboard), changeWidgetData.id);
 
-        // 데이터소스 패널 재설정
-        (this.datasourcePanelComp) && (this.datasourcePanelComp.setFields());
-
         Alert.success(alertMsg);
 
         // Layout 업데이트
         this.renderLayout();
+
+        this.dashboard.updateId = CommonUtil.getUUID();
+
         this.loadingHide();
       }
 
@@ -835,8 +835,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         this.deleteWidgetIds.push(widgetId);  // 삭제 위젯 등록
         this.removeWidget(widgetId);          // 대시보드상의 위젯 제거
 
-        // 데이터소스 패널 재설정
-        (this.datasourcePanelComp) && (this.datasourcePanelComp.setFields());
+        this.dashboard.updateId = CommonUtil.getUUID();
+        this.safelyDetectChanges();
       };
       CommonUtil.confirm(modal);
     } else {
@@ -1017,9 +1017,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     ).then((result) => {
       if (result.hasOwnProperty('configuration')) {
         this.dashboard = DashboardUtil.updateBoardConfiguration(this.dashboard, result.configuration);
+        this.dashboard.updateId = CommonUtil.getUUID();
         this.broadCaster.broadcast('SET_CUSTOM_FIELDS', { customFields: customFields });
-        // 데이터소스 패널 재설정
-        (this.datasourcePanelComp) && (this.datasourcePanelComp.setFields());
         if (isEdit) {
           Alert.success(this.translateService.instant('msg.board.custom.ui.update', { name: customField.name }));
         } else {
@@ -1027,7 +1026,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         }
         this.loadingHide();
       }
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
     }).catch(err => this.commonExceptionHandler(err));
   } // function - updateCustomColumn
 
@@ -1098,12 +1097,12 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
       // 커스텀 필드, 필터 재설정
       this.dashboard = DashboardUtil.setCustomFields(this.dashboard, customFields);
+      this.dashboard.updateId = CommonUtil.getUUID();
+      this.safelyDetectChanges();
 
       // 페이지 위젯내 커스텀 필드 재설정
       this.broadCaster.broadcast('SET_CUSTOM_FIELDS', { customFields: customFields });
 
-      // 데이터소스 패널 재설정
-      (this.datasourcePanelComp) && (this.datasourcePanelComp.setFields());
       this.loadingHide();
     }
   } // function - deleteCustomField
@@ -1129,7 +1128,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       this.broadCaster.broadcast('SET_EXTERNAL_FILTER', { filters: DashboardUtil.getBoardFilters(this.dashboard) });
       this._configFilterComp.close();
       if (isSetPanel) {
-        this.popupService.notiFilter({ name: 'change-filter', data: filter });
+        this.popupService.notiFilter({ name: 'change-filter', data : filter });
       }
       this.safelyDetectChanges();
     });
@@ -1189,8 +1188,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         this._syncFilterWidget();
         this.broadCaster.broadcast('SET_EXTERNAL_FILTER', { filters: DashboardUtil.getBoardFilters(this.dashboard) });
         this.popupService.notiFilter({ name: 'remove-filter', data: filter });
-        // 데이터소스 패널 재설정
-        (this.datasourcePanelComp) && (this.datasourcePanelComp.setFields());
       }
     } else {
 
@@ -1203,15 +1200,14 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
       // 글로벌 필터 삭제
       this.dashboard = DashboardUtil.deleteBoardFilter(this.dashboard, filter);
-
-      // 위젯 필터 재설정
-      this._syncFilterWidget();
-      this.broadCaster.broadcast('SET_EXTERNAL_FILTER', { filters: DashboardUtil.getBoardFilters(this.dashboard) });
-      this.popupService.notiFilter({ name: 'remove-filter', data: filter });
-      // 데이터소스 패널 재설정
-      (this.datasourcePanelComp) && (this.datasourcePanelComp.setFields());
-
+      this.dashboard.updateId = CommonUtil.getUUID();
+      this.safelyDetectChanges();
     }
+
+    // 위젯 필터 재설정
+    this._syncFilterWidget();
+    this.broadCaster.broadcast('SET_EXTERNAL_FILTER', { filters: DashboardUtil.getBoardFilters(this.dashboard) });
+    this.popupService.notiFilter({ name: 'remove-filter', data: filter });
   } // function - deleteFilter
 
   // noinspection JSMethodCanBeStatic

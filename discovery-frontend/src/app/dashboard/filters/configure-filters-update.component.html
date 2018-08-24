@@ -19,15 +19,15 @@
     <div class="ddp-top-filter">
       <!-- tag -->
       <div class="ddp-ui-tags">
-        <span *ngIf="widget && targetFilter.widgetId" class="ddp-data-chartname">{{getWidgetName()}}</span>
+        <span *ngIf="widget && targetFilter.ui.widgetId" class="ddp-data-chartname">{{getWidgetName()}}</span>
         <!-- Slide THREE -->
         <div *ngIf="false && widget" (click)="toggleFilterScope()" class="ddp-tag-type ddp-checkbox-slide ">
-          <input [checked]="!targetFilter.widgetId" type="checkbox" value="None" id="check2" name="check" >
+          <input [checked]="!targetFilter.ui.widgetId" type="checkbox" value="None" id="check2" name="check" >
           <label for="check2"><span class="ddp-slide"></span></label>
           <span class="ddp-txt-slide"><em class="ddp-icon-global"></em></span>
         </div>
         <!-- //Slide THREE -->
-        <span *ngIf="!targetFilter.widgetId" class="ddp-tag-type ddp-type" >
+        <span *ngIf="!targetFilter.ui.widgetId" class="ddp-tag-type ddp-type" >
           <em class="ddp-icon-global"></em>Global
         </span>
         <span *ngIf="isRecommend()" class="ddp-tag-type ddp-type" >

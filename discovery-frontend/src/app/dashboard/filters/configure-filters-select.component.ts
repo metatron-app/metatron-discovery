@@ -77,7 +77,7 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
 
   private _boardFilters: Filter[] = [];
   private _chartFilters: Filter[] = [];
-  private _boardConf:BoardConfiguration;
+  private _boardConf: BoardConfiguration;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -194,14 +194,15 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     }
 
     // 필드 설정
-    let totalFields: (Field | CustomField)[] = DashboardUtil.getFieldsForMainDataSource( this._boardConf, dataSource.id );
+    let totalFields: (Field | CustomField)[] = DashboardUtil.getFieldsForMainDataSource(this._boardConf, dataSource.engineName);
 
     // 커스텀 필드 관련 잠시 주석 처리 - 멀티 데이터소스에 대한 고려 안되어 있음
-    /*
-    if(this._allDataSourceCustomFields && 0 < this._allDataSourceCustomFields.length) {
-      totalFields = this._allDataSourceCustomFields.filter( item => item.dsId === dataSource.id );
+    if (this._boardConf.customFields && 0 < this._boardConf.customFields.length) {
+      totalFields
+        = totalFields.concat(
+        this._boardConf.customFields.filter(item => item.dataSource === dataSource.engineName)
+      );
     }
-    */
     this._setFields(totalFields, this._boardFilters, this._chartFilters, this.widget);
   } // function - selectDataSource
 

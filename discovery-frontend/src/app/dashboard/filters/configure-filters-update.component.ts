@@ -277,6 +277,7 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
 
     this._dashboard = _.cloneDeep(board);
     this.targetFilter = targetFilter;
+    ( this.targetFilter.ui ) || ( this.targetFilter.ui = {} );
     this.targetField = this._getTargetField(targetFilter, board.configuration.fields, board.configuration.customFields);
 
     this.dataSource = FilterUtil.getDataSourceForFilter(targetFilter, board);
@@ -311,9 +312,10 @@ export class ConfigureFiltersUpdateComponent extends AbstractFilterPopupComponen
       fieldList = fieldList.concat(customFields);
     }
 
+
     // 글로벌 필터
     if (fieldList && 0 < fieldList.length) {
-      return fieldList.find((field: Field | CustomField) => field.name === filter.field);
+      return fieldList.find((field: Field | CustomField) => field.name === filter.field && field.dataSource === filter.dataSource );
     } else {
       return null;
     }

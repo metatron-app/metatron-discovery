@@ -44,7 +44,7 @@ import {
 } from 'app/domain/dashboard/dashboard.globalOptions';
 import { WidgetService } from '../../service/widget.service';
 import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
-import { isUndefined } from 'util';
+import { isNullOrUndefined, isUndefined } from 'util';
 import { DashboardUtil } from '../../util/dashboard.util';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
 import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
@@ -324,6 +324,11 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     let reorderDsList: Datasource[] = [];   // 마스터 데이터소스 설정 및 데이터소스 정렬 - Master Datasource
 
     let masterDsInfo: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(boardInfo, dataSource);
+
+    if (isNullOrUndefined(masterDsInfo)) {
+      return { reorderDsList: [], totalFields: [] };
+    }
+
     // 설정에 있는 Datasource Mapping 정보에 connType, engineName 추가해줌 - MasterDatasource
     dataSource.name = masterDsInfo.engineName;
     if (ConnectionType.ENGINE === masterDsInfo.connType) {
@@ -432,7 +437,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
                              boardInfo?: Dashboard, nameAliasList?: FieldNameAlias[], valueAliasList?: FieldValueAlias[]): Field {
     fieldItem.granularity = dsInfo.granularity ? dsInfo.granularity : dsInfo.segGranularity;
     fieldItem.segGranularity = dsInfo.segGranularity ? dsInfo.segGranularity : dsInfo.granularity;
-    fieldItem.uiMasterDsId = masterDsInfo.id;
+    fieldItem.dataSource = masterDsInfo.engineName;
     fieldItem.dsId = dsInfo.id;
     if (boardInfo) {
       fieldItem.boardId = boardInfo.id;
@@ -461,11 +466,11 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     // 페이지 위젯 정보 설정
     if (boardInfo.widgets) {
       boardInfo.widgets.forEach((widget) => {
-        if('page' === widget.type) {
-          const pgeWidget:PageWidget = <PageWidget>widget;
+        if ('page' === widget.type) {
+          const pgeWidget: PageWidget = <PageWidget>widget;
           pgeWidget.mode = 'chart';
-          if( pgeWidget.configuration && pgeWidget.configuration.dataSource && pgeWidget.configuration.filters ) {
-            pgeWidget.configuration.filters.forEach( item => {
+          if (pgeWidget.configuration && pgeWidget.configuration.dataSource && pgeWidget.configuration.filters) {
+            pgeWidget.configuration.filters.forEach(item => {
               item.dataSource = pgeWidget.configuration.dataSource.id;
             });
           }
@@ -564,15 +569,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         if (FilterUtil.isTimeFilter(filter)) {
           const timeFilter: TimeFilter = <TimeFilter>filter;
           (timeFilter.timeUnit) || (timeFilter.timeUnit = TimeUnit.NONE);
-          let filterDsId:string = undefined;
-          if( filter.dataSource ) {
-            filterDsId = filter.dataSource;
-          } else if ( filter.ui ) {
-            filterDsId = filter.ui.masterDsId;
-          } else {
-            filterDsId = boardConf.fields.find( field => field.name === timeFilter.field ).uiMasterDsId;
-          }
-          timeFilter.clzField = DashboardUtil.getFieldByName(boardInfo, filterDsId, timeFilter.field);
+          timeFilter.clzField = DashboardUtil.getFieldByName(boardInfo, filter.dataSource, timeFilter.field);
         } else if ('interval' === filter.type) {
           conf.filter = FilterUtil.convertIntervalToTimeFilter(<IntervalFilter>filter, boardInfo);
         }
@@ -583,7 +580,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
             if (FilterUtil.isTimeFilter(filter)) {
               const timeFilter: TimeFilter = <TimeFilter>filter;
               (timeFilter.timeUnit) || (timeFilter.timeUnit = TimeUnit.NONE);
-              timeFilter.clzField = DashboardUtil.getFieldByName(boardInfo, conf.dataSource.id, timeFilter.field);
+              timeFilter.clzField = DashboardUtil.getFieldByName(boardInfo, conf.dataSource.engineName, timeFilter.field);
             } else if ('interval' === filter.type) {
               conf.filters[idx] = FilterUtil.convertIntervalToTimeFilter(<IntervalFilter>filter, boardInfo);
             }
@@ -867,7 +864,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     {
       const dsList: Datasource[] = DashboardUtil.getMainDataSources(dashboard);
       dsList.forEach((dsInfo: Datasource) => {
-        const fields = DashboardUtil.getFieldsForMainDataSource(boardConf, dsInfo.id);
+        const fields = DashboardUtil.getFieldsForMainDataSource(boardConf, dsInfo.engineName);
 
         let recommendFilters: Filter[] = [];
         // 추천필터 설정
@@ -919,15 +916,19 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       boardConf.filters = genFilters.concat(
         savedFilters.map((savedItem: Filter) => {
           const filterField: Field = totalFields.find(field => field.name === savedItem.field) as Field;
-          if (filterField.role === FieldRole.MEASURE) {
-            // 측정값 필터
-            return _.merge(FilterUtil.getBasicBoundFilter(filterField), savedItem);
-          } else if (filterField.logicalType === LogicalType.TIMESTAMP) {
-            // 타임 스탬프 필터
-            return _.merge(new TimeFilter(filterField), savedItem);
+          if (filterField) {
+            if (filterField.role === FieldRole.MEASURE) {
+              // 측정값 필터
+              return _.merge(FilterUtil.getBasicBoundFilter(filterField), savedItem);
+            } else if (filterField.logicalType === LogicalType.TIMESTAMP) {
+              // 타임 스탬프 필터
+              return _.merge(new TimeFilter(filterField), savedItem);
+            } else {
+              // 차원값 필터
+              return _.merge(FilterUtil.getBasicInclusionFilter(filterField, false), savedItem);
+            }
           } else {
-            // 차원값 필터
-            return _.merge(FilterUtil.getBasicInclusionFilter(filterField, false), savedItem);
+            return savedItem;
           }
         })
       );
@@ -1126,7 +1127,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * 레아아웃 컨텐츠 정보를 얻는다.
    * @return {any[]}
    */
-  public getLayoutContent():any[] {
+  public getLayoutContent(): any[] {
     return this._layoutObj.toConfig().content;
   } // function - getLayoutContent
 
@@ -1143,6 +1144,27 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       // 대시보드에 데이터소스 설정
       let result: [Dashboard, Datasource] = this._setDatasourceForDashboard(boardInfo);
       boardInfo = result[0];
+
+      // 이전 데이터를 현재 데이터에 맞게 변경
+      {
+        const filters: Filter[] = DashboardUtil.getBoardFilters(boardInfo);
+        if (filters && 0 < filters.length) {
+          filters.forEach((filter: Filter) => {
+            const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
+            (filterDs) && (filter.dataSource = filterDs.engineName);
+          });
+        }
+        const widgets: Widget[] = boardInfo.widgets;
+        if (widgets && 0 < widgets.length) {
+          widgets.forEach((widget: Widget) => {
+            if ('filter' === widget.type) {
+              const filter: Filter = (<FilterWidget>widget).configuration.filter;
+              const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
+              (filterDs) && (filter.dataSource = filterDs.engineName);
+            }
+          });
+        }
+      }
 
       // 글로벌 필터 셋팅
       this.initializeFilter(boardInfo).then((boardData) => {
