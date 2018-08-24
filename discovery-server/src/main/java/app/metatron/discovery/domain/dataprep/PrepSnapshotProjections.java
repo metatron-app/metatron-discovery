@@ -33,6 +33,7 @@ public class PrepSnapshotProjections {
 
         String getCustom();
         String getLineageInfo();
+        String getStatus();
     }
 
     @Projection(name = "detail", types = { PrepSnapshot.class })
@@ -60,6 +61,7 @@ public class PrepSnapshotProjections {
         String getCustom();
         //String getLineageInfo();
         Map<String,Object> getJsonLineageInfo();
+        String getStatus();
     }
 
     @Projection(name = "listing", types = { PrepSnapshot.class })
@@ -82,6 +84,7 @@ public class PrepSnapshotProjections {
 
         String getCustom();
         String getLineageInfo();
+        String getStatus();
     }
 
     @Projection(name = "post", types = { PrepSnapshot.class })
