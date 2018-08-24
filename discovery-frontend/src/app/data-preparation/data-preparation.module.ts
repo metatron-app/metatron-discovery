@@ -84,6 +84,7 @@ import { EditRuleUnnestComponent } from './dataflow/dataflow-detail/component/ed
 import { EditRuleAggregateComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-aggregate.component';
 import { EditRulePivotComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-pivot.component';
 import { EditRuleSettypeComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-settype.component';
+import { PrepSelectBoxComponent } from './util/prep-select-box.component';
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -164,7 +165,8 @@ const dataPreparationRoutes: Routes = [
     DatasetSummaryComponent,
     CreateSnapshotPopup,
     SnapshotLoadingComponent,
-    RuleConditionInputComponent
+    RuleConditionInputComponent,
+    PrepSelectBoxComponent
   ],
   providers: [
     DataPreparationService,
