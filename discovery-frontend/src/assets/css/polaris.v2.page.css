@@ -563,7 +563,7 @@ ul.ddp-list-order li .ddp-data-name .ddp-chart-img {display:inline-block; float:
 	PAGE : 워크북 대시보드 (CONTENTS)
 ************************************************************************************************************/
 .ddp-ui-dash-contents {position:absolute; top:48px; left:289px; right:0; bottom:0; overflow-x:hidden;}
-.ddp-ui-dash-contents .ddp-loading-part {position:fixed; left:289px; top:102px; right:0; bottom:0; z-index:130;}
+.ddp-ui-dash-contents .ddp-loading-part {position:fixed; left:289px; top:102px; right:0; bottom:0; z-index:126;}
 .ddp-ui-dash-contents.ddp-close {left:26px;}
 .ddp-ui-dash-contents.ddp-close .ddp-wrap-naviarea {}
 .ddp-ui-dash-contents .ddp-wrap-naviarea {z-index:126;}
