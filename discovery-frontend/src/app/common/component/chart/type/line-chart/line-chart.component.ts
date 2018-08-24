@@ -378,83 +378,85 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
    */
   protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAsis: boolean): void {
 
-    // 축범위 자동설정일 경우
-    if( grid.autoScaled ) {
-      if( result.data.categories && result.data.categories.length > 0 ) {
-        let min = null;
-        let max = null;
-        _.each(result.data.columns, (column) => {
-          _.each(column.value, (value) => {
-            if( min == null || value < min ) {
-              min = value;
-            }
-            if( max == null || value > max ) {
-              max = value;
-            }
-          });
-        });
-        grid.min = min > 0
-          ? Math.ceil(min - ((max - min) * 0.05))
-          : min
-        grid.max = max;
-      }
-      else {
-        grid.min = result.data.info.minValue > 0
-          ? Math.ceil(result.data.info.minValue - ((result.data.info.maxValue - result.data.info.minValue) * 0.05))
-          : result.data.info.minValue
-        grid.max = result.data.info.maxValue;
-      }
-    }
+    // 라인차트는 Override 함으로서 데이터 가공처리를 하지 않음
 
-    // Min / Max값이 없다면 수행취소
-    if( ((_.isUndefined(grid.min) || grid.min == 0)
-      && (_.isUndefined(grid.max) || grid.max == 0)) ) {
-      return;
-    }
-
-    // 멀티시리즈 개수를 구한다.
-    let seriesList = [];
-    result.data.columns.map((column, index) => {
-      let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
-      let name = "";
-      if( nameArr.length > 1 ) {
-        nameArr.map((temp, index) => {
-          if( index < nameArr.length - 1 ) {
-            if( index > 0 ) {
-              name += CHART_STRING_DELIMITER;
-            }
-            name += temp;
-          }
-        });
-      }
-      else {
-        name = nameArr[0];
-      }
-
-      let isAlready = false;
-      seriesList.map((series, index) => {
-        if( series == name ) {
-          isAlready = true;
-          return false;
-        }
-      });
-
-      if( !isAlready ) {
-        seriesList.push(name);
-      }
-    });
-
-    // Min/Max 처리
-    result.data.columns.map((column, index) => {
-      column.value.map((value, index) => {
-        if( value < grid.min ) {
-          column.value[index] = grid.min;
-        }
-        else if( value > grid.max ) {
-          column.value[index] = grid.max;
-        }
-      });
-    });
+    // // 축범위 자동설정일 경우
+    // if( grid.autoScaled ) {
+    //   if( result.data.categories && result.data.categories.length > 0 ) {
+    //     let min = null;
+    //     let max = null;
+    //     _.each(result.data.columns, (column) => {
+    //       _.each(column.value, (value) => {
+    //         if( min == null || value < min ) {
+    //           min = value;
+    //         }
+    //         if( max == null || value > max ) {
+    //           max = value;
+    //         }
+    //       });
+    //     });
+    //     grid.min = min > 0
+    //       ? Math.ceil(min - ((max - min) * 0.05))
+    //       : min
+    //     grid.max = max;
+    //   }
+    //   else {
+    //     grid.min = result.data.info.minValue > 0
+    //       ? Math.ceil(result.data.info.minValue - ((result.data.info.maxValue - result.data.info.minValue) * 0.05))
+    //       : result.data.info.minValue
+    //     grid.max = result.data.info.maxValue;
+    //   }
+    // }
+    //
+    // // Min / Max값이 없다면 수행취소
+    // if( ((_.isUndefined(grid.min) || grid.min == 0)
+    //   && (_.isUndefined(grid.max) || grid.max == 0)) ) {
+    //   return;
+    // }
+    //
+    // // 멀티시리즈 개수를 구한다.
+    // let seriesList = [];
+    // result.data.columns.map((column, index) => {
+    //   let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
+    //   let name = "";
+    //   if( nameArr.length > 1 ) {
+    //     nameArr.map((temp, index) => {
+    //       if( index < nameArr.length - 1 ) {
+    //         if( index > 0 ) {
+    //           name += CHART_STRING_DELIMITER;
+    //         }
+    //         name += temp;
+    //       }
+    //     });
+    //   }
+    //   else {
+    //     name = nameArr[0];
+    //   }
+    //
+    //   let isAlready = false;
+    //   seriesList.map((series, index) => {
+    //     if( series == name ) {
+    //       isAlready = true;
+    //       return false;
+    //     }
+    //   });
+    //
+    //   if( !isAlready ) {
+    //     seriesList.push(name);
+    //   }
+    // });
+    //
+    // // Min/Max 처리
+    // result.data.columns.map((column, index) => {
+    //   column.value.map((value, index) => {
+    //     if( value < grid.min ) {
+    //       column.value[index] = grid.min;
+    //     }
+    //     else if( value > grid.max ) {
+    //       column.value[index] = grid.max;
+    //     }
+    //   });
+    // });
   }
 
   /**
@@ -572,18 +574,25 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
 
         // 기준선 변경시
         let baseline = 0;
-        if( axisOption[index].baseline != 0 ) {
+        if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
           baseline = axisOption[index].baseline
         }
 
         // 축 범위 자동설정이 설정되지 않았고
         // 오토스케일 적용시
         if( baseline == 0 && axisOption[index].grid.autoScaled ) {
-          // 적용
-          option.min = min > 0
-            ? Math.ceil(min - ((max - min) * 0.05))
-            : min;
-          option.max = max;
+          // // 적용
+          // option.min = min > 0
+          //   ? Math.ceil(min - ((max - min) * 0.05))
+          //   : min;
+          // option.max = max;
+
+          delete option.min;
+          delete option.max;
+          option.scale = true;
+        }
+        else {
+          delete option.scale;
         }
       }
     });

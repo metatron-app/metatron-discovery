@@ -72,11 +72,11 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
   @Input('axis')
   public set setAxis(axis: UIChartAxis) {
     this.axis = axis;
-    axis.baseline = isUndefined(axis.baseline) || isNaN(axis.baseline) ? 0 : axis.baseline;
+    axis.baseline = !isUndefined(axis.baseline) && !isNaN(axis.baseline) ? axis.baseline : undefined;
     this.axisTemp = _.cloneDeep(axis);
     if( this.axisTemp.grid ) {
-      this.axisTemp.grid.min = this.axisTemp.grid.autoScaled || axis.baseline != 0 ? null : this.axisTemp.grid.min;
-      this.axisTemp.grid.max = this.axisTemp.grid.autoScaled || axis.baseline != 0 ? null : this.axisTemp.grid.max;
+      this.axisTemp.grid.min = this.axisTemp.grid.autoScaled || (!_.isUndefined(axis.baseline) && axis.baseline != 0) ? null : this.axisTemp.grid.min;
+      this.axisTemp.grid.max = this.axisTemp.grid.autoScaled || (!_.isUndefined(axis.baseline) && axis.baseline != 0) ? null : this.axisTemp.grid.max;
     }
   }
 
@@ -233,9 +233,34 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
   }
 
   /**
+   * 기준선 show / hide 설정
+   */
+  public showBaseLine(): void {
+
+    // off일떄
+    if( isNaN(this.axisTemp.baseline) ) {
+      this.axisTemp.baseline = _.isUndefined(this.axis.baseline) ? 0 : this.axis.baseline;
+
+    // show일떄
+    } else {
+      delete this.axisTemp.baseline;
+
+      // hide될때 축교차점값 초기화
+      this.axis.baseline = undefined;
+      this.changeBaseline.emit(this.axis);
+    }
+  }
+
+  /**
    * Change Axsi Min Value
    */
   public changeMin(): void {
+
+    // 값이 비어있다면 0으로 치환
+    let value = this.axisTemp.grid.min;
+    if( _.eq(value, "") ) {
+      this.axisTemp.grid.min = 0;
+    }
 
     // Validation
     if( isNaN(this.axisTemp.grid.min) ) {
@@ -244,7 +269,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     }
 
     let min: number = Number(this.axisTemp.grid.min);
-    let max: number = !isNaN(this.axisTemp.grid.max) ? Number(this.axisTemp.grid.max) : 0;
+    let max: number = !isNaN(this.axis.grid.max) ? Number(this.axis.grid.max) : 0;
     if( min >= max ) {
       Alert.info(this.translateService.instant('msg.page.yaxis.grid.min.alert'));
       this.axisTemp.grid.min = this.axis.grid.min != 0 ? this.axis.grid.min : null;
@@ -260,6 +285,11 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
       this.axis.grid.max = 0;
     }
     this.changeBaseline.emit(this.axis);
+
+    // 값이 0이라면 빈값으로 치환
+    if( _.eq(value, "") ) {
+      this.axisTemp.grid.min = null;
+    }
   }
 
   /**
@@ -267,13 +297,19 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
    */
   public changeMax(): void {
 
+    // 값이 비어있다면 0으로 치환
+    let value = this.axisTemp.grid.max;
+    if( _.eq(value, "") ) {
+      this.axisTemp.grid.max = 0;
+    }
+
     // Validation
     if( isNaN(this.axisTemp.grid.max) ) {
       this.axisTemp.grid.max = _.isUndefined(this.axis.grid.max) ? null : this.axis.grid.max;
       return;
     }
 
-    let min: number = Number(this.axisTemp.grid.min);
+    let min: number = Number(this.axis.grid.min);
     let max: number = !isNaN(this.axisTemp.grid.max) ? Number(this.axisTemp.grid.max) : 0;
     if( max <= min ) {
       Alert.info(this.translateService.instant('msg.page.yaxis.grid.max.alert'));
@@ -290,6 +326,11 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
       this.axis.grid.min = 0;
     }
     this.changeBaseline.emit(this.axis);
+
+    // 값이 0이라면 빈값으로 치환
+    if( _.eq(value, "") ) {
+      this.axisTemp.grid.max = null;
+    }
   }
 
   /**

@@ -20,7 +20,8 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy
 import { BaseChart } from '../../base-chart';
 import { BaseOption } from '../../option/base-option';
 import {
-  BarMarkType,
+  AxisType,
+  BarMarkType, CHART_STRING_DELIMITER,
   ChartType,
   DataZoomRangeType,
   Position,
@@ -33,8 +34,11 @@ import {
 import { OptionGenerator } from '../../option/util/option-generator';
 import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import { UIOption } from '../../option/ui-option';
+import {UIChartAxis, UIChartAxisLabelValue, UIOption} from '../../option/ui-option';
 import { DataZoomType } from '../../option/define/datazoom';
+import {UIChartAxisGrid} from '../../option/ui-option/ui-axis';
+import {Axis} from '../../option/define/axis';
+import {AxisOptionConverter} from '../../option/converter/axis-option-converter';
 
 @Component({
   selector: 'bar-chart',
@@ -46,8 +50,6 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 기존 선반 정보 (병렬 / 중첩에따라서 변경되지않는 선반값)
-  private originPivot: Pivot;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -118,9 +120,6 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     // uiOption에 중첩일때의 최소 / 최대값 설정
     this.uiOption = this.setStackMinMaxValue();
-
-    // 기존 선반값 설정
-    this.originPivot = _.cloneDeep(this.pivot);
 
     // 바차트의 중첩 / 병렬에 따른 shelve 정보 변경
     this.pivot = this.changeShelveData(this.pivot);
@@ -386,6 +385,259 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
     return this.uiOption;
   }
 
+  /**
+   * 차트별 Y축 추가정보
+   * - 필요시 각 차트에서 Override
+   * @returns {BaseOption}
+   */
+  protected additionalYAxis(): BaseOption {
+
+    // Min / Max를 재계산한다.
+    this.convertAxisAutoScale(AxisType.Y);
+
+
+    // 차트옵션 반환
+    return this.chartOption;
+  }
+
+  /**
+   * 차트별 X축 추가정보
+   * - 필요시 각 차트에서 Override
+   * @returns {BaseOption}
+   */
+  protected additionalXAxis(): BaseOption {
+
+    // Min / Max를 재계산한다.
+    this.convertAxisAutoScale(AxisType.X);
+
+
+    // 차트옵션 반환
+    return this.chartOption;
+  }
+
+  /**
+   * Min / Max 오토스케일
+   * @param axisType
+   */
+  protected convertAxisAutoScale(axisType: AxisType): BaseOption {
+
+    ///////////////////////////
+    // UI 옵션에서 값 추출
+    ///////////////////////////
+
+    // 축에 해당하는 Axis 옵션
+    let axisOption: UIChartAxis[] = AxisOptionConverter.getAxisOption(this.uiOption, axisType);
+
+    ///////////////////////////
+    // 차트 옵션에 적용
+    ///////////////////////////
+
+    // 축
+    let axis: Axis[] = this.chartOption[axisType];
+
+    _.each(axis, (option: Axis, index) => {
+
+      // Value축일 경우
+      if ((<UIChartAxisLabelValue>axisOption[index].label) && _.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE)
+        && axisOption[index].grid ) {
+
+        let min = null;
+        let max = null;
+        if( this.isStacked() && this.originalData.categories && this.originalData.categories.length > 0 ) {
+          _.each(this.originalData.categories, (category) => {
+            _.each(category.value, (value) => {
+              if( min == null || value < min ) {
+                min = value;
+              }
+              if( max == null || value > max ) {
+                max = value;
+              }
+            });
+          });
+          min = min > 0
+            ? Math.ceil(min - ((max - min) * 0.05))
+            : min;
+          max = max == null ? 0 : max;
+        }
+        else {
+          min = this.originalData.info.minValue > 0
+            ? Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05))
+            : this.originalData.info.minValue;
+          max = this.originalData.info.maxValue;
+        }
+
+        // Min / Max 업데이트
+        AxisOptionConverter.axisMinMax[axisType].min = min;
+        AxisOptionConverter.axisMinMax[axisType].max = max;
+
+        // 기준선 변경시
+        let baseline = 0;
+        if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
+          baseline = axisOption[index].baseline
+        }
+
+        // 축 범위 자동설정이 설정되지 않았고
+        // 오토스케일 적용시
+        if( baseline == 0 && axisOption[index].grid.autoScaled ) {
+          // // 적용
+          // option.min = min > 0
+          //   ? Math.ceil(min - ((max - min) * 0.05))
+          //   : min;
+          // option.max = max;
+
+          delete option.min;
+          delete option.max;
+          option.scale = true;
+        }
+        else {
+          delete option.scale;
+        }
+      }
+    });
+
+    // 반환
+    return this.chartOption;
+  }
+
+  protected calculateMinMax(grid: UIChartAxisGrid, result: any, isYAsis: boolean): void {
+
+    // 축범위 자동설정일 경우
+    if( grid.autoScaled ) {
+      if( this.isStacked() && result.data.categories && result.data.categories.length > 0 ) {
+        let min = null;
+        let max = null;
+        _.each(result.data.categories, (category) => {
+          _.each(category.value, (value) => {
+            if( min == null || value < min ) {
+              min = value;
+            }
+            if( max == null || value > max ) {
+              max = value;
+            }
+          });
+        });
+        grid.min = min > 0
+          ? Math.ceil(min - ((max - min) * 0.05))
+          : min
+        grid.max = max;
+      }
+      else {
+        grid.min = result.data.info.minValue > 0
+          ? Math.ceil(result.data.info.minValue - ((result.data.info.maxValue - result.data.info.minValue) * 0.05))
+          : result.data.info.minValue
+        grid.max = result.data.info.maxValue;
+      }
+    }
+
+    // Min / Max값이 없다면 수행취소
+    if( ((_.isUndefined(grid.min) || grid.min == 0)
+      && (_.isUndefined(grid.max) || grid.max == 0)) ) {
+      return;
+    }
+
+    // 멀티시리즈 개수를 구한다.
+    let seriesList = [];
+    result.data.columns.map((column, index) => {
+      let nameArr = _.split(column.name, CHART_STRING_DELIMITER);
+      let name = "";
+      if( nameArr.length > 1 ) {
+        nameArr.map((temp, index) => {
+          if( index < nameArr.length - 1 ) {
+            if( index > 0 ) {
+              name += CHART_STRING_DELIMITER;
+            }
+            name += temp;
+          }
+        });
+      }
+      else {
+        name = nameArr[0];
+      }
+
+      let isAlready = false;
+      seriesList.map((series, index) => {
+        if( series == name ) {
+          isAlready = true;
+          return false;
+        }
+      });
+
+      if( !isAlready ) {
+        seriesList.push(name);
+      }
+    });
+
+    // Min/Max 처리
+    if( !this.isStacked() || !result.data.categories || result.data.categories.length == 0 ) {
+      result.data.columns.map((column, index) => {
+        column.value.map((value, index) => {
+          if( value < grid.min ) {
+            column.value[index] = grid.min;
+          }
+          else if( value > grid.max ) {
+            column.value[index] = grid.max;
+          }
+        });
+      });
+    }
+    else {
+
+      _.each(result.data.categories, (category, categoryIndex) => {
+        let totalValue = [];
+        let seriesValue = [];
+        result.data.columns.map((column, index) => {
+
+          if( column.name.indexOf(category.name) == -1 ) {
+            return true;
+          }
+
+          column.value.map((value, index) => {
+            if( _.isUndefined(totalValue[index]) || isNaN(totalValue[index]) ) {
+              totalValue[index] = 0;
+              seriesValue[index] = 0;
+            }
+
+            if( totalValue[index] > grid.max ) {
+              column.value[index] = 0;
+            }
+            else if( totalValue[index] + value > grid.max ) {
+              if( seriesValue[index] <= 0 ) {
+                column.value[index] = grid.max;
+              }
+              else {
+                column.value[index] = grid.max - totalValue[index];
+              }
+            }
+            else if( totalValue[index] + value < grid.min ) {
+              column.value[index] = 0;
+            }
+            else if( totalValue[index] < grid.min && totalValue[index] + value > grid.min ) {
+              column.value[index] = totalValue[index] + value;
+            }
+            else {
+              column.value[index] = value;
+            }
+            seriesValue[index] += column.value[index];
+            totalValue[index] += value;
+          });
+        });
+
+        // Min값보다 작다면
+        _.each(totalValue, (value, valueIndex) => {
+          if( value < grid.min ) {
+            result.data.columns.map((column, index) => {
+              column.value.map((value, index) => {
+                if( index == valueIndex ) {
+                  column.value[index] = 0;
+                }
+              });
+            });
+          }
+        });
+      });
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -539,6 +791,27 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
 
     return shelve;
+  }
+
+  /**
+   * Stacked 바차트 여부
+   */
+  private isStacked(): boolean {
+
+    let stacked: boolean = false;
+
+    // 행선반에 dimension 값이 있는경우 찾기
+    console.info(this.originPivot);
+    this.originPivot.rows.forEach((item) => {
+
+      // dimension이면
+      if (item.type === String(ShelveFieldType.DIMENSION)) {
+
+        stacked = true;
+      }
+    });
+
+    return stacked;
   }
 
 }
