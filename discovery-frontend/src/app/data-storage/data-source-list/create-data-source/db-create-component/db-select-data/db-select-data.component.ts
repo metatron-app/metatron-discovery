@@ -542,11 +542,12 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     // params
     const params = {
       connection: {
-        implementor: implementor
+        implementor: implementor,
+        authenticationType: this._sourceData.connectionData.selectedSecurityType.value
       }
     };
-    // if security type is not USERINFO, add username and password in connection
-    if (this._sourceData.connectionData.selectedSecurityType.value !== 'USERINFO') {
+    // if security type is MANUAL, add username and password in connection
+    if (this._sourceData.connectionData.selectedSecurityType.value === 'MANUAL') {
       params.connection['username'] = this._sourceData.connectionData.username;
       params.connection['password'] = this._sourceData.connectionData.password;
     }

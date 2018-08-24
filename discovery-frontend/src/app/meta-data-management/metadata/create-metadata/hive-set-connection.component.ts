@@ -431,8 +431,8 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
       implementor: this.selectedDbType.value,
       authenticationType: this.selectedSecurityType.value,
     };
-    // if security type is not USERINFO, add username and password in connection
-    if (this.selectedSecurityType.value !== 'USERINFO') {
+    // if security type is MANUAL, add username and password in connection
+    if (this.selectedSecurityType.value === 'MANUAL') {
       connection['username'] = this.username;
       connection['password'] = this.password;
     }
