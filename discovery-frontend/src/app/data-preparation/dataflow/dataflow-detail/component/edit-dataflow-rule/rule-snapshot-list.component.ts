@@ -17,6 +17,7 @@ import { AbstractComponent } from '../../../../../common/component/abstract.comp
 import { DataflowService } from '../../../service/dataflow.service';
 import { DataSnapshot } from '../../../../../domain/data-preparation/data-snapshot';
 import { DataSnapshotService } from '../../../../data-snapshot/service/data-snapshot.service';
+import { Alert } from '../../../../../common/util/alert.util';
 
 @Component({
   selector: 'app-rule-snapshot-list',
@@ -62,22 +63,23 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
   public ngOnInit() {
     super.ngOnInit();
+  }
 
-  } // function - ngOnInit
-
-  // Destroy
   public ngOnDestroy() {
-    this.snapshotIntervalStopEvent.emit(); // 폴링 스탑
+    this.snapshotIntervalStopEvent.emit(); // stop interval
     super.ngOnDestroy();
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Returns snapshot status
+   * @param {string} status
+   * @return {string[]}
+   */
   public getSnapshotStatus(status : string) : string[] {
 
     let result = [];
@@ -101,9 +103,8 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
     this.router.navigate(['/management/datapreparation/datasnapshot']);
   } // function - goToSnapshotList
 
-
   /**
-   * 화면 오픈 및 스냅샷 리스트 데이터 전달
+   * INIT
    * @param {DataSnapshot[]} list
    */
   public init(list : DataSnapshot[]) {
@@ -111,10 +112,15 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
   } // function - init
 
   /**
-   * 스냅샷 디테일 팝업 오픈
+   * Open snapshot detail popup
    * @param {DataSnapshot} snapshot
    */
   public snapshotDetail(snapshot : DataSnapshot) {
+
+    if (snapshot.status === 'CANCELED') {
+      return;
+    }
+
     this.snapshotList.forEach((item) => {
       item.isCancel = false;
     });
@@ -122,15 +128,15 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
   } // function - snapshotDetail
 
   /**
-   * 스냅샷 취소 버튼 클릭시 팝업 오픈
+   * Snapshot cancel confirm popup open
    * @param {DataSnapshot} snapshot
    */
   public cancelSnapshot(snapshot: DataSnapshot) {
-    this.snapshotIntervalStopEvent.emit(); // 폴링 스탑
+    this.snapshotIntervalStopEvent.emit(); // Stop interval
 
-    if (snapshot.elapsedTime) { // 생성 완료 된 스냅샷은 취소 안됨
+    if (snapshot.elapsedTime) { // cannot cancel already created snapshot
       return;
-    } else {// cancel
+    } else { // cancel
       snapshot.isCancel = true;
     }
 
@@ -138,20 +144,23 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
 
 
   /**
-   * 스냅샷 생성 취소 확인
-   * @param snapshot
+   * Cancel snapshot
+   * @param snapshot {DataSnapshot}
    */
-  public cancelSnapshotConfirm(snapshot) {
+  public cancelSnapshotConfirm(snapshot : DataSnapshot) {
     snapshot.isCancel = false;
     this.snapshotService.cancelSnapshot(snapshot.ssId).then((result) => {
       if (result.result === 'OK') {
         this.retrieveAllSnapshots.emit(snapshot.ssId);
+      } else {
+        Alert.warning(this.translateService.instant('msg.dp.alert.snapshot.cancel.fail'));
+        this.snapshotList.forEach((item) => {
+          item.isCancel = false;
+        });
       }
-      // 취소 팝업 띄우고 2초 후에 닫힌다.
       setTimeout(() => {
         this.refreshSnapshotList();
-      },3000)
-
+      },2000)
     }).catch((error) => {
       console.info(error);
     })

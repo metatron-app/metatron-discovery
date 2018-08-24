@@ -16,6 +16,8 @@ import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/cor
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { DataSnapshot } from '../../domain/data-preparation/data-snapshot';
 import { DataSnapshotService } from '../data-snapshot/service/data-snapshot.service';
+import { isNullOrUndefined, isUndefined } from 'util';
+import { Alert } from '../../common/util/alert.util';
 
 @Component({
   selector: 'snapshot-loading',
@@ -40,22 +42,21 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
 
   public interval;
 
-  public isShow : boolean = false;          // 팝업 show/hide
-  public snapshotFailed :  boolean = false; // 스냅샷 생성 실패 팝업
-  public snapshotSuccess : boolean = false; // 스냅샷 생성 완료 팝업
-  public snapshotCancel : boolean = false;  // 스냅샷 생성 취소 팝업
-  public inProgress : boolean = true;       // 생성되고 있을때 열릴 팝업
-  public isCanceled : boolean = false;      // 취소 완료 팝업
+  public isShow : boolean = false;            // popup show/hide
+  public snapshotCancel : boolean = false;    // snapshot cancel confirm popup show/hide
+  public inProgress : boolean = true;         // t/f if in progress
+  public isFinishPopupOpen : boolean = false; // t/f is status is failed, succeeded, canceled
 
   public snapshotId : string ;
 
   public progressPercentage : number = 0;
   public isAPIRequested : boolean = false;
+
+  public statusName : string = '';
+  public statusClass : string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
               private snapshotService : DataSnapshotService) {
@@ -66,13 +67,10 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
   public ngOnInit() {
-    // Init
     super.ngOnInit();
   }
 
-  // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
     clearInterval(this.interval);
@@ -81,53 +79,47 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 스냅샷 완료 후 실행
-   * @param snapshotId
+   * Execute first
+   * @param snapshotId {string}
    */
-  public init(snapshotId) {
+  public init(snapshotId: string) {
     this.snapshotId = snapshotId;
     this.getSnapshotDetail(this.snapshotId);
-    this.interval = setInterval(() => {
-      this.getSnapshotDetail(this.snapshotId);
-    },1000);
+    this.getSnapshotDetailWithInterval();
   } // end of init
 
   /**
-   * 스냅샷 상세 조회
-   * @param snapshotId
+   * Fetch snapshot detail with 1 sec interval
    */
-  public getSnapshotDetail(snapshotId) {
+  public getSnapshotDetailWithInterval() {
+    clearInterval(this.interval);
+    this.interval = setInterval(() => {
+      this.getSnapshotDetail(this.snapshotId);
+    },1000);
+  }
+
+  /**
+   * Fetch snapshot detail
+   * @param snapshotId {string}
+   */
+  public getSnapshotDetail(snapshotId: string) {
     if (this.isAPIRequested === false) {
       this.snapshotService.getDataSnapshot(snapshotId).then((result) => {
         this.isAPIRequested = true;
         if (result) {
           this.snapshot = result;
           this.isShow = true;
-          if (!this.snapshot.elapsedTime) {
-            if (this.snapshot.ruleCntTotal === this.snapshot.ruleCntDone ||
-              this.snapshot.ruleCntTotal < this.snapshot.ruleCntDone ) {
-              clearInterval(this.interval);
-              this.inProgress = false;
-              this.snapshotSuccess = true;
-            } else {
-              let val: number  = this.snapshot.ruleCntDone * 100 / (this.snapshot.ruleCntTotal + 1);
-              this.progressPercentage = val;
-            }
-          } else { // 스냅샷 생성 완료
-            this.inProgress = false;
-            this.snapshotSuccess = true;
-            clearInterval(this.interval);
+          let progress = ['NOT_AVAILABLE', 'INITIALIZING', 'RUNNING', 'WRITING', 'TABLE_CREATING'];
+          if (this.snapshot.status === 'FAILED') {
+            this._setFinishPopup('fail');
+          } else if (this.snapshot.status === 'SUCCEEDED') {
+            this._setFinishPopup('success');
+          } else if (-1 !== progress.indexOf(this.snapshot.status)) {
+            this.progressPercentage = this.snapshot.ruleCntDone / (this.snapshot.ruleCntTotal + 1);
+            this.inProgress = true;
           }
+
           this.isAPIRequested = false;
         }
       });
@@ -135,27 +127,26 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
   } // end of getSnapshotDetail
 
   /**
-   * 스냅샷 취소 확인 팝업 오픈
+   * snapshot cancel confirm popup open
    */
   public openCancelSnapshotPopup() {
-    this.snapshotCancel = true
+    this.snapshotCancel = true;
+    clearInterval(this.interval);
   } // end of openCancelSnapshotPopup
 
   /**
-   * 스냅샷 취소
+   * Cancel snapshot
    */
   public cancelSnapshot() {
-    this.snapshotService.cancelSnapshot(this.snapshotId).then(() => {
-
-      clearInterval(this.interval);
-      this.inProgress = false;
-      this.isCanceled = true;
-
-      // 취소 팝업 띄우고 2초 후에 닫힌다.
-      setTimeout(() => {
-        this.close();
-      },2000)
-
+    this.snapshotService.cancelSnapshot(this.snapshotId).then((result) => {
+      if (result.result === 'OK' ) {
+        this._setFinishPopup('cancel');
+      } else {
+        Alert.warning(this.translateService.instant('msg.dp.alert.snapshot.cancel.fail'));
+        this.snapshotCancel = false;
+        this.inProgress = true;
+        this.getSnapshotDetailWithInterval();
+      }
     }).catch((error) => {
       console.info(error);
       clearInterval(this.interval);
@@ -164,17 +155,51 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
   } // end of cancelSnapshot
 
   /**
-   * 스냅샷 리스트로 이동
+   * Jump to snapshot list
    */
   public goToSnapshotList() {
     this.router.navigate(['/management/datapreparation/datasnapshot']);
   } // end of goToSnapshotList
 
   /**
-   * 퍕업 닫기
+   * close popup
    */
   public close() {
     clearInterval(this.interval);
     this.isShow = false;
+    this.isFinishPopupOpen = false;
+    this.inProgress = false;
+    this.snapshotCancel = false;
+
   } // end of close
+
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Protected Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Set values for success, fail, canceled popup
+   * @param {string} status
+   */
+  private _setFinishPopup(status : string) {
+    this.inProgress = false;
+    this.isFinishPopupOpen = true;
+
+    if (status === 'fail') {
+      this.statusName = 'Failed!';
+      this.statusClass = 'fail'
+    } else if (status === 'success') {
+      this.statusName = 'Success!';
+      this.statusClass = 'success'
+    } else {
+      this.statusName = 'Canceled!';
+      this.statusClass = 'success'
+    }
+    clearInterval(this.interval);
+  }
+
 }
