@@ -39,18 +39,14 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
 
-  // 상태 저장용 T/F
-  public isFocus:boolean = false;         // Input Focus 여부
+  public isFocus:boolean = false;         // Input Focus t/f
   public isTooltipShow:boolean = false;   // Tooltip Show/Hide
 
-  // Rule 에 대한 입력 값들
   public delimiter:string = '';
   public newValue:string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -60,73 +56,60 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 컴포넌트 초기 실행
-   */
   public ngOnInit() {
     super.ngOnInit();
-  } // function - ngOnInit
-
-  /**
-   * 화면 초기화
-   */
+  }
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-  } // function - ngAfterViewInit
-
-  /**
-   * 컴포넌트 제거
-   */
+  }
   public ngOnDestroy() {
     super.ngOnDestroy();
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * Rule 형식 정의 및 반환
+   * returns rule String
    * @return {{command: string, col: string, ruleString: string}}
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    // 선택된 컬럼
+    // column
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined
     }
 
-    // 새로운 컬럼명
-    if (!isUndefined(this.newValue)) {
-      let withVal = StringUtil.checkSingleQuote(this.newValue, { isPairQuote: true, isWrapQuote: true });
+    // New Col
+    let newVal = this.newValue;
+    if (!isUndefined(newVal)) {
+      let withVal = StringUtil.checkSingleQuote(newVal, { isPairQuote: true, isWrapQuote: true });
       if (withVal[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.merge.col.error'));
         return undefined
       } else {
-        this.newValue = withVal[1];
+        newVal = withVal[1];
       }
     } else {
-      this.newValue = '\'\'';
+      newVal = '\'\'';
     }
 
-    // 구분자
-    let check = StringUtil.checkSingleQuote(this.delimiter, { isWrapQuote: true });
+    // delimiter
+    let clonedDelimiter = this.delimiter;
+    let check = StringUtil.checkSingleQuote(clonedDelimiter, { isWrapQuote: true });
     if (check[0] === false) {
       Alert.warning(this.translateService.instant('msg.dp.alert.check.delimiter'));
       return undefined
     } else {
-      this.delimiter = check[1];
+      clonedDelimiter = check[1];
     }
 
     let ruleString = 'merge col: ' + this.selectedFields.map( item => item.name ).join(', ')
-      + ' with: ' + this.delimiter + ' as: ' + this.newValue;
+      + ' with: ' + clonedDelimiter + ' as: ' + newVal;
 
-    return {
-      command : 'merge',
-      ruleString: ruleString
-    };
+    return { command : 'merge', ruleString: ruleString };
 
   } // function - getRuleData
 
@@ -134,7 +117,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 필드 변경
+   * change field
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
@@ -142,7 +125,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
   } // function - changeFields
 
   /**
-   * 패턴 정보 레이어 표시
+   * pattern layer show
    * @param {boolean} isShow
    */
   public showHidePatternLayer(isShow:boolean) {
@@ -155,13 +138,13 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 컴포넌트 표시 전 실행
+   * Before component is shown
    * @protected
    */
   protected beforeShowComp() {} // function - _beforeShowComp
 
   /**
-   * 컴포넌트 표시 후 실행
+   * After component is shown
    * @protected
    */
   protected afterShowComp() {
@@ -169,7 +152,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
+   * Parse rule string
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {

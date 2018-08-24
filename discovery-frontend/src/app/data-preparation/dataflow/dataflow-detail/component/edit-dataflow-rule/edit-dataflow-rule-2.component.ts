@@ -380,18 +380,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.ruleVO.cols = this.selectedColumns;
 
-    // const singleSelectRule = ['rename', 'split', 'extract'];
-    // if (-1 !== singleSelectRule.indexOf(command.command)) {
-    //   if (this.selectedColumns.length === 1) {
-    //     this.ruleVO.col = this.selectedColumns[0];
-    //   } else if (this.selectedColumns.length > 1) {
-    //     let col = this.selectedColumns[0];
-    //     this._editRuleGridComp.unSelectionAll();
-    //     this._editRuleGridComp.selectColumn(col, true);
-    //     this.ruleVO.col = col;
-    //   }
-    // }
-
     this.ruleVO.command = command.command;
     this.ruleVO.alias = command.alias;
     this.ruleVO.desc = command.desc;
@@ -431,7 +419,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         let flattenList = this.selectedDataSet.gridData.fields.filter((item) => {
           return item.type === 'ARRAY'
         });
-
         let selectedFlattenList = selectedFields.filter((item) => {
           return item.type === 'ARRAY'
         });
@@ -455,24 +442,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         this.editJoinOrUnionRuleStr = '';
         this.isRuleUnionModalShow = true;
         break;
-      case 'unpivot':
-      case 'nest':
-      case 'header':
-      case 'sort':
-      case 'drop':
-      case 'rename':
-      case 'replace':
-      case 'merge':
-      case 'move':
-      case 'split':
-      case 'extract':
-      case 'countpattern':
-      case 'derive':
-      case 'keep':
-      case 'delete':
-      case 'set':
-      case 'aggregate':
-      case 'pivot':
+      default:
         this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields );
         break;
     }
@@ -1580,6 +1550,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         && !this.isRuleUnionModalShow
         && !this.isRuleJoinModalShow
         && this.step !== 'create-snapshot' && !hasFocus
+        && !this.extendInputFormulaComponent.isShow
       ) {
         this.addRule();
       }
