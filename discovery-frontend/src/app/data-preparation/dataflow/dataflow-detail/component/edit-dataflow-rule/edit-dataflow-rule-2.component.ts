@@ -1480,6 +1480,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     let event = dataRule.event;
     let rule = dataRule.rule;
+    rule.ruleNo = rule.ruleNo-1;
 
     // 인풋박스 포커스 여부 IE 에서 수정버튼을 누르면 툴팁 박스가 열려서...
     this.isFocus = false;
@@ -1492,13 +1493,19 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     event.stopPropagation();
     this.loadingShow();
 
-    const op = { op: 'FETCH' };
+    const op = {
+     op: 'FETCH',
+     ruleIdx: rule.ruleNo
+    };
     // fetch data 1 step before
     this.dataflowService.fetchPreviousData(this.selectedDataSet.dsId, op).then((data) => {
       if (data.errorMsg) {
         Alert.warning(this.translateService.instant('msg.dp.alert.rule.edit.fail'));
       } else {
-        this._setEditRuleInfo(data.ruleCurIdx !== -1 ? data.ruleCurIdx - 1 : data.ruleCurIdx)
+        if( data.ruleCurIdx!=rule.ruleNo ) {
+          console.log(data.ruleCurIdx);
+        }
+        this._setEditRuleInfo(rule.ruleNo)
           .then((data: { apiData: any, gridData: any }) => {
             this.setEditInfo(rule, data.gridData);
           });

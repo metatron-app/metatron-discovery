@@ -1124,6 +1124,8 @@ public class PrepTransformService {
 //              String.format("DELETE is only permitted at the end of the rules: dsId=%s", dataset.getDsId()));
 //    }
 
+    /*
+    // UPDATE의 경우 revision에 따라 룰을 새로 저장하므로 없어도 됨
     List<PrepTransformRule> rules = getRulesInOrder(dsId);
 
     PrepTransformRule rule = getTransformRuleAt(dataset, stageIdx);
@@ -1137,6 +1139,7 @@ public class PrepTransformService {
     }
 
     transformRuleRepository.flush();
+    */
 
     gridResponse = teddyImpl.delete(dsId);
 
@@ -1153,10 +1156,15 @@ public class PrepTransformService {
 
   // UPDATE ////////////////////////////////////////////////////////////
   private PrepTransformResponse update(PrepDataset dataset, String ruleString) throws Exception {
+    /*
     if (dataset.getRuleCurIdx() != dataset.getRuleCnt() - 1) {
       assert dataset.getRuleCurIdx() < dataset.getRuleCnt() :
         String.format("ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt());
       throw new IllegalArgumentException("UPDATE not permitted: UPDATE from the last as needed");
+    }
+    */
+    if (dataset.getRuleCurIdx() <= 0) { // || dataset.getRuleCnt()<dataset.getRuleCurIdx()) {
+      throw new IllegalArgumentException( String.format("UPDATE not permitted: ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt()) );
     }
 
     PrepTransformRule rule = new PrepTransformRule(dataset, dataset.getRuleCurIdx(), ruleString);
@@ -1175,7 +1183,7 @@ public class PrepTransformService {
 
     PrepTransformResponse response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
 
-    assert dataset.getRuleCurIdx() == dataset.getRuleCnt() - 1 :
+    assert dataset.getRuleCurIdx() == dataset.getRuleCnt() :
             String.format("ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt());
 
     return response;
