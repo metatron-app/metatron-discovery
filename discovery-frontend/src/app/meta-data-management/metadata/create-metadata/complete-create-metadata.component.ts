@@ -19,76 +19,57 @@ import { MetadataService } from '../service/metadata.service';
 import { Alert } from '../../../common/util/alert.util';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { MetadataModelService } from '../service/metadata.model.service';
-import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 
+/**
+ * Creating metadata - complete step
+ */
 @Component({
   selector: 'app-complete-create-metadata',
   templateUrl: './complete-create-metadata.component.html'
 })
 export class CompleteCreateMetadataComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   @Output()
   public createComplete: EventEmitter<any> = new EventEmitter();
 
-  // 생성 이름
+  // metadata name
   public createName: string = '';
-  // 생성 설명
+  // metadata description
   public createDescription: string = '';
 
   // validation message
   public nameValidationMsg: string = '';
   public descValidationMsg: string = '';
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
+  // constructor
   constructor(public metaDataModelService: MetadataModelService,
               private _metaDataService: MetadataService,
-              private _connectionService: DataconnectionService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
+  /**
+   * ngOnInit
+   */
   public ngOnInit() {
-    // Init
     super.ngOnInit();
     // init data
     this._initData(this.metaDataModelService.getCreateData());
   }
 
-  // Destory
+  /**
+   * ngOnDestroy
+   */
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 생성 타입 조회
+   * Get metadata create type
    * @returns {string}
    */
   public getCreateType(): string {
@@ -96,15 +77,15 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 선택한 데이터소스 조회
-   * @returns {Object}
+   * Get selected datasource
+   * @returns {any}
    */
-  public getSelectedDatasource(): object {
+  public getSelectedDatasource(): any {
     return this._getSourceStep()['selectedDatasource'];
   }
 
   /**
-   * 현재 타이틀 label
+   * Get complete step title
    * @returns {string}
    */
   public getCompleteTitle(): string {
@@ -118,64 +99,56 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * connectionStep 조회
-   * @returns {Object}
+   * Get connectionStep data
+   * @returns {any}
    * @private
    */
-  public getConnectionStep(): object {
+  public getConnectionStep(): any {
     return this.metaDataModelService.getCreateData()['connectionStep'];
   }
 
   /**
-   * schemaStep 조회
-   * @returns {Object}
+   * Get schemaStep data
+   * @returns {any}
    */
-  public getSchemaStep(): object {
+  public getSchemaStep(): any {
     return this.metaDataModelService.getCreateData()['schemaStep'];
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - event
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 이전 클릭 이벤트
+   * Prev button click event
    */
   public onClickPrev(): void {
-    // 현재 데이터 저장
+    // save complete step data
     this._saveData();
-    // 화면 전환
+    // go to prev step
     this.metaDataModelService.setCreateStep(this._getPrevStep());
   }
 
   /**
-   * 완료 이벤트
+   * Done button click event
    */
   public onClickDone(): void {
-    // validation && 메타데이터 중복되는지 확인 후 메타데이터 생성
+    // if enable done button, check duplicate name and create metadata
     this._doneValidation() && this._checkEnableMetaDataNameAndCreateMetaData();
   }
 
   /**
-   * 이름 키 입력 이벤트
+   * Name keyup event
    */
   public onKeyUpCreateName(): void {
     this.nameValidationMsg = null;
   }
 
   /**
-   * 설명 키 입력 이벤트
+   * Description keyup event
    */
   public onKeyUpCreateDescription(): void {
     this.descValidationMsg = null;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - validation
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 현재 생성타입과 일치하는지 확인
+   * Is equal create type
    * @param {string} type
    * @returns {boolean}
    */
@@ -184,30 +157,14 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 커넥션이 URL 타입인지
-   * @returns {boolean}
-   */
-  public isUrlType(): boolean {
-    return this.getConnectionStep()['selectedUrlType'] === 'URL';
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 데이터 초기화
+   * Load complete step data
    * @param {Object} createData
    * @private
    */
   private _initData(createData: object): void {
-    // 이름
+    // name
     createData['createName'] && (this.createName = createData['createName']);
-    // 설명
+    // description
     createData['createDescription'] && (this.createDescription = createData['createDescription']);
     // validation message
     createData['nameValidationMsg'] && (this.nameValidationMsg = createData['nameValidationMsg']);
@@ -215,13 +172,13 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 현재 데이터 저장
+   * Save complete step data
    * @private
    */
   private _saveData(): void {
-    // 이름
+    // name
     this.metaDataModelService.patchCreateData('createName', this.createName);
-    // 설명
+    // description
     this.metaDataModelService.patchCreateData('createDescription', this.createDescription);
     // validation message
     this.metaDataModelService.patchCreateData('nameValidationMsg', this.nameValidationMsg);
@@ -229,24 +186,24 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * done validation
+   * Is enable done validation
    * @returns {boolean}
    * @private
    */
   private _doneValidation(): boolean {
-    // 이름 필수 체크
+    // if empty create name
     if (StringUtil.isEmpty(this.createName)) {
       // message
       this.nameValidationMsg = this.translateService.instant('msg.alert.edit.name.empty');
       return false;
     }
-    // 이름 길이 체크
+    // if create name over 150
     if (CommonUtil.getByte(this.createName) > 150) {
       // message
       this.nameValidationMsg = this.translateService.instant('msg.alert.edit.name.len');
       return false;
     }
-    // 설명 길이 체크
+    // if empty description
     if (!StringUtil.isEmpty(this.createDescription) && CommonUtil.getByte(this.createDescription.trim()) > 450) {
       // message
       this.descValidationMsg = this.translateService.instant('msg.alert.edit.description.len');
@@ -256,7 +213,7 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 메타데이터 생성
+   * Create metadata
    * @private
    */
   private _createMetaData(): void {
@@ -276,55 +233,30 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 커넥션 생성
-   * @private
-   */
-  private _createConnection(): void {
-    // 로딩 show
-    this.loadingShow();
-    // 커넥션 생성하기
-    this._connectionService.createConnection(this._getCreateConnectionParams())
-      .then((result) => {
-        this._createMetaData()
-      })
-      .catch((error) => {
-        this.commonExceptionHandler(error);
-      });
-  }
-
-  /**
    * 메타데이터 이름 중복 체크후 메타데이터 생성
    * @private
    */
   private _checkEnableMetaDataNameAndCreateMetaData(): void {
-    // 로딩 show
+    // loading show
     this.loadingShow();
-    // 논리명이 중복인지 확인
+    // check duplicate name
     this._metaDataService.getDuplicateMetaDataName(this.createName.trim())
       .then((result) => {
-        // 중복
+        // if duplicated
         if (result['duplicated']) {
           // message
           this.nameValidationMsg = this.translateService.instant('msg.metadata.ui.dictionary.create.valid.logical.name.duplicated', {value: this.createName.trim()});
-          // 로딩 hide
+          // loading hide
           this.loadingHide();
         } else {
-          // 생성타입이 HIVE이고 커넥션 생성을 한다면 생성후 메타데이터 생성
-          this.isCreateType('hive') && this.getConnectionStep()['createConnectionFl'] ? this._createConnection() : this._createMetaData();
+          this._createMetaData();
         }
       })
-      .catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+      .catch(error => this.commonExceptionHandler(error));
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 이전 step 얻기
+   * Get prev step
    * @returns {string}
    * @private
    */
@@ -340,7 +272,7 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * sourceStep 조회
+   * Get sourceStep data
    * @returns {Object}
    * @private
    */
@@ -349,7 +281,7 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 메타데이터 생성에 필요한 파라메터
+   * Get parameter for create metadata
    * @returns {Object}
    * @private
    */
@@ -389,30 +321,6 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
       };
       params['sourceType'] = 'STAGING';
       params['source'] = source;
-    }
-    return params;
-  }
-
-  /**
-   * 커넥션 생성에 필요한 파라메터
-   * @returns {Object}
-   * @private
-   */
-  private _getCreateConnectionParams(): object {
-    const params = {
-      implementor: this.getConnectionStep()['implementor'],
-      type: 'JDBC',
-      name: this.getConnectionStep()['connectionName'].trim()
-    };
-    // username과 password를 사용한다면
-    !StringUtil.isEmpty(this.getConnectionStep()['password']) && (params['password'] = this.getConnectionStep()['password'].trim());
-    !StringUtil.isEmpty(this.getConnectionStep()['username']) && (params['username'] = this.getConnectionStep()['username'].trim());
-    // URL 타입이라면
-    if (this.isUrlType()) {
-      params['url'] = this.getConnectionStep()['url'].trim();
-    } else {
-      params['hostname'] = this.getConnectionStep()['hostname'].trim();
-      params['port'] = this.getConnectionStep()['port'];
     }
     return params;
   }

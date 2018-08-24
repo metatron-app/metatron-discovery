@@ -22,52 +22,40 @@ import { GridComponent } from '../../../common/component/grid/grid.component';
 import * as pixelWidth from 'string-pixel-width';
 import { Field } from '../../../domain/datasource/datasource';
 
+/**
+ * Creating metadata with Hive - schema step
+ */
 @Component({
   selector: 'app-hive-select-schema',
   templateUrl: './hive-select-schema.component.html'
 })
 export class HiveSelectSchemaComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   @ViewChild(GridComponent)
   private _gridComponent: GridComponent;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 데이터베이스 검색어
+  // database search text
   public searchTextDatabase: string = '';
-  // 테이블 검색어
+  // table search text
   public searchTextTable: string = '';
-  // 데이터베이스 목록
+  // database list
   public databaseList: any[] = [];
-  // 테이블 목록
+  // table list
   public tableList: any[] = [];
-  // 선택한 데이터베이스
+  // selected database
   public selectedDatabase: string = '';
-  // 선택한 테이블
+  // selected table
   public selectedTable: string = '';
-  // 상세데이터
+  // table detail data
   public detailData: object = null;
-  // 그리드 flag
+  // grid show hide flag
   public clearGrid: boolean = true;
 
-  // 조회 result message
+  // not exist table show flag
   public resultTableErrorShowFl: boolean = false;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
+  // constructor
   constructor(public metaDataModelService: MetadataModelService,
               private _connectionService: DataconnectionService,
               protected element: ElementRef,
@@ -75,32 +63,27 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
     super(element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
+  /**
+   * ngOnInit
+   */
   public ngOnInit() {
-    // Init
     super.ngOnInit();
-    // 데이터 로드
+    // if exist schemaStep, load data
     this.metaDataModelService.getCreateData()['schemaStep'] && this._loadData(this.metaDataModelService.getCreateData()['schemaStep']);
-    // 데이터베이스 목록이 없다면 데이터베이스 목록 조회
+    // if not exist database list, get database list
     this.databaseList.length === 0 && this._getDatabaseList();
   }
 
-  // Destory
+  /**
+   * ngOnDestroy
+   */
   public ngOnDestroy() {
-    // Destory
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 선택된 데이터베이스 index
+   * Get database index in database list
    * @returns {number}
    */
   public getSelectedDatabaseIndex(): number {
@@ -110,7 +93,7 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 선택된 테이블 index
+   * Get table index in table list
    * @returns {number}
    */
   public getSelectedTableIndex(): number {
@@ -119,94 +102,78 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
     }) : -1;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - validation
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 데이터베이스가 선택된 상태인지 확인
-   * @returns {boolean}
-   */
-  public isSelectedDatabase(): boolean {
-    return this.selectedDatabase !== '';
-  }
-
-  /**
-   * 테이블 상세데이터가 있는지 확인
+   * Is enable next validation
    * @returns {boolean}
    */
   public isExistTableDetail(): boolean {
     return this.detailData !== null;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - event
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 다음 클릭 이벤트
+   * Next button click event
    */
   public onClickNext(): void {
-    // validation
+    // if enable next validation
     if (this.isExistTableDetail()) {
-      // 현재 데이터 저장
+      // save schema step data
       this._saveData();
-      // 화면 전환
+      // go to complete step
       this.metaDataModelService.setCreateStep('complete');
     }
   }
 
   /**
-   * 이전 클릭 이벤트
+   * Prev button click event
    */
   public onClickPrev(): void {
-    // 현재 데이터 저장
+    // save schema step data
     this._saveData();
-    // 화면 전환
+    // go to connection step
     this.metaDataModelService.setCreateStep('hive');
   }
 
   /**
-   * 데이터베이스가 변경된 경우 이벤트
+   * Change database event
    * @param {string} databaseName
    */
   public onChangeDatabase(databaseName: string): void {
-    // 이전에 선택한 테이블 초기화
+    // init table data
     this._initTableDetail();
-    // 선택한 데이터베이스 이름
+    // set selected database
     this.selectedDatabase = databaseName;
-    // 테이블 목록 조회
+    // get table list
     this._getTableList(databaseName);
   }
 
   /**
-   * 테이블이 변경된 경우 이벤트
+   * Change table event
    * @param {string} tableName
    */
   public onChangeTable(tableName: string): void {
-    // 이전에 선택한 테이블 초기화
+    // init table data
     this._initTableDetail();
-    // 선택한 테이블 이름
+    // set selected table
     this.selectedTable = tableName;
-    // 상세정보 조회
+    // get detail data
     this._getDetailData(this.selectedDatabase, tableName);
   }
 
   /**
-   * 데이터베이스 검색어가 변경된 경우 이벤트
+   * Change text for search database event
    * @param {string} searchText
    */
   public onSearchTextDatabase(searchText: string): void {
-    // 데이터베이스 검색어
+    // set text for search database
     this.searchTextDatabase = searchText;
   }
 
   /**
-   * 테이블 검색어가 변경된 경우 이벤트
+   * Change text for search table event
    * @param {string} searchText
    */
   public onSearchTextTable(searchText: string): void {
-    // 테이블 검색어
+    // set text for search table
     this.searchTextTable = searchText;
   }
 
@@ -219,67 +186,67 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 테이블 데이터 init
+   * Init table data
    * @private
    */
   private _initTableDetail(): void {
-    // 테이블 초기화
+    // init selected table
     this.selectedTable = '';
-    // 테이블 상세정보 초기화
+    // init detail data
     this.detailData = null;
-    // 그리드 클리어
+    // grid hide
     this.clearGrid = true;
   }
 
   /**
-   * 현재 데이터 저장
+   * Save schema step data
    * @private
    */
   private _saveData(): void {
     const schemaStep = {
-      // 데이터베이스 목록
+      // database list
       databaseList: this.databaseList,
-      // 테이블 목록
+      // table list
       tableList: this.tableList,
-      // 선택한 데이터베이스
+      // selected database
       selectedDatabase: this.selectedDatabase,
-      // 선택한 테이블
+      // selected table
       selectedTable: this.selectedTable,
-      // 상세데이터
+      // detail data
       detailData: this.detailData,
-      // 그리드 flag
+      // grid show flag
       clearGrid: this.clearGrid
     };
     this.metaDataModelService.patchCreateData('schemaStep', schemaStep);
   }
 
   /**
-   * 데이터 블러오기
+   * Load schema step data
    * @param {Object} schemaStep
    * @private
    */
   private _loadData(schemaStep: object): void {
-    // 데이터베이스 목록
+    // database list
     this.databaseList = schemaStep['databaseList'];
-    // 테이블 목록
+    // table list
     this.tableList = schemaStep['tableList'];
-    // 선택한 데이터베이스
+    // selected database
     this.selectedDatabase = schemaStep['selectedDatabase'];
-    // 선택한 테이블
+    // selected table
     this.selectedTable = schemaStep['selectedTable'];
-    // 그리드 flag
+    // grid show flag
     this.clearGrid = schemaStep['clearGrid'];
-    // 상세데이터가 존재한다면
+    // if exist detail data
     if (schemaStep['detailData']) {
-      // 상세데이터
+      // set detail data
       this.detailData = schemaStep['detailData'];
-      //그리드 업데이트
+      // update grid
       this._updateGrid(schemaStep['detailData'].data, schemaStep['detailData'].fields);
     }
   }
 
   /**
-   * 테이블이름 잘라내기
+   * Slice table name
    * @param key
    * @returns {string}
    * @private
@@ -290,7 +257,7 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 그리드 출력
+   * Draw grid
    * @param {any[]} headers
    * @param {any[]} rows
    * @private
@@ -307,94 +274,90 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * grid 정보 업데이트
+   * Update grid data
    * @param data
    * @param {Field[]} fields
    * @private
    */
   private _updateGrid(data: any, fields: Field[]) {
-    // headers
+    // set headers
     const headers: header[] = this._getHeaders(fields);
-    // rows
+    // set rows
     const rows: any[] = this._getRows(data);
-    // grid 그리기
+    // draw grid
     this._drawGrid(headers, rows);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 데이터베이스 목록 조회
+   * Get database list
    * @private
    */
   private _getDatabaseList(): void {
-    // 로딩 show
+    // loading show
     this.loadingShow();
-    // 데이터 베이스 목록 조회
+    // get database list
     this._connectionService.getDatabasesWithoutId(this._getConnectionParams())
       .then((result) => {
-        // 데이터베이스 목록 저장
+        // set database list
         this.databaseList = result['databases'];
-        // 로딩 hide
+        // loading hide
         this.loadingHide();
       })
       .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
-   * 테이블 목록 조회
+   * Get table list in database
    * @param {string} databaseName
    * @private
    */
   private _getTableList(databaseName: string): void {
-    // 로딩 show
+    // loading show
     this.loadingShow();
-    // resultShowFl
+    // error message hide
     this.resultTableErrorShowFl = false;
-    // 데이터 베이스 목록 조회
+    // get database list
     this._connectionService.getTableListForHiveInMetadata(this._getConnectionParams(databaseName))
       .then((result) => {
-        // 테이블 목록 저장
+        // set table list
         this.tableList = result['tables'] || [];
-        // table이 없다면
+        // if not exist table list, error message show
         result['tables'].length === 0 && (this.resultTableErrorShowFl = true);
-        // 로딩 hide
+        // loading hide
         this.loadingHide();
       })
       .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
-   * 상세 데이터 조회
+   * Get detail data in database table
    * @param {string} databaseName
    * @param {string} tableName
    * @private
    */
   private _getDetailData(databaseName: string, tableName: string): void {
-    // 로딩 show
+    // loading show
     this.loadingShow();
-    // 상세 데이터 조회
+    // get detail data
     this._connectionService.getTableDetailWitoutId(this._getConnectionParams(databaseName, tableName))
       .then((result) => {
         // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
         result['data'] = this._getReplacedDataList(result['data']);
         result['fields'] = this._getReplacedFieldList(result['fields']);
-        // 상세 데이터 저장
+        // set detail data
         this.detailData = result;
-        // 그리드 show
+        // grid show flag true
         this.clearGrid = false;
-        // 그리드 업데이트
+        // update grid
         this._updateGrid(result['data'], result['fields']);
-        // 로딩 hide
+        // loading hide
         this.loadingHide();
       })
       .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
-   * 커넥션 파라메터
+   * Get parameter for connection
    * @param {string} databaseName
    * @param {string} tableName
    * @returns {Object}
@@ -406,28 +369,31 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
     const params = {
       connection: {
         id: connectionData['selectedConnectionPreset'].id,
-        username: connectionData['username'],
-        password: connectionData['password'],
-        implementor: connectionData['implementor']
+        implementor: connectionData['selectedDbType'].value
       },
       type: 'TABLE'
     };
-    // URL 타입이라면
-    if (connectionData['selectedUrlType'] === 'URL') {
+    // if security type is not DIALOG, add username and password in connection
+    if (connectionData.selectedSecurityType.value !== 'DIALOG') {
+      params.connection['username'] = connectionData['username'];
+      params.connection['password'] = connectionData['password'];
+    }
+    // if enable URL
+    if (connectionData['isEnableUrl']) {
       params.connection['url'] = connectionData['url'];
     } else {
       params.connection['hostname'] = connectionData['hostname'];
       params.connection['port'] = connectionData['port'];
     }
-    // database 이름이 있다면
+    // if exist databaseName, add database(databaseName) in parameter
     databaseName && (params['database'] = databaseName);
-    // table 이름이 있다면
+    // if exist tableName, add query(tableName) in parameter
     tableName && (params['query'] = tableName);
     return params;
   }
 
   /**
-   * 변경된 필드 리스트 얻기
+   * Get replaced field in field list
    * @param fields`
    * @private
    */
@@ -442,7 +408,7 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 변경된 데이터 리스트 얻기
+   * Get replaced data in list
    * @param datas
    * @private
    */
@@ -453,7 +419,7 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 변경된 object 파일
+   * Get replaced data in Object
    * @param {Object} data
    * @returns {{} & any}
    * @private
@@ -463,7 +429,7 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 헤더정보 얻기
+   * Get header list
    * @param {Field[]} fields
    * @returns {header[]}
    * @private
@@ -471,9 +437,7 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   private _getHeaders(fields: Field[]) {
     return fields.map(
       (field: Field) => {
-        /* 62 는 CSS 상의 padding 수치의 합산임 */
         const headerWidth:number = Math.floor(pixelWidth(field.name, { size: 12 })) + 62;
-
         return new SlickGridHeader()
           .Id(field.name)
           .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.logicalType.toString()) + '"></em>' + field.name + '</span>')
@@ -492,7 +456,7 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * rows 얻기
+   * Get row list
    * @param data
    * @returns {any[]}
    * @private

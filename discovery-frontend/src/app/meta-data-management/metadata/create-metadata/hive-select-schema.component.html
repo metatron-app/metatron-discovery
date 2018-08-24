@@ -37,6 +37,7 @@
                 (onSelected)="onChangeDatabase($event)"
                 (onSearchText)="onSearchTextDatabase($event)"
                 [defaultIndex]="getSelectedDatabaseIndex()"
+                [isFirstOpenItemList]="selectedDatabase === ''"
                 [array]="databaseList"
                 [usePlaceholder]="true"
                 [unselectedMessage]="'msg.storage.ui.dsource.create.choose-schema' | translate"
@@ -51,6 +52,7 @@
                 (onSelected)="onChangeTable($event)"
                 (onSearchText)="onSearchTextTable($event)"
                 [defaultIndex]="getSelectedTableIndex()"
+                [isFirstOpenItemList]="selectedDatabase !== '' && selectedTable === ''"
                 [array]="tableList"
                 [usePlaceholder]="true"
                 [unselectedMessage]="'msg.storage.ui.dsource.create.choose-table' | translate"
@@ -58,7 +60,7 @@
                 [searchText]="searchTextTable"
                 [isSearchOptions]="true"
                 [isEnableInternalPaging]="true"
-                [isDisabledOptions]="!isSelectedDatabase()">
+                [isDisabledOptions]="selectedDatabase === ''">
               </component-paging-search-select>
               <!-- //select box -->
               <!-- error -->
