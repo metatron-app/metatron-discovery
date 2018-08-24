@@ -127,7 +127,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
       const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
       if (checkIgnore[0] === false) {
-        Alert.warning('Check value of ignore between characters');
+        Alert.warning(this.translateService.instant('msg.dp.alert.check.ignore.char'));
         return undefined;
       } else {
         ruleString += ' quote: ' + checkIgnore[1];

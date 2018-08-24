@@ -40,7 +40,6 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
 
-  // 상태 저장용 T/F
   public isFocus:boolean = false;         // Input Focus 여부
   public isTooltipShow:boolean = false;   // Tooltip Show/Hide
 
@@ -52,8 +51,6 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -63,74 +60,62 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 컴포넌트 초기 실행
-   */
   public ngOnInit() {
     super.ngOnInit();
-  } // function - ngOnInit
+  }
 
-  /**
-   * 화면 초기화
-   */
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-  } // function - ngAfterViewInit
+  }
 
-  /**
-   * 컴포넌트 제거
-   */
   public ngOnDestroy() {
     super.ngOnDestroy();
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * Rule 형식 정의 및 반환
+   * returns rule string
    * @return {{command: string, col: string, ruleString: string}}
    */
   public getRuleData(): { command: string, ruleString: string } {
 
-    // 컬럼
+    // column
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined;
     }
 
-    // 패턴
-    if (isUndefined(this.pattern) || '' === this.pattern || this.pattern === '//' || this.pattern === '\'\'') {
+    // pattern
+    let clonedPattern = this.pattern;
+    if (isUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
       return undefined;
     }
-    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(this.pattern, { isWrapQuote: !StringUtil.checkRegExp(this.pattern) });
+    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(clonedPattern, { isWrapQuote: !StringUtil.checkRegExp(clonedPattern) });
     if (!patternResult[0]) {
       Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
       return undefined;
     }
-    this.pattern = patternResult[1];
 
+    // rule string
     let ruleString = 'countpattern col: ' + this.selectedFields.map( item => item.name ).join(', ')
-      + ' on: ' + this.pattern + ' ignoreCase: ' + this.isIgnoreCase;
+      + ' on: ' + patternResult[1] + ' ignoreCase: ' + this.isIgnoreCase;
 
-    // 다음 문자 사이 무시
+    // Ignore between characters
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
       const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
       if (checkIgnore[0] === false) {
-        Alert.warning('Check value of ignore between characters');
+        Alert.warning(this.translateService.instant('msg.dp.alert.check.ignore.char'));
         return undefined;
       } else {
         ruleString += ' quote: ' + checkIgnore[1];
       }
     }
 
-    return {
-      command : 'countpattern',
-      ruleString: ruleString
-    };
+    return { command : 'countpattern', ruleString: ruleString };
 
   } // function - getRuleData
 
@@ -138,7 +123,7 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 필드 변경
+   * change field
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
@@ -146,7 +131,7 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
   } // function - changeFields
 
   /**
-   * 패턴 정보 레이어 표시
+   * show pattern layer/hide
    * @param {boolean} isShow
    */
   public showHidePatternLayer(isShow:boolean) {
@@ -159,13 +144,13 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 컴포넌트 표시 전 실행
+   * Before component is shown
    * @protected
    */
   protected beforeShowComp() {} // function - _beforeShowComp
 
   /**
-   * 컴포넌트 표시 후 실행
+   * After component is shown
    * @protected
    */
   protected afterShowComp() {
@@ -173,7 +158,7 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
+   * parse rule string
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
@@ -186,7 +171,7 @@ export class EditRuleCountpatternComponent extends EditRuleComponent implements 
 
     this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
 
-    this.isIgnoreCase = Boolean( this.getAttrValueInRuleString( 'ignoreCase', ruleString ) );
+    this.isIgnoreCase = this.getAttrValueInRuleString( 'ignoreCase', ruleString ) === 'true';
 
     this.ignore = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'quote', ruleString ));
 
