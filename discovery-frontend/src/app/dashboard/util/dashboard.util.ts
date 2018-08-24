@@ -40,10 +40,10 @@ export class DashboardUtil {
    * @param {BoardDataSource[]} boardDsList
    * @param {BoardDataSourceRelation[]} relations
    */
-  public static setDataSourceAndRelations(dashboard:Dashboard, boardDsList:BoardDataSource[], relations:BoardDataSourceRelation[] ):Dashboard {
+  public static setDataSourceAndRelations(dashboard: Dashboard, boardDsList: BoardDataSource[], relations: BoardDataSourceRelation[]): Dashboard {
 
     // 조인 조건의 유효성 체크
-    let verityJoin = function(joinMappings: JoinMapping[]): boolean {
+    let verityJoin = function (joinMappings: JoinMapping[]): boolean {
       return joinMappings.every(join => {
           // KeyPair가 등록된게 없을 경우
           if (Object.keys(join.keyPair).length === 0) {
@@ -85,13 +85,13 @@ export class DashboardUtil {
       multiDataSource.type = 'multi';
       multiDataSource.dataSources = boardDsList;
 
-      if( relations ) {   // 연계 정보 설정
-        multiDataSource.associations = relations.map( item => {
-          const relInfo:BoardDataSourceRelation = new BoardDataSourceRelation();
+      if (relations) {   // 연계 정보 설정
+        multiDataSource.associations = relations.map(item => {
+          const relInfo: BoardDataSourceRelation = new BoardDataSourceRelation();
           relInfo.source = item.ui.source.engineName;
           relInfo.target = item.ui.target.engineName;
           relInfo.columnPair = {};
-          relInfo.columnPair[ item.ui.sourceField.name ] = item.ui.targetField.name;
+          relInfo.columnPair[item.ui.sourceField.name] = item.ui.targetField.name;
           delete relInfo.ui;
           return relInfo;
         });
@@ -103,6 +103,22 @@ export class DashboardUtil {
     return dashboard;
 
   } // function - setDataSourceAndRelations
+
+  /**
+   * 대시보드 데이터소스 스펙을 서버 스펙으로 변경함
+   * @param {BoardDataSource} dataSource
+   * @return {BoardDataSource}
+   */
+  public static convertBoardDataSourceSpecToServer(dataSource: BoardDataSource): BoardDataSource {
+    // 불필요 속성 제거
+    let keyMap: string[] = ['type', 'name', 'joins', 'temporary', 'dataSources', 'associations'];
+    for (let key of Object.keys(dataSource)) {
+      if (-1 === keyMap.indexOf(key)) {
+        delete dataSource[key];
+      }
+    }
+    return dataSource;
+  } // function - convertBoardDataSourceSpecToServer
 
   /**
    * 페이지위젯 스펙을 서버 스펙으로 변경함
@@ -136,7 +152,8 @@ export class DashboardUtil {
    * @return {boolean}
    */
   public static isSameDataSource(boardDs: BoardDataSource, dataSource: Datasource): boolean {
-    return (boardDs.name === dataSource.name || boardDs.name === dataSource.engineName)
+    return (boardDs.name === dataSource.name || boardDs.name === dataSource.engineName);
+    // return boardDs.engineName === dataSource.engineName;
   } // function - isSameDataSource
 
   /**
@@ -164,25 +181,25 @@ export class DashboardUtil {
    * @param {Dashboard} board
    * @return {BoardDataSource}
    */
-  public static getFirstBoardDataSource(board:Dashboard):BoardDataSource {
-    const boardDataSource:BoardDataSource = board.configuration.dataSource;
-    return ( 'multi' === boardDataSource.type  ) ? boardDataSource.dataSources[0] : boardDataSource;
+  public static getFirstBoardDataSource(board: Dashboard): BoardDataSource {
+    const boardDataSource: BoardDataSource = board.configuration.dataSource;
+    return ('multi' === boardDataSource.type) ? boardDataSource.dataSources[0] : boardDataSource;
   } // function - getFirstBoardDataSource
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * 특정 데이터소스에 연계된 데이터소스 목록을 얻느다. ( 멀티데이터소스 )
    * @param {Dashboard} board
-   * @param {string} dsEngineName
+   * @param {string} engineName
    * @return {Datasource[]}
    */
-  public static getRelationBoardDataSources(board: Dashboard, dsEngineName: string): Datasource[] {
+  public static getRelationBoardDataSources(board: Dashboard, engineName: string): Datasource[] {
     const boardDs: BoardDataSource = board.configuration.dataSource;
     if ('multi' === boardDs.type && boardDs.associations) {
       return boardDs.associations
-        .filter((rel: BoardDataSourceRelation) => (dsEngineName === rel.source || dsEngineName === rel.target))
+        .filter((rel: BoardDataSourceRelation) => (engineName === rel.source || engineName === rel.target))
         .map((rel: BoardDataSourceRelation) => {
-          const relDsId: string = (rel.source === dsEngineName) ? rel.target : rel.source;
+          const relDsId: string = (rel.source === engineName) ? rel.target : rel.source;
           return board.dataSources.find(item => item.engineName === relDsId);
         });
     } else {
@@ -195,19 +212,19 @@ export class DashboardUtil {
   /**
    * 특정 데이터소스에 연계된 다른 데이터소스의 연계 필드에 대한 필터 목록을 얻는다. (멀티데이터소스)
    * @param {Dashboard} board
-   * @param {string} dsEngineName
+   * @param {string} engineName
    * @return {Filter[]}
    */
-  public static getRelationDsFilters(board: Dashboard, dsEngineName: string): Filter[] {
+  public static getRelationDsFilters(board: Dashboard, engineName: string): Filter[] {
     const boardDs: BoardDataSource = board.configuration.dataSource;
     if ('multi' === boardDs.type && boardDs.associations) {
       return boardDs.associations
-        .filter((rel: BoardDataSourceRelation) => (dsEngineName === rel.source || dsEngineName === rel.target))
+        .filter((rel: BoardDataSourceRelation) => (engineName === rel.source || engineName === rel.target))
         .reduce((acc, rel: BoardDataSourceRelation) => {
           // 연결되는 데이터소스의 필터 반환
           let relDsId: string = undefined;
           let relField: string = undefined;
-          if (rel.source === dsEngineName) {
+          if (rel.source === engineName) {
             relDsId = boardDs.dataSources.find(item => item.engineName === rel.target).id;
             relField = rel.columnPair[Object.keys(rel.columnPair)[0]];
           } else {
@@ -226,19 +243,19 @@ export class DashboardUtil {
   /**
    * 연계된 데이터소스에 대한 전체 필터 목록 조회
    * @param {Dashboard} board
-   * @param {string} dsId
+   * @param {string} engineName
    * @param {Filter[]} totalFilters
    * @return {Filter[]}
    */
-  public static getAllFiltersDsRelations(board: Dashboard, dsId: string, totalFilters?: Filter[]): Filter[] {
+  public static getAllFiltersDsRelations(board: Dashboard, engineName: string, totalFilters?: Filter[]): Filter[] {
     (totalFilters) || (totalFilters = board.configuration.filters);
     // 대상 데이터소스의 필터 목록 - getFiltersForBoardDataSource
-    let srcDsFilters: Filter[] = totalFilters.filter(filter => filter.dataSource === dsId);
+    let srcDsFilters: Filter[] = totalFilters.filter(filter => filter.dataSource === engineName);
     // 연계 데이터소스의 연계 필드에 대응하는 대상 데이터소스의 필드의 필터
     const boardDs: BoardDataSource = board.configuration.dataSource;
     let relDsFilters: Filter[] = [];
     if ('multi' === boardDs.type && boardDs.associations) {
-      const srcDs: BoardDataSource = boardDs.dataSources.find(item => item.id === dsId);
+      const srcDs: BoardDataSource = boardDs.dataSources.find(item => item.engineName === engineName);
       relDsFilters = boardDs.associations
         .filter((rel: BoardDataSourceRelation) => (srcDs.engineName === rel.source || srcDs.engineName === rel.target))
         .reduce((acc, rel: BoardDataSourceRelation) => {
@@ -259,7 +276,7 @@ export class DashboardUtil {
             totalFilters
               .filter((item: Filter) => item.dataSource === relDsId && item.field === relField)
               .map((item: Filter) => {
-                item.dataSource = dsId;
+                item.dataSource = engineName;
                 item.field = srcField;
                 return item;
               })
@@ -314,32 +331,21 @@ export class DashboardUtil {
   /**
    * 보드데이터소스에 대한 필터 목록 조회
    * @param {Dashboard} board
-   * @param {string} dsId
+   * @param {string} engineName
    * @returns {Filter[]}
    */
-  public static getFiltersForBoardDataSource(board: Dashboard, dsId: string): Filter[] {
-    /*
-        const fieldNames: string[] = board.configuration.fields
-          .filter(field => field.uiMasterDsId === dsId)
-          .map(item => (item.name) ? item.name : item.ref);
-        if (isNullOrUndefined(fieldNames)) {
-          return [];
-        } else {
-          return board.configuration.filters
-            .filter(filter => -1 < fieldNames.indexOf(filter.field) && filter.dataSource === dsId);
-        }
-    */
-    return board.configuration.filters.filter(filter => filter.dataSource === dsId);
+  public static getFiltersForBoardDataSource(board: Dashboard, engineName: string): Filter[] {
+    return board.configuration.filters.filter(filter => filter.dataSource === engineName);
   } // function - getFiltersForBoardDataSource
 
   /**
    * 메인 데이터소스로부터 필드 목록을 얻는다.
    * @param {BoardConfiguration} boardConf
-   * @param {string} dataSourceId
+   * @param {string} engineName
    * @return {T[]}
    */
-  public static getFieldsForMainDataSource(boardConf: BoardConfiguration, dataSourceId: string) {
-    return (boardConf.fields) ? boardConf.fields.filter(item => item.uiMasterDsId === dataSourceId) : [];
+  public static getFieldsForMainDataSource(boardConf: BoardConfiguration, engineName: string) {
+    return (boardConf.fields) ? boardConf.fields.filter(item => item.dataSource === engineName) : [];
   } // function - getFieldsForMainDataSource
 
   /**
@@ -432,14 +438,14 @@ export class DashboardUtil {
   /**
    * 필드명으로 필드객체 조회
    * @param {Dashboard} board     대시보드 객체
-   * @param {string} masterDsId   필드가 속한 데이터소스 아이디
+   * @param {string} engineName   필드가 속한 데이터소스 아이디
    * @param {string} fieldName    필드 이름
    * @param {string} ref          필드 레퍼런스
    * @return {Field}
    */
-  public static getFieldByName(board: Dashboard, masterDsId: string, fieldName: string, ref?: string): Field {
+  public static getFieldByName(board: Dashboard, engineName: string, fieldName: string, ref?: string): Field {
     const boardConf: BoardConfiguration = board.configuration;
-    const fields = masterDsId ? boardConf.fields.filter(item => item.uiMasterDsId === masterDsId) : boardConf.fields;
+    const fields = engineName ? boardConf.fields.filter(item => item.dataSource === engineName) : boardConf.fields;
     let customFields = [];
 
     // 사용자 정의 필드
@@ -526,7 +532,7 @@ export class DashboardUtil {
    * @return {Filter}
    */
   public static getBoardFilter(board: Dashboard, field: Field): Filter {
-    return board.configuration.filters.find(item => item.dataSource === field.uiMasterDsId && item.field === field.name);
+    return board.configuration.filters.find(item => item.dataSource === field.dataSource && item.field === field.name);
   } // function - getBoardFilter
 
   /**
