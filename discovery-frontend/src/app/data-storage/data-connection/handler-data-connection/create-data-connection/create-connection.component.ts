@@ -210,7 +210,7 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
    * @returns {boolean}
    */
   public isRequiredDatabase(): boolean {
-    return this.selectedDbType.value === 'POSTGRE';
+    return this.selectedDbType.value === 'POSTGRESQL';
   }
 
   /**

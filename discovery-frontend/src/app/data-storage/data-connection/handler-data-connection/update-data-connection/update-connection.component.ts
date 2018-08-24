@@ -242,6 +242,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
    * Publish connection for workspace click event
    */
   public onClickPublishConnection(): void {
+    event.preventDefault();
     const modal = new Modal();
     modal.data = 'published';
     // if connection is published
@@ -273,7 +274,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
    * @returns {boolean}
    */
   public isRequiredDatabase(): boolean {
-    return this.selectedDbType.value === 'POSTGRE';
+    return this.selectedDbType.value === 'POSTGRESQL';
   }
 
   /**
