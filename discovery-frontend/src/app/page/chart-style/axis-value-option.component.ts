@@ -269,7 +269,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     }
 
     let min: number = Number(this.axisTemp.grid.min);
-    let max: number = !isNaN(this.axisTemp.grid.max) ? Number(this.axisTemp.grid.max) : 0;
+    let max: number = !isNaN(this.axis.grid.max) ? Number(this.axis.grid.max) : 0;
     if( min >= max ) {
       Alert.info(this.translateService.instant('msg.page.yaxis.grid.min.alert'));
       this.axisTemp.grid.min = this.axis.grid.min != 0 ? this.axis.grid.min : null;
@@ -309,7 +309,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
       return;
     }
 
-    let min: number = Number(this.axisTemp.grid.min);
+    let min: number = Number(this.axis.grid.min);
     let max: number = !isNaN(this.axisTemp.grid.max) ? Number(this.axisTemp.grid.max) : 0;
     if( max <= min ) {
       Alert.info(this.translateService.instant('msg.page.yaxis.grid.max.alert'));

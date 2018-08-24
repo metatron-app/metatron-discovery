@@ -260,7 +260,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       }
 
       // Min/Max 변경
-      if( !_.isUndefined(this.uiOption.yAxis.grid) ) {
+      if( !_.isUndefined(this.uiOption.yAxis.grid)
+          && !this.uiOption.yAxis.grid.autoScaled ) {
 
         this.calculateMinMax(this.uiOption.yAxis.grid, result, true);
       }
@@ -279,7 +280,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       }
 
       // Min/Max 변경
-      if( !_.isUndefined(this.uiOption.xAxis.grid) ) {
+      if( !_.isUndefined(this.uiOption.xAxis.grid)
+          && !this.uiOption.xAxis.grid.autoScaled ) {
 
         this.calculateMinMax(this.uiOption.xAxis.grid, result, false);
       }

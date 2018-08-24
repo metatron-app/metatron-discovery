@@ -479,11 +479,18 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
         // 축 범위 자동설정이 설정되지 않았고
         // 오토스케일 적용시
         if( baseline == 0 && axisOption[index].grid.autoScaled ) {
-          // 적용
-          option.min = min > 0
-            ? Math.ceil(min - ((max - min) * 0.05))
-            : min;
-          option.max = max;
+          // // 적용
+          // option.min = min > 0
+          //   ? Math.ceil(min - ((max - min) * 0.05))
+          //   : min;
+          // option.max = max;
+
+          delete option.min;
+          delete option.max;
+          option.scale = true;
+        }
+        else {
+          delete option.scale;
         }
       }
     });
