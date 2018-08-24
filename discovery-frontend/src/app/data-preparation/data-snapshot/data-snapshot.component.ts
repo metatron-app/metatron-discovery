@@ -130,17 +130,26 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
         this.datasnapshots = [];
 
         let statusNum = 0;
-        data['_embedded'].preparationsnapshots.forEach((obj) => {
-          if( true===isUndefined(obj.finishTime) ) {
-            obj.status = 'PREPARING';
-          } else {
+        data['_embedded'].preparationsnapshots.forEach((obj : DataSnapshot) => {
+          if ( ['SUCCEEDED'].indexOf(obj.status) >= 0){
+            obj.displayStatus = 'SUCCESS';
             statusNum+=1;
-            if( false===isUndefined(obj.custom) && "fail_msg"==obj.custom.match("fail_msg") ) {
-              obj.status = 'FAIL';
-            } else {
-              obj.status = 'SUCCESS';
-            }
+          } else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(obj.status) >= 0) {
+            obj.displayStatus = 'PREPARING';
+          } else  { //'FAILED','CANCELED','NOT_AVAILABLE'
+            obj.displayStatus = 'FAIL';
+            statusNum+=1;
           }
+          // if( true===isUndefined(obj.finishTime) ) {
+          //   obj.displayStatus = 'PREPARING';
+          // } else {
+          //   statusNum+=1;
+          //   if( false===isUndefined(obj.custom) && "fail_msg"==obj.custom.match("fail_msg") ) {
+          //     obj.displayStatus = 'FAIL';
+          //   } else {
+          //     obj.displayStatus = 'SUCCESS';
+          //   }
+          // }
         });
 
         this.datasnapshots = data['_embedded'].preparationsnapshots;
@@ -212,11 +221,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   /** 스냅샷 상세 */
   public snapshotDetail(item) {
-
     // if(!item.finishTime) {
     //   return;
     // }
-
     // this.step = 'snapshot-detail';
     // this.ssId = item.ssId;
     clearInterval(this.interval);

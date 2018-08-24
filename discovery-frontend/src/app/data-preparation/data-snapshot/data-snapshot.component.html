@@ -139,14 +139,13 @@
           {{item.creatorDfName}} | {{item.dsName}}
         </td>
         <td>
-          <span class="ddp-data-state ddp-rejected" *ngIf="item.status === 'FAIL'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.fail' | translate}}</span>
-          <span class="ddp-data-state ddp-success" *ngIf="item.status === 'SUCCESS'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.success' | translate}}</span>
-          <span class="ddp-data-state ddp-inprogress" *ngIf="item.status === 'PREPARING'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.preparing' | translate}}
+          <span class="ddp-data-state ddp-rejected" *ngIf="item.displayStatus === 'FAIL'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.fail' | translate}}</span>
+          <span class="ddp-data-state ddp-success" *ngIf="item.displayStatus === 'SUCCESS'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.success' | translate}}</span>
+          <span class="ddp-data-state ddp-inprogress" *ngIf="item.displayStatus === 'PREPARING'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.preparing' | translate}}
             <em class="ddp-icon-error2" *ngIf="false"></em>
             <!-- 툴팁 -->
                   <div class="ddp-ui-tooltip-info">
-                      <em class="ddp-icon-view-left"></em>
-                      데이터 소스 삭제로 생성이 지연되고 있습니다.
+                      <em class="ddp-icon-view-left"></em>{{'msg.dp.th.ss.delayed-del-ds' | translate}}
                   </div>
             <!-- //툴팁 -->
           </span>
@@ -175,4 +174,4 @@
 </div>
 
 <app-delete-modal (deleteConfirm)="deleteDataSnapshot()" [enableCloseOutput]="true" (closeOutput)="closeDetail()"></app-delete-modal>
-<app-data-snapshot-detail></app-data-snapshot-detail>
+<app-data-snapshot-detail (snapshotDetailCloseEvent)="closeDetail()"></app-data-snapshot-detail>
