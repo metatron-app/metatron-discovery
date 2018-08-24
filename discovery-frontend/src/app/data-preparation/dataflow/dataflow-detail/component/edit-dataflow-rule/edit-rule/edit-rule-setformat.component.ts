@@ -171,12 +171,12 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
     // 선택된 컬럼
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return undefined
+      return undefined;
     }
 
     if ('Custom format' === this.selectedTimestamp && '' === this.customTimestamp || '' === this.selectedTimestamp) {
       Alert.warning('Timestamp format must not be null');
-      return undefined
+      return undefined;
     }
 
     let ruleString = 'setformat col: ' + this.selectedFields.map( item => item.name ).join(', ') + ' format: ';
@@ -184,7 +184,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
     let check = StringUtil.checkSingleQuote(val, { isPairQuote: false, isWrapQuote: true });
     if (check[0] === false) {
       Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
-      return;
+      return undefined;
     } else {
       val = check[1];
     }

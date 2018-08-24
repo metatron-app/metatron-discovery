@@ -266,6 +266,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     } else {
       this.isTimestamp = false;
     }
+    this.safelyDetectChanges();
   }
 
   /**

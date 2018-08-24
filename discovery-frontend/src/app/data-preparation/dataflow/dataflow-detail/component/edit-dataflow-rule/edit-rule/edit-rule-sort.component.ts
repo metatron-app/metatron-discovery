@@ -35,7 +35,7 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
   public sortList : any [];
-  public defaultIndex : number = -1;
+  public defaultIndex : number = 0;
   public sortBy : string;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -146,7 +146,10 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
    * 컴포넌트 표시 후 실행
    * @protected
    */
-  protected afterShowComp() {} // function - afterShowComp
+  protected afterShowComp() {
+    // default is asc
+    this.sortBy = this.sortList[0].type;
+  } // function - afterShowComp
 
   /**
    * rule string 을 분석한다.

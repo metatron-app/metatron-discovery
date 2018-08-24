@@ -103,16 +103,17 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
     }
 
     // 패턴
-    if (isUndefined(this.pattern) || '' === this.pattern || this.pattern === '//' || this.pattern === '\'\'') {
+    let clonedPattern = this.pattern;
+    if (isUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
       return undefined;
     }
-    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(this.pattern, { isWrapQuote: !StringUtil.checkRegExp(this.pattern) });
+    const patternResult:[boolean, string] = StringUtil.checkSingleQuote(clonedPattern, { isWrapQuote: !StringUtil.checkRegExp(clonedPattern) });
     if (!patternResult[0]) {
       Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
       return undefined;
     }
-    this.pattern = patternResult[1];
+    clonedPattern = patternResult[1];
 
     // 횟수
     if (isUndefined(this.limit) ) {
@@ -120,8 +121,8 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
       return undefined;
     }
 
-    let ruleString = 'split col: ' + this.selectedFields.map( item => item.name ).join(', ')
-      + ' on: ' + this.pattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
+    let ruleString = 'split col: ' + this.selectedFields[0].name
+      + ' on: ' + clonedPattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
 
     // 다음 문자 사이 무시
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {

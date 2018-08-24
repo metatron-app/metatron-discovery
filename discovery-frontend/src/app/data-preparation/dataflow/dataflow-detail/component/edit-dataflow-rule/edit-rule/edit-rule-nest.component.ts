@@ -102,7 +102,8 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
       this.selectedType = 'map';
     }
 
-    if (isUndefined(this.inputValue) || '' === this.inputValue) {
+    let inputVal = this.inputValue;
+    if (isUndefined(inputVal) || '' === inputVal) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
       return undefined;
     }
@@ -111,7 +112,7 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
     return {
       command: 'nest',
       col: columnsStr,
-      ruleString: `nest col: ${columnsStr} into: ${this.selectedType} as: ${this.inputValue}`
+      ruleString: `nest col: ${columnsStr} into: ${this.selectedType} as: ${inputVal}`
     };
 
   } // function - getRuleData

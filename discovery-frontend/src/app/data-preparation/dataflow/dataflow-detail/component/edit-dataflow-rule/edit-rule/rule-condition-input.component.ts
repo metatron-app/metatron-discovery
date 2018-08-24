@@ -486,6 +486,7 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
     input.selectionStart = result[1];
     input.selectionEnd = result[1];
 
+    this.formula = input.value;
     this.safelyDetectChanges();
     this.onChange.emit(this.formula);
 

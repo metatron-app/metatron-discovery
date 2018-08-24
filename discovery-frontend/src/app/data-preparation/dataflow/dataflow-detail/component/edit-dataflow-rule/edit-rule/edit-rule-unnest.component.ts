@@ -96,16 +96,17 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
     }
 
     // surround idx with single quotation
-    let check = StringUtil.checkSingleQuote(this.selVal, { isWrapQuote: true });
+    let clonedSelVal = this.selVal;
+    let check = StringUtil.checkSingleQuote(clonedSelVal, { isWrapQuote: true });
     if (check[0] === false) {
       Alert.warning(this.translateService.instant('Check element value'));
       return undefined;
     } else {
-      this.selVal = check[1];
+      clonedSelVal = check[1];
     }
 
     let ruleString = 'unnest col: ' + this.selectedFields.map( item => item.name ).join(', ');
-    ruleString += ` into: ${this.selectedFields[0].type} idx: ${this.selVal}`;
+    ruleString += ` into: ${this.selectedFields[0].type} idx: ${clonedSelVal}`;
 
     return{
       command : 'unnest',
