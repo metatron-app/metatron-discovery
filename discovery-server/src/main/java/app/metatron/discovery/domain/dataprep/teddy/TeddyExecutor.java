@@ -129,6 +129,12 @@ public class TeddyExecutor {
     cores =             (Integer) prepPropertiesInfo.get(ETL_CORES);
     timeout =           (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
     limitRows =         (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
+
+    if (hadoopConfDir != null) {
+      conf = new Configuration();
+      conf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
+      conf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
+    }
   }
 
   @Async("threadPoolTaskExecutor")
@@ -237,9 +243,6 @@ public class TeddyExecutor {
 
   private Future<String> createHdfsSnapshot(String hadoopConfDir, String[] argv) throws Throwable {
     LOGGER.info("createHdfsSnapshot(): adding hadoop config files (if exists): " + hadoopConfDir);
-    conf = new Configuration();
-    conf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
-    conf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
 
     fs = FileSystem.get(conf);
 
@@ -305,9 +308,6 @@ public class TeddyExecutor {
     LOGGER.info("callback: restAPIserverPort={} oauth_token={}", restAPIserverPort, oauth_token.substring(0, 10));
 
     LOGGER.info("run(): adding hadoop config files (if exists): " + hadoopConfDir);
-    conf = new Configuration();
-    conf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
-    conf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
 
     fs = FileSystem.get(conf);
 
