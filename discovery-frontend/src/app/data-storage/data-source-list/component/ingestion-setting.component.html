@@ -200,24 +200,48 @@
           </div>
           <div class="ddp-radio-hidden">
             <label class="ddp-label-radio" (change)="onChangePartitionType(partitionTypeList[1])">
-              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[1].value" [disabled]="getPartitionFields().length === 0">
+              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[1].value" [disabled]="partitionKeyList.length === 0">
               <i class="ddp-icon-radio"></i>
               <span class="ddp-txt-radio">{{partitionTypeList[1].label}}</span>
             </label>
             <!-- partition -->
-            <div class="ddp-wrap-partition" *ngIf="getPartitionFields().length !== 0">
-              <div class="ddp-ui-partition">
-                <ul class="ddp-list-partition ddp-type">
-                  <li *ngFor="let partition of getPartitionFields()">
-                    <span class="ddp-ui-label">{{partition.name}}</span>
-                    <div class="ddp-data">
-                      <span class="ddp-txt-data">{{partition.value}}</span>
+            <div class="ddp-wrap-partition" *ngIf="partitionKeyList.length !== 0">
+              <!--<div class="ddp-ui-partition">-->
+                <!--<ul class="ddp-list-partition ddp-type">-->
+                  <!--<li *ngFor="let partition of partitionKeyList">-->
+                    <!--<span class="ddp-ui-label">{{partition.name}}</span>-->
+                    <!--<div class="ddp-data">-->
+                      <!--<span class="ddp-txt-data">{{partition.value}}</span>-->
 
-                    </div>
+                    <!--</div>-->
+                  <!--</li>-->
+                <!--</ul>-->
+              <!--</div>-->
+              <div class="ddp-ui-partition">
+                <ul class="ddp-list-partition" *ngFor="let keys of partitionKeyList; let i = index">
+                  <li *ngFor="let key of keys"
+                      [ngClass]="{'ddp-disabled' : selectedPartitionType.value === 'DISABLE' || !isEnabledPartitionInput(keys, key)}">
+                    <span class="ddp-ui-label" *ngIf="i === 0">{{key.name}}</span>
+                    <input type="text" class="ddp-input-typebasic" [(ngModel)]="key.value">
                   </li>
                 </ul>
+                <!-- button -->
+                <div class="ddp-btn-control" *ngIf="partitionKeyList.length !== 0">
+                  <!-- 추가 -->
+                  <em class="ddp-icon-control-plus"
+                      (click)="addPartitionKeys()"
+                      *ngIf="partitionKeyList.length < 20">
+                  </em>
+                  <!-- //추가 -->
+                  <!-- 제거 -->
+                  <em class="ddp-icon-control-cut"
+                      (click)="deletePartitionKeys()"
+                      *ngIf="partitionKeyList.length > 1">
+                  </em>
+                  <!-- //제거 -->
+                </div>
+                <!-- //button -->
               </div>
-
             </div>
             <!-- //partition -->
           </div>

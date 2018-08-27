@@ -322,7 +322,7 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
    * @returns {any}
    */
   private get _getPartitionFields() {
-    return this.getIngestionData.partitionKeys;
+    return this.getIngestionData.partitionKeyList;
   }
 
   /**
@@ -417,7 +417,7 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       // loop
       for (let j = 0; j < partitionKeys.length; j++) {
         // is value empty break for loop
-        if (partitionKeys[j].value === undefined || partitionKeys[j].value.trim() === '') {
+        if (StringUtil.isEmpty(partitionKeys[j].value)) {
           break;
         }
         // add partition
@@ -450,10 +450,10 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       ingestion['intervals'] = [this.getIngestionData.startDateTime + '/' + this.getIngestionData.endDateTime];
     }
     // advanced setting
-    if (this.getIngestionData.tuningConfig) {
+    if (this.getIngestionData.tuningConfig.length > 0) {
       ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
-    if (this.getIngestionData.jobProperties) {
+    if (this.getIngestionData.jobProperties.length > 0) {
       ingestion['jobProperties'] = this._toObject(this.getIngestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
     return ingestion;

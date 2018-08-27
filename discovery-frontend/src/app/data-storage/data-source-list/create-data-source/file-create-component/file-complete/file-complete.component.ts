@@ -408,7 +408,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       rollup: this.getIngestionData.selectedRollUpType.value
     };
     // advanced
-    if (this.getIngestionData.tuningConfig) {
+    if (this.getIngestionData.tuningConfig.length > 0) {
       ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
     return ingestion;

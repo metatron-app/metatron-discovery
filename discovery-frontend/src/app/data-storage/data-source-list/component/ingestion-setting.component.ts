@@ -70,6 +70,8 @@ export class IngestionSettingComponent extends AbstractComponent {
   public partitionTypeList: any[];
   // selected partition type
   public selectedPartitionType: any;
+  // partition key list
+  public partitionKeyList: any[] = [];
 
   // segment granularity list
   public segmentGranularityList: any[];
@@ -145,8 +147,8 @@ export class IngestionSettingComponent extends AbstractComponent {
   public ingestionPeriodRow: number = 10000;
 
   // advanced settings
-  public tuningConfig: any[];
-  public jobProperties: any[];
+  public tuningConfig: any[] = [];
+  public jobProperties: any[] = [];
 
   // step change
   @Output()
@@ -189,6 +191,10 @@ export class IngestionSettingComponent extends AbstractComponent {
       this._loadIngestionData(this._sourceData.ingestionData);
     } else {
       this._setDefaultIngestionOption();
+      // if staging type, set partition key list
+      if (this.createType === 'STAGING' && this._sourceData.databaseData.selectedTableDetail.partitionFields.length > 0) {
+        this.partitionKeyList.push(_.cloneDeep(this._sourceData.databaseData.selectedTableDetail.partitionFields));
+      }
     }
   }
 
@@ -229,14 +235,6 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   public getConnectionType(): string {
     return this._sourceData.connectionData.connType;
-  }
-
-  /**
-   * Get partition field list
-   * @returns {any[]}
-   */
-  public getPartitionFields(): any[] {
-    return this._sourceData.databaseData.selectedTableDetail.partitionFields;
   }
 
   /**
@@ -321,7 +319,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   public onChangePartitionType(partitionType: any): void {
     // if partition field list length 0
-    if (this.getPartitionFields().length !== 0) {
+    if (this.partitionKeyList.length !== 0) {
       this.selectedPartitionType = partitionType;
     }
   }
@@ -410,6 +408,41 @@ export class IngestionSettingComponent extends AbstractComponent {
     if (this[row] > 10000) {
       this[row] = 10000;
     }
+  }
+
+
+  /**
+   * is enable partition input
+   * TODO f#35
+   * @param {any[]} partitions
+   * @param partition
+   * @returns {boolean}
+   */
+  public isEnabledPartitionInput(partitions: any[], partition: any): boolean {
+    const index = partitions.findIndex((item) => {
+      return item === partition;
+    });
+    if (index !== 0
+      && (partitions[index - 1].value === undefined || partitions[index - 1].value === '')) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * add partition in partition list
+   * TODO f#35
+   */
+  public addPartitionKeys(): void {
+    this.partitionKeyList.push(_.cloneDeep(this._sourceData.databaseData.selectedTableDetail.partitionFields));
+  }
+
+  /**
+   * delete partition in partition list
+   * TODO f#35
+   */
+  public deletePartitionKeys(): void {
+    this.partitionKeyList = this.partitionKeyList.slice(0, this.partitionKeyList.length - 1);
   }
 
   /**
@@ -634,6 +667,8 @@ export class IngestionSettingComponent extends AbstractComponent {
       // load date time used data range
       this.startDateTime = ingestionData.startDateTime;
       this.endDateTime = ingestionData.endDateTime;
+      // partition key list
+      this.partitionKeyList = ingestionData.partitionKeyList;
     }
   }
 
@@ -687,6 +722,8 @@ export class IngestionSettingComponent extends AbstractComponent {
       // selected time used data range
       sourceData['ingestionData'].startDateTime = this.startDateTime;
       sourceData['ingestionData'].endDateTime = this.endDateTime;
+      // partition key list
+      sourceData['ingestionData'].partitionKeyList = this.partitionKeyList;
     }
   }
 }
