@@ -313,20 +313,14 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       } else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(this.selectedDataSnapshot.status) >= 0) {
         this.selectedDataSnapshot.displayStatus = 'PREPARING';
 
-        if(this.selectedDataSnapshot.ruleCntTotal){
-          if (this.selectedDataSnapshot.ruleCntDone == this.selectedDataSnapshot.ruleCntTotal) {
-            this.progressbarWidth = '100%';
-            this.close();
-          } else if (this.selectedDataSnapshot.ruleCntDone < this.selectedDataSnapshot.ruleCntTotal){
-            this.progressbarWidth = Math.ceil(this.selectedDataSnapshot.ruleCntDone / this.selectedDataSnapshot.ruleCntTotal * 100) + "%";
-            this.interval =  setInterval(() => this.getSnapshot(), 1000);
-          } else {
-            this.progressbarWidth = '100%';
-            //this.close();
-          }
+        if(isUndefined(this.selectedDataSnapshot.ruleCntDone) || isNull(this.selectedDataSnapshot.ruleCntDone)) this.selectedDataSnapshot.ruleCntDone = 0;
+        if(isUndefined(this.selectedDataSnapshot.ruleCntTotal) || isNull(this.selectedDataSnapshot.ruleCntTotal)) this.selectedDataSnapshot.ruleCntTotal = 0;
+        if (this.selectedDataSnapshot.ruleCntTotal > 0 && this.selectedDataSnapshot.ruleCntDone < this.selectedDataSnapshot.ruleCntTotal){
+          this.progressbarWidth = Math.ceil(this.selectedDataSnapshot.ruleCntDone / this.selectedDataSnapshot.ruleCntTotal * 100) + "%";
         } else {
           this.progressbarWidth = '100%';
         }
+        this.interval =  setInterval(() => this.getSnapshot(), 1000);
 
       } else  { //'FAILED','CANCELED','NOT_AVAILABLE'
         this.selectedDataSnapshot.displayStatus = 'FAIL';
