@@ -190,6 +190,7 @@ export class Field {
    * @return {string}
    */
   public static getDimensionTypeIconClass(field: Field): string {
+    debugger
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType || 'user_expr' === field.type) {
       return 'ddp-icon-dimension-ab';
@@ -212,6 +213,7 @@ export class Field {
    * @return {string}
    */
   public static getMeasureTypeIconClass(field: Field): string {
+    debugger
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType) {
       return 'ddp-icon-measure-ab';
@@ -390,8 +392,3 @@ export enum TempDsStatus {
   PREPARING = <any>'PREPARING',
   DISABLE = <any>'DISABLE'
 }
-
-
-
-
-

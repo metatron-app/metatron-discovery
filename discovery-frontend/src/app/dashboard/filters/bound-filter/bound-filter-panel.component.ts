@@ -202,10 +202,15 @@ export class BoundFilterPanelComponent extends AbstractFilterPanelComponent impl
             filter.maxValue = result.maxValue;
             filter.minValue = result.minValue;
           } else {
-            filter.min = null;
-            filter.max = null;
-            filter.maxValue = null;
-            filter.minValue = null;
+            //test중
+            filter.min = 0;
+            filter.max = 50000;
+            filter.maxValue = 50000;
+            filter.minValue = 0;
+            // filter.min = null;
+            // filter.max = null;
+            // filter.maxValue = null;
+            // filter.minValue = null;
           }
 
           this.filter = filter;
