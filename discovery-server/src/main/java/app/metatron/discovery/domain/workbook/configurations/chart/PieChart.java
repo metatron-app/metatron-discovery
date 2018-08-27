@@ -24,20 +24,25 @@ import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.util.EnumUtils;
 
 /**
- * Pie Chart 스타일 정의
+ * Pie Chart Spec.
  */
 @JsonTypeName("pie")
 public class PieChart extends Chart {
 
   /**
-   * Pie 표현 방식
+   * Type of pic shape
    */
   MarkType markType;
 
   /**
-   * 분할시 차트 레이아웃
+   * Chart layout for splited display
    */
   SplitLayout splitLayout;
+
+  /**
+   * Count of maximum categories
+   */
+  Integer maxCategory;
 
   public PieChart() {
     // Empty Constructor
@@ -52,10 +57,12 @@ public class PieChart extends Chart {
                   @JsonProperty("dataLabel") ChartDataLabel dataLabel,
                   @JsonProperty("toolTip") ChartToolTip toolTip,
                   @JsonProperty("markType") String markType,
-                  @JsonProperty("layout") String splitLayout) {
+                  @JsonProperty("layout") String splitLayout,
+                  @JsonProperty("maxCategory") Integer maxCategory) {
     super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip);
     this.markType = EnumUtils.getUpperCaseEnum(MarkType.class, markType, MarkType.SECTOR);
     this.splitLayout = EnumUtils.getUpperCaseEnum(SplitLayout.class, splitLayout, SplitLayout.VERTICAL);
+    this.maxCategory = maxCategory;
   }
 
   public MarkType getMarkType() {
@@ -66,22 +73,27 @@ public class PieChart extends Chart {
     return splitLayout;
   }
 
+  public Integer getMaxCategory() {
+    return maxCategory;
+  }
+
   @Override
   public String toString() {
     return "PieChart{" +
         "markType=" + markType +
         ", splitLayout=" + splitLayout +
+        ", maxCategory=" + maxCategory +
         "} " + super.toString();
   }
 
   public enum MarkType {
-    SECTOR,   // 부채꼴
-    DONUT     // 도넛형
+    SECTOR,   // Circular sector
+    DONUT     // Donut
   }
 
   public enum SplitLayout {
-    VERTICAL,       // 세로 표시
-    HORIZONTAL      // 가로 표시
+    VERTICAL,
+    HORIZONTAL
   }
 
 }

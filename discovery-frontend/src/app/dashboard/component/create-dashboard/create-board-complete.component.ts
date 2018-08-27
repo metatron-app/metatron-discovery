@@ -135,6 +135,7 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
 
       this.dashboardService.createDashboard(this._workbookId, this.dashboard, options).then(() => {
         Alert.success(`'${this.dashboard.name}' ` + this.translateService.instant('msg.board.alert.create.success'));
+        this.loadingHide();
         this.broadCaster.broadcast('WORKBOOK_RELOAD_BOARD_LIST', { boardName: this.dashboard.name });
         this.close();
       }).catch(err => this.commonExceptionHandler(err));

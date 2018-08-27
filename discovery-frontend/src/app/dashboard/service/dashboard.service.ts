@@ -184,6 +184,7 @@ export class DashboardService extends AbstractService {
           boardConf.widgets.forEach(item => {
             delete item.isInLayout;
             delete item.isSaved;
+            delete item.isLoaded;
           });
         }
         if (boardConf.filters) {

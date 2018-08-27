@@ -300,7 +300,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
       this.lastPage = (this.totalCount % this.pageSize === 0) ? (this.totalCount / this.pageSize) : Math.floor(this.totalCount / this.pageSize) + 1;
 
       start = (page * this.pageSize) - this.pageSize;
-      end = (page * this.pageSize) - 1;
+      end = page * this.pageSize;
       if (end > this.totalCount) {
         end = this.totalCount;
       }
