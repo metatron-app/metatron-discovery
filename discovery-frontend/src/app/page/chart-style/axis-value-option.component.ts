@@ -407,6 +407,15 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     return false;
   }
 
+  /**
+   * 소수점 자리수 2자리에서 반올림 처리 반환
+   * @param value
+   */
+  public getDecimalRoundNumber(value: number): number {
+
+    return Math.round(Number(value) * (Math.pow(10, 2))) / Math.pow(10, 2);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
