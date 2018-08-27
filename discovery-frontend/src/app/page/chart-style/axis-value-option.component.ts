@@ -75,8 +75,9 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     axis.baseline = !isUndefined(axis.baseline) && !isNaN(axis.baseline) ? axis.baseline : undefined;
     this.axisTemp = _.cloneDeep(axis);
     if( this.axisTemp.grid ) {
-      this.axisTemp.grid.min = this.axisTemp.grid.autoScaled || (!_.isUndefined(axis.baseline) && axis.baseline != 0) ? null : this.axisTemp.grid.min;
-      this.axisTemp.grid.max = this.axisTemp.grid.autoScaled || (!_.isUndefined(axis.baseline) && axis.baseline != 0) ? null : this.axisTemp.grid.max;
+      let isZero: boolean = this.axisTemp.grid.min == 0 && this.axisTemp.grid.max == 0;
+      this.axisTemp.grid.min = isZero || this.axisTemp.grid.autoScaled || (!_.isUndefined(axis.baseline) && axis.baseline != 0) ? null : this.axisTemp.grid.min;
+      this.axisTemp.grid.max = isZero || this.axisTemp.grid.autoScaled || (!_.isUndefined(axis.baseline) && axis.baseline != 0) ? null : this.axisTemp.grid.max;
     }
   }
 
@@ -264,7 +265,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
 
     // Validation
     if( isNaN(this.axisTemp.grid.min) ) {
-      this.axisTemp.grid.min = _.isUndefined(this.axis.grid.min) ? null : this.axis.grid.min;
+      this.axisTemp.grid.min = _.isUndefined(this.axis.grid.min) || this.axis.grid.min == 0 ? null : this.axis.grid.min;
       return;
     }
 
@@ -305,7 +306,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
 
     // Validation
     if( isNaN(this.axisTemp.grid.max) ) {
-      this.axisTemp.grid.max = _.isUndefined(this.axis.grid.max) ? null : this.axis.grid.max;
+      this.axisTemp.grid.max = _.isUndefined(this.axis.grid.max) || this.axis.grid.max == 0 ? null : this.axis.grid.max;
       return;
     }
 

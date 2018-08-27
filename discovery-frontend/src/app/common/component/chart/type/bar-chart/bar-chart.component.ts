@@ -443,6 +443,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         let min = null;
         let max = null;
+        let calculateMin = null;
         if( this.isStacked() && this.originalData.categories && this.originalData.categories.length > 0 ) {
           _.each(this.originalData.categories, (category) => {
             _.each(category.value, (value) => {
@@ -454,15 +455,18 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
               }
             });
           });
-          min = min > 0
-            ? Math.ceil(min - ((max - min) * 0.05))
-            : min;
+          calculateMin = Math.ceil(min - ((max - min) * 0.05));
+          // min = min > 0
+          //   ? calculateMin >= 0 ? calculateMin : min
+          //   : min;
           max = max == null ? 0 : max;
         }
         else {
-          min = this.originalData.info.minValue > 0
-            ? Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05))
-            : this.originalData.info.minValue;
+          calculateMin = Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05));
+          min = this.originalData.info.minValue;
+          // min = this.originalData.info.minValue > 0
+          //   ? calculateMin >= 0 ? calculateMin : min
+          //   : this.originalData.info.minValue;
           max = this.originalData.info.maxValue;
         }
 
