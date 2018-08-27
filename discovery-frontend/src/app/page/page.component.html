@@ -535,7 +535,7 @@
                   <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('sankey')">
                     <span class="ddp-ui-name">{{'msg.page.ui.sankey' | translate}}</span>
                     <div class="ddp-data-det">
-                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.more-than-three.dimension.value' | translate}}<br/>
+                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.more-than-two.dimension.value' | translate}}<br/>
                       {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.one.measured.value' | translate}}
                     </div>
                   </div>
@@ -896,7 +896,7 @@
                       <span *ngIf="selectChart == 'waterfall'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.datetime.desc' | translate: { value : '1' } }}</span>
                       <!--<span *ngIf="selectChart == 'waterfall' || selectChart == 'control'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.datetime.desc' | translate: { value : '1' } }}</span>-->
                       <!-- //컨트롤차트 지원중단 -->
-                      <span *ngIf="selectChart == 'sankey'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '3' } }}</span>
+                      <span *ngIf="selectChart == 'sankey'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '2' } }}</span>
                     </div>
                     <!-- //조건 -->
                     <em class="ddp-bg-chart-bar" *ngIf="selectChart == 'bar'"></em>

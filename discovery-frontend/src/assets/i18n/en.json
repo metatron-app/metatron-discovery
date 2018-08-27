@@ -2066,6 +2066,7 @@
   "msg.page.ui.one.dimension.value" : "1 dimension value",
   "msg.page.ui.one.time.dimension.value" : "1 dimension value in time attribute",
   "msg.page.ui.more-than-three.dimension.value" : "More than 3 dimension values",
+  "msg.page.ui.more-than-two.dimension.value" : "More than 2 dimension values",
   "msg.page.ui.two-to-four.measured.value" : "2-4 measurements",
   "msg.page.ui.more-than-zero.dimension.value" : "0 or more dimension values",
   "msg.page.ui.row-or-col" : "Column or row",

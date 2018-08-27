@@ -2069,6 +2069,7 @@
   "msg.page.ui.one.dimension.value" : "차원값 1개",
   "msg.page.ui.one.time.dimension.value" : "시간속성의 차원값 1개",
   "msg.page.ui.more-than-three.dimension.value" : "차원값 3개 이상",
+  "msg.page.ui.more-than-two.dimension.value" : "차원값 2개 이상",
   "msg.page.ui.two-to-four.measured.value" : "측정값 2-4개",
   "msg.page.ui.more-than-zero.dimension.value" : "차원값 0개 이상",
   "msg.page.ui.row-or-col" : "열 또는 행",
