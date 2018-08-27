@@ -472,8 +472,8 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     };
     // if security type is not USERINFO, add password and username
     if (connection.authenticationType !== 'USERINFO') {
-      connection['username'] = connection.username;
-      connection['password'] = connection.password;
+      params['connection']['username'] = connection.username;
+      params['connection']['password'] = connection.password;
     }
 
     // 데이터 베이스가 있는경우
