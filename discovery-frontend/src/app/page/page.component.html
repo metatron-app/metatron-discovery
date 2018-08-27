@@ -424,7 +424,7 @@
                   <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('pie')">
                     <span class="ddp-ui-name">{{'msg.page.ui.pie' | translate}}</span>
                     <div class="ddp-data-det">
-                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.one.dimension.value' | translate}}, {{'msg.page.ui.one.measured.value' | translate}}
+                      {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.more-than-one.dimension.value' | translate}}, {{'msg.page.ui.more-than-one.measured.value' | translate}}
                     </div>
                   </div>
                   <!-- //차트 정보 -->
@@ -535,7 +535,7 @@
                   <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('sankey')">
                     <span class="ddp-ui-name">{{'msg.page.ui.sankey' | translate}}</span>
                     <div class="ddp-data-det">
-                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.more-than-two.dimension.value' | translate}}<br/>
+                      {{'msg.page.ui.row' | translate}} : {{'msg.page.ui.more-than-three.dimension.value' | translate}}<br/>
                       {{'msg.page.ui.intersect' | translate}} : {{'msg.page.ui.one.measured.value' | translate}}
                     </div>
                   </div>
@@ -896,7 +896,7 @@
                       <span *ngIf="selectChart == 'waterfall'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.datetime.desc' | translate: { value : '1' } }}</span>
                       <!--<span *ngIf="selectChart == 'waterfall' || selectChart == 'control'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.datetime.desc' | translate: { value : '1' } }}</span>-->
                       <!-- //컨트롤차트 지원중단 -->
-                      <span *ngIf="selectChart == 'sankey'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '2' } }}</span>
+                      <span *ngIf="selectChart == 'sankey'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '3' } }}</span>
                     </div>
                     <!-- //조건 -->
                     <em class="ddp-bg-chart-bar" *ngIf="selectChart == 'bar'"></em>
@@ -994,8 +994,8 @@
                       <span *ngIf="selectChart == 'radar'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.and.desc' | translate: { value : '1' } }}</span>
                       <span *ngIf="selectChart == 'wordcloud'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.desc' | translate: { value : '1' } }}</span>
                       <span *ngIf="selectChart == 'wordcloud'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.and.over.desc' | translate: { value : '1' } }}</span>
-                      <span *ngIf="selectChart == 'pie'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.desc' | translate: { value : '1' } }}</span>
-                      <span *ngIf="selectChart == 'pie'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.desc.add' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'pie'" class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }}</span>
+                      <span *ngIf="selectChart == 'pie'" class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.and.desc' | translate: { value : '1' } }}</span>
                       <!--
                       <span class="ddp-txt-dimension"> or 1+ Dimension</span>
                       -->

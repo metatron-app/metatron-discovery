@@ -2414,12 +2414,10 @@ public class PrepTransformService {
 
     List<Future<List<Row>>> jobs = teddyExecutor.getJob(ssId);
 
-    if(!jobs.isEmpty()) {
-      teddyExecutor.updateAsCanceling(ssId);
-
-      for (Future<List<Row>> job : jobs) {
-        job.cancel(true);
-      }
+    for(Future<List<Row>> job : jobs) {
+      job.cancel(true);
     }
+
   }
+
 }

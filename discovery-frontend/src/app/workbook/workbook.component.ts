@@ -108,9 +108,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   // 대시보드 생성 팝업 표시 여부
   public isShowCreateDashboard: boolean;
 
-  // LNB 로딩 표시 여부
-  public isShowLnbLoading:boolean = false;
-
   // 대시보드 왼쪽 탭 : DASHBOARD, CHAT
   public leftTab: string;
 
@@ -253,6 +250,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       // 워크북 아이디 저장
       this.workbookId = params['workbookId'];
 
+      this.loadingShow();
       this._getWorkbook().then((workbook: Workbook) => {
 
         // 워크스페이스 조회
@@ -273,9 +271,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
             // 만약 새로 생성이라면
             const afterCreateWorkbookCmd: string = sessionStorage.getItem('AFTER_CREATE_WORKBOOK');
-
-            this.loadingHide();
-
             if ('CREATE_DASHBOARD' === afterCreateWorkbookCmd) {
               sessionStorage.removeItem('AFTER_CREATE_WORKBOOK');
               this.createDashboard();
@@ -373,7 +368,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.dashboardService.copyDashboard(info.id).then(() => {
         Alert.success('\'' + info.name + '\' ' + this.translateService.instant('msg.board.alert.dashboard.copy.success'));
         this._popupInputNameDescComp.close();
-        this.loadingHide();
         this.loadDashboardList(0, info.name);
       }).catch(() => this.loadingHide());
     }
@@ -413,7 +407,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
         this._getWorkbook().then(() => {
           this.selectedDatasources = this.datasources.map(ds => ds.id);
-          this.loadingHide();
           this.loadDashboardList(0);
         });
 
@@ -716,14 +709,14 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         }
       }
 
-      this.loadingHide();
-
       if (0 < this.dashboards.length) { // 한개가 이미 있으면 선택
         if (selectDashboardName) { // 일치하는 이름이 있으면 선택
           this.loadAndSelectDashboard(this.dashboards.filter(item => item.name === selectDashboardName)[0]);
         } else {
           this.loadAndSelectDashboard(this.dashboards[0]);
         }
+      } else {
+        this.loadingHide();
       }
 
       // 변경 확인
@@ -756,7 +749,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         if (updateComment) {
           if (updateComment.contents && updateComment.contents.length > 0) {
 
-            this.isShowLnbLoading = true;
+            this.loadingShow();
             this.workbookService.updateComment(updateComment, this.workbook.id).then(() => {
               this._getComments();
             }).catch(() => {
@@ -771,7 +764,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
           comment.contents = this.commentText;
 
           if (this.commentText && this.commentText.length > 0) {
-            this.isShowLnbLoading = true;
+            this.loadingShow();
             this.workbookService.createComment(comment, this.workbook.id).then(() => {
               this.commentText = '';
               this._getComments();
@@ -927,16 +920,15 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public loadAndSelectDashboard(dashboard: Dashboard) {
     if (!this.selectedDashboard || this.selectedDashboard.id !== dashboard.id) {
-      this.dashboardComponent.showBoardLoading();
+      this.loadingShow();
       this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
-        this.dashboardComponent.hideBoardLoading();
         board.workBook = this.workbook;
         this.selectedDashboard = board;
-        this.safelyDetectChanges();
+        this.loadingHide(); // 로딩 숨김
+        this.changeDetect.detectChanges();    // 변경 갱신
       });
     } else {
-      this.dashboardComponent.hideBoardLoading();
-      this.safelyDetectChanges();
+      this.loadingHide();
     }
   } // function - loadAndSelectDashboard
 
@@ -1136,7 +1128,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   private _getComments() {
     // 로딩 시작
-    this.isShowLnbLoading = true;
+    this.loadingShow();
 
     this.workbookService.getComments(this.workbookId, this.page).then((result) => {
       // 댓글 존재시
@@ -1165,11 +1157,11 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       }
 
       // 로딩 hide
-      this.isShowLnbLoading = false;
+      this.loadingHide();
     }).catch(() => {
       Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
       // 로딩 hide
-      this.isShowLnbLoading = false;
+      this.loadingHide();
     });
   } // function - _getComments
 

@@ -21,7 +21,8 @@ import { SearchQueryRequest } from '../../domain/datasource/data/search-query-re
 import * as _ from 'lodash';
 import { PageWidgetConfiguration } from '../../domain/dashboard/widget/page-widget';
 import {
-  ChartType, ShelveFieldType, GridViewType, LineMode
+  ChartType, DataUnit, ShelveFieldType, GridViewType,
+  LineMode
 } from '../../common/component/chart/option/define/common';
 import { Filter } from '../../domain/workbook/configurations/filter/filter';
 import { UILineChart } from '../../common/component/chart/option/ui-option/ui-line-chart';
@@ -190,21 +191,26 @@ export class DatasourceService extends AbstractService {
       if ('include' === filter.type) {
         // Dimension Filter
         const tempFilters: Filter[] = [];
-        (<InclusionFilter>filter).preFilters.filter((preFilter: AdvancedFilter) => {
+        (<InclusionFilter>filter).preFilters.forEach((preFilter: AdvancedFilter) => {
           if (preFilter.type === 'measure_inequality') {
             const condition: MeasureInequalityFilter = <MeasureInequalityFilter>preFilter;
-            if( condition.inequality && condition.aggregation && condition.field && 0 < condition.value ) {
-              tempFilters.push(FilterUtil.convertToServerSpec(condition));
+            (condition.inequalityUI) && (condition.inequality = condition.inequalityUI.value);
+            if (condition.fieldUI) {
+              condition.field = condition.fieldUI.name;
+              tempFilters.push(condition);
             }
           } else if (preFilter.type === 'measure_position') {
             const limitation: MeasurePositionFilter = <MeasurePositionFilter>preFilter;
-            if( limitation.position && limitation.aggregation && limitation.field && 0 < limitation.value ) {
-              tempFilters.push(FilterUtil.convertToServerSpec(limitation));
+            (limitation.positionUI) && (limitation.position = limitation.positionUI.value);
+            if (limitation.fieldUI) {
+              limitation.field = limitation.fieldUI.name;
+              tempFilters.push(limitation);
             }
           } else if (preFilter.type === 'wildcard') {
             const wildcard: WildCardFilter = <WildCardFilter>preFilter;
-            if (wildcard.contains && wildcard.value && wildcard.value.length > 0) {
-              tempFilters.push(FilterUtil.convertToServerSpec(wildcard));
+            (wildcard.containsUI) && (wildcard.contains = wildcard.containsUI.value);
+            if (wildcard.value && wildcard.value.length > 0) {
+              tempFilters.push(wildcard);
             }
           }
         });

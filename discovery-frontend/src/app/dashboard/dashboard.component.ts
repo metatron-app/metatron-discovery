@@ -298,7 +298,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       afterConfirm: () => {
         this.datasourceStatus = TempDsStatus.PREPARING;
         this.ingestionStatus = { progress: 0, message: '', step: 1 };
-        this.showBoardLoading();
+        this.loadingShow();
         this.checkAndConnectWebSocket(true).then(() => {
           this.changeDetect.markForCheck();
           // console.info('>>>> before createLinkedDatasourceTemporary' );
@@ -310,12 +310,12 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
               // id: "TEMP-c5a839ae-f8a7-41e0-93f6-86e487f68dbd"
               // progressTopic : "/topic/datasources/TEMP-c5a839ae-f8a7-41e0-93f6-86e487f68dbd/progress"
               this._processIngestion(result.progressTopic);
-              this.hideBoardLoading();
+              this.loadingHide();
             })
             .catch(err => {
               console.error(err);
               this.commonExceptionHandler(err, this.translateService.instant('msg.board.alert.fail.ingestion'));
-              this.hideBoardLoading();
+              this.loadingHide();
             });
         });
       }
@@ -385,12 +385,12 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       const mainDsList:Datasource[] = DashboardUtil.getMainDataSources( dashboard );
 
       if (0 < mainDsList.length) {
-        this.showBoardLoading();
+        this.loadingShow();
         this._runDashboard(dashboard);
 /*
         // Linked 에 대한 처리 추후 확인
         if (mainDs.connType === ConnectionType.LINK) {
-          this.showBoardLoading();
+          this.loadingShow();
           this.datasourceService.getDatasourceDetail(dashboard.temporaryId).then((ds: Datasource) => {
             (ds.temporary) && (this.datasourceStatus = ds.temporary.status);
             if (TempDsStatus.ENABLE === this.datasourceStatus) {
@@ -398,12 +398,12 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
               this._runDashboard(dashboard);
             } else {
               this.expiredDatasource = ds;
-              this.hideBoardLoading();
+              this.loadingHide();
             }
             this.changeDetect.markForCheck();
           }).catch(err => this.commonExceptionHandler(err));
         } else {
-          this.showBoardLoading();
+          this.loadingShow();
           this._runDashboard(dashboard);
         }
 */
@@ -419,10 +419,11 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
    */
   private _runDashboard(targetDashboard: Dashboard) {
     this.initializeDashboard(targetDashboard, this._getLayoutMode()).then(() => {
+      this.loadingHide();
       this.safelyDetectChanges();
     }).catch( (error) => {
       console.error( error );
-      this.hideBoardLoading();
+      this.loadingHide();
     });
   } // function - _runDashboard
 

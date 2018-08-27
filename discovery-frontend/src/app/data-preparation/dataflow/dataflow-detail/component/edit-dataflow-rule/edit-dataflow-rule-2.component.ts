@@ -407,15 +407,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     if (changeTab) {
       this.ruleListComponent.changeTab(1);
-    } else {
-      this.ruleListComponent.init(dsId);
     }
-  }
-
-  public snapshotCreateClose() {
-    if (1 === this.ruleListComponent.tabNumber) {
-      this.ruleListComponent.getSnapshotWithInterval(this.selectedDataSet.dsId);
-    }
+    this.ruleListComponent.init(dsId);
   }
 
   public ngOnChanges() {
@@ -453,7 +446,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * */
   public createSnapshot() {
     // this.step = 'create-snapshot';
-    this.ruleListComponent.clearSnapshotInterval();
     this.createSnapshotPopup.init({
       id: this.selectedDataSet.dsId,
       name: this.selectedDataSet.dsName,

@@ -68,7 +68,6 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
 
   // Destroy
   public ngOnDestroy() {
-    this.snapshotIntervalStopEvent.emit(); // 폴링 스탑
     super.ngOnDestroy();
   } // function - ngOnDestroy
 
@@ -128,7 +127,7 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
       // 취소 팝업 띄우고 2초 후에 닫힌다.
       setTimeout(() => {
         this.refreshSnapshotList();
-      },2000)
+      },1000)
 
     }).catch((error) => {
       console.info(error);

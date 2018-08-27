@@ -241,25 +241,18 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
 
         // 기준선 변경시
         let baseline = 0;
-        if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
+        if( axisOption[index].baseline != 0 ) {
           baseline = axisOption[index].baseline
         }
 
         // 축 범위 자동설정이 설정되지 않았고
         // 오토스케일 적용시
         if( baseline == 0 && axisOption[index].grid.autoScaled ) {
-          // // 적용
-          // option.min = min > 0
-          //   ? Math.ceil(min - ((max - min) * 0.05))
-          //   : min;
-          // option.max = max;
-
-          delete option.min;
-          delete option.max;
-          option.scale = true;
-        }
-        else {
-          delete option.scale;
+          // 적용
+          option.min = min > 0
+            ? Math.ceil(min - ((max - min) * 0.05))
+            : min;
+          option.max = max;
         }
       }
     });

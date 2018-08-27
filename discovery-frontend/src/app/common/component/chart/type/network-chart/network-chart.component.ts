@@ -21,7 +21,7 @@ import {BaseChart, PivotTableInfo} from '../../base-chart';
 import {BaseOption} from "../../option/base-option";
 import {
   ChartType, SymbolType, ShelveType, ShelveFieldType, SeriesType, GraphLayoutType, TriggerType, ChartColorList,
-  UIChartDataLabelDisplayType, CHART_STRING_DELIMITER
+  UIChartDataLabelDisplayType
 } from '../../option/define/common';
 import {Position} from '../../option/define/common';
 import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
@@ -402,10 +402,8 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     let categories: string[] = [];
     const nodeNameList: string[] = [];
     _.each(this.data.nodes, (node) => {
-      categories.push(node.originalName);
-      nodeNameList.push(node.originalName);
-      // categories.push(node.name);
-      // nodeNameList.push(node.name);
+      categories.push(node.name)
+      nodeNameList.push(node.name)
     });
 
     const format: UIChartFormatItem = !this.uiOption.valueFormat.isAll && this.uiOption.valueFormat.each.length > 0 ? this.uiOption.valueFormat.each[0] : this.uiOption.valueFormat;
@@ -487,25 +485,215 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     return this.chartOption;
   }
 
-  /**
-   * sankey uiData에 설정될 columns데이터 설정
-   */
-  protected setUIData(): any {
-
-    // 노드명 가공
-    for (let node of this.data.nodes) {
-      node.originalName = node.name;
-      node.name = node.name + CHART_STRING_DELIMITER + node.field;
-    }
-
-    // 링크명 가공
-    for (let link of this.data.links) {
-      link.originalSource = link.source;
-      link.originalTarget = link.target;
-      link.source = link.source + CHART_STRING_DELIMITER + link.sourceField;
-      link.target = link.target + CHART_STRING_DELIMITER + link.targetField;
-    }
-  }
+  // /**
+  //  * 차트별 시리즈 추가정보
+  //  * - 반드시 각 차트에서 Override
+  //  * @returns {BaseOption}
+  //  */
+  // protected convertSeriesDataBackup(): BaseOption {
+  //
+  //   let sourceField: string = '';
+  //   let sourceColorField: string = '';
+  //   let sourceSizeField: string = '';
+  //
+  //   let targetField: string = '';
+  //   let targetColorField: string = '';
+  //   let targetSizeField: string = '';
+  //
+  //   let linkField: string = '';
+  //
+  //   const aggs: string[] = [];
+  //
+  //   // Source data
+  //   this.pivot.columns
+  //     .map((column, idx) => {
+  //
+  //       const fieldName: string = column.alias ? column.alias : column.fieldAlias ? column.fieldAlias : column.name;
+  //
+  //       if (_.eq(idx, 0)) {
+  //         sourceField = fieldName;
+  //       }
+  //
+  //       if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.DIMENSION) || _.eq(column.type, ShelveFieldType.TIMESTAMP))) {
+  //         sourceColorField = fieldName;
+  //       }
+  //       else if (_.eq(idx, 1) && (_.eq(column.type, ShelveFieldType.MEASURE) || _.eq(column.type, ShelveFieldType.CALCULATED))) {
+  //         sourceSizeField = fieldName;
+  //       }
+  //
+  //       aggs.push(fieldName);
+  //     });
+  //
+  //   // Target data
+  //   this.pivot.rows
+  //     .map((row, idx) => {
+  //
+  //       const fieldName: string = row.alias ? row.alias : row.fieldAlias ? row.fieldAlias : row.name;
+  //
+  //       if (_.eq(idx, 0)) {
+  //         targetField = fieldName;
+  //       }
+  //
+  //       if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.DIMENSION) || _.eq(row.type, ShelveFieldType.TIMESTAMP))) {
+  //         targetColorField = fieldName;
+  //       }
+  //       else if (_.eq(idx, 1) && (_.eq(row.type, ShelveFieldType.MEASURE) || _.eq(row.type, ShelveFieldType.CALCULATED))) {
+  //         targetSizeField = fieldName;
+  //       }
+  //     });
+  //
+  //   // link 수치 정보
+  //   const agg: Field = this.pivot.aggregations[0];
+  //   linkField = agg.alias ? agg.alias : agg.fieldAlias ? agg.fieldAlias : agg.name;
+  //
+  //   // 데이터 초기화
+  //   const nodes: any[] = [];
+  //   const links: any[] = [];
+  //   const nodeNameList: string[] = [];
+  //
+  //   // Legend List
+  //   let categories: string[] = [];
+  //
+  //   const createNode: (obj, key) => any = ((obj, key) => {
+  //
+  //     let categoryKey = '';
+  //
+  //     if (_.isEmpty(sourceColorField)) {
+  //       categoryKey = sourceField;
+  //     }
+  //     else {
+  //       categoryKey = _.eq(key, sourceField) ? sourceColorField : targetColorField;
+  //     }
+  //
+  //     // Legend 목록 생성
+  //     if (categories.indexOf(obj[categoryKey]) < 0) {
+  //       categories.push(obj[categoryKey]);
+  //     }
+  //
+  //     const node: any = {
+  //       name: obj[key],
+  //       value: _.isUndefined(obj[sourceColorField]) ? undefined : _.eq(key, sourceField) ? obj[sourceColorField] : obj[targetColorField]
+  //       // symbolSize: 10
+  //     };
+  //
+  //     nodeNameList.push(obj[key]);
+  //     nodes.push(node);
+  //   });
+  //
+  //   //
+  //   this.data
+  //     .map((obj) => {
+  //
+  //       const source: any = obj[sourceField];
+  //       const target: any = obj[targetField];
+  //       const value: any = obj[linkField];
+  //
+  //       if (nodeNameList.indexOf(source) < 0) {
+  //         createNode(obj, sourceField);
+  //       }
+  //
+  //       const link: any = {
+  //         source: source,
+  //         target: target,
+  //         value: value,
+  //         lineStyle:
+  //           _.isUndefined(value)
+  //             ? undefined
+  //             : {
+  //               normal: {
+  //                 width: 1
+  //               }
+  //             }
+  //       };
+  //
+  //       links.push(link);
+  //     });
+  //
+  //   categories = categories.sort();
+  //
+  //   nodes.map((obj, idx) => {
+  //     obj.category = _.isEmpty(sourceColorField) ? idx : categories.indexOf(obj.value);
+  //     return obj;
+  //   });
+  //
+  //   const format: UIChartFormatItem = !this.uiOption.valueFormat.isAll && this.uiOption.valueFormat.each.length > 0 ? this.uiOption.valueFormat.each[0] : this.uiOption.valueFormat;
+  //
+  //   this.chartOption.series = [
+  //     {
+  //       links,
+  //       type: SeriesType.GRAPH,
+  //       layout: GraphLayoutType.FORCE,
+  //       roam: true,
+  //       data: nodes,
+  //       uiData: {nodeName: nodeNameList},
+  //       symbolSize: _.isUndefined(linkField) ? undefined : 40,
+  //       force: {
+  //         layoutAnimation: false,
+  //         repulsion: links.length < 70 ? 100 : links.length * 1.5,
+  //         edgeLength: links.length < 50 ? 150 : 40,
+  //         initLayout: 'circular'
+  //       },
+  //       focusNodeAdjacency: true,
+  //       itemStyle: {
+  //         normal: {
+  //           opacity: 0.7
+  //         }
+  //       },
+  //       lineStyle: {
+  //         normal: {
+  //           curveness: 0.3,
+  //           width: 1,
+  //           color: '#aaa',
+  //           opacity: 0.7
+  //         }
+  //       },
+  //       animationDuration: 1000,
+  //       animationEasingUpdate: 'quinticInOut',
+  //       edgeSymbol: ['none', 'arrow'],
+  //       edgeLabel: {
+  //         normal: {
+  //           show: true,
+  //           formatter: "{c}"
+  //         }
+  //       },
+  //       tooltip: {
+  //         trigger: TriggerType.ITEM,
+  //         formatter: (params, ticket, callback) => {
+  //           return this.getFormatNetworkValueSeriesTooltip(params, this.uiOption.valueFormat, this.uiOption);
+  //         }
+  //       }
+  //     }
+  //   ];
+  //
+  //   const legend: Legend = this.chartOption.legend;
+  //   const colorList: any = ChartColorList.SC1;
+  //   this.chartOption.series[0].categories = categories
+  //     .map((category, idx) => {
+  //
+  //       const obj: any = {};
+  //       obj.name = category;
+  //
+  //       const colorIdx = idx >= colorList.length ? idx % colorList.length : idx;
+  //       obj.itemStyle = {
+  //         normal: {
+  //           color: colorList[colorIdx]
+  //         }
+  //       };
+  //
+  //       return obj;
+  //     });
+  //
+  //   legend.data = categories;
+  //   legend.color = colorList;
+  //
+  //   this.uiOption.fieldList = [sourceField];
+  //   (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+  //
+  //   // Pivot 정보 생성
+  //   this.pivotInfo = new PivotTableInfo(nodeNameList, [], aggs);
+  //
+  //   return this.chartOption;
+  // }
 
   protected convertLegend(): BaseOption {
 
@@ -535,9 +723,9 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       if ( undefined !== params.data.target && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME) ) {
 
         // 주체 노드
-        result = FormatOptionConverter.getTooltipName([params.data.originalSource], this.pivot.columns, result, true, this.pivot);
+        result = FormatOptionConverter.getTooltipName([params.data.source], this.pivot.columns, result, true, this.pivot);
         // 타겟 노드
-        result = FormatOptionConverter.getTooltipName([params.data.originalTarget], this.pivot.rows, result, true, this.pivot);
+        result = FormatOptionConverter.getTooltipName([params.data.target], this.pivot.rows, result, true, this.pivot);
       }
       if ( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.LINK_VALUE) ) {
 

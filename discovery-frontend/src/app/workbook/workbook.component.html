@@ -16,14 +16,6 @@
 
   <!-- 워크북 lnb -->
   <div class="ddp-lnb-dashboard" [class.ddp-close]="isCloseDashboardList">
-
-    <!-- 로딩 영역 -->
-    <div *ngIf="isShowLnbLoading" class="ddp-loading-part">
-      <div style="" class="lds-wedges">
-        <div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div></div></div>
-    </div>
-    <!-- // 로딩 영역 -->
-
     <!-- 접기 Toggle -->
     <a href="javascript:" class="ddp-btn-folding ddp-hover-tooltip" (click)="toggleFoldDashboardList()">
       <div class="ddp-ui-tooltip-info ddp-down">
@@ -408,7 +400,6 @@
   <!-- // Dashboard navigation -->
 
   <div class="ddp-ui-dash-contents" [class.ddp-close]="isCloseDashboardList" >
-
     <!-- 대시보드 없음 -->
     <div class="ddp-box-data-none" *ngIf="mode === 'NO_DATA'" >
       <div class="ddp-wrap-data-none">

@@ -97,7 +97,7 @@ public class PrepSnapshotController {
             if(snapshot!=null) {
                 DataFrame gridResponse = new DataFrame();
 
-                PrepSnapshot.SS_TYPE ss_type = snapshot.getSsTypeEnum();
+                PrepSnapshot.SS_TYPE ss_type = snapshot.getSsType();
                 if( PrepSnapshot.SS_TYPE.FILE==ss_type || PrepSnapshot.SS_TYPE.HDFS==ss_type ) {
                     PrepSnapshot.FORMAT format = snapshot.getFormatEnum();
                     if (PrepSnapshot.FORMAT.CSV == format) {

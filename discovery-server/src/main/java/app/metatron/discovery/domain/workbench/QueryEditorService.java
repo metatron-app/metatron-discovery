@@ -14,21 +14,11 @@
 
 package app.metatron.discovery.domain.workbench;
 
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.audit.Audit;
-import app.metatron.discovery.domain.audit.AuditRepository;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcQueryResultResponse;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.util.AuthUtils;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.util.TablesNamesFinder;
+
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -42,9 +32,26 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.audit.Audit;
+import app.metatron.discovery.domain.audit.AuditRepository;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcQueryResultResponse;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.util.AuthUtils;
 
 @Service
 public class QueryEditorService {
@@ -169,25 +176,20 @@ public class QueryEditorService {
   public List<String> getSubstitutedQueryList(String queryStr, Workbench workbench) {
     List<String> returnList = new ArrayList<>();
 
-    //1. semicolon split
+    //1. 쿼리 줄바꿈 목록으로 변환
     List<String> queryList = Arrays.asList(queryStr.split(";"));
 
-
-
-
-    //2. GlobalVar replace
+    //2. 쿼리에 GlobalVar 치환
     HashMap<String, String> globalVarMap = getGlobalVarMap(workbench);
 
     for(String query : queryList){
-      //if trimmed query is empty...continue..
+      //공백일 경우는 Continue..
       if(query.trim().isEmpty()){
         continue;
       }
-
       LOGGER.debug("query = {}", query);
 
-      //start with carriage return remove
-      String substitutedQuery = StringUtils.trim(query);
+      String substitutedQuery = query;
       String globalVarPatternStr = "[$]\\{(.*?)\\}";
       Pattern globalVarPattern = Pattern.compile(globalVarPatternStr);
       Matcher globalVarMatcher = globalVarPattern.matcher(query);

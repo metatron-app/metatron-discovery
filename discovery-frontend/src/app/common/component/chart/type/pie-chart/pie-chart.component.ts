@@ -13,35 +13,29 @@
  */
 
 /**
- * pie chart component
+ * Created by Dolkkok on 2017. 8. 14..
  */
+
 import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
 import {
-  CHART_STRING_DELIMITER,
-  ChartColorList,
-  ChartPivotType,
-  ChartType,
-  Orient,
-  PieSeriesViewType,
-  Position,
-  SeriesType,
+  CHART_STRING_DELIMITER, ChartColorList, ChartPivotType, ChartType, DataLabelPosition, Orient, PieSeriesViewType,
+  Position, SeriesType,
   ShelveFieldType,
-  ShelveType,
-  SymbolType,
-  UIChartDataLabelDisplayType
+  ShelveType, SymbolType, UIChartDataLabelDisplayType
 } from '../../option/define/common';
 import { OptionGenerator } from '../../option/util/option-generator';
 import { Series } from '../../option/define/series';
 import * as _ from 'lodash';
+import optGen = OptionGenerator;
 import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import { BaseChart, PivotTableInfo } from '../../base-chart';
 import { BaseOption } from '../../option/base-option';
 import { FormatOptionConverter } from '../../option/converter/format-option-converter';
 import { UIPieChart } from '../../option/ui-option/ui-pie-chart';
+import { Format } from '../../../../../domain/workbook/configurations/format';
 import { UIOption } from '../../option/ui-option';
 import { UIChartFormat } from '../../option/ui-option/ui-format';
 import { LegendOptionConverter } from '../../option/converter/legend-option-converter';
-import optGen = OptionGenerator;
 
 @Component({
   selector: 'pie-chart',
@@ -49,12 +43,32 @@ import optGen = OptionGenerator;
 })
 export class PieChartComponent extends BaseChart implements OnInit, AfterViewInit {
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Protected Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Variables
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Constructor
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector ) {
 
     super(elementRef, injector);
   }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Override Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // Init
   public ngOnInit() {
@@ -75,39 +89,47 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
     super.ngAfterViewInit();
   }
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
-   * @override validation to draw chart
+   * @override 선반정보를 기반으로 차트를 그릴수 있는지 여부를 체크
    *
    * @param shelve
    */
   public isValid(shelve: Pivot): boolean {
 
-    return (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) == 1)
-      && ((this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) + this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED)) == 1);
+    return (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.DIMENSION) > 0 && this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.TIMESTAMP) == 0)
+      && (this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.MEASURE) > 0 || this.getFieldTypeCount(shelve, ShelveType.AGGREGATIONS, ShelveFieldType.CALCULATED) > 0);
   }
 
   /**
-   * uiOption only use in pie chart
+   * 파이차트에서만 쓰이는 uiOption설정
    * @param isKeepRange
    */
   public draw(isKeepRange?: boolean): void {
 
-    // only set dimension / timestamp data on aggregation pivot
+    // 교차선반에 dimension / timestamp 데이터만 설정
     this.fieldInfo.aggs = this.pivot.aggregations.filter((agg) => {
       return _.eq(agg.type, ShelveFieldType.DIMENSION) || _.eq(agg.type, ShelveFieldType.TIMESTAMP);
     }).map((agg) => {
       return !_.isEmpty(agg.alias) ? agg.alias : agg.name;
     });
 
-    // set pivot info
+    // pivot 정보 설정
     this.pivotInfo = this.setPiePivotInfo();
 
     super.draw(isKeepRange);
   }
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Protected Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
-   * generate default option
-   * - require to override each chart
+   * 차트의 기본 옵션을 생성한다.
+   * - 각 차트에서 Override
    */
   protected initOption(): BaseOption {
 
@@ -120,14 +142,14 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
   }
 
   /**
-   * additional series info
-   * - require to override each chart
+   * 차트별 시리즈 추가정보
+   * - 반드시 각 차트에서 Override
    * @returns {BaseOption}
    */
   protected convertSeriesData(): BaseOption {
 
     let pieSizeInfo: any = {};
-    // set align, size depends on pie counts
+    // 파이 갯수에 따른 크기 및 위치 조정
     if (this.data.columns.length > 1) {
       const orient = !_.isEmpty(this.pivot.columns) ? Orient.HORIZONTAL : Orient.VERTICAL;
       pieSizeInfo = this.setPieSizeCount(this.data.columns.length, orient);
@@ -138,7 +160,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
 
     _.each(this.data.columns, (column, idx) => {
 
-      // convert Null String data to No Name
+      // Null String 데이터를 No Name으로 치환한다.
       for( let item of column.value ) {
         if( item['name'].trim() == '' ) {
           item['name'] = 'EMPTY';
@@ -164,11 +186,12 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         }
       };
 
+      const pieSumData = _.sum(resultSeries.data.map((dataObj) => {
+        return dataObj.value;
+      }));
       let otherList = [];
-      let otherValueList = resultSeries.data.filter((dataObj, index) => {
-        // convert values which is bigger than maxCategory to others
-        let isOtherValue = null != (<UIPieChart>this.uiOption).maxCategory && undefined != (<UIPieChart>this.uiOption).maxCategory ?
-          (<UIPieChart>this.uiOption).maxCategory <= index : false;
+      let otherValueList = resultSeries.data.filter((dataObj) => {
+        let isOtherValue = (dataObj.value / pieSumData) * 100 < 2;
         if( isOtherValue ) {
           otherList.push(dataObj.name);
         }
@@ -177,19 +200,25 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         return dataObj.value;
       });
 
-      resultSeries.data = resultSeries.data.filter((dataObj, index) => {
-        return null != (<UIPieChart>this.uiOption).maxCategory && undefined != (<UIPieChart>this.uiOption).maxCategory ?
-              (<UIPieChart>this.uiOption).maxCategory > index : true;
+      // Other 목록이 1개라면 Other를 사용하지 않음
+      let isOtherUse = otherList.length > 1;
+      if( !isOtherUse ) {
+        otherList = [];
+        otherValueList = [];
+      }
+
+      resultSeries.data = resultSeries.data.filter((dataObj) => {
+        return !isOtherUse || (dataObj.value / pieSumData) * 100 > 2;
       });
 
-      // when otherList exists
+      // otherList가 있는경우
       if (_.sum(otherValueList) > 0) {
         existEtcData = true;
         resultSeries.data.push({ value: _.sum(otherValueList), name: 'OTHER' });
       }
       resultSeries.originData = _.cloneDeep(resultSeries.data);
 
-      // set uiData
+      // uiData 설정
       resultSeries.uiData = resultSeries.data;
 
       seriesList.push(resultSeries);
@@ -197,17 +226,18 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
 
     this.chartOption.series = seriesList;
 
-    // set existEtcData value
+    // dataInfo에 existEtcData 값 설정
     this.chartOption.dataInfo['existEtcData'] = existEtcData;
 
     return this.chartOption;
   }
 
   /**
-   * set uiData in a pie chart
+   * pie차트의 uiData 설정
    */
   protected setUIData(): any {
 
+    // rows 축의 개수만큼 넣어줌
     _.each(this.data.columns, (data) => {
       data.seriesName = _.cloneDeep(_.map(data.value, 'name'));
       data.seriesValue = _.cloneDeep(_.map(data.value, 'value'));
@@ -218,15 +248,15 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
   }
 
   /**
-   * set legend in a pie chart
+   * 파이차트의 legend 설정
    * @returns {BaseOption}
    */
   protected additionalLegend(): BaseOption {
 
-    // if others data exist, add them in legend
+    // OTHERS 데이터가 존재한다면 범례에 추가
     if (!_.isUndefined(this.chartOption.legend) && this.chartOption.dataInfo.existEtcData) {
 
-      // if data is undefined, intialize it
+      // data가 undefined인경우 초기화해주기
       if (!this.chartOption.legend.data) this.chartOption.legend.data = [];
 
       this.chartOption.legend.data.push('OTHER');
@@ -236,33 +266,33 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
   }
 
   /**
-   * additional series settings
+   * 파이차트의 series값으로 설정되는 부분
    */
   protected additionalSeries(): BaseOption {
 
-    // change chart view type (circle/donut)
+    // 차트 표현 모양 변경(원/도넛)
     this.chartOption = this.convertViewType();
 
-    // set series label format, label position
+    // 시리즈 Label 포맷, label 위치
     this.chartOption.series.forEach((series) => {
 
       if (this.uiOption.dataLabel.showOutside) {
-        // label position
+        // label 위치
         series.label.normal.position = Position.OUTSIDE;
 
         if (!series.labelLine) series.labelLine = {};
-        // set labelLine
+        // labelLine 설정
         series.labelLine.length = 0;
         series.labelLine.length2 = 5;
 
-        // remove text align
+        // text align 제거
         if (series.label.normal.rich) delete series.label.normal.rich.align;
       } else {
-        // label position
+        // label 위치
         series.label.normal.position = Position.INSIDE;
       }
 
-      // label format
+      // label 포맷
       series.label.normal.formatter = ((params): any => {
 
         let uiData = _.cloneDeep(series.uiData[params.dataIndex]);
@@ -275,7 +305,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
   }
 
   /**
-   * set datalabel in a pie chart
+   * 파이차트 데이터라벨 설정
    * @param params
    * @param format
    * @param uiOption
@@ -342,7 +372,8 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
   }
 
   /**
-   * add selection event
+   * 셀렉션 이벤트를 등록한다.
+   * - 필요시 각 차트에서 Override
    */
   protected selection(): void {
 
@@ -410,7 +441,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
     }
 
     ////////////////////////////////////////////////////////
-    // set legend data
+    // 범례 데이터 설정
     ////////////////////////////////////////////////////////
 
     // color by dimension / value인 경우
@@ -448,7 +479,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         legendData = this.pivotInfo[pivotType].map((value) => {
           return !_.split(value, CHART_STRING_DELIMITER)[fieldIdx] ? value : _.split(value, CHART_STRING_DELIMITER)[fieldIdx];
         });
-        // remove duplicate values
+        // 중복제거
         legendData = _.uniq(legendData);
       } else {
         legendData = this.pivotInfo[pivotType];
@@ -459,23 +490,27 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
     }
 
     ////////////////////////////////////////////////////////
-    // set legend show / hide
+    // 범례 show / hide 설정
     ////////////////////////////////////////////////////////
 
     this.chartOption = LegendOptionConverter.convertLegend(this.chartOption, this.uiOption);
 
     ////////////////////////////////////////////////////////
-    // additional settings
+    // 차트별 추가사항
     ////////////////////////////////////////////////////////
 
-    // set additional legend options
+    // 차트별 추가사항 반영
     this.chartOption = this.additionalLegend();
 
     return this.chartOption;
   }
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
-   * set align, size depends on pie counts
+   * 파이 개수에 따른 크기 및 위치 설정
    *
    * @param {number} count
    * @param {Orient} orient
@@ -493,12 +528,12 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
     radiusList.map((item, idx) => {
       const location = _.eq(idx, 0) ? increase + '%' : (increase + (size * idx)) + '%';
       if (_.eq(orient, Orient.HORIZONTAL)) {
-        // horizontal mode
+        // 가로 모드
         radiusList[idx] = ['0%', size + '%'];
         centerList[idx] = [location, '50%'];
         titleList[idx] = [location, (50 - (size / 2) - 4) + '%'];
       } else {
-        // vertical mode
+        // 세로모드
         radiusList[idx] = ['0%', (size - 5) + '%'];
         centerList[idx] = ['50%', location];
         titleList[idx] = ['50%', (size * idx) + '%'];
@@ -510,7 +545,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
   }
 
   /**
-   * change chart view type (circle/donut)
+   * 차트 표현 모양 변경(원/도넛)
    *
    * @param type
    */
@@ -533,7 +568,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
    */
   private setPiePivotInfo(): PivotTableInfo {
 
-    // set pivotInfo
+    // pivotInfo 설정
     const cols: string[] = [];
     let aggs: string[] = [];
     let allAggs = [];
@@ -555,11 +590,13 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         cols.push(title);
       }
 
+      const pieSumData = _.sum(column.value.map((dataObj) => {
+        return dataObj.value;
+      }));
+
       let otherList = [];
-      column.value.filter((dataObj, index) => {
-        // maxCategory보다 큰값들을 others로 지정
-        let isOtherValue = null != (<UIPieChart>this.uiOption).maxCategory && undefined != (<UIPieChart>this.uiOption).maxCategory ?
-                          (<UIPieChart>this.uiOption).maxCategory <= index : false;
+      column.value.filter((dataObj) => {
+        let isOtherValue = (dataObj.value / pieSumData) * 100 < 2;
         if( isOtherValue ) {
           otherList.push(dataObj.name);
           otherFl = true;
@@ -573,7 +610,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
       aggs = column.value.map((dataObj) => {
         return dataObj.name;
       });
-      // remove Other list in aggs
+      // Other 목록은 aggs에서 제외한다.
       for( let num: number = aggs.length-1 ; num >= 0 ; num-- ){
         for( let item of otherList ) {
           if( item == aggs[num] ) {
@@ -599,12 +636,12 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
       setAggs = _.uniq(array);
     } else setAggs = aggs;
 
-    // add 'OTHER' in pivotInfo (using in color option)
+    // pivotInfo에 OTHER 목록 추가 (색상에서 사용)
     if (otherFl) {
       setAggs.push('OTHER');
     }
 
-    // set pivot info, remove duplicate aggregation data
+    // pivot 정보 설정, aggs 정보는 중복값이 존재 할 수 있기 때문에 중복 제거
     return new PivotTableInfo(cols, [], _.uniq(setAggs));
   }
 
@@ -620,7 +657,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
     if (!this.uiOption.toolTip.displayTypes) this.uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(this.uiOption.type);
 
     let format = this.uiOption.valueFormat;
-    // tooltip data
+    // UI 데이터 가공
     let result: string[] = [];
 
     if( -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_NAME) ){
@@ -634,7 +671,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
 
       let seriesValue = FormatOptionConverter.getTooltipValue(params.seriesName, pivot.aggregations, this.uiOption.valueFormat, params.data.value);
 
-      // when series percent is selected
+      // series percent가 있는경우
       if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
         let value = Math.floor(Number(params.percent) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
 
@@ -645,7 +682,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
     }
     if( -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ){
 
-      // when series value is not selected
+      // series value가 선택된지 않은경우
       if (-1 == this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
         let seriesPercent = FormatOptionConverter.getTooltipValue(params.seriesName, pivot.aggregations, this.uiOption.valueFormat, params.percent);
 

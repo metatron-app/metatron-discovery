@@ -1730,7 +1730,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.widgetConfiguration.filters.push(boundFilter);
     } else {
       // inclusion필터
-      const inclusionFilter = FilterUtil.getBasicInclusionFilter(selectedField);
+      const inclusionFilter = FilterUtil.getBasicInclusionFilter(selectedField, false);
 
       // widgetId set
       inclusionFilter.ui.widgetId = this.widget.id;

@@ -20,6 +20,7 @@ import { WorkbookService } from './service/workbook.service';
 import { CommonModule } from '../common/common.module';
 import { DndModule } from 'ng2-dnd';
 import { DashboardService } from '../dashboard/service/dashboard.service';
+import { DashboardOrderSetComponent } from './component/dashboard-order/dashboard-order-set.component';
 import { DataPreviewModule } from '../common/data.preview.module';
 import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
 import { PopupInputNameDescComponent } from './component/popup-input-workbook/popup-input-namedesc.component';
@@ -44,7 +45,8 @@ const workbookRoutes: Routes = [
   ],
   declarations: [
     WorkbookComponent,
-    PopupInputNameDescComponent
+    PopupInputNameDescComponent,
+    DashboardOrderSetComponent
   ],
   providers: [WorkbookService, MetadataService, DashboardService, DataconnectionService]
 })

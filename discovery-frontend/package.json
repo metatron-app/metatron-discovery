@@ -12,8 +12,7 @@
     "lint": "ng lint",
     "lint-fix": "ng lint --fix",
     "e2e": "ng e2e",
-    "dummy-db": "json-server --watch dummy.json",
-    "prebuild": "node prebuild.js"
+    "dummy-db": "json-server --watch dummy.json"
   },
   "private": true,
   "dependencies": {

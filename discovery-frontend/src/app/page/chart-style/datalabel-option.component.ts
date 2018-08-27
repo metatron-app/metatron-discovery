@@ -146,11 +146,6 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
 
     uiOption.dataLabel.previewList = this.setPreviewList(uiOption);
 
-    if (uiOption.dataLabel && uiOption.dataLabel.displayTypes) {
-      // remove empty datas in displayTypes
-      this.displayTypes = _.cloneDeep(uiOption.dataLabel.displayTypes.filter(Boolean));
-    }
-
     // useDefaultFormat이 없는경우
     if (typeof uiOption.dataLabel.useDefaultFormat === 'undefined') uiOption.dataLabel.useDefaultFormat = true;
 

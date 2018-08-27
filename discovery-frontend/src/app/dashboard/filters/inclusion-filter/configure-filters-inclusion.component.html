@@ -44,8 +44,7 @@
       <span class="ddp-data-num"><strong>{{totalItemCnt}}</strong> default value</span>
       <div class="ddp-option-btn">
         <!-- 상단 목록 검색 영역 -->
-        <div (clickOutside)="targetFilter['isShowSearch'] = false"
-             [class.ddp-selected]="targetFilter['isShowSearch']" class="ddp-ui-search" >
+        <div [class.ddp-selected]="targetFilter['isShowSearch']" class="ddp-ui-search" >
           <em (click)="targetFilter['isShowSearch'] = true"
               class="ddp-icon-search-default ddp-btn-box"></em>
           <div class="ddp-form-search">
@@ -61,13 +60,13 @@
         <!-- // 상단 목록 검색 영역 -->
 
         <!-- 상단 목록 필터링 설정 영역 -->
-        <div (clickOutside)="targetFilter['isShowCandidateFilter'] = false"
-             [class.ddp-selected]="targetFilter['isShowCandidateFilter']" class="ddp-wrap-edit-set ">
-          <a (click)="toggleConfigFilteringLayer( targetFilter )"
+        <div [class.ddp-selected]="targetFilter['isShowCandidateFilter']" class="ddp-wrap-edit-set ">
+          <a (click)="targetFilter['isShowCandidateFilter'] = !targetFilter['isShowCandidateFilter']"
              href="javascript:" class="ddp-btn-filter ddp-btn-box"></a>
           <!-- hover -->
           <div class="ddp-ui-tooltip-info">
-            <em class="ddp-icon-view-top"></em> {{'msg.board.ui.filter.filtering' | translate}}
+            <em class="ddp-icon-view-top"></em>
+            {{'msg.board.ui.filter.filtering' | translate}}
           </div>
           <!-- //hover -->
 
@@ -76,10 +75,11 @@
             <!-- 와일드카드 설정 영역 -->
             <label class="ddp-label-title">
               {{'msg.board.th.filter.wildcard' | translate}}
-              <span *ngIf="isSetWildCard( wildcard )" class="ddp-data-info">
-                {{getWildCardDesc(wildcard)}} <span class="ddp-data2">'{{wildcard.value}}'</span>
-              </span>
-              <a *ngIf="isSetWildCard( wildcard )" (click)="$event.stopPropagation();resetWildcard(wildcard)"
+              <span class="ddp-data-info">
+            {{wildcard.containsUI['description']}}
+            <span class="ddp-data2">'{{wildcard.value}}'</span>
+          </span>
+              <a (click)="resetWildcard(wildcard)"
                  href="javascript:" class="ddp-btn-reset ddp-hover-tooltip" >
                 <!-- tooltip -->
                 <div class="ddp-ui-tooltip-info ddp-down">
@@ -95,10 +95,10 @@
               </div>
               <div class="ddp-col-3">
                 <component-select
-                  #wildCardContains
                   [array]="wildCardTypeList"
                   [viewKey]="'name'"
-                  (onSelected)="wildcard.contains = $event ? $event['value'] : null">
+                  [defaultIndex]="wildCardTypeList.indexOf(wildcard.containsUI)"
+                  (onSelected)="wildcard.containsUI = $event; wildcard.contains = $event['value']">
                 </component-select>
               </div>
             </div>
@@ -107,13 +107,13 @@
             <!-- 컨디션 설정 영역 -->
             <label class="ddp-label-title">
               {{'msg.board.th.filter.cond' | translate}}
-              <span *ngIf="isSetCondition( condition )" class="ddp-data-info">
-                <span class="ddp-data"> {{condition.field ? condition.field : ''}}</span>
-                {{getConditionDesc(condition)}}
-                <span class="ddp-data2">{{condition.value}}</span>
-              </span>
-              <a *ngIf="isSetCondition( condition )" (click)="$event.stopPropagation();resetCondition(condition)"
-                 href="javascript:" class="ddp-btn-reset" >
+              <span class="ddp-data-info">
+            <span class="ddp-data"> {{condition.fieldUI ? condition.fieldUI.name : ''}}</span>
+            {{condition.aggregationTypeUI ? condition.aggregationTypeUI.name.toLowerCase() : ''}} of values
+                  {{condition.inequalityUI ? condition.inequalityUI['description'] : ''}}
+            <span class="ddp-data2">{{condition.value}}</span>
+          </span>
+              <a (click)="resetCondition(condition)" href="javascript:" class="ddp-btn-reset" >
                 <!-- tooltip -->
                 <div class="ddp-ui-tooltip-info ddp-down">
                   <em class="ddp-icon-view-top"></em> {{'msg.page.btn.reset' | translate}}
@@ -125,28 +125,27 @@
             <div class="ddp-form-edit-set ddp-clear">
               <div class="ddp-col-4">
                 <component-select
-                  #conditionField
                   [array]="measureFields"
                   [viewKey]="'name'"
                   [usePlaceholder]="true"
-                  [unselectedMessage]="'msg.board.filter.ui.select-measure' | translate"
-                  (onSelected)="condition.field = $event ? $event['name'] : null">
+                  [defaultIndex]="condition.fieldUI ? measureFields.indexOf(condition.fieldUI) : -1"
+                  (onSelected)="condition.fieldUI = $event; condition.field = $event['name']">
                 </component-select>
               </div>
               <div class="ddp-col-3">
                 <component-select
-                  #conditionAggregation
                   [array]="aggregationTypeList"
                   [viewKey]="'name'"
-                  (onSelected)="condition.aggregation = $event ? $event['value'] : null">
+                  [defaultIndex]="aggregationTypeList.indexOf(condition.aggregationTypeUI)"
+                  (onSelected)="condition.aggregationTypeUI = $event; condition.aggregationType = $event['value']">
                 </component-select>
               </div>
               <div class="ddp-col-2">
                 <component-select
-                  #conditionInequality
                   [array]="conditionTypeList"
                   [viewKey]="'name'"
-                  (onSelected)="condition.inequality = $event ? $event['value'] : null"
+                  [defaultIndex]="conditionTypeList.indexOf(condition.inequalityUI)"
+                  (onSelected)="condition.inequalityUI = $event; condition.inequality = $event['value']"
                 ></component-select>
               </div>
               <div class="ddp-col-3">
@@ -158,14 +157,13 @@
             <!-- 리미트 설정 영역 -->
             <label class="ddp-label-title">
               {{'msg.board.ui.filter.limitation' | translate}}
-              <span *ngIf="isSetLimit( limitation )" class="ddp-data-info">
-                <span class="ddp-data">{{ getLimitDesc1(limitation )}} {{limitation.value}} of&nbsp;</span>
-                <span class="ddp-data2"> {{getLimitDesc2(limitation)}} ( {{limitation.field}} ) </span>
-              </span>
-              <a *ngIf="isSetLimit( limitation )" (click)="$event.stopPropagation();resetLimitation(limitation)"
-                 href="javascript:" class="ddp-btn-reset" >
+              <span class="ddp-data-info">
+            <span class="ddp-data">{{limitation.positionUI ? limitation.positionUI.description : ''}} {{limitation.value}} of&nbsp;</span>
+            <span class="ddp-data2"> {{limitation.fieldUI ? limitation.fieldUI.name : ''}}({{limitation.aggregationTypeUI ? limitation.aggregationTypeUI['name'] : ''}})</span>
+          </span>
+              <a (click)="resetLimitation(limitation)" href="javascript:" class="ddp-btn-reset" >
                 <!-- tooltip -->
-                 <div class="ddp-ui-tooltip-info ddp-down">
+                <div class="ddp-ui-tooltip-info ddp-down">
                   <em class="ddp-icon-view-top"></em> {{'msg.page.btn.reset' | translate}}
                 </div>
                 <!-- //tooltip -->
@@ -173,33 +171,32 @@
             </label>
 
             <div class="ddp-form-edit-set ddp-clear">
-              <div class="ddp-col-3">
+              <div class="ddp-col-2">
                 <component-select
-                  #limitPosition
                   [array]="limitTypeList"
                   [viewKey]="'name'"
-                  (onSelected)="limitation.position = $event ? $event['value'] : null"
+                  [defaultIndex]="limitTypeList.indexOf(limitation.positionUI)"
+                  (onSelected)="limitation.positionUI = $event; limitation.position = $event['value']"
                 ></component-select>
               </div>
-              <div class="ddp-col-2">
+              <div class="ddp-col-5">
                 <input type="text" input-mask="number" class="ddp-input-typebasic" [(ngModel)]="limitation.value"/>
               </div>
-              <div class="ddp-col-4">
+              <div class="ddp-col-3">
                 <component-select
-                  #limitField
                   [array]="measureFields"
                   [viewKey]="'name'"
                   [usePlaceholder]="true"
-                  [unselectedMessage]="'msg.board.filter.ui.select-measure' | translate"
-                  (onSelected)="limitation.field = ( $event ) ? $event['name'] : null">
+                  [defaultIndex]="limitation.fieldUI ? measureFields.indexOf(limitation.fieldUI) : -1"
+                  (onSelected)="limitation.fieldUI = $event; limitation.field = $event['name']">
                 </component-select>
               </div>
-              <div class="ddp-col-3">
+              <div class="ddp-col-2">
                 <component-select
-                  #limitAggregation
                   [array]="aggregationTypeList"
                   [viewKey]="'name'"
-                  (onSelected)="limitation.aggregation = $event ? $event['value'] : null"
+                  [defaultIndex]="aggregationTypeList.indexOf(limitation.aggregationTypeUI)"
+                  (onSelected)="limitation.aggregationTypeUI = $event; limitation.aggregationType = $event['value']"
                 ></component-select>
               </div>
             </div>
@@ -221,8 +218,7 @@
         <!-- // 상단 목록 필터링 설정 영역 -->
 
         <!-- 상단 목록 정렬 설정 영역 -->
-        <div (clickOutside)="targetFilter['isShowCandidateSort'] = false"
-             [class.ddp-selected]="targetFilter['isShowCandidateSort']" class="ddp-ui-sort ddp-btn-box">
+        <div [class.ddp-selected]="targetFilter['isShowCandidateSort']" class="ddp-ui-sort ddp-btn-box ">
           <a (click)="targetFilter['isShowCandidateSort'] = !targetFilter['isShowCandidateSort']"
              href="javascript:" class="ddp-icon-sort"></a>
           <!-- hover -->

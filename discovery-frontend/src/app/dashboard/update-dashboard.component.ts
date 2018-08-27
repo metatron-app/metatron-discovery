@@ -241,7 +241,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     // 위젯 복사
     this.subscriptions.push(
       this.broadCaster.on<any>('COPY_WIDGET').subscribe(data => {
-        this.showBoardLoading();
+        this.loadingShow();
         const srcWidgetInfo = DashboardUtil.getWidget(this.dashboard, data.widgetId);
         // 복제 위젯 정보 설정 및 생성
         let newWidgetInfo: PageWidget = <PageWidget>_.cloneDeep(srcWidgetInfo);
@@ -253,7 +253,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
           this.dashboard = DashboardUtil.addWidget(this.dashboard, pageWidget);
           this.appendWidgetInLayout([pageWidget]);
           this.copyWidgetEventHandler(pageWidget);
-          this.hideBoardLoading();
+          this.loadingHide();
           this.safelyDetectChanges();
         }).catch(err => this.commonExceptionHandler(err));
       })
@@ -331,7 +331,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
         // Layout 업데이트
         this.renderLayout();
-        this.hideBoardLoading();
+        this.loadingHide();
       }
 
       // 바로 추가 여부 초기화
@@ -356,6 +356,13 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       this._initViewPage(this.dashboard.id);
     }
   } // function - ngOnChanges
+
+  /**
+   * 화면 초기화
+   */
+  public ngAfterViewInit() {
+    this.loadingShow();
+  } // function - ngAfterViewInit
 
   /**
    * 클래스 제거
@@ -445,15 +452,13 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   public setTextWidget(event: { name: string, widget: TextWidget }) {
     if ('CREATE' === event.name) {
-      this.showBoardLoading();
+      this.loadingShow();
       this.widgetService.createWidget(event.widget, this.dashboard.id).then(result => {
         let textWidget: TextWidget = _.merge(event.widget, result);
         this.dashboard = DashboardUtil.addWidget(this.dashboard, textWidget, this.isAppendLayout);
-        this.dashboard.updateId = CommonUtil.getUUID();
         this.renderLayout();
-        this.hideBoardLoading();
+        this.loadingHide();
         this.isAppendLayout = false;
-        this.safelyDetectChanges();
       });
     } else if ('DELETE' === event.name) {
       this.isAppendLayout = false;
@@ -464,8 +469,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       modal.afterConfirm = () => {
         this.deleteWidgetIds.push(event.widget.id);  // 삭제 위젯 등록
         this.removeWidget(event.widget.id);          // 대시보드상의 위젯 제거
-        this.dashboard.updateId = CommonUtil.getUUID();
-        this.safelyDetectChanges();
       };
       CommonUtil.confirm(modal);
     } else {
@@ -618,7 +621,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   public updateDashboard() {
 
     // 로딩 show
-    this.showBoardLoading();
+    this.loadingShow();
 
     // 대시보드 모든 위젯 업데이트
     const promises = [];
@@ -667,7 +670,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     }).catch((error) => {
       console.error(error);
       Alert.error(this.translateService.instant('msg.board.alert.widget.apply.error'));
-      this.hideBoardLoading();     // 로딩 hide
+      this.loadingHide();     // 로딩 hide
     });
   } // function - updateDashboard
 
@@ -984,7 +987,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   public updateCustomField(data: any) {
 
-    this.showBoardLoading();
+    this.loadingShow();
 
     const customField: CustomField = data.customField;
     const isEdit: boolean = data.isEdit;
@@ -1018,7 +1021,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         } else {
           Alert.success(this.translateService.instant('msg.board.custom.ui.create', { name: customField.name }));
         }
-        this.hideBoardLoading();
+        this.loadingHide();
       }
       this.changeDetect.detectChanges();
     }).catch(err => this.commonExceptionHandler(err));
@@ -1097,7 +1100,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
       // 데이터소스 패널 재설정
       (this.datasourcePanelComp) && (this.datasourcePanelComp.setFields());
-      this.hideBoardLoading();
+      this.loadingHide();
     }
   } // function - deleteCustomField
 
@@ -1107,8 +1110,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @param {boolean} isSetPanel
    */
   public updateFilter(filter: Filter, isSetPanel: boolean = false) {
-
-    this.showBoardLoading();
 
     if (isNullOrUndefined(filter) || isNullOrUndefined(filter.type)) {
       return;
@@ -1123,7 +1124,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       this._syncFilterWidget();
       this.broadCaster.broadcast('SET_EXTERNAL_FILTER', { filters: DashboardUtil.getBoardFilters(this.dashboard) });
       this._configFilterComp.close();
-      this.hideBoardLoading();
       if (isSetPanel) {
         this.popupService.notiFilter({ name: 'change-filter', data: filter });
       }
@@ -1146,7 +1146,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   public addFilter(filter: Filter) {
     if (!filter.ui.widgetId) {
-      this.showBoardLoading();
+      this.loadingShow();
       const newFilterWidget: FilterWidget = new FilterWidget(filter, this.dashboard);
       this.widgetService.createWidget(newFilterWidget, this.dashboard.id).then((result) => {
 
@@ -1156,7 +1156,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         // 글로벌 필터 업데이트
         this.dashboard = DashboardUtil.addBoardFilter(this.dashboard, filter);
 
-        this.hideBoardLoading();
+        this.loadingHide();
       });
     }
   } // function - addFilter
@@ -1407,8 +1407,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   private _initViewPage(dashboardId: string) {
 
-    this.showBoardLoading();
-
     // 대시보드 설정
     this.dashboardService.getDashboard(dashboardId).then((boardInfo) => {
 
@@ -1417,23 +1415,24 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       const mainDsList: Datasource[] = DashboardUtil.getMainDataSources(boardInfo);
 
       if (0 < mainDsList.length) {
+        this.loadingShow();
         this._runDashboard(boardInfo);
         /*
                 // Linked 에 대한 처리 추후 확인
                 if (mainDs.connType === ConnectionType.LINK) {
-                  this.showBoardLoading();
+                  this.loadingShow();
                   this.datasourceService.getDatasourceDetail(boardInfo.temporaryId).then((ds: Datasource) => {
                     boardInfo.configuration.dataSource.metaDataSource = ds;
                     this._runDashboard(boardInfo);
                     this.safelyDetectChanges();
                   }).catch(err => this.commonExceptionHandler(err));
                 } else {
-                  this.showBoardLoading();
+                  this.loadingShow();
                   this._runDashboard(boardInfo);
                 }
         */
       } else {
-        this.hideBoardLoading();
+        this.loadingHide();
       }
     }).catch(err => this.commonExceptionHandler(err));
 
@@ -1474,9 +1473,11 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         this.changeDetect.detectChanges();
       });
 
+      this.loadingHide();
+
     }).catch((error) => {
       console.error(error);
-      this.hideBoardLoading();
+      this.loadingHide();
     });
   } // function - _runDashboard
 
@@ -1516,7 +1517,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     const param: any = { configuration: DashboardUtil.getBoardConfiguration(this.dashboard) };
     param.imageUrl = imageUrl;
 
-    this.showBoardLoading();
+    this.loadingShow();
 
     const boardId: string = this.dashboard.id;
 
@@ -1527,27 +1528,27 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       if (this.isChangeDataSource) {
         this.dashboardService.connectDashboardAndDataSource(this.dashboard.id, dsList).then(() => {
           this.dashboardService.getDashboard(boardId).then((result: Dashboard) => {
-            this.hideBoardLoading();                   // 로딩 hide
+            this.loadingHide();                   // 로딩 hide
             result.workBook = this.workbook;
             this.updateComplete.emit(result);     // 대시보드 정보 전달
           }).catch(() => {
             // 로딩 hide
-            this.hideBoardLoading();    // 로딩 hide
+            this.loadingHide();    // 로딩 hide
           });
         });
       } else {
         this.dashboardService.getDashboard(boardId).then((result: Dashboard) => {
-          this.hideBoardLoading();                   // 로딩 hide
+          this.loadingHide();                   // 로딩 hide
           result.workBook = this.workbook;
           this.updateComplete.emit(result);     // 대시보드 정보 전달
         }).catch(() => {
           // 로딩 hide
-          this.hideBoardLoading();    // 로딩 hide
+          this.loadingHide();    // 로딩 hide
         });
       }
     }).catch(() => {
       Alert.error(this.translateService.instant('msg.board.alert.update.board.error'));
-      this.hideBoardLoading();    // 로딩 hide
+      this.loadingHide();    // 로딩 hide
     });
   } // function - _callUpdateDashboardService
 
@@ -1577,6 +1578,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   private _organizeAllFilters(isReloadWidget?: boolean): Promise<any> {
     return new Promise<any>((res1) => {
+      this.loadingShow();
 
       // 글로벌 필터 설정
       this.initializeBoardFilters(this.dashboard);
@@ -1642,8 +1644,9 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
         });
 
         Promise.all(promises).then(() => {
+          this.loadingHide();
           res1();
-        }).catch(() => this.hideBoardLoading());
+        }).catch(() => this.loadingHide());
       }
     });
   } // function - _organizeAllFilters

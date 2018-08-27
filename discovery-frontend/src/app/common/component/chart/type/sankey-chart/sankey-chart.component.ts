@@ -258,36 +258,11 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
             break;
           }
           counter[num]++;
-
           nodes.push(node);
         }
       }
     }
-    this.data.nodes = nodes;
     this.notAllNode.emit(isNotAll);
-
-    // 개수제한으로 제거된 노드가 있는 링크제거
-    let links = [];
-    for( let link of this.data.links ) {
-
-      // 링크의 노드정보가 모두 존재하는지 체크
-      let isSource: boolean = false;
-      let isTarget: boolean = false;
-      for( let node of nodes ) {
-        if( link.source == node.name ) {
-          isSource = true;
-        }
-        if( link.target == node.name ) {
-          isTarget = true;
-        }
-      }
-
-      // 모두 존재할때만 링크에 추가
-      if( isSource && isTarget ) {
-        links.push(link);
-      }
-    }
-    this.data.links = links;
 
     // 색상
     const schema = (<UIChartColorByDimension>this.uiOption.color).schema;
@@ -315,8 +290,8 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     for( let item of this.data.links ) {
       // item.sourceValue = item.source.split(CHART_STRING_DELIMITER)[1];
       // item.targetValue = item.target.split(CHART_STRING_DELIMITER)[1];
-      item.sourceValue = item.originalSource;
-      item.targetValue = item.originalTarget;
+      item.sourceValue = item.source;
+      item.targetValue = item.target;
     }
 
     // 포맷정보
@@ -326,7 +301,7 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
       name: String(SeriesType.SANKEY),
       type: SeriesType.SANKEY,
       layout: GraphLayoutType.NONE,
-      data: this.data.nodes,
+      data: nodes,
       links: this.data.links,
       uiData: this.data.links,
       lineStyle: {
@@ -373,26 +348,11 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
    */
   protected setUIData(): any {
 
-    // 노드명 가공
-    for( let node of this.data.nodes ) {
-      node.originalName = node.name;
-      node.name = node.field + CHART_STRING_DELIMITER + node.name;
-    }
-
-    // 링크명 가공
-    for( let link of this.data.links ) {
-      link.originalSource = link.source;
-      link.originalTarget = link.target;
-      link.source = link.sourceField + CHART_STRING_DELIMITER + link.source;
-      link.target = link.targetField + CHART_STRING_DELIMITER + link.target;
-    }
-
-
     _.each(this.data.nodes, (node, index) => {
 
       node.categoryName = _.cloneDeep(node.field);
       //node.nodeName = _.cloneDeep(node.value);
-      node.nodeName = _.cloneDeep(node.originalName);
+      node.nodeName = _.cloneDeep(node.name);
       let sumValue;
 
       // 첫번째에 위치한 값은 source에서 값을 더하기, 그이후에는 target에서 값을 찾아 더하기
@@ -601,7 +561,7 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
           for( let item of data ) {
             if( item.name == value.field ) {
               //item.data = [value.value];
-              item.data = [value.originalName];
+              item.data = [value.name];
               selectData = [item];
               break;
             }

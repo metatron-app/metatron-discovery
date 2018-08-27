@@ -276,12 +276,12 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
     } else {
       // Inclusion 필터
       const preFilterData = {
-        contains: this.wildCardTypeList[0].value,
-        aggregation: this.aggregationTypeList[0].value,
-        inequality: this.conditionTypeList[0].value,
-        position: this.limitTypeList[0].value
+        aggregationType: this.aggregationTypeList[0],
+        limitType: this.limitTypeList[0],
+        conditionType: this.conditionTypeList[0],
+        wildCardType: this.wildCardTypeList[0]
       };
-      const inclusionFilter = FilterUtil.getBasicInclusionFilter(<Field>field, null, preFilterData);
+      const inclusionFilter = FilterUtil.getBasicInclusionFilter(<Field>field, true, null, preFilterData);
       if (field.type === 'user_expr') {
         inclusionFilter.ref = 'user_defined';
       }

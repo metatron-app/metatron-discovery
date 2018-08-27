@@ -110,7 +110,7 @@ public class PrepSnapshotService {
         PrepSnapshot snapshot = this.snapshotRepository.findOne(ssId);
         if(snapshot!=null) {
             try {
-                PrepSnapshot.SS_TYPE ss_type = snapshot.getSsTypeEnum();
+                PrepSnapshot.SS_TYPE ss_type = snapshot.getSsType();
                 if( PrepSnapshot.SS_TYPE.FILE==ss_type ) {
                     PrepSnapshot.FORMAT format = snapshot.getFormatEnum();
                     if (PrepSnapshot.FORMAT.CSV == format) {

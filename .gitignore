@@ -66,7 +66,6 @@ hive-site.xml
 discovery-server/src/main/resources/hive-site.xml
 !/discovery-server/src/main/java/com/metatron/discovery/domain/workbook/configurations/PageConfiguration.java
 !/discovery-server/src/main/java/com/metatron/discovery/domain/workbook/configurations/filter/ExpressionFilter.java
-discovery-frontend/src/environments/build.env.ts
 
 # dataprep local base dir
 dataprep/uploads

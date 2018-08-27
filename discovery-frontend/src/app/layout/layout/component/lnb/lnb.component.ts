@@ -26,7 +26,6 @@ import { SYSTEM_PERMISSION } from '../../../../common/permission/permission';
 import { CommonUtil } from '../../../../common/util/common.util';
 import { Modal } from '../../../../common/domain/modal';
 import { ConfirmModalComponent } from '../../../../common/component/modal/confirm/confirm.component';
-import { BuildInfo } from "../../../../../environments/build.env";
 
 @Component({
   selector: 'app-lnb',
@@ -108,11 +107,6 @@ export class LNBComponent extends AbstractComponent implements OnInit, OnDestroy
       users: { fold: true },
       workspaces: { fold: true }
     }
-  };
-
-  // Metatron App. 빌드 정보
-  public  buildInfo = {
-    appVersion: BuildInfo.METATRON_APP_VERSION
   };
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

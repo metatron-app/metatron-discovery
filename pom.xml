@@ -90,8 +90,6 @@
         <!-- used in dataprep -->
         <hadoop.version>2.7.2</hadoop.version>
 
-        <!-- Metatron Build Version -->
-        <metatron.app.version>STABLE</metatron.app.version>
     </properties>
     <build>
         <plugins>

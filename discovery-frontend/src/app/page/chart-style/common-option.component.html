@@ -1010,18 +1010,6 @@
         <!--  //divide -->
       </div>
       <!-- //waterfall차트 wrap divide -->
-
-      <!--[파이] wrap divide -->
-      <div class="ddp-wrap-divide" *ngIf="possibleChartCheck('pieExpress', uiOption.type)">
-        <!-- divide -->
-        <div class="ddp-divide2">
-          <div class="ddp-list-label">{{'msg.page.common.pie.max.category' | translate}}</div>
-          <input type="number" (keyup.enter)="changeMaximumCategores(uiOption['maxCategory'])" [(ngModel)]="uiOption['maxCategory']" input-mask="number" class="ddp-input-typebasic"
-                 placeholder="{{'msg.page.common.pie.max.category.placeholder' | translate}}">
-        </div>
-        <!-- //divide -->
-      </div>
-      <!-- //[파이] wrap divide -->
     </div>
   </div>
 </div>

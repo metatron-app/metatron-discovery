@@ -13,19 +13,15 @@
  */
 
 import { UIOption } from '../ui-option';
-import { PieSeriesViewType } from '../define/common';
-
+import { BarMarkType, LineMarkType, LineMode, LineStyle, PieSeriesViewType, PointShape } from '../define/common';
 /**
  * 파이차트 화면 UI에 필요한 옵션
  * Version 2.0
  */
 export interface UIPieChart extends UIOption {
 
-  // Chart 표시 방식
+  // Bar Chart 표시 방식
   markType: PieSeriesViewType;
-
-  // 기타외 표시개수
-  maxCategory?: number;
 }
 
 

@@ -21,7 +21,7 @@ import {
   Input,
   Output,
   EventEmitter,
-  DoCheck, KeyValueDiffers
+  SimpleChanges, SimpleChange
 } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { Widget } from '../../../domain/dashboard/widget/widget';
@@ -34,12 +34,11 @@ import { DashboardUtil } from '../../util/dashboard.util';
   selector: 'text-widgets-panel',
   templateUrl: './text-widget-panel.component.html'
 })
-export class TextWidgetPanelComponent extends AbstractComponent implements OnInit, OnDestroy, DoCheck {
+export class TextWidgetPanelComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private _differ: any;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -71,11 +70,9 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private differs: KeyValueDiffers,
-              protected elementRef: ElementRef,
+  constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
-    this._differ = differs.find({}).create();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -89,13 +86,15 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
 
   /**
    * Input 값 변경 체크
+   * @param {SimpleChanges} changes
    */
-  public ngDoCheck() {
-    if(this._differ.diff(this.dashboard)) {
-      console.log('changes detected');
-      this.widgets = DashboardUtil.getTextWidgets(this.dashboard);
+  public ngOnChanges(changes: SimpleChanges) {
+    const boardChanges: SimpleChange = changes.dashboard;
+    if( boardChanges && boardChanges.currentValue ) {
+      // 초기 설정
+      this.widgets = DashboardUtil.getTextWidgets(boardChanges.currentValue);
     }
-  } // function - ngDoCheck
+  } // function - ngOnChanges
 
   // Destroy
   public ngOnDestroy() {

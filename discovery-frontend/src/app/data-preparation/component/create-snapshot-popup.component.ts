@@ -80,9 +80,6 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
   @Output()
   public snapshotCreateFinishEvent = new EventEmitter();
-
-  @Output()
-  public snapshotCloseEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -145,7 +142,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   public close() {
     super.close();
-    this.snapshotCloseEvent.emit();
+
     this.isShow = false;
 
   } // function - close
@@ -220,7 +217,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         } else {
           // Alert.success(result.ssName + this.translateService.instant('msg.dp.alert.success.create.ss'));
           this.snapshotCreateFinishEvent.emit(result.ssId);
-          this.isShow = false;
+          this.close();
         }
 
       })

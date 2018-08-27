@@ -20,7 +20,7 @@ export class MeasurePositionFilter extends AdvancedFilter{
   /**
    *  집계 타입
    */
-  public aggregation: AggregationType;
+  public aggregationType: AggregationType;
 
   /**
    *  조건
@@ -38,6 +38,10 @@ export class MeasurePositionFilter extends AdvancedFilter{
     this.type = 'measure_position';
   }
 
+  // for UI
+  public aggregationTypeUI: any;
+  public positionUI: any;
+  public fieldUI: any;
 }
 
 /**

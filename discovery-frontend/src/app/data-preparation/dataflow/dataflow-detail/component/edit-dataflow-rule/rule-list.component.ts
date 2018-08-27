@@ -99,9 +99,10 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
     super.ngOnInit();
   }
 
-  // Destroy
+  // Destory
   public ngOnDestroy() {
-    clearInterval(this.interval);
+
+    // Destory
     super.ngOnDestroy();
   }
 
@@ -115,17 +116,10 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
   public init(dsId : string) {
     this.dsId = dsId;
     this.getSnapshotList(this.dsId);
-  } // function - init
-
-  /**
-   * 스냅샷 1초 차이로 불러오기
-   * @param dsId
-   */
-  public getSnapshotWithInterval(dsId) {
     this.interval = setInterval(() => {
-      this.getSnapshotList(dsId);
+      this.getSnapshotList(this.dsId);
     },1000)
-  } // function - getSnapshotWithInterval
+  } // function - init
 
   /**
    * 스냅샷 리스트에서 아직 준비중인 스냅샷이 있는지 확인
@@ -151,6 +145,8 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
             clearInterval(this.interval);
           }
           this.ruleSnapshotListComponent.init(this.snapshotList);
+        } else {
+          clearInterval(this.interval);
         }
       } else {
         clearInterval(this.interval);
@@ -164,7 +160,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
   /**
    * Clear interval
    */
-  public clearSnapshotInterval() {
+  public clearInterval() {
     clearInterval(this.interval);
   } // function - clearInterval
 
@@ -177,9 +173,6 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
     if (this.tabNumber === 1) {
       this.safelyDetectChanges();
       this.getSnapshotList(this.dsId);
-      this.getSnapshotWithInterval(this.dsId);
-    } else {
-      clearInterval(this.interval);
     }
   } // function - changeTab
 
