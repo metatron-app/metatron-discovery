@@ -950,6 +950,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   public isDraggableFilterWidget(item: FilterWidget): boolean {
     const filter: Filter = this.getFilterForFilterWidget(item);
+    ( filter.ui ) || ( filter.ui = {} );
     return !filter.ui.filteringSeq && !filter.ui.widgetId && !this.isWidgetInLayout(item.id);
   } // function - isDraggableFilterWidget
 
