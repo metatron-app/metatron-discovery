@@ -168,7 +168,7 @@ public class PrepSnapshotService {
                 if(true==dsId.equals(ss.getLineageInfoValue("dsId"))) {
                     if(option.toUpperCase().equals("ALL")){
                         snapshots.add(ss);
-                    } else if(ss.getStatusEnum() != PrepSnapshot.STATUS.CANCELED){
+                    } else if(ss.getStatusEnum() != PrepSnapshot.STATUS.CANCELING || ss.getStatusEnum() != PrepSnapshot.STATUS.CANCELED){
                         snapshots.add(ss);
                     }
                 }
