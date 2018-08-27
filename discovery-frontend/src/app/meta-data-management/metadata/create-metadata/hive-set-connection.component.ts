@@ -117,34 +117,35 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
    * @returns {boolean}
    */
   public isEnabledConnectionValidation() : boolean {
+    let result: boolean = true;
     // if disable URL
     if (!this.isEnableUrl) {
       // if empty hostname
       if (StringUtil.isEmpty(this.hostname)) {
         this.isShowHostRequired = true;
-        return false;
+        result = false;
       }
       // if empty port
       if (!this.port) {
         this.isShowPortRequired = true;
-        return false;
+        result = false;
       }
       // if enable URL and, empty URL
     } else if (StringUtil.isEmpty(this.url)) {
       this.isShowUrlRequired = true;
-      return false;
+      result = false;
     }
     // if empty username
     if (this.selectedSecurityType.value !== 'USERINFO' && StringUtil.isEmpty(this.username)) {
       this.isShowUsernameRequired = true;
-      return false;
+      result = false;
     }
     // if empty password
     if (this.selectedSecurityType.value !== 'USERINFO' && StringUtil.isEmpty(this.password)) {
       this.isShowPasswordRequired = true;
-      return false;
+      result = false;
     }
-    return true;
+    return result;
   }
 
   /**
@@ -431,8 +432,8 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
       implementor: this.selectedDbType.value,
       authenticationType: this.selectedSecurityType.value,
     };
-    // if security type is MANUAL, add username and password in connection
-    if (this.selectedSecurityType.value === 'MANUAL') {
+    // if security type is not USERINFO, add password and username
+    if (this.selectedSecurityType.value !== 'USERINFO') {
       connection['username'] = this.username;
       connection['password'] = this.password;
     }
@@ -443,9 +444,7 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
       connection['hostname'] = this.hostname;
       connection['port'] = this.port;
     }
-    return {
-      connection: connection
-    };
+    return { connection: connection };
   }
 }
 

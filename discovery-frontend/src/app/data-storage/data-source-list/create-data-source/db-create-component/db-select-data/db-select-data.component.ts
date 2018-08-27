@@ -546,8 +546,8 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
         authenticationType: this._sourceData.connectionData.selectedSecurityType.value
       }
     };
-    // if security type is MANUAL, add username and password in connection
-    if (this._sourceData.connectionData.selectedSecurityType.value === 'MANUAL') {
+    // if security type is not USERINFO, add username and password in connection
+    if (this._sourceData.connectionData.selectedSecurityType.value !== 'USERINFO') {
       params.connection['username'] = this._sourceData.connectionData.username;
       params.connection['password'] = this._sourceData.connectionData.password;
     }

@@ -463,14 +463,18 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       connection: {
         hostname: connection.hostname,
         port: connection.port,
-        username: connection.username,
-        password: connection.password,
-        implementor: connection.implementor
+        implementor: connection.implementor,
+        authenticationType: connection.authenticationType || 'MANUAL'
       },
       database: ingestion.database,
       type: ingestion.dataType,
       query: ingestion.query
     };
+    // if security type is not USERINFO, add password and username
+    if (connection.authenticationType !== 'USERINFO') {
+      connection['username'] = connection.username;
+      connection['password'] = connection.password;
+    }
 
     // 데이터 베이스가 있는경우
     if (ingestion.connection && ingestion.connection.hasOwnProperty('database')) {

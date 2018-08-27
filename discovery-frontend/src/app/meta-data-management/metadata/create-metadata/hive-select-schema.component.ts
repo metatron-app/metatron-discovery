@@ -369,7 +369,8 @@ export class HiveSelectSchemaComponent extends AbstractPopupComponent implements
     const params = {
       connection: {
         id: connectionData['selectedConnectionPreset'].id,
-        implementor: connectionData['selectedDbType'].value
+        implementor: connectionData['selectedDbType'].value,
+        authenticationType: connectionData.selectedSecurityType.value
       },
       type: 'TABLE'
     };
