@@ -376,15 +376,15 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     // 노드명 가공
     for( let node of this.data.nodes ) {
       node.originalName = node.name;
-      node.name = node.field +"-"+ node.name;
+      node.name = node.field + CHART_STRING_DELIMITER + node.name;
     }
 
     // 링크명 가공
     for( let link of this.data.links ) {
       link.originalSource = link.source;
       link.originalTarget = link.target;
-      link.source = link.sourceField + "-" + link.source;
-      link.target = link.targetField + "-" + link.target;
+      link.source = link.sourceField + CHART_STRING_DELIMITER + link.source;
+      link.target = link.targetField + CHART_STRING_DELIMITER + link.target;
     }
 
 
