@@ -545,6 +545,7 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
 
         let min = null;
         let max = null;
+        let calculateMin = null;
         if( this.originalData.categories || this.originalData.categories.length > 0 ) {
           _.each(this.originalData.columns, (column) => {
             _.each(column.value, (value) => {
@@ -556,15 +557,18 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
               }
             });
           });
-          min = min > 0
-            ? Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05))
-            : min;
+          calculateMin = Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05));
+          // min = min > 0
+          //   ? calculateMin >= 0 ? calculateMin : min
+          //   : min;
           max = max;
         }
         else {
-          min = this.originalData.info.minValue > 0
-            ? Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05))
-            : this.originalData.info.minValue;
+          calculateMin = Math.ceil(this.originalData.info.minValue - ((this.originalData.info.maxValue - this.originalData.info.minValue) * 0.05));
+          min = this.originalData.info.minValue;
+          // min = this.originalData.info.minValue > 0
+          //   ? calculateMin >= 0 ? calculateMin : min
+          //   : this.originalData.info.minValue;
           max = this.originalData.info.maxValue;
         }
 
