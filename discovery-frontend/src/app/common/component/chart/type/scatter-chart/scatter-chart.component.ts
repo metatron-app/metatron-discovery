@@ -852,6 +852,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
         // Min / Max값을 다시 구한다.
         let min = null;
         let max = null;
+        let calculateMin = null;
         this.data.columns.map((column, index) => {
           column.value.map((value, index) => {
             if( index == 1 ) {
@@ -865,9 +866,10 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
           });
         });
 
-        min = min > 0
-          ? Math.ceil(min - ((max - min) * 0.05))
-          : min;
+        calculateMin = Math.ceil(min - ((max - min) * 0.05));
+        // min = min > 0
+        //   ? calculateMin >= 0 ? calculateMin : min
+        //   : min;
         max = max;
 
         // Min / Max 업데이트
@@ -935,6 +937,7 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
         // Min / Max값을 다시 구한다.
         let min = null;
         let max = null;
+        let calculateMin = null;
         this.data.columns.map((column, index) => {
           column.value.map((value, index) => {
             if( index == 0 ) {
@@ -948,9 +951,10 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
           });
         });
 
-        min = min > 0
-          ? Math.ceil(min - ((max - min) * 0.05))
-          : min;
+        calculateMin = Math.ceil(min - ((max - min) * 0.05));
+        // min = min > 0
+        //   ? calculateMin >= 0 ? calculateMin : min
+        //   : min;
         max = max;
 
         // Min / Max 업데이트

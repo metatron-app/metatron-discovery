@@ -217,6 +217,7 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
         // Min / Max값을 다시 구한다.
         let min = null;
         let max = null;
+        let calculateMin = null;
         this.data.columns.map((column, index) => {
           if( index % 2 == 0 ) {
             column.value.map((value) => {
@@ -230,9 +231,10 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
           }
         });
 
-        min = min > 0
-          ? Math.ceil(min - ((max - min) * 0.05))
-          : min;
+        calculateMin = Math.ceil(min - ((max - min) * 0.05));
+        // min = min > 0
+        //   ? calculateMin >= 0 ? calculateMin : min
+        //   : min;
         max = max;
 
         // Min / Max 업데이트
