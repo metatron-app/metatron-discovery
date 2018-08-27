@@ -211,6 +211,46 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // 데이터가 아예 없는경우 (차트 초기 로딩같은..)
     if( !result || !result.data ) { return; }
 
+    //데이터 타입이  Object일 경우 => 맵 차트
+    if( result.data instanceof Object && result.data.totalFeatures > 0) {
+
+      // Set
+      this.originalData = _.cloneDeep(result.data);
+      this.data = result.data;
+      this.pivot = result.config.pivot;
+
+      // 데이터레이블에서 사용되는 uiData에 설정된 columns 데이터 설정
+      this.data.columns = this.setUIData();
+      this.saveInfo = result.uiOption;
+      if (result.hasOwnProperty('params')) {
+        this.params = result.params; // UI 연동을 위한 추가정보(필터 등등)
+      }
+      if (result.hasOwnProperty('type')) {
+        this.drawByType = result.type; // draw를 발생시킨 타입이 있는경우 설정
+      }
+
+      // uiOption값 설정
+      this.setDataInfo();
+
+      // 선반정보를 기반으로 차트를 구성하는 필드정보 설정
+      this.setFieldInfo();
+
+      // pivot 정보 설정
+      // this.setPivotInfo();
+
+      // 차트 표현
+      if( this.chart ) {
+        console.log('== map draw ==');
+        this.draw();
+      }
+
+      // drawByType 초기화
+      this.drawByType = null;
+
+      return;
+
+    }
+
     // 서버 데이터가 비어있을 경우
     if( !(result.data instanceof Array)
       && ((!result.data.columns || !result.data.rows)

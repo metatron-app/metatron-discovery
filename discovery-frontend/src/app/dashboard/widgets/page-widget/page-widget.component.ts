@@ -375,7 +375,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             const lineChart: LineChartComponent = this.chart['lineChart'];
             barChart.chart.resize();
             lineChart.chart.resize();
-          } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAPVIEW) {
+          } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAP) {
 
           } else if (this.widgetConfiguration.chart.type.toString() === 'grid') {
             //(<GridChartComponent>this.chart).grid.arrange();
@@ -521,7 +521,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       case ChartType.PIE :
         iconClass = 'ddp-chart-pie';
         break;
-      case ChartType.MAPVIEW :
+      case ChartType.MAP :
         iconClass = 'ddp-chart-map';
         break;
       case ChartType.CONTROL :

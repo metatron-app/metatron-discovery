@@ -39,7 +39,7 @@ export enum ChartType {
   SCATTER = <any>'scatter',
   HEATMAP = <any>'heatmap',
   PIE = <any>'pie',
-  MAPVIEW = <any>'mapview',
+  MAP = <any>'map',
   CONTROL = <any>'control',
   LABEL = <any>'label',
   LABEL2 = <any>'label2',

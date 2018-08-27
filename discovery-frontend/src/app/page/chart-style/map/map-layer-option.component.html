@@ -1,17 +1,3 @@
-<!--
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
 <div class="ddp-ui-chart-side ddp-show">
 
   <div class="ddp-ui-side-title">
@@ -19,6 +5,343 @@
   </div>
   <div class="ddp-wrap-downmenu">
     <div class="ddp-box-down">
+      <div class="ddp-wrap-divide">
+        <!-- divide -->
+        <div class="ddp-divide2 ">
+            <div class="ddp-list-label">
+              {{'msg.page.map.layer.name' | translate}}
+            </div>
+            <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.layers[0].name">
+        </div>
+        <!-- //divide -->
+        <!-- divide -->
+        <div class="ddp-divide2 ">
+            <div class="ddp-list-label">
+              {{'msg.page.map.layer.type' | translate}}
+               : <strong>기호</strong></div>
+            <div class="ddp-wrap-tab-type">
+                <ul class="ddp-list-tab-type">
+                    <li [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'symbol'}" (click)="mapLayerType('symbol');">
+                        <a href="javascript:">
+                            <em class="ddp-img-map-sign"></em>
+                        </a>
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            <span class="ddp-txt-tooltip">기호</span>
+                        </div>
+                        <!-- //tooltip -->
+
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'line'}" (click)="mapLayerType('line');">
+                        <a href="javascript:">
+                            <em class="ddp-img-map-line"></em>
+                        </a>
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            <span class="ddp-txt-tooltip">선</span>
+                        </div>
+                        <!-- //tooltip -->
+
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'polygon'}" (click)="mapLayerType('polygon');">
+                        <a href="javascript:">
+                            <em class="ddp-img-map-polygon"></em>
+                        </a>
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            <span class="ddp-txt-tooltip">폴리곤</span>
+                        </div>
+                        <!-- //tooltip -->
+
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'heatmap'}" (click)="mapLayerType('heatmap');">
+                        <a href="javascript:">
+                            <em class="ddp-img-map-heatmap"></em>
+                        </a>
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            <span class="ddp-txt-tooltip">히트맵</span>
+                        </div>
+                        <!-- //tooltip -->
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'tile'}" (click)="mapLayerType('tile');">
+                        <a href="javascript:">
+                            <em class="ddp-img-map-tile"></em>
+                        </a>
+                        <!-- tooltip -->
+                        <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-top"></em>
+                            <span class="ddp-txt-tooltip">타일</span>
+                        </div>
+                        <!-- //tooltip -->
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- //divide -->
+    </div>
+
+    <!-- 레이어 유형 : 기호 -->
+    <div class="ddp-ui-type-contents">
+        <div class="ddp-wrap-divide">
+            <!-- divide -->
+            <div class="ddp-divide2 ">
+                <div class="ddp-list-label">기호 유형</div>
+                <ul class="ddp-list-express ddp-tab6 ddp-type2">
+                    <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'CIRCLE'}" (click)="symbolType('CIRCLE');">
+                        <em class="ddp-icon-circle"></em> 원형
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'SQUARE'}" (click)="symbolType('SQUARE');">
+                        <em class="ddp-icon-square"></em> 사각형
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'TRIANGLE'}" (click)="symbolType('TRIANGLE');">
+                        <em class="ddp-icon-triangle"></em> 삼각형
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'PIN'}" (click)="symbolType('PIN');">
+                        <em class="ddp-icon-pin"></em> 핀
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'PLANE'}" (click)="symbolType('PLANE');">
+                        <em class="ddp-icon-fly"></em> 비행기
+                    </li>
+                    <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'USER'}" (click)="symbolType('USER');">
+                        <em class="ddp-icon-user"></em> 사용자
+                    </li>
+                </ul>
+
+            </div>
+            <!-- //divide -->
+
+            <!-- divide -->
+            <div class="ddp-divide2 ">
+                <div class="ddp-list-label">색상</div>
+                <div class="ddp-list-sub2">
+                    <div class="ddp-divide2">
+                        <div class="ddp-list-label">색상 기준</div>
+                        <!-- SELECTBOX -->
+                        <div class="ddp-type-selectbox" (click)="colorTypeFlag=!colorTypeFlag;colorListFlag=false;" (clickOutside)="colorTypeFlag=false" [excludeBeforeClick]="true">
+                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.by }}</span>
+                            <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
+                                <li (click)="changeColorType('NONE')"><a href="#">없음</a></li>
+                                <li (click)="changeColorType('DIMENSION')"><a href="#">차원값</a></li>
+                                <li (click)="changeColorType('MEASURE')"><a href="#">측정값</a></li>
+                            </ul>
+                        </div>
+                        <!-- //SELECTBOX -->
+                    </div>
+
+                    <div class="ddp-divide2">
+                        <!-- SELECTBOX -->
+                        <div *ngIf="uiOption.layers[0].color.by.toString() !== 'NONE'" class="ddp-type-selectbox" (click)="colorColumnFlag=!colorColumnFlag;" (clickOutside)="colorColumnFlag=false" [excludeBeforeClick]="true">
+                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.column.toString() === 'NONE' ? 'NONE' : uiOption.layers[0].color.column }}</span>
+                            <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorColumnFlag">
+                                <li (click)="changeColorColumn('NONE')"><a href="#">NONE</a></li>
+                                <li (click)="changeColorColumn('amt')"><a href="#">amt</a></li>
+                                <li (click)="changeColorColumn('py')"><a href="#">py</a></li>
+                            </ul>
+                        </div>
+                        <!-- //SELECTBOX -->
+                    </div>
+
+                    <div class="ddp-divide2">
+                        <div class="ddp-ui-colorby">
+                            <!-- colorby button -->
+                            <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' !== uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                              <em class="ddp-icon-colorby"></em>
+                              <!-- series, dimension 색일때 -->
+                              <button class="ddp-btn-color-series{{checkDefaultSelectedColor()}} ddp-type"></button>
+                              <!-- //series, dimension 색일때 -->
+                            </div>
+                            <!-- //colorby button -->
+
+                            <!-- colorby button -->
+                            <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' === uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                              <em class="ddp-icon-colorby"></em>
+                              <!-- measure 색일때 -->
+                              <button class="ddp-btn-color-type{{checkMeasureSelectedColor()}} ddp-type"></button>
+                              <!-- measure 색일때 -->
+                            </div>
+                            <!-- //colorby button -->
+
+                            <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
+                              <div class="ddp-col-6">
+                                <span class="ddp-label-txt">색상</span>
+                              </div>
+                              <div class="ddp-col-6 ddp-txt-right">
+                                <!-- selectbox -->
+                                <div class="ddp-type-selectbox ddp-color-selectbox2">
+                                  <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.color?.schema ? uiOption?.layers[0]?.color?.schema :'#FFF'" [showInitial]="true"
+                                                [showInput]="true" [showUserColor]="true" (selected)="selectSingleColor($event);"></color-picker>
+                                </div>
+                                <!-- //selectbox -->
+                              </div>
+                            </div>
+
+                            <!-- popup -->
+                            <div class="ddp-popup-side" *ngIf="colorListFlag">
+                              <!-- top -->
+                              <div class="ddp-pop-side-top">
+                                {{'msg.page.ui.color.palette' | translate}}
+                                <a href="javascript:" class="ddp-btn-close" (click)="colorListFlag=false"></a>
+                              </div>
+                              <!-- //top -->
+                              <!-- contents -->
+                              <div *ngIf="'MEASURE' !== uiOption.layers[0].color.by.toString()" class="ddp-pop-side-contents">
+                                <ul class="ddp-list-series">
+                                  <li *ngFor="let item of defaultColorList" (click)="changeColor(item)">
+                                    <!-- 선택시 ddp-selected 추가 -->
+                                    <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                  </li>
+                                </ul>
+                              </div>
+                              <!-- //contents -->
+                              <!--uiOption.type.toString() == 'grid' ? gridMeasureColorList : measureColorList-->
+                              <!-- contents -->
+                              <div *ngIf="'MEASURE' === uiOption.layers[0].color.by.toString()"  class="ddp-pop-side-contents">
+                                <span class="ddp-pop-sub-title">{{'msg.page.th.seq.display' | translate}}</span>
+                                <ul class="ddp-list-series">
+                                  <li *ngFor="let item of measureColorList; let num = index" (click)="changeColor(item, measureColorList[num])">
+                                    <!-- 선택시 ddp-selected 추가 -->
+                                    <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                  </li>
+                                </ul>
+
+                                <span class="ddp-pop-sub-title">{{'msg.page.th.contrast.display' | translate}}</span>
+                                <ul class="ddp-list-series">
+                                  <li *ngFor="let item of measureReverseColorList; let num = index" (click)="changeColor(item, measureReverseColorList[num])">
+                                    <!-- 선택시 ddp-selected 추가 -->
+                                    <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                  </li>
+                                </ul>
+                              </div>
+                              <!-- //contents -->
+
+                            </div>
+                            <!-- //popup -->
+                        </div>
+                    </div>
+
+                    <div class="ddp-divide2">
+                        <div class="ddp-list-label">투명도</div>
+                        <!-- SELECTBOX -->
+                        <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
+                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? '사용안함' : uiOption.layers[0].color.transparency }}</span>
+                            <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
+                                <li (click)="changeTransparency(100)"><a href="#">사용안함</a></li>
+                                <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
+                                <li (click)="changeTransparency(60)"><a href="#">60%</a></li>
+                                <li (click)="changeTransparency(40)"><a href="#">40%</a></li>
+                                <li (click)="changeTransparency(20)"><a href="#">20%</a></li>
+                            </ul>
+                        </div>
+                        <!-- //SELECTBOX -->
+                    </div>
+                </div>
+            </div>
+            <!-- //divide -->
+        </div>
+
+        <div class="ddp-wrap-divide">
+            <!-- divide -->
+            <div class="ddp-divide2 ">
+                <div class="ddp-list-label">크기</div>
+                <div class="ddp-list-sub2">
+                    <div class="ddp-divide2">
+                        <div class="ddp-list-label">크기 기준</div>
+                        <!-- SELECTBOX -->
+                        <div class="ddp-type-selectbox" (click)="sizeTypeFlag=!sizeTypeFlag;" (clickOutside)="sizeTypeFlag=false" [excludeBeforeClick]="true">
+                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].size.by }}</span>
+                            <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
+                                <li (click)="changeSizeType('NONE')"><a href="#">없음</a></li>
+                                <li (click)="changeSizeType('MEASURE')"><a href="#">측정값</a></li>
+                            </ul>
+                        </div>
+                        <!-- //SELECTBOX -->
+                    </div>
+
+                    <div class="ddp-divide2">
+                        <!-- SELECTBOX -->
+                        <div *ngIf="uiOption.layers[0].size.by.toString() !== 'NONE'" class="ddp-type-selectbox" (click)="sizeColumnFlag=!sizeColumnFlag;" (clickOutside)="sizeColumnFlag=false" [excludeBeforeClick]="true">
+                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.column.toString() === 'NONE' ? 'NONE' : uiOption.layers[0].size.column }}</span>
+                            <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeColumnFlag">
+                                <li (click)="changeSizeColumn('NONE')"><a href="#">NONE</a></li>
+                                <li (click)="changeSizeColumn('amt')"><a href="#">amt</a></li>
+                                <li (click)="changeSizeColumn('py')"><a href="#">py</a></li>
+                            </ul>
+                        </div>
+                        <!-- //SELECTBOX -->
+                    </div>
+                </div>
+            </div>
+            <!-- //divide -->
+        </div>
+
+        <div class="ddp-wrap-divide">
+            <!-- divide -->
+            <div class="ddp-divide2 ">
+                <div class="ddp-wrap-option-slider">
+                    <span class="ddp-label-slider">아웃라인</span>
+                    <!-- Slide THREE -->
+                    <div class="ddp-checkbox-slide ddp-checkbox-automatic2" >
+                        <input type="checkbox" name="check" [checked]="uiOption.layers[0].outline.thickness !== 'NONE'" (click)="changeOutlineFlag()">
+                        <label for="check2"><span class="ddp-slide"></span></label>
+                    </div>
+                    <!-- //Slide THREE -->
+
+                </div>
+
+                <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
+                    <div class="ddp-col-7">
+                        <span class="ddp-label-txt">색상</span>
+                    </div>
+                    <div class="ddp-col-5 ddp-txt-right">
+                      <div *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'" class="ddp-wrap-option-multy ddp-clear">
+                        <div class="ddp-col-6 ddp-txt-right">
+                          <!-- selectbox -->
+                          <div class="ddp-type-selectbox ddp-color-selectbox2">
+                            <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.outline?.color ? uiOption?.layers[0]?.outline?.color :'#FFF'" [showInitial]="true"
+                                          [showInput]="true" [showUserColor]="true" (selected)="selectOutlineColor($event);"></color-picker>
+                          </div>
+                          <!-- //selectbox -->
+                        </div>
+                      </div>
+                    </div>
+                </div>
+
+                <!-- multy -->
+                <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
+                    <div class="ddp-col-6">
+                        <span class="ddp-label-txt">굵기</span>
+                    </div>
+                    <div class="ddp-col-6 ddp-txt-right">
+                        <ul class="ddp-list-express ddp-tab3 ddp-type">
+                            <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.thickness === 'THIN'}" (click)="outlineType('THIN');"><em class="ddp-line-bold1"></em></li>
+                            <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.thickness === 'NORMAL'}" (click)="outlineType('NORMAL');"><em class="ddp-line-bold2"></em></li>
+                            <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.thickness === 'THICK'}" (click)="outlineType('THICK');"><em class="ddp-line-bold3"></em></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- //multy -->
+            </div>
+        </div>
+
+        <div class="ddp-wrap-divide">
+            <div class="ddp-part-check-b ">
+                <label class="ddp-label-checkbox ddp-position">
+                    <input type="checkbox" [checked]="uiOption.layers[0].clustering" (click)="changeClusteringFlag()">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">클러스터링
+</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    <!-- //레이어 유형 : 기호 -->
+
     </div>
   </div>
 </div>
