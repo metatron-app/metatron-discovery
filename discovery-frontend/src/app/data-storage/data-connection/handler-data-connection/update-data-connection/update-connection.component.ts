@@ -489,7 +489,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
     // update connection
     this.connectionService.updateConnection(this._connectionId, {published: !this.published})
       .then((result) => {
-        this._originConnectionData.published = result['published'];
+        this._originConnectionData.published = this.published = result['published'];
         // alert
         result['published']
           ? Alert.success(this.translateService.instant('msg.storage.alert.dconn-public.success'))
