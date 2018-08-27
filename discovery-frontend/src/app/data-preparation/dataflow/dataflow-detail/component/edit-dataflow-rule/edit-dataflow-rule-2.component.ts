@@ -1491,6 +1491,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }
 
     event.stopPropagation();
+    this._setEditRuleInfo(rule.ruleNo)
+      .then((data: { apiData: any, gridData: any }) => {
+        this.setEditInfo(rule, data.gridData);
+      });
+
+    /*
     this.loadingShow();
 
     const op = {
@@ -1516,6 +1522,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       let prep_error = this.dataprepExceptionHandler(error);
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
+    */
 
   } // function - setRuleVO
 
