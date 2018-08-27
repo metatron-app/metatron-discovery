@@ -46,7 +46,7 @@ export class Dashboard extends AbstractHistoryEntity {
 
   // for UI
   public selectDatasource: Datasource;
-  public update: boolean;
+  public updateId:string;
 } // structure - Dashboard
 
 /**
@@ -195,6 +195,7 @@ export class LayoutWidgetInfo {
   // for UI
   public isSaved:boolean;
   public isInLayout:boolean;
+  public isLoaded:boolean;
 
   constructor(widgetId: string, widgetType: string) {
     this.id = CommonUtil.getUUID();

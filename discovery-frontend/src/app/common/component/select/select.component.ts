@@ -152,6 +152,12 @@ export class SelectComponent extends AbstractComponent implements OnInit {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 선택값을 없앰
+   */
+  public clearSelect() {
+    this.selectedItem = null;
+  } // function - clearSelect
 
   // 선택이벤트
   public selected(item: any) {

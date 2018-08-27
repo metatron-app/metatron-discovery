@@ -29,9 +29,6 @@ export class WildCardFilter extends AdvancedFilter {
     super();
     this.type = 'wildcard';
   }
-
-  // for UI
-  public containsUI: any;
 }
 /**
  * 포함 조건 타입 정의

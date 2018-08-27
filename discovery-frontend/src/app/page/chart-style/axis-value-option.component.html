@@ -50,7 +50,7 @@
   <div class="ddp-wrap-option-slider">
     <span class="ddp-label-slider">{{'msg.page.yaxis.grid.setting' | translate}}</span>
     <!-- Slide THREE -->
-    <div class="ddp-checkbox-slide ddp-checkbox-automatic2" [class.ddp-disabled]="axis.baseline">
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2" [class.ddp-disabled]="undefined != axisTemp.baseline">
       <input type="checkbox" (click)="$event.stopPropagation(); changeGrid();" [ngModel]="axis.grid">
       <label><span class="ddp-slide"></span></label>
     </div>
@@ -65,8 +65,8 @@
         </div>
         <div class="ddp-col-7">
           <input [(ngModel)]="axisTemp.grid.max" (keyup.enter)="changeMax()" type="text" class="ddp-input-typebasic"
-                 [class.ddp-error]="isOverMax()"
-                 [attr.placeholder]="AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].max">
+                 [attr.placeholder]="AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].max"
+                 [disabled]="axis?.grid?.autoScaled">
         </div>
       </div>
       <div class="ddp-wrap-option-multy ddp-clear">
@@ -76,20 +76,24 @@
         <div class="ddp-col-7">
           <!-- error 일때 ddp-error 추가 -->
           <input [(ngModel)]="axisTemp.grid.min" (keyup.enter)="changeMin()" type="text" class="ddp-input-typebasic"
-                 [class.ddp-error]="isOverMin()"
-                 [attr.placeholder]="AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].min">
+                 [attr.placeholder]="AxisOptionConverter.axisMinMax[(axis.mode == 'row' ? 'xAxis' : 'yAxis')].min"
+                 [disabled]="axis?.grid?.autoScaled">
         </div>
       </div>
+      <!--
       <div class="ddp-divide2" *ngIf="isOverMinMax()">
         <span class="ddp-txt-error ddp-size"><em class="ddp-icon-error"></em>{{'msg.page.yaxis.grid.alert' | translate}}</span>
       </div>
+      -->
     </ng-container>
     <div class="ddp-divide2">
-      <label (click)="$event.preventDefault(); changeAutoScale();" class="ddp-label-checkbox ddp-check-full">
-        <input type="checkbox" [ngModel]="axis.grid.autoScaled">
-        <i class="ddp-icon-checkbox"></i>
-        <span class="ddp-txt-checkbox">{{'msg.page.yaxis.grid.auto' | translate}}</span>
-      </label>
+      <div class="ddp-part-check">
+        <label (click)="$event.preventDefault(); changeAutoScale();" class="ddp-label-checkbox ddp-position">
+          <input type="checkbox" [ngModel]="axis.grid.autoScaled">
+          <i class="ddp-icon-checkbox"></i>
+          <span class="ddp-txt-checkbox">{{'msg.page.yaxis.grid.auto' | translate}}</span>
+        </label>
+      </div>
     </div>
   </div>
 </div>
@@ -97,10 +101,17 @@
 
 <!-- 기준선 / 단위 설정 -->
 <div *ngIf="possibleChartCheck('yAxisBaseline', uiOption.type)" class="ddp-wrap-divide">
-  <div class="ddp-divide2">
-    <div class="ddp-list-label">{{'msg.page.yaxis.baseline' | translate}}</div>
-    <input [(ngModel)]="axisTemp.baseline" (keyup.enter)="changeBaseLine()" type="text" class="ddp-input-typebasic" placeholder="0">
+  <div class="ddp-wrap-option-slider">
+    <span class="ddp-label-slider">{{'msg.page.yaxis.baseline' | translate}}</span>
+    <!-- Slide THREE -->
+    <div class="ddp-checkbox-slide ddp-checkbox-automatic2" [class.ddp-disabled]="axis.grid">
+      <input type="checkbox" (click)="showBaseLine()" [ngModel]="undefined != axisTemp.baseline">
+      <label><span class="ddp-slide"></span></label>
+    </div>
+    <!-- //Slide THREE -->
   </div>
+
+  <input *ngIf="undefined != axisTemp.baseline" [(ngModel)]="axisTemp.baseline" (keyup.enter)="changeBaseLine()" type="text" class="ddp-input-typebasic" placeholder="0">
   <!--
   <div class="ddp-wrap-option-slider">
     <span class="ddp-label-slider">단위설정</span>
