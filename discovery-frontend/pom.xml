@@ -21,7 +21,7 @@
   <parent>
     <artifactId>metatron-discovery</artifactId>
     <groupId>app.metatron.discovery</groupId>
-    <version>3.0.0</version>
+    <version>3.0.2</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -52,6 +52,13 @@
             <goals>
               <goal>npm</goal>
             </goals>
+
+            <configuration>
+              <environmentVariables>
+                <METATRON_APP_VERSION>${metatron.app.version}</METATRON_APP_VERSION>
+              </environmentVariables>
+              <arguments>run prebuild</arguments>
+            </configuration>
           </execution>
 
           <execution>

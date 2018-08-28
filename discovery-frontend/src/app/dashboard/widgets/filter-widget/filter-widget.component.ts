@@ -462,37 +462,6 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
   } // function - _setContainerZIndex
 
   /**
-   * 통신용 필터
-   * return Filter;
-   */
-/*
-  private getFiltersParam(filter: Filter): Filter[] {
-
-    if (!this.globalFilters) this.globalFilters = [];
-
-    let filters: Filter[] = [];
-    // 차트필터
-    if (filter.ui.widgetId) {
-      // 필수필터 + 글로벌필터
-      filters = this.globalFilters;
-    } else if (filter.ui.importanceType === 'general') {
-      // + 자기 자신을 제외한 글로벌 필터
-      filters = filters.concat(this.globalFilters.filter(item => item.field !== filter.field && !(item.type === 'bound' && item['min'] == null)));
-    } else if (filter.ui.importanceType === 'timestamp') {
-      filters = [];
-    } else {
-      // 타임스탬프 + 자기보다 시퀀스가 낮은(우선순위가 높은) 필터
-      filters = this.globalFilters.filter((item) => {
-        return item.ui.importanceType === 'timestamp' || item.ui.filteringSeq < filter.ui.filteringSeq;
-      });
-    }
-
-    if (!filters) filters = [];
-    return filters;
-  } // function getFilters
-*/
-
-  /**
    * Inclusion 및 Bound 필터에 대한 후보값 조회
    * @param {Filter} filter
    */
@@ -504,7 +473,6 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
     if ('include' === filter.type || 'bound' === filter.type) {
 
       // 필터 데이터 후보 조회
-      this.loadingShow();
       // this.datasourceService.getCandidateForFilter(
       //   this.filter, this.dashboard, this.getFiltersParam(this.filter), this.field).then((result) => {
       this.datasourceService.getCandidateForFilter( filter, this.dashboard, [], this.field).then((result) => {
@@ -561,7 +529,6 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
         this._initialContainer();         // 컨테이너 초기화
 
         this.processEnd();
-        this.loadingHide();
       }).catch((error) => {
         this.commonExceptionHandler(error);
         // 목록 비움

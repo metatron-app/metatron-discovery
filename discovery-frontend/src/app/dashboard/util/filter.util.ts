@@ -79,10 +79,10 @@ export class FilterUtil {
             const arrInterval: any[] = item.split('/');
 
             if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
-              arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit,true);
+              arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
             }
             if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
-              arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit,false);
+              arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
             }
 
             return arrInterval[0] + '/' + arrInterval[1];
@@ -128,12 +128,11 @@ export class FilterUtil {
   /**
    * 기본 시간필터 (기본값으로) 생성
    * @param {Field} field
-   * @param {boolean} isPreFilterUI   preFilters를 UI그리는 옵션까지 추가할지 여부
    * @param {string} importanceType
    * @param preFilterData
    * @return {InclusionFilter}
    */
-  public static getBasicInclusionFilter(field: Field, isPreFilterUI: boolean, importanceType?: string, preFilterData?: any): InclusionFilter {
+  public static getBasicInclusionFilter(field: Field, importanceType?: string, preFilterData?: any): InclusionFilter {
     // 시간 필터
     const inclusionFilter = new InclusionFilter(field.name);
     inclusionFilter.selector = InclusionSelectorType.SINGLE_COMBO;
@@ -142,9 +141,9 @@ export class FilterUtil {
     inclusionFilter.ref = field.ref;
     inclusionFilter.dataSource = field.uiMasterDsId;
 
-    inclusionFilter.preFilters.push(this.getBasicInequalityFilter(isPreFilterUI, preFilterData));
-    inclusionFilter.preFilters.push(this.getBasicPositionFilter(isPreFilterUI, preFilterData));
-    inclusionFilter.preFilters.push(this.getBasicwildCardFilter(field.name, isPreFilterUI, preFilterData));
+    inclusionFilter.preFilters.push(this.getBasicInequalityFilter(preFilterData));
+    inclusionFilter.preFilters.push(this.getBasicPositionFilter(preFilterData));
+    inclusionFilter.preFilters.push(this.getBasicWildCardFilter(field.name, preFilterData));
 
     inclusionFilter.ui.masterDsId = field.uiMasterDsId;
     inclusionFilter.ui.dsId = field.dsId;
@@ -184,19 +183,18 @@ export class FilterUtil {
 
   /**
    * 기본 condition 생성
-   * @param {boolean} isPreFilterUI(preFilters를 UI그리는 옵션까지 추가할지 여부)
    * @param {any} preFilterData(preFilters UI옵션)
    * @return {MeasureInequalityFilter}
    */
-  public static getBasicInequalityFilter(isPreFilterUI: boolean, preFilterData: any): MeasureInequalityFilter {
+  public static getBasicInequalityFilter(preFilterData: any): MeasureInequalityFilter {
     const measureInequalityFilter = new MeasureInequalityFilter();
-    measureInequalityFilter.aggregationType = AggregationType.SUM;
+    measureInequalityFilter.aggregation = AggregationType.SUM;
     measureInequalityFilter.inequality = InequalityType.EQUAL_TO;
     measureInequalityFilter.value = 10;
 
-    if (isPreFilterUI) {
-      measureInequalityFilter.aggregationTypeUI = preFilterData.aggregationType;
-      measureInequalityFilter.inequalityUI = preFilterData.conditionType;
+    if (preFilterData) {
+      measureInequalityFilter.aggregation = preFilterData.aggregation;
+      measureInequalityFilter.inequality = preFilterData.inequality;
     }
 
     return measureInequalityFilter;
@@ -204,20 +202,19 @@ export class FilterUtil {
 
   /**
    * 기본 limit 생성
-   * @param {boolean} isPreFilterUI(preFilters를 UI그리는 옵션까지 추가할지 여부)
    * @param {any} preFilterData(preFilters UI옵션)
    * @return {MeasurePositionFilter}
    */
-  public static getBasicPositionFilter(isPreFilterUI: boolean, preFilterData: any): MeasurePositionFilter {
+  public static getBasicPositionFilter(preFilterData: any): MeasurePositionFilter {
     // 시간 필터
     const measurePositionFilter = new MeasurePositionFilter();
-    measurePositionFilter.aggregationType = AggregationType.SUM;
+    measurePositionFilter.aggregation = AggregationType.SUM;
     measurePositionFilter.position = PositionType.TOP;
     measurePositionFilter.value = 10;
 
-    if (isPreFilterUI) {
-      measurePositionFilter.aggregationTypeUI = preFilterData.aggregationType;
-      measurePositionFilter.positionUI = preFilterData.limitType;
+    if (preFilterData) {
+      measurePositionFilter.aggregation = preFilterData.aggregation;
+      measurePositionFilter.position = preFilterData.position;
     }
 
     return measurePositionFilter;
@@ -226,19 +223,18 @@ export class FilterUtil {
   /**
    * 기본 wildcard 생성
    * @param {string} fieldName
-   * @param {boolean} isPreFilterUI
    * @param preFilterData
    * @return {WildCardFilter}
    */
-  public static getBasicwildCardFilter(fieldName: string, isPreFilterUI: boolean, preFilterData: any): WildCardFilter {
+  public static getBasicWildCardFilter(fieldName: string, preFilterData: any): WildCardFilter {
     // 시간 필터
     const wildCardFilter = new WildCardFilter();
     wildCardFilter.contains = ContainsType.BEFORE;
     wildCardFilter.field = fieldName;
     wildCardFilter.value = '';
 
-    if (isPreFilterUI) {
-      wildCardFilter.containsUI = preFilterData.wildCardType;
+    if (preFilterData) {
+      wildCardFilter.contains = preFilterData.contains;
     }
 
     return wildCardFilter;
@@ -278,12 +274,19 @@ export class FilterUtil {
       case 'time_list' :
         keyMap = ['valueList', 'candidateValues', 'timeUnit', 'byTimeUnit', 'discontinuous'];
         break;
+      case 'wildcard' :
+        keyMap = ['contains', 'value'];
+        break;
+      case 'measure_inequality' :
+        keyMap = ['aggregation', 'inequality', 'value'];
+        break;
+      case 'measure_position' :
+        keyMap = ['aggregation', 'position', 'value'];
+        break;
     }
     keyMap = keyMap.concat(['type', 'field', 'ref', 'dataSource']);
     for (let key of Object.keys(filter)) {
-      if (-1 === keyMap.indexOf(key)) {
-        delete filter[key];
-      }
+      (keyMap.some(item => item === key)) || (delete filter[key]);
     }
 
     // Time Range 필터의 타임 형식 설정
@@ -303,12 +306,12 @@ export class FilterUtil {
           timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrInterval[1];
         });
         // 서버에서 quarter 에 대한 필터링을 제공하지 않기 때문에 강제적으로 Month로 변경함 ( Selection 필터를 위함 )
-        ( TimeUnit.QUARTER === timeRangeFilter.timeUnit ) && ( timeRangeFilter.timeUnit = TimeUnit.MONTH );
+        (TimeUnit.QUARTER === timeRangeFilter.timeUnit) && (timeRangeFilter.timeUnit = TimeUnit.MONTH);
       }
     } // end if - time_range
-    else if( FilterUtil.isTimeRelativeFilter(filter)) {
+    else if (FilterUtil.isTimeRelativeFilter(filter)) {
       const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>filter;
-      ( timeRelativeFilter.timezone ) || ( timeRelativeFilter.timezone = moment.tz.guess() );
+      (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
     } // end if - time_relative
 
     return filter;
@@ -349,12 +352,19 @@ export class FilterUtil {
       case 'time_list' :
         keyMap = ['valueList', 'candidateValues', 'timeUnit', 'byTimeUnit', 'discontinuous'];
         break;
+      case 'wildcard' :
+        keyMap = ['contains', 'value'];
+        break;
+      case 'measure_inequality' :
+        keyMap = ['aggregation', 'inequality', 'value'];
+        break;
+      case 'measure_position' :
+        keyMap = ['aggregation', 'position', 'value'];
+        break;
     }
     keyMap = keyMap.concat(['type', 'field', 'ref', 'dataSource']);
     for (let key of Object.keys(filter)) {
-      if (-1 === keyMap.indexOf(key)) {
-        delete filter[key];
-      }
+      (keyMap.some(item => item === key)) || (delete filter[key]);
     }
 
     // Time Range 필터의 타임 형식 설정
@@ -365,19 +375,19 @@ export class FilterUtil {
           const arrInterval: any[] = item.split('/');
 
           if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[0] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[0]) {
-            arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit,true);
+            arrInterval[0] = FilterUtil.getDateTimeFormat(arrInterval[0], timeRangeFilter.timeUnit, true);
           }
           if (TimeRangeFilter.EARLIEST_DATETIME !== arrInterval[1] && TimeRangeFilter.LATEST_DATETIME !== arrInterval[1]) {
-            arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit,false);
+            arrInterval[1] = FilterUtil.getDateTimeFormat(arrInterval[1], timeRangeFilter.timeUnit, false);
           }
 
           timeRangeFilter.intervals[idx] = arrInterval[0] + '/' + arrInterval[1];
         });
       }
     } // end if - time_range
-    else if( FilterUtil.isTimeRelativeFilter(filter)) {
+    else if (FilterUtil.isTimeRelativeFilter(filter)) {
       const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>filter;
-      ( timeRelativeFilter.timezone ) || ( timeRelativeFilter.timezone = moment.tz.guess() );
+      (timeRelativeFilter.timezone) || (timeRelativeFilter.timezone = moment.tz.guess());
     } // end if - time_relative
 
     return filter;
@@ -395,7 +405,7 @@ export class FilterUtil {
    * @param {boolean} isStart
    * @returns {string}
    */
-  public static getDateTimeFormat(date: (Date | string), timeUnit: TimeUnit, isStart:boolean = true): string {
+  public static getDateTimeFormat(date: (Date | string), timeUnit: TimeUnit, isStart: boolean = true): string {
     switch (timeUnit) {
       case TimeUnit.SECOND:
         return moment(date).format('YYYY-MM-DD HH:mm:ss');
@@ -410,18 +420,18 @@ export class FilterUtil {
       case TimeUnit.MONTH:
         return moment(date).format('YYYY-MM');
       case TimeUnit.QUARTER:
-        if( date instanceof Date ) {
+        if (date instanceof Date) {
           return moment(date).format('YYYY-MM');
         } else {
-          const splitDate:string[] = date.split( /\s|-/ );
-          let strYear:string = '';
-          let strQuarter:string = '';
-          if( -1 < splitDate[0].indexOf( 'Q' ) ) {
+          const splitDate: string[] = date.split(/\s|-/);
+          let strYear: string = '';
+          let strQuarter: string = '';
+          if (-1 < splitDate[0].indexOf('Q')) {
             strYear = splitDate[1];
-            strQuarter = FilterUtil.quarterToMonth( splitDate[0], isStart );
+            strQuarter = FilterUtil.quarterToMonth(splitDate[0], isStart);
           } else {
             strYear = splitDate[0];
-            strQuarter = FilterUtil.quarterToMonth( splitDate[1], isStart );
+            strQuarter = FilterUtil.quarterToMonth(splitDate[1], isStart);
           }
           return strYear + '-' + strQuarter;
         }
@@ -438,16 +448,16 @@ export class FilterUtil {
    * @param {boolean} isStart
    * @return {string}
    */
-  public static quarterToMonth( quarter:string, isStart:boolean ):string {
-    switch( quarter ) {
+  public static quarterToMonth(quarter: string, isStart: boolean): string {
+    switch (quarter) {
       case 'Q1' :
-        return ( isStart ) ? '01' : '03';
+        return (isStart) ? '01' : '03';
       case 'Q2' :
-        return ( isStart ) ? '04' : '06';
+        return (isStart) ? '04' : '06';
       case 'Q3' :
-        return ( isStart ) ? '07' : '09';
+        return (isStart) ? '07' : '09';
       case 'Q4' :
-        return ( isStart ) ? '10' : '12';
+        return (isStart) ? '10' : '12';
     }
   } // function - quarterToMonth
 

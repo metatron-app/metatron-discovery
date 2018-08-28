@@ -64,8 +64,6 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  private _isInitialisedLayout: boolean = false;       // Layout Initialised 이벤트 발생 여부
-  private _isFinishedWidgetLoading: boolean = false;   // Widget
   private _isCompleteLayoutLoad: boolean = false;      // Layout 시스템 초기화 완료 여부 ( 위젯 불러오기 포함 )
 
   private _layoutObj: any;   // 골든 레이아웃
@@ -77,12 +75,13 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
   private _widgetHeaderComps: ComponentRef<DashboardWidgetHeaderComponent>[] = [];  // 위젯 헤더 컴포넌트 목록
   private _widgetComps: ComponentRef<DashboardWidgetComponent>[] = [];              // 위젯 컴포넌트 목록
 
-  private _cntProcess: number = 0;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public dashboard: Dashboard;
+
+  // 대시보드 로딩 표시 여부
+  public isShowDashboardLoading: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -112,19 +111,31 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
     // 위젯 실행
     this.subscriptions.push(
-      this.broadCaster.on<any>('START_PROCESS').subscribe(() => {
-        this._cntProcess = this._cntProcess + 1;
-        this._isFinishedWidgetLoading = false;
-        this.loadingShow();
+      this.broadCaster.on<any>('START_PROCESS').subscribe((data: { widgetId: string }) => {
+        this.dashboard.configuration.widgets.some(item => {
+          if (item.ref === data.widgetId) {
+            item.isLoaded = false;
+          }
+          return (item.ref === data.widgetId);
+        });
+        this.showBoardLoading();
       })
     );
 
     // 위젯 종료
     this.subscriptions.push(
-      this.broadCaster.on<any>('STOP_PROCESS').subscribe(() => {
-        this._cntProcess = this._cntProcess - 1;
-        if (0 === this._cntProcess) {
-          this._isFinishedWidgetLoading = true;
+      this.broadCaster.on<any>('STOP_PROCESS').subscribe((data: { widgetId: string }) => {
+        const layoutWidgets: LayoutWidgetInfo[] = this.dashboard.configuration.widgets;
+        let cntInLayout: number = 0;
+        let cntLoaded: number = 0;
+        layoutWidgets.forEach(item => {
+          if (item.isInLayout) {
+            cntInLayout = cntInLayout + 1;
+            (item.ref === data.widgetId) && (item.isLoaded = true);
+            (item.isLoaded) && (cntLoaded = cntLoaded + 1);
+          }
+        });
+        if (cntInLayout === cntLoaded) {
           this._updateLayoutFinished();
         }
       })
@@ -241,14 +252,12 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * @private
    */
   private _updateLayoutFinished() {
-    if (this._isInitialisedLayout && this._isFinishedWidgetLoading) {
-      if (!this._isCompleteLayoutLoad) {
-        this._isCompleteLayoutLoad = true;
-        this.updateLayoutSize();
-        this.onLayoutInitialised();
-      }
-      this.loadingHide();
+    if (!this._isCompleteLayoutLoad) {
+      this._isCompleteLayoutLoad = true;
+      this.updateLayoutSize();
+      this.onLayoutInitialised();
     }
+    this.hideBoardLoading();
   } // function - updateLayoutFinished
 
   /**
@@ -461,11 +470,11 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     // 페이지 위젯 정보 설정
     if (boardInfo.widgets) {
       boardInfo.widgets.forEach((widget) => {
-        if('page' === widget.type) {
-          const pgeWidget:PageWidget = <PageWidget>widget;
+        if ('page' === widget.type) {
+          const pgeWidget: PageWidget = <PageWidget>widget;
           pgeWidget.mode = 'chart';
-          if( pgeWidget.configuration && pgeWidget.configuration.dataSource && pgeWidget.configuration.filters ) {
-            pgeWidget.configuration.filters.forEach( item => {
+          if (pgeWidget.configuration && pgeWidget.configuration.dataSource && pgeWidget.configuration.filters) {
+            pgeWidget.configuration.filters.forEach(item => {
               item.dataSource = pgeWidget.configuration.dataSource.id;
             });
           }
@@ -564,13 +573,13 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         if (FilterUtil.isTimeFilter(filter)) {
           const timeFilter: TimeFilter = <TimeFilter>filter;
           (timeFilter.timeUnit) || (timeFilter.timeUnit = TimeUnit.NONE);
-          let filterDsId:string = undefined;
-          if( filter.dataSource ) {
+          let filterDsId: string = undefined;
+          if (filter.dataSource) {
             filterDsId = filter.dataSource;
-          } else if ( filter.ui ) {
+          } else if (filter.ui) {
             filterDsId = filter.ui.masterDsId;
           } else {
-            filterDsId = boardConf.fields.find( field => field.name === timeFilter.field ).uiMasterDsId;
+            filterDsId = boardConf.fields.find(field => field.name === timeFilter.field).uiMasterDsId;
           }
           timeFilter.clzField = DashboardUtil.getFieldByName(boardInfo, filterDsId, timeFilter.field);
         } else if ('interval' === filter.type) {
@@ -769,17 +778,19 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       const layoutWidgets: LayoutWidgetInfo[] = dashboard.configuration.widgets;
       const globalOpts: BoardGlobalOptions = dashboard.configuration.options;
       const globalOptsLayout: BoardLayoutOptions = globalOpts.layout;
+      let isInitialisedLayout: boolean = false;
 
       if (!this._layoutObj) {
 
         // 초기 생성 시 로딩바 표시
-        if (0 < layoutWidgets.length) {
-          this.loadingShow()
+        if (0 < layoutWidgets.filter(item => item.isInLayout).length) {
+          this.showBoardLoading();
         }
 
         // 레이아웃을 생성하는 경우
         this.changeDetect.detectChanges();
         if (!this.layoutContainer) {
+          this.hideBoardLoading();
           return;
         }
         this._widgetComps = [];
@@ -806,7 +817,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
         // 레이아웃 변경에 대한 이벤트 처리
         this._layoutObj.on('stateChanged', () => {
-          if (this._layoutObj && this._isInitialisedLayout) {
+          if (this._layoutObj && isInitialisedLayout) {
             this.broadCaster.broadcast('RESIZE_WIDGET');            // 위젯 리사이즈 호출
             objLayout.content = this._layoutObj.toConfig().content;   // 변경 사항 저장
           }
@@ -814,9 +825,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
         // 레이아웃 초기 생성에 대한 이벤트 처리
         this._layoutObj.on('initialised', () => {
-          this._isInitialisedLayout = true;
-          (0 === layoutWidgets.length) && (this._isFinishedWidgetLoading = true);
-          this._updateLayoutFinished();
+          isInitialisedLayout = true;
+          if (0 === layoutWidgets.length) {
+            this._updateLayoutFinished();
+          }
         });
 
         // 레이아웃 스택이 생성되었을 때의 이벤트 처리 -> Header 기능 정의
@@ -840,6 +852,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       this.appendWidgetInLayout(newWidgets);
     } else {
       this.onLayoutInitialised();
+      this.hideBoardLoading();
     }
   } // function - renderLayout
 
@@ -881,7 +894,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
                 rcmdFilter = FilterUtil.getTimeAllFilter(field, 'recommended');
               }
             } else {
-              rcmdFilter = FilterUtil.getBasicInclusionFilter(field, false, 'recommended');
+              rcmdFilter = FilterUtil.getBasicInclusionFilter(field, 'recommended');
             }
 
             if (rcmdFilter) {
@@ -927,7 +940,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
             return _.merge(new TimeFilter(filterField), savedItem);
           } else {
             // 차원값 필터
-            return _.merge(FilterUtil.getBasicInclusionFilter(filterField, false), savedItem);
+            return _.merge(FilterUtil.getBasicInclusionFilter(filterField), savedItem);
           }
         })
       );
@@ -1045,6 +1058,32 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
   public boardUtil = DashboardUtil;
 
   /**
+   * Show Loading
+   * Display Dashboard loading when in viewing mode
+   * When in edit mode, display as full loading
+   */
+  public showBoardLoading() {
+    if (LayoutMode.VIEW === this._layoutMode || LayoutMode.VIEW_AUTH_MGMT === this._layoutMode) {
+      this.isShowDashboardLoading = true;
+    } else {
+      this.loadingShow();
+    }
+    this.safelyDetectChanges();
+  } // function - showBoardLoading
+
+  /**
+   * Hide Loading
+   */
+  public hideBoardLoading() {
+    if (LayoutMode.VIEW === this._layoutMode || LayoutMode.VIEW_AUTH_MGMT === this._layoutMode) {
+      this.isShowDashboardLoading = false;
+    } else {
+      this.loadingHide();
+    }
+    this.safelyDetectChanges();
+  } // function - hideBoardLoading
+
+  /**
    * 저장을 위해 스크린에 맞는 형태로 사이즈를 조절한다
    */
   public resizeToFitScreenForSave() {
@@ -1126,7 +1165,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * 레아아웃 컨텐츠 정보를 얻는다.
    * @return {any[]}
    */
-  public getLayoutContent():any[] {
+  public getLayoutContent(): any[] {
     return this._layoutObj.toConfig().content;
   } // function - getLayoutContent
 
