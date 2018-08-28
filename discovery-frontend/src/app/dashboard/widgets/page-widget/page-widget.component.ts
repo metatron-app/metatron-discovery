@@ -91,8 +91,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // 프로세스 실행 여부
   private _isDuringProcess: boolean = false;
 
-  // 실시간 데이터소스 조회 타이머
-  private _interval: any;
+  private _interval: any;   // 실시간 데이터소스 조회 타이머
+  private _timer:any;       // 차트 리사이즈 타이머
 
   // 대시보드 영역 overflow 여부
   private _dashboardOverflow: string;
@@ -305,7 +305,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
-    clearInterval(this._interval);
+    if( this._timer ) {
+      clearTimeout(this._timer);
+      this._timer = null;
+    }
+    if( this._interval ) {
+      clearInterval(this._interval);
+      this._interval = null;
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -367,7 +374,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     if (this.chart) {
       // 변경 적용
       this.safelyDetectChanges();
-      setTimeout(
+      this._timer = setTimeout(
         () => {
           // control
           if (this.chart.hasOwnProperty('barChart') && this.chart.hasOwnProperty('lineChart')) {

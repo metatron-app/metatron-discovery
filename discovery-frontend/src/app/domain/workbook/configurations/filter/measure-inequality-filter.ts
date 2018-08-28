@@ -19,7 +19,7 @@ export class MeasureInequalityFilter extends AdvancedFilter{
   /**
    *  집계 타입
    */
-  public aggregationType: AggregationType;
+  public aggregation: AggregationType;
 
   /**
    *  조건
@@ -37,10 +37,6 @@ export class MeasureInequalityFilter extends AdvancedFilter{
     this.type = 'measure_inequality';
   }
 
-  // for UI
-  public aggregationTypeUI: any;
-  public inequalityUI: any;
-  public fieldUI: any;
 }
 
 export enum InequalityType {
