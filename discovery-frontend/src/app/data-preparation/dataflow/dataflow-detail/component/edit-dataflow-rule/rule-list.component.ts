@@ -20,7 +20,7 @@ import { AbstractComponent } from '../../../../../common/component/abstract.comp
 import { DataflowService } from '../../../service/dataflow.service';
 import { RuleSnapshotListComponent } from './rule-snapshot-list.component';
 import { DataSnapshot } from '../../../../../domain/data-preparation/data-snapshot';
-import { isUndefined } from 'util';
+import { isNullOrUndefined, isUndefined } from 'util';
 
 @Component({
   selector: 'app-rule-list',
@@ -157,6 +157,10 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
           this.ruleSnapshotListComponent.init(this.snapshotList);
         }
       } else {
+        this.snapshotList = result['snapshots'];
+        if (!isNullOrUndefined(this.ruleSnapshotListComponent)) {
+          this.ruleSnapshotListComponent.init(this.snapshotList);
+        }
         clearInterval(this.interval);
       }
     }).catch((error) => {

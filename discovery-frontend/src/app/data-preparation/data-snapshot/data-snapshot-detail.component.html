@@ -119,10 +119,9 @@
 
             <!-- buttons -->
             <div class="ddp-pop-buttons">
-              <div class="ddp-txt-info">Sure to cancel snapshot creation?</div>
-              <a href="javascript:" class="ddp-btn-line" (click)="cancelClick(false)">No</a>
-
-              <a href="javascript:" class="ddp-btn-solid ddp-bg-black " (click)="cancelSnapshot()">Yes</a>
+              <div class="ddp-txt-info">{{'msg.dp.ui.snapshot.cancel.confirm' | translate}}</div>
+              <a href="javascript:" class="ddp-btn-line" (click)="cancelClick(false)">{{'msg.dp.ui.no' | translate }}</a>
+              <a href="javascript:" class="ddp-btn-solid ddp-bg-black " (click)="cancelSnapshot()">{{'msg.dp.ui.yes' | translate }}</a>
             </div>
             <!-- //buttons -->
 

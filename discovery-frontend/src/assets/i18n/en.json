@@ -788,7 +788,11 @@
   "msg.dp.alert.teddy.transform.execution.interrupted": "Transform execution interrupted",
   "msg.dp.alert.teddy.wrong.window.function.expression": "Wrong window function usage is detected.",
   "msg.dp.alert.snapshot.cancel.success" : "Snapshot cancel successful",
+  "msg.dp.alert.snapshot.cancel.fail" : "Failed to cancel snapshot",
 
+  "msg.dp.ui.no.snapshot.history" : "No snapshot create history",
+  "msg.dp.ui.snapshot.cancel.confirm" : "Sure to cancel snapshot creation?",
+  "msg.dp.ui.creating.snapshot" : "Creating a snapshot",
   "msg.dp.btn.add": "Add",
   "msg.dp.btn.add.ds" : "Add datasets",
   "msg.dp.btn.add.new.ds": "New dataset",
@@ -1070,6 +1074,9 @@
   "msg.dp.ui.file-url" : "File URL",
   "msg.dp.ui.etl-engine" : "Full Data ETL engine",
   "msg.dp.ui.location" : "Location",
+  "msg.dp.ui.none.df.description" : "Get started with your dataflow",
+  "msg.dp.ui.add.ds.df" : "Add dataset to this flow",
+  "msg.dp.ui.none.df.description2" : "Add dataset to your flow from your local file, database, or staging database like HIVE",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
