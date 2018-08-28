@@ -132,7 +132,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * @param {string} widgetId
    */
   public openWidgetDown(event: MouseEvent, widgetId: string) {
-    this._openComponent('CENTER');
+    this._openComponent('RIGHT');
     this._downloadId = widgetId;
     this._isWidgetMode = true;
 
