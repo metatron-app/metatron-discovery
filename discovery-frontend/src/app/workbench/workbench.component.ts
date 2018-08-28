@@ -380,7 +380,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     // Destory
     super.ngOnDestroy();
-
+    // this.webSocketCheck(() => {});
     (this._subscription) && (CommonConstant.stomp.unsubscribe(this._subscription));     // Socket 응답 해제
 
     (this.timer) && (clearInterval(this.timer));
@@ -518,7 +518,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     //TODO The connection has not been established error
     try {
-      this.createWebSocket();
+       this.webSocketCheck(() => {});
     } catch (e) {
       console.log(e);
     }
@@ -1425,8 +1425,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             this.webSocketLoginId = '';
             this.webSocketLoginPw = '';
 
-            connectWebSocket.call(this);
+            // connectWebSocket.call(this);
           }
+          connectWebSocket.call(this);
 
           this.isDataManager = CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_DATASOURCE);
 
