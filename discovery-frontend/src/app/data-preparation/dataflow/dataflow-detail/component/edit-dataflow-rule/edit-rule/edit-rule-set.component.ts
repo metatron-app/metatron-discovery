@@ -44,7 +44,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
   public inputValue: string;
-  public condition: String;
+  public condition: string = '';
   public forceCondition : string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -106,11 +106,18 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
         }
       }
 
-      return {
+      let rules =  {
         command: 'set',
         col: columnsStr,
-        ruleString: `set col: ${columnsStr} value: ${val} row: ${this.condition}`
+        ruleString: `set col: ${columnsStr} value: ${val}`
       };
+
+      if ('' !== this.condition) {
+        rules.ruleString += ` row: ${this.condition}`;
+      }
+
+      return rules;
+
     } else {
       return undefined;
     }

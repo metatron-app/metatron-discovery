@@ -113,14 +113,11 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
 
           if (0 < this.fields.length) {
             let tempFields = this.fields.map((field) => field.name );
-            if (data.selectedColIds.length === 0) {this.selectedItemKeys = []}
-            data.selectedColIds.forEach((item) => {
-              if (-1 !== tempFields.indexOf(item)) {
-                this.selectedItemKeys.push(item);
-              } else {
-                this.selectedItemKeys = [];
-              }
-            });
+            if (data.selectedColIds.length === 0) {
+              this.selectedItemKeys = [];
+            } else {
+              this.selectedItemKeys = data.selectedColIds.filter((item) => (-1 < tempFields.indexOf(item) ) );
+            }
             this.onChange.emit({
               selectedList: this.fields.filter( item => -1 < this.selectedItemKeys.indexOf( item.name ) )
             });
@@ -184,13 +181,13 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
 
     if( this.isMulti) {
       (isNullOrUndefined(selected)) && (selected = !this.selectedItemKeys.some(item => item === checkedKey));
-        if (selected) {
-          // add key
+      if (selected) {
+        // add key
         this.selectedItemKeys.push(checkedKey);
-        } else {
-          // remove key
+      } else {
+        // remove key
         this.selectedItemKeys = this.selectedItemKeys.filter(item => item !== checkedKey);
-        }
+      }
     } else {
       selected = true;
       this.selectedItemKeys = [checkedKey];

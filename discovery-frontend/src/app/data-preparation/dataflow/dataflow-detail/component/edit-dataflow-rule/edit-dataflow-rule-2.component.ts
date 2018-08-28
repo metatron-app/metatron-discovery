@@ -621,10 +621,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     // 검색어 초기화 및 레이어 닫기
     this.commandSearchText = '';
-    setTimeout(() => {
-      this.isCommandListShow = false;
-    });
-
+    this.isCommandListShow = false;
     this.safelyDetectChanges();
 
     let selectedFields:Field[] = [];
