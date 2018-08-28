@@ -312,6 +312,11 @@ public class DataConnectionController {
       throw new ResourceNotFoundException(connectionId);
     }
 
+    //userinfo, dialog required webSocketId
+    if(connection.getAuthenticationType() != DataConnection.AuthenticationType.MANUAL){
+      SearchParamValidator.checkNull(webSocketId, "webSocketId");
+    }
+
     return ResponseEntity.ok(connectionService.findDatabases((JdbcDataConnection) connection, databaseName, webSocketId, pageable));
   }
 
@@ -327,6 +332,11 @@ public class DataConnectionController {
     DataConnection connection = connectionRepository.findOne(connectionId);
     if(connection == null) {
       throw new ResourceNotFoundException(connectionId);
+    }
+
+    //userinfo, dialog required webSocketId
+    if(connection.getAuthenticationType() != DataConnection.AuthenticationType.MANUAL){
+      SearchParamValidator.checkNull(webSocketId, "webSocketId");
     }
 
     return ResponseEntity.ok(
@@ -353,6 +363,12 @@ public class DataConnectionController {
     if(dataSource == null){
 
     }
+
+    //userinfo, dialog required webSocketId
+    if(dataConnection.getAuthenticationType() != DataConnection.AuthenticationType.MANUAL){
+      SearchParamValidator.checkNull(webSocketId, "webSocketId");
+    }
+
     Map<String, Object> columnsMap = connectionService.searchTableColumns((JdbcDataConnection) dataConnection,
             dataSource, databaseName, tableName, columnNamePattern, pageable);
 
@@ -370,6 +386,11 @@ public class DataConnectionController {
     DataConnection dataConnection = connectionRepository.findOne(connectionId);
     if(dataConnection == null) {
       throw new ResourceNotFoundException("DataConnection(" + connectionId + ")");
+    }
+
+    //userinfo, dialog required webSocketId
+    if(dataConnection.getAuthenticationType() != DataConnection.AuthenticationType.MANUAL){
+      SearchParamValidator.checkNull(webSocketId, "webSocketId");
     }
 
     DataSource dataSource = connectionService.getDataSource((JdbcDataConnection) dataConnection, true, webSocketId);
