@@ -235,7 +235,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     // set min / max by decimal format
     this.minValue = FormatOptionConverter.getDecimalValue(this.uiOption.minValue, this.uiOption.valueFormat.decimal);
-    this.minValue = parseInt(this.minValue) > 0 ? FormatOptionConverter.getDecimalValue(0, this.uiOption.valueFormat.decimal) : this.minValue;
+    this.minValue = parseInt(this.minValue) >= 0 ? FormatOptionConverter.getDecimalValue(0, this.uiOption.valueFormat.decimal) : this.minValue;
     this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.maxValue, this.uiOption.valueFormat.decimal);
 
     this.$colorPickerPopup = $('#colorPanelColorPicker');
