@@ -44,11 +44,11 @@ export class DataSnapshotService extends AbstractService {
     let statuses = '';
     // except CANCELED starus
     if( 'all'==status) {
-      statuses = 'SUCCEEDED,FAILED,NOT_AVAILABLE,INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING';
+      statuses = 'SUCCEEDED,FAILED,NOT_AVAILABLE,INITIALIZING,RUNNING,WRITING,TABLE_CREATING';
     } else if( 'success'==status ) {
       statuses = 'SUCCEEDED';
     } else if( 'fail'==status ) {
-      statuses = 'FAILED,CANCELED,NOT_AVAILABLE';
+      statuses = 'FAILED';
     } else if( 'preparing'==status ) {
       statuses = 'INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING';
     }

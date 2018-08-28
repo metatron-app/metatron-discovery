@@ -16,7 +16,6 @@ import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/cor
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { DataSnapshot } from '../../domain/data-preparation/data-snapshot';
 import { DataSnapshotService } from '../data-snapshot/service/data-snapshot.service';
-import { isNullOrUndefined, isUndefined } from 'util';
 import { Alert } from '../../common/util/alert.util';
 
 @Component({
@@ -52,7 +51,6 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
   public progressPercentage : number = 0;
   public isAPIRequested : boolean = false;
 
-  public statusName : string = '';
   public statusClass : string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -190,13 +188,13 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
     this.isFinishPopupOpen = true;
 
     if (status === 'fail') {
-      this.statusName = 'Failed!';
+      this.snapshot.displayStatus = 'Failed!';
       this.statusClass = 'fail'
     } else if (status === 'success') {
-      this.statusName = 'Success!';
+      this.snapshot.displayStatus = 'Success!';
       this.statusClass = 'success'
     } else {
-      this.statusName = 'Canceled!';
+      this.snapshot.displayStatus = 'Canceled!';
       this.statusClass = 'success'
     }
     clearInterval(this.interval);

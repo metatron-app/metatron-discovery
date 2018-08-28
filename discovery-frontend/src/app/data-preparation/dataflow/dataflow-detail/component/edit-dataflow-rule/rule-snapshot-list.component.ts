@@ -124,6 +124,7 @@ export class RuleSnapshotListComponent extends AbstractComponent implements OnIn
     this.snapshotList.forEach((item) => {
       item.isCancel = false;
     });
+    this.snapshotIntervalStopEvent.emit();
     this.snapshotDetailEvent.emit(snapshot.ssId);
   } // function - snapshotDetail
 
