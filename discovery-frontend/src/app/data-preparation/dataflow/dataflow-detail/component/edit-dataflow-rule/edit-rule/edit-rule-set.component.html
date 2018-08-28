@@ -38,15 +38,15 @@
 <!-- //part -->
 <!-- part -->
 <!-- TODO : // set condition not implemented yet -->
-<!--<div class="ddp-box-part" *ngIf="isShow">-->
-  <!--<div class="ddp-box-title">-->
-    <!--{{'msg.dp.ui.cond' | translate}}-->
-  <!--</div>-->
-  <!--<div class="ddp-wrap-datainput">-->
-    <!--<input type="text"-->
-           <!--class="ddp-input-typebasic"-->
-           <!--tabindex="6"-->
-           <!--placeholder="{{'msg.dp.ui.cond.ph' | translate}}"-->
-           <!--[(ngModel)]="condition">-->
-  <!--</div>-->
-<!--</div>-->
+<div class="ddp-box-part" *ngIf="isShow">
+  <div class="ddp-box-title">
+    {{'msg.dp.ui.cond' | translate}}
+  </div>
+  <div class="ddp-wrap-datainput">
+    <input type="text"
+           class="ddp-input-typebasic"
+           tabindex="6"
+           placeholder="{{'msg.dp.ui.cond.ph' | translate}}"
+           [(ngModel)]="condition">
+  </div>
+</div>
