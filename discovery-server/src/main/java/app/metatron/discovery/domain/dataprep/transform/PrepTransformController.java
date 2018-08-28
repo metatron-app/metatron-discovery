@@ -15,20 +15,19 @@
 package app.metatron.discovery.domain.dataprep.transform;
 
 import app.metatron.discovery.domain.dataprep.PrepDataset;
-import app.metatron.discovery.domain.dataprep.PrepSnapshot;
 import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import app.metatron.discovery.prep.parser.preparation.PrepRuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Keep;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.spec.SuggestToken;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -238,7 +237,7 @@ public class PrepTransformController {
     LOGGER.trace("transform_configuration(): start");
 
     try {
-      response = transformService.getConfiguration(wrangledDsId, PrepSnapshot.SS_TYPE.FILE); // 현재 FILE만 사용
+      response = transformService.getConfiguration(wrangledDsId);
     } catch (Exception e) {
       LOGGER.error("transform_snapshot(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

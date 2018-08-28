@@ -2447,6 +2447,7 @@ ul.ddp-list-workspace li a .ddp-ui-data-list .ddp-data-info .ddp-data-name {marg
 ul.ddp-list-workspace li a .ddp-ui-data-list .ddp-data-info em[class*="ddp-icon"] {margin-right:5px;}
 ul.ddp-list-workspace.ddp-select li a {padding-left:89px;}
 .ddp-select-catalog ul.ddp-list-workspace.ddp-select li.ddp-sub a:hover {padding-right:60px;}
+
 /**********************************************************************************
 	PAGE : 워크스페이스 데이터소스
 **********************************************************************************/
