@@ -472,7 +472,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     this.engineList = [
       { value : 'EMBEDDED', label : 'Embedded Engine' },
-      { value : 'TWINKLE', label : 'Spark' }
+      // { value : 'TWINKLE', label : 'Spark' }
     ];
 
   }

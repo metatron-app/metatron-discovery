@@ -109,7 +109,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       return {
         command: 'set',
         col: columnsStr,
-        ruleString: `set col: ${columnsStr} value: ${val}`
+        ruleString: `set col: ${columnsStr} value: ${val} row: ${this.condition}`
       };
     } else {
       return undefined;
@@ -161,7 +161,9 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
       const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
-    this.inputValue = ruleString.split('value: ')[1];
+    let inputVal = ruleString.split('value: ')[1];
+    this.inputValue = inputVal.split('row: ')[0];
+    this.condition = ruleString.split('row: ')[1];
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
