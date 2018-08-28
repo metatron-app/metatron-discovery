@@ -30,12 +30,14 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hive.jdbc.HiveStatement;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -62,6 +64,9 @@ public class QueryEditorService {
 
   @Autowired
   private JdbcConnectionService jdbcConnectionService;
+
+  @Autowired
+  public SimpMessageSendingOperations messagingTemplate;
 
   public QueryStatus getQueryStatus(String webSocketId) {
     WorkbenchDataSource dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
@@ -90,6 +95,7 @@ public class QueryEditorService {
       throw new ResourceNotFoundException("WorkbenchDataSource(webSocketId = " + webSocketId + ")");
     }
 
+    int queryIndex = 0;
     for(String substitutedQuery : queryList){
       if(dataSourceInfo.getQueryStatus() == QueryStatus.CANCELLED){
         LOGGER.debug("Query Canceled..");
@@ -127,9 +133,12 @@ public class QueryEditorService {
 
       LOGGER.debug("Audit Created : " + auditId);
 
-      QueryResult queryResult = executeQuery(dataSourceInfo, substitutedQuery, webSocketId, jdbcDataConnection,
-              queryHistoryId, auditId, saveToTempTable, numRows);
+      QueryResult queryResult = executeQuery(dataSourceInfo, substitutedQuery, workbench.getId(), webSocketId, jdbcDataConnection,
+              queryHistoryId, auditId, saveToTempTable, numRows, queryIndex);
       queryResults.add(queryResult);
+
+      //increase query index
+      queryIndex++;
     }
 
     dataSourceInfo.setQueryStatus(QueryStatus.IDLE);
@@ -171,8 +180,6 @@ public class QueryEditorService {
 
     //1. semicolon split
     List<String> queryList = Arrays.asList(queryStr.split(";"));
-
-
 
 
     //2. GlobalVar replace
@@ -230,13 +237,15 @@ public class QueryEditorService {
     return returnMap;
   }
 
-  private QueryResult executeQuery(WorkbenchDataSource dataSourceInfo, String query, String webSocketId,
+  private QueryResult executeQuery(WorkbenchDataSource dataSourceInfo, String query, String workbenchId, String webSocketId,
                                    JdbcDataConnection jdbcDataConnection, long queryHistoryId, String auditId,
-                                   Boolean saveToTempTable, int numRows){
+                                   Boolean saveToTempTable, int numRows, int queryIndex){
 
     ResultSet resultSet = null;
     QueryResult queryResult = null;
     Statement stmt = null;
+    Connection connection = null;
+    Thread logThread = null;
 
     //DataSource
     SingleConnectionDataSource singleConnectionDataSource = dataSourceInfo.getSingleConnectionDataSource();
@@ -244,8 +253,7 @@ public class QueryEditorService {
     //시작시간
     DateTime startDateTime = DateTime.now();
     try {
-
-      Connection connection = singleConnectionDataSource.getConnection();
+      connection = singleConnectionDataSource.getConnection();
       stmt = connection.createStatement();
       stmt.setFetchSize(workbenchProperties.getMaxFetchSize());
 
@@ -280,26 +288,55 @@ public class QueryEditorService {
 
         LOGGER.debug("jdbcDataConnection : {}", jdbcDataConnection.getClass().getName());
 
-        if(jdbcDataConnection instanceof HiveConnection){
-          String setHiveAuditIdQuery = "SET _hive.audit.query.id = " + auditId;
-          LOGGER.debug("setHiveAuditIdQuery : {}", setHiveAuditIdQuery);
-          if(stmt.execute(setHiveAuditIdQuery)){
-            LOGGER.debug("setHiveAuditIdQuery Executed.");
-          }
-        }
+        if(stmt instanceof HiveStatement){
+          //send set audit query id
+          setAuditId(connection, auditId);
 
-        if(stmt.execute(query)){
-          resultSet = stmt.getResultSet();
-          queryResult = getQueryResult(resultSet, query, null, jdbcDataConnection);
+          //Set Logging level for progress log
+//          setHiveLoggingLevel(connection, "VERBOSE");
+
+          //Set InPlaceProgress false (generate progress log without logging level verbose)
+          setHiveInPlaceLog(connection, false);
+
+          //create hive query log print thread
+          logThread = new Thread(
+                  new HiveQueryLogThread((HiveStatement) stmt, workbenchId, webSocketId, queryIndex,
+                          1000L, messagingTemplate)
+          );
+
+          logThread.start();
+
+          boolean hasResult = ((HiveStatement) stmt).execute(query);
+          logThread.interrupt();
+
+          if(hasResult){
+            resultSet = stmt.getResultSet();
+            queryResult = getQueryResult(resultSet, query, null, jdbcDataConnection);
+          } else {
+            queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
+          }
         } else {
-          queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
+          if(stmt.execute(query)){
+            resultSet = stmt.getResultSet();
+            queryResult = getQueryResult(resultSet, query, null, jdbcDataConnection);
+          } else {
+            queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
+          }
         }
       }
     } catch(Exception e){
-      LOGGER.error("Query Execute Error : {}", e.toString());
-      queryResult = createMessageResult(e.toString(), query, QueryResult.QueryResultStatus.FAIL);
       e.printStackTrace();
+      LOGGER.error("Query Execute Error : {}", e.getMessage());
+      queryResult = createMessageResult(e.getMessage(), query, QueryResult.QueryResultStatus.FAIL);
     } finally {
+      if (logThread != null) {
+        if (!logThread.isInterrupted()) {
+          logThread.interrupt();
+        }
+      }
+
+      JdbcUtils.closeConnection(connection);
+      JdbcUtils.closeStatement(stmt);
       JdbcUtils.closeResultSet(resultSet);
 
       //Query 실행 상태 IDLE로 전환
@@ -440,5 +477,52 @@ public class QueryEditorService {
 
     }
     return false;
+  }
+
+  private void setAuditId(Connection connection, String auditId){
+    Statement stmt = null;
+    try{
+      stmt = connection.createStatement();
+      String setHiveAuditIdQuery = "SET _hive.audit.query.id = " + auditId;
+      LOGGER.debug("setHiveAuditIdQuery : {}", setHiveAuditIdQuery);
+      stmt.execute(setHiveAuditIdQuery);
+      LOGGER.debug("setHiveAuditIdQuery Executed.");
+    } catch (SQLException e){
+      LOGGER.error(e.getMessage());
+    } finally {
+      JdbcUtils.closeStatement(stmt);
+    }
+  }
+
+  private void setHiveLoggingLevel(Connection connection, String loggingLevel){
+    //VERBOSE, EXECUTION, PERFORMANCE
+    Statement stmt = null;
+    try{
+      stmt = connection.createStatement();
+      String hiveLoggingLevel = "set hive.server2.logging.operation.level = " + loggingLevel;
+      LOGGER.debug("hiveLoggingLevel : {}", hiveLoggingLevel);
+      stmt.execute(hiveLoggingLevel);
+      LOGGER.debug("hiveLoggingLevel Executed.");
+    } catch (SQLException e){
+      LOGGER.error(e.getMessage());
+    } finally {
+      JdbcUtils.closeStatement(stmt);
+    }
+  }
+
+  private void setHiveInPlaceLog(Connection connection, boolean inPlaceLog){
+    //set hive.server2.in.place.progress
+    Statement stmt = null;
+    try{
+      stmt = connection.createStatement();
+      String hiveInPlaceLog = "set hive.server2.in.place.progress=" + inPlaceLog;
+      LOGGER.debug("HiveInPlaceLog : {}", hiveInPlaceLog);
+      stmt.execute(hiveInPlaceLog);
+      LOGGER.debug("HiveInPlaceLog Executed.");
+    } catch (SQLException e){
+      LOGGER.error(e.getMessage());
+    } finally {
+      JdbcUtils.closeStatement(stmt);
+    }
   }
 }
