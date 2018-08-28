@@ -217,6 +217,23 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
   }
 
   /**
+   * Chart Datazoom Event Listener
+   */
+  public addChartDatazoomEventListener(): void {
+
+    this.chart.off('datazoom');
+    this.chart.on('datazoom', (param) => {
+
+      this.chartOption.dataZoom.map((zoom, index) => {
+        if( _.eq(zoom.type, DataZoomType.SLIDER) ) {
+          this.uiOption.chartZooms[index].start = param.start;
+          this.uiOption.chartZooms[index].end = param.end;
+        }
+      });
+    });
+  }
+
+  /**
    * 바차트의 dataZoom
    */
   protected additionalDataZoom(): BaseOption {
