@@ -13,38 +13,33 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild,
+  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges,
+  ViewChild,
   ViewChildren
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
 import { Stats } from '../../../../domain/datasource/stats';
 import { Alert } from '../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../datasource/service/datasource.service';
 import * as _ from 'lodash';
 import { Covariance } from '../../../../domain/datasource/covariance';
-import { Datasource, Field } from '../../../../domain/datasource/datasource';
-import { EditConfigSchemaComponent } from './edit-config-schema/edit-config-schema.component';
+import { ConnectionType, Datasource, Field } from '../../../../domain/datasource/datasource';
 import { Metadata } from '../../../../domain/meta-data-management/metadata';
 import { MetadataColumn } from '../../../../domain/meta-data-management/metadata-column';
 import { isUndefined } from 'util';
+import { AbstractComponent } from '../../../../common/component/abstract.component';
+import { EditFilterDataSourceComponent } from '../edit-filter-data-source.component';
+import { FilteringOptions, FilteringOptionType } from '../../../../domain/workbook/configurations/filter/filter';
 
 declare let echarts: any;
 
-enum FieldRoleType {
-  ALL = <any>'ALL',
-  DIMENSION = <any>'DIMENSION',
-  MEASURE = <any>'MEASURE'
-}
-
+/**
+ * Datasource detail - column detail tab
+ */
 @Component({
   selector: 'column-detail-datasource',
   templateUrl: './column-detail-data-source.component.html'
 })
-export class ColumnDetailDataSourceComponent extends AbstractPopupComponent implements OnInit {
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+export class ColumnDetailDataSourceComponent extends AbstractComponent implements OnChanges {
 
   @ViewChild('histogram')
   private _histogram: ElementRef;
@@ -52,181 +47,168 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   @ViewChildren('covariance')
   private _covariance: ElementRef;
 
-  @ViewChild(EditConfigSchemaComponent)
-  private _editConfigSchemaComp: EditConfigSchemaComponent;
+  @ViewChild(EditFilterDataSourceComponent)
+  private _editFilterComponent: EditFilterDataSourceComponent;
 
-  // 차트 옵션
+  // chart option
   private _barOption: any;
   private _scatterOption: any;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 데이터소스 정보
+  // datasource information
   @Input()
   public datasource: Datasource;
 
-  // 메타데이터 정보
+  // metadata information
   @Input()
   public metaData: Metadata;
 
-  // Field Role
-  public fieldRoleType = FieldRoleType;
-  public selectedFieldRole: FieldRoleType = this.fieldRoleType.ALL;
+  // filtered column list
+  public filteredColumnList: any[];
 
-  // logical type list
-  public logicalTypes: any[];
-  public selectedLogicalType: any;
+  // role type filter list
+  public roleTypeFilterList: any[];
+  // selected role type filter
+  public selectedRoleTypeFilter: any;
 
-  // logical type list flag
-  public isShowLogicalTypesFl: boolean = false;
+  // type filter list
+  public typeFilterList: any[];
+  // selected type filter
+  public selectedTypeFilter: any;
+  // type filter show | hide flag
+  public isShowTypeFilterList: boolean = false;
+  // enabled physical type list
+  public physicalTypeList: any[];
+  // enabled physical type list show / hide flag
+  public isShowPhysicalTypeFl: boolean = false;
 
-  // 선택한 필드 이름
+  // selected field
   public selectedField: any;
 
-  // Covariance 조회 결과
+  // convariance data result
   public covarianceData: any = {};
-  // 통계 조회 결과
+  // stats data result
   public statsData: any = {};
 
-  // 검색어
-  public searchText: string;
-
-  public columns: any;
+  // search text keyword
+  public searchTextKeyword: string = '';
 
   @Output()
   public changeDatasource: EventEmitter<any> = new EventEmitter();
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
+  // constructor
   constructor(private datasourceService: DatasourceService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
+  /**
+   * ngOnInit
+   */
   public ngOnInit() {
-    // Init
     super.ngOnInit();
-    // ui init
-    this._initView();
-    // 필드 리스트
-    this.columns = this.datasource.fields;
-    // 메타데이터가 존재한다면 field에 merge
-    this.isExistMetaData() && this.columns.forEach((field) => {
-      this._setMetaDataField(field);
-    });
-    // init data
-    this.statsData = {};
-    this.covarianceData = {};
-    // 선택한 필드 확인
-    this.selectedField = this.selectedField ? this.columns.filter((field) => {
-      return field.id === this.selectedField.id;
-    })[0] : this.columns[0];
-    // 필드 선택
-    this.onSelectedField(this.selectedField, this.datasource);
   }
 
-  // Destory
+  /**
+   * ngOnDestroy
+   */
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * ngOnChanges
+   * @param {SimpleChanges} changes
+   */
+  public ngOnChanges(changes: SimpleChanges) {
+    const dsChanges: SimpleChange = changes.datasource;
+    if (dsChanges) {
+      // if this is the first access
+      if (!dsChanges.previousValue) {
+        // ui init
+        this._initView();
+        // set filtered column list
+        this.filteredColumnList = this.datasource.fields;
+        // if exist metadata, merge to field
+        this.isExistMetaData() && this.filteredColumnList.forEach(field => this._setMetaDataField(field));
+        // change selected field
+        this.onSelectedField(this.filteredColumnList[0], this.datasource);
+      }
+      // if change to the field
+      else if (dsChanges.previousValue.fields !== dsChanges.currentValue.fields) {
+        // update filtered column list
+        this._updateFilteredColumnList();
+        // change selected field
+        this.onSelectedField(this.selectedField ? this.datasource.fields.filter(field => field.id === this.selectedField.id)[0] : this.filteredColumnList[0], this.datasource);
+      }
+    }
+  }
+
 
   /**
-   * 검색어를 지움
+   * Change search text keyword and update filtered column list
+   * @param {string} text
    */
-  public initSearchText() {
-    this.searchText = '';
+  public searchText(text: string): void {
+    // change search text keyword
+    this.searchTextKeyword = text;
+    // update filtered column list
+    this._updateFilteredColumnList();
   }
 
   /**
-   * 스키마 업데이트 완료 후
+   * Complete update schema
    */
-  public completeUpdateSchema(): void {
+  public completeUpdatedSchema(): void {
     this.changeDatasource.emit('columns');
   }
 
   /**
-   * 메타데이터가 있는지
+   * Is exist metadata
    * @returns {boolean}
    */
   public isExistMetaData(): boolean {
     return !isUndefined(this.metaData);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 필터링 된 column list 가져오기
-   * @param fields
-   * @returns {any}
+   * Is linked type datasource
+   * @param {Datasource} source
+   * @returns {boolean}
    */
-  public getColumnList(fields) {
-    let result = fields;
-
-    // role
-    if (this.selectedFieldRole !== FieldRoleType.ALL) {
-      result = result.filter((field) => {
-        if (this.selectedFieldRole === FieldRoleType.DIMENSION
-          && (field.role === this.selectedFieldRole.toString() || field.role === 'TIMESTAMP')) {
-          return field;
-        } else if (field.role === this.selectedFieldRole.toString()) {
-          return field;
-        }
-      });
-    }
-
-    // type
-    if (this.selectedLogicalType.value !== 'all') {
-      result = result.filter((field) => {
-        if (field.logicalType === this.selectedLogicalType.value) {
-          return field;
-        }
-      });
-    }
-
-    // search
-    if (this.searchText) {
-      result = result.filter((field) => {
-        if (field.name.toLowerCase().includes(this.searchText.toLowerCase().trim())) {
-          return field;
-        }
-      });
-    }
-
-    return result;
+  public isLinkedTypeSource(source: Datasource): boolean {
+    return source.connType === ConnectionType.LINK;
   }
 
+  /**
+   * Is enable filtering in column
+   * @param column
+   * @returns {boolean}
+   */
+  public isEnableFiltering(column: any): boolean {
+    return column.filtering;
+  }
+
+  /**
+   * Get column type label
+   * @param {string} type
+   * @param typeList
+   * @returns {string}
+   */
+  public getColumnTypeLabel(type:string, typeList: any): string {
+    return typeList[_.findIndex(typeList, item => item['value'] === type)].label;
+  }
 
   /**
    * value list
    * @returns {any[]}
    */
-  public getValueList() {
+  public getValueList(): any {
     // frequentItems
     let list = this._getStats().frequentItems;
-    // list가 10건 이상일때
+    // if list 10 over
     if (list && list.length > 10) {
       list = list.sort((a, b) => {
         return a.count > b.count ? -1 : a.count < b.count ? 1 : 0;
@@ -237,7 +219,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * Covariance 리스트
+   * Get covariance data list
    * @returns {Covariance[]}
    */
   public getCovarianceList(): Covariance[] {
@@ -248,7 +230,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 데이터 라벨
+   * Get label
    * @param {string} labelName
    * @returns {any}
    */
@@ -295,181 +277,192 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
     }
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - event
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * Configure schema 클릭 이벤트
+   * Role type filter change event
+   * @param type
    */
-  public onClickConfigureSchema(): void {
-    this._editConfigSchemaComp.init(this.datasource.id, this.columns);
-    // 마크업 위치 변경
-    $('#edit-config-schema').appendTo($('#layout-contents'));
-  }
-
-  /**
-   * 필터 설정을 초기화 한다.
-   */
-  public onClickResetFilter(): void {
-    // 텍스트 초기화
-    this.initSearchText();
-    this.selectedFieldRole = FieldRoleType.ALL;
-    this.selectedLogicalType = this.logicalTypes[0];
-  }
-
-  /**
-   * 데이터를 검색한다.
-   * @param {Event} event
-   */
-  public onSearchText(event: KeyboardEvent): void {
-    if (13 === event.keyCode) {
-      this.searchText = event.target['value'];
+  public onChangeRoleTypeFilter(type: any): void {
+    if (this.selectedRoleTypeFilter !== type) {
+      // 롤 타입 필터링 변경
+      this.selectedRoleTypeFilter = type;
+      // 컬럼 목록 갱신
+      this._updateFilteredColumnList();
     }
   }
 
   /**
-   * logicalType change
-   * @param {MouseEvent} event
+   * Type filter change event
    * @param type
    */
-  public onChangeLogicalType(event: MouseEvent, type): void {
-    event.stopPropagation();
-    event.preventDefault();
-    // flag
-    this.isShowLogicalTypesFl = false;
-    this.selectedLogicalType = type;
+  public onChangeTypeFilter(type: any): void {
+    if (this.selectedTypeFilter !== type) {
+      // 타입 필털이 변경
+      this.selectedTypeFilter = type;
+      // 컬럼 목록 갱신
+      this._updateFilteredColumnList();
+    }
   }
 
   /**
-   * role type 필터링 변경 이벤트
-   * @param {FieldRoleType} type
+   * Physical type in selected column change event
+   * @param column
+   * @param type
    */
-  public onChangeRoleType(type: FieldRoleType): void {
-    // role type change
-    this.selectedFieldRole = type;
+  public onChangeFieldPhysicalType(column: any, type: any): void {
+    // if different logicalType
+    if (column.logicalType !== type.value) {
+      // copy column data
+      const result = _.cloneDeep(column);
+      // change logicalType
+      result['logicalType'] = type.value;
+      result['op'] = 'replace';
+      // if logicalType is TIMESTAMP or type is TIMESTAMP
+      if (column.logicalType === 'TIMESTAMP' || type.value === 'TIMESTAMP') {
+        // if logical type is TIMESTAMP, delete format in column
+        if (column.logicalType === 'TIMESTAMP') {
+          delete result.format;
+        }
+        // if exist filtering and filteringOptions in column
+        if (column.filtering && column.filteringOptions) {
+          // new filteringOptions
+          result.filteringOptions = new FilteringOptions();
+          // if type is TIMESTAMP, add TIME filteringOptions
+          if (type.value === 'TIMESTAMP') {
+            result.filteringOptions.type = FilteringOptionType.TIME;
+            result.filteringOptions.defaultSelector = 'RANGE';
+            result.filteringOptions.allowSelectors = ['RANGE'];
+          } else {
+            // if type is not TIMESTAMP, add INCLUSION filteringOptions
+            result.filteringOptions.type = FilteringOptionType.INCLUSION;
+            result.filteringOptions.defaultSelector = 'SINGLE_LIST';
+            result.filteringOptions.allowSelectors = ['SINGLE_LIST'];
+          }
+        }
+      }
+      // update field
+      this._updateField([result]);
+    }
   }
 
+  /**
+   * Filter reset click event
+   */
+  public onClickResetFilter(): void {
+    // init search text keyword
+    this.searchTextKeyword = '';
+    // init selected role type filter
+    this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
+    // init selected type fliter
+    this.selectedTypeFilter = this.typeFilterList[0];
+    // update filtered column list
+    this._updateFilteredColumnList();
+  }
 
   /**
-   * 필드 선택 이벤트
+   * Search text event
+   * @param {Event} event
+   */
+  public onSearchText(event: KeyboardEvent): void {
+    event.keyCode === 13 && this.searchText(event.target['value']);
+  }
+
+  /**
+   * Selected field change event
    * @param field
-   * @param source
+   * @param {Datasource} source
    */
-  public onSelectedField(field, source): void {
-    // field 선택
+  public onSelectedField(field: any, source: Datasource): void {
+    // set selected field
     this.selectedField = field;
-    // engine 이름
+    // update enabled physical type list
+    this._updatePhysicalTypeList(field);
+    // set engineName
     const engineName = source.engineName;
-    // 통계 조회
+    // if role is TIMESTAMP and __time variable not exist in statsData,
+    // else if role is not TIMESTAMP and field name not existed in statsData
     if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
       || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {
-
-      // 로딩 show
+      // loading show
       this.loadingShow();
-      // stats 조회
+      // get stats data
       this._getFieldStats(field, engineName)
         .then((stats) => {
-          // stats 리스트 저장
+          // for loop
           for (const property in stats[0]) {
-            // 존재하지 않을 경우에만 넣어줌
+            // if not exist property in statsData, push property in statsData
             if (!this.statsData.hasOwnProperty(property)) {
               this.statsData[property] = stats[0][property];
             }
           }
-          // 로딩 hide
+          // loading hide
           this.loadingHide();
-          // 히스토그램 차트
-          this._getHistogramChart(this.selectedField.role);
+          // update histogram chart
+          this._updateHistogramChart(this.selectedField.role);
         })
-        .catch((error) => {
-          Alert.error(error.message);
-          // 로딩 hide
-          this.loadingHide();
-        });
+        .catch(error => this.commonExceptionHandler(error));
     } else {
-      // 히스토그램 차트
-      this._getHistogramChart(this.selectedField.role);
+      // update histogram chart
+      this._updateHistogramChart(this.selectedField.role);
     }
 
-    // covariance 조회
+    // if role is MEASURE and field name not existed in covarianceData
     if (field.role === 'MEASURE' && !this.covarianceData.hasOwnProperty(field.name)) {
-      // 로딩 show
+      // loading show
       this.loadingShow();
-
+      // get covariance data
       this._getFieldCovariance(field, engineName)
         .then((covariance) => {
+          // set convariance data
           this.covarianceData[field.name] = covariance;
-          // 로딩 hide
+          // loading hide
           this.loadingHide();
-          // covariance 차트
-          this._getCovarianceChart(engineName);
+          // update covariance chart
+          this._updateCovarianceChart(engineName);
         })
-        .catch((error) => {
-          Alert.error(error.message);
-          // 로딩 hide
-          this.loadingHide();
-        });
+        .catch(error => this.commonExceptionHandler(error));
     } else if (field.role === 'MEASURE' && this.covarianceData.hasOwnProperty(field.name)) {
-      // covariance 차트
-      this._getCovarianceChart(engineName);
+      // update covariance chart
+      this._updateCovarianceChart(engineName);
     }
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - validation
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 히스토그램 사용여부
-   * @returns {boolean}
+   * Edit filter click event
    */
-  public isEnabledHistogram(): boolean {
-    // 타임스탬프인 컬럼이나 측정값만 사용
-    return this.selectedField
-      && (this.selectedField.logicalType === 'TIMESTAMP' || this.selectedField.role === 'MEASURE');
+  public onClickEditFilters(): void {
+    this._editFilterComponent.init(this.datasource.id, this.datasource.fields, this.isLinkedTypeSource(this.datasource));
+    // change markup position
+    $('#edit-config-schema').appendTo($('#layout-contents'));
   }
-
-  /**
-   * value list 사용 여부
-   * @returns {boolean}
-   */
-  public isEnabledValueList(): boolean {
-    // 타임스탬프인 컬럼이나 측정값만 사용
-    return this.selectedField
-      && !(this.selectedField.logicalType === 'TIMESTAMP' || this.selectedField.role === 'MEASURE');
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * ui init
    * @private
    */
   private _initView(): void {
-    this.logicalTypes = [
-      { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'all' },
+    this.typeFilterList = [
+      { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
       { label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING' },
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
-      { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER' },
-      { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE' },
+      { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true },
+      { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
       { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
       { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
     ];
-    this.selectedLogicalType = this.logicalTypes[0];
+    this.selectedTypeFilter = this.typeFilterList[0];
+    this.roleTypeFilterList = [
+      { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
+      { label: this.translateService.instant('msg.comm.name.dim'), value: 'DIMENSION' },
+      { label: this.translateService.instant('msg.comm.name.mea'), value: 'MEASURE' },
+    ];
+    this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
     // search
-    this.searchText = '';
-    // filter
-    this.fieldRoleType = FieldRoleType;
-    this.selectedFieldRole = this.fieldRoleType.ALL;
-
+    this.searchTextKeyword = '';
+    // init data
+    this.statsData = {};
+    this.covarianceData = {};
     // bar option
     this._barOption = {
       backgroundColor: '#ffffff',
@@ -553,12 +546,76 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
     };
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Set metadata in field
+   * @param {Field} field
+   * @private
+   */
+  private _setMetaDataField(field: Field): void {
+    const fieldMetaData: MetadataColumn = _.find(this.metaData.columns, {'physicalName': field.name});
+    // logical name
+    field['logicalName'] = fieldMetaData.name;
+    // logical type
+    field['metaType'] = fieldMetaData.type;
+    // code table
+    field['codeTable'] = fieldMetaData.codeTable;
+    // dictionary
+    field['dictionary'] = fieldMetaData.dictionary;
+  }
 
   /**
-   * 스키마 통계 얻기
+   * Update field
+   * @param params
+   * @private
+   */
+  private _updateField(params: any): void {
+    // loading show
+    this.loadingShow();
+    //update field
+    this.datasourceService.updateDatasourceFields(this.datasource.id, params)
+      .then((result) => {
+        // alert
+        Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
+        // loading hide
+        this.loadingHide();
+        // complete update schema
+        this.completeUpdatedSchema();
+      })
+      .catch(error => this.commonExceptionHandler(error));
+  }
+
+  /**
+   * Update physical type list of selected column
+   * @param column
+   * @private
+   */
+  private _updatePhysicalTypeList(column: any): void {
+    this.physicalTypeList = _.filter(this.typeFilterList, type => column.role === 'MEASURE' ? type.value !== 'ALL' && type.measure : type.value !== 'ALL');
+  }
+
+  /**
+   * Update filtered column list
+   * @private
+   */
+  private _updateFilteredColumnList(): void {
+    // set filtered column list
+    this.filteredColumnList = this.datasource.fields;
+    // if selected role type filter is not ALL
+    if (this.selectedRoleTypeFilter.value !== 'ALL') {
+      this.filteredColumnList = _.filter(this.filteredColumnList, column => 'DIMENSION' === this.selectedRoleTypeFilter.value && 'TIMESTAMP' === column.role ? column : this.selectedRoleTypeFilter.value === column.role);
+    }
+    // if selected type filter is not ALL
+    if (this.selectedTypeFilter.value !== 'ALL') {
+      this.filteredColumnList = _.filter(this.filteredColumnList, column => this.selectedTypeFilter.value === column.logicalType);
+    }
+    // if exist search text keyword
+    if (this.searchTextKeyword !== '') {
+      this.filteredColumnList = _.filter(this.filteredColumnList, column => column.name.toUpperCase().includes(this.searchTextKeyword.toUpperCase().trim()));
+    }
+  }
+
+  /**
+   * Get stats in filed
    * @param selectedField
    * @param engineName
    * @returns {Promise<any>}
@@ -576,9 +633,9 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
         // TODO datasource에 커스텀필드 걸려있을 경우만 집어넣음
       };
 
-      // 선택한 컬럼을 params의 fields에 추가
+      // push field in params
       params.fields.push(selectedField);
-      // 필드를 name과 type 프로퍼티만 남겨지도록 수정
+      // modify field to leave only name and type properties
       params.fields = params.fields.map((field) => {
         const temp = {
           name: field.name,
@@ -586,7 +643,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
         };
         return temp;
       });
-
+      // get stats data
       this.datasourceService.getFieldStats(params)
         .then((result) => {
           resolve(result);
@@ -597,9 +654,8 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
     });
   }
 
-
   /**
-   * covariance 값 계산
+   * Get covariance in field
    * @param selectedField
    * @param engineName
    * @returns {Promise<any>}
@@ -616,7 +672,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
         userFields: []
         // TODO datasource에 커스텀필드 걸려있을 경우만 집어넣음
       };
-
+      // get covarinace data
       this.datasourceService.getFieldCovariance(params)
         .then((result) => {
           resolve(result);
@@ -628,16 +684,16 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 통계 결과
+   * Get stats data
    * @returns {Stats}
    * @private
    */
   private _getStats(): Stats {
-    // 선택한 필드가 타임스탬프가 아니라면
+    // if the seleted field is not a TIMESTAMP
     if (this.selectedField.role !== 'TIMESTAMP' && this.statsData.hasOwnProperty(this.selectedField.name)) {
       return this.statsData[this.selectedField.name];
     } else if (this.selectedField.role === 'TIMESTAMP' && this.statsData.hasOwnProperty('__time')) {
-    // 선택한 필드가 타임스탬프라면
+    // If the selected field is a TIMESTAMP
       return this.statsData['__time'];
     } else {
       return new Stats();
@@ -645,7 +701,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * Quartile 값
+   * Get quartile
    * @param {string} type
    * @returns {any}
    * @private
@@ -669,7 +725,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 통계 MIN MAX값
+   * Get max and min in stats
    * @param {string} type
    * @returns {any}
    * @private
@@ -678,7 +734,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
     let result;
     // stats
     const stats = this._getStats();
-    // role 이 timestamp 인 경우
+    // if role is a TIMESTAMP
     if (this.selectedField.role === 'TIMESTAMP' && stats.hasOwnProperty('segments')) {
       // segments length
       const length = stats.segments.length;
@@ -691,7 +747,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
           break;
       }
     } else if (this.selectedField.role !== 'TIMESTAMP') {
-      // role 이 timestamp 가 아닌 경우
+      // if role is not a TIMESTAMP
       switch (type) {
         case 'MIN':
           result = stats.min;
@@ -705,7 +761,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 구분자로 string을 구분하여 배열을 받음
+   * Get separator
    * @param {string} value
    * @param separator
    * @returns {string[]}
@@ -716,7 +772,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 컬럼의 row percentage
+   * Get parcentage
    * @param {number} value
    * @returns {number}
    * @private
@@ -728,7 +784,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * 컬럼의 row count
+   * Get row count
    * @returns {number}
    * @private
    */
@@ -747,7 +803,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * min max값 얻기
+   * Get min max value
    * @param {any[]} array
    * @returns {{minValue: any; maxValue: any}}
    * @private
@@ -765,16 +821,16 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
 
 
   /**
-   * covariance 차트 그리기
+   * Update covariance chart
    * @param {string} engineName
    * @private
    */
-  private _getCovarianceChart(engineName: string) {
+  private _updateCovarianceChart(engineName: string) {
     this._getScatterSeries(engineName)
       .then((series) => {
         // canvas list
         const canvasList = this._covariance['_results'];
-        // 차트 그리기
+        // create chart
         for (let i = 0, nMax = canvasList.length; i < nMax; i++) {
           const canvas = canvasList[i].nativeElement;
           const scatterChart = echarts.init(canvas);
@@ -782,48 +838,36 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
           scatterChart.resize();
         }
       })
-      .catch((error) => {
-        Alert.error(error.message);
-        // 로딩 hide
-        this.loadingHide();
-      });
+      .catch(error => this.commonExceptionHandler(error));
   }
 
-
   /**
-   * 히스토그램 차트 그리기
+   * Update histogram chart
    * @param {string} roleType
    * @private
    */
-  private _getHistogramChart(roleType: string) {
-
+  private _updateHistogramChart(roleType: string) {
     this.changeDetect.detectChanges();
-
-    // 차트
+    // init chart
     const barChart = echarts.init(this._histogram.nativeElement);
     // chart
     barChart.setOption(this._getBarOption(roleType));
     barChart.resize();
   }
 
-
   /**
-   * scatter 차트를 그릴때 필요한 series 데이터
+   * Get series data to draw scatter chart
    * @param {string} engineName
    * @returns {Promise<any>}
    * @private
    */
   private _getScatterSeries(engineName: string) {
     return new Promise((resolve, reject) => {
-
       this.changeDetect.detectChanges();
-
-      // 로딩 show
+      // loading show
       this.loadingShow();
-
       // covariance List
       const covarianceList = this.getCovarianceList();
-
       // params
       const params = {
         dataSource: {
@@ -836,7 +880,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
         // TODO 필드 확인
         userFields: []
       };
-      // covariance에 측정된 measure
+      // measure measured in covariance
       params.pivot.columns = covarianceList.map((item) => {
         return {
           type: 'measure',
@@ -844,24 +888,20 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
           name: item.with
         };
       });
-      // 선택된 measure
+      // selected field
       params.pivot.columns.push({
         type: 'measure',
         aggregationType: 'NONE',
         name: this.selectedField.name
       });
-
-
-      // 측정값에 대해 데이터 조회
+      // Get data to MEASURE value
       this.datasourceService.getDatasourceQuery(params)
         .then((result) => {
-
           // covariance names
           const covarianceNames = covarianceList.map((data) => {
             return data.with;
           });
-
-          // 시리즈 데이터
+          // set series data
           const series = covarianceList.map((data) => {
             return {
               name: data.with,
@@ -870,10 +910,9 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
               data: []
             };
           });
-
           result.forEach((data) => {
             for (let i = 0, nMax = covarianceNames.length; i < nMax; i++) {
-              // 소수점 2자리
+              // 2 decimal places
               const x = data[covarianceNames[i]];
               const y = data[this.selectedField.name];
               series[i].data.push([
@@ -882,14 +921,12 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
               ]);
             }
           });
-
-          // 로딩 hide
+          // loading hide
           this.loadingHide();
-
           resolve(series);
         })
         .catch((error) => {
-          // 로딩 hide
+          // loading hide
           this.loadingHide();
           reject(error);
         })
@@ -897,7 +934,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * Bar 차트에서 쓰일 option 얻기
+   * Get options to use in Bar charts
    * @param {string} roleType
    * @returns {{} & any}
    * @private
@@ -905,7 +942,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   private _getBarOption(roleType: string) {
     // bar option
     const barOption = _.cloneDeep(this._barOption);
-    // 통계 데이터 가져오기
+    // get stats
     const stats = this._getStats();
     // data
     if (roleType === 'DIMENSION') {
@@ -923,7 +960,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
         return item.rows;
       });
     } else { // MEASURE
-      // Measure Field Histogram : pmf 값에 1번째와 마지막을 버리고, 2번째 부터 count 값을 곱하여 그게 y 축 value 생성
+      // Measure Field Histogram : It discards the first and the last in the pmf value, multiplies the count value from the second
       const count = stats.count;
       // pmf
       let pmf = stats.pmf;
@@ -933,7 +970,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
         barOption.series[0].data = pmf.map((item, index) => {
           return item * count;
         });
-        // x축
+        // xAxis
         barOption.xAxis[0].data = pmf.map((item, index) => {
           return index + 1;
         });
@@ -944,7 +981,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * Scatter 차트에서 쓰일 option 얻기
+   * Get options to use in Scatter charts
    * @param series
    * @returns {{} & any}
    * @private
@@ -956,7 +993,7 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   }
 
   /**
-   * pmf list
+   * Get pmf list
    * @param {any[]} pmf
    * @returns {any[]}
    * @private
@@ -964,33 +1001,18 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
   private _getPmfList(pmf: any[]) {
     // length
     const pmfLength = pmf.length;
-    // length 가 10개 이하인 경우 그대로 출력
+    // Outputs when length is less than 10
     if (pmfLength <= 10) {
       return pmf;
     } else if (pmfLength === 11) {
-      // length 가 11개 인경우 0번째만 제거
+      // If length is 11, remove only 0th
       pmf.shift();
       return pmf;
     } else {
-      // length 가 12개 인경우 0번째와 12번째 제거
+      // If length is 12, remove 0th and 12th
       pmf.shift();
       pmf.pop();
       return pmf;
     }
-  }
-
-  /**
-   * 필드에 메타데이터 설정
-   * @param {Field} field
-   * @private
-   */
-  private _setMetaDataField(field: Field): void {
-    const fieldMetaData: MetadataColumn = _.find(this.metaData.columns, {'physicalName': field.name});
-    // logical name
-    field['logicalName'] = fieldMetaData.name;
-    // code table
-    field['codeTable'] = fieldMetaData.codeTable;
-    // dictionary
-    field['dictionary'] = fieldMetaData.dictionary;
   }
 }
