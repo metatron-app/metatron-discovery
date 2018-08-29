@@ -304,6 +304,6 @@
 </app-rule-union-popup>
 
 <app-extend-input-formula (done)="doneInputFormula($event)"></app-extend-input-formula>
-<app-data-snapshot-detail (snapshotDetailCloseEvent)="initSnapshotList(selectedDataSet.dsId)" (navigateToDataflow)="prev()"></app-data-snapshot-detail>
+<app-data-snapshot-detail (snapshotDetailCloseEvent)="initSnapshotList(selectedDataSet.dsId,1)" (navigateToDataflow)="prev()"></app-data-snapshot-detail>
 
 <multicolumn-rename (renameEvent)="applyMultiColumnRename($event)"></multicolumn-rename>
