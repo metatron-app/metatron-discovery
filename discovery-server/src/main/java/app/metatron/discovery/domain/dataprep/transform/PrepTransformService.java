@@ -27,15 +27,18 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutE
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
-import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Set;
+import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
@@ -371,7 +374,7 @@ public class PrepTransformService {
           //Timestamp Check
           for (TimestampTemplate tt : TimestampTemplate.values()) {
               try {
-                  DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat());
+                  DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat()).withLocale(Locale.ENGLISH);
                   DateTime.parse(str, dtf);
 
                   timestampStyleGuess.add(tt);
@@ -747,7 +750,7 @@ public class PrepTransformService {
 
         for (TimestampTemplate tt : TimestampTemplate.values()) {
           try {
-            DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat());
+            DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat()).withLocale(Locale.ENGLISH);
             DateTime.parse(str, dtf);
 
             timestampStyleGuess.add(tt);

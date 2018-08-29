@@ -86,6 +86,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   private readonly _BARCHART_MISMATCH_CLICK_COLOR: string = '#9b252a';
   private readonly _BARCHART_MISMATCH_HOVER_COLOR: string = '#b03a3f';
 
+  private cntBatchEvent:number = 0;
 
   public barChartTooltipPosition: string;
   public barChartTooltipShow: boolean = false;
@@ -160,9 +161,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     this.subscriptions.push(
       this.broadCaster.on<any>('EDIT_RULE_COMBO_SEL')
         .subscribe((data: { name: string, isSelectOrToggle: boolean | string, isMulti: boolean }) => {
-          (data.isMulti) || (this.unSelectionAll('COL'));
           this.isComboEvent = true;
+          (data.isMulti) || (this.unSelectionAll('COL'));
           this.selectColumn(data.name, data.isSelectOrToggle);
+          this.isComboEvent = false;
         })
     );
 
@@ -288,14 +290,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    * 그리드 컬럼 선택
    * @param {number | string} column
    * @param {boolean | string} isSelectOrToggle
-   * @param scope
-   * @param {boolean} isShiftKeyPressed
-   * @param {boolean} isCtrlKeyPressed
    * @param {string} type
    */
-  public selectColumn(column: number | string, isSelectOrToggle: boolean | string, scope: any = null,
-                      isShiftKeyPressed?: boolean, isCtrlKeyPressed?: boolean, type?: string) {
-    this._gridComp.selectColumn(column, isSelectOrToggle, scope, isShiftKeyPressed, isCtrlKeyPressed, type);
+  public selectColumn(column: number | string, isSelectOrToggle: boolean | string, type?: string) {
+    this._gridComp.selectColumn(column, isSelectOrToggle, type);
   } // function - selectColumn
 
   /**
@@ -419,9 +417,11 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
   /**
    * 헤더 클릭 이벤트
-   * @param event
+   * @param {{ id: string, isSelect: boolean, selectColumnIds: string[], shiftKey: boolean, ctrlKey: boolean, batchCount: number }} data
    */
-  public gridHeaderClickHandler(event) {
+  public gridHeaderClickHandler(
+    data: { id: string, isSelect: boolean, selectColumnIds: string[], shiftKey: boolean, ctrlKey: boolean, batchCount: number }
+  ) {
 
     // 선택되어있던 Row unselect !
     if (this._gridComp.getSelectedRows().length > 0) {
@@ -448,38 +448,44 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       return this.escapedName(item.name);
     });
 
-    let selectedDiv = this.$element.find('.slick-header-columns').children()[list.indexOf(event.id) + 1];
-    if (event.isSelect) {
+    let selectedDiv = this.$element.find('.slick-header-columns').children()[list.indexOf(data.id) + 1];
+    if (data.isSelect) {
       selectedDiv.setAttribute('style', 'background-color : #d6d9f1; width : ' + selectedDiv.style.width);
     } else {
       selectedDiv.setAttribute('style', 'background-color : ; width : ' + selectedDiv.style.width);
     }
 
     // 선택된 컬럼들
-    this._selectedColumns = event.selectColumnIds;
-
-    if (!this.isComboEvent) {
-      this.broadCaster.broadcast('EDIT_RULE_GRID_SEL_COL', {
-        id: event.id,
-        isSelect: event.isSelect,
-        columns: this._selectedColumns,
-        fields: this._gridData.fields
-      });
-    }
-    this.isComboEvent = false;
+    this._selectedColumns = data.selectColumnIds;
 
     // 이벤트 전파
     this.selectHeaderEvent.emit(
       {
-        id: event.id,
-        isSelect: event.isSelect,
+        id: data.id,
+        isSelect: data.isSelect,
         columns: this._selectedColumns,
         fields: this._gridData.fields
       }
     );
 
-    if (event.shiftKey) {
-      this._onShiftKeyPressedSelectColumn(event);
+    if (data.shiftKey) {
+      this._onShiftKeyPressedSelectColumn(data);
+    } if (!this.isComboEvent) {
+      if( data.batchCount && 0 < data.batchCount) {
+        this.cntBatchEvent++;
+        if( data.batchCount === this.cntBatchEvent ) {
+          this.broadCaster.broadcast('EDIT_RULE_GRID_SEL_COL', {
+            selectedColIds: this._selectedColumns,
+            fields: this._gridData.fields
+          });
+          this.cntBatchEvent = 0;
+        }
+      } else {
+        this.broadCaster.broadcast('EDIT_RULE_GRID_SEL_COL', {
+          selectedColIds: this._selectedColumns,
+          fields: this._gridData.fields
+        });
+      }
     }
 
   } // function - gridHeaderClickHandler
@@ -555,10 +561,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
     // 컨텍스트 메뉴 클릭시 헤더가 클릭 되게 변경 단, row가 선택되어있으면 컬럼 선택 안됨(전체 해제 -> 컬럼 선택)
     if (this._selectedColumns.length > 1) {
-      this.selectColumn(data.columnName, true, null, false, data.columnType);
+      this.selectColumn(data.columnName, true, data.columnType);
     } else if (0 === this._barClickedSeries[data.index].length && 0 === this._clickedSeries[data.index].length) {
       this.unSelectionAll('COL');
-      this.selectColumn(data.columnName, true, null, false, data.columnType);
+      this.selectColumn(data.columnName, true, data.columnType);
     }
 
     const currentContextMenuInfo = {
@@ -1471,45 +1477,40 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
   /**
    * Shift key가 눌린 상태에서 컬럼 선택시
-   * @param event
+   * @param data
    * @private
    */
-  private _onShiftKeyPressedSelectColumn(event) {
+  private _onShiftKeyPressedSelectColumn(data: { id: string, isSelect: boolean, selectColumnIds: string[], shiftKey: boolean, ctrlKey: boolean, batchCount: number }) {
 
-    if (event.isSelect === false) {
+    if (data.isSelect === false) {
       return;
     }
 
-    let selectedIdx = this._selectedColumns.indexOf(event.id);
+    let selectedIdx = this._selectedColumns.indexOf(data.id);
     let baseColumn = this._selectedColumns[selectedIdx - 1];
 
-    const gridFields = this._gridData.fields.map((f) => {
-      return f.name;
-    });
+    const gridFields = this._gridData.fields.map(f => f.name );
 
-    let selectedIndex = gridFields.indexOf(event.id);
+    let selectedIndex = gridFields.indexOf(data.id);
     let baseColumnIndex = gridFields.indexOf(baseColumn);
 
-    let selectlist = [];
+    let selectList = [];
     if (selectedIndex > baseColumnIndex) {
       this._gridData.fields.forEach((item, index) => {
-        if (index < selectedIndex && index > baseColumnIndex) {
-          selectlist.push(index);
+        if (index < selectedIndex && index > baseColumnIndex && !item.selected) {
+          selectList.push(item);
         }
       });
     } else {
       this._gridData.fields.forEach((item, index) => {
-        if (index > selectedIndex && index < baseColumnIndex) {
-          selectlist.push(index);
+        if (index > selectedIndex && index < baseColumnIndex && !item.selected) {
+          selectList.push(item);
         }
       });
     }
 
-    selectlist.forEach((item) => {
-      let data = this._gridData.fields[item];
-      if (!data.selected) {
-        this._gridComp.selectColumn(data.name, !data.selected);
-      }
+    selectList.forEach((item) => {
+      this._gridComp.selectColumn(item.name, !item.selected, null, { batchCount : selectList.length + 1 } );
     });
   } // function - _onShiftKeyPressedSelectColumn
 
@@ -1808,8 +1809,14 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    * @private
    */
   private _setTimeStampFormat(value: string, timestampStyle?: string): string {
-    (timestampStyle) || (timestampStyle = 'YYYY-MM-DDTHH:mm:ss.000Z');
-    return moment(value).format(timestampStyle.replace(/y/g, 'Y').replace(/dd/g, 'DD'));
+    (timestampStyle) || (timestampStyle = 'YYYY-MM-DDTHH:mm:ss');
+    return moment.utc(value).format(timestampStyle.replace(/y/g, 'Y').replace(/dd/g, 'DD').replace(/'/g, ''));
+
+    // if (-1 > timestampStyle.indexOf('H')) {
+    //   // return moment(value + `+0000`).format(timestampStyle);
+    // } else {
+    //   return moment(value).format(timestampStyle);
+    // }
   } // function - _setTimeStampFormat
 
   /**

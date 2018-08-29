@@ -127,7 +127,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
     },1000)
   } // function - getSnapshotWithInterval
 
-  /**
+/**
    * 스냅샷 리스트에서 아직 준비중인 스냅샷이 있는지 확인
    * @param list
    * @return {number} interval을 stop 하려면 -1을 리턴한다.

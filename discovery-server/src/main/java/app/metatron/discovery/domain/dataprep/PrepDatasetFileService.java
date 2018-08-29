@@ -47,6 +47,17 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.Util;
+import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.util.PolarisUtils;
+
 @Service
 public class PrepDatasetFileService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetFileService.class);
@@ -208,7 +219,7 @@ public class PrepDatasetFileService {
         //Timestamp Check
         for (TimestampTemplate tt : TimestampTemplate.values()) {
             try {
-                DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat());
+                DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat()).withLocale(Locale.ENGLISH);
                 DateTime.parse(str, dtf);
                 return ColumnType.TIMESTAMP;
             } catch (Exception e) {

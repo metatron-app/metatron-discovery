@@ -12,12 +12,14 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-box-part ddp-editor" *ngIf="ruleVO">
+<div class="ddp-box-part ddp-editor" *ngIf="isShow">
   <div class="ddp-box-title">
     {{'msg.dp.th.condition' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
-    <rule-condition-input></rule-condition-input>
+    <rule-condition-input
+      [formula]="keepRow" [forceFormula]="forceCondition" [command]="'keep'" [fields]="fields" [tabIndex]="2"
+      (onChange)="keepRow = $event"></rule-condition-input>
   </div>
   <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput()"><em class="ddp-icon-editor"></em>Advanced editor</a>
 </div>

@@ -12,36 +12,34 @@
  * limitations under the License.
  */
 
-import * as $ from "jquery";
-import { isUndefined} from "util";
-import {AbstractComponent} from "../../../../../../common/component/abstract.component";
-import { Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
-import {Field, Rule} from "../../../../../../domain/data-preparation/dataset";
-import {PreparationAlert} from "../../../../../util/preparation-alert.util";
-import {DataflowService} from "../../../../service/dataflow.service";
-import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
+import { isUndefined } from 'util';
+import { AbstractComponent } from '../../../../../../common/component/abstract.component';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output, SimpleChange, SimpleChanges,
+  ViewChild
+} from '@angular/core';
+import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
+import { PreparationAlert } from '../../../../../util/preparation-alert.util';
+import { DataflowService } from '../../../../service/dataflow.service';
 
 @Component({
-  selector : 'rule-condition-input',
-  templateUrl : './rule-condition-input.component.html'
+  selector: 'rule-condition-input',
+  templateUrl: './rule-condition-input.component.html'
 })
 export class RuleConditionInputComponent extends AbstractComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild('inputFormula')
+  private _inputFormula: ElementRef;
 
-  private fields : Field[];
-  public command : string;
-
-  @Input()
-  public selectBoxWidth:number = 278;
-
-  @Input()
-  public tabIndex : number ;
-
-  // aggregate or pivot
-  public pivotFormulaValueList: any[] = [];
-  public idx : number;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -49,16 +47,31 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public ruleVO : Rule;
+
+  @Input()
+  public fields: Field[];
+
+  @Input()
+  public command: string;
+
+  @Input()
+  public tabIndex: number;
+
+  @Output()
+  public onChange: EventEmitter<string> = new EventEmitter();
+
+  @Input('formula')
+  public inputFormula: string;
+
+  @Input()
+  public forceFormula: string;
+
+  public formula: string;
 
   // Auto complete 관련
   public autoCompleteSuggestions: any = [];
   public autoCompleteSuggestions_selectedIdx: number = -1;
   public isAutoCompleteSuggestionListOpen: boolean = false;
-  public autoCompleteSuggestion_inputId: string = '';
-
-  // input focus 여부
-  public isFocus = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -68,7 +81,7 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector,
-    protected dataflowService : DataflowService) {
+    protected dataflowService: DataflowService) {
     super(elementRef, injector);
   }
 
@@ -91,6 +104,21 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   } // function - ngAfterViewInit
 
   /**
+   * Input 값 변경 체크
+   * @param {SimpleChanges} changes
+   */
+  public ngOnChanges(changes: SimpleChanges) {
+    const inputFormulaChanges: SimpleChange = changes.inputFormula;
+    const forceFormulaChanges:SimpleChange = changes.forceFormula;
+    if( inputFormulaChanges && inputFormulaChanges.firstChange ) {
+      this.formula = inputFormulaChanges.currentValue;
+    } else if( forceFormulaChanges && forceFormulaChanges.currentValue !== forceFormulaChanges.previousValue ) {
+      this.formula = forceFormulaChanges.currentValue;
+      this.onChange.emit(this.formula);
+    }
+  } // function - ngOnChanges
+
+  /**
    * 컴포넌트 제거
    */
   public ngOnDestroy() {
@@ -102,26 +130,17 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
    * Initial execution, set data
    * @param {{ruleVO: Rule, fields: Field[]}} data
    */
-  public init(data : {ruleVO : Rule, fields : Field[], command : string, pivotFormulaValueList?: any, idx? : number}) {
-    this.ruleVO = data.ruleVO;
-    this.fields = data.fields;
-    this.command = data.command;
-    this.pivotFormulaValueList = data.pivotFormulaValueList;
-    this.idx = data.idx;
-
-    this.safelyDetectChanges();
-    if (!isUndefined(this.tabIndex)) { // focus ...
-      setTimeout(() => $(`[tabIndex=${this.tabIndex}]`).trigger('focus'));
-    }
+  public init(data: { fields: Field[], command: string, ruleVO: Rule, pivotFormulaValueList?: any, idx?: number }) {
   } // end of init
 
   /**
    * Returns condition va
    * @returns {string}
    */
-  public getCondition() : string {
-    return this.ruleVO.row
+  public getCondition(): string {
+    return this.formula;
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -135,18 +154,14 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
       this.autoCompleteSuggestions_selectedIdx = -1;
       return;
     }
-
-    //console.log($event);
-
-    let inputId: string = '';
     let value = undefined;
     if (typeof $event === 'string') {
       value = $event;
     } else {
       if ($event.target && $event.target.value) {
         value = $event.target.value.substring(0, $event.target.selectionStart);
-        if( $event.key ) {
-          if(
+        if ($event.key) {
+          if (
             (8 <= $event.keyCode && $event.keyCode <= 9) ||
             (12 <= $event.keyCode && $event.keyCode <= 13) ||
             (16 <= $event.keyCode && $event.keyCode <= 21) ||
@@ -159,22 +174,14 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
           ) {
             // special key
           } else {
-            if(($event.metaKey==true || $event.ctrlKey==true) && $event.key=='v') {
+            if (($event.metaKey == true || $event.ctrlKey == true) && $event.key == 'v') {
               // paste
-              /*
-              let input = $event.target;
-              input.blur();
-              input.focus();
-              */
               return;
             } else {
               value += $event.key;
             }
           }
         }
-      }
-      if ($event.target && $event.target.id) {
-        inputId = $event.target.id;
       }
       if (this.autoCompleteSuggestions && 0 < this.autoCompleteSuggestions.length) {
         if ($event.keyCode === 38 || $event.keyCode === 40) {
@@ -191,19 +198,18 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
           }
 
           let height = 25;
-          $('.ddp-list-command').scrollTop(this.autoCompleteSuggestions_selectedIdx * height);
+          this.$element.find('.ddp-list-command').scrollTop(this.autoCompleteSuggestions_selectedIdx * height);
 
           return false;
         } else if ($event.keyCode === 27) {
           this.isAutoCompleteSuggestionListOpen = false;
-          this.autoCompleteSuggestion_inputId = '';
           this.autoCompleteSuggestions = [];
           this.autoCompleteSuggestions_selectedIdx = -2;
           return false;
-        } else if($event.keyCode === 13 || $event.keyCode === 108) {
+        } else if ($event.keyCode === 13 || $event.keyCode === 108) {
           if (0 <= this.autoCompleteSuggestions_selectedIdx
             && this.autoCompleteSuggestions_selectedIdx < this.autoCompleteSuggestions.length) {
-            this.onautoCompleteSuggestionsSelect(this.autoCompleteSuggestions[this.autoCompleteSuggestions_selectedIdx]);
+            this.onSelectAutoComplete(this.autoCompleteSuggestions[this.autoCompleteSuggestions_selectedIdx]);
           }
           return false;
         } else if ($event.keyCode === 8 || $event.keyCode === 46 || $event.keyCode === 37 || $event.keyCode === 39) {
@@ -255,7 +261,7 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
           input.focus();
 
           return false;
-        } else if(
+        } else if (
           (8 <= $event.keyCode && $event.keyCode <= 9) ||
           (12 <= $event.keyCode && $event.keyCode <= 13) ||
           (16 <= $event.keyCode && $event.keyCode <= 21) ||
@@ -273,57 +279,32 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
       }
     }
 
-    let ruleString = '';
-    let rulePart = null;
-    if (!isUndefined(this.ruleVO)) {
-      ruleString = PreparationCommonUtil.makeRuleResult(this.ruleVO);
-      if (undefined !== value) {
-        rulePart = value;
-        if (0 < rulePart.length && 0 < this.autoCompleteSuggestions.length) {
-          for (let suggest of this.autoCompleteSuggestions) {
-            if (rulePart.trim().endsWith(suggest.value)) {
-              if (suggest.type != '@_OPERATOR_@'
-                && suggest.type != '@_STRING_@'
-                && suggest.type != '@_FUNCTION_EXPRESSION_@'
-                && suggest.type != '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
-                let lastIdx = rulePart.lastIndexOf(suggest.value);
-                rulePart = rulePart.substring(0, lastIdx) + suggest.type + rulePart.substring(lastIdx + suggest.value.length);
-              }
-              break;
+    let rulePart = '';
+    if (undefined !== value) {
+      rulePart = value;
+      if (0 < rulePart.length && 0 < this.autoCompleteSuggestions.length) {
+        for (let suggest of this.autoCompleteSuggestions) {
+          if (rulePart.trim().endsWith(suggest.value)) {
+            if (suggest.type != '@_OPERATOR_@'
+              && suggest.type != '@_STRING_@'
+              && suggest.type != '@_FUNCTION_EXPRESSION_@'
+              && suggest.type != '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
+              let lastIdx = rulePart.lastIndexOf(suggest.value);
+              rulePart = rulePart.substring(0, lastIdx) + suggest.type + rulePart.substring(lastIdx + suggest.value.length);
             }
+            break;
           }
         }
-      } else {
-        rulePart = '';
       }
     }
 
-    /********************************
-     // autocomplete temporary dev
-     *********************************/
-    /*
-    let columnNames = [];
-    if(ruleCommand=='set' && 0<this.selectedDataSet.gridData.fields.length ) {
-      columnNames.push( '$col' );
-    }
-    for(var _column of this.selectedDataSet.gridData.fields) {
-      columnNames.push( _column.name );
-    }
-    var functionNames = [
-      'add_time', 'concat', 'concat_ws', 'day', 'hour', 'if', 'isnan', 'isnull', 'length', 'lower', 'ltrim', 'math.abs', 'math.acos', 'math.asin', 'math.atan', 'math.cbrt', 'math.ceil', 'math.cos', 'math.cosh', 'math.exp', 'math.expm1', 'math.getExponent', 'math.round', 'math.signum', 'math.sin', 'math.sinh', 'math.sqrt', 'math.tan', 'math.tanh', 'millisecond', 'minute', 'month', 'now', 'rtrim', 'second', 'substring', 'time_diff', 'timestamp', 'trim', 'upper','year'
-    ];
-    var functionAggrNames = [
-      'sum','avg','max','min','count',
-    ];
-    console.log(value);
-    */
+    this.onChange.emit(value);
 
-
-    this.dataflowService.autoComplete(ruleString, this.command, rulePart).then((data) => {
+    this.dataflowService.autoComplete('', this.command, rulePart).then((data) => {
       let columnNames = [];
 
-      if(this.command=='set' && 0<this.fields.length ) {
-        columnNames.push( '$col' );
+      if (this.command == 'set' && 0 < this.fields.length) {
+        columnNames.push('$col');
       }
 
       for (let _column of this.fields) {
@@ -466,15 +447,12 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
         this.autoCompleteSuggestions = suggests;
         if (0 <= suggests.length) {
           this.isAutoCompleteSuggestionListOpen = true;
-          this.autoCompleteSuggestion_inputId = inputId;
         } else {
           this.isAutoCompleteSuggestionListOpen = false;
-          this.autoCompleteSuggestion_inputId = '';
         }
       }
     }).catch((error) => {
       this.isAutoCompleteSuggestionListOpen = false;
-      this.autoCompleteSuggestion_inputId = '';
       this.autoCompleteSuggestions_selectedIdx = -1;
       this.autoCompleteSuggestions = [];
 
@@ -483,19 +461,46 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
     });
   } // function - changeRule
 
-  public onautoCompleteSuggestionsSelect(item) {
+  public onSelectAutoComplete(item) {
 
-    let input = this.elementRef.nativeElement.querySelector('#' + this.autoCompleteSuggestion_inputId);
+    let input = this._inputFormula.nativeElement;
+
     if (isUndefined(input)) {
       return;
     }
 
     let start = input.selectionStart;
     let end = input.selectionEnd;
-    let value = input.value.substring(0, input.selectionStart);
+    let inputVal = input.value;
+
+    let result: any[] = [];
+    if ('pivot' === this.command || 'aggregate' === this.command) {
+      result = this.formulaSuggestionPivot(item, inputVal, start, end);
+    } else {
+      result = this.formulaSuggestion(item, inputVal, start, end);
+    }
+
+    input.blur();
+
+    input.value = result[0];
+    input.selectionStart = result[1];
+    input.selectionEnd = result[1];
+
+    this.formula = input.value;
+    this.safelyDetectChanges();
+    this.onChange.emit(this.formula);
+
+    input.focus();
+
+  }
+
+  public formulaSuggestion(item, inputVal, start, end) {
+
+    let value = inputVal.substring(0, start);
+
     if (item.type != '@_OPERATOR_@') { // && item.type!="@_FUNCTION_EXPRESSION_@" ) {
       if (start < end) {
-        value = input.value.substring(0, input.selectionEnd);
+        value = inputVal.substring(0, end);
       }
       let lastIdx = value.lastIndexOf(item.source);
       if (-1 != lastIdx && value.endsWith(item.source)) {
@@ -506,37 +511,21 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
     let len_of_head = value.length;
     value += item.value;
     let caretPos = value.length;
-    let tail = input.value.substring(input.selectionEnd);
-    if( start==end && len_of_head<=start ) {
+    let tail = inputVal.substring(end);
+    if (start == end && len_of_head <= start) {
       let part_of_tail = value.substring(start);
-      if( tail.indexOf(part_of_tail)==0 ) {
+      if (tail.indexOf(part_of_tail) == 0) {
         tail = tail.substring(part_of_tail.length);
       }
     }
     value += tail;
 
-    input.blur();
+    return [value, caretPos];
+  } // function - formulaSuggestion
 
-    input.value = value;
-    input.selectionStart = caretPos;
-    input.selectionEnd = caretPos;
+  public formulaSuggestionPivot(item, inputVal, start, end) {
 
-    // TODO : shouldn't input.value be assigned to this.ruleVO.row ?
-    this.ruleVO.row = input.value;
-    input.focus();
-  }
-
-  public isAutoCompleteSuggestionListOpenPivot(id, idx) {
-    return (true == this.isAutoCompleteSuggestionListOpen && this.autoCompleteSuggestion_inputId == id + '-' + idx);
-  }
-
-  public onautoCompleteSuggestionsSelectPivot(item, pivotFormulaValueList, idx) {
-    let input = this.elementRef.nativeElement.querySelector('#' + this.autoCompleteSuggestion_inputId);
-    if (isUndefined(input)) {
-      return;
-    }
-
-    let value = input.value.substring(0, input.selectionStart);
+    let value = inputVal.substring(0, start);
 
     if (item.type == '@_AGGREGATE_FUNCTION_EXPRESSION_@') {
       value = item.value;
@@ -554,17 +543,11 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
       value += item.value;
     }
 
-    pivotFormulaValueList[idx] = value;
     let caretPos = value.length;
 
-    input.blur();
+    return [value, caretPos];
+  } // function - formulaSuggestionPivot
 
-    input.value = value;
-    input.selectionStart = caretPos;
-    input.selectionEnd = caretPos;
-
-    input.focus();
-  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

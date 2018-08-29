@@ -930,7 +930,7 @@ public class DataFrame implements Serializable, Transformable {
               if(format.equals("")) {
                 format = null;
               }
-              return ((DateTime) obj).toString(format);
+              return ((DateTime) obj).toString(format, Locale.ENGLISH);
             } catch (Exception e) {
               return obj.toString();
             }
@@ -960,7 +960,7 @@ public class DataFrame implements Serializable, Transformable {
         switch (fromType) {
           case STRING:
             try {
-              DateTimeFormatter dtf = DateTimeFormat.forPattern(format);
+              DateTimeFormatter dtf = DateTimeFormat.forPattern(format).withLocale(Locale.ENGLISH);
               DateTime jTime = DateTime.parse(obj.toString(), dtf);
               return jTime;
             } catch (Exception e) {

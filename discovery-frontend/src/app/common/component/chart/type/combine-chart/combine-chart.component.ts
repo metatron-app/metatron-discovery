@@ -35,6 +35,7 @@ import { UICombineChart } from '../../option/ui-option/ui-combine-chart';
 import {UIChartAxis, UIChartAxisGrid, UIChartAxisLabelValue} from "../../option/ui-option/ui-axis";
 import {AxisOptionConverter} from "../../option/converter/axis-option-converter";
 import {Axis} from "../../option/define/axis";
+import {DataZoomType} from '../../option/define/datazoom';
 
 @Component({
   selector: 'combine-chart',
@@ -361,6 +362,23 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
     this.addChartSelectEventListener();
     this.addChartMultiSelectEventListener();
     this.addLegendSelectEventListener();
+  }
+
+  /**
+   * Chart Datazoom Event Listener
+   */
+  public addChartDatazoomEventListener(): void {
+
+    this.chart.off('datazoom');
+    this.chart.on('datazoom', (param) => {
+
+      this.chartOption.dataZoom.map((zoom, index) => {
+        if( _.eq(zoom.type, DataZoomType.SLIDER) ) {
+          this.uiOption.chartZooms[index].start = param.start;
+          this.uiOption.chartZooms[index].end = param.end;
+        }
+      });
+    });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
