@@ -14,25 +14,18 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.Unnest;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IdxOnMapTypeShouldBeStringException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidIndexTypeException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WorksOnlyOnArrayOrMapException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongArrayIndexException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongMapKeyException;
 
 public class DfUnnest extends DataFrame {
   private static Logger LOGGER = LoggerFactory.getLogger(DfUnnest.class);

@@ -752,6 +752,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     };
 
     this.commandList = [
+      { command: 'create', alias: 'Cr' },
       { command: 'header', alias: 'He' },
       { command: 'keep', alias: 'Ke' },
       { command: 'replace', alias: 'Rp' },

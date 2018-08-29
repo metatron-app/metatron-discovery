@@ -14,56 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.common.MetatronProperties;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import org.apache.hive.jdbc.HiveConnection;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.ServletOutputStream;
-
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -74,6 +24,43 @@ import app.metatron.discovery.domain.datasource.connection.DataConnectionReposit
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.StageDataConnection;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.apache.hive.jdbc.HiveConnection;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.servlet.ServletOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.sql.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class PrepDatasetSparkHiveService {
@@ -108,7 +95,6 @@ public class PrepDatasetSparkHiveService {
     Set<Future<Integer>> futures = null;
 
     public class PrepDatasetTotalLinesCallable implements Callable {
-        //private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetTotalLinesCallable.class);
         PrepDatasetSparkHiveService datasetSparkHiveService;
 
         String dsId;
@@ -339,7 +325,6 @@ public class PrepDatasetSparkHiveService {
 
         try {
             int limitSize = Integer.parseInt(size);
-            int totalRows = 0;
 
             if(dbName==null || dbName.isEmpty()) {
                 dbName = "default";
@@ -348,7 +333,6 @@ public class PrepDatasetSparkHiveService {
             List<Map<String, String>> resultSet = Lists.newArrayList();
             List<Field> fields = Lists.newArrayList();
             List<Map<String, String>> headers = Lists.newArrayList();
-            List<String> columnFields = Lists.newArrayList();
 
             PrepProperties.HiveInfo hive = prepProperties.getHive();
             StageDataConnection stageDataConnection = new StageDataConnection();
@@ -450,7 +434,6 @@ public class PrepDatasetSparkHiveService {
 
         try {
             int limitSize = Integer.parseInt(size);
-            int totalRows = 0;
 
             if(dbName==null || dbName.isEmpty()) {
                 dbName = "default";
@@ -545,9 +528,7 @@ public class PrepDatasetSparkHiveService {
 
         try {
             int limitSize = Integer.parseInt(size);
-            int totalRows = 0;
 
-            String dcId = dataset.getDcId();
             String queryStmt = dataset.getQueryStmt();
             String tableName = dataset.getTableName();
             String databaseName = dataset.getCustomValue("databaseName");
@@ -614,7 +595,6 @@ public class PrepDatasetSparkHiveService {
                     dataFrame.addColumn(columnName, columnType);
                 }
 
-                totalRows = rs.getFetchSize();
                 int readRows = 0;
                 while (rs.next()) {
                     app.metatron.discovery.domain.dataprep.teddy.Row row = new app.metatron.discovery.domain.dataprep.teddy.Row();

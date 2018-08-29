@@ -14,12 +14,12 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Pivot;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,13 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidAggregationValueExpressionTypeException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.InvalidColumnExpressionTypeException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TooManyPivotedColumnsException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnsupportedAggregationFunctionExpressionException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongAggregationFunctionExpressionException;
 
 public class DfPivot extends DataFrame {
   private static Logger LOGGER = LoggerFactory.getLogger(DfPivot.class);
