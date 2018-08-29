@@ -14,16 +14,15 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.Histogram;
+import app.metatron.discovery.domain.dataprep.teddy.Row;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.Future;
-
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.Histogram;
-import app.metatron.discovery.domain.dataprep.teddy.Row;
 
 @Service
 public class HistogramService {

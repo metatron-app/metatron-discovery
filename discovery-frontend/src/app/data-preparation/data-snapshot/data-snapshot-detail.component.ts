@@ -144,6 +144,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.getSnapshot(true);
 
     this.commandList = [
+      { command: 'create', alias: 'Cr', desc: this.translateService.instant('msg.dp.li.cr.description'), isHover:false },
       { command: 'header', alias: 'He', desc: this.translateService.instant('msg.dp.li.he.description'), isHover:false },
       { command: 'keep', alias: 'Ke', desc: this.translateService.instant('msg.dp.li.ke.description'), isHover:false },
       { command: 'replace', alias: 'Rp', desc: this.translateService.instant('msg.dp.li.rp.description'), isHover:false },

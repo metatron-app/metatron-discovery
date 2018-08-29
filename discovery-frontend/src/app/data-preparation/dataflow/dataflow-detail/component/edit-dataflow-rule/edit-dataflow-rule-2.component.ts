@@ -722,6 +722,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     let event = dataRule.event;
     let rule = dataRule.rule;
+    rule.ruleNo = rule.ruleNo-1;
 
     // 인풋박스 포커스 여부 IE 에서 수정버튼을 누르면 툴팁 박스가 열려서...
     this.isFocus = false;
@@ -732,15 +733,27 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }
 
     event.stopPropagation();
+    this._setEditRuleInfo(rule.ruleNo)
+      .then((data: { apiData: any, gridData: any }) => {
+        this.setEditInfo(rule, data.gridData);
+      });
+
+    /*
     this.loadingShow();
 
-    const op = { op: 'FETCH' };
+    const op = {
+     op: 'FETCH',
+     ruleIdx: rule.ruleNo
+    };
     // fetch data 1 step before
     this.dataflowService.fetchPreviousData(this.selectedDataSet.dsId, op).then((data) => {
       if (data.errorMsg) {
         Alert.warning(this.translateService.instant('msg.dp.alert.rule.edit.fail'));
       } else {
-        this._setEditRuleInfo(data.ruleCurIdx !== -1 ? data.ruleCurIdx - 1 : data.ruleCurIdx)
+        if( data.ruleCurIdx!=rule.ruleNo ) {
+          console.log(data.ruleCurIdx);
+        }
+        this._setEditRuleInfo(rule.ruleNo)
           .then((data: { apiData: any, gridData: any }) => {
             this.setEditInfo(rule, data.gridData);
           });
@@ -751,6 +764,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       let prep_error = this.dataprepExceptionHandler(error);
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
+    */
 
   } // function - setRuleVO
 
@@ -872,7 +886,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.loadingShow();
 
     // TODO : jumpRule, applyRule 은 같은 API
-    this.dataflowService.jumpRule(this.selectedDataSet.dsId, 'JUMP', idx)
+    this.dataflowService.jumpRule(this.selectedDataSet.dsId, 'FETCH', idx)
       .then((data) => {
         if (data.errorMsg) {
           Alert.warning(this.translateService.instant('msg.dp.alert.jump.fail'));
@@ -1103,6 +1117,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }
 
     switch (rule.command) {
+      case 'create':
+        result = `Create with DS ${rule.with}`;
+        break;
       case 'header':
         result = `Convert row${rule.rownum} to header`;
         break;
@@ -1583,6 +1600,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   private initViewPage() {
     this.commandList = [
+      { command: 'create',
+        alias: 'Cr',
+        desc: this.translateService.instant('msg.dp.li.cr.description'),
+        isHover:false
+      },
       {
         command: 'header',
         alias: 'He',
