@@ -122,7 +122,6 @@
       </thead>
       <tbody>
       <tr *ngFor="let item of datasnapshots; let i = index" [attr.data-index]="i" (click)="snapshotDetail(item)" >
-        <!--<td [style.cursor]="!item.finishTime ? 'no-drop' : 'pointer'">-->
         <td >
           <div class="ddp-wrap-long">
             <div class="ddp-txt-long">
@@ -130,10 +129,6 @@
             </div>
           </div>
         </td>
-        <!--<td [style.cursor]="!item.finishTime ? 'no-drop' : 'pointer'">-->
-          <!--<span *ngIf="item.dsName === ''" class="ddp-data-delete">{{'msg.dp.ui.ds.del.success' | translate}}</span>-->
-          <!--{{item.creatorDfName}} | {{item.dsName}}-->
-        <!--</td>-->
         <td>
           <span *ngIf="item.dsName === ''" class="ddp-data-delete">{{'msg.dp.ui.ds.del.success' | translate}}</span>
           {{item.creatorDfName}} | {{item.dsName}}
@@ -145,7 +140,7 @@
             <em class="ddp-icon-error2" *ngIf="false"></em>
             <!-- 툴팁 -->
                   <div class="ddp-ui-tooltip-info">
-                      <em class="ddp-icon-view-left"></em>{{'msg.dp.th.ss.delayed-del-ds' | translate}}
+                      <em class="ddp-icon-view-left"></em>{{'msg.dp.th.ss.generating' | translate}}
                   </div>
             <!-- //툴팁 -->
           </span>
