@@ -49,11 +49,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
@@ -260,7 +256,7 @@ public class PrepDatasetFileService {
         //Timestamp Check
         for (TimestampTemplate tt : TimestampTemplate.values()) {
             try {
-                DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat());
+                DateTimeFormatter dtf = DateTimeFormat.forPattern(tt.getFormat()).withLocale(Locale.ENGLISH);
                 DateTime.parse(str, dtf);
                 return ColumnType.TIMESTAMP;
             } catch (Exception e) {

@@ -12,13 +12,13 @@
   ~ limitations under the License.
   -->
 
-<div *ngIf="ruleVO" class="ddp-box-part" >
+<div *ngIf="isShow" class="ddp-box-part" >
   <div class="ddp-box-title">
     {{'msg.dp.th.row' | translate}}
     <em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
-    <input [(ngModel)]="ruleVO.rownum" [input-mask]="'number'"
+    <input [(ngModel)]="rowNum" [input-mask]="'number'"
            placeholder="{{'msg.dp.th.row.ph' | translate}}"
            tabindex="2" class="ddp-input-typebasic" type="text" >
   </div>
