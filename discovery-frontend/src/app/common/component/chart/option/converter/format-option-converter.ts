@@ -922,6 +922,17 @@ export class FormatOptionConverter {
       return colorEl + legendName + value + '<br />' + seriesName;
     }
   }
+
+  /**
+   * convert value to deciaml value
+   * @param value
+   * @param {number} decimal
+   * @returns {string}
+   */
+  public static getDecimalValue(value: any, decimal: number): string {
+
+    return Number(value).toFixed(decimal);
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

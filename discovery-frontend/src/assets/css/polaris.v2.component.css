@@ -3233,9 +3233,9 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 .gradx_show_code {display:none;}
 .cp-default {display:none !important;}
 
-#gradX2 {width:221px; padding:10px 0 20px 0;}
-#gradX2 .gradx {border:none; padding:0; background:none; cursor:none;}
-#gradX2 .gradx_container {width:230px; padding:0; margin:0; border:none; background:none; }
+#gradX2 {padding:10px 0 20px 0; text-align:center;}
+#gradX2 .gradx {display:inline-block; width:220px; border:none; padding:0; background:none; cursor:none;}
+#gradX2 .gradx_container {padding:0; margin:0; border:none; background:none; }
 #gradX2 .gradx_panel {width:220px; height:29px; cursor:default;}
 #gradX2 .gradx_start_sliders {position:relative; height:0px; margin-top:0px; margin-left:-2px;background:none; box-shadow:none; border:none; cursor:default;}
 #gradX2 .gradx_start_sliders.ddp-selected {padding-bottom:35px;}

@@ -362,7 +362,7 @@ export class CommonOptionConverter {
       }
     });
 
-``    // visualMap 폰트 사이즈 설정
+    // visualMap 폰트 사이즈 설정
     if (chartOption.visualMap) {
       if (!chartOption.visualMap.textStyle) chartOption.visualMap.textStyle = {};
 
