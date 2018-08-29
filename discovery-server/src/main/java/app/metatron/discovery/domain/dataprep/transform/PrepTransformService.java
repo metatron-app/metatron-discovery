@@ -1381,7 +1381,7 @@ public class PrepTransformService {
   }
 
   // FIXME: just send static configurations. we do not need specific dataset info.
-  public Map<String,Object> getConfiguration(String wrangledDsId, PrepSnapshot.SS_TYPE ssType) {
+  public Map<String,Object> getConfiguration(String wrangledDsId) {
     Map<String,Object> configuration = Maps.newHashMap();
     try {
       PrepDataset wrangledDataset = datasetRepository.findOne(wrangledDsId);
@@ -1390,7 +1390,7 @@ public class PrepTransformService {
       String ssName = this.snapshotService.makeSnapshotName(wrangledDataset.getDsName(),launchTime);
       configuration.put("ss_name", ssName);
 
-      if(ssType==PrepSnapshot.SS_TYPE.FILE) {
+      if(PrepSnapshot.SS_TYPE.FILE==PrepSnapshot.SS_TYPE.FILE) {
         Map<String,Object> fileUri = Maps.newHashMap();
 
         String wasDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
@@ -1406,8 +1406,22 @@ public class PrepTransformService {
           }
         } catch (Exception e) {
         }
-
         configuration.put("file_uri", fileUri);
+      }
+
+      if(PrepSnapshot.SS_TYPE.HIVE==PrepSnapshot.SS_TYPE.HIVE) {
+        Map<String,Object> hive = null;
+        PrepProperties.HiveInfo hiveInfo = prepProperties.getHive();
+        if(hiveInfo!=null) {
+          hive = Maps.newHashMap();
+          hive.put("custom_url", hiveInfo.getCustomUrl());
+          hive.put("metastore_uris", hiveInfo.getMetastoreUris());
+          hive.put("hostname", hiveInfo.getHostname());
+          hive.put("port", hiveInfo.getPort());
+          hive.put("username", hiveInfo.getUsername());
+          hive.put("password", hiveInfo.getPassword());
+        }
+        configuration.put("hive_info", hive);
       }
     } catch (Exception e) {
       throw e;
