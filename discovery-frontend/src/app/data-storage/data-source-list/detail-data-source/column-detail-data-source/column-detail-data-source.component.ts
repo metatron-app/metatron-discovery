@@ -84,7 +84,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
   // selected field
   public selectedField: any;
 
-  // convariance data result
+  // covariance data result
   public covarianceData: any = {};
   // stats data result
   public statsData: any = {};
@@ -189,6 +189,16 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    */
   public isEnableFiltering(column: any): boolean {
     return column.filtering;
+  }
+
+  /**
+   * Is tooltip class changed
+   * @param columnList
+   * @param {number} index
+   * @returns {boolean}
+   */
+  public isChangeTooltipClass(columnList: any, index: number): boolean {
+    return index > (columnList.length / 2 - 1) ? true : false;
   }
 
   /**

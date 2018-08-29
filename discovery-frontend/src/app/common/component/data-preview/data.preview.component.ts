@@ -206,6 +206,16 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     super.ngOnDestroy();
   }
 
+  /**
+   * Is tooltip class changed
+   * @param columnList
+   * @param {number} index
+   * @returns {boolean}
+   */
+  public isChangeTooltipClass(columnList: any, index: number): boolean {
+    return index > (columnList.length / 2 - 1) ? true : false;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
