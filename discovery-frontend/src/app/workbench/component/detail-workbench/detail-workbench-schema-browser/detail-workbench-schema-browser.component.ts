@@ -31,6 +31,7 @@ import { MetadataService } from '../../../../meta-data-management/metadata/servi
 import * as _ from 'lodash';
 import { isUndefined } from 'util';
 import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
+import { StringUtil } from '../../../../common/util/string.util';
 
 @Component({
   selector: 'detail-workbench-schema-browser',
@@ -77,6 +78,9 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   private _getMetaDataReconnectCount: number = 0;
   private _getSingleQueryReconnectCount: number = 0;
   private _getTableDetailDataReconnectCount: number = 0;
+  private _getDatabaseListReconnectCount: number = 0;
+  private _getTableListReconnectCount: number = 0;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -244,17 +248,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     // 로딩 show
     this.loadingShow();
     // 테이블 목록 조회 요청
-    this._getSearchTablesForServer(this.dataConnection.id, this.selectedDatabaseName,  page)
-      .then((result) => {
-        // table이 있는 경우
-        if (result['tables']) {
-          // 스키마 테이블 리스트 저장
-          this.schemaTableList = result['tables'];
-          // 테이블에 연결된 메타데이터 목록 조회
-          this._getTableMetaDataList(result['tables']);
-        }
-      })
-      .catch(error => this.commonExceptionHandler(error));
+    this._getSearchTablesForServer(this.dataConnection.id, this.selectedDatabaseName,  page);
   }
 
   /**
@@ -526,12 +520,16 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @private
    */
   private _getDatabaseList(searchFl: boolean = false): void {
+    // 호출 횟수 증가
+    this._getDatabaseListReconnectCount++;
     // 로딩 show
     this.loadingShow();
     // 데이터베이스 조회
-    this.connectionService.getDatabases(this.dataConnection.id, this.page, this.searchDatabaseText)
+    this.connectionService.getDatabaseListInConnection(this.dataConnection.id, this._getParameterForDatabase(WorkbenchService.websocketId, this.page, this.searchDatabaseText))
       .then((data) => {
         if (data) {
+          // 호출 횟수 초기화
+          this._getDatabaseListReconnectCount = 0;
           // 데이터베이스 리스트
           this.databaseList = this.databaseList.concat(data.databases);
           // 페이지 객체
@@ -542,7 +540,13 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         searchFl ? this.loadingHide() : this.getTableList();
       })
       .catch((error) => {
-        this.commonExceptionHandler(error);
+        if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getDatabaseListReconnectCount <= 5) {
+          this.webSocketCheck(() => {
+            this._getDatabaseList(searchFl);
+          });
+        } else {
+          this.commonExceptionHandler(error);
+        }
       });
   }
 
@@ -552,25 +556,36 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @param {string} databaseName
    * @param {Page} page
    * @param {string} tableName
-   * @returns {Promise<any>}
    * @private
    */
-  private _getSearchTablesForServer(connectionId: string, databaseName: string,  page:Page,  tableName: string = ''): Promise<any> {
-    return new Promise((resolve, reject) => {
-      // 로딩 show
-      this.loadingShow();
-      this.connectionService.getSearchTables(connectionId, databaseName, tableName, page)
-        .then((result) => {
-          // 로딩 hide
-          this.loadingHide();
-          resolve(result);
-        })
-        .catch((error) => {
-          // 로딩 hide
-          this.loadingHide();
-          reject(error);
-        });
-    });
+  private _getSearchTablesForServer(connectionId: string, databaseName: string,  page:Page,  tableName: string = ''): void {
+    // 호출 횟수 증가
+    this._getTableListReconnectCount++;
+    // 로딩 show
+    this.loadingShow();
+    this.connectionService.getTableListInConnection(connectionId, databaseName, this._getParameterForTable(WorkbenchService.websocketId, page, tableName))
+      .then((result) => {
+        // 호출 횟수 초기화
+        this._getTableListReconnectCount = 0;
+        // 로딩 hide
+        this.loadingHide();
+        // table이 있는 경우
+        if (result['tables']) {
+          // 스키마 테이블 리스트 저장
+          this.schemaTableList = result['tables'];
+          // 테이블에 연결된 메타데이터 목록 조회
+          this._getTableMetaDataList(result['tables']);
+        }
+      })
+      .catch((error) => {
+        if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getTableListReconnectCount <= 5) {
+          this.webSocketCheck(() => {
+            this._getSearchTablesForServer(connectionId, databaseName, page, tableName);
+          });
+        } else {
+          this.commonExceptionHandler(error);
+        }
+      });
   }
 
   /**
@@ -1032,4 +1047,51 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   private _searchGridComponent(gridComponent: GridComponent, searchText: string): void {
     gridComponent.search(searchText);
   }
+
+  /**
+   * Get parameters for database list
+   * @param {string} webSocketId
+   * @param {Page} page
+   * @param {string} databaseName
+   * @returns {any}
+   * @private
+   */
+  private _getParameterForDatabase(webSocketId: string, page?: Page, databaseName?: string): any {
+    const params = {
+      webSocketId: webSocketId
+    };
+    if (page) {
+      params['sort'] = page.sort;
+      params['page'] = page.page;
+      params['size'] = page.size;
+    }
+    if (StringUtil.isNotEmpty(databaseName)) {
+      params['databaseName'] = databaseName.trim();
+    }
+    return params;
+  }
+
+  /**
+   * Get parameter for table
+   * @param {string} webSocketId
+   * @param {Page} page
+   * @param {string} tableName
+   * @returns {any}
+   * @private
+   */
+  private _getParameterForTable(webSocketId: string, page?: Page, tableName?: string): any {
+    const params = {
+      webSocketId: webSocketId
+    };
+    if (page) {
+      params['sort'] = page.sort;
+      params['page'] = page.page;
+      params['size'] = page.size;
+    }
+    if (StringUtil.isNotEmpty(tableName)) {
+      params['tableName'] = tableName.trim();
+    }
+    return params;
+  }
+
 }

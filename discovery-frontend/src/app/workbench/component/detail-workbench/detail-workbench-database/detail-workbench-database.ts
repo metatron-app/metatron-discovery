@@ -28,6 +28,7 @@ import { isUndefined } from 'util';
 import { Page } from '../../../../domain/common/page';
 import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
 import { WorkbenchService } from '../../../service/workbench.service';
+import { StringUtil } from '../../../../common/util/string.util';
 
 @Component({
   selector: 'detail-workbench-database',
@@ -73,6 +74,9 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
 
   @Output()
   public schemaBrowserEvent: EventEmitter<string> = new EventEmitter();
+
+  // request reconnect count
+  private _getDatabaseListReconnectCount: number = 0;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -137,15 +141,19 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
       return;
     }
 
+    // 호출 횟수 증가
+    this._getDatabaseListReconnectCount++;
+
     this.loadingShow();
 
     this.searchText = ( this.searchText ) ? this.searchText.trim().toLowerCase() : '';
 
     this.page.page = pageNum;
     (0 === pageNum) && ( this.databases = [] );
-
-    this.dataconnectionService.getDatabases(this.params.dataconnection.id, this.page, this.searchText.toLowerCase())
+    this.dataconnectionService.getDatabaseListInConnection(this.params.dataconnection.id, this._getParameterForDatabase(WorkbenchService.websocketId, this.page, this.searchText))
       .then((data) => {
+        // 호출 횟수 초기화
+        this._getDatabaseListReconnectCount = 0;
         if (data) {
           this.databases = this.databases.concat(data.databases);
           this.pageResult = data.page;
@@ -166,21 +174,42 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
         }
         this.loadingHide();
       })
-      .catch(error => this.commonExceptionHandler(error));
+      .catch((error) => {
+        if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getDatabaseListReconnectCount <= 5) {
+          this.webSocketCheck(() => {
+            this.getDatabase(pageNum, isSearch);
+          });
+        } else {
+          this.commonExceptionHandler(error);
+        }
+      });
   } // function - getDatabase
 
 
-  private _getDatabaseList(connectionId: string, page: Page, searchText: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.dataconnectionService.getDatabases(connectionId, page, searchText.toLowerCase())
-        .then((result) => {
-          resolve(result);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    })
+  private _getDatabaseList(connectionId: string, page: Page, searchText: string): void {
+    // 호출 횟수 증가
+    this._getDatabaseListReconnectCount++;
+    this.dataconnectionService.getDatabaseListInConnection(connectionId, this._getParameterForDatabase(WorkbenchService.websocketId, page, searchText))
+      .then((result) => {
+        // 호출 횟수 초기화
+        this._getDatabaseListReconnectCount = 0;
+        this.databases = result.databases;
+        this.pageResult = result.page;
+        this.loadingHide();
+      })
+      .catch((error) => {
+        if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getDatabaseListReconnectCount <= 5) {
+          this.webSocketCheck(() => {
+            this._getDatabaseList(connectionId, page, searchText);
+          });
+        } else {
+          this.commonExceptionHandler(error);
+        }
+      });
   }
+
+
+
 
   /**
    * 데이터베이스 이름 클릭했을 때
@@ -235,15 +264,7 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
     this.page.page = 0;
     // TODO 데이터베이스 검색
     this.loadingShow();
-    this._getDatabaseList(this.params.dataconnection.id, this.page, this.searchText.toLowerCase())
-      .then((result) => {
-        this.databases = result.databases;
-        this.pageResult = result.page;
-        this.loadingHide();
-      })
-      .catch((error) => {
-        this.commonExceptionHandler(error);
-      });
+    this._getDatabaseList(this.params.dataconnection.id, this.page, this.searchText.toLowerCase());
   }
 
   /**
@@ -328,4 +349,26 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /**
+   * Get parameters for database list
+   * @param {string} webSocketId
+   * @param {Page} page
+   * @param {string} databaseName
+   * @returns {any}
+   * @private
+   */
+  private _getParameterForDatabase(webSocketId: string, page?: Page, databaseName?: string): any {
+    const params = {
+      webSocketId: webSocketId
+    };
+    if (page) {
+      params['sort'] = page.sort;
+      params['page'] = page.page;
+      params['size'] = page.size;
+    }
+    if (StringUtil.isNotEmpty(databaseName)) {
+      params['databaseName'] = databaseName.trim();
+    }
+    return params;
+  }
 }
