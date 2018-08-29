@@ -341,10 +341,8 @@
     </gauge-chart>
 
     <map-chart #chart
-                 *ngIf="chartType === 'mapview' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
+                 *ngIf="chartType === 'map' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
                  (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
-                 (chartSelectInfo)="chartSelectInfo($event)"
-                 (noData)="showNoData()"
                  (drawFinished)="updateComplete()">
     </map-chart>
 

@@ -8018,7 +8018,7 @@ ul.ddp-list-tab-type {display:inline-block;  }
 ul.ddp-list-tab-type li {display:inline-block; position:relative;float:left; }
 ul.ddp-list-tab-type li + li {margin-left:1px;}
 ul.ddp-list-tab-type li a {display:inline-block; width:46px; height:46px;}
-ul.ddp-list-tab-type li a em[class*="ddp-img-map-"] {display:inline-block;  width:46px; height:46px;background:Url(../images/img_maptype.png) no-repeat; }
+ul.ddp-list-tab-type li a em[class*="ddp-img-map-"] {display:inline-block;  width:46px; height:46px;background:Url(/assets/images/img_maptype.png) no-repeat; }
 ul.ddp-list-tab-type li a em.ddp-img-map-sign {}
 ul.ddp-list-tab-type li a em.ddp-img-map-line {background-position:-47px 0;}
 ul.ddp-list-tab-type li a em.ddp-img-map-polygon {background-position:-94px 0;}
@@ -8281,4 +8281,3 @@ table tr td .ddp-status-button .ddp-btn-status-status {width:11px; height:11px; 
 .ddp-ui-popup-contents.ddp-schedule {position:relative;}
 .ddp-ui-popup-contents.ddp-schedule .ddp-txt-info {margin-top:-14px; color:#90969f; font-size:14px; text-align:center;}
 .ddp-ui-popup-contents.ddp-schedule .ddp-box-schedule {position:absolute; top:165px; left:49px; right:49px; bottom:50px; border:1px solid #dcdcdc; border-radius:2px; background-color:#eaeaea; overflow:auto;}
-
