@@ -28,7 +28,7 @@
         </div>
       </div>
       <div class="ddp-ui-progress ddp-play" *ngIf="getSnapshotStatus(snapshot.status)[0] === 'Preparing' && !snapshot.isCancel">
-        <span class="ddp-bar" [ngStyle]="{'width': (snapshot.ruleCntDone / snapshot.ruleCntTotal + 1) + '%'}"></span>
+        <span class="ddp-bar" [ngStyle]="{'width': (snapshot.ruleCntDone * 100 / (snapshot.ruleCntTotal + 1)) + '%'}"></span>
       </div>
       <div class="ddp-txt-cancel" *ngIf="snapshot.isCancel">
         <span class="ddp-txt-det">{{'msg.dp.ui.snapshot.cancel.confirm' | translate }}</span>

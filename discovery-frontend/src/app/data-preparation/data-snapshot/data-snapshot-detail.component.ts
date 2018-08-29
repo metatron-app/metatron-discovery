@@ -316,7 +316,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         if(isUndefined(this.selectedDataSnapshot.ruleCntDone) || isNull(this.selectedDataSnapshot.ruleCntDone)) this.selectedDataSnapshot.ruleCntDone = 0;
         if(isUndefined(this.selectedDataSnapshot.ruleCntTotal) || isNull(this.selectedDataSnapshot.ruleCntTotal)) this.selectedDataSnapshot.ruleCntTotal = 0;
         if (this.selectedDataSnapshot.ruleCntTotal > 0 && this.selectedDataSnapshot.ruleCntDone < this.selectedDataSnapshot.ruleCntTotal){
-          this.progressbarWidth = Math.ceil(this.selectedDataSnapshot.ruleCntDone / this.selectedDataSnapshot.ruleCntTotal * 100) + "%";
+          this.progressbarWidth = Math.ceil(this.selectedDataSnapshot.ruleCntDone * 100  / (this.selectedDataSnapshot.ruleCntTotal + 1)) + "%";
         } else {
           this.progressbarWidth = '100%';
         }

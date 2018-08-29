@@ -114,7 +114,7 @@ export class SnapshotLoadingComponent extends AbstractComponent implements OnIni
           } else if (this.snapshot.status === 'SUCCEEDED') {
             this._setFinishPopup('success');
           } else if (-1 !== progress.indexOf(this.snapshot.status)) {
-            this.progressPercentage = this.snapshot.ruleCntDone / (this.snapshot.ruleCntTotal + 1);
+            this.progressPercentage = this.snapshot.ruleCntDone*100 / (this.snapshot.ruleCntTotal + 1);
             this.inProgress = true;
           }
 

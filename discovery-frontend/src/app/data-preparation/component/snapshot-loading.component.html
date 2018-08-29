@@ -16,7 +16,7 @@
 
   <!-- box -->
   <div class="ddp-box-loading ddp-pop" [ngClass]="{'ddp-disabled':snapshotCancel}" *ngIf="inProgress">
-    <span class="ddp-data-loading">{{'msg.dp.ui.creating.snapshot' | translate }} <strong></strong></span>
+    <span class="ddp-data-loading">{{'msg.dp.ui.creating.snapshot' | translate }} <strong *ngIf="snapshot.ruleCntDone && snapshot.ruleCntTotal">({{snapshot.ruleCntDone}}/{{snapshot.ruleCntTotal}})</strong></span>
     <a href="javascript:" class="ddp-btn-cancel" (click)="openCancelSnapshotPopup()">{{'msg.comm.btn.cancl' | translate }}</a>
     <!-- bar -->
     <div class="ddp-type-progressbar2">
