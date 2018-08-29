@@ -75,6 +75,8 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
   private _widgetHeaderComps: ComponentRef<DashboardWidgetHeaderComponent>[] = [];  // 위젯 헤더 컴포넌트 목록
   private _widgetComps: ComponentRef<DashboardWidgetComponent>[] = [];              // 위젯 컴포넌트 목록
 
+  private _invalidLayoutWidgets:string[] = [];    // 유효하지 않은 Layout 위젯의 레이아웃 아이디 목록
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -112,7 +114,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     // 위젯 실행
     this.subscriptions.push(
       this.broadCaster.on<any>('START_PROCESS').subscribe((data: { widgetId: string }) => {
-        this.dashboard.configuration.widgets.some(item => {
+        DashboardUtil.getLayoutWidgetInfos( this.dashboard ).some(item => {
           if (item.ref === data.widgetId) {
             item.isLoaded = false;
           }
@@ -125,7 +127,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     // 위젯 종료
     this.subscriptions.push(
       this.broadCaster.on<any>('STOP_PROCESS').subscribe((data: { widgetId: string }) => {
-        const layoutWidgets: LayoutWidgetInfo[] = this.dashboard.configuration.widgets;
+        const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos( this.dashboard );
         let cntInLayout: number = 0;
         let cntLoaded: number = 0;
         layoutWidgets.forEach(item => {
@@ -480,7 +482,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           pgeWidget.mode = 'chart';
           if (pgeWidget.configuration && pgeWidget.configuration.dataSource && pgeWidget.configuration.filters) {
             pgeWidget.configuration.filters.forEach(item => {
-              item.dataSource = pgeWidget.configuration.dataSource.id;
+              item.dataSource = pgeWidget.configuration.dataSource.engineName;
             });
           }
         }
@@ -608,13 +610,15 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * @private
    */
   private _bootstrapWidgetComponent(container, componentState) {
-    let $componentContainer = $('<div/>').css({ width: '100%', height: '100%' });
-    container.getElement().prepend($componentContainer);
-    let widgetCompFactory = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetComponent);
-    let widgetComp = this.appRef.bootstrap(widgetCompFactory, $componentContainer.get(0));
     let widgetInfo: Widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
 
     if (widgetInfo) {
+
+      let $componentContainer = $('<div/>').css({ width: '100%', height: '100%' });
+      container.getElement().prepend($componentContainer);
+      let widgetCompFactory = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetComponent);
+      let widgetComp = this.appRef.bootstrap(widgetCompFactory, $componentContainer.get(0));
+
       widgetInfo.dashBoard = this.dashboard;
 
       this.dashboard = DashboardUtil.setUseWidgetInLayout(this.dashboard, widgetInfo.id, true);
@@ -624,6 +628,8 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       );
 
       this._widgetComps.push(widgetComp);
+    } else {
+      this._invalidLayoutWidgets.push( componentState.id );
     }
   } // function - _bootstrapWidgetComponent
 
@@ -635,14 +641,20 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * @private
    */
   private _bootstrapWidgetHeaderComponent(stack, layoutWidgets: LayoutWidgetInfo[], globalOpts: BoardGlobalOptions) {
-    let widgetHeaderCompFactory
-      = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetHeaderComponent);
-    let widgetHeaderComp = this.appRef.bootstrap(widgetHeaderCompFactory, stack.header.tabs[0].element.get(0));
     let componentState: any = stack.config.content[0];
-    widgetHeaderComp.instance.widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
-    widgetHeaderComp.instance.layoutMode = this._layoutMode;
-    widgetHeaderComp.instance.isShowTitle = layoutWidgets.find(item => item.id === componentState.id).title;
-    this._widgetHeaderComps.push(widgetHeaderComp);
+    if( componentState ) {
+      let widgetInfo: Widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
+
+      if( widgetInfo ) {
+        let widgetHeaderCompFactory
+          = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetHeaderComponent);
+        let widgetHeaderComp = this.appRef.bootstrap(widgetHeaderCompFactory, stack.header.tabs[0].element.get(0));
+        widgetHeaderComp.instance.widget = widgetInfo;
+        widgetHeaderComp.instance.layoutMode = this._layoutMode;
+        widgetHeaderComp.instance.isShowTitle = layoutWidgets.find(item => item.id === componentState.id).title;
+        this._widgetHeaderComps.push(widgetHeaderComp);
+      }
+    }
   } // function - _bootstrapWidgetHeaderComponent
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -772,7 +784,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
       const dashboard: Dashboard = this.dashboard;
       const objLayout: DashboardLayout = dashboard.configuration.layout;
-      const layoutWidgets: LayoutWidgetInfo[] = dashboard.configuration.widgets;
+      const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos( dashboard );
       const globalOpts: BoardGlobalOptions = dashboard.configuration.options;
       const globalOptsLayout: BoardLayoutOptions = globalOpts.layout;
       let isInitialisedLayout: boolean = false;
@@ -826,6 +838,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           if (0 === layoutWidgets.length) {
             this._updateLayoutFinished();
           }
+
+          this._invalidLayoutWidgets.forEach( item => {
+            this._layoutObj.root.getItemsById(item)[0].remove();
+          });
         });
 
         // 레이아웃 스택이 생성되었을 때의 이벤트 처리 -> Header 기능 정의
@@ -1191,6 +1207,12 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           filters.forEach((filter: Filter) => {
             const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
             (filterDs) && (filter.dataSource = filterDs.engineName);
+
+            if (isNullOrUndefined(filter.dataSource)) {
+              const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
+              (fieldDs) && (filter.dataSource = fieldDs.engineName);
+            }
+
           });
         }
         const widgets: Widget[] = boardInfo.widgets;
@@ -1200,6 +1222,11 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
               const filter: Filter = (<FilterWidget>widget).configuration.filter;
               const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
               (filterDs) && (filter.dataSource = filterDs.engineName);
+
+              if (isNullOrUndefined(filter.dataSource)) {
+                const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
+                (fieldDs) && (filter.dataSource = fieldDs.engineName);
+              }
             }
           });
         }

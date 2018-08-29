@@ -388,7 +388,11 @@ export class DashboardUtil {
    * @returns {LayoutWidgetInfo[]}
    */
   public static getLayoutWidgetInfos(board: Dashboard): LayoutWidgetInfo[] {
-    return board.configuration.widgets;
+    if( board.configuration.widgets ) {
+      return board.configuration.widgets.filter( item => board.widgets.some( widget => widget.id === item.ref ) );
+    } else {
+      return [];
+    }
   } // function - getLayoutWidgetInfos
 
   /**
