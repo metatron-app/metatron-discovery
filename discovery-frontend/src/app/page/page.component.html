@@ -718,7 +718,7 @@
                       <span class="ddp-txt-name">{{'msg.page.ui.pie' | translate}}</span>
                     </a>
                   </li>
-                  <li *ngIf="isChartTest"  [class.ddp-recommend]="recommendCharts.indexOf('map') > -1" [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'">
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('map') > -1" [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-map"></em>
                       <span class="ddp-txt-name">맵뷰</span>
