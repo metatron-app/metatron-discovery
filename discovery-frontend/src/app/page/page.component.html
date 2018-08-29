@@ -307,7 +307,7 @@
                         <em class="ddp-s-graph-pie"></em>
                       </a>
                     </li>
-                    <li *ngIf="isChartTest" [class.ddp-recommend]="recommendCharts.indexOf('map') > -1" [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'" (mouseenter)="showInfoChart='map'" (mouseleave)="showInfoChart=''">
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('map') > -1" [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'" (mouseenter)="showInfoChart='map'" (mouseleave)="showInfoChart=''">
                       <a href="javascript:">
                         <em class="ddp-s-graph-map"></em>
                       </a>
@@ -718,7 +718,7 @@
                       <span class="ddp-txt-name">{{'msg.page.ui.pie' | translate}}</span>
                     </a>
                   </li>
-                  <li *ngIf="isChartTest"  [class.ddp-recommend]="recommendCharts.indexOf('map') > -1" [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'">
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('map') > -1" [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-map"></em>
                       <span class="ddp-txt-name">맵뷰</span>
@@ -1607,7 +1607,7 @@
                     [fields]="fields"
                     [dataSource]="widget.configuration.dataSource"
                     [customFields]="widget.configuration.customFields"
-                    [customField]="selectedCustomField"                    
+                    [customField]="selectedCustomField"
                     [selectedColumnType]="columnType"
                     (updateColumn)="updateCustomFields($event)"
                     (close)="isShowCustomFiled=false;">
