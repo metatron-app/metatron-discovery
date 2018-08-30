@@ -396,6 +396,7 @@ export class AxisOptionConverter {
 
         let min = null;
         let max = null;
+        let calculateMin = null;
         if( data.categories && data.categories.length > 0 ) {
           _.each(data.categories, (category) => {
             _.each(category.value, (value) => {
@@ -407,15 +408,18 @@ export class AxisOptionConverter {
               }
             });
           });
-          min = min > 0
-            ? Math.ceil(min - ((max - min) * 0.05))
-            : min;
+          calculateMin = Math.ceil(min - ((max - min) * 0.05))
+          // min = min > 0
+          //   ? calculateMin >= 0 ? calculateMin : min
+          //   : min;
           max = max == null ? 0 : max;
         }
         else {
-          min = data.info.minValue > 0
-            ? Math.ceil(data.info.minValue - ((data.info.maxValue - data.info.minValue) * 0.05))
-            : data.info.minValue;
+          calculateMin = Math.ceil(data.info.minValue - ((data.info.maxValue - data.info.minValue) * 0.05))
+          min = data.info.minValue;
+          // min = data.info.minValue > 0
+          //   ? calculateMin >= 0 ? calculateMin : min
+          //   : data.info.minValue;
           max = data.info.maxValue;
         }
 
@@ -425,18 +429,25 @@ export class AxisOptionConverter {
 
         // 기준선 변경시
         let baseline = 0;
-        if( axisOption[index].baseline != 0 ) {
+        if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
           baseline = axisOption[index].baseline
         }
 
         // 축 범위 자동설정이 설정되지 않았고
         // 오토스케일 적용시
         if( baseline == 0 && axisOption[index].grid.autoScaled ) {
-          // 적용
-          option.min = min > 0
-            ? Math.ceil(min - ((max - min) * 0.05))
-            : min;
-          option.max = max;
+          // // 적용
+          // option.min = min > 0
+          //   ? Math.ceil(min - ((max - min) * 0.05))
+          //   : min;
+          // option.max = max;
+
+          delete option.min;
+          delete option.max;
+          option.scale = true;
+        }
+        else {
+          delete option.scale;
         }
       }
     });

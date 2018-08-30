@@ -1,0 +1,4 @@
+exports.vars = [
+  'METATRON_APP_VERSION',
+  'METATRON_DEPLOY_SERVER'
+];

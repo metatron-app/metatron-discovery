@@ -189,7 +189,8 @@ public class PrepTransformService {
 
     switch (ssType) {
       case FILE:
-        // no more extra properties
+        // CSVs are stored on HDFS first.  (FILE dataset != FILE snapshot)
+        map.put(PrepProperties.HADOOP_CONF_DIR, prepProperties.getHadoopConfDir());
         break;
       case HDFS:
         map.put(PrepProperties.HADOOP_CONF_DIR, prepProperties.getHadoopConfDir());
