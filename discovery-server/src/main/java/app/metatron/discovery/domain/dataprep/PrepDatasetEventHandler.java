@@ -14,23 +14,17 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.HandleAfterCreate;
-import org.springframework.data.rest.core.annotation.HandleAfterSave;
-import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
-import org.springframework.data.rest.core.annotation.HandleBeforeSave;
-import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.data.rest.core.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.io.File;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import java.io.File;
 
 @RepositoryEventHandler(PrepDataset.class)
 public class PrepDatasetEventHandler {
@@ -108,21 +102,13 @@ public class PrepDatasetEventHandler {
                     }
                 }
             } else if(importType == PrepDataset.IMPORT_TYPE.HIVE) {
-                String dcId = dataset.getDcId();
-                String tableName = dataset.getTableName();
-                String queryStmt = dataset.getQueryStmt();
-                PrepDataset.RS_TYPE rsType = dataset.getRsTypeEnum();
                 this.datasetSparkHivePreviewService.setoAuthToekn(oAuthToken);
                 DataFrame dataFrame = this.datasetSparkHivePreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, "50");
-                int size = this.previewLineService.putPreviewLines(dataset.getDsId(), dataFrame);
+                this.previewLineService.putPreviewLines(dataset.getDsId(), dataFrame);
             } else if(importType == PrepDataset.IMPORT_TYPE.DB) {
-                String dcId = dataset.getDcId();
-                String tableName = dataset.getTableName();
-                String queryStmt = dataset.getQueryStmt();
-                PrepDataset.RS_TYPE rsType = dataset.getRsTypeEnum();
                 this.datasetJdbcPreviewService.setoAuthToekn(oAuthToken);
                 DataFrame dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, "50");
-                int size = this.previewLineService.putPreviewLines(dataset.getDsId(), dataFrame);
+                this.previewLineService.putPreviewLines(dataset.getDsId(), dataFrame);
             }
         } catch (Exception e) {
             LOGGER.debug(e.getMessage());

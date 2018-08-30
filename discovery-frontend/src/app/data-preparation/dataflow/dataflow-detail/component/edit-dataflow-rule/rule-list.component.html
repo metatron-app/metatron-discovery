@@ -51,7 +51,7 @@
           </div>
           <!-- //tooltip -->
         </div>
-        <div class="ddp-ui-edit-button" *ngIf="ruleList.length === idx+1">
+        <div class="ddp-ui-edit-button" *ngIf="0<ruleList.length">
           <!--addRule-->
           <em class="ddp-icon-edit" (click)="editEvent.emit({rule :rule ,event: $event})" *ngIf="!rule.colored"></em>
           <em class="ddp-icon-del" (click)="deleteEvent.emit({rule :rule ,event: $event})" *ngIf="!rule.colored"></em>

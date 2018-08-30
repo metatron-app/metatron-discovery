@@ -14,13 +14,12 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.transform.PrepTransformRuleStringinfo;
 import org.joda.time.DateTime;
 import org.springframework.data.rest.core.config.Projection;
 
 import java.util.List;
-
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.transform.PrepTransformRuleStringinfo;
 
 public class PrepDatasetProjections {
 

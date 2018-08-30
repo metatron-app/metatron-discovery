@@ -214,5 +214,4 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-
 }
