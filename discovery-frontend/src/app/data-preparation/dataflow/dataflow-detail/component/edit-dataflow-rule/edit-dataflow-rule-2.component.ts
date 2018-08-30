@@ -409,8 +409,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         this._editRuleComp.setValue('colTypes', colDescs);
         break;
       case 'settype':
-        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields, `dsId: ${this.selectedDataSet.dsId}`);
+        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
         this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
+        this._editRuleComp.init(this.selectedDataSet.gridData.fields, selectedFields);
+
         break;
       case 'flatten' :
         let flattenList = this.selectedDataSet.gridData.fields.filter((item) => {
@@ -612,8 +614,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       switch (this.ruleVO.command) {
         case 'settype':
-          this._editRuleComp.init(gridData.fields, [], `${rule.ruleString} dsId: ${this.selectedDataSet.dsId}`);
+          this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
           this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
+          this._editRuleComp.init(gridData.fields, [], `${rule.ruleString}`);
           break;
         case 'setformat' :
           let setformatList = gridData.fields.filter((item) => {
@@ -1463,7 +1466,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           break;
         case 'settype':
           this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ), `type: ${data.more.type} dsId: ${this.selectedDataSet.dsId}`);
+          this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
+          this._editRuleComp.setValue('selectedType', data.more.type);
+          let idx = this.selectedDataSet.gridResponse.colDescs.findIndex((item) => {
+            return item.type === data.more.type.toUpperCase();
+          });
+          this._editRuleComp.setValue('defaultIndex', idx);
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ));
           break;
       }
     } else {
