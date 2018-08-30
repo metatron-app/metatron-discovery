@@ -545,11 +545,8 @@ public class PrepTransformService {
       return teddyImpl.getCurDf(dsId);
     }
 
-    for (int i = 0; i < ruleStrings.size(); i++) {
+    for (int i = 1; i < ruleStrings.size(); i++) {
       String ruleString = ruleStrings.get(i);
-      if(ruleString.startsWith("create")) {
-        continue;
-      }
       gridResponse = teddyImpl.append(dsId, ruleString);
     }
     LOGGER.trace("load_internal(): end (applied rules)");
@@ -1054,7 +1051,6 @@ public class PrepTransformService {
     assert dataset != null : dsId;
 
     int lastIdx = teddyImpl.getCurStageIdx(dsId);
-    PrepTransformResponse response;
 
     // increase ruleNos after the new rule.
     List<PrepTransformRule> rules = getRulesInOrder(dsId);
@@ -1071,10 +1067,8 @@ public class PrepTransformService {
     dataset.setRuleCurIdx(lastIdx + 1);
     datasetRepository.save(dataset);
 
-    response = append_internal(dsId, lastIdx, ruleString);
-
-    teddyImpl.setStageIdx(dsId, lastIdx + 1);
-    return response;
+    DataFrame gridResponse = teddyImpl.append(dsId, ruleString);
+    return new PrepTransformResponse(teddyImpl.getCurStageIdx(dsId), gridResponse);
   }
 
   private PrepTransformResponse preview(PrepDataset dataset, String ruleString) throws Exception {
