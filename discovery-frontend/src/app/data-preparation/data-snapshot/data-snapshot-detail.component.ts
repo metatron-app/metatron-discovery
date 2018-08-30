@@ -18,7 +18,6 @@ import {
 } from '@angular/core';
 import { DataSnapshot, OriginDsInfo } from '../../domain/data-preparation/data-snapshot';
 import { DataSnapshotService } from './service/data-snapshot.service';
-import { AbstractPopupComponent } from '../../common/component/abstract-popup.component';
 import { PopupService } from '../../common/service/popup.service';
 import { GridComponent } from '../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
@@ -190,10 +189,13 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   public getRows() {
     let rows = '0';
-    if(true==Number.isInteger(this.selectedDataSnapshot.totalLines)) {
+    if (Number.isInteger(this.selectedDataSnapshot.totalLines)) {
       rows = new Intl.NumberFormat().format(this.selectedDataSnapshot.totalLines);
       return rows + ' rows';
     } else {
+      if (this.selectedDataSnapshot.status === 'FAILED') {
+        return 0 + ' rows';
+      }
       return '(counting rows)'
     }
 
@@ -240,11 +242,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   private _savePrevRouterUrl(): void {
     this.cookieService.set('SELECTED_DATASET_ID', this.dsId);
     this.cookieService.set('SELECTED_DATASET_TYPE', 'WRANGLED');
-  }
-
-  /** Jump to selected dataset */
-  public navigateDataset(dsId) {
-    this.router.navigate(['/management/datapreparation/dataset',dsId]);
   }
 
   /**
@@ -518,7 +515,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       saveAs(snapshotFile, downloadFileName);
     });
   }
-  private cancelClick(param:boolean){
+  public cancelClick(param:boolean){
     clearInterval(this.interval);
     let elm = $('.ddp-wrap-progress');
     if (param) {
@@ -536,7 +533,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     }
   }
   /** 처리 중 스냅샷 취소*/
-  private cancelSnapshot() {
+  public cancelSnapshot() {
     this.loadingShow();
     this.datasnapshotservice.cancelSnapshot(this.ssId)
       .then((result) => {
