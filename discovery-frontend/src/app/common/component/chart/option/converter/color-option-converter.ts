@@ -365,6 +365,8 @@ export class ColorOptionConverter {
       case ChartType.PIE:
       case ChartType.WORDCLOUD:
         rowsListLength = data.columns[0].value.length;
+        // set 2 decimal (wordcloud doesn't have format)
+        uiOption['valueFormat'] = {decimal: 2};
         break;
       case ChartType.HEATMAP:
         rowsListLength = data.columns.length + data.rows.length;
@@ -374,11 +376,14 @@ export class ColorOptionConverter {
         rowsListLength = (<any>_.max(data.columns)).length;
     }
 
-    // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 data.rows length가 colorList보다 작은경우 범위설정을 5개대신 rows개수로 설정
-    let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length > rowsListLength ? rowsListLength - 1: colorList.length - 1;
+    // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
+    let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
+
+    // less than 0, set minValue
+    const minValue = uiOption.minValue >= 0 ? 0 : _.cloneDeep(uiOption.minValue);
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (uiOption.maxValue - uiOption.minValue) / colorListLength;
+    const addValue = (uiOption.maxValue - minValue) / colorListLength;
 
     let maxValue = _.cloneDeep(uiOption.maxValue);
 

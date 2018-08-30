@@ -286,6 +286,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         this.calculateMinMax(this.uiOption.xAxis.grid, result, false);
       }
     }
+
     ///////////////////////////
     ///////////////////////////
 
@@ -1744,10 +1745,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // 색상지정 기준 필드리스트 설정(measure list)
     this.uiOption = this.setMeasureList();
 
-    // color by measure일때 특정 eventType이 실행되는경우 (min / max가 바뀌는경우) 색상 설정값 초기화
-    if (!_.isEmpty(this.drawByType) && this.uiOption.color && ChartColorType.MEASURE == this.uiOption.color.type &&
-      (EventType.CHANGE_PIVOT == this.drawByType || EventType.GRID_ORIGINAL == this.drawByType || EventType.CUMULATIVE == this.drawByType || EventType.SERIES_VIEW == this.drawByType
-      || EventType.GRANULARITY == this.drawByType || EventType.AGGREGATION == this.drawByType) ) {
+    // color by measure일때 eventType이 있는경우 (min / max가 바뀌는경우) 색상 설정값 초기화
+    if (!_.isEmpty(this.drawByType) && this.uiOption.color && ChartColorType.MEASURE == this.uiOption.color.type) {
       delete (<UIChartColorByValue>this.uiOption.color).ranges;
       delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
       delete (<UIChartColorByValue>this.uiOption.color).customMode;
