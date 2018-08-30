@@ -124,6 +124,7 @@ public class TeddyImpl {
     for (int i = lastIdx + 1; i < rev.size(); i++) {
       newRev.add(apply(newRev.get(i), rev.get(i).ruleString));    // apply trailing rules of the original revision into the new revision.
     }
+    newRev.setCurStageIdx(rev.getCurStageIdx() + 1);
     addRev(dsId, newRev);
     return newDf;
   }
