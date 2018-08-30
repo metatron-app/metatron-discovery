@@ -14,18 +14,15 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import java.io.Serializable;
-
 import app.metatron.discovery.domain.dataprep.PrepDataset;
+
+import java.io.Serializable;
 
 public class PrepTransformRequest implements Serializable {
   private String dfId;
   private PrepDataset.OP_TYPE op;
-  private int ruleIdx;
+  private Integer ruleIdx;
   private String ruleString;
-  /* targetLines 제거 : 테스트 후 주석도 제거
-  private Integer targetLines;  // 관련 UI 코드와 함께 제거할 예정 - 201800322jhkim
-  */
 
   public String getDfId() {
     return dfId;
@@ -35,17 +32,11 @@ public class PrepTransformRequest implements Serializable {
     return op;
   }
 
-  public int getRuleIdx() {
+  public Integer getRuleIdx() {
     return ruleIdx;
   }
 
   public String getRuleString() {
     return ruleString;
   }
-
-  /* targetLines 제거
-  public Integer getTargetLines() {
-    return targetLines;
-  }
-  */
 }

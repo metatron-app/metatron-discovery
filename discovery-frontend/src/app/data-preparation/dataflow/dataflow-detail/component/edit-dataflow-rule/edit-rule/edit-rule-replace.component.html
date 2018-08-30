@@ -1,0 +1,107 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div *ngIf="isShow" class="ddp-box-part" >
+  <div class="ddp-box-title">
+    {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
+  </div>
+  <!-- Select box -->
+  <edit-rule-field-combo [isMulti]="true" [fields]="fields" [selected]="selectedFields" [tabIndex]="2"
+                         (onChange)="changeFields($event)" ></edit-rule-field-combo>
+  <!-- // Select box -->
+</div>
+<!-- //part -->
+
+<!-- part -->
+<div *ngIf="isShow" class="ddp-box-part" >
+  <div class="ddp-box-title">
+    {{'msg.dp.th.pattern' | translate}}<em class="ddp-icon-essential"></em>
+  </div>
+  <div class="ddp-type-multy2 ddp-clear">
+    <!-- box scroll -->
+    <div class="ddp-wrap-box-info" [ngClass]="{'ddp-selected':isFocus}" >
+      <div class="ddp-box-info">
+        <div class="ddp-box-info-in">
+          <span class="ddp-input-title">{{'Patterns' | translate}}</span>
+          {{'msg.dp.ui.pattern.description' | translate}}<br>
+
+          <strong class="ddp-ex">{{'msg.dp.ui.examples' | translate}}</strong>
+          {{'msg.dp.ui.string' | translate}}<br>
+          <i style="color:darkgrey">'Seoul'</i><br><br>
+
+          {{'msg.dp.ui.reg.ex' | translate}}<br>
+          <i style="color:darkgrey">/(\d)+/</i><br><br>
+        </div>
+      </div>
+      <div class="ddp-wrap-boxwrap">
+        <input [(ngModel)]="pattern" (focus)="showHidePatternLayer(true)" (blur)="showHidePatternLayer(false)"
+               type="text" tabindex="3" class="ddp-input-typebasic" placeholder="{{ 'msg.dp.th.pattern.ph' | translate }}" >
+      </div>
+    </div>
+  </div>
+</div>
+<!--//part-->
+
+<!-- part -->
+<div *ngIf="isShow" class="ddp-box-part" >
+  <div class="ddp-box-title"> {{'msg.dp.th.new.value' | translate}} </div>
+  <div class="ddp-wrap-datainput">
+    <input [(ngModel)]="newValue" tabindex="4" placeholder="{{'msg.dp.th.new.value.ph' | translate}}"
+           type="text" class="ddp-input-typebasic" >
+  </div>
+</div>
+<!--//part-->
+
+<!-- part -->
+<div *ngIf="isShow" class="ddp-box-part ddp-box-s" >
+  <div class="ddp-box-title"> {{'msg.dp.th.quote' | translate}} </div>
+  <div class="ddp-wrap-datainput">
+    <input [(ngModel)]="ignore" tabindex="5" placeholder="{{'msg.dp.ui.enter.value' | translate}}"
+           type="text" class="ddp-input-typebasic" >
+  </div>
+</div>
+<!--//part-->
+
+<!-- part -->
+<div *ngIf="isShow" class="ddp-box-part ddp-box-s" >
+  <div class="ddp-box-title"> {{'msg.dp.th.match.occur' | translate}} </div>
+
+  <ul class="ddp-list-buttons">
+    <li [ngClass]="{'ddp-selected':isGlobal}" (click)="isGlobal = true;"> {{'msg.dp.ui.yes' | translate}} </li>
+    <li [ngClass]="{'ddp-selected':!isGlobal}" (click)="isGlobal = false;"> {{'msg.dp.ui.no' | translate}} </li>
+  </ul>
+</div>
+<!-- //part -->
+
+<!-- part -->
+<div *ngIf="isShow" class="ddp-box-part ddp-box-s" >
+  <div class="ddp-box-title"> {{'msg.dp.th.ignore.case' | translate}} </div>
+
+  <ul class="ddp-list-buttons">
+    <li [ngClass]="{'ddp-selected':isIgnoreCase}" (click)="isIgnoreCase = true;"> {{'msg.dp.ui.yes' | translate}} </li>
+    <li [ngClass]="{'ddp-selected':!isIgnoreCase}" (click)="isIgnoreCase = false;"> {{'msg.dp.ui.no' | translate}} </li>
+  </ul>
+</div>
+<!-- //part -->
+
+<!-- part -->
+<div *ngIf="isShow" class="ddp-box-part" >
+  <div class="ddp-box-title"> {{'msg.dp.ui.cond' | translate}} </div>
+  <div class="ddp-wrap-datainput">
+    <input [(ngModel)]="condition" tabindex="6" placeholder="{{'msg.dp.ui.cond.ph' | translate}}"
+           type="text" class="ddp-input-typebasic" >
+    <!-- ddp-selected 추가시 display:block; -->
+  </div>
+</div>
+<!--// part-->

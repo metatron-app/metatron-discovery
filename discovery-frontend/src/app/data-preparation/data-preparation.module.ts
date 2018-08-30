@@ -48,7 +48,6 @@ import { DatasetDetailComponent } from './dataset/detail-dataset/dataset-detail.
 import { DatasetInfoPopupComponent } from './dataflow/dataflow-detail/component/dataset-info-popup/dataset-info-popup.component';
 import { CreateDatasetNameComponent } from './dataset/create-dataset/create-dataset-name.component';
 import { RuleListComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-list.component';
-import { RuleEditComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-edit.component';
 import { MulticolumnRenameComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/multicolumn-rename.component';
 import { RuleContextMenuComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-context-menu.component';
 import { ExtendInputFormulaComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/extend-input-formula.component';
@@ -65,10 +64,27 @@ import { EditRuleDeleteComponent } from './dataflow/dataflow-detail/component/ed
 import { EditRuleDropComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-drop.component';
 import { CreateSnapshotPopup } from './component/create-snapshot-popup.component';
 import { SnapshotLoadingComponent } from './component/snapshot-loading.component';
-import {RuleConditionInputComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/rule-condition-input.component";
+import { RuleConditionInputComponent } from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/rule-condition-input.component";
 import { EditRuleFieldComboComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-field-combo.component';
 import { EditRuleDeriveComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-derive.component';
 import { EditRuleSetComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-set.component';
+import { EditRuleRenameComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-rename.component';
+import { EditRuleReplaceComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-replace.component';
+import { EditRuleMergeComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-merge.component';
+import { EditRuleSortComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-sort.component';
+import { EditRuleMoveComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-move.component';
+import { EditRuleNestComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-nest.component';
+import { EditRuleUnpivotComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-unpivot.component';
+import { EditRuleCountpatternComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-countpattern.component';
+import { EditRuleExtractComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-extract.component';
+import { EditRuleSplitComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-split.component';
+import { EditRuleFlattenComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-flatten.component';
+import { EditRuleSetformatComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-setformat.component';
+import { EditRuleUnnestComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-unnest.component';
+import { EditRuleAggregateComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-aggregate.component';
+import { EditRulePivotComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-pivot.component';
+import { EditRuleSettypeComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-settype.component';
+import { PrepSelectBoxComponent } from './util/prep-select-box.component';
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -114,7 +130,6 @@ const dataPreparationRoutes: Routes = [
     DatasetInfoPopupComponent,
     CreateDatasetNameComponent,
     RuleListComponent,
-    RuleEditComponent,
     MulticolumnRenameComponent,
     RuleContextMenuComponent,
     ExtendInputFormulaComponent,
@@ -128,13 +143,30 @@ const dataPreparationRoutes: Routes = [
     EditRuleDropComponent,
     EditRuleDeriveComponent,
     EditRuleSetComponent,
+    EditRuleRenameComponent,
+    EditRuleReplaceComponent,
+    EditRuleMergeComponent,
+    EditRuleSortComponent,
+    EditRuleMoveComponent,
+    EditRuleNestComponent,
+    EditRuleUnpivotComponent,
+    EditRuleSplitComponent,
+    EditRuleExtractComponent,
+    EditRuleCountpatternComponent,
+    EditRuleAggregateComponent,
+    EditRuleFlattenComponent,
+    EditRuleSetformatComponent,
+    EditRuleUnnestComponent,
+    EditRulePivotComponent,
+    EditRuleSettypeComponent,
     RuleSnapshotListComponent,
     AddDatasetComponent,
     CreateDataflowNameDescComponent,
     DatasetSummaryComponent,
     CreateSnapshotPopup,
     SnapshotLoadingComponent,
-    RuleConditionInputComponent
+    RuleConditionInputComponent,
+    PrepSelectBoxComponent
   ],
   providers: [
     DataPreparationService,

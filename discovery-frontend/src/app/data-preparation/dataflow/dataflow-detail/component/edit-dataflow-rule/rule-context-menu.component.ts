@@ -16,6 +16,7 @@ import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Outpu
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
 import { Alert } from '../../../../../common/util/alert.util';
 import { isNullOrUndefined } from 'util';
+import { EventBroadcaster } from '../../../../../common/event/event.broadcaster';
 
 @Component({
   selector: 'app-rule-context-menu',
@@ -57,7 +58,8 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
 
   // 생성자
   constructor(protected elementRef: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              private broadCaster: EventBroadcaster) {
     super(elementRef, injector);
   }
 
@@ -70,6 +72,10 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
 
     // Init
     super.ngOnInit();
+
+    this.subscriptions.push(this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe(() => {
+      this.isShow = false;
+    }));
   }
 
   // Destory
@@ -83,6 +89,9 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public openContextMenu(data, selectedColumns?, params?) {
+
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : false } );
+
     this.labelsForNumbers = params.labels;
     this.histogramData = params.values;
     this.originalSelectedCols = selectedColumns;

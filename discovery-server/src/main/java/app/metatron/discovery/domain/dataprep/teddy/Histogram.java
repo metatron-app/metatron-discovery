@@ -21,20 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static app.metatron.discovery.domain.dataprep.teddy.Histogram.Granule.DAY;
-import static app.metatron.discovery.domain.dataprep.teddy.Histogram.Granule.HOUR;
-import static app.metatron.discovery.domain.dataprep.teddy.Histogram.Granule.MILLIS;
-import static app.metatron.discovery.domain.dataprep.teddy.Histogram.Granule.MINUTE;
-import static app.metatron.discovery.domain.dataprep.teddy.Histogram.Granule.MONTH;
-import static app.metatron.discovery.domain.dataprep.teddy.Histogram.Granule.NOT_USED;
-import static app.metatron.discovery.domain.dataprep.teddy.Histogram.Granule.SECOND;
-import static app.metatron.discovery.domain.dataprep.teddy.Histogram.Granule.YEAR;
+import static app.metatron.discovery.domain.dataprep.teddy.Histogram.Granule.*;
 
 // 각 column마다 1개씩
 public class Histogram implements Serializable {

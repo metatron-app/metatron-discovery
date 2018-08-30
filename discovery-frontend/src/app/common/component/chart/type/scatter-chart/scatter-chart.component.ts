@@ -46,6 +46,7 @@ import { UIChartFormat } from '../../option/ui-option/ui-format';
 import {UIChartAxisGrid} from "../../option/ui-option/ui-axis";
 import {AxisOptionConverter} from "../../option/converter/axis-option-converter";
 import {Axis} from "../../option/define/axis";
+import {DataZoomType} from '../../option/define/datazoom';
 
 @Component({
   selector: 'scatter-chart',
@@ -531,6 +532,27 @@ export class ScatterChartComponent extends BaseChart implements OnInit, AfterVie
         });
       });
     }
+  }
+
+  /**
+   * Chart Datazoom Event Listener
+   */
+  public addChartDatazoomEventListener(): void {
+
+    this.chart.off('datazoom');
+    this.chart.on('datazoom', (param) => {
+
+      this.chartOption.dataZoom.map((zoom, index) => {
+
+        if( _.eq(zoom.type, DataZoomType.SLIDER)
+            && !_.isUndefined(param)
+            && !_.isUndefined(param.dataZoomId)
+            && param.dataZoomId.indexOf(index) != -1 ) {
+          this.uiOption.chartZooms[index].start = param.start;
+          this.uiOption.chartZooms[index].end = param.end;
+        }
+      });
+    });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
