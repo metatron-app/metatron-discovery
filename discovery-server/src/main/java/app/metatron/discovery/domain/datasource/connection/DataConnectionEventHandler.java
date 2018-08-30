@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
+import app.metatron.discovery.domain.workspace.Workspace;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
@@ -23,8 +24,6 @@ import org.springframework.data.rest.core.annotation.HandleBeforeLinkDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeLinkSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
-
-import app.metatron.discovery.domain.workspace.Workspace;
 
 @RepositoryEventHandler(DataConnection.class)
 public class DataConnectionEventHandler {
@@ -51,7 +50,7 @@ public class DataConnectionEventHandler {
   }
 
   @HandleBeforeLinkDelete
-  @PreAuthorize("hasAuthority('PERM_SYSTEM_WRITE_DATASOURCE')")
+  @PreAuthorize("hasAuthority('PERM_SYSTEM_MANAGE_DATASOURCE')")
   public void handleBeforeLinkDelete(DataConnection dataConnection, Object linked) {
 
     // 연결된 워크스페이스 개수 처리,
