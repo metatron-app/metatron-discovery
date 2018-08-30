@@ -79,6 +79,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   private barOption: any;
   private scatterOption: any;
 
+  private _zIndex:string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -176,6 +178,10 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   public ngOnInit() {
     super.ngOnInit();
 
+    // z-index 강제 설정
+    this._zIndex = $('.ddp-wrap-tab-popup').css( 'z-index' );
+    $('.ddp-wrap-tab-popup').css( 'z-index', '127' );
+
     // ui init
     this.initView();
 
@@ -204,6 +210,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
+    // z-index 설정 해제
+    $('.ddp-wrap-tab-popup').css( 'z-index', this._zIndex );
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -986,7 +994,6 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
     // 마스터 소스 타입
     this.connType = this.mainDatasource.hasOwnProperty('connType') ? this.mainDatasource.connType.toString() : 'ENGINE';
-    console.info(this.source);
 
     // singleTab
     const field = this.singleTab ? this.field : this.columns[0];
