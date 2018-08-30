@@ -564,6 +564,7 @@ ul.ddp-list-order li .ddp-data-name .ddp-chart-img {display:inline-block; float:
 ************************************************************************************************************/
 .ddp-ui-dash-contents {position:absolute; top:48px; left:289px; right:0; bottom:0; overflow-x:hidden;}
 .ddp-ui-dash-contents .ddp-loading-part {position:fixed; left:289px; top:102px; right:0; bottom:0; z-index:126;}
+
 .ddp-ui-dash-contents.ddp-close {left:26px;}
 .ddp-ui-dash-contents.ddp-close .ddp-wrap-naviarea {}
 .ddp-ui-dash-contents .ddp-wrap-naviarea {z-index:126;}
@@ -1334,7 +1335,6 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-pop-filter .ddp-top-filter .ddp-title .ddp-ui-tags {float:right; margin-top:14px; right:24px;}
 
 .ddp-pop-filter .ddp-top-filter .ddp-ui-label {overflow:hidden;}
-
 .ddp-add-filter {position:absolute; top:0; left:0; right:0; bottom:0; overflow:auto; }
 .ddp-add-filter .ddp-data-filter {position:relative; padding:7px 50px 7px 25px; cursor:pointer; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
 .ddp-add-filter .ddp-data-filter:hover,
@@ -2447,6 +2447,7 @@ ul.ddp-list-workspace li a .ddp-ui-data-list .ddp-data-info .ddp-data-name {marg
 ul.ddp-list-workspace li a .ddp-ui-data-list .ddp-data-info em[class*="ddp-icon"] {margin-right:5px;}
 ul.ddp-list-workspace.ddp-select li a {padding-left:89px;}
 .ddp-select-catalog ul.ddp-list-workspace.ddp-select li.ddp-sub a:hover {padding-right:60px;}
+
 
 /**********************************************************************************
 	PAGE : 워크스페이스 데이터소스
@@ -6951,12 +6952,12 @@ table.ddp-wrap-boxdata tr td ul.ddp-list-sub li .ddp-sub {padding-left:15px;colo
 .ddp-wrap-edit3 .ddp-box-sub .ddp-option-in .ddp-size-s,
 .ddp-wrap-edit2 .ddp-box-sub .ddp-option-in .ddp-size-s{width:80px; box-sizing:border-box;}
 .ddp-wrap-edit3 .ddp-box-sub .ddp-option-in input.ddp-input-typebasic {display:inline-block;}
-
 .ddp-wrap-edit3.ddp-type .ddp-ui-cycle .ddp-wrap-hover-info:hover .ddp-box-layout4 {right:-20px; top:100%; margin-top:5px;}
 .ddp-ui-cycle .ddp-type-cycle {float:left; width:200px !important; margin-right:4px;}
 .ddp-ui-cycle .ddp-list-buttons {float:left; margin-right:5px;}
 .ddp-ui-cycle .ddp-list-buttons li {width:58px;}
 .ddp-ui-cycle .ddp-input-typebasic.ddp-crontab {width:490px; margin-right:5px;}
+
 .ddp-form-time {position:relative; display:inline-block; border-radius:3px; border:1px solid #d2d2d6; background-color:#fff;}
 .ddp-ui-cycle .ddp-txt-error {display:block; margin-top:5px;}
 .ddp-form-time input.ddp-input-time {display:inline-block; padding:7px 13px 6px 33px; width:100px; border:none; box-sizing:border-box;}
@@ -7941,9 +7942,12 @@ ul.ddp-list-essential li .ddp-data-det .ddp-txt-label {color:#b7b9c2;}
 
 .ddp-guide-motion .ddp-line-bar {display:inline-block;  position:absolute; top:25px; left:180px; width:45px; height:61px;  }
 .ddp-guide-motion .ddp-line-bar em.ddp-icon-handler {display:inline-block; position:absolute; top:0; right:0; width:45px; height:61px; background:url(../images/icon_handle.png) no-repeat; z-index:20;}
+.ddp-guide-link {padding:35px 0 0 0; }
+.ddp-guide-link .ddp-link-txt {padding:8px 20px 9px 20px; border:1px solid #d0d1d8; border-radius:2px; color:#fff; font-size:16px;}
+.ddp-guide-link .ddp-link-txt:hover {background-color:rgba(255,255,255,0.3);}
 
 /*.ddp-guide-motion.ddp-move .ddp-line-bar {left:180px; padding-left:178px; -webkit-transition: all 1.5s; !* Safari *!*/
-	/*transition: all 1.5s;}*/
+/*transition: all 1.5s;}*/
 .ddp-guide-motion .ddp-line-bar:before {display:inline-block; position:absolute; top:-10px; left:0; right:27px; height:40px; background-color:#d0d1d8; content:''; z-index:5}
 
 /**************************************************************
@@ -8048,6 +8052,7 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .ddp-wrap-create2 .ddp-wrap-edit3.ddp-part {padding-top:18px;}
 .ddp-wrap-create2 .ddp-wrap-edit3.ddp-type.ddp-part {padding-top:20px;}
 .ddp-integrator .ddp-wrap-edit3 .ddp-label-type {width:114px; font-weight:bold;}
+
 .ddp-integrator .ddp-wrap-edit3 .ddp-label-type .ddp-wrap-info {display:inline-block; position:relative; }
 .ddp-integrator .ddp-wrap-edit3 .ddp-label-type .ddp-wrap-info .ddp-icon-info  {display:inline-block; position:relative; top:-1px; width:13px; height:13px; background:url(../images/icon_info.png) no-repeat; background-position:-14px -30px; cursor:pointer;}
 .ddp-integrator .ddp-wrap-edit3 .ddp-label-type .ddp-wrap-info .ddp-icon-info:hover {background-position:-28px -30px;}
@@ -8065,6 +8070,7 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 
 .ddp-wrap-edit3 .ddp-box-sub2 {padding:20px 19px; margin-bottom:25px; background-color:#f6f6f7;}
 .ddp-wrap-edit3 .ddp-box-sub2.ddp-type-radio {padding-left:37px;}
+
 .ddp-wrap-edit3 .ddp-sub-edit-option {clear:both;}
 .ddp-wrap-edit3.ddp-type .ddp-txt {padding:0 10px;}
 .ddp-wrap-edit3 .ddp-btn-add,
