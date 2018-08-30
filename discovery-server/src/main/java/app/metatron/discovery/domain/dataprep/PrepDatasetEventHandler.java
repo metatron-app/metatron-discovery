@@ -70,9 +70,6 @@ public class PrepDatasetEventHandler {
                     oAuthToken = oAuthToken + cookies[i].getValue();
             }
 
-            // 클라이언트로 기능 옮기는게 좋은듯
-            //dataset.setDsName(this.datasetService.extendDsName(dataset));
-
             PrepDataset.IMPORT_TYPE importType = dataset.getImportTypeEnum();
             if(importType == PrepDataset.IMPORT_TYPE.FILE) {
                 String filekey = dataset.getFilekey();

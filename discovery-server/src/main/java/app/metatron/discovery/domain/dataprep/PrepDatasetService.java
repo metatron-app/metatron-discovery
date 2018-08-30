@@ -14,10 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
-import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,12 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class PrepDatasetService {
+
+    // not using
+    /*
     @Autowired
     PrepDatasetRepository datasetRepository;
 
     @Autowired
     DataConnectionRepository dataConnectionRepository;
-
 
     public void setTotalLines(String dsId, Integer totalLines) {
         PrepDataset dataset = this.datasetRepository.findOne(dsId);
@@ -60,4 +58,5 @@ public class PrepDatasetService {
         }
         return dsName;
     }
+    */
 }
