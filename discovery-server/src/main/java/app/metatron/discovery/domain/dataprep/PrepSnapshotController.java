@@ -197,10 +197,12 @@ public class PrepSnapshotController {
 
     @RequestMapping(value="/{dsId}/work_list",method = RequestMethod.GET)
     public @ResponseBody
-    ResponseEntity<?> workList( @PathVariable("dsId") String dsId ) {
+    ResponseEntity<?> workList(
+            @PathVariable("dsId") String dsId,
+            @RequestParam(value = "option", required = false, defaultValue = "0") String option) {
         Map<String, Object> response = Maps.newHashMap();
         try {
-            List<PrepSnapshot> snapshots = this.snapshotService.getWorkList(dsId);
+            List<PrepSnapshot> snapshots = this.snapshotService.getWorkList(dsId, option);
             response.put("snapshots",snapshots);
         } catch (Exception e) {
             LOGGER.error("workList(): caught an exception: ", e);

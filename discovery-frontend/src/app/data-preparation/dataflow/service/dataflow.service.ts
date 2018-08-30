@@ -402,8 +402,8 @@ export class DataflowService extends AbstractService {
    * @param {string} datasetId
    * @return {Promise<any>}
    */
-  public getWorkList(dsId: string): Promise<any> {
-    let url = this.API_URL + 'preparationsnapshots/' + dsId + '/work_list';
+  public getWorkList(params): Promise<any> {
+    let url = this.API_URL + 'preparationsnapshots/' + params.dsId + '/work_list';
     return this.get(url);
   }
 }

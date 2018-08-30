@@ -137,7 +137,7 @@ public class PrepSnapshotService {
         }
     }
 
-    public List<PrepSnapshot> getWorkList(String dsId) {
+    public List<PrepSnapshot> getWorkList(String dsId, String option) {
         List<PrepSnapshot> snapshots = Lists.newArrayList();
 
         try {
@@ -145,7 +145,11 @@ public class PrepSnapshotService {
             List<PrepSnapshot> listAll = this.snapshotRepository.findAll(sort);
             for(PrepSnapshot ss : listAll) {
                 if(true==dsId.equals(ss.getLineageInfoValue("dsId"))) {
-                    snapshots.add(ss);
+                    if(option.toUpperCase().equals("ALL")){
+                        snapshots.add(ss);
+                    } else if(ss.getStatusEnum() != PrepSnapshot.STATUS.CANCELING && ss.getStatusEnum() != PrepSnapshot.STATUS.CANCELED){
+                        snapshots.add(ss);
+                    }
                 }
             }
         } catch (Exception e) {

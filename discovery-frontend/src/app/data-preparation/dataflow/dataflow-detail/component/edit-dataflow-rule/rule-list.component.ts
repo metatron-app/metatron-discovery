@@ -20,7 +20,7 @@ import { AbstractComponent } from '../../../../../common/component/abstract.comp
 import { DataflowService } from '../../../service/dataflow.service';
 import { RuleSnapshotListComponent } from './rule-snapshot-list.component';
 import { DataSnapshot } from '../../../../../domain/data-preparation/data-snapshot';
-import { isUndefined } from 'util';
+import { isNullOrUndefined, isUndefined } from 'util';
 
 @Component({
   selector: 'app-rule-list',
@@ -122,6 +122,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    * @param dsId
    */
   public getSnapshotWithInterval(dsId) {
+    clearInterval(this.interval);
     this.interval = setInterval(() => {
       this.getSnapshotList(dsId);
     },1000)
@@ -133,17 +134,20 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    * @return {number} interval을 stop 하려면 -1을 리턴한다.
    */
   public pollingContinue(list) : number {
+    let statusList = ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','NOT_AVAILABLE'];
     return list.findIndex((item) => {
-      return !item.elapsedTime
+      return -1 !== statusList.indexOf(item.status)
     });
   } // function - pollingContinue
 
   /**
    * 스냅샷 리스트 호출
    * @param {string} dsId
+   * @param {boolean} withAll
    */
   public getSnapshotList(dsId : string) {
-    this.dataflowService.getWorkList(dsId).then((result) => {
+    let params = {dsId : dsId};
+    this.dataflowService.getWorkList(params).then((result) => {
       if(result['snapshots'] && 0 < result['snapshots'].length ) {
         this.snapshotList = result['snapshots'];
         if (!isUndefined(this.ruleSnapshotListComponent)) { // 현재 탭이 snapshot list 아닐 때 을 하면 에러..
@@ -153,6 +157,10 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
           this.ruleSnapshotListComponent.init(this.snapshotList);
         }
       } else {
+        this.snapshotList = result['snapshots'];
+        if (!isNullOrUndefined(this.ruleSnapshotListComponent)) {
+          this.ruleSnapshotListComponent.init(this.snapshotList);
+        }
         clearInterval(this.interval);
       }
     }).catch((error) => {
@@ -191,6 +199,13 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
     this.snapshotDetailEvent.emit(data);
   } // function - snapshotDetail
 
+  public setCanceledStatus(ssId) {
+    this.snapshotList.forEach((item) => {
+      if (item.ssId === ssId) {
+          item.status = 'Canceled';
+      }
+    })
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

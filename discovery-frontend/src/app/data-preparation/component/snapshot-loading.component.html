@@ -16,8 +16,8 @@
 
   <!-- box -->
   <div class="ddp-box-loading ddp-pop" [ngClass]="{'ddp-disabled':snapshotCancel}" *ngIf="inProgress">
-    <span class="ddp-data-loading">스냅샷을 생성하고있습니다 <strong></strong></span>
-    <a href="javascript:" class="ddp-btn-cancel" (click)="openCancelSnapshotPopup()">Cancel</a>
+    <span class="ddp-data-loading">{{'msg.dp.ui.creating.snapshot' | translate }} <strong *ngIf="snapshot.ruleCntDone && snapshot.ruleCntTotal">({{snapshot.ruleCntDone}}/{{snapshot.ruleCntTotal}})</strong></span>
+    <a href="javascript:" class="ddp-btn-cancel" (click)="openCancelSnapshotPopup()">{{'msg.comm.btn.cancl' | translate }}</a>
     <!-- bar -->
     <div class="ddp-type-progressbar2">
       <em class="ddp-data-progressbar" [ngStyle]="{'width': progressPercentage + '%'}"></em>
@@ -26,74 +26,39 @@
     <span class="ddp-data-date">{{snapshot.ssName}}</span>
     <!-- button -->
     <div class="ddp-pop-buttons" *ngIf="!snapshotCancel">
-      <a href="javascript:" class="ddp-btn-line" (click)="close()">Close</a>
+      <a href="javascript:" class="ddp-btn-line" (click)="close()">{{'msg.comm.btn.close' | translate }}</a>
 
-      <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="goToSnapshotList()">Go to snapshot list</a>
+      <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="goToSnapshotList()">{{'msg.dp.btn.snapshot-list' | translate}}</a>
     </div>
 
     <div class="ddp-pop-buttons" *ngIf="snapshotCancel">
-      <div class="ddp-txt-info">Sure to cancel snapshot creation?</div>
-      <a href="javascript:" class="ddp-btn-line" (click)="snapshotCancel = false">No</a>
+      <div class="ddp-txt-info">{{'msg.dp.ui.snapshot.cancel.confirm' | translate}}</div>
+      <a href="javascript:" class="ddp-btn-line" (click)="snapshotCancel = false; getSnapshotDetailWithInterval()">{{'msg.dp.ui.no' | translate }}</a>
 
-      <a href="javascript:" class="ddp-btn-solid ddp-bg-black " (click)="cancelSnapshot()">Yes</a>
-    </div>
-    <!-- //button -->
-
-  </div>
-  <!-- //box -->
-
-  <div class="ddp-box-loading ddp-pop"  *ngIf="isCanceled">
-    <span class="ddp-data-loading">Canceled <strong></strong></span>
-    <span class="ddp-data-date">{{snapshot.ssName}}</span>
-    <!-- button -->
-    <div class="ddp-pop-buttons">
-      <a href="javascript:" class="ddp-btn-line" (click)="close()">Close</a>
+      <a href="javascript:" class="ddp-btn-solid ddp-bg-black " (click)="cancelSnapshot()">{{'msg.dp.ui.yes' | translate }}</a>
     </div>
     <!-- //button -->
   </div>
-
-
-
-  <!-- box -->
-  <div class="ddp-box-loading ddp-box-s ddp-pop" *ngIf="snapshotSuccess">
-    <div class="ddp-box-in">
-      <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-      <em class="ddp-icon-success"></em>
-      <div class="ddp-txt-info">
-        <span class="ddp-txt-success">Success!</span>
-        <span class="ddp-data-date">{{snapshot.ssName}}</span>
-      </div>
-
-      <!-- button -->
-      <div class="ddp-pop-buttons">
-        <a href="javascript:" class="ddp-btn-line" (click)="close()">Close</a>
-        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="goToSnapshotList()">Go to snapshot list</a>
-      </div>
-      <!-- //button -->
-    </div>
-
-
-  </div>
   <!-- //box -->
 
-  <!-- box -->
-  <div class="ddp-box-loading ddp-box-s ddp-pop" *ngIf="snapshotFailed">
+  <!-- Canceled, Created, Failed -->
+  <div class="ddp-box-loading ddp-box-s ddp-pop" *ngIf="isFinishPopupOpen">
     <div class="ddp-box-in">
       <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-      <em class="ddp-icon-fail"></em>
+      <em class="ddp-icon-{{statusClass}}"></em>
       <div class="ddp-txt-info">
-        <span class="ddp-txt-fail">Failed</span>
+        <span class="ddp-txt-{{statusClass}}">{{snapshot.displayStatus}}</span>
         <span class="ddp-data-date">{{snapshot.ssName}}</span>
       </div>
       <!-- button -->
       <div class="ddp-pop-buttons">
-        <a href="javascript:" class="ddp-btn-line" (click)="close()">Close</a>
-
-        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="goToSnapshotList()">Go to snapshot list</a>
+        <a href="javascript:" class="ddp-btn-line" (click)="close()">{{'msg.comm.btn.close' | translate }}</a>
+        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="goToSnapshotList()">{{'msg.dp.btn.snapshot-list' | translate}}</a>
       </div>
       <!-- //button -->
     </div>
   </div>
-  <!-- //box -->
+  <!-- // Canceled, Created, Failed -->
+
 </div>
 

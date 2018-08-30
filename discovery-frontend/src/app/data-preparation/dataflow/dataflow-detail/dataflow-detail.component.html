@@ -86,9 +86,9 @@
 
     <div class="ddp-empty-flow">
       <em class="ddp-img-flow"></em>
-      <span class="ddp-empty-title">Get started with your dataflow.</span>
-      <span class="ddp-empty-det">Add dataset to your flow from your local file, database, or staging database like HIVE</span>
-      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="addDatasets()"><em class="ddp-icon-add"></em>Add dataset to this flow</a>
+      <span class="ddp-empty-title">{{'msg.dp.ui.none.df.description' | translate }}</span>
+      <span class="ddp-empty-det">{{'msg.dp.ui.none.df.description2' | translate }}</span>
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="addDatasets()"><em class="ddp-icon-add"></em>{{ 'msg.dp.ui.add.ds.df' | translate }}</a>
     </div>
   </div>
 

@@ -153,6 +153,8 @@ public class TeddyExecutor {
       ssId = (String) snapshotInfo.get("ssId");
 
       long ruleCntTotal = countAllRules(datasetInfo);
+      ruleCntDone = 0L;//ruleCnt가 누적되는 현상을 해결하기 위한 임시 코드. 추후 map 구조로 변경 후 제거 예정.
+
       updateSnapshot("ruleCntTotal", String.valueOf(ruleCntTotal));
       updateAsRunning();
 
