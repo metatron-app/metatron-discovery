@@ -15,6 +15,9 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,11 +26,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.*;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 public class Util {
   private  static RuleVisitorParser ruleVisitorParser = null;
@@ -74,8 +77,13 @@ public class Util {
     String line;
     String quoteSymbol="\"";
     try {
-      InputStreamReader inputStreamReader = null;
-      if(true==targetUrl.toLowerCase().startsWith("hdfs://")) {
+      InputStreamReader inputStreamReader;
+      if(true==targetUrl.toLowerCase().startsWith("hdfs://")) {   // The primary store is HDFS, even for LOCALLY uploaded files.
+        // Once stored on HDFS, then you should be connected on, to find it.
+        if (conf == null) {
+          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+        }
         Path pt=new Path(targetUrl);
         FileSystem fs = FileSystem.get(conf);
         FSDataInputStream fsDataInputStream = fs.open(pt);

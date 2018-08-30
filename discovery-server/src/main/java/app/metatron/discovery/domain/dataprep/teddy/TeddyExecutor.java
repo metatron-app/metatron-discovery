@@ -118,17 +118,17 @@ public class TeddyExecutor {
   }
 
   private void setPrepPropertiesInfo(Map<String, Object> prepPropertiesInfo) {
-    hadoopConfDir =     (String)  prepPropertiesInfo.get(HADOOP_CONF_DIR);
+    hadoopConfDir = (String)  prepPropertiesInfo.get(HADOOP_CONF_DIR);
 
-    hiveHostname =      (String)  prepPropertiesInfo.get(HIVE_HOSTNAME);
-    hivePort =          (Integer) prepPropertiesInfo.get(HIVE_PORT);
-    hiveUsername =      (String)  prepPropertiesInfo.get(HIVE_USERNAME);
-    hivePassword =      (String)  prepPropertiesInfo.get(HIVE_PASSWORD);
-    hiveCustomUrl =     (String)  prepPropertiesInfo.get(HIVE_CUSTOM_URL);
+    hiveHostname  = (String)  prepPropertiesInfo.get(HIVE_HOSTNAME);
+    hivePort      = (Integer) prepPropertiesInfo.get(HIVE_PORT);
+    hiveUsername  = (String)  prepPropertiesInfo.get(HIVE_USERNAME);
+    hivePassword  = (String)  prepPropertiesInfo.get(HIVE_PASSWORD);
+    hiveCustomUrl = (String)  prepPropertiesInfo.get(HIVE_CUSTOM_URL);
 
-    cores =             (Integer) prepPropertiesInfo.get(ETL_CORES);
-    timeout =           (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
-    limitRows =         (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
+    cores         = (Integer) prepPropertiesInfo.get(ETL_CORES);
+    timeout       = (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
+    limitRows     = (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
 
     if (hadoopConfDir != null) {
       conf = new Configuration();

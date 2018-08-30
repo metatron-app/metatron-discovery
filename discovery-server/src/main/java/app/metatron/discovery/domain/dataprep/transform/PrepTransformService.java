@@ -27,25 +27,21 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutE
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
+import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Set;
-import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
+import com.google.common.collect.Maps;
 import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.opensaml.xml.signature.P;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +57,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static app.metatron.discovery.domain.dataprep.PrepDataset.DS_TYPE.WRANGLED;
+import static app.metatron.discovery.domain.dataprep.PrepProperties.*;
 
 @Service
 public class PrepTransformService {
@@ -114,49 +111,52 @@ public class PrepTransformService {
 
   // Properties along the ETL program kinds are gathered into a single JSON properties string.
   // Currently, the ETL programs kinds are the embedded engine and Apache Spark.
-  private String getJsonPrepPropertiesInfo(PrepSnapshotRequestPost requestPost) throws JsonProcessingException {
-    Map<String, Object> map = new HashMap();
+  private String getJsonPrepPropertiesInfo(String dsId, PrepSnapshotRequestPost requestPost) throws JsonProcessingException {
+    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+
+    PrepDataset.IMPORT_TYPE importType = dataset.getImportTypeEnum();
+    boolean dsFile = (importType == PrepDataset.IMPORT_TYPE.FILE);
+    boolean dsDb   = (importType == PrepDataset.IMPORT_TYPE.DB);
+    boolean dsHive = (importType == PrepDataset.IMPORT_TYPE.HIVE);
+
     PrepSnapshot.SS_TYPE ssType = requestPost.getSsTypeEnum();
+    boolean ssFile = (ssType == PrepSnapshot.SS_TYPE.FILE);
+    boolean ssHdfs = (ssType == PrepSnapshot.SS_TYPE.HDFS);
+    boolean ssHive = (ssType == PrepSnapshot.SS_TYPE.HIVE);
+
     PrepSnapshot.ENGINE engine = requestPost.getEngineEnum();
 
-    switch (ssType) {
-      case FILE:
-        // no more extra properties
-        break;
-      case HDFS:
-        map.put(PrepProperties.HADOOP_CONF_DIR, prepProperties.getHadoopConfDir());
-        break;
-      case JDBC:
-        // not implemented
-        assert false : ssType.name();
-        break;
-      case HIVE:
-        map.put(PrepProperties.HADOOP_CONF_DIR, prepProperties.getHadoopConfDir());
-
-        PrepProperties.HiveInfo hive = prepProperties.getHive();
-        map.put(PrepProperties.HIVE_HOSTNAME,   hive.getHostname());
-        map.put(PrepProperties.HIVE_PORT,       hive.getPort());
-        map.put(PrepProperties.HIVE_USERNAME,   hive.getUsername());
-        map.put(PrepProperties.HIVE_PASSWORD,   hive.getPassword());
-        map.put(PrepProperties.HIVE_CUSTOM_URL, hive.getCustomUrl());
-
-        if (engine == PrepSnapshot.ENGINE.TWINKLE) {
-          map.put(PrepProperties.HIVE_METASTORE_URIS, hive.getMetastoreUris());
-        }
-        break;
+    // check polaris.dataprep.hadoopConfDir
+    if (ssHdfs || ssHive) {
+      if (prepProperties.getHadoopConfDir() == null) {
+        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
+                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+      }
+      if (prepProperties.getStagingBaseDir() == null) {
+        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
+                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, STAGING_BASE_DIR);
+      }
     }
 
-    PrepProperties.EtlInfo etl = prepProperties.getEtl();
-    map.put(PrepProperties.ETL_CORES,       etl.getCores());
-    map.put(PrepProperties.ETL_TIMEOUT,     etl.getTimeout());
-    map.put(PrepProperties.ETL_LIMIT_ROWS,  etl.getLimitRows());
+    // check polaris.dataprep.hive
+    if (dsHive || ssHive) {
+      PrepProperties.HiveInfo hive = prepProperties.getHive();
+      if (hive == null) {
+        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
+                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HIVE_HOSTNAME);
+      }
+    }
 
+    // check polaris.dataprep.etl.jar
     if (engine == PrepSnapshot.ENGINE.TWINKLE) {
-      map.put(PrepProperties.ETL_JAR, etl.getJar());
-      map.put(PrepProperties.ETL_JVM_OPTIONS, etl.getJvmOptions());
+      EtlInfo etlInfo = prepProperties.getEtl();
+      if (etlInfo == null || etlInfo.getJar() == null) {
+        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
+                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, ETL_JAR);
+      }
     }
 
-    return GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
+    return GlobalObjectMapper.getDefaultMapper().writeValueAsString(prepProperties.getEveryForEtl());
   }
 
   private String getJsonSnapshotInfo(PrepSnapshotRequestPost requestPost, String ssId) throws JsonProcessingException {
@@ -900,9 +900,9 @@ public class PrepTransformService {
     //      - compression
     //      - ssName    (target directory 명에 쓰임)
 
-    String jsonPrepPropertiesInfo = getJsonPrepPropertiesInfo(requestPost);
-    String jsonDatasetInfo         = getJsonDatasetInfo(wrangledDsId);
-    String jsonSnapshotInfo        = getJsonSnapshotInfo(requestPost, ssId);
+    String jsonPrepPropertiesInfo = getJsonPrepPropertiesInfo(wrangledDsId, requestPost);
+    String jsonDatasetInfo        = getJsonDatasetInfo(wrangledDsId);
+    String jsonSnapshotInfo       = getJsonSnapshotInfo(requestPost, ssId);
 
     switch (requestPost.getEngineEnum()) {
       case TWINKLE:
