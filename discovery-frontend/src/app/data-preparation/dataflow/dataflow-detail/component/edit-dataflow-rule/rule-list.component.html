@@ -52,28 +52,8 @@
           <!-- //tooltip -->
         </div>
         <div class="ddp-ui-edit-button" *ngIf="0<ruleList.length">
-          <!--addRule-->
           <em class="ddp-icon-edit" (click)="editEvent.emit({rule :rule ,event: $event})" *ngIf="!rule.colored"></em>
-          <em class="ddp-icon-del" (click)="deleteEvent.emit({rule :rule ,event: $event})" *ngIf="!rule.colored"></em>
-          <!--<div class="ddp-wrap-more" [ngClass]="{'ddp-selected':isRuleListOptionShow}">-->
-          <!--<em class="ddp-icon-more" (click)="showRuleListOption($event)"></em>-->
-          <!--&lt;!&ndash; popup &ndash;&gt;-->
-          <!--<div class="ddp-wrap-popup2">-->
-          <!--<ul class="ddp-list-popup">-->
-          <!--<li>-->
-          <!--<a href="javascript:">-->
-          <!--Insert step before-->
-          <!--</a>-->
-          <!--</li>-->
-          <!--<li>-->
-          <!--<a href="javascript:">-->
-          <!--Insert step after-->
-          <!--</a>-->
-          <!--</li>-->
-          <!--</ul>-->
-          <!--</div>-->
-          <!--&lt;!&ndash; //popup &ndash;&gt;-->
-          <!--</div>-->
+          <em class="ddp-icon-del" (click)="$event.stopImmediatePropagation(); deleteRule(rule)" *ngIf="!rule.colored"></em>
         </div>
       </li>
     </ul>

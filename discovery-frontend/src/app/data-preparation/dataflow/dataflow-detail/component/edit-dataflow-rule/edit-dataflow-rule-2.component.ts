@@ -770,22 +770,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   /**
    * Delete rule
-   * @param dataEvent
+   * @param {number} ruleNo
    */
-  public deleteRule(dataEvent) {
-
-    let event = dataEvent.event;
-    let data = dataEvent.rule;
-    if (true == this.jumpLast()) {
-      this.deleteRule({ rule: data, event: event });
-    }
-    event.stopPropagation();
-    const rule = {
-      op: 'DELETE',
-      ruleIdx: data.ruleNo
-    };
-
-    this.applyRule(rule, 'msg.dp.alert.rule.del.fail');
+  public deleteRule(ruleNo : number) {
+    this.applyRule({ op: 'DELETE', ruleIdx: ruleNo }, 'msg.dp.alert.rule.del.fail');
   }
 
   /**
@@ -1600,11 +1588,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   private initViewPage() {
     this.commandList = [
-      { command: 'create',
-        alias: 'Cr',
-        desc: this.translateService.instant('msg.dp.li.cr.description'),
-        isHover:false
-      },
       {
         command: 'header',
         alias: 'He',

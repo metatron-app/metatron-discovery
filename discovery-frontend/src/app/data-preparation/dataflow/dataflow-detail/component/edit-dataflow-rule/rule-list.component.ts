@@ -21,6 +21,7 @@ import { DataflowService } from '../../../service/dataflow.service';
 import { RuleSnapshotListComponent } from './rule-snapshot-list.component';
 import { DataSnapshot } from '../../../../../domain/data-preparation/data-snapshot';
 import { isUndefined } from 'util';
+import { Rule } from '../../../../../domain/data-preparation/dataset';
 
 @Component({
   selector: 'app-rule-list',
@@ -191,6 +192,13 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
     this.snapshotDetailEvent.emit(data);
   } // function - snapshotDetail
 
+  /**
+   * Delete rule event
+   * @param {Rule} rule
+   */
+  public deleteRule(rule : Rule) {
+    this.deleteEvent.emit(rule['ruleNo']);
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
