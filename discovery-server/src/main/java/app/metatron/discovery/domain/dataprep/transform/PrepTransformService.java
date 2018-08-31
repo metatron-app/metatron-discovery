@@ -1763,35 +1763,22 @@ public class PrepTransformService {
   }
 
   public String cancelSnapshot(String ssId) {
-      PrepSnapshot.STATUS status = teddyExecutor.statusCheck(ssId);
 
-      if(status == null)
-          return "NO_MATCHED_SNAPSHOT_ID";
+    List<Future<List<Row>>> jobs = teddyExecutor.getJob(ssId);
 
-      switch (status) {
-          case INITIALIZING:
-          case WRITING:
-          case TABLE_CREATING:
-              teddyExecutor.updateAsCanceling(ssId);
-              return "OK";
-          case RUNNING:
-              teddyExecutor.updateAsCanceling(ssId);
-              List<Future<List<Row>>> jobs = teddyExecutor.getJob(ssId);
-              if( jobs != null && !jobs.isEmpty()) {
-                  for (Future<List<Row>> job : jobs) {
-                      job.cancel(true);
-                  }
-              }
-              return "OK";
-          case CANCELING:
-          case CANCELED:
-              return "THIS_SNAPSHOT_IS_ALREADY_CANCELED";
-          case SUCCEEDED:
-          case FAILED:
-              return "THIS_SNAPSHOT_IS_ALREADY_CREATED_OR_FAILED";
-          case NOT_AVAILABLE:
-          default:
-              return "UNKNOWN_ERROR";
+    if( jobs == null || jobs.isEmpty()) {
+      return "NO_MATCHED_SNAPSHOT_ID";
+    }
+    else {
+      teddyExecutor.updateAsCanceling(ssId);
+
+      for (Future<List<Row>> job : jobs) {
+        job.cancel(true);
       }
+
+      return "OK";
+    }
+
   }
+
 }
