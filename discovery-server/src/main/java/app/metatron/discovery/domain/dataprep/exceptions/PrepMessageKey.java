@@ -18,6 +18,7 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_INVALID_CONFIG_CODE(                           "msg.dp.alert.invalid.config.code"),
     MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING(                     "msg.dp.alert.required.property.missing"),
 
+    MSG_DP_ALERT_DATASET_FAILED_AFTERCREATE(                     "msg.dp.alert.dataset.failed.aftercreate"),
     MSG_DP_ALERT_JDBC_CONNECTION_ERROR(                          "msg.dp.alert.jdbc.connection.error"),
     MSG_DP_ALERT_STAGINGDB_CONNECTION_ERROR(                     "msg.dp.alert.stagingdb.connection.error"),
     MSG_DP_ALERT_NO_DATAFLOW(                                    "msg.dp.alert.no.dataflow"),
