@@ -29,6 +29,7 @@ import { isUndefined } from 'util';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { EditFilterDataSourceComponent } from '../edit-filter-data-source.component';
 import { FilteringOptions, FilteringOptionType } from '../../../../domain/workbook/configurations/filter/filter';
+import { EditConfigSchemaComponent } from './edit-config-schema/edit-config-schema.component';
 
 declare let echarts: any;
 
@@ -49,6 +50,9 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
 
   @ViewChild(EditFilterDataSourceComponent)
   private _editFilterComponent: EditFilterDataSourceComponent;
+
+  @ViewChild(EditConfigSchemaComponent)
+  private _editConfigSchemaComp: EditConfigSchemaComponent;
 
   // chart option
   private _barOption: any;
@@ -442,6 +446,15 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    */
   public onClickEditFilters(): void {
     this._editFilterComponent.init(this.datasource.id, this.datasource.fields, this.isLinkedTypeSource(this.datasource));
+    // change markup position
+    $('#edit-filter-comp').appendTo($('#layout-contents'));
+  }
+
+  /**
+   * Configure schema click event
+   */
+  public onClickConfigureSchema(): void {
+    this._editConfigSchemaComp.init(this.datasource.id, this.datasource.fields);
     // change markup position
     $('#edit-config-schema').appendTo($('#layout-contents'));
   }

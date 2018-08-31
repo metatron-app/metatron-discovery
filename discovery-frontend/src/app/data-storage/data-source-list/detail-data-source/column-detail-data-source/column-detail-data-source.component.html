@@ -81,6 +81,11 @@
       <div class="ddp-reset">
         <a href="javascript:" class="ddp-btn-reset3" (click)="onClickResetFilter()"></a>
       </div>
+      <!-- right -->
+      <div class=" ddp-fright">
+        <a href="javascript:" class="ddp-btn-bg" (click)="onClickConfigureSchema()"><em class="ddp-icon-option"></em>Configure schema</a>
+      </div>
+      <!-- //right -->
     </div>
     <!-- //option -->
   </div>
@@ -561,5 +566,7 @@
 </div>
 <!-- //tab contents -->
 <!-- edit filter -->
-<edit-filter-data-source id="edit-config-schema" (updatedSchema)="completeUpdatedSchema()"></edit-filter-data-source>
+<edit-filter-data-source id="edit-filter-comp" (updatedSchema)="completeUpdatedSchema()"></edit-filter-data-source>
 <!-- //edit filter -->
+<!-- configure the schema -->
+<edit-config-schema id="edit-config-schema" (updatedSchema)="completeUpdatedSchema()"></edit-config-schema>
