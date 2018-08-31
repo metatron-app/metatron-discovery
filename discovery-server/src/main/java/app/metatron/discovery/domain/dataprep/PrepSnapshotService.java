@@ -158,20 +158,4 @@ public class PrepSnapshotService {
 
         return snapshots;
     }
-
-    public PrepSnapshot.STATUS getSnapshotStatus(String ssId) {
-        try {
-            Sort sort = new Sort(Sort.Direction.DESC, "launchTime");
-            List<PrepSnapshot> listAll = this.snapshotRepository.findAll(sort);
-            for(PrepSnapshot ss : listAll) {
-                if(ssId.equals(ss.getSsId())) {
-                   return ss.getStatusEnum();
-                }
-            }
-        } catch (Exception e) {
-            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
-        }
-
-        return null;
-    }
 }
