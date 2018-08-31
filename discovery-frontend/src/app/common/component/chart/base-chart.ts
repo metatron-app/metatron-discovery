@@ -131,6 +131,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   @Output()
   protected chartSelectInfo = new EventEmitter();
 
+  // 차트 데이터줌 변경정보를 UI로 전송
+  @Output()
+  protected chartDatazoomInfo = new EventEmitter<any>();
+
   // No Data
   @Output()
   protected noData = new EventEmitter();
@@ -775,6 +779,12 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     if (!this.isPage) {
       this.selection();
     }
+
+    ////////////////////////////////////////////////////////
+    // Datazoom 이벤트 등록
+    ////////////////////////////////////////////////////////
+
+    this.datazoom();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1491,7 +1501,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   }
 
   ////////////////////////////////////////////////////////
-  // Selection
+  // Event
   ////////////////////////////////////////////////////////
 
   /**
@@ -1500,6 +1510,15 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    */
   protected selection(): void {
 
+  }
+
+  /**
+   * 데이터줌 이벤트를 등록한다.
+   * - 필요시 각 차트에서 Override
+   */
+  protected datazoom(): void {
+
+    this.addChartDatazoomEventListener();
   }
 
 
@@ -2273,6 +2292,17 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         console.info(type);
     }
     this.mouseMode = type;
+  }
+
+  /**
+   * Chart Datazoom Event Listener
+   */
+  public addChartDatazoomEventListener(): void {
+
+    // this.chart.off('datazoom');
+    // this.chart.on('datazoom', (params) => {
+    //   this.chartDatazoomInfo.emit(params);
+    // });
   }
 
   /**

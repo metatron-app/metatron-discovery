@@ -118,17 +118,17 @@ public class TeddyExecutor {
   }
 
   private void setPrepPropertiesInfo(Map<String, Object> prepPropertiesInfo) {
-    hadoopConfDir =     (String)  prepPropertiesInfo.get(HADOOP_CONF_DIR);
+    hadoopConfDir = (String)  prepPropertiesInfo.get(HADOOP_CONF_DIR);
 
-    hiveHostname =      (String)  prepPropertiesInfo.get(HIVE_HOSTNAME);
-    hivePort =          (Integer) prepPropertiesInfo.get(HIVE_PORT);
-    hiveUsername =      (String)  prepPropertiesInfo.get(HIVE_USERNAME);
-    hivePassword =      (String)  prepPropertiesInfo.get(HIVE_PASSWORD);
-    hiveCustomUrl =     (String)  prepPropertiesInfo.get(HIVE_CUSTOM_URL);
+    hiveHostname  = (String)  prepPropertiesInfo.get(HIVE_HOSTNAME);
+    hivePort      = (Integer) prepPropertiesInfo.get(HIVE_PORT);
+    hiveUsername  = (String)  prepPropertiesInfo.get(HIVE_USERNAME);
+    hivePassword  = (String)  prepPropertiesInfo.get(HIVE_PASSWORD);
+    hiveCustomUrl = (String)  prepPropertiesInfo.get(HIVE_CUSTOM_URL);
 
-    cores =             (Integer) prepPropertiesInfo.get(ETL_CORES);
-    timeout =           (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
-    limitRows =         (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
+    cores         = (Integer) prepPropertiesInfo.get(ETL_CORES);
+    timeout       = (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
+    limitRows     = (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
 
     if (hadoopConfDir != null) {
       conf = new Configuration();
@@ -153,6 +153,8 @@ public class TeddyExecutor {
       ssId = (String) snapshotInfo.get("ssId");
 
       long ruleCntTotal = countAllRules(datasetInfo);
+      ruleCntDone = 0L;//ruleCnt가 누적되는 현상을 해결하기 위한 임시 코드. 추후 map 구조로 변경 후 제거 예정.
+
       updateSnapshot("ruleCntTotal", String.valueOf(ruleCntTotal));
       updateAsRunning();
 
@@ -423,7 +425,8 @@ public class TeddyExecutor {
     // single thread
     if (cores == 0) {
       List<DataFrame> slaveDfs = new ArrayList<>();
-      for (String ruleString : ruleStrings) {
+      for (int ruleNo = 1; ruleNo < ruleStrings.size(); ruleNo++) {
+        String ruleString = ruleStrings.get(ruleNo);
         List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
         if (slaveDsIds != null) {
           for (String slaveDsId : slaveDsIds) {
@@ -439,7 +442,8 @@ public class TeddyExecutor {
     }
 
     // multi-thread
-    for (String ruleString : ruleStrings) {
+    for (int ruleNo = 1; ruleNo < ruleStrings.size(); ruleNo++) {
+      String ruleString = ruleStrings.get(ruleNo);
       List<Future<List<Row>>> futures = new ArrayList<>();
       List<DataFrame> slaveDfs = new ArrayList<>();
 

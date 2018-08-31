@@ -17,20 +17,12 @@ package app.metatron.discovery.domain.dataprep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.HandleAfterCreate;
-import org.springframework.data.rest.core.annotation.HandleAfterSave;
-import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
-import org.springframework.data.rest.core.annotation.HandleBeforeSave;
-import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.data.rest.core.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.io.File;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 
 @RepositoryEventHandler(PrepDataset.class)
 public class PrepDatasetEventHandler {
@@ -43,24 +35,9 @@ public class PrepDatasetEventHandler {
     @Autowired
     PrepDatasetService datasetService;
 
-    @Autowired
-    PrepPreviewLineService previewLineService;
-
-    @Autowired
-    private PrepHdfsService hdfsService;
-
-    @Autowired(required = false)
-    private PrepDatasetFileService datasetFilePreviewService;
-
-    @Autowired(required = false)
-    private PrepDatasetSparkHiveService datasetSparkHivePreviewService;
-
-    @Autowired(required = false)
-    private PrepDatasetJdbcService datasetJdbcPreviewService;
-
     @HandleBeforeCreate
     public void beforeCreate(PrepDataset dataset) {
-        LOGGER.debug(dataset.toString());
+        // LOGGER.debug(dataset.toString());
     }
 
     @HandleAfterCreate
@@ -76,67 +53,22 @@ public class PrepDatasetEventHandler {
                     oAuthToken = oAuthToken + cookies[i].getValue();
             }
 
-            // 클라이언트로 기능 옮기는게 좋은듯
-            //dataset.setDsName(this.datasetService.extendDsName(dataset));
+            this.datasetService.savePreview(dataset, oAuthToken);
 
-            PrepDataset.IMPORT_TYPE importType = dataset.getImportTypeEnum();
-            if(importType == PrepDataset.IMPORT_TYPE.FILE) {
-                String filekey = dataset.getFilekey();
-                String sheetName = dataset.getSheetName();
-                String delimiter = dataset.getDelimiter();
-                if (filekey != null) {
-                    if(true==dataset.isEXCEL()) {
-                        String csvFileName = this.datasetFilePreviewService.moveExcelToCsv(filekey,sheetName,delimiter);
-                        dataset.putCustomValue("fileType", "DSV");
-                        dataset.putCustomValue("filePath", csvFileName);
-                        int lastIdx = csvFileName.lastIndexOf(File.separator);
-                        String newFileKey = csvFileName.substring(lastIdx+1);
-                        dataset.setFilekey(newFileKey);
-                        filekey = newFileKey;
-                    }
-                    DataFrame dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, filekey, "0", "2000");
-                    int size = this.previewLineService.putPreviewLines(dataset.getDsId(), dataFrame);
-
-                    if( false==dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://") ) {
-                        String localFilePath = dataset.getCustomValue("filePath"); // this.datasetFilePreviewService.getPath2(dataset);
-                        if(null!=localFilePath) {
-                            String hdfsFilePath = this.hdfsService.moveLocalToHdfs(localFilePath, filekey);
-                            if (null!=hdfsFilePath) {
-                                dataset.putCustomValue("filePath", hdfsFilePath);
-                            }
-                        }
-                    }
-                }
-            } else if(importType == PrepDataset.IMPORT_TYPE.HIVE) {
-                String dcId = dataset.getDcId();
-                String tableName = dataset.getTableName();
-                String queryStmt = dataset.getQueryStmt();
-                PrepDataset.RS_TYPE rsType = dataset.getRsTypeEnum();
-                this.datasetSparkHivePreviewService.setoAuthToekn(oAuthToken);
-                DataFrame dataFrame = this.datasetSparkHivePreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, "50");
-                int size = this.previewLineService.putPreviewLines(dataset.getDsId(), dataFrame);
-            } else if(importType == PrepDataset.IMPORT_TYPE.DB) {
-                String dcId = dataset.getDcId();
-                String tableName = dataset.getTableName();
-                String queryStmt = dataset.getQueryStmt();
-                PrepDataset.RS_TYPE rsType = dataset.getRsTypeEnum();
-                this.datasetJdbcPreviewService.setoAuthToekn(oAuthToken);
-                DataFrame dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, "50");
-                int size = this.previewLineService.putPreviewLines(dataset.getDsId(), dataFrame);
-            }
         } catch (Exception e) {
             LOGGER.debug(e.getMessage());
         }
+
         this.datasetRepository.flush();
     }
 
     @HandleBeforeSave
     public void beforeSave(PrepDataset dataset) {
-        LOGGER.debug(dataset.toString());
+        // LOGGER.debug(dataset.toString());
     }
 
     @HandleAfterSave
     public void afterSave(PrepDataset dataset) {
-        LOGGER.debug(dataset.toString());
+        // LOGGER.debug(dataset.toString());
     }
 }

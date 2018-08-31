@@ -142,6 +142,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
     this.isBtnOptionOpen = false;
     this.commandList = [
+      { command: 'create', alias: 'Cr'},
       { command: 'header', alias: 'He'},
       { command: 'keep', alias: 'Ke'},
       { command: 'replace', alias: 'Rp'},
@@ -524,6 +525,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     }
 
     switch(rule.command) {
+      case 'create':
+        result = `Create with DS ${rule.with}`;
+        break;
       case 'header':
         result = `Convert row${rule.rownum} to header`;
         break;
