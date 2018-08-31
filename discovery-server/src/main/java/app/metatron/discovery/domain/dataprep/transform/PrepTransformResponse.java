@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.transform;
 
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import com.google.common.collect.Lists;
 
 import java.io.Serializable;
 import java.util.List;
@@ -67,7 +68,13 @@ public class PrepTransformResponse implements Serializable {
   }
 
   public void setRuleStringInfos(List<PrepTransformRule> ruleStringInfos, Boolean undoable, Boolean redoable) {
-    this.ruleStringInfos = ruleStringInfos;
+    // this.ruleStringInfos = ruleStringInfos;
+    this.ruleStringInfos = Lists.newArrayList();
+    for(PrepTransformRule transformRule: ruleStringInfos) {
+      if(transformRule.getRuleNo()==0) { continue; }
+      this.ruleStringInfos.add(transformRule);
+    }
+
     this.undoable = undoable.toString();
     this.redoable = redoable.toString();
   }
