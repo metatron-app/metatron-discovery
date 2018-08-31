@@ -713,59 +713,31 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   /**
    * 룰 수정 클릭시
-   * @param dataRule 수정할 룰 정보
+   * @param editInfo
    */
-  public setRuleVO(dataRule) {
+  public setRuleVO(editInfo : {fetchIdx : number, ruleString : string}) {
 
     // unselect all columns in current grid
     this._editRuleGridComp.unSelectionAll('COL');
 
-    let event = dataRule.event;
-    let rule = dataRule.rule;
-    rule.ruleNo = rule.ruleNo-1;
+    // let event = dataRule.event;
+    // let rule = dataRule.rule;
+    // rule.ruleNo = rule.ruleNo-1;
+    let ruleIdx = editInfo.fetchIdx;
 
     // 인풋박스 포커스 여부 IE 에서 수정버튼을 누르면 툴팁 박스가 열려서...
     this.isFocus = false;
 
-    if (true == this.jumpLast()) {
-      this.setRuleVO({ rule: rule, event: event });
-      return;
-    }
+    // if (true == this.jumpLast()) {
+    //   this.setRuleVO({ rule: rule, event: event });
+    //   return;
+    // }
 
     event.stopPropagation();
-    this._setEditRuleInfo(rule.ruleNo)
+    this._setEditRuleInfo(ruleIdx+1)
       .then((data: { apiData: any, gridData: any }) => {
-        this.setEditInfo(rule, data.gridData);
+        this.setEditInfo(editInfo.ruleString, data.gridData);
       });
-
-    /*
-    this.loadingShow();
-
-    const op = {
-     op: 'FETCH',
-     ruleIdx: rule.ruleNo
-    };
-    // fetch data 1 step before
-    this.dataflowService.fetchPreviousData(this.selectedDataSet.dsId, op).then((data) => {
-      if (data.errorMsg) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.rule.edit.fail'));
-      } else {
-        if( data.ruleCurIdx!=rule.ruleNo ) {
-          console.log(data.ruleCurIdx);
-        }
-        this._setEditRuleInfo(rule.ruleNo)
-          .then((data: { apiData: any, gridData: any }) => {
-            this.setEditInfo(rule, data.gridData);
-          });
-      }
-      this.loadingHide();
-    }).catch((error) => {
-      this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-    });
-    */
-
   } // function - setRuleVO
 
   /**

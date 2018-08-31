@@ -226,6 +226,8 @@ export class EditDataflowRuleComponent extends AbstractPopupComponent implements
   public isTimestampEdit :boolean = false;
   public timestampSuggestions : any;
 
+  public isEditMode : boolean = false;
+
   get filteredWrangledDatasets() {
     if (this.dataflow['_embedded'].datasets.length === 0) return [];
 

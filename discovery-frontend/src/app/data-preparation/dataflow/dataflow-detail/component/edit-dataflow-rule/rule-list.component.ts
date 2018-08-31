@@ -199,6 +199,16 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
   public deleteRule(rule : Rule) {
     this.deleteEvent.emit(rule['ruleNo']);
   }
+
+  public insertStep(rule : Rule) {
+    // transform 할 때 사용할 ruleIdx 가 rule.ruleNo 이다.
+    // edit-dataflow-rule2 에 rule.ruleNo를 전달하고, 그리드가 바뀌어야 한다.
+    console.info('rule ==> ', rule );
+  }
+
+  public editRule(rule : Rule) {
+    this.editEvent.emit(rule);
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
