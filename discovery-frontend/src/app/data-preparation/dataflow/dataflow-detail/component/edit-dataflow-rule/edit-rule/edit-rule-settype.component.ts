@@ -39,12 +39,11 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
   public timestampFormats : any = [] ;
-  public dsId : string;
+  public dsId : string = '';
   public colDescs : any ;
   public isTimestamp : boolean = false;
   public colTypes : any = [];
-  public isGetTimestampRunning : boolean = false;
-
+  public hasEditTimestamp : boolean = false;
   // for status T/F
   public isFocus:boolean = false;         // Input Focus t/f
   public isTooltipShow:boolean = false;   // Tooltip Show/Hide
@@ -104,92 +103,107 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
   }
 
+  /**
+   * When timestamp format is selected
+   * @param data
+   */
   public selectTimestamp(data) {
     this.selectedTimestamp = data.value;
   }
 
-  public getTimestampFormats() {
+  /**
+   * Set selected timestamp index in select box
+   * @param {string} selectedTimestamp
+   */
+  public setSelectedTimestamp(selectedTimestamp : string) {
+    this.isTimestamp = true;
+    if ('' === selectedTimestamp) {
+      this.defaultTimestampIndex = -1;
+    } else if (-1 === this._timestampValueArray().indexOf(selectedTimestamp)) {
+      this.selectedTimestamp = 'Custom format';
+      this.defaultTimestampIndex = this._timestampValueArray().length - 1;
+      this.customTimestamp = selectedTimestamp;
+    } else {
+      this.defaultTimestampIndex = this._timestampValueArray().indexOf(selectedTimestamp);
+    }
+  }
 
-    if (!this.isGetTimestampRunning) {
-      this.isGetTimestampRunning = true;
-      let cols = this.selectedFields.map((item) => {
-        return item.name
-      });
 
-      let tempTimetampValue : string = '';
-      if ('' !== this.selectedTimestamp) {
-        tempTimetampValue = this.selectedTimestamp;
+  /**
+   * Make timestamp list from formats from server
+   * @param result
+   */
+  public makeTimestampList(result:any) {
+    let keyList = [];
+    this.timestampFormats = [];
+
+    for (let key in result) {
+      if (result.hasOwnProperty(key)) {
+        keyList.push(key);
       }
-      this.dataflowService.getTimestampFormatSuggestions(this.dsId, {colNames : cols} ).then((result) => {
-
-        if (!isNullOrUndefined(result)) {
-          let keyList = [];
-
-          for (let key in result) {
-            if (result.hasOwnProperty(key)) {
-              keyList.push(key);
-            }
-          }
-          this.timestampFormats = [];
-          for (let i in result[keyList[0]]) {
-            if (result[keyList[0]].hasOwnProperty(i)) {
-              this.timestampFormats.push({ value: i, isHover: false, matchValue: result[keyList[0]][i] })
-            }
-          }
-          this.timestampFormats.push({ value: 'Custom format', isHover: false, matchValue : -1 });
-
-          // When column is selected OR has timestamp value
-          if (cols.length > 0 ||  '' !== tempTimetampValue) {
-            // timestamp value is empty
-            if ('' === tempTimetampValue) {
-              if ('string' === this.selectedType) {
-                // timestamp ->  string  (set current column timestamp type)
-                if ('timestamp' === this.selectedFields[0].type.toLowerCase()) {
-                  let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
-                  this.selectedTimestamp = this.colTypes[idx].timestampStyle;
-                  this.defaultTimestampIndex = this._timestampValueArray().indexOf(this.selectedTimestamp);
-                } else {
-                  this.selectedTimestamp = '';
-                  this.defaultTimestampIndex = -1;
-                }
-              } else if ('timestamp' === this.selectedType) {
-                if ('timestamp' === this.selectedFields[0].type.toLowerCase()) {
-                  // timestamp ->  timestamp  (set current column timestamp type)
-                  let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
-                  this.selectedTimestamp = this.colTypes[idx].timestampStyle;
-                  this.defaultTimestampIndex = this._timestampValueArray().indexOf(this.selectedTimestamp);
-                } else if ('string' === this.selectedFields[0].type.toLowerCase()) {
-                  // string -> timestamp (suggestion)
-                  let max = this.timestampFormats.reduce((max, b) => Math.max(max, b.matchValue), this.timestampFormats[0].matchValue);
-                  let idx = this.timestampFormats.map((item) => {
-                    return item.matchValue
-                  }).findIndex((data) => {
-                    return data === max
-                  });
-                  this.defaultTimestampIndex = idx;
-                  this.selectedTimestamp = this.timestampFormats[idx].value;
-                }
-              }
-            } else {
-              // when editing
-              let idx = this._timestampValueArray().indexOf('' !== tempTimetampValue ? tempTimetampValue : this.selectedTimestamp);
-              if (idx === -1 && tempTimetampValue !== '') {
-                this.selectedTimestamp = 'Custom format';
-                this.defaultTimestampIndex = this._timestampValueArray().length - 1;
-                this.customTimestamp = tempTimetampValue;
-              } else {
-                this.defaultTimestampIndex = idx;
-              }
-            }
-          } else {
-            this.selectedTimestamp = '';
-            this.defaultTimestampIndex = -1;
-          }
-        }
-        this.isGetTimestampRunning = false;
-      });
     }
 
+    for (let i in result[keyList[0]]) {
+      if (result[keyList[0]].hasOwnProperty(i)) {
+        this.timestampFormats.push({ value: i, isHover: false, matchValue: result[keyList[0]][i] })
+      }
+    }
+    this.timestampFormats.push({ value: 'Custom format', isHover: false, matchValue: -1 });
+  }
+
+  /**
+   * Gets timestamp formats from the server
+   * @param {string} selectedTimestamp
+   */
+  public getTimestampFormats(selectedTimestamp? :string) {
+
+    let cols = this.selectedFields.map((item) => {
+      return item.name
+    });
+
+    this.dataflowService.getTimestampFormatSuggestions(this.dsId, {colNames : cols} ).then((result) => {
+
+      if (!isNullOrUndefined(result)) {
+
+        this.makeTimestampList(result);
+
+        if (!isNullOrUndefined(this.selectedTimestamp) && '' !== this.selectedTimestamp) {
+          this.setSelectedTimestamp(this.selectedTimestamp);
+        } else if (cols.length > 0) { // 선택된 컬럼이 있다면
+          if ('string' === this.selectedType.toLowerCase()) {
+            // timestamp ->  string  (set current column timestamp type)
+            if ('timestamp' === this.selectedFields[0].type.toLowerCase()) {
+              let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
+              this.selectedTimestamp = this.colTypes[idx].timestampStyle;
+              this.setSelectedTimestamp(this.selectedTimestamp);
+            } else {
+              this.selectedTimestamp = '';
+              this.setSelectedTimestamp(this.selectedTimestamp);
+            }
+          } else if ('timestamp' === this.selectedType.toLowerCase()) {
+            if ('timestamp' === this.selectedFields[0].type.toLowerCase()) {
+              // timestamp ->  timestamp  (set current column timestamp type)
+              let idx = this._getFieldNameArray().indexOf(this.selectedFields[0].name);
+              this.selectedTimestamp = this.colTypes[idx].timestampStyle;
+              this.setSelectedTimestamp(this.selectedTimestamp);
+            } else if ('string' === this.selectedFields[0].type.toLowerCase()) {
+              // string -> timestamp (suggestion)
+              let max = this.timestampFormats.reduce((max, b) => Math.max(max, b.matchValue), this.timestampFormats[0].matchValue);
+              let idx = this.timestampFormats.map((item) => {
+                return item.matchValue
+              }).findIndex((data) => {
+                return data === max
+              });
+              this.selectedTimestamp = this.timestampFormats[idx].value;
+              this.setSelectedTimestamp(this.selectedTimestamp);
+            }
+          }
+        } else { // 선택된 컬럼이 없다면 선택된 타임스탬프는 없다
+          this.selectedTimestamp = '';
+          this.setSelectedTimestamp(this.selectedTimestamp);
+        }
+      }
+    });
   }
 
   /**
@@ -216,7 +230,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     if (this.isTimestamp && '' !== this.selectedTimestamp) {
       ruleString += ' format: ';
       if ('Custom format' === this.selectedTimestamp) {
-        let check = StringUtil.checkSingleQuote(this.customTimestamp, { isPairQuote: false, isWrapQuote: true });
+        let check = StringUtil.checkSingleQuote(this.customTimestamp, { isPairQuote: true, isWrapQuote: true });
         if (check[0] === false) {
           Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
           return undefined;
@@ -225,7 +239,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
         }
         ruleString += this.customTimestamp
       } else {
-        let check = StringUtil.checkSingleQuote(this.selectedTimestamp, { isPairQuote: false, isWrapQuote: true });
+        let check = StringUtil.checkSingleQuote(this.selectedTimestamp, { isPairQuote: true, isWrapQuote: true });
         if (check[0] === false) {
           Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
           return undefined;
@@ -252,21 +266,23 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
     this.selectedFields = data.selectedList;
-    this.selectedTimestamp = '';
+    if (!this.hasEditTimestamp) {
+      this.selectedTimestamp = '';
+      this.hasEditTimestamp = false;
+    }
     if ('timestamp' === this.selectedType) {
       this.isTimestamp = true;
-      this.getTimestampFormats();
+      this.getTimestampFormats(this.selectedTimestamp);
     } else if ('string' === this.selectedType) {
       if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')){
         this.isTimestamp = true;
-        this.getTimestampFormats();
+        this.getTimestampFormats(this.selectedTimestamp);
       } else {
         this.isTimestamp = false;
       }
     } else {
       this.isTimestamp = false;
     }
-    this.safelyDetectChanges();
   }
 
   /**
@@ -292,10 +308,15 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * After component is shown
    * @protected
    */
-  protected afterShowComp() {}
+  protected afterShowComp() {
+    if (this.dsId && this.selectedType) { // 컨텍스트 메뉴 이용
+      this.defaultIndex = this.typeList.indexOf(this.selectedType.toLowerCase());
+      this.getTimestampFormats();
+    }
+  }
 
   /**
-   * parse rule string
+   * parse rule string (When editing)
    * @param ruleString
    */
   protected parsingRuleString(ruleString:string) {
@@ -311,59 +332,29 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     this.selectedType = this.getAttrValueInRuleString( 'type', ruleString ).toLowerCase();
     this.defaultIndex = this.typeList.indexOf(this.selectedType);
 
-    // dsID - for timestamp list
-    this.dsId = ruleString.split('dsId: ')[1];
-
     // format
-    if ('timestamp' === this.selectedType || 'string' === this.selectedType && !isNullOrUndefined(ruleString.split('dsId: ')[0])) {
-      if ('string' === this.selectedType ) {
+    if ('timestamp' === this.selectedType || 'string' === this.selectedType) {
+      if ('string' === this.selectedType ) { // 선택된 모든 컬럼이 스트링일 떄는 타임스탬프 패턴 지정을 보여줄 필요 없다
         if (-1 === this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')){
           this.isTimestamp = false;
-        } else {
-          this.isTimestamp = true;
-          this.getTimestampFromRuleString(ruleString);
+          return;
         }
       }
+      this.getTimestampFromRuleString(ruleString);
     }
   }
 
   /**
-   * Set format and type from rulestring
+   * Set format and type from rule string
    * @param {string} ruleString
    */
   protected getTimestampFromRuleString(ruleString : string ) {
     let str = ruleString.split('format: ')[1];
-    if (!isNullOrUndefined(str)) {
+    if (!isNullOrUndefined(str)) { // 편집시 ruleString 에 timestamp format 이 있다면
       this.isTimestamp = true;
-      this.selectedTimestamp = str.split(' dsId')[0].substring(1,str.split(' dsId')[0].length-1);
-      this.getTimestampFormats();
-    } else {
-      // From context menu
-      let val = ruleString.split('type: ')[1];
-      if (!isNullOrUndefined(val)) {
-        val = val.split(' dsId: ')[0];
-        if (val.toLowerCase() === 'timestamp' || val.toLowerCase() === 'string') {
-          this.defaultIndex = this.typeList.indexOf(val.toLowerCase());
-          let idx = this.fields.findIndex((item) =>  {
-            return item.name === this.selectedFields[0].name;
-          });
-
-          this.selectedTimestamp = this._findTimestampStyleWithIdxInColDescs(idx);
-          this.isTimestamp = true;
-          this.getTimestampFormats();
-        }
-      }
+      this.selectedTimestamp = str.substring(1,str.length-1);
+      this.hasEditTimestamp = true; // 편집 여부
     }
-  }
-
-  /**
-   * Find timestamp type with id in colTypes
-   * @param {number} idx
-   * @return {string}
-   * @private
-   */
-  private _findTimestampStyleWithIdxInColDescs(idx : number) : string {
-    return this.colTypes[idx].timestampStyle.replace(/'/g, '\\\'');
   }
 
   /**

@@ -137,7 +137,7 @@ public class PrepSnapshotService {
         }
     }
 
-    public List<PrepSnapshot> getWorkList(String dsId) {
+    public List<PrepSnapshot> getWorkList(String dsId, String option) {
         List<PrepSnapshot> snapshots = Lists.newArrayList();
 
         try {
@@ -145,7 +145,11 @@ public class PrepSnapshotService {
             List<PrepSnapshot> listAll = this.snapshotRepository.findAll(sort);
             for(PrepSnapshot ss : listAll) {
                 if(true==dsId.equals(ss.getLineageInfoValue("dsId"))) {
-                    snapshots.add(ss);
+                    if(option.toUpperCase().equals("ALL")){
+                        snapshots.add(ss);
+                    } else if(ss.getStatusEnum() != PrepSnapshot.STATUS.CANCELING && ss.getStatusEnum() != PrepSnapshot.STATUS.CANCELED){
+                        snapshots.add(ss);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -153,5 +157,21 @@ public class PrepSnapshotService {
         }
 
         return snapshots;
+    }
+
+    public PrepSnapshot.STATUS getSnapshotStatus(String ssId) {
+        try {
+            Sort sort = new Sort(Sort.Direction.DESC, "launchTime");
+            List<PrepSnapshot> listAll = this.snapshotRepository.findAll(sort);
+            for(PrepSnapshot ss : listAll) {
+                if(ssId.equals(ss.getSsId())) {
+                   return ss.getStatusEnum();
+                }
+            }
+        } catch (Exception e) {
+            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+        }
+
+        return null;
     }
 }

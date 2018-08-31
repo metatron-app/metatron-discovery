@@ -136,7 +136,6 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
    */
   public changeFields(data: { target: Field, isSelect: boolean, selectedList: Field[] }) {
     this.selectedFields = data.selectedList;
-    this.safelyDetectChanges();
   } // function - changeFields
 
   /**
