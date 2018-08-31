@@ -4,7 +4,7 @@
 # --polaris.analyze.pivot=false --polaris.analyze.forward=JSON
 spring:
   profiles:
-    active: local,h2-default-db,logging-console-debug,spark-local-yarn,scheduling # cloud-local #, saml-azure #, initial #,dataprep, bcrypt-encoder, encode-password-initial
+    active: local,mysql-default-db,logging-console-debug,spark-local-standalone,dataprep
   application:
     name: ${METATRON_NAME:metatron}
   datasource:
@@ -373,12 +373,19 @@ spring:
   profiles: dataprep
 polaris:
   dataprep:
-    hadoopConfDir: /home/hadoop/servers/hadoop/etc/hadoop
+    hadoopConfDir: /Users/minhyoung/servers/hadoop-2.8.3/etc/hadoop
     hive:
       hostname: localhost
-      username: hive
-    localBaseDir: ${METATRON_HOME}/dataprep
+      username: minhyoung
+    localBaseDir: /Users/minhyoung/git/metatron-discovery/dataprep
     stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep
+    sampling:
+      cores: 4
+      autotyping: true
+      limitRows: 10000
+    etl:
+      timeout: 60
+      cores: 4
 
 # Password Encoder
 ---
