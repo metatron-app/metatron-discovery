@@ -52,22 +52,41 @@ public class TeddyOrcWriter {
     return null;  // cannot reach here
   }
 
-  private void setBatch(int pos, ColumnVector colVector, ColumnType colType, ColumnDescription colDesc, Object obj) {
+  private boolean setBatch(int pos, ColumnVector colVector, ColumnType colType, ColumnDescription colDesc, Object obj) {
+    //null check
+    if(obj == null)
+      return false;
+
     switch (colType) {
       case STRING:
+        if(!(obj instanceof  String)){
+          return false;
+        }
         byte[] bytes = toBytes((String) obj);
         ((BytesColumnVector) colVector).setVal(pos, bytes, 0, bytes.length);
         break;
       case LONG:
+        if(!(obj instanceof  Long)){
+          return false;
+        }
         ((LongColumnVector) colVector).vector[pos] = (Long) obj;
         break;
       case DOUBLE:
+        if(!(obj instanceof  Double)){
+          return false;
+        }
         ((DoubleColumnVector) colVector).vector[pos] = (Double) obj;
         break;
       case BOOLEAN:
+        if(!(obj instanceof  Boolean)){
+          return false;
+        }
         ((LongColumnVector) colVector).vector[pos] = (Boolean) obj ? 1 : 0;
         break;
       case TIMESTAMP:
+        if(!(obj instanceof  DateTime)){
+          return false;
+        }
         ((TimestampColumnVector) colVector).time[pos] = ((DateTime) obj).getMillis();
         ((TimestampColumnVector) colVector).nanos[pos] = 0;
         break;
@@ -90,6 +109,8 @@ public class TeddyOrcWriter {
       case UNKNOWN:
         break;
     }
+
+    return true;
   }
 
   private void addField(TypeDescription typeDescription, String colName, ColumnType colType, ColumnDescription subColDesc) {
@@ -144,6 +165,7 @@ public class TeddyOrcWriter {
   public int writeOrc(DataFrame df, Configuration conf, Path file, COMPRESSION compression) throws IOException {
     TypeDescription typeDescription = buildTypeDescription(df);
     int pos;    // batch상 position (0~1023)
+    boolean typeCheck = true;
 
     LOGGER.trace("writeOrc(): start");
 
@@ -157,13 +179,18 @@ public class TeddyOrcWriter {
     VectorizedRowBatch batch = typeDescription.createRowBatch();
 
     for (int rowno = 0; rowno < df.rows.size(); rowno++) {
-      pos = batch.size++;
+      pos = batch.size;
       Row row = df.rows.get(rowno);
 
       for (int colno = 0; colno < df.getColCnt(); colno++) {
-        setBatch(pos, batch.cols[colno], df.getColType(colno), df.getColDesc(colno), row.get(colno));
+        typeCheck = setBatch(pos, batch.cols[colno], df.getColType(colno), df.getColDesc(colno), row.get(colno));
+        if(typeCheck == false)
+          break;
       }
 
+      if(typeCheck) {
+        batch.size++;
+      }
       if (batch.size == batch.getMaxSize()) {
         writer.addRowBatch(batch);
         batch.reset();
