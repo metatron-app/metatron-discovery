@@ -156,13 +156,20 @@ public class MatrixResponse<R, C> implements Serializable {
       String rowName = (String) rows.get(i);
       boolean emptyRowName = StringUtils.isEmpty(rowName);
 
+      Integer columnIdx = 0;
       for (Integer j = 0; j < columnSize; j++) {
         Column<C> col = columns.get(j);
         StringJoiner joiner = new StringJoiner(columnDelimeter);
 
+        // Remove measure name from name of column.
+        String joinName = StringUtils.substringBeforeLast(col.getName(), columnDelimeter);
+        if(StringUtils.isEmpty(joinName) || joinName.endsWith(columnDelimeter)) {
+          continue;
+        }
+
         if(emptyRowName) {
-          String[] splitedName = StringUtils.split(col.getName(), columnDelimeter);
-          // Column 에 필드가 위치하지 않은 경우, 측정값 명을 앞으로 위치
+          // If no field is located in the Row, the measure name is placed in front.
+          String[] splitedName = StringUtils.split(col.getName(), columnDelimeter);//
           if(splitedName.length > 1) {
             joiner.add(splitedName[splitedName.length - 1]);
             for (int z = 0; z < splitedName.length - 1; z++) {
@@ -173,13 +180,13 @@ public class MatrixResponse<R, C> implements Serializable {
           }
         } else {
           joiner.add(rowName);
-          joiner.add(StringUtils.substringBeforeLast(col.getName(), columnDelimeter));
+          joiner.add(joinName);
         }
 
         // 행/열 인덱스값 및 Value 추가
         List<C> newValue = Lists.newArrayList();
         newValue.add((C) i);
-        newValue.add((C) j);
+        newValue.add((C) columnIdx++);
         C realValue = col.getValue().get(i);
         newValue.add(realValue);
         valueForMinMax.add(realValue);
