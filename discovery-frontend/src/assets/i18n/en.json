@@ -1405,7 +1405,7 @@
   "msg.storage.th.current-time" : "Current time",
   "msg.storage.th.unsel.all" : "Unselect all",
   "msg.storage.btn.apply" : "apply",
-  "msg.storage.ui.sel.count": "{{value}} Selections",
+  "msg.storage.ui.sel.count": "Selections",
   "msg.storage.th.time-column" : "Time-type column",
   "msg.storage.ui.timestamp.description" : "One of the time-type columns or current time must be specified as a Timestamp",
   "msg.storage.ui.del.column" : "Deleted column",

@@ -1405,7 +1405,7 @@
   "msg.storage.th.current-time" : "현재 시간",
   "msg.storage.th.unsel.all" : "전체 선택 해제",
   "msg.storage.btn.apply" : "적용",
-  "msg.storage.ui.sel.count": "<strong>{{value}}</strong> 선택",
+  "msg.storage.ui.sel.count": "선택",
   "msg.storage.th.time-column" : "시간 타입 컬럼",
   "msg.storage.ui.timestamp.description" : "시간 타입 또는 현재 시간 중 하나는 시간값으로 지정되어야 합니다",
   "msg.storage.ui.del.column" : "컬럼 삭제",
