@@ -101,7 +101,7 @@ public class PrepDatasetService {
         }
     }
 
-    public DataFrame subFileType(PrepDataset dataset) {
+    public DataFrame subFileType(PrepDataset dataset) throws Exception {
         DataFrame dataFrame = null;
 
         String filekey = dataset.getFilekey();
@@ -121,14 +121,12 @@ public class PrepDatasetService {
             dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, filekey, "0", this.filePreviewSize);
 
             dataset.setFileType(PrepDataset.FILE_TYPE.LOCAL);
-            if( false==dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://") ) {
+            if( false==dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://") ) { // always
                 String localFilePath = dataset.getCustomValue("filePath");
-                if(null!=localFilePath) {
-                    String hdfsFilePath = this.hdfsService.moveLocalToHdfs(localFilePath, filekey);
-                    if (null!=hdfsFilePath) {
-                        dataset.putCustomValue("filePath", hdfsFilePath);
-                        dataset.setFileType(PrepDataset.FILE_TYPE.HDFS);
-                    }
+                String hdfsFilePath = this.hdfsService.moveLocalToHdfs(localFilePath, filekey);
+                if (null!=hdfsFilePath) {
+                    dataset.putCustomValue("filePath", hdfsFilePath);
+                    dataset.setFileType(PrepDataset.FILE_TYPE.HDFS);
                 }
             }
         }
