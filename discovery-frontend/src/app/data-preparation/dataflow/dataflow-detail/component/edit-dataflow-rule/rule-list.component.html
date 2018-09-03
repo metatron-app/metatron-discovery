@@ -65,8 +65,9 @@
     </ul>
   </div>
   <app-rule-snapshot-list *ngIf="1 === tabNumber"
+                          (retrieveAllSnapshots)="setCanceledStatus($event)"
                           (snapshotDetailEvent)="snapshotDetail($event)"
-                          (snapshotListRefreshEvent)="getSnapshotList(dsId)"
+                          (snapshotListRefreshEvent)="getSnapshotWithInterval(dsId)"
                           (snapshotIntervalStopEvent)="clearSnapshotInterval()">
   </app-rule-snapshot-list>
 </div>

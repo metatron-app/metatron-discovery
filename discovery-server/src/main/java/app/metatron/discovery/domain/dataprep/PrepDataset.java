@@ -636,15 +636,13 @@ public class PrepDataset extends AbstractHistoryEntity {
     @JsonIgnore
     public String getSheetName() throws PrepException {
         if(this.importType!=null && this.importType==IMPORT_TYPE.FILE) {
-            if(this.fileType!=null && this.fileType==FILE_TYPE.LOCAL) {
-                if(true==isEXCEL()) {
-                    String customSheetName = getCustomValue("sheet");
-                    if(null==customSheetName) {
-                        String errorMsg = "dataset ["+this.dsName+"] hasn't a sheet name";
-                        //throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HAS_NO_SHEET_NAME, errorMsg);
-                    }
-                    return customSheetName;
+            if(true==isEXCEL()) {
+                String customSheetName = getCustomValue("sheet");
+                if(null==customSheetName) {
+                    String errorMsg = "dataset ["+this.dsName+"] hasn't a sheet name";
+                    //throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HAS_NO_SHEET_NAME, errorMsg);
                 }
+                return customSheetName;
             }
         }
         return null;

@@ -14,8 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import com.google.common.collect.Maps;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -114,30 +112,26 @@ public class PrepHdfsService {
                 }
             }
         } catch (Exception e) {
+            LOGGER.debug(e.getMessage());
         }
 
         return result;
     }
 
-    public String moveLocalToHdfs(String localFilePath, String fileKey) {
+    public String moveLocalToHdfs(String localFilePath, String fileKey) throws Exception {
         String hdfsFilePath = null;
 
         Map<String, Object> check = checkHdfs();
-        if(check.get("checkConnection").equals(true)) {
-            try {
-                Configuration conf = this.getConf();
-                FileSystem fs = FileSystem.get(conf);
+        if(check.get("stagingBaseDir")!=null) {
+            Configuration conf = this.getConf();
+            FileSystem fs = FileSystem.get(conf);
 
-                String uploadPath = this.getUploadPath();
-                if(null!=uploadPath) {
-                    hdfsFilePath = uploadPath + File.separator + fileKey;
-                    Path pathLocalFile = new Path(localFilePath);
-                    Path pathStagingBase = new Path(hdfsFilePath);
-                    fs.copyFromLocalFile(true,true,pathLocalFile,pathStagingBase);
-                }
-            } catch (Exception e) {
-                LOGGER.error("moveLocalToHdfs(): caught an exception: ", e);
-                hdfsFilePath = null;
+            String uploadPath = this.getUploadPath();
+            if(null!=uploadPath) {
+                hdfsFilePath = uploadPath + File.separator + fileKey;
+                Path pathLocalFile = new Path(localFilePath);
+                Path pathStagingBase = new Path(hdfsFilePath);
+                fs.copyFromLocalFile(true,true,pathLocalFile,pathStagingBase);
             }
         }
         return hdfsFilePath;

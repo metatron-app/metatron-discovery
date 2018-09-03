@@ -478,6 +478,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           this.cntBatchEvent = 0;
         }
       } else {
+        this.cntBatchEvent = 0;
         this.broadCaster.broadcast('EDIT_RULE_GRID_SEL_COL', {
           selectedColIds: this._selectedColumns,
           fields: this._gridData.fields

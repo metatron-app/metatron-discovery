@@ -27,6 +27,7 @@ import { WidgetService } from '../../../dashboard/service/widget.service';
 import { saveAs } from 'file-saver';
 import { GridComponent } from '../grid/grid.component';
 import { CommonUtil } from '../../util/common.util';
+import { Alert } from '../../util/alert.util';
 
 @Component({
   selector: 'data-download',
@@ -131,15 +132,16 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * @param {string} widgetId
    */
   public openWidgetDown(event: MouseEvent, widgetId: string) {
-    this._openComponent();
+    this._openComponent('RIGHT');
     this._downloadId = widgetId;
     this._isWidgetMode = true;
 
     this.widgetService.previewWidget(widgetId, true).then(result => {
       this.preview = result;
       this.safelyDetectChanges();
-    }).catch( () => {
+    }).catch( (err) => {
       this.preview = null;
+      this.commonExceptionHandler(err);
     });
   } // function - openWidgetDown
 
@@ -149,7 +151,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * @param {GridComponent} gridComp
    */
   public openGridDown(event: MouseEvent, gridComp: GridComponent) {
-    this._openComponent();
+    this._openComponent('RIGHT');
     this._gridComp = gridComp;
     this._isWidgetMode = false;
   } // function - openGridDown
@@ -169,11 +171,16 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     this.close();
     if (this._isWidgetMode) {
       this.startDownEvent.emit();
-      this.widgetService.downloadWidget(this._downloadId, true, 1000000, 'CSV').subscribe(result => {
-        // 파일 저장
-        saveAs(result, 'data.csv');
-        this.endDownEvent.emit();
-      });
+      this.widgetService.downloadWidget(this._downloadId, true, 1000000, 'CSV').subscribe(
+        result => {
+          // 파일 저장
+          saveAs(result, 'data.csv');
+          this.endDownEvent.emit();
+        },
+        error => {
+          Alert.error(this.translateService.instant('msg.comm.alert.save.fail'));
+          this.endDownEvent.emit();
+        });
     } else {
       this._gridComp.csvDownload('data');
     }
@@ -186,11 +193,16 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     this.close();
     if (this._isWidgetMode) {
       this.startDownEvent.emit();
-      this.widgetService.downloadWidget(this._downloadId, true, 1000000, 'EXCEL').subscribe(result => {
-        // 파일 저장
-        saveAs(result, 'data.xlsx');
-        this.endDownEvent.emit();
-      });
+      this.widgetService.downloadWidget(this._downloadId, true, 1000000, 'EXCEL').subscribe(
+        result => {
+          // 파일 저장
+          saveAs(result, 'data.xlsx');
+          this.endDownEvent.emit();
+        },
+        error => {
+          Alert.error(this.translateService.instant('msg.comm.alert.save.fail'));
+          this.endDownEvent.emit();
+        });
     } else {
       this._gridComp.excelDownload('data');
     }
@@ -205,9 +217,10 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * 컴포넌트 열기
+   * @param {string} position
    * @private
    */
-  private _openComponent() {
+  private _openComponent(position:string) {
     this.downloadType = 'ALL';
     this.downloadRow = 0;
     this.isShow = true;
@@ -217,7 +230,18 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     ($target.hasClass('ddp-box-btn2')) || ($target = $target.closest('.ddp-box-btn2'));
     const lnbmoreLeft: number = $target.offset().left;
     const lnbmoreTop: number = $target.offset().top;
-    this.$element.find('.ddp-box-layout4').css({ 'left': lnbmoreLeft - 280, 'top': lnbmoreTop + 25 });
+    switch (position) {
+      case 'RIGHT' :
+        this.$element.find('.ddp-box-layout4.ddp-download').css({ 'left': lnbmoreLeft - 340, 'top': lnbmoreTop + 20 });
+        break;
+      case 'CENTER' :
+        this.$element.find('.ddp-box-layout4.ddp-download').css({ 'left': lnbmoreLeft - 170, 'top': lnbmoreTop + 20 });
+        break;
+      case 'LEFT' :
+        this.$element.find('.ddp-box-layout4.ddp-download').css({ 'left': lnbmoreLeft, 'top': lnbmoreTop + 20 });
+        break;
+      default :
+    }
   } // function - _openComponent
 
 }

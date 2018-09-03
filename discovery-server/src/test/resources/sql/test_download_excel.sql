@@ -4,7 +4,7 @@ INSERT INTO BOOK(TYPE, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME,
 INSERT INTO BOOK_WORKBOOK(ID) VALUES('wb-001');
 
 INSERT INTO PUBLIC.DASHBOARD(ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, BOARD_CONF, BOARD_DESCRIPTION, BOARD_IMAGE_URL, BOARD_NAME, BOARD_TAG, BOARD_SEQ, BOARD_HIDING, BOOK_ID) VALUES
-('db-001', 'polaris', now(), 'polaris', now(), 0, '{"dataSource":{"type": "default", "name": "sales"}}', NULL, NULL, 'dashboard-test1', NULL, 0, TRUE ,'wb-001');
+('db-001', 'polaris', now(), 'polaris', now(), 0, '{"dataSource":{"type":"multi","dataSources":[{"type":"default","name":"sales"},{"type":"default","name":"sales_profit"}],"associations":[{"source":"sales","target":"sales_profit","columnPair":{"Category":"Category"}}]}}', NULL, NULL, 'dashboard-test1', NULL, 0, TRUE ,'wb-001');
 
 INSERT INTO PUBLIC.DATASOURCE_DASHBOARD(DASHBOARD_ID, DS_ID) VALUES
 ('db-001', 'ds-37');
