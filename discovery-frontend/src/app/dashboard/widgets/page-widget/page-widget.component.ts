@@ -560,10 +560,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       // 저장된 필터 목록 초기화
       this._selectFilterList = [];
     }
-
-    console.info("===========");
-    console.info(this._selectFilterList);
-    console.info("===========");
   }
 
   /**
@@ -572,22 +568,57 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public changeExternalFilterList(externalFilters?: Filter[]): Filter[] {
 
-    // 필터가 없다면 반환
-    if( !externalFilters ) {
-      return externalFilters;
-    }
 
-    // 복사
-    externalFilters = _.cloneDeep(externalFilters);
+    // 대시보드에서 필터를 발생시킨경우 => 필터 목록 제거
+    for( let num = (this._selectFilterList.length - 1) ; num >= 0 ; num-- ) {
+      let filter = this._selectFilterList[num];
+      let isNotFilter: boolean = true;
+      externalFilters.map( (externalFilter) => {
+        // 동일한 필터를 찾은다음
+        if( _.eq(externalFilter.field, filter.alias) ) {
+          isNotFilter = false;
+          // 필터에 없는 데이터를 제거한다.
+          for( let num2 = (filter.data.length - 1) ; num2 >= 0 ; num2-- ) {
+            let data1 = filter.data[num2];
+            let isNotData = true;
+            externalFilter['valueList'].map((data2) => {
+              if (_.eq(data1, data2)) {
+                isNotData = false;
+              }
+            });
+            if( isNotData ) {
+              filter.data.splice(num, 1);
+            }
+          }
 
-    // 필터 목록 제거
-    for( let num = (externalFilters.length - 1) ; num >= 0 ; num-- ) {
-      let filter = externalFilters[num];
-      this._selectFilterList.map( (field) => {
-        if( _.eq(field.alias, filter.field) ) {
-          externalFilters.splice(num, 1);
+          // 데이터가 모두 제거되었다면 필터자체를 제거한다.
+          if( filter.data.length == 0 ) {
+            this._selectFilterList.splice(num, 1);
+          }
         }
       });
+
+      // 발생시켰던 필터가 없어졌다면 저장목록에서도 제거
+      if( isNotFilter ) {
+        this._selectFilterList.splice(num, 1);
+      }
+    }
+
+    // 현재 차트에서 필터를 발생시킨경우
+    if( externalFilters ) {
+
+      // 복사
+      externalFilters = _.cloneDeep(externalFilters);
+
+      // 필터 목록 제거
+      for (let num = (externalFilters.length - 1); num >= 0; num--) {
+        let filter = externalFilters[num];
+        this._selectFilterList.map((field) => {
+          if (_.eq(field.alias, filter.field)) {
+            externalFilters.splice(num, 1);
+          }
+        });
+      }
     }
 
     return externalFilters;
@@ -1124,7 +1155,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         uiOption: this.uiOption,
         params: {
           widgetId: this.widget.id,
-          externalFilters: (externalFilters !== undefined)
+          externalFilters: (externalFilters !== undefined),
+          // 현재 차트가 선택한 필터목록
+          selectFilterListList: this._selectFilterList
         }
 
       };
