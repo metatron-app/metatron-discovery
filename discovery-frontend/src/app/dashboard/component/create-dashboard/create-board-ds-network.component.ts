@@ -204,11 +204,11 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
       const boardDs: BoardDataSource = this.dashboard.configuration.dataSource;
       if ('multi' === boardDs.type) {
         boardDs.dataSources.forEach(item => {
-          const targetDs:Datasource = dataSources.find( ds => item.engineName === ds.engineName );
-          ( targetDs ) && ( item.name = targetDs.name );
+          const targetDs: Datasource = dataSources.find(ds => item.engineName === ds.engineName);
+          (targetDs) && (item.name = targetDs.name);
           this._addDataSource(item);
         });
-        if( boardDs.associations ) {
+        if (boardDs.associations) {
           boardDs.associations.forEach(item => {
             const srcDs: Datasource = dataSources.find(ds => ds.engineName === item.source);
             const tgtDs: Datasource = dataSources.find(ds => ds.engineName === item.target);
@@ -638,12 +638,13 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
       this._boardDataSources.push(ds);
 
       // 네트워크 노드 추가
-      const isKorean:boolean = !!ds.name.match( /[\u3131-\uD79D]/ugi );   // 한글 체크
-      if(360 < ( isKorean ? 2 * ds.name.length : ds.name.length ) * 14 ) {
+      const isKorean: boolean = this._checkKorean( ds.name );   // 한글 체크
+      console.info( '>>>>>> name : %s, isKorean : %s', ds.name, isKorean );
+      if (360 < (isKorean ? 2 * ds.name.length : ds.name.length) * 14) {
         const nodeName: string = isKorean ? ds.name.substr(0, 11) + '...' : ds.name.substr(0, 22) + '...';
-        this._nodes.add({ id: ds.id, label: nodeName, title:ds.name });
+        this._nodes.add({ id: ds.id, label: nodeName, title: ds.name });
       } else {
-        this._nodes.add({ id: ds.id, label: ds.name, title:ds.name });
+        this._nodes.add({ id: ds.id, label: ds.name, title: ds.name });
       }
 
       if (1 === this._nodes.getIds().length) {
@@ -802,5 +803,22 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     this.selectedRelation = undefined;
     this._network.unselectAll();
   } // function - _clearSelection
+
+  /**
+   * Check Korean
+   * @param objStr
+   * @return {boolean}
+   * @private
+   */
+  private _checkKorean(objStr):boolean {
+    let isKorean:boolean = false;
+    for (let idx = 0; idx < objStr.length; idx++) {
+      if (((objStr.charCodeAt(idx) > 0x3130 && objStr.charCodeAt(idx) < 0x318F) || (objStr.charCodeAt(idx) >= 0xAC00 && objStr.charCodeAt(idx) <= 0xD7A3))) {
+        isKorean = true;
+        break;
+      }
+    }
+    return isKorean;
+  } // function - _checkKorean
 
 }
