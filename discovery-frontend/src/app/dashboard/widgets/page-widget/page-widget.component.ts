@@ -434,29 +434,31 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
       // 마지막 외부필터로 들어온 데이터는 선택불가
       let selectData = [];
-      data.data.map( (field) => {
-        let isExternalFilter: boolean = false;
-        if( this._externalFilters ) {
-          this._externalFilters.map( (filter) => {
-            // 동일한 필터가 있는지 찾는다.
-            if( _.eq(field.alias, filter.field) ) {
-              isExternalFilter = true;
+      if( data.data ) {
+        data.data.map( (field) => {
+          let isExternalFilter: boolean = false;
+          if( this._externalFilters ) {
+            this._externalFilters.map( (filter) => {
+              // 동일한 필터가 있는지 찾는다.
+              if( _.eq(field.alias, filter.field) ) {
+                isExternalFilter = true;
+              }
+            });
+          }
+
+          // 내가 선택한거면 예외
+          let isAlreadyFilter: boolean = false;
+          this._selectFilterList.map((filter) => {
+            if (_.eq(field.alias, filter.alias)) {
+              isAlreadyFilter = true;
             }
           });
-        }
 
-        // 내가 선택한거면 예외
-        let isAlreadyFilter: boolean = false;
-        this._selectFilterList.map((filter) => {
-          if (_.eq(field.alias, filter.alias)) {
-            isAlreadyFilter = true;
+          if( !isExternalFilter || isAlreadyFilter ) {
+            selectData.push(field);
           }
         });
-
-        if( !isExternalFilter || isAlreadyFilter ) {
-          selectData.push(field);
-        }
-      });
+      }
       if( selectData.length == 0 && !_.eq(data.mode, ChartSelectMode.CLEAR) ) {
         return;
       }
