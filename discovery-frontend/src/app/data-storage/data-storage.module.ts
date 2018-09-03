@@ -32,7 +32,6 @@ import { InformationDataSourceComponent } from './data-source-list/detail-data-s
 import { DetailDataSourceComponent } from './data-source-list/detail-data-source/detail-data-source.component';
 import { DataPreviewModule } from '../common/data.preview.module';
 import { SchemaDetailComponent } from './component/schema-detail/schema-detail.component';
-import { SetFilterOrderComponent } from './component/set-filter-order/set-filter-order.component';
 import { TimeComponent } from './component/time-compoent/time.component';
 import { DndModule } from 'ng2-dnd';
 import { DbCompleteComponent } from './data-source-list/create-data-source/db-create-component/db-complete/db-complete.component';
@@ -79,7 +78,6 @@ const storageRoutes: Routes = [
   declarations: [
     // common
     TimeComponent,
-    SetFilterOrderComponent,
     SchemaDetailComponent,
     SchemaChangeActionComponent,
     // data source

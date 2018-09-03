@@ -14,13 +14,11 @@
 
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
-  ViewChild
+  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output
 } from '@angular/core';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { isUndefined } from 'util';
 import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
-import { SetFilterOrderComponent } from '../../../../component/set-filter-order/set-filter-order.component';
 import * as _ from 'lodash';
 
 @Component({
@@ -43,9 +41,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
 
   // 선택된 컬럼리스트
   private checkedColumnList: any[];
-
-  @ViewChild(SetFilterOrderComponent)
-  private filterOrderComponent: SetFilterOrderComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -92,9 +87,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   // show flag
   public typeShowFl: boolean = false;
   public timestampShowFl: boolean = false;
-
-  // 추천 및 필수필터 flag
-  public recommendAndEssentialFl: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -170,17 +162,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     }
   }
 
-  /**
-   * 추천 필터 변경모달 오픈
-   */
-  public openEditFilterOrder() {
-    // 추천 필터로 설정된 컬럼만 넘겨줌
-    const fields = this.fields.filter((field) => {
-      return field.filtering;
-    });
-    this.filterOrderComponent.init(fields);
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - getter
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -198,10 +179,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     // type filter
     if (this.selectedType.value !== 'ALL') {
       columnList = this.getColumnsTypeFilter(columnList);
-    }
-    // 추천 / 필수 filters
-    if (this.recommendAndEssentialFl) {
-      columnList = this.getColumnsRecommendAndEssentialFilter(columnList);
     }
     // search filter
     const searchText = this.searchText.trim();
@@ -242,16 +219,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   }
 
   /**
-   * 현재 설정된 추천필터 갯수
-   * @returns {number}
-   */
-  public getRecommendationLength() {
-    return this.fields.filter((column) => {
-      return column.hasOwnProperty('filtering');
-    }).length;
-  }
-
-  /**
    * 현재 데이터소스의 생성 타입
    * @returns {string}
    */
@@ -262,14 +229,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - setter
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 추천필터 seq 지정
-   * @param data
-   */
-  public setFilterSeq(data) {
-    this.resortFilteringSeq(data.column, data.seq);
-  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - init
@@ -288,12 +247,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
       this.selectedTimestampType = 'COLUMN';
       // 타임스탬프 컬럼 값
       this.selectedTimestampColumn = !this.selectedTimestampColumn ? columnList[0] : this.selectedTimestampColumn;
-
-      // 해당 컬럼이 필수필터로 지정되었다면
-      if (this.selectedTimestampColumn.hasOwnProperty('filtering')) {
-        // init filtering seq
-        this.initFilteringSeq(this.selectedTimestampColumn);
-      }
     }
   }
 
@@ -326,11 +279,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     this.selectedTimestampColumn = column;
     // 사용자 지정 타임스탬프
     this.selectedTimestampType = 'COLUMN';
-    // 만약 선택한 컬럼에 filtering 이 있는경우
-    if (column.hasOwnProperty('filtering')) {
-      // init filtering seq
-      this.initFilteringSeq(column);
-    }
   }
 
   /**
@@ -483,15 +431,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   }
 
   /**
-   * 필터처리된 컬럼인지 확인
-   * @param column
-   * @returns {boolean}
-   */
-  public isFilterColumn(column): boolean {
-    return column.hasOwnProperty('filtering');
-  }
-
-  /**
    * 현재 선택된 상태라면
    * @param column
    * @returns {boolean}
@@ -511,8 +450,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   public showCurrentColumn(): boolean {
     if (this.selectedTimestampType === 'CURRENT'
       && this.selectedRoleType.value !== 'MEASURE'
-      && (this.selectedType.value === 'ALL' || this.selectedType.value === 'TIMESTAMP')
-      && this.recommendAndEssentialFl === false) {
+      && (this.selectedType.value === 'ALL' || this.selectedType.value === 'TIMESTAMP')) {
       // search text
       const searchText = this.searchText.trim();
       // 검색어가 있는경우
@@ -591,8 +529,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
       // show flag
       typeShowFl: this.typeShowFl,
       timestampShowFl: this.timestampShowFl,
-      // 추천 및 필수필터 flag
-      recommendAndEssentialFl: this.recommendAndEssentialFl,
       // field list
       fields: this.fields,
       // data list
@@ -611,42 +547,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     }
     // 현재 페이지의 데이터소스 생성정보 저장
     this.saveSchemaData(this.sourceData);
-  }
-
-
-  /**
-   * 추천 / 필수 필터 관련된 변수 삭제
-   * @param column
-   */
-  private deleteFilteringData(column) {
-    // 필터 관련된 변수 삭제
-    delete column.filtering;
-    delete column.filteringSeq;
-    delete column.filteringOptions;
-  }
-
-  /**
-   * 현재 컬럼 추천 / 필수 필터 seq 재설정
-   * @param column
-   * @param seqNum
-   */
-  private resortFilteringSeq(column, columnSeqNum) {
-    // 필터로 설정된 컬럼 목록
-    const filteringColumns = this.getColumnsRecommendAndEssentialFilter(this.fields);
-    // 목록이 하나도 없다면
-    if (filteringColumns.length === 0) {
-      return;
-    }
-    // seq max number
-    const maxSeqNumber = this.getMaxSeqNumber(filteringColumns);
-    // 해당 컬럼이 기존 필터상태에서 해제라면
-    if (!isUndefined(columnSeqNum)) {
-      // 모든 필터목록 seq 재정렬
-      this.setColumnsFilteringSeq(filteringColumns, columnSeqNum, maxSeqNumber);
-    } else {
-      // 해당 컬럼에 필터링 넘버 부여
-      column.filteringSeq = maxSeqNumber + 1;
-    }
   }
 
   /**
@@ -743,46 +643,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     }));
   }
 
-  /**
-   * 필터설정된 리스트의 seq 최대값
-   * @param {any[]} columnList
-   * @returns {number}
-   */
-  private getMaxSeqNumber(columnList: any[]): number {
-    let maxSeq = -1;
-    columnList.forEach((column) => {
-      if (column.hasOwnProperty('filteringSeq')) {
-        maxSeq = maxSeq < column.filteringSeq ? column.filteringSeq : maxSeq;
-      }
-    });
-    return maxSeq;
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - setter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 모든 추천 / 필수 펄티 seq 재정렬
-   * @param {any[]} filteringColumns
-   * @param {number} columnSeqNum
-   * @param {number} maxSeqNum
-   */
-  private setColumnsFilteringSeq(filteringColumns: any[], columnSeqNum: number, maxSeqNum: number) {
-    // 최소 seq
-    let minSeq = columnSeqNum + 1;
-
-    // 모든 seq 값 하나씩 앞으로 당겨짐
-    while (minSeq <= maxSeqNum) {
-      filteringColumns.forEach((column) => {
-        if (column.filteringSeq === minSeq) {
-          column.filteringSeq -= 1;
-          minSeq += 1;
-        }
-      });
-    }
-  }
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -795,12 +655,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     columnList.forEach((column) => {
       // 삭제 플래그
       column.removed = true;
-      // 필수필터에 대한 처리
-      // 추천 필터 존재시
-      if (column.hasOwnProperty('filtering')) {
-        // filtering seq init
-        this.initFilteringSeq(column);
-      }
       // 타임스탬프에 대한 처리
       // 현재 컬럼이 타임스탬프로 지정된 컬럼이였다면
       if (this.isTimestampColumn(column)) {
@@ -827,8 +681,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
 
         // ingestion에 대한 처리
         this.initIngestionRuleInChangeType(column);
-        // 필수 필터에 대한 처리
-        this.initFilteringInChangeType(column, logicalType, role);
         // 타임스탬프에 대한 처리
         this.initTimestampInChangeType(column, logicalType, timestampPromise);
         // 타입 변경
@@ -878,18 +730,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   private getColumnsSearchTextFilter(columnList, searchText) {
     return columnList.filter((column) => {
       if (this.isIncludeText(column.name, searchText)) {
-        return column;
-      }
-    });
-  }
-
-  /**
-   * 추천 / 필수 필터링
-   * @param columnList
-   */
-  private getColumnsRecommendAndEssentialFilter(columnList) {
-    return columnList.filter((column) => {
-      if (column.hasOwnProperty('filtering')) {
         return column;
       }
     });
@@ -1000,19 +840,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 필터 넘버 초기화 및 정렬
-   * @param column
-   */
-  private initFilteringSeq(column) {
-    // seq 넘버
-    const seqNum = column.filteringSeq;
-    // 필터 관련된 변수 삭제
-    this.deleteFilteringData(column);
-    // 필터 재정렬
-    this.resortFilteringSeq(column, seqNum);
-  }
-
-  /**
    * 타입변경 이벤트시 init timestamp
    * @param column
    * @param type
@@ -1027,23 +854,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     // 컬럼이 타임스탬프로 지정되었던 경우
     if (this.isTimestampColumn(column)) {
       this.selectedTimestampColumn = null;
-    }
-  }
-
-  /**
-   * 타입변경 이벤트시 init filter
-   * @param column
-   * @param type
-   */
-  private initFilteringInChangeType(column, type, role) {
-    // 기존 타입이 타임이고 필터링 옵션이 있었던 경우
-    if (column.hasOwnProperty('filteringOptions') && column.logicalType === 'TIMESTAMP') {
-      delete column.filteringOptions;
-    }
-    // 변경된 타입이 타임이고 필터링이 있었던 경우
-    if (column.hasOwnProperty('filtering')
-      && (this.isEqualType('TIMESTAMP', type) || role === 'MEASURE')) {
-      this.initFilteringSeq(column);
     }
   }
 
@@ -1139,8 +949,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     // show flag
     this.typeShowFl = schemaData.typeShowFl;
     this.timestampShowFl = schemaData.timestampShowFl;
-    // 추천 및 필수필터 flag
-    this.recommendAndEssentialFl = schemaData.recommendAndEssentialFl;
     // fields
     this.fields = schemaData.fields;
     // fields data

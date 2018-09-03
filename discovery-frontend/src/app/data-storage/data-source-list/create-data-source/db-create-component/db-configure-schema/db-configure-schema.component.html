@@ -51,12 +51,6 @@
             <!-- //edit option -->
           </div>
           <!-- //role 필터 -->
-          <!-- 추천 필터 -->
-          <a href="javascript:" class="ddp-link-toggle ddp-fleft"
-             [ngClass]="{'ddp-selected' : recommendAndEssentialFl}" (click)="recommendAndEssentialFl = !recommendAndEssentialFl">
-            <em class="ddp-icon-recommend"></em>{{(getConnectionType === 'ENGINE' ? 'msg.storage.btn.recommend.filter' : 'msg.storage.btn.essential.filter') | translate}}
-          </a>
-          <!-- //추천 필터 -->
           <!-- 타입 필터 -->
           <div class="ddp-form-label2 ddp-fleft">
             <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
@@ -133,10 +127,6 @@
                     <!-- value -->
                     <div class="ddp-wrap-value-icon ddp-type">
                       <em *ngIf="getTimestampIcon(column)" class="ddp-icon-time"></em>
-                      <div *ngIf="isFilterColumn(column)" class="ddp-wrap-datarecommend">
-                        {{column.filteringSeq + 1}}
-                        <em class="ddp-icon-recommend-s"></em>
-                      </div>
                       <em class="ddp-icon-view"></em>
                     </div>
                     <!-- //value -->
@@ -212,13 +202,10 @@
         <!-- right -->
         <app-schema-detail
           (changeEvent)="initTimestampColumn()"
-          (filtering)="setFilterSeq($event)"
-          (editOrder)="openEditFilterOrder()"
           [connType]="getConnectionType"
           [columnData]="selectedColumnData"
           [selectedTime]="selectedTimestampColumn"
           [selectedTimestampType]="selectedTimestampType"
-          [recommendation]="getRecommendationLength()"
           [column]="selectedColumn">
         </app-schema-detail>
         <!-- //right -->
@@ -274,5 +261,3 @@
   <!-- //buttons -->
 
 </div>
-
-<app-set-filter-order [connType]="getConnectionType"></app-set-filter-order>
