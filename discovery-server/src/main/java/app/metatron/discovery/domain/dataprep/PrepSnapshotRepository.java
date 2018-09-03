@@ -22,6 +22,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
+import java.util.List;
+
 @RepositoryRestResource(path = "preparationsnapshots", itemResourceRel = "preparationsnapshot" , collectionResourceRel = "preparationsnapshots",
         excerptProjection = PrepSnapshotProjections.DefaultProjection.class)
 public interface PrepSnapshotRepository extends JpaRepository<PrepSnapshot, String> {
@@ -31,4 +33,6 @@ public interface PrepSnapshotRepository extends JpaRepository<PrepSnapshot, Stri
     Page<PrepSnapshot> searchByQuery(@Param("q") String query, Pageable pageable);
 
     Page<PrepSnapshot> findBySsNameContaining(@Param("ssName") String ssName, Pageable pageable);
+    Page<PrepSnapshot> findBySsNameContainingAndStatusIn(@Param("ssName") String ssName, @Param("statuses") List<PrepSnapshot.STATUS> statusList, Pageable pageable);
+
 }

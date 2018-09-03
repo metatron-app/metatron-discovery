@@ -143,6 +143,13 @@ export class PageFilterPanel extends AbstractComponent implements OnInit, OnDest
 
     this.boardFilters = boardFilters;
     this.chartFilters = chartFilters;
+    FilterUtil.getPanelContentsList(
+      this.boardFilters,
+      this.dashboard,
+      (filter: InclusionFilter, field: Field) => {
+        this._setInclusionFilter(filter, field);
+      }
+    );
     this.safelyDetectChanges();
   } // function - setFilters
 

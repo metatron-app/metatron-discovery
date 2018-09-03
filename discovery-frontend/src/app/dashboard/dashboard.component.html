@@ -13,7 +13,7 @@
   -->
 
 <!-- 위젯 없음 -->
-<div *ngIf="datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length === 0"
+<div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length === 0"
      class="ddp-ui-widget ddp-type">
   <!-- 로딩 영역 -->
   <div *ngIf="isShowDashboardLoading" class="ddp-loading-part" style="top:150px;" >
@@ -33,7 +33,7 @@
 <!-- //위젯 없음 -->
 
 <!-- 대시보드 영역 -->
-<div *ngIf="datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length > 0">
+<div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length > 0">
 
   <!-- filter -->
   <selection-filter
@@ -59,7 +59,7 @@
 
 <!-- 데이터소스 생성 진행 프로그레스 표시 영역 -->
 <!-- 데이터 소스 상태 : Preparing -->
-<div *ngIf="datasourceStatus === enumStatus.PREPARING" class="ddp-div-table">
+<div *ngIf="dashboard && datasourceStatus === enumStatus.PREPARING" class="ddp-div-table">
   <div class="ddp-div-tablecell">
     <!--<span class="ddp-txt-condition">Preparing datasourece is paused</span>-->
 
@@ -105,7 +105,7 @@
 </div>
 
 <!-- 데이터 소스 상태 : Disabled -->
-<div *ngIf="datasourceStatus === enumStatus.DISABLE" class="ddp-div-table">
+<div *ngIf="dashboard && datasourceStatus === enumStatus.DISABLE" class="ddp-div-table">
   <div class="ddp-div-tablecell">
     <span class="ddp-txt-condition ddp-missing">{{ 'msg.board.ui.missing_datasource' | translate }}</span>
     <span class="ddp-detail" [innerHTML]="'msg.board.ui.missing_datasource.detail' | translate"></span>

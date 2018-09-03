@@ -14,24 +14,39 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import org.apache.commons.io.FilenameUtils;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import java.io.File;
 
 
 @Service
 @Transactional
 public class PrepDatasetService {
     @Autowired
+    PrepPreviewLineService previewLineService;
+
+    @Autowired
+    private PrepHdfsService hdfsService;
+
+    @Autowired
+    private PrepDatasetFileService datasetFilePreviewService;
+
+    @Autowired
+    private PrepDatasetSparkHiveService datasetSparkHivePreviewService;
+
+    @Autowired
+    private PrepDatasetJdbcService datasetJdbcPreviewService;
+
+    // not using
+    /*
+    @Autowired
     PrepDatasetRepository datasetRepository;
 
     @Autowired
     DataConnectionRepository dataConnectionRepository;
-
 
     public void setTotalLines(String dsId, Integer totalLines) {
         PrepDataset dataset = this.datasetRepository.findOne(dsId);
@@ -60,5 +75,64 @@ public class PrepDatasetService {
             }
         }
         return dsName;
+    }
+    */
+
+    private String filePreviewSize = "2000";
+    private String hivePreviewSize = "50";
+    private String jdbcPreviewSize = "50";
+
+    public void savePreview(PrepDataset dataset, String oAuthToken) throws Exception {
+        DataFrame dataFrame = null;
+
+        PrepDataset.IMPORT_TYPE importType = dataset.getImportTypeEnum();
+        if(importType == PrepDataset.IMPORT_TYPE.FILE) {
+            dataFrame = subFileType(dataset);
+        } else if(importType == PrepDataset.IMPORT_TYPE.HIVE) {
+            this.datasetSparkHivePreviewService.setoAuthToekn(oAuthToken);
+            dataFrame = this.datasetSparkHivePreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
+        } else if(importType == PrepDataset.IMPORT_TYPE.DB) {
+            this.datasetJdbcPreviewService.setoAuthToekn(oAuthToken);
+            dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
+        }
+
+        if(dataFrame!=null) {
+            int size = this.previewLineService.putPreviewLines(dataset.getDsId(), dataFrame);
+        }
+    }
+
+    public DataFrame subFileType(PrepDataset dataset) {
+        DataFrame dataFrame = null;
+
+        String filekey = dataset.getFilekey();
+        String sheetName = dataset.getSheetName();
+        String delimiter = dataset.getDelimiter();
+        if (filekey != null) {
+            if(true==dataset.isEXCEL()) {
+                String csvFileName = this.datasetFilePreviewService.moveExcelToCsv(filekey,sheetName,delimiter);
+                dataset.putCustomValue("fileType", "DSV");
+                dataset.putCustomValue("filePath", csvFileName);
+                int lastIdx = csvFileName.lastIndexOf(File.separator);
+                String newFileKey = csvFileName.substring(lastIdx+1);
+                dataset.setFilekey(newFileKey);
+                filekey = newFileKey;
+            }
+
+            dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, filekey, "0", this.filePreviewSize);
+
+            dataset.setFileType(PrepDataset.FILE_TYPE.LOCAL);
+            if( false==dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://") ) {
+                String localFilePath = dataset.getCustomValue("filePath");
+                if(null!=localFilePath) {
+                    String hdfsFilePath = this.hdfsService.moveLocalToHdfs(localFilePath, filekey);
+                    if (null!=hdfsFilePath) {
+                        dataset.putCustomValue("filePath", hdfsFilePath);
+                        dataset.setFileType(PrepDataset.FILE_TYPE.HDFS);
+                    }
+                }
+            }
+        }
+
+        return dataFrame;
     }
 }

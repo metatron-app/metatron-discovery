@@ -113,7 +113,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
       if (data.type === 'page' && this.isDashboardMode) return;
 
       // 필터 위젯에서 값이 변경될 경우
-      if ('change-filter' === data.name && this.filter.field === data.data.field && this.filter.ui.dsId === data.data.ui.dsId ) {
+      if ('change-filter' === data.name && this.filter.field === data.data.field && this.filter.dataSource === data.data.dataSource ) {
         this._initComponent(data.data);
       } else if ('remove-filter' === data.name && this.filter.ui.importanceType === 'general') {
         this._resetList(data.data);

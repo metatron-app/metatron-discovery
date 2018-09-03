@@ -238,6 +238,15 @@ public class QueryEditorService {
     QueryResult queryResult = null;
     Statement stmt = null;
 
+    if(isComment(query)){
+      queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
+      queryResult.setStartDateTime(DateTime.now());
+      queryResult.setFinishDateTime(DateTime.now());
+      queryResult.setAuditId(auditId);
+      queryResult.setQueryHistoryId(queryHistoryId);
+      return queryResult;
+    }
+
     //DataSource
     SingleConnectionDataSource singleConnectionDataSource = dataSourceInfo.getSingleConnectionDataSource();
 
@@ -440,5 +449,10 @@ public class QueryEditorService {
 
     }
     return false;
+  }
+
+  private boolean isComment(String query){
+    String lineTrimmed = query.trim();
+    return lineTrimmed.startsWith("#") || lineTrimmed.startsWith("--");
   }
 }

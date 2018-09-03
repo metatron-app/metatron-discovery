@@ -119,7 +119,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
       // 차트 선택 정보를 추가함
       this._addChartSelectionInfo(select);
       if (Array.isArray(select.data)) {
-        select.data.forEach((data) => this._addSelectionFilter(this.selectionFilterList, data, select.params.dataSourceId));
+        select.data.forEach((data) => this._addSelectionFilter(this.selectionFilterList, data, select.params.engineName));
       }
 
     } else if (select.mode === ChartSelectMode.SUBTRACT) {
@@ -233,7 +233,6 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
         filter.selector = InclusionSelectorType.MULTI_LIST;
         filter.valueList = item.valueList;
         filter.dataSource = item.dataSource;
-        filter.ui = { masterDsId: item.dataSource };
         return filter;
       } else if ('measure' === item.type) {
         return item;
@@ -245,7 +244,6 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
             dataSource : item.dataSource,
             timeUnit: TimeUnit[item.format.unit],
             discontinuous: item.format.discontinuous,
-            ui: { masterDsId: item.dataSource },
             valueList: item.valueList
           };
         } else {
@@ -255,7 +253,6 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
             dataSource : item.dataSource,
             timeUnit: TimeUnit[item.format.unit],
             discontinuous: item.format.discontinuous,
-            ui: { masterDsId: item.dataSource },
             intervals : [ item.minTime + '/' + item.maxTime ]
           };
         }
@@ -267,10 +264,10 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
    * Selection 필터 추가
    * @param {SelectionFilter[]} filters
    * @param {SelectionInfoData} selectInfoData
-   * @param {string} dataSourceId
+   * @param {string} engineName
    * @private
    */
-  private _addSelectionFilter(filters: SelectionFilter[], selectInfoData: SelectionInfoData, dataSourceId: string) {
+  private _addSelectionFilter(filters: SelectionFilter[], selectInfoData: SelectionInfoData, engineName: string) {
 
     const filter: SelectionFilter = filters.find((filter: SelectionFilter) => filter.field === selectInfoData.name);
 
@@ -283,7 +280,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
       this._setTimeRange(filter);
     } else {
       // 필터가 없는 경우
-      const selectionFilter = new SelectionFilter(selectInfoData.name, dataSourceId);
+      const selectionFilter = new SelectionFilter(selectInfoData.name, engineName);
       selectionFilter.name = selectInfoData.name;
       selectionFilter.alias = selectInfoData.alias;
       selectionFilter.type = selectInfoData.type;
@@ -515,10 +512,10 @@ export class SelectionFilter extends Filter {
   // hierachy 를 처리하기 위한 선택 필터의 대상 위젯 아이디
   public selectedWidgetId: string;
 
-  constructor(field: string, dataSourceId: string) {
+  constructor(field: string, engineName: string) {
     super();
     this.field = field;
-    this.dataSource = dataSourceId;
+    this.dataSource = engineName;
   }
 
   /**

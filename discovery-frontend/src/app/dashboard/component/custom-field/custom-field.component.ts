@@ -28,6 +28,7 @@ import { StringUtil } from '../../../common/util/string.util';
 import { ConfirmModalComponent } from '../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../common/domain/modal';
 import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
+import { DashboardUtil } from '../../util/dashboard.util';
 
 declare let $: any;
 
@@ -557,19 +558,6 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     this.validButtonDisabled = !(this._$calculationInput.text().hasOwnProperty(length) && this._$calculationInput.text().length > 0);
   }
 
-  // 탭이동시 초기화해야 하는 데이터
-  public tabDataReset() {
-    this._$calculationInput.text('');
-    this.maxPramValue = 0;
-    this.minPramValue = 0;
-    this.defaultParamValue = 0;
-    this.columnName = '';
-    this.isCalFuncSuccess = null;
-    this.validButtonDisabled = true;
-    this.expr = '';
-  }
-
-
   // 검증
   public calculationValidation() {
 
@@ -578,7 +566,8 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
       expr = expr.replace(/[[\]]/g, '"');
       expr = StringUtil.trim(expr);
 
-      const param = { expr, dataSource: this.dataSource };
+      const cloneDs:BoardDataSource = _.cloneDeep( this.dataSource );
+      const param = { expr, dataSource: DashboardUtil.convertBoardDataSourceSpecToServer(cloneDs) };
 
       this.dashboardService.validate(param).then((result: any) => {
         this.aggregated = result.aggregated;
@@ -605,7 +594,6 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
    * customfield data 설정
    */
   public setCustomFieldData() {
-
 
     if (this.selectedColumnType === ColumnType.DIMENSION || this.selectedColumnType === ColumnType.MEASURE) {
       if (!this.isCalFuncSuccess || this.isCalFuncSuccess === 'F') {

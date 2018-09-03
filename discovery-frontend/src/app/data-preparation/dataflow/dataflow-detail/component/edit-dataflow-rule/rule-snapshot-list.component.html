@@ -14,26 +14,26 @@
 
 <div class="ddp-ui-rule-flow">
   <div class="ddp-ui-empty" *ngIf="snapshotList && snapshotList.length === 0">
-    No snapshot create history
+    {{'msg.dp.ui.no.snapshot.history' | translate}}
   </div>
   <ul class="ddp-list-snapshot" *ngIf="snapshotList && snapshotList.length > 0 ">
     <li *ngFor="let snapshot of snapshotList">
-      <div class="ddp-txt-snapshot" (click)="snapshotDetail(snapshot)" [ngClass]="{'ddp-disabled':snapshot.isCancel}">
-        <em [ngClass]="{'ddp-icon-snap-success': snapshot.elapsedTime, 'ddp-icon-snap-play' : !snapshot.elapsedTime}">
+      <div class="ddp-txt-snapshot" (click)="snapshotDetail(snapshot)" [ngClass]="{'ddp-disabled':snapshot.isCancel || snapshot.status === 'NOT_AVAILABLE'}">
+        <em class="ddp-icon-snap-{{getSnapshotStatus(snapshot.status)[1]}}">
           <a href="javascript:" class="ddp-icon-cancel" *ngIf="!snapshot.elapsedTime" (click)="$event.stopImmediatePropagation(); cancelSnapshot(snapshot)"></a>
         </em>
         <div class="ddp-data-det">
-          <div class="ddp-data-title">{{snapshot.elapsedTime ? 'Success' : 'Preparing'}}</div>
+          <div class="ddp-data-title">{{getSnapshotStatus(snapshot.status)[0]}}</div>
           <div class="ddp-data-date">{{snapshot.ssName}}, {{snapshot.createdTime | mdate : 'YYYY-MM-DD HH:mm:ss'}}</div>
         </div>
       </div>
-      <div class="ddp-ui-progress ddp-play" *ngIf="!snapshot.elapsedTime && !snapshot.isCancel">
-        <span class="ddp-bar" [ngStyle]="{'width': (snapshot.ruleCntDone * 100 / snapshot.ruleCntTotal + 1) + '%'}"></span>
+      <div class="ddp-ui-progress ddp-play" *ngIf="getSnapshotStatus(snapshot.status)[0] === 'Preparing' && !snapshot.isCancel">
+        <span class="ddp-bar" [ngStyle]="{'width': (snapshot.ruleCntDone * 100 / (snapshot.ruleCntTotal + 1)) + '%'}"></span>
       </div>
       <div class="ddp-txt-cancel" *ngIf="snapshot.isCancel">
-        <span class="ddp-txt-det">Sure to cancel snapshot creation?</span>
-        <a href="javascript:" class="ddp-btn-line" (click)="refreshSnapshotList(snapshot)">No</a>
-        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="cancelSnapshotConfirm(snapshot)">Yes</a>
+        <span class="ddp-txt-det">{{'msg.dp.ui.snapshot.cancel.confirm' | translate }}</span>
+        <a href="javascript:" class="ddp-btn-line" (click)="refreshSnapshotList(snapshot)">{{'msg.dp.ui.no' | translate }}</a>
+        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="cancelSnapshotConfirm(snapshot)">{{'msg.dp.ui.yes' | translate }}</a>
       </div>
     </li>
   </ul>
