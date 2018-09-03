@@ -328,9 +328,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
         // Layout 업데이트
         this.renderLayout();
-
         this.dashboard.updateId = CommonUtil.getUUID();
-
         this.hideBoardLoading();
       }
 

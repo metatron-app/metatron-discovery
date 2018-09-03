@@ -276,7 +276,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                  <tr [ngClass]="{'ddp-selected' : selectedField && selectedField.name === field.name}" *ngFor="let field of getColumnList(source.fields)"
+                  <tr [ngClass]="{'ddp-selected' : selectedField && selectedField.name === field.name}" *ngFor="let field of getColumnList(source.fields); let i = index"
                       (click)="onSelectedField(field, source)">
                     <!-- physical column -->
                     <td>
@@ -312,7 +312,7 @@
                         <!-- //name -->
                       </div>
                       <!-- tooltip -->
-                      <div class="ddp-ui-tooltip-info" >
+                      <div class="ddp-ui-tooltip-info" [class.ddp-top]="isChangeTooltipClass(getColumnList(source.fields), i)">
                         <em class="ddp-icon-view-top"></em>{{field.name}}
                       </div>
                       <!-- //tooltip -->
@@ -341,7 +341,7 @@
                         <!-- //name -->
                       </div>
                       <!-- tooltip -->
-                      <div class="ddp-ui-tooltip-info ddp-left" >
+                      <div class="ddp-ui-tooltip-info ddp-left" [class.ddp-top]="isChangeTooltipClass(getColumnList(source.fields), i)">
                         <em class="ddp-icon-view-top"></em>{{field['logicalName']}}
                       </div>
                       <!-- //tooltip -->

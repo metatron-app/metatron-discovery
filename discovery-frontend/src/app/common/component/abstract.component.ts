@@ -223,8 +223,6 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         case 'TEXT':
         case 'DIMENSION':
         case 'STRING':
-          result = 'ddp-icon-type-ab';
-          break;
         case 'USER_DEFINED':
           result = 'ddp-icon-type-ab';
           break;
@@ -296,6 +294,119 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     return result;
   } // function - getIconClass
 
+  /**
+   * 필드에 맞는 role 타입 아이콘
+   * @param {string} roleType
+   * @returns {string}
+   */
+  public getFieldRoleTypeIconClass(roleType: string): string {
+    return roleType === 'MEASURE' ? 'ddp-measure' : 'ddp-dimension' ;
+  }
+
+  /**
+   * 필드에 맞는 Dimension 타입의 아이콘
+   * @param {string} type
+   * @returns {string}
+   */
+  public getFieldDimensionTypeIconClass(type: string): string {
+    if (type) {
+      switch (type) {
+        case 'TIMESTAMP':
+          return 'ddp-icon-dimension-calen';
+        case 'BOOLEAN':
+          return 'ddp-icon-dimension-tf';
+        case 'TEXT':
+        case 'DIMENSION':
+        case 'STRING':
+        case 'USER_DEFINED':
+          return 'ddp-icon-dimension-ab';
+        case 'INT':
+        case 'INTEGER':
+        case 'LONG':
+          return 'ddp-icon-dimension-int';
+        case 'DOUBLE':
+        case 'FLOAT':
+          return 'ddp-icon-dimension-float';
+        case 'MAP':
+          return 'ddp-icon-dimension-maplink';
+        case 'ARRAY':
+          return 'ddp-icon-dimension-array';
+        case 'CALCULATED':
+          return 'ddp-icon-dimension-sharp';
+        case 'LNG':
+        case 'LONGITUDE':
+          return 'ddp-icon-dimension-longitude';
+        case 'LNT':
+        case 'LATITUDE':
+          return 'ddp-icon-dimension-latitude';
+        case 'ACCOUNT':
+          return 'ddp-icon-dimension-account';
+        case 'COUNTRY':
+        case 'STATE':
+        case 'CITY':
+        case 'GU':
+        case 'DONG':
+          return 'ddp-icon-dimension-local';
+        default:
+          return 'ddp-icon-dimension-ab';
+      }
+    } else {
+      return '';
+    }
+
+  }
+
+  /**
+   * 필드에 맞는 Measure 타입의 아이콘
+   * @param {string} type
+   * @returns {string}
+   */
+  public getFieldMeasureTypeIconClass(type: string): string {
+    if (type) {
+      switch (type) {
+        case 'TIMESTAMP':
+          return 'ddp-icon-measure-calen';
+        case 'BOOLEAN':
+          return 'ddp-icon-measure-tf';
+        case 'TEXT':
+        case 'DIMENSION':
+        case 'STRING':
+        case 'USER_DEFINED':
+          return 'ddp-icon-measure-ab';
+        case 'INT':
+        case 'INTEGER':
+        case 'LONG':
+          return 'ddp-icon-measure-int';
+        case 'DOUBLE':
+        case 'FLOAT':
+          return 'ddp-icon-measure-float';
+        case 'MAP':
+          return 'ddp-icon-measure-maplink';
+        case 'ARRAY':
+          return 'ddp-icon-measure-array';
+        case 'CALCULATED':
+          return 'ddp-icon-measure-sharp';
+        case 'LNG':
+        case 'LONGITUDE':
+          return 'ddp-icon-measure-longitude';
+        case 'LNT':
+        case 'LATITUDE':
+          return 'ddp-icon-measure-latitude';
+        case 'ACCOUNT':
+          return 'ddp-icon-measure-account';
+        case 'COUNTRY':
+        case 'STATE':
+        case 'CITY':
+        case 'GU':
+        case 'DONG':
+          return 'ddp-icon-measure-local';
+        default:
+          return 'ddp-icon-measure-ab';
+      }
+    } else {
+      return '';
+    }
+  }
 
   /**
    * 사용가능한 커넥션 타입
@@ -393,7 +504,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   // noinspection JSMethodCanBeStatic
   /**
    * 사용자의 Full Name 조회
-    * @param {User | UserDetail} user
+   * @param {User | UserDetail} user
    * @return {string}
    */
   public getUserFullName( user:User|UserDetail ) {
@@ -510,8 +621,8 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       return err;
     } else {
       return {
-          'message' : 'msg.dp.alert.unknown.error',
-          'details' : JSON.stringify(err)
+        'message' : 'msg.dp.alert.unknown.error',
+        'details' : JSON.stringify(err)
       };
     }
   } // function - commonExceptionHandler

@@ -110,6 +110,7 @@ public class PrepHdfsService {
                 } else {
                     result.put("checkConnection", true);
                 }
+            } catch (Exception e) {
             }
         } catch (Exception e) {
             LOGGER.debug(e.getMessage());
