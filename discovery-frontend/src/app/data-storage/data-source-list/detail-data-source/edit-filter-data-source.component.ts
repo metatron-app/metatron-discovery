@@ -21,47 +21,38 @@ import { FilteringOptions, FilteringOptionType } from '../../../domain/workbook/
 import { ConfirmModalComponent } from '../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../common/domain/modal';
 
+/**
+ * Edit recommend and essential filter in datasource
+ */
 @Component({
   selector: 'edit-filter-data-source',
   templateUrl: './edit-filter-data-source.component.html'
 })
 export class EditFilterDataSourceComponent extends AbstractComponent implements OnInit, OnDestroy {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   // source id
   private _sourceId: string;
-  // 컬럼 목록 원본
+  // origin column list
   private _columnList: any[];
-  // 기존에 필터링 설정된 목록
+  // origin recommend filtered column list
   private _originFilteringColumnList: any[];
 
   @ViewChild(ConfirmModalComponent)
   private _confirmModalComponent: ConfirmModalComponent;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 필터링된 컬럼 목록
+  // filtered column list
   public filteredColumnList: any[];
-  // 필터링 롤 타입 목록
+  // role type filter list
   public roleTypeFilterList: any[] = [
     { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
     { label: this.translateService.instant('msg.comm.name.dim'), value: 'DIMENSION' },
     { label: this.translateService.instant('msg.comm.name.mea'), value: 'MEASURE' },
   ];
-  // 선택한 필터링 role 타입 목록
+  // selected role type filter
   public selectedRoleTypeFilter: any;
-  // 필터링 role 타입 목록 show flag
+  // role type filter show flag
   public isShowRoleTypeFilterList: boolean;
-  // 필터링 타입 목록
+  // type filter list
   public typeFilterList: any[] = [
     { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'ALL' },
     { label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING' },
@@ -72,54 +63,44 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
     { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
   ];
-  // 선택한 필터링 타입
+  // selected type filter
   public selectedTypeFilter: any;
-  // 필터링 타입 목록 show flag
+  // type filter show flag
   public isShowTypeFilterList: boolean;
-  // 필터설정된 컬럼 목록만 보기 flag
+  // filtered column list show flag
   public isShowOnlyFilterColumnList: boolean;
-  // 검색어
+  // search text keyword
   public searchTextKeyword: string;
   // component show flag
   public isShowComponent: boolean;
-  // 이 데이터소스가 LINKED형 인지
+  // LINKED datasource flag
   public isLinkedType: boolean;
-
 
   @Output()
   public updatedSchema: EventEmitter<any> = new EventEmitter();
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
+  // constructor
   constructor(private _dataSourceService: DatasourceService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
+  /**
+   * ngOnInit
+   */
   public ngOnInit() {
-    // Init
     super.ngOnInit();
   }
 
-  // Destory
+  /**
+   * ngOnDestroy
+   */
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * init
@@ -132,30 +113,30 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     this._initView();
     // source id
     this._sourceId = sourceId;
-    // Measure 가 아닌 컬럼 목록만 복사
+    // Copy only a list of columns, not a MEASURE
     // TODO 만약 TIMESTAMP로 지정된 컬럼도 filteringOptions 설정이 가능하도록 변경해달라고 하면 주석 해제할 것
     // this._columnList = _.cloneDeep(_.filter(columnList, column => column.role !== 'MEASURE'));
     this._columnList = _.cloneDeep(_.filter(columnList, column => column.role === 'DIMENSION'));
-    // 기존에 필터링 설정된 목록
+    // set origin recommend filtered column list
     this._originFilteringColumnList = _.cloneDeep(_.filter(this._columnList, column => column.filtering));
-    // 이 데이터소스가 연결형인지
+    // is LINKED type source
     this.isLinkedType = isLinkedType;
-    // 필터링된 목록 갱신
+    // update filtered column list
     this._updateFilteredColumnList();
   }
 
   /**
-   * 검색어 검색
+   * Search keyword
    * @param {string} text
    */
   public searchText(text: string): void {
     this.searchTextKeyword = text;
-    // 필터링된 목록 갱신
+    // update filtered column list
     this._updateFilteredColumnList();
   }
 
   /**
-   * 현재 컬럼이 필터가 설정된 상태인지
+   * Is enabled filtering in column
    * @param column
    * @returns {boolean}
    */
@@ -164,7 +145,7 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   }
 
   /**
-   * 현재 컬럼에 필터 옵션이 있다면
+   * Is enabled filteringOption in column
    * @param column
    * @returns {boolean}
    */
@@ -173,7 +154,7 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   }
 
   /**
-   * 현재 컬럼의 타입 label
+   * Get column type label
    * @param {string} type
    * @param typeList
    * @returns {string}
@@ -183,50 +164,43 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   }
 
   /**
-   * 컬럼 목록 업데이트
+   * Update column list
    */
   public updateColumnList(): void {
-    // 로딩 show
+    // loading show
     this.loadingShow();
-    // 필드 업데이트
+    // update column list
     this._dataSourceService.updateDatasourceFields(this._sourceId, this._getUpdateFieldParams())
       .then((result) => {
         // alert
         Alert.success(this.translateService.instant('msg.comm.alert.save.success'));
-        // 로딩 hide
+        // loading hide
         this.loadingHide();
-        // 변경 emit
+        // change emit
         this.updatedSchema.emit();
         // close
         this.onClickCancel();
       })
-      .catch((error) => {
-        // 로딩 hide
-        this.loadingHide();
-      });
+      .catch(error => this.commonExceptionHandler(error));
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - event
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * cancel 버튼 클릭 이벤트
+   * Click cancel button
    */
   public onClickCancel(): void {
     this.isShowComponent = false;
   }
 
   /**
-   * done 버튼 클릭 이벤트
+   * Click done button
    */
   public onClickDone(): void {
-    // 만약 데이터소스 타입이 linked 형일 경우 확인팝업 출력
+    // If the datasource type is LINKED, show confirm popup
     this.isLinkedType ? this._openConfirmModal() : this.updateColumnList();
   }
 
   /**
-   * 검색어 검색 이벤트
+   * Click search keyword
    * @param {KeyboardEvent} event
    */
   public onSearchText(event: KeyboardEvent): void {
@@ -234,79 +208,79 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   }
 
   /**
-   * 롤 타입 필터링 변경 이벤트
+   * Change role type filter
    * @param type
    */
   public onChangeRoleTypeFilter(type: any): void {
     if (this.selectedRoleTypeFilter !== type) {
-      // 롤 타입 필터링 변경
+      // change role type filter
       this.selectedRoleTypeFilter = type;
-      // 컬럼 목록 갱신
+      // update filtered column list
       this._updateFilteredColumnList();
     }
   }
 
   /**
-   * 타입 필터링 변경 이벤트
+   * Change type filter
    * @param type
    */
   public onChangeTypeFilter(type: any): void {
     if (this.selectedTypeFilter !== type) {
       // 타입 필털이 변경
       this.selectedTypeFilter = type;
-      // 컬럼 목록 갱신
+      // update filtered column list
       this._updateFilteredColumnList();
     }
   }
 
   /**
-   * 필터링
+   * Change filtered list show flag
    */
   public onChangeShowFilter(): void {
     this.isShowOnlyFilterColumnList = !this.isShowOnlyFilterColumnList;
-    // 컬럼 목록 갱신
+    // update filtered column list
     this._updateFilteredColumnList();
   }
 
   /**
-   * 현재 컬럼에 필터 설정 및 해제
+   * Change filtering in column
    * @param column
    */
   public onClickSetColumnFiltering(column: any): void {
     // TODO 만약 TIMESTAMP로 지정된 컬럼도 filteringOptions 설정이 가능하도록 변경해달라고 하면 주석 해제할 것
     // if (column.role !== 'TIMESTAMP') {
-      // 현재 변경된 필터가 설정된 상태라면 제거
+      // if enabled filtering in column
       if (this.isEnableColumnFiltering(column)) {
         const seq = column.filteringSeq;
-        // 필터설정 제거
+        // delete filtering
         delete column.filtering;
         delete column.filteringSeq;
         delete column.filteringOptions;
-        // 현재 변경된 필터가 해제된 상태라면 나머지 필터링된 컬럼 갱신
+        // resort filtering in filtered column list
         this._resortFilteringColumnList(seq);
-        // 만약 현재 필터링 컬럼만 보기가 활성화 상태라면 목록 갱신
+        // if enable filtered list show flag, update filtered column list
         this.isShowOnlyFilterColumnList && this._updateFilteredColumnList();
       } else {
-        // 필터링 부여
+        // set filtering
         column.filtering = true;
-        // seq 부여
+        // set seq
         column.filteringSeq = _.filter(this._columnList, item => item.filtering).length - 1;
       }
     // }
   }
 
   /**
-   * 현재 컬럼에 필터 option 설정 및 해제
+   * Change filteringOption in column
    * @param column
    */
   public onClickSetColumnFilteringOptions(column: any): void {
-    // 컬럼에 filtering이 설정 되어있는 경우에만 작동
+    // Only works if filtering is enabled on the column
     if (this.isEnableColumnFiltering(column)) {
-      // 컬럼에 filteringOptions가 설정되어 있는경우
+      // If filteringOptions is set on a column
       if (this.isEnableColumnFilteringOptions(column)) {
         delete column.filteringOptions;
       } else {
-        // 없을 경우 새 options 설정
+        // If not, set new options
         column.filteringOptions = new FilteringOptions();
         column.filteringOptions.type = column.logicalType === 'TIMESTAMP' ? FilteringOptionType.TIME : FilteringOptionType.INCLUSION;
         column.filteringOptions.defaultSelector = column.logicalType === 'TIMESTAMP' ? 'RANGE' : 'SINGLE_LIST';
@@ -315,32 +289,24 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     }
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * ui init
    * @private
    */
   private _initView(): void {
-    // 선택된 필터링 타입
+    // filter
     this.selectedTypeFilter = this.typeFilterList[0];
     this.selectedRoleTypeFilter = this.roleTypeFilterList[0];
     // search
     this.searchTextKeyword = '';
-    // 필터 목록만 보기
+    // only filtered list flag
     this.isShowOnlyFilterColumnList = false;
     // show flag
     this.isShowComponent = true;
   }
 
   /**
-   * 확인 모달 오픈
+   * Open confirm popup modal
    * @private
    */
   private _openConfirmModal(): void {
@@ -352,7 +318,7 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   }
 
   /**
-   * 필터링된 컬럼 목록 갱신
+   * Update filtered column list
    * @private
    */
   private _updateFilteredColumnList(): void {
@@ -369,7 +335,7 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     if (this.searchTextKeyword !== '') {
       resultList = _.filter(resultList, column => column.name.toUpperCase().includes(this.searchTextKeyword.toUpperCase().trim()));
     }
-    // 필터설정된 컬람만 보기
+    // only filtered list show
     if (this.isShowOnlyFilterColumnList) {
       resultList = _.filter(resultList, column => column.filtering);
     }
@@ -377,7 +343,7 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   }
 
   /**
-   * 필터링 설정된 컬럼 갱신
+   * Resort filtered column list
    * @param {number} seq
    * @private
    */
@@ -388,7 +354,7 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
   }
 
   /**
-   * 변경에 사용될 필드
+   * Get parameter for update column list
    * @returns {any}
    * @private
    */
@@ -397,17 +363,21 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     const filteringList = _.filter(this._columnList, column => column.filtering);
     // add
     _.forEach(filteringList, (column) =>{
-      // 필터링으로 설정된 컬럼이 origin 필터링 컬럼 목록에 있는지 확인
+      // get column exist in origin filtered column list
       const temp = _.find(this._originFilteringColumnList, originColumn => originColumn.id === column.id);
-      // origin 필터링 컬럼 목록에 없거나 설정된 필터링옵션이 서로 다른경우
-      if (!temp || ((temp.filteringOptions && !column.filteringOptions) || (!temp.filteringOptions && column.filteringOptions))) {
+      // If is not exist in the origin filtered list
+      // If different seq
+      // If different filteringOptions
+      if (!temp
+        || temp.filteringSeq !== column.filteringSeq
+        || ((temp.filteringOptions && !column.filteringOptions) || (!temp.filteringOptions && column.filteringOptions))) {
         column['op'] = 'replace';
         result.push(column);
       }
     });
     // remove
     _.forEach(this._originFilteringColumnList, (originColumn) => {
-      // 필터링 설정된 목록에 없다면 추가
+      // If is not exist in the filtered list, add
       if (_.every(filteringList, column => column.id!== originColumn.id)) {
         originColumn['op'] = 'replace';
         originColumn['filtering'] = false;

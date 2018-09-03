@@ -10,14 +10,13 @@
         <a href="javascript:" class="ddp-btn-pop" (click)="onClickCancel()">{{'msg.comm.btn.cancl' | translate}}</a>
         <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="onClickDone()">{{'msg.comm.btn.done' | translate}}</a>
       </div>
-      <!-- det -->
     </div>
     <!-- //title -->
     <div class="ddp-ui-popup-contents">
       <div class="ddp-ui-dataset-new">
         <!-- top -->
         <div class="ddp-type-top-option ddp-clear">
-          <!-- 검색 -->
+          <!-- search -->
           <div class="ddp-form-search ddp-fleft">
             <em class="ddp-icon-search"></em>
             <input type="text" placeholder="{{'msg.storage.ui.column.search.description' | translate}}"
@@ -26,7 +25,7 @@
                    (keyup.esc)="searchText('')">
             <em class="ddp-btn-search-close" *ngIf="searchTextKeyword !== ''" (click)="searchText('')"></em>
           </div>
-          <!-- //검색 -->
+          <!-- //search -->
           <div class="ddp-ui-rightoption">
 
             <div class="ddp-form-label2 ddp-fleft">
@@ -35,7 +34,6 @@
                    (click)="isShowRoleTypeFilterList = !isShowRoleTypeFilterList"
                    (clickOutside)="isShowRoleTypeFilterList = false">
                 <!-- select box -->
-                <!-- 클릭시 ddp-selected 추가 -->
                 <div class="ddp-type-selectbox" [class.ddp-selected]="isShowRoleTypeFilterList">
                   <span class="ddp-txt-selectbox">{{selectedRoleTypeFilter.label}}</span>
                   <ul class="ddp-list-selectbox ddp-selectdown">
@@ -56,7 +54,6 @@
               <div class="ddp-wrap-dropdown"
                    (click)="isShowTypeFilterList = !isShowTypeFilterList" (clickOutside)="isShowTypeFilterList = false">
                 <!-- select box -->
-                <!-- 클릭시 ddp-selected 추가 -->
                 <div class="ddp-type-selectbox" [class.ddp-selected]="isShowTypeFilterList">
                   <span class="ddp-txt-selectbox">{{selectedTypeFilter.label}}</span>
                   <ul class="ddp-list-selectbox ddp-selectdown">
@@ -87,7 +84,7 @@
         <!-- //top -->
         <!-- viewtable -->
         <div class="ddp-wrap-viewtable">
-          <!-- 테이블 -->
+          <!-- table -->
           <div class="ddp-box-viewtable">
             <!-- gridhead -->
             <div class="ddp-ui-gridhead">
@@ -173,7 +170,7 @@
             </div>
             <!--// gridbody -->
           </div>
-          <!-- //테이블 -->
+          <!-- //table -->
         </div>
         <!-- //viewtable -->
       </div>
