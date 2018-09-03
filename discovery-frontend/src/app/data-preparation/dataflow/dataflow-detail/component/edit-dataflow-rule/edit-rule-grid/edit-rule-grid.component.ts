@@ -116,9 +116,6 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   public isApiMode: boolean = true;
   public isComboEvent: boolean = false;  // 콤보박스 이벤트 실행중 여부
 
-  @Input()
-  public isJumped: boolean = false; // 추후 어떻게 변경할지 확인 필요
-
   public ruleIdx: number;
   public dataSetId: string;
 
@@ -223,7 +220,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
         // T/F
         this.isShowColumnTypes = false;
-        // this.isJumped = false;
+
       }
       this.ruleIdx = (isNullOrUndefined(ruleIdx) && this.ruleIdx !== -1) ? data['ruleStringInfos'].length - 1 : ruleIdx;
 
@@ -1721,7 +1718,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         .EnableHeaderClick(true)
         .DualSelectionActivate(true)
         .EnableColumnReorder(false)
-        .EnableHeaderMenu(!this.isJumped)
+        .EnableHeaderMenu(true)
         .EnableSeqSort(false)
         .ShowHeaderRow(true)
         .HeaderRowHeight(90)

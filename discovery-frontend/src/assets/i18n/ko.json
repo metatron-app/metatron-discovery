@@ -1072,6 +1072,7 @@
   "msg.dp.ui.file-url" : "파일 URL",
   "msg.dp.ui.etl-engine" : "전수 처리 엔진",
   "msg.dp.ui.location" : "위치",
+  "msg.dp.btn.insert.rule" : "룰 추가",
 
   "msg.board.create.add-ds" : "데이터소스 추가",
   "msg.board.create.add-ds.desc" : "시각화 할 데이터소스를 추가하고 관계를 설정해 주세요",

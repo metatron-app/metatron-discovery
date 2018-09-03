@@ -33,16 +33,16 @@
   <div class="ddp-ui-rule-flow" *ngIf="0 === tabNumber">
     <ul class="ddp-list-rule2">
 
-      <li *ngFor="let rule of ruleList;let idx = index" (click)="jumpEvent.emit(idx)" [ngClass]="{'ddp-disabled':!rule.valid, 'ddp-disabled2':rule.colored}">
-        <!-- 클릭시 ddp-selected 추가 -->
+      <li *ngFor="let rule of ruleList; let idx = index"
+          (click)="jumpEvent.emit(idx)"
+          [ngClass]="{'ddp-disabled2':rule.isValid}">
         <div class="ddp-line-add">
-          <span class="ddp-txt" (click)="$event.stopImmediatePropagation(); insertStep(rule)">Insert step</span>
+          <span class="ddp-txt" (click)="$event.stopImmediatePropagation(); insertStep(rule)">{{ 'msg.dp.btn.insert.rule' | translate }}</span>
         </div>
-        <!-- //클릭시 Ddp-selected 추가 -->
         <!-- button -->
         <div class="ddp-ui-edit-button" *ngIf="0<ruleList.length">
-          <em class="ddp-icon-edit" (click)="$event.stopImmediatePropagation(); editRule(rule)" *ngIf="!rule.colored"></em>
-          <em class="ddp-icon-del" (click)="$event.stopImmediatePropagation(); deleteRule(rule)" *ngIf="!rule.colored"></em>
+          <em class="ddp-icon-edit" (click)="$event.stopImmediatePropagation(); editRule(rule)" *ngIf="!rule.isValid"></em>
+          <em class="ddp-icon-del" (click)="$event.stopImmediatePropagation(); deleteRule(rule)" *ngIf="!rule.isValid"></em>
         </div>
         <!-- //button -->
 
@@ -62,33 +62,6 @@
         <!-- //tooltip -->
 
       </li>
-
-
-
-      <!--<li *ngFor="let rule of ruleList;let idx = index" (click)="jumpEvent.emit(idx)" [ngClass]="{'ddp-disabled':!rule.valid, 'ddp-disabled2':rule.colored}">-->
-        <!--&lt;!&ndash;<em class="ddp-line-before"></em>&ndash;&gt;-->
-        <!--&lt;!&ndash;<em class="ddp-line-after"></em>&ndash;&gt;-->
-        <!--<span class="ddp-data-type">-->
-            <!--<em class="ddp-ui-round">{{rule.alias}}</em>-->
-          <!--&lt;!&ndash;{{rule.command}}&ndash;&gt;-->
-        <!--</span>-->
-
-        <!--<div class="ddp-hover-tooltip">-->
-          <!--<div class="ddp-ui-code">-->
-            <!--{{rule.simplifiedRule !== '' ? rule.simplifiedRule : rule.ruleString}}-->
-          <!--</div>-->
-          <!--&lt;!&ndash; tooltip &ndash;&gt;-->
-          <!--<div class="ddp-ui-tooltip-info">-->
-            <!--<em class="ddp-icon-view-top"></em>-->
-            <!--{{rule.ruleString}}-->
-          <!--</div>-->
-          <!--&lt;!&ndash; //tooltip &ndash;&gt;-->
-        <!--</div>-->
-        <!--<div class="ddp-ui-edit-button" *ngIf="0<ruleList.length">-->
-          <!--<em class="ddp-icon-edit" (click)="editEvent.emit({rule :rule ,event: $event})" *ngIf="!rule.colored"></em>-->
-          <!--<em class="ddp-icon-del" (click)="$event.stopImmediatePropagation(); deleteRule(rule)" *ngIf="!rule.colored"></em>-->
-        <!--</div>-->
-      <!--</li>-->
     </ul>
   </div>
   <app-rule-snapshot-list *ngIf="1 === tabNumber"

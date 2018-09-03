@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { isNull, isUndefined } from 'util';
+import { isNull, isNullOrUndefined, isUndefined } from 'util';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
 import {
@@ -107,7 +107,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public ruleVO: Rule = new Rule();
   public ruleList: any[] = [];
   public isJumped: boolean = false;
-  public currentIndex: number = 0;
   public redoable: boolean = false;
   public undoable: boolean = false;
 
@@ -154,6 +153,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   // Histogram
   public charts: any = [];
+
+  // 편집 중인지 여부
+  public isEditing : boolean = false;
 
   // 그리드 헤더 클릭 이벤트 제거 ( 임시 )
   public isDisableGridHeaderClickEvent: boolean = false;
@@ -226,8 +228,22 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   }
 
+  public ngOnChanges() {}
+
+  public ngAfterViewInit() {
+    this._setEditRuleInfo().then();
+  }
+
+  public ngOnDestroy() {
+    super.ngOnDestroy();
+  }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
-   * 스냅샷 리스트 초기화
+   * Snapshot list refresh
    * @param {string} dsId
    * @param {boolean} changeTab
    */
@@ -240,29 +256,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }
   }
 
+  /**
+   * Create snapshot popup close
+   */
   public snapshotCreateClose() {
     if (1 === this.ruleListComponent.tabNumber) {
       this.ruleListComponent.getSnapshotWithInterval(this.selectedDataSet.dsId);
     }
   }
 
-  public ngOnChanges() {
-  }
-
-  public ngAfterViewInit() {
-    this._setEditRuleInfo().then();
-  } // function - ngAfterViewInit
-
-  // Destroy
-  public ngOnDestroy() {
-    super.ngOnDestroy();
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 스냅샷 디테일 팝업 오픈
+   * Snapshot detail popup open
    * @param data
    */
   public getSnapshotDetail(data) {
@@ -337,16 +341,15 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   }
 
   // command list show
-  public showCommandList(event) {
+  public showCommandList() {
+
+    // Cannot select command when editing
+    if (this.isEditing) { return }
 
     // Close all opened select box from rule
     this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : 'commandList', isShow : false } );
 
-    if (true == this.jumpLast()) {
-      this.showCommandList(event);
-    }
 
-    event.stopImmediatePropagation();
 
     // 포커스 이동
     setTimeout(() => $('#commandSearch').trigger('focus'));
@@ -355,7 +358,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.isCommandListShow = true;
     this.initSelectedCommand(this.filteredCommandList);
 
-    this.changeDetect.detectChanges();
+    this.safelyDetectChanges();
 
   }
 
@@ -715,7 +718,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * 룰 수정 클릭시
    * @param editInfo
    */
-  public setRuleVO(editInfo : {fetchIdx : number, ruleString : string}) {
+  public setRuleVO(editInfo) {
 
     // unselect all columns in current grid
     this._editRuleGridComp.unSelectionAll('COL');
@@ -723,7 +726,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // let event = dataRule.event;
     // let rule = dataRule.rule;
     // rule.ruleNo = rule.ruleNo-1;
-    let ruleIdx = editInfo.fetchIdx;
+    let ruleIdx = editInfo.ruleNo-1;
 
     // 인풋박스 포커스 여부 IE 에서 수정버튼을 누르면 툴팁 박스가 열려서...
     this.isFocus = false;
@@ -734,9 +737,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // }
 
     event.stopPropagation();
-    this._setEditRuleInfo(ruleIdx+1)
+    this._setEditRuleInfo(ruleIdx)
       .then((data: { apiData: any, gridData: any }) => {
-        this.setEditInfo(editInfo.ruleString, data.gridData);
+        this.setEditInfo(editInfo, data.gridData);
+        this.isEditing = true;
       });
   } // function - setRuleVO
 
@@ -818,44 +822,30 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   } // function - undoRule
 
   /**
-   * Jump to last index
-   */
-  public jumpLast() {
-    let lastIdx = this.ruleList.length - 1;
-    if (this.isJumped == true && 0 <= lastIdx) {
-      this.isJumped = false;
-      this.jump(lastIdx);
-      return true;
-    }
-    return false;
-  } // function - jumpLast
-
-  /**
    * Jump
    * @param idx
    */
   public jump(idx: number) {
     // 현재 rule index
-    this.currentIndex = idx;
+
+    let selectedIndex = idx + 1;
 
     // 선택된 컬럼이 있다면 클리어 한다.
     this._editRuleGridComp.unSelectionAll();
 
-    this.isJumped = this.ruleList.length - 1 != idx;
-
     this.loadingShow();
 
     // TODO : jumpRule, applyRule 은 같은 API
-    this.dataflowService.jumpRule(this.selectedDataSet.dsId, 'FETCH', idx)
+    this.dataflowService.jumpRule(this.selectedDataSet.dsId, 'FETCH', selectedIndex)
       .then((data) => {
         if (data.errorMsg) {
           Alert.warning(this.translateService.instant('msg.dp.alert.jump.fail'));
         } else {
-          this._setEditRuleInfo(idx).then(() => {
+          this._setEditRuleInfo(selectedIndex).then(() => {
             data.gridResponse.interestedColNames.forEach(col => {
               this._editRuleGridComp.selectColumn(col, true);
             });
-            this.setRuleListColor(idx, this.isJumped);
+            this.setRuleListColor(selectedIndex-1);
           });
         }
 
@@ -893,6 +883,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param clickHandler
    */
   public navigateWithKeyboardShortList(event, currentList, clickHandler) {
+
+    if (this.isEditing) { return; }
 
     // open select box when arrow up/ arrow down is pressed
     if (event.keyCode === 38 || event.keyCode === 40) {
@@ -1006,18 +998,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   /**
    * Set colour to rule list when jumped
+   * @param idx
    */
-  public setRuleListColor(idx, renew) {
+  public setRuleListColor(idx) {
 
-    if (renew) {
-      this.ruleList.forEach((item, index) => {
-        item.colored = !(index === idx || index < idx);
-      });
-    } else {
-      this.ruleList.forEach((item) => {
-        item.colored = false;
-      });
-    }
+    this.ruleList.forEach((item, index) => {
+      item.isValid = !(index === idx || index < idx);
+    });
 
   }
 
@@ -1432,6 +1419,25 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   } // function - applyRuleFromContextMenu
 
+  public jumpToCurrentIndex() {
+
+    this.isEditing = false; // 편집 취소
+
+    this.loadingShow();
+
+    // Unselect all columns
+    this._editRuleGridComp.unSelectionAll();
+
+    // 제일 마지막 index로 그리드를 그린다.
+    this._setEditRuleInfo(this.selectedDataSet.ruleStringInfos.length)
+      .then(() => {
+        this.loadingHide();
+      });
+
+    this.ruleVO.command = '';
+    this.selectedColumns = [];
+    this.editColumnList = [];
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1447,6 +1453,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.isInitDataLoaded = true;
     this.safelyDetectChanges();
 
+    if (isNullOrUndefined(ruleIdx)) {
+      ruleIdx = -1;
+    }
     return this._editRuleGridComp.init(this.selectedDataSet.dsId, ruleIdx)
       .then((data: { apiData: any, gridData: any }) => {
         const apiData = data.apiData;
@@ -1454,8 +1463,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this.loadingHide();
           Alert.warning(this.translateService.instant('msg.dp.alert.ds.retrieve.fail'));
         } else {
-
-          this.currentIndex = apiData['ruleStringInfos'].length - 1;
 
           // Todo :
           let dsId = this.selectedDataSet.dsId;
@@ -1704,7 +1711,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._editRuleGridComp.unSelectionAll('COL');
           this.editColumnList = [];
 
-          this._setEditRuleInfo(data.ruleCurIdx).then((data: { apiData: any, gridData: any }) => {
+          // 삭제 후에는 -1번으로 가야하나 ?
+          let ruleIdx : number = -1;
+          if (rule['op']==='DELETE') {
+            ruleIdx = data.ruleStringInfos.length
+          }
+
+          this._setEditRuleInfo(ruleIdx).then((data: { apiData: any, gridData: any }) => {
 
             if (data.apiData.ruleStringInfos.length > 0) {
               this._editRuleGridComp.setAffectedColumns(

@@ -79,7 +79,7 @@
                 <!-- //title -->
                 <!-- buttons -->
                 <div class="ddp-ui-buttons">
-                  <a href="javascript:" class="ddp-btn-type3" (click)="jump(ruleList.length-1); ruleVO.command = ''; selectedColumns = []; editColumnList = [];">{{'msg.comm.btn.cancl' | translate}}</a>
+                  <a href="javascript:" class="ddp-btn-type3" (click)="jumpToCurrentIndex()">{{'msg.comm.btn.cancl' | translate}}</a>
                   <a href="javascript:" class="ddp-btn-type4" (click)="addRule()">{{editLabelBtn}}</a>
                 </div>
                 <!-- //buttons -->
@@ -114,9 +114,9 @@
                       <!-- 클릭시 ddp-selected 추가 -->
                       <div class="ddp-type-selectbox ddp-type-search-select"
                            tabindex="1"
-                           [ngClass]="{'ddp-selected' : isCommandListShow, 'ddp-disabled' : isEditMode }"
+                           [ngClass]="{'ddp-selected' : isCommandListShow, 'ddp-disabled' : isEditing }"
                            [class.ddp-result]="ruleVO.command"
-                           (click)="showCommandList($event)"
+                           (click)="$event.stopImmediatePropagation(); showCommandList()"
                            (keydown)="navigateWithKeyboardShortList($event, filteredCommandList, 'command')">
                         <!-- 선택시 자동 input display:block; -->
                         <input type="text" class="ddp-input-selectbox" placeholder="{{'msg.dp.th.command' | translate}}" [(ngModel)]="commandSearchText" id="commandSearch">
@@ -251,8 +251,7 @@
               <div class="split-pane-content-primary" style="height:100%;">
                 <div class="left" style="height:100%;">
                   <div *ngIf="isInitDataLoaded" class="ddp-wrap-flow-grid" style="position:relative; top:0; left:0; right:0; min-height:100%;">
-                    <edit-rule-grid [isJumped]="isJumped"
-                                    (selectHeader)="setRuleInfoFromGridHeader($event)"
+                    <edit-rule-grid (selectHeader)="setRuleInfoFromGridHeader($event)"
                                     (selectHeaderMenu)="applyRuleFromGridHeaderMenu($event)"
                                     (selectContextMenu)="applyRuleFromContextMenu($event)"></edit-rule-grid>
                   </div>

@@ -144,22 +144,6 @@ export class DataflowService extends AbstractService {
       });
   }
 
-  // 데이터 플로우 룰생성
-  public previewJoinResult(datasetId: string, op: string, ruleStr: string): Promise<any> {
-    let popupService = this.popupService;
-    const params: any = { dsId: datasetId, op: op, ruleString: ruleStr };
-    return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform/preview`, params)
-      .catch((error) => {
-        if (true !== isUndefined(error.code) && error.code === 'PR5102') {
-          Loading.hide();
-          PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
-          return Promise.reject(null);
-        }
-        throw error;
-      });
-  } // function - previewJoinResult
-
   // 룰 JUMP
   public jumpRule(datasetId: string, op: string, ruleIdx: number): Promise<any> {
     let popupService = this.popupService;
@@ -176,14 +160,6 @@ export class DataflowService extends AbstractService {
       });
   } // function - previewJoinResult
 
-  // FILE 데이터셋 조회
-  public getDatasetFileData(filekey: string, sheetname?: string): Promise<any> {
-    let url = this.API_URL + `preparationdatasets/file/${filekey}?hasFields=Y`;
-    if (!isUndefined(sheetname)) {
-      url = url + `&sheetname=${encodeURI(sheetname)}`;
-    }
-    return this.get(url);
-  }
 
   // Wrangled 데이터셋 조회
   public getDatasetWrangledData(datasetId: string, count?: number, pageNum?: number, ruleIdx?: number): Promise<any> {
@@ -202,11 +178,6 @@ export class DataflowService extends AbstractService {
   // 데이터셋 추가
   public updateDataSets(dataflowId: string, dsIds: any): Promise<any> {
     return this.put(this.API_URL + `preparationdataflows/${dataflowId}/update_datasets`, dsIds);
-  }
-
-  // 데이터 스냅샷 생성
-  public checkHiveTable(schema: string, table: string): Promise<any> {
-    return this.get(this.API_URL + `preparationsnapshots/check_table/${schema}/${table}`);
   }
 
 
@@ -266,36 +237,6 @@ export class DataflowService extends AbstractService {
       });
   }
 
-  // get gridResponse search
-  public getSearchDataSets(datasetId: string, searchText: string) {
-    let popupService = this.popupService;
-    return this.get(this.API_URL + `preparationdatasets/${datasetId}/transform` + `/` + encodeURIComponent(searchText))
-      .catch((error) => {
-        if (true !== isUndefined(error.code) && error.code === 'PR5102') {
-          Loading.hide();
-          PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
-          return Promise.reject(null);
-        }
-        throw error;
-      });
-  }
-
-  // get gridResponse search
-  public getDataSetsLimit(datasetId: string, count: number) {
-    let popupService = this.popupService;
-    return this.get(this.API_URL + `preparationdatasets/${datasetId}/transform?count=` + count)
-      .catch((error) => {
-        if (true !== isUndefined(error.code) && error.code === 'PR5102') {
-          Loading.hide();
-          PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
-          return Promise.reject(null);
-        }
-        throw error;
-      });
-  }
-
   /* searchText 제거
   public getSearchCountDataSets(datasetId: string, searchWord: string, count: number) {
     let popupService = this.popupService;
@@ -343,11 +284,11 @@ export class DataflowService extends AbstractService {
     return this.delete(this.API_URL + 'preparationdataflows/delete_chain/' + dfId + '/' + dsId);
   }
 
-  // removes dataset from selected dataflow
-  public removeDataset(dfId, dsId): Promise<any> {
-    return this.delete(this.API_URL + `preparationdataflows/${dfId}/remove/${dsId}`);
-  }
-
+  /**
+   * Clone dataSet
+   * @param {string} dsId
+   * @return {Promise<any>}
+   */
   public cloneWrangledDataset(dsId: string): Promise<any> {
     let params = {};
     return this.post(this.API_URL + `preparationdatasets/${dsId}/clone`, params);
@@ -399,7 +340,7 @@ export class DataflowService extends AbstractService {
 
   /**
    * 룰 편집 화면에서 스냅샷 탭 목록 불러오기
-   * @param {string} datasetId
+   * @param {string} dsId
    * @return {Promise<any>}
    */
   public getWorkList(dsId: string): Promise<any> {
