@@ -1744,7 +1744,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
         new BoundFilter("amt", null, 0, 62510)
     );
 
-    List<Field> layer1 = Lists.newArrayList(new MeasureField("gis"), new DimensionField("gu"));
+    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis"), new DimensionField("gu"));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);

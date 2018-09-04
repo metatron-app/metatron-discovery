@@ -12,11 +12,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.StringJoiner;
+
 import javax.annotation.PostConstruct;
 
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.geo.query.model.GeoQuery;
 import app.metatron.discovery.domain.geo.query.model.GetFeature;
+import app.metatron.discovery.domain.workbook.configurations.field.Field;
+import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
 
 @Component
 public class GeoService {
@@ -39,11 +44,30 @@ public class GeoService {
 
   public String search(SearchQueryRequest searchQueryRequest) {
 
-    GeoQuery geoQuery = GeoQuery.builder(searchQueryRequest.getDataSource())
-                                .projections(searchQueryRequest.getProjections())
-                                .filters(searchQueryRequest.getFilters())
-                                .build();
+    StringJoiner resultJoiner = new StringJoiner(",", "[", "]");
+    if(searchQueryRequest.getShelf() instanceof GeoShelf) {
+      GeoShelf geoShelf = (GeoShelf) searchQueryRequest.getShelf();
+      for(List<Field> fields : geoShelf.getLayers()) {
+        GeoQuery geoQuery = GeoQuery.builder(searchQueryRequest.getDataSource())
+                                    .projections(fields)
+                                    .filters(searchQueryRequest.getFilters())
+                                    .build();
 
+        resultJoiner.add(query(geoQuery));
+      }
+    } else {
+      GeoQuery geoQuery = GeoQuery.builder(searchQueryRequest.getDataSource())
+                                  .projections(searchQueryRequest.getProjections())
+                                  .filters(searchQueryRequest.getFilters())
+                                  .build();
+
+      resultJoiner.add(query(geoQuery));
+    }
+
+    return resultJoiner.toString();
+  }
+
+  private String query(GeoQuery geoQuery) {
     String geoQueryStr = null;
     try {
       geoQueryStr = xmlMapper.writeValueAsString(new GetFeature(geoQuery));

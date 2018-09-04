@@ -239,6 +239,10 @@ public class SearchQueryRequest extends AbstractQueryRequest implements QueryReq
     this.filters = filters;
   }
 
+  public Shelf getShelf() {
+    return shelf;
+  }
+
   public Pivot getPivot() {
     return pivot;
   }
