@@ -162,10 +162,12 @@ public class TeddyOrcWriter {
   }
 
   // 테스트를 위해 public이 되고, conf를 argument로 받음.
-  public int writeOrc(DataFrame df, Configuration conf, Path file, COMPRESSION compression) throws IOException {
+  public Integer[] writeOrc(DataFrame df, Configuration conf, Path file, COMPRESSION compression) throws IOException {
     TypeDescription typeDescription = buildTypeDescription(df);
+    Integer[] result = new Integer[2];
     int pos;    // batch상 position (0~1023)
     boolean typeCheck = true;
+    int skippedLines = 0;
 
     LOGGER.trace("writeOrc(): start");
 
@@ -184,12 +186,16 @@ public class TeddyOrcWriter {
 
       for (int colno = 0; colno < df.getColCnt(); colno++) {
         typeCheck = setBatch(pos, batch.cols[colno], df.getColType(colno), df.getColDesc(colno), row.get(colno));
-        if(typeCheck == false)
+        if(typeCheck == false) {
+          LOGGER.warn("Row number {} was excluded caused by missing or mismatched value at column: {}, value: {}", rowno, df.getColName(colno), row.get(colno));
           break;
+        }
       }
 
       if(typeCheck) {
         batch.size++;
+      } else {
+        skippedLines++;
       }
       if (batch.size == batch.getMaxSize()) {
         writer.addRowBatch(batch);
@@ -204,6 +210,9 @@ public class TeddyOrcWriter {
     writer.close();
 
     LOGGER.trace("writeOrc(): end");
-    return df.rows.size();
+    result[0] = df.rows.size() - skippedLines;
+    result[1] = skippedLines;
+
+    return result;
   }
 }

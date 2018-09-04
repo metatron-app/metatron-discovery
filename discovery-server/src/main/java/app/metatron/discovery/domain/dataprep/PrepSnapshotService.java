@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PrepSnapshotService {
@@ -166,6 +167,22 @@ public class PrepSnapshotService {
             for(PrepSnapshot ss : listAll) {
                 if(ssId.equals(ss.getSsId())) {
                    return ss.getStatusEnum();
+                }
+            }
+        } catch (Exception e) {
+            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+        }
+
+        return null;
+    }
+
+    public Map<String,Object> getSnapshotLineageInfo(String ssId) {
+        try {
+            Sort sort = new Sort(Sort.Direction.DESC, "launchTime");
+            List<PrepSnapshot> listAll = this.snapshotRepository.findAll(sort);
+            for(PrepSnapshot ss : listAll) {
+                if(ssId.equals(ss.getSsId())) {
+                    return ss.getJsonLineageInfo();
                 }
             }
         } catch (Exception e) {
