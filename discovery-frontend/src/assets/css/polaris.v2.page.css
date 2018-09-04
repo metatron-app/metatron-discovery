@@ -7054,8 +7054,8 @@ a.ddp-link-selection.ddp-reject:hover {color:#c63b3b; border:1px solid #e35252; 
 	사용자 new member
 **********************************************************************************/
 .ddp-ui-user-new {padding:0 50px; text-align:left;}
-.ddp-type-contents-in .ddp-top-option {position:relative; padding-bottom:15px;  margin-bottom:20px;border-bottom:1px dotted #ccc; overflow:hidden;}
-
+.ddp-type-contents-in .ddp-top-option {position:relative; padding-bottom:29px;  margin-bottom:20px;border-bottom:1px dotted #ccc; overflow:hidden;}
+.ddp-type-contents-in .ddp-top-option > .ddp-wrap-edit3:first-of-type {margin-top:0px;}
 .ddp-ui-edit-option dl.ddp-dl-option {display:block; position:relative; top:-2px; overflow:hidden;}
 .ddp-ui-edit-option dl.ddp-dl-option dt {float:left; margin-left:15px; margin-right:5px; color:#b7b9c2; font-size:14px;}
 .ddp-ui-edit-option dl.ddp-dl-option dd {float:left; color:#4b515b; font-size:14px;}

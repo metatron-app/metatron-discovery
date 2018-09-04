@@ -399,8 +399,9 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   private _doneModalOpen(): void {
     const modal = new Modal();
     modal.data = 'update';
-    modal.name = this.translateService.instant('msg.storage.ui.dconn.edit.description');
-    modal.btnName = this.translateService.instant('msg.storage.btn.dconn.edit');
+    modal.name = this.translateService.instant('msg.storage.ui.dconn.edit.title');
+    modal.description = this.translateService.instant('msg.storage.ui.dconn.edit.description');
+    modal.btnName = this.translateService.instant('msg.comm.btn.save');
     this.modalComponent.init(modal);
   }
 

@@ -36,13 +36,13 @@
                 {{'msg.comm.th.created.on' | translate}}
               </dt>
               <dd>
-                {{createdTime | mdate: 'YYYY-MM-DD HH:mm'}}
+                {{createdTime | mdate: 'YYYY-MM-DD HH:mm:ss'}}
               </dd>
               <dt>
                 {{'msg.comm.ui.list.last' | translate}}
               </dt>
               <dd>
-                {{modifiedTime | mdate: 'YYYY-MM-DD HH:mm'}}
+                {{modifiedTime | mdate: 'YYYY-MM-DD HH:mm:ss'}}
               </dd>
             </dl>
           </div>
@@ -277,7 +277,7 @@
   <!-- buttons -->
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="cancel()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="done()">{{'msg.comm.btn.save' | translate}}</a>
   </div>
   <!-- //buttons -->
 </div>
