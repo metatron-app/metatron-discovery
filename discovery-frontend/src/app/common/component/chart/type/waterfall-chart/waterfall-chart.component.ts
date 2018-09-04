@@ -34,7 +34,7 @@ import {FormatOptionConverter} from "../../option/converter/format-option-conver
 import { UIChartFormat } from '../../option/ui-option/ui-format';
 import { UIWaterfallChart } from '../../option/ui-option/ui-waterfall-chart';
 
-//declare let echarts_3_8: any;
+declare let echarts_4_1: any;
 
 @Component({
   selector: 'waterfall-chart',
@@ -50,7 +50,7 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  //protected echarts: any = echarts_3_8;
+  protected echarts: any = echarts_4_1;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
