@@ -115,7 +115,7 @@ public class PrepTransformController {
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform", method = RequestMethod.GET, produces = "application/json")
   public @ResponseBody ResponseEntity<?> fetch(
           @PathVariable("dsId") String wrangledDsId,
-          @RequestParam(value = "ruleIdx") int stageIdx,
+          @RequestParam(value = "ruleIdx") Integer stageIdx,
           @RequestParam(value = "offset") int offset,
           @RequestParam(value = "count") int count
   ) throws IOException {
@@ -123,8 +123,8 @@ public class PrepTransformController {
     LOGGER.trace("fetch(): start");
 
     try {
-      // stageIdx should be 0 or positive.
-      assert stageIdx >= 0 : stageIdx;
+      // stageIdx should be 0 or positive or null.
+      assert stageIdx == null || stageIdx >= 0 : stageIdx;
 
       response = transformService.fetch(wrangledDsId, stageIdx);
       response.setGridResponse(getSubGrid(response.getGridResponse(), offset, count));
