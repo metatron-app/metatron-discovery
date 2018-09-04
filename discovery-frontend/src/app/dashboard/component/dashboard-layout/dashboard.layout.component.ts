@@ -1080,10 +1080,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * When in edit mode, display as full loading
    */
   public showBoardLoading() {
-    if (LayoutMode.VIEW === this._layoutMode || LayoutMode.VIEW_AUTH_MGMT === this._layoutMode) {
-      this.isShowDashboardLoading = true;
-    } else {
+    if (LayoutMode.EDIT === this._layoutMode ) {
       this.loadingShow();
+    } else {
+      this.isShowDashboardLoading = true;
     }
     this.safelyDetectChanges();
   } // function - showBoardLoading
@@ -1092,10 +1092,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * Hide Loading
    */
   public hideBoardLoading() {
-    if (LayoutMode.VIEW === this._layoutMode || LayoutMode.VIEW_AUTH_MGMT === this._layoutMode) {
-      this.isShowDashboardLoading = false;
-    } else {
+    if (LayoutMode.EDIT === this._layoutMode ) {
       this.loadingHide();
+    } else {
+      this.isShowDashboardLoading = false;
     }
     this.safelyDetectChanges();
   } // function - hideBoardLoading
