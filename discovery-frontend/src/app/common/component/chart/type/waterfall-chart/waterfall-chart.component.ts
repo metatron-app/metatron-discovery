@@ -81,9 +81,6 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
 
   // Destory
   public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
   }
 
   // After View Init
@@ -491,7 +488,6 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
    */
   protected apply(initFl: boolean = true): void {
 
-    // Apply!
     this.chart.setOption(this.chartOption, true, false);
 
     // set connect
