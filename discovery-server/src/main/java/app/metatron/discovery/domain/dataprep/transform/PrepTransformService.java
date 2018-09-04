@@ -859,9 +859,9 @@ public class PrepTransformService {
 
     // put ruleStrings
     List<String> ruleStrings = new ArrayList<>();
-    for (PrepTransformRule transformRule : getRulesInOrder(wrangledDsId)) {
-      String ruleString = transformRule.getRuleString();
-      ruleStrings.add(ruleString);
+    List<PrepTransformRule> transformRules = getRulesInOrder(wrangledDsId);
+    for (int i = 1; i < transformRules.size(); i++) {
+      ruleStrings.add(transformRules.get(i).getRuleString());
     }
     datasetInfo.put("ruleStrings", ruleStrings);
 

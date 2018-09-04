@@ -414,8 +414,7 @@ public class TeddyExecutor {
     // single thread
     if (cores == 0) {
       List<DataFrame> slaveDfs = new ArrayList<>();
-      for (int ruleNo = 1; ruleNo < ruleStrings.size(); ruleNo++) {
-        String ruleString = ruleStrings.get(ruleNo);
+      for (String ruleString : ruleStrings) {   // create rule has been removed already
         List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
         if (slaveDsIds != null) {
           for (String slaveDsId : slaveDsIds) {
@@ -431,9 +430,7 @@ public class TeddyExecutor {
     }
 
     // multi-thread
-    for (int ruleNo = 1; ruleNo < ruleStrings.size(); ruleNo++) {
-      String ruleString = ruleStrings.get(ruleNo);
-
+    for (String ruleString : ruleStrings) {     // create rule has been removed already
       List<Future<List<Row>>> futures = new ArrayList<>();
       List<DataFrame> slaveDfs = new ArrayList<>();
 
