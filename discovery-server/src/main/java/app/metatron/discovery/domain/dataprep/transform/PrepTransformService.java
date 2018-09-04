@@ -292,7 +292,8 @@ public class PrepTransformService {
 
     // The 1st rule string is the master upstream dsId.
     // This could be either an imported dataset or another wrangled dataset.
-    PrepTransformRule rule = new PrepTransformRule(wrangledDataset, 0, Util.getCreateRuleString(importedDsId)); // changed
+    int ruleIdx = 0; // first rule idx = 0
+    PrepTransformRule rule = new PrepTransformRule(wrangledDataset, ruleIdx, Util.getCreateRuleString(importedDsId)); // changed
     rule.setJsonRuleString(Util.getCreateJsonRuleString(rule.getRuleString()));
     transformRuleRepository.saveAndFlush(rule);
 
@@ -316,11 +317,11 @@ public class PrepTransformService {
         for (String setTypeRule : setTypeRules) {
             try {
                 // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
-              transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, -1, setTypeRule);
+              transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, ruleIdx++, setTypeRule);
             } catch (Exception e) {
-                LOGGER.info("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
-                transform(wrangledDsId, PrepDataset.OP_TYPE.UNDO, -1, setTypeRule);
-                continue;
+              LOGGER.info("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
+              transform(wrangledDsId, PrepDataset.OP_TYPE.UNDO, null, setTypeRule);
+              continue;
             }
         }
     }
@@ -488,9 +489,10 @@ public class PrepTransformService {
     PrepTransformResponse response = create(upstreamDsId, wrangledDataset.getCreatorDfId());
     String cloneDsId = response.getWrangledDsId();
 
+    int ruleIdx = 0;
     for (PrepTransformRule transformRule : getRulesInOrder(wrangledDsId)) {
       String ruleString = transformRule.getRuleString();
-      response = transform(cloneDsId, OP_TYPE.APPEND, -1, ruleString);
+      response = transform(cloneDsId, OP_TYPE.APPEND, ruleIdx++, ruleString);
     }
     return response;
   }
