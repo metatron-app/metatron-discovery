@@ -435,7 +435,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
       const widgetDataSource: Datasource
         = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
-      (widgetDataSource) && (data.params.dataSourceId = widgetDataSource.id);
+      (widgetDataSource) && (data.params.engineName = widgetDataSource.engineName);
 
       this.broadCaster.broadcast('CHART_SELECTION_FILTER', { select: data });
     }
@@ -767,7 +767,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     let $target: JQuery = $(event.target);
     const btnLeft: number = $target.offset().left;
     const btnTop: number = $target.offset().top;
-    this.$element.find('.ddp-box-layout4').css({ 'left': btnLeft - 150, 'top': btnTop + 25 });
+    this.$element.find('.ddp-box-btn2 .ddp-box-layout4').css({ 'left': btnLeft - 150, 'top': btnTop + 25 });
   } // function - showInfoLayer
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -789,7 +789,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       // Pivot 내 누락된 필드 정보 설정
       const widgetDataSource: Datasource
         = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
-      const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.id);
+      const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.engineName);
       fields.forEach((field) => {
         this.widgetConfiguration.pivot.rows
           .forEach((abstractField) => {
@@ -913,15 +913,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
     if (isNullOrUndefined(externalFilters)) {
       // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
-      // const boardFilter: Filter[] = DashboardUtil.getFiltersForBoardDataSource( this.widget.dashBoard, widgetDataSource.id );
-      // const relBoardFilters:Filter[] = DashboardUtil.getRelationDsFilters( this.widget.dashBoard, widgetDataSource.engineName );
-      // (relBoardFilters && 0 < relBoardFilters.length) && ( uiCloneQuery.filters = relBoardFilters.concat(uiCloneQuery.filters) );
-      const boardFilter: Filter[] = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.id);
+      const boardFilter: Filter[] = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName);
       (boardFilter && 0 < boardFilter.length) && (uiCloneQuery.filters = boardFilter.concat(uiCloneQuery.filters));
     } else {
       // 외부 필터 ( 글로벌 필터 + Selection Filter )
-      // externalFilters = externalFilters.filter( item => item.dataSource === widgetDataSource.id );
-      externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.id, externalFilters);
+      externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName, externalFilters);
 
       uiCloneQuery.filters.forEach(item1 => {
         const idx: number = externalFilters.findIndex(item2 => {

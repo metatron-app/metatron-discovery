@@ -23,6 +23,7 @@ import { SearchQueryRequest } from '../../domain/datasource/data/search-query-re
 import { UIOption } from '../../common/component/chart/option/ui-option';
 import { SPEC_VERSION } from '../../common/component/chart/option/define/common';
 import { OptionGenerator } from '../../common/component/chart/option/util/option-generator';
+import { FilterUtil } from '../util/filter.util';
 
 @Injectable()
 export class WidgetService extends AbstractService {
@@ -204,17 +205,29 @@ export class WidgetService extends AbstractService {
    */
   private _convertSpecToServer(param: any) {
     if (param) {
-      if (param.configuration && param.configuration.filter) {
-        let filterInfo = param.configuration.filter;
-        delete filterInfo['clzField'];
-        delete filterInfo['importanceType'];
+      let conf = param.configuration;
+      if (conf && conf.filter) {
+        param.configuration.filter = FilterUtil.convertToServerSpecForDashboard( conf.filter );
       }
-      if (param.configuration && param.configuration.filters) {
-        let filterList = param.configuration.filters;
-        filterList.forEach(item => {
-          delete item['clzField'];
-          delete item['importanceType'];
-        });
+      if (conf && conf.filters) {
+        param.configuration.filters = conf.filters.map(item => FilterUtil.convertToServerSpecForDashboard( item ) );
+      }
+      if (conf.pivot) {
+        if (conf.pivot.columns) {
+          conf.pivot.columns.forEach(item => {
+            delete item.field.filter;
+          });
+        }
+        if (conf.pivot.rows) {
+          conf.pivot.rows.forEach(item => {
+            delete item.field.filter;
+          });
+        }
+        if (conf.pivot.aggregations) {
+          conf.pivot.aggregations.forEach(item => {
+            delete item.field.filter;
+          });
+        }
       }
     }
     return param;
