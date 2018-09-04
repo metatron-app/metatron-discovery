@@ -950,6 +950,10 @@ public class PrepTransformService {
 
     LOGGER.trace("transform_snapshot(): start");
 
+    if (teddyImpl.revisionSetCache.containsKey(wrangledDsId) == false) {
+      load_internal(wrangledDsId);
+    }
+
     PrepSnapshot snapshot = new PrepSnapshot();
 
     DateTime launchTime = DateTime.now(DateTimeZone.UTC);
