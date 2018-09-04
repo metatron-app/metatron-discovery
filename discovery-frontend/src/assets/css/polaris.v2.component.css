@@ -269,6 +269,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
     메세지
 **************************************************************/
 .ddp-ui-buttons.ddp-inline .ddp-ui-message {display:inline-block; margin-left:10px;}
+.ddp-ui-buttons.ddp-inline .ddp-ui-message .ddp-data-error2 {padding-top:0;}
 .ddp-ui-message span.ddp-data-ok,
 .ddp-ui-message span.ddp-data-error {position:relative; margin-top:10px; padding-left:17px; color:#666eb2; font-size:12px; font-style:italic;}
 .ddp-ui-message span.ddp-data-error2 {display:block; padding:10px 0 0 0; color:#ca4b4b; font-style:italic;}

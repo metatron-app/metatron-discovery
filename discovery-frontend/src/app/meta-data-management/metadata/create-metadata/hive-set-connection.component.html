@@ -90,7 +90,7 @@
             </div>
             <!-- //HOST -->
             <!-- PORT -->
-            <div class="ddp-wrap-edit2 ddp-col-2">
+            <div class="ddp-wrap-edit2 ddp-col-2" [class.ddp-error]="isShowPortRequired">
               <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}</label>
               <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.port' | translate}}" maxlength="5" input-mask="number"
                      [ngModel]="port"

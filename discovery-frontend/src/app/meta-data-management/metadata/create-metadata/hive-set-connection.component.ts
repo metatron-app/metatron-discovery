@@ -198,6 +198,8 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
     this._deleteSchemaStep();
     // init connection flag
     this._initConnectionFlag();
+    // init connection result flag
+    this.initConnectionResultFlag();
     // get preset detail data
     this._getConnectionPresetDetailData(preset);
   }
@@ -231,6 +233,16 @@ export class HiveSetConnectionComponent extends AbstractPopupComponent implement
     this.password = '';
     this.url = '';
     this.isEnableUrl = false;
+  }
+
+  /**
+   * init connection result flag
+   */
+  public initConnectionResultFlag(): void {
+    // init connection result flag
+    this.connectionResultFl = null;
+    // init clicked next flag
+    this.isClickedNext = false;
   }
 
   /**
