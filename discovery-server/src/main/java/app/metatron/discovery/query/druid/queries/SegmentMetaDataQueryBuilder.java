@@ -101,7 +101,7 @@ public class SegmentMetaDataQueryBuilder extends AbstractQueryBuilder {
         IntervalFilter intervalFilter = (IntervalFilter) reqFilter;
 
         if (metaFieldMap.containsKey(intervalFilter.getField())
-            && metaFieldMap.get(intervalFilter.getField()).getBiType() == app.metatron.discovery.domain.datasource.Field.BIType.TIMESTAMP) {
+            && metaFieldMap.get(intervalFilter.getField()).getRole() == app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP) {
           intervals.addAll(intervalFilter.getEngineIntervals());
         }
       }
