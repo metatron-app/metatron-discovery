@@ -34,7 +34,7 @@ import {FormatOptionConverter} from "../../option/converter/format-option-conver
 import { UIChartFormat } from '../../option/ui-option/ui-format';
 import { UIWaterfallChart } from '../../option/ui-option/ui-waterfall-chart';
 
-//declare let echarts_3_8: any;
+declare let echarts_4_1: any;
 
 @Component({
   selector: 'waterfall-chart',
@@ -50,7 +50,7 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  //protected echarts: any = echarts_3_8;
+  protected echarts: any = echarts_4_1;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -81,9 +81,6 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
 
   // Destory
   public ngOnDestroy() {
-
-    // Destory
-    super.ngOnDestroy();
   }
 
   // After View Init
@@ -483,6 +480,22 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
 
     return this.data.columns;
   }
+
+  /**
+   * 차트에 옵션 반영
+   * - Echart기반 차트가 아닐경우 Override 필요
+   * @param initFl 차트 초기화 여부
+   */
+  protected apply(initFl: boolean = true): void {
+
+    this.chart.setOption(this.chartOption, true, false);
+
+    // set connect
+    this.chart.group = 'group1';
+    this.echarts.connect('group1');
+
+    console.info(this.chartOption);
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -536,8 +549,7 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
         result.push(seriesValue);
       }
     }
-
-    return result.join('<br/>');
+    return result.join('\n');
   }
 
 }
