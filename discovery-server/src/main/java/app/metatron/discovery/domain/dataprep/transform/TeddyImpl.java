@@ -111,7 +111,7 @@ public class TeddyImpl {
     return getCurRev(dsId).get();
   }
 
-  public void setStageIdx(String dsId, Integer dfIdx) {
+  public void setCurStageIdx(String dsId, Integer dfIdx) {
     getCurRev(dsId).setCurStageIdx(dfIdx);
   }
 
@@ -134,9 +134,9 @@ public class TeddyImpl {
     return apply(rev.get(), ruleString);
   }
 
-  public DataFrame fetch(String dsId) {
+  public DataFrame fetch(String dsId, Integer stageIdx) {
     Revision rev = getCurRev(dsId);
-    return rev.get();
+    return rev.get(stageIdx); // if null, get curStage
   }
 
   private DataFrame apply(DataFrame df, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {

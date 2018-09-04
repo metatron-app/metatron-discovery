@@ -581,32 +581,21 @@ public class PrepTransformService {
     return colHists;
   }
 
-  // Although this is not used for now, but it would be better to be used in the initial loading.
-  // FETCH is used for too many purposes.
-  // load (and apply transitions if needed) (GET)
-//  @Transactional(rollbackFor = Exception.class)
-//  public PrepTransformResponse load(String dsId) throws Exception {
-//    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-//    PrepTransformResponse response;
-//    DataFrame gridResponse;
-//
-//    LOGGER.trace("load(): start");
-//
-//    gridResponse = load_internal(dsId);
-//    response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
-//    response.setRuleStringInfos(getRulesInOrder(dsId), false, false);
-//
-//    if (gridResponse != null) {
-//      previewLineService.putPreviewLines(dsId, gridResponse);
-//    }
-//
-//    LOGGER.debug("load(): done");
-//    return response;
-//  }
+  private int adjustStageIdx(String dsId, Integer stageIdx) {
+    int origStageIdx = teddyImpl.getCurStageIdx(dsId);
+
+    assert stageIdx != null;
+
+    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    dataset.setRuleCurIdx(stageIdx);
+    teddyImpl.setCurStageIdx(dsId, stageIdx);
+
+    return origStageIdx;
+  }
 
   // transform (PUT)
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse transform(String dsId, OP_TYPE op, int stageIdx, String ruleString) throws Exception {
+  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx, String ruleString) throws Exception {
     LOGGER.trace("transform(): start: dsId={} op={} stageIdx={} ruleString={}", dsId, op, stageIdx, ruleString);
 
     if(op==OP_TYPE.APPEND || op==OP_TYPE.UPDATE || op==OP_TYPE.PREVIEW) {
@@ -622,37 +611,37 @@ public class PrepTransformService {
       load_internal(dsId);
     }
 
-    if (stageIdx >= 0) {
-      dataset.setRuleCurIdx(stageIdx);
-      teddyImpl.setStageIdx(dsId, stageIdx);
-    }
-
     // 아래 각 case에서 ruleCurIdx, matrixResponse는 채워서 리턴
     // rule list는 transform()을 마칠 때에 채움. 모든 op에 대해 동일하기 때문에.
     switch (op) {
       case APPEND:
+        adjustStageIdx(dsId, stageIdx);
         response = append(dsId, ruleString);
         break;
       case DELETE:
+        adjustStageIdx(dsId, stageIdx);
         response = delete(dsId);
         break;
       case UNDO:
+        assert stageIdx == null;
         response = undo(dsId);
         break;
       case REDO:
+        assert stageIdx == null;
         response = redo(dsId);
         break;
       case JUMP:
-        response = jump(dsId);
-        break;
-      case FETCH:
-        response = fetch(dsId);
+        adjustStageIdx(dsId, stageIdx);
+        response = fetch(dsId, stageIdx);
         break;
       case UPDATE:
+        adjustStageIdx(dsId, stageIdx);
         response = update(dataset, ruleString);
         break;
       case PREVIEW:
+        int origStageIdx = adjustStageIdx(dsId, stageIdx);
         response = preview(dataset, ruleString);
+        adjustStageIdx(dsId, origStageIdx);
         break;
       case NOT_USED:
       default:
@@ -679,7 +668,6 @@ public class PrepTransformService {
         this.previewLineService.putPreviewLines(dsId, gridResponse);
         break;
       case JUMP:
-      case FETCH:
       case PREVIEW:
       case NOT_USED:
       default:
@@ -708,15 +696,18 @@ public class PrepTransformService {
   }
 
   // transform_histogram (POST)
-  public PrepHistogramResponse transform_histogram(String dsId, List<Integer> colnos, List<Integer> colWidths) throws Exception {
-    LOGGER.trace("transform_histogram(): start: dsId={} curRevIdx={} curStageIdx={} colnos={} colWidths={}",
-                 dsId, teddyImpl.getCurRevIdx(dsId), teddyImpl.getCurStageIdx(dsId), colnos, colWidths);
+  public PrepHistogramResponse transform_histogram(String dsId, Integer stageIdx, List<Integer> colnos, List<Integer> colWidths) throws Exception {
+    LOGGER.trace("transform_histogram(): start: dsId={} curRevIdx={} stageIdx={} colnos={} colWidths={}",
+                 dsId, teddyImpl.getCurRevIdx(dsId), stageIdx, colnos, colWidths);
 
     if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
       load_internal(dsId);
     }
 
-    DataFrame df = teddyImpl.getCurDf(dsId);
+    assert stageIdx != null;
+    assert stageIdx >= 0 : stageIdx;
+
+    DataFrame df = teddyImpl.fetch(dsId, stageIdx);
     List<Histogram> colHists = createHistsWithColWidths(df, colnos, colWidths);
 
     LOGGER.trace("transform_histogram(): end");
@@ -1187,16 +1178,12 @@ public class PrepTransformService {
     return response;
   }
 
-  // Only difference between jump() and fetch() is that jump() changes ruleCurIdx of the entity, and fetch() doesn't.
-  private PrepTransformResponse jump(String dsId) throws PrepException {
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    dataset.setRuleCurIdx(teddyImpl.getCurStageIdx(dsId));
-    return fetch(dsId);
-  }
+  public PrepTransformResponse fetch(String dsId, Integer stageIdx) throws Exception {
+    if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
+      load_internal(dsId);
+    }
 
-  private PrepTransformResponse fetch(String dsId) throws PrepException {
-    DataFrame gridResponse;
-    gridResponse = teddyImpl.fetch(dsId);
+    DataFrame gridResponse = teddyImpl.fetch(dsId, stageIdx);
 
     PrepTransformResponse response = new PrepTransformResponse(teddyImpl.getCurStageIdx(dsId), gridResponse);
     response.setRuleStringInfos(getRulesInOrder(dsId), false, false);
