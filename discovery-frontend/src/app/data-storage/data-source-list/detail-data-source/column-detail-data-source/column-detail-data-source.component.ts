@@ -144,6 +144,8 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       else if (dsChanges.previousValue.fields !== dsChanges.currentValue.fields) {
         // update filtered column list
         this._updateFilteredColumnList();
+        // if exist metadata, merge to field
+        this.isExistMetaData() && this.filteredColumnList.forEach(field => this._setMetaDataField(field));
         // change selected field
         this.onSelectedField(this.selectedField ? this.datasource.fields.filter(field => field.id === this.selectedField.id)[0] : this.filteredColumnList[0], this.datasource);
       }
