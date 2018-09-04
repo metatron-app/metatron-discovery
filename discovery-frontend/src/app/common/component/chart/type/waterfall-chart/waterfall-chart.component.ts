@@ -483,6 +483,23 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
 
     return this.data.columns;
   }
+
+  /**
+   * 차트에 옵션 반영
+   * - Echart기반 차트가 아닐경우 Override 필요
+   * @param initFl 차트 초기화 여부
+   */
+  protected apply(initFl: boolean = true): void {
+
+    // Apply!
+    this.chart.setOption(this.chartOption, true, false);
+
+    // set connect
+    this.chart.group = 'group1';
+    this.echarts.connect('group1');
+
+    console.info(this.chartOption);
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -536,8 +553,7 @@ export class WaterFallChartComponent extends BaseChart implements OnInit, AfterV
         result.push(seriesValue);
       }
     }
-
-    return result.join('<br/>');
+    return result.join('\n');
   }
 
 }
