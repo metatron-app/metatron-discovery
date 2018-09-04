@@ -274,6 +274,7 @@
   "msg.comm.ui.shared" : "공유",
   "msg.comm.ui.workspace.type" : "워크스페이스 타입",
   "msg.comm.alert.error": "에러 항목을 확인해 주세요",
+  "msg.comm.alert.modify.success": "변경 사항이 저장되었습니다",
 
   "msg.lnb.btn.Manual" : "메뉴얼",
   "msg.lnb.btn.workspace-list" : "워크스페이스 목록 >>",
@@ -1551,7 +1552,6 @@
   "msg.storage.alert.dconn-public.success" : "전체 워크스페이스에 데이터 커넥션을 공개하였습니다",
   "msg.storage.alert.dconn-selected.success" : "선택한 워크스페이스에만 데이터 커넥션을 공개하였습니다",
   "msg.storage.alert.dconn.del.success": "데이터 커넥션이 삭제되었습니다.",
-  "msg.storage.alert.dconn.modify.success" : "데이터 커넥션이 수정 되었습니다.",
   "msg.storage.alert.dconn.create.success" : "데이터 커넥션이 생성되었습니다.",
   "msg.storage.ui.available.engine" : "엔진의 룰에 의해 데이터소스 사용 가능",
   "msg.storage.ui.source.preparing" : "데이터소스 준비 중",

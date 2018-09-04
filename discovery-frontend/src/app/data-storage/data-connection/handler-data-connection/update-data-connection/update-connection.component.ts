@@ -444,7 +444,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
     this.connectionService.updateConnection(this._connectionId, this._getUpdateParams())
       .then((result) => {
         // alert
-        Alert.success(`'${this.connectionName.trim()}' ` + this.translateService.instant('msg.storage.alert.dconn.modify.success'));
+        Alert.success(this.translateService.instant('msg.comm.alert.modify.success'));
         // loading hide
         this.loadingHide();
         // close
