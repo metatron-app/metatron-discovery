@@ -46,8 +46,6 @@ public class GeoShelf implements Shelf {
     return layers;
   }
 
-
-
   @Override
   public String toString() {
     return "GeoShelf{" +

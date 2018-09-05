@@ -66,13 +66,14 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
       }
 
       app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
-      if(datasourceField.getRole() == FieldRole.MEASURE
-          && datasourceField.getLogicalType() == LogicalType.GIS) {
-        for (String gisStructKey : LogicalType.GIS.getGisStructKeys()) {
-          propertyNames.add(new PropertyName(fieldName + "." + gisStructKey));
+      if(datasourceField.getRole() == FieldRole.DIMENSION) {
+        if(datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
+          for (String geoPointKey : LogicalType.GEO_POINT.getGeoPointKeys()) {
+            propertyNames.add(new PropertyName(fieldName + "." + geoPointKey));
+          }
+        } else {
+          propertyNames.add(new PropertyName(fieldName));
         }
-      } else {
-        propertyNames.add(new PropertyName(fieldName));
       }
     }
 

@@ -12,11 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
-  ViewChild
-} from '@angular/core';
-import * as _ from 'lodash';
+import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
 import {PagePivotComponent} from "../page-pivot.component";
 import {Pivot} from "../../../domain/workbook/configurations/pivot";
 
@@ -49,7 +45,6 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
       this.pivot = pivot;
     }
 
-    console.info('pivot!', this.pivot);
     this.changePivot();
   }
 

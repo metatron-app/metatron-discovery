@@ -30,7 +30,9 @@ public enum LogicalType {
   TIMESTAMP,
   LNG,
   LNT,
-  GIS,          // [lat(latitude),lon(longitude),addr(address)] structure for gis
+  GEO_POINT,          // [lat(latitude),lon(longitude),addr(address)] structure for GEO
+  GEO_LINE,           // [lat(latitude),lon(longitude),addr(address)] structure for GEO
+  GEO_POLYGON,        // [lat(latitude),lon(longitude),addr(address)] structure for GEO
   ARRAY,
   STRUCT,
   MAP_KEY,
@@ -46,7 +48,7 @@ public enum LogicalType {
   URL,
   HTTP_CODE;
 
-  public List<String> getGisStructKeys() {
+  public List<String> getGeoPointKeys() {
     return Lists.newArrayList("lat", "lon", "addr");
   }
 }
