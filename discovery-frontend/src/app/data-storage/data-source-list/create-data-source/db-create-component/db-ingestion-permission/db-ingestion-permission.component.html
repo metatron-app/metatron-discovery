@@ -59,7 +59,8 @@
                  *ngFor="let ingestion of ingestionTypeList"
                  (change)="onChangeIngestion(ingestion)">
             <input type="radio"
-                   [checked]="isEqualTypeValue(ingestion, selectedIngestionType)">
+                   [checked]="isEqualTypeValue(ingestion, selectedIngestionType)"
+                   [disabled]="isConnectWithIdAndPassword() && ingestion.value === 'batch'">
             <i class="ddp-icon-radio"></i>
             <span class="ddp-txt-radio">{{ingestion.label}}</span>
           </label>

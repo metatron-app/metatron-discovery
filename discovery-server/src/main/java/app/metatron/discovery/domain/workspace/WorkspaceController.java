@@ -14,47 +14,6 @@
 
 package app.metatron.discovery.domain.workspace;
 
-import com.google.common.collect.Lists;
-
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPAExpressions;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.rest.webmvc.PersistentEntityResource;
-import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
-import org.springframework.data.rest.webmvc.RepositoryRestController;
-import org.springframework.hateoas.Resources;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.net.URI;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
@@ -67,13 +26,7 @@ import app.metatron.discovery.domain.datasource.DataSourceRepository;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionPredicate;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
-import app.metatron.discovery.domain.notebook.NoteBookConnectorPredicate;
-import app.metatron.discovery.domain.notebook.NotebookConnector;
-import app.metatron.discovery.domain.notebook.NotebookConnectorRepository;
-import app.metatron.discovery.domain.notebook.NotebookModel;
-import app.metatron.discovery.domain.notebook.NotebookModelRepository;
-import app.metatron.discovery.domain.notebook.QNotebook;
-import app.metatron.discovery.domain.notebook.QNotebookModel;
+import app.metatron.discovery.domain.notebook.*;
 import app.metatron.discovery.domain.notebook.connector.HttpRepository;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
@@ -88,6 +41,28 @@ import app.metatron.discovery.domain.workbook.DashboardRepository;
 import app.metatron.discovery.domain.workbook.WorkBook;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.util.AuthUtils;
+import com.google.common.collect.Lists;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.data.rest.webmvc.PersistentEntityResource;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.hateoas.Resources;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.util.*;
 
 import static app.metatron.discovery.domain.workspace.Workspace.PublicType.PRIVATE;
 import static app.metatron.discovery.domain.workspace.Workspace.PublicType.SHARED;
@@ -505,24 +480,15 @@ public class WorkspaceController {
                                                @RequestParam(value = "name", required = false) String name,
                                                @RequestParam(value = "type", required = false) String type,
                                                @RequestParam(value = "implementor", required = false) String implementor,
-                                               @RequestParam(value = "usageScope", required = false) String usageScope,
                                                @RequestParam(value = "authenticationType", required = false) String authenticationType,
                                                Pageable pageable,
                                                PersistentEntityResourceAssembler resourceAssembler) {
 
     LOGGER.debug("name = {}", name);
     LOGGER.debug("implementor = {}", implementor);
-    LOGGER.debug("usageScope = {}", usageScope);
     LOGGER.debug("authenticationType = {}", authenticationType);
     LOGGER.debug("workspaceId = {}", id);
     LOGGER.debug("pageable = {}", pageable);
-
-    // Validate UsageScope
-    DataConnection.UsageScope usageScopeType = null;
-    if (StringUtils.isNotEmpty(usageScope) && !"ALL".equalsIgnoreCase(usageScope)) {
-      usageScopeType = SearchParamValidator
-          .enumUpperValue(DataConnection.UsageScope.class, usageScope, "usageScope");
-    }
 
     // Validate SourceType
     DataConnection.SourceType sourceType = SearchParamValidator
@@ -540,7 +506,7 @@ public class WorkspaceController {
 
     // Get Predicate
     Predicate searchPredicated = DataConnectionPredicate
-        .searchListForWorkspace(name, usageScopeType, sourceType, implementorType, authenticationTypeValue, id);
+        .searchListForWorkspace(name, sourceType, implementorType, authenticationTypeValue, id);
 
     // 기본 정렬 조건 셋팅
     if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {

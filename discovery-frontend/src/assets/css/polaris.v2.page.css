@@ -7054,8 +7054,8 @@ a.ddp-link-selection.ddp-reject:hover {color:#c63b3b; border:1px solid #e35252; 
 	사용자 new member
 **********************************************************************************/
 .ddp-ui-user-new {padding:0 50px; text-align:left;}
-.ddp-type-contents-in .ddp-top-option {position:relative; padding-bottom:15px;  margin-bottom:20px;border-bottom:1px dotted #ccc; overflow:hidden;}
-
+.ddp-type-contents-in .ddp-top-option {position:relative; padding-bottom:29px;  margin-bottom:20px;border-bottom:1px dotted #ccc; overflow:hidden;}
+.ddp-type-contents-in .ddp-top-option > .ddp-wrap-edit3:first-of-type {margin-top:0px;}
 .ddp-ui-edit-option dl.ddp-dl-option {display:block; position:relative; top:-2px; overflow:hidden;}
 .ddp-ui-edit-option dl.ddp-dl-option dt {float:left; margin-left:15px; margin-right:5px; color:#b7b9c2; font-size:14px;}
 .ddp-ui-edit-option dl.ddp-dl-option dd {float:left; color:#4b515b; font-size:14px;}
@@ -7941,6 +7941,7 @@ ul.ddp-list-essential li .ddp-data-det .ddp-txt-label {color:#b7b9c2;}
 
 .ddp-guide-motion .ddp-line-bar {display:inline-block;  position:absolute; top:25px; left:180px; width:45px; height:61px;  }
 .ddp-guide-motion .ddp-line-bar em.ddp-icon-handler {display:inline-block; position:absolute; top:0; right:0; width:45px; height:61px; background:url(../images/icon_handle.png) no-repeat; z-index:20;}
+
 .ddp-guide-link {padding:35px 0 0 0; }
 .ddp-guide-link .ddp-link-txt {padding:8px 20px 9px 20px; border:1px solid #d0d1d8; border-radius:2px; color:#fff; font-size:16px;}
 .ddp-guide-link .ddp-link-txt:hover {background-color:rgba(255,255,255,0.3);}

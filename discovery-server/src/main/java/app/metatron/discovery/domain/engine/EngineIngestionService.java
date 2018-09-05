@@ -14,11 +14,29 @@
 
 package app.metatron.discovery.domain.engine;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.fileloader.FileLoaderFactory;
+import app.metatron.discovery.common.fileloader.FileLoaderProperties;
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceIngetionException;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.*;
+import app.metatron.discovery.domain.datasource.ingestion.*;
+import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.realtime.KafkaClient;
+import app.metatron.discovery.domain.datasource.realtime.RealTimeProperties;
+import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
+import app.metatron.discovery.spec.druid.ingestion.*;
+import app.metatron.discovery.util.PolarisUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -36,53 +54,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.common.fileloader.FileLoaderFactory;
-import app.metatron.discovery.common.fileloader.FileLoaderProperties;
-import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceIngetionException;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnectionException;
-import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.datasource.realtime.KafkaClient;
-import app.metatron.discovery.domain.datasource.realtime.RealTimeProperties;
-import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
-import app.metatron.discovery.spec.druid.ingestion.BatchIndex;
-import app.metatron.discovery.spec.druid.ingestion.HadoopIndex;
-import app.metatron.discovery.spec.druid.ingestion.Index;
-import app.metatron.discovery.spec.druid.ingestion.IngestionSpec;
-import app.metatron.discovery.spec.druid.ingestion.IngestionSpecBuilder;
-import app.metatron.discovery.spec.druid.ingestion.KafkaRealTimeIndexBuilder;
-import app.metatron.discovery.spec.druid.ingestion.SupervisorIndex;
-import app.metatron.discovery.util.PolarisUtils;
-
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HDFS;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HIVE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.REALTIME;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
-import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.FAILED;
-import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.PASS;
-import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.RUNNING;
+import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.*;
 
 /**
  * Created by kyungtaak on 2016. 6. 18..
@@ -348,14 +322,11 @@ public class EngineIngestionService {
     JdbcIngestionInfo jdbcInfo = dataSource.getIngestionInfoByType();
     jdbcInfo.setFormat(new CsvFileFormat());
 
-    DataConnection connection = Preconditions.checkNotNull(dataSource.getConnection() == null ?
-                                                               jdbcInfo.getConnection() : dataSource.getConnection(),
-                                                           "Required connection info.");
+    DataConnection connection = Preconditions.checkNotNull(dataSource.getJdbcConnectionForIngestion(), "Required connection info.");
 
     if (!(connection instanceof JdbcDataConnection)) {
       throw new MetatronException("Required JdbcDataConnecion type.");
     }
-
 
     // Select 문을 가지고 CSV 파일로 변환
     List<String> csvFiles = jdbcConnectionService.selectQueryToCsv(
@@ -396,9 +367,7 @@ public class EngineIngestionService {
     JdbcIngestionInfo jdbcInfo = dataSource.getIngestionInfoByType();
     jdbcInfo.setFormat(new CsvFileFormat());
 
-    DataConnection connection = Preconditions.checkNotNull(dataSource.getConnection() == null ?
-                                                               jdbcInfo.getConnection() : dataSource.getConnection(),
-                                                           "Required connection info.");
+    DataConnection connection = Preconditions.checkNotNull(dataSource.getJdbcConnectionForIngestion(), "Required connection info.");
 
     if (!(connection instanceof JdbcDataConnection)) {
       throw new MetatronException("Required JdbcDataConnecion type.");

@@ -33,7 +33,7 @@ import { LoadingComponent } from '../common/component/loading/loading.component'
 import { DatasourceService } from '../datasource/service/datasource.service';
 import { PageWidget } from '../domain/dashboard/widget/page-widget';
 import { Dashboard, BoardDataSource, BoardConfiguration } from '../domain/dashboard/dashboard';
-import { BIType, Datasource, Field, LogicalType } from '../domain/datasource/datasource';
+import { BIType, ConnectionType, Datasource, Field, LogicalType } from '../domain/datasource/datasource';
 import { Workbook } from '../domain/workbook/workbook';
 import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
 import { CommonUtil } from '../common/util/common.util';
@@ -380,7 +380,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     // Destory
     super.ngOnDestroy();
-
+    // this.webSocketCheck(() => {});
     (this._subscription) && (CommonConstant.stomp.unsubscribe(this._subscription));     // Socket 응답 해제
 
     (this.timer) && (clearInterval(this.timer));
@@ -511,13 +511,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.webSocketLoginId = param.id;
     this.webSocketLoginPw = param.pw;
     //
+    WorkbenchService.websocketId = CommonConstant.websocketId;
     WorkbenchService.webSocketLoginId = param.id;
     WorkbenchService.webSocketLoginPw = param.pw;
     this.readQuery(this.workbenchTemp, this.workbenchTemp.queryEditors);
 
     //TODO The connection has not been established error
     try {
-      this.createWebSocket();
+       this.webSocketCheck(() => {});
     } catch (e) {
       console.log(e);
     }
@@ -1414,7 +1415,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             (permissionChecker.isManageWorkbench() || permissionChecker.isEditWorkbench(data.createdBy.username));
 
           this.mimeType = data.dataConnection.implementor.toString();
-          this.authenticationType = data.dataConnection['authenticationType'];
+          this.authenticationType = data.dataConnection['authenticationType'] || 'MANUAL';
           if (data.dataConnection['authenticationType'] === 'DIALOG') {
             this.loginLayerShow = true;
             this.workbenchTemp = data;
@@ -1424,8 +1425,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             this.webSocketLoginId = '';
             this.webSocketLoginPw = '';
 
-            connectWebSocket.call(this);
+            // connectWebSocket.call(this);
           }
+          connectWebSocket.call(this);
 
           this.isDataManager = CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_DATASOURCE);
 
@@ -1934,19 +1936,26 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     this.connectionService.getDataconnectionDetail(this.workbench.dataConnection.id)
       .then((connection) => {
+        const selectedSecurityType = [
+          { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+          { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+          { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+        ].find(type => type.value === this.workbench.dataConnection.authenticationType) || { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' };
         this.mainViewShow = false;
         this.mode = 'db-configure-schema';
         this.setDatasource = {
           connectionData: {
-            connType: 'ENGINE',
             connectionId: this.workbench.dataConnection.id,
             hostname: this.workbench.dataConnection.hostname,
             port: this.workbench.dataConnection.port,
             url: this.workbench.dataConnection.url,
-            username: connection.username,
-            password: connection.password,
-            implementor: this.workbench.dataConnection.implementor,
-            connectionPresetFl: true
+            username: selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginId : connection.username,
+            password: selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginPw : connection.password,
+            selectedDbType: this.getEnabledConnectionTypes(true)
+              .find(type => type.value === this.workbench.dataConnection.implementor.toString()),
+            selectedSecurityType: selectedSecurityType,
+            selectedIngestionType: { label : this.translateService.instant('msg.storage.ui.list.ingested.data'), value : ConnectionType.ENGINE },
+            isUsedConnectionPreset: true
           },
           databaseData: {
             selectedType: 'QUERY',
@@ -1978,6 +1987,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // 데이터 생성 이후 complete로 들어오는 곳
   public createDatasourceComplete() {
+    this.mainViewShow = true;
     this.mode = '';
   }
 
@@ -1999,7 +2009,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       .then((connection) => {
         // 로딩 hide
         this.loadingHide();
-        this.createDatasourceTemporaryDetail(connection.username, connection.password);
+        this.createDatasourceTemporaryDetail(connection.username, connection.password, connection);
       })
       .catch((error) => {
         // 로딩 hide
@@ -2008,7 +2018,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       });
   }
 
-  public createDatasourceTemporaryDetail(id: string, pw: string) {
+  public createDatasourceTemporaryDetail(id: string, pw: string, connection: any) {
     if (this.datagridCurList.length === 0) {
       Alert.info(this.translateService.instant('msg.bench.alert.no.result'));
       return;
@@ -2085,6 +2095,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     });
     param['fields'] = column;
 
+    const selectedSecurityType = [
+      { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+      { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+      { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+    ].find(type => type.value === connection.authenticationType) || { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' };
+
     // ingestion param
     const connInfo: Dataconnection = this.workbench.dataConnection;
     param['ingestion'] = {
@@ -2095,9 +2111,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         hostname: connInfo.hostname,
         port: connInfo.port,
         url: connInfo.url,
-        username: id,
-        password: pw,
-        usageScope: 'DEFAULT',
         database: connInfo.database,
         authenticationType: this.authenticationType,
         catalog: connInfo.catalog,
@@ -2108,6 +2121,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       dataType: 'QUERY',
       query: this.datagridCurList[this.selectedGridTabNum]['data']['runQuery']
     };
+
+    if (selectedSecurityType.value === 'DIALOG') {
+      param['ingestion'].connectionUsername = this.webSocketLoginId;
+      param['ingestion'].connectionPassword = this.webSocketLoginPw;
+    } else if (selectedSecurityType.value === 'MANUAL') {
+      param['ingestion'].connection.username = id;
+      param['ingestion'].connection.password = pw;
+    }
+
 
     this.loadingShow();
     this.datasourceService.createDatasourceTemporary(param).then((tempDsInfo) => {

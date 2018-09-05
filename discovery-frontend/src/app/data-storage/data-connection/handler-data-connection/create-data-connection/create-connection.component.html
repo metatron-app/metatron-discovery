@@ -13,9 +13,9 @@
   -->
 
 <div class="ddp-type-contents ddp-resize2 ddp-type">
-  <!-- 닫기 버튼 -->
+  <!-- close -->
   <a href="javascript:" class="ddp-btn-close" (click)="cancel()"></a>
-  <!-- 닫기 버튼 -->
+  <!-- close -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
       {{'msg.storage.ui.create.dconn' | translate}}
@@ -28,233 +28,222 @@
     <!-- dp connection -->
     <div class="ddp-ui-dbconnect">
       <!-- db type -->
-      <div class="ddp-ui-db-type">
-        <!-- edit -->
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.comm.detail.type' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-inline">
-            <label class="ddp-label-radio"
-                   *ngFor="let type of connectionTypes"
-                   (change)="onSelectedConnectionType(type.value)">
-              <input type="radio" [checked]="type.value === selectedConnectionType">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{type.label}}</span>
-            </label>
-          </div>
-          <!-- //edit option -->
+      <div class="ddp-wrap-edit2 ">
+        <label class="ddp-label-type ddp-bold">{{'msg.storage.th.db_type' | translate}}</label>
+        <!-- edit option -->
+        <div class="ddp-ui-edit-option ddp-type ddp-white-space">
+          <ul class="ddp-list-dbtype">
+            <li *ngFor="let type of dbTypeList" [class.ddp-selected]="selectedDbType.value === type.value">
+              <a href="javascript:" class="ddp-label-dbtype {{type.icon}}" (click)="onChangeDbType(type)">
+                {{type.label}}
+              </a>
+            </li>
+          </ul>
         </div>
-        <!-- //edit -->
-
-        <label class="ddp-label-type">{{'msg.storage.th.db_type' | translate}}</label>
-        <ul class="ddp-list-db-type">
-          <li *ngFor="let type of dbTypes" [ngClass]="{'ddp-selected' : type.value === implementor}">
-            <a href="javascript:" (click)="onSelectedDb(type.value)">
-              <em class="ddp-icon-hover"></em>
-              <em class="ddp-img-{{type.label}}"></em>
-              <span class="ddp-bg-selected"><em class="ddp-icon-select"></em></span>
-            </a>
-          </li>
-        </ul>
+        <!-- //edit option -->
       </div>
       <!-- //db type -->
-      <!-- db connect 설정 -->
-
-      <div class="ddp-ui-db-option">
-        <!-- URL type -->
-        <div class="ddp-wrap-edit2 ddp-inline">
-          <label class="ddp-label-type">{{'msg.storage.ui.conn.url.type' | translate}}</label>
-          <div class="ddp-inline">
-            <label class="ddp-label-radio" *ngFor="let type of urlTypes"
-                   (change)="onSelectedUrlType(type.value)">
-              <input type="radio" [checked]="type.value === selectedUrlType">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{type.label}}</span>
-            </label>
+      <!-- Server -->
+      <div class="ddp-wrap-edit2 ">
+        <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.server' | translate}}</label>
+        <div class="ddp-box-sub">
+          <!-- URL (enable) -->
+          <div class="ddp-clear" *ngIf="isEnableUrl">
+            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowUrlRequired">
+              <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}</label>
+              <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.url.ph' | translate}}"
+                     [ngModel]="url"
+                     (ngModelChange)="url = $event; isShowUrlRequired = null; initConnectionResultFlag()">
+              <!-- error -->
+              <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+              <!-- error -->
+              <!-- check -->
+              <div class="ddp-check">
+                <label class="ddp-label-checkbox" (click)="onChangeEnableURL()">
+                  <input type="checkbox" [checked]="isEnableUrl" tabindex="-1">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.storage.ui.conn.url.only' | translate}}</span>
+                </label>
+              </div>
+              <!-- //check -->
+            </div>
           </div>
-        </div>
-        <!-- //URL type -->
-
-        <div class="ddp-clear">
-          <!-- host(default) -->
-          <div class="ddp-wrap-edit2 ddp-col-8" *ngIf="isDefaultType()">
-            <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}</label>
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.host' | translate}}"
-                   [ngModel]="hostname"
-                   (ngModelChange)="hostname = $event; initConnectionFlag()">
+          <!-- //URL (enable) -->
+          <!-- URL (disable) -->
+          <div class="ddp-clear" *ngIf="!isEnableUrl">
+            <!-- HOST -->
+            <div class="ddp-wrap-edit2 ddp-col-4" [class.ddp-error]="isShowHostRequired">
+              <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}</label>
+              <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.host' | translate}}"
+                     [ngModel]="hostname"
+                     (ngModelChange)="hostname = $event; isShowHostRequired = null; initConnectionResultFlag()">
+              <!-- error -->
+              <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+              <!-- error -->
+              <!-- check -->
+              <div class="ddp-check">
+                <label class="ddp-label-checkbox" (click)="onChangeEnableURL()">
+                  <input type="checkbox" [checked]="isEnableUrl" tabindex="-1">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.storage.ui.conn.url.only' | translate}}</span>
+                </label>
+              </div>
+              <!-- //check -->
+            </div>
+            <!-- //HOST -->
+            <!-- PORT -->
+            <div class="ddp-wrap-edit2 ddp-col-2" [class.ddp-error]="isShowPortRequired">
+              <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}</label>
+              <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.port' | translate}}" maxlength="5" input-mask="number"
+                     [ngModel]="port"
+                     (ngModelChange)="port = $event; isShowPortRequired = null; initConnectionResultFlag()">
+              <!-- error -->
+              <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+              <!-- error -->
+            </div>
+            <!-- //PORT -->
+            <!-- SID -->
+            <div *ngIf="isRequiredSid()"
+                 [class.ddp-error]="isShowSidRequired"
+                 class="ddp-wrap-edit2 ddp-col-6" >
+              <!--(ngModelChange)="sid = $event; initConnectionPresetData()">-->
+              <label class="ddp-label-type">{{'msg.storage.th.sid' | translate}}</label>
+              <input type="text"  class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.sid.ph' | translate}}"
+                     [ngModel]="sid"
+                     (ngModelChange)="sid = $event; isShowSidRequired = null; initConnectionResultFlag()">
+              <!-- error -->
+              <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+              <!-- error -->
+            </div>
+            <!-- //SID -->
+            <!-- DATABASE -->
+            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowDatabaseRequired"
+                 *ngIf="isRequiredDatabase()">
+              <label class="ddp-label-type">{{'msg.storage.th.db_name' | translate}}</label>
+              <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.db_name.ph' | translate}}"
+                     [ngModel]="database"
+                     (ngModelChange)="database = $event; isShowDatabaseRequired = null; initConnectionResultFlag()">
+              <!-- error -->
+              <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+              <!-- error -->
+            </div>
+            <!-- //DATABASE -->
+            <!-- Catalog -->
+            <div class="ddp-wrap-edit2 ddp-col-6"  [class.ddp-error]="isShowCatalogRequired"
+                 *ngIf="isRequiredCatalog()">
+              <label class="ddp-label-type">{{'msg.storage.th.catalog' | translate}}</label>
+              <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.catalog.ph' | translate}}"
+                     [ngModel]="catalog"
+                     (ngModelChange)="catalog = $event; isShowCatalogRequired = null; initConnectionResultFlag()">
+              <!-- error -->
+              <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+              <!-- error -->
+            </div>
+            <!-- //Catalog -->
           </div>
-          <!-- //host(default) -->
-          <!-- port(default) -->
-          <div class="ddp-wrap-edit2 ddp-col-4" *ngIf="isDefaultType()">
-            <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}</label>
-            <input type="text" class="ddp-input-type"
-                   maxlength="5"
-                   input-mask="number"
-                   placeholder="{{'msg.comm.th.port' | translate}}"
-                   [ngModel]="port"
-                   (ngModelChange)="port = $event; initConnectionFlag()">
-          </div>
-          <!-- //port(default) -->
-        </div>
-
-        <!-- Required Database(default) -->
-        <div class="ddp-wrap-edit2" *ngIf="isDefaultType() && isRequiredDatabase()">
-          <label class="ddp-label-type">{{'msg.storage.th.db_name' | translate}}</label>
-          <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.db_name.ph' | translate}}"
-                 [ngModel]="database"
-                 (ngModelChange)="database = $event; initConnectionFlag()">
-        </div>
-        <!-- //Required Database(default) -->
-        <!-- Required Sid(default) -->
-        <div class="ddp-wrap-edit2" *ngIf="isDefaultType() && isRequiredSid()">
-          <label class="ddp-label-type">{{'msg.storage.th.sid' | translate}}</label>
-          <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.sid.ph' | translate}}"
-                 [ngModel]="sid"
-                 (ngModelChange)="sid = $event; initConnectionFlag()">
-        </div>
-        <!-- //Required Sid(default) -->
-        <!-- Required Catalog(default) -->
-        <div class="ddp-wrap-edit2" *ngIf="isDefaultType() && isRequiredCatalog()">
-          <label class="ddp-label-type">{{'msg.storage.th.catalog' | translate}}</label>
-          <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.catalog.ph' | translate}}"
-                 [ngModel]="catalog"
-                 (ngModelChange)="catalog = $event; initConnectionFlag()" >
-        </div>
-        <!-- //Required Catalog(default) -->
-
-        <!-- URL(url only) -->
-        <div class="ddp-wrap-edit2" *ngIf="!isDefaultType()">
-          <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}</label>
-          <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.url.ph' | translate}}"
-                 [ngModel]="url"
-                 (ngModelChange)="url = $event; initConnectionFlag()">
-        </div>
-        <!-- //URL(url only) -->
-
-        <!-- workbench 계정입력 -->
-        <div class="ddp-wrap-edit2" *ngIf="isConnectionWorkbench()">
-          <label class="ddp-label-type">{{'msg.storage.th.account.input.method' | translate}}</label>
-          <!-- select box -->
-          <component-select
-            [array]="workbenchTypes"
-            [viewKey]="'label'"
-            [defaultIndex]="0"
-            (onSelected)="onSelectedWorkbenchType($event.value)">
-          </component-select>
-          <!-- //select box -->
-        </div>
-        <!-- //workbench 계정입력 -->
-        <div class="ddp-clear" *ngIf="!isDisabledUsernameAndPassword()">
-          <div class="ddp-col-6">
-            <!-- edit -->
-            <div class="ddp-wrap-edit2 ">
-              <label class="ddp-label-type">{{'msg.storage.th.user_name' | translate}}</label>
+          <!-- //URL (disable) -->
+          <div class="ddp-clear" *ngIf="!isConnectUserAccount()">
+            <!-- username -->
+            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowUsernameRequired">
+              <label class="ddp-label-type">{{'msg.storage.th.user_name' | translate}} <span class="ddp-sub" *ngIf="isConnectWithIdAndPassword()">{{'msg.storage.ui.for.test' | translate}}</span></label>
               <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.user_name.ph' | translate}}"
                      [ngModel]="username"
-                     (ngModelChange)="username = $event; initConnectionFlag()">
+                     (ngModelChange)="username = $event; isShowUsernameRequired = null; initConnectionResultFlag()">
+              <!-- error -->
+              <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+              <!-- error -->
             </div>
-            <!-- //edit -->
-          </div>
-
-          <div class="ddp-col-6">
-            <!-- edit -->
-            <div class="ddp-wrap-edit2 ">
-              <label class="ddp-label-type">{{'msg.storage.th.pwd' | translate}}</label>
+            <!-- //username -->
+            <!-- Password -->
+            <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowPasswordRequired">
+              <label class="ddp-label-type">{{'msg.storage.th.pwd' | translate}} <span class="ddp-sub" *ngIf="isConnectWithIdAndPassword()">{{'msg.storage.ui.for.test' | translate}}</span></label>
               <input type="password" class="ddp-input-type" placeholder="{{'msg.storage.th.pwd.ph' | translate}}"
                      [ngModel]="password"
-                     (ngModelChange)="password = $event; initConnectionFlag()">
+                     (ngModelChange)="password = $event; isShowPasswordRequired = null; initConnectionResultFlag()">
+              <!-- error -->
+              <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+              <!-- error -->
             </div>
-            <!-- //edit -->
+            <!-- //Password -->
           </div>
-        </div>
-        <!-- Advanced -->
-        <!-- 클릭시 ddp-selected 추가 -->
-        <!--<div class="ddp-ui-folding" [class.ddp-selected]="advancedOptShowFl">-->
-          <!--<div class="ddp-fold-label" (click)="advancedOptShowFl = !advancedOptShowFl">-->
-            <!--{{'msg.storage.th.advanced.setting' | translate}}-->
-            <!--<em class="ddp-icon-view"></em>-->
-          <!--</div>-->
-          <!--&lt;!&ndash; option in &ndash;&gt;-->
-          <!--<div class="ddp-ui-option-in" *ngIf="advancedOptShowFl">-->
-            <!--<span class="ddp-type-label">{{'msg.storage.ui.conn.socket' | translate}}</span>-->
-            <!--<div class="ddp-box-option-input ddp-inline">-->
-              <!--<input type="text"-->
-                     <!--maxlength="3"-->
-                     <!--input-mask="number"-->
-                     <!--(ngModelChange)="socketTimeout = $event"-->
-                     <!--[ngModel]="socketTimeout">-->
-              <!--<span class="ddp-txt-input">{{'msg.storage.ui.conn.sec' | translate}}</span>-->
-            <!--</div>-->
-          <!--</div>-->
-          <!--&lt;!&ndash; //option in &ndash;&gt;-->
-
-        <!--</div>-->
-        <!-- //Advanced -->
-
-        <!-- 검증 -->
-        <div class="ddp-ui-buttons ddp-inline">
-          <a href="javascript:" class="ddp-btn-type4" [ngClass]="{'ddp-disabled' : !isEnabledConnectionTest()}"
-             (click)="onClickConnectionTest()">{{'msg.storage.btn.test' | translate}}</a>
-          <div class="ddp-ui-message ddp-ui-info">
-            <span class="ddp-data-error2" *ngIf="isShowValidationMessage()"> {{getValidationMessage()}}</span>
-            <span class="ddp-data-error" *ngIf="connectionResultFl === false"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.conn' | translate}}</span>
-            <span class="ddp-data-ok" *ngIf="connectionResultFl"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.conn' | translate}}</span>
-          </div>
-        </div>
-        <!-- //검증 -->
-      </div>
-      <!-- //db connect 설정 -->
-      <div class="ddp-ui-db-option2 ">
-
-        <!-- edit -->
-        <div class="ddp-wrap-edit3 ddp-type">
-          <label class="ddp-label-type">{{'msg.storage.th.conn.name' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-inline">
-            <input type="text" class="ddp-input-typebasic ddp-full"
-                   maxlength="50"
-                   placeholder="{{'msg.storage.dconn.name.ph' | translate}}"
-                   (focus)="isInvalidName=false"
-                   (keyup.esc)="connectionName=''"
-                   [(ngModel)]="connectionName">
-            <div class="ddp-ui-message" *ngIf="isInvalidName">
-              <span class="ddp-data-error2">{{errMsgName}}</span>
+          <!-- Security -->
+          <div class="ddp-wrap-edit2 ">
+            <label class="ddp-label-type">{{'msg.storage.ui.security' | translate}}</label>
+            <ul class="ddp-list-checktype">
+              <li *ngFor="let type of securityTypeList">
+                <label class="ddp-label-radio" (change)="onChangeSecurityType(type)">
+                  <input type="radio" [checked]="type.value === selectedSecurityType.value">
+                  <i class="ddp-icon-radio"></i>
+                  <span class="ddp-txt-radio">{{type.label}}</span>
+                </label>
+              </li>
+            </ul>
+            <div class="ddp-ui-buttons ddp-inline">
+              <a href="javascript:" class="ddp-btn-pop ddp-bg-gray"
+                 (click)="onClickConnectionValidation()">{{'msg.storage.btn.test' | translate}}</a>
+              <div class="ddp-ui-message ddp-ui-info ">
+                <span class="ddp-data-error2" *ngIf="isClickedDone && connectionResultFl === null">{{'msg.storage.ui.required' | translate}}</span>
+                <span class="ddp-data-error" *ngIf="connectionResultFl === false"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.conn' | translate}}</span>
+                <span class="ddp-data-ok" *ngIf="connectionResultFl"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.conn' | translate}}</span>
+              </div>
             </div>
           </div>
-          <!-- //edit option -->
+          <!-- //Security -->
         </div>
-        <!-- //edit -->
       </div>
-      <!-- Permission -->
-      <div class="ddp-wrap-edit3 ddp-type ddp-mgt15" *ngIf="isConnectionWorkbench()">
-        <label class="ddp-label-type">{{'msg.storage.ui.permission' | translate}}
-        </label>
+      <!-- //Server -->
+      <!-- permission -->
+      <div class="ddp-wrap-edit2 ">
+        <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.permission' | translate}}</label>
         <!-- edit option -->
-        <div class="ddp-ui-edit-option">
+        <div class="ddp-ui-edit-option ddp-type">
+          <div class="ddp-data-result">
+            <ng-container *ngIf="published">
+              {{'msg.storage.ui.conn.create.all.workspace' | translate}}
+            </ng-container>
+            <ng-container *ngIf="!published">
+              <strong>{{addWorkspaces.length}}</strong> {{'msg.storage.ui.conn.create.workspace' | translate}}  <a href="javascript:" class="ddp-link-edit2" (click)="onClickSetWorkspace()">{{'msg.storage.btn.edit' | translate}}</a>
+            </ng-container>
+          </div>
           <label class="ddp-label-checkbox" (click)="published = !published; $event.preventDefault()">
             <input type="checkbox" [checked]="published">
             <i class="ddp-icon-checkbox"></i>
             <span class="ddp-txt-checkbox">{{'msg.storage.ui.permission.choice.dconn' | translate}}</span>
           </label>
-          <div class="ddp-wrap-data-group" *ngIf="!published">
-            <a href="javascript:" class="ddp-link-edit2" (click)="onClickOpenSetWorkspace()">{{'msg.storage.btn.edit' | translate}}</a>
-            <!-- data group -->
-            <span class="ddp-data-group">
-                <em class="ddp-icon-user-s2"></em>
-                <strong>{{addWorkspaces.length}}</strong> {{'msg.storage.ui.conn.create.workspace' | translate}} 
-            </span>
-          </div>
-          <div class="ddp-wrap-data-group" *ngIf="published">
-            <span class="ddp-data-group">
-                <em class="ddp-icon-user-s2"></em>
-                {{'msg.storage.ui.conn.create.all.workspace' | translate}}
-            </span>
-          </div>
+
         </div>
         <!-- //edit option -->
       </div>
-      <!-- //Permission -->
+      <!-- //permission -->
+      <!-- advanced -->
+      <!--<div class="ddp-ui-folding ddp-selected">-->
+        <!--<div class="ddp-fold-label">-->
+          <!--Advanced setting (Opt.)-->
+          <!--<em class="ddp-icon-view"></em>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; option in &ndash;&gt;-->
+        <!--<div class="ddp-ui-option-in">-->
+          <!--<span class="ddp-type-label">Socket timeout</span>-->
+          <!--<div class="ddp-box-option-input ddp-inline">-->
+            <!--<input type="text" value="220">-->
+            <!--<span class="ddp-txt-input">Sec.</span>-->
+          <!--</div>-->
+        <!--</div>-->
+        <!--&lt;!&ndash; //option in &ndash;&gt;-->
 
+      <!--</div>-->
+      <!-- //advanced -->
+      <!-- name -->
+      <div class="ddp-wrap-edit2" [class.ddp-error]="isShowConnectionNameRequired">
+        <label class="ddp-label-type ddp-bold">{{'msg.storage.th.conn.name' | translate}}</label>
+        <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.dconn.name.ph' | translate}}"
+               [ngModel]="connectionName"
+               (ngModelChange)="connectionName = $event; isShowConnectionNameRequired = false">
+        <!-- error -->
+        <span class="ddp-ui-error">{{nameErrorMsg}}</span>
+        <!-- error -->
+      </div>
+      <!-- //name -->
     </div>
     <!-- //dp connection -->
   </div>
@@ -262,10 +251,9 @@
   <!-- buttons -->
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="cancel()">{{'msg.comm.btn.cancl' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" [ngClass]="{'ddp-disabled' : !doneValidation()}"
-       (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
   </div>
   <!-- //buttons -->
 </div>
-<!-- 워크스페이스 지정 모달 -->
+<!-- workspace setting modal -->
 <app-set-workspace-published (complete)="closeSetWorkspace($event)"></app-set-workspace-published>
