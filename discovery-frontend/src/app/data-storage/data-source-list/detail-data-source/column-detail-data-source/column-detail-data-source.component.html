@@ -129,14 +129,14 @@
                   </div>
                   <!-- name -->
                   <div class="ddp-form-name">
-                    <span class="ddp-data-name">{{field.name}}</span>
+                    <span class="ddp-data-name" title="{{field.name}}">{{field.name}}</span>
                   </div>
                   <!-- //name -->
                 </div>
                 <!-- tooltip -->
-                <div class="ddp-ui-tooltip-info ddp-type" [class.ddp-top]="isChangeTooltipClass(filteredColumnList, i)">
-                  <em class="ddp-icon-view-top"></em>{{field.name}}
-                </div>
+                <!--<div class="ddp-ui-tooltip-info ddp-type" [class.ddp-top]="isChangeTooltipClass(filteredColumnList, i)">-->
+                  <!--<em class="ddp-icon-view-top"></em>{{field.name}}-->
+                <!--</div>-->
                 <!-- //tooltip -->
               </td>
               <!-- //physical column name -->
@@ -158,14 +158,14 @@
                 <div class="ddp-td-schema">
                   <!-- name -->
                   <div class="ddp-form-name ddp-type">
-                    <span class="ddp-data-name"> {{field['logicalName']}}</span>
+                    <span class="ddp-data-name" title="{{field['logicalName']}}"> {{field['logicalName']}}</span>
                   </div>
                   <!-- //name -->
                 </div>
                 <!-- tooltip -->
-                <div class="ddp-ui-tooltip-info ddp-left" [class.ddp-top]="isChangeTooltipClass(filteredColumnList, i)">
-                  <em class="ddp-icon-view-top"></em>{{field['logicalName']}}
-                </div>
+                <!--<div class="ddp-ui-tooltip-info ddp-left" [class.ddp-top]="isChangeTooltipClass(filteredColumnList, i)">-->
+                  <!--<em class="ddp-icon-view-top"></em>{{field['logicalName']}}-->
+                <!--</div>-->
                 <!-- //tooltip -->
               </td>
               <!-- //logical column name -->

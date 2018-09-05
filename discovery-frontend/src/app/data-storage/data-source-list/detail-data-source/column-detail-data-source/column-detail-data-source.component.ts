@@ -203,9 +203,9 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * @param {number} index
    * @returns {boolean}
    */
-  public isChangeTooltipClass(columnList: any, index: number): boolean {
-    return index > (columnList.length / 2 - 1) ? true : false;
-  }
+  // public isChangeTooltipClass(columnList: any, index: number): boolean {
+  //   return index > (columnList.length / 2 - 1) ? true : false;
+  // }
 
   /**
    * Get column type label
