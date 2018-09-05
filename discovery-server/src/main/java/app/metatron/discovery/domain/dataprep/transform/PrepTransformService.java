@@ -916,23 +916,8 @@ public class PrepTransformService {
     return "CANNOT_REACH_HERE";
   }
 
-  public void checkNonAlphaNumericalColNames(Map<String, Object> mapDatasetInfo) throws PrepException {
-    try {
-      teddyImpl.checkNonAlphaNumericalColNames((String) mapDatasetInfo.get("origTeddyDsId"));
-    } catch (IllegalColumnNameForHiveException e) {
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_FORMAT_WRONG, e.getMessage());
-    }
-    List<Map<String, Object>> upstreamDatasetInfos = (List<Map<String, Object>>) mapDatasetInfo.get("upstreamDatasetInfos");
-    for (Map<String, Object> upstreamDatasetInfo : upstreamDatasetInfos) {
-      checkNonAlphaNumericalColNames(upstreamDatasetInfo);
-    }
-  }
-
   private String runTeddy(String jsonPrepPropertiesInfo, String jsonDatasetInfo, String jsonSnapshotInfo, String authorization) throws Throwable {
     LOGGER.info("runTeddy(): engine=embedded");
-
-    // check non-alphanumerical column name on hive snapshot
-    checkNonAlphaNumericalColNames(GlobalObjectMapper.readValue(jsonDatasetInfo, HashMap.class));
 
     Future<String> future = teddyExecutor.run(new String[]{"embedded", jsonPrepPropertiesInfo, jsonDatasetInfo, jsonSnapshotInfo, serverPort, authorization});
 
@@ -940,7 +925,24 @@ public class PrepTransformService {
     return "RUNNING";
   }
 
-//  @Transactional  // temporarily untransactional until teddy-executor uses springframework (JPA)
+  private void checkHiveNamingRule(String dsId) throws IOException {
+    try {
+      teddyImpl.checkNonAlphaNumericalColNames(dsId);
+    } catch (IllegalColumnNameForHiveException e) {
+      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_ILLEGAL_COLUMN_NAME_FOR_HIVE, e.getMessage());
+    }
+
+    List<String> upstreamDsIds = getUpstreamDsIds(dsId);
+    for (String upsteramDsId : upstreamDsIds) {
+      PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(upsteramDsId));
+      if (dataset.isImported()) {
+        continue;
+      }
+      checkHiveNamingRule(upsteramDsId);
+    }
+  }
+
+  @Transactional
   public PrepSnapshotResponse transform_snapshot(String wrangledDsId, PrepSnapshotRequestPost requestPost, String authorization) throws Throwable {
     PrepSnapshotResponse response;
     List<String> allFullDsIds;
@@ -952,6 +954,10 @@ public class PrepTransformService {
 
     if (teddyImpl.revisionSetCache.containsKey(wrangledDsId) == false) {
       load_internal(wrangledDsId);
+    }
+
+    if (requestPost.getSsTypeEnum() == PrepSnapshot.SS_TYPE.HIVE) {
+      checkHiveNamingRule(wrangledDsId);
     }
 
     PrepSnapshot snapshot = new PrepSnapshot();

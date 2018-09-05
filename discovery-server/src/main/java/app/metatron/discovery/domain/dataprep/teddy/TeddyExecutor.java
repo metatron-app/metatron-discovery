@@ -311,6 +311,10 @@ public class TeddyExecutor {
     transformRecursive(datasetInfo, ssId);
     String masterFullDsId = replaceMap.get(masterTeddyDsId);
 
+    // Some rules like pivot may break Hive column naming rule.
+    DataFrame finalDf = cache.get(masterFullDsId);
+    finalDf.checkAlphaNumericalColNames();
+
     List<String> ruleStrings = (List<String>) datasetInfo.get("ruleStrings");
     List<String> partKeys = (List<String>) snapshotInfo.get("partKeys");
     String format = (String) snapshotInfo.get("format");
