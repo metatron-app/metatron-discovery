@@ -86,6 +86,7 @@ import { DataLabelOptionComponent } from './chart-style/datalabel-option.compone
 import { DashboardUtil } from '../dashboard/util/dashboard.util';
 import { BoardConfiguration } from '../domain/dashboard/dashboard';
 import { MapChartComponent } from '../common/component/chart/type/map-chart/map-chart.component';
+import {MapFormatOptionComponent} from './chart-style/map/map-format-option.component';
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -191,6 +192,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   @ViewChild(PageFilterPanel)
   private _filterPanelComp: PageFilterPanel;
+
+  /////////////////////////
+  // 맵뷰 옵션들
+  /////////////////////////
+
+  @ViewChild('mapFormatOption')
+  private mapFormatOption: MapFormatOptionComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -1483,6 +1491,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // Common창이 열려있을때 처리
     if (this.secondaryIndicatorOption) {
       this.secondaryIndicatorOption.setPivot = pivot;
+    }
+
+    // 맵 포맷창이 열려있을때 처리
+    if (this.mapFormatOption) {
+      this.mapFormatOption.setPivot = pivot;
     }
 
     // sort 처리
