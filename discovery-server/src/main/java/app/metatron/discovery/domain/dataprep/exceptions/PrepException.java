@@ -212,7 +212,7 @@ public class PrepException extends MetatronException {
         else if (e instanceof NoAssignmentStatementIsAllowedException)
             return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NO_ASSIGNMENT_STATEMENT_IS_ALLOWED);
         else if (e instanceof WrongWindowFunctionExpressionException)
-            return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_WINDOW_FUNCTION_EXPRESSION);
+            return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_WINDOW_FUNCTION_EXPRESSION, e.getMessage());
 
         return create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNKOWN_ERROR);   // FIXME: unhandled teddy error exception을 만들어서 써야함.
     }

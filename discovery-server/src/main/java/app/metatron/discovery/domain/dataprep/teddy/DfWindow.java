@@ -165,12 +165,18 @@ public class DfWindow extends DataFrame {
             ColumnType newColType = ColumnType.UNKNOWN;
             switch (func.getName()) {
                 case "row_number":
+                    if(func.getArgs().size()!=0)
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
                     newColType = ColumnType.LONG;
                     break;
                 case "rolling_avg":
+                    if(func.getArgs().size()!=3)
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
                     newColType = ColumnType.DOUBLE;
                     break;
                 case "rolling_sum":
+                    if(func.getArgs().size()!=3)
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
                     newColType = prevDf.getColTypeByColName(func.getArgs().get(0).toString());
                     break;
                 case "sum":
