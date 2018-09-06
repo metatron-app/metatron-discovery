@@ -43,7 +43,7 @@ import { SYSTEM_PERMISSION } from '../common/permission/permission';
 import { PermissionChecker, Workspace } from '../domain/workspace/workspace';
 import { WorkspaceService } from '../workspace/service/workspace.service';
 import { CodemirrorComponent } from './component/editor-workbench/codemirror.component';
-import { ConnectionType, Dataconnection } from '../domain/dataconnection/dataconnection';
+import { Dataconnection } from '../domain/dataconnection/dataconnection';
 
 @Component({
   selector: 'app-workbench',
