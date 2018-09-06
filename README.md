@@ -3,7 +3,7 @@ Metatron Discovery
 
 <img title="logo-metatron" src="https://user-images.githubusercontent.com/6300003/44013820-f7647c96-9f02-11e8-8066-1c97f8b1662c.png" width="600px">
 
-**metatron discovery** is a self-service solution for big data discovery.
+**Metatron Discovery** is a self-service solution for big data discovery.
 To learn more about metatron discovery, visit our web site [https://metatron.app](https://metatron.app)
 
 Strengths
@@ -14,18 +14,18 @@ Strengths
 
 Features
 ------------------
-metatron discovery is a data discovery web application which supports end-to-end features from data management to analytics.
+Metatron Discovery is a data discovery web application which supports end-to-end features from data management to analytics.
 
-metatron provides:
+Metatron provides:
 - Interactive dashboards with 16 types of WSIWYG charts.
 - SQL based data exploration.
-- Connections with advanced analytics tools like [Apache Zeppelin](https://zeppelin.apache.org/).
+- Connections with advanced analytics tools like [Apache Zepplin](https://zeppelin.apache.org/).
 - Metadata management.
 - Data source creation from local, existing DBs, HIVE, and Kafka streams.
 - GUI based data preparation.
 - Monitoring tools for logs, jobs, and lineages of datasets.
 - Administrations for users and workspaces for high ganularity security model.
-- [Customized Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/) allows for metatron not only staying blazing-fast while slicing and dicing large, but also overcoming Druid weaknesses.
+- [Metatron distributed Druid](https://metatron.app/index.php/2018/06/15/skt-druid-features/) allows for metatron not only staying blazing-fast while slicing and dicing large, but also overcoming Druid weaknesses.
 
 Screenshots
 ------------------
@@ -78,7 +78,14 @@ Running options are provided as well.
 <pre><code>$ bin/metatron.sh [--config=directory] [--init] [--management] [--debug=port] {start|stop|restart|status}</code></pre>
 To access Metatron Discovery, go to [http://localhost:8180](http://localhost:8180). (The default admin user account is provided as ID: admin, PW: admin.)
 
+Problems & Suggestions
+----------------------------
+This project welcomes contributions and suggestions. If you encounter any bugs or want to request new features, feel free to open an [GitHub Issue](https://github.com/metatron-app/metatron-discovery) in the repo so that the community can find resolutions for it. Although, please check before you raise an issue. That is, please make sure someone else hasn’t already created an issue for the same topic.
+
+Question
+----------------------------
+Need help using Metatron Discovery? Ask away on our [Metatron Discovery User Group](https://groups.google.com/forum/#!forum/metatron-discovery)! Our fellow community member or our engineers will be glad to help you out! Or maybe you might want to check out our user manual on our website as well.
+
 License
 ----------------------------
-metatron-discovery is available under the Apache License V2.
-
+Metatron Discovery is available under the Apache License V2.
