@@ -625,9 +625,12 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       .debounceTime(500);
 
     const windowResizeSubscribe = resizeEvent$.subscribe((data) => {
-      if (this.chart && this.chart.resize) {
-        this.chart.resize();
+      try {
+        if (this.chart && this.chart.resize) {
+          this.chart.resize();
+        }
       }
+      catch(error) { }
     });
 
     this.subscriptions.push(windowResizeSubscribe);
