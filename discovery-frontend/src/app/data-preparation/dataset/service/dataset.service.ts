@@ -100,7 +100,10 @@ export class DatasetService extends AbstractService {
 
   // Wrangled 데이터셋 조회
   public getDatasetWrangledData(datasetId: string): Promise<any> {
-    return this.get(this.API_URL + `preparationdatasets/${datasetId}/transform`);
+    let url = this.API_URL + `preparationdatasets/${datasetId}/transform`;
+    let params = ['ruleIdx=','count=1000', 'offset=0'];
+    url = url + '?' + params.join('&');
+    return this.get(url);
   }
 
   // 데이터셋  저장 HIVE
