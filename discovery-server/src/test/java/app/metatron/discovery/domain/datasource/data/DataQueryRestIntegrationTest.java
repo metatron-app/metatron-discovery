@@ -1641,7 +1641,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     // Case 1. 행 차원값 2개 열 차원값 1개 교차에 측정값 1개씩
     Pivot pivot3 = new Pivot();
     pivot3.setRows(Lists.newArrayList(new DimensionField("Category")));
-    //    pivot3.setColumns(Lists.newArrayList(new DimensionField("Category")));
+//    pivot3.setColumns(Lists.newArrayList(new DimensionField("Category")));
     //pivot3.setRows(Lists.newArrayList(new DimensionField("Region"), new DimensionField("State")));
     pivot3.setAggregations(Lists.newArrayList(
         new MeasureField("Sales", MeasureField.AggregationType.AVG)
