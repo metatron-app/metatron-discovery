@@ -477,13 +477,13 @@ public class PrepDataset extends AbstractHistoryEntity {
         List<PrepTransformRuleStringinfo> ruleStringinfos = Lists.newArrayList();
         if(this.transformRules!=null && 0<this.transformRules.size()) {
             for (PrepTransformRule transformRule : this.transformRules) {
-                if( transformRule.getRuleNo()==0 ) { continue; } // skip the CREATE rule
                 PrepTransformRuleStringinfo ruleStringinfo = new PrepTransformRuleStringinfo();
                 ruleStringinfo.setRuleString(transformRule.getRuleString());
                 ruleStringinfo.setValid(transformRule.isValid());
                 ruleStringinfo.setRuleNo(transformRule.getRuleNo());
                 ruleStringinfo.setJsonRuleString(transformRule.getJsonRuleString());
-                ruleStringinfos.add(ruleStringinfo);
+                ruleStringinfos.add(ruleStringinfo.getRuleNo(),ruleStringinfo);
+                //ruleStringinfos.add(ruleStringinfo);
             }
         }
         return ruleStringinfos;
