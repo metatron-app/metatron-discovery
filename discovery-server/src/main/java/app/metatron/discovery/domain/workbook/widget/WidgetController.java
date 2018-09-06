@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.workbook.widget;
 
+import app.metatron.discovery.util.HttpUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -328,12 +329,15 @@ public class WidgetController {
   private void downloadData(String name, String accept, SearchQueryRequest searchQuery, Integer maxRow, HttpServletResponse response) throws IOException {
 
     String downloadFileName;
+    boolean isCSV = false;
+
     if("application/vnd.ms-excel".equals(accept)) {
       searchQuery.setResultForward(new ExcelResultForward(maxRow));
       downloadFileName = name + ".xlsx";
     } else {
       searchQuery.setResultForward(new CsvResultForward(true));
       downloadFileName = name + ".csv";
+      isCSV = true;
     }
     searchQuery.setResultFormat(new FileResultFormat("/tmp"));
 
@@ -341,15 +345,20 @@ public class WidgetController {
 
     File downloadFile = new File((String) result);
 
-    response.setContentType(accept);
-    response.setHeader("Content-Disposition", String.format("inline; filename=\"%s\"", downloadFileName));
+    if (isCSV){
+      HttpUtils.downloadCSVFile(response, downloadFile.getName(), downloadFile.getPath(), accept);
+    }else{
+
+      response.setContentType(accept);
+      response.setHeader("Content-Disposition", String.format("inline; filename=\"%s\"", downloadFileName));
 //    response.setHeader("Content-Disposition", "attachment; filename=" + new String(downloadFileName.getBytes("euc-kr"), "latin1") + ";");
 
-    response.setContentLength((int)downloadFile.length());
+      response.setContentLength((int)downloadFile.length());
 
-    InputStream inputStream = new BufferedInputStream(new FileInputStream(downloadFile));
+      InputStream inputStream = new BufferedInputStream(new FileInputStream(downloadFile));
 
-    FileCopyUtils.copy(inputStream, response.getOutputStream());
+      FileCopyUtils.copy(inputStream, response.getOutputStream());
+    }
   }
 
 
