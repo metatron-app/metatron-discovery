@@ -19,7 +19,7 @@ Metatron Discovery is a data discovery web application which supports end-to-end
 Metatron provides:
 - Interactive dashboards with 16 types of WSIWYG charts.
 - SQL based data exploration.
-- Connections with advanced analytics tools like [Apache Zepplin](https://zeppelin.apache.org/).
+- Connections with advanced analytics tools like [Apache Zeppelin](https://zeppelin.apache.org/).
 - Metadata management.
 - Data source creation from local, existing DBs, HIVE, and Kafka streams.
 - GUI based data preparation.
