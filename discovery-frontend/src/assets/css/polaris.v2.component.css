@@ -353,6 +353,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 .ddp-wrap-edit2 .ddp-radio-inline li .ddp-type-selectbox {display:inline-block; margin-left:5px;}
 .ddp-wrap-edit2 .ddp-radio-inline li .ddp-list-selectbox li {display:block; padding-right:0;}
 .ddp-wrap-edit2 .ddp-list-checktype li {padding:5px 0;}
+.ddp-wrap-edit2 .ddp-list-checktype li .ddp-txt-det {color:#808dcd; font-size:12px; font-style:italic; vertical-align:top;}
 .ddp-wrap-edit2.ddp-inline {float:left; width:100%;}
 .ddp-wrap-edit2.ddp-inline .ddp-label-type {float:left; width:117px;}
 .ddp-wrap-edit2.ddp-inline .ddp-inline {display:block;}

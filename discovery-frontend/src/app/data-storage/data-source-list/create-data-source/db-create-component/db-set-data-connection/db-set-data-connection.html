@@ -222,6 +222,7 @@
                     <i class="ddp-icon-radio"></i>
                     <span class="ddp-txt-radio">{{type.label}}</span>
                   </label>
+                  <span class="ddp-txt-det" *ngIf="type.value === 'DIALOG'">{{'msg.storage.ui.conn.dialog.desc' | translate}}</span>
                 </li>
               </ul>
               <div class="ddp-ui-buttons ddp-inline">
