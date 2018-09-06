@@ -1102,7 +1102,7 @@
   "msg.board.create.guide-msg2" : "to another datasource to connect them",
   "msg.board.download.title" : "Download original data",
   "msg.board.download.desc" : "Up to 1 million downloads, <br> Please contact your administrator for more than 1 million data.",
-  "msg.board.download.calc-size" : "Calculating data size ...",  
+  "msg.board.download.calc-size" : "Calculating data size ...",
   "msg.board.ui.no.widget": "No widgets",
   "msg.board.th.allowance": "Show open data only",
   "msg.board.btn.add.datasource.join": "Add datasource to join",
@@ -1421,7 +1421,7 @@
   "msg.storage.th.current-time" : "Current time",
   "msg.storage.th.unsel.all" : "Unselect all",
   "msg.storage.btn.apply" : "apply",
-  "msg.storage.ui.sel.count": "{{value}} Selections",
+  "msg.storage.ui.sel.count": "Selections",
   "msg.storage.th.time-column" : "Time-type column",
   "msg.storage.ui.timestamp.description" : "One of the time-type columns or current time must be specified as a Timestamp",
   "msg.storage.ui.del.column" : "Deleted column",
@@ -1787,6 +1787,10 @@
   "msg.storage.ui.schema.column.rows.desc" : "Only up to 50 rows",
   "msg.storage.ui.edit.filters" : "Edit filters",
   "msg.storage.ui.time" : "Time",
+  "msg.storage.ui.recommendation.filter.save.title" : "Do you want to save and re-ingestion the recommendation filter settings?",
+  "msg.storage.ui.essential.filter.save.title" : "Do you want to save and re-ingestion the essential filter settings?",
+  "msg.storage.ui.ingestion.desc" : "Re-ingestion may cause content created from existing datasource to malfunction",
+  "msg.storage.btn.re.ingestion" : "Re-ingestion",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",
@@ -2705,7 +2709,7 @@
   "msg.metadata.dictionary.used.metadata" : "Used in Metadata",
   "msg.metadata.ui.info" : "Metadata information",
   "msg.metadata.ui.enter.tag" : "Enter tag",
-  "msg.metadata.th.column.popularity.tooltip.title" : "What is logical column name?",
-  "msg.metadata.th.column.popularity.tooltip.desc" : "The logical column name is the column name that is commonly used by the user in the Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in the Metatron when creating a chart or workbench."
+  "msg.metadata.th.column.logical.tooltip.title" : "What is logical column name?",
+  "msg.metadata.th.column.logical.tooltip.desc" : "The logical column name is the column name that is commonly used by the user in the Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in the Metatron when creating a chart or workbench."
 
 }

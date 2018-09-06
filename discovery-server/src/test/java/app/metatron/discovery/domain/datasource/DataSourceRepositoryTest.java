@@ -56,7 +56,7 @@ public class DataSourceRepositoryTest extends AbstractIntegrationTest {
       Field fieldTable = new Field();
       fieldTable.setName("type-" + i);
       fieldTable.setType(DataType.TEXT);
-      fieldTable.setBiType(Field.BIType.DIMENSION);
+      fieldTable.setRole(Field.FieldRole.DIMENSION);
 //      fieldTable.setDataSource(ds);
       fields.add(fieldTable);
     }

@@ -1167,7 +1167,7 @@ public class JdbcConnectionService {
                                 "Required Batch type Jdbc ingestion information.");
 
     Field timestampField = fields.stream()
-                                 .filter(field -> field.getBiType() == Field.BIType.TIMESTAMP)
+                                 .filter(field -> field.getRole() == Field.FieldRole.TIMESTAMP)
                                  .findFirst().orElseThrow(() -> new RuntimeException("Timestamp field required."));
 
     BatchIngestionInfo batchIngestionInfo = (BatchIngestionInfo) ingestionInfo;

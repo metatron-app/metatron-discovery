@@ -574,7 +574,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 
 /*.ddp-label-checkbox.ddp-num input:checked + i + .ddp-txt-checkbox + .ddp-box-num {background-color:#6870ae; text-indent:0;}*/
 /*.ddp-label-checkbox.ddp-num input:checked + i + .ddp-txt-checkbox + .ddp-box-num:before {display:none;}*/
-.ddp-num-checkbox {display:inline-block;}
+.ddp-num-checkbox {display:inline-block; cursor:pointer;}
 .ddp-num-checkbox i {display:inline-block; position:relative; width:31px; height:21px; padding:2px 0; color:#fff; font-size:14px; font-weight:bold;text-align:center; font-style:normal; text-indent:-300000px; border-radius:2px; background-color:#d0d1d8; box-sizing:border-box; vertical-align:middle; }
 .ddp-num-checkbox i:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-6px 0 0 -7px; width:14px; height:10px; background:url(../images/icon_select2.png) no-repeat;  content:'';}
 .ddp-num-checkbox input {display:none;}

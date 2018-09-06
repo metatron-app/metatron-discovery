@@ -276,7 +276,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                  <tr [ngClass]="{'ddp-selected' : selectedField && selectedField.name === field.name}" *ngFor="let field of getColumnList(source.fields)"
+                  <tr [ngClass]="{'ddp-selected' : selectedField && selectedField.name === field.name}" *ngFor="let field of getColumnList(source.fields); let i = index"
                       (click)="onSelectedField(field, source)">
                     <!-- physical column -->
                     <td>
@@ -307,14 +307,14 @@
                         <!-- //type icon -->
                         <!-- name -->
                         <div class="ddp-form-name">
-                          <span class="ddp-data-name">{{field.name}}</span>
+                          <span class="ddp-data-name" title="{{field.name}}">{{field.name}}</span>
                         </div>
                         <!-- //name -->
                       </div>
                       <!-- tooltip -->
-                      <div class="ddp-ui-tooltip-info" >
-                        <em class="ddp-icon-view-top"></em>{{field.name}}
-                      </div>
+                      <!--<div class="ddp-ui-tooltip-info" [class.ddp-top]="isChangeTooltipClass(getColumnList(source.fields), i)">-->
+                        <!--<em class="ddp-icon-view-top"></em>{{field.name}}-->
+                      <!--</div>-->
                       <!-- //tooltip -->
                     </td>
                     <!-- //physical column -->
@@ -336,14 +336,14 @@
                       <div class="ddp-td-schema">
                         <!-- name -->
                         <div class="ddp-form-name">
-                          <span class="ddp-data-name ddp-type">{{field['logicalName']}}</span>
+                          <span class="ddp-data-name ddp-type" title="{{field['logicalName']}}">{{field['logicalName']}}</span>
                         </div>
                         <!-- //name -->
                       </div>
                       <!-- tooltip -->
-                      <div class="ddp-ui-tooltip-info ddp-left" >
-                        <em class="ddp-icon-view-top"></em>{{field['logicalName']}}
-                      </div>
+                      <!--<div class="ddp-ui-tooltip-info ddp-left" [class.ddp-top]="isChangeTooltipClass(getColumnList(source.fields), i)">-->
+                        <!--<em class="ddp-icon-view-top"></em>{{field['logicalName']}}-->
+                      <!--</div>-->
                       <!-- //tooltip -->
                     </td>
                     <!-- //Logical Column -->

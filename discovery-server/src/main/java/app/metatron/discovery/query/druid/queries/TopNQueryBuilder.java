@@ -99,7 +99,7 @@ public class TopNQueryBuilder extends AbstractQueryBuilder {
 
         String keyFieldName = "";
         for( app.metatron.discovery.domain.datasource.Field curField : datasourceField.getMappedField() ){
-          if( curField.getBiType() == app.metatron.discovery.domain.datasource.Field.BIType.DIMENSION ){
+          if( curField.getRole() == app.metatron.discovery.domain.datasource.Field.FieldRole.DIMENSION ){
             keyFieldName = curField.getName();
             break;
           }
