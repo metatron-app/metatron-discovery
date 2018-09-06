@@ -349,8 +349,20 @@
               <!-- tab -->
               <!-- 결과 -->
               <div class="ddp-view-result">
-                <div loading #loading [cancel]="mimeType !== 'HIVE'" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
-                <div class="ddp-wrap-result"
+                <div loading [visible]="mimeType !== 'HIVE'" [cancel]="mimeType !== 'HIVE'"
+                     (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
+
+                <!-- Hive Log 표시 영역 -->
+                <div *ngIf="hiveLogs[selectedGridTabNum] && hiveLogs[selectedGridTabNum].isShow" class="ddp-wrap-result" >
+                  <div class="ddp-box-grid">
+                    <div class="ddp-text-result"
+                         [innerHTML]="hiveLogs[selectedGridTabNum].log.join('<br>')"></div>
+                  </div>
+                </div>
+                <!-- // Hive Log 표시 영역 -->
+
+                <div *ngIf="!hiveLogs[selectedGridTabNum] || !hiveLogs[selectedGridTabNum].isShow"
+                     class="ddp-wrap-result"
                      [ngStyle]="{'visibility': datagridCurList.length !== 0 ? 'visible':'hidden'}">
                   <div class="ddp-ui-setting">
                     <!-- 검색 -->
