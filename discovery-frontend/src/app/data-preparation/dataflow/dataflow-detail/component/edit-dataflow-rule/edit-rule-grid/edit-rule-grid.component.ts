@@ -94,6 +94,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   public barChartTooltipIndex: number;
   public barChartTooltipLabel: string;
 
+  public isEditMode: boolean = true;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -187,12 +188,36 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   /**
    * 초기 설정
    * @param {string} dsId
-   * @param {number} ruleIdx
+   * @param {string} params (if OP is 'UPDATE' disable context menu)
    */
-  public init(dsId: string, ruleIdx?: number) {
+  public init(dsId: string, params : any) {
 
     this.dataSetId = dsId;
-    return this.dataflowService.getSearchCountDataSets(this.dataSetId, ruleIdx, 0, 100).then(data => {
+    let method : string = 'get';
+
+    this.isEditMode = !(params['op'] == 'PREPARE_UPDATE');
+
+    if ('INITIAL' === params['op'] || 'PREPARE_UPDATE' === params['op']) {
+      delete params['op']
+    } else {
+      method = 'put';
+    }
+
+    // if (opString === 'INITIAL') {
+    //   params['ruleIdx'] = null;
+    //   params['count'] = 100;
+    //   params['offset'] = 0;
+    // } else if (opString === 'APPEND' || opString === 'UPDATE' || opString === 'JUMP' || opString === 'DELETE') {
+    //   method = 'put';
+    //   params['ruleIdx'] = ruleIdx;
+    //   params['count'] = 100;
+    //   params['op'] = opString;
+    // } else if ('UPDATE_PREPARE' === opString) {
+    //   params['ruleIdx'] = ruleIdx;
+    //   params['count'] = 100;
+    //   params['offset'] = 0;
+    // }
+    return this.dataflowService.jumpRule(this.dataSetId, method, params).then(data => {
       // 데이터 초기화
       {
         // Grid
@@ -221,8 +246,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         // T/F
         this.isShowColumnTypes = false;
 
+
       }
-      this.ruleIdx = (isNullOrUndefined(ruleIdx) && this.ruleIdx !== -1) ? data['ruleStringInfos'].length - 1 : ruleIdx;
+      // this.ruleIdx = (isNullOrUndefined(ruleIdx) && this.ruleIdx !== -1) ? data['ruleStringInfos'].length - 1 : ruleIdx;
+      this.ruleIdx = data.ruleCurIdx;
 
       // 그리드 데이터 생성
       const gridData: GridData = this._getGridDataFromGridResponse(this._apiGridData);
@@ -243,7 +270,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
       // 히스토그램 정보 설정
       return this._getHistogramInfoByWidths(this.columnWidths, gridData.fields.length).then(() => {
-        this._renderGrid(gridData, ruleIdx);
+        this._renderGrid(gridData, params.ruleIdx);
         // 그리드 요약 정보 설정
         this._summaryGridInfo(gridData);
         this.totalRowCnt = data.totalRowCnt;
@@ -1719,7 +1746,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         .EnableHeaderClick(true)
         .DualSelectionActivate(true)
         .EnableColumnReorder(false)
-        .EnableHeaderMenu(true)
+        .EnableHeaderMenu(this.isEditMode)
         .EnableSeqSort(false)
         .ShowHeaderRow(true)
         .HeaderRowHeight(90)

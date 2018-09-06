@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { isNull, isNullOrUndefined, isUndefined } from 'util';
+import { isNullOrUndefined, isUndefined } from 'util';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
 import {
@@ -117,13 +117,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   // Add rule / editor or builder
   public editorUseFlag: boolean = false;
   public editorUseLabel: string = 'switch to editor';
-  public editLabelBtn: string = 'Add';  // 편집 모드 버튼 라벨
 
   // input cmd line
   public inputRuleCmd: string = ''; // Rule을 직접 입력시
-
-  // APPEND (룰 등록) or UPDATE (룰 수정)
-  public modeType: string = 'APPEND';
 
   // input focus 여부
   public isFocus = false;
@@ -154,8 +150,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   // Histogram
   public charts: any = [];
 
-  // 편집 중인지 여부
-  public isEditing : boolean = false;
+  // 현재 서버와 맞는 index
+  public serverSyncIndex: number;
+
+  // APPEND (룰 등록) / UPDATE (룰 수정) / JUMP / PREPARE_UPDATE (룰 수정하기 위해 jump) / DELETE
+  public opString: string = 'APPEND';
 
   // 그리드 헤더 클릭 이벤트 제거 ( 임시 )
   public isDisableGridHeaderClickEvent: boolean = false;
@@ -231,7 +230,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public ngOnChanges() {}
 
   public ngAfterViewInit() {
-    this._setEditRuleInfo().then();
+    this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data)=> {
+      this.serverSyncIndex = data.apiData.ruleCurIdx;
+      this.ruleListComponent.selectedRuleIdx = this.serverSyncIndex;
+      this.setRuleListColorWhenJumped(this.serverSyncIndex);
+    });
   }
 
   public ngOnDestroy() {
@@ -336,20 +339,16 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.editorUseFlag = true;
       this.editorUseLabel = 'switch to builder';
     }
-    // const ruleTemp: any = { ruleVO: this.ruleVO };
-    // this.setRuleVO(ruleTemp);
   }
 
   // command list show
   public showCommandList() {
 
     // Cannot select command when editing
-    if (this.isEditing) { return }
+    if ('UPDATE' === this.opString) { return }
 
     // Close all opened select box from rule
     this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : 'commandList', isShow : false } );
-
-
 
     // 포커스 이동
     setTimeout(() => $('#commandSearch').trigger('focus'));
@@ -369,18 +368,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * */
   public selectCommand(event, command) {
     event.stopImmediatePropagation();
-    const mode = this.modeType; // 룰 수정시 필요함
-    const vo = this.ruleVO;     // 룰 수정시 필요함
     this.initRule();
-    if (mode === 'UPDATE') { // 편집인데 다른 룰을 추가할때
-      this.modeType = mode;
-      this.editLabelBtn = 'Edit';
-      this.ruleNo = vo['ruleNo'];
-    }
 
-    // ignore default 값은 false;
+    // const mode = this.modeType; // 룰 수정시 필요함
+    // const vo = this.ruleVO;     // 룰 수정시 필요함
+    // if (mode === 'UPDATE') { // 편집인데 다른 룰을 추가할때
+    //   this.modeType = mode;
+    //   this.editLabelBtn = 'Edit';
+    //   this.ruleNo = vo['ruleNo'];
+    // }
+
     this.ruleVO.ignoreCase = false;
-
     this.ruleVO.cols = this.selectedColumns;
 
     this.ruleVO.command = command.command;
@@ -496,10 +494,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public initRule(data?) {
 
     // default 는 append
-    this.modeType = 'APPEND';
-
-    // default 는 Add
-    this.editLabelBtn = 'Add';
+    this.opString = 'APPEND';
 
     // 룰 리스트에서 선택된 룰이 없게 this.ruleNo 초기화
     this.ruleNo = null;
@@ -550,25 +545,32 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         return;
       }
 
+      // get rule string from individual components
       rule = this._editRuleComp.getRuleData();
       if (isUndefined(rule)) {
         return;
       }
+
       // 룰 적용하기
       // set operation
-      if (!isUndefined(rule)) {
-        if (isUndefined(this.ruleVO['ruleNo'])) {
-          if (!isNull(this.ruleNo)) { //룰 편집 수정 중 다른 룰로 바꾸면 append -> update로 수정
-            rule['op'] = 'UPDATE';
-          } else {
-            rule['op'] = 'APPEND';
-          }
+      // if (!isUndefined(rule)) {
+      //   if (isUndefined(this.ruleVO['ruleNo'])) {
+      //     if (!isNull(this.ruleNo)) { //룰 편집 수정 중 다른 룰로 바꾸면 append -> update로 수정
+      //       rule['op'] = 'UPDATE';
+      //     } else {
+      //       rule['op'] = 'APPEND';
+      //     }
+      //
+      //   } else {// 수정 모드
+      //     rule['op'] = 'UPDATE';
+      //     rule['ruleCurIdx'] = this.ruleVO['ruleNo'];
+      //   }
+      // }
 
-        } else {// 수정 모드
-          rule['op'] = 'UPDATE';
-          rule['ruleCurIdx'] = this.ruleVO['ruleNo'];
-        }
-      }
+      // set param
+      rule['op'] = this.opString;
+      rule['ruleIdx'] = this.serverSyncIndex;
+
     } else {  // editor 사용시
       if (this.inputRuleCmd === '') {
         Alert.warning(this.translateService.instant('msg.dp.alert.editor.warn'));
@@ -576,20 +578,21 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       }
       rule = {
         command: this.inputRuleCmd.substring(0, this.inputRuleCmd.indexOf(' ')),
-        op: this.modeType,
-        rownum: this.modeType === 'APPEND' ? this.ruleList.length + 1 : this.ruleVO.rownum,
+        op: this.opString,
+        rownum: this.opString === 'APPEND' ? this.ruleList.length + 1 : this.ruleVO.rownum,
         ruleString: this.inputRuleCmd
       };
     }
     if (!isUndefined(rule)) {
-      if ('UPDATE' === rule['op']) {
-        this.dataflowService.getSearchCountDataSets(this.selectedDataSet.dsId, rule['ruleCurIdx'], 0, 2)
-          .then(() => {  // ruleIdx 값을 맞추기 위해서 호출 후에 제거해야 함
-            this.applyRule(rule);
-          });
-      } else {
-        this.applyRule(rule);
-      }
+      this.applyRule(rule);
+      // if ('UPDATE' === rule['op']) {
+      //   this.dataflowService.getSearchCountDataSets(this.selectedDataSet.dsId, rule['ruleCurIdx'], 0, 2)
+      //     .then(() => {  // ruleIdx 값을 맞추기 위해서 호출 후에 제거해야 함
+      //       this.applyRule(rule);
+      //     });
+      // } else {
+      //   this.applyRule(rule);
+      // }
     }
   } // function - addRule
 
@@ -606,8 +609,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     try {
       this.selectboxFlag = true;
       this.initRule();
-      this.modeType = 'UPDATE';
-      this.editLabelBtn = 'Edit';
+      this.opString = 'UPDATE';
       this.ruleVO = rule['ruleVO'];
       ('' === this.ruleVO.command) && (this.ruleVO.command = this.ruleVO['name']);
 
@@ -726,24 +728,19 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // unselect all columns in current grid
     this._editRuleGridComp.unSelectionAll('COL');
 
-    // let event = dataRule.event;
-    // let rule = dataRule.rule;
-    // rule.ruleNo = rule.ruleNo-1;
+    // set current index
     let ruleIdx = editInfo.ruleNo-1;
 
     // 인풋박스 포커스 여부 IE 에서 수정버튼을 누르면 툴팁 박스가 열려서...
     this.isFocus = false;
 
-    // if (true == this.jumpLast()) {
-    //   this.setRuleVO({ rule: rule, event: event });
-    //   return;
-    // }
-
-    event.stopPropagation();
-    this._setEditRuleInfo(ruleIdx)
+    this._setEditRuleInfo({op: 'PREPARE_UPDATE', ruleIdx: ruleIdx, count: 100, offset: 0})
       .then((data: { apiData: any, gridData: any }) => {
         this.setEditInfo(editInfo, data.gridData);
-        this.isEditing = true;
+        this.opString = 'UPDATE';
+        this.serverSyncIndex = ruleIdx+1;
+        this.setRuleListColorWhenJumped(this.serverSyncIndex);
+        this.setCancelBtnWhenEditMode(this.serverSyncIndex);
       });
   } // function - setRuleVO
 
@@ -752,7 +749,15 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param {number} ruleNo
    */
   public deleteRule(ruleNo : number) {
-    this.applyRule({ op: 'DELETE', ruleIdx: ruleNo }, 'msg.dp.alert.rule.del.fail');
+    this.refreshEditMode();
+    this.applyRule({ op: 'DELETE', ruleIdx: ruleNo, count:100 }, 'msg.dp.alert.rule.del.fail');
+  }
+
+  /**
+   * Init edit more - When edit mode, select box is disabled
+   */
+  public refreshEditMode() {
+    this.opString = 'APPEND';
   }
 
   /**
@@ -774,93 +779,116 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.selectedDataSet['_embedded'].dataflows = dataflows;
     }
 
-    this.dataflowService.getDatasetWrangledData(dataset.dsId)
-      .then(() => {
-        this.selectedDataSet.dsId = dataset.dsId;
-        this._setEditRuleInfo();
-      })
-      .catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
+    this._setEditRuleInfo('INITIAL').then((data) => {
+      console.info('data --> ', data);
+      this.selectedDataSet.dsId = data.apiData.dsId;
+      this.changeDataset.emit(data.apiData);
+    });
 
   }
 
   /**
-   * REDO rule
+   * Redo or undo
+   * @param {string} action
    */
-  public redoRule() {
+  public transformAction(action : string) {
+    this.refreshEditMode();
+    const rule = { op: action };
+    if (action === 'UNDO') {
+      if (!this.undoable) {
+        return;
+      }
+      if (this.isUndoRunning === false) {
+        this.isUndoRunning = true;
+      }
+    } else if (action === 'REDO') {
+      if (!this.redoable) {
+        return;
+      }
+      if (this.isRedoRunning === false) {
+        this.isRedoRunning = true;
+      }
 
-    if (!this.redoable) {
-      return;
     }
+    this.applyRule(rule, action === 'REDO' ? 'msg.dp.alert.redo.fail' : 'msg.dp.alert.undo.fail', action === 'UNDO')
 
-    if (this.isRedoRunning === false) {
-      this.isRedoRunning = true;
-      const rule = { op: 'REDO', ruleString: '' };
-      this.applyRule(rule, 'msg.dp.alert.redo.fail', false)
-
-    }
-  } // function - redoRule
+  }
 
   /**
-   * UNDO rule
-   */
-  public undoRule() {
-
-    if (!this.undoable) {
-      return;
-    }
-
-    if (this.isUndoRunning === false) {
-      this.isUndoRunning = true;
-
-      const rule = { op: 'UNDO', ruleString: '' };
-
-      this.applyRule(rule, 'msg.dp.alert.undo.fail', true);
-
-    }
-
-  } // function - undoRule
-
-  /**
-   * Jump
-   * @param idx
+   * Jump Action
+   * @param idx - from rule list
    */
   public jump(idx: number) {
-    // 현재 rule index
 
-    let selectedIndex = idx + 1;
+    // Change edit mode to false
+    this.refreshEditMode();
 
-    // 선택된 컬럼이 있다면 클리어 한다.
+    // clear all selected columns and rows
     this._editRuleGridComp.unSelectionAll();
 
     this.loadingShow();
 
-    // TODO : jumpRule, applyRule 은 같은 API
-    this.dataflowService.jumpRule(this.selectedDataSet.dsId, 'FETCH', selectedIndex)
-      .then((data) => {
-        if (data.errorMsg) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.jump.fail'));
-        } else {
-          this._setEditRuleInfo(selectedIndex).then(() => {
-            data.gridResponse.interestedColNames.forEach(col => {
-              this._editRuleGridComp.selectColumn(col, true);
-            });
-            this.setRuleListColor(selectedIndex-1);
-          });
-        }
+    this.opString = 'JUMP';
 
-        this.loadingHide();
+    // Get grid of selected index
+    this._setEditRuleInfo({op: this.opString, ruleIdx: idx, count: 100 }).then((data) => {
 
-      })
-      .catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      // set affected columns
+      data.apiData.gridResponse.interestedColNames.forEach(col => {
+        this._editRuleGridComp.selectColumn(col, true);
       });
-  } // function - jump
+      this.loadingHide();
+      this.serverSyncIndex = data.apiData.ruleCurIdx;
+
+      this.setRuleListColorWhenJumped(this.serverSyncIndex);
+      this.ruleListComponent.selectedRuleIdx = this.serverSyncIndex;
+
+    });
+  }
+
+  public setInsertStep(idx : number ) {
+    this.ruleList[idx]['isInsertStep'] = true;
+  }
+
+
+  public insertStep(ruleNo: number) {
+    this.opString = 'PREPARE_APPEND';
+    this.jumpToInsertStep(ruleNo);
+  }
+
+  /**
+   * Jump Action
+   * @param idx - from rule list
+   */
+  public jumpToInsertStep(idx: number) {
+
+    // clear all selected columns and rows
+    this._editRuleGridComp.unSelectionAll();
+    let tempOpString = this.opString;
+    this.loadingShow();
+
+    // Get grid of selected index
+    this._setEditRuleInfo({op: 'JUMP', ruleIdx: idx, count: 100 }).then((data) => {
+
+      // set affected columns
+      data.apiData.gridResponse.interestedColNames.forEach(col => {
+        this._editRuleGridComp.selectColumn(col, true);
+      });
+      this.loadingHide();
+      this.serverSyncIndex = data.apiData.ruleCurIdx;
+
+      // set rule list color (-1 as 1 was added to match server list index before sending API)
+      this.setRuleListColorWhenJumped(this.serverSyncIndex);
+
+      if (tempOpString === 'PREPARE_APPEND') {
+        this.opString = 'APPEND';
+        this.setInsertStep(this.serverSyncIndex);
+      }
+
+    });
+  }
+
+
 
   /**
    * Command list 에서 Mouseover 일때 Selected = true, mouseleave 일때 selected = false
@@ -887,7 +915,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public navigateWithKeyboardShortList(event, currentList, clickHandler) {
 
-    if (this.isEditing) { return; }
+    if ('UPDATE' === this.opString) { return; }
 
     // open select box when arrow up/ arrow down is pressed
     if (event.keyCode === 38 || event.keyCode === 40) {
@@ -1003,12 +1031,14 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * Set colour to rule list when jumped
    * @param idx
    */
-  public setRuleListColor(idx) {
-
+  public setRuleListColorWhenJumped(idx : number) {
     this.ruleList.forEach((item, index) => {
       item.isValid = !(index === idx || index < idx);
     });
+  }
 
+  public setCancelBtnWhenEditMode(idx : number) {
+    this.ruleList[idx]['isEditMode'] = true;
   }
 
   /**
@@ -1240,7 +1270,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public onMultiColumnRenameClick() {
     let clonedGridData = _.cloneDeep(this.selectedDataSet.gridData);
-    if (this.modeType === 'UPDATE') {
+    if ('UPDATE' === this.opString) {
       this.multicolumnRenameComponent.init({
         data: clonedGridData,
         datasetName: this.selectedDataSet.dsName,
@@ -1430,18 +1460,26 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   public jumpToCurrentIndex() {
 
-    this.isEditing = false; // 편집 취소
+    if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
+      return;
+    }
+
+    this.opString = 'APPEND'; // 편집 취소
 
     this.loadingShow();
 
     // Unselect all columns
     this._editRuleGridComp.unSelectionAll();
 
-    // 제일 마지막 index로 그리드를 그린다.
-    this._setEditRuleInfo(this.selectedDataSet.ruleStringInfos.length)
-      .then(() => {
-        this.loadingHide();
-      });
+    this.jump(this.serverSyncIndex);
+    // // 제일 마지막 index로 그리드를 그린다.
+    // this._setEditRuleInfo({ op:'JUMP', ruleIdx: this.serverSyncIndex, count: 100 })
+    //   .then((data) => {
+    //     this.serverSyncIndex = data.apiData.ruleCurIdx;
+    //     this.setRuleListColorWhenJumped(this.serverSyncIndex);
+    //     this.setCancelBtnWhenEditMode(this.serverSyncIndex);
+    //     this.loadingHide();
+    //   });
 
     this.ruleVO.command = '';
     this.selectedColumns = [];
@@ -1452,22 +1490,21 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * 룰 편집 정보 설정
-   * @param {number} ruleIdx
+   * @param {any} params
    * @returns {Promise<any>}
    * @private
    */
-  private _setEditRuleInfo(ruleIdx?: number): Promise<any> {
+  private _setEditRuleInfo( params : any ): Promise<any> {
     this.loadingShow();
 
     this.isInitDataLoaded = true;
     this.safelyDetectChanges();
 
-    if (isNullOrUndefined(ruleIdx)) {
-      ruleIdx = -1;
-    }
-    return this._editRuleGridComp.init(this.selectedDataSet.dsId, ruleIdx)
+    return this._editRuleGridComp.init(this.selectedDataSet.dsId, params)
       .then((data: { apiData: any, gridData: any }) => {
         const apiData = data.apiData;
+        this.serverSyncIndex = data.apiData.ruleCurIdx;
+
         if (apiData.errorMsg) {
           this.loadingHide();
           Alert.warning(this.translateService.instant('msg.dp.alert.ds.retrieve.fail'));
@@ -1487,7 +1524,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
           this.selectedDataSet.gridData = data.gridData;
 
-          // rule refresh
+          // Set rule list
           this.setRuleList(apiData['ruleStringInfos']);
 
           // init ruleVO
@@ -1552,8 +1589,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   private setRuleList(rules: any) {
     this.ruleList = [];
-    const commandNames = this.commandList.map((command) => {
-      return command.command;
+
+    const commandNames = [];
+    this.commandList.forEach((command) => {
+      commandNames.push(command.command);
     });
 
     // ruleStringInfos
@@ -1567,8 +1606,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
         rule['desc'] = this.commandList[idx].desc;
+        rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
+      } else {
+        rule['simplifiedRule'] = rule.ruleString;
+        rule['command'] = 'Create';
+        rule['alias'] = 'Cr';
+        rule['desc'] = '';
       }
-      rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
       this.ruleList.push(rule);
     });
   }
@@ -1706,63 +1750,100 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this._editRuleGridComp.savePosition();
 
     this.loadingShow();
-    this.dataflowService.applyRules(this.selectedDataSet.dsId, rule)
-      .then((data) => {
-        if (data.errorMsg) {
-          Alert.warning(this.translateService.instant(msg ? msg : 'msg.dp.alert.apply.rule.fail'));
-        } else {
-          this.changeDetect.detectChanges();
-          this.selectedRows = [];
-          this.isJumped = false;
-          (command === 'multipleRename') && (this.multicolumnRenameComponent.showFlag = false);
 
-          // Unselect all columns
-          this._editRuleGridComp.unSelectionAll('COL');
-          this.editColumnList = [];
+    this.changeDetect.detectChanges();
+    this.selectedRows = [];
+    this.isJumped = false;
+    (command === 'multipleRename') && (this.multicolumnRenameComponent.showFlag = false);
 
-          // 삭제 후에는 -1번으로 가야하나 ?
-          let ruleIdx : number = -1;
-          if (rule['op']==='DELETE') {
-            ruleIdx = data.ruleStringInfos.length
-          }
+    // Unselect all columns
+    this._editRuleGridComp.unSelectionAll('COL');
+    this.editColumnList = [];
 
-          this._setEditRuleInfo(ruleIdx).then((data: { apiData: any, gridData: any }) => {
+    this.opString = rule['op'];
 
-            if (data.apiData.ruleStringInfos.length > 0) {
-              this._editRuleGridComp.setAffectedColumns(
-                data.apiData.gridResponse['interestedColNames'],
-                data.apiData.ruleStringInfos[data.apiData.ruleStringInfos.length - 1].command
-              );
-            }
-
-            if (command !== 'join' && command !== 'derive' && command !== 'aggregate' && command !== 'move') {
-              // 저장된 위치로 이동
-              this._editRuleGridComp.moveToSavedPosition();
-            }
-            // 계속 클릭하는거 방지
-            if (isUndo && this.isUndoRunning) {
-              this.isUndoRunning = false;
-            } else if (!isUndo && this.isRedoRunning) {
-              this.isRedoRunning = false;
-            }
-
-          });
-        }
-      }).catch((error) => {
-      this.loadingHide();
-      if (isNull(error)) {
-        return;
+    this._setEditRuleInfo({op: this.opString, ruleIdx : this.serverSyncIndex, count: 100, ruleString : rule['ruleString'] }).then((data: { apiData: any, gridData: any }) => {
+      this.serverSyncIndex = data.apiData.ruleCurIdx;
+      if (data.apiData.ruleStringInfos.length > 0) {
+        this._editRuleGridComp.setAffectedColumns(
+          data.apiData.gridResponse['interestedColNames'],
+          data.apiData.ruleStringInfos[data.apiData.ruleStringInfos.length - 1].command);
       }
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
 
-      if (prep_error.code && prep_error.code.startsWith('PR')) {
-      } else if (1 < this.inputRuleCmd.length) {
-        Alert.warning(this.translateService.instant('msg.dp.alert.command.error'));
-      } else {
-        Alert.error(this.translateService.instant('msg.dp.alert.unknown.error'));
+      // 룰 리스트는 index 보다 하나 적게
+      this.setRuleListColorWhenJumped(this.serverSyncIndex);
+      this.ruleListComponent.selectedRuleIdx = this.serverSyncIndex;
+
+      if (command !== 'join' && command !== 'derive' && command !== 'aggregate' && command !== 'move') {
+        // 저장된 위치로 이동
+        this._editRuleGridComp.moveToSavedPosition();
       }
+      // 계속 클릭하는거 방지
+      if (isUndo && this.isUndoRunning) {
+        this.isUndoRunning = false;
+      } else if (!isUndo && this.isRedoRunning) {
+        this.isRedoRunning = false;
+      }
+
     });
+
+
+
+
+    // this.dataflowService.applyRules(this.selectedDataSet.dsId, rule)
+    //   .then((data) => {
+    //     if (data.errorMsg) {
+    //       Alert.warning(this.translateService.instant(msg ? msg : 'msg.dp.alert.apply.rule.fail'));
+    //     } else {
+    //       this.changeDetect.detectChanges();
+    //       this.selectedRows = [];
+    //       this.isJumped = false;
+    //       (command === 'multipleRename') && (this.multicolumnRenameComponent.showFlag = false);
+    //
+    //       // Unselect all columns
+    //       this._editRuleGridComp.unSelectionAll('COL');
+    //       this.editColumnList = [];
+    //
+    //       this._setEditRuleInfo({op: this.opString, ruleIdx : this.serverSyncIndex, count: 100, ruleString : rule.ruleString }).then((data: { apiData: any, gridData: any }) => {
+    //         this.serverSyncIndex = data.apiData.ruleCurIdx;
+    //         if (data.apiData.ruleStringInfos.length > 0) {
+    //           this._editRuleGridComp.setAffectedColumns(
+    //             data.apiData.gridResponse['interestedColNames'],
+    //             data.apiData.ruleStringInfos[data.apiData.ruleStringInfos.length - 1].command);
+    //         }
+    //
+    //         // 룰 리스트는 index 보다 하나 적게
+    //         this.setRuleListColor(this.serverSyncIndex-1);
+    //
+    //         if (command !== 'join' && command !== 'derive' && command !== 'aggregate' && command !== 'move') {
+    //           // 저장된 위치로 이동
+    //           this._editRuleGridComp.moveToSavedPosition();
+    //         }
+    //         // 계속 클릭하는거 방지
+    //         if (isUndo && this.isUndoRunning) {
+    //           this.isUndoRunning = false;
+    //         } else if (!isUndo && this.isRedoRunning) {
+    //           this.isRedoRunning = false;
+    //         }
+    //
+    //       });
+    //     }
+    //     this.loadingHide();
+    //   }).catch((error) => {
+    //   this.loadingHide();
+    //   if (isNull(error)) {
+    //     return;
+    //   }
+    //   let prep_error = this.dataprepExceptionHandler(error);
+    //   PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+    //
+    //   if (prep_error.code && prep_error.code.startsWith('PR')) {
+    //   } else if (1 < this.inputRuleCmd.length) {
+    //     Alert.warning(this.translateService.instant('msg.dp.alert.command.error'));
+    //   } else {
+    //     Alert.error(this.translateService.instant('msg.dp.alert.unknown.error'));
+    //   }
+    // });
 
   }
 

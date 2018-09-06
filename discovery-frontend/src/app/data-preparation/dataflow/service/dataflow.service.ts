@@ -145,19 +145,35 @@ export class DataflowService extends AbstractService {
   }
 
   // 룰 JUMP
-  public jumpRule(datasetId: string, op: string, ruleIdx: number): Promise<any> {
+  public jumpRule(id: string, method: string, params : any ): Promise<any> {
     let popupService = this.popupService;
-    const params: any = { dsId: datasetId, op: op, ruleIdx: ruleIdx };
-    return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform`, params)
-      .catch((error) => {
-        if (true !== isUndefined(error.code) && error.code === 'PR5102') {
-          Loading.hide();
-          PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
-          return Promise.reject(null);
-        }
-        throw error;
-      });
+    // const params: any = { dsId: datasetId, op: op, ruleIdx: ruleIdx, count : 100 };
+    if (method === 'put') {
+      return this.put(this.API_URL + `preparationdatasets/${id}/transform`, params)
+        .catch((error) => {
+          if (true !== isUndefined(error.code) && error.code === 'PR5102') {
+            Loading.hide();
+            PreparationAlert.success(this.translateService.instant(error.details));
+            popupService.notiPopup({ name: 'update-dataflow', data: null });
+            return Promise.reject(null);
+          }
+          throw error;
+        });
+    } else {
+      let url = this.API_URL + `preparationdatasets/${id}/transform`;
+      const param: string[] = [];
+      if (isNullOrUndefined(params.ruleIdx)) {
+        (param.push(`ruleIdx=`));
+      } else {
+        (param.push(`ruleIdx=${params.ruleIdx}`));
+      }
+      (isNullOrUndefined(params.offset)) || (param.push(`offset=${params.offset}`));
+      (isNullOrUndefined(params.count)) || (param.push(`count=${params.count}`));
+      (0 < param.length) && (url = url + '?' + param.join('&'));
+
+      return this.get(url);
+    }
+
   } // function - previewJoinResult
 
 
@@ -168,7 +184,7 @@ export class DataflowService extends AbstractService {
 
     const params: string[] = [];
     (isNullOrUndefined(ruleIdx)) || (params.push(`ruleIdx=${ruleIdx}`));
-    (isNullOrUndefined(pageNum)) || (params.push(`pageNum=${pageNum}`));
+    (isNullOrUndefined(pageNum)) || (params.push(`offset=${pageNum}`));
     (isNullOrUndefined(count)) || (params.push(`count=${count}`));
     (0 < params.length) && (url = url + '?' + params.join('&'));
 
@@ -212,20 +228,21 @@ export class DataflowService extends AbstractService {
   }
 
   // 룰 적용
-  public applyRules(datasetId: string, rule: any): Promise<any> {
-    if( isUndefined(rule['ruleIdx']) ) {
-      if( isUndefined(rule['ruleCurIdx']) ) {
-        rule['ruleIdx'] = -1; // -1 means curIdx
-      } else {
-        rule['ruleIdx'] = rule['ruleCurIdx'];
-        delete rule['ruleCurIdx'];
-      }
-    }
-    if( isUndefined(rule['ruleCurIdx']) ) {
-      delete rule['ruleCurIdx'];
-    }
+  public applyRules(datasetId: string, param: any): Promise<any> {
+    // if( isUndefined(rule['ruleIdx']) ) {
+    //   if( isUndefined(rule['ruleCurIdx']) ) {
+    //     rule['ruleIdx'] = -1; // -1 means curIdx
+    //   } else {
+    //     rule['ruleIdx'] = rule['ruleCurIdx'];
+    //     delete rule['ruleCurIdx'];
+    //   }
+    // }
+    // if( isUndefined(rule['ruleCurIdx']) ) {
+    //   delete rule['ruleCurIdx'];
+    // }
     let popupService = this.popupService;
-    return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform`, rule)
+    param['count'] = 100;
+    return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform`, param)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
@@ -247,13 +264,17 @@ export class DataflowService extends AbstractService {
     let url = this.API_URL + `preparationdatasets/${datasetId}/transform`;
 
     const params: string[] = [];
-    (isNullOrUndefined(ruleIdx)) || (params.push(`ruleIdx=${ruleIdx}`));
-    (isNullOrUndefined(pageNum)) || (params.push(`pageNum=${pageNum}`));
+
+    if (isNullOrUndefined(ruleIdx)) {
+      (params.push(`ruleIdx=`));
+    } else {
+      (params.push(`ruleIdx=${ruleIdx}`));
+    }
+    (isNullOrUndefined(pageNum)) || (params.push(`offset=${pageNum}`));
     (isNullOrUndefined(count)) || (params.push(`count=${count}`));
     (0 < params.length) && (url = url + '?' + params.join('&'));
 
     return this.get(url)
-    // return this.get(this.API_URL + `preparationdatasets/${datasetId}/transform`)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();

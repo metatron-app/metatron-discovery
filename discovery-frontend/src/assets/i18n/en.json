@@ -1083,6 +1083,10 @@
   "msg.dp.ui.add.ds.df" : "Add dataset to this flow",
   "msg.dp.ui.none.df.description2" : "Add dataset to your flow from your local file, database, or staging database like HIVE",
   "msg.dp.btn.insert.rule" : "Insert rule",
+  "msg.dp.btn.edit" : "Edit",
+  "msg.dp.btn.tab.rule" : "RULE",
+  "msg.dp.btn.tab.snapshot" : "SNAPSHOT",
+  "msg.dp.ui.insert.rule.below" : "Please enter a rule below",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",

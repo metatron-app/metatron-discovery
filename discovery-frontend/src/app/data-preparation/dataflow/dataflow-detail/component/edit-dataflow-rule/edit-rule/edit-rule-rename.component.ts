@@ -102,7 +102,8 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       return undefined
     }
 
-    let check = StringUtil.checkSingleQuote(this.newFieldName, { isAllowBlank: false, isWrapQuote: true });
+    let clonedNewFieldName : string = this.newFieldName;
+    let check = StringUtil.checkSingleQuote(clonedNewFieldName, { isAllowBlank: false, isWrapQuote: true });
     if (check[0] === false) {
       Alert.warning('Special characters are not allowed');
       return undefined
@@ -113,7 +114,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
           check[1] = check[1].replace(' ', '_');
         }
       }
-      this.newFieldName = check[1];
+      clonedNewFieldName = check[1];
     }
 
     const selectedFieldName:string = this.selectedFields[0].name;
@@ -122,7 +123,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       command: 'rename',
       to: this.newFieldName,
       col: selectedFieldName,
-      ruleString: 'rename col: ' + selectedFieldName + ' to: ' + this.newFieldName
+      ruleString: 'rename col: ' + selectedFieldName + ' to: ' + clonedNewFieldName
     };
 
   } // function - getRuleData

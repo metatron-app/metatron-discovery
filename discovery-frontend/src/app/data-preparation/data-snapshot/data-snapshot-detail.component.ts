@@ -355,6 +355,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
         rule['desc'] = this.commandList[idx].desc;
+      } else {
+        rule['command'] = 'Create';
+        rule['alias'] = 'Cr';
+        rule['simplifiedRule'] = rule.ruleString;
       }
       // rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
       this.ruleList.push(rule);

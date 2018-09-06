@@ -1083,6 +1083,10 @@
   "msg.dp.ui.add.ds.df" : "이 데이터플로우에 데이터셋 추가",
   "msg.dp.ui.none.df.description2" : "HIVE와 같은 staging DB, 데이터베이스 또는 로컬 파일에서 생성한 데이터셋을 데이터플로우에 추가하세요",
   "msg.dp.btn.insert.rule" : "룰 추가",
+  "msg.dp.btn.edit" : "수정",
+  "msg.dp.btn.tab.rule" : "RULE",
+  "msg.dp.btn.tab.snapshot" : "SNAPSHOT",
+  "msg.dp.ui.insert.rule.below" : "아래에서 룰을 입력하세요",
 
   "msg.board.create.add-ds" : "데이터소스 추가",
   "msg.board.create.add-ds.desc" : "시각화 할 데이터소스를 추가하고 관계를 설정해 주세요",

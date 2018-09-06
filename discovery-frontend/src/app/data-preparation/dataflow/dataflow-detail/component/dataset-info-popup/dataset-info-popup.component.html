@@ -17,21 +17,21 @@
   <div class="ddp-data-filename" [class.ddp-selected]="isDatasetNameEdit" (clickOutside)="isDatasetNameEdit ? setDatasetName(): null;">
     <em class="{{getIconClass(selectedDataSet.dsType?.toString()==='WRANGLED' ? 'dataset' : 'hive')}}"></em>
     <div class="ddp-ui-input">
-      <input type="text" #dsName  placeholder="{{'msg.comm.ui.create.name' | translate}}"
+      <textarea #dsName  placeholder="{{'msg.comm.ui.create.name' | translate}}"
              (keyup.enter)="isDatasetNameEdit ? updateDataset() : null;"
              [(ngModel)]="datasetName"
-             maxlength="50">
+                maxlength="50"></textarea>
       <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataset();"></span>
     </div>
     <span class="ddp-txt-filename">{{selectedDataSet.dsName}}<a href="javascript:" (click)="!isDatasetNameEdit ? onDatasetNameEdit($event):$event.stopPropagation();" class="ddp-link-edit"><em class="ddp-icon-edit2"></em></a></span>
   </div>
   <div class="ddp-data-explain" [class.ddp-selected]="isDatasetDescEdit">
     <div class="ddp-ui-input">
-      <input type="text" #dsDesc placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+      <textarea #dsDesc placeholder="{{'msg.comm.ui.create.desc' | translate}}"
              (keyup.enter)="isDatasetDescEdit ? updateDataset() : null;"
              (clickOutside)="isDatasetDescEdit ? setDatasetDescription(): null;"
              [(ngModel)]="datasetDesc"
-             maxlength="150">
+                maxlength="150"></textarea>
       <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataset();"></span>
     </div>
     <span class="ddp-txt-explain">{{selectedDataSet.dsDesc || 'msg.groups.ui.create.ph.desc' | translate }}<a href="javascript:" (click)="!isDatasetDescEdit ? onDatasetDescEdit($event):$event.stopPropagation();" class="ddp-link-edit"><em class="ddp-icon-edit2"></em></a></span>

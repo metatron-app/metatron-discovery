@@ -80,7 +80,7 @@
                 <!-- buttons -->
                 <div class="ddp-ui-buttons">
                   <a href="javascript:" class="ddp-btn-type3" (click)="jumpToCurrentIndex()">{{'msg.comm.btn.cancl' | translate}}</a>
-                  <a href="javascript:" class="ddp-btn-type4" (click)="addRule()">{{editLabelBtn}}</a>
+                  <a href="javascript:" class="ddp-btn-type4" (click)="addRule()">{{ opString !== 'UPDATE' ? ('msg.dp.btn.add' | translate) : ('msg.dp.btn.edit' | translate ) }}</a>
                 </div>
                 <!-- //buttons -->
               </div>
@@ -114,7 +114,7 @@
                       <!-- 클릭시 ddp-selected 추가 -->
                       <div class="ddp-type-selectbox ddp-type-search-select"
                            tabindex="1"
-                           [ngClass]="{'ddp-selected' : isCommandListShow, 'ddp-disabled' : isEditing }"
+                           [ngClass]="{'ddp-selected' : isCommandListShow, 'ddp-disabled' : opString === 'UPDATE' }"
                            [class.ddp-result]="ruleVO.command"
                            (click)="$event.stopImmediatePropagation(); showCommandList()"
                            (keydown)="navigateWithKeyboardShortList($event, filteredCommandList, 'command')">
@@ -264,10 +264,10 @@
                                  [redoable]="redoable"
                                  [undoable]="undoable"
                                  (jumpEvent)="jump($event)"
-                                 (redoEvent)="redoRule()"
-                                 (undoEvent)="undoRule()"
+                                 (redoUndoEvent)="transformAction($event)"
                                  (deleteEvent)="deleteRule($event)"
                                  (editEvent)="setRuleVO($event)"
+                                 (addRuleEvent)="insertStep($event)"
                                  (snapshotDetailEvent)="getSnapshotDetail($event)">
                   </app-rule-list>
                   <!-- // Rule list -->
