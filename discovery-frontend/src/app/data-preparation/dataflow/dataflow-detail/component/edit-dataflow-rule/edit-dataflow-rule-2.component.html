@@ -80,7 +80,7 @@
                 <!-- buttons -->
                 <div class="ddp-ui-buttons">
                   <a href="javascript:" class="ddp-btn-type3" (click)="jumpToCurrentIndex()">{{'msg.comm.btn.cancl' | translate}}</a>
-                  <a href="javascript:" class="ddp-btn-type4" (click)="addRule()">{{ opString !== 'UPDATE' ? ('msg.dp.btn.add' | translate) : ('msg.dp.btn.edit' | translate ) }}</a>
+                  <a href="javascript:" [ngClass]="{'ddp-disabled':ruleVO.command === ''}" class="ddp-btn-type4" (click)="addRule()">{{ opString !== 'UPDATE' ? ('msg.dp.btn.add' | translate) : ('msg.dp.btn.edit' | translate ) }}</a>
                 </div>
                 <!-- //buttons -->
               </div>
@@ -163,7 +163,7 @@
                       <!-- // endRename -->
 
                       <!--startSet-->
-                      <edit-rule-set #editRule *ngIf="'set' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('derive')"></edit-rule-set>
+                      <edit-rule-set #editRule *ngIf="'set' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('set')"></edit-rule-set>
                       <!--//endSet-->
 
                       <!--startSettype-->

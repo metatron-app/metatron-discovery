@@ -24,7 +24,7 @@ import { AbstractComponent } from '../../../../../common/component/abstract.comp
 import { Field } from '../../../../../domain/data-preparation/dataset';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { DataflowService } from '../../../service/dataflow.service';
-
+import * as _ from 'lodash';
 declare let $;
 
 @Component({
@@ -118,7 +118,13 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
     this._command = command;
 
     // 필드 설정
-    this._fields = fields;
+    this._fields = _.cloneDeep(fields);
+
+    // set 은 field 목록에 $col 추가
+    if ('set' === this._command) {
+      this._fields.unshift({name :'$col', type : 'STRING'});
+    }
+
     this._setFieldPage(1);
 
     // Input 영역 설정

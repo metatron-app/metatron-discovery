@@ -105,7 +105,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
 
     // new val
     let clonedNewValue = this.newValue;
-    if (!isUndefined(this.newValue)) {
+    if (!isUndefined(clonedNewValue) && '' !== clonedNewValue) {
       let withVal = StringUtil.checkSingleQuote(clonedNewValue, { isPairQuote: true, isWrapQuote: true });
       if (withVal[0] === false) {
         Alert.warning(this.translateService.instant('mgs.dp.alert.check.new.val'));
@@ -199,9 +199,14 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    this.newValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'with', ruleString ));
+    // TODO : quotation marks
+    let withVal = ruleString.split('with: ')[1];
+    this.newValue = withVal.split(' on')[0];
+    // this.newValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'with', ruleString ));
 
-    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
+    let onVal = ruleString.split('on: ')[1];
+    this.pattern = onVal.split(' global')[0];
+    // this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
 
     this.isGlobal = Boolean( this.getAttrValueInRuleString( 'global', ruleString ) );
 

@@ -203,21 +203,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       method = 'put';
     }
 
-    // if (opString === 'INITIAL') {
-    //   params['ruleIdx'] = null;
-    //   params['count'] = 100;
-    //   params['offset'] = 0;
-    // } else if (opString === 'APPEND' || opString === 'UPDATE' || opString === 'JUMP' || opString === 'DELETE') {
-    //   method = 'put';
-    //   params['ruleIdx'] = ruleIdx;
-    //   params['count'] = 100;
-    //   params['op'] = opString;
-    // } else if ('UPDATE_PREPARE' === opString) {
-    //   params['ruleIdx'] = ruleIdx;
-    //   params['count'] = 100;
-    //   params['offset'] = 0;
-    // }
-    return this.dataflowService.jumpRule(this.dataSetId, method, params).then(data => {
+    return this.dataflowService.transformAction(this.dataSetId, method, params).then(data => {
       // 데이터 초기화
       {
         // Grid
@@ -246,9 +232,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         // T/F
         this.isShowColumnTypes = false;
 
-
       }
-      // this.ruleIdx = (isNullOrUndefined(ruleIdx) && this.ruleIdx !== -1) ? data['ruleStringInfos'].length - 1 : ruleIdx;
+      // 룰 index
       this.ruleIdx = data.ruleCurIdx;
 
       // 그리드 데이터 생성
@@ -280,6 +265,11 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         };
       });
 
+    }).catch((error) => {
+      this.loadingHide();
+      return {
+        error : error
+      };
     });
 
   } // function - init

@@ -231,8 +231,15 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   public ngAfterViewInit() {
     this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data)=> {
+
+      if (data['error']) {
+        let prep_error = this.dataprepExceptionHandler(data['error']);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        return;
+      }
+
       this.serverSyncIndex = data.apiData.ruleCurIdx;
-      this.ruleListComponent.selectedRuleIdx = this.serverSyncIndex;
+      this.ruleListComponent.selectedRuleIdx = this.serverSyncIndex; // 처음 들어갔을 때 전에 jump 한 곳으로 나와야 하기 떄문에
       this.setRuleListColorWhenJumped(this.serverSyncIndex);
     });
   }
@@ -369,14 +376,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public selectCommand(event, command) {
     event.stopImmediatePropagation();
     this.initRule();
-
-    // const mode = this.modeType; // 룰 수정시 필요함
-    // const vo = this.ruleVO;     // 룰 수정시 필요함
-    // if (mode === 'UPDATE') { // 편집인데 다른 룰을 추가할때
-    //   this.modeType = mode;
-    //   this.editLabelBtn = 'Edit';
-    //   this.ruleNo = vo['ruleNo'];
-    // }
 
     this.ruleVO.ignoreCase = false;
     this.ruleVO.cols = this.selectedColumns;
@@ -537,6 +536,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public addRule() {
 
+    if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
+      return;
+    }
+
     let rule: any = {};
     if (this.editorUseFlag === false) {
 
@@ -550,22 +553,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       if (isUndefined(rule)) {
         return;
       }
-
-      // 룰 적용하기
-      // set operation
-      // if (!isUndefined(rule)) {
-      //   if (isUndefined(this.ruleVO['ruleNo'])) {
-      //     if (!isNull(this.ruleNo)) { //룰 편집 수정 중 다른 룰로 바꾸면 append -> update로 수정
-      //       rule['op'] = 'UPDATE';
-      //     } else {
-      //       rule['op'] = 'APPEND';
-      //     }
-      //
-      //   } else {// 수정 모드
-      //     rule['op'] = 'UPDATE';
-      //     rule['ruleCurIdx'] = this.ruleVO['ruleNo'];
-      //   }
-      // }
 
       // set param
       rule['op'] = this.opString;
@@ -585,14 +572,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }
     if (!isUndefined(rule)) {
       this.applyRule(rule);
-      // if ('UPDATE' === rule['op']) {
-      //   this.dataflowService.getSearchCountDataSets(this.selectedDataSet.dsId, rule['ruleCurIdx'], 0, 2)
-      //     .then(() => {  // ruleIdx 값을 맞추기 위해서 호출 후에 제거해야 함
-      //       this.applyRule(rule);
-      //     });
-      // } else {
-      //   this.applyRule(rule);
-      // }
     }
   } // function - addRule
 
@@ -736,6 +715,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this._setEditRuleInfo({op: 'PREPARE_UPDATE', ruleIdx: ruleIdx, count: 100, offset: 0})
       .then((data: { apiData: any, gridData: any }) => {
+
+        if (data['error']) {
+          let prep_error = this.dataprepExceptionHandler(data['error']);
+          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+          return;
+        }
+
         this.setEditInfo(editInfo, data.gridData);
         this.opString = 'UPDATE';
         this.serverSyncIndex = ruleIdx+1;
@@ -750,7 +736,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public deleteRule(ruleNo : number) {
     this.refreshEditMode();
-    this.applyRule({ op: 'DELETE', ruleIdx: ruleNo, count:100 }, 'msg.dp.alert.rule.del.fail');
+    this.applyRule({ op: 'DELETE', ruleIdx: ruleNo, count:100 });
   }
 
   /**
@@ -780,7 +766,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }
 
     this._setEditRuleInfo('INITIAL').then((data) => {
-      console.info('data --> ', data);
+
+      if (data['error']) {
+        let prep_error = this.dataprepExceptionHandler(data['error']);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        return;
+      }
+
       this.selectedDataSet.dsId = data.apiData.dsId;
       this.changeDataset.emit(data.apiData);
     });
@@ -810,7 +802,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       }
 
     }
-    this.applyRule(rule, action === 'REDO' ? 'msg.dp.alert.redo.fail' : 'msg.dp.alert.undo.fail', action === 'UNDO')
+    this.applyRule(rule, action === 'UNDO')
 
   }
 
@@ -833,6 +825,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // Get grid of selected index
     this._setEditRuleInfo({op: this.opString, ruleIdx: idx, count: 100 }).then((data) => {
 
+      if (data['error']) {
+        let prep_error = this.dataprepExceptionHandler(data['error']);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        return;
+      }
+
       // set affected columns
       data.apiData.gridResponse.interestedColNames.forEach(col => {
         this._editRuleGridComp.selectColumn(col, true);
@@ -846,11 +844,19 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     });
   }
 
+  /**
+   * Add cancel button to insert step index
+   * @param {number} idx
+   */
   public setInsertStep(idx : number ) {
     this.ruleList[idx]['isInsertStep'] = true;
   }
 
 
+  /**
+   * When insert step button is clicked from rule list, jump to selected index
+   * @param {number} ruleNo
+   */
   public insertStep(ruleNo: number) {
     this.opString = 'PREPARE_APPEND';
     this.jumpToInsertStep(ruleNo);
@@ -870,6 +876,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // Get grid of selected index
     this._setEditRuleInfo({op: 'JUMP', ruleIdx: idx, count: 100 }).then((data) => {
 
+      if (data['error']) {
+        let prep_error = this.dataprepExceptionHandler(data['error']);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        return;
+      }
+
       // set affected columns
       data.apiData.gridResponse.interestedColNames.forEach(col => {
         this._editRuleGridComp.selectColumn(col, true);
@@ -887,7 +899,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     });
   }
-
 
 
   /**
@@ -1037,6 +1048,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     });
   }
 
+  /**
+   * Add cancel button to specific rule when edit button is clicked
+   * @param {number} idx
+   */
   public setCancelBtnWhenEditMode(idx : number) {
     this.ruleList[idx]['isEditMode'] = true;
   }
@@ -1345,7 +1360,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       } else {
         val = ' order: ';
       }
-
       rule = {
         command: args.command,
         col: args.column.id,
@@ -1366,29 +1380,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         type: 'desc',
         ruleString: 'sort' + val + args.column.id + ' type:\'desc\''
       };
-
       this.applyRule(rule);
-
-    } else {
-
-      // this.ruleVO['command'] = args.command;
-      // this.ruleVO.col = args.column.id;
-      //
-      // if (this.ruleVO['command'] === 'rename') {
-      //
-      //   this.setDefaultValue(true);
-      //
-      //   setTimeout(() => $('.newColumnInput').trigger('focus')); // 포커스
-      //   // setTimeout(() => $('.newColumnInput').select()); // highlight
-      //
-      // } else if (this.ruleVO['command'] === 'settype') {
-      //
-      //   setTimeout(() => $('[tabindex=3]').trigger('focus')); // 포커스
-      //
-      // }
-
     }
-
   } // function - applyRuleFromGridHeaderMenu
 
   /**
@@ -1458,29 +1451,26 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   } // function - applyRuleFromContextMenu
 
+  /**
+   * When cancel button is clicked. Cancels edit mode and jump to current index
+   */
   public jumpToCurrentIndex() {
 
+    // If no command is selected nothing happens
     if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
       return;
     }
 
-    this.opString = 'APPEND'; // 편집 취소
-
-    this.loadingShow();
+    // Change button
+    this.opString = 'APPEND';
 
     // Unselect all columns
     this._editRuleGridComp.unSelectionAll();
 
+    // Jumps to current index
     this.jump(this.serverSyncIndex);
-    // // 제일 마지막 index로 그리드를 그린다.
-    // this._setEditRuleInfo({ op:'JUMP', ruleIdx: this.serverSyncIndex, count: 100 })
-    //   .then((data) => {
-    //     this.serverSyncIndex = data.apiData.ruleCurIdx;
-    //     this.setRuleListColorWhenJumped(this.serverSyncIndex);
-    //     this.setCancelBtnWhenEditMode(this.serverSyncIndex);
-    //     this.loadingHide();
-    //   });
 
+    // TODO : check if necessary
     this.ruleVO.command = '';
     this.selectedColumns = [];
     this.editColumnList = [];
@@ -1502,6 +1492,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     return this._editRuleGridComp.init(this.selectedDataSet.dsId, params)
       .then((data: { apiData: any, gridData: any }) => {
+
+        if (isNullOrUndefined(data.apiData)) {
+          return {
+            error : data['error']
+          }
+        }
         const apiData = data.apiData;
         this.serverSyncIndex = data.apiData.ruleCurIdx;
 
@@ -1539,6 +1535,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        return {
+          error : error
+        };
       });
 
   } // function - _setEditRuleInfo
@@ -1742,7 +1741,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @msg translate key
    * @isUndo
    */
-  private applyRule(rule: object, msg?: string, isUndo?: boolean) {
+  private applyRule(rule: object, isUndo?: boolean) {
 
     let command = rule['command'];
 
@@ -1763,6 +1762,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.opString = rule['op'];
 
     this._setEditRuleInfo({op: this.opString, ruleIdx : this.serverSyncIndex, count: 100, ruleString : rule['ruleString'] }).then((data: { apiData: any, gridData: any }) => {
+
+      if (data['error']) {
+        let prep_error = this.dataprepExceptionHandler(data['error']);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        return;
+      }
+
       this.serverSyncIndex = data.apiData.ruleCurIdx;
       if (data.apiData.ruleStringInfos.length > 0) {
         this._editRuleGridComp.setAffectedColumns(
@@ -1786,64 +1792,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       }
 
     });
-
-
-
-
-    // this.dataflowService.applyRules(this.selectedDataSet.dsId, rule)
-    //   .then((data) => {
-    //     if (data.errorMsg) {
-    //       Alert.warning(this.translateService.instant(msg ? msg : 'msg.dp.alert.apply.rule.fail'));
-    //     } else {
-    //       this.changeDetect.detectChanges();
-    //       this.selectedRows = [];
-    //       this.isJumped = false;
-    //       (command === 'multipleRename') && (this.multicolumnRenameComponent.showFlag = false);
-    //
-    //       // Unselect all columns
-    //       this._editRuleGridComp.unSelectionAll('COL');
-    //       this.editColumnList = [];
-    //
-    //       this._setEditRuleInfo({op: this.opString, ruleIdx : this.serverSyncIndex, count: 100, ruleString : rule.ruleString }).then((data: { apiData: any, gridData: any }) => {
-    //         this.serverSyncIndex = data.apiData.ruleCurIdx;
-    //         if (data.apiData.ruleStringInfos.length > 0) {
-    //           this._editRuleGridComp.setAffectedColumns(
-    //             data.apiData.gridResponse['interestedColNames'],
-    //             data.apiData.ruleStringInfos[data.apiData.ruleStringInfos.length - 1].command);
-    //         }
-    //
-    //         // 룰 리스트는 index 보다 하나 적게
-    //         this.setRuleListColor(this.serverSyncIndex-1);
-    //
-    //         if (command !== 'join' && command !== 'derive' && command !== 'aggregate' && command !== 'move') {
-    //           // 저장된 위치로 이동
-    //           this._editRuleGridComp.moveToSavedPosition();
-    //         }
-    //         // 계속 클릭하는거 방지
-    //         if (isUndo && this.isUndoRunning) {
-    //           this.isUndoRunning = false;
-    //         } else if (!isUndo && this.isRedoRunning) {
-    //           this.isRedoRunning = false;
-    //         }
-    //
-    //       });
-    //     }
-    //     this.loadingHide();
-    //   }).catch((error) => {
-    //   this.loadingHide();
-    //   if (isNull(error)) {
-    //     return;
-    //   }
-    //   let prep_error = this.dataprepExceptionHandler(error);
-    //   PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-    //
-    //   if (prep_error.code && prep_error.code.startsWith('PR')) {
-    //   } else if (1 < this.inputRuleCmd.length) {
-    //     Alert.warning(this.translateService.instant('msg.dp.alert.command.error'));
-    //   } else {
-    //     Alert.error(this.translateService.instant('msg.dp.alert.unknown.error'));
-    //   }
-    // });
 
   }
 

@@ -68,6 +68,9 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
 
   public formula: string;
 
+  @Input()
+  public placeholder : string =this.translateService.instant('msg.dp.th.condition.ph');
+
   // Auto complete 관련
   public autoCompleteSuggestions: any = [];
   public autoCompleteSuggestions_selectedIdx: number = -1;

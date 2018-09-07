@@ -144,21 +144,11 @@ export class DataflowService extends AbstractService {
       });
   }
 
-  // 룰 JUMP
-  public jumpRule(id: string, method: string, params : any ): Promise<any> {
-    let popupService = this.popupService;
-    // const params: any = { dsId: datasetId, op: op, ruleIdx: ruleIdx, count : 100 };
+  // transform action GET or PUT
+  public transformAction(id: string, method: string, params : any ): Promise<any> {
     if (method === 'put') {
       return this.put(this.API_URL + `preparationdatasets/${id}/transform`, params)
-        .catch((error) => {
-          if (true !== isUndefined(error.code) && error.code === 'PR5102') {
-            Loading.hide();
-            PreparationAlert.success(this.translateService.instant(error.details));
-            popupService.notiPopup({ name: 'update-dataflow', data: null });
-            return Promise.reject(null);
-          }
-          throw error;
-        });
+
     } else {
       let url = this.API_URL + `preparationdatasets/${id}/transform`;
       const param: string[] = [];
@@ -174,16 +164,20 @@ export class DataflowService extends AbstractService {
       return this.get(url);
     }
 
-  } // function - previewJoinResult
+  } // function - transformAction
 
 
-  // Wrangled 데이터셋 조회
+  // Wrangled 데이터셋 조회 (조인과 유니온에서 사용)
   public getDatasetWrangledData(datasetId: string, count?: number, pageNum?: number, ruleIdx?: number): Promise<any> {
+
+    // TODO : temp value
+    count = 1000;
+    pageNum = 0;
 
     let url = this.API_URL + `preparationdatasets/${datasetId}/transform`;
 
     const params: string[] = [];
-    (isNullOrUndefined(ruleIdx)) || (params.push(`ruleIdx=${ruleIdx}`));
+    (params.push(`ruleIdx=`));
     (isNullOrUndefined(pageNum)) || (params.push(`offset=${pageNum}`));
     (isNullOrUndefined(count)) || (params.push(`count=${count}`));
     (0 < params.length) && (url = url + '?' + params.join('&'));

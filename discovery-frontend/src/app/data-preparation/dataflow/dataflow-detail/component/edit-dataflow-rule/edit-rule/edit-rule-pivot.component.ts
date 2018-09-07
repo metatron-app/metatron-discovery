@@ -160,6 +160,9 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
    * @param {number} idx
    */
   public deleteFormula(idx:number) {
+    if (this.formulaList.length === 1) {
+      return;
+    }
     this.formulaList.splice( idx, 1 );
   } // function - deleteFormula
 

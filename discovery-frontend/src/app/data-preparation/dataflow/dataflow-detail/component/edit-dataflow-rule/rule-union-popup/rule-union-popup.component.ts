@@ -410,10 +410,10 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       if (dsInfo.gridData) {
         resolve(dsInfo);
       } else {
-                  this.loadingShow();
+        this.loadingShow();
         this.dataflowService.getDatasetWrangledData(dsInfo.dsId)
           .then((result) => {
-                  this.loadingHide();
+            this.loadingHide();
             const griddata = this.getGridDataFromGridResponse(result['gridResponse']);
             const data = griddata.data.slice(0, 100);
             dsInfo.data = JSON.stringify(data);
@@ -421,9 +421,9 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
             resolve(dsInfo);
           })
           .catch((error) => {
-                  this.loadingHide();
-                  let prep_error = this.dataprepExceptionHandler(error);
-                  PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+            this.loadingHide();
+            let prep_error = this.dataprepExceptionHandler(error);
+            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
           });
       } // end if - dsInfo not exist griddata
     });
