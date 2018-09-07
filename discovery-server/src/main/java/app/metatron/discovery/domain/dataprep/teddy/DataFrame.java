@@ -2355,7 +2355,10 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   protected String stripSingleQuote(String str) {
-    return str.substring(str.indexOf("'") + 1, str.lastIndexOf("'"));
+    if(str.indexOf("'") == 0)
+      return str.substring(str.indexOf("'") + 1, str.lastIndexOf("'"));
+    else
+      return str;
   }
 
   protected void aggregate(DataFrame prevDf, List<String> groupByColNames, List<String> targetExprStrs) throws TeddyException, InterruptedException {
@@ -3549,12 +3552,12 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   // Hive 테이블로 만들 때에만 이 함수를 사용해서 컬럼명을 제약함.
-  public void checkNonAlphaNumerical(String colName) throws IllegalColumnNameForHiveException {
-    Pattern p = Pattern.compile("[^\\\\p{IsAlphabetic}^\\\\p{Digit}_]");
+  public void checkAlphaNumerical(String colName) throws IllegalColumnNameForHiveException {
+    Pattern p = Pattern.compile("^[a-zA-Z0-9_]*$");
     Matcher m = p.matcher(colName);
 
     // 영문자, 숫자, _만 허용
-    if (m.matches()) {
+    if (m.matches() == false) {
       throw new IllegalColumnNameForHiveException("The column name contains non-alphanumerical characters: " + colName);
     }
 
@@ -3566,9 +3569,9 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   // Hive 테이블로 만들 때에만 이 함수를 사용해서 컬럼명을 제약함
-  public void checkNonAlphaNumericalColNames() throws IllegalColumnNameForHiveException {
+  public void checkAlphaNumericalColNames() throws IllegalColumnNameForHiveException {
     for (String colName : colNames) {
-      checkNonAlphaNumerical(colName);
+      checkAlphaNumerical(colName);
     }
   }
 

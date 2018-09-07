@@ -566,13 +566,13 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
 
       case ChartType.BAR:
       case ChartType.LINE:
-      case ChartType.HEATMAP:
       case ChartType.CONTROL:
       case ChartType.COMBINE:
       case ChartType.WATERFALL:
         displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
         displayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
         break;
+      case ChartType.HEATMAP:
       case ChartType.GAUGE:
         displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
       case ChartType.SCATTER:

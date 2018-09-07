@@ -198,7 +198,7 @@ public class RuleVisitorParser implements Parser {
       }
 
       if (func == null)
-        throw new FunctionInvalidFunctionNameException(ctx.getParent().getStart().getText() + " dose not support function.");
+        throw new FunctionInvalidFunctionNameException(ctx.getStart().getText() + " is not supported function.");
       return new Expr.FunctionExpr(func, func.name(), exprs);
     }
 

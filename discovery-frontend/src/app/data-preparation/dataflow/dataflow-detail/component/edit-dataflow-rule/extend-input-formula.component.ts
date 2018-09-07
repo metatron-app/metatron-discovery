@@ -435,6 +435,9 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
       new FormulaFunction(FunctionCategory.LOGICAL, 'if', '조건문을 검사하여 TRUE나 FALSE에 해당하는 값을 반환합니다.')
     );
     this._functionList.push(
+      new FormulaFunction(FunctionCategory.LOGICAL, 'ismismatched', '입력된 컬럼의 값과 타입이 일치하는지 판단합니다. 일치하면 TRUE, 아니면 FALSE를 반환합니다.')
+    );
+    this._functionList.push(
       new FormulaFunction(FunctionCategory.LOGICAL, 'isnull', '입력된 컬럼의 값이 null 인지 판단합니다. null이면 TRUE, 아니면 FALSE를 반환합니다.')
     );
     this._functionList.push(

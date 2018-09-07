@@ -28,11 +28,13 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.*;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.hibernate.annotations.Synchronize;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -309,6 +311,10 @@ public class TeddyExecutor {
     transformRecursive(datasetInfo, ssId);
     String masterFullDsId = replaceMap.get(masterTeddyDsId);
 
+    // Some rules like pivot may break Hive column naming rule.
+    DataFrame finalDf = cache.get(masterFullDsId);
+    finalDf.checkAlphaNumericalColNames();
+
     List<String> ruleStrings = (List<String>) datasetInfo.get("ruleStrings");
     List<String> partKeys = (List<String>) snapshotInfo.get("partKeys");
     String format = (String) snapshotInfo.get("format");
@@ -412,8 +418,7 @@ public class TeddyExecutor {
     // single thread
     if (cores == 0) {
       List<DataFrame> slaveDfs = new ArrayList<>();
-      for (int ruleNo = 1; ruleNo < ruleStrings.size(); ruleNo++) {
-        String ruleString = ruleStrings.get(ruleNo);
+      for (String ruleString : ruleStrings) {   // create rule has been removed already
         List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
         if (slaveDsIds != null) {
           for (String slaveDsId : slaveDsIds) {
@@ -429,10 +434,7 @@ public class TeddyExecutor {
     }
 
     // multi-thread
-    for (int ruleNo = 1; ruleNo < ruleStrings.size(); ruleNo++) {
-      cancelCheck(ssId);
-      String ruleString = ruleStrings.get(ruleNo);
-
+    for (String ruleString : ruleStrings) {     // create rule has been removed already
       List<Future<List<Row>>> futures = new ArrayList<>();
       List<DataFrame> slaveDfs = new ArrayList<>();
 
@@ -463,6 +465,7 @@ public class TeddyExecutor {
               futures.add(dataFrameService.gatherAsync(df, newDf, preparedArgs, rowno, Math.min(partSize, rowcnt - rowno), limitRows));
             }
 
+            cancelCheck(ssId);
             addJob(ssId, futures);
 
             for (int i = 0; i < futures.size(); i++) {
@@ -716,7 +719,7 @@ public class TeddyExecutor {
 
   public String writeToHdfs(String ssId, String dsId, String extHdfsDir, String dbName, String tblName,
                             FORMAT format, COMPRESSION compression) throws IOException {
-    Integer rowCnt = null;
+    Integer[] rowCnt = new Integer[2];
     FileSystem fs = FileSystem.get(conf);
 
     LOGGER.trace("writeToHdfs(): start");
@@ -735,7 +738,7 @@ public class TeddyExecutor {
         Path file = new Path(dir.toString() + File.separator + "part-00000-" + dsId + ".csv");
         OutputStream os = fs.create(file);
         BufferedWriter br = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-        rowCnt = writeCsv(ssId, df, br, null);
+        rowCnt[0] = writeCsv(ssId, df, br, null);
         break;
       case ORC:
         file = new Path(dir.toString() + File.separator + "part-00000-" + dsId + ".orc");
@@ -755,7 +758,14 @@ public class TeddyExecutor {
     fin = fs.create(byTeddy);
     fin.close();
 
-    updateSnapshot("totalLines", String.valueOf(rowCnt), ssId);
+    updateSnapshot("totalLines", String.valueOf(rowCnt[0]), ssId);
+
+    if(rowCnt[1]!=null && rowCnt[1]>0) {
+      Map<String, Object> lineageInfo = snapshotService.getSnapshotLineageInfo(ssId);
+      lineageInfo.put("excludedLines", rowCnt[1]);
+      ObjectMapper mapper = new ObjectMapper();
+      updateSnapshot("lineageInfo", mapper.writeValueAsString(lineageInfo), ssId);
+    }
 
     LOGGER.trace("writeToHdfs(): end");
     return dir.toUri().toString();
@@ -879,7 +889,7 @@ public class TeddyExecutor {
     return (List<Future<List<Row>>>) jobList.get(key);
   }
 
-  private void addJob(String key, Object value) {
+  synchronized private void addJob(String key, Object value) {
     jobList.put(key, value);
   }
 
@@ -912,7 +922,7 @@ public class TeddyExecutor {
     snapshotRuleDoneCnt.remove(ssId);
   }
 
-  public void updateAsCanceling(String ssId) {
+  synchronized public void updateAsCanceling(String ssId) {
     updateSnapshot("status", PrepSnapshot.STATUS.CANCELING.name(), ssId);
   }
 
@@ -921,7 +931,7 @@ public class TeddyExecutor {
     snapshotRuleDoneCnt.remove(ssId);
   }
 
-  public void cancelCheck(String ssId) throws CancellationException{
+  synchronized public void cancelCheck(String ssId) throws CancellationException{
     if(snapshotService.getSnapshotStatus(ssId).equals(PrepSnapshot.STATUS.CANCELING)) {
       throw new CancellationException("This snapshot generating was canceled by user. ssid: " + ssId);
     }

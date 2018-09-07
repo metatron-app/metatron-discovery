@@ -66,7 +66,7 @@ public class TeddyImpl {
   public void checkNonAlphaNumericalColNames(String dsId) throws IllegalColumnNameForHiveException {
     Revision rev = getCurRev(dsId);
     DataFrame df = rev.get(-1);
-    df.checkNonAlphaNumericalColNames();
+    df.checkAlphaNumericalColNames();
   }
 
   public void remove(String dsId) throws PrepException {

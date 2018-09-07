@@ -154,6 +154,12 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
     this.chartOption = this.convertEtc();
 
     ////////////////////////////////////////////////////////
+    // 셀렉션 필터 유지
+    ////////////////////////////////////////////////////////
+
+    this.chartOption = this.convertSelectionData();
+
+    ////////////////////////////////////////////////////////
     // apply
     ////////////////////////////////////////////////////////
 
@@ -618,6 +624,7 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
 
       // 차트에 적용
       this.apply(false);
+      this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
 
       // 이벤트 데이터 전송
       this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
