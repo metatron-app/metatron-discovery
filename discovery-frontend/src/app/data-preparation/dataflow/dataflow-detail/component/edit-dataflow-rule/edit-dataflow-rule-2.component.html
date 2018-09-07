@@ -74,7 +74,7 @@
                 <!-- title -->
                 <div class="ddp-box-title">
                   {{'msg.dp.ui.add.rule.title' | translate}}
-                  <a href="javascript:" class="ddp-link-switch" (click)="switchEditor()">{{editorUseLabel}}</a>
+                  <a href="javascript:" class="ddp-link-switch" (click)="switchEditor()" *ngIf="opString !== 'UPDATE'">{{editorUseLabel}}</a>
                 </div>
                 <!-- //title -->
                 <!-- buttons -->
@@ -247,7 +247,6 @@
           <div class="upper" style="width:100%; height:100%;">
 
             <vertical-split-pane primary-component-minsize="35" secondary-component-minsize="35" separator-thickness="7"  primary-component-initialratio="0.8" style="background:red;">
-              <!--(on-change)="onVChange($event)"-->
               <div class="split-pane-content-primary" style="height:100%;">
                 <div class="left" style="height:100%;">
                   <div *ngIf="isInitDataLoaded" class="ddp-wrap-flow-grid" style="position:relative; top:0; left:0; right:0; min-height:100%;">
@@ -288,15 +287,17 @@
 </div>
 <create-snapshot-popup (snapshotCreateFinishEvent)="initSnapshotList(selectedDataSet.dsId, true)"  (snapshotCloseEvent)="snapshotCreateClose()"></create-snapshot-popup>
 <app-rule-join-popup [existingDataSet]="selectedDataSet"
+                     [serverSyncIndex]="serverSyncIndex"
                      (joinComplete)="ruleJoinComplete($event);"
                      *ngIf="isRuleJoinModalShow"
-                     [dataflow]="dataflow"
-                     [rightDataset]="rightDataset">
+                     [dfId]="dataflow.dfId"
+                     [rightDataset]="rightDataset"
+                     [editRuleStr]="editJoinOrUnionRuleStr">
 </app-rule-join-popup>
 
 <app-rule-union-popup [masterDataset]="selectedDataSet"
-                      [dataflow]="dataflow"
-                      [isUpdate]="isUpdate"
+                      [serverSyncIndex]="serverSyncIndex"
+                      [dfId]="dataflow.dfId"
                       [editRuleStr]="editJoinOrUnionRuleStr"
                       (unionComplete)="ruleUnionComplete($event);"
                       *ngIf="isRuleUnionModalShow">

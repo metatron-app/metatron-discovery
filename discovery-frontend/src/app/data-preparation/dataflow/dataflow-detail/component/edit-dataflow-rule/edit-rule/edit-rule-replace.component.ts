@@ -202,10 +202,16 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
     // TODO : quotation marks
     let withVal = ruleString.split('with: ')[1];
     this.newValue = withVal.split(' on')[0];
+    if (this.newValue.startsWith('\'') && this.newValue.endsWith('\'')) {
+      this.newValue = this.newValue.substring(1, this.newValue.length - 1);
+    }
     // this.newValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'with', ruleString ));
 
     let onVal = ruleString.split('on: ')[1];
     this.pattern = onVal.split(' global')[0];
+    if (this.pattern.startsWith('\'') && this.pattern.endsWith('\'')) {
+      this.pattern = this.pattern.substring(1, this.pattern.length - 1);
+    }
     // this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
 
     this.isGlobal = Boolean( this.getAttrValueInRuleString( 'global', ruleString ) );

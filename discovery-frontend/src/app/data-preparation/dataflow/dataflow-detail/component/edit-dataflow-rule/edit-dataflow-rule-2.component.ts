@@ -307,10 +307,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param $event Join 설정 정보
    */
   public ruleJoinComplete($event) {
-    if ($event.ruleInfo) {
+    if ($event.ruleInfo) { // Join complete
       this.applyRule($event.ruleInfo);
-    } else {
-      this.initRule();
+    } else { // cancel join
+      this.jump(this.serverSyncIndex);
     }
     this.isRuleJoinModalShow = false;
   } // function - ruleJoinComplete
@@ -320,12 +320,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param $event Union 설정 정보
    */
   public ruleUnionComplete($event) {
-    if ($event.ruleInfo) {
+    if ($event.ruleInfo) { // Union complete
       this.applyRule($event.ruleInfo);
-
-    } else {
-      // init ruleVO
-      this.initRule();
+    } else { // Cancel union
+      this.jump(this.serverSyncIndex);
     }
     this.isRuleUnionModalShow = false;
     this.isUpdate = false;
@@ -379,6 +377,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.ruleVO.ignoreCase = false;
     this.ruleVO.cols = this.selectedColumns;
+
+    if (isNullOrUndefined(command)) {
+      return;
+    }
 
     this.ruleVO.command = command.command;
     this.ruleVO.alias = command.alias;

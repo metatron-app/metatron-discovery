@@ -184,7 +184,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   // esc 창 닫힘
   @HostListener('document:keydown.escape', ['$event'])
   public onKeydownHandler(event: KeyboardEvent) {
-    event.keyCode === 27 ? this.close() : null;
+    if (this.isShow) {
+      event.keyCode === 27 ? this.close() : null;
+    }
   }
 
   public getRows() {

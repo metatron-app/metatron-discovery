@@ -50,7 +50,7 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
    | Public - Input Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Input() // 현재 데이터플로우를 확인하기 위한 데이터
-  public dataflow: Dataflow;
+  public dfId: string;
 
   @Input() // 받아오는 기존 데이터
   public existingDatasets: Dataset[];
@@ -370,7 +370,7 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
 
     // 데이터셋 목록을 불러온다
     this.dataflowService.getDatasets(this.searchText, this.page, 'listing', this.searchDsType, this.searchImportType).then((data) => {
-        this.loadingHide();
+      this.loadingHide();
 
       // sorting
       const sorting = this.page.sort.split(',');
@@ -382,7 +382,7 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
         this.datasets = data['_embedded'].preparationdatasets.filter((ds: Dataset) => {
 
           if (ds.dataflows.length !== 0) {
-            if (ds.dataflows[0].dfId === this.dataflow.dfId) {
+            if (ds.dataflows[0].dfId === this.dfId) {
               if (this.originalDsIds.indexOf(ds.dsId) > -1) {
                 ds.selected = true;
                 ds.origin = true;
@@ -395,7 +395,7 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
           }
         });
 
-        const dfId = this.dataflow.dfId;
+        const dfId = this.dfId;
         this.loadingShow();
         this.dataflowService.getUpstreams(dfId, this.isUpdate)
           .then((upstreams) => {
@@ -428,9 +428,9 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
 
           })
           .catch((error) => {
-                  this.loadingHide();
-                  let prep_error = this.dataprepExceptionHandler(error);
-                  PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+            this.loadingHide();
+            let prep_error = this.dataprepExceptionHandler(error);
+            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
           });
 
         // checkList에 들어있는 dataset들도 check
@@ -449,9 +449,9 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
       }
 
     }).catch((error) => {
-            this.loadingHide();
-            let prep_error = this.dataprepExceptionHandler(error);
-            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      this.loadingHide();
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
   } // function - getDatasets
 

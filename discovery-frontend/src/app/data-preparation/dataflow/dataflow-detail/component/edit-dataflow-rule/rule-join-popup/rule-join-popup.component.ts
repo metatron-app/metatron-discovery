@@ -74,7 +74,10 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @Input()
-  public dataflow: Dataflow;
+  public dfId:string;
+
+  @Input()
+  public serverSyncIndex: string;
 
   @Output() // 조인 팝업을 닫을때 사용하는 eventemitter
   public joinComplete = new EventEmitter();
@@ -84,6 +87,9 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
   @Input()
   public rightDataset: Dataset;   // 조인하게될 선택된 데이터 셋
+
+  @Input()
+  public editRuleStr: string;
 
   // 표시 형식 플래그
   public viewModeforLeft: string = 'grid';    // viewMode for existing data : grid / table
@@ -252,89 +258,50 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
   } // function - ngAfterViewInit
 
-  // Destory
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Returns size
+   * @return {string[]}
+   */
   public getSize() {
-    var size = 0;
+    let size = 0;
     if(true==Number.isInteger(this.numberOfBytes)) {
       size = this.numberOfBytes;
     }
     return this.formatBytes(size,1).split(" ");
   }
 
+  /**
+   * Returns number of columns
+   * @return {string}
+   */
   public getColumns() {
-    var cols = '0';
+    let cols = '0';
     if(true==Number.isInteger(this.numberOfColumns)) {
       cols = new Intl.NumberFormat().format(this.numberOfColumns);
     }
     return cols;
   }
 
+  /**
+   * Returns number of rows
+   * @return {string}
+   */
   public getRows() {
-    var rows = '0';
+    let rows = '0';
     if(true==Number.isInteger(this.numberOfRows)) {
       rows = new Intl.NumberFormat().format(this.numberOfRows);
     }
     return rows;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  private formatBytes(a,b) { // a=크기 , b=소숫점자릿
-    if(0==a) return "0 Bytes";
-    var c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
-    return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
-  }
-
-  /**
-   * 왼쪽 그리드 헤더 클릭 이벤트 핸들러
-   * @param {object} event
-   * @param {string[]} selectCols
-   * @param {Dataset} dataset
-   * @param {boolean} checkAll
-   */
-  private gridHeaderClickHandler(event: { id: string, isSelect: boolean }, selectCols: string[], dataset: Dataset, checkAll: boolean) {
-
-    // 선택 결과에 따라 선택 항목을 재조정한다
-    const colIdx = selectCols.indexOf(event.id);
-    if (event.isSelect) {
-      ( -1 === colIdx ) && ( selectCols.push(event.id) );
-    } else {
-      ( -1 < colIdx ) && ( selectCols.splice(colIdx, 1) );
-    }
-
-    // Check All 여부
-    checkAll = (dataset.gridData.fields.length === selectCols.length);
-
-    return checkAll;
-
-  } // function - gridHeaderClickHandler
-
-  /**
-   * 조인 키 설정
-   */
-  private setJoinKeys() {
-    // 오른쪽 데이터셋을 바꿨을 때 left 의 첫번째 field를 넣고, right는 왼쪽과 동일한 field를 넣는데, 같은게 없으면 Empty 로 넣는다
-    this.leftJoinKey = this.leftSelCols[0];
-    const tempField = this.rightSelCols.filter(field => ( this.leftJoinKey === field ));
-
-    if (tempField.length !== 0) {
-      this.rightJoinKey = tempField[0];
-    } else {
-      this.leftJoinKey = '';
-      this.rightJoinKey = '';
-    }
-
-  } // function - setJoinKeys
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * 왼쪽 그리드 헤더 클릭 이벤트 핸들러
    * @param {object} event
@@ -502,9 +469,16 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   public showDatasetList(event) {
     event.stopImmediatePropagation();
     this.isDatasetListShow = true;
-    setTimeout(() => $('.ddp-input-search').focus()); // 포커스
+    setTimeout(() => $('.ddp-input-search').trigger('focus'));
   } // function - showDatasetList
 
+  /**
+   * Check if left has right as upstream
+   * @param leftDsId
+   * @param rightDsId
+   * @param upstreams
+   * @return {boolean}
+   */
   public notUpstream(leftDsId, rightDsId, upstreams) {
     let ret = true;
 
@@ -556,12 +530,10 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
           item.selected = false;
         });
 
-        const dfId = this.dataflow.dfId;
-
-        this.dataflowService.getUpstreams(dfId)
+        this.dataflowService.getUpstreams(this.dfId)
           .then((upstreams) => {
             let upstreamList = upstreams.filter((upstream) => {
-              if (upstream.dfId === dfId) {
+              if (upstream.dfId === this.dfId) {
                 return true;
               }
             });
@@ -570,20 +542,13 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
             this.datasets = this.datasets.map((obj) => {
               obj.isCurrentDataflow = false;
               if (obj.dataflows.length !== 0) {
-                for(var _df of obj.dataflows) {
-                  if(_df.dfId === dfId) {
+                for(let _df of obj.dataflows) {
+                  if(_df.dfId === this.dfId) {
                     if( true == this.notUpstream( this.leftDataset.dsId, obj.dsId, upstreamList ) ) {
                       obj.isCurrentDataflow = true;
                     }
                   }
                 }
-                /*
-                if (obj.dataflows[0].dfId === this.leftDataset.creatorDfId) {
-                  obj.isCurrentDataflow = true;
-                } else {
-                  obj.isCurrentDataflow = false;
-                }
-                */
               }
               return obj;
             });
@@ -591,15 +556,15 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
             this.loadingHide();
           })
           .catch((error) => {
-                  this.loadingHide();
-                  let prep_error = this.dataprepExceptionHandler(error);
-                  PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+            this.loadingHide();
+            let prep_error = this.dataprepExceptionHandler(error);
+            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
           });
       })
       .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
   } // function - getDatasets
 
@@ -637,9 +602,9 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
         this.loadingHide();
       })
       .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
 
     this.initSelectedCommand(this.filteredDatasetsForJoin);
@@ -695,9 +660,9 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
       })
       .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
 
   } // function - selectDataset
@@ -1174,5 +1139,54 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Private Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  private formatBytes(a,b) { // a=크기 , b=소숫점자릿
+    if(0==a) return "0 Bytes";
+    let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
+    return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
+  }
+
+  /**
+   * 왼쪽 그리드 헤더 클릭 이벤트 핸들러
+   * @param {object} event
+   * @param {string[]} selectCols
+   * @param {Dataset} dataset
+   * @param {boolean} checkAll
+   */
+  private gridHeaderClickHandler(event: { id: string, isSelect: boolean }, selectCols: string[], dataset: Dataset, checkAll: boolean) {
+
+    // 선택 결과에 따라 선택 항목을 재조정한다
+    const colIdx = selectCols.indexOf(event.id);
+    if (event.isSelect) {
+      ( -1 === colIdx ) && ( selectCols.push(event.id) );
+    } else {
+      ( -1 < colIdx ) && ( selectCols.splice(colIdx, 1) );
+    }
+
+    // Check All 여부
+    checkAll = (dataset.gridData.fields.length === selectCols.length);
+
+    return checkAll;
+
+  } // function - gridHeaderClickHandler
+
+  /**
+   * 조인 키 설정
+   */
+  private setJoinKeys() {
+    // 오른쪽 데이터셋을 바꿨을 때 left 의 첫번째 field를 넣고, right는 왼쪽과 동일한 field를 넣는데, 같은게 없으면 Empty 로 넣는다
+    this.leftJoinKey = this.leftSelCols[0];
+    const tempField = this.rightSelCols.filter(field => ( this.leftJoinKey === field ));
+
+    if (tempField.length !== 0) {
+      this.rightJoinKey = tempField[0];
+    } else {
+      this.leftJoinKey = '';
+      this.rightJoinKey = '';
+    }
+
+  } // function - setJoinKeys
 }

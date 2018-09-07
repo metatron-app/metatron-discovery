@@ -14,13 +14,11 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../../common/component/abstract-popup.component';
-import { Dataflow } from '../../../../../../domain/data-preparation/dataflow';
 import { Dataset, DsType } from '../../../../../../domain/data-preparation/dataset';
 import { PopupService } from '../../../../../../common/service/popup.service';
 import { DataflowService } from '../../../../service/dataflow.service';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { PreparationAlert } from '../../../../../util/preparation-alert.util';
-import * as _ from 'lodash';
 
 class Field {
   public name: string;
@@ -53,7 +51,10 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   public masterDataset: Dataset;
 
   @Input() // 해당 데이터플로우 정보 필요
-  public dataflow: Dataflow;
+  public dfId: string;
+
+  @Input()
+  public serverSyncIndex: string;
 
   @Input()
   public editRuleStr?: string;
@@ -83,8 +84,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
   public editInfo: Dataset[] = [];
 
-  @Input()
-  public isUpdate: boolean; // 수정 모드 여
+  public isUpdate: boolean = false; // 수정 모드 여
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -113,6 +113,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
     // 수정 정보가 있을 경우 설정해줌
     if (this.editRuleStr) {
+      this.isUpdate = true;
       let dsIdList: string[] = [];
       let temp = JSON.parse(this.editRuleStr)['dataset2']['value'];
       if (typeof temp === 'string') {
@@ -157,7 +158,6 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
    */
   public close() {
     this.unionComplete.emit('ruleUnionComplete');
-    this.isUpdate = false;
   } // function - close
 
   /**
