@@ -50,15 +50,15 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   private _grid;
 
-  private _option: Option;                                  // 그리드 옵션
+  private _option: Option;                        // 그리드 옵션
 
-  private _gridModel: ScrollLoadingGridModel;                  // 데이터 모델
+  private _gridModel: ScrollLoadingGridModel;     // 데이터 모델
 
-  private readonly _GRID_ID: string;                          // 그리드 아이디
+  private readonly _GRID_ID: string;              // 그리드 아이디
 
-  private readonly _GRID_DEFAULT_OPTION: Option;              // 그리드 기본 옵션
+  private readonly _GRID_DEFAULT_OPTION: Option;  // 그리드 기본 옵션
 
-  private readonly _ROW_EMPTY: number = -1;                   // 로우 데이터가 없는 경우 -1
+  private readonly _ROW_EMPTY: number = -1;       // 로우 데이터가 없는 경우 -1
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -195,7 +195,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    * @returns {JQuery}
    */
   public getGridJQueryObject() {
-    return $( `#${this._GRID_ID}` );
+    return $(`#${this._GRID_ID}`);
   } // function - getGridJQueryObject
 
   /**
@@ -281,120 +281,101 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   /**
    *
    * 컬럼 선택
-   * @param {number | string} column
-   * @param {boolean} isSelectOrToggle
-   * @param scope
-   * @param isShiftKeyPressed shiftkey가 눌렸는지 여부
-   * @param isCtrlKeyPressed ctrlKey가 눌렸는지 여부
-   * @param type 컬럼 타입
+   * @param {number|string} column
+   * @param {boolean|string} isSelectOrToggle
+   * @param {string} type 컬럼 타입
+   * @param {{ isShiftKeyPressed?: boolean, isCtrlKeyPressed?: boolean, batchCount:number }} opts 부가정보
    */
-  public selectColumn(column: number | string, isSelectOrToggle: boolean | string,
-                      scope: any = null, isShiftKeyPressed?: boolean, isCtrlKeyPressed?: boolean, type?: string): void {
-
-    const fnScope: any = scope === null ? this : scope;
+  public selectColumn(column: number | string, isSelectOrToggle: boolean | string, type?: string,
+                      opts?: { isShiftKeyPressed?: boolean, isCtrlKeyPressed?: boolean, batchCount?:number }): void {
 
     let columnId = '';
     let columnIdx = 0;
 
+    (opts) || (opts = {});
+
     if ('string' === typeof column) {
       columnId = column;
-      columnIdx = fnScope._grid.getColumnIndex(columnId);
+      columnIdx = this._grid.getColumnIndex(columnId);
     } else {
       columnIdx = column;
-      columnId = fnScope._grid.getColumns()[columnIdx].id;
+      columnId = this._grid.getColumns()[columnIdx].id;
     }
 
     let isSelect = false;
     if ('string' === typeof isSelectOrToggle && 'TOGGLE' === isSelectOrToggle) {
-      isSelect = (0 === this._selectColumnIds
-        .filter(item => item === columnId).length);
+      isSelect = (0 === this._selectColumnIds.filter(item => item === columnId).length);
     } else {
       isSelect = <boolean>isSelectOrToggle;
     }
 
     // 선택 컬럼 목록 변경
-    this._selectColumnIds = this._selectColumnIds
-      .filter(item => item !== columnId);
+    this._selectColumnIds = this._selectColumnIds.filter(item => item !== columnId);
     (isSelect) && (this._selectColumnIds.push(columnId));
 
     // 이벤트 발생
-    ( fnScope._grid.getColumns()[columnIdx] ) && ( fnScope._grid.getColumns()[columnIdx]['select'] = isSelect );
+    (this._grid.getColumns()[columnIdx]) && (this._grid.getColumns()[columnIdx]['select'] = isSelect);
 
     let selectedColumnData = {
       id: columnId,
       isSelect: isSelect,
       selectColumnIds: this._selectColumnIds,
-      shiftKey: isShiftKeyPressed,
-      ctrlKey: isCtrlKeyPressed
+      shiftKey: opts.isShiftKeyPressed,
+      ctrlKey: opts.isCtrlKeyPressed,
+      batchCount: opts.batchCount
     };
-
-    if (type) { // 타입이 있을때만 같이 보냄
-      selectedColumnData['type'] = type;
-    }
-
-    fnScope.selectedHeaderEvent.emit(selectedColumnData);
+    (type) && (selectedColumnData['type'] = type); // 타입이 있을때만 같이 보냄
+    this.selectedHeaderEvent.emit(selectedColumnData);
 
     // 스타일 업데이트
-    fnScope._grid.invalidate();
-    fnScope._grid.render();
+    this._grid.invalidate();
+    this._grid.render();
 
   } // function - selectColumn
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * 컬럼 전체 선택
-   * @param scope
    */
-  public columnAllSelection(scope: any = null): void {
-    const fnScope: any = scope === null ? this : scope;
-    fnScope._grid.getColumns().forEach(item => {
-      this.columnSelection(item.id, true);
-    });
+  public columnAllSelection(): void {
+    const cntTotalCols:number = this._grid.getColumns().length;
+    this._grid.getColumns().forEach(item => this.selectColumn(item.id, true, null, { batchCount : cntTotalCols } ));
   } // function - columnAllSelection
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * 컬럼 전체 선택 해제
-   * @param scope
    */
-  public columnAllUnSelection(scope: any = null): void {
-    const fnScope: any = scope === null ? this : scope;
-    fnScope._grid.getColumns().forEach(item => {
-      this.columnUnSelection(item.id, fnScope);
-    });
+  public columnAllUnSelection(): void {
+    const cntTotalCols:number = this._grid.getColumns().length;
+    this._grid.getColumns().forEach(item => this.selectColumn(item.id, false, null, { batchCount : cntTotalCols } ));
   } // function - columnAllUnSelection
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * 컬럼 선택
    * @param {number | string} column
-   * @param scope
    */
-  public columnSelection(column: number | string, scope: any = null): void {
-    const fnScope: any = scope === null ? this : scope;
-    fnScope.selectColumn(column, true);
+  public columnSelection(column: number | string): void {
+    this.selectColumn(column, true);
   } // function - columnSelection
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * 컬럼 선택 해제
    * @param {number | string} column
-   * @param scope
    */
-  public columnUnSelection(column: number | string, scope: any = null): void {
-    const fnScope: any = scope === null ? this : scope;
-    fnScope.selectColumn(column, false);
+  public columnUnSelection(column: number | string): void {
+    this.selectColumn(column, false);
   } // function - columnUnSelection
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * 컬럼 선택 변경
    * @param {number | string} column
-   * @param scope
    */
-  public columnSelectionToggle(column: number | string, scope: any = null): void {
-    const fnScope: any = scope === null ? this : scope;
-    fnScope.selectColumn(column, 'TOGGLE');
+  public columnSelectionToggle(column: number | string): void {
+    this.selectColumn(column, 'TOGGLE');
   } // function - columnSelectionToggle
 
   // noinspection JSUnusedGlobalSymbols
@@ -660,10 +641,9 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
           this._initRowSelectionModel(this);
         }
 
-        if (this._option.enableMultiSelectionWithCtrlAndShift) {
-          if ((event.metaKey === false && event.ctrlKey === false) && event.shiftKey === false) {
-            this.columnAllUnSelection(this);
-          }
+        if (this._option.enableMultiSelectionWithCtrlAndShift
+          && event.metaKey === false && event.ctrlKey === false && event.shiftKey === false) {
+          this.columnAllUnSelection();
         }
 
         // Seq header 선택 block
@@ -671,9 +651,15 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
           return;
         }
         if (args.column.columnType === 'MAP' || args.column.columnType === 'ARRAY') {
-          this.selectColumn(args.column.id, 'TOGGLE', null, event.shiftKey, (event.metaKey || event.ctrlKey), args.column.columnType);
+          this.selectColumn(
+            args.column.id, 'TOGGLE', args.column.columnType,
+            { isShiftKeyPressed: event.shiftKey, isCtrlKeyPressed: (event.metaKey || event.ctrlKey) }
+          );
         } else {
-          this.selectColumn(args.column.id, 'TOGGLE', null, event.shiftKey, (event.metaKey || event.ctrlKey));
+          this.selectColumn(
+            args.column.id, 'TOGGLE', null,
+            { isShiftKeyPressed: event.shiftKey, isCtrlKeyPressed: (event.metaKey || event.ctrlKey) }
+          );
         }
         this._columnResized = false;
       });

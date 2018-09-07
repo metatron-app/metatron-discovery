@@ -79,6 +79,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   private barOption: any;
   private scatterOption: any;
 
+  private _zIndex:string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -176,6 +178,10 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   public ngOnInit() {
     super.ngOnInit();
 
+    // z-index 강제 설정
+    this._zIndex = $('.ddp-wrap-tab-popup').css( 'z-index' );
+    $('.ddp-wrap-tab-popup').css( 'z-index', '127' );
+
     // ui init
     this.initView();
 
@@ -204,6 +210,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
+    // z-index 설정 해제
+    $('.ddp-wrap-tab-popup').css( 'z-index', this._zIndex );
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -439,15 +447,18 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       connection: {
         hostname: connection.hostname,
         port: connection.port,
-        username: connection.username,
-        password: connection.password,
-        implementor: connection.implementor
+        implementor: connection.implementor,
+        authenticationType: connection.authenticationType || 'MANUAL'
       },
       database: ingestion.database,
       type: ingestion.dataType,
       query: ingestion.query
     };
-
+    // if security type is not USERINFO, add password and username
+    if (connection.authenticationType !== 'USERINFO') {
+      params['connection']['username'] = connection.authenticationType === 'DIALOG' ? ingestion.connectionUsername : connection.username;
+      params['connection']['password'] = connection.authenticationType === 'DIALOG' ? ingestion.connectionPassword : connection.password;
+    }
     // 데이터 베이스가 있는경우
     if (ingestion.connection && ingestion.connection.hasOwnProperty('database')) {
       params['connection']['database'] = ingestion.connection.database;
@@ -986,7 +997,6 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
     // 마스터 소스 타입
     this.connType = this.mainDatasource.hasOwnProperty('connType') ? this.mainDatasource.connType.toString() : 'ENGINE';
-    console.info(this.source);
 
     // singleTab
     const field = this.singleTab ? this.field : this.columns[0];

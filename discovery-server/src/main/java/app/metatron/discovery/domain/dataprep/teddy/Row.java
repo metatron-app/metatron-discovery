@@ -14,8 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.ArrayList;
 import java.util.HashMap;

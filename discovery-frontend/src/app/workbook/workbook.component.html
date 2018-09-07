@@ -418,7 +418,7 @@
             {{'msg.board.ui.dashboard.none' | translate}}<br />
             <span *ngIf="isChangeAuthUser">{{'msg.board.ui.dashboard.none.description' | translate}}</span>
           </span>
-          <a *ngIf="isChangeAuthUser" (click)="step = 'create-select'"
+          <a *ngIf="isChangeAuthUser" (click)="createDashboard()"
              href="javascript:" class="ddp-link-board-add" >
             <em class="ddp-link-add"></em>{{'msg.comm.ui.create.board' | translate}}
           </a>

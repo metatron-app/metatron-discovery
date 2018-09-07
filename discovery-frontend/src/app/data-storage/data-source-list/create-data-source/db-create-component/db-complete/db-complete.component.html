@@ -12,16 +12,16 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type">
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
       {{'msg.storage.ui.dsource.create.title' | translate}} ({{'msg.storage.ui.dsource.create.db.title' | translate}})
+      <span class="ddp-txt-info ddp-type">{{'msg.storage.create.complete.description' | translate}}</span>
       <em class="ddp-bg-order-line5-type5"></em>
     </div>
-    <span class="ddp-txt-info">{{'msg.storage.create.complete.description' | translate}}</span>
   </div>
   <!-- contents in  -->
   <div class="ddp-type-contents-in">
@@ -40,10 +40,10 @@
               {{'msg.comm.th.type' | translate}}
             </th>
             <td>
-              {{getImplementor}}
+              {{getConnectionData.selectedDbType.label}}
             </td>
           </tr>
-          <tr *ngIf="isDefaultType()">
+          <tr *ngIf="!isEnableUrl()">
             <th>
               {{'msg.comm.th.host' | translate }}
             </th>
@@ -51,7 +51,7 @@
               {{getHostname}}
             </td>
           </tr>
-          <tr *ngIf="isDefaultType()">
+          <tr *ngIf="!isEnableUrl()">
             <th>
               {{'msg.comm.th.port' | translate}}
             </th>
@@ -59,7 +59,7 @@
               {{getPort}}
             </td>
           </tr>
-          <tr *ngIf="!isDefaultType()">
+          <tr *ngIf="isEnableUrl()">
             <th>
               {{'msg.storage.ui.conn.url' | translate}}
             </th>
@@ -67,7 +67,7 @@
               {{getUrl}}
             </td>
           </tr>
-          <tr *ngIf="isDefaultType() && isRequiredDatabase()">
+          <tr *ngIf="!isEnableUrl() && isRequiredDatabase()">
             <th>
               {{'msg.storage.th.db_name' | translate}}
             </th>
@@ -75,7 +75,7 @@
               {{getDatabase}}
             </td>
           </tr>
-          <tr *ngIf="isDefaultType() && isRequiredCatalog()">
+          <tr *ngIf="!isEnableUrl() && isRequiredCatalog()">
             <th>
               {{'msg.storage.th.catalog' | translate}}
             </th>
@@ -83,7 +83,7 @@
               {{getCatalog}}
             </td>
           </tr>
-          <tr *ngIf="isDefaultType() && isRequiredSid()">
+          <tr *ngIf="!isEnableUrl() && isRequiredSid()">
             <th>
               {{'msg.storage.th.sid' | translate}}
             </th>

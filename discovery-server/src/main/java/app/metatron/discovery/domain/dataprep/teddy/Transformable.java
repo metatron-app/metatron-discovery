@@ -14,8 +14,8 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 
 import java.util.List;
 

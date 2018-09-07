@@ -13,9 +13,8 @@
  */
 
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
-import { isNullOrUndefined, isUndefined } from 'util';
+import { isUndefined } from 'util';
 import { Alert } from '../../../../../../common/util/alert.util';
 
 @Component({
@@ -34,6 +33,7 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public rowNum:number = 1;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -75,31 +75,25 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * 컴포넌트의 초기 실행
-   * @param {Field[]} fields
-   * @param {Rule} rule
-   */
-  public init(fields : Field[], rule ? : Rule) {
-    super.init( fields, rule );
-    ( isNullOrUndefined( this.ruleVO.rownum ) ) && ( this.ruleVO.rownum = 1 );
-    this.safelyDetectChanges();
-  } // function - init
 
   /**
    * Rule 형식 정의 및 반환
    * @return {{command: string, rownum: number, ruleString: string}}
    */
-  public getRuleData(): { command: string, rownum:number, ruleString:string} {
-    if (isUndefined(this.ruleVO.rownum) || isNaN(this.ruleVO.rownum)) {
+  public getRuleData(): { command: string, ruleString:string} {
+    if (isUndefined(this.rowNum) || isNaN(this.rowNum)) {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.row'));
-      return;
+      return undefined
+    }
+
+    if (0 == this.rowNum || this.rowNum > this.fields.length) {
+      Alert.warning(this.translateService.instant('msg.dp.alert.out.of.range'));
+      return undefined
     }
 
     return {
         command: 'header',
-        rownum: this.ruleVO['rownum'],
-        ruleString: 'header rownum: ' + this.ruleVO.rownum
+        ruleString: 'header rownum: ' + this.rowNum
     };
   } // function - getRuleData
 
@@ -110,6 +104,28 @@ export class EditRuleHeaderComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 컴포넌트 표시 전 실행
+   * @protected
+   */
+  protected beforeShowComp() {} // function - beforeShowComp
+
+  /**
+   * 컴포넌트 표시 후 실행
+   * @protected
+   */
+  protected afterShowComp() {
+  } // function - afterShowComp
+
+  /**
+   * rule string 을 분석한다.
+   * @param ruleString
+   */
+  protected parsingRuleString(ruleString:string) {
+    // value
+    this.rowNum = Number( this.getAttrValueInRuleString( 'rownum', ruleString ) );
+  } // function - parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

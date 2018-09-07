@@ -31,12 +31,12 @@ import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.util.EnumUtils;
 
 /**
- * Created by kyungtaak on 2016. 6. 28..
+ *
  */
 public class ExpressionField extends UserDefinedField {
 
   /**
-   * Expression
+   * Expression statement
    */
   @NotNull
   String expr;
@@ -46,14 +46,13 @@ public class ExpressionField extends UserDefinedField {
    */
   Field.FieldRole role;
 
-
   /**
-   * Expression 결과 Data Type
+   * Data type of expression result
    */
   DataType dataType;
 
   /**
-   * Expression이 이미 집계가 된 것인지 여부 확인
+   * whether aggregation function in expression
    */
   boolean aggregated;
 
@@ -66,10 +65,10 @@ public class ExpressionField extends UserDefinedField {
       @JsonProperty("name") String name,
       @JsonProperty("expr") String expr,
       @JsonProperty("role") String role,
+      @JsonProperty("dataSource") String dataSource,
       @JsonProperty("dataType") String dataType,
       @JsonProperty("aggregated") boolean aggregated) {
 
-    // Name, Expr 표현식은 필수 값임
     Preconditions.checkArgument(StringUtils.isNotEmpty(name));
     Preconditions.checkArgument(StringUtils.isNotEmpty(expr));
 
@@ -77,6 +76,7 @@ public class ExpressionField extends UserDefinedField {
     this.expr = expr;
     this.role = EnumUtils.getUpperCaseEnum(Field.FieldRole.class, role, Field.FieldRole.DIMENSION);
     this.dataType = EnumUtils.getUpperCaseEnum(DataType.class, dataType);
+    this.dataSource = dataSource;
     this.aggregated = aggregated;
   }
 
@@ -85,7 +85,11 @@ public class ExpressionField extends UserDefinedField {
   }
 
   public ExpressionField(String name, String expr, String role) {
-    this(name, expr, role, null, false);
+    this(name, expr, role, false);
+  }
+
+  public ExpressionField(String name, String expr, String role, boolean aggregated) {
+    this(name, expr, null, null, null, aggregated);
   }
 
   @JsonIgnore

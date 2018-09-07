@@ -14,14 +14,13 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @ConfigurationProperties(prefix="polaris.dataprep")
@@ -228,10 +227,6 @@ public class PrepProperties {
     }
 
     public String getJar() {
-      if (jar == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, ETL_JAR);
-      }
       return jar;
     }
 
@@ -288,18 +283,10 @@ public class PrepProperties {
   }
 
   public String getStagingBaseDir() {
-    if (stagingBaseDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-              PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, STAGING_BASE_DIR);
-    }
     return stagingBaseDir;
   }
 
   public String getHadoopConfDir() {
-    if (hadoopConfDir == null) {
-      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-              PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
-    }
     return hadoopConfDir;
   }
 
@@ -356,5 +343,29 @@ public class PrepProperties {
 
   public boolean isAutoTyping() {
     return sampling.getAutoTyping();
+  }
+
+  // Everything for ETL
+  public Map<String, Object> getEveryForEtl() {
+    Map<String, Object> map = new HashMap();
+
+    map.put(HADOOP_CONF_DIR,  getHadoopConfDir());
+
+    HiveInfo hive = getHive();
+    map.put(HIVE_HOSTNAME,       hive.getHostname());
+    map.put(HIVE_PORT,           hive.getPort());
+    map.put(HIVE_USERNAME,       hive.getUsername());
+    map.put(HIVE_PASSWORD,       hive.getPassword());
+    map.put(HIVE_CUSTOM_URL,     hive.getCustomUrl());
+    map.put(HIVE_METASTORE_URIS, hive.getMetastoreUris());
+
+    EtlInfo etl = getEtl();
+    map.put(ETL_CORES,       etl.getCores());
+    map.put(ETL_TIMEOUT,     etl.getTimeout());
+    map.put(ETL_LIMIT_ROWS,  etl.getLimitRows());
+    map.put(ETL_JAR,         etl.getJar());
+    map.put(ETL_JVM_OPTIONS, etl.getJvmOptions());
+
+    return map;
   }
 }

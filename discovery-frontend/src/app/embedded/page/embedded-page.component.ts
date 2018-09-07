@@ -231,10 +231,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
     const uiCloneQuery = _.cloneDeep(query);
 
     // 외부필터가 없고 글로벌 필터가 있을 경우 추가(초기 진입시)
-    // const boardFilter: Filter[] = DashboardUtil.getFiltersForBoardDataSource( this.widget.dashBoard, widgetDataSource.id );
-    // const relBoardFilters:Filter[] = DashboardUtil.getRelationDsFilters( this.widget.dashBoard, widgetDataSource.engineName );
-    // (relBoardFilters && 0 < relBoardFilters.length) && ( uiCloneQuery.filters = relBoardFilters.concat(uiCloneQuery.filters) );
-    const boardFilter: Filter[] = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widgetConfiguration.dataSource.id );
+    const boardFilter: Filter[] = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widgetConfiguration.dataSource.engineName );
     (boardFilter && 0 < boardFilter.length) && ( uiCloneQuery.filters = boardFilter.concat(uiCloneQuery.filters) );
 
     this.isShowNoData = false;

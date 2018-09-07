@@ -15,30 +15,23 @@
 package app.metatron.discovery.domain.dataprep;
 
 import com.google.common.collect.Maps;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Map;
 
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-
 @Service
 public class PrepHdfsService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepHdfsService.class);
 
-    @Value("${polaris.dataprep.hadoopConfDir:#{NULL}}")
-    private String hadoopConfDir;
-
-    @Value("${polaris.dataprep.stagingBaseDir:#{NULL}}")
-    private String stagingBaseDir;
+    @Autowired(required = false)
+    PrepProperties prepProperties;
 
     private String uploadHdfsPath = null;
     private String snapshotHdfsPath = null;
@@ -52,10 +45,11 @@ public class PrepHdfsService {
 
     private String getUploadPath() {
         if(null==uploadHdfsPath) {
-            if (true == this.stagingBaseDir.endsWith(File.separator)) {
-                uploadHdfsPath = this.stagingBaseDir + uploadDirectory;
+            String stagingBaseDir = prepProperties.getStagingBaseDir();
+            if (true == stagingBaseDir.endsWith(File.separator)) {
+                uploadHdfsPath = stagingBaseDir + uploadDirectory;
             } else {
-                uploadHdfsPath = this.stagingBaseDir + File.separator + uploadDirectory;
+                uploadHdfsPath = stagingBaseDir + File.separator + uploadDirectory;
             }
         }
         return uploadHdfsPath;
@@ -63,10 +57,11 @@ public class PrepHdfsService {
 
     private String getSnapshotPath() {
         if(null==snapshotHdfsPath) {
-            if (true == this.stagingBaseDir.endsWith(File.separator)) {
-                snapshotHdfsPath = this.stagingBaseDir + snapshotDirectory;
+            String stagingBaseDir = prepProperties.getStagingBaseDir();
+            if (true == stagingBaseDir.endsWith(File.separator)) {
+                snapshotHdfsPath = stagingBaseDir + snapshotDirectory;
             } else {
-                snapshotHdfsPath = this.stagingBaseDir + File.separator + snapshotDirectory;
+                snapshotHdfsPath = stagingBaseDir + File.separator + snapshotDirectory;
             }
         }
         return snapshotHdfsPath;
@@ -74,10 +69,11 @@ public class PrepHdfsService {
 
     private String getPreviewPath() {
         if(null==previewHdfsPath) {
-            if (true == this.stagingBaseDir.endsWith(File.separator)) {
-                previewHdfsPath = this.stagingBaseDir + previewDirectory;
+            String stagingBaseDir = prepProperties.getStagingBaseDir();
+            if (true == stagingBaseDir.endsWith(File.separator)) {
+                previewHdfsPath = stagingBaseDir + previewDirectory;
             } else {
-                previewHdfsPath = this.stagingBaseDir + File.separator + previewDirectory;
+                previewHdfsPath = stagingBaseDir + File.separator + previewDirectory;
             }
         }
         return previewHdfsPath;
@@ -86,6 +82,7 @@ public class PrepHdfsService {
     public Configuration getConf() {
         if(null==hadoopConf) {
             hadoopConf = new Configuration();
+            String hadoopConfDir = prepProperties.getHadoopConfDir();
             if(null!=hadoopConfDir) {
                 hadoopConf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
                 hadoopConf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
@@ -98,6 +95,7 @@ public class PrepHdfsService {
         Map<String, Object> result = Maps.newHashMap();
 
         try {
+            String stagingBaseDir = prepProperties.getStagingBaseDir();
             result.put("stagingBaseDir", stagingBaseDir);
             result.put("checkConnection", false);
             if(null!=stagingBaseDir) {
@@ -114,32 +112,26 @@ public class PrepHdfsService {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("checkHdfs(): caught an exception: ", e);
-            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+            LOGGER.debug(e.getMessage());
         }
 
         return result;
     }
 
-    public String moveLocalToHdfs(String localFilePath, String fileKey) {
+    public String moveLocalToHdfs(String localFilePath, String fileKey) throws Exception {
         String hdfsFilePath = null;
 
         Map<String, Object> check = checkHdfs();
-        if(check.get("checkConnection").equals(true)) {
-            try {
-                Configuration conf = this.getConf();
-                FileSystem fs = FileSystem.get(conf);
+        if(check.get("stagingBaseDir")!=null) {
+            Configuration conf = this.getConf();
+            FileSystem fs = FileSystem.get(conf);
 
-                String uploadPath = this.getUploadPath();
-                if(null!=uploadPath) {
-                    hdfsFilePath = uploadPath + File.separator + fileKey;
-                    Path pathLocalFile = new Path(localFilePath);
-                    Path pathStagingBase = new Path(hdfsFilePath);
-                    fs.copyFromLocalFile(true,true,pathLocalFile,pathStagingBase);
-                }
-            } catch (Exception e) {
-                LOGGER.error("moveLocalToHdfs(): caught an exception: ", e);
-                hdfsFilePath = null;
+            String uploadPath = this.getUploadPath();
+            if(null!=uploadPath) {
+                hdfsFilePath = uploadPath + File.separator + fileKey;
+                Path pathLocalFile = new Path(localFilePath);
+                Path pathStagingBase = new Path(hdfsFilePath);
+                fs.copyFromLocalFile(true,true,pathLocalFile,pathStagingBase);
             }
         }
         return hdfsFilePath;

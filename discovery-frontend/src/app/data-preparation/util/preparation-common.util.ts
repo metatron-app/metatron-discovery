@@ -17,6 +17,14 @@ import {Rule} from "../../domain/data-preparation/dataset";
 
 export class PreparationCommonUtil {
 
+  public static removeQuotation(val : string) : string {
+    let result = val;
+    if (val.startsWith('\'') && val.endsWith('\'')) {
+      result = val.substring(1, val.length - 1);
+    }
+    return result
+  }
+
   public static makeRuleResult(rule: Rule) : string {
     let result = '';
     if(rule.cols) {

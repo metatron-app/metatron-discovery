@@ -53,6 +53,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   /** 지울 데이터스냅샷 아이디 */
   public selectedDeletessId: string;
 
+  /** search status */
+  public searchStatus: string ='all';
+
   /** search text */
   public searchText: string = '';
 
@@ -115,9 +118,8 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   /** 데이터 스냅샷 목록 조회 */
   public getDatasnapshots() {
-
     this.loadingShow();
-    this.dataSnapshotService.getDataSnapshots(this.searchText, this.page, 'listing')
+    this.dataSnapshotService.getDataSnapshotsByStatus(this.searchText, this.searchStatus ,this.page, 'listing')
       .then((data) => {
         this.loadingHide();
 
@@ -128,17 +130,26 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
         this.datasnapshots = [];
 
         let statusNum = 0;
-        data['_embedded'].preparationsnapshots.forEach((obj) => {
-          if( true===isUndefined(obj.finishTime) ) {
-            obj.status = 'PREPARING';
-          } else {
+        data['_embedded'].preparationsnapshots.forEach((obj : DataSnapshot) => {
+          if ( ['SUCCEEDED'].indexOf(obj.status) >= 0){
+            obj.displayStatus = 'SUCCESS';
             statusNum+=1;
-            if( false===isUndefined(obj.custom) && false===isUndefined(obj.custom.fail_msg) ) {
-              obj.status = 'FAIL';
-            } else {
-              obj.status = 'SUCCESS';
-            }
+          } else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(obj.status) >= 0) {
+            obj.displayStatus = 'PREPARING';
+          } else  { //'FAILED','CANCELED','NOT_AVAILABLE'
+            obj.displayStatus = 'FAIL';
+            statusNum+=1;
           }
+          // if( true===isUndefined(obj.finishTime) ) {
+          //   obj.displayStatus = 'PREPARING';
+          // } else {
+          //   statusNum+=1;
+          //   if( false===isUndefined(obj.custom) && "fail_msg"==obj.custom.match("fail_msg") ) {
+          //     obj.displayStatus = 'FAIL';
+          //   } else {
+          //     obj.displayStatus = 'SUCCESS';
+          //   }
+          // }
         });
 
         this.datasnapshots = data['_embedded'].preparationsnapshots;
@@ -210,11 +221,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   /** 스냅샷 상세 */
   public snapshotDetail(item) {
-
-    if(!item.finishTime) {
-      return;
-    }
-
+    // if(!item.finishTime) {
+    //   return;
+    // }
     // this.step = 'snapshot-detail';
     // this.ssId = item.ssId;
     clearInterval(this.interval);
@@ -267,20 +276,24 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   public changeStatus(status) {
     clearInterval(this.interval);
     this.resetPaging();
-    switch(status) {
-      case 'all' :
-      case 'success' :
-        this.initViewPage();
-        break;
-      case 'fail' :
-        this.pageResult.totalElements = 0;
-        this.datasnapshots = [];
-        break;
-      // case 'preparing' :
-      //   this.pageResult.totalElements = 0;
-      //   this.datasnapshots = [];
-      //   break;
-    }
+    this.searchStatus = status;
+    this.pageResult.totalElements = 0;
+    this.datasnapshots = [];
+    this.initViewPage();
+    // switch(status) {
+    //   case 'all' :
+    //   case 'success' :
+    //     this.initViewPage();
+    //     break;
+    //   case 'fail' :
+    //     this.pageResult.totalElements = 0;
+    //     this.datasnapshots = [];
+    //     break;
+    //   case 'preparing' :
+    //     this.pageResult.totalElements = 0;
+    //     this.datasnapshots = [];
+    //     break;
+    // }
   }
 
   public resetPaging() {

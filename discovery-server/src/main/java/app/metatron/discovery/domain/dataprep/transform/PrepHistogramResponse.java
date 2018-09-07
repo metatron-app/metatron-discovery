@@ -14,10 +14,10 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import app.metatron.discovery.domain.dataprep.teddy.Histogram;
+
 import java.io.Serializable;
 import java.util.List;
-
-import app.metatron.discovery.domain.dataprep.teddy.Histogram;
 
 public class PrepHistogramResponse implements Serializable {
   List<Histogram> colHists;

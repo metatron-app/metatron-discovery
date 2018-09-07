@@ -18,7 +18,10 @@ import java.io.Serializable;
 import java.util.List;
 
 public class PrepHistogramRequest implements Serializable {
+
+  // FIXME: ruleIdx is ignored from now on. request for only current stage is permitted
   private int ruleIdx;
+
   private List<Integer> colnos;
   private List<Integer> colWidths;
 

@@ -19,8 +19,8 @@
     <div *ngIf="filter" class="ddp-ui-buttons">
       <em class="ddp-icon-global-s" *ngIf="isBoardFilter"></em>
       <!-- 추천/필수 필터 경우 -->
-      <div *ngIf="filter.filteringSeq > 0" class="ddp-wrap-datarecommend">
-        {{filter.filteringSeq}} <em class="ddp-icon-recommend-s2"></em>
+      <div *ngIf="filter.ui?.filteringSeq > 0" class="ddp-wrap-datarecommend">
+        {{filter.ui?.filteringSeq}} <em class="ddp-icon-recommend-s2"></em>
       </div>
       <!-- // 추천/필수 필터 경우 -->
       <!-- 더보기 버튼 영역 -->

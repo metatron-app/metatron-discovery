@@ -39,6 +39,28 @@ export class DataSnapshotService extends AbstractService {
     return this.get(url);
   }
 
+  // 데이터 스냅샷 상태별 목록 조회
+  public getDataSnapshotsByStatus(searchText: string, status: string, page:Page, projection?: string): Promise<DataSnapshots> {
+    let statuses = '';
+    // except CANCELED starus
+    if( 'all'==status) {
+      statuses = 'SUCCEEDED,FAILED,NOT_AVAILABLE,INITIALIZING,RUNNING,WRITING,TABLE_CREATING';
+    } else if( 'success'==status ) {
+      statuses = 'SUCCEEDED';
+    } else if( 'fail'==status ) {
+      statuses = 'FAILED';
+    } else if( 'preparing'==status ) {
+      statuses = 'INITIALIZING,RUNNING,WRITING,TABLE_CREATING,CANCELING';
+    }
+
+    let url = this.API_URL + `preparationsnapshots/search/findBySsNameContainingAndStatusIn?ssName=${encodeURIComponent(searchText)}&statuses=${statuses}`;
+    if (projection) {
+      url = url + '&projection=' + projection;
+    }
+
+    url += '&' + CommonUtil.objectToUrlString(page);
+    return this.get(url);
+  }
 
   // 데이터스냅샷 상세 조회
   public getDataSnapshot(ssId: string): Promise<DataSnapshot> {
@@ -75,7 +97,7 @@ export class DataSnapshotService extends AbstractService {
         return new Blob([res.blob()], { type: 'application/csv' })
       });
   }
-
+  /** 처리 중 스냅샷 취소*/
   public cancelSnapshot(ssId) {
     let url = `/api/preparationsnapshots/${ssId}/cancel`;
     return this.post(url,{});

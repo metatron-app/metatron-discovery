@@ -14,11 +14,11 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.*;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Set;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -62,7 +62,6 @@ public class DataFrame implements Serializable, Transformable {
   @JsonIgnore
   protected int newColPos;      // 새로운 컬럼의 위치. derive에서 수식에 유일한 컬럼만 쓰인 경우에 사용됨.
 
-  @JsonIgnore
   public String ruleString;   // debugging purpose
 
   @JsonIgnore
@@ -97,6 +96,14 @@ public class DataFrame implements Serializable, Transformable {
   public DataFrame(String dsName, String ruleString) {
     this(dsName);
     this.ruleString = ruleString;
+  }
+
+  public void setRuleString(String ruleString) {
+    this.ruleString = ruleString;
+  }
+
+  public String getRuleString() {
+    return ruleString;
   }
 
   public static DataFrame getNewDf(Rule rule, String dsName, String ruleString) {
@@ -602,7 +609,6 @@ public class DataFrame implements Serializable, Transformable {
       String colName = ((Identifier.IdentifierExpr) expr).getValue();
       int colno = getColnoByColName(colName);
       resultType = getColType(colno);
-      //newColPos = (newColPos == -1 ? colno + 1 : -2);   // 설정된 적이 없으면 설정. 있으면 유일한 컬럼명은 없는 것으로.
       ruleColumns.add(colName); //ruleString에 등장하는 identifier 들을 리스트업.
     }
     // Constant
@@ -924,9 +930,9 @@ public class DataFrame implements Serializable, Transformable {
               if(format.equals("")) {
                 format = null;
               }
-              return ((DateTime) obj).toString(format);
+              return ((DateTime) obj).toString(format, Locale.ENGLISH);
             } catch (Exception e) {
-              return ((DateTime) obj).toString();
+              return obj.toString();
             }
           default:
             return obj;
@@ -954,7 +960,7 @@ public class DataFrame implements Serializable, Transformable {
         switch (fromType) {
           case STRING:
             try {
-              DateTimeFormatter dtf = DateTimeFormat.forPattern(format);
+              DateTimeFormatter dtf = DateTimeFormat.forPattern(format).withLocale(Locale.ENGLISH);
               DateTime jTime = DateTime.parse(obj.toString(), dtf);
               return jTime;
             } catch (Exception e) {
@@ -1936,7 +1942,6 @@ public class DataFrame implements Serializable, Transformable {
 
     if (newColType == ColumnType.ARRAY) {
       List<ColumnDescription> arrColDesc = new ArrayList<>();
-//      newColDesc.arrColDesc =
       for (String targetColName : targetColNames) {
         ColumnDescription colDesc = getColDescByColName(targetColName);
         arrColDesc.add(colDesc);
@@ -2350,7 +2355,10 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   protected String stripSingleQuote(String str) {
-    return str.substring(str.indexOf("'") + 1, str.lastIndexOf("'"));
+    if(str.indexOf("'") == 0)
+      return str.substring(str.indexOf("'") + 1, str.lastIndexOf("'"));
+    else
+      return str;
   }
 
   protected void aggregate(DataFrame prevDf, List<String> groupByColNames, List<String> targetExprStrs) throws TeddyException, InterruptedException {
@@ -3544,12 +3552,12 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   // Hive 테이블로 만들 때에만 이 함수를 사용해서 컬럼명을 제약함.
-  public void checkNonAlphaNumerical(String colName) throws IllegalColumnNameForHiveException {
-    Pattern p = Pattern.compile("[^\\\\p{IsAlphabetic}^\\\\p{Digit}_]");
+  public void checkAlphaNumerical(String colName) throws IllegalColumnNameForHiveException {
+    Pattern p = Pattern.compile("^[a-zA-Z0-9_]*$");
     Matcher m = p.matcher(colName);
 
     // 영문자, 숫자, _만 허용
-    if (m.matches()) {
+    if (m.matches() == false) {
       throw new IllegalColumnNameForHiveException("The column name contains non-alphanumerical characters: " + colName);
     }
 
@@ -3561,9 +3569,9 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   // Hive 테이블로 만들 때에만 이 함수를 사용해서 컬럼명을 제약함
-  public void checkNonAlphaNumericalColNames() throws IllegalColumnNameForHiveException {
+  public void checkAlphaNumericalColNames() throws IllegalColumnNameForHiveException {
     for (String colName : colNames) {
-      checkNonAlphaNumerical(colName);
+      checkAlphaNumerical(colName);
     }
   }
 

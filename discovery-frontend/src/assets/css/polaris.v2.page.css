@@ -5795,25 +5795,25 @@ dl.ddp-dl-store dd {display:block; padding:28px 0 0 0; overflow:hidden;}
 .ddp-ui-dbconnect .ddp-wrap-edit2 .ddp-data-result {padding-bottom:9px;color:#4b515b; font-weight:300;}
 .ddp-ui-dbconnect .ddp-wrap-edit2 .ddp-data-result .ddp-link-edit2 {margin-left:5px;}
 .ddp-white-space {}
-ul.ddp-list-dbtype {display:inline-block; overflow:hidden;}
-ul.ddp-list-dbtype li {position:relative; float:left; padding-right:4px;}
+ul.ddp-list-dbtype {display:inline-block; overflow:hidden; white-space:nowrap;}
+ul.ddp-list-dbtype li {position:relative; display:inline-block; padding-right:4px;}
 ul.ddp-list-dbtype li.ddp-disabled a {opacity:0.5; cursor:no-drop;}
 ul.ddp-list-dbtype li.ddp-disabled:before {display:inline-block; position:absolute; top:0; left:0; right:4px; bottom:0; content:''; z-index:1;}
 ul.ddp-list-dbtype li:last-of-type.ddp-disabled:before {right:0;}
 ul.ddp-list-dbtype li:last-of-type {padding-right:0px;}
 ul.ddp-list-dbtype li.ddp-selected [class*="ddp-label-"] {border:1px solid #91969e; color:#4b515b; font-weight:bold;}
 ul.ddp-list-dbtype li.ddp-selected [class*="ddp-label-"]:after {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-4px;width:11px; height:8px; background:url(../images/icon_select2.png) no-repeat; background-position:-68px top; content:'';}
-ul.ddp-list-dbtype li .ddp-label-dbtype {display:inline-block;  position:relative; width:122px; height:50px; padding:18px 0 18px 44px;border-radius:4px;  font-size:13px; color:#90969f; border:1px solid #d0d1d7; box-sizing:border-box; vertical-align:middle;}
-ul.ddp-list-dbtype li .ddp-label-dbtype:hover {border:1px solid #4b515b; color:#4b515b; font-weight:bold;}
+ul.ddp-list-dbtype li .ddp-label-dbtype {display:inline-block; position:relative; height:50px; min-width:122px; padding:18px 30px 18px 44px;border-radius:4px;  font-size:13px; color:#90969f; border:1px solid #d0d1d7; box-sizing:border-box; vertical-align:middle;}
+ul.ddp-list-dbtype li .ddp-label-dbtype:hover {border:1px solid #4b515b; color:#4b515b; font-weight:bold; }
 ul.ddp-list-dbtype li .ddp-label-dbtype[class*="type-"]:before {display:inline-block; position:absolute; top:50%; left:14px;  background:url(../images/icon_dbtype_s.png) no-repeat;content:'';}
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-oracle:before {width:21px; height:21px; margin-top:-11px;}
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-mysql:before {width:22px; height:22px; margin-top:-11px; background-position:left -22px;}
 
-ul.ddp-list-dbtype li .ddp-label-dbtype.type-postgre {font-size:11px;}
+ul.ddp-list-dbtype li .ddp-label-dbtype.type-postgre {width:140px; font-size:11px;}
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-postgre:before {width:21px; height:22px; margin-top:-11px; background-position:left -45px;}
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-hive:before {width:24px; height:22px; margin-top:-11px; background-position:left -68px;}
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-presto:before {width:20px; height:18px; margin-top:-9px; background-position:left -91px;}
-ul.ddp-list-dbtype li .ddp-label-dbtype.type-pache {padding:10px 0 10px 44px; font-size:12px;}
+ul.ddp-list-dbtype li .ddp-label-dbtype.type-pache {padding:10px 30px 10px 44px; font-size:12px;}
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-pache:before {width:16px; height:24px; margin-top:-12px; background-position:left -110px; }
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-tibero:before{width:19px; height:22px; margin-top:-11px; background-position:left -135px;}
 
@@ -7054,8 +7054,8 @@ a.ddp-link-selection.ddp-reject:hover {color:#c63b3b; border:1px solid #e35252; 
 	사용자 new member
 **********************************************************************************/
 .ddp-ui-user-new {padding:0 50px; text-align:left;}
-.ddp-type-contents-in .ddp-top-option {position:relative; padding-bottom:15px;  margin-bottom:20px;border-bottom:1px dotted #ccc; overflow:hidden;}
-
+.ddp-type-contents-in .ddp-top-option {position:relative; padding-bottom:29px;  margin-bottom:20px;border-bottom:1px dotted #ccc; overflow:hidden;}
+.ddp-type-contents-in .ddp-top-option > .ddp-wrap-edit3:first-of-type {margin-top:0px;}
 .ddp-ui-edit-option dl.ddp-dl-option {display:block; position:relative; top:-2px; overflow:hidden;}
 .ddp-ui-edit-option dl.ddp-dl-option dt {float:left; margin-left:15px; margin-right:5px; color:#b7b9c2; font-size:14px;}
 .ddp-ui-edit-option dl.ddp-dl-option dd {float:left; color:#4b515b; font-size:14px;}
@@ -7942,9 +7942,14 @@ ul.ddp-list-essential li .ddp-data-det .ddp-txt-label {color:#b7b9c2;}
 .ddp-guide-motion .ddp-line-bar {display:inline-block;  position:absolute; top:25px; left:180px; width:45px; height:61px;  }
 .ddp-guide-motion .ddp-line-bar em.ddp-icon-handler {display:inline-block; position:absolute; top:0; right:0; width:45px; height:61px; background:url(../images/icon_handle.png) no-repeat; z-index:20;}
 
+.ddp-guide-link {padding:35px 0 0 0; }
+.ddp-guide-link .ddp-link-txt {padding:8px 20px 9px 20px; border:1px solid #d0d1d8; border-radius:2px; color:#fff; font-size:16px;}
+.ddp-guide-link .ddp-link-txt:hover {background-color:rgba(255,255,255,0.3);}
+
 /*.ddp-guide-motion.ddp-move .ddp-line-bar {left:180px; padding-left:178px; -webkit-transition: all 1.5s; !* Safari *!*/
-	/*transition: all 1.5s;}*/
+/*transition: all 1.5s;}*/
 .ddp-guide-motion .ddp-line-bar:before {display:inline-block; position:absolute; top:-10px; left:0; right:27px; height:40px; background-color:#d0d1d8; content:''; z-index:5}
+
 
 /**************************************************************
   network
