@@ -255,7 +255,10 @@ public class PivotResultFormat extends SearchResultFormat {
       while (fields.hasNext()) {
         Map.Entry<String, JsonNode> nodeMap = fields.next();
         String nodeKey = nodeMap.getKey();
+        // Escape separator if nodeKey start with separator. ex. -SUM(m1)
+        nodeKey = nodeKey.startsWith(separator) ? nodeKey.substring(1) : nodeKey;
         JsonNode nodeValue = nodeMap.getValue();
+
         // Percentage Case
         if (includePercentage && StringUtils.endsWith(nodeKey, ChartResultFormat.POSTFIX_PERCENTAGE)) {
           String originalKey = StringUtils.substring(nodeKey, 0, nodeKey.length() - ChartResultFormat.POSTFIX_PERCENTAGE.length());
