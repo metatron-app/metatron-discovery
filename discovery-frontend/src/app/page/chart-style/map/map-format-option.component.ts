@@ -3,6 +3,8 @@ import {
   QueryList, Output, EventEmitter
 } from '@angular/core';
 import {FormatOptionComponent} from "../format-option.component";
+import {Format} from '../../../domain/workbook/configurations/format';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'map-format-option',

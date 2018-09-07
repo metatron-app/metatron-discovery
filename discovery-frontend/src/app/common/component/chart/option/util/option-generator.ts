@@ -2005,7 +2005,8 @@ export namespace OptionGenerator {
             },
             clustering: true
           }
-        ]
+        ],
+        valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
   }
