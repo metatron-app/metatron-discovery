@@ -349,7 +349,7 @@
               <!-- tab -->
               <!-- 결과 -->
               <div class="ddp-view-result">
-                <div loading #loading [cancel]="mimeType !== 'HIVE'" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
+                <div loading #loading [cancel]="true" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
                 <div class="ddp-wrap-result"
                      [ngStyle]="{'visibility': datagridCurList.length !== 0 ? 'visible':'hidden'}">
                   <div class="ddp-ui-setting">
