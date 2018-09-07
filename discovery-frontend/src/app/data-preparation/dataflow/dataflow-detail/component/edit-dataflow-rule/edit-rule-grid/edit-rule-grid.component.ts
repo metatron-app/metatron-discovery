@@ -234,7 +234,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
       }
       // 룰 index
-      this.ruleIdx = data.ruleCurIdx;
+      this.ruleIdx = !this.isEditMode ? data.ruleCurIdx-1 : data.ruleCurIdx;
 
       // 그리드 데이터 생성
       const gridData: GridData = this._getGridDataFromGridResponse(this._apiGridData);
