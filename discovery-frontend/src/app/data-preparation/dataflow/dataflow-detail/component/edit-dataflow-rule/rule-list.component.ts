@@ -146,7 +146,6 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
   /**
    * 스냅샷 리스트 호출
    * @param {string} dsId
-   * @param {boolean} withAll
    */
   public getSnapshotList(dsId : string) {
     let params = {dsId : dsId};
@@ -211,10 +210,10 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
   }
   /**
    * Delete rule event
-   * @param {Rule} rule
+   * @param {number} idx
    */
-  public deleteRule(rule : Rule) {
-    this.deleteEvent.emit(rule['ruleNo']);
+  public deleteRule(idx: number) {
+    this.deleteEvent.emit(idx);
   }
 
   /**

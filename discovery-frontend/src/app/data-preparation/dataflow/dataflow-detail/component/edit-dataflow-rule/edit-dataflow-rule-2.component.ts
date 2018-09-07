@@ -679,6 +679,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'join' :
 
           if (this.selectedDataSet.gridData.data.length > 1) {
+            this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
             this.setJoinEditInfo(rule);
           } else {
             Alert.warning('No rows to join');
@@ -735,8 +736,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param {number} ruleNo
    */
   public deleteRule(ruleNo : number) {
+    this.serverSyncIndex = ruleNo;
     this.refreshEditMode();
-    this.applyRule({ op: 'DELETE', ruleIdx: ruleNo, count:100 });
+    this.applyRule({ op: 'DELETE', ruleIdx: this.serverSyncIndex, count:100 });
   }
 
   /**
