@@ -1746,7 +1746,7 @@
   "msg.storage.ui.cron.description": "크론 포맷(0 0 12 1/1 * ? *)에 해당 해야됩니다",
   "msg.storage.ui.published.workspaces": "워크스페이스",
   "msg.storage.ui.published.all.workspaces": "모든 워크스페이스",
-  "msg.storage.ui.dsource.create.druid.select.table": "데이터 테이블을 선택해 주세",
+  "msg.storage.ui.dsource.create.druid.select.table": "데이터 테이블을 선택해 주세요",
   "msg.storage.ui.dsource.create.druid.selected.count": "개 선택",
   "msg.storage.alert.dsource.create.druid.none.selected": "선택된 데이터 테이블이 없습니다",
   "msg.storage.ui.dsource.detail.column.etc": "기타",
@@ -1788,6 +1788,8 @@
   "msg.storage.ui.schema.column.rows.desc" : "최대 50개 행",
   "msg.storage.ui.edit.filters" : "필터 편집",
   "msg.storage.ui.time" : "시간",
+  "msg.storage.ui.db.connection" : "DB 커넥션",
+  "msg.storage.ui.conn.dialog.desc" : "Batch 방식으로 ingestion할 수 없습니다.",
 
   "msg.log.th.status": "상태",
   "msg.log.ui.search.description" : "잡 이름 또는 어플리케이션 ID로 검색해 주세요",

@@ -335,12 +335,14 @@ public abstract class DataConnection extends AbstractHistoryEntity implements Me
     super.prePersist();
 
     //Authentication Type userinfo, dialog not persist username/password
-    switch(this.getAuthenticationType()){
-      case USERINFO:
-      case DIALOG:
-        this.setUsername(null);
-        this.setPassword(null);
-        break;
+    if(this.getAuthenticationType() != null){
+      switch(this.getAuthenticationType()){
+        case USERINFO:
+        case DIALOG:
+          this.setUsername(null);
+          this.setPassword(null);
+          break;
+      }
     }
   }
 
@@ -349,12 +351,14 @@ public abstract class DataConnection extends AbstractHistoryEntity implements Me
     super.preUpdate();
 
     //Authentication Type userinfo, dialog not persist username/password
-    switch(this.getAuthenticationType()){
-      case USERINFO:
-      case DIALOG:
-        this.setUsername(null);
-        this.setPassword(null);
-        break;
+    if(this.getAuthenticationType() != null){
+      switch(this.getAuthenticationType()){
+        case USERINFO:
+        case DIALOG:
+          this.setUsername(null);
+          this.setPassword(null);
+          break;
+      }
     }
   }
 }

@@ -353,6 +353,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 .ddp-wrap-edit2 .ddp-radio-inline li .ddp-type-selectbox {display:inline-block; margin-left:5px;}
 .ddp-wrap-edit2 .ddp-radio-inline li .ddp-list-selectbox li {display:block; padding-right:0;}
 .ddp-wrap-edit2 .ddp-list-checktype li {padding:5px 0;}
+.ddp-wrap-edit2 .ddp-list-checktype li .ddp-txt-det {color:#808dcd; font-size:12px; font-style:italic; vertical-align:top;}
 .ddp-wrap-edit2.ddp-inline {float:left; width:100%;}
 .ddp-wrap-edit2.ddp-inline .ddp-label-type {float:left; width:117px;}
 .ddp-wrap-edit2.ddp-inline .ddp-inline {display:block;}
@@ -407,7 +408,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-textarea {display:block; padding:5px 10px; width:100%; border:1px solid #d0d1d9; border-radius:2px; box-sizing:border-box;}
 .ddp-wrap-edit3.ddp-type .ddp-label-type {position:relative; color:#4c515a;}
-.ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-bold {font-weight:bold;}
+.ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-bold {font-weight:bold; font-size:14px;}
 .ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-normal {padding-top:0; width:170px; font-weight:normal;}
 .ddp-wrap-edit3.ddp-type .ddp-label-type a.ddp-link-edit2 {position:absolute; top:25px; left:0; bottom:inherit;}
 .ddp-wrap-edit3.ddp-type .ddp-type-selectbox {display:inline-block;width:168px; box-sizing:border-box;}
