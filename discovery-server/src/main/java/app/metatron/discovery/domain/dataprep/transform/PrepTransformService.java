@@ -1781,10 +1781,10 @@ public class PrepTransformService {
           case INITIALIZING:
           case WRITING:
           case TABLE_CREATING:
-              teddyExecutor.updateAsCanceling(ssId);
+              snapshotService.updateSnapshotStatus(ssId, PrepSnapshot.STATUS.CANCELED);
               return "OK";
           case RUNNING:
-              teddyExecutor.updateAsCanceling(ssId);
+              snapshotService.updateSnapshotStatus(ssId, PrepSnapshot.STATUS.CANCELED);
               List<Future<List<Row>>> jobs = teddyExecutor.getJob(ssId);
               if( jobs != null && !jobs.isEmpty()) {
                   for (Future<List<Row>> job : jobs) {
