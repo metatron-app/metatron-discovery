@@ -17,6 +17,7 @@ import {
 } from '../../option/define/common';
 // import * as ol from '../../../../../../../node_modules/ol';
 import * as ol from 'openlayers';
+import * as h3 from 'h3-js';
 
 export class Map {
   public show: boolean;
@@ -149,7 +150,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   });
 
   /**
-   * 지도 생성
+   * create map
    */
   public createMap(): void {
 
@@ -228,6 +229,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     this.mapVaild = true;
   }
 
+  /**
+   * map style function
+   */
   public mapStyleFunction = () => {
 
     let styleOption = this.uiOption;
@@ -270,6 +274,13 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             fill: new ol.style.Fill({
                 color: featureColor
             })
+        }),
+        stroke: new ol.style.Stroke({
+          color: 'black',
+          width: 1
+        }),
+        fill: new ol.style.Fill({
+          color: featureColor
         })
       });
 
@@ -283,9 +294,15 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                       color: featureColor
                   }),
                   stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
+              }),
+              stroke: new ol.style.Stroke({
+                color: 'black',
+                width: 1
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
               })
             });
-
             if(outlineWidth > 0) {
               style.setStroke();
             }
@@ -298,6 +315,13 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 radius: featureSize,
                 angle: Math.PI / 4,
                 stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
+              }),
+              stroke: new ol.style.Stroke({
+                color: 'black',
+                width: 1
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
               })
             });
             break;
@@ -310,6 +334,13 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 rotation: Math.PI / 4,
                 angle: 0,
                 stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
+              }),
+              stroke: new ol.style.Stroke({
+                color: 'black',
+                width: 1
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
               })
             });
             break;
@@ -482,28 +513,65 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     this.changeDetect.detectChanges();
 
     let source = new ol.source.Vector();
+    let hexagonSource = new ol.source.Vector();
 
-    let layer1 = new ol.layer.Vector({
+    let symbolLayer = new ol.layer.Vector({
       source: source,
       style: this.mapStyleFunction(),
       opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
-    let layer2 = new ol.layer.Vector({
+    let clusterLayer = new ol.layer.Vector({
       source: source,
       style: this.clusterStyleFunction(),
       opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
-    let features = [];
+    let heatmapLayer = new ol.layer.Heatmap({
+      source: source,
+      style: this.clusterStyleFunction(),
+      opacity: this.uiOption.layers[0].color.transparency / 100,
+      blur: this.uiOption.layers[0].color.blur,
+      radius: this.uiOption.layers[0].color.radius
+    });
 
-    for(let i=0;i<this.data["features"].length;i++) {
+    let hexagonLayer = new ol.layer.Vector({
+      source: hexagonSource,
+      style: this.mapStyleFunction(),
+      opacity: this.uiOption.layers[0].color.transparency / 100
+    });
+
+    let features = [];
+    let hexagonFeatures = [];
+    // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
+
+    for(let i=0;i<this.data[0]["features"].length;i++) {
       let feature = new ol.Feature({
-        geometry: new ol.geom.Point([this.data["features"][i].properties["gis.lon"], this.data["features"][i].properties["gis.lat"]])
+        geometry: new ol.geom.Point([this.data[0]["features"][i].properties["gis.lon"], this.data[0]["features"][i].properties["gis.lat"]])
       })
-      feature.setProperties(this.data["features"][i].properties);
+
+      // Convert a lat/lng point to a hexagon index at resolution 7
+      let h3Index = h3.geoToH3((this.data[0]["features"][i].properties["gis.lat"]), (this.data[0]["features"][i].properties["gis.lon"]), this.uiOption.layers[0].color.resolution);
+
+      // Get the center of the hexagon
+      let hexCenterCoordinates = h3.h3ToGeo(h3Index);
+
+      // Get the vertices of the hexagon
+      let hexBoundary = h3.h3ToGeoBoundary(h3Index, true);
+
+      // let hexagonFeature = (new ol.format.GeoJSON()).readFeature(hexBoundary);
+
+      let hexagonFeature = new ol.Feature({
+        geometry: new ol.geom.Polygon([hexBoundary])
+      })
+
+      hexagonFeatures[i] = hexagonFeature;
+
+      feature.setProperties(this.data[0]["features"][i].properties);
       features[i] = feature;
     }
+
+    hexagonSource.addFeatures(hexagonFeatures);
 
     source.addFeatures(features);
 
@@ -511,52 +579,86 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       distance: 10,
       source: source
     });
-    //
-    layer1.setSource(source);
-    layer2.setSource(clusterSource);
+
+    symbolLayer.setSource(source);
+    clusterLayer.setSource(clusterSource);
 
     if(!this.mapVaild) {
       this.createMap();
 
-      this.olmap.addLayer(layer1);
-      this.olmap.addLayer(layer2);
+      this.olmap.addLayer(symbolLayer);
+      this.olmap.addLayer(clusterLayer);
+      this.olmap.addLayer(heatmapLayer);
+      this.olmap.addLayer(hexagonLayer);
 
-      if(this.uiOption.layers[0].clustering) {
-        layer1.setVisible(false);
-        layer2.setVisible(true);
-      } else {
-        layer1.setVisible(true);
-        layer2.setVisible(false);
+      if(this.uiOption.layers[0].type === "symbol") {
+        if(this.uiOption.layers[0].clustering) {
+          symbolLayer.setVisible(false);
+          clusterLayer.setVisible(true);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+        } else {
+          symbolLayer.setVisible(true);
+          clusterLayer.setVisible(false);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+        }
+      } else if(this.uiOption.layers[0].type === "heatmap") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(true);
+        hexagonLayer.setVisible(false);
+      } else if(this.uiOption.layers[0].type === "tile") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(true);
       }
 
       this.olmap.getView().fit(source.getExtent());
 
     } else {
-      // let source = this.olmap.getLayers().getArray()[1].getSource();
-      // source.clear();
-      //
-      // source.addFeatures(features);
-      //
-      // let clusterSource = new ol.source.Cluster({
-      //   distance: 10,
-      //   source: source
-      // });
 
-      // this.olmap.getLayers().getArray()[2].setSource(clusterSource);
-      this.olmap.getLayers().getArray()[1] = layer1;
-      this.olmap.getLayers().getArray()[2] = layer2;
+      this.olmap.getLayers().getArray()[1] = symbolLayer;
+      this.olmap.getLayers().getArray()[2] = clusterLayer;
+      this.olmap.getLayers().getArray()[3] = heatmapLayer;
+      this.olmap.getLayers().getArray()[4] = hexagonLayer;
 
-      this.olmap.getLayers().getArray()[1].setStyle(this.mapStyleFunction());
-      this.olmap.getLayers().getArray()[1].setOpacity(this.uiOption.layers[0].color.transparency / 100);
-      this.olmap.getLayers().getArray()[2].setStyle(this.clusterStyleFunction());
-      this.olmap.getLayers().getArray()[2].setOpacity(this.uiOption.layers[0].color.transparency / 100);
+      symbolLayer.setStyle(this.mapStyleFunction());
+      symbolLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
-      if(this.uiOption.layers[0].clustering) {
-        this.olmap.getLayers().getArray()[1].setVisible(false);
-        this.olmap.getLayers().getArray()[2].setVisible(true);
-      } else {
-        this.olmap.getLayers().getArray()[1].setVisible(true);
-        this.olmap.getLayers().getArray()[2].setVisible(false);
+      clusterLayer.setStyle(this.clusterStyleFunction());
+      clusterLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
+
+      heatmapLayer.setBlur(this.uiOption.layers[0].color.blur);
+      heatmapLayer.setRadius(this.uiOption.layers[0].color.radius);
+      heatmapLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
+
+      hexagonLayer.setStyle(this.mapStyleFunction());
+      hexagonLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
+
+      if(this.uiOption.layers[0].type === "symbol") {
+        if(this.uiOption.layers[0].clustering) {
+          symbolLayer.setVisible(false);
+          clusterLayer.setVisible(true);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+        } else {
+          symbolLayer.setVisible(true);
+          clusterLayer.setVisible(false);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+        }
+      } else if(this.uiOption.layers[0].type === "heatmap") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(true);
+        hexagonLayer.setVisible(false);
+      } else if(this.uiOption.layers[0].type === "tile") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(true);
       }
 
       if(this.uiOption.map === 'OSM') {

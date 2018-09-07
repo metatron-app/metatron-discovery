@@ -192,6 +192,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    // 투명도 설정
    public transparencyFlag: boolean = false;
 
+   // 흐림 설정
+   public blurFlag: boolean = false;
+
+   // 반경 설정
+   public radiusFlag: boolean = false;
+
+   // Tile Resolution 설정
+   public resolutionFlag: boolean = false;
+
    /**
     * 컬러타입 변경시
     * @param type 컬러타입 (series(default), dimension)
@@ -258,6 +267,54 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    public changeTransparency(transparency: number) {
 
      this.color['transparency'] = transparency;
+
+     // 해당 레이어 타입으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     this.update();
+   }
+
+   /**
+    * 흐림 변경시
+    * @param blur 흐림
+    */
+   public changeBlur(blur: number) {
+
+     this.color['blur'] = blur;
+
+     // 해당 레이어 타입으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     this.update();
+   }
+
+   /**
+    * 반경 변경시
+    * @param blur 흐림
+    */
+   public changeRadius(radius: number) {
+
+     this.color['radius'] = radius;
+
+     // 해당 레이어 타입으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     this.update();
+   }
+
+   /**
+    * Tile Resolution 변경시
+    * @param resolution
+    */
+   public changeResolution(resolution: number) {
+
+     this.color['resolution'] = resolution;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
