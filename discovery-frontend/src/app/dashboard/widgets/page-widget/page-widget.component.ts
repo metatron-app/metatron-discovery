@@ -29,7 +29,7 @@ import * as Clipboard from 'clipboard';
 import {
   BrushType,
   ChartMouseMode,
-  LegendConvertType, ChartType, FunctionValidator, SPEC_VERSION
+  LegendConvertType, ChartType, FunctionValidator, SPEC_VERSION, ChartSelectMode
 } from '../../../common/component/chart/option/define/common';
 import { saveAs } from 'file-saver';
 import { AbstractWidgetComponent } from '../abstract-widget.component';
@@ -96,6 +96,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   // 대시보드 영역 overflow 여부
   private _dashboardOverflow: string;
+
+  // 현재 위젯에서 발생시킨 필터정보
+  private _selectFilterList: any[] = [];
+
+  // 마지막으로 호출된 필터 목록
+  private _externalFilters: Filter[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -429,6 +435,40 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       Alert.info(this.translateService.instant('msg.board.alert.not-select-editmode'));
     } else {
 
+      // 마지막 외부필터로 들어온 데이터는 선택불가
+      let selectData = [];
+      if( data.data ) {
+        data.data.map( (field) => {
+          let isExternalFilter: boolean = false;
+          if( this._externalFilters ) {
+            this._externalFilters.map( (filter) => {
+              // 동일한 필터가 있는지 찾는다.
+              if( _.eq(field.alias, filter.field) ) {
+                isExternalFilter = true;
+              }
+            });
+          }
+
+          // 내가 선택한거면 예외
+          let isAlreadyFilter: boolean = false;
+          this._selectFilterList.map((filter) => {
+            if (_.eq(field.alias, filter.alias)) {
+              isAlreadyFilter = true;
+            }
+          });
+
+          if( !isExternalFilter || isAlreadyFilter ) {
+            selectData.push(field);
+          }
+        });
+      }
+      if( selectData.length == 0 && !_.eq(data.mode, ChartSelectMode.CLEAR) ) {
+        return;
+      }
+      else {
+        data.data = selectData;
+      }
+
       // 임시적으로 에러 방지를 위해 params 가 정의되어 있지 않을 때, 강제적으로 widgetId를 설정해줌
       if (!data.params) {
         data.params = {
@@ -440,9 +480,155 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
       (widgetDataSource) && (data.params.engineName = widgetDataSource.engineName);
 
+      // 현재 위젯에서 발생시킨 필터정보 변경
+      this.changeSelectFilterList(data);
+
       this.broadCaster.broadcast('CHART_SELECTION_FILTER', { select: data });
     }
   } // function - chartSelectInfo
+
+  /**
+   * 현재 위젯에서 발생시킨 필터정보 변경
+   * @param data
+   */
+  public changeSelectFilterList(data: ChartSelectInfo): void {
+
+    // 추가
+    if( _.eq(data.mode, ChartSelectMode.ADD) ) {
+
+      // 필터 목록 추가
+      data.data.map( (field) => {
+        // 이미 추가된 필터인지 체크
+        let isAlreadyFilter: boolean = false;
+        this._selectFilterList.map((filter) => {
+          // 동일한 필터가 있는지 찾는다.
+          if (_.eq(field.alias, filter.alias)) {
+            isAlreadyFilter = true;
+
+            // 동일한 필터가 있다면 동일한 데이터가 있는지 확인한다.
+            field.data.map((fieldData) => {
+              let isAlreadyData: boolean = false;
+              filter.data.map((filterData) => {
+                if (_.eq(filterData, fieldData)) {
+                  isAlreadyData = true;
+                }
+              });
+
+              // 추가된적이 없다면 데이터 추가
+              if (!isAlreadyData) {
+                filter.data.push(fieldData);
+              }
+            });
+          }
+        });
+
+        // 추가된적이 없는 필터라면 추가
+        if (!isAlreadyFilter) {
+          this._selectFilterList.push(_.cloneDeep(field));
+        }
+      });
+    }
+    // 삭제
+    else if( _.eq(data.mode, ChartSelectMode.SUBTRACT) ) {
+
+      // 필터 목록 제거
+      for( let num = (this._selectFilterList.length - 1) ; num >= 0 ; num-- ) {
+        let filter = this._selectFilterList[num];
+        data.data.map( (field) => {
+          // 동일한 필터를 찾은다음
+          if( _.eq(field.alias, filter.alias) ) {
+            // 동일한 데이터를 제거한다.
+            for( let num2 = (field.data.length - 1) ; num2 >= 0 ; num2-- ) {
+              let data1 = field.data[num2];
+              filter.data.map((data2) => {
+                if (_.eq(data1, data2)) {
+                  filter.data.splice(num, 1);
+                }
+              });
+            }
+
+            // 데이터가 모두 제거되었다면 필터자체를 제거한다.
+            if( filter.data.length == 0 ) {
+              this._selectFilterList.splice(num, 1);
+            }
+          }
+        });
+      }
+    }
+    // 초기화
+    else if( _.eq(data.mode, ChartSelectMode.CLEAR) ) {
+
+      // 셀력션 데이터 치환
+      data.mode = ChartSelectMode.SUBTRACT;
+      data.data = this._selectFilterList;
+
+      // 저장된 필터 목록 초기화
+      this._selectFilterList = [];
+    }
+  }
+
+  /**
+   * 현재 위젯에서 발생시킨 필터정보 제외처리
+   * @param externalFilters
+   */
+  public changeExternalFilterList(externalFilters?: Filter[]): Filter[] {
+
+
+    // 대시보드에서 필터를 발생시킨경우 => 필터 목록 제거
+    for( let num = (this._selectFilterList.length - 1) ; num >= 0 ; num-- ) {
+      let filter = this._selectFilterList[num];
+      let isNotFilter: boolean = true;
+      externalFilters.map( (externalFilter) => {
+        // 동일한 필터를 찾은다음
+        if( _.eq(externalFilter.field, filter.alias) ) {
+          isNotFilter = false;
+          // 필터에 없는 데이터를 제거한다.
+          for( let num2 = (filter.data.length - 1) ; num2 >= 0 ; num2-- ) {
+            let data1 = filter.data[num2];
+            let isNotData = true;
+            externalFilter['valueList'].map((data2) => {
+              if (_.eq(data1, data2)) {
+                isNotData = false;
+              }
+            });
+            if( isNotData ) {
+              filter.data.splice(num, 1);
+            }
+          }
+
+          // 데이터가 모두 제거되었다면 필터자체를 제거한다.
+          if( filter.data.length == 0 ) {
+            this._selectFilterList.splice(num, 1);
+          }
+        }
+      });
+
+      // 발생시켰던 필터가 없어졌다면 저장목록에서도 제거
+      if( isNotFilter ) {
+        this._selectFilterList.splice(num, 1);
+      }
+    }
+
+    // 현재 차트에서 필터를 발생시킨경우
+    if( externalFilters ) {
+
+      // 복사
+      externalFilters = _.cloneDeep(externalFilters);
+
+      // 필터 목록 제거
+      for (let num = (externalFilters.length - 1); num >= 0; num--) {
+        let filter = externalFilters[num];
+        this._selectFilterList.map((field) => {
+          if (_.eq(field.alias, filter.field)) {
+            externalFilters.splice(num, 1);
+          }
+        });
+      }
+    }
+
+    return externalFilters;
+  }
+
 
   /**
    * 차트 옵션 변경 적용
@@ -858,6 +1044,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       return;
     }
 
+    // 현재 위젯에서 발생시킨 필터정보 제외처리
+    externalFilters = this.changeExternalFilterList(externalFilters);
+    this._externalFilters = externalFilters;
+
     // 버전 확인
     if (!this.uiOption.version || this.uiOption.version < SPEC_VERSION) {
       // 옵션 초기화
@@ -966,7 +1156,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         uiOption: this.uiOption,
         params: {
           widgetId: this.widget.id,
-          externalFilters: (externalFilters !== undefined)
+          externalFilters: (externalFilters !== undefined),
+          // 현재 차트가 선택한 필터목록
+          selectFilterListList: this._selectFilterList
         }
 
       };

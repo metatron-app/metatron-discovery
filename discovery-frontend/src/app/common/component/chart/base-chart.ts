@@ -154,6 +154,12 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   // 차트 draw를 발생시킨 이벤트 타입
   protected drawByType: EventType;
 
+  // 마지막으로 그려진 시리즈정보
+  protected lastDrawSeries: Series[];
+
+  // 위젯에서 draw할경우 추가정보
+  protected widgetDrawParam: any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -246,6 +252,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     this.pivot = result.config.pivot;
     this.originPivot = _.cloneDeep(this.pivot);
     this.originalData = _.cloneDeep(result.data);
+    this.widgetDrawParam = _.cloneDeep(result.params);
 
     ///////////////////////////
     // 기준선 or Min/Max 변경시
@@ -755,6 +762,12 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ////////////////////////////////////////////////////////
 
     this.chartOption = this.convertEtc();
+
+    ////////////////////////////////////////////////////////
+    // 셀렉션 필터 유지
+    ////////////////////////////////////////////////////////
+
+    this.chartOption = this.convertSelectionData();
 
     ////////////////////////////////////////////////////////
     // apply
@@ -2370,6 +2383,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 차트에 적용
       this.apply(false);
+      this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
 
       // 이벤트 데이터 전송
       this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
@@ -2455,6 +2469,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 차트에 적용
       this.apply(false);
+      this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
 
       // 이벤트 데이터 전송
       this.chartSelectInfo.emit(new ChartSelectInfo(ChartSelectMode.ADD, selectDataList, this.params));
@@ -2655,6 +2670,47 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    */
   protected setDataLabel(): UIOption {
     return this.uiOption;
+  }
+
+  /**
+   * 현재 차트가 필터를 발생시켰고, 이전 시리즈정보가 있을경우 select 상태 유지
+   */
+  protected convertSelectionData(): BaseOption {
+
+    if( this.widgetDrawParam
+      && this.widgetDrawParam.selectFilterListList
+      && this.widgetDrawParam.selectFilterListList.length > 0 ) {
+
+      _.each(this.chartOption.series, (series) => {
+        _.each(this.lastDrawSeries, (lastDrawSeries) => {
+          if( _.eq(series.name, lastDrawSeries.name) ) {
+            series.itemStyle = lastDrawSeries.itemStyle;
+            series.lineStyle = lastDrawSeries.lineStyle;
+            series.textStyle = lastDrawSeries.textStyle;
+            series.areaStyle = lastDrawSeries.areaStyle;
+            series.existSelectData = lastDrawSeries.existSelectData;
+            _.each(series.data, (seriesData, index) => {
+              let lastSeriesData = lastDrawSeries.data[index];
+              if( lastSeriesData && isNaN(lastSeriesData) ) {
+                if( seriesData && isNaN(seriesData) ) {
+                  seriesData.itemStyle = lastSeriesData.itemStyle;
+                  seriesData.lineStyle = lastSeriesData.lineStyle;
+                  seriesData.textStyle = lastSeriesData.textStyle;
+                  seriesData.areaStyle = lastSeriesData.areaStyle;
+                }
+                else {
+                  lastSeriesData.value = seriesData;
+                  seriesData = lastSeriesData;
+                }
+                series.data[index] = seriesData;
+              }
+            });
+          }
+        });
+      });
+    }
+
+    return this.chartOption;
   }
 
 }
