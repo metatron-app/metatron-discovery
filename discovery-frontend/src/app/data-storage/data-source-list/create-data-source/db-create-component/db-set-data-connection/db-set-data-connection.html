@@ -43,30 +43,30 @@
         <!-- //edit option -->
       </div>
       <!-- //ingestion type -->
-      <!-- preset box -->
-      <div class="ddp-wrap-edit3 ddp-type">
-        <label class="ddp-label-type ddp-bold ">{{'msg.storage.ui.db.connection' | translate}}</label>
-        <!-- edit option -->
-        <div class="ddp-ui-edit-option ">
-          <component-paging-search-select
-            (onSelected)="onSelectedConnectionPreset($event)"
-            (onLoadPage)="onScrollPage($event)"
-            [defaultIndex]="getConnectionDefaultIndex()"
-            [array]="connectionPresetList"
-            [isEnableObjectKey]="true"
-            [objectKey]="'name'"
-            [pageNum]="pageResult.number"
-            [usePlaceholder]="true"
-            [isConnection]="true"
-            [unselectedMessage]="'msg.storage.ui.load.dconn' | translate">
-          </component-paging-search-select>
-        </div>
-        <!-- //edit option -->
-      </div>
-      <!-- //preset box -->
       <div class="ddp-edit-setting ddp-type">
+        <!-- preset box -->
+        <div class="ddp-wrap-edit3 ddp-type ddp-mgt0">
+          <label class="ddp-label-type ddp-bold ">{{'msg.storage.ui.db.connection' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option ">
+            <component-paging-search-select
+              (onSelected)="onSelectedConnectionPreset($event)"
+              (onLoadPage)="onScrollPage($event)"
+              [defaultIndex]="getConnectionDefaultIndex()"
+              [array]="connectionPresetList"
+              [isEnableObjectKey]="true"
+              [objectKey]="'name'"
+              [pageNum]="pageResult.number"
+              [usePlaceholder]="true"
+              [isConnection]="true"
+              [unselectedMessage]="'msg.storage.ui.load.dconn' | translate">
+            </component-paging-search-select>
+          </div>
+          <!-- //edit option -->
+        </div>
+        <!-- //preset box -->
         <!-- Database type -->
-        <div class="ddp-wrap-edit2 ddp-mgt0">
+        <div class="ddp-wrap-edit2">
           <label class="ddp-label-type ddp-bold">{{'msg.storage.th.db_type' | translate}}</label>
           <!-- edit option -->
           <div class="ddp-ui-edit-option ddp-type ddp-white-space">

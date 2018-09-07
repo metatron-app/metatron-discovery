@@ -5804,12 +5804,12 @@ ul.ddp-list-dbtype li:last-of-type {padding-right:0px;}
 ul.ddp-list-dbtype li.ddp-selected [class*="ddp-label-"] {border:1px solid #91969e; color:#4b515b; font-weight:bold;}
 ul.ddp-list-dbtype li.ddp-selected [class*="ddp-label-"]:after {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-4px;width:11px; height:8px; background:url(../images/icon_select2.png) no-repeat; background-position:-68px top; content:'';}
 ul.ddp-list-dbtype li .ddp-label-dbtype {display:inline-block; position:relative; height:50px; min-width:122px; padding:18px 30px 18px 44px;border-radius:4px;  font-size:13px; color:#90969f; border:1px solid #d0d1d7; box-sizing:border-box; vertical-align:middle;}
-ul.ddp-list-dbtype li .ddp-label-dbtype:hover {border:1px solid #4b515b; color:#4b515b; font-weight:bold;}
+ul.ddp-list-dbtype li .ddp-label-dbtype:hover {border:1px solid #4b515b; color:#4b515b; font-weight:bold; }
 ul.ddp-list-dbtype li .ddp-label-dbtype[class*="type-"]:before {display:inline-block; position:absolute; top:50%; left:14px;  background:url(../images/icon_dbtype_s.png) no-repeat;content:'';}
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-oracle:before {width:21px; height:21px; margin-top:-11px;}
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-mysql:before {width:22px; height:22px; margin-top:-11px; background-position:left -22px;}
 
-ul.ddp-list-dbtype li .ddp-label-dbtype.type-postgre {font-size:11px;}
+ul.ddp-list-dbtype li .ddp-label-dbtype.type-postgre {width:140px; font-size:11px;}
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-postgre:before {width:21px; height:22px; margin-top:-11px; background-position:left -45px;}
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-hive:before {width:24px; height:22px; margin-top:-11px; background-position:left -68px;}
 ul.ddp-list-dbtype li .ddp-label-dbtype.type-presto:before {width:20px; height:18px; margin-top:-9px; background-position:left -91px;}
