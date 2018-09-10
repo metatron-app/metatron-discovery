@@ -121,7 +121,6 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
   public numberOfBytes: number = 0;
   public dataTypesList: any[] = [];
   public dataTypeObject: {};
-  public defaultNumberOfRows: number = 100;
 
   // 편집인지 생성인지
   public joinButtonText: string = 'Join';
@@ -687,11 +686,11 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
 
     // 이벤트
     if (this.joinButtonText !== 'Join') { // 편집
-      const rule = { command: 'join', op: 'UPDATE', ruleString: ruleStr[1] };
+      const rule = { command: 'join', op: 'UPDATE', ruleString: ruleStr[1] , ruleIdx : this.serverSyncIndex};
       this.joinComplete.emit({ event: 'ruleJoinComplete', ruleInfo: rule });
     } else { // 생성
       const rule = { command: 'join', op: 'APPEND', ruleString: ruleStr[1] };
-      this.joinComplete.emit({ event: 'ruleJoinComplete', ruleInfo: rule });
+      this.joinComplete.emit({ event: 'ruleJoinComplete', ruleInfo: rule, ruleIdx : this.serverSyncIndex });
     }
 
 
@@ -845,7 +844,7 @@ export class RuleJoinPopupComponent extends AbstractPopupComponent implements On
       return;
     }
 
-    const rule = { command: 'join', op: 'PREVIEW', ruleString: ruleStr[1] };
+    const rule = { command: 'join', op: 'PREVIEW', ruleString: ruleStr[1] , ruleIdx : this.serverSyncIndex};
     this.dataflowService.applyRules(this.leftDataset.dsId, rule)
       .then((data) => {
         this.loadingHide();

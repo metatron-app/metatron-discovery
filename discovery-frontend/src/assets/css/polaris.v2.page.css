@@ -4612,6 +4612,7 @@ ul.ddp-list-rule2 li .ddp-ui-code.ddp-error {color:#eb5f58;}
 
 ul.ddp-list-rule2 li .ddp-ui-tooltip-info {margin-top:5px; top:100%; left:25px; max-width:250px; white-space:normal;}
 ul.ddp-list-rule2 li .ddp-ui-tooltip-info.ddp-top {bottom:100%; top:inherit;}
+ul.ddp-list-rule2 li .ddp-ui-tooltip-info .ul.ddp-list-rule2 li .ddp-ui-tooltip-info {left:30px;}
 ul.ddp-list-rule2 li.ddp-disabled * {color:#b8bac2 !important;}
 ul.ddp-list-rule2 li.ddp-disabled .ddp-ui-tooltip-info {color:#fff !important;}
 ul.ddp-list-rule2 li.ddp-disabled2 * {color:#b8bac2 !important;}

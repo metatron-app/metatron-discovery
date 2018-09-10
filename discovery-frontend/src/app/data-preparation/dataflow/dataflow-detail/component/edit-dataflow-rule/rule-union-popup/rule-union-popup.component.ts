@@ -174,7 +174,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       return;
     }
 
-    const rule = { command: 'union', op: 'APPEND', ruleString: ruleStr[1] };
+    const rule = { command: 'union', op: 'APPEND', ruleString: ruleStr[1], ruleIdx : this.serverSyncIndex };
     if (this.editRuleStr) {
       // for edit
       rule.op = 'UPDATE';

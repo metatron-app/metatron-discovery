@@ -538,6 +538,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public addRule() {
 
+    // When no command is selected
     if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
       return;
     }
@@ -710,7 +711,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // unselect all columns in current grid
     this._editRuleGridComp.unSelectionAll('COL');
 
-    // set current index
+    // set current index (편집은 현재 클릭된 idx 보다 하나 전 단계 그리드를 가지고 와야 하기 떄문에 1을 뺸다)
     let ruleIdx = editInfo.ruleNo-1;
 
     // 인풋박스 포커스 여부 IE 에서 수정버튼을 누르면 툴팁 박스가 열려서...
@@ -1755,13 +1756,15 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.loadingShow();
 
     this.changeDetect.detectChanges();
-    this.selectedRows = [];
+
+    // TODO : Check if necessary - Unselect all columns
+    // this.selectedRows = [];
+    // this._editRuleGridComp.unSelectionAll('COL');
+    // this.editColumnList = [];
+
     this.isJumped = false;
     (command === 'multipleRename') && (this.multicolumnRenameComponent.showFlag = false);
 
-    // Unselect all columns
-    this._editRuleGridComp.unSelectionAll('COL');
-    this.editColumnList = [];
 
     this.opString = rule['op'];
 

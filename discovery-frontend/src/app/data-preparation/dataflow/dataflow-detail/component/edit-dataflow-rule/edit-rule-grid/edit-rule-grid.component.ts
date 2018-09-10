@@ -110,7 +110,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   public totalColumnCnt: number = 0;      // 그리드 column 구성
   public totalRowCnt: number = 0;         // 전체 조회 행수
   public columnTypeCnt: number = 0;       // 전체 컬럼 type 갯수
-  public columnTypeList: string[] = [];   // 전체 컬럼 type list
+  // public columnTypeList: string[] = [];   // 전체 컬럼 type list
+  public columnTypeList : any;
 
   // T/F
   public isShowColumnTypes: boolean = false;
@@ -1859,7 +1860,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     this.columnTypeCnt = tempMap.size;
 
     tempMap.forEach((value: number, key: string) => {
-      this.columnTypeList.push(key + ' : ' + value + ' ' + this.translateService.instant('msg.comm.detail.rows'));
+      this.columnTypeList.push({label : key, value : key + ' : ' + value + ' ' + this.translateService.instant('msg.comm.detail.rows')});
     });
 
   } // function - _summaryGridInfo
