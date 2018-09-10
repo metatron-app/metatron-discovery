@@ -295,6 +295,13 @@ public class PrepTransformController {
         suggests = prepRuleVisitorParser.suggest_aggr_rules(rulePart);
       }
 
+      for(SuggestToken suggest : suggests) {
+        if( suggest.getTokenString().equals("'@_FUNCTION_EXPRESSION_@'") ) {
+          suggests.remove(suggest);
+          suggests.add(1,suggest);
+          break;
+        }
+      }
       response.put("suggest", suggests);
     } catch (Exception e) {
       LOGGER.error("autocomplete(): caught an exception: ", e);
