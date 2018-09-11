@@ -717,7 +717,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       case ChartType.PIE :
         iconClass = 'ddp-chart-pie';
         break;
-      case ChartType.MAPVIEW :
+      case ChartType.MAP :
         iconClass = 'ddp-chart-map';
         break;
       case ChartType.CONTROL :
