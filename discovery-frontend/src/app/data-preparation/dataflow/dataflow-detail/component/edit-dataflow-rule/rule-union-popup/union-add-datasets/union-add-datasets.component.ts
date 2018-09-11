@@ -156,7 +156,7 @@ export class UnionAddDatasetsComponent extends AbstractPopupComponent implements
     const selectedCnt = this.datasets.filter(item => item.origin === false && item.selected).length;
 
     if (0 === selectedCnt) {
-      Alert.error(this.translateService.instant('msg.dp.alert.no.added.ds'));
+      // Alert.error(this.translateService.instant('msg.dp.alert.no.added.ds'));
       return;
     }
 

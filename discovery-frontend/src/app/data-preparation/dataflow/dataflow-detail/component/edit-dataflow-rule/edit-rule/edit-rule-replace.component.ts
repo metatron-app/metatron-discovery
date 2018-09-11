@@ -13,7 +13,7 @@
  */
 
 import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
@@ -29,7 +29,8 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  @ViewChild('patternValue')
+  private _patternValue: ElementRef;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -50,7 +51,6 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   public condition:string = '';
   public isGlobal:boolean = true;
   public isIgnoreCase:boolean = false;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -184,7 +184,11 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    * @protected
    */
   protected afterShowComp() {
-
+    if (this.selectedFields.length > 0) {
+      setTimeout(() => {
+        this._patternValue.nativeElement.focus();
+      });
+    }
   } // function - _afterShowComp
 
   /**

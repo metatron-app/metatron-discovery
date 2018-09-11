@@ -71,7 +71,6 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
   // Result column rename
   public editResultColumnName: string;
-  public selectedColumnName: string = '';    // 유니온 된 결과 컬럼 목록
 
   public datasets: Dataset[] = [];        // 전체 데이터 셋
   public unionDatasets: Dataset[] = [];   // 유니온 될 데이터 셋
@@ -213,47 +212,6 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   } // function - deleteDataset
 
   /**
-   * Focus on result column input
-   */
-  public focusResultColumnName(event, colName) {
-
-    this.editResultColumnName = colName;
-    this.selectedColumnName = colName;
-
-    const $input = $(event.currentTarget).prev();
-    $input.val('');
-  } // function - focusResultColumnName
-
-  /**
-   * Rename result column.
-   */
-  public updateResultColumnName(event, index) {
-    const val = event.currentTarget.value;
-
-    // 자기 자신을 빼고 리스트에서 중복 체크
-    if (val && val.trim().length !== 0) {
-      const nameCheck: boolean = this.resultFields.filter((colInfo, idx) => {
-        return idx !== index;
-      }).every((colName) => {
-        return colName !== event.currentTarget.value;
-      });
-
-      if (nameCheck) {
-        this.resultFields[index]['name'] = event.currentTarget.value;
-      } else {
-        Alert.warning('Column name must be unique');
-        this.resultFields[index]['name'] = this.selectedColumnName;
-      }
-
-    } else {
-      Alert.warning('Please enter column name');
-      this.resultFields[index]['name'] = this.selectedColumnName;
-    }
-
-    this.editResultColumnName = '';
-  } // function - updateResultColumnName
-
-  /**
    * 유효하지 않은 Row 여부
    * @param {Field[]} fieldList
    * @returns {boolean}
@@ -372,16 +330,16 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   } // function - convertDataToUiType
 
   private getGridDataFromGridResponse(gridResponse: any) {
-    var colCnt = gridResponse.colCnt;
-    var colNames = gridResponse.colNames;
-    var colTypes = gridResponse.colDescs;
+    let colCnt = gridResponse.colCnt;
+    let colNames = gridResponse.colNames;
+    let colTypes = gridResponse.colDescs;
 
     const gridData = {
       data: [],
       fields: []
     };
 
-    for(var idx=0;idx<colCnt;idx++) {
+    for(let idx=0;idx<colCnt;idx++) {
       gridData.fields.push({
         name: colNames[idx],
         type: colTypes[idx].type,
@@ -391,7 +349,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
     gridResponse.rows.forEach((row) => {
       const obj = {};
-      for(var idx=0;idx<colCnt;idx++) {
+      for(let idx=0;idx<colCnt;idx++) {
         obj[ colNames[idx] ] = row.objCols[idx];
       }
       gridData.data.push(obj);

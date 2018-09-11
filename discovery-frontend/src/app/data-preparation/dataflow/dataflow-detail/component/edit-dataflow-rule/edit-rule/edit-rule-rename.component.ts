@@ -14,11 +14,11 @@
 
 import * as _ from 'lodash';
 import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from 'util';
+import { isNullOrUndefined, isUndefined } from 'util';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
@@ -40,6 +40,8 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
   public selectedFields: Field[] = [];
   public newFieldName: string = '';
 
+  @ViewChild('newColName')
+  private _newColName: ElementRef;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -161,7 +163,12 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
-
+    if (this.selectedFields.length === 1) {
+      this.newFieldName = this.selectedFields[0].name + '_1';
+    }
+    setTimeout(() => {
+      this._newColName.nativeElement.focus();
+    });
   } // function - _afterShowComp
 
   /**
