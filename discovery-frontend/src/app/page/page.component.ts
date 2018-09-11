@@ -581,12 +581,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.widget.configuration.filters = [];
       this.widget.configuration.customFields = [];
     }
-
-    // this.widget.configuration.dataSource
-    //   = DashboardUtil.getBoardDataSourceFromDataSource(this.widget.dashBoard, dataSource);
-    // this.boardFilters = DashboardUtil.getFiltersForBoardDataSource(
-    //   this.widget.dashBoard, this.widget.configuration.dataSource
-    // );
+    this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.engineName );
 
     if (StringUtil.isEmpty(this.widget.name)) {
       this.widget.name = 'New Chart';
@@ -1642,7 +1637,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this._setUseFilter();
       this.drawChart();
     }
-
     // 필터 패널에 데이터 강제 설정
     if (this._filterPanelComp) {
       this._filterPanelComp.setFilters(
@@ -1650,10 +1644,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         this.widget.configuration.filters
       );
     }
-    // this._filterPanelComp.setFilters(
-    //   this.widget.dashBoard.configuration.filters,
-    //   this.widget.configuration.filters
-    // );
   } // function - deleteFilter
 
 
@@ -1783,7 +1773,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       const widget = {
         configuration: _.cloneDeep(this.originalWidgetConfiguration)
       };
-
       widget.configuration['filters'] = this.widgetConfiguration.filters;
 
       this.loadingShow();
@@ -3078,10 +3067,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     const boardConf:BoardConfiguration = this.widget.dashBoard.configuration;
     let totalFields: Field[] = boardConf.fields;
-    // let totalFields: Field[] = this.widget.dashBoard.configuration.fields;
 
     if (totalFields && totalFields.length > 0) {
-      totalFields = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, this.dataSource.id);
+      totalFields = DashboardUtil.getFieldsForMainDataSource(boardConf, this.dataSource.engineName);
       totalFields.forEach((field) => {
         if (field.biType === BIType.MEASURE) {
           this.measures.push(field);
@@ -3099,10 +3087,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     this.customDimensions = [];
     this.customMeasures = [];
-    // if (this.widget.dashBoard.configuration.hasOwnProperty('customFields') && this.widget.dashBoard.configuration['customFields'].length > 0) {
     if (boardConf.hasOwnProperty('customFields') && boardConf.customFields.length > 0) {
       // set main datasource fields
-      // this.widget.dashBoard.configuration['customFields'].forEach((field: CustomField) => {
       boardConf.customFields
         .filter( item => item.dataSource === this.widget.configuration.dataSource.engineName )
         .forEach((field: CustomField) => {
@@ -3505,9 +3491,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.chart['setQuery'] = this.query;
     }
 
-    //test
-    //cloneQuery.filters[1].max = 40000;
-
     this.datasourceService.searchQuery(cloneQuery).then(
       (data) => {
 
@@ -3707,11 +3690,16 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   /**
    * 글로벌 필터를 차트 필터로 변경 or 차트 필터 등록
    * @param {Filter} targetFilter
+   * @param {boolean} isSetPanel
    * @private
    */
   private _setChartFilter(targetFilter: Filter, isSetPanel: boolean = true) {
+
     // 같은 필드의 대시보드 필터 제거
-    _.remove(this.widget.dashBoard.configuration.filters, { field: targetFilter.field });
+    _.remove(this.widget.dashBoard.configuration.filters, { field: targetFilter.field, dataSource : targetFilter.dataSource });
+
+    // 보드 필터 설정
+    this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.engineName );
 
     // 해당 필터에 차트 위젯 아이디 설정
     targetFilter.ui.widgetId = this.isNewWidget() ? 'NEW' : this.widget.id;
@@ -3727,16 +3715,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.widget.configuration.filters = chartFilters;
 
     // 필터 패널에 데이터 강제 설정
-    // this._filterPanelComp.setFilters(
-    //   this.widget.dashBoard.configuration.filters,
-    //   this.widget.configuration.filters
-    // );
-    // 필터 패널에 데이터 강제 설정
     if (isSetPanel && this._filterPanelComp) {
-      this._filterPanelComp.setFilters(
-        this.widget.dashBoard.configuration.filters,
-        this.widget.configuration.filters
-      );
+      this._filterPanelComp.setFilters( this.boardFilters, this.widget.configuration.filters );
     }
   } // function - _setChartFilter
 

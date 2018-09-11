@@ -48,6 +48,14 @@ export class PagingSearchSelectComponent extends AbstractComponent implements On
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  //
+  @Input()
+  public isFirstOpenItemList: boolean = false;
+
+  // connection 옵션 허용 여부
+  @Input()
+  public isConnection: boolean = false;
+
   // search 옵션 허용 여부
   @Input()
   public isSearchOptions: boolean = false;
@@ -156,6 +164,12 @@ export class PagingSearchSelectComponent extends AbstractComponent implements On
   // Destory
   public ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  public ngAfterViewInit() {
+    if (this.isFirstOpenItemList && !this.selectedItem) {
+      setTimeout(() => { this.isShowOptions = true})
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

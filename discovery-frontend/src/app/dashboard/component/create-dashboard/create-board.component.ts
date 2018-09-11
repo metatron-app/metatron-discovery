@@ -27,8 +27,8 @@ export class CreateBoardComponent extends AbstractPopupComponent implements OnIn
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @ViewChild( CreateBoardCompleteComponent)
-  private _completeComp:CreateBoardCompleteComponent;
+  @ViewChild(CreateBoardCompleteComponent)
+  private _completeComp: CreateBoardCompleteComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -44,12 +44,13 @@ export class CreateBoardComponent extends AbstractPopupComponent implements OnIn
   public workbookId: string;
 
   @Input()
-  public workbookName:string;
+  public workbookName: string;
 
   @Input()
   public workspaceId: string;
 
-  public isDenyNext:boolean = false;
+  public isDenyNext: boolean = false;
+  public isShowButtons: boolean = true;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -88,7 +89,7 @@ export class CreateBoardComponent extends AbstractPopupComponent implements OnIn
    * 데이터소스 추가 라벨 표시 여부
    * @returns {boolean}
    */
-  public get isShowLabelAddDataSource():boolean {
+  public get isShowLabelAddDataSource(): boolean {
     return 0 === this.networkBoardComp.getCntDataSources()
   } // get - isShowLabelAddDataSource
 
@@ -96,32 +97,34 @@ export class CreateBoardComponent extends AbstractPopupComponent implements OnIn
    * 다음 단계로 이동
    */
   public next() {
-    if( this.networkBoardComp.isInvalidate() ) {
+    if (this.networkBoardComp.isInvalidate()) {
       return;
     }
     const data = this.networkBoardComp.getData();
-    this._completeComp.openComp( this.workbookId, this.workbookName, data.boardDataSources, data.relations );
+    this._completeComp.openComp(this.workbookId, this.workbookName, data.boardDataSources, data.relations);
   } // function - next
 
   /**
    * 컴포넌트 닫기
    */
-  public closeComp(isForceClose:boolean = false) {
-    if( isForceClose ) {
+  public closeComp(isForceClose: boolean = false) {
+    if (isForceClose) {
       this.close();
     } else {
-      this.unloadConfirmSvc.confirm().subscribe( (isClose) => {
-        ( isClose ) && ( this.close() );
+      this.unloadConfirmSvc.confirm().subscribe((isClose) => {
+        (isClose) && (this.close());
       });
     }
   } // function - closeComp
 
   /**
    * Next 가능 여부 체크
-   * @param {boolean} isDenyNext
+   * @param {{isDenyNext?: boolean, isShowButtons?: boolean}} data
    */
-  public checkAllowNext(isDenyNext:boolean) {
-    this.isDenyNext = isDenyNext;
+  public checkAllowNext(data: { isDenyNext?: boolean, isShowButtons?: boolean }) {
+    (data.hasOwnProperty('isDenyNext')) && (this.isDenyNext = data.isDenyNext);
+    (data.hasOwnProperty('isShowButtons')) && (this.isShowButtons = data.isShowButtons);
+    this.safelyDetectChanges();
   } // function - checkAllowNext
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -13,7 +13,7 @@
  */
 
 import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
-import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 
@@ -75,20 +75,6 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * 컴포넌트의 초기 실행
-   * @param {Field[]} fields
-   * @param {Rule} rule
-   */
-  public init(fields: Field[], rule?: Rule) {
-    if (rule) {
-      const colVal = rule['col']['value'];
-      const colList: string[] = (colVal instanceof Array) ? colVal : [colVal];
-      this.selectedFields = fields.filter( item => -1 < colList.indexOf( item.name ) );
-    }
-    super.init(fields, rule);
-    this.safelyDetectChanges();
-  } // function - init
 
   /**
    * Rule 형식 정의 및 반환
@@ -98,10 +84,10 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
 
     if (this.selectedFields.length === 0) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
+      return undefined
     } else if (this.selectedFields.length === this.fields.length) { // at least one column must exist
       Alert.warning('Cannot delete all columns');
-      return;
+      return undefined
     }
 
     const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
@@ -128,6 +114,30 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 컴포넌트 표시 전 실행
+   * @protected
+   */
+  protected beforeShowComp() {} // function - _beforeShowComp
+
+  /**
+   * 컴포넌트 표시 후 실행
+   * @protected
+   */
+  protected afterShowComp() {} // function - afterShowComp
+
+  /**
+   * rule string 을 분석한다.
+   * @param ruleString
+   */
+  protected parsingRuleString(ruleString:string) {
+    let fieldsStr:string = this.getAttrValueInRuleString( 'col', ruleString );
+    if( '' !== fieldsStr ) {
+      const arrFields:string[] = ( -1 < fieldsStr.indexOf( ',' ) ) ? fieldsStr.split(',') : [fieldsStr];
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    }
+  } // function - parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

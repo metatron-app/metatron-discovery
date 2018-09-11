@@ -231,6 +231,7 @@ export class GaugeChartComponent extends BaseChart {
 
       // 차트에 적용
       this.apply(false);
+      this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
 
       // 이벤트 데이터 전송
       this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));

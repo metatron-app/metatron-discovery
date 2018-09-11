@@ -14,15 +14,10 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.PrepSnapshot.COMPRESSION;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hive.ql.exec.vector.BytesColumnVector;
-import org.apache.hadoop.hive.ql.exec.vector.ColumnVector;
-import org.apache.hadoop.hive.ql.exec.vector.DoubleColumnVector;
-import org.apache.hadoop.hive.ql.exec.vector.LongColumnVector;
-import org.apache.hadoop.hive.ql.exec.vector.StructColumnVector;
-import org.apache.hadoop.hive.ql.exec.vector.TimestampColumnVector;
-import org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch;
+import org.apache.hadoop.hive.ql.exec.vector.*;
 import org.apache.orc.CompressionKind;
 import org.apache.orc.OrcFile;
 import org.apache.orc.TypeDescription;
@@ -35,8 +30,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import app.metatron.discovery.domain.dataprep.PrepSnapshot.COMPRESSION;
 
 public class TeddyOrcWriter {
   private static Logger LOGGER = LoggerFactory.getLogger(TeddyOrcWriter.class);
@@ -59,22 +52,41 @@ public class TeddyOrcWriter {
     return null;  // cannot reach here
   }
 
-  private void setBatch(int pos, ColumnVector colVector, ColumnType colType, ColumnDescription colDesc, Object obj) {
+  private boolean setBatch(int pos, ColumnVector colVector, ColumnType colType, ColumnDescription colDesc, Object obj) {
+    //null check
+    if(obj == null)
+      return false;
+
     switch (colType) {
       case STRING:
+        if(!(obj instanceof  String)){
+          return false;
+        }
         byte[] bytes = toBytes((String) obj);
         ((BytesColumnVector) colVector).setVal(pos, bytes, 0, bytes.length);
         break;
       case LONG:
+        if(!(obj instanceof  Long)){
+          return false;
+        }
         ((LongColumnVector) colVector).vector[pos] = (Long) obj;
         break;
       case DOUBLE:
+        if(!(obj instanceof  Double)){
+          return false;
+        }
         ((DoubleColumnVector) colVector).vector[pos] = (Double) obj;
         break;
       case BOOLEAN:
+        if(!(obj instanceof  Boolean)){
+          return false;
+        }
         ((LongColumnVector) colVector).vector[pos] = (Boolean) obj ? 1 : 0;
         break;
       case TIMESTAMP:
+        if(!(obj instanceof  DateTime)){
+          return false;
+        }
         ((TimestampColumnVector) colVector).time[pos] = ((DateTime) obj).getMillis();
         ((TimestampColumnVector) colVector).nanos[pos] = 0;
         break;
@@ -97,6 +109,8 @@ public class TeddyOrcWriter {
       case UNKNOWN:
         break;
     }
+
+    return true;
   }
 
   private void addField(TypeDescription typeDescription, String colName, ColumnType colType, ColumnDescription subColDesc) {
@@ -148,9 +162,12 @@ public class TeddyOrcWriter {
   }
 
   // 테스트를 위해 public이 되고, conf를 argument로 받음.
-  public int writeOrc(DataFrame df, Configuration conf, Path file, COMPRESSION compression) throws IOException {
+  public Integer[] writeOrc(DataFrame df, Configuration conf, Path file, COMPRESSION compression) throws IOException {
     TypeDescription typeDescription = buildTypeDescription(df);
+    Integer[] result = new Integer[2];
     int pos;    // batch상 position (0~1023)
+    boolean typeCheck = true;
+    int skippedLines = 0;
 
     LOGGER.trace("writeOrc(): start");
 
@@ -164,13 +181,22 @@ public class TeddyOrcWriter {
     VectorizedRowBatch batch = typeDescription.createRowBatch();
 
     for (int rowno = 0; rowno < df.rows.size(); rowno++) {
-      pos = batch.size++;
+      pos = batch.size;
       Row row = df.rows.get(rowno);
 
       for (int colno = 0; colno < df.getColCnt(); colno++) {
-        setBatch(pos, batch.cols[colno], df.getColType(colno), df.getColDesc(colno), row.get(colno));
+        typeCheck = setBatch(pos, batch.cols[colno], df.getColType(colno), df.getColDesc(colno), row.get(colno));
+        if(typeCheck == false) {
+          LOGGER.warn("Row number {} was excluded caused by missing or mismatched value at column: {}, value: {}", rowno, df.getColName(colno), row.get(colno));
+          break;
+        }
       }
 
+      if(typeCheck) {
+        batch.size++;
+      } else {
+        skippedLines++;
+      }
       if (batch.size == batch.getMaxSize()) {
         writer.addRowBatch(batch);
         batch.reset();
@@ -184,6 +210,9 @@ public class TeddyOrcWriter {
     writer.close();
 
     LOGGER.trace("writeOrc(): end");
-    return df.rows.size();
+    result[0] = df.rows.size() - skippedLines;
+    result[1] = skippedLines;
+
+    return result;
   }
 }

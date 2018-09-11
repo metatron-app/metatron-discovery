@@ -16,7 +16,6 @@ package app.metatron.discovery.domain.datasource.connection;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
@@ -26,7 +25,6 @@ public class DataConnectionPredicate {
    * 데이터 소스 기본 검색 관련 조건 정의
    *
    * @param namePattern DataConnection 명 내 포함되는 문자
-   * @param usageScope DataConnection 사용 타입(GENERAL, WORKBENCH)
    * @param sourceType DataConnection Source Type(File, JDBC)
    * @param implementor DataConnection DB Type
    * @param searchDateBy 일자 검색 기준 (생성일/수정일)
@@ -35,7 +33,6 @@ public class DataConnectionPredicate {
    * @return
    */
   public static Predicate searchList(String namePattern,
-                                     DataConnection.UsageScope usageScope,
                                      DataConnection.SourceType sourceType,
                                      DataConnection.Implementor implementor,
                                      String searchDateBy, DateTime from, DateTime to,
@@ -53,9 +50,6 @@ public class DataConnectionPredicate {
       builder.and(dataConnection.implementor.eq(implementor.toString()));
     }
 
-    if(usageScope != null){
-      builder.and(dataConnection.usageScope.eq(usageScope));
-    }
     if(authenticationType != null){
       builder.and(dataConnection.authenticationType.eq(authenticationType));
     }
@@ -79,14 +73,12 @@ public class DataConnectionPredicate {
    * 데이터 소스 기본 검색 관련 조건 정의
    *
    * @param namePattern DataConnection 명 내 포함되는 문자
-   * @param usageScope DataConnection 사용 타입(GENERAL, WORKBENCH)
    * @param sourceType DataConnection Source Type(File, JDBC)
    * @param implementor DataConnection DB Type
    * @param workspaceId 조회 기준이 되는 workspace
    * @return
    */
   public static Predicate searchListForWorkspace(String namePattern,
-                                     DataConnection.UsageScope usageScope,
                                      DataConnection.SourceType sourceType,
                                      DataConnection.Implementor implementor,
                                      DataConnection.AuthenticationType authenticationType,
@@ -94,7 +86,7 @@ public class DataConnectionPredicate {
 
     QDataConnection dataConnection = QDataConnection.dataConnection;
 
-    BooleanBuilder builder = (BooleanBuilder) searchList(namePattern, usageScope, sourceType, implementor,
+    BooleanBuilder builder = (BooleanBuilder) searchList(namePattern, sourceType, implementor,
             null, null, null, authenticationType);
 
     //특정 Workspace일 경우

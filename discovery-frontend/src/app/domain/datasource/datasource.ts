@@ -174,12 +174,13 @@ export class Field {
   dsName?: string;          // 필드의 데이터소스 이름
   granularity?: GranularityType;     // granularity
   segGranularity?: GranularityType;  // segGranularity
+
   // [UI] for Alias
-  uiMasterDsId?:string;          // 필드의 마스터 데이터소스 아이디 ( 조인된 데이터소스의 필드의 경우 )
-  dsId?: string;                 // 필드의 데이터소스 아이디
-  boardId?: string;              // 대시보드 아이디
-  nameAlias?: FieldNameAlias;    // 데이터소스 필드 이름 별칭 정보
-  valueAlias?: FieldValueAlias;  // 데이터소스 필드 값 별칭 정보
+  dsId?:string;                   // 데이터소스 아이디
+  dataSource?: string;            // 데이터소스 engine Name
+  boardId?: string;               // 대시보드 아이디
+  nameAlias?: FieldNameAlias;     // 데이터소스 필드 이름 별칭 정보
+  valueAlias?: FieldValueAlias;   // 데이터소스 필드 값 별칭 정보
 
   // for MetaData
   uiMetaData?: MetadataColumn;

@@ -918,7 +918,7 @@ export class EditDataflowRuleComponent extends AbstractPopupComponent implements
     this.ruleVO['col'] = col.name;
 
     this.selectboxFlag = true; // 셀렉트 박스에서 선택 했는지 flag걸기
-    this.gridComponent.selectColumn(col.name, true,null, false, col.type);
+    this.gridComponent.selectColumn(col.name, true, col.type);
     // this.gridComponent.selectColumn(col.name, true,null, col.type);
 
     this.columnSearchText = ''; // 검색어 초기화
@@ -1703,7 +1703,7 @@ export class EditDataflowRuleComponent extends AbstractPopupComponent implements
             this.setEditInfo(ruleStrings[ruleCurIdx]);
           }
           if (isEditMode ? this.editColumnList.length > 0  :  this.selectedDataSet.gridResponse['interestedColNames'].length > 0) {
-            this.setAffectedColumns(isEditMode ? this.editColumnList : this.selectedDataSet.gridResponse['interestedColNames'],ruleStrings[ruleCurIdx]);
+            this.setAffectedColumns(isEditMode ? this.editColumnList : this.selectedDataSet.gridResponse['interestedColNames'],ruleStrings[ruleCurIdx-1]);
           }
         }
       }
@@ -2016,7 +2016,7 @@ export class EditDataflowRuleComponent extends AbstractPopupComponent implements
     this.loadingShow();
 
     // TODO : jumpRule, applyRule 은 같은 API
-    this.dataflowService.jumpRule(this.selectedDataSet.dsId, 'JUMP', idx)
+    this.dataflowService.jumpRule(this.selectedDataSet.dsId, 'FETCH', idx)
       .then((data) => {
         if (data.errorMsg) {
           Alert.warning(this.translateService.instant('msg.dp.alert.jump.fail'));
@@ -3703,6 +3703,9 @@ export class EditDataflowRuleComponent extends AbstractPopupComponent implements
     }
 
     switch(rule.command) {
+      case 'create':
+        result = `Create with DS ${rule.with}`;
+        break;
       case 'header':
         result = `Convert row${rule.rownum} to header`;
         break;
@@ -5791,7 +5794,7 @@ export class EditDataflowRuleComponent extends AbstractPopupComponent implements
       columnNames.push( _column.name );
     }
     var functionNames = [
-      'add_time', 'concat', 'concat_ws', 'day', 'hour', 'if', 'isnan', 'isnull', 'length', 'lower', 'ltrim', 'math.abs', 'math.acos', 'math.asin', 'math.atan', 'math.cbrt', 'math.ceil', 'math.cos', 'math.cosh', 'math.exp', 'math.expm1', 'math.getExponent', 'math.round', 'math.signum', 'math.sin', 'math.sinh', 'math.sqrt', 'math.tan', 'math.tanh', 'millisecond', 'minute', 'month', 'now', 'rtrim', 'second', 'substring', 'time_diff', 'timestamp', 'trim', 'upper','year'
+      'add_time', 'concat', 'concat_ws', 'day', 'hour', 'if', 'ismismatched', ''isnan', 'isnull', 'length', 'lower', 'ltrim', 'math.abs', 'math.acos', 'math.asin', 'math.atan', 'math.cbrt', 'math.ceil', 'math.cos', 'math.cosh', 'math.exp', 'math.expm1', 'math.getExponent', 'math.round', 'math.signum', 'math.sin', 'math.sinh', 'math.sqrt', 'math.tan', 'math.tanh', 'millisecond', 'minute', 'month', 'now', 'rtrim', 'second', 'substring', 'time_diff', 'timestamp', 'trim', 'upper','year'
     ];
     var functionAggrNames = [
       'sum','avg','max','min','count',
@@ -5809,7 +5812,7 @@ export class EditDataflowRuleComponent extends AbstractPopupComponent implements
         columnNames.push( _column.name );
       }
       var functionNames = [
-        'add_time', 'concat', 'concat_ws', 'day', 'hour', 'if', 'isnan', 'isnull', 'length', 'lower', 'ltrim', 'math.abs', 'math.acos', 'math.asin', 'math.atan', 'math.cbrt', 'math.ceil', 'math.cos', 'math.cosh', 'math.exp', 'math.expm1', 'math.getExponent', 'math.round', 'math.signum', 'math.sin', 'math.sinh', 'math.sqrt', 'math.tan', 'math.tanh', 'millisecond', 'minute', 'month', 'now', 'rtrim', 'second', 'substring', 'time_diff', 'timestamp', 'trim', 'upper','year'
+        'add_time', 'concat', 'concat_ws', 'day', 'hour', 'if', 'ismismatched', 'isnan', 'isnull', 'length', 'lower', 'ltrim', 'math.abs', 'math.acos', 'math.asin', 'math.atan', 'math.cbrt', 'math.ceil', 'math.cos', 'math.cosh', 'math.exp', 'math.expm1', 'math.getExponent', 'math.round', 'math.signum', 'math.sin', 'math.sinh', 'math.sqrt', 'math.tan', 'math.tanh', 'millisecond', 'minute', 'month', 'now', 'rtrim', 'second', 'substring', 'time_diff', 'timestamp', 'trim', 'upper','year'
       ];
       // 2018.5.23  'now','month','day','hour','minute','second','millisecond','if','isnull','isnan','length','trim','ltrim','rtrim','upper','lower','substring','math.abs','math.acos','math.asin','math.atan','math.cbrt','math.ceil','math.cos','math.cosh','math.exp','math.expm1','math.getExponent','math.round','math.signum','math.sin','math.sinh','math.sqrt','math.tan','math.tanh','left','right','if','substring','add_time','concat','concat_ws'
       var functionAggrNames = [

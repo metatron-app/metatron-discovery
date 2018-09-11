@@ -17,6 +17,7 @@ import { CommonModule } from './common.module';
 import { DataPreviewComponent } from './component/data-preview/data.preview.component';
 import { DatasourceAliasService } from '../datasource/service/datasource-alias.service';
 import { DataDownloadComponent } from './component/data-download/data.download.component';
+import { WidgetService } from '../dashboard/service/widget.service';
 
 @NgModule({
   imports: [
@@ -30,6 +31,6 @@ import { DataDownloadComponent } from './component/data-download/data.download.c
     DataPreviewComponent,
     DataDownloadComponent
   ],
-  providers: [DatasourceAliasService]
+  providers: [DatasourceAliasService,WidgetService]
 })
 export class DataPreviewModule { }

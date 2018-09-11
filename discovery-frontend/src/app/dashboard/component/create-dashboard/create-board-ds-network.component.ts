@@ -22,7 +22,7 @@ import {
   ViewChild,
   Input,
   EventEmitter,
-  Output
+  Output, HostListener
 } from '@angular/core';
 import { ConnectionType, Datasource } from '../../../domain/datasource/datasource';
 import { AbstractComponent } from '../../../common/component/abstract.component';
@@ -53,6 +53,9 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   @ViewChild(CreateBoardPopRelationComponent)
   private _relationPopComp: CreateBoardPopRelationComponent;
 
+  @ViewChild( 'guideLine' )
+  private _guideLine:ElementRef;
+
   // VIS Data
   private _nodes: any;
   private _edges: any;
@@ -62,6 +65,8 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   private _dataSources: Datasource[] = [];                // 데이터소스 목록
   private _boardDataSources: BoardDataSource[] = [];     // 보드 데이터소스 목록
   private _relations: BoardDataSourceRelation[] = [];    // 연계 정보 목록
+
+  private _isAlreadyViewGuide:boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -84,6 +89,8 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   public selectedDataSource: BoardDataSource;           // 선택된 데이터소스
   public selectedRelation: BoardDataSourceRelation;     // 데이터소스 연계 정보
 
+  public isShowMultiDsGuide:boolean = false;             // 가이드 표시 여부
+
   @Input()
   public workspaceId: string;
 
@@ -91,7 +98,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   public dashboard: Dashboard;
 
   @Output()
-  public onChange: EventEmitter<boolean> = new EventEmitter();
+  public onChange: EventEmitter<{isDenyNext?:boolean,isShowButtons?:boolean}> = new EventEmitter();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -197,11 +204,11 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
       const boardDs: BoardDataSource = this.dashboard.configuration.dataSource;
       if ('multi' === boardDs.type) {
         boardDs.dataSources.forEach(item => {
-          const targetDs:Datasource = dataSources.find( ds => item.engineName === ds.engineName );
-          ( targetDs ) && ( item.name = targetDs.name );
+          const targetDs: Datasource = dataSources.find(ds => item.engineName === ds.engineName);
+          (targetDs) && (item.name = targetDs.name);
           this._addDataSource(item);
         });
-        if( boardDs.associations ) {
+        if (boardDs.associations) {
           boardDs.associations.forEach(item => {
             const srcDs: Datasource = dataSources.find(ds => ds.engineName === item.source);
             const tgtDs: Datasource = dataSources.find(ds => ds.engineName === item.target);
@@ -231,7 +238,17 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-  }
+  } // function - ngOnDestroy
+
+  /**
+   * 차트 Resize
+   *
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  protected onResize(event) {
+    $( '.sys-create-board-top-panel' ).css('height', '100%').css('height', '-=1px');
+  } // function - onResize
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - API
@@ -276,20 +293,73 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
   } // function - showPopupAddDataSource
 
   /**
+   * 가이드 표시 On/Off
+   */
+  public toggleGuide(setVisible?:string) {
+    switch( setVisible ) {
+      case 'SHOW' :
+        this.isShowMultiDsGuide = true;
+        break;
+      case 'HIDE' :
+        this.isShowMultiDsGuide = false;
+        break;
+      default :
+        this.isShowMultiDsGuide = !this.isShowMultiDsGuide;
+    }
+
+    this.safelyDetectChanges();
+    this.animateGuide();
+
+  } // function - toggleGuide
+
+  /**
+   * Animate guide
+   */
+  public animateGuide() {
+    if( this.isShowMultiDsGuide ) {
+      localStorage.setItem( 'VIEW_MULTI_DS_GUIDE', 'YES' );
+      const $guideLine = $( this._guideLine.nativeElement );
+      $guideLine.delay( 500 ).animate( { paddingLeft:"270" }, 1000, () => {
+        $guideLine.delay( 500 ).animate( { paddingLeft:"0" }, 1000, () => {
+          this.animateGuide();
+        });
+      });
+    }
+  } // function - animateGuide
+
+  /**
    * Relation 변경 모드 활성화
    */
   public onEditRelationMode() {
     this._network.addEdgeMode();
     this.isRelationEditMode = true;
+
+    const isViewGuide:string = localStorage.getItem( 'VIEW_MULTI_DS_GUIDE' );
+    this._isAlreadyViewGuide = ( 'YES' === isViewGuide );
+    ( this._isAlreadyViewGuide  ) || ( this.toggleGuide( 'SHOW' ) );
+
     this._clearSelection();
+    this.safelyDetectChanges();
+
+    // 변경사항 전파
+    this.onChange.emit({isShowButtons:!this.isRelationEditMode});
+
+    // 원래는 calc( 100% - 1px ) 로 적용되어야 하지만.. jquery와 angular 에서 calc를 지원하지 않아..
+    // 아래의 방식으로 처리함
+    $( '.sys-create-board-top-panel' ).css('height', '100%').css('height', '-=1px');
   } // function - onEditRelationMode
 
   /**
-   * Relation 변경 모드 비활성화
+   * Relation 변경 모드 비활성화sys-create-board-top-panel
    */
   public offEditRelationMode() {
     this.isRelationEditMode = false;
     this._network.disableEditMode();
+    this.toggleGuide( 'HIDE' );
+    this.safelyDetectChanges();
+
+    // 변경사항 전파
+    this.onChange.emit({isShowButtons:!this.isRelationEditMode});
   } // function - offEditRelationMode
 
   /**
@@ -568,12 +638,13 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
       this._boardDataSources.push(ds);
 
       // 네트워크 노드 추가
-      const isKorean:boolean = !!ds.name.match( /[\u3131-\uD79D]/ugi );   // 한글 체크
-      if(360 < ( isKorean ? 2 * ds.name.length : ds.name.length ) * 14 ) {
+      const isKorean: boolean = this._checkKorean( ds.name );   // 한글 체크
+      console.info( '>>>>>> name : %s, isKorean : %s', ds.name, isKorean );
+      if (360 < (isKorean ? 2 * ds.name.length : ds.name.length) * 14) {
         const nodeName: string = isKorean ? ds.name.substr(0, 11) + '...' : ds.name.substr(0, 22) + '...';
-        this._nodes.add({ id: ds.id, label: nodeName, title:ds.name });
+        this._nodes.add({ id: ds.id, label: nodeName, title: ds.name });
       } else {
-        this._nodes.add({ id: ds.id, label: ds.name, title:ds.name });
+        this._nodes.add({ id: ds.id, label: ds.name, title: ds.name });
       }
 
       if (1 === this._nodes.getIds().length) {
@@ -582,7 +653,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     }
 
     // 변경사항 전파
-    this.onChange.emit(this.isInvalidate());
+    this.onChange.emit({isDenyNext:this.isInvalidate()});
   } // function - _addDataSource
 
   /**
@@ -619,7 +690,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     }
 
     // 변경사항 전파
-    this.onChange.emit(this.isInvalidate());
+    this.onChange.emit({isDenyNext:this.isInvalidate()});
 
   } // function - _removeDataSource
 
@@ -646,7 +717,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     this._relations.push(relInfo);
 
     // 변경사항 전파
-    this.onChange.emit(this.isInvalidate());
+    this.onChange.emit({isDenyNext:this.isInvalidate()});
   } // function - _addEdgeByRelation
 
   /**
@@ -675,7 +746,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     }
 
     // 변경사항 전파
-    this.onChange.emit(this.isInvalidate());
+    this.onChange.emit({isDenyNext:this.isInvalidate()});
   } // function - _addRelationByEdgeId
 
   /**
@@ -694,7 +765,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     (-1 < removeIdx) && (this._relations.splice(removeIdx, 1));
 
     // 변경사항 전파
-    this.onChange.emit(this.isInvalidate());
+    this.onChange.emit({isDenyNext:this.isInvalidate()});
   } // function - _removeRelation
 
   /**
@@ -732,5 +803,22 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     this.selectedRelation = undefined;
     this._network.unselectAll();
   } // function - _clearSelection
+
+  /**
+   * Check Korean
+   * @param objStr
+   * @return {boolean}
+   * @private
+   */
+  private _checkKorean(objStr):boolean {
+    let isKorean:boolean = false;
+    for (let idx = 0; idx < objStr.length; idx++) {
+      if (((objStr.charCodeAt(idx) > 0x3130 && objStr.charCodeAt(idx) < 0x318F) || (objStr.charCodeAt(idx) >= 0xAC00 && objStr.charCodeAt(idx) <= 0xD7A3))) {
+        isKorean = true;
+        break;
+      }
+    }
+    return isKorean;
+  } // function - _checkKorean
 
 }
