@@ -48,34 +48,21 @@
         <!-- Server -->
         <div class="ddp-edit-setting">
           <div class="ddp-wrap-edit2">
-            <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.server' | translate}}</label>
             <div class="ddp-box-sub">
-              <!-- enable URL -->
-              <div class="ddp-clear" *ngIf="isEnableUrl">
+              <div class="ddp-clear ddp-db-url">
                 <!-- URL -->
-                <div class="ddp-wrap-edit2 ddp-col-6">
+                <div class="ddp-wrap-edit2 ddp-col-12" *ngIf="isEnableUrl" [class.ddp-error]="isShowUrlRequired">
                   <label class="ddp-label-type">{{'msg.storage.ui.conn.url' | translate}}</label>
                   <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.ui.conn.url.ph' | translate}}"
-                         [ngModel]="url">
+                         [ngModel]="url"
+                         readonly="readonly">
                   <!-- error -->
                   <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
                   <!-- error -->
-                  <!-- check -->
-                  <div class="ddp-check">
-                    <label class="ddp-label-checkbox" (click)="$event.defaultPrevented">
-                      <input type="checkbox" [checked]="isEnableUrl" tabindex="-1" [disabled]="!selectedConnectionPreset">
-                      <i class="ddp-icon-checkbox"></i>
-                      <span class="ddp-txt-checkbox">{{'msg.storage.ui.conn.url.only' | translate}}</span>
-                    </label>
-                  </div>
-                  <!-- //check -->
                 </div>
                 <!-- //URL -->
-              </div>
-              <!-- //URL 허용이면 show -->
-              <div class="ddp-clear" *ngIf="!isEnableUrl">
                 <!-- HOST -->
-                <div class="ddp-wrap-edit2 ddp-col-4" [class.ddp-error]="isShowHostRequired">
+                <div class="ddp-wrap-edit2 ddp-col-4" *ngIf="!isEnableUrl" [class.ddp-error]="isShowHostRequired">
                   <label class="ddp-label-type">{{'msg.comm.th.host' | translate}}</label>
                   <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.host' | translate}}"
                          [ngModel]="hostname"
@@ -83,19 +70,10 @@
                   <!-- error -->
                   <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
                   <!-- error -->
-                  <!-- check -->
-                  <div class="ddp-check">
-                    <label class="ddp-label-checkbox" (click)="$event.defaultPrevented">
-                      <input type="checkbox" [checked]="isEnableUrl" tabindex="-1" [disabled]="!selectedConnectionPreset">
-                      <i class="ddp-icon-checkbox"></i>
-                      <span class="ddp-txt-checkbox">{{'msg.storage.ui.conn.url.only' | translate}}</span>
-                    </label>
-                  </div>
-                  <!-- //check -->
                 </div>
                 <!-- //HOST -->
                 <!-- PORT -->
-                <div class="ddp-wrap-edit2 ddp-col-2" [class.ddp-error]="isShowPortRequired">
+                <div class="ddp-wrap-edit2 ddp-col-2" *ngIf="!isEnableUrl" [class.ddp-error]="isShowPortRequired">
                   <label class="ddp-label-type">{{'msg.comm.th.port' | translate}}</label>
                   <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.th.port' | translate}}" maxlength="5" input-mask="number"
                          [ngModel]="port"
@@ -105,6 +83,15 @@
                   <!-- error -->
                 </div>
                 <!-- //PORT -->
+                <!-- check -->
+                <div class="ddp-check ddp-col-12 ddp-disabled">
+                  <label class="ddp-label-checkbox" (click)="$event.defaultPrevented">
+                    <input type="checkbox" [checked]="isEnableUrl" tabindex="-1">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{'msg.storage.ui.conn.url.only' | translate}}</span>
+                  </label>
+                </div>
+                <!-- //check -->
               </div>
               <div class="ddp-clear" *ngIf="selectedSecurityType.value !== 'USERINFO'">
                 <!-- username -->

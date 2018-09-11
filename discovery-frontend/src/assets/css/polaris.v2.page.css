@@ -5794,12 +5794,13 @@ dl.ddp-dl-store dd {display:block; padding:28px 0 0 0; overflow:hidden;}
 .ddp-ui-dbconnect .ddp-wrap-edit2 {margin-top:30px;}
 .ddp-ui-dbconnect .ddp-wrap-edit2 .ddp-data-result {padding-bottom:9px;color:#4b515b; font-weight:300;}
 .ddp-ui-dbconnect .ddp-wrap-edit2 .ddp-data-result .ddp-link-edit2 {margin-left:5px;}
-.ddp-white-space {}
+.ddp-wrap-edit2 label.ddp-label-type + .ddp-white-space {margin:0 0 -10px 0;}
+.ddp-white-space {margin:-10px 0;}
 ul.ddp-list-dbtype {display:inline-block; overflow:hidden; white-space:nowrap;}
 ul.ddp-list-dbtype li {position:relative; display:inline-block; padding-right:4px;}
 ul.ddp-list-dbtype li.ddp-disabled a {opacity:0.5; cursor:no-drop;}
-ul.ddp-list-dbtype li.ddp-disabled:before {display:inline-block; position:absolute; top:0; left:0; right:4px; bottom:0; content:''; z-index:1;}
-ul.ddp-list-dbtype li:last-of-type.ddp-disabled:before {right:0;}
+ul.ddp-list-dbtype li.ddp-disabled:before {display:inline-block; position:absolute; top:0; left:0; right:4px; bottom:0; content:''; z-index:1;cursor:no-drop;}
+ul.ddp-list-dbtype li.ddp-disabled.ddp-selected a {opacity:1;}ul.ddp-list-dbtype li:last-of-type.ddp-disabled:before {right:0;}
 ul.ddp-list-dbtype li:last-of-type {padding-right:0px;}
 ul.ddp-list-dbtype li.ddp-selected [class*="ddp-label-"] {border:1px solid #91969e; color:#4b515b; font-weight:bold;}
 ul.ddp-list-dbtype li.ddp-selected [class*="ddp-label-"]:after {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-4px;width:11px; height:8px; background:url(../images/icon_select2.png) no-repeat; background-position:-68px top; content:'';}
@@ -5883,6 +5884,9 @@ ul.ddp-list-dbtype li .ddp-label-dbtype.type-tibero:before{width:19px; height:22
 .ddp-ui-dbconnect .ddp-ui-db-option {float:right; width:435px; padding-top:45px;}
 .ddp-ui-dbconnect .ddp-ui-db-option .ddp-ui-buttons .ddp-ui-message {margin-top:10px;}
 .ddp-ui-dbconnect .ddp-clear [class*="ddp-col-"] {padding-left: 8px; padding-right:8px;}
+.ddp-ui-dbconnect .ddp-clear.ddp-db-url .ddp-ui-error {display:none;}
+.ddp-ui-dbconnect .ddp-clear.ddp-db-url .ddp-error .ddp-ui-error {display:block;}
+.ddp-ui-dbconnect .ddp-clear.ddp-db-url .ddp-ui-error {position:relative; bottom:0; left:0;}
 .ddp-ui-dbconnect .ddp-clear {margin:0 -8px;}
 
 .ddp-ui-dbconnect .ddp-ui-db-option .ddp-ui-message {float:left; width:100%; margin-top:30px;}
