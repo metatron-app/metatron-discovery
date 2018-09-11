@@ -27,10 +27,13 @@ import app.metatron.discovery.domain.workbook.configurations.filter.SpatialFilte
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeAllFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilter;
+import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoHashFormat;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.Dimension;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
 import app.metatron.discovery.query.druid.postaggregations.ExprPostAggregator;
+import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
 
 import static app.metatron.discovery.domain.datasource.Field.FieldRole;
 import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP;
@@ -73,6 +76,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
     int measureCnt = 1;
     int dimensionCnt = 1;
+    int geoCnt = 1;
     for (Field field : projections) {
 
       String fieldName = checkColumnName(field.getColunm());
@@ -83,12 +87,23 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
       }
 
       app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
+      FieldFormat fieldFormat = field.getFormat();
+
       if(datasourceField.getRole() == FieldRole.DIMENSION) {
         if(datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
-          for (String geoPointKey : LogicalType.GEO_POINT.getGeoPointKeys()) {
-            String propName = fieldName + "." + geoPointKey;
-            propertyNames.add(new PropertyName(propName));
-            dimensions.add(new DefaultDimension(propName));
+          if(fieldFormat != null && fieldFormat instanceof GeoHashFormat) {
+            GeoHashFormat geoHashFormat = (GeoHashFormat) fieldFormat;
+            String dummyDimName = "__s" + dimensionCnt++;
+            String geoName = "__g" + geoCnt++;
+            virtualColumns.put(dummyDimName, new ExprVirtualColumn(geoHashFormat.toHashExpression(field.getName()), dummyDimName));
+            dimensions.add(new DefaultDimension(dummyDimName));
+            postAggregations.add(new ExprPostAggregator(geoHashFormat.toWktExpression(dummyDimName, geoName)));
+          } else {
+            for (String geoPointKey : LogicalType.GEO_POINT.getGeoPointKeys()) {
+              String propName = fieldName + "." + geoPointKey;
+              propertyNames.add(new PropertyName(propName));
+              dimensions.add(new DefaultDimension(propName));
+            }
           }
         } else {
           propertyNames.add(new PropertyName(fieldName));
@@ -183,7 +198,9 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
       geoQuery.addPropertyName(propertyNames.toArray(new PropertyName[propertyNames.size()]));
     }
 
-    geoQuery.setExtension(new AggregationExtension(dimensions, aggregations, postAggregations, null, null));
+    geoQuery.setExtension(new AggregationExtension(Lists.newArrayList(virtualColumns.values()),
+                                                   dimensions, aggregations, postAggregations,
+                                                   null, null));
 
     return geoQuery;
   }

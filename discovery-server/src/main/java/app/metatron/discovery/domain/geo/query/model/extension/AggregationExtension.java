@@ -11,8 +11,11 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.query.druid.Aggregation;
 import app.metatron.discovery.query.druid.Dimension;
 import app.metatron.discovery.query.druid.PostAggregation;
+import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 
 public class AggregationExtension implements DruidExtension {
+
+  List<VirtualColumn> virtualColumns;
 
   List<Dimension> dimensions;
 
@@ -26,16 +29,22 @@ public class AggregationExtension implements DruidExtension {
 
   @JsonCreator
   public AggregationExtension(
+      @JsonProperty("virtualColumns") List<VirtualColumn> virtualColumns,
       @JsonProperty("dimensions") List<Dimension> dimensions,
       @JsonProperty("aggregators") List<Aggregation> aggregators,
       @JsonProperty("postAggregators") List<PostAggregation> postAggregators,
       @JsonProperty("boundary") String boundary,
       @JsonProperty("boundaryJoin") String boundaryJoin) {
+    this.virtualColumns = virtualColumns;
     this.dimensions = dimensions;
     this.aggregators = aggregators;
     this.postAggregators = postAggregators;
     this.boundary = boundary;
     this.boundaryJoin = boundaryJoin;
+  }
+
+  public List<VirtualColumn> getVirtualColumns() {
+    return virtualColumns;
   }
 
   public List<Dimension> getDimensions() {

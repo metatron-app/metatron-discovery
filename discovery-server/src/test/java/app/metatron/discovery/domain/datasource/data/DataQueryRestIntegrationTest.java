@@ -63,6 +63,7 @@ import app.metatron.discovery.domain.workbook.configurations.field.TimestampFiel
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoHashFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
@@ -1788,6 +1789,44 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     );
 
     List<Field> layer1 = Lists.newArrayList(new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.AVG));
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
+    ChartResultFormat format = new ChartResultFormat("map");
+    request.setResultFormat(format);
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_gis_datasource.sql")
+  public void searchQueryForEstateGeoHashWithMapChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("estate");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(1000000);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    GeoHashFormat hashFormat = new GeoHashFormat("h3", 5);
+    DimensionField geoDimensionField = new DimensionField("gis", null, hashFormat);
+
+    List<Field> layer1 = Lists.newArrayList(geoDimensionField, new MeasureField("py", null, MeasureField.AggregationType.AVG));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
