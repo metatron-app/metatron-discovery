@@ -1783,11 +1783,49 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     limit.setLimit(1000000);
 
     List<Filter> filters = Lists.newArrayList(
-        new InclusionFilter("gu", Arrays.asList("강남구")),
+        //new InclusionFilter("gu", Arrays.asList("강남구")),
         new BoundFilter("amt", null, 0, 62510)
     );
 
-    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis"), new DimensionField("gu"));
+    List<Field> layer1 = Lists.newArrayList(new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.AVG));
+    Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
+    ChartResultFormat format = new ChartResultFormat("map");
+    request.setResultFormat(format);
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(request)
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_gis_datasource.sql")
+  public void searchQueryForLineBasWithMapChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("gis_fcltc_cbl_bas_jongro");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(1000000);
+
+    List<Filter> filters = Lists.newArrayList(
+        //new InclusionFilter("gu", Arrays.asList("강남구")),
+//        new BoundFilter("amt", null, 0, 62510)
+    );
+
+    List<Field> layer1 = Lists.newArrayList(new DimensionField("geo"));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);

@@ -15,6 +15,9 @@ public class GetFeature {
   @JacksonXmlProperty(isAttribute = true, localName = "outputFormat")
   String outputFormat = "application/json";
 
+  @JacksonXmlProperty(isAttribute = true, localName = "viewParams")
+  String viewParams;
+
   @JacksonXmlProperty(namespace = "http://www.opengis.net/wfs", localName = "Query")
   GeoQuery query;
 
@@ -23,6 +26,14 @@ public class GetFeature {
 
   public GetFeature(GeoQuery query) {
     this.query = query;
+    if(query.getExtension() != null) {
+      this.viewParams = query.getExtension().toParamString();
+    }
+  }
+
+  public GetFeature(GeoQuery query, String viewParams) {
+    this.query = query;
+    this.viewParams = viewParams;
   }
 
   public String getService() {
@@ -35,6 +46,10 @@ public class GetFeature {
 
   public String getOutputFormat() {
     return outputFormat;
+  }
+
+  public String getViewParams() {
+    return viewParams;
   }
 
   public GeoQuery getQuery() {

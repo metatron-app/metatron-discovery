@@ -21,6 +21,8 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Optional;
 
@@ -37,7 +39,8 @@ public class GeoRepository {
   @Value("${polaris.engine.timeout.query:120000}")
   Integer timeout;
 
-  @Value("${polaris.geoserver.url:http://52.231.184.135:8080/geoserver/metatron/wfs}")
+  @Value("${polaris.geoserver.url:http://localhost:9090/geoserver/metatron/wfs}")
+  //@Value("${polaris.geoserver.url:http://52.231.184.135:8080/geoserver/metatron/wfs}")
   String geoserverUrl;
 
   RestTemplate restTemplate;
@@ -55,6 +58,24 @@ public class GeoRepository {
     restTemplate = new RestTemplate(Lists.newArrayList(stringHttpMessageConverter));
     restTemplate.setRequestFactory(factory);
     restTemplate.setErrorHandler(new GeoResponseErrorHandler());
+  }
+
+  public String query(String requestBody, String viewParam) {
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_XML);
+    HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+
+    String newUrl = null;
+    try {
+      newUrl = geoserverUrl + "?viewParams=" + URLEncoder.encode(viewParam, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+
+    Optional<String> result = call(newUrl, HttpMethod.POST, entity, String.class);
+
+    return result.orElseThrow(() -> new EngineException("Result not found."));
   }
 
   public String query(String requestBody) {

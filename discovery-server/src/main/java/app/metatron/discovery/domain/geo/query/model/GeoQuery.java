@@ -2,11 +2,13 @@ package app.metatron.discovery.domain.geo.query.model;
 
 import com.google.common.collect.Lists;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import java.util.List;
 
+import app.metatron.discovery.domain.geo.query.model.extension.DruidExtension;
 import app.metatron.discovery.domain.geo.query.model.filter.GeoFilter;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.query.druid.Query;
@@ -30,6 +32,9 @@ public class GeoQuery extends Query {
 
   @JacksonXmlProperty(localName = "Filter")
   GeoFilter filter;
+
+  @JsonIgnore
+  DruidExtension extension;
 
   public GeoQuery() {
   }
@@ -69,5 +74,13 @@ public class GeoQuery extends Query {
 
   public void setFilter(GeoFilter filter) {
     this.filter = filter;
+  }
+
+  public DruidExtension getExtension() {
+    return extension;
+  }
+
+  public void setExtension(DruidExtension extension) {
+    this.extension = extension;
   }
 }

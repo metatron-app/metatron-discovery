@@ -3,24 +3,37 @@ package app.metatron.discovery.domain.geo.query.model;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
+import app.metatron.discovery.domain.geo.query.model.extension.AggregationExtension;
 import app.metatron.discovery.domain.geo.query.model.filter.AndOperator;
+import app.metatron.discovery.domain.geo.query.model.filter.BBox;
 import app.metatron.discovery.domain.geo.query.model.filter.GeoFilter;
 import app.metatron.discovery.domain.geo.query.model.filter.OrOperator;
 import app.metatron.discovery.domain.geo.query.model.filter.PropertyIsBetween;
 import app.metatron.discovery.domain.geo.query.model.filter.PropertyIsEqualTo;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.filter.BoundFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.SpatialBboxFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.SpatialFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.TimeAllFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilter;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
+import app.metatron.discovery.query.druid.Dimension;
+import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
+import app.metatron.discovery.query.druid.postaggregations.ExprPostAggregator;
 
 import static app.metatron.discovery.domain.datasource.Field.FieldRole;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP;
 
 /**
  * Builder Geo Server WFS Query </br>
@@ -37,6 +50,8 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
   List<PropertyName> propertyNames;
 
   GeoFilter geoFilter;
+
+  List<Dimension> dimensions = Lists.newArrayList();
 
   public GeoQueryBuilder() {
   }
@@ -56,6 +71,8 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
       propertyNames = Lists.newArrayList();
     }
 
+    int measureCnt = 1;
+    int dimensionCnt = 1;
     for (Field field : projections) {
 
       String fieldName = checkColumnName(field.getColunm());
@@ -69,11 +86,20 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
       if(datasourceField.getRole() == FieldRole.DIMENSION) {
         if(datasourceField.getLogicalType() == LogicalType.GEO_POINT) {
           for (String geoPointKey : LogicalType.GEO_POINT.getGeoPointKeys()) {
-            propertyNames.add(new PropertyName(fieldName + "." + geoPointKey));
+            String propName = fieldName + "." + geoPointKey;
+            propertyNames.add(new PropertyName(propName));
+            dimensions.add(new DefaultDimension(propName));
           }
         } else {
           propertyNames.add(new PropertyName(fieldName));
+          dimensions.add(new DefaultDimension(fieldName, field.getAlias()));
         }
+      } else if(datasourceField.getRole() == FieldRole.MEASURE) {
+        if(postAggregations == null) {
+          postAggregations = Lists.newArrayList();
+        }
+        addAggregationFunction((MeasureField) field);
+        postAggregations.add(new ExprPostAggregator("__d" + measureCnt++ + "=\\\"" + field.getAlias() + "\\\""));
       }
     }
 
@@ -108,13 +134,45 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
         andOperator.addFilter(new PropertyIsBetween(name,
                                                   boundFilter.getMin().toString(),
                                                   boundFilter.getMax().toString()));
+      } else if (filter instanceof TimeFilter) {
+        addTimeFilter(andOperator, (TimeFilter) filter);
+      } else if (filter instanceof SpatialFilter) {
+        addSpatialFilter(andOperator, (SpatialFilter) filter);
       }
-      // Support TimeFilter
     }
 
     geoFilter.addLogicalOperator(andOperator);
 
     return this;
+  }
+
+  private void addSpatialFilter(AndOperator andOperator, SpatialFilter spatialFilter) {
+    if(spatialFilter instanceof SpatialBboxFilter) {
+      SpatialBboxFilter bboxFilter = (SpatialBboxFilter) spatialFilter;
+      andOperator.addFilter(new BBox(spatialFilter.getColumn(), bboxFilter.getLowerCorner(), bboxFilter.getUpperCorner()));
+    }
+  }
+
+  private void addTimeFilter(AndOperator andOperator, TimeFilter timeFilter) {
+
+    if (timeFilter instanceof TimeAllFilter) {
+      return;
+    }
+
+    String columnName = timeFilter.getColumn();
+    app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(columnName);
+
+    if (datasourceField.getRole() == TIMESTAMP && !(timeFilter instanceof TimeListFilter)) {
+      OrOperator orOperator = new OrOperator();
+      for (String engineInterval : timeFilter.getEngineIntervals()) {
+        String[] splitedTimes = StringUtils.split(engineInterval, "/");
+        orOperator.addFilter(new PropertyIsBetween("__time", splitedTimes[0], splitedTimes[1]));
+      }
+      andOperator.addLogicalOperator(orOperator);
+    } else {
+      // TODO : Support TimeFilter
+    }
+
   }
 
   public GeoQuery build() {
@@ -124,6 +182,8 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
     if (CollectionUtils.isNotEmpty(propertyNames)) {
       geoQuery.addPropertyName(propertyNames.toArray(new PropertyName[propertyNames.size()]));
     }
+
+    geoQuery.setExtension(new AggregationExtension(dimensions, aggregations, postAggregations, null, null));
 
     return geoQuery;
   }

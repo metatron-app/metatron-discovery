@@ -22,6 +22,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import app.metatron.discovery.domain.workbook.configurations.datasource.MappingD
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MapField;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.BoundFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.ExpressionFilter;
@@ -57,6 +59,15 @@ import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeListFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimestampFilter;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
+import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
+import app.metatron.discovery.query.druid.aggregations.CountAggregation;
+import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
+import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
+import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
+import app.metatron.discovery.query.druid.aggregations.HyperUniqueAggregation;
+import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
+import app.metatron.discovery.query.druid.aggregations.SketchAggregation;
+import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
 import app.metatron.discovery.query.druid.datasource.QueryDataSource;
 import app.metatron.discovery.query.druid.datasource.TableDataSource;
 import app.metatron.discovery.query.druid.extractionfns.LookupFunction;
@@ -71,6 +82,10 @@ import app.metatron.discovery.query.druid.funtions.DateTimeMillisFunc;
 import app.metatron.discovery.query.druid.funtions.InFunc;
 import app.metatron.discovery.query.druid.funtions.TimeFormatFunc;
 import app.metatron.discovery.query.druid.lookup.MapLookupExtractor;
+import app.metatron.discovery.query.druid.postaggregations.ArithmeticPostAggregation;
+import app.metatron.discovery.query.druid.postaggregations.FieldAccessorPostAggregator;
+import app.metatron.discovery.query.druid.postaggregations.SketchQuantilePostAggregator;
+import app.metatron.discovery.query.druid.postaggregations.StddevPostAggregator;
 import app.metatron.discovery.query.druid.queries.JoinQuery;
 import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
 import app.metatron.discovery.query.druid.virtualcolumns.IndexVirtualColumn;
@@ -162,6 +177,10 @@ public abstract class AbstractQueryBuilder {
    * 사용하지 않는 UserDefined Virtual Column Name
    */
   protected List<String> unUsedVirtualColumnName = Lists.newArrayList();
+
+  protected List<Aggregation> aggregations = Lists.newArrayList();
+
+  protected List<PostAggregation> postAggregations = Lists.newArrayList();
 
   /**
    * 엔진에 질의할 때 필요한 추가 정보
@@ -506,6 +525,97 @@ public abstract class AbstractQueryBuilder {
       }
     }
 
+  }
+
+  protected void addAggregationFunction(MeasureField measureField) {
+
+    String fieldName = measureField.getColunm();
+    String aliasName = measureField.getAlias();
+    String paramName = null;
+    String dataType = "double";
+
+    switch (measureField.getAggregationType()) {
+      case NONE:
+        break;
+      case MIN:
+        aggregations.add(new GenericMinAggregation(aliasName, fieldName, dataType));
+        break;
+      case MAX:
+        aggregations.add(new GenericMaxAggregation(aliasName, fieldName, dataType));
+        break;
+      case COUNT:
+        aggregations.add(new CountAggregation(aliasName));
+        break;
+      case COUNTD:
+        aggregations.add(new HyperUniqueAggregation(aliasName, fieldName));
+        break;
+      case SUM:
+        aggregations.add(new GenericSumAggregation(aliasName, fieldName, dataType));
+        break;
+
+      case AVG:
+        String countField = measureField.getRef() == null ? "count" : measureField.getRef() + "." + "count";
+        aggregations.add(new GenericSumAggregation(fieldName + "_sum", fieldName, dataType));
+
+        if(dataSource.getMetaDataSource().rollup()) {
+          aggregations.add(new GenericSumAggregation("count", countField, dataType));
+        } else {
+          aggregations.add(new CountAggregation("count"));
+        }
+
+        ArithmeticPostAggregation postAggregation = new ArithmeticPostAggregation();
+        postAggregation.setName(aliasName);
+        postAggregation.setFn(ArithmeticPostAggregation.AggregationFunction.DIVISION);
+
+        List<PostAggregation> postAggregationFields = new ArrayList<PostAggregation>();
+
+        postAggregationFields.add(new FieldAccessorPostAggregator(fieldName + "_sum", fieldName + "_sum"));
+        postAggregationFields.add(new FieldAccessorPostAggregator("count", "count"));
+
+        postAggregation.setFields(postAggregationFields);
+
+        postAggregations.add(postAggregation);
+        break;
+      case STDDEV:
+        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
+        aggregations.add(new VarianceAggregation(paramName, fieldName));
+
+        StddevPostAggregator stddevPostAggregator = new StddevPostAggregator(aliasName, paramName);
+        postAggregations.add(stddevPostAggregator);
+        break;
+      case MEDIAN:
+        // TODO: Field 메타 정보를 뒤져 approxHistogram 으로 preaggregation 되었는지 확인후 타입 결정
+        // 현재는 preaggregation 고려하지 않음
+        // http://druid.io/docs/latest/development/extensions-core/approximate-histograms.html
+        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
+        aggregations.add(new SketchAggregation(paramName, fieldName, SketchAggregation.SKETCH_OP_QUANTILE));
+
+        SketchQuantilePostAggregator medianPostAggregator = new SketchQuantilePostAggregator(aliasName, paramName, 0.5);
+        postAggregations.add(medianPostAggregator);
+        break;
+      case AREA:
+        aggregations.add(new AreaAggregation(aliasName, fieldName));
+        break;
+      case RANGE:
+        aggregations.add(new RangeAggregation(aliasName, fieldName));
+        break;
+      case PERCENTILE:
+        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
+        aggregations.add(new SketchAggregation(paramName, fieldName, SketchAggregation.SKETCH_OP_QUANTILE));
+
+        SketchQuantilePostAggregator quantilePostAggregator = new SketchQuantilePostAggregator(aliasName, paramName, measureField.getParamValue("value"));
+        postAggregations.add(quantilePostAggregator);
+        break;
+      case VARIATION:
+        aggregations.add(new VarianceAggregation(aliasName, fieldName));
+        break;
+      case APPROX:
+        break;
+      case COMPLEX:
+        break;
+    }
+
+    return;
   }
 
   /**

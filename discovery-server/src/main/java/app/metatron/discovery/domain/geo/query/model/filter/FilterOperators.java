@@ -17,6 +17,9 @@ public abstract class FilterOperators {
   @JacksonXmlProperty(localName = "PropertyIsLike")
   List<PropertyIsLike> propertyIsLikes;
 
+  @JacksonXmlProperty(localName = "BBOX")
+  List<BBox> bbox;
+
   @JacksonXmlProperty(localName = "And")
   List<AndOperator> andOperators;
 

@@ -69,13 +69,16 @@ public class GeoService {
 
   private String query(GeoQuery geoQuery) {
     String geoQueryStr = null;
+
+    GetFeature getFeature = new GetFeature(geoQuery);
     try {
-      geoQueryStr = xmlMapper.writeValueAsString(new GetFeature(geoQuery));
+      geoQueryStr = xmlMapper.writeValueAsString(getFeature);
     } catch (JsonProcessingException e) {
       e.printStackTrace();
     }
 
     LOGGER.debug("Geo Server Query : {}", geoQueryStr);
+    LOGGER.debug("Geo Server Query = Druid : {}", geoQuery.getExtension().toParamString());
 
     return geoRepository.query(geoQueryStr);
   }
