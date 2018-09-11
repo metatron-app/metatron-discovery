@@ -1993,7 +1993,10 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#602663",
-              transparency: 100
+              transparency: 100,
+              blur: 10,
+              radius: 10,
+              resolution: 9
             },
             size: {
               "by": "NONE",
@@ -2006,7 +2009,11 @@ export namespace OptionGenerator {
             clustering: true
           }
         ],
-        valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
+        valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),
+        legend: {
+          pos: UIPosition.RIGHT_BOTTOM,
+          showName: true
+        }
       };
     }
   }

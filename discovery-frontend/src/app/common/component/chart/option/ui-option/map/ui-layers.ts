@@ -34,6 +34,12 @@ interface SymbolColor {
 
   transparency?: number;
 
+  blur?: number;
+
+  radius?: number;
+
+  resolution?: number;
+
 }
 
 /**

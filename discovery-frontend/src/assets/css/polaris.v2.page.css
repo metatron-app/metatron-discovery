@@ -8004,7 +8004,9 @@ em.ddp-icon-mapview3-w:before {background-position-x:0;}
 .ddp-list-datavalue > li + li {margin-top:2px;}
 .ddp-list-datavalue li em[class*="ddp-icon-dimension-"],
 .ddp-list-datavalue li em[class*="ddp-icon-measure"] {float:left; margin-right:8px;}
-.ddp-list-datavalue > li span.ddp-data-value {display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
+.ddp-list-datavalue > li span.ddp-data-value {display:block;  position:relative; padding-left:20px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
+.ddp-list-datavalue > li span.ddp-data-value > em[class*="ddp-icon-dimension-"],
+.ddp-list-datavalue > li span.ddp-data-value >  em[class*="ddp-icon-measure"] {position:absolute; top:50%; left:0; margin-top:-5px;}
 .ddp-list-datavalue > li:hover .ddp-icon-listdelete {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-8px; width:15px; height:15px; background:url(../images/icon_delete.png) no-repeat; background-position:left -14px; cursor:pointer;}
 .ddp-list-datavalue li.ddp-add .ddp-box-layout4 {display:none; position:absolute; top:100%; left:0; right:0; padding:12px 0 0 0;max-height:334px; overflow:auto; }
 .ddp-list-datavalue li.ddp-add.ddp-selected .ddp-box-layout4 {display:block;}
