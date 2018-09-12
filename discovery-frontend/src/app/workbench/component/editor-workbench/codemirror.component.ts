@@ -311,7 +311,7 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
       .replace(/\(\s{0,}SELECT /ig,"~::~(SELECT ")
       .replace(/\)\s{0,}SELECT /ig,")~::~SELECT ")
 
-      .replace(/ THEN /ig," THEN~::~"+tab+"")
+      .replace(/ THEN /ig," ~::~"+tab+"THEN ")
       .replace(/ UNION /ig,"~::~UNION~::~")
       .replace(/ USING /ig,"~::~USING ")
       .replace(/ WHEN /ig,"~::~"+tab+"WHEN ")
