@@ -1083,7 +1083,8 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     if (LayoutMode.EDIT === this._layoutMode ) {
       this.loadingShow();
     } else {
-      this.isShowDashboardLoading = true;
+      const isRealTimeBoard:boolean = this.dashboard && this.dashboard.configuration.options.sync && this.dashboard.configuration.options.sync.enabled;
+      ( isRealTimeBoard ) || ( this.isShowDashboardLoading = true );
     }
     this.safelyDetectChanges();
   } // function - showBoardLoading
