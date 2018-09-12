@@ -706,12 +706,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * 룰 수정 클릭시
    * @param editInfo
    */
-  public setRuleVO(editInfo) {
+  public setEditData(editInfo) {
 
     // unselect all columns in current grid
     this._editRuleGridComp.unSelectionAll('COL');
 
-    // set current index (편집은 현재 클릭된 idx 보다 하나 전 단계 그리드를 가지고 와야 하기 떄문에 1을 뺸다)
+    // set current index (when editing subtract 1 from index)
     let ruleIdx = editInfo.ruleNo-1;
 
     // 인풋박스 포커스 여부 IE 에서 수정버튼을 누르면 툴팁 박스가 열려서...

@@ -198,6 +198,11 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
     this.isEditMode = !(params['op'] == 'PREPARE_UPDATE');
 
+    // ruleIdx is unnecessary in undo and redo
+    if ('UNDO' === params['op'] || 'REDO' === params['op']) {
+      delete params['ruleIdx']
+    }
+
     if ('INITIAL' === params['op'] || 'PREPARE_UPDATE' === params['op']) {
       delete params['op']
     } else {
