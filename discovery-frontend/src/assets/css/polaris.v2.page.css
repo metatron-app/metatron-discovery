@@ -2936,6 +2936,7 @@ ul.ddp-list-layer-option li a .ddp-btn-info {float:right;}
 ul.ddp-list-layer-option li a .ddp-data-result {float:right; position:relative; top:1px; color:#90969f; font-size:11px;}
 ul.ddp-list-layer-option li a .ddp-data-result span.ddp-txt-result {display:inline-block; max-width:90px; color:#90969f; font-size:11px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; vertical-align: middle;}
 ul.ddp-list-layer-option li a .ddp-data-result em.ddp-icon-view {display:inline-block; width:4px; height:8px; margin-left:10px;  background:url(../images/icon_dataview.png) no-repeat; background-position:left -40px; vertical-align: middle;}
+ul.ddp-list-layer-option li ul.ddp-list-popup li a em.ddp-icon-view {position:relative; top:0; right:0; margin-top:0; transform:rotate(0);}
 ul.ddp-list-layer-option li a .ddp-data-result em.ddp-btn-option {vertical-align: middle;}
 ul.ddp-list-layer-option li a .ddp-data-result.ddp-type {color:#666eb2;}
 
