@@ -20,7 +20,6 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,19 +55,19 @@ public class CatalogTreeService {
     List<CatalogTree> catalogTrees = Lists.newArrayList();
     catalogTrees.add(new CatalogTree(catalog.getId(), catalog.getId(), 0));
 
-    if(catalog.getParentId() == null) {
+    if (catalog.getParentId() == null) {
       catalogTreeRepository.save(catalogTrees);
       return;
     }
 
     Catalog parentCatalog = catalogRepository.findOne(catalog.getParentId());
-    if(parentCatalog == null) {
+    if (parentCatalog == null) {
       throw new IllegalArgumentException("Invalid parent Catalog Id : " + catalog.getParentId());
     }
 
     List<CatalogTree> ancestors = catalogTreeRepository.findByIdDescendant(parentCatalog.getId());
 
-    for(CatalogTree ancestor : ancestors) {
+    for (CatalogTree ancestor : ancestors) {
       catalogTrees.add(new CatalogTree(ancestor.getId().getAncestor(), catalog.getId(), ancestor.getDepth() + 1));
     }
 
@@ -81,7 +80,7 @@ public class CatalogTreeService {
     List<CatalogTree> catalogTrees = Lists.newArrayList();
     List<String> deleteDescendants = Lists.newArrayList();
 
-    if(catalog.getParentId() == null) {
+    if (catalog.getParentId() == null) {
 
       List<CatalogTree> descendants = catalogTreeRepository.findDescendantNotAncenstor(catalog.getId());
       for (CatalogTree catalogTree : descendants) {
@@ -92,7 +91,7 @@ public class CatalogTreeService {
     } else {
 
       Catalog parentCatalog = catalogRepository.findOne(catalog.getParentId());
-      if(parentCatalog == null) {
+      if (parentCatalog == null) {
         throw new IllegalArgumentException("Invalid parent Catalog Id : " + catalog.getParentId());
       }
 
@@ -109,7 +108,7 @@ public class CatalogTreeService {
       for (CatalogTree catalogTree : descendants) {
         deleteDescendants.add(catalogTree.getId().getDescendant());
         depthMap.forEach((ancestor, i) ->
-            catalogTrees.add(new CatalogTree(ancestor, catalogTree.getId().getDescendant(), i + catalogTree.getDepth()))
+                             catalogTrees.add(new CatalogTree(ancestor, catalogTree.getId().getDescendant(), i + catalogTree.getDepth()))
         );
       }
     }
@@ -121,21 +120,15 @@ public class CatalogTreeService {
 
   @Transactional
   public void deleteTree(Catalog catalog) {
-    // 하위 북 삭제
+    // Delete sub-catalog.
     List<CatalogTree> descendants = catalogTreeRepository.findDescendantNotAncenstor(catalog.getId());
-    if(descendants.size() > 0) {
-      for(CatalogTree catalogTree : descendants) {
-        try {
-          catalogRepository.delete(catalogTree.getId().getDescendant());
-          catalogTreeRepository.delete(new CatalogTreeId(catalogTree.getId().getDescendant(), catalogTree.getId().getDescendant()));
-        } catch (EmptyResultDataAccessException e) {
-          LOGGER.warn("Fail to delete related book and tree from {}", catalog.getId(), e.getMessage());
-          continue;
-        }
+    if (descendants.size() > 0) {
+      for (CatalogTree catalogTree : descendants) {
+        catalogRepository.delete(catalogTree.getId().getDescendant());
+        catalogTreeRepository.deteleAllTree(catalog.getId());
       }
     }
 
-    // 트리 정보 삭제
     catalogTreeRepository.deteleAllTree(catalog.getId());
   }
 }
