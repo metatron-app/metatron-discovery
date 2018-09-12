@@ -516,6 +516,11 @@ export class GridComponent implements AfterViewInit, OnDestroy {
     return this.isGridCreated;
   }
 
+  public noShowData(){
+    this.destroy();
+    return true;
+  }
+
   /**
    * 검색
    * @param {string} searchText

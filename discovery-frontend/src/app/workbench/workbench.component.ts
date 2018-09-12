@@ -997,7 +997,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                     return;
                   }
                   queryEditor.query = this.getSelectedSqlTabText();
-                  ;
                 } else {
                   queryEditor.query = this.getSelectedSqlTabText();
                 }
@@ -1788,7 +1787,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     const headers: header[] = [];
     // data fields가 없다면 return
     if (!data.fields) {
-      return;
+      this.gridComponent.noShowData();
+      $('.myGrid').html('<div style="text-align: center">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
+      return false;
     }
 
     for (let index: number = 0; index < data.fields.length; index = index + 1) {
