@@ -1007,7 +1007,7 @@ ul.ddp-list-popup li a span.ddp-column-type [class*="ddp-icon"],
 .ddp-types ul.ddp-list-popup li a span.ddp-data-name {color:#b7b9c2;}
 .ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-type-"] {display:inline-block;}
 .ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-measure-"],
-.ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-dimension-"] {position:absolute; top:50%; left:10px; margin-top:-5px;}
+.ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-dimension-"] {position:absolute; top:50%; left:10px; margin-top:-6px;}
 .ddp-types ul.ddp-list-popup li a em.ddp-icon-time5 {position:absolute; left:10px; top:50%; margin-top:-7px;}
 .ddp-types ul.ddp-list-popup li.ddp-selected a em.ddp-icon-time5 {background-position:-14px -16px;}
 .ddp-types ul.ddp-list-popup li a .ddp-label-checkbox i.ddp-icon-checkbox,
@@ -1212,6 +1212,11 @@ ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-longitude {background-pos
 ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-array,
 ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-array,
 ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-array {background-position-x:-9px;}
+
+em.ddp-icon-map-view {display:inline-block; position:absolute; top:5px; left:0; background:url(../images/icon_valuetype_map.png) no-repeat; }
+em.ddp-icon-dimension-polygon {width:13px; height:13px;}
+em.ddp-icon-dimension-line {width:10px; height:12px; background-position:left -14px;}
+em.ddp-icon-dimension-point {width:9px; height:12px; background-position:left -27px;}
 
 em.ddp-icon-filterSc {display:inline-block; width:9px; height:10px; background:url(../images/icon_filterSc.png) no-repeat;}
 

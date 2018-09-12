@@ -1398,11 +1398,11 @@
             <!-- MapView -->
             <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu" [(uiOption)]="uiOption"></map-common-option>
             <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer' === rnbMenu" [(uiOption)]="uiOption"></map-layer-option>
-            <map-legend-option #mapLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption"></map-legend-option>
+            <map-legend-option #mapLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)"></map-legend-option>
             <map-format-option #mapFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu" (changeCommon)="onFormatCommonChange($event)" (changeEach)="onFormatEachChange($event)" (drawChartParam)="onSetDrawChartParam($event)"
                                [(pivot)]="pivot" [(uiOption)]="uiOption">
             </map-format-option>
-            <map-tooltip-option #mapTooltipOption *ngIf="isChartShow && 'mapTooltip' === rnbMenu" [(uiOption)]="uiOption"></map-tooltip-option>
+            <map-tooltip-option #mapTooltipOption *ngIf="isChartShow && 'mapTooltip' === rnbMenu" [(uiOption)]="uiOption" [fields]="fieldsWCustom" [pivot]="pivot" (drawChartParam)="onSetDrawChartParam($event)"></map-tooltip-option>
             <!-- //MapView -->
         </div>
 
