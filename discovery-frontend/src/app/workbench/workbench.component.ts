@@ -1788,7 +1788,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // data fields가 없다면 return
     if (!data.fields) {
       this.gridComponent.noShowData();
-      $('.myGrid').html('<div style="text-align: center">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
+      $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
       return false;
     }
 
