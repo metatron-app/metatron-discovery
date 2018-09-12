@@ -15,6 +15,7 @@
 import { isNullOrUndefined, isUndefined } from 'util';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
+import Split from 'split.js';
 import {
   AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnDestroy, OnInit,
   Output,
@@ -66,6 +67,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   @ViewChild(DataSnapshotDetailComponent)
   private dataSnapshotDetailComponent : DataSnapshotDetailComponent;
+
+  private _split: any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -230,6 +233,16 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public ngOnChanges() {}
 
   public ngAfterViewInit() {
+    this._split = [];
+    this._split.push(Split(['.rule-left', '.rule-right'], {
+      sizes: [80, 20],
+      minSize: 300,
+    }));
+    this._split.push(Split(['.rule-top', '.rule-bottom'], {
+      direction: 'vertical',
+      sizes: [75, 25],
+      minSize: 280,
+    }));
     this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data)=> {
 
       if (data['error']) {
@@ -246,6 +259,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
   public ngOnDestroy() {
     super.ngOnDestroy();
+    this._split.forEach((item) => {
+      item.destroy();
+    });
+    this._split = [];
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -770,7 +787,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.selectedDataSet['_embedded'].dataflows = dataflows;
     }
 
-    this._setEditRuleInfo('INITIAL').then((data) => {
+    this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data) => {
 
       if (data['error']) {
         let prep_error = this.dataprepExceptionHandler(data['error']);
