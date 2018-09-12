@@ -13,7 +13,7 @@
   -->
 
 <!-- tab contents -->
-<div class="ddp-ui-tab-contents">
+<div class="ddp-ui-tab-contents ddp-full">
   <!-- search bar -->
   <div class="ddp-datagrid">
     <!-- option -->
@@ -90,12 +90,13 @@
     <!-- //option -->
   </div>
   <!-- //search bar -->
-  <!-- datadetail -->
-  <div class="ddp-data-details">
-    <div class="ddp-wrap-sourcename">
-      <div class="ddp-wrap-table">
-        <table class="ddp-table-form ddp-table-type2 ddp-table-view ddp-inherit">
-          <thead>
+  <div class="ddp-wrap-variable">
+    <!-- datadetail -->
+    <div class="ddp-data-details">
+      <div class="ddp-wrap-sourcename">
+        <div class="ddp-wrap-table">
+          <table class="ddp-table-form ddp-table-type2 ddp-table-view ddp-inherit">
+            <thead>
             <tr>
               <th>{{'msg.metadata.th.physical.name' | translate}}
                 <a href="javascript:" class="ddp-link-filter" *ngIf="!isExistMetaData()" (click)="onClickEditFilters()">{{'msg.storage.ui.edit.filters' | translate}} ></a>
@@ -104,10 +105,10 @@
                 <a href="javascript:" class="ddp-link-filter" (click)="onClickEditFilters()">{{'msg.storage.ui.edit.filters' | translate}} ></a>
               </th>
             </tr>
-          </thead>
-          <tbody>
+            </thead>
+            <tbody>
             <tr [ngClass]="{'ddp-selected' : selectedField && selectedField.name === field.name}" *ngFor="let field of filteredColumnList; let i = index"
-              (click)="onSelectedField(field, datasource)">
+                (click)="onSelectedField(field, datasource)">
               <!-- physical column name -->
               <td>
                 <!-- value -->
@@ -135,7 +136,7 @@
                 </div>
                 <!-- tooltip -->
                 <!--<div class="ddp-ui-tooltip-info ddp-type" [class.ddp-top]="isChangeTooltipClass(filteredColumnList, i)">-->
-                  <!--<em class="ddp-icon-view-top"></em>{{field.name}}-->
+                <!--<em class="ddp-icon-view-top"></em>{{field.name}}-->
                 <!--</div>-->
                 <!-- //tooltip -->
               </td>
@@ -164,405 +165,406 @@
                 </div>
                 <!-- tooltip -->
                 <!--<div class="ddp-ui-tooltip-info ddp-left" [class.ddp-top]="isChangeTooltipClass(filteredColumnList, i)">-->
-                  <!--<em class="ddp-icon-view-top"></em>{{field['logicalName']}}-->
+                <!--<em class="ddp-icon-view-top"></em>{{field['logicalName']}}-->
                 <!--</div>-->
                 <!-- //tooltip -->
               </td>
               <!-- //logical column name -->
             </tr>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-    <!-- detail -->
-    <div class="ddp-wrap-detail ddp-type" *ngIf="selectedField">
-      <!-- Column information -->
-      <div class="ddp-ui-detail ddp-clear ddp-padt0">
-        <!-- col -->
-        <div class="ddp-col-12">
-          <div class="ddp-ui-title">
-            {{'msg.storage.ui.column.information' | translate}}
-          </div>
-          <table class="ddp-table-detail2">
-            <colgroup>
-              <col width="175px">
-              <col width="*">
-            </colgroup>
-            <tbody>
-            <tr>
-              <th>
-                {{'msg.metadata.th.physical.name' | translate}}
-              </th>
-              <td>
-                {{selectedField.name}}
-              </td>
-            </tr>
-            <tr>
-              <th>
-                {{'msg.metadata.th.physical.role' | translate}}
-              </th>
-              <td>
-                <span class="ddp-box-tag-value {{getFieldRoleTypeIconClass(selectedField.role.toString())}}">{{(selectedField.role === 'MEASURE' ? 'msg.comm.name.mea' : 'msg.comm.name.dim') | translate}}</span>
-              </td>
-            </tr>
-            <tr>
-              <th>
-                {{'msg.metadata.th.physical.type' | translate}}
-              </th>
-              <td>
-                <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP'"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em> {{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</span>
-                <!-- 클릭시 ddp-selected 추가 -->
-                <div class="ddp-hover-selectbox" [class.ddp-selected]="isShowPhysicalTypeFl"
-                     *ngIf="selectedField.role !== 'TIMESTAMP'"
-                     (click)="isShowPhysicalTypeFl = !isShowPhysicalTypeFl" (clickOutside)="isShowPhysicalTypeFl = false">
-                  <a href="javascript:" class="ddp-icon-type"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em> {{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</a>
-                  <div class="ddp-wrap-popup2 ddp-types">
-                    <ul class="ddp-list-popup">
-                      <li [class.ddp-selected]="" *ngFor="let physicalType of physicalTypeList">
-                        <a href="javascript:" (click)="onChangeFieldPhysicalType(selectedField, physicalType)">
-                          <em class="{{getFieldTypeIconClass(physicalType.value)}}"></em>
-                          {{physicalType.label}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                    </ul>
+      <!-- detail -->
+      <div class="ddp-wrap-detail ddp-type" *ngIf="selectedField">
+        <!-- Column information -->
+        <div class="ddp-ui-detail ddp-clear ddp-padt0">
+          <!-- col -->
+          <div class="ddp-col-12">
+            <div class="ddp-ui-title">
+              {{'msg.storage.ui.column.information' | translate}}
+            </div>
+            <table class="ddp-table-detail2">
+              <colgroup>
+                <col width="175px">
+                <col width="*">
+              </colgroup>
+              <tbody>
+              <tr>
+                <th>
+                  {{'msg.metadata.th.physical.name' | translate}}
+                </th>
+                <td>
+                  {{selectedField.name}}
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  {{'msg.metadata.th.physical.role' | translate}}
+                </th>
+                <td>
+                  <span class="ddp-box-tag-value {{getFieldRoleTypeIconClass(selectedField.role.toString())}}">{{(selectedField.role === 'MEASURE' ? 'msg.comm.name.mea' : 'msg.comm.name.dim') | translate}}</span>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  {{'msg.metadata.th.physical.type' | translate}}
+                </th>
+                <td>
+                  <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP'"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em> {{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</span>
+                  <!-- 클릭시 ddp-selected 추가 -->
+                  <div class="ddp-hover-selectbox" [class.ddp-selected]="isShowPhysicalTypeFl"
+                       *ngIf="selectedField.role !== 'TIMESTAMP'"
+                       (click)="isShowPhysicalTypeFl = !isShowPhysicalTypeFl" (clickOutside)="isShowPhysicalTypeFl = false">
+                    <a href="javascript:" class="ddp-icon-type"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em> {{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</a>
+                    <div class="ddp-wrap-popup2 ddp-types">
+                      <ul class="ddp-list-popup">
+                        <li [class.ddp-selected]="" *ngFor="let physicalType of physicalTypeList">
+                          <a href="javascript:" (click)="onChangeFieldPhysicalType(selectedField, physicalType)">
+                            <em class="{{getFieldTypeIconClass(physicalType.value)}}"></em>
+                            {{physicalType.label}}
+                            <em class="ddp-icon-check"></em>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- //col -->
+        </div>
+        <!-- //Column information -->
+        <!-- Column settings -->
+        <div class="ddp-ui-detail ddp-clear ">
+          <!-- col -->
+          <div class="ddp-col-12">
+            <div class="ddp-ui-title">
+              {{'msg.storage.ui.column.settings' | translate}}
+            </div>
+            <table class="ddp-table-detail2">
+              <colgroup>
+                <col width="175px">
+                <col width="*">
+              </colgroup>
+              <tbody>
+              <tr *ngIf="selectedField.logicalType === 'TIMESTAMP'">
+                <th>
+                  {{'msg.storage.ui.th.display.format' | translate}}
+                </th>
+                <td>
+                  {{selectedField.format}}
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  {{'msg.storage.ui.th.missing' | translate}}
+                </th>
+                <td>
+                  <ng-container *ngIf="!selectedField.ingestionRule">{{'msg.storage.btn.no.apply' | translate}}</ng-container>
+                  <ng-container *ngIf="selectedField.ingestionRule && selectedField.ingestionRule.type === 'replace'">{{'msg.storage.ui.replace.with' | translate}} {{selectedField.ingestionRule.value !== '' ? selectedField.ingestionRule.value : 'Empty string'}}</ng-container>
+                  <ng-container *ngIf="selectedField.ingestionRule && selectedField.ingestionRule.type === 'discard'">{{'msg.storage.btn.discard' | translate}}</ng-container>
+                </td>
+              </tr>
+              <tr *ngIf="isEnableFiltering(selectedField)">
+                <th>
+                  {{'msg.storage.ui.dsource.filter.recommendation' | translate}}
+                </th>
+                <td>
+                  <div class="ddp-wrap-datarecommend">
+                    {{selectedField.filteringSeq + 1}}
+                    <em class="ddp-icon-recommend-s"></em>
+                  </div>
+                  <ng-container *ngIf="selectedField.filteringOptions">
+                    {{(selectedField.filteringOptions.type.toString() === 'TIME' ? 'msg.storage.btn.sel.recent.period' : 'msg.storage.btn.sel.single.item') | translate}}
+                  </ng-container>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- //col -->
+        </div>
+        <!-- //Column settings -->
+        <!-- Metadata -->
+        <div class="ddp-ui-detail ddp-clear " *ngIf="isExistMetaData()">
+          <!-- col -->
+          <div class="ddp-col-12">
+            <div class="ddp-ui-title">
+              {{'msg.storage.ui.meta.data' | translate}}
+            </div>
+            <table class="ddp-table-detail2">
+              <colgroup>
+                <col width="175px">
+                <col width="*">
+              </colgroup>
+              <tbody>
+              <tr>
+                <th>
+                  {{'msg.metadata.th.dictionary.logical.name' | translate}}
+                </th>
+                <td>
+                  {{selectedField.logicalName}}
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  {{'msg.storage.ui.th.logical.type'| translate}}
+                </th>
+                <td>
+                  <span class="ddp-icon-type-txt" *ngIf="selectedField['metaType']"> <em class="{{getFieldTypeIconClass(selectedField['metaType'])}}"></em> {{getColumnTypeLabel(selectedField['metaType'], typeFilterList)}}</span>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  {{'msg.metadata.th.dictionary' | translate}}
+                </th>
+                <td>
+                  {{selectedField.dictionary?.name}}
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  {{'msg.storage.ui.th.code.table' | translate}}
+                </th>
+                <td>
+                  {{selectedField.codeTable?.name}}
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  {{'msg.storage.ui.th.description' | translate}}
+                </th>
+                <td>
+                  {{selectedField.description}}
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- //col -->
+        </div>
+        <!-- //Metadata -->
+        <!-- statistic -->
+        <div class="ddp-ui-detail ddp-clear" *ngIf="!isLinkedTypeSource(datasource)">
+          <div class="ddp-ui-title2">
+            {{'msg.storage.ui.dsource.preview.statistic' | translate}}
+          </div>
+          <!-- col -->
+          <div class="ddp-col-6 ddp-border-none">
+            <table class="ddp-table-detail2">
+              <colgroup>
+                <col width="140px">
+                <col width="*">
+              </colgroup>
+              <tbody>
+              <tr>
+                <th>
+                  {{'msg.storage.ui.th.row.count' | translate}}
+                </th>
+                <td>
+                  {{getLabel('count')}}
+                </td>
+              </tr>
+              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                <th class="ddp-th-valid" >
+                  {{'msg.storage.ui.dsource.preview.valid' | translate}}
+                </th>
+                <td>
+                  {{getLabel('valid')}}
+                </td>
+              </tr>
+              <tr class="ddp-tr-sub" *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                <th>
+                  {{'msg.storage.ui.dsource.preview.unique' | translate}}
+                </th>
+                <td>
+                  {{getLabel('unique')}}
+                </td>
+              </tr>
+              <tr class="ddp-tr-sub" *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                <th>
+                  {{'msg.storage.ui.dsource.preview.outliers' | translate}} <em class="ddp-icon-error-s"></em>
+                </th>
+                <td>
+                  {{getLabel('outliers')}}
+                </td>
+              </tr>
+              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                <th class="ddp-th-missing">
+                  {{'msg.storage.ui.dsource.preview.missing' | translate}}
+                </th>
+                <td>
+                  {{getLabel('missing')}}
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- //col -->
+          <!-- col -->
+          <div class="ddp-col-6" *ngIf="selectedField.role.toString() === 'MEASURE' || selectedField.logicalType.toString() === 'TIMESTAMP'">
+            <table class="ddp-table-detail2">
+              <colgroup>
+                <col width="140px">
+                <col width="*">
+              </colgroup>
+              <tbody>
+              <tr>
+                <th>
+                  {{'msg.storage.ui.dsource.preview.min' | translate}}
+                </th>
+                <td>
+                  {{getLabel('min')}}
+                </td>
+              </tr>
+              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                <th>
+                  {{'msg.storage.ui.dsource.preview.quartile.lower' | translate}}
+                </th>
+                <td>
+                  {{getLabel('lower')}}
+                </td>
+              </tr>
+              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                <th>
+                  {{'msg.storage.ui.dsource.preview.median' | translate}}
+                </th>
+                <td>
+                  {{getLabel('median')}}
+                </td>
+              </tr>
+              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                <th>
+                  {{'msg.storage.ui.dsource.preview.quartile.upper' | translate}}
+                </th>
+                <td>
+                  {{getLabel('upper')}}
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  {{'msg.storage.ui.dsource.preview.max' | translate}}
+                </th>
+                <td>
+                  {{getLabel('max')}}
+                </td>
+              </tr>
+              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                <th>
+                  {{'msg.storage.ui.dsource.preview.avr' | translate}}
+                </th>
+                <td>
+                  {{getLabel('average')}}
+                </td>
+              </tr>
+              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                <th>
+                  {{'msg.storage.ui.dsource.preview.deviation' | translate}}
+                </th>
+                <td>
+                  {{getLabel('standard')}}
+                </td>
+              </tr>
+              <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
+                <th>
+                  {{'msg.storage.ui.dsource.preview.skewness' | translate}}
+                </th>
+                <td>
+                  {{getLabel('skewness')}}
+                </td>
+              </tr>
+
+              </tbody>
+
+            </table>
+          </div>
+          <!-- //col -->
+        </div>
+        <!-- //statistic -->
+        <!-- value list -->
+        <div class="ddp-ui-detail ddp-clear " *ngIf="!isLinkedTypeSource(datasource) && selectedField.role === 'DIMENSION' && selectedField.logicalType.toString() !== 'TIMESTAMP'">
+          <!-- col -->
+          <div class="ddp-col-12">
+            <div class="ddp-ui-title">
+              {{'msg.storage.ui.dsource.preview.value.li' | translate}}
+            </div>
+            <table class="ddp-table-detail2">
+              <colgroup>
+                <col width="175px">
+                <col width="*">
+              </colgroup>
+              <tbody>
+              <tr *ngFor="let item of getValueList()">
+                <th>
+                  {{item.value}}
+                </th>
+                <td>
+                  {{item.count}}
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- //col -->
+        </div>
+        <!-- //value list -->
+        <!-- table detail -->
+        <div class="ddp-wrap-table-detail" [style.display]="!isLinkedTypeSource(datasource) && (selectedField.role === 'MEASURE' || selectedField.logicalType.toString() === 'TIMESTAMP') ? 'block' : 'none'">
+          <!-- histogram -->
+          <label class="ddp-label-detail">{{'msg.storage.ui.dsource.preview.histogram' | translate}}</label>
+          <div class="ddp-ui-detail-in">
+            <!-- box histogram -->
+            <div class="ddp-box-histogram" #histogram>
+
+            </div>
+            <!-- //box histogram -->
+          </div>
+          <!-- //histogram -->
+          <!-- Covariance -->
+          <label class="ddp-label-detail" *ngIf="selectedField && selectedField.role.toString() === 'MEASURE'">{{'msg.storage.ui.preview.covariance.ranking' | translate}} (top {{getCovarianceList().length}})</label>
+          <div class="ddp-ui-detail-in" *ngIf="selectedField && selectedField.role.toString() === 'MEASURE'">
+            <table class="ddp-table-order">
+              <colgroup>
+                <col width="55px">
+                <col width="">
+                <col width="40%">
+              </colgroup>
+              <tbody>
+              <tr *ngFor="let item of getCovarianceList(); let i = index">
+                <td class="ddp-txt-center">
+                  {{i + 1}}
+                </td>
+                <td>
+                  {{item.with}}
+                </td>
+                <td>
+                  {{item.covariance}}
+                </td>
+              </tr>
+              </tbody>
+            </table>
+
+            <ul class="ddp-list-graph">
+              <li *ngFor="let item of getCovarianceList()">
+                <div class="ddp-data-graph">
+                  <span class="ddp-txt-det">{{item.with}}</span>
                 </div>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <!-- //col -->
-      </div>
-      <!-- //Column information -->
-      <!-- Column settings -->
-      <div class="ddp-ui-detail ddp-clear ">
-        <!-- col -->
-        <div class="ddp-col-12">
-          <div class="ddp-ui-title">
-            {{'msg.storage.ui.column.settings' | translate}}
-          </div>
-          <table class="ddp-table-detail2">
-            <colgroup>
-              <col width="175px">
-              <col width="*">
-            </colgroup>
-            <tbody>
-            <tr *ngIf="selectedField.logicalType === 'TIMESTAMP'">
-              <th>
-                {{'msg.storage.ui.th.display.format' | translate}}
-              </th>
-              <td>
-                {{selectedField.format}}
-              </td>
-            </tr>
-            <tr>
-              <th>
-                {{'msg.storage.ui.th.missing' | translate}}
-              </th>
-              <td>
-                <ng-container *ngIf="!selectedField.ingestionRule">{{'msg.storage.btn.no.apply' | translate}}</ng-container>
-                <ng-container *ngIf="selectedField.ingestionRule && selectedField.ingestionRule.type === 'replace'">{{'msg.storage.ui.replace.with' | translate}} {{selectedField.ingestionRule.value !== '' ? selectedField.ingestionRule.value : 'Empty string'}}</ng-container>
-                <ng-container *ngIf="selectedField.ingestionRule && selectedField.ingestionRule.type === 'discard'">{{'msg.storage.btn.discard' | translate}}</ng-container>
-              </td>
-            </tr>
-            <tr *ngIf="isEnableFiltering(selectedField)">
-              <th>
-                {{'msg.storage.ui.dsource.filter.recommendation' | translate}}
-              </th>
-              <td>
-                <div class="ddp-wrap-datarecommend">
-                  {{selectedField.filteringSeq + 1}}
-                  <em class="ddp-icon-recommend-s"></em>
+                <div #covariance class="ddp-box-image">
                 </div>
-                <ng-container *ngIf="selectedField.filteringOptions">
-                  {{(selectedField.filteringOptions.type.toString() === 'TIME' ? 'msg.storage.btn.sel.recent.period' : 'msg.storage.btn.sel.single.item') | translate}}
-                </ng-container>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <!-- //col -->
-      </div>
-      <!-- //Column settings -->
-      <!-- Metadata -->
-      <div class="ddp-ui-detail ddp-clear " *ngIf="isExistMetaData()">
-        <!-- col -->
-        <div class="ddp-col-12">
-          <div class="ddp-ui-title">
-            {{'msg.storage.ui.meta.data' | translate}}
+                <span class="ddp-txt-sub">{{'msg.storage.li.querytypes.covar' | translate}}={{item.covariance}}</span>
+              </li>
+            </ul>
           </div>
-          <table class="ddp-table-detail2">
-            <colgroup>
-              <col width="175px">
-              <col width="*">
-            </colgroup>
-            <tbody>
-            <tr>
-              <th>
-                {{'msg.metadata.th.dictionary.logical.name' | translate}}
-              </th>
-              <td>
-                {{selectedField.logicalName}}
-              </td>
-            </tr>
-            <tr>
-              <th>
-                {{'msg.storage.ui.th.logical.type'| translate}}
-              </th>
-              <td>
-                <span class="ddp-icon-type-txt" *ngIf="selectedField['metaType']"> <em class="{{getFieldTypeIconClass(selectedField['metaType'])}}"></em> {{getColumnTypeLabel(selectedField['metaType'], typeFilterList)}}</span>
-              </td>
-            </tr>
-            <tr>
-              <th>
-                {{'msg.metadata.th.dictionary' | translate}}
-              </th>
-              <td>
-                {{selectedField.dictionary?.name}}
-              </td>
-            </tr>
-            <tr>
-              <th>
-                {{'msg.storage.ui.th.code.table' | translate}}
-              </th>
-              <td>
-                {{selectedField.codeTable?.name}}
-              </td>
-            </tr>
-            <tr>
-              <th>
-                {{'msg.storage.ui.th.description' | translate}}
-              </th>
-              <td>
-                {{selectedField.description}}
-              </td>
-            </tr>
-            </tbody>
-          </table>
+          <!-- //Covariance -->
         </div>
-        <!-- //col -->
+        <!-- //table detail -->
       </div>
-      <!-- //Metadata -->
-      <!-- statistic -->
-      <div class="ddp-ui-detail ddp-clear">
-        <div class="ddp-ui-title2">
-          {{'msg.storage.ui.dsource.preview.statistic' | translate}}
-        </div>
-        <!-- col -->
-        <div class="ddp-col-6 ddp-border-none">
-          <table class="ddp-table-detail2">
-            <colgroup>
-              <col width="140px">
-              <col width="*">
-            </colgroup>
-            <tbody>
-            <tr>
-              <th>
-                {{'msg.storage.ui.th.row.count' | translate}}
-              </th>
-              <td>
-                {{getLabel('count')}}
-              </td>
-            </tr>
-            <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-              <th class="ddp-th-valid" >
-                {{'msg.storage.ui.dsource.preview.valid' | translate}}
-              </th>
-              <td>
-                {{getLabel('valid')}}
-              </td>
-            </tr>
-            <tr class="ddp-tr-sub" *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-              <th>
-                {{'msg.storage.ui.dsource.preview.unique' | translate}}
-              </th>
-              <td>
-                {{getLabel('unique')}}
-              </td>
-            </tr>
-            <tr class="ddp-tr-sub" *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-              <th>
-                {{'msg.storage.ui.dsource.preview.outliers' | translate}} <em class="ddp-icon-error-s"></em>
-              </th>
-              <td>
-                {{getLabel('outliers')}}
-              </td>
-            </tr>
-            <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-              <th class="ddp-th-missing">
-                {{'msg.storage.ui.dsource.preview.missing' | translate}}
-              </th>
-              <td>
-                {{getLabel('missing')}}
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <!-- //col -->
-        <!-- col -->
-        <div class="ddp-col-6" *ngIf="selectedField.role.toString() === 'MEASURE' || selectedField.logicalType.toString() === 'TIMESTAMP'">
-          <table class="ddp-table-detail2">
-            <colgroup>
-              <col width="140px">
-              <col width="*">
-            </colgroup>
-            <tbody>
-            <tr>
-              <th>
-                {{'msg.storage.ui.dsource.preview.min' | translate}}
-              </th>
-              <td>
-                {{getLabel('min')}}
-              </td>
-            </tr>
-            <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-              <th>
-                {{'msg.storage.ui.dsource.preview.quartile.lower' | translate}}
-              </th>
-              <td>
-                {{getLabel('lower')}}
-              </td>
-            </tr>
-            <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-              <th>
-                {{'msg.storage.ui.dsource.preview.median' | translate}}
-              </th>
-              <td>
-                {{getLabel('median')}}
-              </td>
-            </tr>
-            <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-              <th>
-                {{'msg.storage.ui.dsource.preview.quartile.upper' | translate}}
-              </th>
-              <td>
-                {{getLabel('upper')}}
-              </td>
-            </tr>
-            <tr>
-              <th>
-                {{'msg.storage.ui.dsource.preview.max' | translate}}
-              </th>
-              <td>
-                {{getLabel('max')}}
-              </td>
-            </tr>
-            <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-              <th>
-                {{'msg.storage.ui.dsource.preview.avr' | translate}}
-              </th>
-              <td>
-                {{getLabel('average')}}
-              </td>
-            </tr>
-            <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-              <th>
-                {{'msg.storage.ui.dsource.preview.deviation' | translate}}
-              </th>
-              <td>
-                {{getLabel('standard')}}
-              </td>
-            </tr>
-            <tr *ngIf="selectedField.logicalType.toString() !== 'TIMESTAMP'">
-              <th>
-                {{'msg.storage.ui.dsource.preview.skewness' | translate}}
-              </th>
-              <td>
-                {{getLabel('skewness')}}
-              </td>
-            </tr>
-
-            </tbody>
-
-          </table>
-        </div>
-        <!-- //col -->
-      </div>
-      <!-- //statistic -->
-      <!-- value list -->
-      <div class="ddp-ui-detail ddp-clear " *ngIf="selectedField.role === 'DIMENSION' && selectedField.logicalType.toString() !== 'TIMESTAMP'">
-        <!-- col -->
-        <div class="ddp-col-12">
-          <div class="ddp-ui-title">
-            {{'msg.storage.ui.dsource.preview.value.li' | translate}}
-          </div>
-          <table class="ddp-table-detail2">
-            <colgroup>
-              <col width="175px">
-              <col width="*">
-            </colgroup>
-            <tbody>
-            <tr *ngFor="let item of getValueList()">
-              <th>
-                {{item.value}}
-              </th>
-              <td>
-                {{item.count}}
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <!-- //col -->
-      </div>
-      <!-- //value list -->
-      <!-- table detail -->
-      <div class="ddp-wrap-table-detail" [style.display]="selectedField.role === 'MEASURE' || selectedField.logicalType.toString() === 'TIMESTAMP' ? 'block' : 'none'">
-        <!-- histogram -->
-        <label class="ddp-label-detail">{{'msg.storage.ui.dsource.preview.histogram' | translate}}</label>
-        <div class="ddp-ui-detail-in">
-          <!-- box histogram -->
-          <div class="ddp-box-histogram" #histogram>
-
-          </div>
-          <!-- //box histogram -->
-        </div>
-        <!-- //histogram -->
-        <!-- Covariance -->
-        <label class="ddp-label-detail" *ngIf="selectedField && selectedField.role.toString() === 'MEASURE'">{{'msg.storage.ui.preview.covariance.ranking' | translate}} (top {{getCovarianceList().length}})</label>
-        <div class="ddp-ui-detail-in" *ngIf="selectedField && selectedField.role.toString() === 'MEASURE'">
-          <table class="ddp-table-order">
-            <colgroup>
-              <col width="55px">
-              <col width="">
-              <col width="40%">
-            </colgroup>
-            <tbody>
-            <tr *ngFor="let item of getCovarianceList(); let i = index">
-              <td class="ddp-txt-center">
-                {{i + 1}}
-              </td>
-              <td>
-                {{item.with}}
-              </td>
-              <td>
-                {{item.covariance}}
-              </td>
-            </tr>
-            </tbody>
-          </table>
-
-          <ul class="ddp-list-graph">
-            <li *ngFor="let item of getCovarianceList()">
-              <div class="ddp-data-graph">
-                <span class="ddp-txt-det">{{item.with}}</span>
-              </div>
-              <div #covariance class="ddp-box-image">
-              </div>
-              <span class="ddp-txt-sub">{{'msg.storage.li.querytypes.covar' | translate}}={{item.covariance}}</span>
-            </li>
-          </ul>
-        </div>
-        <!-- //Covariance -->
-      </div>
-      <!-- //table detail -->
     </div>
+    <!-- //datadetail -->
   </div>
-  <!-- //datadetail -->
 </div>
 <!-- //tab contents -->
 <!-- edit filter -->

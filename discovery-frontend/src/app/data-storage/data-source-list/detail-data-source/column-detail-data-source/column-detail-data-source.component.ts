@@ -393,53 +393,58 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     this.selectedField = field;
     // update enabled physical type list
     this._updatePhysicalTypeList(field);
+    // detect changes
+    this.changeDetect.detectChanges();
     // set engineName
     const engineName = source.engineName;
-    // if role is TIMESTAMP and __time variable not exist in statsData,
-    // else if role is not TIMESTAMP and field name not existed in statsData
-    if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
-      || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {
-      // loading show
-      this.loadingShow();
-      // get stats data
-      this._getFieldStats(field, engineName)
-        .then((stats) => {
-          // for loop
-          for (const property in stats[0]) {
-            // if not exist property in statsData, push property in statsData
-            if (!this.statsData.hasOwnProperty(property)) {
-              this.statsData[property] = stats[0][property];
+    // if only engine type source, get statistics and covariance
+    if (!this.isLinkedTypeSource(this.datasource)) {
+      // if role is TIMESTAMP and __time variable not exist in statsData,
+      // else if role is not TIMESTAMP and field name not existed in statsData
+      if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
+        || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {
+        // loading show
+        this.loadingShow();
+        // get stats data
+        this._getFieldStats(field, engineName)
+          .then((stats) => {
+            // for loop
+            for (const property in stats[0]) {
+              // if not exist property in statsData, push property in statsData
+              if (!this.statsData.hasOwnProperty(property)) {
+                this.statsData[property] = stats[0][property];
+              }
             }
-          }
-          // loading hide
-          this.loadingHide();
-          // update histogram chart
-          this._updateHistogramChart(this.selectedField.role);
-        })
-        .catch(error => this.commonExceptionHandler(error));
-    } else {
-      // update histogram chart
-      this._updateHistogramChart(this.selectedField.role);
-    }
+            // loading hide
+            this.loadingHide();
+            // update histogram chart
+            this._updateHistogramChart(this.selectedField.role);
+          })
+          .catch(error => this.commonExceptionHandler(error));
+      } else {
+        // update histogram chart
+        this._updateHistogramChart(this.selectedField.role);
+      }
 
-    // if role is MEASURE and field name not existed in covarianceData
-    if (field.role === 'MEASURE' && !this.covarianceData.hasOwnProperty(field.name)) {
-      // loading show
-      this.loadingShow();
-      // get covariance data
-      this._getFieldCovariance(field, engineName)
-        .then((covariance) => {
-          // set convariance data
-          this.covarianceData[field.name] = covariance;
-          // loading hide
-          this.loadingHide();
-          // update covariance chart
-          this._updateCovarianceChart(engineName);
-        })
-        .catch(error => this.commonExceptionHandler(error));
-    } else if (field.role === 'MEASURE' && this.covarianceData.hasOwnProperty(field.name)) {
-      // update covariance chart
-      this._updateCovarianceChart(engineName);
+      // if role is MEASURE and field name not existed in covarianceData
+      if (field.role === 'MEASURE' && !this.covarianceData.hasOwnProperty(field.name)) {
+        // loading show
+        this.loadingShow();
+        // get covariance data
+        this._getFieldCovariance(field, engineName)
+          .then((covariance) => {
+            // set convariance data
+            this.covarianceData[field.name] = covariance;
+            // loading hide
+            this.loadingHide();
+            // update covariance chart
+            this._updateCovarianceChart(engineName);
+          })
+          .catch(error => this.commonExceptionHandler(error));
+      } else if (field.role === 'MEASURE' && this.covarianceData.hasOwnProperty(field.name)) {
+        // update covariance chart
+        this._updateCovarianceChart(engineName);
+      }
     }
   }
 
@@ -872,7 +877,6 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    * @private
    */
   private _updateHistogramChart(roleType: string) {
-    this.changeDetect.detectChanges();
     // init chart
     const barChart = echarts.init(this._histogram.nativeElement);
     // chart
@@ -888,7 +892,6 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
    */
   private _getScatterSeries(engineName: string) {
     return new Promise((resolve, reject) => {
-      this.changeDetect.detectChanges();
       // loading show
       this.loadingShow();
       // covariance List

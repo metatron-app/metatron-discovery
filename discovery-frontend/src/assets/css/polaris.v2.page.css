@@ -6624,7 +6624,7 @@ table.ddp-table-form tbody tr.ddp-disabled:nth-child(odd) td:last-of-type {borde
 .ddp-box-schema.ddp-box-full .ddp-wrap-fright{display:none;}
 .ddp-box-schema .ddp-wrap-fleft {float:left; width:592px; height:425px;}
 .ddp-box-schema .ddp-wrap-fright {float:right; width:592px; height:425px;}
-.ddp-box-schema .ddp-box-viewtable {height:100%;}
+.ddp-box-schema .ddp-box-viewtable {height:100%; box-sizing:border-box;}
 .ddp-box-schema .ddp-box-setting {position:relative; width:100%; height:100%; border:1px solid #b7b9c2; box-sizing:border-box;}
 .ddp-box-schema .ddp-box-setting .ddp-data-top-title {padding:13px 16px; background-color:#f6f6f7; color:#4c515a; font-size:16px; font-weight:bold;}
 
