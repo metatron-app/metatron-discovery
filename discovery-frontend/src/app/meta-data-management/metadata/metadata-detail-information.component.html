@@ -29,9 +29,9 @@
         </th>
         <td>
           <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-txt-edit" (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();" [class.ddp-selected]="isDescEdit">
+          <div class="ddp-txt-edit" [class.ddp-selected]="isDescEdit">
             <!-- data -->
-            <span class="ddp-data-name" [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata().description === ''}">
+            <span class="ddp-data-name" (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();" [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata().description === ''}">
               <span [innerHtml]="getDescription(metadataModelService.getMetadata().description)"></span>
               <em class="ddp-icon-edit2"></em>
             </span>
