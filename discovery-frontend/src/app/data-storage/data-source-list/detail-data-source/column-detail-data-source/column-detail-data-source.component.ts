@@ -992,5 +992,17 @@ export class ColumnDetailDataSourceComponent extends AbstractPopupComponent impl
     field['codeTable'] = fieldMetaData.codeTable;
     // dictionary
     field['dictionary'] = fieldMetaData.dictionary;
+    // type
+    if (fieldMetaData.type) {
+      field['logicalType'] = fieldMetaData.type;
+    }
+    // description
+    if (fieldMetaData.description) {
+      field['description'] = fieldMetaData.description;
+    }
+    // format
+    if (fieldMetaData.format) {
+      field['format'] = fieldMetaData.format;
+    }
   }
 }
