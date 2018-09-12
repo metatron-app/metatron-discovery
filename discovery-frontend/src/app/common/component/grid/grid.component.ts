@@ -516,6 +516,10 @@ export class GridComponent implements AfterViewInit, OnDestroy {
     return this.isGridCreated;
   }
 
+  /**
+   * display no data
+   * @returns {boolean}
+   */
   public noShowData(){
     this.destroy();
     return true;
