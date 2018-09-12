@@ -327,9 +327,9 @@ public class PrepDataset extends AbstractHistoryEntity {
         return ruleCnt;
     }
 
-    public void setRuleCnt(Integer ruleCnt) {
-        this.ruleCnt = ruleCnt;
-    }
+//    public void setRuleCnt(Integer ruleCnt) {
+//        this.ruleCnt = ruleCnt;
+//    }
 
     public int getSessionRevision() {
         return sessionRevision;

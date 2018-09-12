@@ -115,13 +115,13 @@ public class TeddyImpl {
     getCurRev(dsId).setCurStageIdx(dfIdx);
   }
 
-  public DataFrame append(String dsId, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
+  // APPEND *AFTER* stageIdx
+  public DataFrame append(String dsId, int stageIdx, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
-    int lastIdx = rev.getCurStageIdx();
-    Revision newRev = new Revision(rev, lastIdx + 1);   // then copies up to lastIdx
-    DataFrame newDf = apply(rev.get(lastIdx), ruleString);
+    Revision newRev = new Revision(rev, stageIdx + 1);
+    DataFrame newDf = apply(rev.get(stageIdx), ruleString);
     newRev.add(newDf);  // this removes useless revisions
-    for (int i = lastIdx + 1; i < rev.size(); i++) {
+    for (int i = stageIdx + 1; i < rev.size(); i++) {
       newRev.add(apply(newRev.get(i), rev.get(i).ruleString));    // apply trailing rules of the original revision into the new revision.
     }
     newRev.setCurStageIdx(rev.getCurStageIdx() + 1);
@@ -193,33 +193,28 @@ public class TeddyImpl {
     return revisionSetCache.get(dsId).isRedoable();
   }
 
-  public DataFrame delete(String dsId) throws TransformExecutionFailedException, TransformTimeoutException {    // used in DELETE only
+  public void delete(String dsId, int stageIdx) throws TransformExecutionFailedException, TransformTimeoutException {    // used in DELETE only
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
-    int deleteTargetIdx = rev.getCurStageIdx();
-    Revision newRev = new Revision(rev, deleteTargetIdx);   // apply previous rules until the delete target.
+    Revision newRev = new Revision(rev, stageIdx);   // apply previous rules until the delete target.
 
-    for (int i = deleteTargetIdx + 1; i < rev.size(); i++) {
+    for (int i = stageIdx + 1; i < rev.size(); i++) {
       newRev.add(apply(newRev.get(-1), rev.get(i).ruleString));    // apply trailing rules of the original revision into the new revision.
     }
     addRev(dsId, newRev);
-
-    return newRev.get(Math.min(deleteTargetIdx, newRev.size() - 1));
   }
 
-  public DataFrame update(String dsId, String ruleString) throws TransformExecutionFailedException, TransformTimeoutException {    // used in DELETE only
+  public void update(String dsId, int stageIdx, String ruleString) throws TransformExecutionFailedException, TransformTimeoutException {    // used in DELETE only
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
-    int updateTargetIdx = rev.getCurStageIdx();
-    Revision newRev = new Revision(rev, updateTargetIdx);   // apply previous rules until the update target.
+    Revision newRev = new Revision(rev, stageIdx);   // apply previous rules until the update target.
 
     // replace with the new, updated DF
-    DataFrame newDf = apply(rev.get(updateTargetIdx - 1), ruleString);
+    DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString);
     newRev.add(newDf);
 
-    for (int i = updateTargetIdx + 1; i < rev.size(); i++) {
+    for (int i = stageIdx + 1; i < rev.size(); i++) {
       newRev.add(apply(newRev.get(-1), rev.get(i).ruleString));    // apply trailing rules of the original revision into the new revision.
     }
     addRev(dsId, newRev);
-    return newDf;
   }
 
   public DataFrame loadFileDataset(String dsId, String targetUrl, String delimiter, String dsName) {

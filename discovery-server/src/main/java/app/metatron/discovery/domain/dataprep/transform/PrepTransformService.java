@@ -265,7 +265,7 @@ public class PrepTransformService {
 
   // create stage0 (POST)
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse create(String importedDsId, String dfId) throws Exception {
+  public PrepTransformResponse create(String importedDsId, String dfId, boolean doAutoTyping) throws Exception {
     PrepDataset importedDataset = datasetRepository.findRealOne(datasetRepository.findOne(importedDsId));
     PrepDataflow dataflow = dataflowRepository.findOne(dfId);
     List<String> setTypeRules;
@@ -292,8 +292,7 @@ public class PrepTransformService {
 
     // The 1st rule string is the master upstream dsId.
     // This could be either an imported dataset or another wrangled dataset.
-    int ruleIdx = 0; // first rule idx = 0
-    PrepTransformRule rule = new PrepTransformRule(wrangledDataset, ruleIdx, Util.getCreateRuleString(importedDsId)); // changed
+    PrepTransformRule rule = new PrepTransformRule(wrangledDataset, 0, Util.getCreateRuleString(importedDsId)); // changed
     rule.setJsonRuleString(Util.getCreateJsonRuleString(rule.getRuleString()));
     transformRuleRepository.saveAndFlush(rule);
 
@@ -301,29 +300,32 @@ public class PrepTransformService {
     response.setWrangledDsId(wrangledDsId);
     this.putAddedInfo(response, wrangledDataset);
 
-    //Auto Heading 및 Auto Typing을 위한 로직.
+    if (doAutoTyping) {
+      //Auto Heading 및 Auto Typing을 위한 로직.
 
-    // 이미 "지정된 타입이 있으면" 인 듯
-    Boolean isNotORC = true;
-    for(ColumnDescription cd : gridResponse.colDescs) {
-      if(cd.getType() != ColumnType.STRING)
-        isNotORC = false;
-    }
+      // 이미 "지정된 타입이 있으면" 인 듯
+      Boolean isNotORC = true;
+      for (ColumnDescription cd : gridResponse.colDescs) {
+        if (cd.getType() != ColumnType.STRING)
+          isNotORC = false;
+      }
 
-    // FIXME: reconsider whether UNDO is necessary.
-    if(prepProperties.isAutoTyping() && isNotORC) {
+      // FIXME: reconsider whether UNDO is necessary.
+      if (prepProperties.isAutoTyping() && isNotORC) {
         setTypeRules = autoTypeDetection(gridResponse);
         //반환 받은 setType Rule 들을 적용
-        for (String setTypeRule : setTypeRules) {
-            try {
-                // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
-              transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, ruleIdx++, setTypeRule);
-            } catch (Exception e) {
-              LOGGER.info("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
-              transform(wrangledDsId, PrepDataset.OP_TYPE.UNDO, null, setTypeRule);
-              continue;
-            }
+        for (int i = 0; i < setTypeRules.size(); i++) {
+          String setTypeRule = setTypeRules.get(i);
+          try {
+            // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
+            transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, i, setTypeRule);
+          } catch (Exception e) {
+            LOGGER.info("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
+            transform(wrangledDsId, PrepDataset.OP_TYPE.UNDO, null, setTypeRule);
+            continue;
+          }
         }
+      }
     }
 
     LOGGER.trace("create(): end");
@@ -486,13 +488,13 @@ public class PrepTransformService {
     PrepDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     String upstreamDsId = getFirstUpstreamDsId(wrangledDsId);
 
-    PrepTransformResponse response = create(upstreamDsId, wrangledDataset.getCreatorDfId());
+    PrepTransformResponse response = create(upstreamDsId, wrangledDataset.getCreatorDfId(), false);
     String cloneDsId = response.getWrangledDsId();
 
-    int ruleIdx = 0;
-    for (PrepTransformRule transformRule : getRulesInOrder(wrangledDsId)) {
-      String ruleString = transformRule.getRuleString();
-      response = transform(cloneDsId, OP_TYPE.APPEND, ruleIdx++, ruleString);
+    List<PrepTransformRule> transformRules = getRulesInOrder(wrangledDsId);
+    for (int i = 1; i < transformRules.size(); i++) {
+      String ruleString = transformRules.get(i).getRuleString();
+      response = transform(cloneDsId, OP_TYPE.APPEND, i - 1, ruleString);
     }
     return response;
   }
@@ -549,8 +551,10 @@ public class PrepTransformService {
 
     for (int i = 1; i < ruleStrings.size(); i++) {
       String ruleString = ruleStrings.get(i);
-      gridResponse = teddyImpl.append(dsId, ruleString);
+      gridResponse = teddyImpl.append(dsId, i - 1, ruleString);
     }
+    adjustStageIdx(dsId, ruleStrings.size() - 1, true);
+
     LOGGER.trace("load_internal(): end (applied rules)");
     return gridResponse;
   }
@@ -583,16 +587,17 @@ public class PrepTransformService {
     return colHists;
   }
 
-  private int adjustStageIdx(String dsId, Integer stageIdx) {
-    int origStageIdx = teddyImpl.getCurStageIdx(dsId);
+  private void adjustStageIdx(String dsId, Integer stageIdx, boolean persist) {
 
     assert stageIdx != null;
 
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    dataset.setRuleCurIdx(stageIdx);
     teddyImpl.setCurStageIdx(dsId, stageIdx);
 
-    return origStageIdx;
+    if (persist) {
+      PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+      dataset.setRuleCurIdx(stageIdx);
+      datasetRepository.saveAndFlush(dataset);
+    }
   }
 
   // transform (PUT)
@@ -605,57 +610,69 @@ public class PrepTransformService {
     }
 
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    PrepTransformResponse response;
-
     assert dataset != null : dsId;
 
+    PrepTransformResponse response = null;
+    int origStageIdx = teddyImpl.getCurStageIdx(dsId);
+
+    // dataset이 loading되지 않았으면 loading
     if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
       load_internal(dsId);
+    }
+
+    // join이나 union의 경우, 대상 dataset들도 loading
+    if (ruleString != null) {
+      for (String targetDsId : getTargetDsIds(Util.parseRuleString(ruleString))) {
+        if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
+          load_internal(targetDsId);
+        }
+      }
     }
 
     // 아래 각 case에서 ruleCurIdx, matrixResponse는 채워서 리턴
     // rule list는 transform()을 마칠 때에 채움. 모든 op에 대해 동일하기 때문에.
     switch (op) {
       case APPEND:
-        adjustStageIdx(dsId, stageIdx);
-        response = append(dsId, ruleString);
+        teddyImpl.append(dsId, stageIdx, ruleString);
+        if (stageIdx >= origStageIdx) {
+          adjustStageIdx(dsId, stageIdx + 1, true);
+        } else {
+          adjustStageIdx(dsId, origStageIdx + 1, true);
+        }
         break;
       case DELETE:
-        adjustStageIdx(dsId, stageIdx);
-        response = delete(dsId);
+        teddyImpl.delete(dsId, stageIdx);
+        if (stageIdx <= origStageIdx) {
+          adjustStageIdx(dsId, origStageIdx - 1, true);
+        } else {
+          adjustStageIdx(dsId, origStageIdx, true);  // Currently, this case does not happen (no delete butten after curRuleIdx)
+        }
+        break;
+      case UPDATE:
+        teddyImpl.update(dsId, stageIdx, ruleString);
         break;
       case UNDO:
         assert stageIdx == null;
-        response = undo(dsId);
+        teddyImpl.undo(dsId);
+        adjustStageIdx(dsId, teddyImpl.getCurStageIdx(dsId), true);
         break;
       case REDO:
         assert stageIdx == null;
-        response = redo(dsId);
+        teddyImpl.redo(dsId);
+        adjustStageIdx(dsId, teddyImpl.getCurStageIdx(dsId), true);
         break;
       case JUMP:
-        adjustStageIdx(dsId, stageIdx);
-        response = fetch(dsId, stageIdx);
-        break;
-      case UPDATE:
-        adjustStageIdx(dsId, stageIdx);
-        response = update(dataset, ruleString);
+        adjustStageIdx(dsId, stageIdx, true);
         break;
       case PREVIEW:
-        int origStageIdx = adjustStageIdx(dsId, stageIdx);
-        response = preview(dataset, ruleString);
-        adjustStageIdx(dsId, origStageIdx);
+        adjustStageIdx(dsId, stageIdx, false);
+        response = new PrepTransformResponse(teddyImpl.preview(dsId, ruleString));
+        adjustStageIdx(dsId, origStageIdx, false);
         break;
       case NOT_USED:
       default:
         throw new IllegalArgumentException("invalid transform op: " + op.toString());
     }
-
-    datasetRepository.save(dataset);
-
-    transformRuleRepository.flush();
-    datasetRepository.flush();
-
-    DataFrame gridResponse = response.getGridResponse();
 
     switch (op) {
       case APPEND:
@@ -664,18 +681,20 @@ public class PrepTransformService {
       case REDO:
       case UPDATE:
         updateTransformRules(dsId);
-        if(null!=gridResponse) {
-          dataset.setTotalLines(gridResponse.rows.size());
-        }
-        this.previewLineService.putPreviewLines(dsId, gridResponse);
+        response = fetch(dsId, dataset.getRuleCurIdx());
+        dataset.setTotalLines(response.getGridResponse().rows.size());
+        this.previewLineService.putPreviewLines(dsId, response.getGridResponse());
         break;
       case JUMP:
+        response = fetch(dsId, dataset.getRuleCurIdx());
+        break;
       case PREVIEW:
       case NOT_USED:
       default:
         break;
     }
 
+    response.setRuleCurIdx(dataset.getRuleCurIdx());
     response.setRuleStringInfos(getRulesInOrder(dsId), teddyImpl.isUndoable(dsId), teddyImpl.isRedoable(dsId));
 
     LOGGER.trace("transform(): end");
@@ -686,10 +705,11 @@ public class PrepTransformService {
     for (PrepTransformRule rule : getRulesInOrder(dsId)) {
       transformRuleRepository.delete(rule);
     }
+    transformRuleRepository.flush();
 
     List<String> ruleStrings = teddyImpl.getRuleStrings(dsId);
+    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     for (int i = 0; i < ruleStrings.size(); i++) {
-      PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
       PrepTransformRule rule = new PrepTransformRule(dataset, i, ruleStrings.get(i));
       transformRuleRepository.save(rule);
     }
@@ -1033,213 +1053,25 @@ public class PrepTransformService {
     return response;
   }
 
-  // APPEND ////////////////////////////////////////////////////////////
-  //  - leave an APPEND transition
-  //  - transform the grid, ruleCurIdx, ruleString[]
-  //  - return a response which contains grid, ruleCurIdx (ruleString[] will be added in caller)
-  private PrepTransformResponse append(String dsId, String ruleString) throws Exception {
-    LOGGER.trace("append(): start: dsId={} ruleString={}", dsId, ruleString);
-
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    assert dataset != null : dsId;
-
-    int lastIdx = teddyImpl.getCurStageIdx(dsId);
-
-    // increase ruleNos after the new rule.
-    List<PrepTransformRule> rules = getRulesInOrder(dsId);
-    for (int i = rules.size() - 1; i > lastIdx; i--) {
-      PrepTransformRule rule = rules.get(i);
-      rule.setRuleNo(rule.getRuleNo() + 1);
-      transformRuleRepository.save(rule);
-    }
-
-    PrepTransformRule rule = new PrepTransformRule(dataset, lastIdx + 1, ruleString);
-    transformRuleRepository.save(rule);
-
-    dataset.setRuleCnt(dataset.getRuleCnt() + 1);
-    dataset.setRuleCurIdx(lastIdx + 1);
-    datasetRepository.save(dataset);
-
-    DataFrame gridResponse = teddyImpl.append(dsId, ruleString);
-    return new PrepTransformResponse(teddyImpl.getCurStageIdx(dsId), gridResponse);
-  }
-
-  private PrepTransformResponse preview(PrepDataset dataset, String ruleString) throws Exception {
-    // join이나 union의 경우, 각각 대상 dataset들을 함께 인자로 넘겨준다.
-    List<String> targetDsIds = getTargetDsIds(Util.parseRuleString(ruleString));
-
-    for (String targetDsId : targetDsIds) {
-      load_internal(targetDsId);  // 필요한 경우 PLM cache에 loading하거나, transition을 다시 적용한다.
-    }
-
-    DataFrame gridResponse = teddyImpl.preview(dataset.getDsId(), ruleString);
-
-    PrepTransformResponse response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
-    return response;
-  }
-
-  private PrepTransformResponse append_internal(String dsId, int lastIdx, String ruleString) throws Exception {
-    assert teddyImpl.revisionSetCache.containsKey(dsId) : dsId;
-    assert lastIdx >= 0;
-
-    DataFrame gridResponse = teddyImpl.append(dsId, ruleString);
-
-    PrepTransformResponse response = new PrepTransformResponse(lastIdx + 1, gridResponse);
-    return response;
-  }
-
-  // DELETE ////////////////////////////////////////////////////////////
-  private PrepTransformResponse delete(String dsId) throws TransformTimeoutException, TransformExecutionFailedException {
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    DataFrame gridResponse;
-
-    int stageIdx = teddyImpl.getCurStageIdx(dsId);
-    assert stageIdx == dataset.getRuleCurIdx() : String.format(
-            "delete(): ruleCurIdx != stageIdx: ruleCurIdx=%d stageIdx=%d", stageIdx, dataset.getRuleCurIdx());
-
-    // delete할 것이 없는 경우 처리
-    if (dataset.getRuleCurIdx() == 0) {   // rule 0 -> "create" rule
-      throw new IllegalArgumentException(
-              String.format("delete(): no rule exists: dsId=%s", dataset.getDsId()));
-    }
-
-    int ruleCnt = dataset.getRuleCnt();
-    assert stageIdx < ruleCnt : String.format(
-            "delete(): stageIdx >= ruleCnt: stageIdx=%d ruleCnt=%d", stageIdx, ruleCnt);
-
-    // Now, we can delete in the middle of the rule list
-//    if (stageIdx != ruleCnt - 1) {
-//      assert dataset.getRuleCurIdx() < dataset.getRuleCnt() :
-//        String.format("ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt());
-//      throw new IllegalArgumentException(
-//              String.format("DELETE is only permitted at the end of the rules: dsId=%s", dataset.getDsId()));
-//    }
-
-    /*
-    // UPDATE의 경우 revision에 따라 룰을 새로 저장하므로 없어도 됨
-    List<PrepTransformRule> rules = getRulesInOrder(dsId);
-
-    PrepTransformRule rule = getTransformRuleAt(dataset, stageIdx);
-    transformRuleRepository.delete(rule);
-
-    // decrease ruleNos after the new rule.
-    for (int i = stageIdx + 1; i < rules.size(); i++) {
-      rule = rules.get(i);
-      rule.setRuleNo(rule.getRuleNo() - 1);
-      transformRuleRepository.save(rule);
-    }
-
-    transformRuleRepository.flush();
-    */
-
-    gridResponse = teddyImpl.delete(dsId);
-
-    // FIXME: we should not use PrepDataset's rule_no, rule_cnt.
-    //        they're confused with stage indice.
-    //        to saving the last stage index could be useful. that's enough. rule_cnt must be removed anyway.
-    dataset.setRuleCnt(dataset.getRuleCnt() - 1);
-    dataset.setRuleCurIdx(Math.min(stageIdx, dataset.getRuleCnt() - 1));
-    datasetRepository.save(dataset);
-
-    PrepTransformResponse response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
-    return response;
-  }
-
-  // UPDATE ////////////////////////////////////////////////////////////
-  private PrepTransformResponse update(PrepDataset dataset, String ruleString) throws Exception {
-    /*
-    if (dataset.getRuleCurIdx() != dataset.getRuleCnt() - 1) {
-      assert dataset.getRuleCurIdx() < dataset.getRuleCnt() :
-        String.format("ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt());
-      throw new IllegalArgumentException("UPDATE not permitted: UPDATE from the last as needed");
-    }
-    */
-    if (dataset.getRuleCurIdx() <= 0) { // || dataset.getRuleCnt()<dataset.getRuleCurIdx()) {
-      throw new IllegalArgumentException( String.format("UPDATE not permitted: ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt()) );
-    }
-
-    PrepTransformRule rule = new PrepTransformRule(dataset, dataset.getRuleCurIdx(), ruleString);
-    transformRuleRepository.save(rule);
-
-    PrepTransformResponse response = update_internal(dataset, ruleString);
-    return response;
-  }
-
-  private PrepTransformResponse update_internal(PrepDataset dataset, String ruleString) throws Exception {
-    List<String> newRules = new ArrayList<>();  // one-element array (all the time)
-    newRules.add(ruleString);
-
-    assert teddyImpl.revisionSetCache.containsKey(dataset.getDsId()) : dataset.getDsId();
-    DataFrame gridResponse = teddyImpl.update(dataset.getDsId(), ruleString);
-
-    PrepTransformResponse response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
-
-    assert dataset.getRuleCurIdx() == dataset.getRuleCnt() :
-            String.format("ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt());
-
-    return response;
-  }
-
   public PrepTransformResponse fetch(String dsId, Integer stageIdx) throws Exception {
     if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
       load_internal(dsId);
     }
 
-    DataFrame gridResponse = teddyImpl.fetch(dsId, stageIdx);
+    PrepTransformResponse response = fetch_internal(dsId, stageIdx);
 
-    PrepTransformResponse response = new PrepTransformResponse(teddyImpl.getCurStageIdx(dsId), gridResponse);
     response.setRuleStringInfos(getRulesInOrder(dsId), false, false);
-    return response;
-  }
-
-  // UNDO ////////////////////////////////////////////////////////////
-  //  - leave an undo transition (for redo later)
-  //  - transform the grid, ruleCurIdx, ruleString[]
-  private PrepTransformResponse undo(String dsId) throws PrepException { // TeddyException {
-    DataFrame gridResponse = teddyImpl.undo(dsId);
-    int newIdx = teddyImpl.getCurStageIdx(dsId);
 
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+    response.setRuleCurIdx(dataset.getRuleCurIdx());
 
-    dataset.setRuleCnt(newIdx+1);
-    dataset.setRuleCurIdx(newIdx);
-    datasetRepository.save(dataset);
-
-    PrepTransformResponse response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
     return response;
   }
 
-  // REDO ////////////////////////////////////////////////////////////
-  // 단지 UNDO transition 제거
-  private PrepTransformResponse redo(String dsId) throws PrepException { // TeddyException {
-    DataFrame gridResponse = teddyImpl.redo(dsId);
-
-    int newIdx = teddyImpl.getCurStageIdx(dsId);
-
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-
-    dataset.setRuleCnt(newIdx+1);
-    dataset.setRuleCurIdx(newIdx);
-    datasetRepository.save(dataset);
-
-    PrepTransformResponse response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
+  public PrepTransformResponse fetch_internal(String dsId, Integer stageIdx) throws Exception {
+    DataFrame gridResponse = teddyImpl.fetch(dsId, stageIdx);
+    PrepTransformResponse response = new PrepTransformResponse(gridResponse);
     return response;
-  }
-
-  private PrepTransformRule getTransformRuleAt(PrepDataset dataset, int stageIdx) {
-    List<PrepTransformRule> transformRules = transformRuleRepository.findAllByOrderByRuleNoAsc();
-
-    for (PrepTransformRule transformRule : transformRules) {
-      if (transformRule.getDataset().getDsId().equals(dataset.getDsId()) == false)
-        continue;
-
-      // FIXME: sadly, we have changed the meaning of "rule_no" into stageIdx
-      //        yet, we didn't change. Server code and UI code will be changed at once.
-      if (transformRule.getRuleNo() == stageIdx) {
-        return transformRule;
-      }
-    }
-    throw new IllegalArgumentException(String.format("rule not found: dsId=%s stageIdx=%d", dataset.getDsId(), stageIdx));
   }
 
   private static PrepDataset makeWrangledDataset(PrepDataset importedDataset, PrepDataflow dataflow, String dfId) {
@@ -1347,7 +1179,7 @@ public class PrepTransformService {
     }
 
     wrangledDataset.setRuleCurIdx(0);
-    wrangledDataset.setRuleCnt(1);
+//    wrangledDataset.setRuleCnt(1);
 
     assert gridResponse != null : wrangledDsId;
     wrangledDataset.setTotalLines(gridResponse.rows.size());
