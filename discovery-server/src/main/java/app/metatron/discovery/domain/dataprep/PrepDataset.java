@@ -87,8 +87,7 @@ public class PrepDataset extends AbstractHistoryEntity {
         APPEND,
         UPDATE,
         DELETE,
-        FETCH,
-        JUMP,   // TODO: remove
+        JUMP,
         UNDO,
         REDO,
         PREVIEW,
@@ -328,9 +327,9 @@ public class PrepDataset extends AbstractHistoryEntity {
         return ruleCnt;
     }
 
-    public void setRuleCnt(Integer ruleCnt) {
-        this.ruleCnt = ruleCnt;
-    }
+//    public void setRuleCnt(Integer ruleCnt) {
+//        this.ruleCnt = ruleCnt;
+//    }
 
     public int getSessionRevision() {
         return sessionRevision;
@@ -483,7 +482,8 @@ public class PrepDataset extends AbstractHistoryEntity {
                 ruleStringinfo.setValid(transformRule.isValid());
                 ruleStringinfo.setRuleNo(transformRule.getRuleNo());
                 ruleStringinfo.setJsonRuleString(transformRule.getJsonRuleString());
-                ruleStringinfos.add(ruleStringinfo);
+                ruleStringinfos.add(ruleStringinfo.getRuleNo(),ruleStringinfo);
+                //ruleStringinfos.add(ruleStringinfo);
             }
         }
         return ruleStringinfos;

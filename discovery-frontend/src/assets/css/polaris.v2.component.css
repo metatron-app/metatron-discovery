@@ -3028,6 +3028,7 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 .ddp-wrap-flow [_nghost-c5] {background-color:#e7e7ea !important;}
 .handle[_ngcontent-c5]:before {display:inline-block; content:''; position:absolute; top:50%; left:50%;  margin:-7px 0 0 -1px; width:2px; height:13px; transform:rotate(90deg); background:url(../images/icon_bar.png) no-repeat;}
 
+.right-component[_ngcontent-c4] {min-width:310px !important;}
 /**************************************************************
 	대시보드 열람
 **************************************************************/

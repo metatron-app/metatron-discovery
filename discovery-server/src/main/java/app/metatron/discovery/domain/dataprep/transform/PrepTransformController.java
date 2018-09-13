@@ -59,7 +59,7 @@ public class PrepTransformController {
     LOGGER.trace("create(): start");
 
     try {
-      response = transformService.create(importedDsId, request.getDfId());
+      response = transformService.create(importedDsId, request.getDfId(), true);
     } catch (Exception e) {
       LOGGER.error("create(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
@@ -86,60 +86,57 @@ public class PrepTransformController {
     return ResponseEntity.ok(response);
   }
 
+  private DataFrame getSubGrid(DataFrame gridResponse, int offset, int count) {
+    assert count >= 0;
+
+    DataFrame subGrid = new DataFrame();
+    subGrid.colCnt = gridResponse.colCnt;
+    subGrid.colNames = gridResponse.colNames;
+    subGrid.colDescs = gridResponse.colDescs;
+    subGrid.colHists = gridResponse.colHists;
+    subGrid.mapColno = gridResponse.mapColno;
+    subGrid.newColNames           = gridResponse.newColNames          ;
+    subGrid.interestedColNames    = gridResponse.interestedColNames   ;
+    subGrid.dsName = gridResponse.dsName;
+    subGrid.slaveDsNameMap = gridResponse.slaveDsNameMap;
+    subGrid.ruleString = gridResponse.ruleString;
+
+    // returns without subList()
+    if (offset == 0 && count >= gridResponse.rows.size()) {
+      subGrid.rows = gridResponse.rows;
+    } else {
+      subGrid.rows = gridResponse.rows.subList(offset, offset + count);
+    }
+
+    return subGrid;
+  }
+
   /* column 기준 데이터라서 컨트롤러에서 서치하면 성능에 골치아픔. 우선 통짜로 구현함 */
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform", method = RequestMethod.GET, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> load(
+  public @ResponseBody ResponseEntity<?> fetch(
           @PathVariable("dsId") String wrangledDsId,
-          @RequestParam(value = "ruleIdx", required = false, defaultValue = "-1") String rule_index,
-          @RequestParam(value = "pageNum", required = false, defaultValue = "0") String page_num,
-          @RequestParam(value = "count", required = false, defaultValue = "-1") String count
+          @RequestParam(value = "ruleIdx") Integer stageIdx,
+          @RequestParam(value = "offset") int offset,
+          @RequestParam(value = "count") int count
   ) throws IOException {
     PrepTransformResponse response;
-    LOGGER.trace("load(): start");
+    LOGGER.trace("fetch(): start");
 
     try {
-      Integer ruleIdx = Integer.valueOf(rule_index);
-      Integer fromIndex = 0;
-      Integer toIndex = -1;
-      Integer requestCount = Integer.valueOf(count);
-      if(0<=requestCount) {
-        fromIndex = Integer.valueOf(page_num) * requestCount;
-        toIndex = fromIndex + requestCount;
-      }
+      // stageIdx should be 0 or positive or null.
+      assert stageIdx == null || stageIdx >= 0 : stageIdx;
 
-      response = transformService.transform(wrangledDsId, PrepDataset.OP_TYPE.FETCH, ruleIdx, null);
-      DataFrame gridResponse = response.getGridResponse();
-      Integer totalRowCnt = response.getTotalRowCnt();
-
-      DataFrame subGrid = new DataFrame();
-      subGrid.colCnt = gridResponse.colCnt;
-      subGrid.colNames = gridResponse.colNames;
-      subGrid.colDescs = gridResponse.colDescs;
-      subGrid.colHists = gridResponse.colHists;
-      subGrid.mapColno = gridResponse.mapColno;
-      subGrid.newColNames           = gridResponse.newColNames          ;
-      subGrid.interestedColNames    = gridResponse.interestedColNames   ;
-      subGrid.dsName = gridResponse.dsName;
-      subGrid.slaveDsNameMap = gridResponse.slaveDsNameMap;
-      subGrid.ruleString = gridResponse.ruleString;
-      int size = gridResponse.rows.size();
-      if(size<toIndex) { toIndex = size; }
-      if(fromIndex<toIndex && 0<toIndex) {
-        subGrid.rows = gridResponse.rows.subList(fromIndex, toIndex);
-      } else {
-        subGrid.rows = gridResponse.rows;
-      }
-      response.setGridResponse(subGrid);
-      response.setTotalRowCnt(totalRowCnt); // 전체 count 넣어야함
+      response = transformService.fetch(wrangledDsId, stageIdx);
+      response.setGridResponse(getSubGrid(response.getGridResponse(), offset, count));
     } catch (Exception e) {
-      LOGGER.error("load(): caught an exception: ", e);
+      LOGGER.error("fetch(): caught an exception: ", e);
       if (System.getProperty("dataprep").equals("disabled")) {
         throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_CONFIG_CODE);
       }
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
     }
 
-    LOGGER.trace("load(): end");
+    LOGGER.trace("fetch(): end");
     return ResponseEntity.ok(response);
   }
 
@@ -151,10 +148,12 @@ public class PrepTransformController {
     PrepTransformResponse response;
     LOGGER.trace("transform(): start");
 
+    assert request.getCount() != null;
+
     try {
-      // convert UI-side ruleIdx into server-side stageIdx
-      Integer ruleIdx = request.getRuleIdx();
-      int stageIdx = (ruleIdx == null || ruleIdx < 0) ? -1 : ruleIdx;
+      // stageIdx should be 0 or positive or null.
+      Integer stageIdx = request.getRuleIdx();
+      assert stageIdx == null || stageIdx >= 0 : stageIdx;
 
       response = transformService.transform(wrangledDsId, request.getOp(), stageIdx, request.getRuleString());
     } catch (Exception e) {
@@ -166,6 +165,9 @@ public class PrepTransformController {
     }
 
     LOGGER.trace("transform(): end");
+
+    response.setGridResponse(getSubGrid(response.getGridResponse(), 0, request.getCount()));
+
     return ResponseEntity.ok(response);
   }
 
@@ -177,10 +179,8 @@ public class PrepTransformController {
     PrepHistogramResponse response;
     LOGGER.trace("transform_histogram(): start");
 
-    // FIXME: ruleIdx is ignored from now on. request for only current stage is permitted
-
     try {
-      response = transformService.transform_histogram(wrangledDsId, request.getColnos(), request.getColWidths());
+      response = transformService.transform_histogram(wrangledDsId, request.getRuleIdx(), request.getColnos(), request.getColWidths());
     } catch (Exception e) {
       LOGGER.error("transform_histogram(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

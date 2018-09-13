@@ -46,7 +46,7 @@
       </div>
       <div class="ddp-wrap-boxwrap">
         <input [(ngModel)]="pattern" (focus)="showHidePatternLayer(true)" (blur)="showHidePatternLayer(false)"
-               type="text" tabindex="3" class="ddp-input-typebasic" placeholder="{{ 'msg.dp.th.pattern.ph' | translate }}" >
+               type="text" tabindex="3" class="ddp-input-typebasic" placeholder="{{ 'msg.dp.th.pattern.ph' | translate }}" #patternValue>
       </div>
     </div>
   </div>
