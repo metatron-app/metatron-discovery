@@ -370,8 +370,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       });
 
     let rows: any[] = (data) ? data : this.gridData;
-
-    if (0 < rows.length && 0 < headers.length) {
+    // headers가 있을 경우에만 그리드 생성
+    if (0 < headers.length) {
       if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
         rows = rows.map((row: any, idx: number) => {
           Object.keys( row ).forEach( key => {

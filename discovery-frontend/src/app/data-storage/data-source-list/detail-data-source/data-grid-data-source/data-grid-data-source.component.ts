@@ -302,7 +302,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     const headers: header[] = this._getGridHeader(fields);
     // rows
     let rows: any[] = data;
-    // rows와 headers가 있을 경우에만 그리드 생성
+    // headers가 있을 경우에만 그리드 생성
     if (0 < headers.length) {
       if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
         rows = rows.map((row: any, idx: number) => {
