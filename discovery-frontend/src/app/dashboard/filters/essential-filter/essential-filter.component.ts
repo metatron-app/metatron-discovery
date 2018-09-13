@@ -355,8 +355,6 @@ export class EssentialFilterComponent extends AbstractFilterPopupComponent imple
             const inclusionFilter: InclusionFilter = FilterUtil.getBasicInclusionFilter(field, 'essential');
             // 정렬을 위함 임시정보 설정
             inclusionFilter['showSortLayer'] = false;
-            inclusionFilter['sortTarget'] = 'FREQUENCY';
-            inclusionFilter['sortType'] = 'DESC';
             filters.push(inclusionFilter);
           }
         } else if (FieldRole.MEASURE === field.role) {

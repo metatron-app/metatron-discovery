@@ -19,7 +19,7 @@
          type="text"
          tabindex="{{tabIndex}}"
          class="ddp-input-typebasic"
-         placeholder="{{'msg.dp.th.condition.ph' | translate}}"
+         placeholder="{{ placeholder }}"
          [(ngModel)]="formula"
          (click)="changeRule($event)"
          (keydown)="changeRule($event)">

@@ -40,7 +40,8 @@
         <ul class="ddp-list-popup">
           <li *ngFor="let item of columnTypeList">
             <a href="javascript:">
-              {{item}}
+              <em class="{{getFieldTypeIconClass(item.label)}}"></em>
+              {{item.value}}
             </a>
           </li>
 

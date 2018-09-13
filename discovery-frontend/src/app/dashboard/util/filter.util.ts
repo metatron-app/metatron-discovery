@@ -14,7 +14,9 @@
 
 import {
   InclusionFilter,
-  InclusionSelectorType
+  InclusionItemSort,
+  InclusionSelectorType,
+  InclusionSortBy
 } from '../../domain/workbook/configurations/filter/inclusion-filter';
 import { BoundFilter } from '../../domain/workbook/configurations/filter/bound-filter';
 import {
@@ -43,8 +45,10 @@ import {
 import { DashboardUtil } from './dashboard.util';
 import {
   IntervalFilter,
-  IntervalRelativeTimeType, IntervalSelectorType
+  IntervalRelativeTimeType,
+  IntervalSelectorType
 } from '../../domain/workbook/configurations/filter/interval-filter';
+import { DIRECTION } from '../../domain/workbook/configurations/sort';
 
 declare let moment;
 
@@ -133,7 +137,6 @@ export class FilterUtil {
    * @return {InclusionFilter}
    */
   public static getBasicInclusionFilter(field: Field, importanceType?: string, preFilterData?: any): InclusionFilter {
-    // 시간 필터
     const inclusionFilter = new InclusionFilter(field.name);
     inclusionFilter.selector = InclusionSelectorType.SINGLE_COMBO;
     inclusionFilter.preFilters = [];
@@ -145,8 +148,8 @@ export class FilterUtil {
     inclusionFilter.preFilters.push(this.getBasicPositionFilter(preFilterData));
     inclusionFilter.preFilters.push(this.getBasicWildCardFilter(field.name, preFilterData));
 
-    // inclusionFilter.ui.masterDsId = field.uiMasterDsId;
-    // inclusionFilter.ui.dsId = field.dsId;
+    inclusionFilter.sort = new InclusionItemSort( InclusionSortBy.TEXT, DIRECTION.ASC );
+
     (importanceType) && (inclusionFilter.ui.importanceType = importanceType);
     (-1 < field.filteringSeq) && (inclusionFilter.ui.filteringSeq = field.filteringSeq + 1);
     if (field.filteringOptions) {
@@ -254,7 +257,7 @@ export class FilterUtil {
           'locale', 'format', 'rrule', 'relValue', 'timeUnit'];
         break;
       case 'include' :
-        keyMap = ['valueList', 'candidateValues'];
+        keyMap = ['valueList', 'candidateValues','sort'];
         break;
       case 'timestamp' :
         keyMap = ['selectedTimestamps', 'timeFormat'];
@@ -332,7 +335,7 @@ export class FilterUtil {
           'minTime', 'maxTime', 'valueList', 'candidateValues', 'discontinuous', 'granularity'];
         break;
       case 'include' :
-        keyMap = ['selector', 'preFilters', 'valueList', 'candidateValues', 'definedValues'];
+        keyMap = ['selector', 'preFilters', 'valueList', 'candidateValues', 'definedValues','sort'];
         break;
       case 'timestamp' :
         keyMap = ['selectedTimestamps', 'timeFormat'];

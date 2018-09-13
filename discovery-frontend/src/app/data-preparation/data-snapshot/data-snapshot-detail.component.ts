@@ -142,7 +142,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.originDsInfo = new OriginDsInfo();
     this.colCnt = 0;
     this.commandList = [
-      { command: 'create', alias: 'Cr', desc: this.translateService.instant('msg.dp.li.cr.description'), isHover:false },
       { command: 'header', alias: 'He', desc: this.translateService.instant('msg.dp.li.he.description'), isHover:false },
       { command: 'keep', alias: 'Ke', desc: this.translateService.instant('msg.dp.li.ke.description'), isHover:false },
       { command: 'replace', alias: 'Rp', desc: this.translateService.instant('msg.dp.li.rp.description'), isHover:false },
@@ -185,7 +184,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   // esc 창 닫힘
   @HostListener('document:keydown.escape', ['$event'])
   public onKeydownHandler(event: KeyboardEvent) {
-    event.keyCode === 27 ? this.close() : null;
+    if (this.isShow) {
+      event.keyCode === 27 ? this.close() : null;
+    }
   }
 
   public getRows() {
@@ -356,6 +357,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
         rule['desc'] = this.commandList[idx].desc;
+      } else {
+        rule['command'] = 'Create';
+        rule['alias'] = 'Cr';
+        rule['simplifiedRule'] = rule.ruleString;
       }
       // rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
       this.ruleList.push(rule);

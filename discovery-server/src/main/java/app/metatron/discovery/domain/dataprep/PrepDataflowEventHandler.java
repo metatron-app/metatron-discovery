@@ -55,7 +55,7 @@ public class PrepDataflowEventHandler {
                 }
             }
             for(PrepDataset dataset : importedDatasets) {
-                PrepTransformResponse response = this.transformService.create(dataset.getDsId(), dataflow.getDfId());
+                PrepTransformResponse response = this.transformService.create(dataset.getDsId(), dataflow.getDfId(), true);
             }
         } catch (Exception e) {
             LOGGER.error("afterCreate(): caught an exception: ", e);
