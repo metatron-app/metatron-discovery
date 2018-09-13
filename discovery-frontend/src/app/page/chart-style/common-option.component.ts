@@ -918,6 +918,17 @@ export class CommonOptionComponent extends BaseOptionComponent {
   }
 
   /**
+   * Pie - maximum categories 설정
+   */
+  public changeMaximumCategores(maxCategory: number): void {
+
+    if (maxCategory < 0) return;
+
+    this.uiOption = <UIOption>_.extend({}, this.uiOption, { maxCategory });
+    this.update();
+  }
+
+  /**
    * Combine - 시리즈 표현
    * @param chartType
    * @param markType

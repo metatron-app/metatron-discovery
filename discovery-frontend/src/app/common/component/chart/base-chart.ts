@@ -88,6 +88,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
   // 선반 정보
   protected pivot: Pivot;
 
+  // 기존 선반 정보 (병렬 / 중첩에따라서 변경되지않는 선반값)
+  protected originPivot: Pivot;
+
   // 저장 정보
   protected saveInfo: UIOption;
 
@@ -236,6 +239,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     ////////////////////////////////////////////////////////
 
     // Set
+    this.pivot = result.config.pivot;
+    this.originPivot = _.cloneDeep(this.pivot);
     this.originalData = _.cloneDeep(result.data);
 
     ///////////////////////////
@@ -255,7 +260,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       }
 
       // Min/Max 변경
-      if( !_.isUndefined(this.uiOption.yAxis.grid) ) {
+      if( !_.isUndefined(this.uiOption.yAxis.grid)
+          && !this.uiOption.yAxis.grid.autoScaled ) {
 
         this.calculateMinMax(this.uiOption.yAxis.grid, result, true);
       }
@@ -274,7 +280,8 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       }
 
       // Min/Max 변경
-      if( !_.isUndefined(this.uiOption.xAxis.grid) ) {
+      if( !_.isUndefined(this.uiOption.xAxis.grid)
+          && !this.uiOption.xAxis.grid.autoScaled ) {
 
         this.calculateMinMax(this.uiOption.xAxis.grid, result, false);
       }
@@ -284,7 +291,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     // Set
     this.data = result.data;
-    this.pivot = result.config.pivot;
 
     // 데이터레이블에서 사용되는 uiData에 설정된 columns 데이터 설정
     this.data.columns = this.setUIData();

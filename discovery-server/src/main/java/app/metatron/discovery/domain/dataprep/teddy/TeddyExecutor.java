@@ -59,6 +59,7 @@ import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -128,6 +129,12 @@ public class TeddyExecutor {
     cores =             (Integer) prepPropertiesInfo.get(ETL_CORES);
     timeout =           (Integer) prepPropertiesInfo.get(ETL_TIMEOUT);
     limitRows =         (Integer) prepPropertiesInfo.get(ETL_LIMIT_ROWS);
+
+    if (hadoopConfDir != null) {
+      conf = new Configuration();
+      conf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
+      conf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
+    }
   }
 
   @Async("threadPoolTaskExecutor")
@@ -159,6 +166,18 @@ public class TeddyExecutor {
         updateAsFailed();
         throw new IllegalArgumentException("run(): ssType not supported: ssType=" + snapshotInfo.get("ssType"));
       }
+    } catch(CancellationException ce) {
+      LOGGER.info("run(): snapshot canceled from run_internal(): ", ce);
+      updateSnapshot("finishTime", DateTime.now(DateTimeZone.UTC).toString());
+      updateAsCanceled();
+      StringBuffer sb = new StringBuffer();
+
+      for(StackTraceElement ste : ce.getStackTrace()) {
+        sb.append("\n");
+        sb.append(ste.toString());
+      }
+      updateSnapshot("custom", "{'fail_msg':'"+sb.toString()+"'}");
+      throw ce;
     } catch (Exception e) {
       LOGGER.error("run(): error while creating a snapshot: ", e);
       updateSnapshot("finishTime", DateTime.now(DateTimeZone.UTC).toString());
@@ -224,9 +243,6 @@ public class TeddyExecutor {
 
   private Future<String> createHdfsSnapshot(String hadoopConfDir, String[] argv) throws Throwable {
     LOGGER.info("createHdfsSnapshot(): adding hadoop config files (if exists): " + hadoopConfDir);
-    conf = new Configuration();
-    conf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
-    conf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
 
     fs = FileSystem.get(conf);
 
@@ -292,9 +308,6 @@ public class TeddyExecutor {
     LOGGER.info("callback: restAPIserverPort={} oauth_token={}", restAPIserverPort, oauth_token.substring(0, 10));
 
     LOGGER.info("run(): adding hadoop config files (if exists): " + hadoopConfDir);
-    conf = new Configuration();
-    conf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
-    conf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
 
     fs = FileSystem.get(conf);
 
@@ -331,6 +344,10 @@ public class TeddyExecutor {
   }
 
   void updateSnapshot(String colname, String value) {
+    updateSnapshot(colname, value, ssId);
+  }
+
+  void updateSnapshot(String colname, String value, String ssId) {
     LOGGER.debug("updateSnapshot(): ssId={}: update {} as {}", ssId, colname, value);
 
     URI snapshot_uri = UriComponentsBuilder.newInstance()
@@ -897,5 +914,13 @@ public class TeddyExecutor {
 
   private void updateAsFailed() {
     updateSnapshot("status", PrepSnapshot.STATUS.FAILED.name());
+  }
+
+  public void updateAsCanceling(String ssId) {
+    updateSnapshot("status", PrepSnapshot.STATUS.CANCELING.name(), ssId);
+  }
+
+  public void updateAsCanceled() {
+    updateSnapshot("status", PrepSnapshot.STATUS.CANCELED.name());
   }
 }
