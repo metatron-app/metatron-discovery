@@ -4624,7 +4624,7 @@ ul.ddp-list-rule2 li.ddp-disabled .ddp-data-type .ddp-ui-round {border:1px solid
 ul.ddp-list-rule2 li {position:relative;}
 ul.ddp-list-rule2 li .ddp-view-data {position:relative; padding:6px 20px 6px 20px; cursor:pointer;}
 ul.ddp-list-rule2 li .ddp-view-data:hover {background-color:#f6f6f7;}
-ul.ddp-list-rule2 li .ddp-view-data:hover .ddp-ui-tooltip-info {display:block; margin-top:0;}
+ul.ddp-list-rule2 li .ddp-view-data:hover .ddp-ui-tooltip-info {display:block; margin-top:0; z-index:20}
 ul.ddp-list-rule2 li .ddp-view-data.ddp-tooltip-none:hover .ddp-ui-tooltip-info {display:none;}
 ul.ddp-list-rule2 li .ddp-view-data.ddp-edit {position:relative; background-color:#ebecf4;}
 ul.ddp-list-rule2 li .ddp-view-data.ddp-edit .ddp-ui-edit-button,
