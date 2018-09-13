@@ -450,10 +450,10 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       ingestion['intervals'] = [this.getIngestionData.startDateTime + '/' + this.getIngestionData.endDateTime];
     }
     // advanced setting
-    if (this.getIngestionData.tuningConfig.length > 0) {
+    if (this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {
       ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
-    if (this.getIngestionData.jobProperties.length > 0) {
+    if (this.getIngestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {
       ingestion['jobProperties'] = this._toObject(this.getIngestionData.jobProperties.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
     return ingestion;

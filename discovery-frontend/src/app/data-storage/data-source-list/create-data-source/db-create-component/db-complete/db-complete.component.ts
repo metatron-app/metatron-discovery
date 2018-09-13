@@ -616,7 +616,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       ingestion['connection'] = this._getConnectionParams();
     }
     // advanced setting
-    if (this.getIngestionData.tuningConfig.length > 0) {
+    if (this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {
       ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
     return ingestion;
