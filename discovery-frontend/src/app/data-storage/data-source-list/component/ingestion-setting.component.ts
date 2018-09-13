@@ -553,13 +553,13 @@ export class IngestionSettingComponent extends AbstractComponent {
       return false;
     }
     // If create type is StagingDB and value is empty in jobProperties's default option
-    if (this.createType === 'STAGING' && this.jobProperties.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
-      return false;
-    }
+    // if (this.createType === 'STAGING' && this.jobProperties.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
+    //   return false;
+    // }
     // value is empty in tuningConfig's default option
-    if (this.tuningConfig.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
-      return false;
-    }
+    // if (this.tuningConfig.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
+    //   return false;
+    // }
     return true;
   }
 
@@ -576,10 +576,10 @@ export class IngestionSettingComponent extends AbstractComponent {
         this.loadingHide();
         // result
         this.tuningConfig = result.filter(item => item.type === 'TUNING').map((item) => {
-          return {key: item.name, value: item.defaultValue, defaultOpt: true};
+          return {key: item.name, value: '', ph: item.defaultValue, defaultOpt: true};
         });
         this.jobProperties = result.filter(item => item.type === 'JOB').map((item) => {
-          return {key: item.name, value: item.defaultValue, defaultOpt: true};
+          return {key: item.name, value: '', ph: item.defaultValue,  defaultOpt: true};
         });
       })
       .catch(error => this.commonExceptionHandler(error));

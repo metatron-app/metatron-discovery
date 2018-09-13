@@ -50,9 +50,9 @@
           <!-- //key -->
           <!-- value -->
           <div class="ddp-col-7">
-            <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.value' | translate}}"
+            <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{option.ph || ('msg.storage.ph.config.value' | translate)}}"
                    [(ngModel)]="option.value">
-            <span class="ddp-data-error" *ngIf="option.defaultOpt && isTextEmpty(option.value)"> {{'msg.storage.ui.required' | translate}}</span>
+            <!--<span class="ddp-data-error" *ngIf="option.defaultOpt && isTextEmpty(option.value)"> {{'msg.storage.ui.required' | translate}}</span>-->
           </div>
           <!-- value -->
           <!-- delete -->
@@ -100,9 +100,9 @@
           <!-- //key -->
           <!-- value -->
           <div class="ddp-col-7">
-            <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.value' | translate}}"
+            <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{option.ph || ('msg.storage.ph.config.value' | translate)}}"
                    [(ngModel)]="option.value">
-            <span class="ddp-data-error" *ngIf="option.defaultOpt && isTextEmpty(option.value)"> {{'msg.storage.ui.required' | translate}}</span>
+            <!--<span class="ddp-data-error" *ngIf="option.defaultOpt && isTextEmpty(option.value)"> {{'msg.storage.ui.required' | translate}}</span>-->
           </div>
           <!-- value -->
           <!-- delete -->
