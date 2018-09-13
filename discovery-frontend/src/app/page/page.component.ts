@@ -3406,7 +3406,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     successCallback: null,// Draw 성공시 callback
     resultFormatOptions: {}, // Search Result Option
     filters: [], // 추천필터나 타임스탬프 변경시 필터를 적용하기 위해
-    type: EventType // 호출된 종류 설정
+    type: '' // 호출된 종류 설정
   }) {
     // valid
     if (StringUtil.isEmpty(this.selectChart)) return;

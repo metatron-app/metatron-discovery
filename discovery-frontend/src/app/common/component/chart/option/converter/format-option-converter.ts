@@ -924,14 +924,32 @@ export class FormatOptionConverter {
   }
 
   /**
-   * convert value to deciaml value
+   * convert value to deciaml value with thousand comma
    * @param value
    * @param {number} decimal
    * @returns {string}
    */
-  public static getDecimalValue(value: any, decimal: number): string {
+  public static getDecimalValue(value: any, decimal: number, useThousandsSep: boolean): string {
 
-    return Number(value).toFixed(decimal);
+    const numberValue = Number(value);
+
+    if (useThousandsSep) {
+
+      return numberValue.toLocaleString(undefined, {maximumFractionDigits: decimal, minimumFractionDigits: decimal});
+    }
+
+    else return numberValue.toFixed(decimal);
+  }
+
+  /**
+   * convert decimal value with thousand comma to number value
+   * @param value
+   * @param {number} decimal
+   * @returns {string}
+   */
+  public static getNumberValue(value: any): number {
+
+    return parseFloat(value.replace(/,/g, ''));
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

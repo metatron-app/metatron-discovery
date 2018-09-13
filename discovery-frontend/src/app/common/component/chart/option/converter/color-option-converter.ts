@@ -255,11 +255,12 @@ export class ColorOptionConverter {
       for (const item of rangeList) {
 
         if (null == item.lte) {
-          item.label = '> ' + FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal);
+          item.label = '> ' + FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
         } else if (null == item.gt) {
-          item.label = '≤ ' + FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal);
+          item.label = '≤ ' + FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
         } else {
-          item.label = FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal) + ' - ' + FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal);
+          item.label = FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep) + ' - ' +
+            FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
         }
       }
 

@@ -235,9 +235,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     // set min / max by decimal format
     if (this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal) {
-      this.minValue = FormatOptionConverter.getDecimalValue(this.uiOption.minValue, this.uiOption.valueFormat.decimal);
-      this.minValue = parseInt(this.minValue) >= 0 ? FormatOptionConverter.getDecimalValue(0, this.uiOption.valueFormat.decimal) : this.minValue;
-      this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.maxValue, this.uiOption.valueFormat.decimal);
+      this.minValue = FormatOptionConverter.getDecimalValue(this.uiOption.minValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
+      this.minValue = parseInt(this.minValue) >= 0 ? FormatOptionConverter.getDecimalValue(0, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep) : this.minValue;
+      this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.maxValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
     }
 
     this.$colorPickerPopup = $('#colorPanelColorPicker');
@@ -816,10 +816,14 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   public changeRangeMinInput(range: any, index: number): void {
 
-    if (!range.gt) return;
-
     // 색상 범위리스트
     let rangeList = (<UIChartColorByValue>this.uiOption.color).ranges;
+
+    if (!range.gt || isNaN(FormatOptionConverter.getNumberValue(range.gt))) {
+      // set original value
+      range.gt = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMin, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
+      return;
+    }
 
     // parse string to value
     range = this.parseStrFloat(range);
@@ -875,10 +879,15 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   public changeRangeMaxInput(range: any, index: number): void {
 
-    if (!range.lte) return;
-
     // 색상 범위리스트
     let rangeList = (<UIChartColorByValue>this.uiOption.color).ranges;
+
+    if (!range.lte || isNaN(FormatOptionConverter.getNumberValue(range.lte))) {
+
+      // set original value
+      range.lte = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMax, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
+      return;
+    }
 
     // parse string to value
     range = this.parseStrFloat(range);
@@ -1321,14 +1330,15 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     if (!ranges || 0 == ranges.length) return;
 
     const decimal = this.uiOption.valueFormat.decimal;
+    const commaUseFl = this.uiOption.valueFormat.useThousandsSep;
 
     let returnList: any = _.cloneDeep(ranges);
 
     for (const item of returnList) {
-      item['fixMax'] = null == item.fixMax ? null : <any>FormatOptionConverter.getDecimalValue(item.fixMax, decimal);
-      item['fixMin'] = null == item.fixMin ? null : <any>FormatOptionConverter.getDecimalValue(item.fixMin, decimal);
-      item['gt']     = null == item.gt ? null :<any>FormatOptionConverter.getDecimalValue(item.gt, decimal);
-      item['lte']    = null == item.lte ? null : <any>FormatOptionConverter.getDecimalValue(item.lte, decimal);
+      item['fixMax'] = null == item.fixMax ? null : <any>FormatOptionConverter.getDecimalValue(item.fixMax, decimal, commaUseFl);
+      item['fixMin'] = null == item.fixMin ? null : <any>FormatOptionConverter.getDecimalValue(item.fixMin, decimal, commaUseFl);
+      item['gt']     = null == item.gt ? null :<any>FormatOptionConverter.getDecimalValue(item.gt, decimal, commaUseFl);
+      item['lte']    = null == item.lte ? null : <any>FormatOptionConverter.getDecimalValue(item.lte, decimal, commaUseFl);
     }
 
     return returnList;
@@ -1341,10 +1351,10 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
    */
   private parseStrFloat(range: any): any {
 
-    range.fixMax = null == range.fixMax ? null : parseFloat(range.fixMax);
-    range.fixMin = null == range.fixMin ? null : parseFloat(range.fixMin);
-    range.gt     = null == range.gt ? null : parseFloat(range.gt);
-    range.lte    = null == range.lte ? null : parseFloat(range.lte);
+    range.fixMax = null == range.fixMax ? null : FormatOptionConverter.getNumberValue(range.fixMax);
+    range.fixMin = null == range.fixMin ? null : FormatOptionConverter.getNumberValue(range.fixMin);
+    range.gt     = null == range.gt ? null : FormatOptionConverter.getNumberValue(range.gt);
+    range.lte    = null == range.lte ? null : FormatOptionConverter.getNumberValue(range.lte);
     return range;
   }
 }
