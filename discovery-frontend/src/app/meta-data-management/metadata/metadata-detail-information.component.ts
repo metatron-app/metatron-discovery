@@ -263,6 +263,20 @@ export class MetadataDetailInformationComponent extends AbstractComponent implem
       this.loadingHide();
     })
   }
+
+
+  /**
+   * Get description with line break
+   * @param {string} description
+   * @returns {any}
+   */
+  public getDescription(description : string) {
+    if (description === '') {
+      return this.translateService.instant('msg.metadata.ui.no.description');
+    } else {
+      return description.replace( /\r\n|\n/gi, '<br>' );
+    }
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
