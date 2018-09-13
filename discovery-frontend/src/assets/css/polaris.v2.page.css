@@ -4183,10 +4183,10 @@ ul.ddp-list-selectbox.ddp-color-select li a:hover {background-color:#f6f6f7;}
 
 .ddp-column-detail .ddp-wrap-list .ddp-ui-top {background-color:#e7e7ea;}
 .ddp-wrap-list .ddp-ui-dataname {padding:20px 10px 10px 10px;background-color:#e7e7ea}
-.ddp-wrap-list .ddp-ui-dataname .ddp-top-title {display:block; position:relative; padding:0 20px 10px 9px;}
-.ddp-wrap-list .ddp-ui-dataname .ddp-txt-name {display:inline-block; font-size:16px; font-weight:bold; color:#4b515b; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.ddp-wrap-list .ddp-ui-dataname .ddp-top-title {display:inline-block; position:relative; max-width:100%; padding:0 20px 10px 9px; box-sizing:border-box;}
+.ddp-wrap-list .ddp-ui-dataname .ddp-txt-name {display:inline-block; max-width:100%;font-size:16px; font-weight:bold; color:#4b515b; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 
-.ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info {position:relative; display:inline-block; vertical-align:top; top:5px; }
+.ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info {position:absolute; top:0; right:0; display:inline-block; vertical-align:top; top:5px; }
 .ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-btn-info2:before
 {display:inline-block; content:''; width:13px; height:13px; margin-left:5px; background:url(../images/icon_info.png) no-repeat; background-position:left -30px;}
 .ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-btn-info2:hover:before {background-position:-14px -30px;}
