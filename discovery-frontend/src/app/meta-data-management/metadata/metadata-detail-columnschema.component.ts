@@ -516,6 +516,18 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
       delete item['nameChangeFl'];
       delete item['typeListFl'];
       delete item['codeTableShowFl'];
+      // name이 있고 255자가 넘어간다면
+      if (item.name && item.name.length > 255) {
+        item.name = item.name.substr(0, 254);
+      }
+      // description이 있고 1000자가 넘어간다면
+      if (item.description && item.description.length > 1000) {
+        item.description = item.description.substr(0, 999);
+      }
+      // format이 있고 255자가 넘어간다면
+      if (item.format && item.format.length > 255) {
+        item.format = item.format.substr(0, 254);
+      }
       // dictionary가 있다면
       item.dictionary && (item['dictionary'] = `/api/dictionaries/${item.dictionary.id}`);
       // code table이 있다면
