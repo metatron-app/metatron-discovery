@@ -35,6 +35,9 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
+
+  @ViewChild('newColName')
+  private _newColName: ElementRef;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -148,7 +151,9 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
    * @protected
    */
   protected afterShowComp() {
-
+    if (this.selectedFields.length > 0) {
+      this.inputValue = this.selectedFields[0].name + '_1';
+    }
   } // function - _afterShowComp
 
   /**

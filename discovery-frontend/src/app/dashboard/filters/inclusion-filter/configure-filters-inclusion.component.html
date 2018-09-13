@@ -233,23 +233,23 @@
           <!-- popup -->
           <div class="ddp-wrap-popup2">
             <ul class="ddp-list-popup">
-              <li [class.ddp-selected]="targetFilter['sortTarget'] === 'FREQUENCY' && targetFilter['sortType'] === 'ASC'">
-                <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'FREQUENCY','ASC');">
+              <li [class.ddp-selected]="sortBy.COUNT === targetFilter.sort.by && sortDirection.ASC === targetFilter.sort.direction">
+                <a href="javascript:" (click)="sortCandidateValues(targetFilter, sortBy.COUNT, sortDirection.ASC );">
                   {{'msg.comm.ui.soring.frequency.asc' | translate}} <em class="ddp-icon-check"></em>
                 </a>
               </li>
-              <li [class.ddp-selected]="targetFilter['sortTarget'] === 'FREQUENCY' && targetFilter['sortType'] === 'DESC'">
-                <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'FREQUENCY','DESC');">
+              <li [class.ddp-selected]="sortBy.COUNT === targetFilter.sort.by && sortDirection.DESC === targetFilter.sort.direction">
+                <a href="javascript:" (click)="sortCandidateValues(targetFilter, sortBy.COUNT, sortDirection.DESC);">
                   {{'msg.comm.ui.soring.frequency.desc' | translate}} <em class="ddp-icon-check"></em>
                 </a>
               </li>
-              <li [class.ddp-selected]="targetFilter['sortTarget'] === 'ALPHNUMERIC' && targetFilter['sortType'] === 'ASC'">
-                <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'ALPHNUMERIC','ASC');">
+              <li [class.ddp-selected]="sortBy.TEXT === targetFilter.sort.by && sortDirection.ASC === targetFilter.sort.direction">
+                <a href="javascript:" (click)="sortCandidateValues(targetFilter, sortBy.TEXT, sortDirection.ASC );">
                   {{'msg.comm.ui.soring.alphnumeric.asc' | translate}} <em class="ddp-icon-check"></em>
                 </a>
               </li>
-              <li [class.ddp-selected]="targetFilter['sortTarget'] === 'ALPHNUMERIC' && targetFilter['sortType'] === 'DESC'">
-                <a href="javascript:" (click)="sortCandidateValues(targetFilter, 'ALPHNUMERIC','DESC');">
+              <li [class.ddp-selected]="sortBy.TEXT === targetFilter.sort.by && sortDirection.DESC === targetFilter.sort.direction">
+                <a href="javascript:" (click)="sortCandidateValues(targetFilter, sortBy.TEXT, sortDirection.DESC);">
                   {{'msg.comm.ui.soring.alphnumeric.desc' | translate}} <em class="ddp-icon-check"></em>
                 </a>
               </li>

@@ -226,6 +226,8 @@ export class EditDataflowRuleComponent extends AbstractPopupComponent implements
   public isTimestampEdit :boolean = false;
   public timestampSuggestions : any;
 
+  public isEditMode : boolean = false;
+
   get filteredWrangledDatasets() {
     if (this.dataflow['_embedded'].datasets.length === 0) return [];
 
@@ -2016,43 +2018,43 @@ export class EditDataflowRuleComponent extends AbstractPopupComponent implements
     this.loadingShow();
 
     // TODO : jumpRule, applyRule 은 같은 API
-    this.dataflowService.jumpRule(this.selectedDataSet.dsId, 'FETCH', idx)
-      .then((data) => {
-        if (data.errorMsg) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.jump.fail'));
-        } else {
-          this.selectedDataSet.gridResponse = data.gridResponse;
-          // this.selectedDataSet.ruleStringInfos = data['ruleStringInfos'];
-          this.selectedDataSet.ruleCurIdx = idx;
-          // grid refresh
-          this.setGridData(this.selectedDataSet.gridResponse);
-
-          this.setColumnWidthInfo(this.selectedDataSet.gridData);
-
-          this.getHistogramInfoByWidths(this.columnWidths, isCancel);
-          // rule refresh
-          // this.setRuleList(data['ruleStringInfos']);
-          // init ruleVO
-          this.initRule(data);
-          // init type list
-
-          let boolValue = false;
-          this.isJumped ? boolValue = true : boolValue = false;
-
-          this.searchText = '';
-
-          this.setRuleListColor(idx, boolValue);
-
-        }
-
-        this.loadingHide();
-
-      })
-      .catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
+    // this.dataflowService.jumpRule(this.selectedDataSet.dsId, 'FETCH', idx)
+    //   .then((data) => {
+    //     if (data.errorMsg) {
+    //       Alert.warning(this.translateService.instant('msg.dp.alert.jump.fail'));
+    //     } else {
+    //       this.selectedDataSet.gridResponse = data.gridResponse;
+    //       // this.selectedDataSet.ruleStringInfos = data['ruleStringInfos'];
+    //       this.selectedDataSet.ruleCurIdx = idx;
+    //       // grid refresh
+    //       this.setGridData(this.selectedDataSet.gridResponse);
+    //
+    //       this.setColumnWidthInfo(this.selectedDataSet.gridData);
+    //
+    //       this.getHistogramInfoByWidths(this.columnWidths, isCancel);
+    //       // rule refresh
+    //       // this.setRuleList(data['ruleStringInfos']);
+    //       // init ruleVO
+    //       this.initRule(data);
+    //       // init type list
+    //
+    //       let boolValue = false;
+    //       this.isJumped ? boolValue = true : boolValue = false;
+    //
+    //       this.searchText = '';
+    //
+    //       this.setRuleListColor(idx, boolValue);
+    //
+    //     }
+    //
+    //     this.loadingHide();
+    //
+    //   })
+    //   .catch((error) => {
+    //     this.loadingHide();
+    //     let prep_error = this.dataprepExceptionHandler(error);
+    //     PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+    //   });
   }
 
   /**

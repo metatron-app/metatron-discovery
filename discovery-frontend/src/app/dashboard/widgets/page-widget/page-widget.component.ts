@@ -1019,13 +1019,27 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         const syncOpts: BoardSyncOptions = boardConf.options.sync;
         this._interval = setInterval(() => {
           this.safelyDetectChanges();
-          (this.parentWidget) || (this._search());
+          if(this.parentWidget) {
+            // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
+            this.processStart();
+            this._isDuringProcess = true;
+            this.updateComplete();
+          } else {
+            this._search();
+          }
         }, syncOpts.interval * 1000);
       }
 
       this.safelyDetectChanges();
 
-      (this.parentWidget) || (this._search());
+      if(this.parentWidget) {
+        // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
+        this.processStart();
+        this._isDuringProcess = true;
+        this.updateComplete();
+      } else {
+        this._search();
+      }
     } // end if - dashboard.configuration
 
     this.safelyDetectChanges();
@@ -1040,7 +1054,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   private _search(externalFilters?: Filter[]) {
 
+    // 프로세스 실행 등록
+    this.processStart();
+    this._isDuringProcess = true;
+
     if (!this.chart) {
+      this.updateComplete();
       return;
     }
 
@@ -1062,11 +1081,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           this.isShowHierarchyView = false;
         } else {
           this.isShowHierarchyView = true;
+          this.updateComplete();
           this.safelyDetectChanges();
           return;
         }
       } else {
         this.isShowHierarchyView = true;
+        this.updateComplete();
         this.safelyDetectChanges();
         return;
       }
@@ -1097,6 +1118,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 선반 정보가 없을 경우 반환
     if (query.pivot.columns.length + query.pivot.rows.length + query.pivot.aggregations.length === 0) {
+      this.updateComplete();
       return;
     }
 
@@ -1134,9 +1156,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       uiCloneQuery.filters = externalFilters.concat(uiCloneQuery.filters);
     }
 
-    // 프로세스 실행 등록
-    this.processStart();
-    this._isDuringProcess = true;
     this.isShowNoData = false;
     this.isError = false;
 

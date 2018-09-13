@@ -42,262 +42,233 @@
           <!-- //popup -->
         </div>
         <!-- //name -->
-
-
       </div>
-
       <div class="ddp-ui-navibuttons">
         <a href="javascript:" class="ddp-btn-buttons2" (click)="createSnapshot()"><em class="ddp-icon-shot"></em>{{'msg.dp.th.ss' | translate}}</a>
-        <a href="javascript:" class="ddp-btn-line3" (click)="prev();"><em class="ddp-icon-btndone"></em>{{'msg.comm.btn.done' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-buttons3" (click)="prev();"><em class="ddp-icon-btndone"></em>{{'msg.comm.btn.done' | translate}}</a>
       </div>
     </div>
     <!-- //navi wrap -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-buttons2" (click)="createSnapshot()"><em class="ddp-icon-shot"></em>{{'msg.dp.th.ss' | translate}}</a>
+      <a href="javascript:" class="ddp-btn-buttons3" (click)="prev();"><em class="ddp-icon-btndone"></em>{{'msg.comm.btn.done' | translate}}</a>
+    </div>
   </div>
 
   <!-- //top -->
-  <!--</vertical-split-pane>-->
   <div class="ddp-wrap-flow" style="position:fixed; left:0; top:48px; bottom:0; right:0; box-sizing:border-box; overflow:hidden;">
-    <!--<div class="ddp-ui-bar-right" ></div>-->
-    <!--<div class="ddp-ui-bar-bottom" ></div>-->
-
-
-    <div style="height: 100%;">
-      <horizontal-split-pane #box1 primary-component-minsize="70" secondary-component-minsize="30"  primary-component-initialratio="0.7">
-        <!--(on-change)="onHChange($event)"-->
-        <div class="split-pane-content-secondary" style=" height:100%; background-color:#fff;">
-          <div class="lower" style="height:100%;">
-
-            <!-- add rule -->
-            <div class="ddp-wrap-addrule" style="position:relative; top:0; left:0; right:0; bottom:0; height:inherit; min-height:inherit">
-              <!-- 화면 클릭 오류로 인해 z-index를 임시로 설정함!!! 후에 정식으로 수정해야 함!! -->
-              <div class="ddp-box-top" style="position:relative; top:0; left:0; right:0; bottom:0;z-index:10;">
-                <!-- title -->
-                <div class="ddp-box-title">
-                  {{'msg.dp.ui.add.rule.title' | translate}}
-                  <a href="javascript:" class="ddp-link-switch" (click)="switchEditor()">{{editorUseLabel}}</a>
+    <div class="rule-top">
+      <div class="left-component rule-left" style="float: left; height: 100%;">
+        <div *ngIf="isInitDataLoaded" class="ddp-wrap-flow-grid" style="position:relative; top:0; left:0; right:0; min-height:100%;">
+          <edit-rule-grid (selectHeader)="setRuleInfoFromGridHeader($event)"
+                          (selectHeaderMenu)="applyRuleFromGridHeaderMenu($event)"
+                          (selectContextMenu)="applyRuleFromContextMenu($event)"></edit-rule-grid>
+        </div>
+      </div>
+      <div class="right-component rule-right" style="float: left; height: 100%;">
+        <!-- Rule list -->
+        <app-rule-list [ruleList]="ruleList"
+                       [redoable]="redoable"
+                       [undoable]="undoable"
+                       (jumpEvent)="jump($event)"
+                       (redoUndoEvent)="transformAction($event)"
+                       (deleteEvent)="deleteRule($event)"
+                       (editEvent)="setEditData($event)"
+                       (addRuleEvent)="insertStep($event)"
+                       (snapshotDetailEvent)="getSnapshotDetail($event)">
+        </app-rule-list>
+        <!-- // Rule list -->
+      </div>
+    </div>
+    <div class="bottom rule-bottom" >
+      <!-- add rule -->
+      <div class="ddp-wrap-addrule" style="position:relative; top:0; left:0; right:0; bottom:0; height:100%; min-height:inherit">
+        <!-- 화면 클릭 오류로 인해 z-index를 임시로 설정함!!! 후에 정식으로 수정해야 함!! -->
+        <div class="ddp-box-top" style="position:relative; top:0; left:0; right:0; bottom:0;z-index:10;">
+          <!-- title -->
+          <div class="ddp-box-title">
+            {{'msg.dp.ui.add.rule.title' | translate}}
+            <a href="javascript:" class="ddp-link-switch" (click)="switchEditor()" *ngIf="opString !== 'UPDATE'">{{editorUseLabel}}</a>
+          </div>
+          <!-- //title -->
+          <!-- buttons -->
+          <div class="ddp-ui-buttons">
+            <a href="javascript:" class="ddp-btn-type3" (click)="jumpToCurrentIndex()">{{'msg.comm.btn.cancl' | translate}}</a>
+            <a href="javascript:" [ngClass]="{'ddp-disabled':ruleVO.command === ''}" class="ddp-btn-type4" (click)="addRule()">{{ opString !== 'UPDATE' ? ('msg.dp.btn.add' | translate) : ('msg.dp.btn.edit' | translate ) }}</a>
+          </div>
+          <!-- //buttons -->
+        </div>
+        <div class="ddp-wrap-rulecontents"
+             [ngClass]="{'ddp-inherit': isCommandListShow || isFocus || isMultiColumnListShow }">
+          <div class="ddp-box-contents ddp-clear">
+            <!-- editor -->
+            <div class="ddp-wrap-switch-editor" style="display:block" *ngIf="editorUseFlag === true">
+              <!-- switch 클릭시 ddp-box-full 추가 -->
+              <div class="ddp-box-command ddp-box-full">
+                <div class="ddp-ui-title">
+                  {{'msg.dp.th.command' | translate}}
                 </div>
-                <!-- //title -->
-                <!-- buttons -->
-                <div class="ddp-ui-buttons">
-                  <a href="javascript:" class="ddp-btn-type3" (click)="jump(ruleList.length-1); ruleVO.command = ''; selectedColumns = []; editColumnList = [];">{{'msg.comm.btn.cancl' | translate}}</a>
-                  <a href="javascript:" class="ddp-btn-type4" (click)="addRule()">{{editLabelBtn}}</a>
+
+                <!-- input -->
+                <div class="ddp-wrap-datainput">
+                  <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.dp.alert.command.input.ph' | translate}}" [(ngModel)]="inputRuleCmd" >
                 </div>
-                <!-- //buttons -->
+                <!-- //input -->
               </div>
-              <div class="ddp-wrap-rulecontents"
-                   [ngClass]="{'ddp-inherit': isCommandListShow || isFocus || isMultiColumnListShow }">
-                <div class="ddp-box-contents ddp-clear">
-                  <!-- editor -->
-                  <div class="ddp-wrap-switch-editor" style="display:block" *ngIf="editorUseFlag === true">
-                    <!-- switch 클릭시 ddp-box-full 추가 -->
-                    <div class="ddp-box-command ddp-box-full">
-                      <div class="ddp-ui-title">
-                        {{'msg.dp.th.command' | translate}}
-                      </div>
+            </div>
+            <!-- //editor -->
 
-                      <!-- input -->
-                      <div class="ddp-wrap-datainput">
-                        <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.dp.alert.command.input.ph' | translate}}" [(ngModel)]="inputRuleCmd" >
-                      </div>
-                      <!-- //input -->
-                    </div>
-                  </div>
-                  <!-- //editor -->
-
-                  <!-- builder -->
-                  <div class="ddp-wrap-switch-builder" style="display:block" *ngIf="editorUseFlag === false">
-                    <div class="ddp-box-command">
-                      <div class="ddp-ui-title">
-                        {{'msg.dp.th.command' | translate}}
-                      </div>
-                      <!-- select box -->
-                      <!-- 클릭시 ddp-selected 추가 -->
-                      <div class="ddp-type-selectbox ddp-type-search-select"
-                           tabindex="1"
-                           [ngClass]="{'ddp-selected' : isCommandListShow}"
-                           [class.ddp-result]="ruleVO.command"
-                           (click)="showCommandList($event)"
-                           (keydown)="navigateWithKeyboardShortList($event, filteredCommandList, 'command')">
-                        <!-- 선택시 자동 input display:block; -->
-                        <input type="text" class="ddp-input-selectbox" placeholder="{{'msg.dp.th.command' | translate}}" [(ngModel)]="commandSearchText" id="commandSearch">
-                        <span class="ddp-txt-selectbox" >{{ruleVO.command !== '' ?  ruleVO.command : 'msg.dp.ui.command.input.ph' | translate }}</span>
-                        <ul class="ddp-list-selectbox ddp-list-command"
-                            *ngIf="isCommandListShow"
-                            (clickOutside)="isCommandListShow = false; initSelectedCommand(filteredCommandList)">
-                          <li *ngFor="let command of filteredCommandList; let index = index;"
-                              (click)="selectCommand($event, command)"
-                              (mouseout)="commandListHover($event,index)"
-                              (mouseover)="commandListHover($event,index)"
-                              (mousemove)="flag === true ? flag = false : flag = true">
-                            <a href="javascript:" [ngStyle]="command.isHover ? {'background-color': '#f6f6f7' }:{}">
+            <!-- builder -->
+            <div class="ddp-wrap-switch-builder" style="display:block" *ngIf="editorUseFlag === false">
+              <div class="ddp-box-command">
+                <div class="ddp-ui-title">
+                  {{'msg.dp.th.command' | translate}}
+                </div>
+                <!-- select box -->
+                <!-- 클릭시 ddp-selected 추가 -->
+                <div class="ddp-type-selectbox ddp-type-search-select"
+                     tabindex="1"
+                     [ngClass]="{'ddp-selected' : isCommandListShow, 'ddp-disabled' : opString === 'UPDATE' }"
+                     [class.ddp-result]="ruleVO.command"
+                     (click)="$event.stopImmediatePropagation(); showCommandList()"
+                     (keydown)="navigateWithKeyboardShortList($event, filteredCommandList, 'command')">
+                  <!-- 선택시 자동 input display:block; -->
+                  <input type="text" class="ddp-input-selectbox" placeholder="{{'msg.dp.th.command' | translate}}" [(ngModel)]="commandSearchText" id="commandSearch">
+                  <span class="ddp-txt-selectbox" >{{ruleVO.command !== '' ?  ruleVO.command : 'msg.dp.ui.command.input.ph' | translate }}</span>
+                  <ul class="ddp-list-selectbox ddp-list-command"
+                      *ngIf="isCommandListShow"
+                      (clickOutside)="isCommandListShow = false; initSelectedCommand(filteredCommandList)">
+                    <li *ngFor="let command of filteredCommandList; let index = index;"
+                        (click)="selectCommand($event, command)"
+                        (mouseout)="commandListHover($event,index)"
+                        (mouseover)="commandListHover($event,index)"
+                        (mousemove)="flag === true ? flag = false : flag = true">
+                      <a href="javascript:" [ngStyle]="command.isHover ? {'background-color': '#f6f6f7' }:{}">
                               <span class="ddp-ui-type">
                                 <em class="ddp-ui-round">{{command.alias}}</em>{{command.command}}
                               </span>
-                              <span class="ddp-ui-code">
+                        <span class="ddp-ui-code">
                                 {{command.desc}}
                               </span>
-                            </a>
-                          </li>
-                          <li *ngIf="filteredCommandList.length ===0"><span class="ddp-noresult">{{'msg.dp.ui.search.no.rslt' | translate}}</span></li>
-                        </ul>
-                      </div>
-                      <!-- //select box -->
-                    </div>
-                    <div class="ddp-wrap-part" *ngIf="'' !== ruleVO.command">
-
-                      <!--startHeader-->
-                      <edit-rule-header #editRule *ngIf="'header' === ruleVO.command" ></edit-rule-header>
-                      <!-- //endHeader-->
-
-                      <!--startKeep-->
-                      <edit-rule-keep #editRule *ngIf="'keep' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('keep')"></edit-rule-keep>
-                      <!-- //endKeep-->
-
-                      <!-- startReplace -->
-                      <edit-rule-replace #editRule *ngIf="'replace' === ruleVO.command" ></edit-rule-replace>
-                      <!-- // endReplace -->
-
-                      <!-- startRename -->
-                      <edit-rule-rename #editRule *ngIf="'rename' === ruleVO.command"
-                                        (onEvent)="onMultiColumnRenameClick()" ></edit-rule-rename>
-                      <!-- // endRename -->
-
-                      <!--startSet-->
-                      <edit-rule-set #editRule *ngIf="'set' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('derive')"></edit-rule-set>
-                      <!--//endSet-->
-
-                      <!--startSettype-->
-                      <edit-rule-settype #editRule *ngIf="'settype' === ruleVO.command"></edit-rule-settype>
-                      <!--//endSettype-->
-
-                      <!--startCountpattern-->
-                      <edit-rule-countpattern #editRule *ngIf="'countpattern' === ruleVO.command"></edit-rule-countpattern>
-                      <!--//endCountpattern-->
-
-                      <!--startSplit-->
-                      <edit-rule-split #editRule *ngIf="'split'===ruleVO.command"></edit-rule-split>
-                      <!--//endSplit-->
-
-                      <!--startDerive-->
-                      <edit-rule-derive #editRule *ngIf="'derive' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('derive')"></edit-rule-derive>
-                      <!--//endDerive-->
-
-                      <!--startDelete-->
-                      <edit-rule-delete #editRule *ngIf="'delete' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('delete')"></edit-rule-delete>
-                      <!--//endDelete-->
-
-                      <!--startDrop-->
-                      <edit-rule-drop #editRule *ngIf="'drop' === ruleVO.command" ></edit-rule-drop>
-                      <!--//endDrop-->
-
-                      <!--startExtract-->
-                      <edit-rule-extract #editRule *ngIf="'extract'===ruleVO.command"></edit-rule-extract>
-                      <!--//endExtract-->
-
-                      <!--startFlatten-->
-                      <edit-rule-flatten #editRule *ngIf="'flatten' === ruleVO.command"></edit-rule-flatten>
-                      <!--//endFlatten-->
-
-                      <!--startMerge-->
-                      <edit-rule-merge #editRule *ngIf="'merge' === ruleVO.command"></edit-rule-merge>
-                      <!--//endMerge-->
-
-                      <!--startAggregate-->
-                      <edit-rule-aggregate #editRule *ngIf="'aggregate' === ruleVO.command"></edit-rule-aggregate>
-                      <!--//endAggregate-->
-
-                      <!--startSort-->
-                      <edit-rule-sort #editRule *ngIf="'sort' === ruleVO.command"></edit-rule-sort>
-                      <!--//endSort-->
-
-                      <!--startMove-->
-                      <edit-rule-move #editRule *ngIf="'move' === ruleVO.command"></edit-rule-move>
-                      <!--//endMove-->
-
-                      <!--start pivot -->
-                      <edit-rule-pivot #editRule *ngIf="'pivot' === ruleVO.command"></edit-rule-pivot>
-                      <!-- end pivot -->
-
-                      <!--start unpivot -->
-                      <edit-rule-unpivot #editRule *ngIf="'unpivot' === ruleVO.command"></edit-rule-unpivot>
-                      <!--//endUnpivot-->
-
-                      <!--startNest-->
-                      <edit-rule-nest #editRule *ngIf="'nest' === ruleVO.command"></edit-rule-nest>
-                      <!--//endNest-->
-
-                      <!--startUnnest-->
-                      <edit-rule-unnest #editRule *ngIf="'unnest' === ruleVO.command"></edit-rule-unnest>
-                      <!--//endUnnest-->
-
-                      <!--startSetformat-->
-                      <edit-rule-setformat #editRule *ngIf="'setformat' === ruleVO.command"></edit-rule-setformat>
-                      <!--endSetformat-->
-                    </div>
-                  </div>
-                  <!-- //builder -->
+                      </a>
+                    </li>
+                    <li *ngIf="filteredCommandList.length ===0"><span class="ddp-noresult">{{'msg.dp.ui.search.no.rslt' | translate}}</span></li>
+                  </ul>
                 </div>
+                <!-- //select box -->
               </div>
+              <div class="ddp-wrap-part" *ngIf="'' !== ruleVO.command">
 
+                <!--startHeader-->
+                <edit-rule-header #editRule *ngIf="'header' === ruleVO.command" ></edit-rule-header>
+                <!-- //endHeader-->
+
+                <!--startKeep-->
+                <edit-rule-keep #editRule *ngIf="'keep' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('keep')"></edit-rule-keep>
+                <!-- //endKeep-->
+
+                <!-- startReplace -->
+                <edit-rule-replace #editRule *ngIf="'replace' === ruleVO.command" ></edit-rule-replace>
+                <!-- // endReplace -->
+
+                <!-- startRename -->
+                <edit-rule-rename #editRule *ngIf="'rename' === ruleVO.command"
+                                  (onEvent)="onMultiColumnRenameClick()" ></edit-rule-rename>
+                <!-- // endRename -->
+
+                <!--startSet-->
+                <edit-rule-set #editRule *ngIf="'set' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('set')"></edit-rule-set>
+                <!--//endSet-->
+
+                <!--startSettype-->
+                <edit-rule-settype #editRule *ngIf="'settype' === ruleVO.command"></edit-rule-settype>
+                <!--//endSettype-->
+
+                <!--startCountpattern-->
+                <edit-rule-countpattern #editRule *ngIf="'countpattern' === ruleVO.command"></edit-rule-countpattern>
+                <!--//endCountpattern-->
+
+                <!--startSplit-->
+                <edit-rule-split #editRule *ngIf="'split'===ruleVO.command"></edit-rule-split>
+                <!--//endSplit-->
+
+                <!--startDerive-->
+                <edit-rule-derive #editRule *ngIf="'derive' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('derive')"></edit-rule-derive>
+                <!--//endDerive-->
+
+                <!--startDelete-->
+                <edit-rule-delete #editRule *ngIf="'delete' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('delete')"></edit-rule-delete>
+                <!--//endDelete-->
+
+                <!--startDrop-->
+                <edit-rule-drop #editRule *ngIf="'drop' === ruleVO.command" ></edit-rule-drop>
+                <!--//endDrop-->
+
+                <!--startExtract-->
+                <edit-rule-extract #editRule *ngIf="'extract'===ruleVO.command"></edit-rule-extract>
+                <!--//endExtract-->
+
+                <!--startFlatten-->
+                <edit-rule-flatten #editRule *ngIf="'flatten' === ruleVO.command"></edit-rule-flatten>
+                <!--//endFlatten-->
+
+                <!--startMerge-->
+                <edit-rule-merge #editRule *ngIf="'merge' === ruleVO.command"></edit-rule-merge>
+                <!--//endMerge-->
+
+                <!--startAggregate-->
+                <edit-rule-aggregate #editRule *ngIf="'aggregate' === ruleVO.command"></edit-rule-aggregate>
+                <!--//endAggregate-->
+
+                <!--startSort-->
+                <edit-rule-sort #editRule *ngIf="'sort' === ruleVO.command"></edit-rule-sort>
+                <!--//endSort-->
+
+                <!--startMove-->
+                <edit-rule-move #editRule *ngIf="'move' === ruleVO.command"></edit-rule-move>
+                <!--//endMove-->
+
+                <!--start pivot -->
+                <edit-rule-pivot #editRule *ngIf="'pivot' === ruleVO.command"></edit-rule-pivot>
+                <!-- end pivot -->
+
+                <!--start unpivot -->
+                <edit-rule-unpivot #editRule *ngIf="'unpivot' === ruleVO.command"></edit-rule-unpivot>
+                <!--//endUnpivot-->
+
+                <!--startNest-->
+                <edit-rule-nest #editRule *ngIf="'nest' === ruleVO.command"></edit-rule-nest>
+                <!--//endNest-->
+
+                <!--startUnnest-->
+                <edit-rule-unnest #editRule *ngIf="'unnest' === ruleVO.command"></edit-rule-unnest>
+                <!--//endUnnest-->
+
+                <!--startSetformat-->
+                <edit-rule-setformat #editRule *ngIf="'setformat' === ruleVO.command"></edit-rule-setformat>
+                <!--endSetformat-->
+              </div>
             </div>
-
+            <!-- //builder -->
           </div>
         </div>
-        <div class="split-pane-content-primary" style="width:100%; height:100%;">
-          <div class="upper" style="width:100%; height:100%;">
-
-            <vertical-split-pane primary-component-minsize="35" secondary-component-minsize="35" separator-thickness="7"  primary-component-initialratio="0.8" style="background:red;">
-              <!--(on-change)="onVChange($event)"-->
-              <div class="split-pane-content-primary" style="height:100%;">
-                <div class="left" style="height:100%;">
-                  <div *ngIf="isInitDataLoaded" class="ddp-wrap-flow-grid" style="position:relative; top:0; left:0; right:0; min-height:100%;">
-                    <edit-rule-grid [isJumped]="isJumped"
-                                    (selectHeader)="setRuleInfoFromGridHeader($event)"
-                                    (selectHeaderMenu)="applyRuleFromGridHeaderMenu($event)"
-                                    (selectContextMenu)="applyRuleFromContextMenu($event)"></edit-rule-grid>
-                  </div>
-                </div>
-              </div>
-              <div class="split-pane-content-secondary" style="height:100%;">
-                <div class="right" style="height:100%;">
-                  <!-- Rule list -->
-                  <app-rule-list [ruleList]="ruleList"
-                                 [redoable]="redoable"
-                                 [undoable]="undoable"
-                                 (jumpEvent)="jump($event)"
-                                 (redoEvent)="redoRule()"
-                                 (undoEvent)="undoRule()"
-                                 (deleteEvent)="deleteRule($event)"
-                                 (editEvent)="setRuleVO($event)"
-                                 (snapshotDetailEvent)="getSnapshotDetail($event)">
-                  </app-rule-list>
-                  <!-- // Rule list -->
-                </div>
-              </div>
-            </vertical-split-pane>
-          </div>
-        </div>
-      </horizontal-split-pane>
+      </div>
     </div>
-    <style>
-      .upper-component {height:calc(70% - 4px) !important;}
-      .lower-component {height:calc(30% - 7px) !important;}
-      .invisible-extension {position:absolute; top:0; left:0; right:0; bottom:0; background-color:red;}
-    </style>
   </div>
-
 </div>
 <create-snapshot-popup (snapshotCreateFinishEvent)="initSnapshotList(selectedDataSet.dsId, true)"  (snapshotCloseEvent)="snapshotCreateClose()"></create-snapshot-popup>
 <app-rule-join-popup [existingDataSet]="selectedDataSet"
+                     [serverSyncIndex]="serverSyncIndex"
                      (joinComplete)="ruleJoinComplete($event);"
                      *ngIf="isRuleJoinModalShow"
-                     [dataflow]="dataflow"
-                     [rightDataset]="rightDataset">
+                     [dfId]="dataflow.dfId"
+                     [rightDataset]="rightDataset"
+                     [editRuleStr]="editJoinOrUnionRuleStr">
 </app-rule-join-popup>
 
 <app-rule-union-popup [masterDataset]="selectedDataSet"
-                      [dataflow]="dataflow"
-                      [isUpdate]="isUpdate"
+                      [serverSyncIndex]="serverSyncIndex"
+                      [dfId]="dataflow.dfId"
                       [editRuleStr]="editJoinOrUnionRuleStr"
                       (unionComplete)="ruleUnionComplete($event);"
                       *ngIf="isRuleUnionModalShow">

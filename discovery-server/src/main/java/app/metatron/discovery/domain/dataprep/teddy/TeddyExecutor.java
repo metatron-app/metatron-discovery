@@ -922,17 +922,13 @@ public class TeddyExecutor {
     snapshotRuleDoneCnt.remove(ssId);
   }
 
-  synchronized public void updateAsCanceling(String ssId) {
-    updateSnapshot("status", PrepSnapshot.STATUS.CANCELING.name(), ssId);
-  }
-
-  public void updateAsCanceled(String ssId) {
+  private void updateAsCanceled(String ssId) {
     updateSnapshot("status", PrepSnapshot.STATUS.CANCELED.name(), ssId);
     snapshotRuleDoneCnt.remove(ssId);
   }
 
   synchronized public void cancelCheck(String ssId) throws CancellationException{
-    if(snapshotService.getSnapshotStatus(ssId).equals(PrepSnapshot.STATUS.CANCELING)) {
+    if(snapshotService.getSnapshotStatus(ssId).equals(PrepSnapshot.STATUS.CANCELED)) {
       throw new CancellationException("This snapshot generating was canceled by user. ssid: " + ssId);
     }
   }

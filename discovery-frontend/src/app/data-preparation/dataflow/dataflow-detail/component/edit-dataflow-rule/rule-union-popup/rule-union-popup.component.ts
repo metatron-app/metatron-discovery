@@ -14,13 +14,11 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../../common/component/abstract-popup.component';
-import { Dataflow } from '../../../../../../domain/data-preparation/dataflow';
 import { Dataset, DsType } from '../../../../../../domain/data-preparation/dataset';
 import { PopupService } from '../../../../../../common/service/popup.service';
 import { DataflowService } from '../../../../service/dataflow.service';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { PreparationAlert } from '../../../../../util/preparation-alert.util';
-import * as _ from 'lodash';
 
 class Field {
   public name: string;
@@ -53,7 +51,10 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   public masterDataset: Dataset;
 
   @Input() // 해당 데이터플로우 정보 필요
-  public dataflow: Dataflow;
+  public dfId: string;
+
+  @Input()
+  public serverSyncIndex: string;
 
   @Input()
   public editRuleStr?: string;
@@ -70,7 +71,6 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
   // Result column rename
   public editResultColumnName: string;
-  public selectedColumnName: string = '';    // 유니온 된 결과 컬럼 목록
 
   public datasets: Dataset[] = [];        // 전체 데이터 셋
   public unionDatasets: Dataset[] = [];   // 유니온 될 데이터 셋
@@ -83,8 +83,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
   public editInfo: Dataset[] = [];
 
-  @Input()
-  public isUpdate: boolean; // 수정 모드 여
+  public isUpdate: boolean = false; // 수정 모드 여
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -113,6 +112,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
     // 수정 정보가 있을 경우 설정해줌
     if (this.editRuleStr) {
+      this.isUpdate = true;
       let dsIdList: string[] = [];
       let temp = JSON.parse(this.editRuleStr)['dataset2']['value'];
       if (typeof temp === 'string') {
@@ -157,7 +157,6 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
    */
   public close() {
     this.unionComplete.emit('ruleUnionComplete');
-    this.isUpdate = false;
   } // function - close
 
   /**
@@ -174,7 +173,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       return;
     }
 
-    const rule = { command: 'union', op: 'APPEND', ruleString: ruleStr[1] };
+    const rule = { command: 'union', op: 'APPEND', ruleString: ruleStr[1], ruleIdx : this.serverSyncIndex };
     if (this.editRuleStr) {
       // for edit
       rule.op = 'UPDATE';
@@ -211,47 +210,6 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
     this.datasets = [this.masterDataset].concat(this.unionDatasets);
     this.convertDataToUiType();
   } // function - deleteDataset
-
-  /**
-   * Focus on result column input
-   */
-  public focusResultColumnName(event, colName) {
-
-    this.editResultColumnName = colName;
-    this.selectedColumnName = colName;
-
-    const $input = $(event.currentTarget).prev();
-    $input.val('');
-  } // function - focusResultColumnName
-
-  /**
-   * Rename result column.
-   */
-  public updateResultColumnName(event, index) {
-    const val = event.currentTarget.value;
-
-    // 자기 자신을 빼고 리스트에서 중복 체크
-    if (val && val.trim().length !== 0) {
-      const nameCheck: boolean = this.resultFields.filter((colInfo, idx) => {
-        return idx !== index;
-      }).every((colName) => {
-        return colName !== event.currentTarget.value;
-      });
-
-      if (nameCheck) {
-        this.resultFields[index]['name'] = event.currentTarget.value;
-      } else {
-        Alert.warning('Column name must be unique');
-        this.resultFields[index]['name'] = this.selectedColumnName;
-      }
-
-    } else {
-      Alert.warning('Please enter column name');
-      this.resultFields[index]['name'] = this.selectedColumnName;
-    }
-
-    this.editResultColumnName = '';
-  } // function - updateResultColumnName
 
   /**
    * 유효하지 않은 Row 여부
@@ -372,16 +330,16 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
   } // function - convertDataToUiType
 
   private getGridDataFromGridResponse(gridResponse: any) {
-    var colCnt = gridResponse.colCnt;
-    var colNames = gridResponse.colNames;
-    var colTypes = gridResponse.colDescs;
+    let colCnt = gridResponse.colCnt;
+    let colNames = gridResponse.colNames;
+    let colTypes = gridResponse.colDescs;
 
     const gridData = {
       data: [],
       fields: []
     };
 
-    for(var idx=0;idx<colCnt;idx++) {
+    for(let idx=0;idx<colCnt;idx++) {
       gridData.fields.push({
         name: colNames[idx],
         type: colTypes[idx].type,
@@ -391,7 +349,7 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
 
     gridResponse.rows.forEach((row) => {
       const obj = {};
-      for(var idx=0;idx<colCnt;idx++) {
+      for(let idx=0;idx<colCnt;idx++) {
         obj[ colNames[idx] ] = row.objCols[idx];
       }
       gridData.data.push(obj);
@@ -410,10 +368,10 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       if (dsInfo.gridData) {
         resolve(dsInfo);
       } else {
-                  this.loadingShow();
+        this.loadingShow();
         this.dataflowService.getDatasetWrangledData(dsInfo.dsId)
           .then((result) => {
-                  this.loadingHide();
+            this.loadingHide();
             const griddata = this.getGridDataFromGridResponse(result['gridResponse']);
             const data = griddata.data.slice(0, 100);
             dsInfo.data = JSON.stringify(data);
@@ -421,9 +379,9 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
             resolve(dsInfo);
           })
           .catch((error) => {
-                  this.loadingHide();
-                  let prep_error = this.dataprepExceptionHandler(error);
-                  PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+            this.loadingHide();
+            let prep_error = this.dataprepExceptionHandler(error);
+            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
           });
       } // end if - dsInfo not exist griddata
     });

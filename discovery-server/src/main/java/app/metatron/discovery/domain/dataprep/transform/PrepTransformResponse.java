@@ -68,6 +68,7 @@ public class PrepTransformResponse implements Serializable {
 
   public void setRuleStringInfos(List<PrepTransformRule> ruleStringInfos, Boolean undoable, Boolean redoable) {
     this.ruleStringInfos = ruleStringInfos;
+
     this.undoable = undoable.toString();
     this.redoable = redoable.toString();
   }

@@ -261,20 +261,20 @@ export class DashboardUtil {
         .reduce((acc, rel: BoardDataSourceRelation) => {
           // 연결되는 데이터소스의 필터 반환
           let srcField: string = undefined;
-          let relDsId: string = undefined;
+          let relDsEngineName: string = undefined;
           let relField: string = undefined;
           if (rel.source === srcDs.engineName) {
-            relDsId = boardDs.dataSources.find(item => item.engineName === rel.target).id;
+            relDsEngineName = boardDs.dataSources.find(item => item.engineName === rel.target).engineName;
             srcField = Object.keys(rel.columnPair)[0];
             relField = rel.columnPair[srcField];
           } else {
-            relDsId = boardDs.dataSources.find(item => item.engineName === rel.source).id;
+            relDsEngineName = boardDs.dataSources.find(item => item.engineName === rel.source).engineName;
             relField = Object.keys(rel.columnPair)[0];
             srcField = rel.columnPair[relField];
           }
           acc = acc.concat(
             totalFilters
-              .filter((item: Filter) => item.dataSource === relDsId && item.field === relField)
+              .filter((item: Filter) => item.dataSource === relDsEngineName && item.field === relField)
               .map((item: Filter) => {
                 item.dataSource = engineName;
                 item.field = srcField;

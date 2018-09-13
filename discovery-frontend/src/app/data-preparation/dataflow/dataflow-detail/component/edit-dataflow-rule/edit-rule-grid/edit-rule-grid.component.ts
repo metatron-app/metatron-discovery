@@ -94,6 +94,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   public barChartTooltipIndex: number;
   public barChartTooltipLabel: string;
 
+  public isEditMode: boolean = true;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -109,15 +110,13 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   public totalColumnCnt: number = 0;      // 그리드 column 구성
   public totalRowCnt: number = 0;         // 전체 조회 행수
   public columnTypeCnt: number = 0;       // 전체 컬럼 type 갯수
-  public columnTypeList: string[] = [];   // 전체 컬럼 type list
+  // public columnTypeList: string[] = [];   // 전체 컬럼 type list
+  public columnTypeList : any;
 
   // T/F
   public isShowColumnTypes: boolean = false;
   public isApiMode: boolean = true;
   public isComboEvent: boolean = false;  // 콤보박스 이벤트 실행중 여부
-
-  @Input()
-  public isJumped: boolean = false; // 추후 어떻게 변경할지 확인 필요
 
   public ruleIdx: number;
   public dataSetId: string;
@@ -190,12 +189,27 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   /**
    * 초기 설정
    * @param {string} dsId
-   * @param {number} ruleIdx
+   * @param {string} params (if OP is 'UPDATE' disable context menu)
    */
-  public init(dsId: string, ruleIdx?: number) {
+  public init(dsId: string, params : any) {
 
     this.dataSetId = dsId;
-    return this.dataflowService.getSearchCountDataSets(this.dataSetId, ruleIdx, 0, 100).then(data => {
+    let method : string = 'get';
+
+    this.isEditMode = !(params['op'] == 'PREPARE_UPDATE');
+
+    // ruleIdx is unnecessary in undo and redo
+    if ('UNDO' === params['op'] || 'REDO' === params['op']) {
+      delete params['ruleIdx']
+    }
+
+    if ('INITIAL' === params['op'] || 'PREPARE_UPDATE' === params['op']) {
+      delete params['op']
+    } else {
+      method = 'put';
+    }
+
+    return this.dataflowService.transformAction(this.dataSetId, method, params).then(data => {
       // 데이터 초기화
       {
         // Grid
@@ -223,9 +237,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
         // T/F
         this.isShowColumnTypes = false;
-        // this.isJumped = false;
+
       }
-      this.ruleIdx = (isNullOrUndefined(ruleIdx) && this.ruleIdx !== -1) ? data['ruleStringInfos'].length - 1 : ruleIdx;
+      // 룰 index
+      this.ruleIdx = !this.isEditMode ? data.ruleCurIdx-1 : data.ruleCurIdx;
 
       // 그리드 데이터 생성
       const gridData: GridData = this._getGridDataFromGridResponse(this._apiGridData);
@@ -246,7 +261,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
       // 히스토그램 정보 설정
       return this._getHistogramInfoByWidths(this.columnWidths, gridData.fields.length).then(() => {
-        this._renderGrid(gridData, ruleIdx);
+        this._renderGrid(gridData, params.ruleIdx);
         // 그리드 요약 정보 설정
         this._summaryGridInfo(gridData);
         this.totalRowCnt = data.totalRowCnt;
@@ -256,6 +271,11 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         };
       });
 
+    }).catch((error) => {
+      this.loadingHide();
+      return {
+        error : error
+      };
     });
 
   } // function - init
@@ -647,8 +667,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       this._drawChartsByColumn({ chart1: chart, chart2: barChart, name: name, index: index });
 
       this._histogramMouseEvent(chart, name, this._getHistogramInfo(index), index);
-      this._barChartHoverEvent(barChart, name, this._getHistogramInfo(index), index);
-      this._barChartClickEvent(barChart, this._getHistogramInfo(index), index);
+      if (!isNullOrUndefined(this._getHistogramInfo(index))) {
+        this._barChartHoverEvent(barChart, name, this._getHistogramInfo(index), index);
+        this._barChartClickEvent(barChart, this._getHistogramInfo(index), index);
+      }
     } else {
       $('<div></div>')
         .attr('id', 'firstColumn')
@@ -972,16 +994,17 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
     $('#' + divId).empty().append(value);
 
-    // when mouse out, show categories
-    chart.off('mouseout');
-    chart.on('mouseout', () => {
-      if (histogramInfo !== '') {
-        this._hoverHistogramData = histogramInfo.counts.length;
-        $('#' + divId).empty().append(value);
-      }
-    });
-
-    this._histogramClickEvent(chart, histogramInfo, index);
+    if (!isNullOrUndefined(histogramInfo)) {
+      // when mouse out, show categories
+      chart.off('mouseout');
+      chart.on('mouseout', () => {
+        if (histogramInfo !== '') {
+          this._hoverHistogramData = histogramInfo.counts.length;
+          $('#' + divId).empty().append(value);
+        }
+      });
+      this._histogramClickEvent(chart, histogramInfo, index);
+    }
   } // function - _histogramMouseEvent
 
   /**
@@ -1201,103 +1224,107 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    */
   private _getDefaultBarChartOption(chartInfo: any, index: any): any {
 
-    return {
-      animation: false,
-      grid: { right: '0', left: '0', bottom: '55' },
-      xAxis: [{ type: 'category', show: false },
-        { type: 'value', show: false, max: chartInfo.matched + chartInfo.missing + chartInfo.mismatched }],
-      yAxis: [
-        { type: 'value', show: false, position: 'left' },
-        { type: 'category', position: 'right', show: false, }],
-      series: [
-        {
-          name: 'matched', type: 'bar', stack: 'stack1', barWidth: 8,
-          label: {
-            normal: {
-              show: false,
-            }
-          },
-          data: [chartInfo.matched],
-          xAxisIndex: 1,
-          yAxisIndex: 1,
-          itemStyle: {
-            normal: {
-              color: ((params) => {
-                if (this._barClickedSeries[index].length === 0) {
-                  return this._HISTOGRAM_DEFAULT_COLOR
-                } else {
-                  let idx = this._barClickedSeries[index].indexOf(params.seriesName);
-                  if (idx === -1) {
+    if (!isNullOrUndefined(chartInfo)) {
+      return {
+        animation: false,
+        grid: { right: '0', left: '0', bottom: '55' },
+        xAxis: [{ type: 'category', show: false },
+          { type: 'value', show: false, max: chartInfo.matched + chartInfo.missing + chartInfo.mismatched }],
+        yAxis: [
+          { type: 'value', show: false, position: 'left' },
+          { type: 'category', position: 'right', show: false, }],
+        series: [
+          {
+            name: 'matched', type: 'bar', stack: 'stack1', barWidth: 8,
+            label: {
+              normal: {
+                show: false,
+              }
+            },
+            data: [chartInfo.matched],
+            xAxisIndex: 1,
+            yAxisIndex: 1,
+            itemStyle: {
+              normal: {
+                color: ((params) => {
+                  if (this._barClickedSeries[index].length === 0) {
                     return this._HISTOGRAM_DEFAULT_COLOR
                   } else {
-                    return this._HISTOGRAM_CLICK_COLOR
+                    let idx = this._barClickedSeries[index].indexOf(params.seriesName);
+                    if (idx === -1) {
+                      return this._HISTOGRAM_DEFAULT_COLOR
+                    } else {
+                      return this._HISTOGRAM_CLICK_COLOR
+                    }
                   }
-                }
-              })
-            }, emphasis: { color: this._HISTOGRAM_HOVER_COLOR }
-          }
-        },
-        {
-          name: 'mismatched',
-          type: 'bar',
-          stack: 'stack1',
-
-          label: {
-            normal: {
-              show: false,
+                })
+              }, emphasis: { color: this._HISTOGRAM_HOVER_COLOR }
             }
           },
-          data: [chartInfo.mismatched],
-          xAxisIndex: 1,
-          yAxisIndex: 1,
-          itemStyle: {
-            normal: {
-              color: ((params) => {
-                if (this._barClickedSeries[index].length === 0) {
-                  return this._BARCHART_MISMATCH_COLOR
-                } else {
-                  let idx = this._barClickedSeries[index].indexOf(params.seriesName);
-                  if (idx === -1) {
+          {
+            name: 'mismatched',
+            type: 'bar',
+            stack: 'stack1',
+
+            label: {
+              normal: {
+                show: false,
+              }
+            },
+            data: [chartInfo.mismatched],
+            xAxisIndex: 1,
+            yAxisIndex: 1,
+            itemStyle: {
+              normal: {
+                color: ((params) => {
+                  if (this._barClickedSeries[index].length === 0) {
                     return this._BARCHART_MISMATCH_COLOR
                   } else {
-                    return this._BARCHART_MISMATCH_CLICK_COLOR
+                    let idx = this._barClickedSeries[index].indexOf(params.seriesName);
+                    if (idx === -1) {
+                      return this._BARCHART_MISMATCH_COLOR
+                    } else {
+                      return this._BARCHART_MISMATCH_CLICK_COLOR
+                    }
                   }
-                }
-              })
-            }, emphasis: { color: this._BARCHART_MISMATCH_HOVER_COLOR }
-          }
-        },
-        {
-          name: 'missing',
-          type: 'bar',
-          stack: 'stack1',
-
-          label: {
-            normal: {
-              show: false,
+                })
+              }, emphasis: { color: this._BARCHART_MISMATCH_HOVER_COLOR }
             }
           },
-          data: [chartInfo.missing],
-          xAxisIndex: 1,
-          yAxisIndex: 1,
-          itemStyle: {
-            normal: {
-              color: ((params) => {
-                if (this._barClickedSeries[index].length === 0) {
-                  return this._BARCHART_MISSING_COLOR
-                } else {
-                  let idx = this._barClickedSeries[index].indexOf(params.seriesName);
-                  if (idx === -1) {
+          {
+            name: 'missing',
+            type: 'bar',
+            stack: 'stack1',
+
+            label: {
+              normal: {
+                show: false,
+              }
+            },
+            data: [chartInfo.missing],
+            xAxisIndex: 1,
+            yAxisIndex: 1,
+            itemStyle: {
+              normal: {
+                color: ((params) => {
+                  if (this._barClickedSeries[index].length === 0) {
                     return this._BARCHART_MISSING_COLOR
                   } else {
-                    return this._BARCHART_MISSING_CLICK_COLOR
+                    let idx = this._barClickedSeries[index].indexOf(params.seriesName);
+                    if (idx === -1) {
+                      return this._BARCHART_MISSING_COLOR
+                    } else {
+                      return this._BARCHART_MISSING_CLICK_COLOR
+                    }
                   }
-                }
-              })
-            }, emphasis: { color: this._BARCHART_MISSING_HOVER_COLOR }
-          }
-        },
-      ]
+                })
+              }, emphasis: { color: this._BARCHART_MISSING_HOVER_COLOR }
+            }
+          },
+        ]
+      }
+    } else {
+      return {}
     }
   }
 
@@ -1360,48 +1387,47 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       }]
     };
 
-    let labels = _.cloneDeep(histogramInfo.labels);
-    if (histogramInfo.labels.length !== histogramInfo.counts.length) {
-      labels.pop();
+    if (!isNullOrUndefined(histogramInfo)) {
+      let labels = _.cloneDeep(histogramInfo.labels);
+      if (histogramInfo.labels.length !== histogramInfo.counts.length) {
+        labels.pop();
+      }
+      return _.merge({}, this._defaultChartOption, {
+        tooltip: {
+          trigger: 'axis', axisPointer: {
+            type: 'shadow'
+          },
+          formatter: (params) => {
+            let labels = this._apiGridData.colHists[index].labels;
+            let sum = this._apiGridData.rows.length;
+            let data = ` ${params[0].data} `;
+            let percentage = '<span style="color:#b4b9c4">' + ((params[0].value / sum) * 100).toFixed(2) + '%' + '</span>';
+            switch (this._apiGridData.colDescs[index].type) {
+              case 'TIMESTAMP':
+                this._hoverHistogramData = `${labels[params[0].dataIndex]} ~ ${labels[params[0].dataIndex + 1]}${data}${percentage}`;
+                break;
+              case 'LONG' :
+                this._hoverHistogramData = `${this._getAbbrNumberRange(labels[params[0].dataIndex], labels[params[0].dataIndex + 1])}${data}${percentage}`;
+                break;
+              case 'DOUBLE':
+                this._hoverHistogramData = `${parseFloat(labels[params[0].dataIndex]).toFixed(2)} ~ ${parseFloat(labels[params[0].dataIndex + 1]).toFixed(2)}${data}${percentage}`;
+                break;
+              default:
+                this._hoverHistogramData = params[0].name + data + percentage;
+                break;
+            }
+            $('#' + this.escapedName(this._apiGridData.colHists[index].colName)).empty().append(this._hoverHistogramData);
+
+          }
+        },
+        xAxis: [{ data: labels }],
+        yAxis: { max: histogramInfo.maxCount },
+        series: [{ data: histogramInfo.counts }]
+      });
+    } else {
+      return this._defaultChartOption;
     }
 
-    return _.merge({}, this._defaultChartOption, {
-      tooltip: {
-        trigger: 'axis', axisPointer: {
-          type: 'shadow'
-        },
-        formatter: (params) => {
-          let labels = this._apiGridData.colHists[index].labels;
-          let sum = this._apiGridData.rows.length;
-          let data = ` ${params[0].data} `;
-          let percentage = '<span style="color:#b4b9c4">' + ((params[0].value / sum) * 100).toFixed(2) + '%' + '</span>';
-          switch (this._apiGridData.colDescs[index].type) {
-            case 'TIMESTAMP':
-              this._hoverHistogramData = `${labels[params[0].dataIndex]} ~ ${labels[params[0].dataIndex + 1]}${data}${percentage}`;
-              break;
-            case 'LONG' :
-              this._hoverHistogramData = `${this._getAbbrNumberRange(labels[params[0].dataIndex], labels[params[0].dataIndex + 1])}${data}${percentage}`;
-              break;
-            case 'DOUBLE':
-              // if (labels[params[0].dataIndex] % 1 === 0) {
-              //   this._hoverHistogramData = `${this._abbrNum(labels[params[0].dataIndex])} ~ ${this._abbrNum(labels[params[0].dataIndex + 1])}`
-              // } else {
-              //   this._hoverHistogramData = `${parseFloat(labels[params[0].dataIndex]).toFixed(2)} ~ ${parseFloat(labels[params[0].dataIndex + 1]).toFixed(2)}${data}${percentage}`
-              // }
-              this._hoverHistogramData = `${parseFloat(labels[params[0].dataIndex]).toFixed(2)} ~ ${parseFloat(labels[params[0].dataIndex + 1]).toFixed(2)}${data}${percentage}`;
-              break;
-            default:
-              this._hoverHistogramData = params[0].name + data + percentage;
-              break;
-          }
-          $('#' + this.escapedName(this._apiGridData.colHists[index].colName)).empty().append(this._hoverHistogramData);
-
-        }
-      },
-      xAxis: [{ data: labels }],
-      yAxis: { max: histogramInfo.maxCount },
-      series: [{ data: histogramInfo.counts }]
-    });
   } // function - _getDefaultChartOption
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1722,7 +1748,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         .EnableHeaderClick(true)
         .DualSelectionActivate(true)
         .EnableColumnReorder(false)
-        .EnableHeaderMenu(!this.isJumped)
+        .EnableHeaderMenu(this.isEditMode)
         .EnableSeqSort(false)
         .ShowHeaderRow(true)
         .HeaderRowHeight(90)
@@ -1845,7 +1871,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     this.columnTypeCnt = tempMap.size;
 
     tempMap.forEach((value: number, key: string) => {
-      this.columnTypeList.push(key + ' : ' + value + ' ' + this.translateService.instant('msg.comm.detail.rows'));
+      this.columnTypeList.push({label : key, value : key + ' : ' + value + ' ' + this.translateService.instant('msg.comm.detail.rows')});
     });
 
   } // function - _summaryGridInfo

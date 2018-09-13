@@ -21,8 +21,8 @@ import { FilterWidget, FilterWidgetConfiguration } from '../../../domain/dashboa
 import { Filter } from '../../../domain/workbook/configurations/filter/filter';
 import {
   Candidate,
-  InclusionFilter,
-  InclusionSelectorType
+  InclusionFilter, InclusionItemSort,
+  InclusionSelectorType, InclusionSortBy
 } from '../../../domain/workbook/configurations/filter/inclusion-filter';
 import { Alert } from '../../../common/util/alert.util';
 import { Dashboard } from '../../../domain/dashboard/dashboard';
@@ -42,6 +42,8 @@ import { StringUtil } from '../../../common/util/string.util';
 import { DashboardUtil } from '../../util/dashboard.util';
 import { FilterUtil } from '../../util/filter.util';
 import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
+import { DIRECTION } from '../../../domain/workbook/configurations/sort';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'filter-widget',
@@ -503,6 +505,30 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
           } else {
             result.forEach(item => {
               this.candidateList.push(this._objToCandidate(item, this.field));
+            });
+          }
+
+          // Sort List
+          if( isNullOrUndefined( inclusionFilter.sort ) ) {
+            inclusionFilter.sort = new InclusionItemSort( InclusionSortBy.TEXT, DIRECTION.ASC );
+          }
+          if (InclusionSortBy.COUNT === inclusionFilter.sort.by ) {
+            // sort by count
+            this.candidateList.sort((val1: Candidate, val2: Candidate) => {
+              return ( DIRECTION.ASC === inclusionFilter.sort.direction ) ? val1.count - val2.count : val2.count - val1.count;
+            });
+          } else {
+            // sort by text
+            this.candidateList.sort((val1: Candidate, val2: Candidate) => {
+              const name1: string = (val1.name) ? val1.name.toUpperCase() : '';
+              const name2: string = (val2.name) ? val2.name.toUpperCase() : '';
+              if (name1 < name2) {
+                return (DIRECTION.ASC === inclusionFilter.sort.direction ) ? -1 : 1;
+              }
+              if (name1 > name2) {
+                return (DIRECTION.ASC === inclusionFilter.sort.direction ) ? 1 : -1;
+              }
+              return 0;
             });
           }
 

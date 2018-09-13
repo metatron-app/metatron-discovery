@@ -1778,21 +1778,21 @@
 </div>
 <create-snapshot-popup></create-snapshot-popup>
 
-<app-rule-join-popup [existingDataSet]="selectedDataSet"
-                     (joinComplete)="ruleJoinComplete($event);"
-                     *ngIf="isRuleJoinModalShow"
-                     [dataflow]="dataflow"
-                     [rightDataset]="rightDataset">
-</app-rule-join-popup>
+<!--<app-rule-join-popup [existingDataSet]="selectedDataSet"-->
+                     <!--(joinComplete)="ruleJoinComplete($event);"-->
+                     <!--*ngIf="isRuleJoinModalShow"-->
+                     <!--[dataflow]="dataflow"-->
+                     <!--[rightDataset]="rightDataset">-->
+<!--</app-rule-join-popup>-->
 
-<app-rule-union-popup [masterDataset]="selectedDataSet"
-                      [dataflow]="dataflow"
-                      [isUpdate]="isUpdate"
-                      [editRuleStr]="editJoinOrUnionRuleStr"
-                      (unionComplete)="ruleUnionComplete($event);"
-                      *ngIf="isRuleUnionModalShow">
-</app-rule-union-popup>
+<!--<app-rule-union-popup [masterDataset]="selectedDataSet"-->
+                      <!--[dataflow]="dataflow"-->
+                      <!--[isUpdate]="isUpdate"-->
+                      <!--[editRuleStr]="editJoinOrUnionRuleStr"-->
+                      <!--(unionComplete)="ruleUnionComplete($event);"-->
+                      <!--*ngIf="isRuleUnionModalShow">-->
+<!--</app-rule-union-popup>-->
 
-<multicolumn-rename (renameEvent)="applyMulticolumnRename($event)"></multicolumn-rename>
-<app-rule-context-menu (applyRuleEvent)="applyRuleFromContextMenu($event)"></app-rule-context-menu>
-<app-extend-input-formula (done)="doneInputFormula($event)"></app-extend-input-formula>
+<!--<multicolumn-rename (renameEvent)="applyMulticolumnRename($event)"></multicolumn-rename>-->
+<!--<app-rule-context-menu (applyRuleEvent)="applyRuleFromContextMenu($event)"></app-rule-context-menu>-->
+<!--<app-extend-input-formula (done)="doneInputFormula($event)"></app-extend-input-formula>-->
