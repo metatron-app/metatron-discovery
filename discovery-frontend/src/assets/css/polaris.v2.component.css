@@ -331,7 +331,9 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-radio-set {float:left;}
 .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-radio-hidden {overflow:hidden;}
 .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-radio-hidden .ddp-ui-calen {width:320px; padding:10px 0 0 16px;}
-.ddp-wrap-edit2 .ddp-check {padding-top:4px;}
+.ddp-wrap-edit2 .ddp-check {position:relative; padding-top:4px;}
+.ddp-wrap-edit2 .ddp-check.ddp-disabled {opacity:0.5;}
+.ddp-wrap-edit2 .ddp-check.ddp-disabled:after {display:inline-block; position:absolute; top:0; left:0; right:0; bottom:0; content:'';}
 .ddp-wrap-edit2 .ddp-box-datanone {padding:20px 0; border-radius:2px; background-color:#fafafb; text-align:center; color:#b7bac1; font-size:13px;}
 .ddp-wrap-edit2 .ddp-error {display:block; color:#eb5f58; font-size:12px;}
 .ddp-wrap-edit2.ddp-mgt0 {margin-top:0;}
@@ -469,7 +471,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 .ddp-edit-setting .ddp-edit-sub .ddp-ui-message .ddp-data-ok,
 .ddp-edit-setting .ddp-edit-sub .ddp-ui-message .ddp-data-error {margin-left:12px;}
 
-.ddp-edit-setting.ddp-type {margin-top:40px; padding-top:40px; border-top:1px dotted #ccc; }
+.ddp-edit-setting.ddp-type {margin-top:30px; padding-top:30px; border-top:1px dotted #ccc; }
 .ddp-edit-setting .ddp-fold-link {display:inline-block; padding-bottom:20px; color:#4c515a; font-size:13px; text-decoration:underline;}
 .ddp-edit-setting .ddp-fold-link:after {display:inline-block; width:7px; height:4px; margin-left:10px; background:url(../images/icon_select.png) no-repeat; background-position:-16px top; vertical-align:middle; content:'';}
 .ddp-edit-setting.ddp-selected .ddp-fold-link:after {transform:rotate(180deg)}
