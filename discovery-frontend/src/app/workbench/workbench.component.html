@@ -349,8 +349,7 @@
               <!-- tab -->
               <!-- 결과 -->
               <div class="ddp-view-result">
-                <div loading [visible]="mimeType !== 'HIVE'" [cancel]="mimeType !== 'HIVE'"
-                     (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
+                <div loading #loading [visible]="mimeType !== 'HIVE'" [cancel]="true" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
 
                 <!-- Hive Log 표시 영역 -->
                 <div *ngIf="hiveLogs[selectedGridTabNum] && hiveLogs[selectedGridTabNum].isShow" class="ddp-wrap-result" >

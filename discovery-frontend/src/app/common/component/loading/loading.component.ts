@@ -105,8 +105,8 @@ export class LoadingComponent extends AbstractComponent {
         // Init 전이라면 중단
         if( !this.isLoaded ) { return; }
 
-        // Element Visible
-        this.visible ? this.$element.show() : this.$element.hide();
+        this.$element.hide();
+
     }
 
     /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
