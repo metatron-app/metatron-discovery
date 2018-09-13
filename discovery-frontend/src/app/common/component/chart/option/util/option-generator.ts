@@ -1347,6 +1347,7 @@ export namespace OptionGenerator {
         mark: BarMarkType.MULTIPLE,
         align: UIOrient.VERTICAL,
         //series: UI.Presentation.barPresentation(DataUnit.NONE),
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1383,6 +1384,7 @@ export namespace OptionGenerator {
         mark: BarMarkType.STACKED,
         align: UIOrient.HORIZONTAL,
         unitType: DataUnit.PERCENT,
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1432,6 +1434,7 @@ export namespace OptionGenerator {
         curveStyle: LineCornerType.STRAIGHT,
         lineStyle: LineChartStyle.POINT_LINE,
         lineMode: LineMode.NORMAL,
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1490,6 +1493,7 @@ export namespace OptionGenerator {
         chartZooms: [UI.DataZoom.sliderDataZoom(true, UIOrient.HORIZONTAL), UI.DataZoom.sliderDataZoom(true, UIOrient.VERTICAL)],
         pointShape: PointShape.CIRCLE,
         pointTransparency: 1,
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1535,6 +1539,7 @@ export namespace OptionGenerator {
         dataLabel: UI.DataLabel.label(false),
         legend: UI.Legend.pagingLegend(true, 5),
         chartZooms: [UI.DataZoom.sliderDataZoom(true, UIOrient.HORIZONTAL), UI.DataZoom.sliderDataZoom(true, UIOrient.VERTICAL)],
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1616,6 +1621,7 @@ export namespace OptionGenerator {
         yAxis: UI.Axis.yAxis(AxisLabelType.COLUMN, true, true, UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE)),
         dataLabel: UI.DataLabel.label(false),
         chartZooms: [UI.DataZoom.sliderDataZoom(true, UIOrient.HORIZONTAL)],
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1653,6 +1659,7 @@ export namespace OptionGenerator {
         dataLabel: UI.DataLabel.label(false),
         legend: UI.Legend.pagingLegend(true, 5),
         markType: PieSeriesViewType.SECTOR,
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1885,6 +1892,7 @@ export namespace OptionGenerator {
         type: ChartType.TREEMAP,
         color: UI.Color.dimensionUIChartColor('SC1'),
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),
+        fontSize: FontSize.NORMAL,
         dataLabel: {showValue: true, hAlign: UIPosition.CENTER, vAlign: UIPosition.CENTER, displayTypes: [,,, UIChartDataLabelDisplayType.SERIES_NAME]}
       };
     }

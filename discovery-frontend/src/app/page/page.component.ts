@@ -1576,7 +1576,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (filter.ui.widgetId) {
       this._setChartFilter(filter, isSetPanel);   // 차트 필터 설정
     }
-    this.drawChart();                 // 차트 다시그리기
+    this.drawChart({type : EventType.FILTER}); // 차트 다시그리기
     this.closeFilterPopup();          // 필터 수정 팝업 닫기
   } // function - updateFilter
 
