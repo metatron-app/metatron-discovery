@@ -555,6 +555,8 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
 
         // 노드를 선택했을경우
         if (params.dataType == 'node') {
+
+          dataIndex = params.dataIndex;
         }
         // 엣지(선)을 선택했을 경우
         else {
@@ -575,6 +577,9 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
         // 이미 선택이 되어있는지 여부
         isSelectMode = _.isUndefined(seriesEdgeList[params.dataIndex].selected);
 
+        // check node type
+        let nodeFl: boolean;
+
         if (isSelectMode) {
 
           // 선택 처리
@@ -589,12 +594,15 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
             seriesValueList[targetDataIndex].selectCnt = undefined == seriesValueList[targetDataIndex].selectCnt ? 1 : seriesValueList[targetDataIndex].selectCnt + 1;
           }
 
-          // 시리즈의 선택값 스타일 변경
+          // change selected series style
           _.map(seriesEdgeList, (item) => {
-            if( item.source == seriesValueList[dataIndex].name && (undefined !== targetDataIndex && item.target == seriesValueList[targetDataIndex].name)) {
+
+            // when it's node type, check target
+            nodeFl = params.dataType !== 'node' ? (undefined !== targetDataIndex && item.target == seriesValueList[targetDataIndex].name) : true;
+            // when it's not node type
+            if( item.source == seriesValueList[dataIndex].name && nodeFl ) {
               item['lineStyle']['opacity'] = 0.6;
-            }
-            else {
+            } else {
               if( item['lineStyle']['opacity'] != 0.6 ) {
                 item['lineStyle']['opacity'] = 0.2;
               }
@@ -625,7 +633,12 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
           }
 
           _.map(seriesEdgeList, (item) => {
-            if( item.source == seriesValueList[dataIndex].name && (undefined !== targetDataIndex && item.target == seriesValueList[targetDataIndex].name)) {
+
+            // when it's node type, check target
+            nodeFl = params.dataType !== 'node' ? (undefined !== targetDataIndex && item.target == seriesValueList[targetDataIndex].name) : true;
+
+            // when it's not node type
+            if( item.source == seriesValueList[dataIndex].name && nodeFl) {
               item['lineStyle']['opacity'] = 0.2;
             }
           });
