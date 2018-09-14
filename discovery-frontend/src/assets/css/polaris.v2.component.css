@@ -1711,6 +1711,14 @@ table.ddp-table-type2 tbody tr td .ddp-input-form input.ddp-txt-input:focus + em
 table.ddp-table-type2 thead tr th {position:relative; padding:7px 10px; color:#90969f; font-size:12px; border-right:1px solid #eaeaed;}
 table.ddp-table-type2 thead tr th:first-of-type {}
 table.ddp-table-type2 thead tr th:last-of-type {border-right:1px solid transparent;}
+table.ddp-table-type2 thead tr th .ddp-th-long {display:inline-block;   position:relative; max-width:100%; box-sizing:border-box;}
+
+table.ddp-table-type2 thead tr th .ddp-th-long {}
+table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-icons {float:right;}
+table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-txt {display:block; overflow:hidden; white-space:nowrap;text-overflow:ellipsis; line-height:19px;}
+table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-icons .ddp-wrap-hover-info {float:left; padding:5px 0 0 0; font-size:0px;}
+table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-icons [class*="ddp-icon-array"] {top:0;}
+
 table.ddp-table-type3 thead tr th {color:#4b515b; font-size:12px; font-weight:normal; border-top:1px solid #d2d3d9; border-bottom:1px solid #d2d3d9; background-color:#f8f8f8;}
 table.ddp-table-type3 thead tr th:first-of-type {border-left:1px solid #d2d3d9;}
 table.ddp-table-type3 thead tr th:last-of-type {border-right:1px solid #d2d3d9;}
