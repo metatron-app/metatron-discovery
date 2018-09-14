@@ -3140,6 +3140,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       _.concat(this.dimensions, this.measures)
         .forEach((field) => {
 
+
+          // Remove Pivot
+          field.pivot = [];
+
           this.widgetConfiguration.pivot.rows
             .forEach((abstractField) => {
               if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
