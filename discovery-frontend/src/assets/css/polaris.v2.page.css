@@ -2643,7 +2643,7 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-wrap-chart .ddp-ui-chart-side::-webkit-scrollbar-thumb {border:4px solid #f7f7f8;}
 .ddp-wrap-chart .ddp-ui-chart-side .ddp-wrap-page {position:absolute; bottom:0; left:0; right:0; padding:15px 0; text-align:center;}
 .ddp-wrap-chart .ddp-ui-chart-side .ddp-wrap-page .ddp-ui-page {display:inline-block;}
-.ddp-wrap-chart .ddp-ui-chart-side .ddp-ui-scroll {position:absolute; top:0; left:0; right:0; bottom:51px; overflow:scroll; overflow-x:hidden;}
+.ddp-wrap-chart .ddp-ui-chart-side .ddp-ui-scroll {position:absolute; top:0; left:0; right:0; bottom:51px; overflow:auto; overflow-x:hidden;}
 .ddp-wrap-chart .ddp-ui-chart-side .ddp-ui-option-down .ddp-ui-down-title em.ddp-icon-menumove {position:relative; }
 .ddp-wrap-chart-menu {float:left; width:52px; height:100%; border-left:2px solid #e7e7ea; background-color:#f7f6f8; vertical-align: top; box-sizing:border-box; overflow:auto;}
 
