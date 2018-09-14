@@ -402,7 +402,7 @@ public class Field implements MetatronDomain<Long> {
     this.seq = seq;
   }
 
-  @JsonIgnore
+//  @JsonIgnore
   @Deprecated
   public BIType getBiType() {
     if(role == null) {
