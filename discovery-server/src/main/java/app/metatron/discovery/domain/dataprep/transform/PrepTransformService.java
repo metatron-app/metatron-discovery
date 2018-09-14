@@ -1070,9 +1070,7 @@ public class PrepTransformService {
     PrepTransformResponse response = fetch_internal(dsId, stageIdx);
 
     response.setRuleStringInfos(getRulesInOrder(dsId), false, false);
-    if (stageIdx != null) {
-      response.setRuleCurIdx(stageIdx);
-    }
+    response.setRuleCurIdx(stageIdx != null ? stageIdx : teddyImpl.getCurStageIdx(dsId));
 
     return response;
   }
