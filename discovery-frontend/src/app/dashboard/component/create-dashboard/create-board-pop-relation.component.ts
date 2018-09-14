@@ -29,7 +29,7 @@ import * as $ from "jquery";
   selector: 'create-board-pop-relation',
   templateUrl: './create-board-pop-relation.component.html',
   styles:[
-    '.ddp-list-selectbox2 li.sys-focus-item { background-color: #f6f6f7; }'
+    '.ddp-list-selectbox2 li.sys-focus-item { background-color: #f6f6f7 !important; }'
   ]
 })
 export class CreateBoardPopRelationComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
@@ -236,6 +236,7 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
    */
   public openSearchSourceFields() {
     this.isShowSrcComboOpts = !this.isShowSrcComboOpts;
+    this.sourceSearchText = '';
     this.safelyDetectChanges();
     this._sourceSearchText.nativeElement.focus();
     // this.sourceSearchText = '';
@@ -248,7 +249,6 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
   public sourceComboKeyEvent(event:KeyboardEvent) {
 
     const $currFocusItem = this._$sourceFieldCombo.find( 'li.sys-focus-item' );
-    $currFocusItem.mouseout();
 
     switch( event.keyCode ) {
       case 38 :
@@ -343,6 +343,7 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
    */
   public openSearchTargetFields() {
     this.isShowTgtComboOpts = !this.isShowTgtComboOpts;
+    this.targetSearchText = '';
     this.safelyDetectChanges();
     this._targetSearchText.nativeElement.focus();
     // this.targetSearchText = '';
@@ -355,7 +356,6 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
   public targetComboKeyEvent(event:KeyboardEvent) {
 
     const $currFocusItem = this._$targetFieldCombo.find( 'li.sys-focus-item' );
-    $currFocusItem.mouseout();
 
     switch( event.keyCode ) {
       case 38 :

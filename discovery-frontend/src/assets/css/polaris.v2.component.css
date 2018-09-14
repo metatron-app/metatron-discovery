@@ -961,6 +961,8 @@ ul.ddp-list-popup li.ddp-disabled:hover .ddp-wrap-popup2 {display:none;}
 
 ul.ddp-list-popup li a {display:block; position:relative; padding:6px 14px 6px 14px; font-size:13px; color:#4b515b; white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
 ul.ddp-list-popup li a:hover {background-color:#f6f6f7;}
+ul.ddp-list-selectbox2.ddp-hover-none li:hover,
+ul.ddp-list-popup.ddp-hover-none li a:hover {background:none !important;}
 ul.ddp-list-popup li a em.ddp-icon-view {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-4px;width:4px; height:7px; background:url(../images/icon_tagview.png) no-repeat; transform:rotate(180deg);}
 ul.ddp-list-popup li.ddp-sub a em.ddp-icon-view {background:url(../images/icon_dataview.png) no-repeat; background-position:left -19px; transform:rotate(0);}
 ul.ddp-list-popup li.ddp-selected > a {color:#666eb2; padding-right:28px;}

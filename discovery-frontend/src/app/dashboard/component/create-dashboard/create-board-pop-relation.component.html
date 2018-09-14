@@ -42,28 +42,26 @@
         <!-- // 연결 키 이름 -->
         <!-- set -->
         <div class="ddp-ui-set">
+
           <!-- 검색 Select box -->
           <div [class.ddp-selected]="isShowSrcComboOpts" (clickOutside)="isShowSrcComboOpts = false"
                class="ddp-wrap-drop-search" >
             <div (click)="openSearchSourceFields();" class="ddp-type-selectbox2">
               <span class="ddp-txt-selectbox ddp-result">
-                {{ '' !== sourceSearchText ? sourceSearchText : 'msg.board.ui.search' | translate }}
+                {{ relation.ui.sourceField ? relation.ui.sourceField.name : 'msg.board.create.select-association' | translate }}
               </span>
             </div>
             <div class="ddp-ui-drop-search" (keydown)="sourceComboKeyEvent($event)">
-              <input #inputSourceSearchText [(ngModel)]="sourceSearchText" type="text" class="ddp-input-search" placeholder="Search">
-              <ul #sourceFieldCombo class="ddp-list-selectbox2">
+              <input #inputSourceSearchText [(ngModel)]="sourceSearchText" type="text" class="ddp-input-search" placeholder="{{'msg.board.ui.search' | translate }}">
+              <ul #sourceFieldCombo class="ddp-list-selectbox2 ddp-list-popup ddp-hover-none">
                 <li *ngFor="let field of filteredSourceList"
                     (click)="selectSourceField(field)" (mouseover)="hoverSourceItem($event)"
                     [class.ddp-selected]="relation.ui.sourceField && relation.ui.sourceField.name === field.name">
-                  {{field.name}}
-                  <!--
                   <a href="javascript:">
-                    <em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>
+                    <!--<em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>-->
                     {{field.name}}
                     <em class="ddp-icon-check"></em>
                   </a>
-                  -->
                 </li>
                 <li *ngIf="filteredSourceList.length ===0"><span class="ddp-noresult">{{'msg.dp.ui.search.no.rslt' | translate}}</span></li>
               </ul>
@@ -141,23 +139,20 @@
                class="ddp-wrap-drop-search" >
             <div (click)="openSearchTargetFields();" class="ddp-type-selectbox2" >
               <span class="ddp-txt-selectbox ddp-result">
-                {{ '' !== targetSearchText ? targetSearchText : 'msg.board.ui.search' | translate }}
+                {{ relation.ui.targetField ? relation.ui.targetField.name : 'msg.board.create.select-association' | translate }}
               </span>
             </div>
             <div class="ddp-ui-drop-search" (keydown)="targetComboKeyEvent($event)">
-              <input #inputTargetSearchText [(ngModel)]="targetSearchText" type="text" class="ddp-input-search" placeholder="Search">
-              <ul #targetFieldCombo class="ddp-list-selectbox2">
+              <input #inputTargetSearchText [(ngModel)]="targetSearchText" type="text" class="ddp-input-search" placeholder="{{'msg.board.ui.search' | translate }}">
+              <ul #targetFieldCombo class="ddp-list-selectbox2 ddp-list-popup ddp-hover-none">
                 <li *ngFor="let field of filteredTargetList"
                     (click)="selectTargetField(field)" (mouseover)="hoverTargetItem($event)"
                     [class.ddp-selected]="relation.ui.targetField && relation.ui.targetField.name === field.name">
-                  {{field.name}}
-                  <!--
                   <a href="javascript:">
-                    <em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>
+                    <!--<em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>-->
                     {{field.name}}
                     <em class="ddp-icon-check"></em>
                   </a>
-                  -->
                 </li>
                 <li *ngIf="filteredTargetList.length ===0"><span class="ddp-noresult">{{'msg.dp.ui.search.no.rslt' | translate}}</span></li>
               </ul>
