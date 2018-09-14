@@ -118,16 +118,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       this._getQueryDataInLinked(this.datasource);
     } else {
       // 수집형일 때
-      this._getQueryData(this.datasource)
-        .then((data) => {
-          // grid data
-          this._gridData = data;
-          // grid update
-          this._updateGrid(this._gridData, this.fields);
-        })
-        .catch((error) => {
-          console.log(error)
-      });
+      this._getQueryData(this.datasource);
     }
   }
 
@@ -246,16 +237,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     if (13 === event.keyCode) {
       this.rowNum = event.target['value'];
       // Query Data
-      this._getQueryData(this.datasource)
-        .then(data => {
-          // grid data
-          this._gridData = data;
-          // grid update
-          this._updateGrid(this._gridData, this.fields);
-        })
-        .catch((error) => {
-          console.log(error)
-      });
+      this._getQueryData(this.datasource);
     }
   }
 
@@ -302,8 +284,8 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     const headers: header[] = this._getGridHeader(fields);
     // rows
     let rows: any[] = data;
-    // headers가 있을 경우에만 그리드 생성
-    if (0 < headers.length) {
+    // row and headers가 있을 경우에만 그리드 생성
+    if (rows && 0 < headers.length) {
       if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
         rows = rows.map((row: any, idx: number) => {
           row.id = idx;
@@ -380,13 +362,11 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   }
 
   /**
-   * 데이터를 조회한다.
+   * Get query data
    * @param {Datasource} source
-   * @returns {Promise<any>}
    * @private
    */
-  private _getQueryData(source: Datasource): Promise<any> {
-    return new Promise<any>((res, rej) => {
+  private _getQueryData(source: Datasource): void {
       // 로딩 show
       this.loadingShow();
       // params
@@ -401,17 +381,16 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       // 조회
       this.datasourceService.getDatasourceQuery(params)
         .then((data) => {
-          (data && 0 < data.length) && ( res(data) );
+          if (data && 0 < data.length) {
+            // grid data
+            this._gridData = data;
+            // grid update
+            this._updateGrid(this._gridData, this.fields);
+          }
           // 로딩 hide
           this.loadingHide();
         })
-        .catch((err) => {
-          console.error(err);
-          rej(err);
-          // 로딩 hide
-          this.loadingHide();
-        });
-    });
+        .catch(error => this.commonExceptionHandler(error));
   }
 
   /**

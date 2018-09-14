@@ -380,8 +380,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       });
 
     let rows: any[] = data || this.gridData;
-    // headers가 있을 경우에만 그리드 생성
-    if (0 < headers.length) {
+    // row and headers가 있을 경우에만 그리드 생성
+    if (rows && 0 < headers.length) {
       if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
         rows = rows.map((row: any, idx: number) => {
           Object.keys( row ).forEach( key => {
@@ -421,28 +421,28 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     }
   } // function - updateGrid
 
-
   /**
-   * linked 일때 grid data 얻기
+   * Get query data for linked type
    * @param source
-   * @returns {Promise<any>}
+   * @private
    */
-  private getQueryDataInLinked(source) {
-    return new Promise((resolve, reject) => {
-      // 프리셋을 생성한 연결형 : source.connection 사용
-      // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
-      const connection: Dataconnection = source.connection || source.ingestion.connection;
-      const params = source.ingestion && connection
-        ? this._getConnectionParams(source.ingestion, connection)
-        : {};
-      this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE ? true : false)
-        .then((data) => {
-          resolve(data);
-        })
-        .catch((error) => {
-          reject(error);
-        })
-    });
+  private _getQueryDataInLinked(source): void {
+    // loading show
+    this.loadingShow();
+    // 프리셋을 생성한 연결형 : source.connection 사용
+    // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
+    const connection: Dataconnection = source.connection || source.ingestion.connection;
+    const params = source.ingestion && connection
+      ? this._getConnectionParams(source.ingestion, connection)
+      : {};
+    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE ? true : false)
+      .then((data) => {
+        this.gridData = data['data'];
+        this.updateGrid(this.gridData, this.columns);
+        // loading hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   // noinspection JSMethodCanBeStatic
@@ -1027,14 +1027,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // linked인 경우
     if (this.connType === 'LINK') {
       // TODO 마스터 데이터소스만 해당되는지 join된 소스까지 해당되는지 확인하기
-      this.getQueryDataInLinked(this.mainDatasource)
-        .then((data) => {
-          this.gridData = data['data'];
-          this.updateGrid(this.gridData, this.columns);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      this._getQueryDataInLinked(this.mainDatasource);
     } else {
       // Query Data
       this.queryData(this.mainDatasource)
