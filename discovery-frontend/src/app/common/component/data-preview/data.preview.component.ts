@@ -937,6 +937,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       const fieldMetaData: MetadataColumn = _.find(source.uiMetaData.columns, { 'physicalName': field.name });
       // logical name
       field['logicalName'] = fieldMetaData.name;
+      // logical type
+      field['metaType'] = fieldMetaData.type;
       // code table
       field['codeTable'] = fieldMetaData.codeTable;
       // dictionary
