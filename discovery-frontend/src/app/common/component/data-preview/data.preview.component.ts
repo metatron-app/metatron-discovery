@@ -190,17 +190,16 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       this.isDashboard = true;
       const dashboardInfo: Dashboard = (<Dashboard>this.source);
       this.datasources = DashboardUtil.getMainDataSources(dashboardInfo);
-
-      // 데이터소스 array에 메타데이터가 존재하는경우 merge
-      this.datasources.forEach((source) => {
-        source.fields.forEach((field) => {
-          this._setMetaDataField(field, source);
-        });
-      });
     } else {
       this.isDashboard = false;
       this.datasources.push(<Datasource>this.source);
     }
+    // 데이터소스 array에 메타데이터가 존재하는경우 merge
+    this.datasources.forEach((source) => {
+      source.fields.forEach((field) => {
+        this._setMetaDataField(field, source);
+      });
+    });
     this.selectDataSource(this.datasources[0]);
 
   } // function - ngOnInit
@@ -1465,7 +1464,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @returns {boolean}
    */
   public isEnableSecondHeader(): boolean {
-    return this.datasources.some(source => this.isExistMetaData(source));
+    return this.joinDataSources.some(source => this.isExistMetaData(source));
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
