@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 import { BoardDataSource, Dashboard, JoinMapping, QueryParam } from '../../../domain/dashboard/dashboard';
 import { DatasourceService } from 'app/datasource/service/datasource.service';
-import { Datasource, DataSourceSummary, Field } from '../../../domain/datasource/datasource';
+import { ConnectionType, Datasource, DataSourceSummary, Field } from '../../../domain/datasource/datasource';
 import { SlickGridHeader } from 'app/common/component/grid/grid.header';
 import { header } from '../grid/grid.header';
 import { GridComponent } from '../grid/grid.component';
@@ -1097,6 +1097,34 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   * Is linked type datasource
+   * @param {Datasource} source
+   * @returns {boolean}
+   */
+  public isLinkedTypeSource(source: Datasource): boolean {
+    return source.connType === ConnectionType.LINK;
+  }
+
+  /**
+   * Is enable filtering in column
+   * @param column
+   * @returns {boolean}
+   */
+  public isEnableFiltering(column: any): boolean {
+    return column.filtering;
+  }
+
+  /**
+   * Get column type label
+   * @param {string} type
+   * @param typeList
+   * @returns {string}
+   */
+  public getColumnTypeLabel(type:string, typeList: any): string {
+    return typeList[_.findIndex(typeList, item => item['value'] === type)].label;
+  }
+
+  /**
    * Covariance 리스트
    * @returns {Covariance[]}
    */
@@ -1299,66 +1327,71 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     this.selectedField = field;
     // 데이터소스 선택
     this.selectedSource = source;
+    // detect changes
+    this.changeDetect.detectChanges();
     // engine 이름
     const engineName = source.engineName;
     // 메타데이터
     this._setMetaDataField(field, source);
-    // 통계 조회
-    if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
-      || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {
+    // if only engine type source, get statistics and covariance
+    if (!this.isLinkedTypeSource(source)) {
+      // 통계 조회
+      if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
+        || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {
 
-      // 로딩 show
-      this.loadingShow();
+        // 로딩 show
+        this.loadingShow();
 
-      this.getFieldStats(field, engineName)
-        .then((stats) => {
+        this.getFieldStats(field, engineName)
+          .then((stats) => {
 
-          // stats 리스트 저장
-          for (const property in stats[0]) {
-            // 존재하지 않을 경우에만 넣어줌
-            if (!this.statsData.hasOwnProperty(property)) {
-              this.statsData[property] = stats[0][property];
+            // stats 리스트 저장
+            for (const property in stats[0]) {
+              // 존재하지 않을 경우에만 넣어줌
+              if (!this.statsData.hasOwnProperty(property)) {
+                this.statsData[property] = stats[0][property];
+              }
             }
-          }
 
-          // 로딩 hide
-          this.loadingHide();
+            // 로딩 hide
+            this.loadingHide();
 
-          // 히스토그램 차트
-          this.getHistogramChart(this.selectedField.role);
-        })
-        .catch((error) => {
-          Alert.error(error.message);
-          // 로딩 hide
-          this.loadingHide();
-        });
-    } else {
-      // 히스토그램 차트
-      this.getHistogramChart(this.selectedField.role);
-    }
+            // 히스토그램 차트
+            this.getHistogramChart(this.selectedField.role);
+          })
+          .catch((error) => {
+            Alert.error(error.message);
+            // 로딩 hide
+            this.loadingHide();
+          });
+      } else {
+        // 히스토그램 차트
+        this.getHistogramChart(this.selectedField.role);
+      }
 
-    // covariance 조회
-    if (field.role === 'MEASURE' && !this.covarianceData.hasOwnProperty(field.name)) {
-      // 로딩 show
-      this.loadingShow();
+      // covariance 조회
+      if (field.role === 'MEASURE' && !this.covarianceData.hasOwnProperty(field.name)) {
+        // 로딩 show
+        this.loadingShow();
 
-      this.getFieldCovariance(field, engineName)
-        .then((covariance) => {
-          this.covarianceData[field.name] = covariance;
-          // 로딩 hide
-          this.loadingHide();
+        this.getFieldCovariance(field, engineName)
+          .then((covariance) => {
+            this.covarianceData[field.name] = covariance;
+            // 로딩 hide
+            this.loadingHide();
 
-          // covariance 차트
-          this.getCovarianceChart(engineName);
-        })
-        .catch((error) => {
-          Alert.error(error.message);
-          // 로딩 hide
-          this.loadingHide();
-        });
-    } else if (field.role === 'MEASURE' && this.covarianceData.hasOwnProperty(field.name)) {
-      // covariance 차트
-      this.getCovarianceChart(engineName);
+            // covariance 차트
+            this.getCovarianceChart(engineName);
+          })
+          .catch((error) => {
+            Alert.error(error.message);
+            // 로딩 hide
+            this.loadingHide();
+          });
+      } else if (field.role === 'MEASURE' && this.covarianceData.hasOwnProperty(field.name)) {
+        // covariance 차트
+        this.getCovarianceChart(engineName);
+      }
     }
   }
 

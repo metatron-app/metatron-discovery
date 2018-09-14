@@ -398,7 +398,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     // set engineName
     const engineName = source.engineName;
     // if only engine type source, get statistics and covariance
-    if (!this.isLinkedTypeSource(this.datasource)) {
+    if (!this.isLinkedTypeSource(source)) {
       // if role is TIMESTAMP and __time variable not exist in statsData,
       // else if role is not TIMESTAMP and field name not existed in statsData
       if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
