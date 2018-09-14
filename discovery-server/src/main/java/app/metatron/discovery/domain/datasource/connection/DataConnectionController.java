@@ -248,7 +248,8 @@ public class DataConnectionController {
 
   @RequestMapping(value = "/connections/query/data", method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> queryBySelect(@RequestBody ConnectionRequest checkRequest,
-                                                       @RequestParam(required = false, defaultValue = "50") int limit) {
+                                                       @RequestParam(required = false, defaultValue = "50") int limit,
+                                                       @RequestParam(required = false) boolean extractColumnName) {
 
     // 추가 유효성 체크
     SearchParamValidator.checkNull(checkRequest.getType(), "type");
@@ -256,14 +257,15 @@ public class DataConnectionController {
 
     JdbcQueryResultResponse resultSet =
         connectionService.selectQueryForIngestion(checkRequest.getConnection(), checkRequest.getDatabase(),
-                checkRequest.getType(),checkRequest.getQuery(), limit);
+                checkRequest.getType(),checkRequest.getQuery(), limit, extractColumnName);
 
     return ResponseEntity.ok(resultSet);
   }
 
   @RequestMapping(value = "/connections/query/hive/data", method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> queryBySelectForHiveIngestion(@RequestBody ConnectionRequest checkRequest,
-                                                       @RequestParam(required = false, defaultValue = "50") int limit) {
+                                                                       @RequestParam(required = false, defaultValue = "50") int limit,
+                                                                       @RequestParam(required = false) boolean extractColumnName) {
 
     // 추가 유효성 체크
     SearchParamValidator.checkNull(checkRequest.getType(), "type");
@@ -289,7 +291,7 @@ public class DataConnectionController {
 
     JdbcQueryResultResponse resultSet =
             connectionService.selectQueryForIngestion(hiveConnection, checkRequest.getDatabase(),
-                    checkRequest.getType(), checkRequest.getQuery(), limit);
+                    checkRequest.getType(), checkRequest.getQuery(), limit, extractColumnName);
 
     //Partition 정보 ..
     if(checkRequest.getType() == JdbcIngestionInfo.DataType.TABLE){

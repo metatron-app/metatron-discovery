@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 import { BoardDataSource, Dashboard, JoinMapping, QueryParam } from '../../../domain/dashboard/dashboard';
 import { DatasourceService } from 'app/datasource/service/datasource.service';
-import { ConnectionType, Datasource, DataSourceSummary, Field } from '../../../domain/datasource/datasource';
+import { Datasource, DataSourceSummary, Field } from '../../../domain/datasource/datasource';
 import { SlickGridHeader } from 'app/common/component/grid/grid.header';
 import { header } from '../grid/grid.header';
 import { GridComponent } from '../grid/grid.component';
@@ -40,6 +40,7 @@ import { CommonUtil } from '../../util/common.util';
 import { DataDownloadComponent } from '../data-download/data.download.component';
 import { MetadataColumn } from '../../../domain/meta-data-management/metadata-column';
 import { DashboardUtil } from '../../../dashboard/util/dashboard.util';
+import { ConnectionType, Dataconnection } from '../../../domain/dataconnection/dataconnection';
 
 declare let echarts: any;
 
@@ -378,9 +379,9 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
           .build();
       });
 
-    let rows: any[] = (data) ? data : this.gridData;
-
-    if (0 < rows.length && 0 < headers.length) {
+    let rows: any[] = data || this.gridData;
+    // headers가 있을 경우에만 그리드 생성
+    if (0 < headers.length) {
       if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
         rows = rows.map((row: any, idx: number) => {
           Object.keys( row ).forEach( key => {
@@ -430,10 +431,11 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     return new Promise((resolve, reject) => {
       // 프리셋을 생성한 연결형 : source.connection 사용
       // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
-      const params = source.ingestion && (source.connection || source.ingestion.connection)
-        ? this._getConnectionParams(source.ingestion, source.connection ? source.connection : source.ingestion.connection)
+      const connection: Dataconnection = source.connection || source.ingestion.connection;
+      const params = source.ingestion && connection
+        ? this._getConnectionParams(source.ingestion, connection)
         : {};
-      this.connectionService.getTableDetailWitoutId(params)
+      this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE ? true : false)
         .then((data) => {
           resolve(data);
         })
@@ -1115,7 +1117,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @returns {boolean}
    */
   public isLinkedTypeSource(source: Datasource): boolean {
-    return source.connType === ConnectionType.LINK;
+    return source.connType.toString() === 'LINK';
   }
 
   /**

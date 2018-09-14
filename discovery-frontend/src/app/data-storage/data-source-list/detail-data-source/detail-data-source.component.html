@@ -114,7 +114,7 @@
         <!-- monitoring -->
         <li [ngClass]="{'ddp-selected' : mode ==='monitoring'}"
             (click)="onChangeMode('monitoring')"
-            *ngIf="isEnabled()">
+            *ngIf="isEnabled() && datasource.connType.toString() !== 'LINK'">
           <a href="javascript:">{{'msg.storage.btn.monitoring' | translate}}</a>
         </li>
         <!-- //monitoring -->

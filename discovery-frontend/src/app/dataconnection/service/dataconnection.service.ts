@@ -121,8 +121,8 @@ export class DataconnectionService extends AbstractService {
   }
 
   // 테이블 상세조회
-  public getTableDetailWitoutId(param: any): Promise<any>  {
-    return this.post(this.API_URL + 'connections/query/data', param);
+  public getTableDetailWitoutId(param: any, extractColumnName: boolean = false): Promise<any>  {
+    return this.post(this.API_URL + 'connections/query/data?extractColumnName=' + extractColumnName, param);
   }
 
   // 데이터 테이블 조회 -> 이름으로
@@ -216,12 +216,12 @@ export class DataconnectionService extends AbstractService {
   }
 
   /**
-   * stageDB 생성시 테이블 상세데이터 조회
+   * Get detail data in stagingDB
    * @param params
-   * @returns {Promise<any>}
+   * @param {boolean} extractColumnName
    */
-  public getTableDataForHive(params: any): Promise<any> {
-    return this.post(this.API_URL + 'connections/query/hive/data', params);
+  public getTableDataForHive(params: any, extractColumnName: boolean = false): Promise<any> {
+    return this.post(this.API_URL + 'connections/query/hive/data?extractColumnName=' + extractColumnName, params);
   }
 
   /**
