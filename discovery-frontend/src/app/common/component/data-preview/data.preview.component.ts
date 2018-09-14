@@ -938,15 +938,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       const fieldMetaData: MetadataColumn = _.find(source.uiMetaData.columns, { 'physicalName': field.name });
       // logical name
       field['logicalName'] = fieldMetaData.name;
-      // logical type
-      field['metaType'] = fieldMetaData.type;
       // code table
       field['codeTable'] = fieldMetaData.codeTable;
       // dictionary
       field['dictionary'] = fieldMetaData.dictionary;
       // type
       if (fieldMetaData.type) {
-        field['logicalType'] = fieldMetaData.type;
+        field['metaType'] = fieldMetaData.type;
       }
       // description
       if (fieldMetaData.description) {
@@ -970,6 +968,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
     this.mainDatasource = dataSource;
     this.rowNum = 100;
+    // seletedfield init
+    this.selectedField = null;
 
     // set columns info
     if (this.isDashboard) {

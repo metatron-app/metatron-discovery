@@ -44,7 +44,7 @@
         <li [ngClass]="{'ddp-selected' : isShowDataGrid}">
           <a href="javascript:" (click)="onChangeTab(true)">{{'msg.storage.ui.title.data.grid' | translate}}</a>
         </li>
-        <li [ngClass]="{'ddp-selected' : !isShowDataGrid}" *ngIf="connType !== 'LINK'">
+        <li [ngClass]="{'ddp-selected' : !isShowDataGrid}">
           <a href="javascript:" (click)="onChangeTab(false)">{{'msg.storage.ui.title.column.detail' | translate}}</a>
         </li>
         <li *ngIf="isDashboard" (click)="isShowInfoLayer=true" (clickOutside)="isShowInfoLayer=false" >

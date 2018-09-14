@@ -651,6 +651,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-wrap-datadetail.ddp-size-resize .ddp-wrap-variable {height:100%; margin-top:-67px; padding:67px 0 0 0; box-sizing:Border-box;}
 .ddp-wrap-datadetail.ddp-size-resize .ddp-wrap-variable .ddp-data-details {height:100%;}
 .ddp-wrap-datadetail.ddp-size-resize .ddp-wrap-variable .ddp-data-details .ddp-wrap-detail {height:100%; box-sizing:Border-box; overflow:auto;}
+.ddp-wrap-datadetail.ddp-size-resize .ddp-wrap-variable .ddp-wrap-sourcename {overflow:auto;}
 
 /**************************************************************
     네비

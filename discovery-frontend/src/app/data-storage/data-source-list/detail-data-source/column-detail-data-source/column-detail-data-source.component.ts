@@ -585,15 +585,13 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     const fieldMetaData: MetadataColumn = _.find(this.metaData.columns, {'physicalName': field.name});
     // logical name
     field['logicalName'] = fieldMetaData.name;
-    // logical type
-    field['metaType'] = fieldMetaData.type;
     // code table
     field['codeTable'] = fieldMetaData.codeTable;
     // dictionary
     field['dictionary'] = fieldMetaData.dictionary;
     // type
     if (fieldMetaData.type) {
-      field['logicalType'] = fieldMetaData.type;
+      field['metaType'] = fieldMetaData.type;
     }
     // description
     if (fieldMetaData.description) {
