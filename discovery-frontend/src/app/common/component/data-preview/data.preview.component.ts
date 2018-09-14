@@ -40,6 +40,7 @@ import { CommonUtil } from '../../util/common.util';
 import { DataDownloadComponent } from '../data-download/data.download.component';
 import { MetadataColumn } from '../../../domain/meta-data-management/metadata-column';
 import { DashboardUtil } from '../../../dashboard/util/dashboard.util';
+import { ConnectionType, Dataconnection } from '../../../domain/dataconnection/dataconnection';
 
 declare let echarts: any;
 
@@ -421,10 +422,11 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     return new Promise((resolve, reject) => {
       // 프리셋을 생성한 연결형 : source.connection 사용
       // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
-      const params = source.ingestion && (source.connection || source.ingestion.connection)
-        ? this._getConnectionParams(source.ingestion, source.connection ? source.connection : source.ingestion.connection)
+      const connection: Dataconnection = source.connection || source.ingestion.connection;
+      const params = source.ingestion && connection
+        ? this._getConnectionParams(source.ingestion, connection)
         : {};
-      this.connectionService.getTableDetailWitoutId(params)
+      this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE ? true : false)
         .then((data) => {
           resolve(data);
         })
