@@ -1070,7 +1070,9 @@ public class PrepTransformService {
     PrepTransformResponse response = fetch_internal(dsId, stageIdx);
 
     response.setRuleStringInfos(getRulesInOrder(dsId), false, false);
-    response.setRuleCurIdx(stageIdx);
+    if (stageIdx != null) {
+      response.setRuleCurIdx(stageIdx);
+    }
 
     return response;
   }
