@@ -124,8 +124,9 @@ public class CatalogTreeService {
     List<CatalogTree> descendants = catalogTreeRepository.findDescendantNotAncenstor(catalog.getId());
     if (descendants.size() > 0) {
       for (CatalogTree catalogTree : descendants) {
-        catalogRepository.delete(catalogTree.getId().getDescendant());
-        catalogTreeRepository.deteleAllTree(catalog.getId());
+        String descendantId = catalogTree.getId().getDescendant();
+        catalogRepository.delete(descendantId);
+        catalogTreeRepository.deteleAllTree(descendantId);
       }
     }
 

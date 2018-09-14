@@ -212,8 +212,9 @@ public class BookTreeService {
     List<BookTree> descendants = bookTreeRepository.findDescendantNotAncenstor(book.getId());
     if (descendants.size() > 0) {
       for (BookTree bookTree : descendants) {
-        bookRepository.delete(bookTree.getId().getDescendant());
-        bookTreeRepository.deteleAllBookTree(book.getId());
+        String descendantId = bookTree.getId().getDescendant();
+        bookRepository.delete(descendantId);
+        bookTreeRepository.deteleAllBookTree(descendantId);
       }
     }
 
