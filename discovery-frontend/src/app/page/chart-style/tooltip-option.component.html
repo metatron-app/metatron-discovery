@@ -183,15 +183,10 @@
       <!-- divide -->
       <div class="ddp-divide2">
         <div class="ddp-list-label">{{'msg.page.format.preview' | translate}}</div>
-        <div *ngIf="'sankey' !== uiOption.type.toString()" class="ddp-preview2">
+        <div class="ddp-preview2">
           <p *ngFor="let item of uiOption.toolTip.previewList">
             {{item['name']}}
           </p>
-        </div>
-        <div *ngIf="'sankey' == uiOption.type.toString()" class="ddp-preview2">
-          <span *ngFor="let item of uiOption.toolTip.previewList">
-            {{item['name']}}
-          </span>
         </div>
       </div>
       <!-- //divide -->
