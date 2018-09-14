@@ -556,7 +556,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public selectDataSource(dataSource: Datasource) {
     this.dataSource = dataSource;
+    let widgetName: string = null;
+    if( this.widget && this.widget.name ) {
+      widgetName = this.widget.name;
+    }
     this.widget = _.cloneDeep(this.originalWidget);
+    this.widget.name = !widgetName ? this.originalWidget.name : widgetName;
     const widgetDataSource:Datasource
       = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, this.widget.configuration.dataSource );
 
