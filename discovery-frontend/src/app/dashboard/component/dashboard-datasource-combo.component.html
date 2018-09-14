@@ -21,11 +21,11 @@
   <em class="ddp-icon-view"></em>
   <a *ngIf="isEnableInfo" (click)="triggerShowInfo()" href="javascript:" class="ddp-btn-info"></a>
   <!-- box layout -->
-  <div class="ddp-box-layout4 ddp-datasearch">
+  <div class="ddp-box-layout4 ddp-datasource">
     <!-- 검색 영역 -->
     <div class="ddp-form-search">
       <em class="ddp-icon-search"></em>
-      <input type="text" placeholder="{{'msg.board.custom.ui.placeholder' | translate}}" [(ngModel)]="searchText" >
+      <input type="text" class="ng-untouched ng-pristine ng-valid" placeholder="{{'msg.board.custom.ui.placeholder' | translate}}" [(ngModel)]="searchText" >
       <a href="javascript:" class="ddp-btn-search-close" (click)="searchText = ''"></a>
     </div>
     <!-- // 검색 영역 -->
