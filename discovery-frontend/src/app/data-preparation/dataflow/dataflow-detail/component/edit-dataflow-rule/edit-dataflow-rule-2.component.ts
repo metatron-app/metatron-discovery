@@ -450,12 +450,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         });
         this._editRuleComp.init(unnestList, selectedUnnestList);
         break;
-      case 'join':
+      case 'Join':
         this.rightDataset = new Dataset();
         this.rightDataset.dsId = '';
         this.isRuleJoinModalShow = true;
         break;
-      case 'union':
+      case 'Union':
         this.editJoinOrUnionRuleStr = '';
         this.isRuleUnionModalShow = true;
         break;
@@ -685,7 +685,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'pivot' :
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           break;
-        case 'union' :
+        case 'Union' :
           if (this.selectedDataSet.gridData.data.length > 1) {
             this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
             this.isUpdate = true;
@@ -695,7 +695,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           }
 
           break;
-        case 'join' :
+        case 'Join' :
 
           if (this.selectedDataSet.gridData.data.length > 1) {
             this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
@@ -1233,8 +1233,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         result = `Move ${column}`;
         result += `${rule.before ? ' before ' + rule.before : ' after ' + rule.after }`;
         break;
-      case 'union':
-      case 'join':
+      case 'Union':
+      case 'Join':
         result = `${rule.command} with `;
 
         let datasetIds = [];
