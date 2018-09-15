@@ -19,77 +19,20 @@
 .pivot-view-body .pivot-view-frozen.ddp-header-hide,
 .pivot-view-head.ddp-header-hide {visibility:hidden;}
 
-.pivot-view-head.ddp-font11,
-.pivot-view-body .pivot-view-frozen.ddp-font11,
-.pivot-view-body .pivot-view-wrap.ddp-font11,
-.pivot-view .pivot-view-body .pivot-total.ddp-font11{
-  font-size: 11px;
-}
-.pivot-view-head.ddp-font13,
-.pivot-view-body .pivot-view-frozen.ddp-font13,
-.pivot-view-body .pivot-view-wrap.ddp-font13,
-.pivot-view .pivot-view-body .pivot-total.ddp-font13{
-  font-size: 13px;
-}
-.pivot-view-head.ddp-font15,
-.pivot-view-body .pivot-view-frozen.ddp-font15,
-.pivot-view-body .pivot-view-wrap.ddp-font15,
-.pivot-view .pivot-view-body .pivot-total.ddp-font15{
-  font-size: 15px;
-}
-.pivot-view-head.ddp-font-italic,
-.pivot-view-body .pivot-view-frozen.ddp-font-italic,
-.pivot-view-body .pivot-view-wrap.ddp-font-italic,
-.pivot-view .pivot-view-body .pivot-total.ddp-font-italic{
-  font-style: italic;
-}
+.pivot-view-row.ddp-font11 { font-size: 11px; }
+.pivot-view-row.ddp-font13 { font-size: 13px; }
+.pivot-view-row.ddp-font15 { font-size: 15px; }
 
-.pivot-view-head.ddp-font-bold,
-.pivot-view-body .pivot-view-frozen.ddp-font-bold,
-.pivot-view-body .pivot-view-wrap.ddp-font-bold,
-.pivot-view .pivot-view-body .pivot-total.ddp-font-bold{
-  font-weight: bold;
-}
+.pivot-view-row.ddp-font-italic { font-style: italic; }
+.pivot-view-row.ddp-font-bold { font-weight: bold; }
 
-.pivot-view-head.ddp-valign-top div,
-.pivot-view-body .pivot-view-frozen.ddp-valign-top div,
-.pivot-view-body .pivot-view-wrap.ddp-valign-top div,
-.pivot-view .pivot-view-body .pivot-total.ddp-valign-top div{
-  line-height: 14px !important;
-}
-.pivot-view-head.ddp-valign-middle div,
-.pivot-view-body .pivot-view-frozen.ddp-valign-middle div,
-.pivot-view-body .pivot-view-wrap.ddp-valign-middle div,
-.pivot-view .pivot-view-body .pivot-total.ddp-valign-middle div{
-  line-height: 30px !important;
-}
-.pivot-view-head.ddp-valign-bottom div,
-.pivot-view-body .pivot-view-frozen.ddp-valign-bottom div,
-.pivot-view-body .pivot-view-wrap.ddp-valign-bottom div,
-.pivot-view .pivot-view-body .pivot-total.ddp-valign-bottom div{
-  line-height: 43px !important;
-}
-.pivot-view-head.ddp-txt-left,
-.pivot-view-body .pivot-view-frozen.ddp-txt-left,
-.pivot-view-body .pivot-view-wrap.ddp-txt-left,
-.pivot-view .pivot-view-body .pivot-total .pivot-total-frozen.ddp-txt-left,
-.pivot-view .pivot-view-body .pivot-total .pivot-total-wrap.ddp-txt-left{
-  text-align: left;
-}
-.pivot-view-head.ddp-txt-center,
-.pivot-view-body .pivot-view-frozen.ddp-txt-center,
-.pivot-view-body .pivot-view-wrap.ddp-txt-center,
-.pivot-view .pivot-view-body .pivot-total .pivot-total-frozen.ddp-txt-center,
-.pivot-view .pivot-view-body .pivot-total .pivot-total-wrap.ddp-txt-center{
-  text-align: center;
-}
-.pivot-view-head.ddp-txt-right,
-.pivot-view-body .pivot-view-frozen.ddp-txt-right,
-.pivot-view-body .pivot-view-wrap.ddp-txt-right,
-.pivot-view .pivot-view-body .pivot-total .pivot-total-frozen.ddp-txt-right,
-.pivot-view .pivot-view-body .pivot-total .pivot-total-wrap.ddp-txt-right{
-  text-align: right;
-}
+.pivot-view-row.ddp-valign-top div { line-height: 14px !important; }
+.pivot-view-row.ddp-valign-middle div { line-height: 30px !important; }
+.pivot-view-row.ddp-valign-bottom div { line-height: 43px !important; }
+
+.pivot-view-row.ddp-txt-left { text-align: left; }
+.pivot-view-row.ddp-txt-center { text-align: center; }
+.pivot-view-row.ddp-txt-right { text-align: right; }
 
 .pivot-view .pivot-view-body .pivot-view-frozen {line-height:30px !important;}
 
@@ -130,6 +73,10 @@
 .pivot-view .pivot-view-head .pivot-view-frozen .pivot-view-row:last-child .pivot-view-cell {
   border-bottom: 1px solid #f0f0f0;
 }
+.pivot-view.pivot-view-scroll-horizontal .pivot-view-head {
+    border-right: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+}
 .pivot-view .pivot-view-body {
 
   position: absolute;
@@ -141,6 +88,7 @@
   position: absolute;
   z-index: 1;
   background-color: #fff;
+  border-top: 1px solid #f0f0f0;
 }
 .pivot-view .pivot-view-body .pivot-view-wrap .pivot-view-row.odd {
   background-color: #f9f9f9;
@@ -149,10 +97,9 @@
   position: absolute;
   z-index: 2;
   background-color: #fff;
+  border-top: 1px solid #f0f0f0;
 }
-.pivot-view.pivot-view-scroll-horizontal .pivot-view-head {
-  border-right: 1px solid #f0f0f0;
-}
+
 .pivot-view .pivot-view-body .pivot-view-wrap .pivot-view-cell.txt-right {
   text-align: right;
 }
@@ -181,7 +128,7 @@
 /* Add Click Event Style - by eltriny */
 .pivot-view .pivot-view-body .span.txt-bottom {position: relative}
 .pivot-view .pivot-view-body.txt-right {text-align: right; display:block;}
-.pivot-view span {height: 30px; line-height: 30px;}
+.pivot-view span {position:absolute; height: 30px; line-height: 30px;}
 .pivot-view span.remark-right {text-align: right; display: block;}
 .pivot-view span.remark-left {padding-left: 10px; display: block;}
 
@@ -200,4 +147,14 @@
   position: absolute;
   z-index: 1;
   background-color: #fff;
+}
+.pivot-resizable-handle {
+  cursor: col-resize;
+  position: absolute;
+  font-size: 0.1px;
+  display: block;
+  width: 8px;
+  right: 0px;
+  top: 0px;
+  height: 100%;
 }
