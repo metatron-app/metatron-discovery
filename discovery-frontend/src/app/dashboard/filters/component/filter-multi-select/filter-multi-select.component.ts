@@ -53,7 +53,7 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
 
   // 기본 메시지
   @Input()
-  public unselectedMessage = 'All';
+  public unselectedMessage = this.translateService.instant( 'msg.comm.ui.list.all' );
 
   // 비활성화 여부
   @Input()
@@ -92,9 +92,6 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
   // 셀렉트 리스트 show/hide 플래그
   public isShowSelectList = false;
 
-  // 문자열
-  public isStringArray = false;
-
   // 검색어
   public searchText: string = '';
 
@@ -118,28 +115,29 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
 
   // Init
   public ngOnInit() {
-    // array check
-    if (this.selectedArray == null || this.selectedArray.length === 0)  {
-      this.selectedArray = [];
-      this.viewText = this.unselectedMessage;
-    } else {
-      this.viewText = this.selectedArray.join(',');
-    }
-
-    // Init
     super.ngOnInit();
+
+    // array check
+    ( null === this.selectedArray ) && ( this.selectedArray = [] );
+
+    this.updateView(this.selectedArray);
   }
 
-  // Destory
+  // Destroy
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Returns whether Item is selected.
+   * @param targetItem
+   */
+  public isSelectedItem( targetItem:any ) {
+    return this.selectedArray && this.selectedArray.some(item => item.name === targetItem.name );
+  } // function - isSelectedItem
 
   /**
    * 아이템 선택
@@ -162,11 +160,7 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
 
     }
 
-    if (this.selectedArray == null || this.selectedArray.length === 0)  {
-      this.viewText = this.unselectedMessage;
-    } else {
-      this.viewText = this.selectedArray.map( item => item.name ).join(',');
-    }
+    this.updateView(this.selectedArray);
   } // function selected
 
   /**
@@ -189,12 +183,7 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
       this.selectedArray = [];
     }
 
-    if (this.selectedArray == null || this.selectedArray.length === 0)  {
-      this.viewText = this.unselectedMessage;
-    } else {
-      this.viewText = this.selectedArray.map( item => item.name ).join(',');
-    }
-
+    this.updateView(this.selectedArray);
   }
 
   /**
@@ -230,26 +219,23 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
    * @param valueList
    */
   public reset(valueList: any) {
-    if (valueList == null || valueList.length === 0) {
-      this.selectedArray = null;
-      this.viewText = this.unselectedMessage;
-    } else {
-      this.selectedArray = valueList;
-      this.viewText = this.selectedArray.join(',');
-    }
-  } // function reset
+    this.selectedArray = (valueList == null || valueList.length === 0) ? [] : valueList;
+    this.updateView(this.selectedArray);
+  } // function - reset
 
   /**
-   * 화면 갱신
-   * @param seleteArray
+   * update combo-box label
+   * @param selectedArray
    */
-  public updateView(seleteArray: any) {
-    if (seleteArray == null || seleteArray.length === 0)  {
+  public updateView(selectedArray: any) {
+    if (selectedArray == null || selectedArray.length === 0)  {
       this.viewText = this.unselectedMessage;
+    } else if ( selectedArray.length === this.array.length ) {
+      this.viewText = this.translateService.instant( 'msg.comm.ui.list.all' );
     } else {
-      this.viewText = seleteArray.join(',');
+      this.viewText = selectedArray.map( item => item.name ).join(',');
     }
-  } // function reset
+  } // function - updateView
 
   /**
    * 리스트 닫기
@@ -258,7 +244,7 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
     this.isShowSelectList = false;
     this.onSelected.emit(this.selectedArray);
     this.changeDisplayOptions.emit(this.isShowSelectList);
-  } // function closeList
+  } // function - closeList
 
   /**
    * 스크롤 시 이벤트 ( 다음페이지 조회 호출 )
@@ -287,6 +273,6 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
         width : $dropboxWidth
       });
     }
-  }// function - _setViewListPosition
+  } // function - _setViewListPosition
 
 }
