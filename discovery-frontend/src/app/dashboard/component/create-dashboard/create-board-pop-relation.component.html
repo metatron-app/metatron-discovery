@@ -69,14 +69,14 @@
           </div>
           <!-- // 검색 Select box -->
           <ul class="ddp-list-tab-button">
-            <li (click)="isFromGridMode = true" [class.ddp-selected]="isFromGridMode" >
+            <li (click)="changeViewModeSource( true )" [class.ddp-selected]="isFromGridMode" >
               <a href="javascript:"><em class="ddp-icon-grid"></em></a>
               <div class="ddp-ui-tooltip-info">
                 <em class="ddp-icon-view-top"></em>
                 {{'msg.comm.ui.list.grid.view' | translate}}
               </div>
             </li>
-            <li (click)="isFromGridMode = false" [class.ddp-selected]="!isFromGridMode" >
+            <li (click)="changeViewModeSource( false )" [class.ddp-selected]="!isFromGridMode" >
               <a href="javascript:"><em class="ddp-icon-listgrid"></em></a>
               <div class="ddp-ui-tooltip-info">
                 <em class="ddp-icon-view-top"></em>
@@ -88,7 +88,7 @@
         <!-- //set -->
 
         <!-- 그리드 -->
-        <div class="ddp-ui-grid-form" >
+        <div #leftSide class="ddp-ui-grid-form" >
           <!-- Grid Component -->
           <div grid-component #leftGrid
                [hidden]="!isFromGridMode"
@@ -96,7 +96,7 @@
                style="width:100%;height:100%;" ></div>
           <!-- // Grid Component -->
           <!-- Table List -->
-          <div class="ddp-wrap-scroll" *ngIf="!isFromGridMode">
+          <div class="ddp-wrap-scroll" [hidden]="isFromGridMode">
             <!-- 선택시 tr class="ddp-selected" 추가 -->
             <table class="ddp-table-grid-list">
               <colgroup>
@@ -160,14 +160,14 @@
           </div>
           <!-- // 검색 Select box -->
           <ul class="ddp-list-tab-button" >
-            <li (click)="isToGridMode = true" [class.ddp-selected]="isToGridMode" >
+            <li (click)="changeViewModeTarget( true )" [class.ddp-selected]="isToGridMode" >
               <a href="javascript:"><em class="ddp-icon-grid"></em></a>
               <div class="ddp-ui-tooltip-info">
                 <em class="ddp-icon-view-top"></em>
                 {{'msg.comm.ui.list.grid.view' | translate}}
               </div>
             </li>
-            <li (click)="isToGridMode = false" [class.ddp-selected]="!isToGridMode" >
+            <li (click)="changeViewModeTarget( false )" [class.ddp-selected]="!isToGridMode" >
               <a href="javascript:"><em class="ddp-icon-listgrid"></em></a>
               <div class="ddp-ui-tooltip-info">
                 <em class="ddp-icon-view-top"></em>
@@ -179,7 +179,7 @@
         <!-- // set -->
 
         <!-- 그리드 -->
-        <div class="ddp-ui-grid-form" >
+        <div #rightSide class="ddp-ui-grid-form" >
           <!-- Grid Component -->
           <div grid-component #rightGrid
                [hidden]="!isToGridMode"
@@ -187,7 +187,7 @@
                style="width:100%;height:100%;" ></div>
           <!-- // Grid Component -->
           <!-- Table List -->
-          <div class="ddp-wrap-scroll" *ngIf="!isToGridMode">
+          <div class="ddp-wrap-scroll" [hidden]="isToGridMode">
             <!-- 선택시 tr class="ddp-selected" 추가 -->
             <table class="ddp-table-grid-list">
               <colgroup>

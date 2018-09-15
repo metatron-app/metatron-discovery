@@ -22,13 +22,13 @@ import { header, SlickGridHeader } from '../../../common/component/grid/grid.hea
 import { GridOption } from '../../../common/component/grid/grid.option';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { isNull, isNullOrUndefined } from 'util';
-import * as $ from "jquery";
+import { isNullOrUndefined } from 'util';
+import * as $ from 'jquery';
 
 @Component({
   selector: 'create-board-pop-relation',
   templateUrl: './create-board-pop-relation.component.html',
-  styles:[
+  styles: [
     '.ddp-list-selectbox2 li.sys-focus-item { background-color: #f6f6f7 !important; }'
   ]
 })
@@ -39,10 +39,16 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   @ViewChild('leftGrid')
-  private leftGrid: GridComponent; // 조인 대상 원본 데이터 그리드
+  private leftGrid: GridComponent;
+
+  @ViewChild('leftSide')
+  private _leftSide: ElementRef;
 
   @ViewChild('rightGrid')
-  private rightGrid: GridComponent; // 조인할 데이터 그리드
+  private rightGrid: GridComponent;
+
+  @ViewChild('rightSide')
+  private _rightSide: ElementRef;
 
   @ViewChild('inputSourceSearchText')
   private _sourceSearchText: ElementRef;
@@ -58,6 +64,10 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
 
   private _$sourceFieldCombo;
   private _$targetFieldCombo;
+  private _$leftSide;
+  private _$rightSide;
+  private _$leftFieldList;
+  private _$rightFieldList;
 
   private _queryLimit: number = 1000;         // 조회 갯수
 
@@ -195,8 +205,13 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
    * @param {{id: string, isSelect: boolean}} data
    */
   public fromGridHeaderClickHandler(data: { id: string, isSelect: boolean }) {
+    const $cols = this._$leftSide.find('.slick-header-column');
+    $cols.css('backgroundColor', '');
+
     if (data.isSelect) {
-      this.relation.ui.sourceField = this.relation.ui.source.uiFields.find(item => item.name === data.id);
+      const colIdx: number = this.relation.ui.source.uiFields.findIndex(item => item.name === data.id);
+      $cols.eq(colIdx).css('backgroundColor', '#d6d9f1');
+      this.relation.ui.sourceField = this.relation.ui.source.uiFields[colIdx];
     } else {
       this.relation.ui.sourceField = null;
     }
@@ -227,7 +242,14 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
 
     // scroll to target field
     const colIdx: number = this.relation.ui.source.uiFields.findIndex(item => item.name === field.name);
-    (-1 < colIdx) && (this.leftGrid.grid.scrollCellIntoView(0, colIdx));
+    if (-1 < colIdx) {
+      this.leftGrid.grid.scrollCellIntoView(0, colIdx);
+      this._$leftFieldList.scrollTop(colIdx * 30);
+
+      const $cols = this._$leftSide.find('.slick-header-column');
+      $cols.css('backgroundColor', '');
+      $cols.eq(colIdx).css('backgroundColor', '#d6d9f1');
+    }
 
   } // function - selectSourceField
 
@@ -246,64 +268,83 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
    * Keyboard event handler to source field combo box
    * @param {KeyboardEvent} event
    */
-  public sourceComboKeyEvent(event:KeyboardEvent) {
+  public sourceComboKeyEvent(event: KeyboardEvent) {
 
-    const $currFocusItem = this._$sourceFieldCombo.find( 'li.sys-focus-item' );
+    const $currFocusItem = this._$sourceFieldCombo.find('li.sys-focus-item');
 
-    switch( event.keyCode ) {
+    switch (event.keyCode) {
       case 38 :
         // ArrowUP
         let $prev;
-        if( 0 === $currFocusItem.length ) {
-          $prev = this._$sourceFieldCombo.find( 'li:last' );
+        if (0 === $currFocusItem.length) {
+          $prev = this._$sourceFieldCombo.find('li:last');
         } else {
           $prev = $currFocusItem.prev('li');
-          ( 0 === $prev.length ) && ( $prev = this._$sourceFieldCombo.find( 'li:last' ) ) ;
+          (0 === $prev.length) && ($prev = this._$sourceFieldCombo.find('li:last'));
         }
 
-        $prev.addClass( 'sys-focus-item' );
-        $currFocusItem.removeClass( 'sys-focus-item' );
-        this._$sourceFieldCombo.scrollTop( $prev.index() * 26 );
+        $prev.addClass('sys-focus-item');
+        $currFocusItem.removeClass('sys-focus-item');
+        this._$sourceFieldCombo.scrollTop($prev.index() * 26);
         break;
       case 40 :
         // ArrowDown
         let $next;
-        if( 0 === $currFocusItem.length ) {
-          $next = this._$sourceFieldCombo.find( 'li:first' );
+        if (0 === $currFocusItem.length) {
+          $next = this._$sourceFieldCombo.find('li:first');
         } else {
           $next = $currFocusItem.next('li');
-          ( 0 === $next.length ) && ( $next = this._$sourceFieldCombo.find( 'li:first' ) ) ;
+          (0 === $next.length) && ($next = this._$sourceFieldCombo.find('li:first'));
         }
 
-        $next.addClass( 'sys-focus-item' );
-        $currFocusItem.removeClass( 'sys-focus-item' );
-        this._$sourceFieldCombo.scrollTop( $next.index() * 26 );
+        $next.addClass('sys-focus-item');
+        $currFocusItem.removeClass('sys-focus-item');
+        this._$sourceFieldCombo.scrollTop($next.index() * 26);
         break;
       case 13 :
         // Enter
         $currFocusItem.trigger('click');
-        $currFocusItem.removeClass( 'sys-focus-item' );
+        $currFocusItem.removeClass('sys-focus-item');
         break;
     }
   } // function - sourceComboKeyEvent
 
+  // noinspection JSMethodCanBeStatic
   /**
    * Mouse Hover event handler to source field combo box
    * @param {MouseEvent} event
    */
-  public hoverSourceItem(event:MouseEvent) {
-    const $target = $( event.currentTarget );
-    $target.parent().find( '.sys-focus-item' ).removeClass( 'sys-focus-item' );
-    $target.addClass( 'sys-focus-item' );
+  public hoverSourceItem(event: MouseEvent) {
+    const $target = $(event.currentTarget);
+    $target.parent().find('.sys-focus-item').removeClass('sys-focus-item');
+    $target.addClass('sys-focus-item');
   } // function - hoverSourceItem
+
+  /**
+   * Change view mode for source fields
+   * @param {boolean} isGridMode
+   */
+  public changeViewModeSource(isGridMode: boolean) {
+    this.isFromGridMode = isGridMode;
+    this.safelyDetectChanges();
+    if (this.relation.ui.sourceField) {
+      this.selectSourceField(this.relation.ui.sourceField);
+    }
+  } // function - changeViewModeSource
 
   /**
    * To Grid 헤더 클릭 이벤트 핸들러
    * @param {{id: string, isSelect: boolean}} data
    */
   public toGridHeaderClickHandler(data: { id: string, isSelect: boolean }) {
+
+    const $cols = this._$rightSide.find('.slick-header-column');
+    $cols.css('backgroundColor', '');
+
     if (data.isSelect) {
-      this.relation.ui.targetField = this.relation.ui.target.uiFields.find(item => item.name === data.id);
+      const colIdx: number = this.relation.ui.target.uiFields.findIndex(item => item.name === data.id);
+      $cols.eq(colIdx).css('backgroundColor', '#d6d9f1');
+      this.relation.ui.targetField = this.relation.ui.target.uiFields[colIdx];
     } else {
       this.relation.ui.targetField = null;
     }
@@ -334,7 +375,14 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
 
     // scroll to target field
     const colIdx: number = this.relation.ui.target.uiFields.findIndex(item => item.name === field.name);
-    (-1 < colIdx) && (this.rightGrid.grid.scrollCellIntoView(0, colIdx));
+    if (-1 < colIdx) {
+      this.rightGrid.grid.scrollCellIntoView(0, colIdx);
+      this._$rightFieldList.scrollTop(colIdx * 30);
+
+      const $cols = this._$rightSide.find('.slick-header-column');
+      $cols.css('backgroundColor', '');
+      $cols.eq(colIdx).css('backgroundColor', '#d6d9f1');
+    }
 
   } // function - selectTargetField
 
@@ -353,56 +401,69 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
    * Keyboard event handler to target field combo box
    * @param {KeyboardEvent} event
    */
-  public targetComboKeyEvent(event:KeyboardEvent) {
+  public targetComboKeyEvent(event: KeyboardEvent) {
 
-    const $currFocusItem = this._$targetFieldCombo.find( 'li.sys-focus-item' );
+    const $currFocusItem = this._$targetFieldCombo.find('li.sys-focus-item');
 
-    switch( event.keyCode ) {
+    switch (event.keyCode) {
       case 38 :
         // ArrowUP
         let $prev;
-        if( 0 === $currFocusItem.length ) {
-          $prev = this._$targetFieldCombo.find( 'li:last' );
+        if (0 === $currFocusItem.length) {
+          $prev = this._$targetFieldCombo.find('li:last');
         } else {
           $prev = $currFocusItem.prev('li');
-          ( 0 === $prev.length ) && ( $prev = this._$targetFieldCombo.find( 'li:last' ) ) ;
+          (0 === $prev.length) && ($prev = this._$targetFieldCombo.find('li:last'));
         }
 
-        $prev.addClass( 'sys-focus-item' );
-        $currFocusItem.removeClass( 'sys-focus-item' );
-        this._$targetFieldCombo.scrollTop( $prev.index() * 26 );
+        $prev.addClass('sys-focus-item');
+        $currFocusItem.removeClass('sys-focus-item');
+        this._$targetFieldCombo.scrollTop($prev.index() * 26);
         break;
       case 40 :
         // ArrowDown
         let $next;
-        if( 0 === $currFocusItem.length ) {
-          $next = this._$targetFieldCombo.find( 'li:first' );
+        if (0 === $currFocusItem.length) {
+          $next = this._$targetFieldCombo.find('li:first');
         } else {
           $next = $currFocusItem.next('li');
-          ( 0 === $next.length ) && ( $next = this._$targetFieldCombo.find( 'li:first' ) ) ;
+          (0 === $next.length) && ($next = this._$targetFieldCombo.find('li:first'));
         }
 
-        $next.addClass( 'sys-focus-item' );
-        $currFocusItem.removeClass( 'sys-focus-item' );
-        this._$targetFieldCombo.scrollTop( $next.index() * 26 );
+        $next.addClass('sys-focus-item');
+        $currFocusItem.removeClass('sys-focus-item');
+        this._$targetFieldCombo.scrollTop($next.index() * 26);
         break;
       case 13 :
         // Enter
         $currFocusItem.trigger('click');
-        $currFocusItem.removeClass( 'sys-focus-item' );
+        $currFocusItem.removeClass('sys-focus-item');
         break;
     }
   } // function - targetComboKeyEvent
 
+  // noinspection JSMethodCanBeStatic
   /**
    * Mouse Hover event handler to target field combo box
    * @param {MouseEvent} event
    */
-  public hoverTargetItem(event:MouseEvent) {
-    const $target = $( event.currentTarget );
-    $target.parent().find( '.sys-focus-item' ).removeClass( 'sys-focus-item' );
-    $target.addClass( 'sys-focus-item' );
+  public hoverTargetItem(event: MouseEvent) {
+    const $target = $(event.currentTarget);
+    $target.parent().find('.sys-focus-item').removeClass('sys-focus-item');
+    $target.addClass('sys-focus-item');
   } // function - hoverTargetItem
+
+  /**
+   * Change view mode for target fields
+   * @param {boolean} isGridMode
+   */
+  public changeViewModeTarget(isGridMode: boolean) {
+    this.isToGridMode = isGridMode;
+    this.safelyDetectChanges();
+    if (this.relation.ui.targetField) {
+      this.selectTargetField(this.relation.ui.targetField);
+    }
+  } // function - changeViewModeTarget
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -453,8 +514,13 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
 
     this.safelyDetectChanges();
 
-    this._$sourceFieldCombo = $( this._sourceFieldCombo.nativeElement );
-    this._$targetFieldCombo = $( this._targetFieldCombo.nativeElement );
+    this._$sourceFieldCombo = $(this._sourceFieldCombo.nativeElement);
+    this._$targetFieldCombo = $(this._targetFieldCombo.nativeElement);
+
+    this._$leftSide = $(this._leftSide.nativeElement);
+    this._$rightSide = $(this._rightSide.nativeElement);
+    this._$leftFieldList = this._$leftSide.find('.ddp-wrap-scroll');
+    this._$rightFieldList = this._$rightSide.find('.ddp-wrap-scroll');
 
   } // function - _initializeComponent
 
@@ -523,8 +589,10 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
           .Unselectable(false)
           .Sortable(false)
           .Formatter((row, cell, value, columnDef) => {
-            if (!isNull(value) && columnDef.select) {
-              return '<div style=\'background-color:#d6d9f1; position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px;\'>' + value + '</div>';
+            if (columnDef.select) {
+              return '<div style=\'background-color:#d6d9f1; position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px;\'>'
+                + ((value) ? value : '&nbsp;')
+                + '</div>';
             } else {
               return value;
             }
