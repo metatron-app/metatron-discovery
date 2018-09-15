@@ -897,6 +897,11 @@ ul.ddp-list-board-thumbview li.ddp-selected a span.ddp-data-name {color:#4b515b;
 .ddp-ui-widget-contents .ddp-dateinfo-view .ddp-list-buttons {width:100%;}
 .ddp-ui-widget-contents .ddp-dateinfo-view .ddp-list-buttons li {margin-bottom:11px;}
 .ddp-ui-widget-contents .ddp-filter-calen-in {padding-bottom:20px;}
+.ddp-dateinfo-view.ddp-inline {width:auto;}
+.ddp-dateinfo-view.ddp-inline .ddp-filter-calen {}
+.ddp-dateinfo-view.ddp-inline .ddp-filter-calen .ddp-ui-dateinfo {display:inline-block; width:280px; margin-top:5px;}
+
+.ddp-dateinfo-view.ddp-inline .ddp-filter-calen .ddp-ui-dateinfo.ddp-to {}
 .ddp-ui-widget-contents .ddp-filter-dateinfo .ddp-ui-dateinfo .ddp-box-rome {width:100%;}
 .ddp-ui-widget-contents .ddp-filter-dateinfo .ddp-ui-dateinfo {width:100%; text-align:left;}
 .ddp-ui-widget-contents .ddp-filter-dateinfo .ddp-ui-dateinfo:last-of-type {margin-top:4px;text-align:left;}
@@ -1445,10 +1450,11 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-filter-dateinfo .ddp-ui-dateinfo .ddp-box-dateinfo {display:inline-block; text-align:left; width:100%; box-sizing:border-box;}
 .ddp-filter-dateinfo .ddp-ui-dateinfo .ddp-box-dateinfo .ddp-type-selectbox {float:left; width:45%; border:none; border-left:1px solid #d0d1d8; box-sizing:border-box; z-index:inherit;}
 .ddp-filter-view {max-width:400px; min-width:300px; box-sizing:border-box;}
+.ddp-filter-view.ddp-full {max-width:100%;}
+.ddp-filter-view.ddp-full .ddp-wrap-buttons {width:100%;}
+.ddp-filter-view.ddp-full .ddp-wrap-buttons.ddp-size ul.ddp-list-buttons li em {display:none;}
 .ddp-filter-view .ddp-filter-area {position:relative; top:0; left:0; padding:0px;border-top:none; overflow:inherit;}
-
 .ddp-filter-view .ddp-txt-preview {display:block; color:#4c515a; font-size:14px; text-align:center;}
-
 .ddp-filter-view .ddp-filter-area .ddp-filter-type {padding-top:10px;}
 
 .ddp-filter-area {position:absolute; top:45px; left:0; right:0; bottom:0; padding:0 25px; border-top:1px solid #e7e7ea; overflow-y:auto;}
@@ -1476,6 +1482,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 
 .ddp-filter-area .ddp-filter-type .ddp-btn-time.ddp-selected .ddp-form-multy  span.ddp-txt-label:before  {display:inline-block; position:relative; margin-right:7px; width:14px; height:10px; background:url(../images/icon_select2.png) no-repeat; background-position-y:-11px; vertical-align: middle; content:'';}
 .ddp-filter-area .ddp-filter-type .ddp-btn-time.ddp-selected:before {position:absolute; top:0; left:0; right:0; bottom:0; border-radius:2px; border:1px solid #90969f; content:'';}
+.ddp-filter-area .ddp-filter-type .ddp-btn-time .ddp-form-multy .ddp-box-multy { top:2px;}
 
 .ddp-filter-form .ddp-option {padding:25px 0 10px 0;}
 .ddp-filter1 .ddp-filter-form .ddp-box-item-search {top:135px;}
