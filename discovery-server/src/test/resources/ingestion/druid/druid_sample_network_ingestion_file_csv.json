@@ -34,6 +34,7 @@
             "dimensionExclusions": [],
             "dimensions": [
               "d",
+              "nd",
               "sd"
             ],
             "spatialDimensions": []
@@ -43,13 +44,13 @@
             "format": "yyyy-MM-dd"
           },
           "columns": [
-            "time","d","sd","m1", "m2"
+            "time","d","nd","sd","m1", "m2"
           ],
           "format": "csv"
         },
         "type": "string"
       },
-      "dataSource": "sample_ingestion_01"
+      "dataSource": "sample_network_ingestion_01"
     },
     "tuningConfig": {
       "type": "index",
@@ -61,7 +62,7 @@
       "type": "index",
       "firehose": {
         "type": "local",
-        "filter": "sample_ingestion.csv",
+        "filter": "sample_network_ingestion.csv",
         "baseDir": "/tmp"
       }
     }
