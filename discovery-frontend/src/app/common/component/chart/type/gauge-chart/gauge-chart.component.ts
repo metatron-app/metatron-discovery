@@ -24,7 +24,7 @@ import {
   ChartColorList,
   ChartColorType,
   ChartSelectMode,
-  ChartType,
+  ChartType, ColorCustomMode,
   ColorRangeType,
   Position,
   SeriesType,
@@ -415,6 +415,62 @@ export class GaugeChartComponent extends BaseChart {
       }
 
     });
+
+    return this.chartOption;
+  }
+
+  /**
+   * 시리즈 정보를 변환한다.
+   * - 필요시 각 차트에서 Override
+   * @returns {BaseOption}
+   */
+  protected convertSeries(): BaseOption {
+
+    // Base Call
+    this.chartOption = super.convertSeries();
+
+    // Gradient Color Change
+    if (this.uiOption.color['customMode'] && ColorCustomMode.GRADIENT == this.uiOption.color['customMode']) {
+
+      _.each(this.data.columns, (column, columnIndex) => {
+
+        // Series Total Value
+        let totalValue: number = column.categoryValue;
+
+        _.each(this.chartOption.series, (series) => {
+
+          let data = series.data[columnIndex];
+
+          // Validate
+          if (!this.uiOption.color['ranges']) {
+            return false;
+          }
+
+          // Base Data
+          let value: number = null;
+          if (data && isNaN(data)) {
+            value = data.value;
+          }
+          else {
+            value = data;
+          }
+
+          let maxValue: number = this.data.info.maxValue;
+          let rangePercent: number = (maxValue / totalValue) * 100;
+          let codes: string[] = _.cloneDeep(this.chartOption.visualMap.color).reverse();
+          let index: number = Math.round(value / rangePercent * codes.length);
+          index = index == codes.length ? codes.length-1 : index;
+          series.data[columnIndex].itemStyle = {
+            normal: {
+              color: codes[index]
+            }
+          };
+        });
+      });
+
+      delete this.chartOption.visualMap;
+    }
+
 
     return this.chartOption;
   }
