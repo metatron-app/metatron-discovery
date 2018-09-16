@@ -33,6 +33,9 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  // layer 갯수 default : 1
+  public layerNum: number = 1;
+
   @Input('pivot')
   set setPivot(pivot: Pivot) {
 

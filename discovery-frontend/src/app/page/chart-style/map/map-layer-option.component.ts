@@ -86,6 +86,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
   public symbol: string = 'CIRCLE';
 
+  public tile: string = 'HEXAGON';
+
   public color: Object = {
     by: 'NONE',
     column: '',
@@ -100,7 +102,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
   public outline: Object = {
     color: this.selectedDefaultColor,
-    thickness: 'NONE'
+    thickness: 'NONE',
+    lineDash: 'SOLID'
   };
 
   public clustering: boolean = false;
@@ -150,6 +153,27 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     * @param layerType
     */
    public mapLayerType(layerType: string): void {
+     let geomType = this.uiOption.fielDimensionList[0].field.logicalType.toString();
+
+     if(geomType === "GEO_POINT") {
+       if(layerType === "symbol" || layerType === "heatmap" || layerType === "heatmap" || layerType === "tile") {
+         console.log("point");
+       } else {
+         return;
+       }
+     } else if(geomType === "GEO_LINE") {
+       if(layerType === "line") {
+         console.log("line");
+       } else {
+         return;
+       }
+     } else if(geomType === "GEO_POLYGON") {
+       if(layerType === "polygon") {
+         console.log("polygon");
+       } else {
+         return;
+       }
+     }
 
      this.type = layerType;
 
@@ -168,6 +192,22 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    public symbolType(symbolType: string): void {
 
      this.symbol = symbolType;
+
+     // 해당 레이어 타입으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     this.update();
+   }
+
+   /**
+    * Chart - 레이어 타일 타입
+    * @param tileType
+    */
+   public tileType(tileType: string): void {
+
+     this.tile = tileType;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -200,6 +240,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
    // Tile Resolution 설정
    public resolutionFlag: boolean = false;
+
+   // Line Dashtype 설정
+   public lineDashTypeFlag: boolean = false;
 
    /**
     * 컬러타입 변경시
@@ -312,7 +355,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     * Tile Resolution 변경시
     * @param resolution
     */
-   public changeResolution(resolution: number) {
+   public changeRe(resolution: number) {
 
      this.color['resolution'] = resolution;
 
@@ -379,6 +422,22 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    public outlineType(outlineType: string): void {
 
      this.outline['thickness'] = outlineType;
+
+     // 해당 레이어 타입으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     this.update();
+   }
+
+   /**
+    * Chart - 라인 유형
+    * @param lineDashType
+    */
+   public lineDashType(lineDashType: string): void {
+
+     this.outline["lineDash"] = lineDashType;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {

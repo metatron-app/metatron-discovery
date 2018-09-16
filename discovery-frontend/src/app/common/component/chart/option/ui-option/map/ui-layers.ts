@@ -62,4 +62,6 @@ interface SymbolOutline {
 
   thickness?: string;
 
+  lineDash?: string;
+
 }

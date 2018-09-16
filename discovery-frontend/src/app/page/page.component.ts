@@ -87,7 +87,6 @@ import { DashboardUtil } from '../dashboard/util/dashboard.util';
 import { BoardConfiguration } from '../domain/dashboard/dashboard';
 import { MapChartComponent } from '../common/component/chart/type/map-chart/map-chart.component';
 import {MapFormatOptionComponent} from './chart-style/map/map-format-option.component';
-import { MapTooltipOptionComponent } from './chart-style/map/map-tooltip-option.component';
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -201,9 +200,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   @ViewChild('mapFormatOption')
   private mapFormatOption: MapFormatOptionComponent;
 
-  @ViewChild('mapTooltipOption')
-  private mapTooltipOption: MapTooltipOptionComponent;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -256,9 +252,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   // LNB > Data > 차원값U
   public dimensions: Field[];
-
-  // PAGE > OPTION PANNEL (fields with custom fields)
-  public fieldsWCustom: Field[];
 
   // LNB > Data > 사용자 정의 차원값U
   public customDimensions: ExpressionField[];
@@ -1498,11 +1491,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // 맵 포맷창이 열려있을때 처리
     if (this.mapFormatOption) {
       this.mapFormatOption.setPivot = pivot;
-    }
-
-    // when map tooltip option is opened
-    if (this.mapTooltipOption) {
-      this.mapTooltipOption.setPivot = pivot;
     }
 
     // sort 처리
@@ -3194,9 +3182,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
             });
         });
     }
-
-    // fields include custom fields
-    this.fieldsWCustom = _.concat(this.dimensions, this.measures);
 
     // 필터로 사용중인 필드 플래그셋팅
     this._setUseFilter();

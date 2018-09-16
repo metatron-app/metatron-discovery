@@ -1218,6 +1218,15 @@ em.ddp-icon-dimension-polygon {width:13px; height:13px;}
 em.ddp-icon-dimension-line {width:10px; height:12px; background-position:left -14px;}
 em.ddp-icon-dimension-point {width:9px; height:12px; background-position:left -27px;}
 
+em.ddp-icon-measure-polygon {width:13px; height:13px; background-position:-14px top;}
+em.ddp-icon-measure-line {width:10px; height:12px; background-position:-11px -14px;}
+em.ddp-icon-measure-point {width:9px; height:12px; background-position:-10px -27px;}
+em.ddp-icon-map-view-w  {display:inline-block; position:relative;  top:1px; margin-right:5px;background:url(../images/icon_valuetype_map.png) no-repeat; vertical-align:top;}
+
+em.ddp-icon-polygon-w {width:13px; height:13px; background-position:-28px top;}
+em.ddp-icon-line-w {width:10px; height:12px; background-position:-22px -14px;}
+em.ddp-icon-point-w {width:10px; height:12px; background-position:-20px -27px;}
+
 em.ddp-icon-filterSc {display:inline-block; width:9px; height:10px; background:url(../images/icon_filterSc.png) no-repeat;}
 
 ul.ddp-list-popup li a em.ddp-icon-type-calen3,

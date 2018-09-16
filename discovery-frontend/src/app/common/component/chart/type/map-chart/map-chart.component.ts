@@ -241,6 +241,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let layerType = styleOption.layers[0].type;
       let symbolType = styleOption.layers[0].symbol;
       let outlineType = styleOption.layers[0].outline.thickness;
+      let lineDashType = styleOption.layers[0].outline.lineDash;
       let featureColor = styleOption.layers[0].color.schema;
       let outlineColor = styleOption.layers[0].outline.color;
       let featureColorType = styleOption.layers[0].color.by;
@@ -253,6 +254,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         outlineWidth = 2;
       } else if(outlineType === 'THICK') {
         outlineWidth = 3;
+      }
+
+      let lineDash = [1];
+      if(lineDashType === 'DOT') {
+        lineDash = [4,4];
       }
 
       let featureSize = 5;
@@ -277,7 +283,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         }),
         stroke: new ol.style.Stroke({
           color: 'black',
-          width: 1
+          width: 2
         }),
         fill: new ol.style.Fill({
           color: featureColor
@@ -296,16 +302,13 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                   stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
               }),
               stroke: new ol.style.Stroke({
-                color: 'black',
-                width: 1
+                color: outlineColor,
+                width: 2
               }),
               fill: new ol.style.Fill({
                 color: featureColor
               })
             });
-            if(outlineWidth > 0) {
-              style.setStroke();
-            }
             break;
           case 'SQUARE' :
             style = new ol.style.Style({
@@ -317,8 +320,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
               }),
               stroke: new ol.style.Stroke({
-                color: 'black',
-                width: 1
+                color: outlineColor,
+                width: 2
               }),
               fill: new ol.style.Fill({
                 color: featureColor
@@ -336,8 +339,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
               }),
               stroke: new ol.style.Stroke({
-                color: 'black',
-                width: 1
+                color: outlineColor,
+                width: 2
               }),
               fill: new ol.style.Fill({
                 color: featureColor
@@ -345,6 +348,24 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             });
             break;
         }
+      } else if(layerType === 'line') {
+        style = new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: featureColor,
+            width: 2,
+            lineDash: lineDash
+          })
+        });
+      } else if(layerType === 'polygon') {
+        style = new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: outlineColor,
+            width: 2
+          }),
+          fill: new ol.style.Fill({
+            color: featureColor
+          })
+        });
       }
 
       return style;
@@ -380,7 +401,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       }
 
-      let size = feature.get('features').length;
+      let size = 0;
+
+      if(feature.get('features')) {
+        size = feature.get('features').length;
+      }
 
       let style = new ol.style.Style({
         image: new ol.style.Circle({
@@ -527,12 +552,16 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
+    let featureColor = (<any>window).uiOption.layers[0].color.schema;
+    let colorList = ChartColorList[featureColor['colorNum']];
+
     let heatmapLayer = new ol.layer.Heatmap({
       source: source,
       style: this.clusterStyleFunction(),
       opacity: this.uiOption.layers[0].color.transparency / 100,
       blur: this.uiOption.layers[0].color.blur,
-      radius: this.uiOption.layers[0].color.radius
+      radius: this.uiOption.layers[0].color.radius,
+      gradient: colorList
     });
 
     let hexagonLayer = new ol.layer.Vector({
@@ -544,34 +573,70 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let features = [];
     let hexagonFeatures = [];
     // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
+    let h3Indexs = [];
+
+    let field = this.pivot.columns[0];
+    let geomType = field.field.logicalType.toString();
+
 
     for(let i=0;i<this.data[0]["features"].length;i++) {
-      let feature = new ol.Feature({
-        geometry: new ol.geom.Point([this.data[0]["features"][i].properties["gis.lon"], this.data[0]["features"][i].properties["gis.lat"]])
-      })
+
+      let feature = new ol.Feature();
+
+      if(geomType === "GEO_LINE" || geomType === "GEO_POLYGON") {
+        feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
+      } else {
+        feature.setGeometry(new ol.geom.Point([this.data[0]["features"][i].properties["gis.lon"], this.data[0]["features"][i].properties["gis.lat"]]));
+      }
 
       // Convert a lat/lng point to a hexagon index at resolution 7
       let h3Index = h3.geoToH3((this.data[0]["features"][i].properties["gis.lat"]), (this.data[0]["features"][i].properties["gis.lon"]), this.uiOption.layers[0].color.resolution);
 
+      h3Indexs.push(h3Index);
+
       // Get the center of the hexagon
-      let hexCenterCoordinates = h3.h3ToGeo(h3Index);
+      // let hexCenterCoordinates = h3.h3ToGeo(h3Index);
 
       // Get the vertices of the hexagon
-      let hexBoundary = h3.h3ToGeoBoundary(h3Index, true);
-
-      // let hexagonFeature = (new ol.format.GeoJSON()).readFeature(hexBoundary);
-
-      let hexagonFeature = new ol.Feature({
-        geometry: new ol.geom.Polygon([hexBoundary])
-      })
-
-      hexagonFeatures[i] = hexagonFeature;
+      // let hexBoundary = h3.h3ToGeoBoundary(h3Index, true);
+      //
+      // let hexagonFeature = new ol.Feature({
+      //   geometry: new ol.geom.Polygon([hexBoundary])
+      // })
+      //
+      // hexagonFeatures[i] = hexagonFeature;
 
       feature.setProperties(this.data[0]["features"][i].properties);
       features[i] = feature;
+
     }
 
-    hexagonSource.addFeatures(hexagonFeatures);
+    if(geomType === "GEO_POINT") {
+      let uniqueIndexs = [];
+      $.each(h3Indexs, function(i, el) {
+        if($.inArray(el, uniqueIndexs) === -1) uniqueIndexs.push(h3Indexs[i]);
+      });
+
+      let result = {};
+      for(let value in h3Indexs) {
+          let index = h3Indexs[value];
+          result[index] = result[index] === undefined ? 1 : result[index] += 1;
+      }
+
+      for(let index in result) {
+        let hexBoundary = h3.h3ToGeoBoundary(index, true);
+
+        let hexagonFeature = new ol.Feature({
+          geometry: new ol.geom.Polygon([hexBoundary])
+        })
+
+        hexagonFeature.setProperties({count:result[index]});
+
+        hexagonFeatures.push(hexagonFeature);
+      }
+
+      hexagonSource.addFeatures(hexagonFeatures);
+    }
 
     source.addFeatures(features);
 
@@ -581,7 +646,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     });
 
     symbolLayer.setSource(source);
-    clusterLayer.setSource(clusterSource);
+
+    if(geomType === "GEO_POINT") {
+      clusterLayer.setSource(clusterSource);
+    }
 
     if(!this.mapVaild) {
       this.createMap();
@@ -590,6 +658,25 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.addLayer(clusterLayer);
       this.olmap.addLayer(heatmapLayer);
       this.olmap.addLayer(hexagonLayer);
+
+
+      if(geomType === "GEO_POINT") {
+        this.uiOption.layers[0].type = "symbol";
+      } else if(geomType === "GEO_LINE") {
+        this.uiOption.layers[0].type = "line";
+      } else if(geomType === "GEO_POLYGON") {
+        this.uiOption.layers[0].type = "polygon";
+      }
+
+      if(geomType !== "GEO_POINT") {
+        clusterLayer.setSource(new ol.source.Vector());
+        heatmapLayer.setSource(new ol.source.Vector());
+        hexagonLayer.setSource(new ol.source.Vector());
+
+        clusterLayer.setStyle(new ol.style.Style());
+        heatmapLayer.setStyle(new ol.style.Style());
+        hexagonLayer.setStyle(new ol.style.Style());
+      }
 
       if(this.uiOption.layers[0].type === "symbol") {
         if(this.uiOption.layers[0].clustering) {

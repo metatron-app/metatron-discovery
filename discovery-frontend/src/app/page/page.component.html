@@ -110,6 +110,15 @@
                         <em class="ddp-icon-dimension-tf"
                             *ngIf="field.logicalType?.toString() === 'BOOLEAN'"></em>
                         <!-- //boolean -->
+                        <!-- 지오-포인트 -->
+                        <em class="ddp-icon-dimension-point ddp-icon-map-view" *ngIf="field.logicalType?.toString() === 'GEO_POINT'"></em>
+                        <!-- //지오-포인트 -->
+                        <!-- 지오-라인 -->
+                        <em class="ddp-icon-dimension-line ddp-icon-map-view" *ngIf="field.logicalType?.toString() === 'GEO_LINE'"></em>
+                        <!-- //지오-라인 -->
+                        <!-- 지오-폴리곤 -->
+                        <em class="ddp-icon-dimension-polygon ddp-icon-map-view" *ngIf="field.logicalType?.toString() === 'GEO_POLYGON'"></em>
+                        <!-- //지오-폴리곤 -->
                         <!-- icons -->
                         <div class="ddp-wrap-icons">
                           <!-- 사용자 정보 미리보기 -->
