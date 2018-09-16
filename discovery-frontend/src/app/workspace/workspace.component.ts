@@ -263,24 +263,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       // 뷰
       this.initViewPage();
 
-      // 워크스페이스 접속 통계 소켓
+      // Send statistics data
       if ('my' !== this.workspaceId ) {
-        setTimeout(() => {
-          this.checkAndConnectWebSocket().then(() => {
-            try {
-              // 메세지 발신
-              const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
-              const params = {
-                'type': 'View',
-                'object': { 'id': this.workspace.id, 'type': 'WORKSPACE' },
-                'generator': { 'type': 'WEBAPP', 'name': navigator.userAgent }
-              };
-              CommonConstant.stomp.send('/message/activities/add', params, headers);
-            } catch (err) {
-              console.error(err);
-            }
-          });
-        }, 500);
+        this.sendViewActivityStream( this.workspace.id, 'WORKSPACE' );
       }
 
     });
