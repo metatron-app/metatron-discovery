@@ -483,8 +483,6 @@ export class ConfigureFiltersInclusionComponent extends AbstractFilterPopupCompo
     ( sortBy ) && ( filter.sort.by = sortBy );
     ( direction ) && ( filter.sort.direction = direction );
 
-    console.info( '>>>>>> filter.sort', filter.sort );
-
     // 데이터 정렬
     const allCandidates: Candidate[] = _.cloneDeep(this._candidateList);
     if (InclusionSortBy.COUNT === filter.sort.by ) {

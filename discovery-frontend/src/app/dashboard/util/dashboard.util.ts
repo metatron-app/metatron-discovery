@@ -244,11 +244,11 @@ export class DashboardUtil {
    * 연계된 데이터소스에 대한 전체 필터 목록 조회
    * @param {Dashboard} board
    * @param {string} engineName
-   * @param {Filter[]} totalFilters
+   * @param {Filter[]} paramFilters
    * @return {Filter[]}
    */
-  public static getAllFiltersDsRelations(board: Dashboard, engineName: string, totalFilters?: Filter[]): Filter[] {
-    (totalFilters) || (totalFilters = board.configuration.filters);
+  public static getAllFiltersDsRelations(board: Dashboard, engineName: string, paramFilters?: Filter[]): Filter[] {
+    const totalFilters:Filter[] = _.cloneDeep( ( paramFilters ) ? paramFilters : board.configuration.filters );
     // 대상 데이터소스의 필터 목록 - getFiltersForBoardDataSource
     let srcDsFilters: Filter[] = totalFilters.filter(filter => filter.dataSource === engineName);
     // 연계 데이터소스의 연계 필드에 대응하는 대상 데이터소스의 필드의 필터
