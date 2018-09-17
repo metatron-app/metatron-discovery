@@ -1770,6 +1770,7 @@
   "msg.storage.ui.job.properties.description": "Ingestion tuning configuration describes effective options when ingestion. Now put it in the corresponding text box in JSON format",
   "msg.storage.ph.config.key": "Please enter a configuration key",
   "msg.storage.ph.config.value": "Please enter a configuration value",
+  "msg.storage.ui.batch.row.error": "You can enter up to 5,000,000.",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",

@@ -343,7 +343,12 @@ export class IngestionSettingComponent extends AbstractComponent {
       // update scope type list
       this._updateIngestionScopeTypeList(ingestionType);
       // init selected scope type
-      this.selectedIngestionScopeType = this.ingestionScopeTypeList[0];
+      // if used current_time column in schema step
+      if (ingestionType.value === 'batch' && this.isUsedCurrentTimestampColumn()) {
+        this.selectedIngestionScopeType = this.ingestionScopeTypeList[1];
+      } else {
+        this.selectedIngestionScopeType = this.ingestionScopeTypeList[0];
+      }
     }
   }
 
@@ -352,6 +357,9 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @param scopeType
    */
   public onChangeIngestionScopeType(scopeType: any): void {
+    if (this.isUsedCurrentTimestampColumn() && scopeType.value === 'INCREMENTAL') {
+      return;
+    }
     this.selectedIngestionScopeType = scopeType;
   }
 
@@ -408,6 +416,18 @@ export class IngestionSettingComponent extends AbstractComponent {
     if (this[row] > 10000) {
       this[row] = 10000;
     }
+  }
+
+  /**
+   * Is used current_time column in schema step
+   * @returns {boolean}
+   */
+  public isUsedCurrentTimestampColumn(): boolean {
+    return this._sourceData.schemaData.selectedTimestampType === 'CURRENT';
+  }
+
+  public isOverPeriodMaxRow(): boolean {
+    return this.ingestionPeriodRow > 5000000;
   }
 
 
@@ -547,7 +567,7 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _isEnableNext(): boolean {
     // If create type is DB and source type is ENGINE
     if (this.createType === 'DB' && this.getConnectionType() === 'ENGINE' && (
-        (this.selectedIngestionType.value === 'batch' && !this.ingestionPeriodRow || (this.selectedBatchType.value === 'EXPR' && !this.cronValidationResult))
+        (this.selectedIngestionType.value === 'batch' && (!this.ingestionPeriodRow || this.ingestionPeriodRow > 5000000 || (this.selectedBatchType.value === 'EXPR' && !this.cronValidationResult)))
         || (this.selectedIngestionType.value === 'single' && this.selectedIngestionScopeType.value === 'ROW' && !this.ingestionOnceRow)
       )) {
       return false;
@@ -641,6 +661,10 @@ export class IngestionSettingComponent extends AbstractComponent {
       this._updateIngestionScopeTypeList(this.selectedIngestionType);
       // load selected scope type
       this.selectedIngestionScopeType = ingestionData.selectedIngestionScopeType;
+      // if used current_time column
+      if (this.isUsedCurrentTimestampColumn() && this.selectedIngestionScopeType.value === 'INCREMENTAL') {
+        this.selectedIngestionScopeType = this.ingestionScopeTypeList[1];
+      }
       // load selected batch type
       this.selectedBatchType = ingestionData.selectedBatchType;
       // load selected hour
@@ -695,7 +719,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       // save selected ingestion type
       sourceData['ingestionData'].selectedIngestionType = this.selectedIngestionType;
       // save selected scope type
-      sourceData['ingestionData'].selectedIngestionScopeType = this.ingestionScopeTypeList[0];
+      sourceData['ingestionData'].selectedIngestionScopeType = this.selectedIngestionScopeType;
       // save selected batch type
       sourceData['ingestionData'].selectedBatchType = this.selectedBatchType;
       // save selected hour
