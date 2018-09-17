@@ -19,6 +19,7 @@ import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.rule.ExprFunction;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.prep.parser.preparation.PrepRuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
@@ -379,6 +380,24 @@ public class PrepTransformController {
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
     }
 
+    return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/preparationdatasets/function_list", method = RequestMethod.GET, produces = "application/json")
+  public @ResponseBody ResponseEntity<?> getFunctionList() throws IOException {
+
+    Map<String,Object> response = Maps.newHashMap();
+
+    try {
+      List<ExprFunction> functionList = this.transformService.getFunctionList();
+      response.put("function_list",functionList);
+    } catch (Exception e) {
+      LOGGER.error("getCacheInfo(): caught an exception: ", e);
+      if (System.getProperty("dataprep").equals("disabled")) {
+        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_CONFIG_CODE);
+      }
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+    }
     return ResponseEntity.ok(response);
   }
 }
