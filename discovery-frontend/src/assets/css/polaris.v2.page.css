@@ -2435,7 +2435,7 @@ ul.ddp-list-workspace li a:hover .ddp-btn-control {display:block;}
 ul.ddp-list-workspace li a .ddp-box-tag,
 ul.ddp-list-workspace li a .ddp-box-tag-value {display:inline-block; position:absolute; top:50%; left:50px; margin-top:-7px; padding:1px 2px 2px 2px; border-radius:1px; font-size:10px; font-weight:bold; line-height:1em; vertical-align: top;}
 ul.ddp-list-workspace li a .ddp-box-tag.ddp-workbook {min-width:62px; border:1px solid #90969f; color:#565c65; text-align:center;}
-ul.ddp-list-workspace li a .ddp-box-tag.ddp-notebook {min-width:62px; border:1px solid #f2c445; color:#efcd6e; text-align:center;}
+ul.ddp-list-workspace li a .ddp-box-tag.ddp-notebook {min-width:62px; border:1px solid #5ecfea; color:#5ecfea; text-align:center;}
 ul.ddp-list-workspace li a .ddp-box-tag.ddp-workbench {min-width:62px; border:1px solid #bac1e5; color:#8c97d3; text-align:center;}
 
 ul.ddp-list-workspace li a .ddp-ui-data-list {float:right; padding-left:20px; background-color:#fff;}
