@@ -353,6 +353,29 @@
 
                 <!-- Hive Log 표시 영역 -->
                 <div *ngIf="hiveLogs[selectedGridTabNum] && hiveLogs[selectedGridTabNum].isShow" class="ddp-wrap-result" >
+
+                  <div class="ddp-ui-setting">
+                    <div class="ddp-ui-buttons">
+
+                      <a href="javascript:" class="ddp-btn-box" (click)="tabGridCloseHandler(selectedGridTabNum)">
+                        <em class="ddp-icon-cancel"></em>
+                        <div class="ddp-ui-tooltip-info">
+                          <em class="ddp-icon-view-top"></em>
+                          {{'msg.bench.btn.log.cancel' | translate}}
+                        </div>
+                      </a>
+
+                      <a href="javascript:" class="ddp-btn-box" (click)="hiveLogToggleClick(selectedGridTabNum, 'log')">
+                        <em class="ddp-icon-result-grid"></em>
+                        <div class="ddp-ui-tooltip-info">
+                          <em class="ddp-icon-view-top"></em>
+                          {{'msg.bench.btn.view.result' | translate}}
+                        </div>
+                      </a>
+
+                    </div>
+                  </div>
+
                   <div class="ddp-box-grid">
                     <div class="ddp-text-result"
                          [innerHTML]="hiveLogs[selectedGridTabNum].log.join('<br>')"></div>
@@ -432,6 +455,16 @@
                           </ul>
                         </div>
                       </div>
+
+                      <!-- hive 관련 button -->
+                      <a *ngIf="hiveLogs[selectedGridTabNum]" href="javascript:" class="ddp-btn-box" (click)="hiveLogToggleClick(selectedGridTabNum, 'data')">
+                        <em class="ddp-icon-result-list"></em>
+                        <div class="ddp-ui-tooltip-info">
+                          <em class="ddp-icon-view-top"></em>
+                          {{'msg.bench.btn.view.log' | translate}}
+                        </div>
+                      </a>
+                      <!-- //hive 관련 button -->
                       <!-- //엑셀 다운로드 -->
                     </div>
                     <!-- //button -->

@@ -311,10 +311,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public shortcutsFl: boolean = false;
 
   // Hive Log 표시 여부
-  public hiveLogs: { [key: number]: { isShow: boolean, log: string[] } } = {};
+  public hiveLogs: { [key: number]: { isShow: boolean, log: string[] } } = [];
 
   // 선택된 Grid 탭 번호
   public selectedGridTabNum: number = 0;
+
+  // 화면 로딩 완료
+  public isHiveLog : boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -688,6 +691,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // grid 탭 닫기
   public tabGridCloseHandler(tabNum) {
 
+    // hive 일 경우 해당 탭 로그 삭제
+    if( this.mimeType == 'HIVE' ){
+      let arr :any = [];
+      arr = this.hiveLogs;
+      arr.splice(tabNum, 1);
+      this.hiveLogs = arr;
+    }
+
     if (this.datagridCurList.length === 1) {
       // Alert.warning('결과 탭을 닫을수 없습니다.');
       this.datagridCurList = [];
@@ -704,6 +715,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // 탭 삭제
     const item: any = this.datagridCurList.splice(tabNum, 1);
     this.datagridList = this.datagridList.filter(obj => obj !== item[0]);
+
     // show index 가 0이라면 icon flag 재계산
     if (this.editorResultListObj.index === 0) {
       // 변경이 다 일어났을 때
@@ -807,6 +819,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public tabGridChangeHandler(selectedTabNum: number): void {
 
+    // hive 일경우
+    if( this.mimeType == 'HIVE' ){
+      this.hiveLogs[selectedTabNum].isShow = false;
+    }
+
     for (let index: number = 0; index < this.datagridCurList.length; index = index + 1) {
       // 선택된 탭이면
       if (index === selectedTabNum) {
@@ -826,6 +843,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
     if (this.resultMode === 'grid') {
       // 데이터 그리드 뿌리기
+      this.safelyDetectChanges();
       this.drawGridData(this.selectedGridTabNum);
     } else if (this.resultMode === 'text') {
 
@@ -957,6 +975,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       return;
     }
 
+    // hive log 초기화
+    this.hiveLogs = [];
+
     this.workbenchService.checkConnectionStatus(this.textList[this.selectedTabNum]['editorId'], this.websocketId)
       .then((result) => {
         // 호출횟수 초기화
@@ -966,6 +987,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           Alert.warning(this.translateService.instant('msg.bench.ui.query.run'));
           return;
         } else {
+          // hive log cancel 여부
+          this.isHiveLog = true;
+
           const queryEditor: QueryEditor = new QueryEditor();
           queryEditor.name = this.textList[this.selectedTabNum]['name'];
           queryEditor.workbench = CommonConstant.API_CONSTANT.API_URL + 'workbenchs/' + this.workbenchId;
@@ -1157,7 +1181,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 결과창 검색어 초기화
   public gridSearchClear(): void {
     this.searchText = '';
-    this.gridComponent.search(this.searchText);
+
+    if( this.mimeType != 'HIVE' ){
+      this.gridComponent.search(this.searchText);
+    }
   }
 
   // 그리드 검색 실행
@@ -1718,6 +1745,28 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   /**
+   * Hive result toggle button event
+   * @param selectedGridTabNum
+   */
+  public hiveLogToggleClick(selectedGridTabNum: number, type : string){
+
+    // data, log 타입 구분
+    if( type == 'log' ){
+      this.hiveLogs[selectedGridTabNum].isShow = false;
+      this.safelyDetectChanges();
+
+      // 그리드 생성
+      this.drawGridData(selectedGridTabNum);
+    } else {
+      // hive log cancel
+      this.isHiveLog = false;
+      this.hiveLogs[selectedGridTabNum].isShow = true;
+      this.safelyDetectChanges();
+    }
+
+  }
+
+  /**
    * 워크벤치 웹 소켓 생성
    * @param {Function} callback
    */
@@ -1742,7 +1791,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             currHiveLog.log = currHiveLog.log.concat(data.log);
           } else if ('DONE' === data.command) {
             currHiveLog.isShow = false;
-            currHiveLog.log = [];
+            // currHiveLog.log = [];
           }
           this.safelyDetectChanges();
         }
