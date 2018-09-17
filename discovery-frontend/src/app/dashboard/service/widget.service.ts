@@ -212,7 +212,7 @@ export class WidgetService extends AbstractService {
       if (conf && conf.filters) {
         param.configuration.filters = conf.filters.map(item => FilterUtil.convertToServerSpecForDashboard( item ) );
       }
-      if (conf.pivot) {
+      if (conf && conf.pivot) {
         if (conf.pivot.columns) {
           conf.pivot.columns.forEach(item => {
             delete item.field.filter;

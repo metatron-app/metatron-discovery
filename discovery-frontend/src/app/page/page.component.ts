@@ -556,7 +556,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public selectDataSource(dataSource: Datasource) {
     this.dataSource = dataSource;
+    let widgetName: string = null;
+    if( this.widget && this.widget.name ) {
+      widgetName = this.widget.name;
+    }
     this.widget = _.cloneDeep(this.originalWidget);
+    this.widget.name = !widgetName ? this.originalWidget.name : widgetName;
     const widgetDataSource:Datasource
       = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, this.widget.configuration.dataSource );
 
@@ -1576,7 +1581,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (filter.ui.widgetId) {
       this._setChartFilter(filter, isSetPanel);   // 차트 필터 설정
     }
-    this.drawChart();                 // 차트 다시그리기
+    this.drawChart({type : EventType.FILTER}); // 차트 다시그리기
     this.closeFilterPopup();          // 필터 수정 팝업 닫기
   } // function - updateFilter
 
@@ -3140,6 +3145,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       _.concat(this.dimensions, this.measures)
         .forEach((field) => {
 
+
+          // Remove Pivot
+          field.pivot = [];
+
           this.widgetConfiguration.pivot.rows
             .forEach((abstractField) => {
               if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
@@ -3406,7 +3415,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     successCallback: null,// Draw 성공시 callback
     resultFormatOptions: {}, // Search Result Option
     filters: [], // 추천필터나 타임스탬프 변경시 필터를 적용하기 위해
-    type: EventType // 호출된 종류 설정
+    type: '' // 호출된 종류 설정
   }) {
     // valid
     if (StringUtil.isEmpty(this.selectChart)) return;
