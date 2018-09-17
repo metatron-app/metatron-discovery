@@ -93,9 +93,6 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   // 로그인 아이디
   public loginUserId: string;
 
-  // IBK 패치 체크를 위한 임시 변수 ( Filter의 Selector를 고정하기 위한 용도 )
-  public isLiveStatus: boolean = true;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
