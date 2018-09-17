@@ -313,6 +313,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 단축키 show flag
   public shortcutsFl: boolean = false;
 
+  // grid 값이 NO DATA  일 경우 icon show flag
+  public isGridResultNoData :boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1789,7 +1792,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     if (!data.fields) {
       this.gridComponent.noShowData();
       $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
+      this.isGridResultNoData = true;
       return false;
+    } else {
+      this.isGridResultNoData = false;
     }
 
     for (let index: number = 0; index < data.fields.length; index = index + 1) {
