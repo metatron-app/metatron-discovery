@@ -843,7 +843,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
     if (this.resultMode === 'grid') {
       // 데이터 그리드 뿌리기
-      this.safelyDetectChanges();
+      if( this.mimeType == 'HIVE' ){
+        this.safelyDetectChanges();
+      }
       this.drawGridData(this.selectedGridTabNum);
     } else if (this.resultMode === 'text') {
 
@@ -1792,6 +1794,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           } else if ('DONE' === data.command) {
             currHiveLog.isShow = false;
             // currHiveLog.log = [];
+            if( this.datagridCurList.length > 0 ){
+              this.safelyDetectChanges();
+              this.drawGridData(0);
+            }
           }
           this.safelyDetectChanges();
         }
