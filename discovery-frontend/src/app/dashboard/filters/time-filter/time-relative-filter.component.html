@@ -48,9 +48,9 @@
         {{ isShortLabel ? 'Y' : 'Last Year' }}
       </li>
     </ul>
-    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'PREVIOUS')" class="ddp-btn-time">
+    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'PREVIOUS')" class="ddp-btn-time" style="height:30px;">
       <div class="ddp-form-multy">
-        <span class="ddp-txt-label" style="top:10px;">Last</span>
+        <span class="ddp-txt-label" >Last</span>
         <div class="ddp-box-multy ddp-clear ddp-form-time">
           <input #inputLastValue [ngModel]="targetFilter.value"
                  (keypress)="setLastValue($event)" (blur)="resetLastValue()"
@@ -138,9 +138,9 @@
         {{ isShortLabel ? 'Y' : 'Next Year' }}
       </li>
     </ul>
-    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'NEXT')" class="ddp-btn-time">
+    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'NEXT')" class="ddp-btn-time" style="height:30px;">
       <div class="ddp-form-multy">
-        <span class="ddp-txt-label" style="top:10px;">Next</span>
+        <span class="ddp-txt-label" >Next</span>
         <div class="ddp-box-multy ddp-clear ddp-form-time">
           <input #inputNextValue [ngModel]="targetFilter.value"
                  (keypress)="setNextValue($event)" (blur)="resetNextValue()"
