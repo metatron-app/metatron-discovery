@@ -210,6 +210,26 @@ export class FormatOptionConverter {
       }
     }
 
+    // Add decimal zero
+    if (value && format.type != String(UIFormatType.EXPONENT10) && format.decimal > 0) {
+      let stringValue: string = String(value);
+      console.info("변경전: "+ value);
+      if( stringValue.indexOf(".") == -1 ) {
+        value += ".";
+        for( let num: number = 0 ; num < format.decimal ; num++ ) {
+          value += "0";
+        }
+      }
+      else {
+        value = stringValue.split(".")[0];
+        value += ".";
+        for( let num: number = 0 ; num < format.decimal ; num++ ) {
+          value += "0";
+        }
+      }
+      console.info("변경후: "+ value);
+    }
+
     // 통화
     if ((!customSymbol || _.trim(customSymbol.value).length == 0) && format.type == String(UIFormatType.CURRENCY)) {
       switch (format.sign) {
