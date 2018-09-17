@@ -27,8 +27,8 @@
   <div class="ddp-type-contents-in">
     <div class="ddp-box-popupcontents2 ddp-box-source-create ddp-box-type">
       <!-- ingestion -->
-      <div class="ddp-wrap-edit3 ddp-type">
-        <label class="ddp-label-type">{{getSettingType()}}</label>
+      <div class="ddp-wrap-edit2 ddp-type">
+        <label class="ddp-label-type ddp-bold">{{getSettingType()}}</label>
         <!-- 연결형 -->
         <div class="ddp-ui-edit-option" *ngIf="isLinkType()">
           <!-- sub -->
@@ -54,16 +54,19 @@
         </div>
         <!-- //연결형 -->
         <!-- 수집형 -->
-        <div class="ddp-ui-edit-option" *ngIf="isEngineType()">
-          <label class="ddp-label-radio"
-                 *ngFor="let ingestion of ingestionTypeList"
-                 (change)="onChangeIngestion(ingestion)">
-            <input type="radio"
-                   [checked]="isEqualTypeValue(ingestion, selectedIngestionType)"
-                   [disabled]="isConnectWithIdAndPassword() && ingestion.value === 'batch'">
-            <i class="ddp-icon-radio"></i>
-            <span class="ddp-txt-radio">{{ingestion.label}}</span>
-          </label>
+        <div class="ddp-ui-option-sub" *ngIf="isEngineType()">
+
+          <div class="ddp-ui-edit-option">
+            <label class="ddp-label-radio"
+                   *ngFor="let ingestion of ingestionTypeList"
+                   (change)="onChangeIngestion(ingestion)">
+              <input type="radio"
+                     [checked]="isEqualTypeValue(ingestion, selectedIngestionType)"
+                     [disabled]="isConnectWithIdAndPassword() && ingestion.value === 'batch'">
+              <i class="ddp-icon-radio"></i>
+              <span class="ddp-txt-radio">{{ingestion.label}}</span>
+            </label>
+          </div>
           <!-- period -->
           <div class="ddp-box-sub" *ngIf="isIngestionPeriodType()">
             <!-- 수집범위 -->
@@ -73,6 +76,7 @@
                 <label class="ddp-label-radio" *ngFor="let scope of ingestionScopeTypeList | baseFilter : ['value','ROW',true]"
                        (change)="onChangeIngestionScope(scope)">
                   <input type="radio"
+                         [disabled]="isUsedCurrentTimestampColumn() && scope.value === 'INCREMENTAL'"
                          [checked]="isEqualTypeValue(scope, selectedScopeType)">
                   <i class="ddp-icon-radio"></i>
                   <span class="ddp-txt-radio">{{scope.label}}</span>
@@ -168,13 +172,15 @@
             <!-- sub opton -->
             <div class="ddp-box-sub-option">
               <label class="ddp-label-type">{{'msg.storage.th.max-query-row' | translate}}</label>
-              <div class="ddp-option-in">
-                <input type="text" class="ddp-input-typebasic ddp-size-s"
-                       placeholder="10000"
-                       maxlength="5"
+              <div class="ddp-option-in ddp-inline">
+                <input type="text" class="ddp-input-typebasic ddp-size-sm ddp-txt-right"
+                       placeholder="10,000"
+                       maxlength="7"
                        input-mask="number"
-                       (keyup)="maxIngestionPeriodRow()"
                        [(ngModel)]="ingestionPeriodRow">
+                <div class="ddp-txt-error" *ngIf="isBatchRowOverValue()">
+                  <em class="ddp-icon-error-s"></em>{{'msg.storage.ui.batch.row.error' | translate}}
+                </div>
               </div>
             </div>
             <!-- //sub opton -->
@@ -187,13 +193,15 @@
               <div class="ddp-option-in">
                 <label class="ddp-label-radio" *ngFor="let scope of ingestionScopeTypeList | baseFilter : ['value','INCREMENTAL',true]"
                        (change)="onChangeIngestionScope(scope)">
-                  <input type="radio" [checked]="isEqualTypeValue(scope, selectedScopeType)">
+                  <input type="radio"
+                         [checked]="isEqualTypeValue(scope, selectedScopeType)">
                   <i class="ddp-icon-radio"></i>
                   <span class="ddp-txt-radio">{{scope.label}}</span>
                 </label>
                 <div class="ddp-box-option-input ddp-inline">
                   <input type="text"
-                         placeholder="10000"
+                         class="ddp-txt-right"
+                         placeholder="10,000"
                          maxlength="5"
                          input-mask="number"
                          [disabled]="selectedScopeType.value !== 'ROW'"

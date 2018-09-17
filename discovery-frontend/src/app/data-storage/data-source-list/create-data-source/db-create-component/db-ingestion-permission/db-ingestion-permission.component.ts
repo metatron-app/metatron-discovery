@@ -192,7 +192,7 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
   }
 
   /**
-   * single max row
+   * single max row (10,000)
    */
   public maxIngestionOnceRow() {
     if (this.ingestionOnceRow > 10000) {
@@ -201,12 +201,20 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
   }
 
   /**
-   * batch max row
+   * batch max row (5,000,000)
    */
   public maxIngestionPeriodRow() {
-    if (this.ingestionPeriodRow > 10000) {
-      this.ingestionPeriodRow = 10000;
+    if (this.isBatchRowOverValue()) {
+      this.ingestionPeriodRow = 5000000;
     }
+  }
+
+  /**
+   * Is batch row over max Value
+   * @returns {boolean}
+   */
+  public isBatchRowOverValue(): boolean {
+    return this.ingestionPeriodRow > 5000000;
   }
 
   /**
@@ -226,6 +234,10 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
    */
   public isConnectWithIdAndPassword(): boolean {
     return this.sourceData.connectionData.selectedSecurityType.value === 'DIALOG';
+  }
+
+  public isUsedCurrentTimestampColumn(): boolean {
+    return this.sourceData.schemaData.selectedTimestampType === 'CURRENT';
   }
 
   /**
@@ -410,7 +422,11 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
     // 타입 변경
     this.selectedIngestionType = ingestionType;
     // ingestion 타입에 따라 scope 선택값 변경
-    this.selectedScopeType = this.isIngestionOnceType() ? this.ingestionScopeTypeList[1] : this.ingestionScopeTypeList[0];
+    if (this.isIngestionOnceType()) {
+      this.ingestionScopeTypeList[0];
+    } else {
+      this.selectedScopeType = this.isUsedCurrentTimestampColumn() ? this.ingestionScopeTypeList[1] : this.ingestionScopeTypeList[0];
+    }
   }
 
   /**
@@ -538,9 +554,9 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
     // engine 형일때만 validation 체크
     if (this.isEngineType()) {
       // period 타입일때
-      if ((this.isIngestionPeriodType() && !this.ingestionPeriodRow
+      if ((this.isIngestionPeriodType() && (!this.ingestionPeriodRow || this.isBatchRowOverValue()
           // cron 이라면
-          || (this.isSelectedBatchTypeCron() && !this.cronResultFl))
+          || (this.isSelectedBatchTypeCron() && !this.cronResultFl)))
         // once 타입일때
         || (this.isIngestionOnceType() && this.isEqualTypeValue({value: 'ROW'}, this.selectedScopeType) && !this.ingestionOnceRow)) {
         return false;
@@ -815,6 +831,10 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
     this.selectedBatchType = ingestionData.selectedBatchType;
     // 선택된 ingestion scope
     this.selectedScopeType = ingestionData.selectedScopeType;
+    // is used current_time column and scope type is INCREMENTAL
+    if (this.isUsedCurrentTimestampColumn() && ingestionData.selectedScopeType.value === 'INCREMENTAL') {
+      this.selectedScopeType = this.ingestionScopeTypeList[1];
+    }
     // selected segment Granularity
     this.selectedSegGranularity = ingestionData.selectedSegGranularity;
     // selected Granularity
