@@ -423,7 +423,7 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
     this.selectedIngestionType = ingestionType;
     // ingestion 타입에 따라 scope 선택값 변경
     if (this.isIngestionOnceType()) {
-      this.ingestionScopeTypeList[0];
+      this.selectedScopeType = this.ingestionScopeTypeList[1];
     } else {
       this.selectedScopeType = this.isUsedCurrentTimestampColumn() ? this.ingestionScopeTypeList[1] : this.ingestionScopeTypeList[0];
     }
