@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.datasource.data.result;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,8 +23,11 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
@@ -37,18 +41,22 @@ public class GraphResultFormat extends SearchResultFormat {
 
   Boolean useLinkCount;
 
+  Boolean mergeNode;
+
   public GraphResultFormat() {
   }
 
   @JsonCreator
-  public GraphResultFormat(@JsonProperty("useLinkCount") Boolean useLinkCount) {
-    this.useLinkCount = useLinkCount;
+  public GraphResultFormat(@JsonProperty("useLinkCount") Boolean useLinkCount,
+                           @JsonProperty("mergeNode") Boolean mergeNode) {
+    this.useLinkCount = BooleanUtils.isTrue(useLinkCount);
+    this.mergeNode = BooleanUtils.isTrue(mergeNode);
   }
 
   @Override
   public Object makeResult(JsonNode node) {
 
-    if(!(node.has("links") && node.has("nodes"))) {
+    if (!(node.has("links") && node.has("nodes"))) {
       return node;
     }
 
@@ -58,24 +66,38 @@ public class GraphResultFormat extends SearchResultFormat {
     List<String> dimNames = Lists.newArrayList();
     String measureName = null;
     for (Field field : request.getProjections()) {
-      if(field instanceof DimensionField) {
+      if (field instanceof DimensionField) {
         dimNames.add(field.getAlias());
-      } else if(field instanceof MeasureField) {
+      } else if (field instanceof MeasureField) {
         measureName = field.getAlias();
       }
     }
 
-    for(JsonNode jsonNode : nodes) {
+    Map<String, Node> nodeMap = Maps.newLinkedHashMap();
+    for (JsonNode jsonNode : nodes) {
       String nodeName = null;
       String nodeValue = null;
       for (String dimName : dimNames) {
-        if(jsonNode.hasNonNull(dimName)) {
+        if (jsonNode.hasNonNull(dimName)) {
           nodeName = dimName;
           nodeValue = jsonNode.get(dimName).asText();
           break;
         }
       }
-      graphNodes.add(new Node(nodeName, nodeValue, jsonNode.get(measureName).numberValue()));
+
+      if(mergeNode) {
+        if(nodeMap.containsKey(nodeValue)) {
+          nodeMap.get(nodeValue).mergeNode(nodeName, jsonNode.get(measureName).numberValue());
+        } else {
+          nodeMap.put(nodeValue, new Node(Lists.newArrayList(nodeName), nodeValue, jsonNode.get(measureName).numberValue()));
+        }
+      } else {
+        graphNodes.add(new Node(nodeName, nodeValue, jsonNode.get(measureName).numberValue()));
+      }
+    }
+
+    if(!nodeMap.isEmpty()) {
+      graphNodes.addAll(nodeMap.values());
     }
 
     ArrayNode linkNodes = (ArrayNode) node.get("links");
@@ -94,6 +116,10 @@ public class GraphResultFormat extends SearchResultFormat {
 
   public Boolean getUseLinkCount() {
     return useLinkCount;
+  }
+
+  public Boolean getMergeNode() {
+    return mergeNode;
   }
 
   public static class GraphResponse implements Serializable {
@@ -201,6 +227,8 @@ public class GraphResultFormat extends SearchResultFormat {
 
     String field;
 
+    List<String> fields;
+
     String name;
 
     Number value;
@@ -212,6 +240,21 @@ public class GraphResultFormat extends SearchResultFormat {
       this.field = field;
       this.name = name;
       this.value = value;
+    }
+
+    public Node(List<String> fields, String name, Number value) {
+      this.fields = fields;
+      this.name = name;
+      this.value = value;
+    }
+
+    public void mergeNode(String field, Number value) {
+      if(this.fields == null) {
+        this.fields = Lists.newArrayList();
+      }
+
+      this.fields.add(field);
+      this.value = this.value.doubleValue() + value.doubleValue();
     }
 
     public String getName() {
@@ -228,6 +271,14 @@ public class GraphResultFormat extends SearchResultFormat {
 
     public void setField(String field) {
       this.field = field;
+    }
+
+    public List<String> getFields() {
+      return fields;
+    }
+
+    public void setFields(List<String> fields) {
+      this.fields = fields;
     }
 
     public Number getValue() {
