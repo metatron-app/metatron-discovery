@@ -319,6 +319,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 화면 로딩 완료
   public isHiveLog : boolean = false;
 
+  // 로그 취소 버튼
+  public isLogCancel : boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -821,7 +824,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     // hive 일경우
     if( this.mimeType == 'HIVE' ){
-      this.hiveLogs[selectedTabNum].isShow = false;
+      let arr :any = [];
+      arr = this.hiveLogs;
+      if( arr.length > 0 && arr[selectedTabNum] ){
+        this.hiveLogs[selectedTabNum].isShow = false;
+      }
     }
 
     for (let index: number = 0; index < this.datagridCurList.length; index = index + 1) {
@@ -980,6 +987,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // hive log 초기화
     this.hiveLogs = [];
 
+    // grid 초기화
+    this.isLogCancel = false;
+    this.datagridCurList = [];
+    this.tabGridNum = 0;
+    this.selectedGridTabNum = 0;
+    this.resultMode = '';
+
     this.workbenchService.checkConnectionStatus(this.textList[this.selectedTabNum]['editorId'], this.websocketId)
       .then((result) => {
         // 호출횟수 초기화
@@ -1038,6 +1052,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 .then((result) => {
                   this.loadingBar.hide();
                   try {
+                    if( this.mimeType == 'HIVE' && this.isLogCancel ){
+                      this.isLogCancel = false;
+                      return false;
+                    }
                     this.setDatagridData(result, tempSelectedTabNum);
                   } catch (e) {
                   }
@@ -1794,12 +1812,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           } else if ('DONE' === data.command) {
             currHiveLog.isShow = false;
             // currHiveLog.log = [];
-            if( this.datagridCurList.length > 0 ){
+            if( this.datagridCurList.length > 0 && !this.isLogCancel ){
               this.safelyDetectChanges();
               this.drawGridData(0);
             }
           }
-          this.safelyDetectChanges();
+          if( !this.isLogCancel ) {
+            this.safelyDetectChanges();
+          }
         }
 
         if (data['connected'] === true) {

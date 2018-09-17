@@ -357,7 +357,7 @@
                   <div class="ddp-ui-setting">
                     <div class="ddp-ui-buttons">
 
-                      <a *ngIf="isHiveLog" href="javascript:" class="ddp-btn-box" (click)="tabGridCloseHandler(selectedGridTabNum)">
+                      <a *ngIf="isHiveLog" href="javascript:" class="ddp-btn-box" (click)="isLogCancel = true; tabGridCloseHandler(selectedGridTabNum)">
                         <em class="ddp-icon-cancel"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>
