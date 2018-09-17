@@ -428,7 +428,7 @@
                   </tr>
                   <tr *ngIf="isEnableFiltering(selectedField)">
                     <th>
-                      {{'msg.storage.ui.dsource.filter.recommendation' | translate}}
+                      {{(isLinkedTypeSource(selectedSource) ? 'msg.storage.btn.essential.filter' : 'msg.storage.btn.recommend.filter') | translate}}
                     </th>
                     <td>
                       <div class="ddp-wrap-datarecommend">
