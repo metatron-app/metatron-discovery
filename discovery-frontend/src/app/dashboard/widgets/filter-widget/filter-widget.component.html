@@ -39,7 +39,7 @@
     <!-- //title -->
 
     <!-- 차원값 필터 -->
-    <div class="ddp-ui-widget-contents" *ngIf="filter.type === 'include'">
+    <div *ngIf="filter.type === 'include'" class="ddp-ui-widget-contents" >
       <!-- 복수 선택 콤보 박스 -->
       <component-filter-multi-select *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_COMBO"
                                      [array]="candidateList"
@@ -115,7 +115,7 @@
     </div>
     <!-- // 차원값 필터 -->
     <!-- 측정값 필터 -->
-    <div class="ddp-ui-widget-contents" *ngIf="filter.type === 'bound'">
+    <div *ngIf="filter.type === 'bound'" class="ddp-ui-widget-contents" >
       <div class="ddp-display-table" >
         <div class="ddp-table-in" >
           <bound-filter [filter]="filter" (change)="applyValue()"></bound-filter>
@@ -124,7 +124,7 @@
     </div>
     <!-- // 측정값 필터 -->
     <!-- Timestamp Filter -->
-    <div class="ddp-ui-widget-contents" *ngIf="isTimeFilter">
+    <div *ngIf="isTimeFilter" class="ddp-ui-widget-contents" >
 
       <!-- 전체 기간 선택 탭 영역 -->
       <div class="ddp-filter-view ddp-full" >
