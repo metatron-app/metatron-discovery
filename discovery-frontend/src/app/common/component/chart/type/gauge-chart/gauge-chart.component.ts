@@ -24,7 +24,7 @@ import {
   ChartColorList,
   ChartColorType,
   ChartSelectMode,
-  ChartType,
+  ChartType, ColorCustomMode,
   ColorRangeType,
   Position,
   SeriesType,
@@ -39,7 +39,7 @@ import * as _ from 'lodash';
 import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import { Alert } from '../../../../util/alert.util';
 import { BaseOption } from '../../option/base-option';
-import { UIChartColorByDimension, UIChartFormat, UIOption } from '../../option/ui-option';
+import {UIChartColorByDimension, UIChartColorByValue, UIChartFormat, UIOption} from '../../option/ui-option';
 import { FormatOptionConverter } from '../../option/converter/format-option-converter';
 import { ColorRange, UIChartColor, UIChartColorBySeries } from '../../option/ui-option/ui-color';
 import { UIScatterChart } from '../../option/ui-option/ui-scatter-chart';
@@ -415,6 +415,109 @@ export class GaugeChartComponent extends BaseChart {
       }
 
     });
+
+    return this.chartOption;
+  }
+
+  /**
+   * 시리즈 정보를 변환한다.
+   * - 필요시 각 차트에서 Override
+   * @returns {BaseOption}
+   */
+  protected convertSeries(): BaseOption {
+
+    // Base Call
+    this.chartOption = super.convertSeries();
+
+    // Gradient Color Change
+    if (_.eq(this.uiOption.color.type, ChartColorType.MEASURE ) && this.uiOption.color['customMode'] && ColorCustomMode.GRADIENT == this.uiOption.color['customMode']) {
+
+      _.each(this.data.columns, (column, columnIndex) => {
+
+        // Series Total Value
+        let totalValue: number = column.categoryValue;
+
+        _.each(this.chartOption.series, (series) => {
+
+          let data = series.data[columnIndex];
+
+          // Validate
+          if (!this.uiOption.color['ranges']) {
+            return false;
+          }
+
+          // Base Data
+          let value: number = null;
+          if (data && isNaN(data)) {
+            value = data.value;
+          }
+          else {
+            value = data;
+          }
+
+          let maxValue: number = this.data.info.maxValue;
+          let rangePercent: number = (maxValue / totalValue) * 100;
+          let codes: string[] = _.cloneDeep(this.chartOption.visualMap.color).reverse();
+          let index: number = Math.round(value / rangePercent * codes.length);
+          index = index == codes.length ? codes.length-1 : index;
+          series.data[columnIndex].itemStyle = {
+            normal: {
+              color: codes[index]
+            }
+          };
+        });
+      });
+
+      delete this.chartOption.visualMap;
+    }
+    // Default Color Change
+    else if( _.eq(this.uiOption.color.type, ChartColorType.MEASURE ) ) {
+
+      _.each(this.data.columns, (column, columnIndex) => {
+
+        // Series Total Value
+        let totalValue: number = column.categoryValue;
+
+        _.each(this.chartOption.series, (series) => {
+
+          let data = series.data[columnIndex];
+
+          // Validate
+          if (!this.uiOption.color['ranges']) {
+            return false;
+          }
+
+          // Base Data
+          let value: number = null;
+          if (data && isNaN(data)) {
+            value = data.value;
+          }
+          else {
+            value = data;
+          }
+
+          let originalValue: number = totalValue * (value / 100);
+          let codes = _.cloneDeep(ChartColorList[(<UIChartColorByDimension>this.uiOption.color).schema]).reverse();
+          let index: number = 0;
+          _.each(this.uiOption.color['ranges'], (range, rangeIndex) => {
+            let min: number = range.fixMin != null ? range.fixMin : 0;
+            let max: number = range.fixMax != null ? range.fixMax : min;
+            if( originalValue >= min && originalValue <= max ) {
+              index = Number(rangeIndex);
+              return false;
+            }
+          });
+          series.data[columnIndex].itemStyle = {
+            normal: {
+              color: codes[index]
+            }
+          };
+        });
+      });
+
+      delete this.chartOption.visualMap;
+    }
+
 
     return this.chartOption;
   }
