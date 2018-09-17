@@ -288,9 +288,9 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
 
       .replace(/ AND /ig,"~::~"+tab+tab+"AND ")
       .replace(/ BETWEEN /ig,"~::~"+tab+"BETWEEN ")
-      .replace(/ CASE /ig,"~::~"+tab+"CASE ")
-      .replace(/ ELSE /ig,"~::~"+tab+"ELSE ")
-      .replace(/ END /ig,"~::~"+tab+"END ")
+      .replace(/ CASE /ig,"~::~"+"CASE ")
+      .replace(/ ELSE /ig,"~::~"+"ELSE ")
+      .replace(/ END /ig,"~::~"+"END ")
       .replace(/ FROM /ig,"~::~FROM ")
       .replace(/ GROUP\s{1,}BY/ig,"~::~GROUP BY ")
       .replace(/ HAVING /ig,"~::~HAVING ")
@@ -311,10 +311,10 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
       .replace(/\(\s{0,}SELECT /ig,"~::~(SELECT ")
       .replace(/\)\s{0,}SELECT /ig,")~::~SELECT ")
 
-      .replace(/ THEN /ig," ~::~"+tab+"THEN ")
+      .replace(/ THEN /ig," ~::~"+"THEN ")
       .replace(/ UNION /ig,"~::~UNION~::~")
       .replace(/ USING /ig,"~::~USING ")
-      .replace(/ WHEN /ig,"~::~"+tab+"WHEN ")
+      .replace(/ WHEN /ig,"~::~"+"WHEN ")
       .replace(/ WHERE /ig,"~::~WHERE ")
       .replace(/ WITH /ig,"~::~WITH ")
 
