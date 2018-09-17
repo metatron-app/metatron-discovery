@@ -1204,6 +1204,18 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
       // 변경 적용
       this.safelyDetectChanges();
+
+      // Set Mouse Mode
+      if( !this.mouseMode && this.mouseMode == 'SINGLE' ) {
+        this.chart.convertMouseMode(ChartMouseMode.SINGLE);
+      }
+      else if( this.mouseMode == 'MULTI_RECT' ) {
+        this.chart.convertMouseMode(ChartMouseMode.MULTI, BrushType.RECT);
+      }
+      else if( this.mouseMode == 'MULTI_POLY' ) {
+        this.chart.convertMouseMode(ChartMouseMode.MULTI, BrushType.POLYGON);
+      }
+
     }).catch((error) => {
       console.error(error);
       // 프로세스 종료 등록 및 No Data 표시
