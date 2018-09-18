@@ -34,14 +34,14 @@
           [infiniteScrollDistance]="5"
           [infiniteScrollThrottle]="150"
           (scrolled)="onScroll()">
-        <li  *ngIf="isShowAll">
+        <li *ngIf="isShowAll">
           <a href="javascript:" (click)="$event.stopPropagation();">
             <label class="ddp-label-checkbox">
               <input type="checkbox"
                      [disabled]="isMockup" (change)="checkAll($event)"
                      [checked]="selectedArray && selectedArray.length > 0 && selectedArray.length === array.length">
               <i class="ddp-icon-checkbox ddp-dark"></i>
-              <span class="ddp-txt-checkbox">All</span>
+              <span class="ddp-txt-checkbox">{{'msg.comm.ui.list.all'|translate}}</span>
             </label>
           </a>
         </li>
@@ -50,9 +50,9 @@
             <label class="ddp-label-checkbox">
               <input type="checkbox"
                      [disabled]="isMockup" (change)="selected(item, $event)"
-                     [checked]="selectedArray && selectedArray.indexOf(item) > -1 ? true : false">
+                     [checked]="isSelectedItem(item)">
               <i class="ddp-icon-checkbox ddp-dark"></i>
-              <span class="ddp-txt-checkbox">{{isStringArray ? item : item[viewKey]}}</span>
+              <span class="ddp-txt-checkbox">{{item[viewKey]}}</span>
             </label>
           </a>
         </li>

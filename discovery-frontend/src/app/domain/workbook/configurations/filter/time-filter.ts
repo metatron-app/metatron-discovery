@@ -31,9 +31,9 @@ export class TimeFilter extends Filter {
 
     this.field = field.name;
     this.ref = field.ref;
-    this.dataSource = field.uiMasterDsId;
-    this.ui.masterDsId = field.uiMasterDsId;
-    this.ui.dsId = field.dsId;
+    this.dataSource = field.dataSource;
+    // this.ui.masterDsId = field.uiMasterDsId;
+    // this.ui.dsId = field.dsId;
 
     (-1 < field.filteringSeq) && (this.ui.filteringSeq = field.filteringSeq + 1);
     (field.filteringOptions) && (this.ui.filteringOptions = field.filteringOptions);

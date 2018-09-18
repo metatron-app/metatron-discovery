@@ -125,8 +125,13 @@ export class WorkbenchLoginComponent extends AbstractComponent implements OnInit
     !StringUtil.isEmpty(this.workbench.dataConnection.hostname) && (this.dataconnection.hostname = this.workbench.dataConnection.hostname);
     !StringUtil.isEmpty(this.workbench.dataConnection.port) && (this.dataconnection.port = this.workbench.dataConnection.port);
     !StringUtil.isEmpty(this.workbench.dataConnection.url) && (this.dataconnection.url = this.workbench.dataConnection.url);
-    this.dataconnection.username = this.loginId;
-    this.dataconnection.password = this.loginPw;
+    // add authenticationType in connection
+    this.dataconnection.authenticationType = this.workbench.dataConnection.authenticationType || 'MANUAL';
+    // if authenticationType is not USERINFO, add username and password in connection
+    if (this.dataconnection.authenticationType !== 'USERINFO') {
+      this.dataconnection.username = this.loginId;
+      this.dataconnection.password = this.loginPw;
+    }
     this.connectionRequest.connection = this.dataconnection;
 
     this.loadingShow();

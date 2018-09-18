@@ -14,29 +14,22 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
+import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 import com.google.common.collect.Lists;
-
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
-import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 
 @RequestMapping(value = "/preparationdataflows")
 @RepositoryRestController
@@ -94,7 +87,6 @@ public class PrepDataflowController {
         try {
             List<String> upstreamDsIds = Lists.newArrayList();
             List<PrepUpstream> upstreams = Lists.newArrayList();
-            PrepDataset dataset =  this.datasetRepository.findOne(dsId);
             upstreamDsIds.add(dsId);
 
             PrepDataflow dataflow = this.dataflowRepository.findOne(dfId);
@@ -103,7 +95,7 @@ public class PrepDataflowController {
                 if (null != datasets) {
                     for (PrepDataset ds : datasets) {
                         String dId = ds.getDsId();
-                        List<String> uIds = this.transformService.getUpstreamDsIds(ds.getDsId(), false);
+                        List<String> uIds = this.transformService.getUpstreamDsIds(ds.getDsId());
                         for(String uDsId : uIds) {
                             PrepUpstream upstream = new PrepUpstream();
                             upstream.setDfId(dataflow.getDfId());
@@ -170,7 +162,7 @@ public class PrepDataflowController {
 
                         if(dataset.getDsTypeForEnum()==PrepDataset.DS_TYPE.WRANGLED) {
                             boolean forUpdateBoolean = forUpdate.equalsIgnoreCase("true") ? true : false;
-                            List<String> upstreamDsIds = this.transformService.getUpstreamDsIds(dataset.getDsId(), forUpdateBoolean);
+                            List<String> upstreamDsIds = this.transformService.getUpstreamDsIds(dataset.getDsId());
                             if(null!=upstreamDsIds) {
                                 for(String upstreamDsId : upstreamDsIds) {
                                     PrepUpstream upstream = new PrepUpstream();
@@ -263,7 +255,7 @@ public class PrepDataflowController {
                     dataflowRepository.saveAndFlush(dataflow);
 
                     for(String newId : newIds) {
-                        PrepTransformResponse response = this.transformService.create(newId, dataflow.getDfId());
+                        PrepTransformResponse response = this.transformService.create(newId, dataflow.getDfId(), true);
                     }
                 }
             } else {

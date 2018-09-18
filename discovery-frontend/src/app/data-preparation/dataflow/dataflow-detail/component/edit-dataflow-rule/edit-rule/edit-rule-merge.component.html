@@ -1,0 +1,68 @@
+<!--
+  ~ /*
+  ~  * Licensed under the Apache License, Version 2.0 (the "License");
+  ~  * you may not use this file except in compliance with the License.
+  ~  * You may obtain a copy of the License at
+  ~  *
+  ~  *      http://www.apache.org/licenses/LICENSE-2.0
+  ~  *
+  ~  * Unless required by applicable law or agreed to in writing, software
+  ~  * distributed under the License is distributed on an "AS IS" BASIS,
+  ~  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  * See the License for the specific language governing permissions and
+  ~  * limitations under the License.
+  ~  */
+  -->
+
+<div class="ddp-box-part" *ngIf="isShow">
+  <div class="ddp-box-title">
+    {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
+  </div>
+  <!-- select box -->
+  <edit-rule-field-combo [isMulti]="true" [fields]="fields" [selected]="selectedFields" [tabIndex]="2"
+                         (onChange)="changeFields($event)" ></edit-rule-field-combo>
+  <!-- //select box -->
+</div>
+<!--//part-->
+
+<!-- part -->
+<div class="ddp-box-part" *ngIf="isShow">
+  <div class="ddp-box-title">
+    {{'msg.dp.th.merge.delim' | translate}}<em class="ddp-icon-essential"></em>
+  </div>
+  <!-- info -->
+  <!--<div class="ddp-ui-info">-->
+    <!--<em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>-->
+    <!--<div class="ddp-box-info">-->
+      <!--{{'msg.dp.ui.merge.delim.tooltip' | translate}}-->
+    <!--</div>-->
+  <!--</div>-->
+  <!-- //info -->
+
+  <div class="ddp-wrap-datainput">
+    <input type="text"
+           class="ddp-input-typebasic"
+           tabindex="3"
+           placeholder="{{'msg.dp.ui.merge.delim.ph' | translate}}"
+           [(ngModel)]="delimiter">
+  </div>
+</div>
+<!-- //part -->
+
+<!-- part -->
+<div class="ddp-box-part" *ngIf="isShow">
+  <div class="ddp-box-title">
+    {{'msg.dp.th.new-column-name' | translate}}<em class="ddp-icon-essential"></em>
+  </div>
+  <!-- info -->
+  <!--<div class="ddp-ui-info">-->
+    <!--<em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>-->
+    <!--<div class="ddp-box-info">-->
+      <!--{{'msg.dp.ui.merge.col.tooltip' | translate}}-->
+    <!--</div>-->
+  <!--</div>-->
+  <!-- //info -->
+  <div class="ddp-wrap-datainput">
+    <input type="text" class="ddp-input-typebasic" tabindex="4" placeholder="{{'msg.dp.th.new-column-name.ph' | translate}}" [(ngModel)]="newValue" #neColName>
+  </div>
+</div>

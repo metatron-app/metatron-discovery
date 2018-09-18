@@ -25,7 +25,7 @@ import {
 import {
   Candidate,
   InclusionFilter,
-  InclusionSelectorType
+  InclusionSelectorType, InclusionSortBy
 } from '../../../domain/workbook/configurations/filter/inclusion-filter';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import { SubscribeArg } from '../../../common/domain/subscribe-arg';
@@ -35,6 +35,10 @@ import { AbstractFilterPanelComponent } from '../abstract-filter-panel.component
 import { Field } from '../../../domain/datasource/datasource';
 import { StringUtil } from '../../../common/util/string.util';
 import { FilterUtil } from '../../util/filter.util';
+import { DIRECTION } from '../../../domain/workbook/configurations/sort';
+import { DashboardUtil } from '../../util/dashboard.util';
+import { EventBroadcaster } from '../../../common/event/event.broadcaster';
+import { FilterWidget } from '../../../domain/dashboard/widget/filter-widget';
 
 @Component({
   selector: 'inclusion-filter-panel',
@@ -80,7 +84,8 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private popupService: PopupService,
+  constructor(private broadCaster: EventBroadcaster,
+              private popupService: PopupService,
               protected datasourceService: DatasourceService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -106,6 +111,13 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
 
     this._initComponent(this.originalFilter);
 
+    // 필터 선택 변경
+    this.subscriptions.push(
+      this.broadCaster.on<any>('CHANGE_FILTER_SELECTOR').subscribe(data => {
+        this.filter.selector = (<FilterWidget>data.widget).configuration.filter['selector'];
+      })
+    );
+
     // 위젯에서 필터를 업데이트 popup은 아니지만 동일한 기능이 필요해서 popupService를 사용
     const popupSubscribe = this.popupService.filterView$.subscribe((data: SubscribeArg) => {
 
@@ -113,7 +125,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
       if (data.type === 'page' && this.isDashboardMode) return;
 
       // 필터 위젯에서 값이 변경될 경우
-      if ('change-filter' === data.name && this.filter.field === data.data.field && this.filter.ui.dsId === data.data.ui.dsId ) {
+      if ('change-filter' === data.name && this.filter.field === data.data.field && this.filter.dataSource === data.data.dataSource ) {
         this._initComponent(data.data);
       } else if ('remove-filter' === data.name && this.filter.ui.importanceType === 'general') {
         this._resetList(data.data);
@@ -222,23 +234,26 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
     this.isShowDetailMenu = !this.isShowDetailMenu;
   } // function resetFilter
 
+  public sortBy = InclusionSortBy;
+  public sortDirection = DIRECTION;
+
   /**
    * 후보값을 정렬한다.
    * @param {InclusionFilter} filter
-   * @param {string} target
-   * @param {string} type
+   * @param {InclusionSortBy} sortBy
+   * @param {DIRECTION} direction
    */
-  public sortCandidateValues(filter: InclusionFilter, target: string, type: string) {
+  public sortCandidateValues(filter: InclusionFilter, sortBy?: InclusionSortBy, direction?: DIRECTION) {
     // 정렬 정보 저장
-    filter['sortTarget'] = target;
-    filter['sortType'] = type;
+    ( sortBy ) && ( filter.sort.by = sortBy );
+    ( direction ) && ( filter.sort.direction = direction );
 
     // 데이터 정렬
     const allCandidates: Candidate[] = _.cloneDeep(this._candidateList);
-    if ('FREQUENCY' === target) {
+    if (InclusionSortBy.COUNT === filter.sort.by ) {
       // value 기준으로 정렬
       allCandidates.sort((val1: Candidate, val2: Candidate) => {
-        return ('ASC' === type) ? val1.count - val2.count : val2.count - val1.count;
+        return ( DIRECTION.ASC === filter.sort.direction ) ? val1.count - val2.count : val2.count - val1.count;
       });
     } else {
       // name 기준으로 정렬
@@ -246,10 +261,10 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
         const name1: string = (val1.name) ? val1.name.toUpperCase() : '';
         const name2: string = (val2.name) ? val2.name.toUpperCase() : '';
         if (name1 < name2) {
-          return ('ASC' === type) ? -1 : 1;
+          return (DIRECTION.ASC === filter.sort.direction ) ? -1 : 1;
         }
         if (name1 > name2) {
-          return ('ASC' === type) ? 1 : -1;
+          return (DIRECTION.ASC === filter.sort.direction ) ? 1 : -1;
         }
         return 0;
       });
@@ -258,6 +273,9 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
 
     // 페이징 설정
     this.setCandidatePage(1, true);
+
+    this.safelyDetectChanges();
+    this.updateFilterEvent.emit(this.filter);
   } // function - sortCandidateValues
 
 
@@ -396,7 +414,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
         }
 
         // 정렬
-        this.sortCandidateValues(this.filter, 'ALPHNUMERIC', 'ASC');
+        this.sortCandidateValues(this.filter);
 
         // 위젯 화면 표시
         this.isShowFilter = true;

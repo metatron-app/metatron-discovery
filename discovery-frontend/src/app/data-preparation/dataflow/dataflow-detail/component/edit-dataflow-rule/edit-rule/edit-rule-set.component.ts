@@ -16,10 +16,13 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
+import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
+import * as _ from 'lodash';
+import {isNullOrUndefined, isUndefined} from 'util';
+import { StringUtil } from '../../../../../../common/util/string.util';
 
 @Component({
   selector: 'edit-rule-set',
@@ -31,9 +34,6 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild(RuleConditionInputComponent)
   private ruleConditionInputComponent : RuleConditionInputComponent;
-
-  @Output()
-  public advancedEditorClickEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -41,13 +41,14 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public selectedFields: Field[] = [];
-
+  @Output()
+  public advancedEditorClickEvent = new EventEmitter();
+  public inputValue: string;
+  public condition: string = '';
+  public forceCondition : string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector) {
@@ -57,68 +58,69 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 컴포넌트 초기 실행
-   */
   public ngOnInit() {
     super.ngOnInit();
-  } // function - ngOnInit
+  }
 
-  /**
-   * 화면 초기화
-   */
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-  } // function - ngAfterViewInit
+  }
 
-  /**
-   * 컴포넌트 제거
-   */
   public ngOnDestroy() {
     super.ngOnDestroy();
-
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 컴포넌트의 초기 실행
-   * @param {Field[]} fields
-   * @param {Rule} rule
-   */
-  public init(fields: Field[], rule?: Rule) {
-    if (rule) {
-      const colVal = rule['cols'] || rule['col']['value'];
-      const colList: string[] = (colVal instanceof Array) ? colVal : [colVal];
-      this.selectedFields = fields.filter( item => -1 < colList.indexOf( item.name ) );
-    }
-    super.init(fields, rule);
-    this.safelyDetectChanges();
-    this.ruleConditionInputComponent.init({ruleVO : this.ruleVO, fields : this.fields, command : 'set'} );
-  } // function - init
-
-  /**
-   * Rule 형식 정의 및 반환
+   * Returns rule string
    * @return {{command: string, col: string, ruleString: string}}
    */
   public getRuleData(): { command: string, col: string, ruleString: string } {
 
-    if (this.selectedFields.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
-    } else if (this.selectedFields.length === this.fields.length) { // at least one column must exist
-      Alert.warning('Cannot delete all columns');
-      return;
-    }
+    // differentiate between pressing enter key when select box is opened & adding a rule
+    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
 
-    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
-    return {
-      command: 'set',
-      col: columnsStr,
-      ruleString: `set col: ${columnsStr} value: ${this.ruleConditionInputComponent.getCondition()}`
-    };
+      // column
+      if (this.selectedFields.length === 0) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
+        return undefined
+      }
+      const columnsStr: string = this.selectedFields.map(item => item.name).join(', ');
+
+      // val
+      this.inputValue = this.ruleConditionInputComponent.getCondition();
+      let val = _.cloneDeep(this.inputValue);
+      if (isUndefined(val) || '' === val.trim()) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
+        return undefined;
+      }
+      if (!isUndefined(val)) {
+        let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
+        if (check[0] === false) {
+          Alert.warning(this.translateService.instant('msg.dp.alert.check.value'));
+          return undefined;
+        } else {
+          val = check[1];
+        }
+      }
+
+      let rules =  {
+        command: 'set',
+        col: columnsStr,
+        ruleString: `set col: ${columnsStr} value: ${val}`
+      };
+
+      if ('' !== this.condition && !isNullOrUndefined(this.condition)) {
+        rules.ruleString += ` row: ${this.condition}`;
+      }
+
+      return rules;
+
+    } else {
+      return undefined;
+    }
 
   } // function - getRuleData
 
@@ -126,7 +128,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 필드 변경
+   * change field
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target:Field, isSelect:boolean, selectedList:Field[]}) {
@@ -134,15 +136,42 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   } // function - changeFields
 
   /**
-   * 수식 입력 팝업 오픈
-   * @param {string} command 수식 입력 실행 커맨드
+   * open advanced formula popup
    */
-  public openPopupFormulaInput(command: string) {
+  public openPopupFormulaInput() {
     this.advancedEditorClickEvent.emit();
   } // function - openPopupFormulaInput
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Before component is shown
+   * @protected
+   */
+  protected beforeShowComp() {} // function - _beforeShowComp
+
+  /**
+   * After component is shown
+   * @protected
+   */
+  protected afterShowComp() {
+  } // function - _afterShowComp
+
+  /**
+   * parse rule string
+   * @param ruleString
+   */
+  protected parsingRuleString(ruleString:string) {
+    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
+    if( '' !== strCol ) {
+      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    }
+    let inputVal = ruleString.split('value: ')[1];
+    this.inputValue = inputVal.split('row: ')[0];
+    this.condition = ruleString.split('row: ')[1];
+  } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

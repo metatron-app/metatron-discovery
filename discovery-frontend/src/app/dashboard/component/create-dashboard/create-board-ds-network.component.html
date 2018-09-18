@@ -35,16 +35,39 @@
 
   <!-- Edit Relation Message Area -->
   <div *ngIf="isRelationEditMode" class="ddp-multidata-option">
-    <a (click)="offEditRelationMode()" href="javascript:" class="ddp-link-back">{{ 'msg.board.create.edit-associations' | translate }}</a>
+    <a (click)="toggleGuide()" href="javascript:" class="ddp-btn-guide">Guide</a>
+    <span class="ddp-edit-title">{{ 'msg.board.create.edit-associations' | translate }}</span>
     <a (click)="offEditRelationMode()" href="javascript:" class="ddp-btn-line ddp-type">
-      <em class="ddp-icon-btn-done"></em> {{ 'msg.comm.btn.done' | translate }}
+      <em class="ddp-icon-btn-done"></em>{{ 'msg.comm.btn.done' | translate }}
     </a>
   </div>
   <!-- // Edit Relation Message Area -->
 
   <!-- Board Network Area -->
-  <div *ngIf="isRenderedNetwork" class="sys-create-board-top-panel ddp-ui-multidata"
-       [ngStyle]="selectedDataSource ? {'height': 'calc(45.7666% - 5px);' } : {}" >
+  <div *ngIf="isRenderedNetwork" class="sys-create-board-top-panel ddp-ui-multidata" >
+
+    <!-- 가이드 영역 -->
+    <div *ngIf="isRelationEditMode && isShowMultiDsGuide" class="ddp-view-guide">
+      <div class="ddp-wrap-guide">
+        <div class="ddp-ui-guide">
+          <span class="ddp-txt-det">{{'msg.board.create.guide-msg1' | translate}}</span>
+          <span class="ddp-sub-det">{{'msg.board.create.guide-msg2' | translate}}</span>
+          <!-- motion -->
+          <div class="ddp-guide-motion">
+            <div class="ddp-motion ">
+              <span class="ddp-box-nodes ddp-first">Datasource 1</span>
+              <div #guideLine class="ddp-line-bar " style="padding-left:27.2978px;">
+                <em class="ddp-icon-handler"></em>
+              </div>
+              <span class="ddp-box-nodes ddp-last">Datasource 2</span>
+            </div>
+          </div>
+          <!-- // motion -->
+          <div (click)="toggleGuide()" class="ddp-guide-link"><a href="javascript:" class="ddp-link-txt">got it!</a></div>
+        </div>
+      </div>
+    </div>
+    <!-- // 가이드 영역 -->
 
     <div class="ddp-view-multidata" >
 

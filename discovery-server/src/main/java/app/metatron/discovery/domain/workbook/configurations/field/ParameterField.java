@@ -33,17 +33,17 @@ import app.metatron.discovery.util.EnumUtils;
 public class ParameterField extends UserDefinedField {
 
   /**
-   * 기본 값
+   * Default value
    */
   Object defaultValue;
 
   /**
-   * 선택 값, valueType 이 Range 이면 2개의 값만 지정 가능 Selector 인경우 다수의 값 지정 가능
+   * List of selectable values, If valueType is Range, only 2 values ​​can be specified.
    */
   List<Object> values;
 
   /**
-   * 값을 선택하는 기준이 되는 타입
+   * The type from which to select a value
    */
   ValueType valueType;
 
@@ -53,11 +53,14 @@ public class ParameterField extends UserDefinedField {
   @JsonCreator
   public ParameterField(
       @JsonProperty("name") String name,
+      @JsonProperty("dataSource") String dataSource,
       @JsonProperty("defaultValue") Object defaultValue,
       @JsonProperty("values") List<Object> values,
       @JsonProperty("valueType") String valueType) {
 
     this.name = name;
+    this.dataSource = dataSource;
+
     this.defaultValue = defaultValue;
 
     this.valueType = EnumUtils.getCaseEnum(ValueType.class, valueType, ValueType.RANGE);

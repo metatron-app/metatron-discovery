@@ -14,16 +14,14 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.CountPattern;
 import app.metatron.discovery.prep.parser.preparation.rule.Replace;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
-import app.metatron.discovery.prep.parser.preparation.rule.expr.RegularExpr;
-
+import app.metatron.discovery.prep.parser.preparation.rule.expr.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalPatternTypeException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
 
 public class DfCountPattern extends DataFrame {
   private static Logger LOGGER = LoggerFactory.getLogger(DfCountPattern.class);

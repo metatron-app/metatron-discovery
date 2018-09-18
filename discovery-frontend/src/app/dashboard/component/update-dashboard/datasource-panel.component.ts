@@ -13,11 +13,11 @@
  */
 
 import {
-  Component,
+  Component, DoCheck,
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, KeyValueDiffers, OnDestroy,
   OnInit,
   Output, SimpleChange,
   SimpleChanges,
@@ -35,12 +35,13 @@ import { CustomField } from '../../../domain/workbook/configurations/field/custo
 import { BoardConfiguration, BoardDataSource, Dashboard } from '../../../domain/dashboard/dashboard';
 import { PageDataContextComponent } from '../../../page/page-data/page-data-context.component';
 import { DashboardUtil } from '../../util/dashboard.util';
+import { EventBroadcaster } from '../../../common/event/event.broadcaster';
 
 @Component({
   selector: 'datasource-panel',
   templateUrl: './datasource-panel.component.html'
 })
-export class DatasourcePanelComponent extends AbstractComponent implements OnInit {
+export class DatasourcePanelComponent extends AbstractComponent implements OnInit, OnDestroy, DoCheck {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -57,6 +58,8 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
   // 전체 필드 목록
   private _totalFields: (Field | CustomField)[] = [];
+
+  private _differ: any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -102,8 +105,8 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
    | Public Input&Output Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   // 대시보드 선택 진입점
-  @Input('dashboard')
-  public inputDashboard: Dashboard;
+  @Input()
+  public dashboard: Dashboard;
 
   @Input()
   public chartFilters: Filter[] = [];
@@ -127,7 +130,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
   @Output('changeFieldAlias')
   public changeFieldAliasEvent: EventEmitter<Field> = new EventEmitter();
 
-  public dashboard: Dashboard;
+
   public widgets: Widget[] = [];
   public globalFilters: Filter[] = [];
   public showDatasourcePanel: boolean = false;
@@ -137,9 +140,12 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected elementRef: ElementRef,
+  constructor(private differs: KeyValueDiffers,
+              protected broadCaster: EventBroadcaster,
+              protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
+    this._differ = differs.find({}).create();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -154,13 +160,11 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
   /**
    * Input 값 변경 체크
-   * @param {SimpleChanges} changes
    */
-  public ngOnChanges(changes: SimpleChanges) {
-    const boardChanges: SimpleChange = changes.inputDashboard;
-    if (boardChanges && boardChanges.currentValue) {
+  public ngDoCheck() {
+    if(this._differ.diff(this.dashboard)) {
+      console.log('changes detected');
       // 초기 설정
-      this.dashboard = boardChanges.currentValue;
       this.widgets = DashboardUtil.getPageWidgets(this.dashboard);
       this.globalFilters = DashboardUtil.getBoardFilters(this.dashboard);
       this.dataSourceList = DashboardUtil.getMainDataSources(this.dashboard);
@@ -168,7 +172,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
       // 데이터소스 설정
       this.selectDataSource( this.dataSourceList[0] );
     }
-  } // function - ngOnChanges
+  } // function - ngDoCheck
 
   /**
    * 클래스 제거
@@ -191,7 +195,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
 
       this.boardDs = DashboardUtil.getBoardDataSourceFromDataSource( this.dashboard, dataSource );
 
-      this.dsFields = _.cloneDeep( DashboardUtil.getFieldsForMainDataSource(boardConf, dataSource.id) );
+      this.dsFields = _.cloneDeep( DashboardUtil.getFieldsForMainDataSource(boardConf, dataSource.engineName) );
       if( boardConf.customFields ) {
         this.dsCustomFields = boardConf.customFields.filter( filter => filter.dataSource === this.boardDs.engineName );
         this._totalFields = this.dsFields.concat(this.dsCustomFields);
@@ -199,57 +203,9 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
         this._totalFields = this.dsFields;
       }
 
-      this.setFields();
+      this._setFields();
     }
   } // function - selectDataSource
-
-  /**
-   * 필드 설정
-   * @param {string} searchText
-   * @private
-   */
-  public setFields(searchText?: string) {
-
-    if (this.showDatasourcePanel) {
-
-      this._setUseChart(this._totalFields);
-      this._setUseFilter(this._totalFields);
-
-      this.dimensionFields = this._totalFields.filter(item => item.role !== FieldRole.MEASURE);
-      this.measureFields = this._totalFields.filter(item => item.role === FieldRole.MEASURE);
-
-      let dimensionFields = _.cloneDeep(this.dimensionFields);
-      let measureFields = _.cloneDeep(this.measureFields);
-
-      if (searchText) {
-        searchText = searchText.toLowerCase();
-        dimensionFields = dimensionFields.filter(item => item.name.toLowerCase().includes(searchText));
-        measureFields = measureFields.filter(item => item.name.toLowerCase().includes(searchText));
-      }
-
-      if (this.DIM_PAGE_SIZE < dimensionFields.length) {
-        this.dimPage = 1;
-        this.dimTotalPage = Math.ceil(dimensionFields.length / this.DIM_PAGE_SIZE);
-        this.displayDimensions = dimensionFields.slice(0, this.DIM_PAGE_SIZE - 1);
-      } else {
-        this.dimPage = 1;
-        this.dimTotalPage = 1;
-        this.displayDimensions = dimensionFields;
-      }
-
-      if (this.MEA_PAGE_SIZE < measureFields.length) {
-        this.meaPage = 1;
-        this.meaTotalPage = Math.ceil(measureFields.length / this.MEA_PAGE_SIZE);
-        this.displayMeasures = measureFields.slice(0, this.MEA_PAGE_SIZE - 1);
-      } else {
-        this.meaPage = 1;
-        this.meaTotalPage = 1;
-        this.displayMeasures = measureFields;
-      }
-
-    }
-
-  } // function - setFields
 
   /**
    * 데이터 소스 패널 표시 상태를 변경한다.
@@ -258,7 +214,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
     this.showDatasourcePanel = !this.showDatasourcePanel;
     this.changeDetect.detectChanges();
     if (this.showDatasourcePanel) {
-      this.setFields();
+      this._setFields();
     }
   } // function - toggleDatasourcePanel
 
@@ -284,7 +240,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
    */
   public clearSearch() {
     this.searchText = '';
-    this.setFields();
+    this._setFields();
   } // function - clearSearch
 
   /**
@@ -301,7 +257,7 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
   public searchField(event: KeyboardEvent) {
     if (13 === event.keyCode) {
       this.searchText = this._inputSrchText.nativeElement.value;
-      this.setFields(this.searchText);
+      this._setFields(this.searchText);
     }
   } // function - searchField
 
@@ -532,6 +488,54 @@ export class DatasourcePanelComponent extends AbstractComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 필드 설정
+   * @param {string} searchText
+   * @private
+   */
+  private _setFields(searchText?: string) {
+
+    if (this.showDatasourcePanel) {
+
+      this._setUseChart(this._totalFields);
+      this._setUseFilter(this._totalFields);
+
+      this.dimensionFields = this._totalFields.filter(item => item.role !== FieldRole.MEASURE);
+      this.measureFields = this._totalFields.filter(item => item.role === FieldRole.MEASURE);
+
+      let dimensionFields = _.cloneDeep(this.dimensionFields);
+      let measureFields = _.cloneDeep(this.measureFields);
+
+      if (searchText) {
+        searchText = searchText.toLowerCase();
+        dimensionFields = dimensionFields.filter(item => item.name.toLowerCase().includes(searchText));
+        measureFields = measureFields.filter(item => item.name.toLowerCase().includes(searchText));
+      }
+
+      if (this.DIM_PAGE_SIZE < dimensionFields.length) {
+        this.dimPage = 1;
+        this.dimTotalPage = Math.ceil(dimensionFields.length / this.DIM_PAGE_SIZE);
+        this.displayDimensions = dimensionFields.slice(0, this.DIM_PAGE_SIZE - 1);
+      } else {
+        this.dimPage = 1;
+        this.dimTotalPage = 1;
+        this.displayDimensions = dimensionFields;
+      }
+
+      if (this.MEA_PAGE_SIZE < measureFields.length) {
+        this.meaPage = 1;
+        this.meaTotalPage = Math.ceil(measureFields.length / this.MEA_PAGE_SIZE);
+        this.displayMeasures = measureFields.slice(0, this.MEA_PAGE_SIZE - 1);
+      } else {
+        this.meaPage = 1;
+        this.meaTotalPage = 1;
+        this.displayMeasures = measureFields;
+      }
+
+    }
+
+  } // function - _setFields
 
   /**
    * 사용중인 필드 설정

@@ -14,23 +14,27 @@
 
 import { Filter } from './filter';
 import { AdvancedFilter } from './advanced-filter';
+import { DIRECTION } from '../sort';
 
 export class InclusionFilter extends Filter {
 
-  // 선택 값(목록) 정보
+  // Selected Item List
   public valueList: any[];
 
-  // 목록 값(목록) 정보
-  public candidateValues: any[];
-
-  // UI 에 표시될 선택표시 유형 추가 (Optional)
+  // Add the type to be displayed in the UI (Optional)
   public selector: InclusionSelectorType = InclusionSelectorType.SINGLE_LIST;
 
-  // User-Defined 타입인 경우 정의된 값 정보 (Optional)
+  // About list value (list)
+  public candidateValues: any[];
+
+  // Information defined for User-Defined type (Optional)
   public definedValues: string[];
 
-  // InclusionFilter 값을 선택하기전 수행 필터 정보 (Optional)
+  // Perform filter before selecting InclusionFilter value (Optional)
   public preFilters: AdvancedFilter[];
+
+  // Sort condition (Optional, for UI)
+  public sort:InclusionItemSort;
 
   constructor(field: string, valueList: string[] = []) {
     super();
@@ -47,12 +51,28 @@ export class InclusionFilter extends Filter {
   public pageNum: number = 0;
 }
 
+export class InclusionItemSort {
+  public by:InclusionSortBy;
+  public direction:DIRECTION;
+
+  constructor( by:InclusionSortBy, direction:DIRECTION ) {
+    this.by = by;
+    this.direction = direction;
+  }
+}
+
 export class Candidate {
   public name: string;
   public count: number;
   public isDefinedValue: boolean = false;
-  // 눈표시 여부
-  public isShow: boolean = false;
+  public isShow: boolean = false;   // Whether icon is displayed
+}
+
+export enum InclusionSortBy {
+  COUNT = <any>'COUNT',
+  TEXT = <any>'TEXT',
+  NUMERIC = <any>'NUMERIC',
+  DATE = <any>'DATE'
 }
 
 export enum InclusionSelectorType {

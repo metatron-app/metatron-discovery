@@ -14,7 +14,9 @@
 
 import {
   InclusionFilter,
-  InclusionSelectorType
+  InclusionItemSort,
+  InclusionSelectorType,
+  InclusionSortBy
 } from '../../domain/workbook/configurations/filter/inclusion-filter';
 import { BoundFilter } from '../../domain/workbook/configurations/filter/bound-filter';
 import {
@@ -43,8 +45,10 @@ import {
 import { DashboardUtil } from './dashboard.util';
 import {
   IntervalFilter,
-  IntervalRelativeTimeType, IntervalSelectorType
+  IntervalRelativeTimeType,
+  IntervalSelectorType
 } from '../../domain/workbook/configurations/filter/interval-filter';
+import { DIRECTION } from '../../domain/workbook/configurations/sort';
 
 declare let moment;
 
@@ -109,7 +113,7 @@ export class FilterUtil {
   public static getBoardDataSourceForFilter(filter: Filter, board: Dashboard): BoardDataSource {
     const boardDataSource: BoardDataSource = board.configuration.dataSource;
     if ('multi' === boardDataSource.type) {
-      return boardDataSource.dataSources.find(item => item.id === filter.dataSource);
+      return boardDataSource.dataSources.find(item => item.engineName === filter.dataSource);
     } else {
       return boardDataSource;
     }
@@ -122,7 +126,7 @@ export class FilterUtil {
    * @returns {Datasource}
    */
   public static getDataSourceForFilter(filter: Filter, board: Dashboard): Datasource {
-    return board.dataSources.find(item => item.id === filter.dataSource);
+    return board.dataSources.find(item => item.engineName === filter.dataSource);
   } // function - getDataSourceForFilter
 
   /**
@@ -133,20 +137,19 @@ export class FilterUtil {
    * @return {InclusionFilter}
    */
   public static getBasicInclusionFilter(field: Field, importanceType?: string, preFilterData?: any): InclusionFilter {
-    // 시간 필터
     const inclusionFilter = new InclusionFilter(field.name);
     inclusionFilter.selector = InclusionSelectorType.SINGLE_COMBO;
     inclusionFilter.preFilters = [];
     inclusionFilter.valueList = [];
     inclusionFilter.ref = field.ref;
-    inclusionFilter.dataSource = field.uiMasterDsId;
+    inclusionFilter.dataSource = field.dataSource;
 
     inclusionFilter.preFilters.push(this.getBasicInequalityFilter(preFilterData));
     inclusionFilter.preFilters.push(this.getBasicPositionFilter(preFilterData));
     inclusionFilter.preFilters.push(this.getBasicWildCardFilter(field.name, preFilterData));
 
-    inclusionFilter.ui.masterDsId = field.uiMasterDsId;
-    inclusionFilter.ui.dsId = field.dsId;
+    inclusionFilter.sort = new InclusionItemSort( InclusionSortBy.TEXT, DIRECTION.ASC );
+
     (importanceType) && (inclusionFilter.ui.importanceType = importanceType);
     (-1 < field.filteringSeq) && (inclusionFilter.ui.filteringSeq = field.filteringSeq + 1);
     if (field.filteringOptions) {
@@ -172,10 +175,10 @@ export class FilterUtil {
     boundFilter.max = 0;
     boundFilter.min = 0;
     boundFilter.ref = field.ref;
-    boundFilter.dataSource = field.uiMasterDsId;
+    boundFilter.dataSource = field.dataSource;
 
-    boundFilter.ui.masterDsId = field.uiMasterDsId;
-    boundFilter.ui.dsId = field.dsId;
+    // boundFilter.ui.masterDsId = field.uiMasterDsId;
+    // boundFilter.ui.dsId = field.dsId;
     (importanceType) && (boundFilter.ui.importanceType = importanceType);
 
     return boundFilter;
@@ -254,7 +257,7 @@ export class FilterUtil {
           'locale', 'format', 'rrule', 'relValue', 'timeUnit'];
         break;
       case 'include' :
-        keyMap = ['valueList', 'candidateValues'];
+        keyMap = ['valueList', 'candidateValues','sort'];
         break;
       case 'timestamp' :
         keyMap = ['selectedTimestamps', 'timeFormat'];
@@ -332,7 +335,7 @@ export class FilterUtil {
           'minTime', 'maxTime', 'valueList', 'candidateValues', 'discontinuous', 'granularity'];
         break;
       case 'include' :
-        keyMap = ['selector', 'preFilters', 'valueList', 'candidateValues', 'definedValues'];
+        keyMap = ['selector', 'preFilters', 'valueList', 'candidateValues', 'definedValues','sort'];
         break;
       case 'timestamp' :
         keyMap = ['selectedTimestamps', 'timeFormat'];

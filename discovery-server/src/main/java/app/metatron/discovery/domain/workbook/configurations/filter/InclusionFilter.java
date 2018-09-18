@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.workbook.configurations.filter;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -22,26 +24,32 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.Map;
 
+import app.metatron.discovery.domain.workbook.configurations.Sort;
+import app.metatron.discovery.util.EnumUtils;
+
+/**
+ * In Filter
+ */
 @JsonTypeName("include")
 public class InclusionFilter extends Filter {
 
   /**
-   * 선택 값(목록) 정보
+   * Selected Item List
    */
   List<String> valueList;
 
   /**
-   * UI 에 표시될 선택표시 유형 추가 (Optional, for UI)
+   * Selection Type (Optional, for UI)
    */
   SelectorType selector;
 
   /**
-   * 보기 설정된 아이템 항목  (Optional, for UI)
+   * View set items  (Optional, for UI)
    */
   List<String> candidateValues;
 
   /**
-   * User-Defined 타입인 경우 정의된 값 정보 (Optional, for UI)
+   * User-Defined Item (Optional, for UI)
    */
   List<String> definedValues;
 
@@ -51,12 +59,44 @@ public class InclusionFilter extends Filter {
   List<AdvancedFilter> preFilters;
 
   /**
-   * Value Pair
+   * Sort condition (Optional, for UI)
+   */
+  ItemSort sort;
+
+  /**
+   * Value Pair (Optional, for Lookup)
    */
   Map<String, String> valuePair;
 
   public InclusionFilter() {
     // Empty Constructor
+  }
+
+  @JsonCreator
+  public InclusionFilter(@JsonProperty("dataSource") String dataSource,
+                         @JsonProperty("field") String field,
+                         @JsonProperty("ref") String ref,
+                         @JsonProperty("valueList") List<String> valueList,
+                         @JsonProperty("values") List<String> values,
+                         @JsonProperty("selector") String selector,
+                         @JsonProperty("candidateValues") List<String> candidateValues,
+                         @JsonProperty("definedValues") List<String> definedValues,
+                         @JsonProperty("preFilters") List<AdvancedFilter> preFilters,
+                         @JsonProperty("sort") ItemSort sort,
+                         @JsonProperty("valuePair") Map<String, String> valuePair) {
+    super(dataSource, field, ref);
+
+    this.valueList = valueList;
+    if(values != null) {
+      this.valueList = values;
+    }
+
+    this.selector = EnumUtils.getUpperCaseEnum(SelectorType.class, selector);
+    this.candidateValues = candidateValues;
+    this.definedValues = definedValues;
+    this.preFilters = preFilters;
+    this.sort = sort;
+    this.valuePair = valuePair;
   }
 
   public InclusionFilter(String field, List<String> valueList) {
@@ -138,6 +178,70 @@ public class InclusionFilter extends Filter {
 
   public void setValuePair(Map<String, String> valuePair) {
     this.valuePair = valuePair;
+  }
+
+  public ItemSort getSort() {
+    return sort;
+  }
+
+  public void setSort(ItemSort sort) {
+    this.sort = sort;
+  }
+
+  @Override
+  public String toString() {
+    return "InclusionFilter{" +
+        "valueList=" + valueList +
+        ", selector=" + selector +
+        ", candidateValues=" + candidateValues +
+        ", definedValues=" + definedValues +
+        ", preFilters=" + preFilters +
+        ", sort=" + sort +
+        ", valuePair=" + valuePair +
+        "} " + super.toString();
+  }
+
+  /**
+   * Define sort conditions
+   */
+  public static class ItemSort {
+
+    /**
+     * Sort By
+     */
+    SortBy by;
+
+    /**
+     * Sort Direction
+     */
+    Sort.Direction direction;
+
+    @JsonCreator
+    public ItemSort(@JsonProperty("by") String by,
+                    @JsonProperty("direction") String direction) {
+      this.by = EnumUtils.getUpperCaseEnum(SortBy.class, by);
+      this.direction = EnumUtils.getUpperCaseEnum(Sort.Direction.class, direction);
+    }
+
+    public SortBy getBy() {
+      return by;
+    }
+
+    public Sort.Direction getDirection() {
+      return direction;
+    }
+
+    @Override
+    public String toString() {
+      return "ItemSort{" +
+          "by=" + by +
+          ", direction=" + direction +
+          '}';
+    }
+  }
+
+  public enum  SortBy {
+    COUNT, TEXT, NUMERIC, DATE
   }
 
   public enum SelectorType {

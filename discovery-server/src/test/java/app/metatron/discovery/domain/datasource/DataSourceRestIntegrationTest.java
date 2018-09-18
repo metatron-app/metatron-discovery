@@ -14,15 +14,34 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.TestUtils;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HawqConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
+import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
+import app.metatron.discovery.domain.datasource.ingestion.*;
+import app.metatron.discovery.domain.datasource.ingestion.file.*;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
+import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.util.JsonPatch;
+import app.metatron.discovery.util.PolarisUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,54 +67,13 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.TestUtils;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HawqConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
-import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.BatchPeriod;
-import app.metatron.discovery.domain.datasource.ingestion.DiscardRule;
-import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.ReplaceRule;
-import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
-import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
-import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
-import app.metatron.discovery.util.JsonPatch;
-import app.metatron.discovery.util.PolarisUtils;
-
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK;
 import static app.metatron.discovery.domain.datasource.DataSource.DataSourceType.MASTER;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.DAY;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.HOUR;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.MONTH;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.SECOND;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HDFS;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HIVE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.*;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.REALTIME;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.DIMENSION;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.MEASURE;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.*;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -2541,93 +2519,57 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
-  @Sql("/sql/test_workbook.sql")
-  public void createAndUpdateAndLoadAlias() throws JsonProcessingException {
-    // DataSource + Field 등록
-    //
-    TestUtils.printTestTitle("1. Create Alias");
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  @Sql("/sql/test_dataconnection.sql")
+  public void createSingleJdbcDataSourcePresetConnectionManual() {
+    String connectionId = "mysql-local-manual-conn";
 
-    String dataSourceId = "ds-37";
-    String dashboardId = "db-005";
-    String fieldName = "Category";
+    DataSource dataSource = new DataSource();
+    dataSource.setName("jdbc-with-connection-manual-single");
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(JDBC);
 
-    DataSourceAlias createAlias = new DataSourceAlias();
-    createAlias.setDataSourceId(dataSourceId);
-    createAlias.setDashBoardId(dashboardId);
-    createAlias.setFieldName(fieldName);
-    createAlias.setNameAlias("카테고리");
-    Map<String,Object> valueMap = TestUtils.makeMap("Furniture", "가구",
-                      "Office Supplies", "사무용품",
-                      "Technology", "가전");
-    createAlias.setValueAlias(GlobalObjectMapper.writeValueAsString(valueMap));
+    List<Field> fields = Lists.newArrayList();
+    fields.add(new Field("orderdate", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("category", DataType.STRING, DIMENSION, 1L));
+    fields.add(new Field("sales", DataType.DOUBLE, MEASURE, 2L));
 
-    // @formatter:off
-    Response createResponse =
-    given()
-      .auth().oauth2(oauth_token)
-      .contentType(ContentType.JSON)
-      .body(createAlias)
-      .log().all()
-    .when()
-      .post("/api/datasources/aliases");
+    dataSource.setFields(fields);
 
-    createResponse.then()
-      .statusCode(HttpStatus.SC_CREATED)
-    .log().all();
-    // @formatter:on
+    SingleIngestionInfo singleJdbcInfo = new SingleIngestionInfo();
 
-    Long createdId = from(createResponse.asString()).getLong("id");
+    singleJdbcInfo.setDataType(JdbcIngestionInfo.DataType.TABLE);
+    singleJdbcInfo.setDatabase("sample");
+    singleJdbcInfo.setQuery("simple");
+    singleJdbcInfo.setRollup(true);
+    singleJdbcInfo.setScope(SingleIngestionInfo.IngestionScope.ALL);
 
-    TestUtils.printTestTitle("2. Alias 수정 ");
-    //
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(singleJdbcInfo));
 
-    Map<String, Object> updateParamMap = Maps.newLinkedHashMap();
-    updateParamMap.put("nameAlias", "카테고리_Update");
+    Map reqMap = GlobalObjectMapper.getDefaultMapper().convertValue(dataSource, Map.class);
 
-    Map<String,Object> updateValueMap = TestUtils.makeMap("Furniture", "가구_Update",
-                                                          "Office Supplies", "사무용품",
-                                                          "Technology", "가전");
-    updateParamMap.put("valueAlias", updateValueMap);
+    // 추가 정보
+    reqMap.put("connection", "/api/connections/" + connectionId);
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(reqMap);
+    System.out.println(reqBody);
 
     // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .contentType(ContentType.JSON)
-      .body(updateParamMap)
-      .log().all()
-    .when()
-      .patch("/api/datasources/aliases/{id}", createdId)
-    .then()
-      .statusCode(HttpStatus.SC_OK)
-    .log().all();
-    // @formatter:on
+    Response dsRes =
+            given()
+                    .auth().oauth2(oauth_token)
+                    .contentType(ContentType.JSON)
+                    .body(reqBody)
+                    .log().all()
+                    .when()
+                    .post("/api/datasources");
 
-    TestUtils.printTestTitle("3. 결과 조회 ");
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .contentType(ContentType.JSON)
-      .log().all()
-    .when()
-      .get("/api/datasources/aliases/{id}", createdId)
-    .then()
-//      .statusCode(HttpStatus.SC_OK)
-    .log().all();
-    // @formatter:on
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .contentType(ContentType.JSON)
-      .param("projection", "forDetailView")
-      .log().all()
-    .when()
-      .get("/api/dashboards/{id}", dashboardId)
-    .then()
-      .statusCode(HttpStatus.SC_OK)
-    .log().all();
+    dsRes.then()
+            .statusCode(HttpStatus.SC_CREATED)
+            .log().all();
     // @formatter:on
   }
 

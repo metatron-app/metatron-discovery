@@ -26,7 +26,6 @@ public class PrepTransformResponse implements Serializable {
   List<PrepTransformRule> ruleStringInfos;
   String undoable;
   String redoable;
-  //MatrixResponse<Integer, Object> matrixResponse;
   DataFrame gridResponse;
 
   // for debugging
@@ -38,22 +37,11 @@ public class PrepTransformResponse implements Serializable {
     this.wrangledDsId = wrangledDsId;
   }
 
-  /*
-  public PrepTransformResponse(int ruleCurIdx, MatrixResponse<Integer, Object> matrixResponse) {
-    this.ruleCurIdx = ruleCurIdx;
-    this.matrixResponse = matrixResponse;
-  }
-  */
   public PrepTransformResponse(int ruleCurIdx, DataFrame gridResponse) {
     this.ruleCurIdx = ruleCurIdx;
     this.setGridResponse( gridResponse );
   }
 
-  /*
-  public PrepTransformResponse(MatrixResponse<Integer, Object> matrixResponse) {
-    this.matrixResponse = matrixResponse;
-  }
-  */
   public PrepTransformResponse(DataFrame gridResponse) {
     this.gridResponse = gridResponse;
   }
@@ -80,6 +68,7 @@ public class PrepTransformResponse implements Serializable {
 
   public void setRuleStringInfos(List<PrepTransformRule> ruleStringInfos, Boolean undoable, Boolean redoable) {
     this.ruleStringInfos = ruleStringInfos;
+
     this.undoable = undoable.toString();
     this.redoable = redoable.toString();
   }
@@ -92,72 +81,12 @@ public class PrepTransformResponse implements Serializable {
     return redoable;
   }
 
-  /*
-  public MatrixResponse<Integer, Object> getMatrixResponse() {
-    if(null==matrixResponse) {
-      matrixResponse = new MatrixResponse<Integer, Object>();
-    }
-    if(null==matrixResponse.getColumns()) {
-      matrixResponse.setColumns(Lists.newArrayList());
-    } else {
-      for(MatrixResponse.Column<Object> column : matrixResponse.getColumns()) {
-        if( null==column.getValue() ) {
-          column.setValue(Lists.newArrayList());
-        }
-      }
-    }
-    return matrixResponse;
-  }
-  */
   public DataFrame getGridResponse() {
     if(null==gridResponse) {
       gridResponse = new DataFrame();
     }
     return gridResponse;
   }
-  /*
-  public void setMatrixResponse(MatrixResponse<Integer, Object> matrixResponse) {
-    this.matrixResponse = matrixResponse;
-  }
-  */
-
-  /*
-  public DataFrame getGridResponse() {
-    return makeGridResponse(matrixResponse);
-  }
-  public DataFrame makeGridResponse(MatrixResponse<Integer,Object> matrixResponse) {
-    DataFrame gridResponse = new DataFrame();
-    if(null!=matrixResponse && null!=matrixResponse.getColumns()) {
-      boolean firstRow = true;
-      gridResponse.colCnt = 0;
-      for(MatrixResponse.Column<Object> column : matrixResponse.getColumns()) {
-        String colName = column.getName();
-        gridResponse.colNames.add(colName);
-
-        DataType dataType = column.getType();
-        gridResponse.colTypes.add(ColumnType.valueOf(dataType.name()));
-
-        gridResponse.colCnt++;
-
-        Integer rowIdx = 0;
-        for(Object o : column.getValue()) {
-          Row row = null;
-          if(true==firstRow) {
-            row = new Row();
-            gridResponse.rows.add(row);
-          } else {
-            row = gridResponse.rows.get(rowIdx);
-          }
-          row.add( colName, o );
-          rowIdx++;
-        }
-
-        firstRow = false;
-      }
-    }
-    return gridResponse;
-  }
-  */
 
   public void setGridResponse(DataFrame gridResponse) {
     this.gridResponse = gridResponse;

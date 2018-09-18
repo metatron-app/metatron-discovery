@@ -14,12 +14,18 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionFailedException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionInterrupteddException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutException;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.*;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,14 +39,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionFailedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionInterrupteddException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutException;
 
 @Service
 public class DataFrameService {
@@ -148,85 +146,6 @@ public class DataFrameService {
       return newDf;
     }
   }
-
-  @Async("threadPoolTaskExecutor")
-  public Future<DataFrame> applyRuleAsync(DataFrame df, String ruleString, List<DataFrame> slaveDfs, int limitRows) throws TeddyException {
-    return new AsyncResult<>(applyRuleInternal(df, ruleString, slaveDfs, limitRows));
-  }
-
-//  // slaveDf: only for join. union cannot be parallelized
-//  public DataFrame applyRuleParallel(DataFrame df, String ruleString, DataFrame slaveDf, int limitRows) throws TeddyException {
-//    DfMove dfMove = new DfMove(df.dsName, ruleString);
-//    Rule rule;
-//
-//    assert cores > 0;
-//
-//    try {
-//      rule = new RuleVisitorParser().parse(ruleString);
-//    } catch (RuleException re) {
-//      LOGGER.error("applyRule(): rule syntax error: ", re);
-//      throw PrepException.fromTeddyException(TeddyException.fromRuleException(re));
-//    }
-//
-//    List<Integer> targetOrder = dfMove.prepare(df, (Move) rule);
-//
-//    int rowcnt = df.rows.size();
-//    if (rowcnt == 0) {
-//      return dfMove;
-//    }
-//
-//    // +--------+-------+----------+-------------------------------+
-//    // | rowCnt | cores | partSize | ranges                        |
-//    // +--------+-------+----------+-------------------------------+
-//    // |      1 |     4 |        1 | (0, 1)                        |
-//    // |      2 |     4 |        1 | (0, 2) (1, 1)                 |
-//    // |      3 |     4 |        1 | (0, 3) (1, 1) (2, 1)          |
-//    // |      4 |     4 |        1 | (0, 4) (1, 1) (2, 1) (3, 1)   |
-//    // |      5 |     4 |        2 | (0, 2) (2, 2) (4, 1)          |
-//    // |      6 |     4 |        2 | (0, 2) (2, 2) (4, 2)          |
-//    // |      7 |     4 |        2 | (0, 2) (2, 2) (4, 2) (6, 1)   |
-//    // |      8 |     4 |        2 | (0, 2) (2, 2) (4, 1) (6, 2)   |
-//    // |      9 |     4 |        3 | (0, 3) (3, 3) (6, 3)          |
-//    // |     10 |     4 |        3 | (0, 3) (3, 3) (6, 3) (9, 1)   |
-//    // |     11 |     4 |        3 | (0, 3) (3, 3) (6, 3) (9, 2)   |
-//    // |     12 |     4 |        3 | (0, 3) (3, 3) (6, 3) (9, 3)   |
-//    // |     13 |     4 |        4 | (0, 4) (4, 4) (8, 4) (12, 1)  |
-//    // |     14 |     4 |        4 | (0, 4) (4, 4) (8, 4) (12, 2)  |
-//    // |     15 |     4 |        4 | (0, 4) (4, 4) (8, 4) (12, 3)  |
-//    // |     16 |     4 |        4 | (0, 4) (4, 4) (8, 4) (12, 4)  |
-//    // |     17 |     4 |        5 | (0, 5) (5, 5) (10, 5) (15, 2) |
-//    // |     18 |     4 |        5 | (0, 5) (5, 5) (10, 5) (15, 3) |
-//    // |     19 |     4 |        5 | (0, 5) (5, 5) (10, 5) (15, 4) |
-//    // |     20 |     4 |        5 | (0, 5) (5, 5) (10, 5) (15, 5) |
-//    // |     21 |     4 |        6 | (0, 6) (6, 6) (12, 6) (18, 3) |
-//    // |     22 |     4 |        6 | (0, 6) (6, 6) (12, 6) (18, 4) |
-//    // |     23 |     4 |        6 | (0, 6) (6, 6) (12, 6) (18, 5) |
-//    // |     24 |     4 |        6 | (0, 6) (6, 6) (12, 6) (18, 6) |
-//    // |     25 |     4 |        7 | (0, 7) (7, 7) (14, 7) (21, 4) |
-//    // |     26 |     4 |        7 | (0, 7) (7, 7) (14, 7) (21, 5) |
-//    // |     27 |     4 |        7 | (0, 7) (7, 7) (14, 7) (21, 6) |
-//    // |     28 |     4 |        7 | (0, 7) (7, 7) (14, 7) (21, 7) |
-//    // +--------+-------+----------+-------------------------------+
-//
-//    int partSize = rowcnt / cores + 1;
-//    List<Future<ArrayList<Row>>> futures = new ArrayList<>();
-//    for (int rowno = 0; rowno < rowcnt; rowno += partSize) {
-//      futures.add(gatherAsync(df, dfMove, rowno, Math.min(partSize, rowcnt - rowno), targetOrder));
-//    }
-//
-//    try {
-//      for (int i = 0; i < futures.size(); i++) {
-//        List<Row> part = futures.get(i).get();
-//        dfMove.rows.addAll(part);
-//      }
-//    } catch (InterruptedException e) {
-//      e.printStackTrace();
-//    } catch (ExecutionException e) {
-//      e.printStackTrace();
-//    }
-//
-//    return dfMove;
-//  }
 
   @Async("threadPoolTaskExecutor")
   public Future<List<Row>> gatherAsync(DataFrame prevDf, DataFrame newDf, List<Object> preparedArgs,

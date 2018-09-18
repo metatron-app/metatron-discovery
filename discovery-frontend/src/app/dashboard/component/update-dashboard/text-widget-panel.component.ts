@@ -92,7 +92,6 @@ export class TextWidgetPanelComponent extends AbstractComponent implements OnIni
    */
   public ngDoCheck() {
     if(this._differ.diff(this.dashboard)) {
-      console.log('changes detected');
       this.widgets = DashboardUtil.getTextWidgets(this.dashboard);
     }
   } // function - ngDoCheck

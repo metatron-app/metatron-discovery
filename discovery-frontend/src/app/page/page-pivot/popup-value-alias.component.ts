@@ -21,7 +21,6 @@ import { Field, FieldValueAlias } from '../../domain/datasource/datasource';
 import { DatasourceAliasService } from '../../datasource/service/datasource-alias.service';
 import { DatasourceService } from '../../datasource/service/datasource.service';
 import { BoardDataSource } from '../../domain/dashboard/dashboard';
-import { FilterUtil } from '../../dashboard/util/filter.util';
 import * as _ from 'lodash';
 import { DashboardUtil } from '../../dashboard/util/dashboard.util';
 

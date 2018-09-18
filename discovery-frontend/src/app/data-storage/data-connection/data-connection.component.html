@@ -38,22 +38,6 @@
     <div class="ddp-wrap-option">
       <!-- option -->
       <div class="ddp-ui-option ddp-clear">
-
-        <!-- edit -->
-        <div class="ddp-wrap-edit">
-          <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
-          <!-- edit option -->
-          <div class="ddp-ui-edit-option ddp-inline">
-            <label class="ddp-label-radio" *ngFor="let type of types" (change)="onChangeType(type)">
-              <input type="radio" [checked]="type.value === searchType">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{type.name}}</span>
-            </label>
-          </div>
-          <!-- //edit option -->
-        </div>
-        <!-- //edit -->
-
         <!-- edit -->
         <div class="ddp-wrap-edit">
           <label class="ddp-label-type">{{'msg.storage.th.db_type' | translate}}</label>
@@ -113,7 +97,6 @@
 
     <table class="ddp-table-form ddp-table-type3">
       <colgroup>
-        <col width="10%">
         <col width="*">
         <col width="12%">
         <col width="20%">
@@ -121,9 +104,6 @@
       </colgroup>
       <thead>
       <tr>
-        <th>
-          {{'msg.comm.detail.type' | translate}}
-        </th>
         <th>
           {{'msg.comm.ui.sel.conn' | translate}}
         </th>
@@ -142,9 +122,6 @@
       </thead>
       <tbody>
       <tr *ngFor="let connection of dataconnections" (click)="updateDataconnection(connection)">
-        <td>
-          {{connection.usageScope.toString() == 'DEFAULT' ? 'General' : 'Workbench'}}
-        </td>
         <td>
           {{connection.name}}
         </td>
