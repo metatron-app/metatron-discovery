@@ -322,6 +322,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 로그 취소 버튼
   public isLogCancel : boolean = false;
 
+  // grid 값이 NO DATA  일 경우 icon show flag
+  public isGridResultNoData :boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1663,6 +1666,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           editorId: this.textList[selectedNum].editorId
         };
         this.tabGridNum = this.tabGridNum + 1;
+        this.isGridResultNoData = true;
         this.datagridList.push(temp);
       } else {
         if (index === 0) { // 0 번쨰가 SUCCESS 일 경우
@@ -1678,6 +1682,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           editorId: this.textList[selectedNum].editorId
         };
         this.tabGridNum = this.tabGridNum + 1;
+        this.isGridResultNoData = false;
         this.datagridList.push(temp);
       }
     }
@@ -1882,7 +1887,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     const headers: header[] = [];
     // data fields가 없다면 return
     if (!data.fields) {
-      return;
+      this.gridComponent.noShowData();
+      $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
+      this.isGridResultNoData = true;
+      return false;
+    } else {
+      this.isGridResultNoData = false;
     }
 
     for (let index: number = 0; index < data.fields.length; index = index + 1) {
