@@ -264,10 +264,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 기준선 변경
       if( !_.isUndefined(this.uiOption.yAxis.baseline)
-          && !isNaN(this.uiOption.yAxis.baseline)
+          && !isNaN(<number>this.uiOption.yAxis.baseline)
           && this.uiOption.yAxis.baseline != 0) {
 
-        this.calculateBaseline(this.uiOption.yAxis.baseline, result, true);
+        this.calculateBaseline(<number>this.uiOption.yAxis.baseline, result, true);
       }
 
       // Min/Max 변경
@@ -284,10 +284,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 기준선 변경
       if( !_.isUndefined(this.uiOption.xAxis.baseline)
-          && !isNaN(this.uiOption.xAxis.baseline)
+          && !isNaN(<number>this.uiOption.xAxis.baseline)
           && this.uiOption.xAxis.baseline != 0) {
 
-        this.calculateBaseline(this.uiOption.xAxis.baseline, result, false);
+        this.calculateBaseline(<number>this.uiOption.xAxis.baseline, result, false);
       }
 
       // Min/Max 변경
