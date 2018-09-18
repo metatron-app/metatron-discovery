@@ -185,7 +185,7 @@ export class WorkbenchService extends AbstractService {
   public checkConnectionStatus(queryEditorId: string, socketId: string)  {
     const param = {
       webSocketId : socketId
-    }
+    };
     return this.post(this.API_URL + `queryeditors/${queryEditorId}/status`, param);
   }
 
