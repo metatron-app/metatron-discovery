@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div *ngIf="isLiveStatus" [class.ddp-selected]="isOpenOpts" class="ddp-dropdown-filter">
+<div [class.ddp-selected]="isOpenOpts" class="ddp-dropdown-filter">
   <div (click)="isOpenOpts = !isOpenOpts"
        [ngClass]="{'CHANGE': 'ddp-top-summary', 'PANEL': 'ddp-none-bar ddp-select-bar'}[mode]" >
     {{timeUnitLabel}} <em class="ddp-icon-view"></em>

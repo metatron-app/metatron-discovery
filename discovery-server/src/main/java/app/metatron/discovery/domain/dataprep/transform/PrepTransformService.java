@@ -22,8 +22,6 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.*;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionFailedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutException;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
@@ -49,6 +47,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
@@ -740,6 +739,12 @@ public class PrepTransformService {
     List<TimestampTemplate> timestampStyleGuess = new ArrayList<>();
     int colNo;
 
+    // 기본 포맷은 항상 리턴
+    for(TimestampTemplate tt : TimestampTemplate.values()) {
+      String timestampFormat = tt.getFormatForRuleString();
+      timestampFormatList.put(timestampFormat, 0);
+    }
+
     if(colName.equals("")) {
     }
     else {
@@ -747,7 +752,12 @@ public class PrepTransformService {
       try {
         colNo = df.getColnoByColName(colName);
       } catch (Exception e) {
-        return null;
+        //return null;
+
+        // null은 안된다는 UI 요청. 원칙적으로 colNo가 없을 수는 없는데 룰 로직의 버그로 발생할 수 있는 듯.
+        // 확인 필요.
+        // 우선 템플릿 중 첫번째 포맷을 디폴트로 사용함
+        return timestampFormatList;
       }
 
       int rowCount = df.rows.size() < 100 ? df.rows.size() : 100;
@@ -772,10 +782,12 @@ public class PrepTransformService {
       }
     }
 
+    /*
     for(TimestampTemplate tt : TimestampTemplate.values()) {
       String timestampFormat = tt.getFormatForRuleString();
       timestampFormatList.put(timestampFormat, 0);
     }
+    */
 
     for(TimestampTemplate tt : timestampStyleGuess) {
       String timestampFormat = tt.getFormatForRuleString();

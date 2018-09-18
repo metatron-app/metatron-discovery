@@ -253,7 +253,11 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       // 워크북 아이디 저장
       this.workbookId = params['workbookId'];
 
+      // Send statistics data
+      this.sendViewActivityStream( this.workbookId, 'WORKBOOK' );
+
       this._getWorkbook().then((workbook: Workbook) => {
+
 
         // 워크스페이스 조회
         this.workspaceService.getWorkSpace(this.workbook.workspaceId, 'forDetailView').then((workspace: Workspace) => {
