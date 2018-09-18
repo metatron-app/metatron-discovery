@@ -559,7 +559,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Filter> filters = Lists.newArrayList();
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test", "AVGOF(\"Sales\")", "measure",true)
+        new ExpressionField("test(%)", "AVGOF(\"Sales\")", "measure",true)
         //        new ExpressionField("test", "countd(\"City\")", "measure", null,true)
         //        new ExpressionField("test", "Sales + 1", "measure", null,false)
     );
@@ -568,8 +568,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     Pivot pivot = new Pivot();
     pivot.setColumns(Lists.newArrayList(new DimensionField("Category")));
     pivot.setAggregations(Lists.newArrayList(
-        new MeasureField("Sales", null, MeasureField.AggregationType.SUM)
-        //        new MeasureField("test", "user_defined", MeasureField.AggregationType.NONE)
+//        new MeasureField("Sales", null, MeasureField.AggregationType.SUM)
+                new MeasureField("test(%)", "user_defined", MeasureField.AggregationType.NONE)
     ));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot, limit);
