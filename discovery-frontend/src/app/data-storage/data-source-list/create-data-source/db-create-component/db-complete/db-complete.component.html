@@ -117,7 +117,7 @@
               <ul class="ddp-list-sub">
                 <li>
                   {{'msg.storage.th.scope-ingest' | translate}} : {{getIngestionData.selectedIngestionScopeType.label}}
-                  <span *ngIf="getIngestionData.selectedIngestionScopeType.value === 'ROW'">{{getIngestionData.ingestionOnceRow}} {{'msg.storage.ui.dsource.preview.rows' | translate}}</span>
+                  <span *ngIf="getIngestionData.selectedIngestionScopeType.value === 'ROW'">{{getIngestionOnceRow()}} {{'msg.storage.ui.dsource.preview.rows' | translate}}</span>
                 </li>
                 <li *ngIf="getIngestionData.selectedIngestionType.value === 'batch'">
                   {{'msg.storage.th.batch-cycle' | translate}} : {{getIngestionData.selectedBatchType.label}}
@@ -128,7 +128,7 @@
                   <span *ngIf="getIngestionData.selectedBatchType.value === 'EXPR'"> / {{getIngestionData.cronText}}</span>
                 </li>
                 <li *ngIf="getIngestionData.selectedIngestionType.value === 'batch'">
-                  {{'msg.storage.th.max-query-row' | translate}} : {{getIngestionData.ingestionPeriodRow}}
+                  {{'msg.storage.th.max-query-row' | translate}} : {{getIngestionBatchRow()}}
                 </li>
               </ul>
             </td>

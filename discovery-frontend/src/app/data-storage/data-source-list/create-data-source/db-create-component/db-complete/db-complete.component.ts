@@ -195,6 +195,22 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   }
 
   /**
+   * Get ingestion batch row
+   * @returns {string}
+   */
+  public getIngestionBatchRow(): string {
+    return StringUtil.isEmpty(this.getIngestionData.ingestionPeriodRow) ? '10,000' : this.getIngestionData.ingestionPeriodRow;
+  }
+
+  /**
+   * Get ingestion once row
+   * @returns {string}
+   */
+  public getIngestionOnceRow(): string {
+    return StringUtil.isEmpty(this.getIngestionData.ingestionOnceRow) ? '10,000' : this.getIngestionData.ingestionOnceRow;
+  }
+
+  /**
    * Get validation done
    * @returns {boolean}
    */
@@ -600,7 +616,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       // add period
       ingestion['period'] = this._getPeriodParams();
       // add row size
-      ingestion['size'] = this.getIngestionData.ingestionPeriodRow;
+      ingestion['size'] = Number.parseInt(this.getIngestionBatchRow().replace(/(,)/g, ''));
       // add data range
       ingestion['range'] = this.getIngestionData.selectedIngestionScopeType.value;
     } else if (this.getIngestionData.selectedIngestionType.value === 'single') {
@@ -608,7 +624,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       ingestion['scope'] = this.getIngestionData.selectedIngestionScopeType.value;
       // add row size
       if (this.getIngestionData.selectedIngestionScopeType.value === 'ROW') {
-        ingestion['size'] = this.getIngestionData.ingestionOnceRow;
+        ingestion['size'] = Number.parseInt(this.getIngestionOnceRow().replace(/(,)/g, ''));
       }
     }
     // if not exist connection preset

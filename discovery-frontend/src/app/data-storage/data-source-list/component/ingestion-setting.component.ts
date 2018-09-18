@@ -143,8 +143,8 @@ export class IngestionSettingComponent extends AbstractComponent {
   public cronValidationMessage: string;
 
   // row (only engine source type)
-  public ingestionOnceRow: number = 10000;
-  public ingestionPeriodRow: number = 10000;
+  public ingestionOnceRow: string = '10,000';
+  public ingestionPeriodRow: string = '10,000';
 
   // advanced settings
   public tuningConfig: any[] = [];
@@ -405,31 +405,12 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * Row check max event
-   * @param {string} row
-   * @param {number} value
-   */
-  public onCheckMaxRow(row: string, value: number): void {
-    // change row
-    this[row] = value;
-    // if value is over 10000, set 10000
-    if (this[row] > 10000) {
-      this[row] = 10000;
-    }
-  }
-
-  /**
    * Is used current_time column in schema step
    * @returns {boolean}
    */
   public isUsedCurrentTimestampColumn(): boolean {
     return this._sourceData.schemaData.selectedTimestampType === 'CURRENT';
   }
-
-  public isOverPeriodMaxRow(): boolean {
-    return this.ingestionPeriodRow > 5000000;
-  }
-
 
   /**
    * is enable partition input
@@ -447,6 +428,18 @@ export class IngestionSettingComponent extends AbstractComponent {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Is max row over max Value
+   * @param row
+   * @param {number} value
+   * @returns {boolean}
+   */
+  public isMaxRowOverValue(row: any, value: number): boolean {
+    if (this[row]) {
+      return Number.parseInt(this[row].replace(/(,)/g, '')) > value;
+    }
   }
 
   /**
@@ -567,8 +560,8 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _isEnableNext(): boolean {
     // If create type is DB and source type is ENGINE
     if (this.createType === 'DB' && this.getConnectionType() === 'ENGINE' && (
-        (this.selectedIngestionType.value === 'batch' && (!this.ingestionPeriodRow || this.ingestionPeriodRow > 5000000 || (this.selectedBatchType.value === 'EXPR' && !this.cronValidationResult)))
-        || (this.selectedIngestionType.value === 'single' && this.selectedIngestionScopeType.value === 'ROW' && !this.ingestionOnceRow)
+        (this.selectedIngestionType.value === 'batch' && (this.isMaxRowOverValue('ingestionPeriodRow', 5000000) || (this.selectedBatchType.value === 'EXPR' && !this.cronValidationResult)))
+        || (this.selectedIngestionType.value === 'single' && this.selectedIngestionScopeType.value === 'ROW' && this.isMaxRowOverValue('ingestionOnceRow', 10000))
       )) {
       return false;
     }

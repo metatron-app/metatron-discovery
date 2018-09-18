@@ -1771,7 +1771,7 @@
   "msg.storage.ui.job.properties.description": "적재 성능 설정은 수집시 효과적인 옵션입니다. JSON 형식의 해당 텍스트상자에 입력하십시오.",
   "msg.storage.ph.config.key": "구성 키를 입력하세요",
   "msg.storage.ph.config.value": "구성 값을 입력하세요",
-  "msg.storage.ui.batch.row.error": "최대 5,000,000 까지 입력 할 수 있습니다.",
+  "msg.storage.ui.max.row.error": "최대 {{value}} 까지 입력 할 수 있습니다.",
 
   "msg.log.th.status": "상태",
   "msg.log.ui.search.description" : "잡 이름 또는 어플리케이션 ID로 검색해 주세요",
