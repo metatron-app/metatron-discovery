@@ -515,7 +515,9 @@ public abstract class AbstractQueryBuilder {
    */
   public String checkColumnName(final String name) {
 
-    Pattern pattern = Pattern.compile(String.format(PATTERN_FIELD_NAME_STRING, name));
+    // to escape column name for regular expression
+    String escapedName = PolarisUtils.escapeSpecialRegexChars(name);
+    Pattern pattern = Pattern.compile(String.format(PATTERN_FIELD_NAME_STRING, escapedName));
 
     List<String> vailidColumn = validColumnNames.parallelStream()
                                                 .filter(colName -> pattern.matcher(colName).matches())
