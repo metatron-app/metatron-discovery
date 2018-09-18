@@ -52,9 +52,10 @@ export class DashboardService extends AbstractService {
    * @param {string} workbookId
    * @param {Dashboard} dashboard
    * @param {BoardGlobalOptions} option
+   * @param {Function} callback
    * @return {Promise<any>}
    */
-  public createDashboard(workbookId: string, dashboard: Dashboard, option: BoardGlobalOptions) {
+  public createDashboard(workbookId: string, dashboard: Dashboard, option: BoardGlobalOptions, callback?:Function) {
     const url = this.API_URL + 'dashboards';
     const boardDs: BoardDataSource = dashboard.dataSource;
     let params = {
@@ -71,6 +72,7 @@ export class DashboardService extends AbstractService {
     // for UI 속성 제거
     params = this._convertSpecToServer(_.cloneDeep(params));
     return this.post(url, params).then((board: Dashboard) => {
+      ( callback ) && ( callback( board ) );
       return this.connectDashboardAndDataSource( board.id, ( 'multi' === boardDs.type) ? boardDs.dataSources : [boardDs] );
     });
   } // function - createDashboard
