@@ -126,9 +126,10 @@ export class GaugeChartComponent extends BaseChart {
     // minValue값이 음수인경우 선반에서 measure값을 제거하고
     this.removeNegative();
 
-    // gauge max is 100% => 100
-    this.data.info.maxValue = 100;
-    this.data.info.minValue = 0;
+    // uiOption 설정
+    // stacked의 최대값 최소값 설정
+    this.uiOption.stackedMaxvalue = 100;
+    this.uiOption.stackedMinValue = 0;
 
     // 게이지 data 설정
     this.data = this.setGaugeChartData(isKeepRange);
@@ -142,6 +143,10 @@ export class GaugeChartComponent extends BaseChart {
     _.each(this.data.columns, (series) => {
 
       _.each(series, (column) => {
+
+        // 최대값 최소값 설정
+        this.data.info.maxValue = column.value > this.data.info.maxValue ? column.value : this.data.info.maxValue;
+        this.data.info.minValue = this.data.info.minValue > column.value ? column.value : this.data.info.minValue;
 
         const columnName: string = _.split(column.name, CHART_STRING_DELIMITER)[1];
         // pivotInfo데이터의 rows 데이터 설정 (범례, 색상에서 사용)
