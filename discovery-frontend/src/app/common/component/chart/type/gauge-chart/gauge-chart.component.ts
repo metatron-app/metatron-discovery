@@ -502,7 +502,7 @@ export class GaugeChartComponent extends BaseChart {
           }
 
           let originalValue: number = totalValue * (value / 100);
-          let codes = _.cloneDeep(ChartColorList[(<UIChartColorByDimension>this.uiOption.color).schema]).reverse();
+          let ranges = _.cloneDeep((<UIChartColorByValue>this.uiOption.color).ranges);
           let index: number = 0;
           _.each(this.uiOption.color['ranges'], (range, rangeIndex) => {
             let min: number = range.fixMin != null ? range.fixMin : 0;
@@ -514,7 +514,7 @@ export class GaugeChartComponent extends BaseChart {
           });
           series.data[columnIndex].itemStyle = {
             normal: {
-              color: codes[index]
+              color: ranges[index].color
             }
           };
         });
