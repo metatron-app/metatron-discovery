@@ -18,6 +18,9 @@ public class GetFeature {
   @JacksonXmlProperty(isAttribute = true, localName = "viewParams")
   String viewParams;
 
+  @JacksonXmlProperty(isAttribute = true, localName = "maxFeatures")
+  Integer maxFeatures;
+
   @JacksonXmlProperty(namespace = "http://www.opengis.net/wfs", localName = "Query")
   GeoQuery query;
 
@@ -26,6 +29,7 @@ public class GetFeature {
 
   public GetFeature(GeoQuery query) {
     this.query = query;
+    this.maxFeatures = query.getLimit();
     if(query.getExtension() != null) {
       this.viewParams = query.getExtension().toParamString();
     }
@@ -33,6 +37,7 @@ public class GetFeature {
 
   public GetFeature(GeoQuery query, String viewParams) {
     this.query = query;
+    this.maxFeatures = query.getLimit();
     this.viewParams = viewParams;
   }
 
@@ -50,6 +55,10 @@ public class GetFeature {
 
   public String getViewParams() {
     return viewParams;
+  }
+
+  public Integer getMaxFeatures() {
+    return maxFeatures;
   }
 
   public GeoQuery getQuery() {

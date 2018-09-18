@@ -16,6 +16,7 @@ import app.metatron.discovery.domain.geo.query.model.filter.GeoFilter;
 import app.metatron.discovery.domain.geo.query.model.filter.OrOperator;
 import app.metatron.discovery.domain.geo.query.model.filter.PropertyIsBetween;
 import app.metatron.discovery.domain.geo.query.model.filter.PropertyIsEqualTo;
+import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
@@ -57,6 +58,8 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
   List<Dimension> dimensions = Lists.newArrayList();
 
   boolean enableExtension = false;
+
+  int limit = 5000;
 
   public GeoQueryBuilder() {
   }
@@ -121,6 +124,15 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
       }
     }
 
+    return this;
+  }
+
+  public GeoQueryBuilder limit(Limit limit) {
+    if(limit == null) {
+      return this;
+    }
+
+    this.limit = limit.getLimit();
     return this;
   }
 
@@ -206,6 +218,8 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
                                                      dimensions, aggregations, postAggregations,
                                                      null, null));
     }
+
+    geoQuery.setLimit(limit);
 
     return geoQuery;
   }

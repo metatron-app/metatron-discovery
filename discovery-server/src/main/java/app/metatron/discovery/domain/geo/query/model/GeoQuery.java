@@ -36,6 +36,9 @@ public class GeoQuery extends Query {
   @JsonIgnore
   DruidExtension extension;
 
+  @JsonIgnore
+  Integer limit;
+
   public GeoQuery() {
   }
 
@@ -82,5 +85,13 @@ public class GeoQuery extends Query {
 
   public void setExtension(DruidExtension extension) {
     this.extension = extension;
+  }
+
+  public Integer getLimit() {
+    return limit;
+  }
+
+  public void setLimit(Integer limit) {
+    this.limit = limit;
   }
 }

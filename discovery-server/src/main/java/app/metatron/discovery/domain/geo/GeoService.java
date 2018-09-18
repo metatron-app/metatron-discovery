@@ -51,6 +51,7 @@ public class GeoService {
         GeoQuery geoQuery = GeoQuery.builder(searchQueryRequest.getDataSource())
                                     .projections(fields)
                                     .filters(searchQueryRequest.getFilters())
+                                    .limit(searchQueryRequest.getLimits())
                                     .build();
 
         resultJoiner.add(query(geoQuery));
@@ -59,6 +60,7 @@ public class GeoService {
       GeoQuery geoQuery = GeoQuery.builder(searchQueryRequest.getDataSource())
                                   .projections(searchQueryRequest.getProjections())
                                   .filters(searchQueryRequest.getFilters())
+                                  .limit(searchQueryRequest.getLimits())
                                   .build();
 
       resultJoiner.add(query(geoQuery));
