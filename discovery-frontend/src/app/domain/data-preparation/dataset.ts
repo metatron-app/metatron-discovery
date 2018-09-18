@@ -175,4 +175,6 @@ export class Rule {
   public where : string;
   public pattern : string = '';
 
+  public isEditMode: boolean;
+  public isInsertStep: boolean;
 }

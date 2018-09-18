@@ -134,7 +134,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this._initialiseValues();
 
     this.getConfig();
-    this.getHiveDatabase();
+    //this.getHiveDatabase();
 
     this.changeSsType('FILE');
   } // function - init
@@ -351,6 +351,32 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
             }
           }
 
+          if( !isUndefined(conf['hive_info']) ) {
+            let connInfo: any = {};
+            connInfo.implementor = 'HIVE';
+            connInfo.hostname = conf['hive_info'].hostname;
+            connInfo.port = conf['hive_info'].port;
+            connInfo.username = conf['hive_info'].username;
+            connInfo.password = conf['hive_info'].password;
+            connInfo.url = conf['hive_info'].custom_url;
+            //connInfo.nothing = conf['hive_info'].metastore_uris;
+
+            this.datasetService.setConnInfo(connInfo);
+            this.isHiveDisable = false;
+
+            this.datasetService.getStagingSchemas().then((data) => {
+              this.dbList = data;
+              this.snapshot.dbName = data[0];
+              if (this.dbList.length === 0 ) {
+                this.isHiveDisable = true;
+              }
+            }).catch(() => {
+              this.isHiveDisable = true;
+            });
+          } else {
+            this.isHiveDisable = true;
+          }
+
           this.loadingHide();
         })
         .catch((error) => {
@@ -472,7 +498,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     this.engineList = [
       { value : 'EMBEDDED', label : 'Embedded Engine' },
-      { value : 'TWINKLE', label : 'Spark' }
+      // { value : 'TWINKLE', label : 'Spark' }
     ];
 
   }

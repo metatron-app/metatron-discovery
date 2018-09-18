@@ -268,6 +268,20 @@ public class PrepSnapshot extends AbstractHistoryEntity {
     }
 
     @JsonIgnore
+    public String getStatusCat() {
+        if(status != null) {
+            if(status==STATUS.SUCCEEDED) {
+                return "SUCCESS";
+            } else if(status==STATUS.FAILED || status==STATUS.CANCELED || status==STATUS.NOT_AVAILABLE) {
+                return "FAIL";
+            } else if(status==STATUS.INITIALIZING || status==STATUS.RUNNING || status==STATUS.WRITING || status==STATUS.TABLE_CREATING || status==STATUS.CANCELING) {
+                return "PREPARING";
+            }
+        }
+        return null;
+    }
+
+    @JsonIgnore
     public STATUS getStatusEnum() {
         return (status != null) ? status : STATUS.NOT_AVAILABLE;
     }

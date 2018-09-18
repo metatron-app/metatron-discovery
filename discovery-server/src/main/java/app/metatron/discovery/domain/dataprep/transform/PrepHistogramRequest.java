@@ -18,7 +18,9 @@ import java.io.Serializable;
 import java.util.List;
 
 public class PrepHistogramRequest implements Serializable {
+
   private int ruleIdx;
+
   private List<Integer> colnos;
   private List<Integer> colWidths;
 

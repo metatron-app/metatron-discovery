@@ -16,11 +16,12 @@ import {
   AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output, ViewChild,
 } from '@angular/core';
 import { EditRuleComponent } from './edit-rule.component';
-import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
-import {RuleConditionInputComponent} from "./rule-condition-input.component";
 import { Alert } from '../../../../../../common/util/alert.util';
 import { isUndefined } from "util";
 import { StringUtil } from '../../../../../../common/util/string.util';
+import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
+import { RuleConditionInputComponent } from './rule-condition-input.component';
+import * as _ from 'lodash';
 
 @Component({
   selector : 'edit-rule-derive',
@@ -40,6 +41,11 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public deriveVal:string;
+  public deriveAs:string;
+  public isTooltipShow:boolean = false;
+  public forceCondition : string = '';
+
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
 
@@ -83,52 +89,39 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /**
-   * 컴포넌트의 초기 실행
-   * * @param {Field[]} fields
-   * @param {Rule} rule
-   */
-  public init(fields : Field[], rule ? : Rule) {
-    super.init( fields, rule );
-
-    this.safelyDetectChanges();
-
-    this.ruleConditionInputComponent.init({ruleVO : this.ruleVO, fields : this.fields, command : 'derive'} );
-
-  } // function - init
 
   /**
    * Rule 형식 정의 및 반환
    * @return
    */
   public getRuleData(): { command: string, ruleString:string} {
-    let val = this.ruleConditionInputComponent.getCondition();
-    if (isUndefined(val) || '' === val || '\'\'' === val) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
-      return {
-        command: this.ruleVO.command,
-        ruleString: undefined
-      }
-    }
-    if (!isUndefined(val) && '' !== val.trim()) {
-      let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
-      if (check[0] === false) {
-        Alert.warning('Check value');
-      } else {
-        val = check[1];
-      }
-    }
+    if (this.ruleConditionInputComponent.autoCompleteSuggestions_selectedIdx == -1) {
+      this.deriveVal = this.ruleConditionInputComponent.getCondition();
+      let val = _.cloneDeep(this.deriveVal);
 
-    if (isUndefined(this.ruleVO['as']) || '' === this.ruleVO['as']) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
-      return {
-        command: this.ruleVO.command,
-        ruleString: undefined
+      if (isUndefined(val) || '' === val || '\'\'' === val) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.insert.formula'));
+        return undefined
       }
-    }
-    return {
-      command: this.ruleVO.command,
-      ruleString: 'derive value: ' + val + ' as: ' + '\'' + this.ruleVO['as'].trim() + '\''
+      if (!isUndefined(val) && '' !== val.trim()) {
+        let check = StringUtil.checkSingleQuote(val, { isPairQuote: true });
+        if (check[0] === false) {
+          Alert.warning('Check value');
+          return undefined
+        } else {
+          val = check[1];
+        }
+      }
+      if (isUndefined(this.deriveAs) || '' === this.deriveAs) {
+        Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
+        return undefined
+      }
+      return {
+        command: 'derive',
+        ruleString: 'derive value: ' + val + ' as: ' + '\'' + this.deriveAs + '\''
+      }
+    } else {
+      return undefined;
     }
 
   } // function - getRuleData
@@ -147,6 +140,34 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 컴포넌트 표시 전 실행
+   * @protected
+   */
+  protected beforeShowComp() {} // function - beforeShowComp
+
+  /**
+   * 컴포넌트 표시 후 실행
+   * @protected
+   */
+  protected afterShowComp() {
+    this.deriveAs = 'col_1';
+  } // function - afterShowComp
+
+  /**
+   * rule string 을 분석한다.
+   * @param ruleString
+   */
+  protected parsingRuleString(ruleString:string) {
+    // value
+    // this.deriveVal = this.getAttrValueInRuleString( 'value', ruleString );
+    this.deriveVal = ruleString.split('value: ')[1];
+    this.deriveVal = this.deriveVal.split(' as: ')[0];
+
+    // as
+    this.deriveAs = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'as', ruleString ));
+  } // function - parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method

@@ -17,70 +17,71 @@
   <div class="ddp-box-title">
     <ul class="ddp-rule-tab">
       <li [ngClass]="{ 'ddp-selected': tabNumber === 0 }" (click)="changeTab(0)">
-        <a href="javascript:">RULE ({{ruleList.length}})</a>
+        <a href="javascript:">{{'msg.dp.btn.tab.rule' | translate }} ({{ruleList.length}})</a>
       </li>
       <li [ngClass]="{ 'ddp-selected': tabNumber === 1 }" (click)="changeTab(1)">
-        <a href="javascript:">SNAPSHOT ({{snapshotList && snapshotList.length || 0}})</a>
+        <a href="javascript:">{{'msg.dp.btn.tab.snapshot' | translate }} ({{snapshotList && snapshotList.length || 0}})</a>
       </li>
     </ul>
     <div class="ddp-ui-buttons" *ngIf="0 === tabNumber">
-      <a href="javascript:" class="ddp-icon-refresh" (click)="undoEvent.emit()" [ngClass]="{'ddp-disabled': !undoable}"></a>
-      <a href="javascript:" class="ddp-icon-refresh2" (click)="redoEvent.emit()" [ngClass]="{'ddp-disabled': !redoable}"></a>
+      <a href="javascript:" class="ddp-icon-refresh" (click)="transformAction('UNDO')" [ngClass]="{'ddp-disabled': !undoable}"></a>
+      <a href="javascript:" class="ddp-icon-refresh2" (click)="transformAction('REDO')" [ngClass]="{'ddp-disabled': !redoable}"></a>
     </div>
   </div>
   <!-- //title -->
 
   <div class="ddp-ui-rule-flow" *ngIf="0 === tabNumber">
     <ul class="ddp-list-rule2">
-      <li *ngFor="let rule of ruleList;let idx = index" (click)="jumpEvent.emit(idx)" [ngClass]="{'ddp-disabled':!rule.valid, 'ddp-disabled2':rule.colored}">
-        <!--<em class="ddp-line-before"></em>-->
-        <!--<em class="ddp-line-after"></em>-->
-        <span class="ddp-data-type">
-            <em class="ddp-ui-round">{{rule.alias}}</em>
-          <!--{{rule.command}}-->
-        </span>
 
-        <div class="ddp-hover-tooltip">
+      <li *ngFor="let rule of ruleList; let idx = index"
+          (click)="jumpRule(idx)"
+          [ngClass]="{'ddp-disabled2':rule.isValid, 'ddp-selected': (idx === selectedRuleIdx), 'ddp-edit' : isDisableHover(idx) }">
+
+        <div class="ddp-view-data" [ngClass]="{'ddp-edit': rule.isEditMode }" >
+          <span class="ddp-data-type">
+            <em class="ddp-ui-round">{{rule.alias}}</em>
+          </span>
           <div class="ddp-ui-code">
             {{rule.simplifiedRule !== '' ? rule.simplifiedRule : rule.ruleString}}
           </div>
+          <div class="ddp-ui-edit-button" *ngIf="idx !== 0">
+            <span class="ddp-btn-icon" (click)="$event.stopImmediatePropagation(); editRule(rule)">
+              <em class="ddp-icon-edit"></em>
+            </span>
+            <span class="ddp-btn-icon" (click)="$event.stopImmediatePropagation(); deleteRule(idx)">
+              <em class="ddp-icon-del"></em>
+            </span>
+            <span class="ddp-btn-link">
+              <a href="javascript:" class="ddp-link-cancel"
+                 (click)="$event.stopImmediatePropagation(); cancelEditMode(rule, idx)">{{'msg.comm.btn.cancl' | translate }}</a>
+            </span>
+          </div>
+          <!-- //button -->
           <!-- tooltip -->
-          <div class="ddp-ui-tooltip-info">
+          <div class="ddp-ui-tooltip-info" *ngIf="idx !== 0">
             <em class="ddp-icon-view-top"></em>
             {{rule.ruleString}}
           </div>
           <!-- //tooltip -->
         </div>
-        <div class="ddp-ui-edit-button" *ngIf="ruleList.length === idx+1">
-          <!--addRule-->
-          <em class="ddp-icon-edit" (click)="editEvent.emit({rule :rule ,event: $event})" *ngIf="!rule.colored"></em>
-          <em class="ddp-icon-del" (click)="deleteEvent.emit({rule :rule ,event: $event})" *ngIf="!rule.colored"></em>
-          <!--<div class="ddp-wrap-more" [ngClass]="{'ddp-selected':isRuleListOptionShow}">-->
-          <!--<em class="ddp-icon-more" (click)="showRuleListOption($event)"></em>-->
-          <!--&lt;!&ndash; popup &ndash;&gt;-->
-          <!--<div class="ddp-wrap-popup2">-->
-          <!--<ul class="ddp-list-popup">-->
-          <!--<li>-->
-          <!--<a href="javascript:">-->
-          <!--Insert step before-->
-          <!--</a>-->
-          <!--</li>-->
-          <!--<li>-->
-          <!--<a href="javascript:">-->
-          <!--Insert step after-->
-          <!--</a>-->
-          <!--</li>-->
-          <!--</ul>-->
-          <!--</div>-->
-          <!--&lt;!&ndash; //popup &ndash;&gt;-->
-          <!--</div>-->
+        <div class="ddp-wrap-line-add " [ngClass]="{'ddp-selected' : rule.isInsertStep}" *ngIf="!rule.isEditMode">
+          <div class="ddp-line-add">
+            <span class="ddp-txt" (click)="$event.stopImmediatePropagation(); insertStep(rule)">{{ 'msg.dp.btn.insert.rule' | translate }}</span>
+          </div>
+          <!-- info -->
+          <div class="ddp-input-info">
+            {{'msg.dp.ui.insert.rule.below' | translate }}
+            <a href="javascript:" class="ddp-link-cancel" (click)="$event.stopImmediatePropagation(); cancelInsertMode(rule, idx)">{{'msg.comm.btn.cancl' | translate }}</a>
+          </div>
+          <!-- //info -->
         </div>
       </li>
     </ul>
   </div>
   <app-rule-snapshot-list *ngIf="1 === tabNumber"
+                          (retrieveAllSnapshots)="setCanceledStatus($event)"
                           (snapshotDetailEvent)="snapshotDetail($event)"
-                          (snapshotListRefreshEvent)="getSnapshotList(dsId)"
+                          (snapshotListRefreshEvent)="getSnapshotWithInterval(dsId)"
                           (snapshotIntervalStopEvent)="clearSnapshotInterval()">
   </app-rule-snapshot-list>
 </div>

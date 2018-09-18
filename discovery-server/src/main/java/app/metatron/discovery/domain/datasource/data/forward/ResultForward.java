@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.net.URI;
 import java.util.UUID;
 
 import app.metatron.discovery.domain.engine.EngineQueryProperties;
@@ -58,6 +59,13 @@ public abstract class ResultForward {
       forwardUrl = EngineQueryProperties.getDefaultForwardUrl() +
               File.separator + "MFD-" + UUID.randomUUID().toString();
     }
+
+    // need URI scheme for forwardContext
+    URI url = URI.create(forwardUrl);
+    if(url.getScheme() == null) {
+      forwardUrl = "file://" + forwardUrl;
+    }
+
     return forwardUrl;
   }
 

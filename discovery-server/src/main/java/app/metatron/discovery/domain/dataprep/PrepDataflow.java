@@ -14,20 +14,17 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.AbstractHistoryEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import org.hibernate.annotations.GenericGenerator;
 
+import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
-
-import app.metatron.discovery.domain.AbstractHistoryEntity;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity

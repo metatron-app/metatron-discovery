@@ -12,33 +12,28 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-box-part ddp-editor" *ngIf="ruleVO" style="width : 400px">
+<div class="ddp-box-part ddp-editor" *ngIf="isShow" style="margin-right: 125px;">
   <div class="ddp-box-title">
-    {{'msg.dp.th.val' | translate}}<em class="ddp-icon-essential"></em>
+    {{'msg.dp.th.formula' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
-    <rule-condition-input></rule-condition-input>
+    <rule-condition-input
+      [formula]="deriveVal" [command]="'derive'"
+      [forceFormula]="forceCondition" [fields]="fields"
+      [tabIndex]="2" [placeholder]="'msg.dp.th.formula.ph' | translate"
+      (onChange)="deriveVal = $event"></rule-condition-input>
   </div>
-  <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput('derive')"><em class="ddp-icon-editor"></em>Advanced editor</a>
+  <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput()"><em class="ddp-icon-editor"></em>Advanced editor</a>
 </div>
 <!-- //part -->
 
 <!-- part -->
-<div class="ddp-box-part" style="padding : 0 35px;" *ngIf="ruleVO">
+<div class="ddp-box-part" style="padding : 0 35px;" *ngIf="isShow">
   <div class="ddp-box-title">
     {{'msg.dp.th.new-column-name' | translate}}<em class="ddp-icon-essential"></em>
   </div>
-  <!-- info -->
-  <div class="ddp-ui-info">
-    <em class="ddp-icon-sinfo2" (mouseover)="isTooltipShow=true"  (mouseout)="isTooltipShow=false"></em>
-    <div class="ddp-box-info">
-      {{'msg.dp.ui.derive.tooltip' | translate}}
-    </div>
-  </div>
-  <!-- //info -->
-
   <div class="ddp-wrap-datainput">
-    <input type="text" class="ddp-input-typebasic" tabindex="3" placeholder="{{'msg.dp.th.new-column-name.ph' | translate}}" [(ngModel)]="ruleVO.as">
+    <input type="text" class="ddp-input-typebasic" tabindex="3" placeholder="{{'msg.dp.th.new-column-name.ph' | translate}}" [(ngModel)]="deriveAs">
   </div>
 </div>
 <!-- //part -->

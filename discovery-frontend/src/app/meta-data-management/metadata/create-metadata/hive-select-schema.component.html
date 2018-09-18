@@ -12,16 +12,16 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type">
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- 닫기 버튼 -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
       {{'msg.metadata.ui.metadata.create.hive.title' | translate}}
+      <span class="ddp-txt-info">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
       <em class="ddp-bg-order-line3-type2"></em>
     </div>
-    <span class="ddp-txt-info">{{'msg.storage.create-dsource-sel.sub.title' | translate}}</span>
   </div>
   <!-- import -->
   <div class="ddp-type-contents-in">
@@ -37,6 +37,7 @@
                 (onSelected)="onChangeDatabase($event)"
                 (onSearchText)="onSearchTextDatabase($event)"
                 [defaultIndex]="getSelectedDatabaseIndex()"
+                [isFirstOpenItemList]="selectedDatabase === ''"
                 [array]="databaseList"
                 [usePlaceholder]="true"
                 [unselectedMessage]="'msg.storage.ui.dsource.create.choose-schema' | translate"
@@ -51,6 +52,7 @@
                 (onSelected)="onChangeTable($event)"
                 (onSearchText)="onSearchTextTable($event)"
                 [defaultIndex]="getSelectedTableIndex()"
+                [isFirstOpenItemList]="selectedDatabase !== '' && selectedTable === ''"
                 [array]="tableList"
                 [usePlaceholder]="true"
                 [unselectedMessage]="'msg.storage.ui.dsource.create.choose-table' | translate"
@@ -58,7 +60,7 @@
                 [searchText]="searchTextTable"
                 [isSearchOptions]="true"
                 [isEnableInternalPaging]="true"
-                [isDisabledOptions]="!isSelectedDatabase()">
+                [isDisabledOptions]="selectedDatabase === ''">
               </component-paging-search-select>
               <!-- //select box -->
               <!-- error -->

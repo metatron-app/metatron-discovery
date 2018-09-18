@@ -18,7 +18,6 @@ import {
 } from '@angular/core';
 import { DataSnapshot, OriginDsInfo } from '../../domain/data-preparation/data-snapshot';
 import { DataSnapshotService } from './service/data-snapshot.service';
-import { AbstractPopupComponent } from '../../common/component/abstract-popup.component';
 import { PopupService } from '../../common/service/popup.service';
 import { GridComponent } from '../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
@@ -87,6 +86,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   public ruleList : any = [];
   public isShow : boolean = false;
+
+  public progressbarWidth = '100%';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -125,6 +126,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   }
 
   public ngAfterViewInit() {
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -139,10 +141,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.selectedDataSnapshot = new DataSnapshot();
     this.originDsInfo = new OriginDsInfo();
     this.colCnt = 0;
-
-    this.interval =  setInterval(() => this.getSnapshot(), 1000);
-    this.getSnapshot(true);
-
     this.commandList = [
       { command: 'header', alias: 'He', desc: this.translateService.instant('msg.dp.li.he.description'), isHover:false },
       { command: 'keep', alias: 'Ke', desc: this.translateService.instant('msg.dp.li.ke.description'), isHover:false },
@@ -171,10 +169,13 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
     ];
 
+    this.interval =  setInterval(() => this.getSnapshot(), 1000);
+    this.getSnapshot(true);
   } // end of initViewPage
 
   // 데이터 스냅샷 디테일 페이지 팝업 닫기
   public close() {
+    clearInterval(this.interval);
     this.isShow = false;
     $('body').removeClass('body-hidden');
     this.snapshotDetailCloseEvent.emit();
@@ -183,15 +184,20 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   // esc 창 닫힘
   @HostListener('document:keydown.escape', ['$event'])
   public onKeydownHandler(event: KeyboardEvent) {
-    event.keyCode === 27 ? this.close() : null;
+    if (this.isShow) {
+      event.keyCode === 27 ? this.close() : null;
+    }
   }
 
   public getRows() {
     let rows = '0';
-    if(true==Number.isInteger(this.selectedDataSnapshot.totalLines)) {
+    if (Number.isInteger(this.selectedDataSnapshot.totalLines)) {
       rows = new Intl.NumberFormat().format(this.selectedDataSnapshot.totalLines);
       return rows + ' rows';
     } else {
+      if (this.selectedDataSnapshot.status === 'FAILED') {
+        return 0 + ' rows';
+      }
       return '(counting rows)'
     }
 
@@ -207,7 +213,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
   public getElapsedTime(item) {
     if( true===isUndefined(item) || true===isUndefined(item.elapsedTime)
-     || true===isUndefined(item.elapsedTime.hours) || true===isUndefined(item.elapsedTime.minutes) || true===isUndefined(item.elapsedTime.seconds) || true===isUndefined(item.elapsedTime.milliseconds)
+      || true===isUndefined(item.elapsedTime.hours) || true===isUndefined(item.elapsedTime.minutes) || true===isUndefined(item.elapsedTime.seconds) || true===isUndefined(item.elapsedTime.milliseconds)
     ) { return '--:--:--'; }
     return this.padleft(item.elapsedTime.hours) + ':' + this.padleft(item.elapsedTime.minutes) + ':' +this.padleft(item.elapsedTime.seconds) + '.' + this.padleft(item.elapsedTime.milliseconds);
   }
@@ -238,11 +244,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   private _savePrevRouterUrl(): void {
     this.cookieService.set('SELECTED_DATASET_ID', this.dsId);
     this.cookieService.set('SELECTED_DATASET_TYPE', 'WRANGLED');
-  }
-
-  /** Jump to selected dataset */
-  public navigateDataset(dsId) {
-    this.router.navigate(['/management/datapreparation/dataset',dsId]);
   }
 
   /**
@@ -278,7 +279,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       this.loadingShow();
     }
 
-    this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot) => {
+    this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : DataSnapshot) => {
       this.selectedDataSnapshot = snapshot;
 
       this.loadingHide();
@@ -291,10 +292,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       //let linageInfo = JSON.parse( this.selectedDataSnapshot["lineageInfo"] );
       let linageInfo = this.selectedDataSnapshot["jsonLineageInfo"];
       if( linageInfo.dsId ) {
-          this.dsId = linageInfo.dsId;
+        this.dsId = linageInfo.dsId;
       }
       if( linageInfo.dfId ) {
-          this.dfId = linageInfo.dfId;
+        this.dfId = linageInfo.dfId;
       }
 
       this._setRuleList(linageInfo['ruleStringinfos']);
@@ -304,17 +305,33 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       this.valid = this.selectedDataSnapshot.validLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines)  * 100 + '%';
       this.mismatched = this.selectedDataSnapshot.mismatchedLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
 
-      if( this.selectedDataSnapshot.custom && this.selectedDataSnapshot.custom.fail_msg ) {
-          this.selectedDataSnapshot.status = 'FAIL';
-          this.selectedDataSnapshot.custom.fail_msg = this.selectedDataSnapshot.custom.fail_msg.replace(/\n/g, '<br>');
-      } else {
-          this.selectedDataSnapshot.status = 'SUCCESS';
-          this.getGridData();
+      if ( ['SUCCEEDED'].indexOf(this.selectedDataSnapshot.status) >= 0){
+        this.selectedDataSnapshot.displayStatus = 'SUCCESS';
+        this.getGridData();
+
+      } else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(this.selectedDataSnapshot.status) >= 0) {
+        this.selectedDataSnapshot.displayStatus = 'PREPARING';
+
+        if(isUndefined(this.selectedDataSnapshot.ruleCntDone) || isNull(this.selectedDataSnapshot.ruleCntDone)) this.selectedDataSnapshot.ruleCntDone = 0;
+        if(isUndefined(this.selectedDataSnapshot.ruleCntTotal) || isNull(this.selectedDataSnapshot.ruleCntTotal)) this.selectedDataSnapshot.ruleCntTotal = 0;
+        if (this.selectedDataSnapshot.ruleCntTotal > 0 && this.selectedDataSnapshot.ruleCntDone < this.selectedDataSnapshot.ruleCntTotal){
+          this.progressbarWidth = Math.ceil(this.selectedDataSnapshot.ruleCntDone * 100  / (this.selectedDataSnapshot.ruleCntTotal + 1)) + "%";
+        } else {
+          this.progressbarWidth = '100%';
+        }
+        this.interval =  setInterval(() => this.getSnapshot(), 1000);
+
+      } else  { //'FAILED','CANCELED','NOT_AVAILABLE'
+        this.selectedDataSnapshot.displayStatus = 'FAIL';
+        if(false===isUndefined(this.selectedDataSnapshot.custom) && "fail_msg"==this.selectedDataSnapshot.custom.match("fail_msg")) {
+          this.selectedDataSnapshot.custom = JSON.parse(this.selectedDataSnapshot.custom.replace(/\n/g, '<br>').replace(/'/g, '"'));
+        }
       }
+
     }).catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      this.loadingHide();
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
   } // end of method getSnapshot
 
@@ -340,6 +357,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
         rule['desc'] = this.commandList[idx].desc;
+      } else {
+        rule['command'] = 'Create';
+        rule['alias'] = 'Cr';
+        rule['simplifiedRule'] = rule.ruleString;
       }
       // rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
       this.ruleList.push(rule);
@@ -367,20 +388,20 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.info'));
         } else {
           if( isUndefined(result.originDsInfo.dsName) ) {
-              Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.name'));
-              this.originDsInfo.dsName = '';
+            Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.name'));
+            this.originDsInfo.dsName = '';
           } else {
-              this.originDsInfo.dsName = result.originDsInfo.dsName;
+            this.originDsInfo.dsName = result.originDsInfo.dsName;
           }
           if( isUndefined(result.originDsInfo.qryStmt) ) {
-              Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.querystmt'));
+            Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.querystmt'));
           } else {
-              this.originDsInfo.qryStmt = result.originDsInfo.qryStmt;
+            this.originDsInfo.qryStmt = result.originDsInfo.qryStmt;
           }
           if( isUndefined(result.originDsInfo.createdTime) ) {
-              Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.createdtime'));
+            Alert.warning(this.translateService.instant('msg.dp.alert.imported.ds.createdtime'));
           } else {
-              this.originDsInfo.createdTime = result.originDsInfo.createdTime;
+            this.originDsInfo.createdTime = result.originDsInfo.createdTime;
           }
         }
 
@@ -451,8 +472,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
 
     // 헤더정보 생성
     const headers: header[] = fields.map((field: Field) => {
-      /* 72 는 CSS 상의 padding 수치의 합산임 */
-      const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 72;
+        /* 72 는 CSS 상의 padding 수치의 합산임 */
+        const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 72;
 
         return new SlickGridHeader()
           .Id(field.name)
@@ -500,5 +521,41 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       saveAs(snapshotFile, downloadFileName);
     });
   }
-
+  public cancelClick(param:boolean){
+    clearInterval(this.interval);
+    let elm = $('.ddp-wrap-progress');
+    if (param) {
+      if(this.selectedDataSnapshot.ruleCntDone == this.selectedDataSnapshot.ruleCntTotal) {
+        Alert.info('Generating completed');
+        this.close();
+      } else {
+        elm[0].style.display = "none";
+        elm[1].style.display = "";
+      }
+    } else {
+      elm[0].style.display = "";
+      elm[1].style.display = "none";
+      this.interval =  setInterval(() => this.getSnapshot(), 1000);
+    }
+  }
+  /** 처리 중 스냅샷 취소*/
+  public cancelSnapshot() {
+    this.loadingShow();
+    this.datasnapshotservice.cancelSnapshot(this.ssId)
+      .then((result) => {
+        this.loadingHide();
+        //console.log(result.result);
+        if( result.result === 'OK')  {
+          Alert.info(this.translateService.instant('msg.dp.alert.snapshot.cancel.success'));
+          this.close();
+        } else {
+          Alert.warning(this.translateService.instant('msg.dp.alert.snapshot.cancel.fail'));
+        }
+      })
+      .catch((error) => {
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      });
+  }
 } // end of class DataSnapshotDetailComponent

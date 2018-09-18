@@ -14,30 +14,28 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
+import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.*;
+import java.util.*;
+
+import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 public class Util {
+  private  static RuleVisitorParser ruleVisitorParser = null;
 
-  private static Logger LOGGER = LoggerFactory.getLogger(Util.class);
-
-  // old method. not using
+  // old method. not using except tests
   public static List<String[]> loadGridLocalCsv(String targetUrl, String delimiter, int limitRowCnt) {
 
     List<String[]> grid = new ArrayList<>();
@@ -79,8 +77,13 @@ public class Util {
     String line;
     String quoteSymbol="\"";
     try {
-      InputStreamReader inputStreamReader = null;
-      if(true==targetUrl.toLowerCase().startsWith("hdfs://")) {
+      InputStreamReader inputStreamReader;
+      if(true==targetUrl.toLowerCase().startsWith("hdfs://")) {   // The primary store is HDFS, even for LOCALLY uploaded files.
+        // Once stored on HDFS, then you should be connected on, to find it.
+        if (conf == null) {
+          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
+                  PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+        }
         Path pt=new Path(targetUrl);
         FileSystem fs = FileSystem.get(conf);
         FSDataInputStream fsDataInputStream = fs.open(pt);
@@ -201,61 +204,6 @@ public class Util {
     return Double.valueOf(String.format("%.16f", Math.abs(val) < EPSILON ? 0.0 : val));
   }
 
-  // Regards the 1st row as the colnames
-  /*
-  public static List<String[]> loadCsvFileLocal(String dirPath, String delimiter, int targetRowCnt, List<String> colNames) {
-    List<String[]> grid = new ArrayList<>();
-    BufferedReader br = null;
-    String line;
-    String quoteSymbol="\"";
-
-    File dir = new File(dirPath);
-    File[] files = dir.listFiles();
-
-    for (int i = 0 ; i < files.length ; i++){
-      File file = files[i];
-      if (file.isFile() == false) {
-        continue;
-      }
-
-      try {
-        br = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-
-        if ((line = br.readLine()) == null) {
-          continue;   // file is empty
-        }
-
-        // get colNames
-        if (colNames.size() == 0) {
-          colNames.addAll(Arrays.asList(csvLineSplitter(line, delimiter, quoteSymbol)));
-        }
-
-        // get rows
-        while ((line = br.readLine()) != null) {
-          String[] strCols = csvLineSplitter(line, delimiter, quoteSymbol);
-          grid.add(strCols);
-          if (grid.size() == targetRowCnt) {
-            break;
-          }
-        }
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
-      } catch (IOException e) {
-        e.printStackTrace();
-      } finally {
-        if (br != null) {
-          try {
-            br.close();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
-      }
-    }
-    return grid;
-  }
-  */
-
   static void showSep(List<Integer> widths) {
     System.out.print("+");
     for (int width : widths) {
@@ -300,4 +248,53 @@ public class Util {
     }
     System.out.println("");
   }
+
+  public static String getJsonRuleString(Rule rule) {
+    String jsonRuleString = null;
+
+    try {
+      jsonRuleString = GlobalObjectMapper.getDefaultMapper().writeValueAsString(rule);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
+
+      return jsonRuleString;
+    }
+
+  public static String parseRuleString(String ruleString) {
+    if (ruleString.startsWith(CREATE_RULE_PREFIX)) {
+      return getCreateJsonRuleString(ruleString);
+    }
+
+    if (ruleVisitorParser == null) {
+      ruleVisitorParser = new RuleVisitorParser();
+    }
+    return getJsonRuleString(ruleVisitorParser.parse(ruleString));
+  }
+
+  private static final String CREATE_RULE_PREFIX = "create with: ";
+
+  public static String getCreateRuleString(String dsId) {
+    return CREATE_RULE_PREFIX + dsId;
+  }
+
+  public static String getUpstreamDsId(String ruleString) {
+    return ruleString.substring(CREATE_RULE_PREFIX.length());
+  }
+
+  public static String getCreateJsonRuleString(String ruleString) {
+    Map<String, Object> map = new HashMap();
+    String jsonRuleString = null;
+
+    map.put("name", "create");
+    map.put("with", ruleString.substring(CREATE_RULE_PREFIX.length()));
+    try {
+      jsonRuleString = GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+    }
+
+    return jsonRuleString;
+  }
+
 }

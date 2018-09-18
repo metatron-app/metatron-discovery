@@ -16,18 +16,23 @@
 <div class="ddp-pop-preview ddp-type">
   <!-- Top title -->
   <div class="ddp-ui-top">
-    <!-- 대시보드용 tab -->
-    <div class="ddp-wrap-source-name">
+    <!-- 대시보드용 데이터소스 선택 콤보박스 -->
+    <div *ngIf="isDashboard" class="ddp-wrap-source-name" >
       <dashboard-datasource-combo
         [dataSources]="datasources"
         [initialValue]="mainDatasource"
         (selectOption)="selectDataSource($event)" ></dashboard-datasource-combo>
       <div class="ddp-txt-description">
         {{'msg.storage.ui.title.data.detail' | translate}}
-        <span *ngIf="isDashboard" class="ddp-txt-detail">- {{'msg.storage.ui.dsource.preview.usedin' | translate : {value : source.name} }}</span>
+        <span class="ddp-txt-detail">- {{'msg.storage.ui.dsource.preview.usedin' | translate : {value : source.name} }}</span>
       </div>
     </div>
-    <!-- //대시보드용 tab -->
+    <!-- // 대시보드용 데이터소스 선택 콤보박스 -->
+    <!-- 데이터소스 이름 표시 -->
+    <div *ngIf="!isDashboard" class="ddp-wrap-source-name" >
+      <div class="ddp-txt-description"> {{mainDatasource.name}} </div>
+    </div>
+    <!-- // 데이터소스 이름 표시 -->
     <em class="ddp-btn-popup-close" (click)="close()"></em>
   </div>
 

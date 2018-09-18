@@ -55,6 +55,7 @@ import Toolbox = OptionGenerator.Toolbox;
 import {UIChartAxis, UIChartAxisGrid, UIChartAxisLabelValue} from "../../option/ui-option/ui-axis";
 import {AxisOptionConverter} from "../../option/converter/axis-option-converter";
 import {Axis as AxisDefine} from "../../option/define/axis";
+import {DataZoomType} from '../../option/define/datazoom';
 
 const transparentSymbolImage: string = 'image://' + window.location.origin + '/assets/images/icon_transparent_symbol.png';
 
@@ -280,6 +281,23 @@ export class LineChartComponent extends BaseChart implements OnInit, AfterViewIn
     }
 
     return this.chartOption;
+  }
+
+  /**
+   * Chart Datazoom Event Listener
+   */
+  public addChartDatazoomEventListener(): void {
+
+    this.chart.off('datazoom');
+    this.chart.on('datazoom', (param) => {
+
+      this.chartOption.dataZoom.map((zoom, index) => {
+        if( _.eq(zoom.type, DataZoomType.SLIDER) ) {
+          this.uiOption.chartZooms[index].start = param.start;
+          this.uiOption.chartZooms[index].end = param.end;
+        }
+      });
+    });
   }
 
   /**

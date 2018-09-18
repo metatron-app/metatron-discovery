@@ -51,6 +51,8 @@ export class DataSnapshot extends AbstractHistoryEntity{
   public lineageInfo: string;
   public jsonLineageInfo: any;
   public isCancel : boolean = false;
+
+  public displayStatus: string;
 }
 
 export class OriginDsInfo {

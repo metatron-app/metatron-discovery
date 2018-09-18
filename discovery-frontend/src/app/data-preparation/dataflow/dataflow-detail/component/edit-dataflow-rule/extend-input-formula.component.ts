@@ -24,7 +24,7 @@ import { AbstractComponent } from '../../../../../common/component/abstract.comp
 import { Field } from '../../../../../domain/data-preparation/dataset';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { DataflowService } from '../../../service/dataflow.service';
-
+import * as _ from 'lodash';
 declare let $;
 
 @Component({
@@ -118,7 +118,13 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
     this._command = command;
 
     // 필드 설정
-    this._fields = fields;
+    this._fields = _.cloneDeep(fields);
+
+    // set 은 field 목록에 $col 추가
+    if ('set' === this._command) {
+      this._fields.unshift({name :'$col', type : 'STRING'});
+    }
+
     this._setFieldPage(1);
 
     // Input 영역 설정
@@ -433,6 +439,9 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
     );
     this._functionList.push(
       new FormulaFunction(FunctionCategory.LOGICAL, 'if', '조건문을 검사하여 TRUE나 FALSE에 해당하는 값을 반환합니다.')
+    );
+    this._functionList.push(
+      new FormulaFunction(FunctionCategory.LOGICAL, 'ismismatched', '입력된 컬럼의 값과 타입이 일치하는지 판단합니다. 일치하면 TRUE, 아니면 FALSE를 반환합니다.')
     );
     this._functionList.push(
       new FormulaFunction(FunctionCategory.LOGICAL, 'isnull', '입력된 컬럼의 값이 null 인지 판단합니다. null이면 TRUE, 아니면 FALSE를 반환합니다.')

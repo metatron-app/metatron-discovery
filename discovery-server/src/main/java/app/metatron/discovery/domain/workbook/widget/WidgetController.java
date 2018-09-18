@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.workbook.widget;
 
+import app.metatron.discovery.util.HttpUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -65,6 +66,7 @@ import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Pivot;
 import app.metatron.discovery.domain.workbook.configurations.WidgetConfiguration;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
+import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
@@ -73,7 +75,11 @@ import app.metatron.discovery.domain.workbook.configurations.widget.PageWidgetCo
 import app.metatron.discovery.util.AuthUtils;
 
 import static app.metatron.discovery.config.ApiResourceConfig.REDIRECT_PATH_URL;
+import static java.util.stream.Collectors.toList;
 
+/**d
+ * Resource of Widgets
+ */
 @RepositoryRestController
 public class WidgetController {
 
@@ -213,9 +219,14 @@ public class WidgetController {
   }
 
   /**
-   * 동적인 화면 구성에 맞춰 데이터를 Download 목적으로 구성
+   * Download from widget configuration.
    *
+   * @param resquest
    * @param response
+   * @param isOriginal
+   * @param limit
+   * @param maxRowsPerSheet
+   * @param configuration
    * @throws IOException
    */
   @RequestMapping(path ="/widgets/config/download", method = RequestMethod.POST, produces = { "application/vnd.ms-excel", "application/csv" })
@@ -252,9 +263,14 @@ public class WidgetController {
   }
 
   /**
-   * 동적인 화면 구성에 맞춰 데이터를 Download 목적으로 구성
+   * Download from saved widget configuration.
    *
+   * @param request
    * @param response
+   * @param widgetId
+   * @param isOriginal
+   * @param limit
+   * @param maxRowsPerSheet
    * @throws IOException
    */
   @RequestMapping(path ="/widgets/{widgetId}/download", method = RequestMethod.POST, produces = { "application/vnd.ms-excel", "application/csv" })
@@ -265,8 +281,8 @@ public class WidgetController {
                                      @RequestParam(value = "limit", required = false) Integer limit,
                                      @RequestParam(value = "maxRowsPerSheet", defaultValue = "1000000") Integer maxRowsPerSheet) throws IOException {
 
-    if(maxRowsPerSheet > 10000000) {
-      throw new BadRequestException("Not allowed row count. max 10,000,000");
+    if(maxRowsPerSheet > 1000000) {
+      throw new BadRequestException("Not allowed row count. max 1,000,000");
     }
 
     Widget widget = widgetRepository.findOne(widgetId);
@@ -278,6 +294,7 @@ public class WidgetController {
       throw new BadRequestException("Page widget required.");
     }
 
+    // find alias information by alias Identifier
     Map<String, DataSourceAlias> aliases = aliasRepository.findByDashBoardId(widget.getDashBoard().getId())
                                                           .stream()
                                                           .filter(dataSourceAlias -> StringUtils.isNotEmpty(dataSourceAlias.getValueAlias()))
@@ -293,24 +310,34 @@ public class WidgetController {
         null
     );
 
-    // 최대값을 임시로 천만 건으로 조정
-    searchQuery.setLimits(new Limit(10000000));
-
     String accept = request.getHeader("accept");
 
     downloadData(isOriginal ? "original_data" : "chart_data", accept, searchQuery, maxRowsPerSheet, response);
 
   }
 
+  /**
+   * Processing download file
+   *
+   * @param name name of file
+   * @param accept requested accept header contents
+   * @param searchQuery search query model
+   * @param maxRow Maximum rows to fetch from query
+   * @param response
+   * @throws IOException
+   */
   private void downloadData(String name, String accept, SearchQueryRequest searchQuery, Integer maxRow, HttpServletResponse response) throws IOException {
 
     String downloadFileName;
+    boolean isCSV = false;
+
     if("application/vnd.ms-excel".equals(accept)) {
       searchQuery.setResultForward(new ExcelResultForward(maxRow));
       downloadFileName = name + ".xlsx";
     } else {
       searchQuery.setResultForward(new CsvResultForward(true));
       downloadFileName = name + ".csv";
+      isCSV = true;
     }
     searchQuery.setResultFormat(new FileResultFormat("/tmp"));
 
@@ -318,18 +345,35 @@ public class WidgetController {
 
     File downloadFile = new File((String) result);
 
-    response.setContentType(accept);
-    response.setHeader("Content-Disposition", String.format("inline; filename=\"%s\"", downloadFileName));
+    if (isCSV){
+      HttpUtils.downloadCSVFile(response, downloadFile.getName(), downloadFile.getPath(), accept);
+    }else{
+
+      response.setContentType(accept);
+      response.setHeader("Content-Disposition", String.format("inline; filename=\"%s\"", downloadFileName));
 //    response.setHeader("Content-Disposition", "attachment; filename=" + new String(downloadFileName.getBytes("euc-kr"), "latin1") + ";");
 
-    response.setContentLength((int)downloadFile.length());
+      response.setContentLength((int)downloadFile.length());
 
-    InputStream inputStream = new BufferedInputStream(new FileInputStream(downloadFile));
+      InputStream inputStream = new BufferedInputStream(new FileInputStream(downloadFile));
 
-    FileCopyUtils.copy(inputStream, response.getOutputStream());
+      FileCopyUtils.copy(inputStream, response.getOutputStream());
+    }
   }
 
 
+  /**
+   * Make query request model
+   *
+   * @param boardConfiguration
+   * @param pageConfiguration
+   * @param aliasMap
+   * @param isOriginal get original data from select query, if true
+   * @param preview get fetched data schema from select query, if true
+   * @param limit row limitation
+   * @param resultFormat
+   * @return
+   */
   private SearchQueryRequest getQueryRequestFromConfig(BoardConfiguration boardConfiguration,
                                                        PageWidgetConfiguration pageConfiguration,
                                                        Map<String, DataSourceAlias> aliasMap,
@@ -340,36 +384,56 @@ public class WidgetController {
 
     Preconditions.checkNotNull(pageConfiguration, "Page configuration required");
 
-    // 최대 백만건까지 확인 가능함
+    // Limit 1,000,000 rows
     if(limit == null) {
       limit = 1000;
     } else if(limit > 1000000) {
       limit = 1000000;
     }
 
-    DataSource dataSource = null;
-    List<Filter> filters = Lists.newArrayList();
-    List<UserDefinedField> userDefinedFields = Lists.newArrayList();
-
-    // DashBoard 설정 우선 적용
-    if(boardConfiguration != null) {
-      dataSource = boardConfiguration.getDataSource() == null ? pageConfiguration.getDataSource() : boardConfiguration.getDataSource();
-      if(boardConfiguration.getFilters() != null) filters.addAll(boardConfiguration.getFilters());
-      if(boardConfiguration.getUserDefinedFields() != null) userDefinedFields.addAll(boardConfiguration.getUserDefinedFields());
-    } else {
-      dataSource = pageConfiguration.getDataSource();
-    }
-
-    // Page 설정 적용
-    if(pageConfiguration.getFilters() != null) filters.addAll(pageConfiguration.getFilters());
-    if(pageConfiguration.getFields() != null) userDefinedFields.addAll(pageConfiguration.getFields());
-
     Pivot pivot = pageConfiguration.getPivot();
     if(pivot == null || pivot.isEmpty()) {
       throw new BadRequestException("Pivot field required.");
     }
 
-    // 필드내 값 별칭이 존재할 경우 셋팅
+    DataSource dataSource = null;
+    List<Filter> filters = Lists.newArrayList();
+    List<UserDefinedField> userDefinedFields = Lists.newArrayList();
+
+    dataSource = pageConfiguration.getDataSource();
+    if(boardConfiguration != null) {
+      if(dataSource == null
+          && boardConfiguration.getDataSource() != null
+          && !(boardConfiguration.getDataSource() instanceof MultiDataSource)) {
+        dataSource = boardConfiguration.getDataSource();
+      }
+
+      String dataSourceName = dataSource.getName();
+
+      if(boardConfiguration.getFilters() != null) {
+        List<Filter> selectedFilter = boardConfiguration.getFilters()
+                                                        .stream()
+                                                        .filter(filter -> filter.getDataSource() == null
+                                                            || dataSourceName.equals(filter.getDataSource()))
+                                                        .collect(toList());
+        filters.addAll(selectedFilter);
+      }
+
+      if(boardConfiguration.getUserDefinedFields() != null) {
+        List<UserDefinedField> selectedField = boardConfiguration.getUserDefinedFields()
+                                                                 .stream()
+                                                                 .filter(userDefinedField -> userDefinedField.getDataSource() == null
+                                                                     || dataSourceName.equals(userDefinedField.getDataSource()))
+                                                                 .collect(toList());
+        userDefinedFields.addAll(selectedField);
+      }
+    }
+
+    // Add Page Configuration
+    if(pageConfiguration.getFilters() != null) filters.addAll(pageConfiguration.getFilters());
+    if(pageConfiguration.getFields() != null) userDefinedFields.addAll(pageConfiguration.getFields());
+
+    // Set field alias
     for(app.metatron.discovery.domain.workbook.configurations.field.Field field : pivot.getAllFields()) {
       if(!(field instanceof DimensionField)) continue;
       if(MapUtils.isEmpty(aliasMap) || !aliasMap.containsKey(field.getName())) continue;
@@ -377,7 +441,7 @@ public class WidgetController {
       field.setValuePair(aliasMap.get(field.getName()).getValueAliasMap());
     }
 
-    // 필터내 셋팅
+    // Set value alias in filter
     for(Filter filter : filters) {
       if(!(filter instanceof InclusionFilter)) continue;
       if(MapUtils.isEmpty(aliasMap) || !aliasMap.containsKey(filter.getField())) continue;
@@ -386,7 +450,7 @@ public class WidgetController {
       inclusionFilter.setValuePair(aliasMap.get(filter.getField()).getValueAliasMap());
     }
 
-    // Search Query 작성
+    // Create search query request
     SearchQueryRequest queryRequest = new SearchQueryRequest();
     queryRequest.setDataSource(dataSource);
     queryRequest.setFilters(filters);

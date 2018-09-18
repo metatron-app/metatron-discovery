@@ -13,7 +13,7 @@
  */
 
 import { AbstractPopupComponent } from '../../common/component/abstract-popup.component';
-import { Component, ElementRef, HostListener, Injector, OnDestroy, OnInit } from '@angular/core';
+import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { DashboardService } from 'app/dashboard/service/dashboard.service';
 import { WorkbookService } from '../../workbook/service/workbook.service';
 import { ActivatedRoute } from '@angular/router';
@@ -26,6 +26,7 @@ import { PopupService } from '../../common/service/popup.service';
 import { BoardLayoutType } from '../../domain/dashboard/dashboard.globalOptions';
 import { EventBroadcaster } from '../../common/event/event.broadcaster';
 import { CookieConstant } from '../../common/constant/cookie.constant';
+import {DashboardComponent} from '../../dashboard/dashboard.component';
 
 @Component({
   selector: 'presentation-dashboard',
@@ -39,6 +40,10 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
 
   // 타이머
   private _timer: any;
+
+  // 대시보드 컴포넌트
+  @ViewChild(DashboardComponent)
+  private dashboardComponent: DashboardComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -156,6 +161,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
   public onDashboardEvent(event: { name: string, data?: any }) {
     if ('LAYOUT_INITIALISED' === event.name) {
       this._setTimer();
+      this.dashboardComponent.hideBoardLoading();
     }
   } // function - onDashboardEvent
 

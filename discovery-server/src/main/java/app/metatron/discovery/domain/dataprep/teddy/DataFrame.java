@@ -14,11 +14,11 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.*;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.prep.parser.preparation.rule.Set;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -62,7 +62,6 @@ public class DataFrame implements Serializable, Transformable {
   @JsonIgnore
   protected int newColPos;      // 새로운 컬럼의 위치. derive에서 수식에 유일한 컬럼만 쓰인 경우에 사용됨.
 
-  @JsonIgnore
   public String ruleString;   // debugging purpose
 
   @JsonIgnore
@@ -97,6 +96,14 @@ public class DataFrame implements Serializable, Transformable {
   public DataFrame(String dsName, String ruleString) {
     this(dsName);
     this.ruleString = ruleString;
+  }
+
+  public void setRuleString(String ruleString) {
+    this.ruleString = ruleString;
+  }
+
+  public String getRuleString() {
+    return ruleString;
   }
 
   public static DataFrame getNewDf(Rule rule, String dsName, String ruleString) {
@@ -554,25 +561,27 @@ public class DataFrame implements Serializable, Transformable {
     return newDf;
   }
 
-  private void assertArgc(int desirable, List<Expr> args, String func) throws TeddyException {
+  //check if Args size are exactly matched with desirable size.
+  private void assertArgsEq(int desirable, List<Expr> args, String func) throws TeddyException {
     if (args.size() != desirable) {
       LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable={}", func, args.size(), desirable);
       throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
     }
   }
 
-  private void assertArgc(int desirable, List<Expr> args, String func, int option) throws TeddyException { // TeddyException {
-    if (option==1) {
-      if(args.size() < desirable){
-        LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable={}", func, args.size(), desirable);
-        throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
-      }
+  //check if Args size are greater than matched with desirable size.
+  private void assertArgsGt(int desirable, List<Expr> args, String func) throws TeddyException {
+    if (args.size() < desirable) {
+      LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable= greater than {}", func, args.size(), desirable);
+      throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
     }
-    else if (option==2) {
-      if(args.size() > desirable){
-        LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable={}", func, args.size(), desirable);
-        throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
-      }
+  }
+
+  //check if Args size are in between desirable nubmers.
+  private void assertArgsBw(int min, int max, List<Expr> args, String func) throws TeddyException {
+    if (args.size() < min || args.size() > max) {
+      LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable= between {} and {}", func, args.size(), min, max);
+      throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
     }
   }
 
@@ -602,7 +611,6 @@ public class DataFrame implements Serializable, Transformable {
       String colName = ((Identifier.IdentifierExpr) expr).getValue();
       int colno = getColnoByColName(colName);
       resultType = getColType(colno);
-      //newColPos = (newColPos == -1 ? colno + 1 : -2);   // 설정된 적이 없으면 설정. 있으면 유일한 컬럼명은 없는 것으로.
       ruleColumns.add(colName); //ruleString에 등장하는 identifier 들을 리스트업.
     }
     // Constant
@@ -678,17 +686,17 @@ public class DataFrame implements Serializable, Transformable {
         case "math.getExponent":
         case "math.round":
           resultType = ColumnType.LONG;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "isnull":
         case "isnan":
         case "ismissing":
           resultType = ColumnType.BOOLEAN;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "ismismatched":
           resultType = ColumnType.BOOLEAN;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         case "upper":
         case "lower":
@@ -696,11 +704,11 @@ public class DataFrame implements Serializable, Transformable {
         case "ltrim":
         case "rtrim":
           resultType = ColumnType.STRING;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "math.abs":
           resultType = decideType(args.get(0));
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "math.acos":
         case "math.asin":
@@ -718,17 +726,17 @@ public class DataFrame implements Serializable, Transformable {
         case "math.tan":
         case "math.tanh":
           resultType = ColumnType.DOUBLE;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         // 2-argument functions
         case "math.max":
         case "math.min":
           resultType = ColumnType.LONG;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         case "math.pow":
           resultType = ColumnType.DOUBLE;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         case "coalesce":
           resultType = ColumnType.UNKNOWN;
@@ -736,18 +744,18 @@ public class DataFrame implements Serializable, Transformable {
         // 3-argument functions
         case "substring":
           resultType = ColumnType.STRING;
-          assertArgc(3, args, func);
+          assertArgsBw(2, 3, args, func);
           break;
         case "timestamptostring":
           resultType = ColumnType.STRING;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         case "concat":
-          assertArgc(1, args, func, 1);
+          assertArgsGt(1, args, func);
           resultType=ColumnType.STRING;
           break;
         case "concat_ws":
-          assertArgc(2, args, func, 1);
+          assertArgsGt(2, args, func);
           resultType=ColumnType.STRING;
           break;
         case "sum":
@@ -755,7 +763,7 @@ public class DataFrame implements Serializable, Transformable {
         case "mean":
         case "max":
         case "min":
-          assertArgc(2, args, func, 1);
+          assertArgsGt(2, args, func);
           resultType=ColumnType.DOUBLE;
           break;
         case "year":
@@ -766,27 +774,27 @@ public class DataFrame implements Serializable, Transformable {
         case "second":
         case "millisecond":
           resultType = ColumnType.LONG;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "weekday":
           resultType = ColumnType.STRING;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "now":
           resultType = ColumnType.TIMESTAMP;
-          assertArgc(1, args, func, 2);
+          assertArgsBw(0, 1, args, func);
           break;
         case "add_time":
           resultType = ColumnType.TIMESTAMP;
-          assertArgc(3, args, func);
+          assertArgsEq(3, args, func);
           break;
         case "time_diff":
           resultType = ColumnType.LONG;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         case "timestamp":
           resultType = ColumnType.TIMESTAMP;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         default:
           LOGGER.error("decideType(): invalid function type: " + expr.toString());
@@ -924,9 +932,9 @@ public class DataFrame implements Serializable, Transformable {
               if(format.equals("")) {
                 format = null;
               }
-              return ((DateTime) obj).toString(format);
+              return ((DateTime) obj).toString(format, Locale.ENGLISH);
             } catch (Exception e) {
-              return ((DateTime) obj).toString();
+              return obj.toString();
             }
           default:
             return obj;
@@ -954,7 +962,7 @@ public class DataFrame implements Serializable, Transformable {
         switch (fromType) {
           case STRING:
             try {
-              DateTimeFormatter dtf = DateTimeFormat.forPattern(format);
+              DateTimeFormatter dtf = DateTimeFormat.forPattern(format).withLocale(Locale.ENGLISH);
               DateTime jTime = DateTime.parse(obj.toString(), dtf);
               return jTime;
             } catch (Exception e) {
@@ -1936,7 +1944,6 @@ public class DataFrame implements Serializable, Transformable {
 
     if (newColType == ColumnType.ARRAY) {
       List<ColumnDescription> arrColDesc = new ArrayList<>();
-//      newColDesc.arrColDesc =
       for (String targetColName : targetColNames) {
         ColumnDescription colDesc = getColDescByColName(targetColName);
         arrColDesc.add(colDesc);
@@ -2350,7 +2357,10 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   protected String stripSingleQuote(String str) {
-    return str.substring(str.indexOf("'") + 1, str.lastIndexOf("'"));
+    if(str.indexOf("'") == 0)
+      return str.substring(str.indexOf("'") + 1, str.lastIndexOf("'"));
+    else
+      return str;
   }
 
   protected void aggregate(DataFrame prevDf, List<String> groupByColNames, List<String> targetExprStrs) throws TeddyException, InterruptedException {
@@ -3544,12 +3554,12 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   // Hive 테이블로 만들 때에만 이 함수를 사용해서 컬럼명을 제약함.
-  public void checkNonAlphaNumerical(String colName) throws IllegalColumnNameForHiveException {
-    Pattern p = Pattern.compile("[^\\\\p{IsAlphabetic}^\\\\p{Digit}_]");
+  public void checkAlphaNumerical(String colName) throws IllegalColumnNameForHiveException {
+    Pattern p = Pattern.compile("^[a-zA-Z0-9_]*$");
     Matcher m = p.matcher(colName);
 
     // 영문자, 숫자, _만 허용
-    if (m.matches()) {
+    if (m.matches() == false) {
       throw new IllegalColumnNameForHiveException("The column name contains non-alphanumerical characters: " + colName);
     }
 
@@ -3561,9 +3571,9 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   // Hive 테이블로 만들 때에만 이 함수를 사용해서 컬럼명을 제약함
-  public void checkNonAlphaNumericalColNames() throws IllegalColumnNameForHiveException {
+  public void checkAlphaNumericalColNames() throws IllegalColumnNameForHiveException {
     for (String colName : colNames) {
-      checkNonAlphaNumerical(colName);
+      checkAlphaNumerical(colName);
     }
   }
 

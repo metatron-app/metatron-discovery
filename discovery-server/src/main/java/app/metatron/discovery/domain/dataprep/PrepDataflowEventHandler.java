@@ -14,23 +14,17 @@
 
 package app.metatron.discovery.domain.dataprep;
 
-import com.google.common.collect.Lists;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.HandleAfterCreate;
-import org.springframework.data.rest.core.annotation.HandleAfterSave;
-import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
-import org.springframework.data.rest.core.annotation.HandleBeforeSave;
-import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
-
-import java.util.List;
-
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformResponse;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
+import com.google.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.core.annotation.*;
+
+import java.util.List;
 
 @RepositoryEventHandler(PrepDataflow.class)
 public class PrepDataflowEventHandler {
@@ -61,7 +55,7 @@ public class PrepDataflowEventHandler {
                 }
             }
             for(PrepDataset dataset : importedDatasets) {
-                PrepTransformResponse response = this.transformService.create(dataset.getDsId(), dataflow.getDfId());
+                PrepTransformResponse response = this.transformService.create(dataset.getDsId(), dataflow.getDfId(), true);
             }
         } catch (Exception e) {
             LOGGER.error("afterCreate(): caught an exception: ", e);

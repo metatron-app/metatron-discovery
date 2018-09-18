@@ -21,7 +21,7 @@
       <li *ngFor="let item of array">
         <a href="javascript:" (click)="selected(item);">{{isStringArray ? item : item[viewKey]}}</a>
       </li>
-      <li *ngIf="array.length === 0">
+      <li *ngIf="array?.length === 0">
         <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
       </li>
     </ul>

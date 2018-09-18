@@ -269,6 +269,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
     메세지
 **************************************************************/
 .ddp-ui-buttons.ddp-inline .ddp-ui-message {display:inline-block; margin-left:10px;}
+.ddp-ui-buttons.ddp-inline .ddp-ui-message .ddp-data-error2 {padding-top:0;}
 .ddp-ui-message span.ddp-data-ok,
 .ddp-ui-message span.ddp-data-error {position:relative; margin-top:10px; padding-left:17px; color:#666eb2; font-size:12px; font-style:italic;}
 .ddp-ui-message span.ddp-data-error2 {display:block; padding:10px 0 0 0; color:#ca4b4b; font-style:italic;}
@@ -330,7 +331,9 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-radio-set {float:left;}
 .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-radio-hidden {overflow:hidden;}
 .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-radio-hidden .ddp-ui-calen {width:320px; padding:10px 0 0 16px;}
-.ddp-wrap-edit2 .ddp-check {padding-top:4px;}
+.ddp-wrap-edit2 .ddp-check {position:relative; padding-top:4px;}
+.ddp-wrap-edit2 .ddp-check.ddp-disabled {opacity:0.5;}
+.ddp-wrap-edit2 .ddp-check.ddp-disabled:after {display:inline-block; position:absolute; top:0; left:0; right:0; bottom:0; content:'';}
 .ddp-wrap-edit2 .ddp-box-datanone {padding:20px 0; border-radius:2px; background-color:#fafafb; text-align:center; color:#b7bac1; font-size:13px;}
 .ddp-wrap-edit2 .ddp-error {display:block; color:#eb5f58; font-size:12px;}
 .ddp-wrap-edit2.ddp-mgt0 {margin-top:0;}
@@ -352,6 +355,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 .ddp-wrap-edit2 .ddp-radio-inline li .ddp-type-selectbox {display:inline-block; margin-left:5px;}
 .ddp-wrap-edit2 .ddp-radio-inline li .ddp-list-selectbox li {display:block; padding-right:0;}
 .ddp-wrap-edit2 .ddp-list-checktype li {padding:5px 0;}
+.ddp-wrap-edit2 .ddp-list-checktype li .ddp-txt-det {color:#808dcd; font-size:12px; font-style:italic; vertical-align:top;}
 .ddp-wrap-edit2.ddp-inline {float:left; width:100%;}
 .ddp-wrap-edit2.ddp-inline .ddp-label-type {float:left; width:117px;}
 .ddp-wrap-edit2.ddp-inline .ddp-inline {display:block;}
@@ -406,7 +410,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 
 .ddp-wrap-edit3 .ddp-ui-edit-option .ddp-textarea {display:block; padding:5px 10px; width:100%; border:1px solid #d0d1d9; border-radius:2px; box-sizing:border-box;}
 .ddp-wrap-edit3.ddp-type .ddp-label-type {position:relative; color:#4c515a;}
-.ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-bold {font-weight:bold;}
+.ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-bold {font-weight:bold; font-size:14px;}
 .ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-normal {padding-top:0; width:170px; font-weight:normal;}
 .ddp-wrap-edit3.ddp-type .ddp-label-type a.ddp-link-edit2 {position:absolute; top:25px; left:0; bottom:inherit;}
 .ddp-wrap-edit3.ddp-type .ddp-type-selectbox {display:inline-block;width:168px; box-sizing:border-box;}
@@ -467,7 +471,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 .ddp-edit-setting .ddp-edit-sub .ddp-ui-message .ddp-data-ok,
 .ddp-edit-setting .ddp-edit-sub .ddp-ui-message .ddp-data-error {margin-left:12px;}
 
-.ddp-edit-setting.ddp-type {margin-top:40px; padding-top:40px; border-top:1px dotted #ccc; }
+.ddp-edit-setting.ddp-type {margin-top:30px; padding-top:30px; border-top:1px dotted #ccc; }
 .ddp-edit-setting .ddp-fold-link {display:inline-block; padding-bottom:20px; color:#4c515a; font-size:13px; text-decoration:underline;}
 .ddp-edit-setting .ddp-fold-link:after {display:inline-block; width:7px; height:4px; margin-left:10px; background:url(../images/icon_select.png) no-repeat; background-position:-16px top; vertical-align:middle; content:'';}
 .ddp-edit-setting.ddp-selected .ddp-fold-link:after {transform:rotate(180deg)}
@@ -1707,6 +1711,14 @@ table.ddp-table-type2 tbody tr td .ddp-input-form input.ddp-txt-input:focus + em
 table.ddp-table-type2 thead tr th {position:relative; padding:7px 10px; color:#90969f; font-size:12px; border-right:1px solid #eaeaed;}
 table.ddp-table-type2 thead tr th:first-of-type {}
 table.ddp-table-type2 thead tr th:last-of-type {border-right:1px solid transparent;}
+table.ddp-table-type2 thead tr th .ddp-th-long {display:inline-block;   position:relative; max-width:100%; box-sizing:border-box;}
+
+table.ddp-table-type2 thead tr th .ddp-th-long {}
+table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-icons {float:right;}
+table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-txt {display:block; overflow:hidden; white-space:nowrap;text-overflow:ellipsis; line-height:19px;}
+table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-icons .ddp-wrap-hover-info {float:left; padding:5px 0 0 0; font-size:0px;}
+table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-icons [class*="ddp-icon-array"] {top:0;}
+
 table.ddp-table-type3 thead tr th {color:#4b515b; font-size:12px; font-weight:normal; border-top:1px solid #d2d3d9; border-bottom:1px solid #d2d3d9; background-color:#f8f8f8;}
 table.ddp-table-type3 thead tr th:first-of-type {border-left:1px solid #d2d3d9;}
 table.ddp-table-type3 thead tr th:last-of-type {border-right:1px solid #d2d3d9;}
@@ -3024,6 +3036,7 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 .ddp-wrap-flow [_nghost-c5] {background-color:#e7e7ea !important;}
 .handle[_ngcontent-c5]:before {display:inline-block; content:''; position:absolute; top:50%; left:50%;  margin:-7px 0 0 -1px; width:2px; height:13px; transform:rotate(90deg); background:url(../images/icon_bar.png) no-repeat;}
 
+.right-component[_ngcontent-c4] {min-width:310px !important;}
 /**************************************************************
 	대시보드 열람
 **************************************************************/
@@ -3233,9 +3246,9 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 .gradx_show_code {display:none;}
 .cp-default {display:none !important;}
 
-#gradX2 {width:221px; padding:10px 0 20px 0;}
-#gradX2 .gradx {border:none; padding:0; background:none; cursor:none;}
-#gradX2 .gradx_container {width:230px; padding:0; margin:0; border:none; background:none; }
+#gradX2 {padding:10px 0 20px 0; text-align:center;}
+#gradX2 .gradx {display:inline-block; width:220px; border:none; padding:0; background:none; cursor:none;}
+#gradX2 .gradx_container {padding:0; margin:0; border:none; background:none; }
 #gradX2 .gradx_panel {width:220px; height:29px; cursor:default;}
 #gradX2 .gradx_start_sliders {position:relative; height:0px; margin-top:0px; margin-left:-2px;background:none; box-shadow:none; border:none; cursor:default;}
 #gradX2 .gradx_start_sliders.ddp-selected {padding-bottom:35px;}

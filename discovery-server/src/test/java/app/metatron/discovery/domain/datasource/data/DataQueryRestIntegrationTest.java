@@ -40,8 +40,10 @@ import app.metatron.discovery.domain.datasource.DataSourceAlias;
 import app.metatron.discovery.domain.datasource.SimilarityQueryRequest;
 import app.metatron.discovery.domain.datasource.data.alias.CodeTableAlias;
 import app.metatron.discovery.domain.datasource.data.alias.ValueRefAlias;
+import app.metatron.discovery.domain.datasource.data.forward.CsvResultForward;
 import app.metatron.discovery.domain.datasource.data.forward.JsonResultForward;
 import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
+import app.metatron.discovery.domain.datasource.data.result.FileResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.GraphResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.PivotResultFormat;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
@@ -148,7 +150,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     ));
 
     List<UserDefinedField> userDefinedFields = Lists.newArrayList(
-        new ExpressionField("calc", "sumof(\"Sales\")", "measure", null, true)
+        new ExpressionField("calc", "sumof(\"Sales\")", "measure",true)
     );
 
 
@@ -192,6 +194,47 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void searchQueryForSalesForDownload() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(1000000);
+
+    List<Filter> filters = Lists.newArrayList();
+
+    Pivot pivot1 = new Pivot();
+    TimestampField timestampField = new TimestampField("OrderDate", null, new ContinuousTimeFormat(false, TimeFieldFormat.TimeUnit.DAY.name(), null));
+    pivot1.setColumns(Lists.newArrayList(timestampField));
+    pivot1.setAggregations(Lists.newArrayList(
+        new MeasureField("Sales", MeasureField.AggregationType.NONE)
+    ));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot1, limit);
+    CsvResultForward csvResultForward = new CsvResultForward();
+    request.setResultForward(csvResultForward);
+    request.setResultFormat(new FileResultFormat());
+
+    System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request))
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesWithTimeCompare() throws JsonProcessingException {
 
     DataSource dataSource1 = new DefaultDataSource("sales");
@@ -201,7 +244,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
                                                      "Technology", "가전");
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test", "Category + '1'", "measure", null, false)
+        new ExpressionField("test", "Category + '1'", "measure",false)
     );
 
     List<Filter> filters = Lists.newArrayList(
@@ -515,7 +558,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Filter> filters = Lists.newArrayList();
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test", "AVGOF(\"Sales\")", "measure", null, true)
+        new ExpressionField("test(%)", "AVGOF(\"Sales\")", "measure",true)
         //        new ExpressionField("test", "countd(\"City\")", "measure", null,true)
         //        new ExpressionField("test", "Sales + 1", "measure", null,false)
     );
@@ -524,8 +567,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     Pivot pivot = new Pivot();
     pivot.setColumns(Lists.newArrayList(new DimensionField("Category")));
     pivot.setAggregations(Lists.newArrayList(
-        new MeasureField("Sales", null, MeasureField.AggregationType.SUM)
-        //        new MeasureField("test", "user_defined", MeasureField.AggregationType.NONE)
+//        new MeasureField("Sales", null, MeasureField.AggregationType.SUM)
+                new MeasureField("test(%)", "user_defined", MeasureField.AggregationType.NONE)
     ));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot, limit);
@@ -562,14 +605,14 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Filter> filters = Lists.newArrayList();
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("datediff_dimension", "DATEDIFF( \"OrderDate\",\"ShipDate\" )", "dimension", null, false),
-        new ExpressionField("now_dimension", "NOW(  )", "dimension", null, false),
-        new ExpressionField("orderdate_d", "\"OrderDate\"", "dimension", null, false),
-        new ExpressionField("trim", "TRIM( \"Category\"  )", "dimension", null, false),
-        new ExpressionField("case_dim", "CASE( \"Category\" == 'Furniture', 'F', 'default' )", "dimension", null, false),
-        //        new ExpressionField("switch_dim", "SWITCH( \"Category\", 'Furniture', 'F', 'Technology', 'T')", "dimension", null,false)
-        new ExpressionField("sumof_dim", "(SUMOF([SalesForecase]) - SUMOF( [Sales]  ) ) / SUMOF( [Sales]  ) * 100", "measure", null, true)
-        //        new ExpressionField("test", "Sales + 1", "measure", null,false)
+        new ExpressionField("datediff_dimension", "DATEDIFF( \"OrderDate\",\"ShipDate\" )", "dimension", false),
+        new ExpressionField("now_dimension", "NOW(  )", "dimension", false),
+        new ExpressionField("orderdate_d", "\"OrderDate\"", "dimension", false),
+        new ExpressionField("trim", "TRIM( \"Category\"  )", "dimension", false),
+        new ExpressionField("case_dim", "CASE( \"Category\" == 'Furniture', 'F', 'default' )", "dimension", false),
+        //        new ExpressionField("switch_dim", "SWITCH( \"Category\", 'Furniture', 'F', 'Technology', 'T')", "dimension", false)
+        new ExpressionField("sumof_dim", "(SUMOF([SalesForecase]) - SUMOF( [Sales]  ) ) / SUMOF( [Sales]  ) * 100", "measure", true)
+        //        new ExpressionField("test", "Sales + 1", "measure", false)
     );
 
     // Case1
@@ -614,7 +657,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Filter> filters = Lists.newArrayList();
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test", "$RANK(\"SUMOF(Sales)\",{d})", "measure", null, false)
+        new ExpressionField("test", "$RANK(\"SUMOF(Sales)\",{d})", "measure", false)
     );
 
     // Case1
@@ -659,9 +702,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Filter> filters = Lists.newArrayList();
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        //        new ExpressionField("test", "sumof(\"Sales\")", "measure", null,true)
-        //        new ExpressionField("test", "countd(\"City\")", "measure", null,true)
-        new ExpressionField("test", "\"Category\"", "dimension", null, false)
+        //        new ExpressionField("test", "sumof(\"Sales\")", "measure", true)
+        //        new ExpressionField("test", "countd(\"City\")", "measure", true)
+        new ExpressionField("test", "\"Category\"", "dimension", false)
     );
 
     // Case1
@@ -1348,7 +1391,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     ));
 
     List<UserDefinedField> userDefinedFields = Lists.newArrayList();
-    userDefinedFields.add(new ExpressionField("countof", "countof(\"State\")", "measure", null, true));
+    userDefinedFields.add(new ExpressionField("countof", "countof(\"State\")", "measure", true));
 
     //    limit.setSort(Lists.newArrayList(new Sort("City", "asc")));
 
@@ -1598,7 +1641,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     // Case 1. 행 차원값 2개 열 차원값 1개 교차에 측정값 1개씩
     Pivot pivot3 = new Pivot();
     pivot3.setRows(Lists.newArrayList(new DimensionField("Category")));
-    //    pivot3.setColumns(Lists.newArrayList(new DimensionField("Category")));
+//    pivot3.setColumns(Lists.newArrayList(new DimensionField("Category")));
     //pivot3.setRows(Lists.newArrayList(new DimensionField("Region"), new DimensionField("State")));
     pivot3.setAggregations(Lists.newArrayList(
         new MeasureField("Sales", MeasureField.AggregationType.AVG)
@@ -2017,7 +2060,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     MeasureField measureField = new MeasureField("Sales");
     //    MeasureField measureField = new MeasureField("dis", "user_defined");
 
-    ExpressionField expressionField = new ExpressionField("dis", "\"Discount\" + 100", "measure", null, false);
+    ExpressionField expressionField = new ExpressionField("dis", "\"Discount\" + 100", "measure", false);
 
     CandidateQueryRequest request = new CandidateQueryRequest();
     request.setDataSource(dataSource1);
@@ -2098,8 +2141,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     request.setContext(TestUtils.makeMap(QueryRequest.CONTEXT_ROUTE_URI, "/route/uri"));
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test1", "AVGOF(\"Sales\")", "measure", null, true),
-        new ExpressionField("test2", "countd(\"City\")", "measure", null, true)
+        new ExpressionField("test1", "AVGOF(\"Sales\")", "measure", true),
+        new ExpressionField("test2", "countd(\"City\")", "measure", true)
         //        new ExpressionField("test", "Sales + 1", "measure", null,false)
     );
 

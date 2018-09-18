@@ -14,8 +14,10 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import com.google.common.collect.Lists;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -26,17 +28,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import java.util.Map;
 
 @Service
 public class PrepSnapshotService {
@@ -71,29 +69,11 @@ public class PrepSnapshotService {
             splited[splited.length - 1] = splited[splited.length - 1].replaceAll("[\\\\/:*?\"<>|\\s]", "_");
         }
 
-        String ssNameEncoded = String.join("/",splited);
-        /*
-        try {
-            String ssNameEncoded = UriUtils.encodePath(ssName, Charset.defaultCharset().displayName());
-        } catch (Exception e) {
-            LOGGER.error("encodeSsName(): "+ e.getMessage());
-            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
-        }
-        */
-        return ssNameEncoded;
+        return String.join("/",splited);
     }
 
     public String unescapeSsNameOfUri(String ssName) {
-        String ssNameDecoded = ssName;
-        /*
-        try {
-            String ssNameDecoded = UriUtils.decode(ssName, Charset.defaultCharset().displayName());
-        } catch (Exception e) {
-            LOGGER.error("decodeSsName(): "+ e.getMessage());
-            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
-        }
-        */
-        return ssNameDecoded;
+        return ssName;
     }
 
     public String getSnapshotDir(String baseDir, String ssName) {
@@ -158,7 +138,7 @@ public class PrepSnapshotService {
         }
     }
 
-    public List<PrepSnapshot> getWorkList(String dsId) {
+    public List<PrepSnapshot> getWorkList(String dsId, String option) {
         List<PrepSnapshot> snapshots = Lists.newArrayList();
 
         try {
@@ -166,7 +146,11 @@ public class PrepSnapshotService {
             List<PrepSnapshot> listAll = this.snapshotRepository.findAll(sort);
             for(PrepSnapshot ss : listAll) {
                 if(true==dsId.equals(ss.getLineageInfoValue("dsId"))) {
-                    snapshots.add(ss);
+                    if(option.toUpperCase().equals("ALL")){
+                        snapshots.add(ss);
+                    } else if(ss.getStatusEnum() != PrepSnapshot.STATUS.CANCELING && ss.getStatusEnum() != PrepSnapshot.STATUS.CANCELED){
+                        snapshots.add(ss);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -174,5 +158,53 @@ public class PrepSnapshotService {
         }
 
         return snapshots;
+    }
+
+    public PrepSnapshot.STATUS getSnapshotStatus(String ssId) {
+        try {
+            Sort sort = new Sort(Sort.Direction.DESC, "launchTime");
+            List<PrepSnapshot> listAll = this.snapshotRepository.findAll(sort);
+            for(PrepSnapshot ss : listAll) {
+                if(ssId.equals(ss.getSsId())) {
+                   return ss.getStatusEnum();
+                }
+            }
+        } catch (Exception e) {
+            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+        }
+
+        return null;
+    }
+
+    public void updateSnapshotStatus(String ssId, PrepSnapshot.STATUS status) {
+        try {
+            Sort sort = new Sort(Sort.Direction.DESC, "launchTime");
+            List<PrepSnapshot> listAll = this.snapshotRepository.findAll(sort);
+            for(PrepSnapshot ss : listAll) {
+                if(ssId.equals(ss.getSsId())) {
+                    ss.setStatus(status);
+                    this.snapshotRepository.saveAndFlush(ss);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+        }
+    }
+
+    public Map<String,Object> getSnapshotLineageInfo(String ssId) {
+        try {
+            Sort sort = new Sort(Sort.Direction.DESC, "launchTime");
+            List<PrepSnapshot> listAll = this.snapshotRepository.findAll(sort);
+            for(PrepSnapshot ss : listAll) {
+                if(ssId.equals(ss.getSsId())) {
+                    return ss.getJsonLineageInfo();
+                }
+            }
+        } catch (Exception e) {
+            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+        }
+
+        return null;
     }
 }
