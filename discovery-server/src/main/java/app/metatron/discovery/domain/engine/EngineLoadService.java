@@ -229,6 +229,7 @@ public class EngineLoadService {
     BulkLoadSpec spec = new BulkLoadSpecBuilder(dataSource)
         .name(engineName)
         .path(Lists.newArrayList(remoteFile))
+        .tuningConfig(info.getTuningOptions())
         .build();
 
     String specStr = GlobalObjectMapper.writeValueAsString(spec);
