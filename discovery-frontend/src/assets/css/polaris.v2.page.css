@@ -4396,7 +4396,7 @@ table.ddp-table-order tr td {padding:13px 13px; border-top:1px solid #e7e7ea; fo
 .ddp-view-formula .ddp-ui-detail .ddp-btn-close {display:inline-block; position:absolute; right:27px; top:19px; width:16px; height:16px; background:url(../images/btn_close.png) no-repeat; cursor: pointer;}
 .ddp-view-formula .ddp-ui-detail .ddp-ui-det-title {display:block; padding:15px 0 10px 0; color:#4b515b; font-size:13px; font-weight:bold;}
 .ddp-view-formula .ddp-ui-detail .ddp-ui-det-category {display:block; padding-bottom:25px; font-size:11px; color:#4b515b;}
-.ddp-view-formula .ddp-ui-detail .ddp-txt-det {color:#90969f; font-size:13px; line-height:21px;}
+.ddp-view-formula .ddp-ui-detail .ddp-txt-det {display:block; padding-bottom:10px; color:#90969f; font-size:13px; line-height:21px;}
 
 .ddp-view-formula.ddp-full .ddp-ui-detail {display:none;}
 .ddp-ui-userfield {position:absolute; top:240px; left:50px; right:50px; bottom:0; padding:40px 0 0 0; border-top:1px solid #e7e7ea;}
