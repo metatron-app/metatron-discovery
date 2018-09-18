@@ -56,6 +56,8 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
   List<Dimension> dimensions = Lists.newArrayList();
 
+  boolean enableExtension = false;
+
   public GeoQueryBuilder() {
   }
 
@@ -98,6 +100,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
             virtualColumns.put(dummyDimName, new ExprVirtualColumn(geoHashFormat.toHashExpression(field.getName()), dummyDimName));
             dimensions.add(new DefaultDimension(dummyDimName));
             postAggregations.add(new ExprPostAggregator(geoHashFormat.toWktExpression(dummyDimName, geoName)));
+            enableExtension = true;
           } else {
             for (String geoPointKey : LogicalType.GEO_POINT.getGeoPointKeys()) {
               String propName = fieldName + "." + geoPointKey;
@@ -198,9 +201,11 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
       geoQuery.addPropertyName(propertyNames.toArray(new PropertyName[propertyNames.size()]));
     }
 
-    geoQuery.setExtension(new AggregationExtension(Lists.newArrayList(virtualColumns.values()),
-                                                   dimensions, aggregations, postAggregations,
-                                                   null, null));
+    if(enableExtension) {
+      geoQuery.setExtension(new AggregationExtension(Lists.newArrayList(virtualColumns.values()),
+                                                     dimensions, aggregations, postAggregations,
+                                                     null, null));
+    }
 
     return geoQuery;
   }

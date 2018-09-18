@@ -78,7 +78,9 @@ public class GeoService {
     }
 
     LOGGER.debug("Geo Server Query : {}", geoQueryStr);
-    LOGGER.debug("Geo Server Query = Druid : {}", geoQuery.getExtension().toParamString());
+    if(geoQuery.getExtension() != null) {
+      LOGGER.debug("Geo Server Query = Druid : {}", geoQuery.getExtension().toParamString());
+    }
 
     return geoRepository.query(geoQueryStr);
   }

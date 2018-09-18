@@ -49,6 +49,6 @@ public enum LogicalType {
   HTTP_CODE;
 
   public List<String> getGeoPointKeys() {
-    return Lists.newArrayList("lat", "lon", "addr");
+    return Lists.newArrayList("lat", "lon", "addr", "coord");
   }
 }
