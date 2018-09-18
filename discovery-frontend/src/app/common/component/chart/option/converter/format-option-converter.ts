@@ -230,7 +230,7 @@ export class FormatOptionConverter {
     if ((!customSymbol || _.trim(customSymbol.value).length == 0) && format.type == String(UIFormatType.CURRENCY)) {
       switch (format.sign) {
         case String(UIFormatCurrencyType.KRW) :
-          value = '₩ ' + value
+          value = '₩ ' + value;
           break;
         case String(UIFormatCurrencyType.USD) :
           value = '$ ' + value;
@@ -965,7 +965,7 @@ export class FormatOptionConverter {
    */
   public static getNumberValue(value: any): number {
 
-    return parseFloat(value.replace(/,/g, ''));
+    return parseFloat(value.toString().replace(/,/g, ''));
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

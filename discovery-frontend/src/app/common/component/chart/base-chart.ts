@@ -438,7 +438,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
                 column.value[index] = grid.max;
               }
               else {
-                column.value[index] = grid.max - totalValue[index];
+                column.value[index] = (<number>grid.max) - totalValue[index];
               }
             }
             else if( totalValue[index] + value < grid.min ) {

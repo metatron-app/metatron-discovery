@@ -506,6 +506,9 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
     // 포멧값이 설정된 숫자값
     let numValue = FormatOptionConverter.getFormatValue(1000, format);
 
+    // formatted percentage
+    let percentValue = FormatOptionConverter.getDecimalValue(100, format.decimal, format.useThousandsSep);
+
     if (uiOption.dataLabel.displayTypes) {
       // displayType에 따라서 미리보기 설정
       for (const type of uiOption.dataLabel.displayTypes) {
@@ -519,7 +522,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
             uiOption.dataLabel.previewList.push({name: numValue, value: UIChartDataLabelDisplayType.CATEGORY_VALUE});
             break;
           case UIChartDataLabelDisplayType.CATEGORY_PERCENT:
-            uiOption.dataLabel.previewList.push({name: '100%', value: UIChartDataLabelDisplayType.CATEGORY_PERCENT});
+            uiOption.dataLabel.previewList.push({name: percentValue + '%', value: UIChartDataLabelDisplayType.CATEGORY_PERCENT});
             break;
           case UIChartDataLabelDisplayType.SERIES_NAME:
             uiOption.dataLabel.previewList.push({name: 'Series Name', value: UIChartDataLabelDisplayType.SERIES_NAME});
@@ -528,7 +531,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
             uiOption.dataLabel.previewList.push({name: numValue, value: UIChartDataLabelDisplayType.SERIES_VALUE});
             break;
           case UIChartDataLabelDisplayType.SERIES_PERCENT:
-            uiOption.dataLabel.previewList.push({name: '100%', value: UIChartDataLabelDisplayType.SERIES_PERCENT});
+            uiOption.dataLabel.previewList.push({name: percentValue + '%', value: UIChartDataLabelDisplayType.SERIES_PERCENT});
             break;
           case UIChartDataLabelDisplayType.XAXIS_VALUE:
             uiOption.dataLabel.previewList.push({name: numValue, value: UIChartDataLabelDisplayType.XAXIS_VALUE});

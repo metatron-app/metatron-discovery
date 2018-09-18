@@ -166,6 +166,9 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
     // 포멧값이 설정된 숫자값
     let numValue = FormatOptionConverter.getFormatValue(1000, format);
 
+    // formatted percentage
+    let percentValue = FormatOptionConverter.getDecimalValue(100, format.decimal, format.useThousandsSep);
+
     if (uiOption.toolTip.displayTypes) {
       // displayType에 따라서 미리보기 설정
       for (const type of uiOption.toolTip.displayTypes) {
@@ -180,7 +183,7 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
             uiOption.toolTip.previewList.push({name: 'Category Value: ' + numValue, value: UIChartDataLabelDisplayType.CATEGORY_VALUE});
             break;
           case UIChartDataLabelDisplayType.CATEGORY_PERCENT:
-            uiOption.toolTip.previewList.push({name: 'Category %: 100%', value: UIChartDataLabelDisplayType.CATEGORY_PERCENT});
+            uiOption.toolTip.previewList.push({name: 'Category %: ' + percentValue + '%', value: UIChartDataLabelDisplayType.CATEGORY_PERCENT});
             break;
           case UIChartDataLabelDisplayType.SERIES_NAME:
             uiOption.toolTip.previewList.push({name: 'Series: Series Name', value: UIChartDataLabelDisplayType.SERIES_NAME});
@@ -189,7 +192,7 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
             uiOption.toolTip.previewList.push({name: 'Series Value: ' + numValue, value: UIChartDataLabelDisplayType.SERIES_VALUE});
             break;
           case UIChartDataLabelDisplayType.SERIES_PERCENT:
-            uiOption.toolTip.previewList.push({name: 'Series %: 100%', value: UIChartDataLabelDisplayType.SERIES_PERCENT});
+            uiOption.toolTip.previewList.push({name: 'Series %: ' + percentValue + '%', value: UIChartDataLabelDisplayType.SERIES_PERCENT});
             break;
           case UIChartDataLabelDisplayType.XAXIS_VALUE:
             uiOption.toolTip.previewList.push({name: 'X axis Value: ' + numValue, value: UIChartDataLabelDisplayType.XAXIS_VALUE});
@@ -252,7 +255,7 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
     let categoryValIdx = filteredDisplayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE);
     let categoryPerIdx = filteredDisplayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT);
     if (-1 !== categoryValIdx && -1 !== categoryPerIdx) {
-      uiOption.toolTip.previewList[categoryValIdx]['name'] = 'Category Value: ' + numValue + '(100%)';
+      uiOption.toolTip.previewList[categoryValIdx]['name'] = 'Category Value: ' + numValue + '(' + percentValue + '%)';
       uiOption.toolTip.previewList.splice(categoryPerIdx, 1);
     }
 
@@ -265,7 +268,7 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
         seriesValIdx += -1;
         seriesPerIdx += -1;
       }
-      uiOption.toolTip.previewList[seriesValIdx]['name'] = 'Series Value: ' + numValue + '(100%)';
+      uiOption.toolTip.previewList[seriesValIdx]['name'] = 'Series Value: ' + numValue + '(' + percentValue + '%)';
       uiOption.toolTip.previewList.splice(seriesPerIdx, 1);
     }
 
