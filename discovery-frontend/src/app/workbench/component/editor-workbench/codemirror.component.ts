@@ -334,6 +334,8 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
       .replace(/\s{0,}UPDATE /ig,"UPDATE ")
       .replace(/ SET /ig," SET ")
 
+      .replace(/\;/ig, "\;~::~")
+
       .replace(/~::~{1,}/g,"~::~")
       .split('~::~');
   }
