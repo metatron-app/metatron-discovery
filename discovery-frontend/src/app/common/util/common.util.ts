@@ -292,10 +292,10 @@ export class CommonUtil {
    * @param obj
    */
   public static objectToArray(obj: any) {
-    if (obj.forEach) {
-      return obj;
-    } else if (isNullOrUndefined(obj)) {
+    if (isNullOrUndefined(obj)) {
       return [];
+    } else if (obj.forEach) {
+      return obj;
     } else {
       return Object.keys(obj).reduce((acc, currVal) => {
         acc.push(obj[currVal]);
