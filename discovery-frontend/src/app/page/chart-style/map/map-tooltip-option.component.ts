@@ -159,7 +159,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
    * @param displayType
    * @param typeIndex
    */
-  public toggleDisplayType(displayType: UIChartDataLabelDisplayType, typeIndex: number): void {
+  public toggleDisplayType(displayType: string, typeIndex: number): void {
 
     // initialize
     if( !this.uiOption.toolTip.displayTypes ) {
@@ -177,7 +177,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     // if they are not checked, add them
     if( !isFind ) {
-      this.uiOption.toolTip.displayTypes[typeIndex] = displayType;
+      this.uiOption.toolTip.displayTypes[typeIndex] = UIChartDataLabelDisplayType[displayType];
     }
 
     // set uiOption
@@ -260,5 +260,20 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     // set uiOption
     this.apply();
+  }
+
+  /**
+   * return tooltip type boolean value
+   * @returns {boolean}
+   */
+  public returnMapTooltip(tooltipType: string): boolean {
+
+    if (this.uiOption.toolTip.displayTypes &&
+        -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType[tooltipType])) {
+
+      return true;
+    }
+
+    return false;
   }
 }

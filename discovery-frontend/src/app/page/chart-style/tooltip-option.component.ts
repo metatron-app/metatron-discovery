@@ -94,7 +94,7 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
    * @param displayType
    * @param typeIndex
    */
-  public toggleDisplayType(displayType: UIChartDataLabelDisplayType, typeIndex: number): void {
+  public toggleDisplayType(displayType: string, typeIndex: number): void {
 
     // 값이 없을경우 기화
     if( !this.uiOption.toolTip.displayTypes ) {
@@ -112,7 +112,7 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
 
     // 체크되지 않은 상태라면 추가
     if( !isFind ) {
-      this.uiOption.toolTip.displayTypes[typeIndex] = displayType;
+      this.uiOption.toolTip.displayTypes[typeIndex] = UIChartDataLabelDisplayType[displayType];
     }
 
     // preview 설정

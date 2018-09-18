@@ -11,7 +11,7 @@
         <div class="ddp-list-sub2">
           <div class="ddp-part-check-b">
             <label class="ddp-label-checkbox ddp-check-full">
-              <input type="checkbox" [ngModel]="uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('LAYER_NAME') != -1"
+              <input type="checkbox" [ngModel]="returnMapTooltip('LAYER_NAME')"
                      (click)="toggleDisplayType('LAYER_NAME', 17)">
               <i class="ddp-icon-checkbox"></i>
               <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.map.layer.name' | translate}}</span>
@@ -19,7 +19,7 @@
           </div>
           <div class="ddp-part-check-b">
             <label class="ddp-label-checkbox ">
-              <input type="checkbox" [ngModel]="uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('LOCATION_INFO') != -1"
+              <input type="checkbox" [ngModel]="returnMapTooltip('LOCATION_INFO')"
                      (click)="toggleDisplayType('LOCATION_INFO', 18)">
               <i class="ddp-icon-checkbox"></i>
               <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.map.geo.info' | translate}}</span>
@@ -27,14 +27,14 @@
           </div>
           <div class="ddp-part-check-b">
             <label class="ddp-label-checkbox">
-              <input type="checkbox" [ngModel]="uiOption.toolTip?.displayTypes && uiOption?.toolTip?.displayTypes.indexOf('DATA_VALUE') != -1"
+              <input type="checkbox" [ngModel]="returnMapTooltip('DATA_VALUE')"
                      (click)="toggleDisplayType('DATA_VALUE', 19)">
               <i class="ddp-icon-checkbox"></i>
               <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.map.data.value' | translate}}</span>
             </label>
           </div>
           <!-- 데이터 값 -->
-          <div class="ddp-data-value" *ngIf="uiOption?.toolTip?.displayTypes.indexOf('DATA_VALUE') != -1">
+          <div class="ddp-data-value" *ngIf="returnMapTooltip('DATA_VALUE')">
 
             <ul class="ddp-list-datavalue">
               <li *ngFor="let item of columns; let index = index">
