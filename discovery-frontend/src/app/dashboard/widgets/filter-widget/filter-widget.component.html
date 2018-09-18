@@ -39,7 +39,7 @@
     <!-- //title -->
 
     <!-- 차원값 필터 -->
-    <div class="ddp-ui-widget-contents" *ngIf="filter.type === 'include'">
+    <div *ngIf="filter.type === 'include'" class="ddp-ui-widget-contents" >
       <!-- 복수 선택 콤보 박스 -->
       <component-filter-multi-select *ngIf="convertToIncludeFilter(filter).selector === inclusionSelectorType.MULTI_COMBO"
                                      [array]="candidateList"
@@ -115,7 +115,7 @@
     </div>
     <!-- // 차원값 필터 -->
     <!-- 측정값 필터 -->
-    <div class="ddp-ui-widget-contents" *ngIf="filter.type === 'bound'">
+    <div *ngIf="filter.type === 'bound'" class="ddp-ui-widget-contents" >
       <div class="ddp-display-table" >
         <div class="ddp-table-in" >
           <bound-filter [filter]="filter" (change)="applyValue()"></bound-filter>
@@ -123,76 +123,43 @@
       </div>
     </div>
     <!-- // 측정값 필터 -->
-    <!-- 타임스탬프 필터 -->
-    <div class="ddp-ui-widget-contents" *ngIf="isTimeFilter">
-      <!-- 연속 형식 - None Granularity -->
-      <div *ngIf="!isDiscontinuousFilter && isContinuousByAll" class="ddp-ui-divide">
-        <!-- 탭별 내용 영역 -->
-        <div class="ddp-wrap-toggle-contents">
-          <!-- 전체 기간 선택 탭 영역 -->
-          <div *ngIf="isAllTypeTimeFilter" class="ddp-ui-toggle-contents">
-            <span class="ddp-txt-preview">(No time filtering)</span>
-          </div>
-          <!-- // 전체 기간 선택 탭 영역 -->
-          <!-- 상대적인 기간 선택 탭 영역 -->
-          <div *ngIf="isRelativeTypeTimeFilter" class="ddp-ui-toggle-contents">
-            <app-time-relative-filter
-              [mode]="'WIDGET'" [filter]="filter"
-              (change)="changeFilterEvent($event)">
-            </app-time-relative-filter>
-          </div>
-          <!-- // 상대적인 기간 선택 탭 영역 -->
-          <!-- 특정 기간 선택 탭 영역 -->
-          <div *ngIf="isRangeTypeTimeFilter" class="ddp-ui-toggle-contents">
-            <app-time-range-filter
-              [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
-              (change)="changeFilterEvent($event)">
-            </app-time-range-filter>
-          </div>
-          <!-- // 특정 기간 선택 탭 영역 -->
-        </div>
-        <!-- // 탭별 내용 영역 -->
+    <!-- Timestamp Filter -->
+    <div *ngIf="isTimeFilter" class="ddp-ui-widget-contents" >
+
+      <!-- 전체 기간 선택 탭 영역 -->
+      <div class="ddp-filter-view ddp-full" >
+        <span *ngIf="isAllTypeTimeFilter" class="ddp-txt-preview">(No time filtering)</span>
       </div>
-      <!-- // 연속 형식 - None Granularity -->
-      <!-- 연속 형식 - Granularity -->
-      <div *ngIf="!isDiscontinuousFilter && !isContinuousByAll" class="ddp-ui-divide" >
-        <!-- 탭별 내용 영역 -->
-        <div class="ddp-wrap-toggle-contents">
-          <!-- 전체 기간 선택 탭 영역 -->
-          <div *ngIf="isListTypeTimeFilter" class="ddp-ui-toggle-contents">
-            <app-time-list-filter
-              [mode]="'WIDGET'" [filter]="filter"
-              [dashboard]="widget.dashBoard" [field]="field"
-              (change)="changeFilterEvent($event)">
-            </app-time-list-filter>
-          </div>
-          <!-- // 전체 기간 선택 탭 영역 -->
-          <!-- 특정 기간 선택 탭 영역 -->
-          <div *ngIf="isRangeTypeTimeFilter" class="ddp-ui-toggle-contents">
-            <app-time-range-filter
-              [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
-              (change)="changeFilterEvent($event)">
-            </app-time-range-filter>
-          </div>
-          <!-- // 특정 기간 선택 탭 영역 -->
-        </div>
-        <!-- // 탭별 내용 영역 -->
+      <!-- // 전체 기간 선택 탭 영역 -->
+
+      <!-- Relative Time Filter -->
+      <div *ngIf="isRelativeTypeTimeFilter" class="ddp-filter-view ddp-full">
+        <app-time-relative-filter
+          [mode]="'WIDGET'" [filter]="filter"
+          (change)="changeFilterEvent($event)">
+        </app-time-relative-filter>
       </div>
-      <!-- // 연속 형식 - Granularity -->
-      <!-- 불연속 형식 -->
-      <div *ngIf="isDiscontinuousFilter" class="ddp-ui-divide" >
-        <!-- //summary -->
-        <div class="ddp-filter-form">
-          <app-time-list-filter
-            [mode]="'WIDGET'" [filter]="filter"
-            [dashboard]="widget.dashBoard" [field]="field"
-            (change)="changeFilterEvent($event)">
-          </app-time-list-filter>
-        </div>
-      </div>
-      <!-- // 불연속 형식 -->
+      <!-- // Relative Time Filter -->
+
+      <!-- Range Time Filter -->
+      <app-time-range-filter
+        *ngIf="isRangeTypeTimeFilter"
+        [mode]="'WIDGET'" [filter]="filter" [dashboard]="widget.dashBoard"
+        (change)="changeFilterEvent($event)">
+      </app-time-range-filter>
+      <!-- // Range Time Filter -->
+
+      <!-- List Time Filter -->
+      <app-time-list-filter
+        *ngIf="isListTypeTimeFilter || isDiscontinuousFilter"
+        [mode]="'WIDGET'" [filter]="filter"
+        [dashboard]="widget.dashBoard" [field]="field"
+        (change)="changeFilterEvent($event)">
+      </app-time-list-filter>
+      <!-- // List Time Filter -->
+
     </div>
-    <!-- // 타임스탬프 필터 -->
+    <!-- // Timestamp Filter -->
   </div>
 
   <!-- 수정 버튼 레이어 -->
