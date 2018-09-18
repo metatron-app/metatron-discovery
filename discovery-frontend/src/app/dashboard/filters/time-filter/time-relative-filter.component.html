@@ -14,22 +14,27 @@
 
 <span *ngIf="targetFilter" class="ddp-txt-preview">{{getPreview()}}</span>
 <!-- filter area -->
-<div *ngIf="targetFilter" class="ddp-filter-area" >
+<div *ngIf="targetFilter" class="ddp-filter-area"
+     #filterArea
+     [ngStyle]="{'overflow-y' : ('WIDGET' === mode) ? 'initial !important' : ''}">
   <!-- 과거 선택 -->
   <div class="ddp-filter-type">
     <span class="ddp-label-name">Previous</span>
     <ul class="ddp-list-buttons">
       <li (click)="setRelative( 'PREVIOUS', 'DAY', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'DAY')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'Yesterday' : 'D'  }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'DAY')" style="width: 25%;"
+          title="Yesterday">
+        {{ isShortLabel ? 'D' : 'Yesterday' }}
       </li>
       <li (click)="setRelative( 'PREVIOUS', 'WEEK', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'WEEK')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'Last Week' : 'W' }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'WEEK')" style="width: 25%;"
+          title="Last Week">
+        {{ isShortLabel ? 'W' : 'Last Week' }}
       </li>
       <li (click)="setRelative( 'PREVIOUS', 'MONTH', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'MONTH')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'Last Month' : 'M' }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'MONTH')" style="width: 25%;"
+          title="Last Month">
+        {{ isShortLabel ? 'M' : 'Last Month' }}
       </li>
       <!--
       <li (click)="setRelative( 'PREVIOUS', 'QUARTER', 1 )"
@@ -38,13 +43,14 @@
       </li>
       -->
       <li (click)="setRelative( 'PREVIOUS', 'YEAR', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'YEAR')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'Last Year' : 'Y' }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'PREVIOUS', 'YEAR')" style="width: 25%;"
+          title="Last Year">
+        {{ isShortLabel ? 'Y' : 'Last Year' }}
       </li>
     </ul>
-    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'PREVIOUS')" class="ddp-btn-time">
+    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'PREVIOUS')" class="ddp-btn-time" style="height:30px;">
       <div class="ddp-form-multy">
-        <span class="ddp-txt-label">Last</span>
+        <span class="ddp-txt-label" >Last</span>
         <div class="ddp-box-multy ddp-clear ddp-form-time">
           <input #inputLastValue [ngModel]="targetFilter.value"
                  (keypress)="setLastValue($event)" (blur)="resetLastValue()"
@@ -73,16 +79,19 @@
     <span class="ddp-label-name">Current</span>
     <ul class="ddp-list-buttons">
       <li (click)="setRelative( 'CURRENT', 'DAY', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'DAY')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'Today' : 'D' }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'DAY')" style="width: 25%;"
+          title="Today">
+        {{ isShortLabel ? 'D' : 'Today' }}
       </li>
       <li (click)="setRelative( 'CURRENT', 'WEEK', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'WEEK')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'This Week' : 'W' }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'WEEK')" style="width: 25%;"
+          title="This Week">
+        {{ isShortLabel ? 'W' : 'This Week' }}
       </li>
       <li (click)="setRelative( 'CURRENT', 'MONTH', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'MONTH')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'This Month' : 'M' }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'MONTH')" style="width: 25%;"
+          title="This Month">
+        {{ isShortLabel ? 'M' : 'This Month' }}
       </li>
       <!--
       <li (click)="setRelative( 'CURRENT', 'QUARTER', 1 )"
@@ -91,8 +100,9 @@
       </li>
       -->
       <li (click)="setRelative( 'CURRENT', 'YEAR', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'YEAR')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'This Year' : 'Y' }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'CURRENT', 'YEAR')" style="width: 25%;"
+          title="This Year" >
+        {{ isShortLabel ? 'Y' : 'This Year' }}
       </li>
     </ul>
   </div>
@@ -102,16 +112,19 @@
     <span class="ddp-label-name">Next</span>
     <ul class="ddp-list-buttons">
       <li (click)="setRelative( 'NEXT', 'DAY', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'DAY')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'Tomorrow' : 'D' }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'DAY')" style="width: 25%;"
+          title="Tomorrow">
+        {{ isShortLabel ? 'D' : 'Tomorrow' }}
       </li>
       <li (click)="setRelative( 'NEXT', 'WEEK', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'WEEK')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'Next Week' : 'W' }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'WEEK')" style="width: 25%;"
+          title="Next Week">
+        {{ isShortLabel ? 'W' : 'Next Week' }}
       </li>
       <li (click)="setRelative( 'NEXT', 'MONTH', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'MONTH')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'Next Month' : 'M' }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'MONTH')" style="width: 25%;"
+          title="Next Month">
+        {{ isShortLabel ? 'M' : 'Next Month' }}
       </li>
       <!--
       <li (click)="setRelative( 'NEXT', 'QUARTER', 1 )"
@@ -120,13 +133,14 @@
       </li>
       -->
       <li (click)="setRelative( 'NEXT', 'YEAR', 1 )"
-          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'YEAR')" style="width: 25%;">
-        {{ 'CHANGE' === mode ? 'Next Year' : 'Y' }}
+          [class.ddp-selected]="isSelectedRelative('BUTTON', 'NEXT', 'YEAR')" style="width: 25%;"
+          title="Next Year">
+        {{ isShortLabel ? 'Y' : 'Next Year' }}
       </li>
     </ul>
-    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'NEXT')" class="ddp-btn-time">
+    <div [class.ddp-selected]="isSelectedRelative('INPUT', 'NEXT')" class="ddp-btn-time" style="height:30px;">
       <div class="ddp-form-multy">
-        <span class="ddp-txt-label">Next</span>
+        <span class="ddp-txt-label" >Next</span>
         <div class="ddp-box-multy ddp-clear ddp-form-time">
           <input #inputNextValue [ngModel]="targetFilter.value"
                  (keypress)="setNextValue($event)" (blur)="resetNextValue()"

@@ -65,7 +65,7 @@ export class BoardConfiguration {
   public widgets?: LayoutWidgetInfo[];  // 대시보드 내 배치되는 Widget 정보
   public content?: any[];
   public relations?: DashboardPageRelation[];    // 페이지 관계 설정
-  public customFields?: CustomField[];  // 사용자 정의 필드 정보
+  public customFields?: CustomField[];  // 사용자 정의 필드 정보 -> 추후에 userDefinedFields 으로 변경되어야 한다.
   public filters?: Filter[];            // WorkBoard 내 Global Filter 설정
 
   // for UI

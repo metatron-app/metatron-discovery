@@ -100,6 +100,8 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
       this.datasourceId = datasourceId;
 
       this.loadingShow();
+      this.datasource = undefined;
+      this.metadata = undefined;
       this.datasourceService.getDatasourceSummary(this.datasourceId).then((datasource) => {
         this.datasource = datasource;
         this.metadataService.getMetadataForDataSource( datasource.id ).then( result => {
