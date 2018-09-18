@@ -224,7 +224,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    * @returns {boolean}
    */
   public isRequiredDatabase(): boolean {
-    return this.getConnectionData.implementor === 'POSTGRESQL';
+    return this.getConnectionData.selectedDbType.value === 'POSTGRESQL';
   }
 
   /**
@@ -232,7 +232,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    * @returns {boolean}
    */
   public isRequiredSid() : boolean {
-    return this.getConnectionData.implementor === 'TIBERO' || this.getConnectionData.implementor === 'ORACLE';
+    return this.getConnectionData.selectedDbType.value === 'TIBERO' || this.getConnectionData.selectedDbType.value === 'ORACLE';
   }
 
   /**
@@ -240,15 +240,15 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    * @returns {boolean}
    */
   public isRequiredCatalog() : boolean {
-    return this.getConnectionData.implementor === 'PRESTO';
+    return this.getConnectionData.selectedDbType.value === 'PRESTO';
   }
 
   /**
-   * Is connection type is Default
+   *  Is enable url
    * @returns {boolean}
    */
-  public isDefaultType(): boolean {
-    return this._isCreateInWorkbench? StringUtil.isEmpty(this.getConnectionData.url) : this.getConnectionData['selectedUrlType'] === 'DEFAULT';
+  public isEnableUrl(): boolean {
+    return this._isCreateInWorkbench? StringUtil.isNotEmpty(this.getConnectionData.url) : this.getConnectionData.isEnableUrl;
   }
 
   /**
@@ -283,62 +283,16 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     // create datasource
     this.datasourceService.createDatasource(this._getCreateDatasourceParams())
       .then((result) => {
-        // 커넥션 생성 여부
-        if (this.getConnectionData.createConnectionFl) {
-          // 커넥션 생성
-          this.createDataconnection();
-        } else {
-          // loading hide
-          this.loadingHide();
-          // complete alert
-          Alert.success(`'${this.datasourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
-          // close
-          this.step = '';
-          this.dbComplete.emit(this.step);
-        }
-        // TODO f#14가 완료되면 주석해제하고 위에 코드 제거
-        // // loading hide
-        // this.loadingHide();
-        // // complete alert
-        // Alert.success(`'${this.datasourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
-        // // close
-        // this.step = '';
-        // this.dbComplete.emit(this.step);
-      })
-      .catch((error) => {
         // loading hide
         this.loadingHide();
-        // modal
-        const modal: Modal = new Modal();
-        // show cancel disable
-        modal.isShowCancel = false;
-        // title
-        modal.name = this.translateService.instant('msg.storage.ui.source.create.fail.title');
-        // desc
-        modal.description = this.translateService.instant('msg.storage.ui.source.create.fail.description');
-        // show error modal
-        this._confirmModal.init(modal);
-      });
-  }
-
-  /**
-   * 데이터 커넥션 생성
-   * TODO f#14가 완료되면 코드 제거
-   */
-  private createDataconnection() {
-    // 데이터 커넥션 생성
-    this.connectionService.createConnection(this.getCreateConnectionParams())
-      .then((result) => {
-        // 로딩 hide
-        this.loadingHide();
-        // 생성완료 alert
+        // complete alert
         Alert.success(`'${this.datasourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
-        // 생성완료 emit
+        // close
         this.step = '';
         this.dbComplete.emit(this.step);
       })
       .catch((error) => {
-        // 로딩 hide
+        // loading hide
         this.loadingHide();
         // modal
         const modal: Modal = new Modal();
@@ -417,22 +371,6 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   }
 
   /**
-   * Get connection ID
-   * @returns {string}
-   * @private
-   */
-  private _getConnectionId(): string {
-    // if workbench
-    if (this._isCreateInWorkbench) {
-      return this.getConnectionData.connectionId;
-    } else if (!this._isCreateInWorkbench && this.getConnectionData.selectedConnectionPreset) {
-      // if exist connection preset
-      return this.getConnectionData.selectedConnectionPreset.id;
-    }
-    return null;
-  }
-
-  /**
    * Get period value
    * @returns {any}
    * @private
@@ -474,13 +412,16 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   private _getConnectionParams(): object {
     const connection = {
       type: 'JDBC',
-      implementor: this.getConnectionData.implementor
+      implementor: this.getConnectionData.selectedDbType.value,
+      authenticationType: this.getConnectionData.selectedSecurityType.value
     };
-    // username과 password를 사용한다면
-    StringUtil.isNotEmpty(this.getConnectionData.password) && (connection['password'] = this.getConnectionData.password);
-    StringUtil.isNotEmpty(this.getConnectionData.username) && (connection['username'] = this.getConnectionData.username);
-    // default라면 hostname, port, database 추가
-    if (this.isDefaultType()) {
+    // If security type is MANUAL, add username and password
+    if (this.getConnectionData.selectedSecurityType.value === 'MANUAL') {
+      connection['password'] = this.getConnectionData.password;
+      connection['username'] = this.getConnectionData.username;
+    }
+    // if enable URL
+    if (!this.isEnableUrl()) {
       connection['hostname'] = this.getConnectionData.hostname;
       connection['port'] = this.getConnectionData.port;
       // catalog 가 있다면
@@ -496,18 +437,6 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   }
 
   /**
-   * create connection 파람
-   * @returns {{type: string; hostname: string; port: string; password: string; username: string; implementor}}
-   * TODO f#14가 완료되면 코드 제거
-   */
-  private getCreateConnectionParams() {
-    const connection = this._getConnectionParams();
-    // 새로 생성될 커넥션 이름
-    connection['name'] = this.getConnectionData.connectionName;
-    return connection;
-  }
-
-  /**
    * Get parameters required for datasource creation
    * @returns {Object}
    * @private
@@ -516,7 +445,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     const params = {
       dsType: 'MASTER',
       srcType: 'JDBC',
-      connType: this.getConnectionData.connType,
+      connType: this.getConnectionData.selectedIngestionType.value,
       granularity: this.getIngestionData.selectedQueryGranularity.value,
       segGranularity: this.getIngestionData.selectedSegmentGranularity.value,
       name: this.datasourceName.trim(),
@@ -524,9 +453,9 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       ingestion: this._getIngestionParams(),
       fields: this._getFieldsParams()
     };
-    // if exist connection preset
-    if (this.getConnectionData.connectionPresetFl) {
-      params['connection'] = `/api/connections/${this._getConnectionId()}`;
+    // if used connection preset, use connection ID
+    if (this.getConnectionData.isUsedConnectionPreset) {
+      params['connection'] = `/api/connections/${this._isCreateInWorkbench ? this.getConnectionData.connectionId : this.getConnectionData.selectedConnectionPreset.id}`;
     }
     return params;
   }
@@ -603,11 +532,18 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       dataType: this.getDatabaseData.selectedType,
       type: this.getIngestionData.selectedIngestionType.value,
       rollup: this.getIngestionData.selectedRollUpType.value,
-      query: this.getDatabaseData.selectedType === 'TABLE' ? this.getDatabaseData.selectedTable : this.getDatabaseData.queryText,
-      database: this.getDatabaseData.selectedType === 'TABLE' ? this.getDatabaseData.selectedDatabase : this.getDatabaseData.selectedDatabaseQuery,
     };
+    // if database is TABLE
+    if (this.getDatabaseData.selectedType === 'TABLE') {
+      ingestion['query'] = this.getDatabaseData.selectedTable;
+      ingestion['database'] = this.getDatabaseData.selectedDatabase;
+    } else {
+      // if database is QUERY
+      ingestion['query'] = this.getDatabaseData.queryText;
+      ingestion['database'] = this.getDatabaseData.selectedDatabaseQuery;
+    }
     // if source type is LINK
-    if (this.getConnectionData.connType === 'LINK') {
+    if (this.getConnectionData.selectedIngestionType.value === 'LINK') {
       ingestion['type'] = 'link';
       ingestion['expired'] = this.getIngestionData.selectedExpirationTime.value;
     }
@@ -628,8 +564,13 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       }
     }
     // if not exist connection preset
-    if (!this.getConnectionData.connectionPresetFl) {
+    if (!this.getConnectionData.isUsedConnectionPreset) {
       ingestion['connection'] = this._getConnectionParams();
+    }
+    // if authentication type is DIALOG, add connectionUsername and connectionPassword
+    if (this.getConnectionData.selectedSecurityType.value === 'DIALOG') {
+      ingestion['connectionUsername'] = this.getConnectionData.username;
+      ingestion['connectionPassword'] = this.getConnectionData.password;
     }
     // advanced setting
     if (this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {

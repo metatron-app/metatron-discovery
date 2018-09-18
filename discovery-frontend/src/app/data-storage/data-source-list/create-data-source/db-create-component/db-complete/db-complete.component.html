@@ -108,7 +108,7 @@
             </td>
           </tr>
           <!-- ingestion -->
-          <tr *ngIf="getConnectionData.connType === 'ENGINE'">
+          <tr *ngIf="getConnectionData.selectedIngestionType.value === 'ENGINE'">
             <th>
               {{'msg.storage.th.ingestion-settings' | translate}}
             </th>
@@ -135,7 +135,7 @@
           </tr>
           <!-- //ingestion -->
           <!-- expiration -->
-          <tr *ngIf="getConnectionData.connType === 'LINK'">
+          <tr *ngIf="getConnectionData.selectedIngestionType.value === 'LINK'">
             <th>
               {{'msg.storage.th.dsource-expire' | translate}}
             </th>

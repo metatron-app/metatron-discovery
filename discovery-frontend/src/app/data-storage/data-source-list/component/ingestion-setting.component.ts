@@ -20,6 +20,7 @@ import { DatasourceService } from '../../../datasource/service/datasource.servic
 import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
 
+declare let moment: any;
 /**
  * Ingestion setting component
  */
@@ -62,9 +63,9 @@ export class IngestionSettingComponent extends AbstractComponent {
   // selected data range type (only stagingDB create type)
   public selectedDataRangeType: any;
   // start date time in data range (only stagingDB create type)
-  public startDateTime: string;
+  public startDateTime: string = moment().subtract(1, 'years').format('YYYY-MM-DDTHH:mm');
   // end date time in data range (only stagingDB create type)
-  public endDateTime: string;
+  public endDateTime: string = moment().format('YYYY-MM-DDTHH:mm');
 
   // partition type list
   public partitionTypeList: any[];
@@ -234,7 +235,7 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @returns {string}
    */
   public getConnectionType(): string {
-    return this._sourceData.connectionData.connType;
+    return this._sourceData.connectionData.selectedIngestionType.value;
   }
 
   /**
