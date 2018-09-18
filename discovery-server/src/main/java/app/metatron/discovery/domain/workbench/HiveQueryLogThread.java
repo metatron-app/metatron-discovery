@@ -55,17 +55,12 @@ public class HiveQueryLogThread implements Runnable {
   @Override
   public void run() {
     try{
-//      LOGGER.debug("stmt has more log : {}", stmt.hasMoreLogs());
       while (stmt.hasMoreLogs()) {
-//      while (true) {
         LOGGER.debug("HiveQueryLogThread Tick : {}", DateTime.now().getSecondOfDay());
+
         //get current log
+        //required hive property in server-side (hive.async.log.enabled=false)
         List<String> logLists = stmt.getQueryLog();
-
-//        for(String log : logLists){
-//          LOGGER.debug("LOG : {}", log);
-//        }
-
         sendLogMessage(logLists);
         Thread.sleep(queryProgressInterval);
       }

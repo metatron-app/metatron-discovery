@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * Time : AM 11:32
  */
 public class VerticesProgress {
-  private static Logger LOGGER = LoggerFactory.getLogger(HiveQueryLogThread.class);
+  private static Logger LOGGER = LoggerFactory.getLogger(VerticesProgress.class);
 
   public static final Pattern COMPLETE_RUNNING_FAIL_TOTAL_PATTERN = Pattern.compile("((?:Map|Reducer) \\d*): (\\d*)\\(\\+(\\d*),-(\\d*)\\)\\/(\\d*)");
   public static final Pattern COMPLETE_RUNNING_TOTAL_PATTERN = Pattern.compile("((?:Map|Reducer) \\d*): (\\d*)\\(\\+(\\d*)\\)\\/(\\d*)");
