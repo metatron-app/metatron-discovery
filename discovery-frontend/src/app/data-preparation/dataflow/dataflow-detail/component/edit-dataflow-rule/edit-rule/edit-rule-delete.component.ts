@@ -49,7 +49,7 @@ export class EditRuleDeleteComponent extends EditRuleComponent implements OnInit
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public rowNum : string = '';
-  public forceCondition : string = '';
+//  public forceCondition : string = '';
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();

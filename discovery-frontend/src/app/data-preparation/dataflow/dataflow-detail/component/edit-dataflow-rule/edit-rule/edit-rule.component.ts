@@ -37,7 +37,7 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
 
   public fields : Field[];
   public selectedFields: Field[] = [];
-
+  public forceCondition : string = '';
   @Output()
   public onEvent:EventEmitter<any> = new EventEmitter();
 
@@ -108,7 +108,15 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
     });
     this.safelyDetectChanges();
   } // function - setValue
-
+  /**
+   * 편집수정 수식 get/set
+   */
+  public setForceCondition(forceCondition:string){
+    this.forceCondition = forceCondition;
+  }
+  public getForceCondition(){
+    return this.forceCondition;
+  }
   /**
    * Rule 형식 정의 및 반환
    */

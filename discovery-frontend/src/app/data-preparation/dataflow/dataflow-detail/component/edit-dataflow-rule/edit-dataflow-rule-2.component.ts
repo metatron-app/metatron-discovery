@@ -742,7 +742,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
           return;
         }
-
         this.setEditInfo(editInfo, data.gridData);
         this.opString = 'UPDATE';
         this.serverSyncIndex = ruleIdx+1;
@@ -1079,12 +1078,14 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   }
 
   /**
-   * Open advanced formula input popup
+   * Open advanced formula input popup (set, keep, derive, delete)
    * @param {string} command
    */
   public openPopupFormulaInput(command: string) {
+    let forceCondition = this._editRuleComp.getForceCondition();
+
     const fields: Field[] = this.selectedDataSet.gridData.fields;
-    this.extendInputFormulaComponent.open(fields, command);
+    this.extendInputFormulaComponent.open(fields, command, forceCondition);
   }
 
   /**
@@ -1094,6 +1095,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public doneInputFormula(data: { command: string, formula: string }) {
     // this._editRuleComp.init(this.selectedDataSet.gridData.fields, [], `row: ${data.formula}`);
     this._editRuleComp.setValue( 'forceCondition', data.formula );
+
   }
 
   /**

@@ -45,7 +45,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   public advancedEditorClickEvent = new EventEmitter();
   public inputValue: string;
   public condition: string = '';
-  public forceCondition : string = '';
+//  public forceCondition : string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -73,6 +73,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
    * Returns rule string
    * @return {{command: string, col: string, ruleString: string}}

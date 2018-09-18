@@ -17,12 +17,13 @@
   <div class="ddp-ui-popup">
     <!-- 상단 타이틀 및 확인 버튼 영역 -->
     <div class="ddp-ui-popup-title">
-      <span class="ddp-txt-title-name">수식 입력</span>
+      <!--수식 입력-->
+      <span class="ddp-txt-title-name">{{'msg.dp.ui.insert.expression' | translate}}</span>
 
       <div class="ddp-ui-pop-buttons">
         <a (click)="close()" href="javascript:" class="ddp-btn-pop" >{{'msg.comm.btn.cancl' | translate}}</a>
-        <a (click)="done()"
-           [ngClass]="{'ddp-disabled' : verifyStateFormula !== 'S'}" href="javascript:" class="ddp-btn-pop ddp-bg-black" >
+        <!--<a (click)="done()" [ngClass]="{'ddp-disabled' : verifyStateFormula !== 'S'}" href="javascript:" class="ddp-btn-pop ddp-bg-black" >-->
+        <a (click)="done()" [ngClass]="{'ddp-disabled' : false}" href="javascript:" class="ddp-btn-pop ddp-bg-black" >
           {{'msg.comm.btn.done' | translate}}
         </a>
       </div>
@@ -41,7 +42,8 @@
         <div class="ddp-ui-accout-textarea" >
           <!-- 입력 영역 -->
           <div class="ddp-wrap-edit">
-            <div #calculationInput (keydown)="verifyStateFormula = null" contentEditable="true" class="ddp-ui-edit" ></div>
+            <!--<div #calculationInput (keydown)="verifyStateFormula = null" contentEditable="true" class="ddp-ui-edit" ></div>-->
+            <div #calculationInput (keyup)="calculationInputKeyup()" contentEditable="true" class="ddp-ui-edit" ></div>
           </div>
           <!-- // 입력 영역 -->
           <!-- 유효성 체크 메시지 영역 및 버튼 영역 -->
@@ -140,7 +142,8 @@
                 <em class="ddp-btn-close" *ngIf="selectedFunction" (click)="selectedFunction = null;setCalculationDescription(null, false)"></em>
                 <span class="ddp-ui-det-title">{{displayDescFunction?.name}}</span>
                 <span class="ddp-ui-det-category">{{displayDescFunction?.category}}</span>
-                <span class="ddp-txt-det" [innerHtml]="displayDescFunction?.description"></span>
+                <span class="ddp-txt-det">{{displayDescFunction?.description | translate}}</span>
+                <span class="ddp-txt-det" [innerHtml]="displayDescFunction?.example"></span>
               </div>
               <!-- // 설명 -->
             </div>
