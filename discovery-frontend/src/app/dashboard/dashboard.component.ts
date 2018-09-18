@@ -37,7 +37,7 @@ import { DashboardLayoutComponent } from './component/dashboard-layout/dashboard
 import { Filter } from '../domain/workbook/configurations/filter/filter';
 import { PopupService } from '../common/service/popup.service';
 import { DatasourceService } from '../datasource/service/datasource.service';
-import { Datasource, TempDsStatus, TemporaryDatasource } from 'app/domain/datasource/datasource';
+import { ConnectionType, Datasource, TempDsStatus, TemporaryDatasource } from 'app/domain/datasource/datasource';
 import { Modal } from '../common/domain/modal';
 import { ConfirmModalComponent } from '../common/component/modal/confirm/confirm.component';
 import { CommonConstant } from '../common/constant/common.constant';
@@ -365,6 +365,10 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method - Linked Datasource Ingestion
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
    * 화면 초기화
    * @private
@@ -384,29 +388,28 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       // Linked Datasource 인지 그리고 데이터소스가 적재되었는지 여부를 판단함
       const mainDsList:Datasource[] = DashboardUtil.getMainDataSources( dashboard );
 
-      if (0 < mainDsList.length) {
+      const isLinkedDs:boolean = mainDsList.some( item => item.connType === ConnectionType.LINK );
+      if ( isLinkedDs ) {
+        // Multi Datasource Dashboard
+        this.showBoardLoading();
+        this.datasourceService.getDatasourceDetail(dashboard.temporaryId).then((ds: Datasource) => {
+
+          console.info( ds );
+
+          // (ds.temporary) && (this.datasourceStatus = ds.temporary.status);
+          // if (TempDsStatus.ENABLE === this.datasourceStatus) {
+          //   dashboard.configuration.dataSource.metaDataSource = ds;
+          //   this._runDashboard(dashboard);
+          // } else {
+          //   this.expiredDatasource = ds;
+          //   this.hideBoardLoading();
+          // }
+          // this.changeDetect.markForCheck();
+        }).catch(err => this.commonExceptionHandler(err));
+      } else {
+        // Single Datasource Dashboard
         this.showBoardLoading();
         this._runDashboard(dashboard);
-/*
-        // Linked 에 대한 처리 추후 확인
-        if (mainDs.connType === ConnectionType.LINK) {
-          this.showBoardLoading();
-          this.datasourceService.getDatasourceDetail(dashboard.temporaryId).then((ds: Datasource) => {
-            (ds.temporary) && (this.datasourceStatus = ds.temporary.status);
-            if (TempDsStatus.ENABLE === this.datasourceStatus) {
-              dashboard.configuration.dataSource.metaDataSource = ds;
-              this._runDashboard(dashboard);
-            } else {
-              this.expiredDatasource = ds;
-              this.hideBoardLoading();
-            }
-            this.changeDetect.markForCheck();
-          }).catch(err => this.commonExceptionHandler(err));
-        } else {
-          this.showBoardLoading();
-          this._runDashboard(dashboard);
-        }
-*/
       }
     } // end if - this._inputDashboard
 

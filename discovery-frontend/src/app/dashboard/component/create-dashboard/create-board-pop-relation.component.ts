@@ -169,6 +169,34 @@ export class CreateBoardPopRelationComponent extends AbstractPopupComponent impl
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
+   * isContainsSearchText
+   * @param {string} searchText
+   * @param {any[]} list
+   * @return {boolean}
+   */
+  public isContainsSearchText( searchText:string, list:any[] ):boolean {
+    if( list ) {
+      return list.some( item => -1 < item.name.toLowerCase().indexOf( searchText.toLowerCase() ) );
+    } else {
+      return false;
+    }
+  } // function - isContainsSearchText
+
+  /**
+   * Highlight Text
+   * @param {string} sourceText
+   * @param {string} highlightText
+   * @return {string}
+   */
+  public highlightText( sourceText:string, highlightText:string ):string {
+    if( sourceText ) {
+      return sourceText.replace(new RegExp('(' + highlightText + ')', 'gi'), '<span class="ddp-txt-search">$1</span>');
+    } else {
+      return sourceText;
+    }
+  } // function - highlightText
+
+  /**
    * 설정 유효 여부
    * @return {boolean}
    */
