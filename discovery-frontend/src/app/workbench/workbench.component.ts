@@ -1613,6 +1613,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           editorId: this.textList[selectedNum].editorId
         };
         this.tabGridNum = this.tabGridNum + 1;
+        this.isGridResultNoData = true;
         this.datagridList.push(temp);
       } else {
         if (index === 0) { // 0 번쨰가 SUCCESS 일 경우
@@ -1628,6 +1629,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           editorId: this.textList[selectedNum].editorId
         };
         this.tabGridNum = this.tabGridNum + 1;
+        this.isGridResultNoData = false;
         this.datagridList.push(temp);
       }
     }
