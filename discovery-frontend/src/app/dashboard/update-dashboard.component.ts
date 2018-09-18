@@ -32,7 +32,6 @@ import { Workbook } from '../domain/workbook/workbook';
 import {
   BoardConfiguration,
   BoardDataSource,
-  BoardDataSourceRelation,
   Dashboard,
   LayoutMode
 } from '../domain/dashboard/dashboard';
@@ -629,48 +628,13 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     // 대시보드 모든 위젯 업데이트
     const promises = [];
 
-    // Updating information about deleted dataSources
-    const removedDsEngineNames: string[] = [];
-    const boardDataSource: BoardDataSource = this.dashboard.configuration.dataSource;
-    const dataSource: Datasource[] = this.dashboard.dataSources;
-    if ('multi' === boardDataSource.type) {
-
-      boardDataSource.dataSources
-        = boardDataSource.dataSources.filter((boardDs: BoardDataSource) => {
-        if (dataSource.some(item => DashboardUtil.isSameDataSource(boardDs, item))) {
-          return true;
-        } else {
-          if( this.dashboard.configuration.filters ) {
-            this.dashboard.configuration.filters
-              = this.dashboard.configuration.filters.filter( item => item.dataSource !== boardDs.engineName );
-          }
-          removedDsEngineNames.push(boardDs.engineName);
-          return false;
-        }
-      });
-
-      boardDataSource.associations
-        = boardDataSource.associations.filter((ass: BoardDataSourceRelation) => {
-        return !(
-          removedDsEngineNames.some(item => item === ass.source)
-          || removedDsEngineNames.some(item => item === ass.target)
-        )
-      });
-
-    } else {
-      if (isNullOrUndefined(dataSource) || 0 === dataSource.length) {
-        removedDsEngineNames.push(boardDataSource.engineName);
-        this.dashboard.configuration.dataSource = null;
-      }
-    }
-
     // 위젯 등록/수정
     DashboardUtil.getWidgets(this.dashboard).forEach((result: Widget) => {
 
       if( -1 === this.deleteWidgetIds.indexOf( result.id ) ) {
         const param = { configuration: _.cloneDeep(result.configuration), name: result.name };
         if ('page' === result.type) {
-          if( -1 < removedDsEngineNames.indexOf( param.configuration['dataSource']['engineName'] ) ) {
+          if( -1 < this._removeDsEngineNames.indexOf( param.configuration['dataSource']['engineName'] ) ) {
             this.hierarchy.del(result.id);
             this.dashboard.configuration.relations = this.hierarchy.get().map(node => node.toPageRelation());
             this.deleteWidgetIds.push(result.id);     // 삭제 위젯 등록
@@ -687,7 +651,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
             promises.push(() => this.widgetService.updateWidget(result.id, param));   // update widget
           }
         } else if ('filter' === result.type) {
-          if( -1 < removedDsEngineNames.indexOf( param.configuration['filter']['dataSource'] ) ) {
+          if( -1 < this._removeDsEngineNames.indexOf( param.configuration['filter']['dataSource'] ) ) {
             this.deleteWidgetIds.push( result.id );
             this.removeWidgetComponent(result.id);    // 대시보드상의 위젯 제거
           } else {
@@ -979,6 +943,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public filterUtil = FilterUtil;
 
+  // noinspection JSMethodCanBeStatic
   /**
    * 필터 목록의
    * @param index

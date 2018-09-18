@@ -724,10 +724,12 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         } else {
           this.loadAndSelectDashboard(this.dashboards[0]);
         }
+      } else {
+        this.selectedDashboard = null;
       }
 
-      // 변경 확인
-      this.changeDetect.detectChanges();
+      // detect changes
+      this.safelyDetectChanges();
 
     }).catch(() => {
       Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));

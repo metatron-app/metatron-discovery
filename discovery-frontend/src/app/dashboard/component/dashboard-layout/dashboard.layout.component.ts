@@ -25,7 +25,7 @@ import { AbstractComponent } from '../../../common/component/abstract.component'
 import { DashboardWidgetComponent } from './dashboard.widget.component';
 import { DashboardWidgetHeaderComponent } from './dashboard.widget.header.component';
 import {
-  BoardConfiguration, BoardDataSource, Dashboard, DashboardLayout, JoinMapping,
+  BoardConfiguration, BoardDataSource, BoardDataSourceRelation, Dashboard, DashboardLayout, JoinMapping,
   LayoutMode, LayoutWidgetInfo
 } from '../../../domain/dashboard/dashboard';
 import {
@@ -76,6 +76,8 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
   private _widgetComps: ComponentRef<DashboardWidgetComponent>[] = [];              // 위젯 컴포넌트 목록
 
   private _invalidLayoutWidgets: string[] = [];    // 유효하지 않은 Layout 위젯의 레이아웃 아이디 목록
+
+  protected _removeDsEngineNames: string[] = [];    // List of data source engine names to be deleted
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -1206,6 +1208,39 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
       // 이전 데이터를 현재 데이터에 맞게 변경
       {
+        // Updating information about deleted dataSources
+        const boardDataSource: BoardDataSource = boardInfo.configuration.dataSource;
+        const dataSource: Datasource[] = boardInfo.dataSources;
+        if ('multi' === boardDataSource.type) {
+          boardDataSource.dataSources
+            = boardDataSource.dataSources.filter((boardDs: BoardDataSource) => {
+            if (dataSource.some(item => DashboardUtil.isSameDataSource(boardDs, item))) {
+              return true;
+            } else {
+              if( boardInfo.configuration.filters ) {
+                boardInfo.configuration.filters
+                  = boardInfo.configuration.filters.filter( item => item.dataSource !== boardDs.engineName );
+              }
+              this._removeDsEngineNames.push(boardDs.engineName);
+              return false;
+            }
+          });
+
+          boardDataSource.associations
+            = boardDataSource.associations.filter((ass: BoardDataSourceRelation) => {
+            return !(
+              this._removeDsEngineNames.some(item => item === ass.source)
+              || this._removeDsEngineNames.some(item => item === ass.target)
+            )
+          });
+
+        } else {
+          if (isNullOrUndefined(dataSource) || 0 === dataSource.length) {
+            this._removeDsEngineNames.push(boardDataSource.engineName);
+            boardInfo.configuration.dataSource = null;
+          }
+        }
+
         const filters: Filter[] = DashboardUtil.getBoardFilters(boardInfo);
         if (filters && 0 < filters.length) {
           // Change data source information from id to engine name
