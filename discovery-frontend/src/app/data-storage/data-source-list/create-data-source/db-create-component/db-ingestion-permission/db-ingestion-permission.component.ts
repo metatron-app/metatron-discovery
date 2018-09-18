@@ -73,8 +73,8 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
   public selectedGranularity: any;
 
   // ingestion row
-  public ingestionOnceRow = 10000;
-  public ingestionPeriodRow = 10000;
+  public ingestionOnceRow = '10,000';
+  public ingestionPeriodRow = '10,000';
 
   // hour type
   public hourType: number[] = [];
@@ -192,29 +192,15 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
   }
 
   /**
-   * single max row (10,000)
-   */
-  public maxIngestionOnceRow() {
-    if (this.ingestionOnceRow > 10000) {
-      this.ingestionOnceRow = 10000;
-    }
-  }
-
-  /**
-   * batch max row (5,000,000)
-   */
-  public maxIngestionPeriodRow() {
-    if (this.isBatchRowOverValue()) {
-      this.ingestionPeriodRow = 5000000;
-    }
-  }
-
-  /**
-   * Is batch row over max Value
+   * Is max row over max Value
+   * @param row
+   * @param {number} value
    * @returns {boolean}
    */
-  public isBatchRowOverValue(): boolean {
-    return this.ingestionPeriodRow > 5000000;
+  public isMaxRowOverValue(row: any, value: number): boolean {
+    if (this[row]) {
+      return Number.parseInt(this[row].replace(/(,)/g, '')) > value;
+    }
   }
 
   /**
@@ -554,11 +540,11 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
     // engine 형일때만 validation 체크
     if (this.isEngineType()) {
       // period 타입일때
-      if ((this.isIngestionPeriodType() && (!this.ingestionPeriodRow || this.isBatchRowOverValue()
+      if ((this.isIngestionPeriodType() && (this.isMaxRowOverValue('ingestionPeriodRow', 5000000)
           // cron 이라면
           || (this.isSelectedBatchTypeCron() && !this.cronResultFl)))
         // once 타입일때
-        || (this.isIngestionOnceType() && this.isEqualTypeValue({value: 'ROW'}, this.selectedScopeType) && !this.ingestionOnceRow)) {
+        || (this.isIngestionOnceType() && this.isEqualTypeValue({value: 'ROW'}, this.selectedScopeType) && this.isMaxRowOverValue('ingestionOnceRow', 10000))) {
         return false;
       }
     }
@@ -759,8 +745,8 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
     ];
     this.selectedBatchType = this.ingestionBatchTypeList[0];
     // ingestion row
-    this.ingestionOnceRow = 10000;
-    this.ingestionPeriodRow = 10000;
+    this.ingestionOnceRow = '10,000';
+    this.ingestionPeriodRow = '10,000';
 
     // hour type
     for (let i = 1; i < 24 ; i += 1) {

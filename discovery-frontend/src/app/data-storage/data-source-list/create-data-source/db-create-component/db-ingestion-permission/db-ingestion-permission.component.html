@@ -175,11 +175,10 @@
               <div class="ddp-option-in ddp-inline">
                 <input type="text" class="ddp-input-typebasic ddp-size-sm ddp-txt-right"
                        placeholder="10,000"
-                       maxlength="7"
-                       input-mask="number"
+                       input-mask="sep-number"
                        [(ngModel)]="ingestionPeriodRow">
-                <div class="ddp-txt-error" *ngIf="isBatchRowOverValue()">
-                  <em class="ddp-icon-error-s"></em>{{'msg.storage.ui.batch.row.error' | translate}}
+                <div class="ddp-txt-error" *ngIf="isMaxRowOverValue('ingestionPeriodRow', 5000000)">
+                  <em class="ddp-icon-error-s"></em>{{'msg.storage.ui.max.row.error' | translate: { value : '5,000,000'} }}
                 </div>
               </div>
             </div>
@@ -202,11 +201,13 @@
                   <input type="text"
                          class="ddp-txt-right"
                          placeholder="10,000"
-                         maxlength="5"
-                         input-mask="number"
+                         input-mask="sep-number"
                          [disabled]="selectedScopeType.value !== 'ROW'"
-                         [(ngModel)]="ingestionOnceRow" (keyup)="maxIngestionOnceRow()">
+                         [(ngModel)]="ingestionOnceRow">
                   <span class="ddp-txt-input">rows</span>
+                </div>
+                <div class="ddp-txt-error" *ngIf="selectedScopeType.value === 'ROW' && isMaxRowOverValue('ingestionOnceRow', 10000)">
+                  <em class="ddp-icon-error-s"></em>{{'msg.storage.ui.max.row.error' | translate: { value : '10,000'} }}
                 </div>
               </div>
             </div>
