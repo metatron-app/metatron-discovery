@@ -19,6 +19,7 @@ import { SYSTEM_PERMISSION } from 'app/common/permission/permission';
 import { Modal } from '../domain/modal';
 import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router';
+import { isNullOrUndefined } from 'util';
 
 declare let $;
 
@@ -285,6 +286,23 @@ export class CommonUtil {
     }
     return '';
   }
+
+  /**
+   * objectToArray
+   * @param obj
+   */
+  public static objectToArray(obj: any) {
+    if (obj.forEach) {
+      return obj;
+    } else if (isNullOrUndefined(obj)) {
+      return [];
+    } else {
+      return Object.keys(obj).reduce((acc, currVal) => {
+        acc.push(obj[currVal]);
+        return acc;
+      }, []);
+    }
+  } // function - objectToArray
 
   public static getUUID() {
     return this.s4() + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' +
