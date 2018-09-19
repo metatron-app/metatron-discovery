@@ -1221,7 +1221,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 선반 데이터 설정
     for (let field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
-      // delete field['field'];
+      delete field['field'];
       delete field['currentPivot'];
       delete field['granularity'];
       delete field['segGranularity'];
@@ -1241,6 +1241,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         FilterUtil.isTimeRangeFilter(item) ||
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
+
+
 
     return cloneQuery;
   } // function - _makeSearchQueryParam

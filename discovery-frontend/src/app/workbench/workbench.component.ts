@@ -349,6 +349,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       that.workbenchId = params['id'];
     });
 
+    // Send statistics data
+    this.sendViewActivityStream( this.workbenchId, 'WORKBENCH' );
+
     // 초기 데이터 조회
     this._loadInitData(() => {
       this.webSocketCheck(() => {

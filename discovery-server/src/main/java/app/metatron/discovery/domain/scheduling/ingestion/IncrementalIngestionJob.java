@@ -14,13 +14,16 @@
 
 package app.metatron.discovery.domain.scheduling.ingestion;
 
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceRepository;
+import app.metatron.discovery.domain.datasource.DataSourceSummary;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.engine.EngineIngestionService;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.Trigger;
+import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +32,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-
-import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceRepository;
-import app.metatron.discovery.domain.datasource.DataSourceSummary;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
-import app.metatron.discovery.domain.engine.EngineIngestionService;
 
 /**
  * Created by kyungtaak on 2016. 8. 12..
@@ -83,23 +79,35 @@ public class IncrementalIngestionJob extends QuartzJobBean {
       return;
     }
 
-    DataSourceSummary summary = dataSource.getSummary();
-    if (summary == null) {
-      LOGGER.warn("Job({}) - summary not found", trigger.getKey().getName());
-      return;
-    }
+    BatchIngestionInfo.IngestionScope ingestionScope = ((BatchIngestionInfo) dataSource.getIngestionInfo()).getRange();
 
-    DateTime maxTime = summary.getIngestionMaxTime();
-    if (maxTime == null) {
-      LOGGER.warn("Job({}) - ingestion max time not set", trigger.getKey().getName());
-      ingestionHistoryRepository.save(new IngestionHistory(dataSource.getId(),
-                                                           IngestionHistory.IngestionStatus.PASS, "Ingestion max time not set"));
-      return;
+    //if scope is incremental, need summary information
+    if(ingestionScope == BatchIngestionInfo.IngestionScope.INCREMENTAL){
+      DataSourceSummary summary = dataSource.getSummary();
+      if (summary == null) {
+        LOGGER.warn("Job({}) - summary not found", trigger.getKey().getName());
+        return;
+      }
+
+      DateTime maxTime = summary.getIngestionMaxTime();
+      if (maxTime == null) {
+        LOGGER.warn("Job({}) - ingestion max time not set", trigger.getKey().getName());
+        ingestionHistoryRepository.save(new IngestionHistory(dataSource.getId(),
+                                                             IngestionHistory.IngestionStatus.PASS, "Ingestion max time not set"));
+        return;
+      }
     }
 
     try {
-      Optional<IngestionHistory> result = engineIngestionService.doDBIncrementalToFileIngestion(dataSource);
-      if (result.isPresent()) {
+      Optional<IngestionHistory> result = null;
+
+      //branching by ingestion scope
+      if(ingestionScope == BatchIngestionInfo.IngestionScope.INCREMENTAL){
+        result = engineIngestionService.doDBIncrementalToFileIngestion(dataSource);
+      } else {
+        result = engineIngestionService.doDBToFileIngestion(dataSource);
+      }
+      if (result != null && result.isPresent()) {
         ingestionHistoryRepository.save(result.get());
       }
     } catch (Exception e) {

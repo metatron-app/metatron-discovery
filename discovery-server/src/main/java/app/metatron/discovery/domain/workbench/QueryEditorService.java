@@ -451,8 +451,14 @@ public class QueryEditorService {
     return false;
   }
 
-  private boolean isComment(String query){
-    String lineTrimmed = query.trim();
-    return lineTrimmed.startsWith("#") || lineTrimmed.startsWith("--");
+  public boolean isComment(String query){
+    boolean isComment = true;
+    String[] lineSplitedQueries = StringUtils.split(query, "\n");
+    //all line starts with # or --
+    for(String lineSplitedQuery : lineSplitedQueries){
+      String lineTrimmed = lineSplitedQuery.trim();
+      isComment = (isComment && (lineTrimmed.startsWith("#") || lineTrimmed.startsWith("--")));
+    }
+    return isComment;
   }
 }
