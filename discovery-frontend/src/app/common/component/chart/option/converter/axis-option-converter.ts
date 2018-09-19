@@ -300,7 +300,11 @@ export class AxisOptionConverter {
       }
 
       // value type이 아닌경우 return
-      if (!(<UIChartAxisLabelValue>axisOption[index].label) || !_.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE)) return chartOption;
+      if (!_.eq(AxisLabelType.SUBCOLUMN, <UIChartAxisLabelValue>axisOption[index].mode) && (
+          !(<UIChartAxisLabelValue>axisOption[index].label) || !_.eq((<UIChartAxisLabelValue>axisOption[index].label).type, AxisType.VALUE))
+      ) {
+        return chartOption;
+      }
 
       // 축의 format
       const axisFormat = (<UIChartAxisLabelValue>axisOption[index].label) ? (<UIChartAxisLabelValue>axisOption[index].label).format : null;
