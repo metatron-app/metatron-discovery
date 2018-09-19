@@ -1949,12 +1949,12 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     limit.setLimit(10);
 
     List<Filter> filters = Lists.newArrayList(
-        //new InclusionFilter("gu", Arrays.asList("강남구")),
+        new InclusionFilter("gu", Arrays.asList("강남구"))
         //        new BoundFilter("amt", null, 0, 62510)
     );
 
     //    List<Field> layer1 = Lists.newArrayList(new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.AVG));
-    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()));
+    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu", "구", null, null));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);

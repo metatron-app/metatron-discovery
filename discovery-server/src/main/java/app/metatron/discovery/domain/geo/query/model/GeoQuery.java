@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import java.util.List;
+import java.util.Map;
 
 import app.metatron.discovery.domain.geo.query.model.extension.DruidExtension;
 import app.metatron.discovery.domain.geo.query.model.filter.GeoFilter;
@@ -35,6 +36,9 @@ public class GeoQuery extends Query {
 
   @JsonIgnore
   DruidExtension extension;
+
+  @JsonIgnore
+  Map<String, String> projectionMapper;
 
   @JsonIgnore
   Integer limit;
@@ -85,6 +89,14 @@ public class GeoQuery extends Query {
 
   public void setExtension(DruidExtension extension) {
     this.extension = extension;
+  }
+
+  public Map<String, String> getProjectionMapper() {
+    return projectionMapper;
+  }
+
+  public void setProjectionMapper(Map<String, String> projectionMapper) {
+    this.projectionMapper = projectionMapper;
   }
 
   public Integer getLimit() {

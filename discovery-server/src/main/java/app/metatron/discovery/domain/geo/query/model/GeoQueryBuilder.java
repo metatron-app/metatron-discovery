@@ -1,6 +1,7 @@
 package app.metatron.discovery.domain.geo.query.model;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +65,8 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
   String boundary;
 
   Map<String, Object> boundaryJoin;
+
+  Map<String, String> projectionMapper = Maps.newHashMap();
 
   boolean enableExtension = false;
 
@@ -148,6 +151,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
           }
           propertyNames.add(new PropertyName(fieldName));
           dimensions.add(new DefaultDimension(fieldName, field.getAlias()));
+          projectionMapper.put(fieldName, field.getAlias());
         }
       } else if (datasourceField.getRole() == FieldRole.MEASURE) {
 
@@ -159,7 +163,10 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
           postAggregations = Lists.newArrayList();
         }
         addAggregationFunction((MeasureField) field);
-        postAggregations.add(new ExprPostAggregator("__d" + measureCnt++ + "=\\\"" + field.getAlias() + "\\\""));
+
+        String predefinedMeasure = "__d" + measureCnt++;
+        postAggregations.add(new ExprPostAggregator(predefinedMeasure + "=\\\"" + field.getAlias() + "\\\""));
+        projectionMapper.put(predefinedMeasure, field.getAlias());
       }
     }
 
@@ -288,6 +295,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
                                                      boundary, boundaryJoin));
     }
 
+    geoQuery.setProjectionMapper(projectionMapper);
     geoQuery.setLimit(limit);
 
     return geoQuery;

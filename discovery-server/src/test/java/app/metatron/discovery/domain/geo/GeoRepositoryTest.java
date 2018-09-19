@@ -51,7 +51,7 @@ public class GeoRepositoryTest extends AbstractIntegrationTest {
 
     String body = objectMapper.writeValueAsString(getFeature);
 
-    System.out.println(geoRepository.query(body));
+    System.out.println(geoRepository.query(body, String.class));
   }
 
 }
