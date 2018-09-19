@@ -47,6 +47,11 @@ public class PrepProperties {
   public static final String ETL_JAR              = "polaris.dataprep.etl.jar";
   public static final String ETL_JVM_OPTIONS      = "polaris.dataprep.etl.jvmOptions";
 
+  public static String dirDataprep = "dataprep";
+  public static String dirPreview = "previews";
+  public static String dirUpload = "uploads";
+  public static String dirSnapshot = "snapshots";
+
   public String localBaseDir;
   public String stagingBaseDir;
   public String hadoopConfDir;
@@ -277,7 +282,7 @@ public class PrepProperties {
 
   public String getLocalBaseDir() {
     if (localBaseDir == null) {
-      localBaseDir = System.getProperty("user.home") + File.separator + "dataprep";
+      localBaseDir = System.getProperty("user.home") + File.separator + dirDataprep;
     }
     return localBaseDir;
   }
@@ -303,11 +308,19 @@ public class PrepProperties {
   }
 
   public void setLocalBaseDir(String localBaseDir) {
-    this.localBaseDir = localBaseDir;
+    if(null!=localBaseDir && 1<localBaseDir.length() && true==localBaseDir.endsWith(File.separator)) {
+      this.localBaseDir = localBaseDir.substring(0,localBaseDir.length());
+    } else {
+      this.localBaseDir = localBaseDir;
+    }
   }
 
   public void setStagingBaseDir(String stagingBaseDir) {
-    this.stagingBaseDir = stagingBaseDir;
+    if(null!=stagingBaseDir && 1<stagingBaseDir.length() && true==stagingBaseDir.endsWith(File.separator)) {
+      this.stagingBaseDir = stagingBaseDir.substring(0,stagingBaseDir.length());
+    } else {
+      this.stagingBaseDir = stagingBaseDir;
+    }
   }
 
   public void setHadoopConfDir(String hadoopConfDir) {
