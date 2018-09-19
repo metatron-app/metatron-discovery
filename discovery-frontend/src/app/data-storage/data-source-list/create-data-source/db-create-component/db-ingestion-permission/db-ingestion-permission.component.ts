@@ -49,7 +49,6 @@ export class DbIngestionPermissionComponent extends AbstractPopupComponent imple
   // Constructor
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
-
     super(elementRef, injector);
   }
 
