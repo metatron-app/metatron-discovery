@@ -67,6 +67,9 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
   // Table detail
   public tables: any[] = [];
 
+  // result data
+  public resultData : any[] = [];
+
   @Output()
   public showLayer: EventEmitter<string> = new EventEmitter();
 
@@ -174,6 +177,44 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
           itemkey: this.translateService.instant('msg.bench.ui.table.metadata.name'),
           item: result[0]['name']
         });
+
+        let tempLabel = '';
+        let tempArr : any[] = [];
+
+        // result Data 생성
+        for (const key in this.tables) {
+
+          let tempData = {
+            'label' : '',
+            'data' : tempArr
+          };
+
+          if( this.tables[key]['itemkey'].startsWith('#') ){
+
+            if( key != '0' ){
+              tempData.label = tempLabel.split('#')[1];
+              tempData.data = tempArr;
+              this.resultData.push( tempData );
+
+              tempLabel = '';
+              tempArr = [];
+            }
+
+            // label
+            tempLabel = this.tables[key]['itemkey'];
+          } else {
+            // data
+            tempArr.push( this.tables[key] );
+          }
+
+          // 마지막 데이터일 경우
+          if( this.tables.length-1 == Number( key ) ){
+            tempData.label = tempLabel.split('#')[1];
+            tempData.data = tempArr;
+            this.resultData.push( tempData );
+          }
+        }
+
         // 로딩 hide
         this.loadingHide();
       })
