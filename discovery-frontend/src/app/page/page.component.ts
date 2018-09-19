@@ -172,7 +172,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   @ViewChild(LineChartComponent)
   private lineChartComponent: LineChartComponent;
 
-  private selectChartSource: Subject<string> = new Subject<string>();
+  private selectChartSource: Subject<Object> = new Subject<Object>();
   private selectChart$ = this.selectChartSource.asObservable().debounceTime(100);
 
   // page data 하위의 context menu
@@ -385,7 +385,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.recommendChart();
     }
 
-    this.selectChartSource.next(chartType);
+    this.selectChartSource.next({chartType : chartType, type : EventType.CHART_TYPE});
 
   }
 
@@ -492,11 +492,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     this.subscriptions.push(windowResizeSubscribe);
 
-    const changeChartSubs = this.selectChart$.subscribe((chartType) => {
-      if (chartType !== '') {
-        this.drawChart(() => {
-          this.chartResize();
-        });
+    const changeChartSubs = this.selectChart$.subscribe((param) => {
+      if (param['chartType'] !== '') {
+        this.drawChart({type : param['type']});
       }
     });
 
