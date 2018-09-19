@@ -179,55 +179,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
     this.olmap.updateSize();
 
-    let element = document.getElementById('popup');
-    let content = document.getElementById('popup-contents');
-    let popup = new ol.Overlay({
-      element: element,
-      positioning: 'bottom-center',
-      stopEvent: false,
-      offset: [-50, -100]
-    });
-    this.olmap.addOverlay(popup);
-
-    this.olmap.on('pointermove', function(evt) {
-
-      let feature = this.forEachFeatureAtPixel(evt.pixel,
-        (f) => {
-          return f;
-        });
-
-      if(feature) {
-        let coords = feature.getGeometry().getCoordinates();
-
-        let pointerX = coords[0].toFixed(4);
-        let pointerY = coords[1].toFixed(4);
-        let property = feature.getProperties().amt;
-
-
-        content.innerHTML =
-            '<div class="ddp-ui-tooltip-info ddp-map-tooltip" style="display:block; position:absolute; top:0; left:0; z-index:99999;">' +
-            '<span class="ddp-txt-tooltip">' +
-            '<span class="ddp-label"><em class="ddp-icon-mapview1-w"></em> Region</span>' +
-            '<table class="ddp-table-info">' +
-            '<colgroup><col width="70px"><col width="*"></colgroup>' +
-            '<tbody><tr><th>Geo info</th><td>'+ pointerX + ', ' + pointerY + '</td></tr>' +
-            '<tr><th>Amt</th><td>' + property + '</td></tr></tbody></table>' +
-            '</span>' +
-            '</div>';
-
-        popup.setPosition(coords);
-
-      } else {
-        popup.setPosition(undefined);
-      }
-
-    });
-
     const zoomslider = new ol.control.ZoomSlider();
     this.olmap.addControl(zoomslider);
 
     this.mapVaild = true;
   }
+
 
   /**
    * map style function
@@ -235,6 +192,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   public mapStyleFunction = () => {
 
     let styleOption = this.uiOption;
+    let styleData = this.data;
 
     return function(feature, resolution) {
 
@@ -265,10 +223,20 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       if(featureSizeType === 'MEASURE') {
         featureSize = parseInt(feature.get(styleOption.layers[0].size.column)) / 10000;
       }
+// debugger
 
       if(featureColorType === 'MEASURE') {
         let colorList = ChartColorList[featureColor['colorNum']];
-        featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+        let avgNum = styleData[0].valueRange.maxValue / colorList.length;
+
+        for(let i=0;i<colorList.length;i++) {
+          if(feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] <= avgNum * (i+1) &&
+            feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] >= avgNum * (i)) {
+            featureColor = colorList[i];
+          }
+        }
+
+        // featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       } else if(featureColorType === 'DIMENSION') {
         let colorList = ChartColorList[featureColor['colorNum']];
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
@@ -347,6 +315,17 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
               })
             });
             break;
+          default :
+            style = new ol.style.Style({
+              stroke: new ol.style.Stroke({
+                color: outlineColor,
+                width: 2
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
+              })
+            });
+            break;
         }
       } else if(layerType === 'line') {
         style = new ol.style.Style({
@@ -366,7 +345,73 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             color: featureColor
           })
         });
+      } else if(layerType === 'tile') {
+        style = new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: outlineColor,
+            width: 2
+          }),
+          fill: new ol.style.Fill({
+            color: featureColor
+          })
+        });
       }
+
+      return style;
+    }
+  }
+
+  /**
+   * hexagon map style function
+   */
+  public hexagonStyleFunction = () => {
+
+    let styleOption = this.uiOption;
+    let styleData = this.data;
+
+    return function(feature, resolution) {
+
+      let outlineType = styleOption.layers[0].outline.thickness;
+      let featureColor = styleOption.layers[0].color.schema;
+      let outlineColor = styleOption.layers[0].outline.color;
+      let featureColorType = styleOption.layers[0].color.by;
+      let featureSizeType = styleOption.layers[0].size.by;
+
+      let outlineWidth = 0.00000001;
+      if(outlineType === 'THIN')  {
+        outlineWidth = 1;
+      } else if(outlineType === 'NORMAL') {
+        outlineWidth = 2;
+      } else if(outlineType === 'THICK') {
+        outlineWidth = 3;
+      }
+
+      if(featureColorType === 'MEASURE') {
+        let colorList = ChartColorList[featureColor['colorNum']];
+        let avgNum = styleData[0].valueRange.maxValue / colorList.length;
+
+        for(let i=0;i<colorList.length;i++) {
+          if(feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] <= avgNum * (i+1) &&
+            feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] >= avgNum * (i)) {
+            featureColor = colorList[i];
+          }
+        }
+
+        // featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+      } else if(featureColorType === 'DIMENSION') {
+        let colorList = ChartColorList[featureColor['colorNum']];
+        featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+      }
+
+      let style = new ol.style.Style({
+        stroke: new ol.style.Stroke({
+          color: 'black',
+          width: 2
+        }),
+        fill: new ol.style.Fill({
+          color: featureColor
+        })
+      });
 
       return style;
     }
@@ -395,6 +440,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       if(featureColorType === 'MEASURE') {
         let colorList = ChartColorList[featureColor.colorNum];
+        debugger
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       } else if(featureColorType === 'DIMENSION') {
         let colorList = ChartColorList[featureColor.colorNum];
@@ -453,6 +499,16 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             });
             break;
         }
+      } else if(layerType === 'tile') {
+        style = new ol.style.Style({
+          stroke: new ol.style.Stroke({
+            color: outlineColor,
+            width: 2
+          }),
+          fill: new ol.style.Fill({
+            color: featureColor
+          })
+        });
       }
 
       return style;
@@ -498,6 +554,13 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
   }
 
+
+  public getCenterOfExtent(Extent) {
+    var X = Extent[0] + (Extent[2]-Extent[0])/2;
+    var Y = Extent[1] + (Extent[3]-Extent[1])/2;
+    return [X, Y];
+  }
+
   /**
    * 차트에 설정된 옵션으로 차트를 그린다.
    * - 각 차트에서 ride
@@ -506,6 +569,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   public draw(isKeepRange?: boolean): void {
     console.log('=== map component draw ===');
     (<any>window).uiOption = this.uiOption;
+    (<any>window).styleData = this.data;
 
     ////////////////////////////////////////////////////////
     // Valid 체크
@@ -552,7 +616,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
-    let featureColor = (<any>window).uiOption.layers[0].color.schema;
+    let featureColor = this.uiOption.layers[0].color.schema;
     let colorList = ChartColorList[featureColor['colorNum']];
 
     let heatmapLayer = new ol.layer.Heatmap({
@@ -566,33 +630,53 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let hexagonLayer = new ol.layer.Vector({
       source: hexagonSource,
-      style: this.mapStyleFunction(),
+      style: this.hexagonStyleFunction(),
       opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
     let features = [];
-    let hexagonFeatures = [];
+    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(this.data[0]);;
     // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
     let h3Indexs = [];
 
     let field = this.pivot.columns[0];
     let geomType = field.field.logicalType.toString();
 
-
     for(let i=0;i<this.data[0]["features"].length;i++) {
 
       let feature = new ol.Feature();
+      feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
 
-      if(geomType === "GEO_LINE" || geomType === "GEO_POLYGON") {
-        feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
-      } else {
-        feature.setGeometry(new ol.geom.Point([this.data[0]["features"][i].properties["gis.lon"], this.data[0]["features"][i].properties["gis.lat"]]));
+      // if(geomType === "GEO_LINE" || geomType === "GEO_POLYGON") {
+      //   feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
+      // } else {
+      //   if(this.data[0].features[i]["geometry"] === null) {
+      //     feature.setGeometry(new ol.geom.Point([this.data[0]["features"][i].properties["gis.lon"], this.data[0]["features"][i].properties["gis.lat"]]));
+      //   } else {
+      //     feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
+      //   }
+      // }
+
+      // hexagonFeatures.push(feature);
+
+      if(geomType === "GEO_POINT") {
+
+        let featureCenter = feature.getGeometry().getCoordinates();
+
+        if(featureCenter.length === 1) {
+          let extent = feature.getGeometry().getExtent();
+          featureCenter = ol.extent.getCenter(extent);
+          feature.setGeometry(new ol.geom.Point(featureCenter));
+        }
+
+        // let h3Index = h3.geoToH3(featureCenter[0], featureCenter[1], this.uiOption.layers[0].color.resolution);
+        // h3Indexs.push(h3Index);
       }
 
-      // Convert a lat/lng point to a hexagon index at resolution 7
-      let h3Index = h3.geoToH3((this.data[0]["features"][i].properties["gis.lat"]), (this.data[0]["features"][i].properties["gis.lon"]), this.uiOption.layers[0].color.resolution);
+      //히트맵 weight 설정
+      // feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
 
-      h3Indexs.push(h3Index);
+      // Convert a lat/lng point to a hexagon index at resolution 7
 
       // Get the center of the hexagon
       // let hexCenterCoordinates = h3.h3ToGeo(h3Index);
@@ -606,38 +690,40 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       //
       // hexagonFeatures[i] = hexagonFeature;
 
-      feature.setProperties(this.data[0]["features"][i].properties);
+      // feature.setProperties(this.data[0]["features"][i].properties);
       features[i] = feature;
 
     }
 
-    if(geomType === "GEO_POINT") {
-      let uniqueIndexs = [];
-      $.each(h3Indexs, function(i, el) {
-        if($.inArray(el, uniqueIndexs) === -1) uniqueIndexs.push(h3Indexs[i]);
-      });
 
-      let result = {};
-      for(let value in h3Indexs) {
-          let index = h3Indexs[value];
-          result[index] = result[index] === undefined ? 1 : result[index] += 1;
-      }
+    // if(geomType === "GEO_POINT") {
+    //   let uniqueIndexs = [];
+    //   $.each(h3Indexs, function(i, el) {
+    //     if($.inArray(el, uniqueIndexs) === -1) uniqueIndexs.push(h3Indexs[i]);
+    //   });
+    //
+    //   let result = {};
+    //   for(let value in h3Indexs) {
+    //       let index = h3Indexs[value];
+    //       result[index] = result[index] === undefined ? 1 : result[index] += 1;
+    //   }
+    //
+    //   for(let index in result) {
+    //     let hexBoundary = h3.h3ToGeoBoundary(index, true);
+    //
+    //     let hexagonFeature = new ol.Feature({
+    //       geometry: new ol.geom.Polygon([hexBoundary])
+    //     })
+    //
+    //     hexagonFeature.setProperties({count:result[index]});
+    //
+    //     hexagonFeatures.push(hexagonFeature);
+    //   }
+    //
+    //   hexagonSource.addFeatures(hexagonFeatures);
+    // }
 
-      for(let index in result) {
-        let hexBoundary = h3.h3ToGeoBoundary(index, true);
-
-        let hexagonFeature = new ol.Feature({
-          geometry: new ol.geom.Polygon([hexBoundary])
-        })
-
-        hexagonFeature.setProperties({count:result[index]});
-
-        hexagonFeatures.push(hexagonFeature);
-      }
-
-      hexagonSource.addFeatures(hexagonFeatures);
-    }
-
+    hexagonSource.addFeatures(hexagonFeatures);
     source.addFeatures(features);
 
     let clusterSource = new ol.source.Cluster({
@@ -646,6 +732,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     });
 
     symbolLayer.setSource(source);
+    hexagonLayer.setSource(hexagonSource);
 
     if(geomType === "GEO_POINT") {
       clusterLayer.setSource(clusterSource);
@@ -661,7 +748,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
 
       if(geomType === "GEO_POINT") {
-        this.uiOption.layers[0].type = "symbol";
+        // this.uiOption.layers[0].type = "symbol";
       } else if(geomType === "GEO_LINE") {
         this.uiOption.layers[0].type = "line";
       } else if(geomType === "GEO_POLYGON") {
@@ -721,7 +808,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       heatmapLayer.setRadius(this.uiOption.layers[0].color.radius);
       heatmapLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
-      hexagonLayer.setStyle(this.mapStyleFunction());
+      hexagonLayer.setStyle(this.hexagonStyleFunction());
       hexagonLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
       if(this.uiOption.layers[0].type === "symbol") {
@@ -759,11 +846,60 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.updateSize();
     }
 
+    this.tooltipRender();
+
     // 차트 반영
     this.apply();
 
     // 완료
     this.drawFinished.emit();
+  }
+
+  public tooltipRender(): void {
+    let element = document.getElementById('popup');
+    let content = document.getElementById('popup-contents');
+    let popup = new ol.Overlay({
+      element: element,
+      positioning: 'bottom-center',
+      stopEvent: false,
+      offset: [-50, -100]
+    });
+    this.olmap.addOverlay(popup);
+
+    let tooltipOption = this.uiOption;
+    this.olmap.on('pointermove', function(evt) {
+
+      let feature = this.forEachFeatureAtPixel(evt.pixel,
+        (f) => {
+          return f;
+        });
+
+      if(feature) {
+        let coords = feature.getGeometry().getCoordinates();
+
+        let pointerX = coords[0].toFixed(4);
+        let pointerY = coords[1].toFixed(4);
+
+        content.innerHTML =
+            '<div class="ddp-ui-tooltip-info ddp-map-tooltip" style="display:block; position:absolute; top:0; left:0; z-index:99999;">' +
+            '<span class="ddp-txt-tooltip">' +
+            '<span class="ddp-label"><em class="ddp-icon-mapview1-w"></em> ' + tooltipOption.layers[0].name + '</span>' +
+            '<table class="ddp-table-info">' +
+            '<colgroup><col width="70px"><col width="*"></colgroup>' +
+            '<tbody><tr><th>Geo info</th><td>'+ pointerX + ', ' + pointerY + '</td></tr>';
+
+        // for(let displayColumn of tooltipOption.toolTip.displayColumns) {
+        //   content.innerHTML = content.innerHTML + '<tr><th>' + displayColumn + '</th><td>' + feature.getProperties()[displayColumn] + '</td></tr>';
+        // }
+
+        content.innerHTML = content.innerHTML + '</tbody></table></span></div>';
+
+        popup.setPosition(coords);
+
+      } else {
+        popup.setPosition(undefined);
+      }
+    });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

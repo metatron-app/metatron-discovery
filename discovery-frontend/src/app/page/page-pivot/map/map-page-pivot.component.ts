@@ -15,6 +15,20 @@
 import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
 import {PagePivotComponent} from "../page-pivot.component";
 import {Pivot} from "../../../domain/workbook/configurations/pivot";
+import { Field as AbstractField } from '../../../domain/workbook/configurations/field/field';
+import { BIType, Field, FieldPivot, FieldRole, LogicalType } from '../../../domain/datasource/datasource';
+import { DimensionField } from '../../../domain/workbook/configurations/field/dimension-field';
+import { AggregationType, MeasureField } from '../../../domain/workbook/configurations/field/measure-field';
+import {
+  GranularityType, TimestampField, TimeUnit,
+  ByTimeUnit
+} from '../../../domain/workbook/configurations/field/timestamp-field';
+import {
+  ChartType, SeriesType, ShelveFieldType,
+  UIFormatType, ShelveType, EventType, BarMarkType, UIFormatCurrencyType, UIFormatNumericAliasType
+} from '../../../common/component/chart/option/define/common';
+
+import * as _ from 'lodash';
 
 @Component({
   selector: 'map-page-pivot',
@@ -33,9 +47,6 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // layer 갯수 default : 1
-  public layerNum: number = 1;
-
   @Input('pivot')
   set setPivot(pivot: Pivot) {
 
@@ -44,12 +55,13 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
       this.pivot.columns = [];
       this.pivot.rows = [];
       this.pivot.aggregations = [];
-    } else {
+  } else {
       this.pivot = pivot;
     }
 
     this.changePivot();
   }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -83,6 +95,18 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+   public addLayer(layerNum: number): void {
+     this.layerNum = layerNum;
+
+     if(layerNum === 1) {
+       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '84px';
+     } else if(layerNum === 2) {
+       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '121px';
+     } else if(layerNum === 3) {
+       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '158px';
+     }
+   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

@@ -22,6 +22,7 @@ import {
 } from '../../../common/component/chart/option/define/common';
 import { Pivot } from '../../../domain/workbook/configurations/pivot';
 import { BaseOptionComponent } from "../base-option.component";
+import { DatasourceService } from '../../../datasource/service/datasource.service';
 
 @Component({
   selector: 'map-layer-option',
@@ -105,6 +106,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     thickness: 'NONE',
     lineDash: 'SOLID'
   };
+
+  public measureList = [];
 
   public clustering: boolean = false;
   public layerOptions: Object;
@@ -355,7 +358,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     * Tile Resolution 변경시
     * @param resolution
     */
-   public changeRe(resolution: number) {
+   public changeResolution(resolution: number) {
 
      this.color['resolution'] = resolution;
 
@@ -518,6 +521,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        clustering: this.clustering
      }]
 
+     this.measureList = [];
+     for(let measureField of this.uiOption.fieldMeasureList) {
+       this.measureList.push(measureField.name.toString());
+     }
+
      return this.layerOptions;
 
    }
@@ -619,7 +627,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected elementRef: ElementRef,
+  constructor(private datasourceService: DatasourceService,
+              protected elementRef: ElementRef,
               protected injector: Injector) {
 
     super(elementRef, injector);

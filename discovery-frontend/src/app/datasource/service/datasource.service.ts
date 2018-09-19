@@ -24,6 +24,7 @@ import {
   ChartType, ShelveFieldType, GridViewType, LineMode
 } from '../../common/component/chart/option/define/common';
 import { Filter } from '../../domain/workbook/configurations/filter/filter';
+import { Shelf, Layer } from '../../domain/workbook/configurations/shelf/shelf';
 import { UILineChart } from '../../common/component/chart/option/ui-option/ui-line-chart';
 import { UIGridChart } from '../../common/component/chart/option/ui-option/ui-grid-chart';
 import { FilterUtil } from '../../dashboard/util/filter.util';
@@ -259,6 +260,7 @@ export class DatasourceService extends AbstractService {
     query.dataSource.name = query.dataSource.engineName;
     query.filters = _.cloneDeep(pageConf.filters);
     query.pivot = _.cloneDeep(pageConf.pivot);
+    // query.shelf = _.cloneDeep(pageConf.shelf);
 
     // 파라미터 치환
     const allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
@@ -367,6 +369,107 @@ export class DatasourceService extends AbstractService {
         type: 'graph',
         useLinkCount: true
       };
+    }
+
+    // map 차트일때 shelf
+    if (_.eq(pageConf.chart.type, 'map')) {
+      // query.pivot = undefined;
+
+      let geoFieldCnt = 0;
+      let layers = [];
+
+      for(let column of query.pivot.columns) {
+        if(column.field.logicalType.toString() === 'GEO_POINT' || column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') {
+          geoFieldCnt = geoFieldCnt +1;
+        }
+      }
+
+      for(let column of query.pivot.columns) {
+        let layer = {
+          type: column.type,
+          name: column.name,
+          alias: column.alias,
+          ref: null,
+          format: null
+        }
+
+        if(column.field.logicalType.toString() === 'GEO_POINT') {
+          layer.format = {
+            type: "geo_hash",
+            method: "h3",
+            precision: 9       // Precision 적용 (1~12)
+          }
+
+          if(geoFieldCnt > 1) {
+            layer.format = {
+              type: "geo_boundary",
+              dataSource: "cei_dong",
+              geoColumn: "shape",
+              descColumn: "dong_name"
+            }
+          }
+        } else if(column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') {
+          if(geoFieldCnt > 1) {
+            layer.format = {
+              type: "geo_join"
+            }
+          }
+        }
+
+        layers.push(layer);
+      }
+
+
+
+
+      for(let aggregation of query.pivot.aggregations) {
+        let layer = {
+          type: aggregation.type,
+          name: aggregation.name,
+          alias: aggregation.alias,
+          ref: null,
+          aggregationType: aggregation.aggregationType
+        }
+        layers.push(layer);
+      }
+
+
+      query.shelf = {
+        type: 'geo',
+        layers: [layers]
+      };
+
+      // query.shelf = {
+      //   type: 'geo',
+      //   layers: [
+      //       [
+      //           {
+      //               type: 'dimension',
+      //               name: 'gis',
+      //               alias: 'gis',
+      //               ref: null,
+      //               format: {
+      //                   type: 'geohash',
+      //                   method: 'h3',
+      //                   precision: 5       // Precision 적용 (1~12)
+      //               }
+      //           },
+      //           {
+      //               type: 'measure',
+      //               name: 'py',
+      //               alias: 'AVG(py)',
+      //               ref: null,
+      //               aggregationType: 'AVG'
+      //           }
+      //       ]
+      //   ]
+      // };
+
+      //map 은 limit 5000개 제한
+      query.limits = {
+        limit: 5000,
+        sort: null
+      }
     }
 
     if (!_.isEmpty(resultFormatOptions)) {

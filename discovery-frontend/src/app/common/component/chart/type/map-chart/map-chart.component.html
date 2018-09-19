@@ -1,17 +1,22 @@
 <div #mapArea style="width: 100%; height: 100%; display: block; position: relative">
-  <!-- <div *ngIf="data.show" class="ddp-wrap-graph-kpi">
-    <div class="ddp-view-data-kpi">
-      <div class="ddp-wrap-data-kpi">
-        <div class="ddp-area-data-kpi">
-          <div class="ddp-summary">
-            <div class="ddp-data-wrap">
-              <span class="ddp-txt-title">Map Chart Here!</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> -->
+
+  <!-- 범례 -->
+  <!-- <div class="ddp-layout-remark" style="position:absolute; top:0; right:20px;" *ngIf="uiOption.legend.showName"> -->
+    <!-- layer -->
+    <!-- <div class="ddp-ui-layer">
+        <span class="ddp-label">{{uiOption.layers[0].name}}</span>
+        <span class="ddp-data">{{uiOption.layers[0].type}}</span>
+        <ul class="ddp-list-remark" *ngFor="let field of uiOption.fieldList">
+            <li>
+                <em class="ddp-bg-remark-r" style="background-color:#602663"></em>
+                {{field}}
+            </li>
+        </ul>
+    </div> -->
+    <!-- //layer -->
+  <!-- </div> -->
+  <!-- //범례 -->
+
 </div>
 <!-- tooltip -->
 <div id="popup"><div id="popup-contents"></div></div>

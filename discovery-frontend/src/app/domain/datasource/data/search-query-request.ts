@@ -16,6 +16,7 @@
  * "Search" 쿼리용 Request 객체
  */
 import { Filter } from '../../workbook/configurations/filter/filter';
+import { Shelf } from '../../workbook/configurations/shelf/shelf';
 import { Pivot } from '../../workbook/configurations/pivot';
 import { Field } from '../../workbook/configurations/field/field';
 import { UserDefinedField } from '../../workbook/configurations/field/user-defined-field';
@@ -39,6 +40,11 @@ export class SearchQueryRequest {
    * Column/Row 관련 정보
    */
   pivot: Pivot;
+
+  /**
+   * Column/Row 관련 정보
+   */
+  shelf: Shelf;
 
   /**
    * projection 에 넣는 MeasureField 에 aggregationType 이 null 인 경우 Select 구문 수행, 아닌 경우 GroupBy 구문 수행

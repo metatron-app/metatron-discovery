@@ -8,8 +8,7 @@
       <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev" style="display: none;"><em class="ddp-icon-prev"></em></a>
       <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next" style="display: none"><em class="ddp-icon-next"></em></a>
       <div class="ddp-slide-control">
-          <a href="javascript:" class="ddp-btn-plus"></a>
-          <a href="javascript:" class="ddp-btn-minus"></a>
+          <a href="javascript:" class="ddp-btn-plus" (click)="addLayer(2)"></a>
       </div>
       <div class="ddp-ui-drag-slide-in">
 
@@ -30,7 +29,7 @@
           <!-- //예시 -->
           <!-- Pivot -->
           <div class="ddp-ui-default" *ngFor="let field of pivot.columns; let i = index" [ngStyle]="{display: finishAnimation ? 'block' : 'none'}">
-            <a *ngIf="field" href="javascript:" unselectable="on"
+            <a *ngIf="field.layerNum === undefined || field.layerNum === 1" href="javascript:" unselectable="on"
                [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
                [class.ddp-ui-measure-wrap]="field.type == 'measure'"
                (mousedown)="dragField = pivot.columns.slice(i, i+1)[0]">
@@ -60,7 +59,7 @@
           </div>
 
           <div class="ddp-ui-default" *ngFor="let field of pivot.aggregations; let i = index" [ngStyle]="{display: finishAnimation ? 'block' : 'none'}">
-            <a *ngIf="field" href="javascript:" unselectable="on"
+            <a *ngIf="field.layerNum === undefined || field.layerNum === 1" href="javascript:" unselectable="on"
                [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
                [class.ddp-ui-measure-wrap]="field.type == 'measure'"
                (mousedown)="dragField = pivot.aggregations.slice(i, i+1)[0]"
@@ -105,8 +104,8 @@
       <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev" style="display: none;"><em class="ddp-icon-prev"></em></a>
       <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next" style="display: none"><em class="ddp-icon-next"></em></a>
       <div class="ddp-slide-control">
-          <a href="javascript:" class="ddp-btn-plus"></a>
-          <a href="javascript:" class="ddp-btn-minus"></a>
+          <a href="javascript:" class="ddp-btn-plus" (click)="addLayer(3)"></a>
+          <a href="javascript:" class="ddp-btn-minus" (click)="addLayer(1)"></a>
       </div>
       <div class="ddp-ui-drag-slide-in">
 
@@ -127,7 +126,7 @@
           <!-- //예시 -->
           <!-- Pivot -->
           <div class="ddp-ui-default" *ngFor="let field of pivot.columns; let i = index" [ngStyle]="{display: finishAnimation ? 'block' : 'none'}">
-            <a *ngIf="field" href="javascript:" unselectable="on"
+            <a *ngIf="field.layerNum === 2" href="javascript:" unselectable="on"
                [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
                [class.ddp-ui-measure-wrap]="field.type == 'measure'"
                (mousedown)="dragField = pivot.columns.slice(i, i+1)[0]">
@@ -137,6 +136,15 @@
               <!-- aggregation type -->
               <span class="ddp-type-value" *ngIf="field.name != field.pivotAlias && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
               <!-- //aggregation type -->
+              <!-- geo-point type -->
+              <em class="ddp-icon-point-w ddp-icon-map-view-w" *ngIf="field.field.logicalType && 'GEO_POINT' == field.field.logicalType"></em>
+              <!-- //geo-point type -->
+              <!-- geo-line type -->
+              <em class="ddp-icon-line-w ddp-icon-map-view-w" *ngIf="field.field.logicalType && 'GEO_LINE' == field.field.logicalType"></em>
+              <!-- //geo-line type -->
+              <!-- geo-polygon type -->
+              <em class="ddp-icon-polygon-w ddp-icon-map-view-w" *ngIf="field.field.logicalType && 'GEO_POLYGON' == field.field.logicalType"></em>
+              <!-- //geo-polygon type -->
               <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
               <div class="ddp-ui-icons">
                 <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
@@ -148,7 +156,7 @@
           </div>
 
           <div class="ddp-ui-default" *ngFor="let field of pivot.aggregations; let i = index" [ngStyle]="{display: finishAnimation ? 'block' : 'none'}">
-            <a *ngIf="field" href="javascript:" unselectable="on"
+            <a *ngIf="field.layerNum === 2" href="javascript:" unselectable="on"
                [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
                [class.ddp-ui-measure-wrap]="field.type == 'measure'"
                (mousedown)="dragField = pivot.aggregations.slice(i, i+1)[0]"
@@ -193,7 +201,7 @@
       <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev" style="display: none;"><em class="ddp-icon-prev"></em></a>
       <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next" style="display: none"><em class="ddp-icon-next"></em></a>
       <div class="ddp-slide-control">
-          <a href="javascript:" class="ddp-btn-minus"></a>
+          <a href="javascript:" class="ddp-btn-minus" (click)="addLayer(2)"></a>
       </div>
       <div class="ddp-ui-drag-slide-in">
 
@@ -214,7 +222,7 @@
           <!-- //예시 -->
           <!-- Pivot -->
           <div class="ddp-ui-default" *ngFor="let field of pivot.columns; let i = index" [ngStyle]="{display: finishAnimation ? 'block' : 'none'}">
-            <a *ngIf="field" href="javascript:" unselectable="on"
+            <a *ngIf="field.layerNum === 3" href="javascript:" unselectable="on"
                [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
                [class.ddp-ui-measure-wrap]="field.type == 'measure'"
                (mousedown)="dragField = pivot.columns.slice(i, i+1)[0]">
@@ -224,6 +232,15 @@
               <!-- aggregation type -->
               <span class="ddp-type-value" *ngIf="field.name != field.pivotAlias && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
               <!-- //aggregation type -->
+              <!-- geo-point type -->
+              <em class="ddp-icon-point-w ddp-icon-map-view-w" *ngIf="field.field.logicalType && 'GEO_POINT' == field.field.logicalType"></em>
+              <!-- //geo-point type -->
+              <!-- geo-line type -->
+              <em class="ddp-icon-line-w ddp-icon-map-view-w" *ngIf="field.field.logicalType && 'GEO_LINE' == field.field.logicalType"></em>
+              <!-- //geo-line type -->
+              <!-- geo-polygon type -->
+              <em class="ddp-icon-polygon-w ddp-icon-map-view-w" *ngIf="field.field.logicalType && 'GEO_POLYGON' == field.field.logicalType"></em>
+              <!-- //geo-polygon type -->
               <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
               <div class="ddp-ui-icons">
                 <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
@@ -235,7 +252,7 @@
           </div>
 
           <div class="ddp-ui-default" *ngFor="let field of pivot.aggregations; let i = index" [ngStyle]="{display: finishAnimation ? 'block' : 'none'}">
-            <a *ngIf="field" href="javascript:" unselectable="on"
+            <a *ngIf="field.layerNum === 3" href="javascript:" unselectable="on"
                [class.ddp-ui-dimension-wrap]="field.type == 'dimension' || field.type == 'timestamp'"
                [class.ddp-ui-measure-wrap]="field.type == 'measure'"
                (mousedown)="dragField = pivot.aggregations.slice(i, i+1)[0]"
