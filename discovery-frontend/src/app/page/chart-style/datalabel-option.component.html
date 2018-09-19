@@ -46,7 +46,8 @@
               <div *ngIf="possibleChartCheck('labelCategoryValue', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox ">
                   <input type="checkbox"
-                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('CATEGORY_VALUE') != -1)"
+                         [ngModel]="!checkCategoryDisable() && (uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('CATEGORY_VALUE') != -1)"
+                         [disabled]="checkCategoryDisable()"
                          (click)="toggleDisplayType('CATEGORY_VALUE', 1)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.category.value' | translate}}</span>
@@ -55,7 +56,8 @@
               <div *ngIf="possibleChartCheck('labelCategoryPercent', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="(uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('CATEGORY_PERCENT') != -1)"
+                         [ngModel]="!checkCategoryDisable() && (uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('CATEGORY_PERCENT') != -1)"
+                         [disabled]="checkCategoryDisable()"
                          (click)="toggleDisplayType('CATEGORY_PERCENT', 2)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.category.percent' | translate}}</span>
@@ -64,8 +66,8 @@
               <div *ngIf="possibleChartCheck('labelSeriesName', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox ">
                   <input type="checkbox"
-                         [ngModel]="checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_NAME') != -1"
-                         [disabled]="!checkSeriesDisable()"
+                         [ngModel]="!checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_NAME') != -1"
+                         [disabled]="checkSeriesDisable()"
                          (click)="toggleDisplayType('SERIES_NAME', 3)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.name' | translate}}</span>
@@ -74,8 +76,8 @@
               <div *ngIf="possibleChartCheck('labelSeriesValue', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_VALUE') != -1"
-                         [disabled]="!checkSeriesDisable()"
+                         [ngModel]="!checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_VALUE') != -1"
+                         [disabled]="checkSeriesDisable()"
                          (click)="toggleDisplayType('SERIES_VALUE', 4)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.value' | translate}}</span>
@@ -84,8 +86,8 @@
               <div *ngIf="possibleChartCheck('labelSeriesPercent', uiOption.type)" class="ddp-part-check-b">
                 <label class="ddp-label-checkbox">
                   <input type="checkbox"
-                         [ngModel]="checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_PERCENT') != -1"
-                         [disabled]="!checkSeriesDisable()"
+                         [ngModel]="!checkSeriesDisable() && uiOption.dataLabel?.displayTypes && uiOption?.dataLabel?.displayTypes.indexOf('SERIES_PERCENT') != -1"
+                         [disabled]="checkSeriesDisable()"
                          (click)="toggleDisplayType('SERIES_PERCENT', 5)">
                   <i class="ddp-icon-checkbox"></i>
                   <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.series.percent' | translate}}</span>
