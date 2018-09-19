@@ -13,7 +13,7 @@
  */
 
 import { Component, ElementRef, Injector, OnInit } from '@angular/core';
-import { BoardDataSource, BoardDataSourceRelation, Dashboard } from '../../../domain/dashboard/dashboard';
+import { BoardDataSource, BoardDataSourceRelation, Dashboard, JoinMapping } from '../../../domain/dashboard/dashboard';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { DashboardService } from '../../service/dashboard.service';
 import { Alert } from '../../../common/util/alert.util';
@@ -131,14 +131,34 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
       const options: BoardGlobalOptions = new BoardGlobalOptions();
 
       // 데이터소스 & 연관관계 설정
-      this.dashboard = DashboardUtil.setDataSourceAndRelations( this.dashboard, this._dataSources, this._relations );
+      this.dashboard = DashboardUtil.setDataSourceAndRelations(this.dashboard, this._dataSources, this._relations);
 
-      this.dashboardService.createDashboard(this._workbookId, this.dashboard, options).then(() => {
-        Alert.success(`'${this.dashboard.name}' ` + this.translateService.instant('msg.board.alert.create.success'));
-        this.loadingHide();
-        this.broadCaster.broadcast('WORKBOOK_RELOAD_BOARD_LIST', { boardName: this.dashboard.name });
-        this.close();
-      }).catch(err => this.commonExceptionHandler(err));
+      this.dashboardService.createDashboard(
+        this._workbookId, this.dashboard, options,
+        (info) => {
+          // Send statistics data
+          const dsIds: string[]
+            = this._dataSources.reduce((acc: string[], currVal: BoardDataSource) => {
+            acc.push(currVal.id);
+            if (currVal.type === 'mapping') {
+              currVal.joins.forEach((join: JoinMapping) => {
+                acc.push(join.id);
+                (join.join) && (acc.push(join.join.id));
+              });
+            }
+            return acc;
+          }, []);
+
+          dsIds.forEach(id => {
+            this.sendLinkActivityStream(info.id, 'DASHBOARD', id, 'DATASOURCE' );
+          });
+        })
+        .then((board:Dashboard) => {
+          Alert.success(`'${this.dashboard.name}' ` + this.translateService.instant('msg.board.alert.create.success'));
+          this.loadingHide();
+          this.broadCaster.broadcast('WORKBOOK_RELOAD_BOARD_LIST', { boardId: board.id });
+          this.close();
+        }).catch(err => this.commonExceptionHandler(err));
     }
   } // function - complete
 

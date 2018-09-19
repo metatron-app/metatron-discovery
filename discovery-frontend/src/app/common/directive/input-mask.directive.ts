@@ -31,8 +31,11 @@ export class InputMaskDirective {
 
   @Input('input-mask')
   public set defineInputType(regexType: string) {
-    Inputmask({ regex: this.regexMap[regexType], placeholder: '' })
-      .mask(this.el.nativeElement);
+    if (regexType === 'sep-number') {
+      Inputmask('integer', {groupSeparator: ",", autoGroup: true}).mask(this.el.nativeElement);
+    } else {
+      Inputmask({ regex: this.regexMap[regexType], placeholder: ''}).mask(this.el.nativeElement);
+    }
   }
 
 }

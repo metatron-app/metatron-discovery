@@ -1794,6 +1794,7 @@
   "msg.storage.ui.time" : "Time",
   "msg.storage.ui.db.connection" : "DB connection",
   "msg.storage.ui.conn.dialog.desc" : "Can not ingestion by batch method.",
+  "msg.storage.ui.max.row.error": "You can enter up to {{value}}.",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",
