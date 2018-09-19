@@ -403,6 +403,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // this.initRule();
 
     this.ruleVO.ignoreCase = false;
+
+    // TODO : Added getting selected columns from grid because didn't show selected columns when command is changed on edit
+    this.selectedColumns = this._editRuleGridComp.getSelectedColumns();
     this.ruleVO.cols = this.selectedColumns;
 
     if (isNullOrUndefined(command)) {
