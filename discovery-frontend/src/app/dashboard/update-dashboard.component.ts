@@ -29,7 +29,12 @@ import {
   SimpleChange
 } from '@angular/core';
 import { Workbook } from '../domain/workbook/workbook';
-import { BoardConfiguration, BoardDataSource, Dashboard, LayoutMode } from '../domain/dashboard/dashboard';
+import {
+  BoardConfiguration,
+  BoardDataSource,
+  Dashboard,
+  LayoutMode
+} from '../domain/dashboard/dashboard';
 import { Datasource, Field, FieldRole } from '../domain/datasource/datasource';
 import { TextWidget } from '../domain/dashboard/widget/text-widget';
 import { PageWidget, PageWidgetConfiguration } from 'app/domain/dashboard/widget/page-widget';
@@ -625,20 +630,38 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
     // 위젯 등록/수정
     DashboardUtil.getWidgets(this.dashboard).forEach((result: Widget) => {
-      const param = { configuration: _.cloneDeep(result.configuration), name: result.name };
-      if ('page' === result.type) {
-        // 스펙 변경
-        param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
-        // 필터 설정
-        for (let filter of param.configuration['filters']) {
-          filter = FilterUtil.convertToServerSpecForDashboard(filter);
+
+      if( -1 === this.deleteWidgetIds.indexOf( result.id ) ) {
+        const param = { configuration: _.cloneDeep(result.configuration), name: result.name };
+        if ('page' === result.type) {
+          if( -1 < this._removeDsEngineNames.indexOf( param.configuration['dataSource']['engineName'] ) ) {
+            this.hierarchy.del(result.id);
+            this.dashboard.configuration.relations = this.hierarchy.get().map(node => node.toPageRelation());
+            this.deleteWidgetIds.push(result.id);     // 삭제 위젯 등록
+            this.removeWidgetComponent(result.id);    // 대시보드상의 위젯 제거
+          } else {
+            // 스펙 변경
+            param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);
+
+            // 필터 설정
+            for (let filter of param.configuration['filters']) {
+              filter = FilterUtil.convertToServerSpecForDashboard(filter);
+            }
+
+            promises.push(() => this.widgetService.updateWidget(result.id, param));   // update widget
+          }
+        } else if ('filter' === result.type) {
+          if( -1 < this._removeDsEngineNames.indexOf( param.configuration['filter']['dataSource'] ) ) {
+            this.deleteWidgetIds.push( result.id );
+            this.removeWidgetComponent(result.id);    // 대시보드상의 위젯 제거
+          } else {
+            param.configuration['filter'] = FilterUtil.convertToServerSpecForDashboard(param.configuration['filter']);
+
+            promises.push(() => this.widgetService.updateWidget(result.id, param));   // update widget
+          }
         }
-      } else if ('filter' === result.type) {
-        param.configuration['filter'] = FilterUtil.convertToServerSpecForDashboard(param.configuration['filter']);
       }
 
-      // update widget
-      promises.push(() => this.widgetService.updateWidget(result.id, param));
     });
 
     // 삭제 위젯 체크 - Start
@@ -920,6 +943,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public filterUtil = FilterUtil;
 
+  // noinspection JSMethodCanBeStatic
   /**
    * 필터 목록의
    * @param index
@@ -950,7 +974,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   public isDraggableFilterWidget(item: FilterWidget): boolean {
     const filter: Filter = this.getFilterForFilterWidget(item);
-    ( filter.ui ) || ( filter.ui = {} );
+    (filter.ui) || (filter.ui = {});
     return !filter.ui.filteringSeq && !filter.ui.widgetId && !this.isWidgetInLayout(item.id);
   } // function - isDraggableFilterWidget
 
@@ -1126,7 +1150,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       this._configFilterComp.close();
       this.hideBoardLoading();
       if (isSetPanel) {
-        this.popupService.notiFilter({ name: 'change-filter', data : filter });
+        this.popupService.notiFilter({ name: 'change-filter', data: filter });
       }
       this.safelyDetectChanges();
     });

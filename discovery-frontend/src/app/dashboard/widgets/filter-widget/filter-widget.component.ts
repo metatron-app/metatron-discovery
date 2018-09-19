@@ -190,10 +190,16 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
       const filter: Filter = this.getFilter();
 
       this.dashboard = this.widget.dashBoard;
-      this.field = DashboardUtil.getFieldByName(this.widget.dashBoard, filter.dataSource, filter.field, filter.ref);
+      this.field = DashboardUtil.getFieldByName( this.widget.dashBoard, filter.dataSource, filter.field, filter.ref );
 
-      // 필터 후보값 조회
-      this._candidate(filter);
+      if( this.field ) {
+        // 필터 후보값 조회
+        this._candidate( filter );
+      } else {
+        this.processStart();
+        this.isValidWidget = false;
+        this.processEnd();
+      }
     }
 
   } // function - ngOnChanges
@@ -217,8 +223,10 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * @param {FilterWidgetConfiguration} objConfig
    */
   public setConfiguration(objConfig: FilterWidgetConfiguration) {
-    this.widget.configuration = objConfig;
-    this._candidate(this.getFilter());
+    if( this.isValidWidget ) {
+      this.widget.configuration = objConfig;
+      this._candidate( this.getFilter() );
+    }
   } // function - setConfiguration
 
   /**
@@ -417,6 +425,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * @private
    */
   private _initialContainer() {
+    this.isValidWidget = true;
     // 콤보박스 관련된 필터 뷰 설정
     this.safelyDetectChanges();
     if (!this.isEditMode) {
@@ -542,6 +551,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
 
         this.processEnd();
       }).catch((error) => {
+        this.isValidWidget = false;
+
         this.commonExceptionHandler(error);
         // 목록 비움
         this.candidateList = [];

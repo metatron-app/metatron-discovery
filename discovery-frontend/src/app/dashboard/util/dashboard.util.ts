@@ -852,15 +852,22 @@ export class DashboardUtil {
       // Filter ( dataSource ( id -> engineName ) )
       const filters: Filter[] = DashboardUtil.getBoardFilters(boardInfo);
       if (filters && 0 < filters.length) {
-        filters.forEach((filter: Filter) => {
-          const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
-          (filterDs) && (filter.dataSource = filterDs.engineName);
-
-          if (isNullOrUndefined(filter.dataSource)) {
-            const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
-            (fieldDs) && (filter.dataSource = fieldDs.engineName);
+        const uniqFilterKeyList: string[] = [];
+        boardInfo.configuration.filters
+          = filters.filter((filter: Filter) => {
+          const uniqFilterKey: string = filter.dataSource + '_' + filter.field;
+          if (-1 === uniqFilterKeyList.indexOf(uniqFilterKey)) {
+            const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
+            (filterDs) && (filter.dataSource = filterDs.engineName);
+            if (isNullOrUndefined(filter.dataSource)) {
+              const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
+              (fieldDs) && (filter.dataSource = fieldDs.engineName);
+            }
+            uniqFilterKeyList.push(uniqFilterKey);
+            return true;
+          } else {
+            return false;
           }
-
         });
       }
       // Widget
