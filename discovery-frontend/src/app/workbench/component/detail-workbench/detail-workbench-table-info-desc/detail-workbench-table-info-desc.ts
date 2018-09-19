@@ -167,7 +167,12 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
    * @private
    */
   private _getMetaData(): void {
-    this._metaDataService.getMetadataByConnection(this.params['dataconnection'].id, this.params['dataconnection'].database, this.params['selectedTable'])
+
+    // table array 생성
+    let tableNameArr: string[] = [];
+    tableNameArr.push( this.params['selectedTable'] );
+
+    this._metaDataService.getMetadataByConnection(this.params['dataconnection'].id, this.params['dataconnection'].database, tableNameArr)
       .then((result) => {
         // tables 최상단에 메타데이터 이름 push
         result.length > 0 && this.tables.unshift({
