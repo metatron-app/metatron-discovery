@@ -6227,7 +6227,7 @@ ul.ddp-list-table li em.ddp-icon-tableinfo.ddp-selected:before  {background-posi
 	box-shadow: 0 1px 3px rgba(0,0,0,.3); /* drop shadow */
 }
 .ddp-box-layout4.ddp-basic {padding:17px; color:#4b515b; font-size:12px; line-height:18px;}
-.ddp-box-layout4.ddp-layout-info {position:fixed; left:270px; min-width:220px; width:auto; max-width:350px; max-height:500px; z-index:70; overflow:auto;}
+.ddp-box-layout4.ddp-layout-info {position:fixed; left:270px; min-width:220px; width:auto; max-width:350px; max-height:520px; z-index:70; overflow:auto;}
 .ddp-box-layout4.ddp-layout-info.ddp-info-type {max-width:520px; min-width:200px;overflow:hidden;table-layout:inherit;}
 .ddp-box-layout4.ddp-layout-info.ddp-info-type .ddp-form-scroll {max-height:476px; overflow:auto;}
 .ddp-box-layout4.ddp-layout-info.ddp-info-type table tr td {word-break:break-all;}
