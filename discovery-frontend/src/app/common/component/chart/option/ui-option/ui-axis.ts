@@ -41,7 +41,7 @@ export interface UIChartAxis {
   grid?: UIChartAxisGrid;
 
   // 기준선 (Base Line)
-  baseline?: number;
+  baseline?: number | string;
 
   // 배경색
   background?: Background;
@@ -80,10 +80,10 @@ export interface UIChartAxisGrid {
   autoScaled: boolean;
 
   // 최소값
-  min?: number;
+  min?: number | string;
 
   // 최대값
-  max?: number;
+  max?: number | string;
 
   // 눈금단위
   unit?: number;

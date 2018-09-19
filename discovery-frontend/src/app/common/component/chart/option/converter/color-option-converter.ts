@@ -268,11 +268,11 @@ export class ColorOptionConverter {
         }
 
         // deduct baseline value in range
-        if (valueAxis && null !== valueAxis.baseline && undefined !== valueAxis.baseline) {
-          item.fixMin = null == item.fixMin ? null : item.fixMin - valueAxis.baseline;
-          item.fixMax = null == item.fixMax ? null : item.fixMax - valueAxis.baseline;
-          item.gt = null == item.gt ? null : item.gt - valueAxis.baseline;
-          item.lte = null == item.lte ? null : item.lte - valueAxis.baseline;
+        if (null !== valueAxis.baseline && undefined !== valueAxis.baseline) {
+          item.fixMin = null == item.fixMin ? null : item.fixMin - <number>valueAxis.baseline;
+          item.fixMax = null == item.fixMax ? null : item.fixMax - <number>valueAxis.baseline;
+          item.gt = null == item.gt ? null : item.gt - <number>valueAxis.baseline;
+          item.lte = null == item.lte ? null : item.lte - <number>valueAxis.baseline;
         }
       }
 

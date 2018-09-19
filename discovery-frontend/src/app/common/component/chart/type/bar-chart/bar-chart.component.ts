@@ -563,7 +563,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
         // 기준선 변경시
         let baseline = 0;
         if( axisOption[index].baseline && axisOption[index].baseline != 0 ) {
-          baseline = axisOption[index].baseline
+          baseline = <number>axisOption[index].baseline;
         }
 
         // 축 범위 자동설정이 설정되지 않았고
@@ -695,7 +695,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 column.value[index] = grid.max;
               }
               else {
-                column.value[index] = grid.max - totalValue[index];
+                column.value[index] = (<number>grid.max) - totalValue[index];
               }
             }
             else if( totalValue[index] + value < grid.min ) {

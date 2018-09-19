@@ -210,11 +210,27 @@ export class FormatOptionConverter {
       }
     }
 
+    // Add decimal zero
+    if (value && format.type != String(UIFormatType.EXPONENT10) && format.decimal > 0) {
+      let stringValue: string = String(value);
+      if( stringValue.indexOf(".") == -1 ) {
+        value += ".";
+        for( let num: number = 0 ; num < format.decimal ; num++ ) {
+          value += "0";
+        }
+      }
+      else {
+        for( let num: number = stringValue.split(".")[1].length ; num < format.decimal ; num++ ) {
+          value += "0";
+        }
+      }
+    }
+
     // 통화
     if ((!customSymbol || _.trim(customSymbol.value).length == 0) && format.type == String(UIFormatType.CURRENCY)) {
       switch (format.sign) {
         case String(UIFormatCurrencyType.KRW) :
-          value = '₩ ' + value
+          value = '₩ ' + value;
           break;
         case String(UIFormatCurrencyType.USD) :
           value = '$ ' + value;
@@ -961,7 +977,7 @@ export class FormatOptionConverter {
    */
   public static getNumberValue(value: any): number {
 
-    return parseFloat(value.replace(/,/g, ''));
+    return parseFloat(value.toString().replace(/,/g, ''));
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
