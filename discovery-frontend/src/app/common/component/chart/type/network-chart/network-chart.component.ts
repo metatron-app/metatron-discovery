@@ -575,7 +575,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
 
             // find column value by field name
             columnField = _.find(this.pivot.columns, {'name' : field});
-            result = FormatOptionConverter.getTooltipName([params.data.originalName], (!columnField ? this.pivot.columns : this.pivot.rows), result, true, this.pivot);
+            result = FormatOptionConverter.getTooltipName([params.data.originalName], (!columnField ? this.pivot.rows : this.pivot.columns), result, true, this.pivot);
           }
         }
       }
