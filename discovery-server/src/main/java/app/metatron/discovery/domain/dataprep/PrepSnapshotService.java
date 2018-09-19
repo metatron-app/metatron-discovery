@@ -176,6 +176,22 @@ public class PrepSnapshotService {
         return null;
     }
 
+    public void updateSnapshotStatus(String ssId, PrepSnapshot.STATUS status) {
+        try {
+            Sort sort = new Sort(Sort.Direction.DESC, "launchTime");
+            List<PrepSnapshot> listAll = this.snapshotRepository.findAll(sort);
+            for(PrepSnapshot ss : listAll) {
+                if(ssId.equals(ss.getSsId())) {
+                    ss.setStatus(status);
+                    this.snapshotRepository.saveAndFlush(ss);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+        }
+    }
+
     public Map<String,Object> getSnapshotLineageInfo(String ssId) {
         try {
             Sort sort = new Sort(Sort.Direction.DESC, "launchTime");

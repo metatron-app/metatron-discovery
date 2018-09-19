@@ -1114,8 +1114,8 @@ public class JdbcConnectionService {
     LinkIngestionInfo ingestionInfo = (LinkIngestionInfo) metaDataSource.getIngestionInfo();
 
     // TODO: 중복 코드를 해결 필요
-    JdbcDataConnection realConnection = jdbcDataConnection == null ?
-        ingestionInfo.getConnection() : jdbcDataConnection;
+    JdbcDataConnection realConnection = (JdbcDataConnection) metaDataSource.getJdbcConnectionForIngestion();
+
     if (realConnection instanceof MySQLConnection
         || realConnection instanceof HiveConnection
         || realConnection instanceof PrestoConnection) {
@@ -1168,7 +1168,6 @@ public class JdbcConnectionService {
 
     return baseDir + File.separator + fileName + ".csv";
   }
-
 
   public List<String> selectIncrementalQueryToCsv(JdbcDataConnection connection,
                                                   JdbcIngestionInfo ingestionInfo,
@@ -1615,7 +1614,10 @@ public class JdbcConnectionService {
     String username;
     String password;
     if (connection.getAuthenticationType() == DataConnection.AuthenticationType.USERINFO) {
-      username = AuthUtils.getAuthUserName();
+      username = StringUtils.isEmpty(connection.getUsername())
+              ? AuthUtils.getAuthUserName()
+              : connection.getUsername();
+
       User user = cachedUserService.findUser(username);
       if (user == null) {
         throw new ResourceNotFoundException("User(" + username + ")");

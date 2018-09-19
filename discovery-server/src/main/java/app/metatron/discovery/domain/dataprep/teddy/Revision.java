@@ -67,10 +67,15 @@ public class Revision {
     return dfs.size();
   }
 
-  public DataFrame get(int idx) {
+  public DataFrame get(Integer idx) {
+    if (idx == null) {
+      return get();
+    }
+
     if (idx == -1) {
       idx = dfs.size() - 1;
     }
+
     return dfs.get(idx);
   }
 

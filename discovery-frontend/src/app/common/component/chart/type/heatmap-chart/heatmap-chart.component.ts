@@ -18,22 +18,24 @@
 
 import { AfterViewInit, Component, ElementRef, Injector, OnInit } from '@angular/core';
 import {
-  AxisType,
-  CHART_STRING_DELIMITER, ChartColorType, ChartSelectMode, ChartType, EventType, Position, SeriesType, ShelveFieldType,
+  CHART_STRING_DELIMITER,
+  ChartSelectMode,
+  ChartType,
+  Position,
+  SeriesType,
+  ShelveFieldType,
   ShelveType,
-  SymbolType, UIChartDataLabelDisplayType,
+  SymbolType,
+  UIChartDataLabelDisplayType,
 } from '../../option/define/common';
 import { OptionGenerator } from '../../option/util/option-generator';
 import * as _ from 'lodash';
-import optGen = OptionGenerator;
 import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
-import { UIChartColorByValue, UIOption } from '../../option/ui-option';
+import { UIOption } from '../../option/ui-option';
 import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
 import { BaseOption } from '../../option/base-option';
 import { UIChartFormat } from '../../option/ui-option/ui-format';
 import { FormatOptionConverter } from '../../option/converter/format-option-converter';
-import { AxisOptionConverter } from '../../option/converter/axis-option-converter';
-import { UIChartColorGradationByValue } from '../../option/ui-option/ui-color';
 
 @Component({
   selector: 'heatmap-chart',
@@ -131,17 +133,6 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
 
     this.pivotInfo = new PivotTableInfo(colNameList, colNameList, this.fieldInfo.aggs);
 
-    // color by measure일때 ranges값이 없는경우
-    if (this.uiOption.color && ChartColorType.MEASURE == this.uiOption.color.type &&
-       (!this.uiOption.color['ranges'] || 0 == this.uiOption.color['ranges'].length)) {
-      delete (<UIChartColorByValue>this.uiOption.color).ranges;
-      delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
-      delete (<UIChartColorByValue>this.uiOption.color).customMode;
-
-      // ranges가 초기화
-      this.uiOption.color['ranges'] = this.setMeasureColorRange(this.uiOption.color['schema']);
-    }
-
     super.draw(isKeepRange);
   }
 
@@ -207,6 +198,7 @@ export class HeatMapChartComponent extends BaseChart implements OnInit, AfterVie
 
       // 차트에 적용
       this.apply(false);
+      this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
 
       // 이벤트 데이터 전송
       this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));

@@ -31,7 +31,7 @@ import {
   ShelveFieldType,
   ShelveType,
   SymbolType,
-  UIChartDataLabelDisplayType, UIOrient
+  UIChartDataLabelDisplayType
 } from '../../option/define/common';
 import { OptionGenerator } from '../../option/util/option-generator';
 import { Series } from '../../option/define/series';
@@ -126,10 +126,9 @@ export class GaugeChartComponent extends BaseChart {
     // minValue값이 음수인경우 선반에서 measure값을 제거하고
     this.removeNegative();
 
-    // uiOption 설정
-    // stacked의 최대값 최소값 설정
-    this.uiOption.stackedMaxvalue = 100;
-    this.uiOption.stackedMinValue = 0;
+    // gauge max is 100% => 100
+    this.data.info.maxValue = 100;
+    this.data.info.minValue = 0;
 
     // 게이지 data 설정
     this.data = this.setGaugeChartData(isKeepRange);
@@ -143,10 +142,6 @@ export class GaugeChartComponent extends BaseChart {
     _.each(this.data.columns, (series) => {
 
       _.each(series, (column) => {
-
-        // 최대값 최소값 설정
-        this.data.info.maxValue = column.value > this.data.info.maxValue ? column.value : this.data.info.maxValue;
-        this.data.info.minValue = this.data.info.minValue > column.value ? column.value : this.data.info.minValue;
 
         const columnName: string = _.split(column.name, CHART_STRING_DELIMITER)[1];
         // pivotInfo데이터의 rows 데이터 설정 (범례, 색상에서 사용)
@@ -231,6 +226,7 @@ export class GaugeChartComponent extends BaseChart {
 
       // 차트에 적용
       this.apply(false);
+      this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
 
       // 이벤트 데이터 전송
       this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
@@ -247,22 +243,24 @@ export class GaugeChartComponent extends BaseChart {
    */
   protected setMeasureColorRange(schema): ColorRange[] {
 
-    // 리턴값
+    // return value
     let rangeList = [];
 
-    // 해당 schema에 해당하는 색상 리스트 설정
+    // set color list matching this schema
     const colorList = <any>ChartColorList[schema];
 
-    // gauge차트는 dimension에 따라서 개수가 다르므로 가장 많은 데이터를 가져온다
+    // bring the data that have the longest length
     let rowsList = <any>_.max(this.data.columns);
 
     let rowsListLength = rowsList.length;
 
-    // data.rows length가 colorList보다 작은경우 범위설정을 5개대신 rows개수로 설정
+    // if rows length is less than colorList length, set rows length instead 5(default)
     let colorListLength = colorList.length > rowsListLength ? rowsListLength - 1: colorList.length - 1;
 
-    // 차이값 설정
-    const addValue = (this.uiOption.maxValue - this.uiOption.minValue) / (colorListLength - 1);
+    // less than 0, set minValue
+    const minValue = this.uiOption.minValue >= 0 ? 0 : _.cloneDeep(this.uiOption.minValue);
+
+    const addValue = (this.uiOption.maxValue - minValue) / colorListLength;
 
     let maxValue = _.cloneDeep(this.uiOption.maxValue);
 
@@ -271,29 +269,26 @@ export class GaugeChartComponent extends BaseChart {
       shape = (<UIScatterChart>this.uiOption).pointShape.toString().toLowerCase();
     }
 
-    // uiOption minValue의 range에 설정할값
-    const uiMinValue = parseInt(this.uiOption.minValue.toFixed(0));
-
-    // rangeList 설정
+    // set ranges
     for (let index = colorListLength; index >= 0; index--) {
 
       let color = colorList[index];
 
-      // 가장 큰값은 min(gt)에 따로 설정
+      // set the biggest value in min(gt)
       if (colorListLength == index) {
 
-        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, Math.round(maxValue), null, Math.round(maxValue), null, shape));
+        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, parseFloat(maxValue.toFixed(1)), null, parseFloat(maxValue.toFixed(1)), null, shape));
 
-        // 가장작은값은 max(lt)에 따로 설정
-      } else if (0 == index) {
-
-        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, null, uiMinValue, null, uiMinValue, shape));
-      // 그 이외의 값 min / max (gt/lte) 설정
       } else {
-        let min = 1 == index ? uiMinValue : Math.round(maxValue - addValue);
-        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, Math.round(maxValue), min, Math.round(maxValue), shape));
+        // if it's the last value, set null in min(gt)
+        var min = 0 == index ? null : parseFloat((maxValue - addValue).toFixed(1));
 
-        maxValue = Math.round(maxValue - addValue);
+        // if value if lower than minValue, set it as minValue
+        if (min < this.uiOption.minValue && min < 0) min = _.cloneDeep(parseInt(this.uiOption.minValue.toFixed(1)));
+
+        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, parseFloat(maxValue.toFixed(1)), min, parseFloat(maxValue.toFixed(1)), shape));
+
+        maxValue = min;
       }
     }
 

@@ -35,10 +35,10 @@
     <!-- header -->
     <table class="ddp-table-form ddp-table-type2 ddp-table-details">
       <colgroup>
-        <col width="140px">
+        <col width="160px">
         <col width="100px">
-        <col width="140px">
-        <col width="120px">
+        <col width="180px">
+        <col width="180px">
         <col width="150px">
         <col width="150px">
         <col width="200px">
@@ -52,70 +52,112 @@
       <thead>
       <tr>
         <th class="ddp-cursor" (click)="onClickSort('popularity')">
-          {{'msg.metadata.th.column.popularity' | translate}}
-          <div class="ddp-wrap-hover-info">
-            <em class="ddp-icon-info3"></em>
-            <!-- popup -->
-            <div class="ddp-box-layout4 ddp-popularity">
-              <div class="ddp-data-title">
-                {{'msg.metadata.th.column.popularity.tooltip.title' | translate}}
+          <div class="ddp-th-long">
+            <div class="ddp-th-icons">
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4 ddp-popularity">
+                  <div class="ddp-data-title">
+                    {{'msg.metadata.th.column.popularity.tooltip.title' | translate}}
+                  </div>
+                  <div class="ddp-data-det">
+                    {{'msg.metadata.th.column.popularity.tooltip.desc' | translate}}
+                    <ul>
+                      <li>• {{'msg.metadata.th.column.popularity.tooltip.dashboard.conn' | translate}}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <!-- //popup -->
               </div>
-              <div class="ddp-data-det">
-                {{'msg.metadata.th.column.popularity.tooltip.desc' | translate}}
-                <ul>
-                  <li>• {{'msg.metadata.th.column.popularity.tooltip.dashboard.conn' | translate}}
-                  </li>
-                </ul>
-              </div>
+              <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'popularity' || selectedContentSort.sort === 'default'"></em>
+              <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'asc'"></em>
+              <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'desc'"></em>
             </div>
-            <!-- //popup -->
+            <span class="ddp-th-txt" title="{{'msg.metadata.th.column.popularity' | translate}}">
+              {{'msg.metadata.th.column.popularity' | translate}}
+            </span>
           </div>
-          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'popularity' || selectedContentSort.sort === 'default'"></em>
-          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'asc'"></em>
-          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'desc'"></em>
         </th>
         <th>
-          {{'msg.metadata.th.physical.type' | translate}}
+          <div class="ddp-th-long">
+            <div class="ddp-th-txt" title="{{'msg.metadata.th.physical.type' | translate}}">
+              {{'msg.metadata.th.physical.type' | translate}}
+            </div>
+          </div>
         </th>
         <th class="ddp-cursor" (click)="onClickSort('physicalName')">
-          {{'msg.metadata.th.physical.name' | translate}}
-          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'physicalName' || selectedContentSort.sort === 'default'"></em>
-          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'asc'"></em>
-          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'desc'"></em>
+          <div class="ddp-th-long">
+            <div class="ddp-th-icons">
+              <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'physicalName' || selectedContentSort.sort === 'default'"></em>
+              <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'asc'"></em>
+              <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'desc'"></em>
+            </div>
+            <span class="ddp-th-txt" title="{{'msg.metadata.th.physical.name' | translate}}">
+              {{'msg.metadata.th.physical.name' | translate}}
+            </span>
+          </div>
         </th>
         <th class="ddp-cursor" (click)="onClickSort('name')">
-          {{'msg.metadata.th.name' | translate}}
-          <div class="ddp-wrap-hover-info">
-            <em class="ddp-icon-info3"></em>
-            <!-- popup -->
-            <div class="ddp-box-layout4 ddp-popularity">
-              <div class="ddp-data-title">
-                {{'msg.metadata.th.column.logical.tooltip.title' | translate}}
+          <div class="ddp-th-long">
+            <div class="ddp-th-icons">
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4 ddp-popularity">
+                  <div class="ddp-data-title">
+                    {{'msg.metadata.th.column.logical.tooltip.title' | translate}}
+                  </div>
+                  <div class="ddp-data-det">
+                    {{'msg.metadata.th.column.logical.tooltip.desc' | translate}}
+                  </div>
+                </div>
+                <!-- //popup -->
               </div>
-              <div class="ddp-data-det">
-                {{'msg.metadata.th.column.logical.tooltip.desc' | translate}}
-              </div>
+              <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
+              <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
+              <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
             </div>
-            <!-- //popup -->
+            <span class="ddp-th-txt" title="{{'msg.metadata.th.name' | translate}}">
+              {{'msg.metadata.th.name' | translate}}
+            </span>
           </div>
-          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
-          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
-          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
         </th>
         <th>
-          {{'msg.metadata.th.dictionary' | translate}}
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="{{'msg.metadata.th.dictionary' | translate}}">
+              {{'msg.metadata.th.dictionary' | translate}}
+            </span>
+          </div>
         </th>
         <th>
-          {{'msg.storage.ui.th.logical.type'| translate}}
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="{{'msg.storage.ui.th.logical.type'| translate}}">
+              {{'msg.storage.ui.th.logical.type'| translate}}
+            </span>
+          </div>
         </th>
         <th>
-          {{'msg.storage.ui.th.format' | translate}}
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="{{'msg.storage.ui.th.format' | translate}}">
+              {{'msg.storage.ui.th.format' | translate}}
+            </span>
+          </div>
         </th>
         <th>
-          {{'msg.storage.ui.th.code.table' | translate}}
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="{{'msg.storage.ui.th.code.table' | translate}}">
+              {{'msg.storage.ui.th.code.table' | translate}}
+            </span>
+          </div>
         </th>
         <th>
-          {{'msg.storage.ui.th.description' | translate}}
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="{{'msg.storage.ui.th.description' | translate}}">
+              {{'msg.storage.ui.th.description' | translate}}
+            </span>
+          </div>
         </th>
         <!--<th>-->
           <!--{{'msg.metadata.th.max.digit' | translate}}-->

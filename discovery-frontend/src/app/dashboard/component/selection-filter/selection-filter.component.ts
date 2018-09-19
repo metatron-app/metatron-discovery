@@ -428,7 +428,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
           // 저장된 필드 정보에서 선택된 데이터를 삭제해준다.
           let nEmptyDataIndex: number = -1;
           savedItem.data.some((savedItemData, dataIdx: number) => {
-            if (savedItemData.alias === removeItemData.alias) {
+            if (savedItemData.alias === removeItemData.alias && savedItemData.data) {
               savedItemData.data = savedItemData.data.filter(item => -1 === removeItemData.data.indexOf(item));
               (0 === savedItemData.data.length) && (nEmptyDataIndex = dataIdx);
               return true;

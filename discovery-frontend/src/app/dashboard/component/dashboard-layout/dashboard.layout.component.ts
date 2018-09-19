@@ -636,16 +636,16 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
   /**
    * Dynamic Widget Header Component 등록
    * @param stack
-   * @param {LayoutWidgetInfo[]} layoutWidgets
    * @param {BoardGlobalOptions} globalOpts
    * @private
    */
-  private _bootstrapWidgetHeaderComponent(stack, layoutWidgets: LayoutWidgetInfo[], globalOpts: BoardGlobalOptions) {
+  private _bootstrapWidgetHeaderComponent(stack, globalOpts: BoardGlobalOptions) {
     let componentState: any = stack.config.content[0];
     if( componentState ) {
       let widgetInfo: Widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
 
       if( widgetInfo ) {
+        const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos( this.dashboard );
         let widgetHeaderCompFactory
           = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetHeaderComponent);
         let widgetHeaderComp = this.appRef.bootstrap(widgetHeaderCompFactory, stack.header.tabs[0].element.get(0));
@@ -844,11 +844,11 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           });
         });
 
-        // 레이아웃 스택이 생성되었을 때의 이벤트 처리 -> Header 기능 정의
+        // 레이아웃 스택이 생성되었을 때의 이벤트 처리 -> Header 기능 정의private _convertSpecToServer(param: any) {
         this._layoutObj.on('stackCreated', (stack) => {
           if (LayoutMode.EDIT === this._layoutMode) {
             setTimeout(() => {
-              this._bootstrapWidgetHeaderComponent(stack, layoutWidgets, globalOpts);
+              this._bootstrapWidgetHeaderComponent(stack, globalOpts);
             }, 200);
           }
         });
@@ -1080,10 +1080,11 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * When in edit mode, display as full loading
    */
   public showBoardLoading() {
-    if (LayoutMode.VIEW === this._layoutMode || LayoutMode.VIEW_AUTH_MGMT === this._layoutMode) {
-      this.isShowDashboardLoading = true;
-    } else {
+    if (LayoutMode.EDIT === this._layoutMode ) {
       this.loadingShow();
+    } else {
+      const isRealTimeBoard:boolean = this.dashboard && this.dashboard.configuration.options.sync && this.dashboard.configuration.options.sync.enabled;
+      ( isRealTimeBoard ) || ( this.isShowDashboardLoading = true );
     }
     this.safelyDetectChanges();
   } // function - showBoardLoading
@@ -1092,10 +1093,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * Hide Loading
    */
   public hideBoardLoading() {
-    if (LayoutMode.VIEW === this._layoutMode || LayoutMode.VIEW_AUTH_MGMT === this._layoutMode) {
-      this.isShowDashboardLoading = false;
-    } else {
+    if (LayoutMode.EDIT === this._layoutMode ) {
       this.loadingHide();
+    } else {
+      this.isShowDashboardLoading = false;
     }
     this.safelyDetectChanges();
   } // function - hideBoardLoading

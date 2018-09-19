@@ -14,42 +14,6 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRawValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.search.annotations.Analyze;
-import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.Fields;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.IndexedEmbedded;
-import org.hibernate.search.annotations.SortableField;
-import org.hibernate.search.annotations.Store;
-import org.hibernate.search.bridge.builtin.BooleanBridge;
-import org.hibernate.search.bridge.builtin.EnumBridge;
-import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.data.rest.core.annotation.RestResource;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import app.metatron.discovery.common.CustomCollectors;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.KeepAsJsonDeserialzier;
@@ -58,12 +22,7 @@ import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.context.ContextEntity;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.*;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
@@ -72,13 +31,37 @@ import app.metatron.discovery.domain.workbook.configurations.field.DimensionFiel
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.field.TimestampField;
 import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.search.annotations.*;
+import org.hibernate.search.bridge.builtin.BooleanBridge;
+import org.hibernate.search.bridge.builtin.EnumBridge;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.data.rest.core.annotation.RestResource;
 
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HDFS;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HIVE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.REALTIME;
+import javax.persistence.*;
+import javax.persistence.Index;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
 import static app.metatron.discovery.domain.workbook.configurations.field.Field.FIELD_NAMESPACE_SEP;
 import static org.hibernate.search.annotations.Index.NO;
 
@@ -479,6 +462,30 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
     }
 
     return (T) ingestionInfo;
+  }
+
+  @JsonIgnore
+  public DataConnection getJdbcConnectionForIngestion(){
+
+    JdbcIngestionInfo jdbcInfo = this.getIngestionInfoByType();
+
+    DataConnection jdbcConnection = Preconditions.checkNotNull(this.getConnection() == null ?
+                    jdbcInfo.getConnection() : this.getConnection(),
+            "Required connection info.");
+
+    if(jdbcConnection.getAuthenticationType() == DataConnection.AuthenticationType.USERINFO){
+      //username priority : AuthUtils.getAuthUserName() > this.getCreatedBy()
+      String dataSourceUsername = AuthUtils.getAuthUserName().equals("unknown")
+              ? this.getCreatedBy()
+              : AuthUtils.getAuthUserName();
+
+      jdbcConnection.setUsername(dataSourceUsername);
+    } else if(jdbcConnection.getAuthenticationType() == DataConnection.AuthenticationType.DIALOG){
+      jdbcConnection.setUsername(jdbcInfo.getConnectionUsername());
+      jdbcConnection.setPassword(jdbcInfo.getConnectionPassword());
+    }
+
+    return jdbcConnection;
   }
 
   public boolean checkMatchedSrcTypeAndIngetsionInfo(IngestionInfo info) {

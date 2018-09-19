@@ -25,17 +25,19 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { Dataconnection } from '../../../../domain/dataconnection/dataconnection';
 import { isUndefined } from 'util';
 import { Alert } from '../../../../common/util/alert.util';
+import { Page } from '../../../../domain/common/page';
+import { StringUtil } from '../../../../common/util/string.util';
+import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
+import { WorkbenchService } from '../../../service/workbench.service';
 
 @Component({
   selector: 'detail-workbench-table',
   templateUrl: './detail-workbench-table.html',
 })
-export class DetailWorkbenchTable extends AbstractComponent implements OnInit, OnDestroy, OnChanges {
+export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements OnInit, OnDestroy, OnChanges {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -97,15 +99,19 @@ export class DetailWorkbenchTable extends AbstractComponent implements OnInit, O
 
   public localData: any[] = [];
 
+  // request reconnect count
+  private _getTableListReconnectCount: number = 0;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected dataconnectionService: DataconnectionService,
+  constructor(protected workbenchService: WorkbenchService,
+              protected dataconnectionService: DataconnectionService,
               protected element: ElementRef,
               protected injector: Injector) {
-    super(element, injector);
+    super(workbenchService, element, injector);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -170,9 +176,16 @@ export class DetailWorkbenchTable extends AbstractComponent implements OnInit, O
     if (this.page.page === 0) {
       this.tables = [];
     }
+
+    // 호출 횟수 증가
+    this._getTableListReconnectCount++;
+
     this.loadingShow();
-    this.dataconnectionService.getSearchTables(this.inputParams.dataconnection.id, this.inputParams.dataconnection.database, this.searchText, this.page)
+    this.dataconnectionService.getTableListInConnection(this.inputParams.dataconnection.id, this.inputParams.dataconnection.database, this._getParameterForTable(WorkbenchService.websocketId, this.page, this.searchText))
       .then((data) => {
+        // 호출 횟수 초기화
+        this._getTableListReconnectCount = 0;
+
         this.loadingHide();
         if (data['page']['totalPages'] === 1) {
           this.pageMode = 'MEMORY';
@@ -188,14 +201,16 @@ export class DetailWorkbenchTable extends AbstractComponent implements OnInit, O
         this.tableDataEvent.emit(data['tables']);
       })
       .catch((error) => {
-        this.loadingHide();
-        if (!isUndefined(error.details)) {
-          Alert.error(error.details);
+        if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getTableListReconnectCount <= 5) {
+          this.webSocketCheck(() => {
+            this.getTables();
+          });
         } else {
-          Alert.error(error);
+          this.commonExceptionHandler(error);
         }
       });
   }
+
 
   /**
    * 이전버튼 disable 여부
@@ -237,22 +252,38 @@ export class DetailWorkbenchTable extends AbstractComponent implements OnInit, O
       }
       this.page.page = this.page.page - 1;
     }
+    // set table list
+    this._setTableList(this.inputParams.dataconnection.id, this.inputParams.dataconnection.database);
+  }
+
+  /**
+   * Set table list
+   * @param {string} connectionId
+   * @param {string} databaseName
+   * @private
+   */
+  private _setTableList(connectionId: string, databaseName: string): void {
+    // 호출 횟수 증가
+    this._getTableListReconnectCount++;
 
     this.loadingShow();
-    this.dataconnectionService.getSearchTables(this.inputParams.dataconnection.id, this.inputParams.dataconnection.database, this.searchText, this.page)
+    this.dataconnectionService.getTableListInConnection(connectionId, databaseName, this._getParameterForTable(WorkbenchService.websocketId, this.page, this.searchText))
       .then((data) => {
+        // 호출 횟수 초기화
+        this._getTableListReconnectCount = 0;
+
         this.loadingHide();
         this.pageResult = data['page'];
         this.tables = data['tables'];
       })
       .catch((error) => {
-        this.loadingHide();
-        if (!isUndefined(error.details)) {
-          Alert.error(error.details);
+        if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getTableListReconnectCount <= 5) {
+          this.webSocketCheck(() => {
+            this._setTableList(connectionId, databaseName);
+          });
         } else {
-          Alert.error(error);
+          this.commonExceptionHandler(error);
         }
-
       });
   }
 
@@ -283,7 +314,7 @@ export class DetailWorkbenchTable extends AbstractComponent implements OnInit, O
       selectedTable: item,
       // top:offset.top,
       top: 250,
-      websocketId: this.inputParams.webSocketId
+      websocketId: WorkbenchService.websocketId
     };
   }
 
@@ -299,7 +330,7 @@ export class DetailWorkbenchTable extends AbstractComponent implements OnInit, O
       dataconnection: this.inputParams.dataconnection,
       selectedTable: item,
       top: 250,
-      websocketId: this.inputParams.webSocketId
+      websocketId: WorkbenchService.websocketId
     };
   }
 
@@ -344,4 +375,26 @@ export class DetailWorkbenchTable extends AbstractComponent implements OnInit, O
     this.getTables();
   }
 
+  /**
+   * Get parameter for table
+   * @param {string} webSocketId
+   * @param {Page} page
+   * @param {string} tableName
+   * @returns {any}
+   * @private
+   */
+  private _getParameterForTable(webSocketId: string, page?: Page, tableName?: string): any {
+    const params = {
+      webSocketId: webSocketId
+    };
+    if (page) {
+      params['sort'] = page.sort;
+      params['page'] = page.page;
+      params['size'] = page.size;
+    }
+    if (StringUtil.isNotEmpty(tableName)) {
+      params['tableName'] = tableName.trim();
+    }
+    return params;
+  }
 }

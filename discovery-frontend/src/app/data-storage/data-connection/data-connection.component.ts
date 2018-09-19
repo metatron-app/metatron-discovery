@@ -55,10 +55,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 타입
-  public types: any[];
-  public searchType: string = 'all';
-
   // DB 타입
   public dbTypes: any[];
 
@@ -142,8 +138,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     this.selectedContentSort = new Order();
     // db type
     this.searchDb = 'all';
-    // status
-    this.searchType = 'all';
     // create date 초기화
     this.selectedDate = null;
     // date 필터 created update 설정 default created로 설정
@@ -227,18 +221,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - event
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 필터링 타입 변경
-   * @param type
-   */
-  public onChangeType(type): void {
-    this.searchType = type.value;
-    // 페이지 초기화
-    this.page.page = 0;
-    // 재조회
-    this.getDataconnection();
-  }
 
   /**
    * 필터링 DB 타입 변경
@@ -384,12 +366,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     // 페이지 초기화
     this.page.page = 0;
     this.page.size = 20;
-    // UsageScope 필터링
-    this.types = [
-      { name: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
-      { name: this.translateService.instant('msg.storage.ui.list.general'), value: 'DEFAULT' },
-      { name: this.translateService.instant('msg.storage.ui.list.workbench'), value: 'WORKBENCH' }
-    ];
     // db 타입
     this.dbTypes = this.getEnabledConnectionTypes();
   }
@@ -414,10 +390,6 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     // 이름 검색
     if (this.searchText.trim() !== '') {
       params['name'] = this.searchText.trim();
-    }
-    // 타입
-    if (this.searchType !== 'all') {
-      params['usageScope'] = this.searchType;
     }
     // 정렬
     if (this.selectedContentSort.sort !== 'default') {

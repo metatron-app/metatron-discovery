@@ -14,16 +14,20 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
-import com.google.common.collect.Maps;
-
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.TestUtils;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.datasource.connection.jdbc.*;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Maps;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,22 +39,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.TestUtils;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.datasource.connection.jdbc.H2Connection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HawqConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MssqlConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.OracleConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PhoenixConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PostgresqlConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.PrestoConnection;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
@@ -1527,8 +1515,7 @@ import static org.hamcrest.Matchers.hasSize;
     List<HashMap> connectionList = from(resp.asString()).getList("_embedded.connections", HashMap.class);
     for(HashMap<String, Object> connectionMap : connectionList){
       System.out.println(
-              "usageScope = " + connectionMap.get("usageScope")
-            + ", name = " + connectionMap.get("name")
+            "name = " + connectionMap.get("name")
             + ", implementor = " + connectionMap.get("implementor")
             + ", createTime = " + connectionMap.get("createdTime")
             + ", modifiedTime = " + connectionMap.get("modifiedTime")
@@ -1548,7 +1535,6 @@ import static org.hamcrest.Matchers.hasSize;
                     .accept(ContentType.JSON)
                     .contentType(ContentType.JSON)
                     .param("projection", "list")
-                    .param("usageScope", "DEFAULT")
                     .when()
                     .get("/api/connections")
                     .then()
@@ -1561,13 +1547,11 @@ import static org.hamcrest.Matchers.hasSize;
     List<HashMap> connectionList = from(resp.asString()).getList("_embedded.connections", HashMap.class);
     for(HashMap<String, Object> connectionMap : connectionList){
       System.out.println(
-              "usageScope = " + connectionMap.get("usageScope")
-                      + ", name = " + connectionMap.get("name")
+                      "name = " + connectionMap.get("name")
                       + ", implementor = " + connectionMap.get("implementor")
                       + ", createTime = " + connectionMap.get("createdTime")
                       + ", modifiedTime = " + connectionMap.get("modifiedTime")
       );
-      Assert.isTrue(connectionMap.get("usageScope").equals("DEFAULT"));
     }
   }
 
@@ -1583,7 +1567,6 @@ import static org.hamcrest.Matchers.hasSize;
                     .accept(ContentType.JSON)
                     .contentType(ContentType.JSON)
                     .param("projection", "list")
-                    .param("usageScope", "WORKBENCH")
                     .when()
                     .get("/api/connections")
                     .then()
@@ -1596,13 +1579,11 @@ import static org.hamcrest.Matchers.hasSize;
     List<HashMap> connectionList = from(resp.asString()).getList("_embedded.connections", HashMap.class);
     for(HashMap<String, Object> connectionMap : connectionList){
       System.out.println(
-              "usageScope = " + connectionMap.get("usageScope")
-                      + ", name = " + connectionMap.get("name")
+                      "name = " + connectionMap.get("name")
                       + ", implementor = " + connectionMap.get("implementor")
                       + ", createTime = " + connectionMap.get("createdTime")
                       + ", modifiedTime = " + connectionMap.get("modifiedTime")
       );
-      Assert.isTrue(connectionMap.get("usageScope").equals("WORKBENCH"));
     }
   }
 
@@ -1610,7 +1591,6 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   @Sql({"/sql/test_dataconnection.sql"})
   public void getListForWorkbenchByAuthType() throws JsonProcessingException {
-    String usageScope = "WORKBENCH";
     String authenticationType = "DIALOG";
 
     // @formatter:off
@@ -1621,7 +1601,6 @@ import static org.hamcrest.Matchers.hasSize;
                     .contentType(ContentType.JSON)
                     .param("projection", "list")
                     .param("authenticationType", authenticationType)
-                    .param("usageScope", usageScope)
                     .when()
                     .get("/api/connections")
                     .then()
@@ -1634,14 +1613,12 @@ import static org.hamcrest.Matchers.hasSize;
     List<HashMap> connectionList = from(resp.asString()).getList("_embedded.connections", HashMap.class);
     for(HashMap<String, Object> connectionMap : connectionList){
       System.out.println(
-              "usageScope = " + connectionMap.get("usageScope")
-                      + ", name = " + connectionMap.get("name")
+                      "name = " + connectionMap.get("name")
                       + ", authenticationType = " + connectionMap.get("authenticationType")
                       + ", implementor = " + connectionMap.get("implementor")
                       + ", createTime = " + connectionMap.get("createdTime")
                       + ", modifiedTime = " + connectionMap.get("modifiedTime")
       );
-      Assert.isTrue(connectionMap.get("usageScope").equals(usageScope));
       Assert.isTrue(connectionMap.get("authenticationType").equals(authenticationType));
     }
   }
@@ -1672,8 +1649,7 @@ import static org.hamcrest.Matchers.hasSize;
     List<HashMap> connectionList = from(resp.asString()).getList("_embedded.connections", HashMap.class);
     for(HashMap<String, Object> connectionMap : connectionList){
       System.out.println(
-              "usageScope = " + connectionMap.get("usageScope")
-                      + ", name = " + connectionMap.get("name")
+                      "ame = " + connectionMap.get("name")
                       + ", implementor = " + connectionMap.get("implementor")
                       + ", createTime = " + connectionMap.get("createdTime")
                       + ", modifiedTime = " + connectionMap.get("modifiedTime")
@@ -1688,7 +1664,6 @@ import static org.hamcrest.Matchers.hasSize;
   public void getListByName() throws JsonProcessingException {
 
     String namePattern = "LOCAL";
-    String usageScope = "WORKBENCH";
 
     // @formatter:off
     Response resp =
@@ -1698,7 +1673,6 @@ import static org.hamcrest.Matchers.hasSize;
                     .contentType(ContentType.JSON)
                     .param("projection", "list")
                     .param("name", namePattern)
-                    .param("usageScope", usageScope)
                     .when()
                     .get("/api/connections")
                     .then()
@@ -1712,14 +1686,12 @@ import static org.hamcrest.Matchers.hasSize;
     List<HashMap> connectionList = from(resp.asString()).getList("_embedded.connections", HashMap.class);
     for(HashMap<String, Object> connectionMap : connectionList){
       System.out.println(
-              "usageScope = " + connectionMap.get("usageScope")
-                      + ", name = " + connectionMap.get("name")
+                      "name = " + connectionMap.get("name")
                       + ", implementor = " + connectionMap.get("implementor")
                       + ", createTime = " + connectionMap.get("createdTime")
                       + ", modifiedTime = " + connectionMap.get("modifiedTime")
       );
       Assert.isTrue(StringUtils.containsIgnoreCase(connectionMap.get("name").toString(), namePattern));
-      Assert.isTrue(connectionMap.get("usageScope").equals(usageScope));
     }
   }
 
@@ -1727,8 +1699,6 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   @Sql({"/sql/test_dataconnection.sql"})
   public void getListWithSortName() throws JsonProcessingException {
-
-    String usageScope = "WORKBENCH";
 
     // @formatter:off
     Response resp =
@@ -1738,7 +1708,6 @@ import static org.hamcrest.Matchers.hasSize;
                     .contentType(ContentType.JSON)
                     .param("projection", "list")
                     .param("sort", "name,asc")
-                    .param("usageScope", usageScope)
                     .when()
                     .get("/api/connections")
                     .then()
@@ -1752,13 +1721,11 @@ import static org.hamcrest.Matchers.hasSize;
     List<HashMap> connectionList = from(resp.asString()).getList("_embedded.connections", HashMap.class);
     for(HashMap<String, Object> connectionMap : connectionList){
       System.out.println(
-              "usageScope = " + connectionMap.get("usageScope")
-                      + ", name = " + connectionMap.get("name")
+                      "name = " + connectionMap.get("name")
                       + ", implementor = " + connectionMap.get("implementor")
                       + ", createTime = " + connectionMap.get("createdTime")
                       + ", modifiedTime = " + connectionMap.get("modifiedTime")
       );
-      Assert.isTrue(connectionMap.get("usageScope").equals(usageScope));
     }
 
   }
@@ -1768,8 +1735,6 @@ import static org.hamcrest.Matchers.hasSize;
   @Sql({"/sql/test_dataconnection.sql"})
   public void getListWithSortModifiedTime() throws JsonProcessingException {
 
-    String usageScope = "WORKBENCH";
-
     // @formatter:off
     Response resp =
             given()
@@ -1778,7 +1743,6 @@ import static org.hamcrest.Matchers.hasSize;
                     .contentType(ContentType.JSON)
                     .param("projection", "list")
                     .param("sort", "modifiedTime,asc")
-                    .param("usageScope", usageScope)
                     .when()
                     .get("/api/connections")
                     .then()
@@ -1792,14 +1756,12 @@ import static org.hamcrest.Matchers.hasSize;
     List<HashMap> connectionList = from(resp.asString()).getList("_embedded.connections", HashMap.class);
     for(HashMap<String, Object> connectionMap : connectionList){
       System.out.println(
-              "usageScope = " + connectionMap.get("usageScope")
-                      + ", name = " + connectionMap.get("name")
+                      "name = " + connectionMap.get("name")
                       + ", authenticationType = " + connectionMap.get("authenticationType")
                       + ", implementor = " + connectionMap.get("implementor")
                       + ", createTime = " + connectionMap.get("createdTime")
                       + ", modifiedTime = " + connectionMap.get("modifiedTime")
       );
-      Assert.isTrue(connectionMap.get("usageScope").equals(usageScope));
     }
 
   }
@@ -1809,7 +1771,6 @@ import static org.hamcrest.Matchers.hasSize;
   @Sql({"/sql/test_dataconnection.sql"})
   public void getListWithRange() throws JsonProcessingException {
 
-    String usageScope = "WORKBENCH";
     String from = "2017-08-01T00:00:00.000Z";
     String to = "2017-09-22T23:00:00.000Z";
     String searchDateBy = "MODIFIED";
@@ -1822,7 +1783,6 @@ import static org.hamcrest.Matchers.hasSize;
                     .contentType(ContentType.JSON)
                     .param("projection", "list")
                     .param("sort", "modifiedTime,asc")
-                    .param("usageScope", usageScope)
                     .param("from", from)
                     .param("to", to)
                     .param("searchDateBy", searchDateBy)
@@ -1842,8 +1802,7 @@ import static org.hamcrest.Matchers.hasSize;
     List<HashMap> connectionList = from(resp.asString()).getList("_embedded.connections", HashMap.class);
     for(HashMap<String, Object> connectionMap : connectionList){
       System.out.println(
-              "usageScope = " + connectionMap.get("usageScope")
-                      + ", name = " + connectionMap.get("name")
+                      "name = " + connectionMap.get("name")
                       + ", implementor = " + connectionMap.get("implementor")
                       + ", createTime = " + connectionMap.get("createdTime")
                       + ", modifiedTime = " + connectionMap.get("modifiedTime")
@@ -1860,7 +1819,6 @@ import static org.hamcrest.Matchers.hasSize;
   @Sql({"/sql/test_dataconnection.sql"})
   public void getListWithParameter() throws JsonProcessingException {
 
-    String usageScope = "WORKBENCH";
     String from = "2017-08-01T00:00:00.000Z";
     String to = "2017-09-22T23:00:00.000Z";
     String searchDateBy = "MODIFIED";
@@ -1875,7 +1833,6 @@ import static org.hamcrest.Matchers.hasSize;
                     .contentType(ContentType.JSON)
                     .param("projection", "list")
                     .param("sort", "modifiedTime,asc")
-                    .param("usageScope", usageScope)
                     .param("from", from)
                     .param("to", to)
                     .param("searchDateBy", searchDateBy)
@@ -1897,8 +1854,7 @@ import static org.hamcrest.Matchers.hasSize;
     List<HashMap> connectionList = from(resp.asString()).getList("_embedded.connections", HashMap.class);
     for(HashMap<String, Object> connectionMap : connectionList){
       System.out.println(
-              "usageScope = " + connectionMap.get("usageScope")
-                      + ", name = " + connectionMap.get("name")
+                      "name = " + connectionMap.get("name")
                       + ", implementor = " + connectionMap.get("implementor")
                       + ", createTime = " + connectionMap.get("createdTime")
                       + ", modifiedTime = " + connectionMap.get("modifiedTime")
@@ -1908,7 +1864,6 @@ import static org.hamcrest.Matchers.hasSize;
       DateTime modifiedTime = new DateTime(connectionMap.get("modifiedTime").toString());
       Assert.isTrue(modifiedTime.isAfter(fromDateTime));
       Assert.isTrue(modifiedTime.isBefore(toDateTime));
-      Assert.isTrue(connectionMap.get("usageScope").equals(usageScope));
       Assert.isTrue(StringUtils.containsIgnoreCase(connectionMap.get("name").toString(), namePattern)
                   || StringUtils.containsIgnoreCase(createdByMap.get("username"), namePattern));
     }
@@ -1924,7 +1879,6 @@ import static org.hamcrest.Matchers.hasSize;
     connection.setPort(10000);
     connection.setUsername("hive");
     connection.setPassword("hive");
-    connection.setUsageScope(DataConnection.UsageScope.WORKBENCH);
     connection.setAuthenticationType(DataConnection.AuthenticationType.MANUAL);
 
     String reqBody = GlobalObjectMapper.writeValueAsString(connection);
@@ -1943,7 +1897,6 @@ import static org.hamcrest.Matchers.hasSize;
 
     createResponse.then()
       .statusCode(HttpStatus.SC_CREATED)
-      .body("usageScope", Matchers.is("WORKBENCH"))
             .log().all();
     // @formatter:on
 

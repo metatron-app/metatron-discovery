@@ -144,55 +144,41 @@ export class DataflowService extends AbstractService {
       });
   }
 
-  // 데이터 플로우 룰생성
-  public previewJoinResult(datasetId: string, op: string, ruleStr: string): Promise<any> {
-    let popupService = this.popupService;
-    const params: any = { dsId: datasetId, op: op, ruleString: ruleStr };
-    return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform/preview`, params)
-      .catch((error) => {
-        if (true !== isUndefined(error.code) && error.code === 'PR5102') {
-          Loading.hide();
-          PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
-          return Promise.reject(null);
-        }
-        throw error;
-      });
-  } // function - previewJoinResult
+  // transform action GET or PUT
+  public transformAction(id: string, method: string, params : any ): Promise<any> {
+    if (method === 'put') {
+      return this.put(this.API_URL + `preparationdatasets/${id}/transform`, params)
 
-  // 룰 JUMP
-  public jumpRule(datasetId: string, op: string, ruleIdx: number): Promise<any> {
-    let popupService = this.popupService;
-    const params: any = { dsId: datasetId, op: op, ruleIdx: ruleIdx };
-    return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform`, params)
-      .catch((error) => {
-        if (true !== isUndefined(error.code) && error.code === 'PR5102') {
-          Loading.hide();
-          PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
-          return Promise.reject(null);
-        }
-        throw error;
-      });
-  } // function - previewJoinResult
+    } else {
+      let url = this.API_URL + `preparationdatasets/${id}/transform`;
+      const param: string[] = [];
+      if (isNullOrUndefined(params.ruleIdx)) {
+        (param.push(`ruleIdx=`));
+      } else {
+        (param.push(`ruleIdx=${params.ruleIdx}`));
+      }
+      (isNullOrUndefined(params.offset)) || (param.push(`offset=${params.offset}`));
+      (isNullOrUndefined(params.count)) || (param.push(`count=${params.count}`));
+      (0 < param.length) && (url = url + '?' + param.join('&'));
 
-  // FILE 데이터셋 조회
-  public getDatasetFileData(filekey: string, sheetname?: string): Promise<any> {
-    let url = this.API_URL + `preparationdatasets/file/${filekey}?hasFields=Y`;
-    if (!isUndefined(sheetname)) {
-      url = url + `&sheetname=${encodeURI(sheetname)}`;
+      return this.get(url);
     }
-    return this.get(url);
-  }
 
-  // Wrangled 데이터셋 조회
+  } // function - transformAction
+
+
+  // Wrangled 데이터셋 조회 (조인과 유니온에서 사용)
   public getDatasetWrangledData(datasetId: string, count?: number, pageNum?: number, ruleIdx?: number): Promise<any> {
+
+    // TODO : temp value
+    count = 1000;
+    pageNum = 0;
 
     let url = this.API_URL + `preparationdatasets/${datasetId}/transform`;
 
     const params: string[] = [];
-    (isNullOrUndefined(ruleIdx)) || (params.push(`ruleIdx=${ruleIdx}`));
-    (isNullOrUndefined(pageNum)) || (params.push(`pageNum=${pageNum}`));
+    (params.push(`ruleIdx=`));
+    (isNullOrUndefined(pageNum)) || (params.push(`offset=${pageNum}`));
     (isNullOrUndefined(count)) || (params.push(`count=${count}`));
     (0 < params.length) && (url = url + '?' + params.join('&'));
 
@@ -202,11 +188,6 @@ export class DataflowService extends AbstractService {
   // 데이터셋 추가
   public updateDataSets(dataflowId: string, dsIds: any): Promise<any> {
     return this.put(this.API_URL + `preparationdataflows/${dataflowId}/update_datasets`, dsIds);
-  }
-
-  // 데이터 스냅샷 생성
-  public checkHiveTable(schema: string, table: string): Promise<any> {
-    return this.get(this.API_URL + `preparationsnapshots/check_table/${schema}/${table}`);
   }
 
 
@@ -241,50 +222,21 @@ export class DataflowService extends AbstractService {
   }
 
   // 룰 적용
-  public applyRules(datasetId: string, rule: any): Promise<any> {
-    if( isUndefined(rule['ruleIdx']) ) {
-      if( isUndefined(rule['ruleCurIdx']) ) {
-        rule['ruleIdx'] = -1; // -1 means curIdx
-      } else {
-        rule['ruleIdx'] = rule['ruleCurIdx'];
-        delete rule['ruleCurIdx'];
-      }
-    }
-    if( isUndefined(rule['ruleCurIdx']) ) {
-      delete rule['ruleCurIdx'];
-    }
+  public applyRules(datasetId: string, param: any): Promise<any> {
+    // if( isUndefined(rule['ruleIdx']) ) {
+    //   if( isUndefined(rule['ruleCurIdx']) ) {
+    //     rule['ruleIdx'] = -1; // -1 means curIdx
+    //   } else {
+    //     rule['ruleIdx'] = rule['ruleCurIdx'];
+    //     delete rule['ruleCurIdx'];
+    //   }
+    // }
+    // if( isUndefined(rule['ruleCurIdx']) ) {
+    //   delete rule['ruleCurIdx'];
+    // }
     let popupService = this.popupService;
-    return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform`, rule)
-      .catch((error) => {
-        if (true !== isUndefined(error.code) && error.code === 'PR5102') {
-          Loading.hide();
-          PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
-          return Promise.reject(null);
-        }
-        throw error;
-      });
-  }
-
-  // get gridResponse search
-  public getSearchDataSets(datasetId: string, searchText: string) {
-    let popupService = this.popupService;
-    return this.get(this.API_URL + `preparationdatasets/${datasetId}/transform` + `/` + encodeURIComponent(searchText))
-      .catch((error) => {
-        if (true !== isUndefined(error.code) && error.code === 'PR5102') {
-          Loading.hide();
-          PreparationAlert.success(this.translateService.instant(error.details));
-          popupService.notiPopup({ name: 'update-dataflow', data: null });
-          return Promise.reject(null);
-        }
-        throw error;
-      });
-  }
-
-  // get gridResponse search
-  public getDataSetsLimit(datasetId: string, count: number) {
-    let popupService = this.popupService;
-    return this.get(this.API_URL + `preparationdatasets/${datasetId}/transform?count=` + count)
+    param['count'] = 100;
+    return this.put(this.API_URL + `preparationdatasets/${datasetId}/transform`, param)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
@@ -306,13 +258,17 @@ export class DataflowService extends AbstractService {
     let url = this.API_URL + `preparationdatasets/${datasetId}/transform`;
 
     const params: string[] = [];
-    (isNullOrUndefined(ruleIdx)) || (params.push(`ruleIdx=${ruleIdx}`));
-    (isNullOrUndefined(pageNum)) || (params.push(`pageNum=${pageNum}`));
+
+    if (isNullOrUndefined(ruleIdx)) {
+      (params.push(`ruleIdx=`));
+    } else {
+      (params.push(`ruleIdx=${ruleIdx}`));
+    }
+    (isNullOrUndefined(pageNum)) || (params.push(`offset=${pageNum}`));
     (isNullOrUndefined(count)) || (params.push(`count=${count}`));
     (0 < params.length) && (url = url + '?' + params.join('&'));
 
     return this.get(url)
-    // return this.get(this.API_URL + `preparationdatasets/${datasetId}/transform`)
       .catch((error) => {
         if (true !== isUndefined(error.code) && error.code === 'PR5102') {
           Loading.hide();
@@ -343,11 +299,11 @@ export class DataflowService extends AbstractService {
     return this.delete(this.API_URL + 'preparationdataflows/delete_chain/' + dfId + '/' + dsId);
   }
 
-  // removes dataset from selected dataflow
-  public removeDataset(dfId, dsId): Promise<any> {
-    return this.delete(this.API_URL + `preparationdataflows/${dfId}/remove/${dsId}`);
-  }
-
+  /**
+   * Clone dataSet
+   * @param {string} dsId
+   * @return {Promise<any>}
+   */
   public cloneWrangledDataset(dsId: string): Promise<any> {
     let params = {};
     return this.post(this.API_URL + `preparationdatasets/${dsId}/clone`, params);
@@ -399,7 +355,7 @@ export class DataflowService extends AbstractService {
 
   /**
    * 룰 편집 화면에서 스냅샷 탭 목록 불러오기
-   * @param {string} datasetId
+   * @param {string} dsId
    * @return {Promise<any>}
    */
   public getWorkList(params): Promise<any> {

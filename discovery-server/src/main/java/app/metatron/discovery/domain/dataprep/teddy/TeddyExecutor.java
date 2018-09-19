@@ -311,6 +311,10 @@ public class TeddyExecutor {
     transformRecursive(datasetInfo, ssId);
     String masterFullDsId = replaceMap.get(masterTeddyDsId);
 
+    // Some rules like pivot may break Hive column naming rule.
+    DataFrame finalDf = cache.get(masterFullDsId);
+    finalDf.checkAlphaNumericalColNames();
+
     List<String> ruleStrings = (List<String>) datasetInfo.get("ruleStrings");
     List<String> partKeys = (List<String>) snapshotInfo.get("partKeys");
     String format = (String) snapshotInfo.get("format");
@@ -414,8 +418,7 @@ public class TeddyExecutor {
     // single thread
     if (cores == 0) {
       List<DataFrame> slaveDfs = new ArrayList<>();
-      for (int ruleNo = 1; ruleNo < ruleStrings.size(); ruleNo++) {
-        String ruleString = ruleStrings.get(ruleNo);
+      for (String ruleString : ruleStrings) {   // create rule has been removed already
         List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
         if (slaveDsIds != null) {
           for (String slaveDsId : slaveDsIds) {
@@ -431,9 +434,7 @@ public class TeddyExecutor {
     }
 
     // multi-thread
-    for (int ruleNo = 1; ruleNo < ruleStrings.size(); ruleNo++) {
-      String ruleString = ruleStrings.get(ruleNo);
-
+    for (String ruleString : ruleStrings) {     // create rule has been removed already
       List<Future<List<Row>>> futures = new ArrayList<>();
       List<DataFrame> slaveDfs = new ArrayList<>();
 
@@ -921,17 +922,13 @@ public class TeddyExecutor {
     snapshotRuleDoneCnt.remove(ssId);
   }
 
-  synchronized public void updateAsCanceling(String ssId) {
-    updateSnapshot("status", PrepSnapshot.STATUS.CANCELING.name(), ssId);
-  }
-
-  public void updateAsCanceled(String ssId) {
+  private void updateAsCanceled(String ssId) {
     updateSnapshot("status", PrepSnapshot.STATUS.CANCELED.name(), ssId);
     snapshotRuleDoneCnt.remove(ssId);
   }
 
   synchronized public void cancelCheck(String ssId) throws CancellationException{
-    if(snapshotService.getSnapshotStatus(ssId).equals(PrepSnapshot.STATUS.CANCELING)) {
+    if(snapshotService.getSnapshotStatus(ssId).equals(PrepSnapshot.STATUS.CANCELED)) {
       throw new CancellationException("This snapshot generating was canceled by user. ssid: " + ssId);
     }
   }

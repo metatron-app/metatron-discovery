@@ -14,10 +14,19 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.datasource.DataSourceProperties;
+import app.metatron.discovery.domain.datasource.connection.jdbc.*;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.mdm.source.MetadataSource;
+import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
+import app.metatron.discovery.domain.workbench.Workbench;
+import app.metatron.discovery.domain.workbench.WorkbenchRepository;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import com.google.common.collect.Maps;
-
 import com.querydsl.core.types.Predicate;
-
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -31,35 +40,13 @@ import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.datasource.DataSourceProperties;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcQueryResultResponse;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.mdm.source.MetadataSource;
-import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
-import app.metatron.discovery.domain.workbench.Workbench;
-import app.metatron.discovery.domain.workbench.WorkbenchRepository;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 
 /**
  * Created by kyungtaak on 2016. 6. 10..
@@ -104,7 +91,6 @@ public class DataConnectionController {
    * Connection 목록 조회
    * @param name
    * @param implementor
-   * @param usageScope
    * @param searchDateBy
    * @param from
    * @param to
@@ -117,7 +103,6 @@ public class DataConnectionController {
       @RequestParam(value = "name", required = false) String name,
       @RequestParam(value = "type", required = false) String type,
       @RequestParam(value = "implementor", required = false) String implementor,
-      @RequestParam(value = "usageScope", required = false) String usageScope,
       @RequestParam(value = "authenticationType", required = false) String authenticationType,
       @RequestParam(value = "searchDateBy", required = false) String searchDateBy,
       @RequestParam(value = "from", required = false)
@@ -128,19 +113,11 @@ public class DataConnectionController {
 
     LOGGER.debug("name = {}", name);
     LOGGER.debug("implementor = {}", implementor);
-    LOGGER.debug("usageScope = {}", usageScope);
     LOGGER.debug("authenticationType = {}", authenticationType);
     LOGGER.debug("searchDateBy = {}", searchDateBy);
     LOGGER.debug("from = {}", from);
     LOGGER.debug("to = {}", to);
     LOGGER.debug("pageable = {}", pageable);
-
-    // Validate UsageScope
-    DataConnection.UsageScope usageScopeType = null;
-    if(StringUtils.isNotEmpty(usageScope) && !"ALL".equalsIgnoreCase(usageScope)){
-      usageScopeType = SearchParamValidator
-          .enumUpperValue(DataConnection.UsageScope.class, usageScope, "usageScope");
-    }
 
     // Validate UsageScope
     DataConnection.AuthenticationType authenticationTypeValue = null;
@@ -162,7 +139,7 @@ public class DataConnectionController {
 
     // Get Predicate
     Predicate searchPredicated = DataConnectionPredicate
-        .searchList(name, usageScopeType, sourceType, implementorType, searchDateBy, from, to, authenticationTypeValue);
+        .searchList(name, sourceType, implementorType, searchDateBy, from, to, authenticationTypeValue);
 
     // 기본 정렬 조건 셋팅
     if(pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
@@ -337,6 +314,11 @@ public class DataConnectionController {
       throw new ResourceNotFoundException(connectionId);
     }
 
+    //userinfo, dialog required webSocketId
+    if(connection.getAuthenticationType() != DataConnection.AuthenticationType.MANUAL){
+      SearchParamValidator.checkNull(webSocketId, "webSocketId");
+    }
+
     return ResponseEntity.ok(connectionService.findDatabases((JdbcDataConnection) connection, databaseName, webSocketId, pageable));
   }
 
@@ -352,6 +334,11 @@ public class DataConnectionController {
     DataConnection connection = connectionRepository.findOne(connectionId);
     if(connection == null) {
       throw new ResourceNotFoundException(connectionId);
+    }
+
+    //userinfo, dialog required webSocketId
+    if(connection.getAuthenticationType() != DataConnection.AuthenticationType.MANUAL){
+      SearchParamValidator.checkNull(webSocketId, "webSocketId");
     }
 
     return ResponseEntity.ok(
@@ -378,6 +365,12 @@ public class DataConnectionController {
     if(dataSource == null){
 
     }
+
+    //userinfo, dialog required webSocketId
+    if(dataConnection.getAuthenticationType() != DataConnection.AuthenticationType.MANUAL){
+      SearchParamValidator.checkNull(webSocketId, "webSocketId");
+    }
+
     Map<String, Object> columnsMap = connectionService.searchTableColumns((JdbcDataConnection) dataConnection,
             dataSource, databaseName, tableName, columnNamePattern, pageable);
 
@@ -395,6 +388,11 @@ public class DataConnectionController {
     DataConnection dataConnection = connectionRepository.findOne(connectionId);
     if(dataConnection == null) {
       throw new ResourceNotFoundException("DataConnection(" + connectionId + ")");
+    }
+
+    //userinfo, dialog required webSocketId
+    if(dataConnection.getAuthenticationType() != DataConnection.AuthenticationType.MANUAL){
+      SearchParamValidator.checkNull(webSocketId, "webSocketId");
     }
 
     DataSource dataSource = connectionService.getDataSource((JdbcDataConnection) dataConnection, true, webSocketId);

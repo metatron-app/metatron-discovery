@@ -52,8 +52,6 @@ export class DataconnectionService extends AbstractService {
 
     let url = this.API_URL + `connections`;
 
-    // &sort=port%2Cdesc&name=LOC&usageScope=WORKBENCH&implementor=HIVE
-
     if (param) {
       url += '?' + CommonUtil.objectToUrlString(param);
     }
@@ -93,6 +91,35 @@ export class DataconnectionService extends AbstractService {
     return this.get(url);
   } // function - getDatabases
 
+  /**
+   * Get database list in connection
+   * @param {string} connectionId
+   * @param params
+   * @returns {Promise<any>}
+   */
+  public getDatabaseListInConnection(connectionId: string, params: any): Promise<any> {
+    let url: string = this.API_URL + `connections/${connectionId}/databases`;
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
+  /**
+   * Get table list in connection
+   * @param {string} connectionId
+   * @param {string} databaseName
+   * @param params
+   * @returns {Promise<any>}
+   */
+  public getTableListInConnection(connectionId: string, databaseName: string, params: any): Promise<any> {
+    let url: string = this.API_URL + `connections/${connectionId}/databases/${databaseName}/tables`;
+    if (params) {
+      url += '?' + CommonUtil.objectToUrlString(params);
+    }
+    return this.get(url);
+  }
+
   // 커넥션 정보로만 데이터베이스 조회
   public getDatabasesWithoutId(param: any): Promise<any> {
     return this.post(this.API_URL + 'connections/query/databases', param);
@@ -123,17 +150,6 @@ export class DataconnectionService extends AbstractService {
   // 테이블 상세조회
   public getTableDetailWitoutId(param: any, extractColumnName: boolean = false): Promise<any>  {
     return this.post(this.API_URL + 'connections/query/data?extractColumnName=' + extractColumnName, param);
-  }
-
-  // 데이터 테이블 조회 -> 이름으로
-  public getSearchTables(connectionId: string, databaseName: string, tableName: string, page?:Page): Promise<any> {
-    let url = this.API_URL + `connections/${connectionId}/databases/${databaseName}/tables?tableName=${tableName}`;
-
-    if (page) {
-      url += '&' + CommonUtil.objectToUrlString(page);
-    }
-
-    return this.get(url);
   }
 
   // 커넥션 상태 조회
