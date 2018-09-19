@@ -12,25 +12,35 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-box-layout4 ddp-layout-info " [ngStyle]="{'top':getTop}">
+<div class="ddp-box-layout4 ddp-layout-info ddp-info-type" [ngStyle]="{'top':getTop}">
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-  <!--<div class="ddp-data-title">-->
-    <!--{{tables}} &lt;!&ndash; 빌드 오류로 변수 이름 변경해둡니다.. 로직에 맞춰 다시 변경해주세요 &ndash;&gt;-->
-  <!--</div>-->
-  <table class="ddp-table-info">
-    <colgroup>
-      <col width="130px" />
-      <col width="" />
-    </colgroup>
-    <tbody>
-    <tr *ngFor="let data of tables">
-      <th>
-        {{data.itemkey}}
-      </th>
-      <td>
-        {{data.item}}
-      </td>
-    </tr>
-    </tbody>
-  </table>
+  <div class="ddp-data-title">
+    {{selectedTable}}
+  </div>
+
+  <div class="ddp-form-scroll">
+    <div *ngFor="let result of resultData">
+      <div class="ddp-label-table" [hidden]="result.label == undefined">
+        <span class="ddp-txt-label">
+          {{result.label}}
+        </span>
+      </div>
+      <table class="ddp-table-info ">
+        <colgroup>
+          <col width="150px" />
+          <col width="" />
+        </colgroup>
+        <tbody>
+        <tr *ngFor="let data of result.data">
+          <th>
+            {{data.itemkey}}
+          </th>
+          <td>
+            {{data.item}}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
