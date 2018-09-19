@@ -426,185 +426,54 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
    */
   public _initializeFunctionList() {
 
-    // 함수 목록 설정
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'length', 'msg.dp.ui.expression.functiondesc.string.length', 'length(‘hello world’)<br>&gt;11')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'upper', 'msg.dp.ui.expression.functiondesc.string.upper', 'upper(‘Hello world’)<br>&gt;’HELLO WORLD’')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'lower', 'msg.dp.ui.expression.functiondesc.string.lower', 'lower(‘Hello WORLD’)<br>&gt;’hello world’')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'trim', 'msg.dp.ui.expression.functiondesc.string.trim','trim(‘  .   Hi!   ‘)<br>&gt;‘.   Hi!’')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'ltrim', 'msg.dp.ui.expression.functiondesc.string.ltrim','ltrim(‘  .   Hi!   ‘)<br>&gt;’.   Hi!   ‘')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'rtrim', 'msg.dp.ui.expression.functiondesc.string.rtrim','rtrim(‘  .   Hi!   ‘)<br>&gt;‘  .   Hi!’')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'substring', 'msg.dp.ui.expression.functiondesc.string.substring.','substring(‘hello world’, 1, 7)<br>&gt;‘ello w’')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'concat', 'msg.dp.ui.expression.functiondesc.string.concat','concat(‘1980’, ’02’)<br>&gt;‘198002’')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'concat_ws', 'msg.dp.ui.expression.functiondesc.string.concat_ws','concat(separator, stirng_value1, string_value2)<br>concat_ws(‘-‘, ‘010’, ‘1234’, ‘5678’)<br>&gt;’010-1234-5678’')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.LOGICAL, 'if', 'msg.dp.ui.expression.functiondesc.logical.if','if(gender==‘male’)<br>&gt;TRUE')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.LOGICAL, 'ismismatched', 'msg.dp.ui.expression.functiondesc.logical.ismismatched','')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.LOGICAL, 'isnull', 'msg.dp.ui.expression.functiondesc.logical.isnull','isnull(telephone)<br>&gt;FALSE')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.LOGICAL, 'isnan', 'msg.dp.ui.expression.functiondesc.logical.isnan','isnan(1000/ratio)<br>&gt;FALSE')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'year', 'msg.dp.ui.expression.functiondesc.timestamp.year','year(birthday)<br>&gt; 1987')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'month', 'msg.dp.ui.expression.functiondesc.timestamp.month','month(birthday)<br>&gt; 2')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'day', 'msg.dp.ui.expression.functiondesc.timestamp.day','day(birthday)<br>&gt; 13')
-  );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'hour', 'msg.dp.ui.expression.functiondesc.timestamp.hour','hour(last_login)<br>&gt; 21')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'minute', 'msg.dp.ui.expression.functiondesc.timestamp.minute','minute(last_login)<br>&gt; 49')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'second', 'msg.dp.ui.expression.functiondesc.timestamp.second','second(last_login)<br>&gt; 28')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'millisecond', 'msg.dp.ui.expression.functiondesc.timestamp.millisecond','millisecond(last_login)<br>&gt; 831')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'now', 'msg.dp.ui.expression.functiondesc.timestamp.now','now()<br>&gt;2018-04-18T12:20:90.220Z')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'add_time', 'msg.dp.ui.expression.functiondesc.timestamp.add_time','add_time(timestamp, delta, time_unit)<br>&gt;add_time(end_date, 10, ‘day’)')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.AGGREGATION, 'sum', 'msg.dp.ui.expression.functiondesc.aggregation.sum','sum(profit)')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.AGGREGATION, 'avg', 'msg.dp.ui.expression.functiondesc.aggregation.avg','avg(profit)')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.AGGREGATION, 'max', 'msg.dp.ui.expression.functiondesc.aggregation.max','max(profit)')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.AGGREGATION, 'min', 'msg.dp.ui.expression.functiondesc.aggregation.min','min(profit)')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.AGGREGATION, 'count', 'msg.dp.ui.expression.functiondesc.aggregation.count','count()')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.abs', 'msg.dp.ui.expression.functiondesc.math.abs','math.abs(-10)<br>&gt;10')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.acos', 'msg.dp.ui.expression.functiondesc.math.acos','math.acos(-1)<br>&gt; 3.141592653589793')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.asin', 'msg.dp.ui.expression.functiondesc.math.asin','math.asin(-1)<br>&gt;-1.5707963267948966')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.atan', 'msg.dp.ui.expression.functiondesc.math.atan','math.atan(-1)<br>&gt;-0.7853981633974483')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.cbrt', 'msg.dp.ui.expression.functiondesc.math.cbrt','math.cbrt(5)<br>&gt; 1.709975946676697')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.ceil', 'msg.dp.ui.expression.functiondesc.math.ceil','math.ceil(15.142)<br>&gt; 16')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.cos', 'msg.dp.ui.expression.functiondesc.math.cos','math.cos(45)<br>&gt;0.5253219888177297')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.cosh', 'msg.dp.ui.expression.functiondesc.math.cosh','math.cosh(9)<br>&gt;COSH(9) &equals;&gt; 4051.5420254925943')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.exp', 'msg.dp.ui.expression.functiondesc.math.exp','math.exp(4)<br>&gt;54.598150033144236')
 
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.expm1', 'msg.dp.ui.expression.functiondesc.math.expm1','math.expm1(4)<br>&gt;53.598150033144236')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.getExponent', 'msg.dp.ui.expression.functiondesc.math.getExponent','math.getExponent(9)<br>&gt;3')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.round', 'msg.dp.ui.expression.functiondesc.math.round','math.round(14.2)<br>&gt;14')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.signum', 'msg.dp.ui.expression.functiondesc.math.signum','math.signum(-24)<br>&gt;-1')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.sin', 'msg.dp.ui.expression.functiondesc.math.sin','math.sin(90)<br>&gt;0.8939966636005579')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.sinh', 'msg.dp.ui.expression.functiondesc.math.sinh','math.sinh(1)<br>&gt;1.1752011936438014')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.sqrt', 'msg.dp.ui.expression.functiondesc.math.sqrt','math.sqrt(4)<br>&gt;2')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.tan', 'msg.dp.ui.expression.functiondesc.math.tan','math.tan(10)<br>&gt;0.6483608274590866')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.tanh', 'msg.dp.ui.expression.functiondesc.math.tanh','math.tanh(4)<br>&gt;0.999329299739067')
-    );
+    this.dataflowService.getFunctionList().then((result) => {
+      this._functionList = result['function_list'];
 
-    // 카테고리 목록 설정
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory('ALL', 'ALL')
-    );
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory(
-        FunctionCategory.STRING,
-        FunctionCategory.STRING.toString(),
-        this._functionList.filter(item => item.category === FunctionCategory.STRING)
-      )
-    );
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory(
-        FunctionCategory.LOGICAL,
-        FunctionCategory.LOGICAL.toString(),
-        this._functionList.filter(item => item.category === FunctionCategory.LOGICAL)
-      )
-    );
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory(
-        FunctionCategory.TIMESTAMP,
-        FunctionCategory.TIMESTAMP.toString(),
-        this._functionList.filter(item => item.category === FunctionCategory.TIMESTAMP)
-      )
-    );
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory(
-        FunctionCategory.AGGREGATION,
-        FunctionCategory.AGGREGATION.toString(),
-        this._functionList.filter(item => item.category === FunctionCategory.AGGREGATION)
-      )
-    );
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory(
-        FunctionCategory.MATH,
-        FunctionCategory.MATH.toString(),
-        this._functionList.filter(item => item.category === FunctionCategory.MATH)
-      )
-    );
+      // 카테고리 목록 설정
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory('ALL', 'ALL')
+      );
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory(
+          FunctionCategory.STRING,
+          FunctionCategory.STRING.toString(),
+          this._functionList.filter(item => item.category === FunctionCategory.STRING)
+        )
+      );
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory(
+          FunctionCategory.LOGICAL,
+          FunctionCategory.LOGICAL.toString(),
+          this._functionList.filter(item => item.category === FunctionCategory.LOGICAL)
+        )
+      );
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory(
+          FunctionCategory.TIMESTAMP,
+          FunctionCategory.TIMESTAMP.toString(),
+          this._functionList.filter(item => item.category === FunctionCategory.TIMESTAMP)
+        )
+      );
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory(
+          FunctionCategory.AGGREGATION,
+          FunctionCategory.AGGREGATION.toString(),
+          this._functionList.filter(item => item.category === FunctionCategory.AGGREGATION)
+        )
+      );
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory(
+          FunctionCategory.MATH,
+          FunctionCategory.MATH.toString(),
+          this._functionList.filter(item => item.category === FunctionCategory.MATH)
+        )
+      );
 
-    this.functionCategoryList = this.totalFunctionCategoryList.filter(item => item.key !== 'ALL');
+      this.functionCategoryList = this.totalFunctionCategoryList.filter(item => item.key !== 'ALL');
+
+    });
+
 
   } // function - _initializeFunctionList
 
@@ -635,11 +504,13 @@ class FormulaFunction {
   public name: string;
   public description: string;
   public example: string;
+  public exampleResult: string;
 
-  constructor(category: FunctionCategory, name: string, description: string, example: string) {
+  constructor(category: FunctionCategory, name: string, description: string, example: string, exampleResult: string) {
     this.category = category;
     this.name = name;
     this.description = description;
     this.example = example;
+    this.exampleResult = exampleResult;
   }
 }

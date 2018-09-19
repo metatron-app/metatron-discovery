@@ -13,7 +13,7 @@
 <div class="ddp-box-part" *ngIf="isShow">
   <div class="ddp-box-title">
     <span class="ddp-box-title-in">
-        {{'msg.dp.th.formula' | translate}}<em class="ddp-icon-essential"></em>
+        {{'msg.dp.th.expression' | translate}}<em class="ddp-icon-essential"></em>
         <a href="javascript:" class="ddp-btn-plus" (click)="addFormula();"></a>
     </span>
   </div>
@@ -23,6 +23,7 @@
       <div class="ddp-wrap-boxadd" *ngFor="let item of formulaList;trackBy:trackByFn;let idx = index;">
         <div class="ddp-wrap-datainput">
           <rule-condition-input
+            [placeholder]="'msg.dp.th.expression.ph' | translate"
             [formula]="item" [command]="'pivot'" [fields]="fields" [tabIndex]="3"
             (onChange)="formulaList[idx] = $event"></rule-condition-input>
         </div>

@@ -362,4 +362,15 @@ export class DataflowService extends AbstractService {
     let url = this.API_URL + 'preparationsnapshots/' + params.dsId + '/work_list';
     return this.get(url);
   }
+
+
+  /**
+   * Fetch function list used in Advanced Function popup
+   * @returns {Promise<any>}
+   */
+  public getFunctionList(): Promise<any> {
+
+    let url = this.API_URL + `preparationdatasets/function_list`;
+    return this.get(url);
+  }
 }
