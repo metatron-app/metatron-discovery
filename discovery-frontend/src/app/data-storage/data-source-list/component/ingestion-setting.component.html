@@ -134,7 +134,7 @@
                     <span class="ddp-txt-selectbox">{{'msg.storage.btn.sel.day' | translate}}</span>
                     <div class="ddp-wrap-popup2">
                       <ul class="ddp-list-selectbox2">
-                        <li *ngFor="let date of dateList" (click)="onSelectDate(date); $event.preventDefault()">
+                        <li *ngFor="let date of dateList" (click)="onSelectDate(date); $event.stopImmediatePropagation(); $event.preventDefault()">
                           <label class="ddp-label-checkbox">
                             <input type="checkbox" [checked]="date.checked">
                             <i class="ddp-icon-checkbox"></i>

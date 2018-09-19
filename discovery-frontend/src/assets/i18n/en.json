@@ -1412,7 +1412,7 @@
   "msg.storage.th.query.gran" : "Query Granularity",
   "msg.storage.th.max-query-row" : "Max. query row",
   "msg.storage.create.ingesting.description" : "Please complete ingestion settings",
-  "msg.storage.btn.sel.day" : "Select the Day of the week",
+  "msg.storage.btn.sel.day" : "Select day",
   "msg.storage.ui.crontab.ph" : "Enter Crontab",
   "msg.storage.ui.segment-gran.title": "What is Segment granularity?",
   "msg.storage.ui.segment-gran.description": "The granularity to create segments at.",

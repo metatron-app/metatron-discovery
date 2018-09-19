@@ -42,17 +42,14 @@
           <!-- key -->
           <div class="ddp-col-5">
             <div class="ddp-txt-label" *ngIf="option.defaultOpt">{{option.key}}</div>
-            <ng-container *ngIf="!option.defaultOpt">
-              <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.key' | translate}}"
-                     [(ngModel)]="option.key">
-            </ng-container>
+            <input type="text" *ngIf="!option.defaultOpt" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.key' | translate}}"
+                   [(ngModel)]="option.key">
           </div>
           <!-- //key -->
           <!-- value -->
           <div class="ddp-col-7">
             <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{option.ph || ('msg.storage.ph.config.value' | translate)}}"
                    [(ngModel)]="option.value">
-            <!--<span class="ddp-data-error" *ngIf="option.defaultOpt && isTextEmpty(option.value)"> {{'msg.storage.ui.required' | translate}}</span>-->
           </div>
           <!-- value -->
           <!-- delete -->
@@ -92,17 +89,14 @@
           <!-- key -->
           <div class="ddp-col-5">
             <div class="ddp-txt-label" *ngIf="option.defaultOpt">{{option.key}}</div>
-            <ng-container *ngIf="!option.defaultOpt">
-              <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.key' | translate}}"
-                     [(ngModel)]="option.key">
-            </ng-container>
+            <input *ngIf="!option.defaultOpt" type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.key' | translate}}"
+                   [(ngModel)]="option.key">
           </div>
           <!-- //key -->
           <!-- value -->
           <div class="ddp-col-7">
             <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{option.ph || ('msg.storage.ph.config.value' | translate)}}"
                    [(ngModel)]="option.value">
-            <!--<span class="ddp-data-error" *ngIf="option.defaultOpt && isTextEmpty(option.value)"> {{'msg.storage.ui.required' | translate}}</span>-->
           </div>
           <!-- value -->
           <!-- delete -->

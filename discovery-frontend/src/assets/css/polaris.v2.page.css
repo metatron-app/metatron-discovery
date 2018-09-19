@@ -6992,6 +6992,8 @@ table.ddp-wrap-boxdata tr td ul.ddp-list-sub li .ddp-sub {padding-left:15px;colo
 .ddp-wrap-edit3 .ddp-box-sub .ddp-option-in input.ddp-input-typebasic {display:inline-block;}
 
 .ddp-wrap-edit3.ddp-type .ddp-ui-cycle .ddp-wrap-hover-info:hover .ddp-box-layout4 {right:-20px; top:100%; margin-top:5px;}
+.ddp-ui-cycle .ddp-form-time input.ddp-input-time {width:80px;}
+.ddp-ui-cycle .ddp-form-wrapper .ddp-form-time {width:80px;}
 .ddp-ui-cycle .ddp-type-cycle {float:left; width:200px !important; margin-right:4px;}
 .ddp-ui-cycle .ddp-list-buttons {float:left; margin-right:5px;}
 .ddp-ui-cycle .ddp-list-buttons li {width:58px;}
