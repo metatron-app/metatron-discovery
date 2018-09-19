@@ -319,14 +319,6 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
 
       this._setStatus();
 
-      // TimeUnit 선택 방지 코드
-      if (!this.isLiveStatus) {
-        if (this.isRelativeType) {
-          delete filter.timeUnit;
-          this.setTimeAllFilter();
-        }
-      }
-
       // 위젯 화면 표시
       this.isShowFilter = true;
 
