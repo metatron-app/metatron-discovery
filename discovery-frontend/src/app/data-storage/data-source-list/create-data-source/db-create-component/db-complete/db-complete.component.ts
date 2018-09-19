@@ -319,18 +319,18 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
 
   /**
    * ingetsion Single Rows
-   * @returns {number}
+   * @returns {string}
    */
-  public get getIngestionSingleRow(): number {
-    return this.getIngestionData.ingestionOnceRow;
+  public get getIngestionSingleRow(): string {
+    return StringUtil.isEmpty(this.getIngestionData.ingestionOnceRow) ? '10,000' : this.getIngestionData.ingestionOnceRow;
   }
 
   /**
    * ingestion Batch Rows
-   * @returns {number}
+   * @returns {string}
    */
-  public get getIngestionBatchRow(): number {
-    return this.getIngestionData.ingestionPeriodRow;
+  public get getIngestionBatchRow(): string {
+    return StringUtil.isEmpty(this.getIngestionData.ingestionPeriodRow) ? '10,000' : this.getIngestionData.ingestionPeriodRow;
   }
 
   /**
@@ -966,7 +966,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       // period
       ingestion['period'] = this.getPeriodParams();
       // 가져올 rows 수
-      ingestion['size'] = this.getIngestionBatchRow;
+      ingestion['size'] = Number.parseInt(this.getIngestionBatchRow.replace(/(,)/g, ''));
       // 적재 범위
       ingestion['range'] = this.getSelectedScopeType.value;
 
@@ -975,7 +975,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       ingestion['scope'] = this.getSelectedScopeType.value;
       // row 수
       if (this.getSelectedScopeType.value === 'ROW') {
-        ingestion['size'] = this.getIngestionSingleRow;
+        ingestion['size'] = Number.parseInt(this.getIngestionSingleRow.replace(/(,)/g, ''));
       }
     }
     // if not used connection preset
