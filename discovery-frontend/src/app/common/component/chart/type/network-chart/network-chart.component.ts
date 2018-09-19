@@ -500,16 +500,34 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
 
     // 노드명 가공
     for (let node of this.data.nodes) {
+
       node.originalName = node.name;
-      node.name = node.name + CHART_STRING_DELIMITER + node.field;
+      // if fields are multiple (have same name in different nodes), don't put field name
+      node.name = node.name + (node.fields && node.fields.length == 1 ? CHART_STRING_DELIMITER + node.fields[0] : '');
     }
 
     // 링크명 가공
     for (let link of this.data.links) {
+
       link.originalSource = link.source;
       link.originalTarget = link.target;
+
       link.source = link.source + CHART_STRING_DELIMITER + link.sourceField;
       link.target = link.target + CHART_STRING_DELIMITER + link.targetField;
+
+      // nodes의 fields값에서 sourceField이면서 name값과 source값이 같은경우
+      _.find(this.data.nodes, (item) => {
+
+        // set the source that exists in multiple fields
+        if (item.fields.length > 1 && item.originalName === link.source.split(CHART_STRING_DELIMITER)[0]) {
+          link.source = link.source.split(CHART_STRING_DELIMITER)[0];
+        }
+
+        // set the target that exists in multiple fields
+        if (item.fields.length > 1 && item.originalName === link.target.split(CHART_STRING_DELIMITER)[0]) {
+          link.target = link.target.split(CHART_STRING_DELIMITER)[0];
+        }
+      });
     }
   }
 
@@ -538,12 +556,28 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       // UI 데이터 가공
       let result: string[] = [];
 
+      // set link tooltip
       if ( undefined !== params.data.target && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME) ) {
 
         // 주체 노드
         result = FormatOptionConverter.getTooltipName([params.data.originalSource], this.pivot.columns, result, true, this.pivot);
         // 타겟 노드
         result = FormatOptionConverter.getTooltipName([params.data.originalTarget], this.pivot.rows, result, true, this.pivot);
+      }
+      // set node tooltip
+      else if ( undefined == params.data.target && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME) ) {
+
+        // set fields
+        if (params.data.fields && params.data.fields.length > 0) {
+
+          let columnField;
+          for (const field of params.data.fields) {
+
+            // find column value by field name
+            columnField = _.find(this.pivot.columns, {'name' : field});
+            result = FormatOptionConverter.getTooltipName([params.data.originalName], (!columnField ? this.pivot.rows : this.pivot.columns), result, true, this.pivot);
+          }
+        }
       }
       if ( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.LINK_VALUE) ) {
 
