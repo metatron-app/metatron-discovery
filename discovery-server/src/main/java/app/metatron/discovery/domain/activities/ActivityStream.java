@@ -204,6 +204,6 @@ public class ActivityStream implements MetatronDomain<Long> {
   }
 
   public enum MetatronObjectType {
-    UNKNOWN, USER, GROUP, WORKSPACE, WORKBOOK, NOTEBOOK, WORKBENCH
+    UNKNOWN, USER, GROUP, WORKSPACE, WORKBOOK, NOTEBOOK, WORKBENCH, DASHBOARD, DATASOURCE
   }
 }

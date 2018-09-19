@@ -23,7 +23,7 @@ import {
   AxisType,
   BarMarkType, CHART_STRING_DELIMITER,
   ChartType,
-  DataZoomRangeType,
+  DataZoomRangeType, EventType,
   Position,
   SeriesType,
   ShelveFieldType,
@@ -39,6 +39,8 @@ import { DataZoomType } from '../../option/define/datazoom';
 import {UIChartAxisGrid} from '../../option/ui-option/ui-axis';
 import {Axis} from '../../option/define/axis';
 import {AxisOptionConverter} from '../../option/converter/axis-option-converter';
+import { LabelOptionConverter } from '../../option/converter/label-option-converter';
+import { TooltipOptionConverter } from '../../option/converter/tooltip-option-converter';
 
 @Component({
   selector: 'bar-chart',
@@ -50,6 +52,8 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  // set previous pivot (compare previous pivot, current pivot)
+  private prevPivot: Pivot;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -355,17 +359,37 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
   }
 
   /**
-   * dataLabel, tooltip 중첩에 따라서 설정
+   * change dataLabel, tooltip by single series, multi series
    * @returns {UIOption}
    */
   protected setDataLabel(): UIOption {
 
-    if (!this.uiOption['mark'] || !this.pivot || !this.pivot.aggregations || !this.pivot.rows) return this.uiOption;
+    if (!this.pivot || !this.pivot.aggregations || !this.pivot.rows) return this.uiOption;
+
+    /**
+     * check multi series <=> single series
+     * @type {() => boolean}
+     */
+    const checkChangeSeries = ((): boolean => {
+
+      // prev series is multi(true) or single
+      const prevSeriesMulti: boolean = this.prevPivot.aggregations.length > 1 || this.prevPivot.rows.length >= 1 ? true : false;
+
+      // current series is multi(true) or single
+      const currentSeriesMulti: boolean = this.pivot.aggregations.length > 1 || this.pivot.rows.length >= 1 ? true : false;
+
+      // if it's changed
+      if (prevSeriesMulti !== currentSeriesMulti) {
+
+        return true;
+      }
+
+      // not changed
+      return false;
+    });
 
     // 시리즈관련 리스트 제거
     const spliceSeriesTypeList = ((seriesTypeList, dataLabel: any): any => {
-
-      const previewFl = !!dataLabel.previewList;
 
       // displayTypes를 찾는 index
       let index: number;
@@ -375,29 +399,74 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
         if (-1 !== index) {
           // 라벨에서 제거
           dataLabel.displayTypes[index] = null;
-
-          // previewList가 있는경우
-          if (previewFl) {
-            // 미리보기리스트에서 제거
-            _.remove(dataLabel.previewList, {value: item});
-          }
         }
       }
-      return dataLabel;
+      return dataLabel.displayTypes;
     });
 
-    // 병렬이거나 멀티 시리즈가 아닌경우
-    if (BarMarkType.MULTIPLE == this.uiOption['mark'] || (this.pivot.aggregations.length < 2 && this.pivot.rows.length < 1)) {
+    const setDefaultDisplayTypes = ((value): any => {
 
-      // 조건을 만족시 제거될 series타입 리스트
-      const seriesTypeList = [UIChartDataLabelDisplayType.SERIES_NAME, UIChartDataLabelDisplayType.SERIES_VALUE, UIChartDataLabelDisplayType.SERIES_PERCENT];
+      if (!value || !value.displayTypes) return [];
 
-      // 데이터라벨에서 series관련 설정제거
-      if (this.uiOption.dataLabel && this.uiOption.dataLabel.displayTypes) this.uiOption.dataLabel = spliceSeriesTypeList(seriesTypeList, this.uiOption.dataLabel);
+      let defaultDisplayTypes = [];
 
-      // 툴팁의 series관련 설정제거
-      if (this.uiOption.toolTip && this.uiOption.toolTip.displayTypes) this.uiOption.toolTip = spliceSeriesTypeList(seriesTypeList, this.uiOption.toolTip);
+      // when it has single series
+      if (this.pivot.aggregations.length <= 1 && this.pivot.rows.length < 1) {
+
+        // set disabled list when it has single series
+        const disabledList = [UIChartDataLabelDisplayType.SERIES_NAME, UIChartDataLabelDisplayType.SERIES_VALUE, UIChartDataLabelDisplayType.SERIES_PERCENT];
+
+        // remove disabled list
+        defaultDisplayTypes = spliceSeriesTypeList(disabledList, value);
+
+        // set default datalabel, tooltip list
+        defaultDisplayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
+        defaultDisplayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
+        // when it has multi series
+      } else {
+
+        // set disabled list when it has multi series
+        const disabledList = [UIChartDataLabelDisplayType.CATEGORY_VALUE, UIChartDataLabelDisplayType.CATEGORY_PERCENT];
+
+        // remove disabled list
+        defaultDisplayTypes = spliceSeriesTypeList(disabledList, value);
+
+        // set default datalabel, tooltip list
+        defaultDisplayTypes[3] = UIChartDataLabelDisplayType.SERIES_NAME;
+        defaultDisplayTypes[4] = UIChartDataLabelDisplayType.SERIES_VALUE;
+      }
+
+      return defaultDisplayTypes;
+    });
+
+    // when draw chart or change single <=> multi series
+    if ((EventType.CHANGE_PIVOT === this.drawByType && (!this.prevPivot || checkChangeSeries())) || EventType.CHART_TYPE === this.drawByType) {
+
+      // set datalabel display types
+      let datalabelDisplayTypes = setDefaultDisplayTypes(this.uiOption.dataLabel);
+
+      // set tooltip display types
+      let tooltipDisplayTypes = setDefaultDisplayTypes(this.uiOption.toolTip);
+
+      // set default datalabel value
+      if (this.uiOption.dataLabel && this.uiOption.dataLabel.displayTypes) {
+        // set dataLabel
+        this.uiOption.dataLabel.displayTypes = datalabelDisplayTypes;
+        // set previewList
+        this.uiOption.dataLabel.previewList = LabelOptionConverter.setDataLabelPreviewList(this.uiOption);
+      }
+
+      // set default tooltip value
+      if (this.uiOption.toolTip && this.uiOption.toolTip.displayTypes) {
+        // set dataLabel
+        this.uiOption.toolTip.displayTypes = tooltipDisplayTypes;
+        // set previewList
+        this.uiOption.toolTip.previewList = TooltipOptionConverter.setTooltipPreviewList(this.uiOption);
+      }
     }
+
+    // set previous pivot value (compare previous pivot, current pivot)
+    this.prevPivot = this.pivot;
 
     return this.uiOption;
   }

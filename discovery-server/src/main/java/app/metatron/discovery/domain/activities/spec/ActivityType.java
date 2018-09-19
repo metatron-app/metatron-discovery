@@ -32,6 +32,8 @@ public enum ActivityType {
   UPDATE,
   @JsonProperty("Delete")
   DELETE,
+  @JsonProperty("Link")
+  LINK,
   @JsonProperty("None")
   NONE,
 }

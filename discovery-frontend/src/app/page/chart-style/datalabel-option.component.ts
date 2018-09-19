@@ -27,6 +27,7 @@ import { UIChartFormat } from '../../common/component/chart/option/ui-option/ui-
 import { FormatOptionConverter } from '../../common/component/chart/option/converter/format-option-converter';
 import { Pivot } from '../../domain/workbook/configurations/pivot';
 import { LabelBaseOptionComponent } from './labelbase-option.component';
+import { LabelOptionConverter } from '../../common/component/chart/option/converter/label-option-converter';
 
 @Component({
   selector: 'datalabel-option',
@@ -144,7 +145,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
       uiOption.dataLabel.vAlign = UIPosition.CENTER;
     }
 
-    uiOption.dataLabel.previewList = this.setPreviewList(uiOption);
+    uiOption.dataLabel.previewList = LabelOptionConverter.setDataLabelPreviewList(uiOption);
 
     if (uiOption.dataLabel && uiOption.dataLabel.displayTypes) {
       // remove empty datas in displayTypes
@@ -243,7 +244,7 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
     this.displayTypes = _.cloneDeep(this.uiOption.dataLabel.displayTypes.filter(Boolean));
 
     // preview 설정
-    this.uiOption.dataLabel.previewList = this.setPreviewList(this.uiOption);
+    this.uiOption.dataLabel.previewList = LabelOptionConverter.setDataLabelPreviewList(this.uiOption);
 
     // 적용
     this.apply();
@@ -490,75 +491,6 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 미리보기 설정
-   */
-  private setPreviewList(uiOption: UIOption): Object[] {
-
-    // 미리보기 리스트 초기화
-    uiOption.dataLabel.previewList = [];
-
-    let format: UIChartFormat = uiOption.valueFormat;
-
-    // 축의 포멧이 있는경우 축의 포멧으로 설정
-    const axisFormat = FormatOptionConverter.getlabelAxisScaleFormat(uiOption);
-    if (axisFormat) format = axisFormat;
-
-    // 포멧값이 설정된 숫자값
-    let numValue = FormatOptionConverter.getFormatValue(1000, format);
-
-    // formatted percentage
-    let percentValue = FormatOptionConverter.getDecimalValue(100, format.decimal, format.useThousandsSep);
-
-    if (uiOption.dataLabel.displayTypes) {
-      // displayType에 따라서 미리보기 설정
-      for (const type of uiOption.dataLabel.displayTypes) {
-
-        switch(type) {
-
-          case UIChartDataLabelDisplayType.CATEGORY_NAME:
-            uiOption.dataLabel.previewList.push({name: 'Category Name', value: UIChartDataLabelDisplayType.CATEGORY_NAME});
-            break;
-          case UIChartDataLabelDisplayType.CATEGORY_VALUE:
-            uiOption.dataLabel.previewList.push({name: numValue, value: UIChartDataLabelDisplayType.CATEGORY_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.CATEGORY_PERCENT:
-            uiOption.dataLabel.previewList.push({name: percentValue + '%', value: UIChartDataLabelDisplayType.CATEGORY_PERCENT});
-            break;
-          case UIChartDataLabelDisplayType.SERIES_NAME:
-            uiOption.dataLabel.previewList.push({name: 'Series Name', value: UIChartDataLabelDisplayType.SERIES_NAME});
-            break;
-          case UIChartDataLabelDisplayType.SERIES_VALUE:
-            uiOption.dataLabel.previewList.push({name: numValue, value: UIChartDataLabelDisplayType.SERIES_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.SERIES_PERCENT:
-            uiOption.dataLabel.previewList.push({name: percentValue + '%', value: UIChartDataLabelDisplayType.SERIES_PERCENT});
-            break;
-          case UIChartDataLabelDisplayType.XAXIS_VALUE:
-            uiOption.dataLabel.previewList.push({name: numValue, value: UIChartDataLabelDisplayType.XAXIS_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.YAXIS_VALUE:
-            uiOption.dataLabel.previewList.push({name: numValue, value: UIChartDataLabelDisplayType.YAXIS_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.VALUE:
-            uiOption.dataLabel.previewList.push({name: numValue, value: UIChartDataLabelDisplayType.VALUE});
-            break;
-          case UIChartDataLabelDisplayType.NODE_NAME:
-            uiOption.dataLabel.previewList.push({name: 'Node Name', value: UIChartDataLabelDisplayType.NODE_NAME});
-            break;
-          case UIChartDataLabelDisplayType.LINK_VALUE:
-            uiOption.dataLabel.previewList.push({name: numValue, value: UIChartDataLabelDisplayType.LINK_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.NODE_VALUE:
-            uiOption.dataLabel.previewList.push({name: numValue, value: UIChartDataLabelDisplayType.NODE_VALUE});
-            break;
-        }
-      }
-    }
-
-    return uiOption.dataLabel.previewList;
-  }
-
-  /**
    * 차트별 displayTypes 기본값 설정
    */
   private setDisplayTypes(chartType: ChartType): UIChartDataLabelDisplayType[] {
@@ -569,6 +501,17 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
 
       case ChartType.BAR:
       case ChartType.LINE:
+        // when bar, line chart has single series
+        if ((chartType === ChartType.BAR && this.pivot.aggregations.length <= 1 && this.pivot.rows.length < 1) ||
+            (chartType === ChartType.LINE && this.pivot.aggregations.length <= 1)) {
+          displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
+          displayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
+        // when bar, line chart has multi series
+        } else {
+          displayTypes[3] = UIChartDataLabelDisplayType.SERIES_NAME;
+          displayTypes[4] = UIChartDataLabelDisplayType.SERIES_VALUE;
+        }
+        break;
       case ChartType.CONTROL:
       case ChartType.COMBINE:
       case ChartType.WATERFALL:

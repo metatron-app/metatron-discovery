@@ -25,7 +25,7 @@ import { AbstractComponent } from '../../../common/component/abstract.component'
 import { DashboardWidgetComponent } from './dashboard.widget.component';
 import { DashboardWidgetHeaderComponent } from './dashboard.widget.header.component';
 import {
-  BoardConfiguration, BoardDataSource, Dashboard, DashboardLayout, JoinMapping,
+  BoardConfiguration, BoardDataSource, BoardDataSourceRelation, Dashboard, DashboardLayout, JoinMapping,
   LayoutMode, LayoutWidgetInfo
 } from '../../../domain/dashboard/dashboard';
 import {
@@ -75,7 +75,9 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
   private _widgetHeaderComps: ComponentRef<DashboardWidgetHeaderComponent>[] = [];  // 위젯 헤더 컴포넌트 목록
   private _widgetComps: ComponentRef<DashboardWidgetComponent>[] = [];              // 위젯 컴포넌트 목록
 
-  private _invalidLayoutWidgets:string[] = [];    // 유효하지 않은 Layout 위젯의 레이아웃 아이디 목록
+  private _invalidLayoutWidgets: string[] = [];    // 유효하지 않은 Layout 위젯의 레이아웃 아이디 목록
+
+  protected _removeDsEngineNames: string[] = [];    // List of data source engine names to be deleted
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -114,7 +116,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     // 위젯 실행
     this.subscriptions.push(
       this.broadCaster.on<any>('START_PROCESS').subscribe((data: { widgetId: string }) => {
-        DashboardUtil.getLayoutWidgetInfos( this.dashboard ).some(item => {
+        DashboardUtil.getLayoutWidgetInfos(this.dashboard).some(item => {
           if (item.ref === data.widgetId) {
             item.isLoaded = false;
           }
@@ -127,7 +129,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
     // 위젯 종료
     this.subscriptions.push(
       this.broadCaster.on<any>('STOP_PROCESS').subscribe((data: { widgetId: string }) => {
-        const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos( this.dashboard );
+        const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos(this.dashboard);
         let cntInLayout: number = 0;
         let cntLoaded: number = 0;
         layoutWidgets.forEach(item => {
@@ -610,6 +612,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * @private
    */
   private _bootstrapWidgetComponent(container, componentState) {
+
     let widgetInfo: Widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
 
     if (widgetInfo) {
@@ -622,6 +625,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       widgetInfo.dashBoard = this.dashboard;
 
       this.dashboard = DashboardUtil.setUseWidgetInLayout(this.dashboard, widgetInfo.id, true);
+
       widgetComp.instance.init(
         widgetInfo, DashboardUtil.getBoardWidgetOptions(this.dashboard),
         this._layoutMode, DashboardUtil.getLayoutWidgetInfoByWidgetId(this.dashboard, widgetInfo.id)
@@ -629,7 +633,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
       this._widgetComps.push(widgetComp);
     } else {
-      this._invalidLayoutWidgets.push( componentState.id );
+      this._invalidLayoutWidgets.push(componentState.id);
     }
   } // function - _bootstrapWidgetComponent
 
@@ -641,11 +645,11 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    */
   private _bootstrapWidgetHeaderComponent(stack, globalOpts: BoardGlobalOptions) {
     let componentState: any = stack.config.content[0];
-    if( componentState ) {
+    if (componentState) {
       let widgetInfo: Widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
 
-      if( widgetInfo ) {
-        const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos( this.dashboard );
+      if (widgetInfo) {
+        const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos(this.dashboard);
         let widgetHeaderCompFactory
           = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetHeaderComponent);
         let widgetHeaderComp = this.appRef.bootstrap(widgetHeaderCompFactory, stack.header.tabs[0].element.get(0));
@@ -784,7 +788,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
       const dashboard: Dashboard = this.dashboard;
       const objLayout: DashboardLayout = dashboard.configuration.layout;
-      const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos( dashboard );
+      const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos(dashboard);
       const globalOpts: BoardGlobalOptions = dashboard.configuration.options;
       const globalOptsLayout: BoardLayoutOptions = globalOpts.layout;
       let isInitialisedLayout: boolean = false;
@@ -839,8 +843,9 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
             this._updateLayoutFinished();
           }
 
-          this._invalidLayoutWidgets.forEach( item => {
-            this._layoutObj.root.getItemsById(item)[0].remove();
+          this._invalidLayoutWidgets.forEach(item => {
+            const tempData = this._layoutObj.root.getItemsById(item);
+            (tempData) && (tempData[0].remove());
           });
         });
 
@@ -988,7 +993,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         if (ConnectionType.LINK !== dsInfo.connType) {
           promises.push(new Promise<any>((res2, rej2) => {
             // 데이터소스의 필터 목록
-            const dsFilters: Filter[] = boardFilters.filter(filter => filter.dataSource === dsInfo.id);
+            const dsFilters: Filter[] = boardFilters.filter(filter => filter.dataSource === dsInfo.engineName);
             // 최초 추천 필터
             const firstFilter: Filter = dsFilters.find(filter => {
               return 'recommended' === filter.ui.importanceType && 1 === filter.ui.filteringSeq;
@@ -1080,11 +1085,11 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * When in edit mode, display as full loading
    */
   public showBoardLoading() {
-    if (LayoutMode.EDIT === this._layoutMode ) {
+    if (LayoutMode.EDIT === this._layoutMode) {
       this.loadingShow();
     } else {
-      const isRealTimeBoard:boolean = this.dashboard && this.dashboard.configuration.options.sync && this.dashboard.configuration.options.sync.enabled;
-      ( isRealTimeBoard ) || ( this.isShowDashboardLoading = true );
+      const isRealTimeBoard: boolean = this.dashboard && this.dashboard.configuration.options.sync && this.dashboard.configuration.options.sync.enabled;
+      (isRealTimeBoard) || (this.isShowDashboardLoading = true);
     }
     this.safelyDetectChanges();
   } // function - showBoardLoading
@@ -1093,7 +1098,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * Hide Loading
    */
   public hideBoardLoading() {
-    if (LayoutMode.EDIT === this._layoutMode ) {
+    if (LayoutMode.EDIT === this._layoutMode) {
       this.loadingHide();
     } else {
       this.isShowDashboardLoading = false;
@@ -1201,37 +1206,44 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       let result: [Dashboard, Datasource] = this._setDatasourceForDashboard(boardInfo);
       boardInfo = result[0];
 
-      // 이전 데이터를 현재 데이터에 맞게 변경
+      // Data migration
       {
-        const filters: Filter[] = DashboardUtil.getBoardFilters(boardInfo);
-        if (filters && 0 < filters.length) {
-          filters.forEach((filter: Filter) => {
-            const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
-            (filterDs) && (filter.dataSource = filterDs.engineName);
-
-            if (isNullOrUndefined(filter.dataSource)) {
-              const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
-              (fieldDs) && (filter.dataSource = fieldDs.engineName);
-            }
-
-          });
-        }
-        const widgets: Widget[] = boardInfo.widgets;
-        if (widgets && 0 < widgets.length) {
-          widgets.forEach((widget: Widget) => {
-            if ('filter' === widget.type) {
-              const filter: Filter = (<FilterWidget>widget).configuration.filter;
-              const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
-              (filterDs) && (filter.dataSource = filterDs.engineName);
-
-              if (isNullOrUndefined(filter.dataSource)) {
-                const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
-                (fieldDs) && (filter.dataSource = fieldDs.engineName);
+        // Updating information about deleted dataSources
+        const boardDataSource: BoardDataSource = boardInfo.configuration.dataSource;
+        const dataSource: Datasource[] = boardInfo.dataSources;
+        if ('multi' === boardDataSource.type) {
+          boardDataSource.dataSources
+            = boardDataSource.dataSources.filter((boardDs: BoardDataSource) => {
+            if (dataSource.some(item => DashboardUtil.isSameDataSource(boardDs, item))) {
+              return true;
+            } else {
+              const engineName:string = boardDs.engineName ? boardDs.engineName : boardDs.name;
+              if( boardInfo.configuration.filters ) {
+                boardInfo.configuration.filters
+                  = boardInfo.configuration.filters.filter( item => item.dataSource !== engineName );
               }
+              this._removeDsEngineNames.push(engineName);
+              return false;
             }
           });
+
+          boardDataSource.associations
+            = boardDataSource.associations.filter((ass: BoardDataSourceRelation) => {
+            return !(
+              this._removeDsEngineNames.some(item => item === ass.source)
+              || this._removeDsEngineNames.some(item => item === ass.target)
+            )
+          });
+
+        } else {
+          if (isNullOrUndefined(dataSource) || 0 === dataSource.length) {
+            this._removeDsEngineNames.push(boardDataSource.engineName);
+            boardInfo.configuration.dataSource = null;
+          }
         }
-      }
+
+        boardInfo = DashboardUtil.convertSpecToUI( boardInfo );
+      } // end of data migration
 
       // 글로벌 필터 셋팅
       this.initializeFilter(boardInfo).then((boardData) => {
@@ -1241,19 +1253,17 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         const promises = [];
         if (boardInfo.configuration.filters) {
 
-          // 등록되지 않은 필터 위젯 사전 등록
+          // Adjust filter widget information error
           boardInfo.configuration.filters.forEach((filter: Filter) => {
-            // const filterId: string = filter.dataSource + '_' + filter.type + '_' + filter.field;
             const filterId: string = filter.dataSource + '_' + filter.field;
-            const isExistWidget: boolean = boardInfo.widgets.some(widget => {
+            const filterWidgets: Widget[] = boardInfo.widgets.filter(widget => {
               if ('filter' === widget.type) {
                 const filterInWidget: Filter = (<FilterWidgetConfiguration>widget.configuration).filter;
-                // return (filterInWidget.dataSource + '_' + filterInWidget.type + '_' + filterInWidget.field === filterId);
                 return (filterInWidget.dataSource + '_' + filterInWidget.field === filterId);
               }
             });
 
-            if (!isExistWidget) {
+            if (0 === filterWidgets.length) {
               // 필터위젯 정보가 없는 필터의 경우 - 필터 위젯 정보 생성
               promises.push(new Promise((res) => {
                 this.widgetService.createWidget(new FilterWidget(filter, boardInfo), boardInfo.id)
@@ -1262,6 +1272,19 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
                     res();
                   });
               }));
+            } else {
+              filterWidgets.forEach((item, index) => {
+                if (0 < index) {
+                  promises.push(new Promise((res) => {
+                    console.info('>>>>> remove widget', item.id);
+                    this.widgetService.deleteWidget(item.id)
+                      .then(() => {
+                        boardInfo.widgets = boardInfo.widgets.filter(widgetItem => widgetItem.id !== item.id);
+                        res();
+                      });
+                  }));
+                }
+              });
             }
           });
         } // end if - filters

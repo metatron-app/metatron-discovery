@@ -24,7 +24,7 @@ import {
   ChartColorList,
   ChartColorType,
   ChartSelectMode,
-  ChartType,
+  ChartType, ColorCustomMode,
   ColorRangeType,
   Position,
   SeriesType,
@@ -39,7 +39,7 @@ import * as _ from 'lodash';
 import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import { Alert } from '../../../../util/alert.util';
 import { BaseOption } from '../../option/base-option';
-import { UIChartColorByDimension, UIChartFormat, UIOption } from '../../option/ui-option';
+import {UIChartColorByDimension, UIChartColorByValue, UIChartFormat, UIOption} from '../../option/ui-option';
 import { FormatOptionConverter } from '../../option/converter/format-option-converter';
 import { ColorRange, UIChartColor, UIChartColorBySeries } from '../../option/ui-option/ui-color';
 import { UIScatterChart } from '../../option/ui-option/ui-scatter-chart';
@@ -126,9 +126,10 @@ export class GaugeChartComponent extends BaseChart {
     // minValue값이 음수인경우 선반에서 measure값을 제거하고
     this.removeNegative();
 
-    // gauge max is 100% => 100
-    this.data.info.maxValue = 100;
-    this.data.info.minValue = 0;
+    // uiOption 설정
+    // stacked의 최대값 최소값 설정
+    this.uiOption.stackedMaxvalue = 100;
+    this.uiOption.stackedMinValue = 0;
 
     // 게이지 data 설정
     this.data = this.setGaugeChartData(isKeepRange);
@@ -142,6 +143,10 @@ export class GaugeChartComponent extends BaseChart {
     _.each(this.data.columns, (series) => {
 
       _.each(series, (column) => {
+
+        // 최대값 최소값 설정
+        this.data.info.maxValue = column.value > this.data.info.maxValue ? column.value : this.data.info.maxValue;
+        this.data.info.minValue = this.data.info.minValue > column.value ? column.value : this.data.info.minValue;
 
         const columnName: string = _.split(column.name, CHART_STRING_DELIMITER)[1];
         // pivotInfo데이터의 rows 데이터 설정 (범례, 색상에서 사용)
@@ -409,12 +414,115 @@ export class GaugeChartComponent extends BaseChart {
           // uiData가 없는경우
           if (!item['uiData']) {
 
-            item['uiData'] = this.data.columns[dataIndex][index];
+            item['uiData'] = _.find(this.data.columns[dataIndex], {'name' : item.name});
           }
         });
       }
 
     });
+
+    return this.chartOption;
+  }
+
+  /**
+   * 시리즈 정보를 변환한다.
+   * - 필요시 각 차트에서 Override
+   * @returns {BaseOption}
+   */
+  protected convertSeries(): BaseOption {
+
+    // Base Call
+    this.chartOption = super.convertSeries();
+
+    // Gradient Color Change
+    if (_.eq(this.uiOption.color.type, ChartColorType.MEASURE ) && this.uiOption.color['customMode'] && ColorCustomMode.GRADIENT == this.uiOption.color['customMode']) {
+
+      _.each(this.data.columns, (column, columnIndex) => {
+
+        // Series Total Value
+        let totalValue: number = column.categoryValue;
+
+        _.each(this.chartOption.series, (series) => {
+
+          let data = series.data[columnIndex];
+
+          // Validate
+          if (!this.uiOption.color['ranges']) {
+            return false;
+          }
+
+          // Base Data
+          let value: number = null;
+          if (data && isNaN(data)) {
+            value = data.value;
+          }
+          else {
+            value = data;
+          }
+
+          let maxValue: number = this.data.info.maxValue;
+          let rangePercent: number = (maxValue / totalValue) * 100;
+          let codes: string[] = _.cloneDeep(this.chartOption.visualMap.color).reverse();
+          let index: number = Math.round(value / rangePercent * codes.length);
+          index = index == codes.length ? codes.length-1 : index;
+          series.data[columnIndex].itemStyle = {
+            normal: {
+              color: codes[index]
+            }
+          };
+        });
+      });
+
+      delete this.chartOption.visualMap;
+    }
+    // Default Color Change
+    else if( _.eq(this.uiOption.color.type, ChartColorType.MEASURE ) ) {
+
+      _.each(this.data.columns, (column, columnIndex) => {
+
+        // Series Total Value
+        let totalValue: number = column.categoryValue;
+
+        _.each(this.chartOption.series, (series) => {
+
+          let data = series.data[columnIndex];
+
+          // Validate
+          if (!this.uiOption.color['ranges']) {
+            return false;
+          }
+
+          // Base Data
+          let value: number = null;
+          if (data && isNaN(data)) {
+            value = data.value;
+          }
+          else {
+            value = data;
+          }
+
+          let originalValue: number = totalValue * (value / 100);
+          let ranges = _.cloneDeep((<UIChartColorByValue>this.uiOption.color).ranges);
+          let index: number = 0;
+          _.each(this.uiOption.color['ranges'], (range, rangeIndex) => {
+            let min: number = range.fixMin != null ? range.fixMin : 0;
+            let max: number = range.fixMax != null ? range.fixMax : min;
+            if( originalValue >= min && originalValue <= max ) {
+              index = Number(rangeIndex);
+              return false;
+            }
+          });
+          series.data[columnIndex].itemStyle = {
+            normal: {
+              color: ranges[index].color
+            }
+          };
+        });
+      });
+
+      delete this.chartOption.visualMap;
+    }
+
 
     return this.chartOption;
   }

@@ -14,18 +14,15 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.jdbc;
 
-import com.google.common.collect.Maps;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.List;
-import java.util.Map;
 
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 
 /**
- * Created by kyungtaak on 2017. 4. 30..
+ *
  */
 @JsonTypeName("link")
 public class LinkIngestionInfo extends JdbcIngestionInfo implements IngestionInfo {
@@ -69,8 +66,4 @@ public class LinkIngestionInfo extends JdbcIngestionInfo implements IngestionInf
     this.queryId = queryId;
   }
 
-  @Override
-  public Map<String, Object> getTuningOptions() {
-    return Maps.newHashMap();
-  }
 }

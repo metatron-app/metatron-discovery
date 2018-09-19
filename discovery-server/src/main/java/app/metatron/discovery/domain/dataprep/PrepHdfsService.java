@@ -37,47 +37,31 @@ public class PrepHdfsService {
     private String snapshotHdfsPath = null;
     private String previewHdfsPath = null;
 
-    private String uploadDirectory = "uploads";
-    private String snapshotDirectory = "snapshots";
-    private String previewDirectory = "previews";
-
     private Configuration hadoopConf = null;
 
     private String getUploadPath() {
-        if(null==uploadHdfsPath) {
+        if(null==uploadHdfsPath && null!=prepProperties.getStagingBaseDir()) {
             String stagingBaseDir = prepProperties.getStagingBaseDir();
-            if (true == stagingBaseDir.endsWith(File.separator)) {
-                uploadHdfsPath = stagingBaseDir + uploadDirectory;
-            } else {
-                uploadHdfsPath = stagingBaseDir + File.separator + uploadDirectory;
-            }
+            uploadHdfsPath = stagingBaseDir + File.separator + PrepProperties.dirUpload;
         }
         return uploadHdfsPath;
     }
 
+    /*
     private String getSnapshotPath() {
-        if(null==snapshotHdfsPath) {
-            String stagingBaseDir = prepProperties.getStagingBaseDir();
-            if (true == stagingBaseDir.endsWith(File.separator)) {
-                snapshotHdfsPath = stagingBaseDir + snapshotDirectory;
-            } else {
-                snapshotHdfsPath = stagingBaseDir + File.separator + snapshotDirectory;
-            }
+        if(null==snapshotHdfsPath && null!=prepProperties.getStagingBaseDir()) {
+            snapshotHdfsPath = prepProperties.getStagingBaseDir() + File.separator + PrepProperties.dirSnapshot;
         }
         return snapshotHdfsPath;
     }
 
     private String getPreviewPath() {
-        if(null==previewHdfsPath) {
-            String stagingBaseDir = prepProperties.getStagingBaseDir();
-            if (true == stagingBaseDir.endsWith(File.separator)) {
-                previewHdfsPath = stagingBaseDir + previewDirectory;
-            } else {
-                previewHdfsPath = stagingBaseDir + File.separator + previewDirectory;
-            }
+        if(null==previewHdfsPath && null!=prepProperties.getStagingBaseDir()) {
+            previewHdfsPath = prepProperties.getStagingBaseDir() + File.separator + PrepProperties.dirPreview ;
         }
         return previewHdfsPath;
     }
+    */
 
     public Configuration getConf() {
         if(null==hadoopConf) {

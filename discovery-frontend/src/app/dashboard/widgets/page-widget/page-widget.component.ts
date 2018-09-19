@@ -65,6 +65,7 @@ import { isNullOrUndefined } from 'util';
 import { TimeListFilter } from '../../../domain/workbook/configurations/filter/time-list-filter';
 import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
 import { Datasource, Field } from '../../../domain/datasource/datasource';
+import { CommonUtil } from '../../../common/util/common.util';
 
 declare let $;
 
@@ -769,9 +770,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public getDataSourceName(): string {
     let strName: string = '';
     if (this.widget && this.widget.configuration.dataSource) {
-      strName = DashboardUtil.getDataSourceFromBoardDataSource(
-        this.widget.dashBoard, this.widget.configuration.dataSource
-      ).name;
+      const widgetDataSource: Datasource
+        = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, this.widget.configuration.dataSource );
+      ( widgetDataSource ) && ( strName = widgetDataSource.name );
     }
     return strName;
   } // function - getDataSourceName
@@ -968,6 +969,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @private
    */
   private _setWidget(widget: PageWidget) {
+
     this.widget = <PageWidget>_.extend(new PageWidget(), widget);
     this.widgetConfiguration = <PageWidgetConfiguration>this.widget.configuration;
     this.chartType = this.widgetConfiguration.chart.type.toString();
@@ -978,68 +980,83 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       // Pivot 내 누락된 필드 정보 설정
       const widgetDataSource: Datasource
         = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
-      const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.engineName);
-      fields.forEach((field) => {
-        this.widgetConfiguration.pivot.rows
-          .forEach((abstractField) => {
-            if (isNullOrUndefined(abstractField.field)
-              && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-              abstractField.field = field;
-            }
-          });
 
-        this.widgetConfiguration.pivot.columns
-          .forEach((abstractField) => {
-            if (isNullOrUndefined(abstractField.field)
-              && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-              abstractField.field = field;
-            }
-          });
-
-        this.widgetConfiguration.pivot.aggregations
-          .forEach((abstractField) => {
-            if (isNullOrUndefined(abstractField.field)
-              && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-              abstractField.field = field;
-            }
-          });
-      });
-
-      // Hierarchy 설정
-      if (boardConf.relations) {
-        const relations: DashboardPageRelation[] = boardConf.relations;
-        const parentWidgetId: string = this._findParentWidgetId(this.widget.id, relations);
-        if (parentWidgetId) {
-          this.parentWidget = widget.dashBoard.widgets.find(item => item.id === parentWidgetId);
-          this.isShowHierarchyView = true;
-        }
-      }
-      // RealTime 데이터갱신 설정
-      if (this.layoutMode !== LayoutMode.EDIT && boardConf.options.sync && boardConf.options.sync.enabled) {
-        const syncOpts: BoardSyncOptions = boardConf.options.sync;
-        this._interval = setInterval(() => {
-          this.safelyDetectChanges();
-          if(this.parentWidget) {
-            // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
-            this.processStart();
-            this._isDuringProcess = true;
-            this.updateComplete();
-          } else {
-            this._search();
-          }
-        }, syncOpts.interval * 1000);
-      }
-
-      this.safelyDetectChanges();
-
-      if(this.parentWidget) {
-        // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
+      if( isNullOrUndefined( widgetDataSource ) ) {
+        // If the widget does not have a data source
         this.processStart();
         this._isDuringProcess = true;
-        this.updateComplete();
+        this.isValidWidget = false;
+        this.showError();
       } else {
-        this._search();
-      }
+        // If the widget has a data source
+
+        this.isValidWidget = true;
+
+        const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.engineName);
+        fields.forEach((field) => {
+          this.widgetConfiguration.pivot.rows
+            .forEach((abstractField) => {
+              if (isNullOrUndefined(abstractField.field)
+                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                abstractField.field = field;
+              }
+            });
+
+          this.widgetConfiguration.pivot.columns
+            .forEach((abstractField) => {
+              if (isNullOrUndefined(abstractField.field)
+                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                abstractField.field = field;
+              }
+            });
+
+          this.widgetConfiguration.pivot.aggregations
+            .forEach((abstractField) => {
+              if (isNullOrUndefined(abstractField.field)
+                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                abstractField.field = field;
+              }
+            });
+        });
+
+        // Hierarchy 설정
+        if (boardConf.relations) {
+          const relations: DashboardPageRelation[] = boardConf.relations;
+          const parentWidgetId: string = this._findParentWidgetId(this.widget.id, relations);
+          if (parentWidgetId) {
+            this.parentWidget = widget.dashBoard.widgets.find(item => item.id === parentWidgetId);
+            this.isShowHierarchyView = true;
+          }
+        }
+
+        // RealTime 데이터갱신 설정
+        if (this.layoutMode !== LayoutMode.EDIT && boardConf.options.sync && boardConf.options.sync.enabled) {
+          const syncOpts: BoardSyncOptions = boardConf.options.sync;
+          this._interval = setInterval(() => {
+            this.safelyDetectChanges();
+            if(this.parentWidget) {
+              // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
+              this.processStart();
+              this._isDuringProcess = true;
+              this.updateComplete();
+            } else {
+              this._search();
+            }
+          }, syncOpts.interval * 1000);
+        }
+
+        this.safelyDetectChanges();
+
+        if(this.parentWidget) {
+          // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
+          this.processStart();
+          this._isDuringProcess = true;
+          this.updateComplete();
+        } else {
+          this._search();
+        }
+      } // end of - widgetDataSource
+
     } // end if - dashboard.configuration
 
     this.safelyDetectChanges();
@@ -1126,6 +1143,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 필터 설정
     const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
+
+    if( isNullOrUndefined( widgetDataSource ) ) {
+      this.isValidWidget = false;
+      this.showError();
+      return;
+    }
+
     if (isNullOrUndefined(externalFilters)) {
       // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
       const boardFilter: Filter[] = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName);
@@ -1202,11 +1226,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         this.chart.resultData = this.resultData;
       }
 
+      this.isValidWidget = true;
+
       // 변경 적용
       this.safelyDetectChanges();
     }).catch((error) => {
       console.error(error);
       // 프로세스 종료 등록 및 No Data 표시
+      this.isValidWidget = false;
       this.showError();
       // 변경 적용
       this.safelyDetectChanges();
@@ -1221,7 +1248,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 선반 데이터 설정
     for (let field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
-      // delete field['field'];
+      delete field['field'];
       delete field['currentPivot'];
       delete field['granularity'];
       delete field['segGranularity'];
@@ -1241,6 +1268,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         FilterUtil.isTimeRangeFilter(item) ||
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
+
+    cloneQuery.userFields = CommonUtil.objectToArray( cloneQuery.userFields );
 
     return cloneQuery;
   } // function - _makeSearchQueryParam

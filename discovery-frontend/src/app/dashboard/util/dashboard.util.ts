@@ -24,13 +24,14 @@ import { Datasource, Field } from '../../domain/datasource/datasource';
 import { CustomField } from '../../domain/workbook/configurations/field/custom-field';
 import { Filter } from '../../domain/workbook/configurations/filter/filter';
 import { Widget } from '../../domain/dashboard/widget/widget';
-import { isObject } from 'util';
+import { isNullOrUndefined, isObject } from 'util';
 import { FilterWidget, FilterWidgetConfiguration } from '../../domain/dashboard/widget/filter-widget';
 import { PageWidget } from '../../domain/dashboard/widget/page-widget';
 import { TextWidget } from '../../domain/dashboard/widget/text-widget';
 import { DashboardPageRelation } from '../../domain/dashboard/widget/page-widget.relation';
 import { BoardWidgetOptions, WidgetShowType } from '../../domain/dashboard/dashboard.globalOptions';
 import { StringUtil } from '../../common/util/string.util';
+import { CommonUtil } from '../../common/util/common.util';
 
 export class DashboardUtil {
 
@@ -141,6 +142,12 @@ export class DashboardUtil {
 
     delete configuration.dataSource.fields;
 
+    // convert spec UI to server ( customFields -> fields )
+    if (configuration.customFields) {
+      configuration['fields'] = _.cloneDeep(configuration.customFields);
+      delete configuration.customFields;
+    }
+
     return configuration;
 
   } // function - convertPageWidgetSpecToServer
@@ -244,11 +251,11 @@ export class DashboardUtil {
    * 연계된 데이터소스에 대한 전체 필터 목록 조회
    * @param {Dashboard} board
    * @param {string} engineName
-   * @param {Filter[]} totalFilters
+   * @param {Filter[]} paramFilters
    * @return {Filter[]}
    */
-  public static getAllFiltersDsRelations(board: Dashboard, engineName: string, totalFilters?: Filter[]): Filter[] {
-    (totalFilters) || (totalFilters = board.configuration.filters);
+  public static getAllFiltersDsRelations(board: Dashboard, engineName: string, paramFilters?: Filter[]): Filter[] {
+    const totalFilters: Filter[] = _.cloneDeep((paramFilters) ? paramFilters : board.configuration.filters);
     // 대상 데이터소스의 필터 목록 - getFiltersForBoardDataSource
     let srcDsFilters: Filter[] = totalFilters.filter(filter => filter.dataSource === engineName);
     // 연계 데이터소스의 연계 필드에 대응하는 대상 데이터소스의 필드의 필터
@@ -388,8 +395,8 @@ export class DashboardUtil {
    * @returns {LayoutWidgetInfo[]}
    */
   public static getLayoutWidgetInfos(board: Dashboard): LayoutWidgetInfo[] {
-    if( board.configuration.widgets ) {
-      return board.configuration.widgets.filter( item => board.widgets.some( widget => widget.id === item.ref ) );
+    if (board.configuration.widgets) {
+      return board.configuration.widgets.filter(item => board.widgets.some(widget => widget.id === item.ref));
     } else {
       return [];
     }
@@ -829,5 +836,65 @@ export class DashboardUtil {
     }
     return board;
   } // function - setDashboardConfRelations
+
+  /**
+   * Convert spec to UI
+   * @param {Dashboard} boardInfo
+   * @return {Dashboard}
+   */
+  public static convertSpecToUI(boardInfo: Dashboard): Dashboard {
+    // Change spec server to ui ( userDefinedFields -> customFields )
+    if (boardInfo.configuration['userDefinedFields']) {
+      boardInfo.configuration.customFields = _.cloneDeep( CommonUtil.objectToArray( boardInfo.configuration['userDefinedFields'] ) );
+    }
+
+    if (boardInfo.dataSources) {
+      // Filter ( dataSource ( id -> engineName ) )
+      const filters: Filter[] = DashboardUtil.getBoardFilters(boardInfo);
+      if (filters && 0 < filters.length) {
+        const uniqFilterKeyList: string[] = [];
+        boardInfo.configuration.filters
+          = filters.filter((filter: Filter) => {
+          const uniqFilterKey: string = filter.dataSource + '_' + filter.field;
+          if (-1 === uniqFilterKeyList.indexOf(uniqFilterKey)) {
+            const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
+            (filterDs) && (filter.dataSource = filterDs.engineName);
+            if (isNullOrUndefined(filter.dataSource)) {
+              const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
+              (fieldDs) && (filter.dataSource = fieldDs.engineName);
+            }
+            uniqFilterKeyList.push(uniqFilterKey);
+            return true;
+          } else {
+            return false;
+          }
+        });
+      }
+      // Widget
+      const widgets: Widget[] = boardInfo.widgets;
+      if (widgets && 0 < widgets.length) {
+        widgets.forEach((widget: Widget) => {
+          if ('filter' === widget.type) {
+            // FilterWidget : Filter ( dataSource ( id -> engineName ) )
+            const filter: Filter = (<FilterWidget>widget).configuration.filter;
+            const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
+            (filterDs) && (filter.dataSource = filterDs.engineName);
+
+            if (isNullOrUndefined(filter.dataSource)) {
+              const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
+              (fieldDs) && (filter.dataSource = fieldDs.engineName);
+            }
+          } else if ('page' === widget.type) {
+            // PageWidget ( fields -> customFields )
+            if (widget.configuration['fields']) {
+              (<PageWidget>widget).configuration.customFields = widget.configuration['fields'];
+            }
+          }
+        });
+      }
+    }
+
+    return boardInfo;
+  } // function - convertSpecToUI
 
 } // class - DashboardModelService
