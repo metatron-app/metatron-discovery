@@ -26,13 +26,21 @@
 .pivot-view-row.ddp-font-italic { font-style: italic; }
 .pivot-view-row.ddp-font-bold { font-weight: bold; }
 
-.pivot-view-row.ddp-valign-top div { line-height: 14px !important; }
-.pivot-view-row.ddp-valign-middle div { line-height: 30px !important; }
-.pivot-view-row.ddp-valign-bottom div { line-height: 43px !important; }
+/*.pivot-view-row.ddp-valign-top div { line-height: 14px !important; }*/
+/*.pivot-view-row.ddp-valign-middle div { line-height: 30px !important; }*/
+/*.pivot-view-row.ddp-valign-bottom div { line-height: 43px !important; }*/
 
-.pivot-view-row.ddp-txt-left { text-align: left; }
-.pivot-view-row.ddp-txt-center { text-align: center; }
-.pivot-view-row.ddp-txt-right { text-align: right; }
+.pivot-view-row.ddp-valign-top .pivot-view-cell { display:flex; align-items:flex-start; }
+.pivot-view-row.ddp-valign-middle .pivot-view-cell { display:flex; align-items:center; }
+.pivot-view-row.ddp-valign-bottom .pivot-view-cell { display:flex; align-items:flex-end; }
+
+/*.pivot-view-row.ddp-txt-left { text-align: left; }*/
+/*.pivot-view-row.ddp-txt-center { text-align: center; }*/
+/*.pivot-view-row.ddp-txt-right { text-align: right; }*/
+
+.pivot-view-row.ddp-txt-left  .pivot-view-cell { display:flex; justify-content: flex-start; }
+.pivot-view-row.ddp-txt-center  .pivot-view-cell { display:flex; justify-content: center; }
+.pivot-view-row.ddp-txt-right  .pivot-view-cell { display:flex; justify-content: flex-end; }
 
 .pivot-view .pivot-view-body .pivot-view-frozen {line-height:30px !important;}
 
