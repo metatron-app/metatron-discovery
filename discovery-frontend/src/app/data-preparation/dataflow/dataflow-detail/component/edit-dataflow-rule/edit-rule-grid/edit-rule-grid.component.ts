@@ -94,7 +94,6 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   public barChartTooltipIndex: number;
   public barChartTooltipLabel: string;
 
-  public isEditMode: boolean = true;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -196,8 +195,6 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     this.dataSetId = dsId;
     let method : string = 'get';
 
-    this.isEditMode = !(params['op'] == 'PREPARE_UPDATE');
-
     // ruleIdx is unnecessary in undo and redo
     if ('UNDO' === params['op'] || 'REDO' === params['op']) {
       delete params['ruleIdx']
@@ -240,7 +237,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
       }
       // 룰 index
-      this.ruleIdx = !this.isEditMode ? data.ruleCurIdx-1 : data.ruleCurIdx;
+      this.ruleIdx = data.ruleCurIdx;
 
       // 그리드 데이터 생성
       const gridData: GridData = this._getGridDataFromGridResponse(this._apiGridData);
@@ -879,7 +876,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    * @param isEditMode 편집 모드 여부
    * @private
    */
-  private _getHistogramInfoByWidths(colWidths, fieldLength: number, isInitialLoad: boolean = false, isEditMode: boolean = false): Promise<any> {
+  private _getHistogramInfoByWidths(colWidths, fieldLength: number): Promise<any> {
 
     let widths = Object.keys(colWidths).map((i) => {
       return colWidths[i]
@@ -1748,7 +1745,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         .EnableHeaderClick(true)
         .DualSelectionActivate(true)
         .EnableColumnReorder(false)
-        .EnableHeaderMenu(this.isEditMode)
+        .EnableHeaderMenu(true)
         .EnableSeqSort(false)
         .ShowHeaderRow(true)
         .HeaderRowHeight(90)

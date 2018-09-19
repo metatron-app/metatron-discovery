@@ -31,6 +31,7 @@ import { TextWidget } from '../../domain/dashboard/widget/text-widget';
 import { DashboardPageRelation } from '../../domain/dashboard/widget/page-widget.relation';
 import { BoardWidgetOptions, WidgetShowType } from '../../domain/dashboard/dashboard.globalOptions';
 import { StringUtil } from '../../common/util/string.util';
+import { CommonUtil } from '../../common/util/common.util';
 
 export class DashboardUtil {
 
@@ -844,7 +845,7 @@ export class DashboardUtil {
   public static convertSpecToUI(boardInfo: Dashboard): Dashboard {
     // Change spec server to ui ( userDefinedFields -> customFields )
     if (boardInfo.configuration['userDefinedFields']) {
-      boardInfo.configuration.customFields = boardInfo.configuration['userDefinedFields'];
+      boardInfo.configuration.customFields = _.cloneDeep( CommonUtil.objectToArray( boardInfo.configuration['userDefinedFields'] ) );
     }
 
     if (boardInfo.dataSources) {

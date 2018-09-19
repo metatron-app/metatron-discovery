@@ -370,9 +370,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   // command list show
   public showCommandList() {
 
-    // Cannot select command when editing
-    if ('UPDATE' === this.opString) { return }
-
     // Close all opened select box from rule
     this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id : 'commandList', isShow : false } );
 
@@ -394,7 +391,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * */
   public selectCommand(event, command) {
     event.stopImmediatePropagation();
-    this.initRule();
+
+    // TODO : no need to call this function any more as when editing - changing command doesn't change the status of op anymore
+    // this.initRule();
 
     this.ruleVO.ignoreCase = false;
     this.ruleVO.cols = this.selectedColumns;
@@ -455,12 +454,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         });
         this._editRuleComp.init(unnestList, selectedUnnestList);
         break;
-      case 'join':
+      case 'Join':
         this.rightDataset = new Dataset();
         this.rightDataset.dsId = '';
         this.isRuleJoinModalShow = true;
         break;
-      case 'union':
+      case 'Union':
         this.editJoinOrUnionRuleStr = '';
         this.isRuleUnionModalShow = true;
         break;
@@ -690,7 +689,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'pivot' :
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           break;
-        case 'union' :
+        case 'Union' :
           if (this.selectedDataSet.gridData.data.length > 1) {
             this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
             this.isUpdate = true;
@@ -700,7 +699,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           }
 
           break;
-        case 'join' :
+        case 'Join' :
 
           if (this.selectedDataSet.gridData.data.length > 1) {
             this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
@@ -883,12 +882,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param {number} ruleNo
    */
   public insertStep(ruleNo: number) {
-    this.opString = 'PREPARE_APPEND';
+    this.opString = 'INITIAL';
     this.jumpToInsertStep(ruleNo);
   }
 
   /**
-   * Jump Action
+   * Jump but op is GET
    * @param idx - from rule list
    */
   public jumpToInsertStep(idx: number) {
@@ -899,7 +898,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.loadingShow();
 
     // Get grid of selected index
-    this._setEditRuleInfo({op: 'JUMP', ruleIdx: idx, count: 100 }).then((data) => {
+    this._setEditRuleInfo({op: tempOpString, ruleIdx: idx, count: 100, offset: 0 }).then((data) => {
 
       if (data['error']) {
         let prep_error = this.dataprepExceptionHandler(data['error']);
@@ -916,12 +915,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       // set rule list color (-1 as 1 was added to match server list index before sending API)
       this.setRuleListColorWhenJumped(this.serverSyncIndex);
-
-      if (tempOpString === 'PREPARE_APPEND') {
-        this.opString = 'APPEND';
-        this.setInsertStep(this.serverSyncIndex);
-      }
-
+      this.opString = 'APPEND';
+      this.setInsertStep(this.serverSyncIndex);
     });
   }
 
@@ -950,8 +945,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param clickHandler
    */
   public navigateWithKeyboardShortList(event, currentList, clickHandler) {
-
-    if ('UPDATE' === this.opString) { return; }
 
     // open select box when arrow up/ arrow down is pressed
     if (event.keyCode === 38 || event.keyCode === 40) {
@@ -1246,8 +1239,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         result = `Move ${column}`;
         result += `${rule.before ? ' before ' + rule.before : ' after ' + rule.after }`;
         break;
-      case 'union':
-      case 'join':
+      case 'Union':
+      case 'Join':
         result = `${rule.command} with `;
 
         let datasetIds = [];
@@ -1377,39 +1370,29 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public applyRuleFromGridHeaderMenu(args) {
 
-    let rule = {};
+    let rule = {
+      ruleCurIdx : this.opString === 'UPDATE' ? this.serverSyncIndex-1 : this.serverSyncIndex,
+      op: this.opString === 'UPDATE' ? 'UPDATE' : 'APPEND',
+    };
 
     if (args.command === 'sort' || args.command === 'drop') {
 
-      let val = '';
-
-      if (args.command === 'drop') {
-        val = ' col: ';
-      } else {
+      let val = ' col: ';
+      if (args.command !== 'drop') {
         val = ' order: ';
       }
-      rule = {
-        command: args.command,
-        col: args.column.id,
-        op: 'APPEND',
-        ruleString: args.command + val + args.column.id
-      };
-
-      this.applyRule(rule);
+      rule['command'] = args.command;
+      rule['ruleString'] = `${args.command} ${val} ${args.column.id}`
 
     } else if (args.command === 'sort_desc') {
 
       let val = ' order: ';
       this.ruleVO.type = 'desc';
-      rule = {
-        command: 'sort',
-        col: args.column.id,
-        op: 'APPEND',
-        type: 'desc',
-        ruleString: 'sort' + val + args.column.id + ' type:\'desc\''
-      };
-      this.applyRule(rule);
+      rule['command'] = 'sort';
+      rule['ruleString'] = 'sort' + val + args.column.id + ' type:\'desc\'';
+
     }
+    this.applyRule(rule);
   } // function - applyRuleFromGridHeaderMenu
 
   /**
@@ -1474,7 +1457,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           break;
       }
     } else {
+
+      data['ruleCurIdx'] = this.opString === 'UPDATE' ? this.serverSyncIndex-1 : this.serverSyncIndex;
+      data['op'] = this.opString === 'UPDATE' ? 'UPDATE' : 'APPEND';
       this.applyRule(data);
+
     }
 
   } // function - applyRuleFromContextMenu
@@ -1710,7 +1697,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         desc: this.translateService.instant('msg.dp.li.up.description'),
         isHover: false
       },
-      { command: 'join', alias: 'Jo', desc: this.translateService.instant('msg.dp.li.jo.description'), isHover: false },
+      { command: 'Join', alias: 'Jo', desc: this.translateService.instant('msg.dp.li.jo.description'), isHover: false },
       {
         command: 'extract',
         alias: 'Ex',
@@ -1745,7 +1732,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       { command: 'sort', alias: 'So', desc: this.translateService.instant('msg.dp.li.so.description'), isHover: false },
       { command: 'move', alias: 'Mv', desc: this.translateService.instant('msg.dp.li.mv.description'), isHover: false },
       {
-        command: 'union',
+        command: 'Union',
         alias: 'Ui',
         desc: this.translateService.instant('msg.dp.li.ui.description'),
         isHover: false
@@ -1782,8 +1769,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     // TODO : Check if necessary - Unselect all columns
     // this.selectedRows = [];
-    // this._editRuleGridComp.unSelectionAll('COL');
     // this.editColumnList = [];
+
+    // TODO : need to refresh selected column after applying rule
+    this._editRuleGridComp.unSelectionAll('COL');
 
     this.isJumped = false;
     (command === 'multipleRename') && (this.multicolumnRenameComponent.showFlag = false);

@@ -16,6 +16,7 @@ package app.metatron.discovery.spec.druid.ingestion;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public class BulkLoadSpec implements Serializable {
 
@@ -25,13 +26,16 @@ public class BulkLoadSpec implements Serializable {
 
   DataSchema schema;
 
+  Map<String, Object> tuningConfig;
+
   public BulkLoadSpec() {
   }
 
-  public BulkLoadSpec(String basePath, List<String> paths, DataSchema schema) {
+  public BulkLoadSpec(String basePath, List<String> paths, DataSchema schema, Map<String, Object> tuningConfig) {
     this.basePath = basePath;
     this.paths = paths;
     this.schema = schema;
+    this.tuningConfig = tuningConfig;
   }
 
   public String getBasePath() {
@@ -56,5 +60,13 @@ public class BulkLoadSpec implements Serializable {
 
   public void setSchema(DataSchema schema) {
     this.schema = schema;
+  }
+
+  public Map<String, Object> getTuningConfig() {
+    return tuningConfig;
+  }
+
+  public void setTuningConfig(Map<String, Object> tuningConfig) {
+    this.tuningConfig = tuningConfig;
   }
 }
