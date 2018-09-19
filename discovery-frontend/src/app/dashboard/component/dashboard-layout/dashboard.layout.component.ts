@@ -1206,7 +1206,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       let result: [Dashboard, Datasource] = this._setDatasourceForDashboard(boardInfo);
       boardInfo = result[0];
 
-      // 이전 데이터를 현재 데이터에 맞게 변경
+      // Data migration
       {
         // Updating information about deleted dataSources
         const boardDataSource: BoardDataSource = boardInfo.configuration.dataSource;
@@ -1217,11 +1217,12 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
             if (dataSource.some(item => DashboardUtil.isSameDataSource(boardDs, item))) {
               return true;
             } else {
+              const engineName:string = boardDs.engineName ? boardDs.engineName : boardDs.name;
               if( boardInfo.configuration.filters ) {
                 boardInfo.configuration.filters
-                  = boardInfo.configuration.filters.filter( item => item.dataSource !== boardDs.engineName );
+                  = boardInfo.configuration.filters.filter( item => item.dataSource !== engineName );
               }
-              this._removeDsEngineNames.push(boardDs.engineName);
+              this._removeDsEngineNames.push(engineName);
               return false;
             }
           });
@@ -1241,47 +1242,8 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           }
         }
 
-        const filters: Filter[] = DashboardUtil.getBoardFilters(boardInfo);
-        if (filters && 0 < filters.length) {
-          // Change data source information from id to engine name
-          const uniqFilterKeyList: string[] = [];
-          boardInfo.configuration.filters
-            = filters.filter((filter: Filter) => {
-            const uniqFilterKey: string = filter.dataSource + '_' + filter.field;
-            if (-1 === uniqFilterKeyList.indexOf(uniqFilterKey)) {
-              const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
-              (filterDs) && (filter.dataSource = filterDs.engineName);
-              if (isNullOrUndefined(filter.dataSource)) {
-                const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
-                (fieldDs) && (filter.dataSource = fieldDs.engineName);
-              }
-              uniqFilterKeyList.push(uniqFilterKey);
-              return true;
-            } else {
-              return false;
-            }
-          });
-        }
-        const widgets: Widget[] = boardInfo.widgets;
-        if (widgets && 0 < widgets.length) {
-          // Change data source information from id to engine name
-          widgets.forEach((widget: Widget) => {
-            if ('filter' === widget.type) {
-              const filter: Filter = (<FilterWidget>widget).configuration.filter;
-              const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
-              (filterDs) && (filter.dataSource = filterDs.engineName);
-
-              if (isNullOrUndefined(filter.dataSource)) {
-                const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
-                (fieldDs) && (filter.dataSource = fieldDs.engineName);
-              }
-            }
-          });
-        }
-      }
-
-      // Data migration
-      boardInfo = DashboardUtil.convertSpecToUI( boardInfo );
+        boardInfo = DashboardUtil.convertSpecToUI( boardInfo );
+      } // end of data migration
 
       // 글로벌 필터 셋팅
       this.initializeFilter(boardInfo).then((boardData) => {
