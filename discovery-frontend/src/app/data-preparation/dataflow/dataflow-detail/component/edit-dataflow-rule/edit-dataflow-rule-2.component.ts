@@ -240,7 +240,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }));
     this._split.push(Split(['.rule-top', '.rule-bottom'], {
       direction: 'vertical',
-      sizes: [75, 25],
+      sizes: [70, 30],
       minSize: 280,
     }));
     this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data)=> {
@@ -319,6 +319,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     });
   }
 
+
   /**
    * Join 설정 완료 이벤트
    * @param $event Join 설정 정보
@@ -330,7 +331,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.jump(this.serverSyncIndex);
     }
     this.isRuleJoinModalShow = false;
-  } // function - ruleJoinComplete
+  }
+
 
   /**
    * union 설정 완료 이벤트
@@ -357,6 +359,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.editorUseFlag = false;
       this.editorUseLabel = 'switch to editor';
 
+      // Reset command when switch to builder
+      this.initRule();
     } else {
       this.editorUseFlag = true;
       this.editorUseLabel = 'switch to builder';
