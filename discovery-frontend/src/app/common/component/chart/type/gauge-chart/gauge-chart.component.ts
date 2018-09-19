@@ -414,7 +414,7 @@ export class GaugeChartComponent extends BaseChart {
           // uiData가 없는경우
           if (!item['uiData']) {
 
-            item['uiData'] = this.data.columns[dataIndex][index];
+            item['uiData'] = _.find(this.data.columns[dataIndex], {'name' : item.name});
           }
         });
       }
