@@ -18,28 +18,29 @@
     {{selectedTable}}
   </div>
 
-  <div *ngFor="let result of resultData" class="ddp-form-scroll">
-    <div class="ddp-label-table">
-      <span class="ddp-txt-label">
-        {{result.label}}
-      </span>
+  <div class="ddp-form-scroll">
+    <div *ngFor="let result of resultData">
+      <div class="ddp-label-table">
+        <span class="ddp-txt-label">
+          {{result.label}}
+        </span>
+      </div>
+      <table class="ddp-table-info ">
+        <colgroup>
+          <col width="150px" />
+          <col width="" />
+        </colgroup>
+        <tbody>
+        <tr *ngFor="let data of result.data">
+          <th>
+            {{data.itemkey}}
+          </th>
+          <td>
+            {{data.item}}
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
-    <table class="ddp-table-info ">
-      <colgroup>
-        <col width="150px" />
-        <col width="" />
-      </colgroup>
-      <tbody>
-      <tr *ngFor="let data of result.data">
-        <th>
-          {{data.itemkey}}
-        </th>
-        <td>
-          {{data.item}}
-        </td>
-      </tr>
-      </tbody>
-    </table>
-
   </div>
 </div>
