@@ -1277,6 +1277,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   private _syncWidgetsAndFilters(customFields: CustomField[], fields: Field[], changeWidgetId: string) {
 
+    customFields = CommonUtil.objectToArray( customFields );
+
     // 사용자 정의 필드를 위젯에 셋팅
     DashboardUtil.getPageWidgets(this.dashboard).forEach((widget: Widget) => {
       // 위젯 사용자 정의 필드 정보 수정

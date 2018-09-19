@@ -85,6 +85,7 @@ import { SecondaryIndicatorComponent } from './chart-style/secondary-indicator.c
 import { DataLabelOptionComponent } from './chart-style/datalabel-option.component';
 import { DashboardUtil } from '../dashboard/util/dashboard.util';
 import { BoardConfiguration } from '../domain/dashboard/dashboard';
+import { CommonUtil } from '../common/util/common.util';
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -3611,6 +3612,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         FilterUtil.isTimeRangeFilter(item) ||
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
+
+    cloneQuery.userFields = CommonUtil.objectToArray( cloneQuery.userFields );
 
     return cloneQuery;
   }

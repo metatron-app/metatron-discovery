@@ -65,6 +65,7 @@ import { isNullOrUndefined } from 'util';
 import { TimeListFilter } from '../../../domain/workbook/configurations/filter/time-list-filter';
 import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
 import { Datasource, Field } from '../../../domain/datasource/datasource';
+import { CommonUtil } from '../../../common/util/common.util';
 
 declare let $;
 
@@ -1242,7 +1243,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
 
-
+    cloneQuery.userFields = CommonUtil.objectToArray( cloneQuery.userFields );
 
     return cloneQuery;
   } // function - _makeSearchQueryParam
