@@ -1280,6 +1280,9 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
         }
       }
 
+      // Data migration
+      boardInfo = DashboardUtil.convertSpecToUI( boardInfo );
+
       // 글로벌 필터 셋팅
       this.initializeFilter(boardInfo).then((boardData) => {
 

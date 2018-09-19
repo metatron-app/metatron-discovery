@@ -39,10 +39,10 @@ export class DashboardService extends AbstractService {
    * @param {string} boardId
    * @param {BoardDataSource[]} dataSources
    */
-  public connectDashboardAndDataSource( boardId:string, dataSources:BoardDataSource[] ) {
+  public connectDashboardAndDataSource(boardId: string, dataSources: BoardDataSource[]) {
     let linksParam: string[] = dataSources.reduce((acc: string[], currVal: BoardDataSource) => {
-        return acc.concat(this._getLinkDataSourceParam(currVal));
-      }, []);
+      return acc.concat(this._getLinkDataSourceParam(currVal));
+    }, []);
 
     return this.put(`/api/dashboards/${boardId}/datasources`, linksParam.join('\n'), 'text/uri-list');
   } // function - connectDashboardAndDataSource
@@ -72,8 +72,11 @@ export class DashboardService extends AbstractService {
     // for UI 속성 제거
     params = this._convertSpecToServer(_.cloneDeep(params));
     return this.post(url, params).then((board: Dashboard) => {
-      ( callback ) && ( callback( board ) );
-      return this.connectDashboardAndDataSource( board.id, ( 'multi' === boardDs.type) ? boardDs.dataSources : [boardDs] );
+      return new Promise((resolve) => {
+        ( callback ) && ( callback( board ) );        
+        this.connectDashboardAndDataSource(board.id, ('multi' === boardDs.type) ? boardDs.dataSources : [boardDs])
+          .then(() => resolve(board));
+      });
     });
   } // function - createDashboard
 
@@ -126,11 +129,25 @@ export class DashboardService extends AbstractService {
 
   /**
    * 대시보드 복제
-   * @param {string} id
+   * @param {string} dashboardId
    * @return {Promise<any>}
    */
-  public copyDashboard(id: string) {
-    return this.post(this.API_URL + 'dashboards/' + id + '/copy', null);
+  public copyDashboard(dashboardId: string) {
+
+    return this.get(this.API_URL + `dashboards/${dashboardId}?projection=forDetailView`).then((info: Dashboard) => {
+      if (info.configuration.customFields) {
+        {
+          info.configuration['userDefinedFields'] = _.cloneDeep(info.configuration.customFields);
+          delete info.configuration.customFields;
+          info.configuration.widgets.forEach(item => item.isInLayout = true); // Processing to prevent widget information from being deleted
+        }
+        return this.updateDashboard(dashboardId, { configuration: info.configuration }).then(() => {
+          return this.post(this.API_URL + 'dashboards/' + dashboardId + '/copy', null);
+        })
+      } else {
+        return this.post(this.API_URL + 'dashboards/' + dashboardId + '/copy', null);
+      }
+    });
   } // function - copyDashboard
 
   /**
@@ -173,8 +190,8 @@ export class DashboardService extends AbstractService {
           delete boardConf.dataSource.engineName;
           delete boardConf.dataSource.uiFields;
           delete boardConf.dataSource.metaDataSource;
-          if( boardConf.dataSource.dataSources ) {
-            boardConf.dataSource.dataSources.forEach( item => {
+          if (boardConf.dataSource.dataSources) {
+            boardConf.dataSource.dataSources.forEach(item => {
               delete item.uiFields;
               delete item.metaDataSource;
             });
@@ -194,6 +211,13 @@ export class DashboardService extends AbstractService {
         }
         delete boardConf.layout;
         delete boardConf.fields;
+
+        // convert spec UI to server ( customFields -> userDefinedFields )
+        if (boardConf.customFields) {
+          boardConf['userDefinedFields'] = _.cloneDeep(boardConf.customFields);
+          delete boardConf.customFields;
+        }
+
       }
     }
     return param;

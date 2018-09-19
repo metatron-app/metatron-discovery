@@ -153,10 +153,10 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
             this.sendLinkActivityStream(info.id, 'DASHBOARD', id, 'DATASOURCE' );
           });
         })
-        .then(() => {
+        .then((board:Dashboard) => {
           Alert.success(`'${this.dashboard.name}' ` + this.translateService.instant('msg.board.alert.create.success'));
           this.loadingHide();
-          this.broadCaster.broadcast('WORKBOOK_RELOAD_BOARD_LIST', { boardName: this.dashboard.name });
+          this.broadCaster.broadcast('WORKBOOK_RELOAD_BOARD_LIST', { boardId: board.id });
           this.close();
         }).catch(err => this.commonExceptionHandler(err));
     }
