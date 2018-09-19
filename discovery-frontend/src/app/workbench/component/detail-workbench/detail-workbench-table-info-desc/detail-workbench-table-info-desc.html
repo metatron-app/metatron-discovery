@@ -20,7 +20,7 @@
 
   <div class="ddp-form-scroll">
     <div *ngFor="let result of resultData">
-      <div class="ddp-label-table">
+      <div class="ddp-label-table" [hidden]="result.label != ''">
         <span class="ddp-txt-label">
           {{result.label}}
         </span>

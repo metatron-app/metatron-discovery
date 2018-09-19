@@ -186,6 +186,8 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
         let tempLabel = '';
         let tempArr : any[] = [];
 
+        this.resultData = [];
+
         // result Data 생성
         for (const key in this.tables) {
 
@@ -218,6 +220,9 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
             tempData.data = tempArr;
             this.resultData.push( tempData );
           }
+
+
+
         }
 
         // 로딩 hide
