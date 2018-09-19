@@ -165,7 +165,7 @@ export class MetadataService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getMetadataForDataSource(sourceId:string):Promise<any> {
-    return this.get(this.URL_METADATA + `/metasources/${sourceId}?projection=forItemView`);
+    return this.post(this.URL_METADATA + `/metasources/${sourceId}?projection=forItemView`, {});
   } // function - getMetadataForDataSource
 
   /**
