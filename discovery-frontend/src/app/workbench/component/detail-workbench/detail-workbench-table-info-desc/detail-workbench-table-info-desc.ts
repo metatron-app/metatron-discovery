@@ -70,6 +70,9 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
   // result data
   public resultData : any[] = [];
 
+  // select table
+  public selectedTable : string = '';
+
   @Output()
   public showLayer: EventEmitter<string> = new EventEmitter();
 
@@ -134,6 +137,8 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
   private _getTable(): void {
     // 호출 횟수 증가
     this._getTableReconnectCount++;
+    // select table
+    this.selectedTable = this.params['selectedTable'];
     // 로딩 show
     this.loadingShow();
     this.dataconnectionService.getTableInfomation(this.params['dataconnection'].id, this.params['dataconnection'].database, this.params['selectedTable'], WorkbenchService.websocketId, this.page)
