@@ -128,7 +128,7 @@
                 <!-- 클릭시 ddp-selected 추가 -->
                 <div class="ddp-type-selectbox ddp-type-search-select"
                      tabindex="1"
-                     [ngClass]="{'ddp-selected' : isCommandListShow, 'ddp-disabled' : opString === 'UPDATE' }"
+                     [ngClass]="{'ddp-selected' : isCommandListShow }"
                      [class.ddp-result]="ruleVO.command"
                      (click)="$event.stopImmediatePropagation(); showCommandList()"
                      (keydown)="navigateWithKeyboardShortList($event, filteredCommandList, 'command')">

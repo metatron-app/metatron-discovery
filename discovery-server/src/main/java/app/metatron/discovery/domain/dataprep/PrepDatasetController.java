@@ -365,6 +365,30 @@ public class PrepDatasetController {
         return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
     }
 
+    @RequestMapping(value = "/upload_async", method = RequestMethod.POST, produces = "application/json")
+    public @ResponseBody ResponseEntity<?> upload_async(@RequestParam("file") MultipartFile file) {
+        Map<String, Object> response = null;
+        try {
+            response = this.datasetFileService.uploadFile(file);
+        } catch (Exception e) {
+            LOGGER.error("upload_async(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+        }
+        return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
+    }
+
+    @RequestMapping(value = "/upload_async_poll", method = RequestMethod.POST, produces = "application/json")
+    public @ResponseBody ResponseEntity<?> upload_async_poll(@RequestBody String fileKey) {
+        Map<String, Object> response = null;
+        try {
+            response = this.datasetFileService.pollUploadFile(fileKey);
+        } catch (Exception e) {
+            LOGGER.error("upload_async_poll(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+        }
+        return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
+    }
+
     @RequestMapping(value = "/check_hdfs", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody ResponseEntity<?> checkHdfs() {
         Map<String, Object> response = new HashMap();

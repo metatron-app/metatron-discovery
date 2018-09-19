@@ -155,7 +155,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Gets timestamp formats from the server
    * @param {string} selectedTimestamp
    */
-  public getTimestampFormats(selectedTimestamp? :string) {
+  public getTimestampFormats() {
 
     let cols = this.selectedFields.map((item) => {
       return item.name
@@ -270,13 +270,13 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       this.selectedTimestamp = '';
       this.hasEditTimestamp = false;
     }
-    if ('timestamp' === this.selectedType) {
+    if ('timestamp' === this.selectedType.toLowerCase()) {
       this.isTimestamp = true;
-      this.getTimestampFormats(this.selectedTimestamp);
-    } else if ('string' === this.selectedType) {
+      this.getTimestampFormats();
+    } else if ('string' === this.selectedType.toLowerCase()) {
       if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')){
         this.isTimestamp = true;
-        this.getTimestampFormats(this.selectedTimestamp);
+        this.getTimestampFormats();
       } else {
         this.isTimestamp = false;
       }
@@ -311,7 +311,14 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   protected afterShowComp() {
     if (this.dsId && this.selectedType) { // 컨텍스트 메뉴 이용
       this.defaultIndex = this.typeList.indexOf(this.selectedType.toLowerCase());
-      this.getTimestampFormats();
+      // Only get timestamp formats when it is timestamp type
+      if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp') || this.selectedType.toLowerCase() === 'timestamp' ){
+        this.isTimestamp = true;
+        this.getTimestampFormats();
+      } else {
+        this.isTimestamp = false;
+      }
+
     }
   }
 

@@ -460,7 +460,6 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 .ddp-edit-setting.ddp-selected .ddp-label-name .ddp-icon-drop {transform: rotate(0deg);}
 .ddp-edit-setting .ddp-label-sub {display:block; position:absolute; top:20px; left:0; width:172px; padding:0 20px 5px 20px; line-height:16px; color:#4c515a; font-size:13px; word-break:break-word; box-sizing:border-box;}
 .ddp-edit-setting .ddp-clear.ddp-list-code {margin-bottom:2px;}
-.ddp-edit-setting .ddp-clear {margin:0 -6px;}
 .ddp-edit-setting .ddp-col-6 {padding:0 6px;}
 .ddp-edit-setting  textarea {display:block; width:100%; border:1px solid #d0d1d9; overflow:hidden;}
 .ddp-edit-setting  .ddp-wrap-down {display:none; padding-left:172px;}
@@ -961,6 +960,8 @@ ul.ddp-list-popup li.ddp-disabled:hover .ddp-wrap-popup2 {display:none;}
 
 ul.ddp-list-popup li a {display:block; position:relative; padding:6px 14px 6px 14px; font-size:13px; color:#4b515b; white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
 ul.ddp-list-popup li a:hover {background-color:#f6f6f7;}
+ul.ddp-list-selectbox2.ddp-hover-none li:hover,
+ul.ddp-list-popup.ddp-hover-none li a:hover {background:none !important;}
 ul.ddp-list-popup li a em.ddp-icon-view {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-4px;width:4px; height:7px; background:url(../images/icon_tagview.png) no-repeat; transform:rotate(180deg);}
 ul.ddp-list-popup li.ddp-sub a em.ddp-icon-view {background:url(../images/icon_dataview.png) no-repeat; background-position:left -19px; transform:rotate(0);}
 ul.ddp-list-popup li.ddp-selected > a {color:#666eb2; padding-right:28px;}
@@ -1310,7 +1311,6 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {border:
 .ddp-wrap-drop-search .ddp-ui-drop-search:after {display:inline-block; position:absolute; top:12px; right:12px; width:7px; height:4px; margin-top:-2px; background:url(../images/icon_select.png) no-repeat; background-position:-8px top; content:'';}
 
 .ddp-wrap-drop-search .ddp-ui-drop-search input.ddp-input-search {display:block; width:100%; padding:7px 26px 6px 13px; box-sizing:border-box; border:none; font-size:13px; }
-
 .ddp-wrap-drop-search .ddp-ui-drop-search input.ddp-input-search.ddp-value {color:#666eb3;}
 .ddp-wrap-drop-search.ddp-offset input.ddp-input-search {display:none;}
 .ddp-wrap-drop-search.ddp-offset.ddp-selected input.ddp-input-search {display:block; position:absolute; top:0; left:0; right:0; width:100%; padding:7px 26px 6px 13px; box-sizing:border-box; border:1px solid #d0d1d9;}

@@ -41,7 +41,7 @@
           <span class="ddp-data-type">
             <em class="ddp-ui-round">{{rule.alias}}</em>
           </span>
-          <div class="ddp-ui-code">
+          <div class="ddp-ui-code" title="{{idx !== 0 ? rule.ruleString : null}}">
             {{rule.simplifiedRule !== '' ? rule.simplifiedRule : rule.ruleString}}
           </div>
           <div class="ddp-ui-edit-button" *ngIf="idx !== 0">
@@ -58,10 +58,10 @@
           </div>
           <!-- //button -->
           <!-- tooltip -->
-          <div class="ddp-ui-tooltip-info" *ngIf="idx !== 0">
-            <em class="ddp-icon-view-top"></em>
-            {{rule.ruleString}}
-          </div>
+          <!--<div class="ddp-ui-tooltip-info" *ngIf="idx !== 0">-->
+            <!--<em class="ddp-icon-view-top"></em>-->
+            <!--{{rule.ruleString}}-->
+          <!--</div>-->
           <!-- //tooltip -->
         </div>
         <div class="ddp-wrap-line-add " [ngClass]="{'ddp-selected' : rule.isInsertStep}" *ngIf="!rule.isEditMode">
