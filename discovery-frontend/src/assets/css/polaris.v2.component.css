@@ -460,7 +460,6 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 .ddp-edit-setting.ddp-selected .ddp-label-name .ddp-icon-drop {transform: rotate(0deg);}
 .ddp-edit-setting .ddp-label-sub {display:block; position:absolute; top:20px; left:0; width:172px; padding:0 20px 5px 20px; line-height:16px; color:#4c515a; font-size:13px; word-break:break-word; box-sizing:border-box;}
 .ddp-edit-setting .ddp-clear.ddp-list-code {margin-bottom:2px;}
-.ddp-edit-setting .ddp-clear {margin:0 -6px;}
 .ddp-edit-setting .ddp-col-6 {padding:0 6px;}
 .ddp-edit-setting  textarea {display:block; width:100%; border:1px solid #d0d1d9; overflow:hidden;}
 .ddp-edit-setting  .ddp-wrap-down {display:none; padding-left:172px;}

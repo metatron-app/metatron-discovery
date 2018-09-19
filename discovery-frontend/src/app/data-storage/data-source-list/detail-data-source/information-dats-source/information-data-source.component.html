@@ -250,17 +250,6 @@
               <!-- //edit option -->
             </div>
             <!-- //Partition keys -->
-            <!-- Partition keys -->
-            <div class="ddp-wrap-edit3 ddp-type">
-              <label class="ddp-label-type">{{'msg.storage.th.advanced.setting' | translate}}
-              </label>
-              <!-- edit option -->
-              <div class="ddp-ui-edit-option">
-                {{getAdvancedSettingLabel()}}
-              </div>
-              <!-- //edit option -->
-            </div>
-            <!-- //Partition keys -->
             <!-- Data range -->
             <div class="ddp-wrap-edit3 ddp-type">
               <label class="ddp-label-type">{{'msg.storage.th.data-range' | translate}}
@@ -497,6 +486,55 @@
         </tbody>
       </table>
     </div>
+    <!-- detail setting -->
+    <!-- advanced -->
+    <div class="ddp-detail-setting" [class.ddp-selected]="isShowAdvancedSetting">
+      <a href="javascript:" class="ddp-fold-link" (click)="isShowAdvancedSetting = !isShowAdvancedSetting">{{'msg.storage.th.advanced.setting' | translate}}</a>
+      <div class="ddp-wrap-down">
+        <table class="ddp-table-detail ddp-mgt0 ddp-setting">
+          <colgroup>
+            <col width="170px">
+            <col width="*">
+          </colgroup>
+          <tbody>
+          <!-- job properties -->
+          <tr *ngIf="getIngestion.jobProperties">
+            <th>{{'msg.storage.ui.dsource.create.job.properties' | translate}}</th>
+            <td>
+              <div class="ddp-wrap-edit3 ddp-type" *ngFor="let key of getObjectKeys(getIngestion.jobProperties)">
+                <label class="ddp-label-type">{{key}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{getIngestion.jobProperties[key]}}
+                </div>
+                <!-- //edit option -->
+              </div>
+            </td>
+          </tr>
+          <!-- //job properties -->
+          <!-- tuning config -->
+          <tr *ngIf="getIngestion.tuningOptions">
+            <th>{{'msg.storage.ui.tuning.settings' | translate}}</th>
+            <td>
+              <div class="ddp-wrap-edit3 ddp-type" *ngFor="let key of getObjectKeys(getIngestion.tuningOptions)">
+                <label class="ddp-label-type">{{key}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{getIngestion.tuningOptions[key]}}
+                </div>
+                <!-- //edit option -->
+              </div>
+            </td>
+          </tr>
+          <!-- //tuning config -->
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+    <!-- //advanced -->
   </div>
   <!-- //datadetail -->
 </div>

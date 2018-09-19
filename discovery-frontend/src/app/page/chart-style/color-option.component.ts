@@ -235,8 +235,9 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     // set min / max by decimal format
     if (this.uiOption.valueFormat && undefined !== this.uiOption.valueFormat.decimal) {
-      this.minValue = FormatOptionConverter.getDecimalValue(this.uiOption.minValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
-      this.minValue = parseInt(this.minValue) >= 0 ? FormatOptionConverter.getDecimalValue(0, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep) : this.minValue;
+      const minValue = this.checkMinZero(this.uiOption.minValue, this.uiOption.minValue);
+
+      this.minValue = FormatOptionConverter.getDecimalValue(minValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
       this.maxValue = FormatOptionConverter.getDecimalValue(this.uiOption.maxValue, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
     }
 
@@ -778,7 +779,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
 
     let colorList = ChartColorList[this.uiOption.color['schema']];
 
-    const minValue = this.uiOption.minValue >= 0 ? 0 : parseInt(this.uiOption.minValue.toFixed(0));
+    const minValue = this.checkMinZero(this.uiOption.minValue, parseInt(this.uiOption.minValue.toFixed(0)));
     const maxValue = parseInt(this.uiOption.maxValue.toFixed(0));
 
     if (!gradations || gradations.length == 0) {
@@ -831,7 +832,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     let decimalValue = this.uiOption.minValue;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.uiOption.minValue >= 0 ? 0 : decimalValue;
+    const uiMinValue = this.checkMinZero(this.uiOption.minValue, decimalValue);
 
     // 입력가능 최소 / 최대범위 구하기
     let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
@@ -893,7 +894,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.uiOption.minValue >= 0 ? 0 : this.uiOption.minValue;
+    const uiMinValue = this.checkMinZero(this.uiOption.minValue, this.uiOption.minValue);
 
     // 하위 fixMin값
     const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
@@ -928,7 +929,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     }
 
     // 최소값이 현재 최대값보다 큰경우 최소값과 하위 최대값 변경
-    if (range.fixMin > range.fixMax) {
+    if (null != range.fixMin && rangeList[index + 1] && range.fixMin > range.fixMax) {
 
       range.gt = range.fixMax;
       rangeList[index + 1].lte = range.fixMax;
@@ -1356,5 +1357,28 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
     range.gt     = null == range.gt ? null : FormatOptionConverter.getNumberValue(range.gt);
     range.lte    = null == range.lte ? null : FormatOptionConverter.getNumberValue(range.lte);
     return range;
+  }
+
+  /**
+   * set minvalue zero by chart types
+   * @param {number} minValue
+   * @param {number} elseValue
+   */
+  private checkMinZero(minValue: number, elseValue: number) {
+
+    let returnValue: number = elseValue;
+
+    switch(this.uiOption.type) {
+
+      // charts minvalue is zero
+      case ChartType.BAR:
+      case ChartType.LINE:
+      case ChartType.SCATTER:
+      case ChartType.BOXPLOT:
+      case ChartType.COMBINE:
+        if (minValue >= 0) returnValue = 0;
+    }
+
+    return returnValue;
   }
 }

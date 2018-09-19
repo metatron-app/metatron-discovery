@@ -102,6 +102,8 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // 리스트 flag
   public detailFl: boolean = false;
+  // advanced setting show flag
+  public isShowAdvancedSetting: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -223,7 +225,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * @returns {any}
    */
   public get getIngestion() {
-    return this.datasource.ingestion;
+    return this.datasource.ingestion || {};
   }
 
   /**
@@ -393,19 +395,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   /**
-   * TODO advanced setting label
-   * @returns {string}
-   */
-  public getAdvancedSettingLabel(): string {
-    const advanced = this.getIngestion.advanced;
-    // advanced 세팅이 있는경우
-    if (advanced) {
-      return '';
-    }
-    return 'None';
-  }
-
-  /**
    * 데이터 소스 status
    * @returns {string}
    */
@@ -440,6 +429,15 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
       default:
         return this.translateService.instant('msg.storage.ui.unavailable.engine');
     }
+  }
+
+  /**
+   * Get object key list
+   * @param {Object} option
+   * @returns {string[]}
+   */
+  public getObjectKeys(option: object): string[] {
+    return _.keys(option);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -15,6 +15,7 @@
 package app.metatron.discovery.spec.druid.ingestion;
 
 import java.util.List;
+import java.util.Map;
 
 import app.metatron.discovery.domain.datasource.DataSource;
 
@@ -26,6 +27,8 @@ public class BulkLoadSpecBuilder extends AbstractSpecBuilder {
   String basePath;
 
   List<String> paths;
+
+  Map<String, Object> tuningConfig;
 
   public BulkLoadSpecBuilder(DataSource dataSource) {
     setDataSchema(dataSource);
@@ -47,11 +50,17 @@ public class BulkLoadSpecBuilder extends AbstractSpecBuilder {
     return this;
   }
 
+  public BulkLoadSpecBuilder tuningConfig(Map<String, Object> tuningConfig) {
+    this.tuningConfig = tuningConfig;
+    return this;
+  }
+
   public BulkLoadSpec build() {
     BulkLoadSpec spec = new BulkLoadSpec();
     spec.setSchema(dataSchema);
     spec.setBasePath(basePath);
     spec.setPaths(paths);
+    spec.setTuningConfig(tuningConfig);
 
     return spec;
   }

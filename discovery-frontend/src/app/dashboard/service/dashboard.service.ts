@@ -78,7 +78,6 @@ export class DashboardService extends AbstractService {
         this.connectDashboardAndDataSource(board.id, ('multi' === boardDs.type) ? boardDs.dataSources : [boardDs])
           .then(() => resolve(board));
       });
-
     });
   } // function - createDashboard
 

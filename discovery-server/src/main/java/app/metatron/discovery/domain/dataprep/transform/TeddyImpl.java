@@ -129,9 +129,9 @@ public class TeddyImpl {
     return newDf;
   }
 
-  public DataFrame preview(String dsId, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
+  public DataFrame preview(String dsId, int stageIdx, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
-    return apply(rev.get(), ruleString);
+    return apply(rev.get(stageIdx), ruleString);
   }
 
   public DataFrame fetch(String dsId, Integer stageIdx) {
