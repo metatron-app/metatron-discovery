@@ -577,27 +577,38 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {Datasource} dataSource
    */
   public selectDataSource(dataSource: Datasource) {
-    this.dataSource = dataSource;
-    this.widget = _.cloneDeep(this.originalWidget);
-    const widgetDataSource:Datasource
-      = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, this.widget.configuration.dataSource );
 
-    if( widgetDataSource.id !== dataSource.id ) {
-      this.widget.configuration = new PageWidgetConfiguration();
-      this.widget.configuration.dataSource = DashboardUtil.getBoardDataSourceFromDataSource(this.widget.dashBoard, dataSource);
-      this.widget.configuration.filters = [];
-      this.widget.configuration.customFields = [];
+    ( this.widget ) || ( this.widget = _.cloneDeep(this.originalWidget) );
+
+    if( ChartType.MAP === this.widget.configuration.chart.type ) {
+      this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.engineName );
+      this.dataSource = dataSource;
+      // 데이터 필드 설정 (data panel의 pivot 설정)
+      this.setDatasourceFields(true);
+    } else {
+      this.dataSource = dataSource;
+      this.widget = _.cloneDeep(this.originalWidget);
+      const widgetDataSource:Datasource
+        = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, this.widget.configuration.dataSource );
+
+      if( widgetDataSource.id !== dataSource.id ) {
+        this.widget.configuration = new PageWidgetConfiguration();
+        this.widget.configuration.dataSource = DashboardUtil.getBoardDataSourceFromDataSource(this.widget.dashBoard, dataSource);
+        this.widget.configuration.filters = [];
+        this.widget.configuration.customFields = [];
+      }
+      this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.engineName );
+
+      if (StringUtil.isEmpty(this.widget.name)) {
+        this.widget.name = 'New Chart';
+      }
+      this.uiOption = this.widgetConfiguration.chart;
+      this.originalWidgetConfiguration = _.cloneDeep(this.widgetConfiguration);
+
+      // 데이터 필드 설정 (data panel의 pivot 설정)
+      this.setDatasourceFields(true);
     }
-    this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.engineName );
 
-    if (StringUtil.isEmpty(this.widget.name)) {
-      this.widget.name = 'New Chart';
-    }
-    this.uiOption = this.widgetConfiguration.chart;
-    this.originalWidgetConfiguration = _.cloneDeep(this.widgetConfiguration);
-
-    // 데이터 필드 설정 (data panel의 pivot 설정)
-    this.setDatasourceFields(true);
   } // function - selectDataSource
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -3500,6 +3511,14 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // 서버 조회용 파라미터 (서버 조회시 필요없는 파라미터 제거)
     const cloneQuery = this.makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
+
+    // Map Chart 의 Multi Datasource 를 적용하기 위한 코드 - S
+    if ( ChartType.MAP === this.widget.configuration.chart.type ) {
+      if( true ) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
+        cloneQuery.dataSource = _.cloneDeep( this.widget.dashBoard.configuration.dataSource );
+      }
+    }
+    // Map Chart 의 Multi Datasource 를 적용하기 위한 코드 - E
 
     this.query = cloneQuery;
     if (this.selectChart === 'label') {
