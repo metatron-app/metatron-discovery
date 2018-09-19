@@ -16,6 +16,7 @@ import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, V
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Alert } from '../../../../common/util/alert.util';
 import { Candidate } from '../../../../domain/workbook/configurations/filter/inclusion-filter';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'component-filter-multi-select',
@@ -118,7 +119,7 @@ export class FilterMultiSelectComponent extends AbstractComponent implements OnI
     super.ngOnInit();
 
     // array check
-    ( null === this.selectedArray ) && ( this.selectedArray = [] );
+    ( isNullOrUndefined( this.selectedArray ) )  && ( this.selectedArray = [] );
 
     this.updateView(this.selectedArray);
   }

@@ -22,6 +22,7 @@ import { BookTree } from '../../domain/workspace/book';
 import { BoardGlobalOptions } from '../../domain/dashboard/dashboard.globalOptions';
 import { FilterUtil } from '../util/filter.util';
 import { MetadataService } from '../../meta-data-management/metadata/service/metadata.service';
+import { CommonUtil } from '../../common/util/common.util';
 
 @Injectable()
 export class DashboardService extends AbstractService {
@@ -73,7 +74,7 @@ export class DashboardService extends AbstractService {
     params = this._convertSpecToServer(_.cloneDeep(params));
     return this.post(url, params).then((board: Dashboard) => {
       return new Promise((resolve) => {
-        ( callback ) && ( callback( board ) );        
+        ( callback ) && ( callback( board ) );
         this.connectDashboardAndDataSource(board.id, ('multi' === boardDs.type) ? boardDs.dataSources : [boardDs])
           .then(() => resolve(board));
       });
@@ -137,7 +138,7 @@ export class DashboardService extends AbstractService {
     return this.get(this.API_URL + `dashboards/${dashboardId}?projection=forDetailView`).then((info: Dashboard) => {
       if (info.configuration.customFields) {
         {
-          info.configuration['userDefinedFields'] = _.cloneDeep(info.configuration.customFields);
+          info.configuration['userDefinedFields'] = _.cloneDeep( CommonUtil.objectToArray( info.configuration.customFields ) );
           delete info.configuration.customFields;
           info.configuration.widgets.forEach(item => item.isInLayout = true); // Processing to prevent widget information from being deleted
         }
@@ -214,7 +215,7 @@ export class DashboardService extends AbstractService {
 
         // convert spec UI to server ( customFields -> userDefinedFields )
         if (boardConf.customFields) {
-          boardConf['userDefinedFields'] = _.cloneDeep(boardConf.customFields);
+          boardConf['userDefinedFields'] = _.cloneDeep( CommonUtil.objectToArray( boardConf.customFields ) );
           delete boardConf.customFields;
         }
 

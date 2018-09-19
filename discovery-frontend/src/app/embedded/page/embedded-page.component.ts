@@ -36,6 +36,7 @@ import { DatasourceService } from '../../datasource/service/datasource.service';
 import { AnalysisPredictionService } from '../../page/component/analysis/service/analysis.prediction.service';
 import { WidgetService } from '../../dashboard/service/widget.service';
 import { DashboardUtil } from '../../dashboard/util/dashboard.util';
+import { CommonUtil } from '../../common/util/common.util';
 
 @Component({
   selector: 'app-embedded-page',
@@ -306,6 +307,8 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
         FilterUtil.isTimeRangeFilter(item) ||
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
+
+    cloneQuery.userFields = CommonUtil.objectToArray( cloneQuery.userFields );
 
     return cloneQuery;
   } // function - _makeSearchQueryParam
