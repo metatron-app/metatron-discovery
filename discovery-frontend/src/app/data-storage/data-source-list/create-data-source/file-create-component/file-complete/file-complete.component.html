@@ -15,7 +15,7 @@
 <div class="ddp-type-contents ddp-resize2 ddp-type2">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-  <!-- //닫기 버튼 -->
+  <!-- //close -->
   <div class="ddp-icon-name">
     <div class="ddp-ui-name2 ddp-type3">
       {{'msg.storage.ui.dsource.create.title' | translate}}  ({{'msg.storage.ui.dsource.create.file.title' | translate}})
@@ -40,7 +40,7 @@
               {{'msg.storage.th.dsource.create.file' | translate}}
             </th>
             <td>
-              {{getFileName}}
+              {{getFileData.datasourceFile.filename}}
             </td>
           </tr>
           <tr *ngIf="isExcelFile()">
@@ -48,7 +48,7 @@
               {{'msg.storage.th.dsource.create.sheet' | translate}}
             </th>
             <td>
-              {{getSheetName}}
+              {{getFileData.datasourceFile.selectedSheetName}}
             </td>
           </tr>
           <tr>
@@ -58,10 +58,10 @@
             <td>
               <ul class="ddp-list-sub">
                 <li>
-                  {{'msg.storage.th.segment.gran' | translate}} : {{getSegmentGranularity.label}}
+                  {{'msg.storage.th.segment.gran' | translate}} : {{getIngestionData.selectedSegmentGranularity.label}}
                 </li>
                 <li>
-                  {{'msg.storage.th.query.gran' | translate}} : {{getGranularity.label}}
+                  {{'msg.storage.th.query.gran' | translate}} : {{getIngestionData.selectedQueryGranularity.label}}
                 </li>
               </ul>
             </td>
@@ -72,24 +72,15 @@
               {{'msg.storage.th.rollup.settings' | translate}}
             </th>
             <td>
-              {{getRollup}}
+              {{getIngestionData.selectedRollUpType.label}}
             </td>
           </tr>
           <!-- //roll up -->
-          <!-- advanced opt -->
-          <tr *ngIf="isUsedTuningConfig()">
-            <th>
-              {{'msg.storage.ui.advanced.opt.enable.alert' | translate}}
-            </th>
-            <td>
-            </td>
-          </tr>
-          <!-- //advanced opt -->
           </tbody>
         </table>
       </div>
       <!-- //edit -->
-      <!-- 이름 -->
+      <!-- source name -->
       <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidName">
         <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
         <input type="text" class="ddp-input-type"
@@ -102,8 +93,8 @@
         <span class="ddp-ui-error">{{errMsgName}}</span>
         <!-- error -->
       </div>
-      <!-- //이름 -->
-      <!-- 설명 -->
+      <!-- //source name -->
+      <!-- source desc -->
       <div class="ddp-wrap-edit2" [class.ddp-error]="isInvalidDesc">
         <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
         <input type="text" class="ddp-input-type"
@@ -116,7 +107,7 @@
         <span class="ddp-ui-error">{{errMsgDesc}}</span>
         <!-- error -->
       </div>
-      <!-- //설명 -->
+      <!-- //source desc -->
     </div>
   </div>
   <!-- //contents in  -->
@@ -125,7 +116,6 @@
     <a href="javascript:" class="ddp-btn-type-popup"
        (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
     <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black"
-       [ngClass]="{'ddp-disabled' : !validationDatasourceName()}"
        (click)="done()">{{'msg.comm.btn.done' | translate}}</a>
   </div>
   <!-- //buttons -->
