@@ -333,7 +333,9 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
 
         if (showFl) {
           item.edgeLabel.normal.show = showFl;
-          item.edgeLabel.normal.formatter = "{c}";
+          item.edgeLabel.normal.formatter = (params) => {
+            return FormatOptionConverter.getFormatValue(params.data.value, this.uiOption.valueFormat);
+          }
         } else {
           item.edgeLabel.normal.show = showFl;
           // show만 false로 설정시 source쪽에 숫자가 겹쳐서 나오므로 formatter에 빈값을 설정
@@ -451,7 +453,9 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
         edgeLabel: {
           normal: {
             show: true,
-            formatter: "{c}"
+            formatter: (params) => {
+              return FormatOptionConverter.getFormatValue(params.data.value, this.uiOption.valueFormat);
+            }
           }
         },
         tooltip: {
