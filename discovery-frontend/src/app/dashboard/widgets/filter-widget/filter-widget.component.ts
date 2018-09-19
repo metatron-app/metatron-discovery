@@ -193,12 +193,6 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
       this.field = DashboardUtil.getFieldByName( this.widget.dashBoard, filter.dataSource, filter.field, filter.ref );
 
       if( this.field ) {
-
-        // 글로벌 필터 셋팅
-        if (widget.dashBoard.configuration.filters) {
-          this.globalFilters = widget.dashBoard.configuration.filters;
-        }
-
         // 필터 후보값 조회
         this._candidate( filter );
       } else {
