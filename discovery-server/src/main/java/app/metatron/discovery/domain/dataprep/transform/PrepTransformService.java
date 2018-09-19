@@ -1641,139 +1641,139 @@ public class PrepTransformService {
     List<ExprFunction> functionList = Lists.newArrayList();
 
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "length", "입력된 문자열의 길이를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "length", "msg.dp.ui.expression.functiondesc.string.length", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "upper", "입력된 문자열 내의 알파벳을 모두 대문자로 치환하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "upper", "msg.dp.ui.expression.functiondesc.string.upper", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "lower", "입력된 문자열 내의 알파벳을 모두 소문자로 치환하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "lower", "msg.dp.ui.expression.functiondesc.string.lower", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "trim", "입력된 문자열의 앞/뒤에 있는 공백을 제거하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "trim", "msg.dp.ui.expression.functiondesc.string.trim", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "ltrim", "입력된 문자열의 앞(왼쪽)에 있는 공백을 제거하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "ltrim", "msg.dp.ui.expression.functiondesc.string.ltrim", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "rtrim", "입력된 문자열의 뒤(오른쪽)에 있는 공백을 제거하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "rtrim", "msg.dp.ui.expression.functiondesc.string.rtrim", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "substring", "입력된 문자열의 일부를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "substring", "msg.dp.ui.expression.functiondesc.string.substring", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "concat", "입력된 복수의 문자열을 연결하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "concat", "msg.dp.ui.expression.functiondesc.string.concat", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "concat_ws", "입력된 복수의 문자열을 연결하면서 문자열 사이에 Separator(구분자)를 넣어 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "concat_ws", "msg.dp.ui.expression.functiondesc.string.concat_ws", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "if", "조건문을 검사하여 TRUE나 FALSE에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "if", "msg.dp.ui.expression.functiondesc.logical.if", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "ismismatched", "입력된 컬럼의 값과 타입이 일치하는지 판단합니다. 일치하면 TRUE, 아니면 FALSE를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "ismismatched", "msg.dp.ui.expression.functiondesc.logical.ismismatched", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnull", "입력된 컬럼의 값이 null 인지 판단합니다. null이면 TRUE, 아니면 FALSE를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnull", "msg.dp.ui.expression.functiondesc.logical.isnull", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnan", "입력된 값이 NaN(Not-a-Number) 인지 판단합니다. NaN이면 TRUE, 아니면 FALSE를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnan", "msg.dp.ui.expression.functiondesc.logical.isnan", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "year", "입력된 Timestamp 값에서 연도에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "year", "msg.dp.ui.expression.functiondesc.timestamp.year", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "month", "입력된 Timestamp 값에서 월에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "month", "msg.dp.ui.expression.functiondesc.timestamp.month", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "day", "입력된 Timestamp 값에서 일에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "day", "msg.dp.ui.expression.functiondesc.timestamp.day", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "hour", "입력된 Timestamp 값에서 시간에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "hour", "msg.dp.ui.expression.functiondesc.timestamp.hour", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "minute", "입력된 Timestamp 값에서 분에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "minute", "msg.dp.ui.expression.functiondesc.timestamp.minute", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "second", "입력된 Timestamp 값에서 초에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "second", "msg.dp.ui.expression.functiondesc.timestamp.second", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "millisecond", "입력된 Timestamp 값에서 밀리초(1/1000 초)에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "millisecond", "msg.dp.ui.expression.functiondesc.timestamp.millisecond", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "now", "입력된 Timezone 기준의 현재 시간을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "now", "msg.dp.ui.expression.functiondesc.timestamp.now", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "add_time", "입력된 Timestamp 값에 일정 Time unit 값을 더하거나 뺀 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "add_time", "msg.dp.ui.expression.functiondesc.timestamp.add_time", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "sum", "대상 값들의 합을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "sum", "msg.dp.ui.expression.functiondesc.aggregation.sum", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "avg", "대상 값들의 평균을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "avg", "msg.dp.ui.expression.functiondesc.aggregation.avg", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "max", "대상 값들 중 가장 큰 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "max", "msg.dp.ui.expression.functiondesc.aggregation.max", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "min", "대상 값들 중 가장 작은 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "min", "msg.dp.ui.expression.functiondesc.aggregation.min", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "count", "대상의 줄(row)수를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "count", "msg.dp.ui.expression.functiondesc.aggregation.count", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.abs", "입력된 값의 절대값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.abs", "msg.dp.ui.expression.functiondesc.math.abs", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.acos", "입력된 값의 아크코사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.acos", "msg.dp.ui.expression.functiondesc.math.acos", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.asin", "입력된 값의 아크사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.asin", "msg.dp.ui.expression.functiondesc.math.asin", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.atan", "입력된 값의 아크탄젠트 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.atan", "msg.dp.ui.expression.functiondesc.math.atan", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.cbrt", "입력된 값의 세제곱근 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cbrt", "msg.dp.ui.expression.functiondesc.math.cbrt", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.ceil", "입력된 값을 일의 배수가 되도록 올림한 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.ceil", "msg.dp.ui.expression.functiondesc.math.ceil", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.cos", "입력된 값의 코사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cos", "msg.dp.ui.expression.functiondesc.math.cos", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.cosh", "입력된 값의 하이퍼볼릭 코사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cosh", "msg.dp.ui.expression.functiondesc.math.cosh", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.exp", "자연 로그값 e를 입력된 값만큼 거듭제곱한 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.exp", "msg.dp.ui.expression.functiondesc.math.exp", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.expm1", "자연 로그값 e를 입력된 값만큼 거듭제곱한 값에서 1을 뺀 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.expm1", "msg.dp.ui.expression.functiondesc.math.expm1", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.getExponent", "입력된 값 N에 대하여 2exp <= N을 만족하는 exp 값 중 가장 큰 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.getExponent", "msg.dp.ui.expression.functiondesc.math.getExponent", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.round", "입력된 값을 일의 자리로 반올림 한 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.round", "msg.dp.ui.expression.functiondesc.math.round", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.signum", "입력된 값의 부호를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.signum", "msg.dp.ui.expression.functiondesc.math.signum", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.sin", "입력된 값의 사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sin", "msg.dp.ui.expression.functiondesc.math.sin", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.sinh", "입력된 값의 하이퍼볼릭 사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sinh", "msg.dp.ui.expression.functiondesc.math.sinh", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.sqrt", "입력된 값의 제곱근을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sqrt", "msg.dp.ui.expression.functiondesc.math.sqrt", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.tan", "입력된 값의 탄젠트 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.tan", "msg.dp.ui.expression.functiondesc.math.tan", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.tanh", "입력된 값의 하이퍼볼릭 탄젠트 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.tanh", "msg.dp.ui.expression.functiondesc.math.tanh", "")
     );
 
     return functionList;
