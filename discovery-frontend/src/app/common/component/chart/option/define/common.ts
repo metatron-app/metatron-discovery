@@ -496,6 +496,8 @@ export enum EventType {
   GRANULARITY = <any>'onChangeGranularity',
   // aggregation 변경시
   AGGREGATION = <any>'onChangeAggregationType',
+  // change chart type
+  CHART_TYPE = <any>'chartType',
   // filter changed
   FILTER = <any>'filter'
 }

@@ -455,6 +455,26 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+//  @Sql({"/scripts/default_datasource_ingestion_options.sql"})
+  public void findDataSourceIngestionOptions() {
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+//      .param("type", "tuning")
+      .param("ingestionType", "batch")
+      .log().all()
+    .when()
+      .get("/api/datasources/ingestion/options")
+    .then()
+//      .statusCode(HttpStatus.SC_OK)
+    .log().all();
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void getDataFromDataSources() {
 
     String datasourceId = "ds-37";

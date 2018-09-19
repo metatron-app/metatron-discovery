@@ -354,7 +354,7 @@
                      [ngStyle]="{'visibility': datagridCurList.length !== 0 ? 'visible':'hidden'}">
                   <div class="ddp-ui-setting">
                     <!-- 검색 -->
-                    <div class="ddp-form-search">
+                    <div class="ddp-form-search" [hidden]="isGridResultNoData">
                       <em class="ddp-icon-search"></em>
                       <input type="text"
                              placeholder="{{'msg.comm.search.col' | translate}}"
@@ -369,12 +369,12 @@
                       <!--| translate}}</a>-->
 
                     <!-- button -->
-                    <div class="ddp-ui-buttons">
+                    <div class="ddp-ui-buttons" [hidden]="isGridResultNoData">
                       <a href="javascript:" class="ddp-btn-link" (click)="createDatasourceTemporary()">
                         <em class="ddp-icon-chart"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>
-                          {{'msg.bench.btn.chart.preview' | translate}}
+                           {{'msg.bench.btn.chart.preview' | translate}}
                         </div>
                       </a>
                       <a *ngIf="isDataManager" href="javascript:" class="ddp-btn-link" (click)="createDatasource()">
@@ -438,7 +438,7 @@
                     </div>
                   </div>
                   <!--<span class="ddp-data-number">{{resultRow | numberCommas}} rows | {{resultTime}}</span>-->
-                  <span class="ddp-data-number">{{resultRow}} {{'msg.comm.detail.rows'|translate}}</span>
+                  <span class="ddp-data-number" [hidden]="isGridResultNoData">{{resultRow}} {{'msg.comm.detail.rows'|translate}}</span>
                 </div>
               </div>
               <!-- //결과 -->

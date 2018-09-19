@@ -1010,6 +1010,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       this.dashboard.id, { configuration: DashboardUtil.getBoardConfiguration(this.dashboard) }
     ).then((result) => {
       if (result.hasOwnProperty('configuration')) {
+        result = DashboardUtil.convertSpecToUI( result );
         this.dashboard = DashboardUtil.updateBoardConfiguration(this.dashboard, result.configuration);
         this.dashboard.updateId = CommonUtil.getUUID();
         this.broadCaster.broadcast('SET_CUSTOM_FIELDS', { customFields: customFields });
@@ -1121,7 +1122,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     this.dashboard = DashboardUtil.updateBoardFilter(this.dashboard, filter, true);
     this._organizeAllFilters(true).then(() => {
       this._syncFilterWidget();
-      this.broadCaster.broadcast('SET_EXTERNAL_FILTER', { filters: DashboardUtil.getBoardFilters(this.dashboard) });
+
       this._configFilterComp.close();
       this.hideBoardLoading();
       if (isSetPanel) {
@@ -1183,7 +1184,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
         // 위젯 필터 재설정
         this._syncFilterWidget();
-        this.broadCaster.broadcast('SET_EXTERNAL_FILTER', { filters: DashboardUtil.getBoardFilters(this.dashboard) });
         this.popupService.notiFilter({ name: 'remove-filter', data: filter });
       }
     } else {
@@ -1203,7 +1203,6 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
     // 위젯 필터 재설정
     this._syncFilterWidget();
-    this.broadCaster.broadcast('SET_EXTERNAL_FILTER', { filters: DashboardUtil.getBoardFilters(this.dashboard) });
     this.popupService.notiFilter({ name: 'remove-filter', data: filter });
   } // function - deleteFilter
 
@@ -1278,6 +1277,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   private _syncWidgetsAndFilters(customFields: CustomField[], fields: Field[], changeWidgetId: string) {
 
+    customFields = CommonUtil.objectToArray( customFields );
+
     // 사용자 정의 필드를 위젯에 셋팅
     DashboardUtil.getPageWidgets(this.dashboard).forEach((widget: Widget) => {
       // 위젯 사용자 정의 필드 정보 수정
@@ -1293,13 +1294,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       }
     });
     this._organizeAllFilters(true).then(() => {
-      this._syncFilterWidget();
-
-      // 생성된 위젯을 제외하고 차트 갱신
-      this.broadCaster.broadcast('SET_EXTERNAL_FILTER', {
-        filters: DashboardUtil.getBoardFilters(this.dashboard),
-        excludeWidgetId: changeWidgetId
-      });
+      this._syncFilterWidget( changeWidgetId );
     });
 
   } // function - _syncWidgetsAndFilters
@@ -1509,6 +1504,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @private
    */
   private _callUpdateDashboardService(imageUrl) {
+
     // params
     const param: any = { configuration: DashboardUtil.getBoardConfiguration(this.dashboard) };
     param.imageUrl = imageUrl;
@@ -1549,22 +1545,35 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   } // function - _callUpdateDashboardService
 
   /**
-   * 필터와 필터 위젯 동기화 - 필터 삭제할 경우 해당 필터 위젯 삭제
+   * Synchronize filter and filter widget - Delete filter widget when deleting filter
+   * @param {string} excludeWidgetId
    * @private
    */
-  private _syncFilterWidget() {
+  private _syncFilterWidget( excludeWidgetId?:string ) {
 
-    // 체크하여 필터 위젯이 필터에 존재하지 않는(제거된) 필터로 생성된 경우 제
+    const boardFilters:Filter[] = DashboardUtil.getBoardFilters(this.dashboard);
+    // Compares the filter widget with the filter information and deletes it for widgets that do not have filter information.
     this.getWidgetComps().forEach((widgetComp) => {
       if (widgetComp.isFilterWidget) {
-        const filter = widgetComp.getWidget().configuration['filter'];
-        const gIdx = _.findIndex(DashboardUtil.getBoardFilters(this.dashboard), { field: filter.field });
+        const filterWidget:FilterWidget = <FilterWidget>widgetComp.getWidget();
+        const filter = boardFilters.find( item => DashboardUtil.isSameFilterAndWidget( this.dashboard, item, filterWidget ) );
 
-        if (-1 === gIdx) {
+        if ( filter ) {
+          filterWidget.configuration.filter = filter;
+          this.dashboard = DashboardUtil.updateWidget( this.dashboard, filterWidget );
+          this.broadCaster.broadcast('SET_WIDGET_CONFIG', {
+            widgetId: filterWidget.id,
+            config: filterWidget.configuration
+          });
+        } else {
           this.removeWidget(widgetComp.getWidgetId());
         }
       }
     });
+
+    const boardCastData = { filters: boardFilters };
+    ( excludeWidgetId ) && ( boardCastData['excludeWidgetId'] = excludeWidgetId );
+    this.broadCaster.broadcast('SET_EXTERNAL_FILTER', boardCastData );
 
   } // function - syncFilterWidget
 

@@ -75,6 +75,10 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultRes
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionPredicate;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionProjections;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionRepository;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.engine.EngineLoadService;
 import app.metatron.discovery.domain.engine.EngineQueryService;
@@ -118,6 +122,9 @@ public class DataSourceController {
 
   @Autowired
   DataConnectionRepository dataConnectionRepository;
+
+  @Autowired
+  IngestionOptionRepository ingestionOptionRepository;
 
   @Autowired
   DataSourceService dataSourceService;
@@ -615,6 +622,33 @@ public class DataSourceController {
 
     return ResponseEntity.ok(pagedResourcesAssembler.toResource(results));
   }
+
+  /**
+   * Get list fo option for datasource ingestion
+   *
+   * @return
+   */
+  @RequestMapping(value = "/datasources/ingestion/options", method = RequestMethod.GET)
+  public ResponseEntity<?> findIngestionOptions(@RequestParam(value = "type", required = false) String type,
+                                                @RequestParam(value = "ingestionType", required = false) String ingestionType) {
+
+    // Validate type
+    IngestionOption.OptionType optionEnumType = SearchParamValidator
+        .enumUpperValue(IngestionOption.OptionType.class, type, "type");
+
+    // Validate ingestionType
+    IngestionOption.IngestionType ingestionEnumType = SearchParamValidator
+        .enumUpperValue(IngestionOption.IngestionType.class, ingestionType, "ingestionType");
+
+    Iterable<IngestionOption> resultOptions = ingestionOptionRepository.findAll(
+        IngestionOptionPredicate.searchList(optionEnumType, ingestionEnumType)
+    );
+
+    return ResponseEntity.ok(ProjectionUtils.toListResource(projectionFactory,
+                                                            IngestionOptionProjections.DefaultProjection.class,
+                                                            Lists.newArrayList(resultOptions)));
+  }
+
 
   /**
    * datetime 포맷 유효성을 체크합니다.

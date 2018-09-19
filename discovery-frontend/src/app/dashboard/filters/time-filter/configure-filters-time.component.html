@@ -23,7 +23,7 @@
   <div class="ddp-toggle">
     <ul class="ddp-list-buttons">
       <li (click)="setTimeAllFilter()" [class.ddp-selected]="isAllType">All time</li>
-      <li *ngIf="isLiveStatus" (click)="setTimeRelativeFilter()" [class.ddp-selected]="isRelativeType">Relative</li>
+      <li (click)="setTimeRelativeFilter()" [class.ddp-selected]="isRelativeType">Relative</li>
       <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeType">Specific</li>
     </ul>
   </div>
@@ -48,7 +48,7 @@
   </div>
   <!-- // 탭별 내용 영역 -->
 </div>
-<div *ngIf="isLiveStatus && isShow && !isDiscontinuousFilter && !isContinuousByAll">
+<div *ngIf="isShow && !isDiscontinuousFilter && !isContinuousByAll">
   <!-- 선택 범위 표시 영역 -->
   <timeUnit-select *ngIf="isShowGranularitySelect && targetFilter"
                       [mode]="'CHANGE'" [filter]="targetFilter"
@@ -80,7 +80,7 @@
 </div>
 <!-- // 연속 형식 -->
 <!-- 불연속 형식 -->
-<div *ngIf="isLiveStatus && isShow && isDiscontinuousFilter">
+<div *ngIf="isShow && isDiscontinuousFilter">
   <!-- summary -->
   <timeUnit-select *ngIf="isShowGranularitySelect && targetFilter"
                       [mode]="'CHANGE'" [filter]="targetFilter"

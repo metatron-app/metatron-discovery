@@ -65,6 +65,7 @@ import { isNullOrUndefined } from 'util';
 import { TimeListFilter } from '../../../domain/workbook/configurations/filter/time-list-filter';
 import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
 import { Datasource, Field } from '../../../domain/datasource/datasource';
+import { CommonUtil } from '../../../common/util/common.util';
 
 declare let $;
 
@@ -1221,7 +1222,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 선반 데이터 설정
     for (let field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
-      // delete field['field'];
+      delete field['field'];
       delete field['currentPivot'];
       delete field['granularity'];
       delete field['segGranularity'];
@@ -1241,6 +1242,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         FilterUtil.isTimeRangeFilter(item) ||
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
+
+    cloneQuery.userFields = CommonUtil.objectToArray( cloneQuery.userFields );
 
     return cloneQuery;
   } // function - _makeSearchQueryParam

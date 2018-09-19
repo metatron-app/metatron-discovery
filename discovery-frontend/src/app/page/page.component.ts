@@ -85,6 +85,7 @@ import { SecondaryIndicatorComponent } from './chart-style/secondary-indicator.c
 import { DataLabelOptionComponent } from './chart-style/datalabel-option.component';
 import { DashboardUtil } from '../dashboard/util/dashboard.util';
 import { BoardConfiguration } from '../domain/dashboard/dashboard';
+import { CommonUtil } from '../common/util/common.util';
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -172,7 +173,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   @ViewChild(LineChartComponent)
   private lineChartComponent: LineChartComponent;
 
-  private selectChartSource: Subject<string> = new Subject<string>();
+  private selectChartSource: Subject<Object> = new Subject<Object>();
   private selectChart$ = this.selectChartSource.asObservable().debounceTime(100);
 
   // page data 하위의 context menu
@@ -385,7 +386,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.recommendChart();
     }
 
-    this.selectChartSource.next(chartType);
+    this.selectChartSource.next({chartType : chartType, type : EventType.CHART_TYPE});
 
   }
 
@@ -492,11 +493,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     this.subscriptions.push(windowResizeSubscribe);
 
-    const changeChartSubs = this.selectChart$.subscribe((chartType) => {
-      if (chartType !== '') {
-        this.drawChart(() => {
-          this.chartResize();
-        });
+    const changeChartSubs = this.selectChart$.subscribe((param) => {
+      if (param['chartType'] !== '') {
+        this.drawChart({type : param['type']});
       }
     });
 
@@ -1757,10 +1756,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // 필터 업데이트
     if (!this.isNewWidget()) {
       // 글로벌 필터 업데이트
-      const widget = {
-        configuration: _.cloneDeep(this.originalWidgetConfiguration)
-      };
+      const widget = { configuration: _.cloneDeep(this.originalWidgetConfiguration) };
       widget.configuration['filters'] = this.widgetConfiguration.filters;
+
+      // 스펙 변경
+      widget.configuration = DashboardUtil.convertPageWidgetSpecToServer(widget.configuration);
+      // 필터 설정
+      for (let filter of widget.configuration['filters']) {
+        filter = FilterUtil.convertToServerSpecForDashboard(filter);
+      }
 
       this.loadingShow();
       this.widgetService.updateWidget(this.widget.id, widget).then((page: Widget) => {
@@ -3608,6 +3612,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         FilterUtil.isTimeRangeFilter(item) ||
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
+
+    cloneQuery.userFields = CommonUtil.objectToArray( cloneQuery.userFields );
 
     return cloneQuery;
   }

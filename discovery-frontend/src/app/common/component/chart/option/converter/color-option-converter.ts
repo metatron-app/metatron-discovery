@@ -245,7 +245,7 @@ export class ColorOptionConverter {
     if (_.isUndefined(option.visualMap)) option.visualMap = OptionGenerator.VisualMap.continuousVisualMap();
 
     // get axis baseline
-    const valueAxis = AxisLabelType.COLUMN == uiOption.yAxis.mode ? uiOption.yAxis : uiOption.xAxis;
+    const valueAxis = !uiOption.yAxis ? null : AxisLabelType.COLUMN == uiOption.yAxis.mode ? uiOption.yAxis : uiOption.xAxis;
 
     // 색상 리스트 적용
     option.visualMap.color = <any>codes;
@@ -268,7 +268,7 @@ export class ColorOptionConverter {
         }
 
         // deduct baseline value in range
-        if (null !== valueAxis.baseline && undefined !== valueAxis.baseline) {
+        if (valueAxis && null !== valueAxis.baseline && undefined !== valueAxis.baseline) {
           item.fixMin = null == item.fixMin ? null : item.fixMin - valueAxis.baseline;
           item.fixMax = null == item.fixMax ? null : item.fixMax - valueAxis.baseline;
           item.gt = null == item.gt ? null : item.gt - valueAxis.baseline;
