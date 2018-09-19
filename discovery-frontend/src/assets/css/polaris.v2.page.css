@@ -4645,10 +4645,13 @@ ul.ddp-list-rule2 li .ddp-view-data.ddp-edit .ddp-ui-edit-button .ddp-btn-link {
 
 ul.ddp-list-rule2 li .ddp-view-data.ddp-edit .ddp-btn-icon {display:none;}
 ul.ddp-list-rule2 li .ddp-view-data.ddp-edit .ddp-btn-link {display:block;}
-ul.ddp-list-rule2 li .ddp-wrap-line-add {position:absolute; left:0; right:0; top:100%;cursor:pointer; padding:6px 0 0 0; height:6px; box-sizing:border-box; overflow:hidden; z-index:10; }
+ul.ddp-list-rule2 li .ddp-wrap-line-add {position:absolute; left:0; right:0; top:100%;cursor:pointer; padding:6px 0 0 0; height:6px; box-sizing:border-box; overflow:hidden; z-index:10;}
 
 ul.ddp-list-rule2 li .ddp-wrap-line-add.ddp-top {position:absolute; top:0px; }
-ul.ddp-list-rule2 li .ddp-wrap-line-add:hover{position:relative; height:auto; padding-top:0; clear:both; }
+ul.ddp-list-rule2 li .ddp-wrap-line-add:hover{position:relative; height:29px; padding-top:0; clear:both;
+  -webkit-transition: height 0.2s; /* Safari */
+  transition: height 0.2s;
+}
 ul.ddp-list-rule2 li .ddp-wrap-line-add .ddp-line-add {display:block; background-color:#ebecf4;}
 ul.ddp-list-rule2 li .ddp-wrap-line-add .ddp-input-info {display:none; border-top:1px solid #fff; padding:6px 20px 7px 20px; color:rgba(102, 111, 173, 0.5); font-size:13px; background-color:#ebecf4;}
 ul.ddp-list-rule2 li .ddp-wrap-line-add .ddp-input-info .ddp-link-cancel {float:right; color:#90969f; font-size:12px; text-decoration:underline; font-style:italic;}

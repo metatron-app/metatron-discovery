@@ -155,7 +155,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'drop', alias: 'Dp'},
       { command: 'pivot', alias: 'Pv'},
       { command: 'unpivot', alias: 'Up'},
-      { command: 'join', alias: 'Jo'},
+      { command: 'Join', alias: 'Jo'},
       { command: 'extract', alias: 'Ex'},
       { command: 'flatten', alias: 'Fl'},
       { command: 'merge', alias: 'Me'},
@@ -164,7 +164,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'aggregate', alias: 'Ag'},
       { command: 'sort', alias: 'So'},
       { command: 'move', alias: 'Mv'},
-      { command: 'union', alias: 'Ui'},
+      { command: 'Union', alias: 'Ui'},
       { command: 'setformat', alias: 'Sf'}
     ];
 
