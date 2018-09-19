@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.thymeleaf.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.query.druid.Aggregation;
@@ -25,7 +26,7 @@ public class AggregationExtension implements DruidExtension {
 
   String boundary;
 
-  String boundaryJoin;
+  Map<String,Object> boundaryJoin;
 
   @JsonCreator
   public AggregationExtension(
@@ -34,7 +35,7 @@ public class AggregationExtension implements DruidExtension {
       @JsonProperty("aggregators") List<Aggregation> aggregators,
       @JsonProperty("postAggregators") List<PostAggregation> postAggregators,
       @JsonProperty("boundary") String boundary,
-      @JsonProperty("boundaryJoin") String boundaryJoin) {
+      @JsonProperty("boundaryJoin") Map<String,Object> boundaryJoin) {
     this.virtualColumns = virtualColumns;
     this.dimensions = dimensions;
     this.aggregators = aggregators;
@@ -63,7 +64,7 @@ public class AggregationExtension implements DruidExtension {
     return boundary;
   }
 
-  public String getBoundaryJoin() {
+  public Map<String, Object> getBoundaryJoin() {
     return boundaryJoin;
   }
 

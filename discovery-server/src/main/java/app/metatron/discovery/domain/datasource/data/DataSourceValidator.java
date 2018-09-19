@@ -34,6 +34,7 @@ import app.metatron.discovery.domain.workbook.configurations.datasource.DataSour
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.JoinMapping;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
+import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
@@ -58,61 +59,7 @@ public class DataSourceValidator {
   public DataSourceValidator() {
   }
 
-  public void validateQuery(DataSource dataSource) {
-
-    app.metatron.discovery.domain.datasource.DataSource metaDataSource = null;
-
-    // 임시 데이터 소스일 경우 처리 추가
-    if (BooleanUtils.isTrue(dataSource.getTemporary())) {
-      DataSourceTemporary temporaryDataSource = temporaryRepository.findByName(dataSource.getName());
-      if (temporaryDataSource == null) {
-        LOGGER.error("Temporary DataSource({}) not found.", dataSource.getName());
-        throw new IllegalArgumentException("Temporary DataSource( " + dataSource.getName() + ") not found.");
-      }
-      metaDataSource = dataSourceRepository.findByIdIncludeConnection(temporaryDataSource.getDataSourceId());
-    } else {
-      metaDataSource = dataSourceRepository.findByEngineName(dataSource.getName());
-    }
-
-    if (metaDataSource == null) {
-      LOGGER.error("DataSource({}) not found.", dataSource.getName());
-      throw new IllegalArgumentException("DataSource(" + dataSource.getName() + ") not found.");
-    } else {
-      dataSource.setMetaDataSource(metaDataSource);
-    }
-
-    if (dataSource instanceof DefaultDataSource) {
-      return;
-    }
-
-    MappingDataSource mappingDataSource = (MappingDataSource) dataSource;
-    mappingDataSource.getJoins().forEach(joinMapping -> visitJoinMapping(joinMapping));
-
-  }
-
   public void validateQuery(QueryRequest queryRequest) {
-
-    DataSource queryDataSource = queryRequest.getDataSource();
-    app.metatron.discovery.domain.datasource.DataSource metaDataSource = null;
-
-    // 임시 데이터 소스일 경우 처리 추가
-    if (BooleanUtils.isTrue(queryDataSource.getTemporary())) {
-      DataSourceTemporary temporaryDataSource = temporaryRepository.findByName(queryDataSource.getName());
-      if (temporaryDataSource == null) {
-        LOGGER.error("Temporary DataSource({}) not found.", queryDataSource.getName());
-        throw new IllegalArgumentException("Temporary DataSource( " + queryDataSource.getName() + ") not found.");
-      }
-      metaDataSource = dataSourceRepository.findByIdIncludeConnection(temporaryDataSource.getDataSourceId());
-    } else {
-      metaDataSource = dataSourceRepository.findByEngineName(queryDataSource.getName());
-    }
-
-    if (metaDataSource == null) {
-      LOGGER.error("DataSource({}) not found.", queryDataSource.getName());
-      throw new IllegalArgumentException("DataSource(" + queryDataSource.getName() + ") not found.");
-    } else {
-      queryDataSource.setMetaDataSource(metaDataSource);
-    }
 
     if (queryRequest.getAliases() == null & StringUtils.isNotEmpty(queryRequest.getValueAliasRef())) {
       queryRequest.addAlias(new ValueRefAlias(queryRequest.getValueAliasRef()));
@@ -154,12 +101,45 @@ public class DataSourceValidator {
       }
     }
 
+    validateQuery(queryRequest.getDataSource());
 
-    if (queryDataSource instanceof DefaultDataSource) {
+  }
+
+  public void validateQuery(DataSource dataSource) {
+
+    if(dataSource instanceof MultiDataSource) {
+      MultiDataSource multiDataSource = (MultiDataSource) dataSource;
+      for (DataSource source : multiDataSource.getDataSources()) {
+        validateQuery(source);
+      }
       return;
     }
 
-    MappingDataSource mappingDataSource = (MappingDataSource) queryDataSource;
+    app.metatron.discovery.domain.datasource.DataSource metaDataSource = null;
+
+    if (BooleanUtils.isTrue(dataSource.getTemporary())) {
+      DataSourceTemporary temporaryDataSource = temporaryRepository.findByName(dataSource.getName());
+      if (temporaryDataSource == null) {
+        LOGGER.error("Temporary DataSource({}) not found.", dataSource.getName());
+        throw new IllegalArgumentException("Temporary DataSource( " + dataSource.getName() + ") not found.");
+      }
+      metaDataSource = dataSourceRepository.findByIdIncludeConnection(temporaryDataSource.getDataSourceId());
+    } else {
+      metaDataSource = dataSourceRepository.findByEngineName(dataSource.getName());
+    }
+
+    if (metaDataSource == null) {
+      LOGGER.error("DataSource({}) not found.", dataSource.getName());
+      throw new IllegalArgumentException("DataSource(" + dataSource.getName() + ") not found.");
+    } else {
+      dataSource.setMetaDataSource(metaDataSource);
+    }
+
+    if (dataSource instanceof DefaultDataSource) {
+      return;
+    }
+
+    MappingDataSource mappingDataSource = (MappingDataSource) dataSource;
     mappingDataSource.getJoins().forEach(joinMapping -> visitJoinMapping(joinMapping));
 
   }

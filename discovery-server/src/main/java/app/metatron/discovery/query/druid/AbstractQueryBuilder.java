@@ -44,6 +44,7 @@ import app.metatron.discovery.domain.workbook.configurations.datasource.DataSour
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.JoinMapping;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
+import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MapField;
@@ -139,6 +140,11 @@ public abstract class AbstractQueryBuilder {
   protected List<app.metatron.discovery.domain.datasource.DataSource> joinMetaDataSources = Lists.newArrayList();
 
   /**
+   * Meta-info Map (for multi-datasource)
+   */
+  protected Map<String, app.metatron.discovery.domain.datasource.DataSource> metaDataSourceMap = Maps.newHashMap();
+
+  /**
    * Meta field map in meta-datasources
    */
   protected Map<String, app.metatron.discovery.domain.datasource.Field> metaFieldMap = Maps.newLinkedHashMap();
@@ -200,17 +206,25 @@ public abstract class AbstractQueryBuilder {
     this.dataSource = dataSource;
 
     // Segmentmeta Query 의 경우 별로 datasource 메타정보가 필요없는 경우가 존재함
-    if (dataSource.getMetaDataSource() == null) {
+    if (dataSource.getMetaDataSource() == null
+        && !(dataSource instanceof MultiDataSource)) {
       return;
     }
 
-    mainMetaDataSource = dataSource.getMetaDataSource();
 
-    // 데이터 소스 MetaFieldMap
+    // make list of field
     if (dataSource instanceof DefaultDataSource) {
+      mainMetaDataSource = dataSource.getMetaDataSource();
       metaFieldMap.putAll(mainMetaDataSource.getMetaFieldMap(false, ""));
 
+    } else if(dataSource instanceof MultiDataSource) {
+      MultiDataSource multiDataSource = (MultiDataSource) dataSource;
+      for (DataSource source : multiDataSource.getDataSources()) {
+        metaFieldMap.putAll(source.getMetaDataSource().getMetaFieldMap(true, null));
+        metaDataSourceMap.put(source.getName(), source.getMetaDataSource());
+      }
     } else {
+      mainMetaDataSource = dataSource.getMetaDataSource();
 
       MappingDataSource mappingDataSource = (MappingDataSource) dataSource;
 
@@ -529,7 +543,7 @@ public abstract class AbstractQueryBuilder {
 
   protected void addAggregationFunction(MeasureField measureField) {
 
-    String fieldName = measureField.getColunm();
+    String fieldName = dataSource instanceof MultiDataSource ? measureField.getName() : measureField.getColunm();
     String aliasName = measureField.getAlias();
     String paramName = null;
     String dataType = "double";
@@ -557,7 +571,8 @@ public abstract class AbstractQueryBuilder {
         String countField = measureField.getRef() == null ? "count" : measureField.getRef() + "." + "count";
         aggregations.add(new GenericSumAggregation(fieldName + "_sum", fieldName, dataType));
 
-        if(dataSource.getMetaDataSource().rollup()) {
+        if(!(dataSource instanceof MultiDataSource)
+            && dataSource.getMetaDataSource().rollup()) {
           aggregations.add(new GenericSumAggregation("count", countField, dataType));
         } else {
           aggregations.add(new CountAggregation("count"));
