@@ -181,9 +181,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
   public _selectCommand(command) {
 
     if (!(command.children && 0 < command.children.length)) { // 하위 메뉴가 있으면 클릭 불가
-      let rule = {
-        op: "APPEND"
-      };
+      let rule = {};
       switch(command.command) {
         case 'rename':
           rule['more'] = { command : 'rename', col : this.selectedColumnName};

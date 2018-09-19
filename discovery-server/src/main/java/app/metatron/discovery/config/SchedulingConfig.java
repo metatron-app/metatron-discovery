@@ -14,6 +14,14 @@
 
 package app.metatron.discovery.config;
 
+import app.metatron.discovery.common.scheduling.AutowiringSpringBeanJobFactory;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJob;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceIngestionCheckJob;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceSizeCheckJob;
+import app.metatron.discovery.domain.scheduling.engine.TemporaryCleanJob;
+import app.metatron.discovery.domain.scheduling.ingestion.IncrementalIngestionJob;
+import app.metatron.discovery.domain.scheduling.mdm.CalculatePopularityJob;
+import app.metatron.discovery.domain.scheduling.notebook.KillNotebookKernelJob;
 import org.quartz.spi.JobFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,15 +35,6 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
-
-import app.metatron.discovery.common.scheduling.AutowiringSpringBeanJobFactory;
-import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJob;
-import app.metatron.discovery.domain.scheduling.engine.DataSourceIngestionCheckJob;
-import app.metatron.discovery.domain.scheduling.engine.DataSourceSizeCheckJob;
-import app.metatron.discovery.domain.scheduling.engine.TemporaryCleanJob;
-import app.metatron.discovery.domain.scheduling.ingestion.IncrementalIngestionJob;
-import app.metatron.discovery.domain.scheduling.mdm.CalculatePopularityJob;
-import app.metatron.discovery.domain.scheduling.notebook.KillNotebookKernelJob;
 
 /**
  * Created by kyungtaak on 2016. 6. 21..
@@ -79,7 +78,7 @@ public class SchedulingConfig {
     schedulerFactoryBean.setJobDetails(dataSourceCheckJob().getObject(),
                                        dataSourceIngestionCheckJob().getObject(),
                                        dataSourceSizeCheckJob().getObject(),
-                                       increamentalJob().getObject(),
+                                       incrementalJob().getObject(),
                                        tempDataSourceCleanJob().getObject(),
                                        calculatePopularityJob().getObject(),
                                        notebookKillKernelJob().getObject());
@@ -94,7 +93,7 @@ public class SchedulingConfig {
   }
 
   @Bean
-  public JobDetailFactoryBean increamentalJob() {
+  public JobDetailFactoryBean incrementalJob() {
     JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
     jobDetailFactory.setName("incremental-ingestion");
     jobDetailFactory.setGroup(JOB_GROUP_INGESTION);

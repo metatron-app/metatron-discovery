@@ -144,6 +144,10 @@ export class NotebookComponent extends AbstractComponent implements OnInit {
 
             this.setNotebookName();
             this.setNotebookDescription();
+
+            // Send statistics data
+            this.sendViewActivityStream( this.selectedModelId, 'NOTEBOOK' );
+
           }).catch((error) => {
             this.loadingHide();
             Alert.error(error.error_description);
