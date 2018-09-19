@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.images;
 
+import app.metatron.discovery.util.PolarisUtils;
 import org.imgscalr.Scalr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,16 +30,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.imageio.ImageIO;
+import javax.validation.Valid;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-
-import javax.imageio.ImageIO;
-import javax.validation.Valid;
-
-import app.metatron.discovery.util.PolarisUtils;
 
 /**
  * Created by kyungtaak on 2016. 7. 21..
@@ -117,7 +115,7 @@ public class ImageController {
   }
 
   @RequestMapping(path = "/images/load/url", method = RequestMethod.GET,
-          produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
+          produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE, MediaType.ALL_VALUE})
   public ResponseEntity<?> getImageByUrl(@RequestParam("url") String url) {
 
     Image image = imageService.loadImageByImageUrl(url);
