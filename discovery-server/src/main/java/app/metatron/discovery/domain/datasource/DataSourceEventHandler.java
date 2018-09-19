@@ -170,7 +170,7 @@ public class DataSourceEventHandler {
     IngestionInfo info = dataSource.getIngestionInfo();
     if (scheduler != null && info instanceof BatchIngestionInfo) {
       // 초기 Ingestion 결과 확인
-      JobKey jobKey = new JobKey("incremental", "ingestion");
+      JobKey jobKey = new JobKey("incremental-ingestion", "ingestion");
       TriggerKey triggerKey = new TriggerKey(dataSource.getId(), "ingestion");
 
       JobDataMap map = new JobDataMap();

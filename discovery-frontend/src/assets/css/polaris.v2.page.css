@@ -1874,7 +1874,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-wrap-option-radio .ddp-label-radio span.ddp-txt-radio {font-size:12px;}
 .ddp-box-option-input {position:relative; padding-right:20px; border:1px solid #d0d1d9; background-color:#fff;}
 .ddp-box-option-input input[type="text"],
-.ddp-box-option-input input[type="number"] {display:block; width:100%; padding:7px 5px 6px 5px; border:none; text-align:left; box-sizing:border-box; box-sizing:border-box;}
+.ddp-box-option-input input[type="number"] {display:block; width:100%; padding:6px 5px 7px 5px; border:none; text-align:left; box-sizing:border-box; box-sizing:border-box;}
 .ddp-box-option-input input[type="text"]:disabled {background:none; color:#bdc0c9;}
 
 
@@ -6433,6 +6433,7 @@ table.ddp-table-simple tr td .ddp-ui-action {height:30px; white-space:normal; ov
 .ddp-box-editer a.ddp-btn-beautifier {position:relative; float:left; width:32px; height:32px;  background:rgba(75,81,91,0.05); margin-right:2px;}
 .ddp-box-editer a.ddp-btn-beautifier:hover .ddp-ui-tooltip-info {display:block;}
 .ddp-box-editer a.ddp-btn-beautifier:before {display:inline-block; content:''; position:absolute; top:50%; left:50%; width:21px; height:18px; margin:-10px 0 0 -9px; background:url(../images/icon_query.png) no-repeat; background-position:left -70px;}
+.ddp-box-editer a.ddp-btn-beautifier:hover:before {background-position:right -70px;}
 
 .ddp-box-editer .ddp-wrap-question {position:relative;float:left;}
 .ddp-box-editer .ddp-wrap-question a.ddp-btn-question {position:relative; float:left; width:32px; height:32px; margin-left:3px;  background:rgba(75,81,91,0.05); margin-right:2px;}
@@ -6973,6 +6974,7 @@ ddp-box-source-create.ddp-box-type .ddp-wrap-edit3.ddp-type .ddp-type-selectbox 
 [class*="ddp-wrap-edit"] .ddp-box-sub .ddp-box-sub-option .ddp-label-type {width:100%;}
 [class*="ddp-wrap-edit"] .ddp-box-sub .ddp-box-sub-option .ddp-option-in label.ddp-label-radio + label.ddp-label-radio {margin-left:28px;}
 [class*="ddp-wrap-edit"] .ddp-box-sub .ddp-box-sub-option .ddp-label-radio + .ddp-box-option-input {top:-5px; }
+[class*="ddp-wrap-edit"] .ddp-box-sub .ddp-box-sub-option .ddp-label-radio + .ddp-box-option-input + .ddp-txt-error {position:relative; top:-5px; margin-left:5px;}
 /* 삭제 예정 */
 .ddp-box-sub .ddp-wrap-boxdata {width:100%;}
 .ddp-box-sub .ddp-wrap-boxdata + .ddp-wrap-boxdata {padding-top:20px;}
@@ -6994,6 +6996,11 @@ table.ddp-wrap-boxdata tr td ul.ddp-list-sub li:before {display:inline-block; po
 table.ddp-wrap-boxdata tr td ul.ddp-list-sub li .ddp-sub {padding-left:15px;color:#b7bac1; font-size:12px; line-height:20px;}
 .ddp-wrap-edit3 .ddp-box-sub .ddp-option-in .ddp-size-s,
 .ddp-wrap-edit2 .ddp-box-sub .ddp-option-in .ddp-size-s{width:80px; box-sizing:border-box;}
+
+.ddp-wrap-edit2 .ddp-box-sub .ddp-option-in .ddp-size-sm {width:110px;}
+
+.ddp-wrap-edit2 .ddp-box-sub .ddp-option-in.ddp-inline .ddp-size-sm {display:inline-block; margin-right:5px;}
+
 .ddp-wrap-edit3 .ddp-box-sub .ddp-option-in input.ddp-input-typebasic {display:inline-block;}
 
 .ddp-wrap-edit3.ddp-type .ddp-ui-cycle .ddp-wrap-hover-info:hover .ddp-box-layout4 {right:-20px; top:100%; margin-top:5px;}

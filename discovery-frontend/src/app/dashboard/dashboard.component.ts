@@ -381,6 +381,9 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     const dashboard = this.dashboard;
     if (dashboard) {
 
+      // Send statistics data
+      this.sendViewActivityStream( dashboard.id, 'DASHBOARD' );
+
       // Linked Datasource 인지 그리고 데이터소스가 적재되었는지 여부를 판단함
       const mainDsList:Datasource[] = DashboardUtil.getMainDataSources( dashboard );
 

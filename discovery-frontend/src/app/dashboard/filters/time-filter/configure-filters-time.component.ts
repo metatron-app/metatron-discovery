@@ -113,13 +113,6 @@ export class ConfigureFiltersTimeComponent extends AbstractFilterPopupComponent 
     this.safelyDetectChanges();
     this._setStatus();
 
-    if (!this.isLiveStatus) {
-      if( this.isRelativeType ) {
-        delete this.targetFilter.timeUnit;
-        this.setTimeAllFilter();
-      }
-    }
-
   } // function - showComponent
 
   /**
