@@ -1010,6 +1010,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       this.dashboard.id, { configuration: DashboardUtil.getBoardConfiguration(this.dashboard) }
     ).then((result) => {
       if (result.hasOwnProperty('configuration')) {
+        result = DashboardUtil.convertSpecToUI( result );
         this.dashboard = DashboardUtil.updateBoardConfiguration(this.dashboard, result.configuration);
         this.dashboard.updateId = CommonUtil.getUUID();
         this.broadCaster.broadcast('SET_CUSTOM_FIELDS', { customFields: customFields });
@@ -1501,6 +1502,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @private
    */
   private _callUpdateDashboardService(imageUrl) {
+
     // params
     const param: any = { configuration: DashboardUtil.getBoardConfiguration(this.dashboard) };
     param.imageUrl = imageUrl;

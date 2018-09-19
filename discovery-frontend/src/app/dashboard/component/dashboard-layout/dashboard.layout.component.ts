@@ -1201,37 +1201,8 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       let result: [Dashboard, Datasource] = this._setDatasourceForDashboard(boardInfo);
       boardInfo = result[0];
 
-      // 이전 데이터를 현재 데이터에 맞게 변경
-      {
-        const filters: Filter[] = DashboardUtil.getBoardFilters(boardInfo);
-        if (filters && 0 < filters.length) {
-          filters.forEach((filter: Filter) => {
-            const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
-            (filterDs) && (filter.dataSource = filterDs.engineName);
-
-            if (isNullOrUndefined(filter.dataSource)) {
-              const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
-              (fieldDs) && (filter.dataSource = fieldDs.engineName);
-            }
-
-          });
-        }
-        const widgets: Widget[] = boardInfo.widgets;
-        if (widgets && 0 < widgets.length) {
-          widgets.forEach((widget: Widget) => {
-            if ('filter' === widget.type) {
-              const filter: Filter = (<FilterWidget>widget).configuration.filter;
-              const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
-              (filterDs) && (filter.dataSource = filterDs.engineName);
-
-              if (isNullOrUndefined(filter.dataSource)) {
-                const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
-                (fieldDs) && (filter.dataSource = fieldDs.engineName);
-              }
-            }
-          });
-        }
-      }
+      // Data migration
+      boardInfo = DashboardUtil.convertSpecToUI( boardInfo );
 
       // 글로벌 필터 셋팅
       this.initializeFilter(boardInfo).then((boardData) => {
