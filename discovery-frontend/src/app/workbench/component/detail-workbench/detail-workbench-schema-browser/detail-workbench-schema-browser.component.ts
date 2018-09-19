@@ -883,7 +883,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     // Type
     headers.push(this._createSlickGridHeader('type', 'Type', 200));
     // Desc
-    headers.push(this._createSlickGridHeader('comment', 'Description', 300));
+    headers.push(this._createSlickGridHeader('description', 'Description', 300));
     // rows
     const rows: any[] = [];
     for (let idx: number = 0; idx < data.length; idx = idx + 1) {
@@ -895,7 +895,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       // Type
       row['type'] = data[idx]['columnType'] + '(' + data[idx]['columnSize'] + ')';
       // Desc
-      row['comment'] = data[idx]['columnComment'];
+      row['description'] = data[idx]['description'];
       rows.push(row);
     }
     // 그리드 생성
