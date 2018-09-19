@@ -31,7 +31,8 @@
 
     </div>
     <!-- //title -->
-    <div class="ddp-ui-popup-contents">
+    <div class="ddp-ui-popup-contents ddp-union">
+      <a (click)="openPopup()" href="javascript:" class="ddp-btn-line ddp-dataset"><em class="ddp-icon-link-plus"></em>{{'msg.dp.btn.add.ds' | translate}}</a>
       <!-- 유니온 -->
       <div class="ddp-wrap-union">
         <!-- output -->
@@ -68,7 +69,6 @@
           <!-- title -->
           <div class="ddp-ui-title">
             {{'msg.dp.ui.ds.to.union' | translate : {value : unionDatasets.length + 1} }}
-            <a href="javascript:" class="ddp-btn-line" (click)="openPopup()"><em class="ddp-icon-link-plus"></em>{{'msg.dp.btn.add.ds' | translate}}</a>
           </div>
           <!-- //title -->
           <div class="ddp-wrap-union-set">
@@ -77,7 +77,6 @@
                 1개 이상의 컬럼이 drop될 경우, 해당 라인에 BG 표시 : tr class="ddp-disabled " 추가
             -->
             <div class="ddp-ui-union-table">
-              <!-- Master dataset info -->
               <table class="ddp-table-union">
                 <thead>
                 <tr>
@@ -108,10 +107,7 @@
                 <!--<tr class="ddp-disabled"><td></td></tr>-->
                 </tbody>
               </table>
-              <!-- // Master dataset info -->
-              <!-- Union dataset info -->
               <table class="ddp-table-union">
-                <!-- Union datasets header -->
                 <thead>
                 <tr>
                   <th *ngFor="let dsItem of unionDatasets" >

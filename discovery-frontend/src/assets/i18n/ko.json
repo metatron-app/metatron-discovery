@@ -1842,6 +1842,7 @@
   "msg.storage.ui.time" : "시간",
   "msg.storage.ui.db.connection" : "DB 커넥션",
   "msg.storage.ui.conn.dialog.desc" : "Batch 방식으로 ingestion할 수 없습니다.",
+  "msg.storage.ui.max.row.error": "최대 {{value}} 까지 입력 할 수 있습니다.",
 
   "msg.log.th.status": "상태",
   "msg.log.ui.search.description" : "잡 이름 또는 어플리케이션 ID로 검색해 주세요",
@@ -2762,6 +2763,6 @@
   "msg.metadata.dictionary.used.metadata" : "연결된 메타데이터",
   "msg.metadata.ui.info" : "메타데이터 정보",
   "msg.metadata.ui.enter.tag" : "태그 입력",
-  "msg.metadata.th.column.popularity.tooltip.title" : "논리 컬럼 명이란?",
-  "msg.metadata.th.column.popularity.tooltip.desc" : "논리 컬럼 명은 메타트론에서 사용자가 일반적으로 사용하는 컬럼 명입니다. 사용자의 비즈니스 용어 또는 인덱스를 생성할 때 논리 명으로 지정됩니다 논리 컬럼 명은 차트 또는 워크벤치를 작성할 때 메타트론에서 사용됩니다."
+  "msg.metadata.th.column.logical.tooltip.title" : "논리 컬럼 명이란?",
+  "msg.metadata.th.column.logical.tooltip.desc" : "논리 컬럼 명은 메타트론에서 사용자가 일반적으로 사용하는 컬럼 명입니다. 사용자의 비즈니스 용어 또는 인덱스를 생성할 때 논리 명으로 지정됩니다 논리 컬럼 명은 차트 또는 워크벤치를 작성할 때 메타트론에서 사용됩니다."
 }

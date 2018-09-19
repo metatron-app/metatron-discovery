@@ -1841,6 +1841,7 @@
   "msg.storage.ui.time" : "Time",
   "msg.storage.ui.db.connection" : "DB connection",
   "msg.storage.ui.conn.dialog.desc" : "Can not ingestion by batch method.",
+  "msg.storage.ui.max.row.error": "You can enter up to {{value}}.",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",
@@ -2759,7 +2760,7 @@
   "msg.metadata.dictionary.used.metadata" : "Used in Metadata",
   "msg.metadata.ui.info" : "Metadata information",
   "msg.metadata.ui.enter.tag" : "Enter tag",
-  "msg.metadata.th.column.popularity.tooltip.title" : "What is logical column name?",
-  "msg.metadata.th.column.popularity.tooltip.desc" : "The logical column name is the column name that is commonly used by the user in the Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in the Metatron when creating a chart or workbench."
+  "msg.metadata.th.column.logical.tooltip.title" : "What is logical column name?",
+  "msg.metadata.th.column.logical.tooltip.desc" : "The logical column name is the column name that is commonly used by the user in the Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in the Metatron when creating a chart or workbench."
 
 }

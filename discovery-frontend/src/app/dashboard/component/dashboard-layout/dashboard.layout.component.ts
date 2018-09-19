@@ -636,16 +636,16 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
   /**
    * Dynamic Widget Header Component 등록
    * @param stack
-   * @param {LayoutWidgetInfo[]} layoutWidgets
    * @param {BoardGlobalOptions} globalOpts
    * @private
    */
-  private _bootstrapWidgetHeaderComponent(stack, layoutWidgets: LayoutWidgetInfo[], globalOpts: BoardGlobalOptions) {
+  private _bootstrapWidgetHeaderComponent(stack, globalOpts: BoardGlobalOptions) {
     let componentState: any = stack.config.content[0];
     if( componentState ) {
       let widgetInfo: Widget = DashboardUtil.getWidgetByLayoutComponentId(this.dashboard, componentState.id);
 
       if( widgetInfo ) {
+        const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos( this.dashboard );
         let widgetHeaderCompFactory
           = this.componentFactoryResolver.resolveComponentFactory(DashboardWidgetHeaderComponent);
         let widgetHeaderComp = this.appRef.bootstrap(widgetHeaderCompFactory, stack.header.tabs[0].element.get(0));
@@ -844,11 +844,11 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           });
         });
 
-        // 레이아웃 스택이 생성되었을 때의 이벤트 처리 -> Header 기능 정의
+        // 레이아웃 스택이 생성되었을 때의 이벤트 처리 -> Header 기능 정의private _convertSpecToServer(param: any) {
         this._layoutObj.on('stackCreated', (stack) => {
           if (LayoutMode.EDIT === this._layoutMode) {
             setTimeout(() => {
-              this._bootstrapWidgetHeaderComponent(stack, layoutWidgets, globalOpts);
+              this._bootstrapWidgetHeaderComponent(stack, globalOpts);
             }, 200);
           }
         });
@@ -1201,37 +1201,8 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       let result: [Dashboard, Datasource] = this._setDatasourceForDashboard(boardInfo);
       boardInfo = result[0];
 
-      // 이전 데이터를 현재 데이터에 맞게 변경
-      {
-        const filters: Filter[] = DashboardUtil.getBoardFilters(boardInfo);
-        if (filters && 0 < filters.length) {
-          filters.forEach((filter: Filter) => {
-            const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
-            (filterDs) && (filter.dataSource = filterDs.engineName);
-
-            if (isNullOrUndefined(filter.dataSource)) {
-              const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
-              (fieldDs) && (filter.dataSource = fieldDs.engineName);
-            }
-
-          });
-        }
-        const widgets: Widget[] = boardInfo.widgets;
-        if (widgets && 0 < widgets.length) {
-          widgets.forEach((widget: Widget) => {
-            if ('filter' === widget.type) {
-              const filter: Filter = (<FilterWidget>widget).configuration.filter;
-              const filterDs: Datasource = boardInfo.dataSources.find(ds => ds.id === filter.dataSource);
-              (filterDs) && (filter.dataSource = filterDs.engineName);
-
-              if (isNullOrUndefined(filter.dataSource)) {
-                const fieldDs: Datasource = boardInfo.dataSources.find(ds => ds.fields.some(item => item.name === filter.field));
-                (fieldDs) && (filter.dataSource = fieldDs.engineName);
-              }
-            }
-          });
-        }
-      }
+      // Data migration
+      boardInfo = DashboardUtil.convertSpecToUI( boardInfo );
 
       // 글로벌 필터 셋팅
       this.initializeFilter(boardInfo).then((boardData) => {

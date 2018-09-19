@@ -35,7 +35,7 @@
           [infiniteScrollThrottle]="150"
           (scrolled)="onScroll()" >
         <li *ngIf="isShowAll">
-          <a href="javascript:"  draggable="false" (click)="selectAllItem();">All</a>
+          <a href="javascript:"  draggable="false" (click)="selectAllItem();">{{'msg.comm.ui.list.all'|translate}}</a>
         </li>
         <li *ngFor="let item of array | baseFilter:['name', searchText]">
           <a href="javascript:" (click)="selectCandidateItem(item);">{{isStringArray ? item : item[viewKey]}}</a>

@@ -12,10 +12,10 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-wrap-dateinfo ddp-filter-dateinfo" [ngStyle]="{'width' : 'WIDGET' === mode ? '90%' : '' }">
+<div class="ddp-wrap-dateinfo ddp-filter-dateinfo" >
   <!-- 날짜 -->
-  <div class="ddp-ui-dateinfo ddp-from">
-    <div class="ddp-dateinfo-in">
+  <div [ngStyle]="{'width' : ('WIDGET' === mode) ? '200px' : ''}" class="ddp-ui-dateinfo ddp-from" >
+    <div class="ddp-dateinfo-in" >
       <span class="ddp-txt-date">From</span>
 
       <div class="ddp-box-rome" *ngIf="isEarliestDateTime" >
@@ -42,8 +42,8 @@
   <!-- //날짜 -->
 
   <!-- 날짜 -->
-  <div class="ddp-ui-dateinfo ddp-to">
-    <div class="ddp-dateinfo-in">
+  <div [ngStyle]="{'width' : ('WIDGET' === mode) ? '200px' : ''}" class="ddp-ui-dateinfo ddp-to">
+    <div class="ddp-dateinfo-in" >
       <span class="ddp-txt-date">To</span>
 
       <div class="ddp-box-rome" *ngIf="isLatestDateTime" >

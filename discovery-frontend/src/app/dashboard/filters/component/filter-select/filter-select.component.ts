@@ -54,7 +54,7 @@ export class FilterSelectComponent extends AbstractComponent implements OnInit {
 
   // 기본 메시지
   @Input()
-  public unselectedMessage = 'All';
+  public unselectedMessage = this.translateService.instant( 'msg.comm.ui.list.all' );
 
   // 비활성화 여부
   @Input()
