@@ -666,9 +666,7 @@ public class PrepTransformService {
         adjustStageIdx(dsId, stageIdx, true);
         break;
       case PREVIEW:
-        adjustStageIdx(dsId, stageIdx, false);
-        response = new PrepTransformResponse(teddyImpl.preview(dsId, ruleString));
-        adjustStageIdx(dsId, origStageIdx, false);
+        response = new PrepTransformResponse(teddyImpl.preview(dsId, stageIdx, ruleString));
         break;
       case NOT_USED:
       default:
@@ -682,12 +680,12 @@ public class PrepTransformService {
       case REDO:
       case UPDATE:
         updateTransformRules(dsId);
-        response = fetch(dsId, dataset.getRuleCurIdx());
+        response = fetch_internal(dsId, dataset.getRuleCurIdx());
         dataset.setTotalLines(response.getGridResponse().rows.size());
         this.previewLineService.putPreviewLines(dsId, response.getGridResponse());
         break;
       case JUMP:
-        response = fetch(dsId, dataset.getRuleCurIdx());
+        response = fetch_internal(dsId, dataset.getRuleCurIdx());
         break;
       case PREVIEW:
       case NOT_USED:
@@ -1085,9 +1083,7 @@ public class PrepTransformService {
     PrepTransformResponse response = fetch_internal(dsId, stageIdx);
 
     response.setRuleStringInfos(getRulesInOrder(dsId), false, false);
-
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    response.setRuleCurIdx(dataset.getRuleCurIdx());
+    response.setRuleCurIdx(stageIdx != null ? stageIdx : teddyImpl.getCurStageIdx(dsId));
 
     return response;
   }

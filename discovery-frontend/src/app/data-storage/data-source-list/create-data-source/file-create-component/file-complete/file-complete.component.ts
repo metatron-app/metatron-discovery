@@ -25,35 +25,25 @@ import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../../../common/domain/modal';
-import JSON5 from 'json5';
 
+/**
+ * Creating datasource with File - complete step
+ */
 @Component({
   selector: 'file-complete',
   templateUrl: './file-complete.component.html'
 })
 export class FileCompleteComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-| Private Variables
-|-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성될 데이터소스 정보
-  private sourceData: DatasourceInfo;
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // datasource data
+  private _sourceData: DatasourceInfo;
 
   @ViewChild(ConfirmModalComponent)
   private confirmModal: ConfirmModalComponent;
 
   @Input('sourceData')
   public set setSourceData(sourceData: DatasourceInfo) {
-    this.sourceData = sourceData;
+    this._sourceData = sourceData;
   }
 
   @Input()
@@ -65,90 +55,82 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
   @Output('fileComplete')
   public fileComplete = new EventEmitter();
 
-  // 생성할 데이터소스 이름
+  // the name of the datasource to create
   public datasourceName: string = '';
 
-  // 생성할 데이터소스 설명
+  // the name of the datasource to description
   public datasourceDesc: string = '';
 
-  // 유효성 관련 - 이름
+  // is invalid name
   public isInvalidName: boolean = false;
+  // name validation message
   public errMsgName: string = '';
 
-  // 유효성 관련 - 설명
+  // is invalid description
   public isInvalidDesc: boolean = false;
+  // description validation message
   public errMsgDesc: string = '';
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
+  // Constructor
   constructor(private datasourceService: DatasourceService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // Init
+  /**
+   * ngOnInit
+   */
   public ngOnInit() {
-
     // Init
     super.ngOnInit();
-
     // ui init
-    this.initView();
-
-    // 현재 페이지 데이터소스 생성정보가 있다면
-    if (this.sourceData.hasOwnProperty('createData')) {
-      // init data
-      this.initData(this.sourceData.createData);
+    this._initView();
+    // if createData is exist, load createData
+    if (this._sourceData.hasOwnProperty('createData')) {
+      this._loadData(this._sourceData.createData);
     }
   }
 
-  // Destory
+  /**
+   * ngOnDestroy
+   */
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 이전 화면으로 이동
+   * Prev button click event
    */
-  public prev() {
-    // 현재 페이지의 데이터소스 생성정보 저장
-    this.saveCreateData(this.sourceData);
-    // 이전 step 으로 이동
+  public prev(): void {
+    // if createData is exist, delete createData
+    if (this._sourceData.hasOwnProperty('createData')) {
+      delete this._sourceData.createData;
+    }
+    // save createData
+    this._saveCreateData(this._sourceData);
+    // move to previous step
     this.step = 'file-ingestion';
     this.stepChange.emit(this.step);
   }
 
   /**
-   * 생성 완료
+   * Done button click event
    */
-  public done() {
-    // 이름 비어있는지 확인
+  public done(): void {
+    // datasource name is empty
     if (StringUtil.isEmpty(this.datasourceName)) {
       this.isInvalidName = true;
       this.errMsgName = this.translateService.instant('msg.alert.edit.name.empty');
       return;
     }
-    // 이름 길이 체크
+    // check datasource name length
     if (CommonUtil.getByte(this.datasourceName.trim()) > 150) {
       this.isInvalidName = true;
       this.errMsgName = this.translateService.instant('msg.alert.edit.name.len');
       return;
     }
-    // 설명 길이 체크
+    // check datasource description length
     if (this.datasourceDesc.trim() !== ''
       && CommonUtil.getByte(this.datasourceDesc.trim()) > 450) {
       this.isInvalidDesc = true;
@@ -156,43 +138,47 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       return;
     }
     // validation
-    if (this.validationDatasourceName()) {
-      // loading show
-      this.loadingShow();
-      // 데이터소스 생성
-      this.datasourceService.createDatasource(this.getParams())
-        .then((result) => {
-          // loading hide
-          this.loadingHide();
-          // 생성완료 alert
-          Alert.success(`'${this.datasourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
-          // 닫기
-          this.step = '';
-          this.fileComplete.emit(this.step);
-        })
-        .catch((error) => {
-          // loading hide
-          this.loadingHide();
-          // error modal open
-          this.showErrorModal(this.translateService.instant('msg.storage.ui.source.create.fail.title'), this.translateService.instant('msg.storage.ui.source.create.fail.description'));
-        });
+    if (this.isEnableDone()) {
+      // create datasource
+      this._createDatasource();
     }
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - validation
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 데이터소스 이름 validation
-   * @returns {boolean}
+   * Getter fileData
+   * @returns {any}
    */
-  public validationDatasourceName(): boolean {
-    return this.datasourceName && this.datasourceName.trim() !== '';
+  public get getFileData() {
+    return this._sourceData.fileData;
   }
 
   /**
-   * 파일이 엑셀 파일인지 확인
+   * Getter schemaData
+   * @returns {any}
+   */
+  public get getSchemaData() {
+    return this._sourceData.schemaData;
+  }
+
+  /**
+   * Getter IngestionData
+   * @returns {any}
+   */
+  public get getIngestionData() {
+    return this._sourceData.ingestionData;
+  }
+
+  /**
+   * Get validation done
+   * @returns {boolean}
+   */
+  public isEnableDone(): boolean {
+    // datasource name is not empty
+    return StringUtil.isNotEmpty(this.datasourceName);
+  }
+
+  /**
+   * Is excel file
    * @returns {boolean}
    */
   public isExcelFile(): boolean {
@@ -200,182 +186,104 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       && this.getFileData.datasourceFile.sheets.length !== 0);
   }
 
-  /**
-   * tuningConfig 를 사용하는지 여부
-   * @returns {boolean}
-   */
-  public isUsedTuningConfig(): boolean {
-    return this.getTuningConfig && this.getTuningConfig.trim() !== '';
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 데이터베이스 이름
-   * @returns {string}
+   * Load createData
+   * @param createData
+   * @private
    */
-  public get getDatabaseName(): string {
-    return this.sourceData.databaseData.selectedDatabase;
+  private _loadData(createData: any) {
+    this.datasourceName = createData.datasourceName;
+    this.datasourceDesc = createData.datasourceDesc;
   }
 
   /**
-   * 테이블 이름
-   * @returns {string}
-   */
-  public get getTableName(): string {
-    return this.sourceData.databaseData.selectedTable;
-  }
-
-  /**
-   * 선택한 시트 이름
-   * @returns {string}
-   */
-  public get getSheetName(): string {
-    return this.getFileData.datasourceFile.selectedSheetName;
-  }
-
-  /**
-   * 선택한 파일 이름
-   * @returns {string}
-   */
-  public get getFileName(): string {
-    return this.getFileData.datasourceFile.filename;
-  }
-
-  /**
-   * segment Granularity 객체
-   * @returns {any}
-   */
-  public get getSegmentGranularity(): any {
-    return this.getIngestionData.selectedSegGranularity;
-  }
-
-  /**
-   * Granularity 객체
-   * @returns {any}
-   */
-  public get getGranularity(): any {
-    return this.getIngestionData.selectedGranularity;
-  }
-
-  /**
-   * Druid tuning configuration
-   * @returns {string}
-   */
-  public get getTuningConfig(): string {
-    return this.getIngestionData.tuningConfig;
-  }
-
-  /**
-   * rollup 설정 여부
-   * @returns {boolean}
-   */
-  public get getRollup(): boolean {
-    return this.getIngestionData.selectedRollup;
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Protected Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 생성 실패시 error modal
-   * @param {string} title
-   * @param {string} description
-   */
-  private showErrorModal(title: string, description: string) {
-    // modal
-    const modal: Modal = new Modal();
-    // show cancel disable
-    modal.isShowCancel = false;
-    // title
-    modal.name = title;
-    // desc
-    modal.description = description;
-    // show modal
-    this.confirmModal.init(modal);
-  }
-
-  /**
-   * 현재 페이지의 데이터소스 생성정보 저장
+   * Save createData
    * @param {DatasourceInfo} sourceData
+   * @private
    */
-  private saveCreateData(sourceData: DatasourceInfo) {
-    const createData = {
+  private _saveCreateData(sourceData: DatasourceInfo): void {
+    sourceData['createData'] = {
       datasourceName: this.datasourceName,
       datasourceDesc: this.datasourceDesc
     };
-    sourceData['createData'] = createData;
   }
 
   /**
-   * 데이터소스 생성요청
-   * @param params
-   * @returns {Promise<any>}
+   * Create datasource
+   * @private
    */
-  private createDatasource(params) {
-    return new Promise((resolve, reject) => {
-      // loading show
-      this.loadingShow();
-      this.datasourceService.createDatasource(params)
-        .then((result) => {
-          // loading hide
-          this.loadingHide();
-          resolve(result);
-        })
-        .catch((error) => {
-          // loading hide
-          this.loadingHide();
-          reject(error);
-        });
+  private _createDatasource(): void {
+    // loading show
+    this.loadingShow();
+    // create datasource
+    this.datasourceService.createDatasource(this._getCreateDatasourceParams())
+      .then((result) => {
+        // loading hide
+        this.loadingHide();
+        // complete alert
+        Alert.success(`'${this.datasourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
+        // close
+        this.step = '';
+        this.fileComplete.emit(this.step);
+      })
+      .catch((error) => {
+        // loading hide
+        this.loadingHide();
+        // modal
+        const modal: Modal = new Modal();
+        // show cancel disable
+        modal.isShowCancel = false;
+        // title
+        modal.name = this.translateService.instant('msg.storage.ui.source.create.fail.title');
+        // desc
+        modal.description = this.translateService.instant('msg.storage.ui.source.create.fail.description');
+        // show error modal
+        this.confirmModal.init(modal);
     });
   }
 
   /**
-   * current column 생성
+   * Create current column
    * @param {number} seq
-   * @returns {{seq: number; name: string; type: string; role: string; format: string}}
+   * @returns {Object}
+   * @private
    */
-  private createCurrentColumn(seq: number) {
-    const column = {
+  private _createCurrentColumn(seq: number): object {
+    return {
       seq: seq,
       name: 'current_datetime',
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
       format: 'yyyy-MM-dd HH:mm:ss',
     };
-    return column;
   }
 
   /**
-   * 컬럼 내 불필요한 프로퍼티 삭제
+   * Delete unnecessary property in column
    * @param column
+   * @private
    */
-  private deleteColumnProperty(column) {
+  private _deleteColumnProperty(column: any): void {
     delete column.biType;
     delete column.replaceFl;
-    // removed 가 false 인 상태만 삭제
+    // if removed property is false, delete removed property
     if (column.removed === false) {
       delete column.removed;
     }
   }
 
   /**
-   * 컬럼 내 ingestion rule 설정
+   * Set ingestion rule in column
    * @param column
+   * @private
    */
-  private setColumnIngestionRule(column) {
-    // ingestion rule 이 존재시
+  private _setColumnIngestionRule(column): void {
+    // if exist ingestion rule property
     if (column.hasOwnProperty('ingestionRule')) {
       // ingestion type
       const type = column.ingestionRule.type;
-      // type 이 default 라면
+      // if type is default
       if (type === 'default') {
         delete column.ingestionRule;
       } else if (type === 'discard') {
@@ -384,260 +292,134 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     }
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 파일 데이터
-   * @returns {any}
+   * Convert array to object
+   * @param array
+   * @returns {Object}
+   * @private
    */
-  private get getFileData() {
-    return this.sourceData.fileData;
+  private _toObject(array: any): object {
+    const result = {};
+    array.forEach((item) => {
+      result[item.key] = item.value;
+    });
+    return result;
   }
 
   /**
-   * schema 데이터
-   * @returns {any}
+   * Get file format
+   * @returns {string}
+   * @private
    */
-  private get getSchemaData() {
-    return this.sourceData.schemaData;
-  }
-
-  /**
-   * ingestion 데이터
-   * @returns {any}
-   */
-  private get getIngestionData() {
-    return this.sourceData.ingestionData;
-  }
-
-  /**
-   * 데이터베이스의 파일포맷
-   * @returns {any}
-   */
-  private getFileFormat(): any {
+  private _getFileFormat(): string {
     return this.isExcelFile() ? 'excel' : 'csv';
   }
 
   /**
-   * 구분자
-   * @returns {string}
+   * Get parameters required for datasource creation
+   * @returns {Object}
+   * @private
    */
-  private get getDelimiter(): string {
-    return this.getFileData.delimiter;
-  }
-
-  /**
-   *
-   * @returns {string}
-   */
-  private get getSeparator(): string {
-    return this.getFileData.separator;
-  }
-
-  /**
-   * timestamp type
-   * @returns {string}
-   */
-  private get getTimestampType(): string {
-    return this.getSchemaData.selectedTimestampType;
-  }
-
-  /**
-   * timestamp column
-   * @returns {any}
-   */
-  private get getTimestampColumn() {
-    return this.getSchemaData.selectedTimestampColumn;
-  }
-
-  /**
-   * 필드 정보
-   * @returns {Array}
-   */
-  private get getSchemaFields() {
-    return this.getSchemaData.fields;
-  }
-
-  /**
-   * 파일 경로
-   * @returns {string}
-   */
-  private get getFilePath(): string {
-    return this.getFileData.datasourceFile.filepath;
-  }
-
-  /**
-   * TODO sheet index number
-   * @returns {number}
-   */
-  private getSheetIndex(): number {
-    return this.getFileData.datasourceFile.sheets.findIndex((item) => {
-      return item === this.getSheetName;
-    });
-  }
-
-
-  /**
-   * 첫번째 컬럼 헤드생성 여부
-   * @returns {boolean}
-   */
-  private get getRemoveFirstRow(): boolean {
-    return this.getFileData.createHeadColumnFl;
-  }
-
-  /**
-   * JSON map convert
-   * @param {string} inputText
-   * @returns {{}}
-   */
-  private getConvertJsonMap(inputText: string) {
-    return JSON5.parse(inputText);
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - params
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 생성시 사용되는 파라메터
-   * @returns {{dsType: string; dataSourceType: string; connType: string; srcType: string; ingestion: {type: string; format: {}; source: string}; fields: Array; granularity: string; segGranularity: string; name: string; description: string}}
-   */
-  private getParams() {
-    // params
-    const params = {
+  private _getCreateDatasourceParams(): object {
+    return {
       dsType: 'MASTER',
-      connType: 'ENGINE',
       srcType: 'FILE',
-      fields: this.getFieldsParams(),
-      granularity: this.getGranularity.value,
-      segGranularity: this.getSegmentGranularity.value,
+      connType: 'ENGINE',
+      granularity: this.getIngestionData.selectedQueryGranularity.value,
+      segGranularity: this.getIngestionData.selectedSegmentGranularity.value,
       name: this.datasourceName.trim(),
       description: this.datasourceDesc.trim(),
-      // ingestion
-      ingestion: this.getIngestionParams()
+      ingestion: this._getIngestionParams(),
+      fields: this._getFieldsParams()
     };
-    return params;
   }
 
-
   /**
-   * 필드 파라메터
+   * Get fields parameter
    * @returns {any[]}
+   * @private
    */
-  private getFieldsParams(): any[] {
-    // timestamp 생성 여부
-    const isCreateTimestamp = this.isCreateCurrentTimestampColumn();
+  private _getFieldsParams(): any[] {
+    // timestamp enable
+    const isCreateTimestamp = this.getSchemaData.selectedTimestampType === 'CURRENT';
     // fields param
-    let fields = _.cloneDeep(this.getSchemaFields);
+    let fields = _.cloneDeep(this.getSchemaData.fields);
     // seq number
     let seq = 0;
-    // field 설정
+    // field setting
     fields.forEach((column) => {
-      // seq 설정
-      column['seq'] = seq;
-      // seq 값 증가
-      seq += 1;
-      // ingestion rule 처리
-      this.setColumnIngestionRule(column);
-      // 타임스탬프 컬럼으로 지정되었을 경우
+      // set seq num and increase seq
+      column['seq'] = seq++;
+      // set ingestion rule
+      this._setColumnIngestionRule(column);
+      // if you don't want to create a timestamp column
       if (!isCreateTimestamp) {
-        // 타임스탬프 컬럼으로 지정된 경우
-        if (column.name === this.getTimestampColumn.name) {
+        // if specified as a timestamp column
+        if (column.name === this.getSchemaData.selectedTimestampColumn.name) {
           column.role = 'TIMESTAMP';
-        } else if (column.name !== this.getTimestampColumn.name
+        } else if (column.name !== this.getSchemaData.selectedTimestampColumn.name
           && column.role === 'TIMESTAMP') {
-          // 타임스탬프가 아닌데 role 이 타임스탬프인경우 dimension 으로 지정
+          // this column is not timestamp column, but column role is timestamp, specified as Dimension
           column.role = 'DIMENSION';
         }
       }
-
-      if (!isCreateTimestamp
-        && column.name === this.getTimestampColumn.name) {
-        // role 을 timestamp 로 변경
-        column.role = 'TIMESTAMP';
-      }
-      // 필요없는 프로퍼티 삭제
-      this.deleteColumnProperty(column);
+      // delete unnecessary property
+      this._deleteColumnProperty(column);
     });
-
-    // 타임스탬프로 지정된 컬럼이 없을 경우
+    // if no column is specified as timestamp
     if (isCreateTimestamp) {
-      fields.push(this.createCurrentColumn(seq));
+      fields.push(this._createCurrentColumn(seq));
     }
-
     return fields;
   }
 
   /**
-   * file format 파라메터
-   * @returns {{type: string}}
+   * Get file format parameter
+   * @returns {Object}
+   * @private
    */
-  private getFileFormatParam() {
+  private _getFileFormatParams(): object {
     const format = {
-      type: this.getFileFormat(),
+      type: this._getFileFormat(),
     };
-    // file format 이 CSV인 경우만 작동
-    if (this.getFileFormat() === 'csv') {
-      format['delimiter'] = this.getDelimiter;
-      format['lineSeparator'] = this.getSeparator;
+    // if file format is csv, add delimiter and lineSeparator
+    if (this._getFileFormat() === 'csv') {
+      format['delimiter'] = this.getFileData.delimiter;
+      format['lineSeparator'] = this.getFileData.separator;
     } else {
-      format['sheetIndex'] = this.getSheetIndex();
+      // add sheetIndex
+      format['sheetIndex'] = this.getFileData.datasourceFile.sheets.findIndex(item => item === this.getFileData.datasourceFile.selectedSheetName);
     }
     return format;
   }
 
   /**
-   * ingestion 파라메터
-   * @returns {{type: string; format: {type: any}; removeFirstRow: boolean; path: string}}
+   * Get ingestion parameter
+   * @returns {Object}
+   * @private
    */
-  private getIngestionParams() {
+  private _getIngestionParams(): object {
     // ingestion param
     const ingestion = {
       type: 'local',
-      format: this.getFileFormatParam(),
-      removeFirstRow: !this.getRemoveFirstRow,
-      path: this.getFilePath,
-      rollup: this.getRollup
+      format: this._getFileFormatParams(),
+      removeFirstRow: !this.getFileData.createHeadColumnFl,
+      path: this.getFileData.datasourceFile.filepath,
+      rollup: this.getIngestionData.selectedRollUpType.value
     };
     // advanced
-    if (this.getTuningConfig) {
-      ingestion['tuningOptions'] = this.getConvertJsonMap(this.getTuningConfig);
+    if (this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)).length > 0) {
+      ingestion['tuningOptions'] = this._toObject(this.getIngestionData.tuningConfig.filter(item => StringUtil.isNotEmpty(item.key) && StringUtil.isNotEmpty(item.value)));
     }
     return ingestion;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - validation
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * 임의의 타임스탬프 컬럼 생성여부
-   * @returns {boolean}
+   * ui init
+   * @private
    */
-  private isCreateCurrentTimestampColumn(): boolean {
-    return this.getTimestampType === 'CURRENT';
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - init
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * ui 초기화
-   */
-  private initView() {
+  private _initView(): void {
     this.datasourceName = '';
     this.datasourceDesc = '';
-  }
-
-  /**
-   * init source create data
-   * @param createData
-   */
-  private initData(createData: any) {
-    this.datasourceName = createData.datasourceName;
-    this.datasourceDesc = createData.datasourceDesc;
   }
 }

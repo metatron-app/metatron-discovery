@@ -49,8 +49,6 @@ public class PrepSnapshotService {
     @Autowired
     private PrepDatasetSparkHiveService datasetSparkHiveService;
 
-    private String snapshotDirectory = "snapshots";
-
     public String makeSnapshotName(String dsName, DateTime launchTime) {
         String ssName;
 
@@ -77,7 +75,7 @@ public class PrepSnapshotService {
     }
 
     public String getSnapshotDir(String baseDir, String ssName) {
-        String ssDir = Paths.get(this.snapshotDirectory, ssName).toString();
+        String ssDir = Paths.get(PrepProperties.dirSnapshot, ssName).toString();
         if(baseDir.endsWith(File.separator)) {
             ssDir = baseDir + ssDir;
         } else {

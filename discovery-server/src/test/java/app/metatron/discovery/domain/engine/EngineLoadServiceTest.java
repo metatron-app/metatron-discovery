@@ -15,11 +15,13 @@
 package app.metatron.discovery.domain.engine;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 
 import app.metatron.discovery.AbstractIntegrationTest;
 import app.metatron.discovery.common.GlobalObjectMapper;
@@ -83,6 +85,10 @@ public class EngineLoadServiceTest extends AbstractIntegrationTest {
     ingestionInfo.setDatabase("polaris_datasources");
     ingestionInfo.setQuery("sample_ingestion");
     ingestionInfo.setFormat(new CsvFileFormat());
+    Map<String, Object> tuningOption = Maps.newHashMap();
+    tuningOption.put("a", "d");
+    tuningOption.put("b", "c");
+    ingestionInfo.setTuningOptions(tuningOption);
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(ingestionInfo));
 
