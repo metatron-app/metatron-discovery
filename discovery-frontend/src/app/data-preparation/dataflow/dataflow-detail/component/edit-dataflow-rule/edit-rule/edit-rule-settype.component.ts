@@ -13,13 +13,14 @@
  */
 
 import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { DataflowService } from '../../../../service/dataflow.service';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isNullOrUndefined } from 'util';
+import {PrepSelectBoxComponent} from "../../../../../util/prep-select-box.component";
 
 @Component({
   selector : 'edit-rule-settype',
@@ -44,6 +45,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   public isTimestamp : boolean = false;
   public colTypes : any = [];
   public hasEditTimestamp : boolean = false;
+
   // for status T/F
   public isFocus:boolean = false;         // Input Focus t/f
   public isTooltipShow:boolean = false;   // Tooltip Show/Hide
@@ -51,10 +53,13 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
   public selectedTimestamp : string = '';
   public selectedType : string = '';
   public customTimestamp: string; // custom format
-  public typeList : string [] = ['long', 'double', 'string', 'boolean', 'timestamp' ];
+  public typeList : string [] = ['long', 'double', 'string', 'boolean', 'timestamp'];
 
   public defaultIndex : number = -1;
   public defaultTimestampIndex : number = -1;
+
+  @ViewChild(PrepSelectBoxComponent)
+  protected prepSelectBoxComponent : PrepSelectBoxComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -265,7 +270,33 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
+
+    // Selected columns
     this.selectedFields = data.selectedList;
+
+    // 선택된 컬럼이 타임스탬프 타입이라면 new Type 셀렉트박스에서 타임스탬프를 지운다
+    let hasTimestampType = false;
+    data.selectedList.forEach((item) => {
+      if (item.type === 'TIMESTAMP') {
+        hasTimestampType = true;
+      }
+    });
+
+    if (hasTimestampType) { // 타임스탬프 타입이 하나라도 있다면 splice
+
+      if (-1 !== this.typeList.indexOf('timestamp')) {
+        this.typeList.splice(this.typeList.length-1, 1);
+        this.selectedType = '';
+        this.prepSelectBoxComponent.selectedItem = null;
+        this.isTimestamp = false;
+      }
+    } else { // 타임스탬프 타입이 없다면
+      if (-1 === this.typeList.indexOf('timestamp')) {
+        this.typeList.push('timestamp');
+      }
+    }
+
+
     if (!this.hasEditTimestamp) {
       this.selectedTimestamp = '';
       this.hasEditTimestamp = false;
@@ -302,7 +333,21 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Before component is shown
    * @protected
    */
-  protected beforeShowComp() {}
+  protected beforeShowComp() {
+
+    // 선택된 컬럼이 타임스탬프일 경우 New type 에서 타임스탬프를 뺸다
+    if (-1 !== this._checkIfAtLeastOneColumnIsSelType(this.selectedFields,'timestamp')) {
+      let items = [];
+      this.selectedFields.forEach((item) => {
+        if (item.type.toLowerCase() === 'timestamp') {
+          items.push(item);
+        }
+      });
+      if (items.length === this.selectedFields.length) {
+        this.typeList.splice(this.typeList.length-1,1);
+      }
+    }
+  }
 
   /**
    * After component is shown
