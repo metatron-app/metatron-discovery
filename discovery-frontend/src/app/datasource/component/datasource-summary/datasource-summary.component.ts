@@ -54,10 +54,10 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
   public closeEvent = new EventEmitter();
 
   public datasource: Datasource;
-  public metadata:Metadata;
+  public metadata: Metadata;
 
   public hasHeader: boolean = true;
-  public isShowDataPreview:boolean = false;
+  public isShowDataPreview: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -65,7 +65,7 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
 
   // 생성자
   constructor(private datasourceService: DatasourceService,
-              private metadataService:MetadataService,
+              private metadataService: MetadataService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -102,17 +102,21 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
       this.loadingShow();
       this.datasource = undefined;
       this.metadata = undefined;
-      this.datasourceService.getDatasourceSummary(this.datasourceId).then((datasource) => {
-        this.datasource = datasource;
-        this.metadataService.getMetadataForDataSource( datasource.id ).then( result => {
-          if (result && 0 < result.length) {
-            this.metadata = result[0];
-            this.datasource.uiMetaData = this.metadata;
-          }
-          this.loadingHide();
-          this.changeDetect.detectChanges();
-        });
-      });
+      this.datasourceService.getDatasourceSummary(this.datasourceId)
+        .then((datasource) => {
+          this.datasource = datasource;
+          this.metadataService.getMetadataForDataSource(datasource.id)
+            .then(result => {
+              if (result && 0 < result.length) {
+                this.metadata = result[0];
+                this.datasource.uiMetaData = this.metadata;
+              }
+              this.loadingHide();
+              this.changeDetect.detectChanges();
+            })
+            .catch(err => this.commonExceptionHandler(err));
+        })
+        .catch(err => this.commonExceptionHandler(err));
     }
   }
 
