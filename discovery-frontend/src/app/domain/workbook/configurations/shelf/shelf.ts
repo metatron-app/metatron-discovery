@@ -41,6 +41,8 @@ export class Layer {
 
   public aggregationType?: string;
 
+  public dataSource?: string;
+
 }
 
 /**
@@ -48,10 +50,15 @@ export class Layer {
  */
 export class DimensionFormat {
 
-  public type: string;
+  public type?: any;
 
-  public method: string;
+  public method?: string;
 
-  public precision: number;
+  public precision?: number;
 
+  public dataSource?: string;
+
+  public geoColumn?: string;
+
+  public descColumn?: string;
 }

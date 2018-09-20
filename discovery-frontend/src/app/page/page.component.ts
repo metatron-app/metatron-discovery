@@ -3524,7 +3524,16 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       if( geoFieldCnt > 1 ) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
         cloneQuery.dataSource = _.cloneDeep( this.widget.dashBoard.configuration.dataSource );
+
+        for(let layer of cloneQuery.shelf.layers[0]) {
+          layer.ref = layer.dataSource;
+        }
+
       }
+
+      // for(let layer of cloneQuery.shelf.layers[0]) {
+      //   layer.ref = layer.dataSource;
+      // }
     }
     // Map Chart 의 Multi Datasource 를 적용하기 위한 코드 - E
 
@@ -3535,7 +3544,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
 
     if ( ChartType.MAP === this.widget.configuration.chart.type ) {
-      debugger
 
     }
 

@@ -390,8 +390,18 @@ export class DatasourceService extends AbstractService {
           name: column.name,
           alias: column.alias,
           ref: null,
-          format: null
+          format: null,
+          dataSource: null
         }
+
+        layer.dataSource = column.field.dataSource;
+
+        if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
+          layer.format = {
+            type : "geo"
+          }
+        }
+
 
         if(column.field.logicalType.toString() === 'GEO_POINT') {
           layer.format = {
@@ -403,9 +413,9 @@ export class DatasourceService extends AbstractService {
           if(geoFieldCnt > 1) {
             layer.format = {
               type: "geo_boundary",
-              dataSource: "cei_dong",
-              geoColumn: "shape",
-              descColumn: "dong_name"
+              dataSource: query.pivot.columns[0].field.dataSource,
+              geoColumn: query.pivot.columns[0].field.name,
+              descColumn: 'desc' + query.pivot.columns[0].field.name
             }
           }
         } else if(column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') {
@@ -428,8 +438,12 @@ export class DatasourceService extends AbstractService {
           name: aggregation.name,
           alias: aggregation.alias,
           ref: null,
-          aggregationType: aggregation.aggregationType
+          aggregationType: aggregation.aggregationType,
+          dataSource: null
         }
+
+        layer.dataSource = aggregation.field.dataSource;
+
         layers.push(layer);
       }
 

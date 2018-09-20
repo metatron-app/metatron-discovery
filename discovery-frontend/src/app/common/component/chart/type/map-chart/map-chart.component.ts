@@ -223,7 +223,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       if(featureSizeType === 'MEASURE') {
         featureSize = parseInt(feature.get(styleOption.layers[0].size.column)) / 10000;
       }
-// debugger
 
       if(featureColorType === 'MEASURE') {
         let colorList = ChartColorList[featureColor['colorNum']];
@@ -336,15 +335,59 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           })
         });
       } else if(layerType === 'polygon') {
-        style = new ol.style.Style({
+        let polyStyle = new ol.style.Style({
           stroke: new ol.style.Stroke({
             color: outlineColor,
             width: 2
           }),
           fill: new ol.style.Fill({
             color: featureColor
-          })
+          }),
+          zIndex: 100
         });
+
+        let labelText = "";
+        for(var key in feature.getProperties()) {
+          if (key !== 'geometry') {
+            labelText = labelText + feature.get(key) + "\n";
+          }
+        }
+
+        let labelStyle = new ol.style.Style({
+          geometry: function(feature) {
+            var geometry = feature.getGeometry();
+            if (geometry.getType() == 'MultiPolygon') {
+              // Only render label for the widest polygon of a multipolygon
+              var polygons = geometry.getPolygons();
+              var widest = 0;
+              for (var i = 0, ii = polygons.length; i < ii; ++i) {
+                var polygon = polygons[i];
+                var width = ol.extent.getWidth(polygon.getExtent());
+                if (width > widest) {
+                  widest = width;
+                  geometry = polygon;
+                }
+              }
+            }
+            return geometry;
+          },
+          text: new ol.style.Text({
+            text: labelText,
+            font: '12px Calibri,sans-serif',
+            overflow: true,
+            fill: new ol.style.Fill({
+              color: '#000'
+            }),
+            stroke: new ol.style.Stroke({
+              color: '#fff',
+              width: 3
+            })
+          }),
+          zIndex: 1000000
+        });
+
+        style = [polyStyle, labelStyle];
+
       } else if(layerType === 'tile') {
         style = new ol.style.Style({
           stroke: new ol.style.Stroke({
@@ -417,6 +460,59 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
   }
 
+  /**
+   * text map style function
+   */
+  public textStyleFunction = () => {
+
+    let styleOption = this.uiOption;
+    let styleData = this.data;
+
+    return function(feature, resolution) {
+
+      let labelText = "";
+      for(var key in feature.getProperties()) {
+        if (key !== 'geometry') {
+          labelText = labelText + feature.get(key) + "\n";
+        }
+      }
+
+      let labelStyle = new ol.style.Style({
+        geometry: function(feature) {
+          var geometry = feature.getGeometry();
+          if (geometry.getType() == 'MultiPolygon') {
+            // Only render label for the widest polygon of a multipolygon
+            var polygons = geometry.getPolygons();
+            var widest = 0;
+            for (var i = 0, ii = polygons.length; i < ii; ++i) {
+              var polygon = polygons[i];
+              var width = ol.extent.getWidth(polygon.getExtent());
+              if (width > widest) {
+                widest = width;
+                geometry = polygon;
+              }
+            }
+          }
+          return geometry;
+        },
+        text: new ol.style.Text({
+          text: labelText,
+          font: '12px Calibri,sans-serif',
+          overflow: true,
+          fill: new ol.style.Fill({
+            color: '#000'
+          }),
+          stroke: new ol.style.Stroke({
+            color: '#fff',
+            width: 3
+          })
+        })
+      });
+
+      return labelStyle;
+    }
+  }
+
   public clusterStyleFunction = () => {
 
     let styleOption = this.uiOption;
@@ -440,7 +536,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       if(featureColorType === 'MEASURE') {
         let colorList = ChartColorList[featureColor.colorNum];
-        debugger
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       } else if(featureColorType === 'DIMENSION') {
         let colorList = ChartColorList[featureColor.colorNum];
@@ -634,6 +729,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
+    let textLayer = new ol.layer.Vector({
+      source: source,
+      style: this.textStyleFunction()
+    });
+
     let features = [];
     let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(this.data[0]);;
     // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
@@ -733,6 +833,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     symbolLayer.setSource(source);
     hexagonLayer.setSource(hexagonSource);
+    textLayer.setSource(source);
 
     if(geomType === "GEO_POINT") {
       clusterLayer.setSource(clusterSource);
@@ -745,6 +846,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.addLayer(clusterLayer);
       this.olmap.addLayer(heatmapLayer);
       this.olmap.addLayer(hexagonLayer);
+      this.olmap.addLayer(textLayer);
 
 
       if(geomType === "GEO_POINT") {
@@ -771,22 +873,32 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           clusterLayer.setVisible(true);
           heatmapLayer.setVisible(false);
           hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
         } else {
           symbolLayer.setVisible(true);
           clusterLayer.setVisible(false);
           heatmapLayer.setVisible(false);
           hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
         }
       } else if(this.uiOption.layers[0].type === "heatmap") {
         symbolLayer.setVisible(false);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(true);
         hexagonLayer.setVisible(false);
+        textLayer.setVisible(false);
       } else if(this.uiOption.layers[0].type === "tile") {
         symbolLayer.setVisible(false);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(true);
+        textLayer.setVisible(false);
+      } else if(this.uiOption.layers[0].type === "polygon") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(false );
+        textLayer.setVisible(true);
       }
 
       this.olmap.getView().fit(source.getExtent());
@@ -797,6 +909,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.getLayers().getArray()[2] = clusterLayer;
       this.olmap.getLayers().getArray()[3] = heatmapLayer;
       this.olmap.getLayers().getArray()[4] = hexagonLayer;
+      this.olmap.getLayers().getArray()[4] = textLayer;
 
       symbolLayer.setStyle(this.mapStyleFunction());
       symbolLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
@@ -817,22 +930,32 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           clusterLayer.setVisible(true);
           heatmapLayer.setVisible(false);
           hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
         } else {
           symbolLayer.setVisible(true);
           clusterLayer.setVisible(false);
           heatmapLayer.setVisible(false);
           hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
         }
       } else if(this.uiOption.layers[0].type === "heatmap") {
         symbolLayer.setVisible(false);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(true);
         hexagonLayer.setVisible(false);
+        textLayer.setVisible(false);
       } else if(this.uiOption.layers[0].type === "tile") {
         symbolLayer.setVisible(false);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(true);
+        textLayer.setVisible(false);
+      } else if(this.uiOption.layers[0].type === "polygon") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(false);
+        textLayer.setVisible(true);
       }
 
       if(this.uiOption.map === 'OSM') {
@@ -875,10 +998,21 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         });
 
       if(feature) {
-        let coords = feature.getGeometry().getCoordinates();
 
+        let geomType = feature.getGeometry().getType();
+        let coords = [0,0];
         let pointerX = coords[0].toFixed(4);
         let pointerY = coords[1].toFixed(4);
+
+        if(geomType === 'Point') {
+          coords = feature.getGeometry().getCoordinates();
+        } else {
+          let extent = feature.getGeometry().getExtent();
+          coords = ol.extent.getCenter(extent);
+        }
+
+        pointerX = coords[0].toFixed(4);
+        pointerY = coords[1].toFixed(4);
 
         content.innerHTML =
             '<div class="ddp-ui-tooltip-info ddp-map-tooltip" style="display:block; position:absolute; top:0; left:0; z-index:99999;">' +
