@@ -49,8 +49,6 @@ public class PrepSnapshotService {
     @Autowired
     private PrepDatasetSparkHiveService datasetSparkHiveService;
 
-    private String snapshotDirectory = "snapshots";
-
     public String makeSnapshotName(String dsName, DateTime launchTime) {
         String ssName;
 
@@ -77,7 +75,7 @@ public class PrepSnapshotService {
     }
 
     public String getSnapshotDir(String baseDir, String ssName) {
-        String ssDir = Paths.get(this.snapshotDirectory, ssName).toString();
+        String ssDir = Paths.get(PrepProperties.dirSnapshot, ssName).toString();
         if(baseDir.endsWith(File.separator)) {
             ssDir = baseDir + ssDir;
         } else {
@@ -174,6 +172,22 @@ public class PrepSnapshotService {
         }
 
         return null;
+    }
+
+    public void updateSnapshotStatus(String ssId, PrepSnapshot.STATUS status) {
+        try {
+            Sort sort = new Sort(Sort.Direction.DESC, "launchTime");
+            List<PrepSnapshot> listAll = this.snapshotRepository.findAll(sort);
+            for(PrepSnapshot ss : listAll) {
+                if(ssId.equals(ss.getSsId())) {
+                    ss.setStatus(status);
+                    this.snapshotRepository.saveAndFlush(ss);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+        }
     }
 
     public Map<String,Object> getSnapshotLineageInfo(String ssId) {

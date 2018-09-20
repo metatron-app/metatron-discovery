@@ -517,6 +517,15 @@ export class GridComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
+   * display no data
+   * @returns {boolean}
+   */
+  public noShowData(){
+    this.destroy();
+    return true;
+  }
+
+  /**
    * 검색
    * @param {string} searchText
    * @param {string[]} searchFields

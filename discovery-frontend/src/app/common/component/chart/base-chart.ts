@@ -304,10 +304,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 기준선 변경
       if( !_.isUndefined(this.uiOption.yAxis.baseline)
-          && !isNaN(this.uiOption.yAxis.baseline)
+          && !isNaN(<number>this.uiOption.yAxis.baseline)
           && this.uiOption.yAxis.baseline != 0) {
 
-        this.calculateBaseline(this.uiOption.yAxis.baseline, result, true);
+        this.calculateBaseline(<number>this.uiOption.yAxis.baseline, result, true);
       }
 
       // Min/Max 변경
@@ -324,10 +324,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 기준선 변경
       if( !_.isUndefined(this.uiOption.xAxis.baseline)
-          && !isNaN(this.uiOption.xAxis.baseline)
+          && !isNaN(<number>this.uiOption.xAxis.baseline)
           && this.uiOption.xAxis.baseline != 0) {
 
-        this.calculateBaseline(this.uiOption.xAxis.baseline, result, false);
+        this.calculateBaseline(<number>this.uiOption.xAxis.baseline, result, false);
       }
 
       // Min/Max 변경
@@ -337,6 +337,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         this.calculateMinMax(this.uiOption.xAxis.grid, result, false);
       }
     }
+
     ///////////////////////////
     ///////////////////////////
 
@@ -477,7 +478,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
                 column.value[index] = grid.max;
               }
               else {
-                column.value[index] = grid.max - totalValue[index];
+                column.value[index] = (<number>grid.max) - totalValue[index];
               }
             }
             else if( totalValue[index] + value < grid.min ) {
@@ -1819,16 +1820,17 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // 색상지정 기준 필드리스트 설정(measure list)
     this.uiOption = this.setMeasureList();
 
-    // color by measure일때 특정 eventType이 실행되는경우 (min / max가 바뀌는경우) 색상 설정값 초기화
-    if (!_.isEmpty(this.drawByType) && this.uiOption.color && ChartColorType.MEASURE == this.uiOption.color.type &&
-      (EventType.CHANGE_PIVOT == this.drawByType || EventType.GRID_ORIGINAL == this.drawByType || EventType.CUMULATIVE == this.drawByType || EventType.SERIES_VIEW == this.drawByType
-      || EventType.GRANULARITY == this.drawByType || EventType.AGGREGATION == this.drawByType) ) {
+    // color by measure일때 eventType이 있는경우 (min / max가 바뀌는경우) 색상 설정값 초기화
+    if (!_.isEmpty(this.drawByType) && this.uiOption.color && ChartColorType.MEASURE == this.uiOption.color.type) {
       delete (<UIChartColorByValue>this.uiOption.color).ranges;
       delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
       delete (<UIChartColorByValue>this.uiOption.color).customMode;
 
+
+      const colorList = <any>ChartColorList[this.uiOption.color['schema']];
+
       // ranges가 초기화
-      this.uiOption.color['ranges'] = this.setMeasureColorRange(this.uiOption.color['schema']);
+      this.uiOption.color['ranges'] = ColorOptionConverter.setMeasureColorRange(this.uiOption, this.data, colorList);
     }
 
     // color mapping값 설정
@@ -2196,7 +2198,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     let colorListLength = colorList.length > rowsListLength ? rowsListLength - 1: colorList.length - 1;
 
     // 차이값 설정
-    const addValue = (this.uiOption.maxValue - this.uiOption.minValue) / (colorListLength - 1);
+    const addValue = (this.uiOption.maxValue - this.uiOption.minValue) / colorListLength;
 
     let maxValue = _.cloneDeep(this.uiOption.maxValue);
 
@@ -2205,30 +2207,26 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       shape = (<UIScatterChart>this.uiOption).pointShape.toString().toLowerCase();
     }
 
-    // uiOption minValue의 range에 설정할값
-    const uiMinValue = parseInt(this.uiOption.minValue.toFixed(0));
-
-    // rangeList 설정
+    // set ranges
     for (let index = colorListLength; index >= 0; index--) {
 
       let color = colorList[index];
 
-      // 가장 큰값은 min(gt)에 따로 설정
+      // set the biggest value in min(gt)
       if (colorListLength == index) {
 
-        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, Math.round(maxValue), null, Math.round(maxValue), null, shape));
+        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, parseFloat(maxValue.toFixed(1)), null, parseFloat(maxValue.toFixed(1)), null, shape));
 
-      // 가장작은값은 max(lt)에 따로 설정
-      } else if (0 == index) {
-
-        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, null, uiMinValue, null, uiMinValue, shape));
-      // 그 이외의 값 min / max (gt/lte) 설정
       } else {
+        // if it's the last value, set null in min(gt)
+        var min = 0 == index ? null : parseFloat((maxValue - addValue).toFixed(1));
 
-        var min = 1 == index ? uiMinValue : Math.round(maxValue - addValue);
-        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, Math.round(maxValue), min, Math.round(maxValue), shape));
+        // if value if lower than minValue, set it as minValue
+        if (min < this.uiOption.minValue && min < 0) min = _.cloneDeep(parseInt(this.uiOption.minValue.toFixed(1)));
 
-        maxValue = Math.round(maxValue - addValue);
+        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, parseFloat(maxValue.toFixed(1)), min, parseFloat(maxValue.toFixed(1)), shape));
+
+        maxValue = min;
       }
     }
 

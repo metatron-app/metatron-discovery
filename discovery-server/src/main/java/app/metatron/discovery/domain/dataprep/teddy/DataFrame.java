@@ -561,25 +561,27 @@ public class DataFrame implements Serializable, Transformable {
     return newDf;
   }
 
-  private void assertArgc(int desirable, List<Expr> args, String func) throws TeddyException {
+  //check if Args size are exactly matched with desirable size.
+  private void assertArgsEq(int desirable, List<Expr> args, String func) throws TeddyException {
     if (args.size() != desirable) {
       LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable={}", func, args.size(), desirable);
       throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
     }
   }
 
-  private void assertArgc(int desirable, List<Expr> args, String func, int option) throws TeddyException { // TeddyException {
-    if (option==1) {
-      if(args.size() < desirable){
-        LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable={}", func, args.size(), desirable);
-        throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
-      }
+  //check if Args size are greater than matched with desirable size.
+  private void assertArgsGt(int desirable, List<Expr> args, String func) throws TeddyException {
+    if (args.size() < desirable) {
+      LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable= greater than {}", func, args.size(), desirable);
+      throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
     }
-    else if (option==2) {
-      if(args.size() > desirable){
-        LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable={}", func, args.size(), desirable);
-        throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
-      }
+  }
+
+  //check if Args size are in between desirable nubmers.
+  private void assertArgsBw(int min, int max, List<Expr> args, String func) throws TeddyException {
+    if (args.size() < min || args.size() > max) {
+      LOGGER.error("decideType(): invalid function arguments: func={} argc={} desirable= between {} and {}", func, args.size(), min, max);
+      throw new InvalidFunctionArgsException("decideType(): invalid function arguments");
     }
   }
 
@@ -684,17 +686,17 @@ public class DataFrame implements Serializable, Transformable {
         case "math.getExponent":
         case "math.round":
           resultType = ColumnType.LONG;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "isnull":
         case "isnan":
         case "ismissing":
           resultType = ColumnType.BOOLEAN;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "ismismatched":
           resultType = ColumnType.BOOLEAN;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         case "upper":
         case "lower":
@@ -702,11 +704,11 @@ public class DataFrame implements Serializable, Transformable {
         case "ltrim":
         case "rtrim":
           resultType = ColumnType.STRING;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "math.abs":
           resultType = decideType(args.get(0));
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "math.acos":
         case "math.asin":
@@ -724,17 +726,17 @@ public class DataFrame implements Serializable, Transformable {
         case "math.tan":
         case "math.tanh":
           resultType = ColumnType.DOUBLE;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         // 2-argument functions
         case "math.max":
         case "math.min":
           resultType = ColumnType.LONG;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         case "math.pow":
           resultType = ColumnType.DOUBLE;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         case "coalesce":
           resultType = ColumnType.UNKNOWN;
@@ -742,18 +744,18 @@ public class DataFrame implements Serializable, Transformable {
         // 3-argument functions
         case "substring":
           resultType = ColumnType.STRING;
-          assertArgc(3, args, func);
+          assertArgsBw(2, 3, args, func);
           break;
         case "timestamptostring":
           resultType = ColumnType.STRING;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         case "concat":
-          assertArgc(1, args, func, 1);
+          assertArgsGt(1, args, func);
           resultType=ColumnType.STRING;
           break;
         case "concat_ws":
-          assertArgc(2, args, func, 1);
+          assertArgsGt(2, args, func);
           resultType=ColumnType.STRING;
           break;
         case "sum":
@@ -761,7 +763,7 @@ public class DataFrame implements Serializable, Transformable {
         case "mean":
         case "max":
         case "min":
-          assertArgc(2, args, func, 1);
+          assertArgsGt(2, args, func);
           resultType=ColumnType.DOUBLE;
           break;
         case "year":
@@ -772,27 +774,27 @@ public class DataFrame implements Serializable, Transformable {
         case "second":
         case "millisecond":
           resultType = ColumnType.LONG;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "weekday":
           resultType = ColumnType.STRING;
-          assertArgc(1, args, func);
+          assertArgsEq(1, args, func);
           break;
         case "now":
           resultType = ColumnType.TIMESTAMP;
-          assertArgc(1, args, func, 2);
+          assertArgsBw(0, 1, args, func);
           break;
         case "add_time":
           resultType = ColumnType.TIMESTAMP;
-          assertArgc(3, args, func);
+          assertArgsEq(3, args, func);
           break;
         case "time_diff":
           resultType = ColumnType.LONG;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         case "timestamp":
           resultType = ColumnType.TIMESTAMP;
-          assertArgc(2, args, func);
+          assertArgsEq(2, args, func);
           break;
         default:
           LOGGER.error("decideType(): invalid function type: " + expr.toString());

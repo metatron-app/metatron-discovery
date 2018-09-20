@@ -150,6 +150,9 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
    * @param {number} idx
    */
   public deleteFormula(idx:number) {
+    if (this.formulaList.length === 1) {
+      return;
+    }
     this.formulaList.splice( idx, 1 );
   } // function - deleteFormula
 

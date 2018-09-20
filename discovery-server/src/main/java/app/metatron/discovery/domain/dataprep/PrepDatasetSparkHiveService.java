@@ -67,7 +67,6 @@ public class PrepDatasetSparkHiveService {
     private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetSparkHiveService.class);
 
     private String hiveDefaultHDFSPath=null;
-    private String snapshotDirectory="snapshots";
 
     @Autowired(required = false)
     PrepProperties prepProperties;
@@ -183,13 +182,8 @@ public class PrepDatasetSparkHiveService {
     }
 
     public String getHiveDefaultHDFSPath() {
-        String stagingBaseDir = prepProperties.getStagingBaseDir();
-        if(null==hiveDefaultHDFSPath) {
-            if (true == stagingBaseDir.endsWith(File.separator)) {
-                hiveDefaultHDFSPath = stagingBaseDir + snapshotDirectory;
-            } else {
-                hiveDefaultHDFSPath = stagingBaseDir + File.separator + snapshotDirectory;
-            }
+        if(null==hiveDefaultHDFSPath && null!=prepProperties.getStagingBaseDir()) {
+            hiveDefaultHDFSPath = prepProperties.getStagingBaseDir() + File.separator + PrepProperties.dirSnapshot;
         }
         return hiveDefaultHDFSPath;
     }

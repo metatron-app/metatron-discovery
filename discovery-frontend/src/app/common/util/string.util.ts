@@ -447,7 +447,7 @@ export class StringUtil {
       max 체크 : max(\([a-zA-Z0-9]*\)|\('[a-zA-Z0-9]*'\))
       일반수식 체크 : ^[a-zA-Z0-9]*\s?=\s?([a-zA-Z0-9]*|'[a-zA-Z0-9]*')$
      */
-    const regExpFormula: RegExp = /count\(\)|sum(\([a-zA-Z0-9]*\)|\('[a-zA-Z0-9]*'\))|avg(\([a-zA-Z0-9]*\)|\('[a-zA-Z0-9]*'\))|min(\([a-zA-Z0-9]*\)|\('[a-zA-Z0-9]*'\))|max(\([a-zA-Z0-9]*\)|\('[a-zA-Z0-9]*'\))|^[a-zA-Z0-9]*\s?=\s?([a-zA-Z0-9]*|'[a-zA-Z0-9]*')$/;
+    const regExpFormula: RegExp = /count\(\)|sum(\([a-zA-Z0-9_]*\)|\('[a-zA-Z0-9_]*'\))|avg(\([a-zA-Z0-9_]*\)|\('[a-zA-Z0-9_]*'\))|min(\([a-zA-Z0-9_]*\)|\('[a-zA-Z0-9_]*'\))|max(\([a-zA-Z0-9_]*\)|\('[a-zA-Z0-9_]*'\))|^[a-zA-Z0-9_]*\s?=\s?([a-zA-Z0-9_]*|'[a-zA-Z0-9_]*')$/;
     return regExpFormula.test(str);
   } // function - checkFormula
 

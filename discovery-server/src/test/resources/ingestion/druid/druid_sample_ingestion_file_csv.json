@@ -1,5 +1,5 @@
 {
-  "type": "index_realtime",
+  "type": "index",
   "spec": {
     "dataSchema": {
       "metricsSpec": [
@@ -52,21 +52,18 @@
       "dataSource": "sample_ingestion_01"
     },
     "tuningConfig": {
-      "rowFlushBoundary": 0,
-      "rejectionPolicy": {
-        "type": "none"
-      },
-      "type": "realtime",
-      "maxRowsInMemory": 5000,
-      "targetPartitionSize": 0
+      "type": "index",
+      "maxRowsInMemory": 75000,
+      "ignoreInvalidRows": true,
+      "buildV9Directly": true
     },
     "ioConfig": {
+      "type": "index",
       "firehose": {
+        "type": "local",
         "filter": "sample_ingestion.csv",
-        "baseDir": "/tmp",
-        "type": "local"
-      },
-      "type": "realtime"
+        "baseDir": "/tmp"
+      }
     }
   }
 }

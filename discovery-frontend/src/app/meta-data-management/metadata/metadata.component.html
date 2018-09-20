@@ -197,13 +197,9 @@
         </span>
       </td>
       <td>
-        <div class="ddp-txt-long">
+        <div class="ddp-txt-long" title="{{getTooltipValue(metadata)}}">
           {{metadata.name}}
           <span class="ddp-txt-colortype" *ngIf="metadata.description">-{{metadata.description}}</span>
-        </div>
-        <div class="ddp-ui-tooltip-info" *ngIf="metadata.description">
-          <em class="ddp-icon-view-top"></em>
-          {{metadata.description}}
         </div>
       </td>
       <td>

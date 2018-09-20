@@ -367,7 +367,8 @@ export class DatasourceService extends AbstractService {
     else if (_.eq(pageConf.chart.type, 'network')) {
       query.resultFormat = {
         type: 'graph',
-        useLinkCount: true
+        useLinkCount: true,
+        mergeNode: true
       };
     }
 
@@ -760,6 +761,15 @@ export class DatasourceService extends AbstractService {
    */
   public updateDatasourceFields(datasourceId: string, params: any): Promise<any> {
     return this.patch(this.API_URL + `datasources/${datasourceId}/fields`, params);
+  }
+
+  /**
+   * Ingestion 기본 옵션 조회
+   * @param {string} ingestionType
+   * @returns {Promise<any>}
+   */
+  public getDefaultIngestionOptions(ingestionType: string): Promise<any> {
+    return this.get(this.API_URL + `datasources/ingestion/options?ingestionType=${ingestionType}`);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

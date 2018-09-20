@@ -92,13 +92,10 @@ export class BoundFilterPanelComponent extends AbstractFilterPanelComponent impl
     if (filterChanges) {
       const currFilter: BoundFilter = _.cloneDeep(filterChanges.currentValue);
 
-      this.dataSource = FilterUtil.getDataSourceForFilter(currFilter, this.dashboard);
+      this.setPanelData(currFilter);    // 패널에서 사용하는 데이터 설정
 
-      // 패널에서 사용하는 데이터 설정
-      this.setPanelData(currFilter);
+      (this.dataSource) && (this._candidate(currFilter)); // 후보값 조회
 
-      // 후보값 조회
-      this._candidate(currFilter);
     }
   } // function - ngOnChanges
 

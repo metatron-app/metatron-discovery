@@ -152,6 +152,7 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
+    this.deriveAs = 'col_1';
   } // function - afterShowComp
 
   /**

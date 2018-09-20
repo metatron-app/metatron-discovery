@@ -247,7 +247,7 @@ public class DfWindow extends DataFrame {
                         case "rolling_sum":
                             targetColName = func.getArgs().get(0).toString();
                             start = i - func.getArgs().get(1).eval(row).asInt();
-                            end = i + func.getArgs().get(2).eval(row).asInt();
+                            end = i + func.getArgs().get(2).eval(row).asInt()+1;
 
                             if (this.getColTypeByColName(targetColName) ==ColumnType.LONG) {
                                 long value = 0L;

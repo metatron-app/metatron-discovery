@@ -599,8 +599,14 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-type-contents.ddp-resize2 .ddp-box-popupcontents4 > .ddp-wrap-edit2:first-of-type {margin-top:0;}
 .ddp-type-contents.ddp-resize2 > .ddp-ui-buttons2,
 .ddp-type-contents.ddp-resize2 > .ddp-ui-buttons {position:fixed; bottom:0; left:0; right:0; padding-bottom:20px; background-color:#fff; z-index:60}
-.ddp-type-contents.ddp-resize2 .ddp-type-contents-in {min-height:100%; padding:356px 0 78px 0; box-sizing:border-box;}
-.ddp-type-contents.ddp-resize2.ddp-type2 .ddp-type-contents-in {padding-top:139px;}
+.ddp-type-contents.ddp-resize2 .ddp-type-contents-in {min-height:100%; padding:356px 0 79px 0; box-sizing:border-box;}
+.ddp-type-contents.ddp-resize2.ddp-type2 .ddp-type-contents-in {padding-top:139px; height:100%; box-sizing:border-box}
+
+.ddp-type-contents-in.ddp-size-resize .ddp-wrap-viewtable {height:100%;}
+.ddp-type-contents-in.ddp-size-resize .ddp-wrap-viewtable.ddp-add {position:relative; padding-bottom:44px; box-sizing:border-box;}
+.ddp-type-contents-in.ddp-size-resize .ddp-wrap-viewtable.ddp-add .ddp-box-add-link3 {position:absolute; bottom:1px; left:0; right:0;}
+.ddp-type-contents-in.ddp-size-resize .ddp-box-grid-detail {bottom:1px;}
+
 .ddp-type-contents.ddp-resize2 .ddp-type-contents-in.ddp-full {height:100%;}
 .ddp-type-contents.ddp-resize2 .ddp-box-popupcontents3 {padding:160px 0 130px 0;}
 .ddp-type-contents.ddp-resize2 .ddp-type-contents-in .ddp-box-popupcontents3 {padding:0;}
@@ -608,6 +614,44 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-type-contents.ddp-resize2.ddp-type .ddp-type-contents-in.ddp-type {padding-top:177px;}
 .ddp-type-contents.ddp-resize2 .ddp-box-popupcontents {height:100%;}
 .ddp-type-contents.ddp-resize2 .ddp-box-source-create.ddp-box-type .ddp-wrap-edit3:first-of-type {margin-top:0;}
+
+/* 가변 */
+.ddp-type-contents-in.ddp-size-resize .ddp-popup-dashboard {height:100%; padding-bottom:18px; box-sizing:border-box;}
+.ddp-type-contents-in.ddp-size-resize .ddp-wrap-variable {height:100%; margin-top:-43px; padding-top:43px; box-sizing:border-box;}
+.ddp-type-contents-in.ddp-size-resize .ddp-wrap-viewtable {height:100%;}
+.ddp-type-contents-in.ddp-size-resize .ddp-wrap-viewtable.ddp-add {position:relative; padding-bottom:44px; box-sizing:border-box;}
+.ddp-type-contents-in.ddp-size-resize .ddp-popup-dashboard .ddp-wrap-variable .ddp-wrap-grid {height:100%;}
+.ddp-type-contents-in.ddp-size-resize .ddp-popup-dashboard .ddp-wrap-grid .ddp-box-viewtable {height:100%;}
+.ddp-type-contents-in.ddp-size-resize .ddp-wrap-viewtable.ddp-add .ddp-box-add-link3 {position:absolute; bottom:1px; left:0; right:0;}
+.ddp-type-contents-in.ddp-size-resize .ddp-box-grid-detail {bottom:19px;}
+.ddp-type-contents-in.ddp-size-resize .ddp-ui-bottomoption {bottom:0; top:inherit;}
+.ddp-type-contents-in.ddp-size-resize .ddp-ui-import-option {height:100%; padding-bottom:0; box-sizing:border-box;}
+.ddp-type-contents-in.ddp-size-resize .ddp-ui-import-option .ddp-ui-grid {height:100%;}
+
+.ddp-type-contents-in.ddp-size-resize2 .ddp-popup-dashboard {height:100%;}
+.ddp-type-contents-in.ddp-size-resize2 .ddp-wrap-variable {height:100%;}
+.ddp-type-contents-in.ddp-size-resize2 .ddp-popup-dashboard .ddp-wrap-grid {height:100%;}
+.ddp-type-contents-in.ddp-size-resize2 .ddp-wrap-file-navi {height:100%; box-sizing:border-box;}
+.ddp-type-contents-in.ddp-size-resize2 .ddp-wrap-sheet {height:100%; box-sizing:border-box;}
+.ddp-type-contents-in.ddp-sheet-resize .ddp-wrap-variable {height:100%; padding:259px 0 0 0; margin-top:-254px; box-sizing:border-box; }
+.ddp-type-contents-in.ddp-sheet-resize .ddp-wrap-variable .ddp-wrap-sheet {height:100%;}
+
+.ddp-type-contents-in.ddp-size-resize3 .ddp-box-popupcontents3 {height:100%;}
+.ddp-type-contents-in.ddp-size-resize3 .ddp-wrap-variable {height:100%; margin-top:-124px; padding:124px 0 0 0; box-sizing:border-box;}
+.ddp-type-contents-in.ddp-size-resize3 .ddp-wrap-variable .ddp-box-schema{height:100%; box-sizing:border-box;}
+.ddp-type-contents-in.ddp-size-resize3 .ddp-wrap-variable .ddp-box-schema .ddp-wrap-fleft {height:100%; box-sizing:border-box;}
+
+.ddp-type-contents-in.ddp-size-resize3 .ddp-wrap-variable .ddp-box-schema .ddp-wrap-fright {height:100%; box-sizing:border-box;}
+.ddp-type-contents-in.ddp-size-resize3 .ddp-wrap-variable .ddp-box-schema .ddp-box-viewtable {min-height:inherit;}
+
+.ddp-wrap-datadetail.ddp-size-resize {height:100%; margin-top:-48px; padding:63px 45px 0 45px; box-sizing:border-box;}
+.ddp-wrap-datadetail.ddp-size-resize .ddp-wrap-tab-contents {height:100%; margin-top:-57px; padding:57px 0 50px 0; box-sizing:border-box;}
+.ddp-wrap-datadetail.ddp-size-resize .ddp-ui-tab-contents.ddp-full {height:100%;}
+
+.ddp-wrap-datadetail.ddp-size-resize .ddp-wrap-variable {height:100%; margin-top:-67px; padding:67px 0 0 0; box-sizing:Border-box;}
+.ddp-wrap-datadetail.ddp-size-resize .ddp-wrap-variable .ddp-data-details {height:100%;}
+.ddp-wrap-datadetail.ddp-size-resize .ddp-wrap-variable .ddp-data-details .ddp-wrap-detail {height:100%; box-sizing:Border-box; overflow:auto;}
+.ddp-wrap-datadetail.ddp-size-resize .ddp-wrap-variable .ddp-wrap-sourcename {overflow:auto;}
 
 /**************************************************************
     네비
@@ -644,6 +688,8 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 
 .ddp-ui-naviarea .ddp-box-navi .ddp-wrap-input {display:none; position:relative; float:left;}
 .ddp-ui-naviarea .ddp-box-navi.ddp-selected .ddp-wrap-input {display:inline-block; position:relative; top:4px; width:40%; padding-right:23px; box-sizing:border-box; vertical-align: middle;}
+.ddp-ui-naviarea .ddp-box-navi.ddp-selected.ddp-check-none .ddp-wrap-input {padding-right:0}
+.ddp-ui-naviarea .ddp-box-navi.ddp-selected.ddp-check-none .ddp-wrap-input .ddp-btn-check {display:none;}
 .ddp-ui-naviarea .ddp-box-navi .ddp-wrap-input .ddp-btn-check {display:inline-block; position:absolute; top:0; right:0;}
 .ddp-ui-naviarea .ddp-box-navi.ddp-selected input.ddp-input-navi {display:block;}
 .ddp-ui-naviarea .ddp-box-navi.ddp-selected .ddp-wrap-naviname span.ddp-data-naviname {display:none;}

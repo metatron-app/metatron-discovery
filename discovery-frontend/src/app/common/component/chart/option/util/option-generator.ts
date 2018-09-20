@@ -1,3 +1,17 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * Created by Dolkkok on 2017. 7. 18..
  */
@@ -1340,6 +1354,7 @@ export namespace OptionGenerator {
         mark: BarMarkType.MULTIPLE,
         align: UIOrient.VERTICAL,
         //series: UI.Presentation.barPresentation(DataUnit.NONE),
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1376,6 +1391,7 @@ export namespace OptionGenerator {
         mark: BarMarkType.STACKED,
         align: UIOrient.HORIZONTAL,
         unitType: DataUnit.PERCENT,
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1425,6 +1441,7 @@ export namespace OptionGenerator {
         curveStyle: LineCornerType.STRAIGHT,
         lineStyle: LineChartStyle.POINT_LINE,
         lineMode: LineMode.NORMAL,
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1483,6 +1500,7 @@ export namespace OptionGenerator {
         chartZooms: [UI.DataZoom.sliderDataZoom(true, UIOrient.HORIZONTAL), UI.DataZoom.sliderDataZoom(true, UIOrient.VERTICAL)],
         pointShape: PointShape.CIRCLE,
         pointTransparency: 1,
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1528,6 +1546,7 @@ export namespace OptionGenerator {
         dataLabel: UI.DataLabel.label(false),
         legend: UI.Legend.pagingLegend(true, 5),
         chartZooms: [UI.DataZoom.sliderDataZoom(true, UIOrient.HORIZONTAL), UI.DataZoom.sliderDataZoom(true, UIOrient.VERTICAL)],
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1609,6 +1628,7 @@ export namespace OptionGenerator {
         yAxis: UI.Axis.yAxis(AxisLabelType.COLUMN, true, true, UI.AxisLabel.axisLabelForValue(ChartAxisLabelType.VALUE)),
         dataLabel: UI.DataLabel.label(false),
         chartZooms: [UI.DataZoom.sliderDataZoom(true, UIOrient.HORIZONTAL)],
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1646,6 +1666,7 @@ export namespace OptionGenerator {
         dataLabel: UI.DataLabel.label(false),
         legend: UI.Legend.pagingLegend(true, 5),
         markType: PieSeriesViewType.SECTOR,
+        fontSize: FontSize.NORMAL,
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
@@ -1876,9 +1897,10 @@ export namespace OptionGenerator {
     export function defaultTreeMapChartUIOption(): UIOption {
       return {
         type: ChartType.TREEMAP,
-        color: UI.Color.valueUIChartColor(ChartGradientType.LINEAR, 'VC1'),
+        color: UI.Color.dimensionUIChartColor('SC1'),
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),
-        dataLabel: {showValue: false, hAlign: UIPosition.CENTER, vAlign: UIPosition.CENTER}
+        fontSize: FontSize.NORMAL,
+        dataLabel: {showValue: true, hAlign: UIPosition.CENTER, vAlign: UIPosition.CENTER, displayTypes: [,,, UIChartDataLabelDisplayType.SERIES_NAME]}
       };
     }
   }

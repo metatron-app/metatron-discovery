@@ -14,25 +14,25 @@
 
 package app.metatron.discovery.domain.images;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
-
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.io.File;
 import java.net.URI;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 /**
@@ -178,4 +178,67 @@ public class ImageRestIntegrationTest extends AbstractRestIntegrationTest {
     // @formatter:on
   }
 
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_image.sql")
+  public void getImageByUrl() {
+    given()
+        .auth().oauth2(oauth_token)
+        .accept("image/webp,image/apng,image/*,*/*")
+        .param("url", "metatron://images/page/test-item")
+    .when()
+        .get("/api/images/load/url")
+    .then()
+        .statusCode(HttpStatus.SC_OK)
+        .contentType("image/jpeg")
+        .header("Content-Length", Integer::parseInt, equalTo(42947));
   }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_image.sql")
+  public void getImageByUrl_for_thumbnail() {
+    given()
+        .auth().oauth2(oauth_token)
+        .accept("image/webp,image/apng,image/*,*/*")
+        .param("url", "metatron://images/page/test-item/thumbnail")
+    .when()
+        .get("/api/images/load/url")
+    .then()
+        .statusCode(HttpStatus.SC_OK)
+        .contentType("image/jpeg")
+        .header("Content-Length", Integer::parseInt, equalTo(15818));
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_image.sql")
+  public void getImageByUrl_when_request_header_accept_Media_Type_All_only() {
+    given()
+        .auth().oauth2(oauth_token)
+        .accept("*/*")
+        .param("url", "metatron://images/page/test-item")
+    .when()
+        .get("/api/images/load/url")
+    .then()
+        .statusCode(HttpStatus.SC_OK)
+        .contentType("image/jpeg")
+        .header("Content-Length", Integer::parseInt, equalTo(42947));
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_image.sql")
+  public void getImageByUrl_for_thumbnail_when_request_header_accept_Media_Type_All_only() {
+    given()
+        .auth().oauth2(oauth_token)
+        .accept("*/*")
+        .param("url", "metatron://images/page/test-item/thumbnail")
+    .when()
+        .get("/api/images/load/url")
+    .then()
+        .statusCode(HttpStatus.SC_OK)
+        .contentType("image/jpeg")
+        .header("Content-Length", Integer::parseInt, equalTo(15818));
+  }
+}
