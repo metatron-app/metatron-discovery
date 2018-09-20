@@ -25,6 +25,7 @@ import { DataconnectionService } from '../../../../dataconnection/service/dataco
 import { Metadata } from '../../../../domain/meta-data-management/metadata';
 import { isUndefined } from 'util';
 import { MetadataColumn } from '../../../../domain/meta-data-management/metadata-column';
+import { ConnectionType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
 
 enum FieldRoleType {
   ALL = <any>'ALL',
@@ -114,28 +115,10 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     // linked인 경우
     if (this.connType === 'LINK') {
       // 연결형일때 데이터 조회
-      this._getQueryDataInLinked(this.datasource)
-        .then((data) => {
-          // grid data
-          this._gridData = data['data'];
-          // grid update
-          this._updateGrid(this._gridData, this.fields);
-        })
-        .catch((error) => {
-          console.log(error);
-      });
+      this._getQueryDataInLinked(this.datasource);
     } else {
       // 수집형일 때
-      this._getQueryData(this.datasource)
-        .then((data) => {
-          // grid data
-          this._gridData = data;
-          // grid update
-          this._updateGrid(this._gridData, this.fields);
-        })
-        .catch((error) => {
-          console.log(error)
-      });
+      this._getQueryData(this.datasource);
     }
   }
 
@@ -254,16 +237,7 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     if (13 === event.keyCode) {
       this.rowNum = event.target['value'];
       // Query Data
-      this._getQueryData(this.datasource)
-        .then(data => {
-          // grid data
-          this._gridData = data;
-          // grid update
-          this._updateGrid(this._gridData, this.fields);
-        })
-        .catch((error) => {
-          console.log(error)
-      });
+      this._getQueryData(this.datasource);
     }
   }
 
@@ -310,8 +284,8 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
     const headers: header[] = this._getGridHeader(fields);
     // rows
     let rows: any[] = data;
-    // rows와 headers가 있을 경우에만 그리드 생성
-    if (0 < rows.length && 0 < headers.length) {
+    // row and headers가 있을 경우에만 그리드 생성
+    if (rows && 0 < headers.length) {
       if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
         rows = rows.map((row: any, idx: number) => {
           row.id = idx;
@@ -388,13 +362,11 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
   }
 
   /**
-   * 데이터를 조회한다.
+   * Get query data
    * @param {Datasource} source
-   * @returns {Promise<any>}
    * @private
    */
-  private _getQueryData(source: Datasource): Promise<any> {
-    return new Promise<any>((res, rej) => {
+  private _getQueryData(source: Datasource): void {
       // 로딩 show
       this.loadingShow();
       // params
@@ -409,46 +381,43 @@ export class DataGridDataSourceComponent extends AbstractPopupComponent implemen
       // 조회
       this.datasourceService.getDatasourceQuery(params)
         .then((data) => {
-          (data && 0 < data.length) && ( res(data) );
+          if (data && 0 < data.length) {
+            // grid data
+            this._gridData = data;
+            // grid update
+            this._updateGrid(this._gridData, this.fields);
+          }
           // 로딩 hide
           this.loadingHide();
         })
-        .catch((err) => {
-          console.error(err);
-          rej(err);
-          // 로딩 hide
-          this.loadingHide();
-        });
-    });
+        .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
-   * linked 일때 grid data 얻기
-   * @param source
-   * @returns {Promise<any>}
+   * Get query data for linked type
+   * @param {Datasource} source
+   * @param {boolean} extractColumnName
    * @private
    */
-  private _getQueryDataInLinked(source: Datasource): Promise<any>  {
-    return new Promise((resolve, reject) => {
-      // 로딩 show
-      this.loadingShow();
-      // 프리셋을 생성한 연결형 : source.connection 사용
-      // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
-      const params = source.ingestion && (source.connection || source.ingestion.connection)
-        ? this._getConnectionParams(source.ingestion, source.connection ? source.connection : source.ingestion.connection)
-        : {};
-      this.connectionService.getTableDetailWitoutId(params)
-        .then((data) => {
-          resolve(data);
-          // 로딩 hide
-          this.loadingHide();
-        })
-        .catch((error) => {
-          reject(error);
-          // 로딩 hide
-          this.loadingHide();
-        })
-    });
+  private _getQueryDataInLinked(source: Datasource): void {
+    // 로딩 show
+    this.loadingShow();
+    // 프리셋을 생성한 연결형 : source.connection 사용
+    // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
+    const connection: Dataconnection = source.connection || source.ingestion.connection;
+    const params = source.ingestion && connection
+      ? this._getConnectionParams(source.ingestion, connection)
+      : {};
+    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE ? true : false)
+      .then((data) => {
+        // grid data
+        this._gridData = data['data'];
+        // grid update
+        this._updateGrid(this._gridData, this.fields);
+        // 로딩 hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**

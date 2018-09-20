@@ -32,7 +32,6 @@ import { InformationDataSourceComponent } from './data-source-list/detail-data-s
 import { DetailDataSourceComponent } from './data-source-list/detail-data-source/detail-data-source.component';
 import { DataPreviewModule } from '../common/data.preview.module';
 import { SchemaDetailComponent } from './component/schema-detail/schema-detail.component';
-import { SetFilterOrderComponent } from './component/set-filter-order/set-filter-order.component';
 import { TimeComponent } from './component/time-compoent/time.component';
 import { DndModule } from 'ng2-dnd';
 import { DbCompleteComponent } from './data-source-list/create-data-source/db-create-component/db-complete/db-complete.component';
@@ -58,6 +57,7 @@ import { DataGridDataSourceComponent } from './data-source-list/detail-data-sour
 import { ColumnDetailDataSourceComponent } from './data-source-list/detail-data-source/column-detail-data-source/column-detail-data-source.component';
 import { EditConfigSchemaComponent } from './data-source-list/detail-data-source/column-detail-data-source/edit-config-schema/edit-config-schema.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
+import { EditFilterDataSourceComponent } from './data-source-list/detail-data-source/edit-filter-data-source.component';
 import { IngestionSettingComponent } from './data-source-list/component/ingestion-setting.component';
 import { AdvancedSettingComponent } from './data-source-list/component/advanced-setting.component';
 
@@ -80,7 +80,6 @@ const storageRoutes: Routes = [
   declarations: [
     // common
     TimeComponent,
-    SetFilterOrderComponent,
     SchemaDetailComponent,
     SchemaChangeActionComponent,
     // data source
@@ -115,6 +114,7 @@ const storageRoutes: Routes = [
     SetWorkspacePublishedComponent,
     QueryDetailComponent,
     BatchHistoryComponent,
+    EditFilterDataSourceComponent,
     EditConfigSchemaComponent,
     // ingestion
     IngestionSettingComponent,

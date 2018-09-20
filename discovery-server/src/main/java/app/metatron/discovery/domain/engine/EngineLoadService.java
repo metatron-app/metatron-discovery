@@ -14,24 +14,10 @@
 
 package app.metatron.discovery.domain.engine;
 
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.ProgressResponse;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.common.fileloader.FileLoaderFactory;
-import app.metatron.discovery.common.fileloader.FileLoaderProperties;
-import app.metatron.discovery.domain.datasource.*;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpec;
-import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpecBuilder;
-import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -45,8 +31,28 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.ProgressResponse;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.common.fileloader.FileLoaderFactory;
+import app.metatron.discovery.common.fileloader.FileLoaderProperties;
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceIngetionException;
+import app.metatron.discovery.domain.datasource.DataSourceRepository;
+import app.metatron.discovery.domain.datasource.DataSourceTemporary;
+import app.metatron.discovery.domain.datasource.DataSourceTemporaryRepository;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpec;
+import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpecBuilder;
+import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSource.DataSourceType.VOLATILITY;
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.LoadStatus.ENABLE;
@@ -114,27 +120,26 @@ public class EngineLoadService {
     if (async) { // delay for subscribe time.
       try {
         Thread.sleep(3000);
-      } catch (InterruptedException e) {}
+      } catch (InterruptedException e) {
+      }
     }
 
     String sendTopicUri = String.format(TOPIC_LOAD_PROGRESS, temporaryId);
 
     boolean isVoatile = false;
 
-    if(StringUtils.isEmpty(dataSource.getId()) && dataSource.getDsType() == VOLATILITY) {
+    if (StringUtils.isEmpty(dataSource.getId()) && dataSource.getDsType() == VOLATILITY) {
       isVoatile = true;
       dataSourceRepository.saveAndFlush(dataSource);
     }
 
     // temporary 가 기존에 존재하는지 체크
     DataSourceTemporary temporary = null;
-    if(StringUtils.isEmpty(temporaryId)) {
+    if (StringUtils.isEmpty(temporaryId)) {
       temporaryId = PolarisUtils.randomUUID(DataSourceTemporary.ID_PREFIX, false);
     } else {
       temporary = temporaryRepository.findOne(temporaryId);
-      if(temporary == null) {
-        temporaryId = PolarisUtils.randomUUID(DataSourceTemporary.ID_PREFIX, false);
-      } else if (temporary.getStatus() == ENABLE) {  // 기존 로드된 Temporary 데이터 소스가 있을경우 바로 리턴
+      if (temporary != null && temporary.getStatus() == ENABLE) {
         temporary.reloadExpiredTime();
         return temporaryRepository.save(temporary);
       }
@@ -142,7 +147,7 @@ public class EngineLoadService {
 
     // 엔진에서 사용할 데이터 소스 이름 지정
     String engineName = null;
-    if(temporary == null) {
+    if (temporary == null) {
       engineName = dataSource.getEngineName() + '_' + PolarisUtils.randomString(5);
     } else {
       engineName = temporary.getName();
@@ -170,7 +175,7 @@ public class EngineLoadService {
       throw new DataSourceIngetionException("Fail to create temporary file : " + e.getMessage());
     }
 
-    if(CollectionUtils.isEmpty(tempResultFile)) {
+    if (CollectionUtils.isEmpty(tempResultFile)) {
       sendTopic(sendTopicUri, new ProgressResponse(-1, "FAIL_TO_LOAD_LINK_DATASOURCE"));
       throw new DataSourceIngetionException("Fail to create temporary file ");
     }
@@ -178,7 +183,7 @@ public class EngineLoadService {
     String tempFile = tempResultFile.get(0);
 
     // Check Timestamp Field
-    if(!dataSource.existTimestampField()) {
+    if (!dataSource.existTimestampField()) {
       // find timestamp field in datasource
       List<Field> timeFields = dataSource.getFields().stream()
                                          .filter(field -> field.getLogicalType() == LogicalType.TIMESTAMP)
@@ -231,7 +236,7 @@ public class EngineLoadService {
 
     LOGGER.info("Successfully load. Result is ", result);
 
-    if(temporary == null) {
+    if (temporary == null) {
       temporary =
           new DataSourceTemporary(temporaryId, engineName, dataSource.getId(),
                                   (String) result.get("queryId"), info.getExpired(),
@@ -241,13 +246,13 @@ public class EngineLoadService {
 
     temporaryRepository.saveAndFlush(temporary);
     long checkPeriod = Math.round(timeout / 50) * 1000L;
-    if(async) { // Send message to complete loading temporary datasource
+    if (async) { // Send message to complete loading temporary datasource
 
       boolean succeed = false;
       int count = 1;
       while (true) {
         // 50 회 loop 이면 종료
-        if(count == 90) {
+        if (count == 90) {
           break;
         } else {
           sendTopic(sendTopicUri, new ProgressResponse(count + 10, "PROGRESS_LOAD_TEMP_DATASOURCE"));
@@ -256,17 +261,18 @@ public class EngineLoadService {
         // timeout 값에 따른 checkPeriod 에 따른 상태 체크
         try {
           Thread.sleep(checkPeriod);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e) {
+        }
 
         LOGGER.debug("Check temporary datasource [{}] : {}", count, temporaryId);
-        if(checkExistLoadDataSource(engineName)) {
+        if (checkExistLoadDataSource(engineName)) {
           succeed = true;
           break;
         }
         count++;
       }
 
-      if(succeed) {
+      if (succeed) {
         temporary.setStatus(ENABLE);
       } else {
         // 이시점에서 실패하면 어쩌지?
@@ -297,24 +303,24 @@ public class EngineLoadService {
   public List<DataSourceTemporary> findTemporaryByDataSources(String dataSourceId) {
 
     List<DataSourceTemporary> temporaries = temporaryRepository.findAll();
-    if(CollectionUtils.isEmpty(temporaries)) {
+    if (CollectionUtils.isEmpty(temporaries)) {
       return temporaries;
     }
 
     final List<String> listDataSource = findLoadDataSourceNames();
 
     return temporaries.stream()
-               .filter(temp -> listDataSource.contains(temp.getName()))
-               .collect(Collectors.toList());
+                      .filter(temp -> listDataSource.contains(temp.getName()))
+                      .collect(Collectors.toList());
   }
 
   public boolean checkExistLoadDataSource(String dataSourceName) {
 
-    String result = engineMetaRepository.findLoadDataSourceInfo(dataSourceName);
+    Map<String, Object> resultMap = engineMetaRepository.getSegmentMetaData(dataSourceName);
 
-    LOGGER.debug("load Datasource info : {}", result);
+    LOGGER.debug("load Datasource info : {}", resultMap);
 
-    return StringUtils.isEmpty(result) ? false : true;
+    return (resultMap == null || resultMap.isEmpty()) ? false : true;
   }
 
   /**
@@ -325,7 +331,7 @@ public class EngineLoadService {
   private String copyLocalToRemoteBroker(String uploadFileName) {
 
     FileLoaderProperties properties = engineProperties.getQuery().getLoader();
-    if(properties == null) {
+    if (properties == null) {
       return uploadFileName;
     }
 
@@ -333,79 +339,5 @@ public class EngineLoadService {
 
     return remotePaths.get(0);
 
-  }
-
-//  private String copyLocalToRemoteBroker(String uploadFileName) {
-//
-//    EngineProperties.QueryInfo queryInfo = engineProperties.getQuery();
-//
-//    Map<String, EngineProperties.Host> brokers = queryInfo.getHosts();
-//
-//    // 여러개의 브로커가 존재할 경우 처리
-//    String remotePath = queryInfo.getLocalResultDir() + File.separator + new File(uploadFileName).getName();
-//
-//    if(MapUtils.isEmpty(brokers)) {
-//      LOGGER.debug("It's local broker!");
-//      return uploadFileName;
-//    }
-//
-//    String brokerHostname = null;
-//    EngineProperties.Host brokerHostInfo = null;
-//    for (String key : brokers.keySet()) {
-//      brokerHostname = key;
-//      brokerHostInfo = brokers.get(key);
-//
-//      if("localhost".equals(brokerHostname)) {
-//        LOGGER.debug("It's local broker!");
-//        return uploadFileName;
-//      }
-//
-//      try {
-//        SshUtils.copyLocalToRemoteFileByScp(Lists.newArrayList(uploadFileName),
-//                                            queryInfo.getLocalResultDir(),
-//                                            brokerHostname,
-//                                            brokerHostInfo.getPort(),
-//                                            brokerHostInfo.getUsername(),
-//                                            brokerHostInfo.getPassword());
-//      } catch (Exception e) {
-//        LOGGER.error("Fail to copy local files to {}", brokerHostname);
-//        throw new RuntimeException("Fail to copy local files to " + brokerHostname);
-//      }
-//      LOGGER.info("Successfully copy local files({}) to {}", uploadFileName, brokerHostname);
-//    }
-//
-//    return remotePath;
-//
-//  }
-
-  class ProgressTimerTask implements Runnable {
-
-    private String dataSourceName;
-
-    private boolean success;
-
-    private AtomicInteger increment = new AtomicInteger();
-
-    public ProgressTimerTask(String dataSourceName) {
-      this.dataSourceName = dataSourceName;
-    }
-
-    @Override
-    public void run() {
-      increment.getAndIncrement();
-
-      if(checkExistLoadDataSource(dataSourceName)) {
-        success = true;
-        Thread.currentThread().interrupt();
-      }
-    }
-
-    public boolean isSuccess() {
-      return success;
-    }
-
-    public AtomicInteger getIncrement() {
-      return increment;
-    }
   }
 }

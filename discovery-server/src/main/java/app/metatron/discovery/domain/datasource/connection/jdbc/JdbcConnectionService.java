@@ -290,7 +290,7 @@ public class JdbcConnectionService {
           //아직 Column List 이면 Continue
           if (isColumnInfo) {
             Field field = new Field();
-            field.setName(extractColumnName(columnName));
+            field.setName(removeDummyPrefixColumnName(columnName));
             field.setType(DataType.jdbcToFieldType(descType));
             field.setRole(field.getType().toRole());
             field.setOriginalType(descType);
@@ -776,10 +776,11 @@ public class JdbcConnectionService {
   }
 
   public JdbcQueryResultResponse selectQuery(JdbcDataConnection connection, DataSource dataSource, String query) {
-    return selectQuery(connection, dataSource, query, -1);
+    return selectQuery(connection, dataSource, query, -1, false);
   }
 
-  public JdbcQueryResultResponse selectQuery(JdbcDataConnection connection, DataSource dataSource, String query, int limit) {
+  public JdbcQueryResultResponse selectQuery(JdbcDataConnection connection, DataSource dataSource, String query,
+                                             int limit, boolean extractColumnName) {
 
     // int totalRows = countOfSelectQuery(connection, ingestion);
     JdbcQueryResultResponse queryResultSet = null;
@@ -796,7 +797,7 @@ public class JdbcConnectionService {
 
       rs = stmt.executeQuery(query);
 
-      queryResultSet = getResult(rs);
+      queryResultSet = getResult(rs, extractColumnName);
       // queryResultSet.setTotalRows(totalRows);
     } catch (Exception e) {
       LOGGER.error("Fail to query for select :  {}", e.getMessage());
@@ -814,7 +815,8 @@ public class JdbcConnectionService {
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
-                                                         int limit) {
+                                                         int limit,
+                                                         boolean extractColumnName) {
     if (connection instanceof MySQLConnection
         || connection instanceof HiveConnection
         || connection instanceof PrestoConnection) {
@@ -842,10 +844,10 @@ public class JdbcConnectionService {
 
       String queryString = nativeCriteria.toSQL();
       LOGGER.debug("selectQueryForIngestion SQL : {} ", queryString);
-      queryResultSet = selectQuery(connection, dataSource, queryString, limit);
+      queryResultSet = selectQuery(connection, dataSource, queryString, limit, extractColumnName);
     } else {
       LOGGER.debug("selectQueryForIngestion SQL : {} ", query);
-      queryResultSet = selectQuery(connection, dataSource, query, limit);
+      queryResultSet = selectQuery(connection, dataSource, query, limit, extractColumnName);
     }
 
 
@@ -856,9 +858,19 @@ public class JdbcConnectionService {
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
+                                                         int limit,
+                                                         boolean extractColumnName) {
+    return selectQueryForIngestion(connection, getDataSource(connection, true),
+            schema, type, query, limit, extractColumnName);
+  }
+
+  public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
+                                                         String schema,
+                                                         JdbcIngestionInfo.DataType type,
+                                                         String query,
                                                          int limit) {
     return selectQueryForIngestion(connection, getDataSource(connection, true),
-                                   schema, type, query, limit);
+                                   schema, type, query, limit, false);
   }
 
   public JdbcQueryResultResponse ddlQuery(JdbcDataConnection connection,
@@ -1167,7 +1179,7 @@ public class JdbcConnectionService {
                                 "Required Batch type Jdbc ingestion information.");
 
     Field timestampField = fields.stream()
-                                 .filter(field -> field.getBiType() == Field.BIType.TIMESTAMP)
+                                 .filter(field -> field.getRole() == Field.FieldRole.TIMESTAMP)
                                  .findFirst().orElseThrow(() -> new RuntimeException("Timestamp field required."));
 
     BatchIngestionInfo batchIngestionInfo = (BatchIngestionInfo) ingestionInfo;
@@ -1252,14 +1264,22 @@ public class JdbcConnectionService {
   }
 
   public JdbcQueryResultResponse getResult(ResultSet rs) throws SQLException {
+    return getResult(rs, false);
+  }
 
+  public JdbcQueryResultResponse getResult(ResultSet rs, boolean extractColumnName) throws SQLException {
     ResultSetMetaData metaData = rs.getMetaData();
 
     int colNum = metaData.getColumnCount();
 
     List<Field> fields = Lists.newArrayList();
     for (int i = 1; i <= colNum; i++) {
-      final String fieldName = extractColumnName(metaData.getColumnLabel(i));
+      final String fieldName;
+      if(extractColumnName){
+        fieldName = extractColumnName(metaData.getColumnLabel(i));
+      } else {
+        fieldName = removeDummyPrefixColumnName(metaData.getColumnLabel(i));
+      }
       String uniqueFieldName = generateUniqueColumnName(fieldName, fields);
 
       Field field = new Field();
@@ -1295,8 +1315,18 @@ public class JdbcConnectionService {
   /**
    * Remove prefix for dummy table
    */
-  private String extractColumnName(String name) {
+  private String removeDummyPrefixColumnName(String name) {
     return StringUtils.removeStartIgnoreCase(name, RESULTSET_COLUMN_PREFIX);
+  }
+
+  /**
+   * Remove table name
+   */
+  private String extractColumnName(String name) {
+    if(StringUtils.contains(name, ".")){
+      return StringUtils.substring(name, StringUtils.lastIndexOf(name, ".") + 1, name.length());
+    }
+    return name;
   }
 
   private String generateUniqueColumnName(String fieldName, List<Field> fieldList) {
