@@ -1,7 +1,7 @@
 <div class="ddp-ui-chart-side ddp-show">
 
   <div class="ddp-ui-side-title">
-    레이어 설정
+    {{'msg.page.layer.map' | translate}}
   </div>
   <div class="ddp-wrap-downmenu">
     <div class="ddp-box-down">
@@ -9,7 +9,7 @@
         <!-- divide -->
         <div class="ddp-divide2 ">
             <div class="ddp-list-label">
-              {{'msg.page.map.layer.name' | translate}}
+              {{'msg.page.layer.map.name' | translate}}
             </div>
             <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.layers[0].name">
         </div>
@@ -17,13 +17,13 @@
         <!-- divide -->
         <div class="ddp-divide2 ">
             <div class="ddp-list-label">
-              {{'msg.page.map.layer.type' | translate}}
+              {{'msg.page.layer.map.type' | translate}}
                :
-               <strong *ngIf="type === 'symbol'">기호</strong>
-               <strong *ngIf="type === 'line'">선</strong>
-               <strong *ngIf="type === 'polygon'">폴리곤</strong>
-               <strong *ngIf="type === 'heatmap'">히트맵</strong>
-               <strong *ngIf="type === 'tile'">타일</strong>
+               <strong *ngIf="type === 'symbol'">{{'msg.page.layer.map.type.point' | translate}}</strong>
+               <strong *ngIf="type === 'line'">{{'msg.page.layer.map.type.line' | translate}}</strong>
+               <strong *ngIf="type === 'polygon'">{{'msg.page.layer.map.type.polygon' | translate}}</strong>
+               <strong *ngIf="type === 'heatmap'">{{'msg.page.layer.map.type.heatmap' | translate}}</strong>
+               <strong *ngIf="type === 'tile'">{{'msg.page.layer.map.type.tile' | translate}}</strong>
              </div>
             <div class="ddp-wrap-tab-type">
                 <ul class="ddp-list-tab-type">
@@ -34,7 +34,7 @@
                         <!-- tooltip -->
                         <div class="ddp-ui-tooltip-info">
                             <em class="ddp-icon-view-top"></em>
-                            <span class="ddp-txt-tooltip">기호</span>
+                            <span class="ddp-txt-tooltip">{{'msg.page.layer.map.type.point' | translate}}</span>
                         </div>
                         <!-- //tooltip -->
 
@@ -46,7 +46,7 @@
                         <!-- tooltip -->
                         <div class="ddp-ui-tooltip-info">
                             <em class="ddp-icon-view-top"></em>
-                            <span class="ddp-txt-tooltip">선</span>
+                            <span class="ddp-txt-tooltip">{{'msg.page.layer.map.type.line' | translate}}</span>
                         </div>
                         <!-- //tooltip -->
 
@@ -58,7 +58,7 @@
                         <!-- tooltip -->
                         <div class="ddp-ui-tooltip-info">
                             <em class="ddp-icon-view-top"></em>
-                            <span class="ddp-txt-tooltip">폴리곤</span>
+                            <span class="ddp-txt-tooltip">{{'msg.page.layer.map.type.polygon' | translate}}</span>
                         </div>
                         <!-- //tooltip -->
 
@@ -70,7 +70,7 @@
                         <!-- tooltip -->
                         <div class="ddp-ui-tooltip-info">
                             <em class="ddp-icon-view-top"></em>
-                            <span class="ddp-txt-tooltip">히트맵</span>
+                            <span class="ddp-txt-tooltip">{{'msg.page.layer.map.type.heatmap' | translate}}</span>
                         </div>
                         <!-- //tooltip -->
                     </li>
@@ -81,7 +81,7 @@
                         <!-- tooltip -->
                         <div class="ddp-ui-tooltip-info">
                             <em class="ddp-icon-view-top"></em>
-                            <span class="ddp-txt-tooltip">타일</span>
+                            <span class="ddp-txt-tooltip">{{'msg.page.layer.map.type.tile' | translate}}</span>
                         </div>
                         <!-- //tooltip -->
 
@@ -97,25 +97,25 @@
         <div class="ddp-wrap-divide">
             <!-- divide -->
             <div class="ddp-divide2 ">
-                <div class="ddp-list-label">기호 유형</div>
+                <div class="ddp-list-label">{{'msg.page.layer.map.point' | translate}}</div>
                 <ul class="ddp-list-express ddp-tab6 ddp-type2">
                     <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'CIRCLE'}" (click)="symbolType('CIRCLE');">
-                        <em class="ddp-icon-circle"></em> 원형
+                        <em class="ddp-icon-circle"></em> {{'msg.page.layer.map.point.circle' | translate}}
                     </li>
                     <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'SQUARE'}" (click)="symbolType('SQUARE');">
-                        <em class="ddp-icon-square"></em> 사각형
+                        <em class="ddp-icon-square"></em> {{'msg.page.layer.map.point.square' | translate}}
                     </li>
                     <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'TRIANGLE'}" (click)="symbolType('TRIANGLE');">
-                        <em class="ddp-icon-triangle"></em> 삼각형
+                        <em class="ddp-icon-triangle"></em> {{'msg.page.layer.map.point.triangle' | translate}}
                     </li>
                     <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'PIN'}" (click)="symbolType('PIN');">
-                        <em class="ddp-icon-pin"></em> 핀
+                        <em class="ddp-icon-pin"></em> {{'msg.page.layer.map.point.pin' | translate}}
                     </li>
                     <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'PLANE'}" (click)="symbolType('PLANE');">
-                        <em class="ddp-icon-fly"></em> 비행기
+                        <em class="ddp-icon-fly"></em> {{'msg.page.layer.map.point.plain' | translate}}
                     </li>
                     <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'USER'}" (click)="symbolType('USER');">
-                        <em class="ddp-icon-user"></em> 사용자
+                        <em class="ddp-icon-user"></em> {{'msg.page.layer.map.point.people' | translate}}
                     </li>
                 </ul>
 
@@ -124,10 +124,10 @@
 
             <!-- divide -->
             <div class="ddp-divide2 ">
-                <div class="ddp-list-label">색상</div>
+                <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
                 <div class="ddp-list-sub2">
                     <div class="ddp-divide2">
-                      <div class="ddp-list-label">색상 기준</div>
+                      <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                       <!-- 사용자 색상 설정 'on' 인 경우 ddp-disabled 추가 -->
                       <div class="ddp-wrap-divide" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}">
                         <!-- part -->
@@ -249,12 +249,12 @@
                       </div>
                     </div>
                     <div class="ddp-divide2">
-                        <div class="ddp-list-label">투명도</div>
+                        <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                         <!-- SELECTBOX -->
                         <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
                             <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? '사용안함' : uiOption.layers[0].color.transparency }}</span>
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
-                                <li (click)="changeTransparency(100)"><a href="#">사용안함</a></li>
+                                <li (click)="changeTransparency(100)"><a href="#">{{'msg.page.layer.map.color.transparency.none' | translate}}</a></li>
                                 <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
                                 <li (click)="changeTransparency(60)"><a href="#">60%</a></li>
                                 <li (click)="changeTransparency(40)"><a href="#">40%</a></li>
@@ -271,16 +271,16 @@
         <div class="ddp-wrap-divide">
             <!-- divide -->
             <div class="ddp-divide2 ">
-                <div class="ddp-list-label">크기</div>
+                <div class="ddp-list-label">{{'msg.page.layer.map.size' | translate}}</div>
                 <div class="ddp-list-sub2">
                     <div class="ddp-divide2">
-                        <div class="ddp-list-label">크기 기준</div>
+                        <div class="ddp-list-label">{{'msg.page.layer.map.size.by' | translate}}</div>
                         <!-- SELECTBOX -->
                         <div class="ddp-type-selectbox" (click)="sizeTypeFlag=!sizeTypeFlag;" (clickOutside)="sizeTypeFlag=false" [excludeBeforeClick]="true">
                             <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].size.by }}</span>
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
-                                <li (click)="changeSizeType('NONE')"><a href="#">없음</a></li>
-                                <li (click)="changeSizeType('MEASURE')"><a href="#">측정값</a></li>
+                                <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.size.by.none' | translate}}</a></li>
+                                <li (click)="changeSizeType('MEASURE')"><a href="#">{{'msg.page.layer.map.size.by.measure' | translate}}</a></li>
                             </ul>
                         </div>
                         <!-- //SELECTBOX -->
@@ -307,7 +307,7 @@
             <!-- divide -->
             <div class="ddp-divide2 ">
                 <div class="ddp-wrap-option-slider">
-                    <span class="ddp-label-slider">아웃라인</span>
+                    <span class="ddp-label-slider">{{'msg.page.layer.map.outline' | translate}}</span>
                     <!-- Slide THREE -->
                     <div class="ddp-checkbox-slide ddp-checkbox-automatic2" >
                         <input type="checkbox" name="check" [checked]="uiOption.layers[0].outline.thickness !== 'NONE'" (click)="changeOutlineFlag()">
@@ -319,7 +319,7 @@
 
                 <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
                     <div class="ddp-col-7">
-                        <span class="ddp-label-txt">색상</span>
+                        <span class="ddp-label-txt">{{'msg.page.layer.map.outline.color' | translate}}</span>
                     </div>
                     <div class="ddp-col-5 ddp-txt-right">
                       <div *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'" class="ddp-wrap-option-multy ddp-clear">
@@ -338,7 +338,7 @@
                 <!-- multy -->
                 <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
                     <div class="ddp-col-6">
-                        <span class="ddp-label-txt">굵기</span>
+                        <span class="ddp-label-txt">{{'msg.page.layer.map.outline.thickness' | translate}}</span>
                     </div>
                     <div class="ddp-col-6 ddp-txt-right">
                         <ul class="ddp-list-express ddp-tab3 ddp-type">
@@ -357,7 +357,7 @@
                 <label class="ddp-label-checkbox ddp-position">
                     <input type="checkbox" [checked]="uiOption.layers[0].clustering" (click)="changeClusteringFlag()">
                     <i class="ddp-icon-checkbox"></i>
-                    <span class="ddp-txt-checkbox">클러스터링</span>
+                    <span class="ddp-txt-checkbox">{{'msg.page.layer.map.clustering' | translate}}</span>
                 </label>
             </div>
         </div>

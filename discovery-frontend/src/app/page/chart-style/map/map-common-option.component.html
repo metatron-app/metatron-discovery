@@ -6,20 +6,20 @@
   <div class="ddp-wrap-downmenu">
     <div class="ddp-box-down">
       <div class="ddp-wrap-divide">
-        <div class="ddp-list-label">색상</div>
+        <div class="ddp-list-label">{{'msg.page.common.map.layer' | translate}}</div>
           <div class="ddp-list-sub2">
             <!-- divide -->
             <div class="ddp-divide2">
                 <div class="ddp-wrap-option-multy ddp-clear">
                     <div class="ddp-col-4">
-                        <span class="ddp-label-txt">지도설정</span>
+                        <span class="ddp-label-txt">{{'msg.page.common.map.layer.service' | translate}}</span>
                     </div>
                     <div class="ddp-col-8">
                       <!-- SELECTBOX -->
                       <div class="ddp-type-selectbox" (click)="mapTypeFlag=!mapTypeFlag;" (clickOutside)="mapTypeFlag=false" [excludeBeforeClick]="true">
                           <span class="ddp-txt-selectbox">{{ uiOption.map.toString() === 'NONE' ? 'none' : uiOption.map }}</span>
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="mapTypeFlag">
-                              <li (click)="changeMapType('NONE')"><a href="#">없음</a></li>
+                              <li (click)="changeMapType('NONE')"><a href="#">{{'msg.page.common.map.layer.service.none' | translate}}</a></li>
                               <li (click)="changeMapType('OSM')"><a href="#">OpenStreetMap</a></li>
                               <li (click)="changeMapType('POSITRON')"><a href="#">Positron</a></li>
                               <li (click)="changeMapType('DARK')"><a href="#">Dark</a></li>
@@ -34,7 +34,7 @@
             <div class="ddp-divide2">
                 <div class="ddp-wrap-option-multy ddp-clear">
                     <div class="ddp-col-5">
-                        <span class="ddp-label-txt">라이선스 표기</span>
+                        <span class="ddp-label-txt">{{'msg.page.common.map.layer.license' | translate}}</span>
                     </div>
                     <div class="ddp-col-7">
                         <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation">
