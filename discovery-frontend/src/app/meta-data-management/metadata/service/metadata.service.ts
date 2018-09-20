@@ -165,7 +165,7 @@ export class MetadataService extends AbstractService {
    * @returns {Promise<any>}
    */
   public getMetadataForDataSource(sourceId:string):Promise<any> {
-    return this.get(this.URL_METADATA + `/metasources/${sourceId}?projection=forItemView`);
+    return this.post(this.URL_METADATA + `/metasources/${sourceId}?projection=forItemView`, {});
   } // function - getMetadataForDataSource
 
   /**
@@ -176,7 +176,12 @@ export class MetadataService extends AbstractService {
    * @param {string} projection
    * @returns {Promise<any>}
    */
-  public getMetadataByConnection(connId: string, schemaName: string, tableName: string, projection: string = 'forItemView'): Promise<any> {
-    return this.get(this.URL_METADATA + `/metasources/${connId}?schema=${schemaName}&table=${tableName}&projection=${projection}`);
+  public getMetadataByConnection(connId: string, schemaName: string, tableName: object, projection: string = 'forItemView'): Promise<any> {
+    // param data 생성
+    let param = {
+      "schema"  : schemaName,
+      "table"   : tableName
+    };
+    return this.post(this.URL_METADATA + `/metasources/${connId}?projection=${projection}`, param );
   }
 }

@@ -732,6 +732,16 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
   } // function - applyRuleFromContextMenu
 
+
+  /**
+   * Returns selected columns
+   * @returns {string[]}
+   */
+  public getSelectedColumns(): string[] {
+    return this._selectedColumns;
+  }
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Util Method - 추후 Util 로 빠져야 하는 메서드 모음
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

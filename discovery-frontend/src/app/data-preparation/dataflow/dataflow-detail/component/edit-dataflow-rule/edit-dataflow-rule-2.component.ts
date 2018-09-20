@@ -162,6 +162,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   // 그리드 헤더 클릭 이벤트 제거 ( 임시 )
   public isDisableGridHeaderClickEvent: boolean = false;
 
+  public isEnterKeyPressedFromOuter: boolean = false;
+
+
   get filteredWrangledDatasets() {
     if (this.dataflow['_embedded'].datasets.length === 0) return [];
 
@@ -219,8 +222,16 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // 필드 펼침/숨김에 대한 이벤트
     this.subscriptions.push(
       this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean }) => {
-        this.isMultiColumnListShow = data.isShow;
-        this.isCommandListShow = false;
+
+        if (data.id === 'toggleList') {
+          this.isMultiColumnListShow = data.isShow;
+        } else if(data.id === 'enterKey') {
+          this.isEnterKeyPressedFromOuter = true;
+        } else {
+          this.isMultiColumnListShow = data.isShow;
+          this.isCommandListShow = false;
+        }
+
       })
     );
 
@@ -392,6 +403,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // this.initRule();
 
     this.ruleVO.ignoreCase = false;
+
+    // TODO : Added getting selected columns from grid because didn't show selected columns when command is changed on edit
+    this.selectedColumns = this._editRuleGridComp.getSelectedColumns();
     this.ruleVO.cols = this.selectedColumns;
 
     if (isNullOrUndefined(command)) {
@@ -1586,8 +1600,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         && !this.isRuleJoinModalShow
         && this.step !== 'create-snapshot' && !hasFocus
         && !this.extendInputFormulaComponent.isShow
+        && isNullOrUndefined(this.isEnterKeyPressedFromOuter)
       ) {
         this.addRule();
+      } else {
+        this.isEnterKeyPressedFromOuter = undefined;
       }
     }
   }

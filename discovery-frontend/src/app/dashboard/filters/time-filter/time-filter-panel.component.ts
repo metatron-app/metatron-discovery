@@ -303,28 +303,28 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
     this._tempRangeFilter = null;
     this._tempListFilter = null;
 
-    // 패널에서 사용하는 데이터 설정
-    this.setPanelData(filter);
-
-    // 타임스탬프인지 판단
-    if (this.field && this.field.biType === BIType.TIMESTAMP
-      && this.field.role === FieldRole.TIMESTAMP) {
-      this.isTimeStamp = true;
-    } else if (this.field == null && filter.field === 'current_datetime') {
-      this.isTimeStamp = true;
-    }
-
     this.filter = filter;
 
-    this.dataSource = FilterUtil.getDataSourceForFilter(filter, this.dashboard);
+    this.setPanelData(filter);    // 패널에서 사용하는 데이터 설정
 
-    this._setStatus();
+    if( this.dataSource )  {
 
-    // 위젯 화면 표시
-    this.isShowFilter = true;
+      // 타임스탬프인지 판단
+      if (this.field && this.field.biType === BIType.TIMESTAMP
+        && this.field.role === FieldRole.TIMESTAMP) {
+        this.isTimeStamp = true;
+      } else if (this.field == null && filter.field === 'current_datetime') {
+        this.isTimeStamp = true;
+      }
 
-    if (isTriggerUpdateEvent) {
-      this.updateFilterEvent.emit(filter);
+      this._setStatus();
+
+      // 위젯 화면 표시
+      this.isShowFilter = true;
+
+      if (isTriggerUpdateEvent) {
+        this.updateFilterEvent.emit(filter);
+      }
     }
 
     this.safelyDetectChanges();

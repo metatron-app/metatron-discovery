@@ -15,7 +15,6 @@
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
 import { Alert } from '../../../../../common/util/alert.util';
-import { isNullOrUndefined } from 'util';
 import { EventBroadcaster } from '../../../../../common/event/event.broadcaster';
 
 @Component({
@@ -103,6 +102,34 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
     this.top = data.top + 'px';
     this.left = data.left + 'px';
 
+
+    // Check if settype rule should be disasbled or not
+    let indexArray = [];
+    selectedColumns.forEach((item) => {
+      if (-1 !== this.selectedGridResponse.colNames.indexOf(item) ) {
+        indexArray.push(this.selectedGridResponse.colNames.indexOf(item));
+      }
+    });
+
+    let isAllTimestampTypes = false;
+    if (indexArray.length !== 0 && indexArray.length > 1) {
+      indexArray.forEach((item) => {
+        if (this.selectedGridResponse.colDescs[item].type === 'TIMESTAMP'){
+          isAllTimestampTypes = true;
+        }
+      })
+    }
+
+    let isSetformatDisable = false;
+    if (indexArray.length !== 0 && indexArray.length > 1) {
+      indexArray.forEach((item) => {
+        if (this.selectedGridResponse.colDescs[item].type !== 'TIMESTAMP'){
+          isSetformatDisable = true;
+        }
+      })
+    }
+
+
     this.commandList = [
       {label : 'Drop', value: 'drop', iconClass: 'ddp-icon-drop-editdel3' , command: 'drop'},
       {label : 'Alter', value: 'rename', iconClass: 'ddp-icon-drop-change',
@@ -112,11 +139,11 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               {label : 'Long', value : 'Long', command : 'settype'},
               {label : 'Double', value : 'Double', command : 'settype'},
               {label : 'Boolean', value : 'Boolean', command : 'settype'},
-              {label : 'Timestamp', value : 'Timestamp', command : 'settype'},
+              {label : 'Timestamp', value : 'Timestamp', command : 'settype', disabled : this.originalSelectedCols.length === 1? this.selectedColumnType === 'TIMESTAMP' : isAllTimestampTypes },
               {label : 'String', value : 'String', command : 'settype'}
               ]
           },
-          {label : 'Set format', value : 'setformat', command: 'setformat', disabled : this.selectedColumnType !== 'TIMESTAMP' },
+          {label : 'Set format', value : 'setformat', command: 'setformat', disabled : this.originalSelectedCols.length === 1? this.selectedColumnType !== 'TIMESTAMP' : isSetformatDisable },
           {label : 'Column name', value : 'rename', command: 'rename' }
           ]
       },

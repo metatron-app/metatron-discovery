@@ -32,6 +32,7 @@ import {
   InclusionSelectorType
 } from '../../../domain/workbook/configurations/filter/inclusion-filter';
 import { DashboardUtil } from '../../util/dashboard.util';
+import { Datasource } from '../../../domain/datasource/datasource';
 
 @Component({
   selector: 'dashboard-widget-header',
@@ -75,6 +76,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
 
   public isMiniHeader: boolean = false;  // 미니 헤더 적용 여부
   public isShowMore: boolean = false;    // 미니 헤더 More 적용 여부
+  public isValidWidget: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -104,6 +106,16 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
   public ngAfterViewInit() {
     // Header 내 아이콘이 그러지지 않는 상황에 대한 임시 해결
     setTimeout(() => {
+
+      if (this.isPageWidget && this.widget && (<PageWidgetConfiguration>this.widget.configuration).dataSource) {
+        const widgetDataSource: Datasource
+          = DashboardUtil.getDataSourceFromBoardDataSource(
+          this.widget.dashBoard, (<PageWidgetConfiguration>this.widget.configuration).dataSource
+        );
+
+        (widgetDataSource) && ( this.isValidWidget = true );
+      }
+
       this.changeDetect.detectChanges();
     }, 200);
   }
@@ -130,12 +142,15 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * 데이터소스 이름 조회
    * @return {string}
    */
-  public getDataSourceName():string {
+  public getDataSourceName(): string {
     let strName: string = '';
-    if( this.isPageWidget && this.widget && (<PageWidgetConfiguration>this.widget.configuration).dataSource ) {
-      strName = DashboardUtil.getDataSourceFromBoardDataSource(
+    if (this.isPageWidget && this.widget && (<PageWidgetConfiguration>this.widget.configuration).dataSource) {
+      const widgetDataSource: Datasource
+        = DashboardUtil.getDataSourceFromBoardDataSource(
         this.widget.dashBoard, (<PageWidgetConfiguration>this.widget.configuration).dataSource
-      ).name;
+      );
+
+      (widgetDataSource) && (strName = widgetDataSource.name);
     }
     return strName;
   } // function - getDataSourceName
@@ -185,7 +200,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * 차트 필터 존재 여부
    * @return {boolean}
    */
-  public existChartFilter():boolean {
+  public existChartFilter(): boolean {
     return (this.isPageWidget && this.widget
       && (<PageWidgetConfiguration>this.widget.configuration).filters
       && 0 < (<PageWidgetConfiguration>this.widget.configuration).filters.length);
@@ -195,7 +210,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * 차트 필터 필드 목록 반환
    * @return {string}
    */
-  public getChartFilterStr():string {
+  public getChartFilterStr(): string {
     let strFields: string = '';
     if (this.isPageWidget && this.widget && (<PageWidgetConfiguration>this.widget.configuration).filters) {
       strFields = (<PageWidgetConfiguration>this.widget.configuration).filters.map(item => item.field).join(',');
@@ -376,14 +391,18 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * 위젯 수정
    */
   public editWidget() {
-  this.broadCaster.broadcast('EDIT_WIDGET', { widgetId: this.widget.id, widgetType: this.widget.type });
+    if (this.isValidWidget) {
+      this.broadCaster.broadcast('EDIT_WIDGET', { widgetId: this.widget.id, widgetType: this.widget.type });
+    }
   } // function - editWidget
 
   /**
    * 위젯 복제
    */
   public copyPageWidget() {
-  this.broadCaster.broadcast('COPY_WIDGET', { widgetId: this.widget.id });
+    if (this.isValidWidget) {
+      this.broadCaster.broadcast('COPY_WIDGET', { widgetId: this.widget.id });
+    }
   } // function - copyPageWidget
 
   /**
@@ -401,7 +420,7 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
    * 위젯 삭제
    */
   public removeWidget() {
-  this.broadCaster.broadcast('REMOVE', { widgetId: this.widget.id, widgetType: this.widget.type });
+    this.broadCaster.broadcast('REMOVE', { widgetId: this.widget.id, widgetType: this.widget.type });
   } // function - removeWidget
 
   /**

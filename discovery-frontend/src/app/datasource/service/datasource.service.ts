@@ -365,7 +365,8 @@ export class DatasourceService extends AbstractService {
     else if (_.eq(pageConf.chart.type, 'network')) {
       query.resultFormat = {
         type: 'graph',
-        useLinkCount: true
+        useLinkCount: true,
+        mergeNode: true
       };
     }
 

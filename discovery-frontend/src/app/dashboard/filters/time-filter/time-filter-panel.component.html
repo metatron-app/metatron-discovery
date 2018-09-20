@@ -78,7 +78,7 @@
     <div *ngIf="filter" class="ddp-itemtype-title">
       <div class="ddp-data-itemtype ddp-type">
         <span class="ddp-icon-box">
-          <em class="{{getDimensionTypeIconClass(field)}}" ></em>
+          <em *ngIf="field" class="{{getDimensionTypeIconClass(field)}}" ></em>
           <em class="ddp-icon-use3" *ngIf="isWidgetInLayout"></em>
         </span>
         <span class="ddp-txt-itemtype">

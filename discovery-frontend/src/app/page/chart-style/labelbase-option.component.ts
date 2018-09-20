@@ -68,34 +68,52 @@ export class LabelBaseOptionComponent extends BaseOptionComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
-   * series datalabel, tooltip disable처리 여부
+   * set category datalabel, tooltip disable
    */
-  public checkSeriesDisable(): boolean {
+  public checkCategoryDisable(): boolean {
 
-    let seriesShow: boolean = false;
+    let categoryDisable: boolean = false;
 
     switch (this.uiOption.type) {
-      // 바차트일때에는 중첩형인경우에만 series를 보여줌
+      // when bar chart has multi series, disable category value, category percentage
       case ChartType.BAR:
-        if ((this.pivot.aggregations.length > 1 || this.pivot.rows.length >= 1) && BarMarkType.STACKED == (<UIBarChart>this.uiOption).mark) {
-          seriesShow = true;
+        if ((this.pivot.aggregations.length > 1 || this.pivot.rows.length >= 1)) {
+          categoryDisable = true;
         }
         break;
 
-      // 라인차트인경우 멀티 시리즈일때에만 series를 보여줌
+      // when line chart has multi series, disable category value, category percentage
       case ChartType.LINE:
-        if (this.pivot.aggregations.length > 1) seriesShow = true;
-        break;
-
-      // 그이외의 차트일때
-      default:
-        seriesShow = true;
+        if (this.pivot.aggregations.length > 1) categoryDisable = true;
         break;
     }
 
-    return seriesShow;
+    return categoryDisable;
+  }
+
+  /**
+   * set series datalabel, tooltip disable
+   */
+  public checkSeriesDisable(): boolean {
+
+    let seriesDisable: boolean = false;
+
+    switch (this.uiOption.type) {
+      // when bar chart has single series, disable series
+      case ChartType.BAR:
+        if (this.pivot.aggregations.length <= 1 && this.pivot.rows.length < 1) {
+          seriesDisable = true;
+        }
+        break;
+
+      // when line chart has single series, disable series
+      case ChartType.LINE:
+        if (this.pivot.aggregations.length <= 1) seriesDisable = true;
+        break;
+    }
+
+    return seriesDisable;
   }
 
   /**
