@@ -58,6 +58,7 @@
       <input type="text" class="ddp-input-typebasic ddp-value" placeholder="{{'msg.bench.ui.input.val'|translate}}" [(ngModel)]="item.globalVar" maxlength="20" *ngIf="item.globalType === 't'">
       <component-date *ngIf="item.globalType === 'c'"
         [date]="item.globalVar"
+        [isReadOnly]="true"
         [placeholder]="'msg.bench.ui.input.date'|translate"
         (onDateChange)="item.globalVar = $event">
       </component-date>

@@ -159,6 +159,8 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
       Alert.info(this.translateService.instant('msg.bench.alert.input.variable.val'));
       return;
     }
+    // TODO check duplicate variable
+
     this.addVariableEvent.emit('${' + item.globalNm + '}');
   }
 

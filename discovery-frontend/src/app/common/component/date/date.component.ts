@@ -44,6 +44,9 @@ export class DateComponent extends AbstractComponent implements OnInit {
   @ViewChild('date')
   public dateInput: ElementRef;
 
+  @Input('isReadOnly')
+  public isReadOnly: boolean = false;
+
   @Output()
   public onDateChange = new EventEmitter();
 
