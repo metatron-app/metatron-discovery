@@ -189,7 +189,7 @@
 
                             <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
                               <div class="ddp-col-6">
-                                <span class="ddp-label-txt">색상</span>
+                                <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                               </div>
                               <div class="ddp-col-6 ddp-txt-right">
                                 <!-- selectbox -->
@@ -284,19 +284,17 @@
                             </ul>
                         </div>
                         <!-- //SELECTBOX -->
-                    </div>
 
-                    <div class="ddp-divide2">
-                        <!-- SELECTBOX -->
-                        <div *ngIf="uiOption.layers[0].size.by.toString() !== 'NONE'" class="ddp-type-selectbox" (click)="sizeColumnFlag=!sizeColumnFlag;" (clickOutside)="sizeColumnFlag=false" [excludeBeforeClick]="true">
-                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.column.toString() === 'NONE' ? 'NONE' : uiOption.layers[0].size.column }}</span>
-                            <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeColumnFlag">
-                                <li (click)="changeSizeColumn('NONE')"><a href="#">NONE</a></li>
-                                <li (click)="changeSizeColumn('amt')"><a href="#">col1</a></li>
-                                <li (click)="changeSizeColumn('py')"><a href="#">col2</a></li>
-                            </ul>
+                        <!-- part -->
+                        <div class="ddp-list-part ddp-divide" *ngIf="uiOption.layers[0].size.by.toString() === 'MEASURE'">
+                          <!-- SELECTBOX -->
+                          <component-select
+                            [array]="measureList"
+                            [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[0].size['column'])"
+                            (onSelected)="changeSizeColumn($event)"
+                          ></component-select>
                         </div>
-                        <!-- //SELECTBOX -->
+                        <!-- //part -->
                     </div>
                 </div>
             </div>

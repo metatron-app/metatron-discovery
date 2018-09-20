@@ -221,11 +221,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       let featureSize = 5;
       if(featureSizeType === 'MEASURE') {
-        featureSize = parseInt(feature.get(styleOption.layers[0].size.column)) / 10000;
+        featureSize = parseInt(feature.get(styleOption.layers[0].size.column)) / (styleData[0].valueRange.maxValue / 30);
       }
 
       if(featureColorType === 'MEASURE') {
-        let colorList = ChartColorList[featureColor['colorNum']];
+        let colorList = ChartColorList[featureColor];
         let avgNum = styleData[0].valueRange.maxValue / colorList.length;
 
         for(let i=0;i<colorList.length;i++) {
@@ -237,7 +237,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         // featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       } else if(featureColorType === 'DIMENSION') {
-        let colorList = ChartColorList[featureColor['colorNum']];
+        let colorList = ChartColorList[featureColor];
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       }
 
@@ -430,7 +430,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
 
       if(featureColorType === 'MEASURE') {
-        let colorList = ChartColorList[featureColor['colorNum']];
+        let colorList = ChartColorList[featureColor];
         let avgNum = styleData[0].valueRange.maxValue / colorList.length;
 
         for(let i=0;i<colorList.length;i++) {
@@ -442,7 +442,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         // featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       } else if(featureColorType === 'DIMENSION') {
-        let colorList = ChartColorList[featureColor['colorNum']];
+        let colorList = ChartColorList[featureColor];
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       }
 
@@ -535,10 +535,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
 
       if(featureColorType === 'MEASURE') {
-        let colorList = ChartColorList[featureColor.colorNum];
+        let colorList = ChartColorList[featureColor];
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       } else if(featureColorType === 'DIMENSION') {
-        let colorList = ChartColorList[featureColor.colorNum];
+        let colorList = ChartColorList[featureColor];
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       }
 
@@ -712,7 +712,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     });
 
     let featureColor = this.uiOption.layers[0].color.schema;
-    let colorList = ChartColorList[featureColor['colorNum']];
+    let colorList = ChartColorList[featureColor];
 
     let heatmapLayer = new ol.layer.Heatmap({
       source: source,

@@ -388,6 +388,18 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
      this.size['by'] = sizeType;
 
+     // default schema
+     if(sizeType === 'NONE') {
+
+     } else if(sizeType === 'MEASURE') {
+
+       // init column
+       if (this.uiOption.layers[0]) {
+         if (!this.uiOption.layers[0].size) this.uiOption.layers[0].size = {};
+         this.uiOption.layers[0].size['column'] = "NONE";
+       }
+     }
+
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
        layers: this.changeLayerOption()
@@ -478,7 +490,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    }
 
    /**
-    * outline on/off
+    * cluster on/off
     */
    public changeClusteringFlag() {
 
@@ -506,7 +518,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    }
 
    /**
-    * feature single color
+    * feature outline color
     */
    public selectOutlineColor(event: any) {
      this.outline['color'] = event;
@@ -533,7 +545,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
      this.measureList = [];
      for(let measureField of this.uiOption.fieldMeasureList) {
-       this.measureList.push(measureField.name.toString());
+       this.measureList.push(measureField.alias.toString());
      }
 
      // when color column is none or empty, set default column
@@ -553,6 +565,21 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        } else if ('MEASURE' === colorType && this.measureList && this.measureList.length > 0) {
 
          this.uiOption.layers[0].color['column'] = this.measureList[0];
+       }
+     }
+
+     // when size column is none or empty, set default column
+     if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
+         'NONE' == this.uiOption.layers[0].size['column'] || !this.uiOption.layers[0].size['column']) {
+
+       if (!this.uiOption.layers[0].size) this.uiOption.layers[0].size = {};
+
+       const sizeType = this.uiOption.layers[0].size.by;
+
+         // when it's measure, set default column
+       if ('MEASURE' === sizeType && this.measureList && this.measureList.length > 0) {
+
+         this.uiOption.layers[0].size['column'] = this.measureList[0];
        }
      }
 
