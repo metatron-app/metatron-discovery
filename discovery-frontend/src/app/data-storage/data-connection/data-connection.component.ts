@@ -324,6 +324,15 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     return this.pageResult.totalElements;
   }
 
+  /**
+   * Get connection type
+   * @param {string} implementor
+   * @returns {string}
+   */
+  public getConnectionType(implementor: string): string {
+    return (this.dbTypes.find((type) => type.value === implementor) || {label: implementor}).label;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
