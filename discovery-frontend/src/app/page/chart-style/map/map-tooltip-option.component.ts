@@ -14,35 +14,20 @@ import { Field as AbstractField } from '../../../domain/datasource/datasource';
 })
 export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
-  // column list
-  public columns: Field[];
+  // selected column list
+  public selectedColumns: Field[] = [];
+
+  // unselected column list
+  public unselectedColumns: Field[] = [];
+
+  // origin unselected column list
+  public originUnselectedColumns: Field[] = [];
 
   // search input
   public searchText: string;
 
-  // filtered fields
-  public fields: AbstractField[];
-
-  // original fields
-  public originalFields: AbstractField[];
-
   // add column show / hide
   public addColumnShowFl: boolean = false;
-
-  @Input('fields')
-  public set setFields(fields: AbstractField[]) {
-
-    let deepFields = _.cloneDeep(fields);
-
-    // if it's not custom field, exclude geo data
-    deepFields = deepFields.filter((item) => {
-      return 'user_expr' == item.type || -1 == item.logicalType.toString().indexOf('GEO');
-    });
-
-    this.originalFields = deepFields;
-
-    this.fields = deepFields;
-  }
 
   @Input('uiOption')
   public set setUiOption(uiOption: UIOption) {
@@ -65,10 +50,10 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     if (!pivot || !pivot.columns) return;
 
-    this.columns = _.cloneDeep(pivot.columns);
+    this.selectedColumns = _.cloneDeep(pivot.columns.concat(pivot.aggregations));
 
     // sync columns, fields data
-    this.columns.map((item) => {
+    this.selectedColumns.map((item) => {
 
       if(item.field) {
         item['logicalType'] = item.field.logicalType;
@@ -77,7 +62,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     });
 
     // if it's not custom field, exclude geo data
-    this.columns = this.columns.filter((item) => {
+    this.selectedColumns = this.selectedColumns.filter((item) => {
       return 'user_expr' == item.type || -1 == item['logicalType'].toString().indexOf('GEO');
     });
 
@@ -85,12 +70,12 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     // when displayColumns are empty, set displayColumns
     if (!this.uiOption.toolTip.displayColumns || 0 == this.uiOption.toolTip.displayColumns.length) {
-      this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.columns);
+      this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedColumns);
 
     // when displayColumns are not empty, set columns by displayColumns
     } else {
 
-      this.columns = this.setColumns(this.uiOption.toolTip.displayColumns);
+      this.selectedColumns = this.setColumns(this.uiOption.toolTip.displayColumns);
     }
   }
 
@@ -125,7 +110,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     let field: Field;
     columns.forEach((name) => {
 
-      field = <any> _.find(this.originalFields, {'name' : name});
+      field = <any> _.find(this.selectedColumns, {'name' : name});
 
       if (field) fields.push(field);
     });
@@ -187,23 +172,23 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
   /**
    * search column
    */
-  public returnSearchFields(): AbstractField[] {
+  public returnSearchFields(): Field[] {
 
     if (_.isEmpty(_.trim(this.searchText))) {
 
-      this.fields = _.cloneDeep(this.originalFields);
+      this.unselectedColumns = _.cloneDeep(this.originUnselectedColumns);
 
-      return this.fields;
+      return this.unselectedColumns;
     }
 
-    this.fields = this.fields.filter((item) => {
+    this.unselectedColumns = this.unselectedColumns.filter((item) => {
 
       if (-1 !== item.name.indexOf(_.trim(this.searchText))) {
         return item;
       }
     });
 
-    return this.fields;
+    return this.unselectedColumns;
   }
 
   /**
@@ -211,9 +196,11 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
    */
   public initSearchFields(): void {
 
+    event.stopPropagation();
+
     this.searchText = '';
 
-    this.fields = _.cloneDeep(this.originalFields);
+    this.unselectedColumns = _.cloneDeep(this.originUnselectedColumns);
   }
 
   /**
@@ -222,10 +209,17 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
   public deleteSelectedField(index: number): void {
 
     // delete field
-    this.columns.splice(index, 1);
+    const deleteField = this.selectedColumns.splice(index, 1);
+
+    // set unselected field
+    if (deleteField && deleteField.length > 0) {
+
+      this.unselectedColumns.push(deleteField[0]);
+      this.originUnselectedColumns = _.cloneDeep(this.unselectedColumns);
+    }
 
     // set name list in displaycolumn
-    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.columns);
+    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedColumns);
 
     // set uiOption
     this.apply();
@@ -248,15 +242,21 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     event.stopPropagation();
 
-    const index = _.findIndex(this.columns, {'name': item.name});
+    const index = _.findIndex(this.selectedColumns, {'name': item.name});
 
     // if it's duplicate value
     if (-1 !== index) return;
 
-    this.columns.push(item);
+    this.selectedColumns.push(item);
+
+    // remove in unselectedColumns
+    const removeIndex = _.findIndex(this.unselectedColumns, {'name': item.name});
+    this.unselectedColumns.splice(removeIndex, 1);
+    this.originUnselectedColumns = _.cloneDeep(this.unselectedColumns);
+
 
     // set name list in displaycolumn
-    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.columns);
+    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedColumns);
 
     // set uiOption
     this.apply();

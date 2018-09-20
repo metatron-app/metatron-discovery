@@ -1411,7 +1411,7 @@
             <map-format-option #mapFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu" (changeCommon)="onFormatCommonChange($event)" (changeEach)="onFormatEachChange($event)" (drawChartParam)="onSetDrawChartParam($event)"
                                [(pivot)]="pivot" [(uiOption)]="uiOption">
             </map-format-option>
-            <map-tooltip-option #mapTooltipOption *ngIf="isChartShow && 'mapTooltip' === rnbMenu" [(uiOption)]="uiOption" [fields]="fieldsWCustom" [pivot]="pivot" (drawChartParam)="onSetDrawChartParam($event)"></map-tooltip-option>
+            <map-tooltip-option #mapTooltipOption *ngIf="isChartShow && 'mapTooltip' === rnbMenu" [(uiOption)]="uiOption" [pivot]="pivot" (drawChartParam)="onSetDrawChartParam($event)"></map-tooltip-option>
             <!-- //MapView -->
         </div>
 
