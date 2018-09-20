@@ -528,6 +528,7 @@
   "msg.bench.ui.input.date": "날짜 입력",
   "msg.bench.alert.input.variable.name": "변수명을 입력해 주세요",
   "msg.bench.alert.input.variable.val": "변수값을 입력해 주세요",
+  "msg.bench.alert.input.variable.name.duplicated": "같은 이름의 변수명이 존재합니다",
   "msg.bench.alert.id.description": "접속할 아이디를 입력해 주세요",
   "msg.bench.alert.passwd.description": "접속할 패스워드를 입력해 주세요",
   "msg.bench.ui.wb.login.msg": "워크벤치용 계정 정보를 입력해주세요\n이 계정 정보는 저장되지 않으며,매번 입력하여야 합니다",

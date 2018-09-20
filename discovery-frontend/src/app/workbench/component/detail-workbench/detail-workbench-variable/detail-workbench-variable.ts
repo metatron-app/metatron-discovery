@@ -159,7 +159,11 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
       Alert.info(this.translateService.instant('msg.bench.alert.input.variable.val'));
       return;
     }
-    // TODO check duplicate variable
+    // check duplicate variable
+    if (this._isDuplicateGlobalVariable(this.variableList, item.globalNm)) {
+      Alert.info(this.translateService.instant('msg.bench.alert.input.variable.name.duplicated'));
+      return;
+    }
 
     this.addVariableEvent.emit('${' + item.globalNm + '}');
   }
@@ -205,4 +209,15 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * Is duplicated global variable name
+   * @param variableList
+   * @param {string} variableName
+   * @returns {boolean}
+   * @private
+   */
+  private _isDuplicateGlobalVariable(variableList: any, variableName: string): boolean {
+    return variableList.filter(variable => variable.globalNm.trim() === variableName.trim()).length > 1;
+  }
 }

@@ -528,6 +528,7 @@
   "msg.bench.ui.input.date": "Enter date",
   "msg.bench.alert.input.variable.name": "Please enter a variable name.",
   "msg.bench.alert.input.variable.val": "Please enter a variable value.",
+  "msg.bench.alert.input.variable.name.duplicated": "A variable name with the same name exists",
   "msg.bench.alert.id.description": "Please enter an ID to connect to.",
   "msg.bench.alert.passwd.description": "Please enter the password to connect to.",
   "msg.bench.ui.wb.login.msg": "Please enter your account information for the workbench. This account information will not be saved and must be entered each time",
