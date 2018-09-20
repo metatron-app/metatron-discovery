@@ -252,7 +252,7 @@
                         <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                         <!-- SELECTBOX -->
                         <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
-                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? '사용안함' : uiOption.layers[0].color.transparency }}</span>
+                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[0].color.transparency }}</span>
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
                                 <li (click)="changeTransparency(100)"><a href="#">{{'msg.page.layer.map.color.transparency.none' | translate}}</a></li>
                                 <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
@@ -370,10 +370,10 @@
 
         <!-- divide -->
         <div class="ddp-divide2 ">
-            <div class="ddp-list-label">색상</div>
+            <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
             <div class="ddp-list-sub2">
                 <div class="ddp-divide2">
-                  <div class="ddp-list-label">색상 기준</div>
+                  <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                   <!-- 사용자 색상 설정 'on' 인 경우 ddp-disabled 추가 -->
                   <div class="ddp-wrap-divide" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}">
                     <!-- part -->
@@ -435,7 +435,7 @@
 
                         <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
                           <div class="ddp-col-6">
-                            <span class="ddp-label-txt">색상</span>
+                            <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                           </div>
                           <div class="ddp-col-6 ddp-txt-right">
                             <!-- selectbox -->
@@ -495,12 +495,12 @@
                   </div>
                 </div>
                 <div class="ddp-divide2">
-                    <div class="ddp-list-label">투명도</div>
+                    <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                     <!-- SELECTBOX -->
                     <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
-                        <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? '사용안함' : uiOption.layers[0].color.transparency }}</span>
+                        <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[0].color.transparency }}</span>
                         <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
-                            <li (click)="changeTransparency(100)"><a href="#">사용안함</a></li>
+                            <li (click)="changeTransparency(100)"><a href="#">{{'msg.page.layer.map.color.transparency.none' | translate}}</a></li>
                             <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
                             <li (click)="changeTransparency(60)"><a href="#">60%</a></li>
                             <li (click)="changeTransparency(40)"><a href="#">40%</a></li>
@@ -517,16 +517,16 @@
       <div class="ddp-wrap-divide">
           <!-- divide -->
           <div class="ddp-divide2 ">
-              <div class="ddp-list-label">굵기</div>
+              <div class="ddp-list-label">{{'msg.page.layer.map.stroke' | translate}}</div>
               <div class="ddp-list-sub2">
                   <div class="ddp-divide2">
-                      <div class="ddp-list-label">굵기 기준</div>
+                      <div class="ddp-list-label">{{'msg.page.layer.map.stroke.by' | translate}}</div>
                       <!-- SELECTBOX -->
                       <div class="ddp-type-selectbox" (click)="sizeTypeFlag=!sizeTypeFlag;" (clickOutside)="sizeTypeFlag=false" [excludeBeforeClick]="true">
                           <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].size.by }}</span>
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
-                              <li (click)="changeSizeType('NONE')"><a href="#">없음</a></li>
-                              <li (click)="changeSizeType('MEASURE')"><a href="#">측정값</a></li>
+                              <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.stroke.none' | translate}}</a></li>
+                              <li (click)="changeSizeType('MEASURE')"><a href="#">{{'msg.page.layer.map.stroke.measure' | translate}}</a></li>
                           </ul>
                       </div>
                       <!-- //SELECTBOX -->
@@ -553,13 +553,13 @@
           <!-- divide -->
           <div class="ddp-divide2 ">
 
-              <div class="ddp-list-label">선유형</div>
+              <div class="ddp-list-label">{{'msg.page.layer.map.line.type' | translate}}</div>
               <!-- SELECTBOX -->
               <div class="ddp-type-selectbox" (click)="lineDashTypeFlag=!lineDashTypeFlag;" (clickOutside)="lineDashTypeFlag=false" [excludeBeforeClick]="true">
-                  <span class="ddp-txt-selectbox">{{ uiOption.layers[0].outline.lineDash === 'SOLID' ? '실선' : '점선' }}</span>
+                  <span class="ddp-txt-selectbox">{{ uiOption.layers[0].outline.lineDash === 'SOLID' ? translateService.instant('msg.page.layer.map.line.type.solid') : translateService.instant('msg.page.layer.map.line.type.dotted') }}</span>
                   <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="lineDashTypeFlag">
-                      <li (click)="lineDashType('SOLID')"><a href="#">실선</a></li>
-                      <li (click)="lineDashType('DOT')"><a href="#">점선</a></li>
+                      <li (click)="lineDashType('SOLID')"><a href="#">{{'msg.page.layer.map.line.type.solid' | translate}}</a></li>
+                      <li (click)="lineDashType('DOT')"><a href="#">{{'msg.page.layer.map.line.type.dotted' | translate}}</a></li>
                   </ul>
               </div>
               <!-- //SELECTBOX -->
@@ -575,10 +575,10 @@
 
         <!-- divide -->
         <div class="ddp-divide2 ">
-            <div class="ddp-list-label">색상</div>
+            <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
             <div class="ddp-list-sub2">
                 <div class="ddp-divide2">
-                  <div class="ddp-list-label">색상 기준</div>
+                  <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                   <!-- 사용자 색상 설정 'on' 인 경우 ddp-disabled 추가 -->
                   <div class="ddp-wrap-divide" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}">
                     <!-- part -->
@@ -640,7 +640,7 @@
 
                         <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
                           <div class="ddp-col-6">
-                            <span class="ddp-label-txt">색상</span>
+                            <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                           </div>
                           <div class="ddp-col-6 ddp-txt-right">
                             <!-- selectbox -->
@@ -700,12 +700,12 @@
                   </div>
                 </div>
                 <div class="ddp-divide2">
-                    <div class="ddp-list-label">투명도</div>
+                    <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                     <!-- SELECTBOX -->
                     <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
-                        <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? '사용안함' : uiOption.layers[0].color.transparency }}</span>
+                        <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[0].color.transparency }}</span>
                         <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
-                            <li (click)="changeTransparency(100)"><a href="#">사용안함</a></li>
+                            <li (click)="changeTransparency(100)"><a href="#">{{'msg.page.layer.map.color.transparency.none' | translate}}</a></li>
                             <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
                             <li (click)="changeTransparency(60)"><a href="#">60%</a></li>
                             <li (click)="changeTransparency(40)"><a href="#">40%</a></li>
@@ -722,16 +722,16 @@
       <div class="ddp-wrap-divide">
           <!-- divide -->
           <div class="ddp-divide2 ">
-              <div class="ddp-list-label">크기</div>
+              <div class="ddp-list-label">{{'msg.page.layer.map.size' | translate}}</div>
               <div class="ddp-list-sub2">
                   <div class="ddp-divide2">
-                      <div class="ddp-list-label">크기 기준</div>
+                      <div class="ddp-list-label">{{'msg.page.layer.map.size.by' | translate}}</div>
                       <!-- SELECTBOX -->
                       <div class="ddp-type-selectbox" (click)="sizeTypeFlag=!sizeTypeFlag;" (clickOutside)="sizeTypeFlag=false" [excludeBeforeClick]="true">
                           <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].size.by }}</span>
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
-                              <li (click)="changeSizeType('NONE')"><a href="#">없음</a></li>
-                              <li (click)="changeSizeType('MEASURE')"><a href="#">측정값</a></li>
+                              <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.size.by.none' | translate}}</a></li>
+                              <li (click)="changeSizeType('MEASURE')"><a href="#">{{'msg.page.layer.map.size.by.measure' | translate}}</a></li>
                           </ul>
                       </div>
                       <!-- //SELECTBOX -->
@@ -758,7 +758,7 @@
           <!-- divide -->
           <div class="ddp-divide2 ">
               <div class="ddp-wrap-option-slider">
-                  <span class="ddp-label-slider">아웃라인</span>
+                  <span class="ddp-label-slider">{{'msg.page.layer.map.outline' | translate}}</span>
                   <!-- Slide THREE -->
                   <div class="ddp-checkbox-slide ddp-checkbox-automatic2" >
                       <input type="checkbox" name="check" [checked]="uiOption.layers[0].outline.thickness !== 'NONE'" (click)="changeOutlineFlag()">
@@ -770,7 +770,7 @@
 
               <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
                   <div class="ddp-col-7">
-                      <span class="ddp-label-txt">색상</span>
+                      <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                   </div>
                   <div class="ddp-col-5 ddp-txt-right">
                     <div *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'" class="ddp-wrap-option-multy ddp-clear">
@@ -789,7 +789,7 @@
               <!-- multy -->
               <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
                   <div class="ddp-col-6">
-                      <span class="ddp-label-txt">굵기</span>
+                      <span class="ddp-label-txt">{{'msg.page.layer.map.stroke' | translate}}</span>
                   </div>
                   <div class="ddp-col-6 ddp-txt-right">
                       <ul class="ddp-list-express ddp-tab3 ddp-type">
@@ -811,10 +811,10 @@
       <div class="ddp-wrap-divide">
         <!-- divide -->
         <div class="ddp-divide2 ">
-            <div class="ddp-list-label">색상</div>
+            <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
             <div class="ddp-list-sub2">
                 <div class="ddp-divide2">
-                  <div class="ddp-list-label">색상 기준</div>
+                  <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                   <!-- 사용자 색상 설정 'on' 인 경우 ddp-disabled 추가 -->
                   <div class="ddp-wrap-divide" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}">
                     <!-- part -->
@@ -864,7 +864,7 @@
 
                         <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
                           <div class="ddp-col-6">
-                            <span class="ddp-label-txt">색상</span>
+                            <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                           </div>
                           <div class="ddp-col-6 ddp-txt-right">
                             <!-- selectbox -->
@@ -924,12 +924,12 @@
                   </div>
                 </div>
                 <div class="ddp-divide2">
-                    <div class="ddp-list-label">투명도</div>
+                    <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                     <!-- SELECTBOX -->
                     <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
-                        <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? '사용안함' : uiOption.layers[0].color.transparency }}</span>
+                        <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[0].color.transparency }}</span>
                         <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
-                            <li (click)="changeTransparency(100)"><a href="#">사용안함</a></li>
+                            <li (click)="changeTransparency(100)"><a href="#">{{'msg.page.layer.map.color.transparency.none' | translate}}</a></li>
                             <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
                             <li (click)="changeTransparency(60)"><a href="#">60%</a></li>
                             <li (click)="changeTransparency(40)"><a href="#">40%</a></li>
@@ -945,7 +945,7 @@
       <div class="ddp-wrap-divide">
           <!-- divide -->
           <div class="ddp-divide2">
-              <div class="ddp-list-label">흐림효과</div>
+              <div class="ddp-list-label">{{'msg.page.layer.map.blur' | translate}}</div>
               <!-- SELECTBOX -->
               <div class="ddp-type-selectbox" (click)="blurFlag=!blurFlag;" (clickOutside)="blurFlag=false" [excludeBeforeClick]="true">
                   <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.blur }}</span>
@@ -961,7 +961,7 @@
           <!-- //divide -->
           <!-- divide -->
           <div class="ddp-divide2">
-              <div class="ddp-list-label">반경값</div>
+              <div class="ddp-list-label">{{'msg.page.layer.map.radius' | translate}}</div>
               <!-- SELECTBOX -->
               <div class="ddp-type-selectbox" (click)="radiusFlag=!radiusFlag;" (clickOutside)="radiusFlag=false" [excludeBeforeClick]="true">
                   <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.radius }}</span>
@@ -998,10 +998,10 @@
             <!-- //divide -->
             <!-- divide -->
             <div class="ddp-divide2 ">
-                <div class="ddp-list-label">색상</div>
+                <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
                 <div class="ddp-list-sub2">
                     <div class="ddp-divide2">
-                      <div class="ddp-list-label">색상 기준</div>
+                      <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                       <!-- 사용자 색상 설정 'on' 인 경우 ddp-disabled 추가 -->
                       <div class="ddp-wrap-divide" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}">
                         <!-- part -->
@@ -1063,7 +1063,7 @@
 
                             <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
                               <div class="ddp-col-6">
-                                <span class="ddp-label-txt">색상</span>
+                                <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                               </div>
                               <div class="ddp-col-6 ddp-txt-right">
                                 <!-- selectbox -->
@@ -1123,12 +1123,12 @@
                       </div>
                     </div>
                     <div class="ddp-divide2">
-                        <div class="ddp-list-label">투명도</div>
+                        <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                         <!-- SELECTBOX -->
                         <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
-                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? '사용안함' : uiOption.layers[0].color.transparency }}</span>
+                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[0].color.transparency }}</span>
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
-                                <li (click)="changeTransparency(100)"><a href="#">사용안함</a></li>
+                                <li (click)="changeTransparency(100)"><a href="#">{{'msg.page.layer.map.color.transparency.none' | translate}}</a></li>
                                 <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
                                 <li (click)="changeTransparency(60)"><a href="#">60%</a></li>
                                 <li (click)="changeTransparency(40)"><a href="#">40%</a></li>
@@ -1144,7 +1144,7 @@
 
         <!-- divide -->
         <div class="ddp-divide2">
-            <div class="ddp-list-label">적용범위</div>
+            <div class="ddp-list-label">{{'msg.page.layer.map.coverage' | translate}}</div>
             <!-- SELECTBOX -->
             <div class="ddp-type-selectbox" (click)="resolutionFlag=!resolutionFlag;" (clickOutside)="resolutionFlag=false" [excludeBeforeClick]="true">
                 <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.resolution }}</span>
