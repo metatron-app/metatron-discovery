@@ -773,8 +773,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         // h3Indexs.push(h3Index);
       }
 
-      //히트맵 weight 설정
-      // feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+      if(this.uiOption.fieldMeasureList.length > 0) {
+        //히트맵 weight 설정
+        feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+      }
+
 
       // Convert a lat/lng point to a hexagon index at resolution 7
 
@@ -909,7 +912,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.getLayers().getArray()[2] = clusterLayer;
       this.olmap.getLayers().getArray()[3] = heatmapLayer;
       this.olmap.getLayers().getArray()[4] = hexagonLayer;
-      this.olmap.getLayers().getArray()[4] = textLayer;
+      this.olmap.getLayers().getArray()[5] = textLayer;
 
       symbolLayer.setStyle(this.mapStyleFunction());
       symbolLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
