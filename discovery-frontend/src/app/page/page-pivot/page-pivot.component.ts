@@ -2326,6 +2326,33 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   }
 
   /**
+   * remove animation
+   */
+  public removeAnimation() {
+
+    const element = this.$element.find('.ddp-wrap-default');
+
+    let scope = this;
+
+    // 선반의 길이에따라 animation 설정
+    element.each(function () {
+
+      // animation total width 설정
+      let totalWidth = scope.getShelveTotalWidth($(this));
+
+      // total width 설정 (드래그시 아래로 떨어지는걸 방지하기위해서 drag item width인 150을 더해주기)
+      $(this).css('width', totalWidth + 150);
+
+      $(this).parent().parent().find('.ddp-btn-prev').hide();
+      $(this).parent().parent().find('.ddp-btn-next').hide();
+      $(this).css('padding', '0px');
+
+      // marginLeft 초기화 설정
+      $(this).css('marginLeft', 0);
+    });
+  }
+
+  /**
    * 아이템의 길이가 선반 길이보다 긴경우 prev / next 버튼 show설정
    */
   private onShelveAnimation(element: JQuery) {
