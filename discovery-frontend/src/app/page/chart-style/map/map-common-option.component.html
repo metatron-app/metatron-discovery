@@ -1,47 +1,40 @@
 <div class="ddp-ui-chart-side ddp-show">
-
   <div class="ddp-ui-side-title">
     {{'msg.page.ui.common' | translate}}
   </div>
   <div class="ddp-wrap-downmenu">
     <div class="ddp-box-down">
       <div class="ddp-wrap-divide">
-        <div class="ddp-list-label">{{'msg.page.common.map.layer' | translate}}</div>
+        <div class="ddp-divide2">
+          <!-- slider -->
+          <div class="ddp-wrap-option-slider">
+            <span class="ddp-label-slider">{{'msg.page.common.map.layer' | translate}}</span>
+          </div>
+          <!-- //slider -->
           <div class="ddp-list-sub2">
             <!-- divide -->
             <div class="ddp-divide2">
-                <div class="ddp-wrap-option-multy ddp-clear">
-                    <div class="ddp-col-4">
-                        <span class="ddp-label-txt">{{'msg.page.common.map.layer.service' | translate}}</span>
-                    </div>
-                    <div class="ddp-col-8">
-                      <!-- SELECTBOX -->
-                      <div class="ddp-type-selectbox" (click)="mapTypeFlag=!mapTypeFlag;" (clickOutside)="mapTypeFlag=false" [excludeBeforeClick]="true">
-                          <span class="ddp-txt-selectbox">{{ uiOption.map.toString() === 'NONE' ? 'none' : uiOption.map }}</span>
-                          <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="mapTypeFlag">
-                              <li (click)="changeMapType('NONE')"><a href="#">{{'msg.page.common.map.layer.service.none' | translate}}</a></li>
-                              <li (click)="changeMapType('OSM')"><a href="#">OpenStreetMap</a></li>
-                              <li (click)="changeMapType('POSITRON')"><a href="#">Positron</a></li>
-                              <li (click)="changeMapType('DARK')"><a href="#">Dark</a></li>
-                          </ul>
-                      </div>
-                      <!-- //SELECTBOX -->
-                    </div>
-                </div>
+              <div class="ddp-list-label">{{'msg.page.common.map.layer.service' | translate}}</div>
+              <!-- SELECTBOX -->
+              <div class="ddp-type-selectbox" (click)="mapTypeFlag=!mapTypeFlag;" (clickOutside)="mapTypeFlag=false" [excludeBeforeClick]="true">
+                <span class="ddp-txt-selectbox">{{ uiOption.map.toString() === 'NONE' ? 'none' : uiOption.map }}</span>
+                <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="mapTypeFlag">
+                  <li (click)="changeMapType('NONE')"><a href="#">{{'msg.page.common.map.layer.service.none' | translate}}</a></li>
+                  <li (click)="changeMapType('OSM')"><a href="#">OpenStreetMap</a></li>
+                  <li (click)="changeMapType('POSITRON')"><a href="#">Positron</a></li>
+                  <li (click)="changeMapType('DARK')"><a href="#">Dark</a></li>
+                </ul>
+              </div>
+              <!-- //SELECTBOX -->
             </div>
             <!-- //divide -->
             <!-- divide -->
             <div class="ddp-divide2">
-                <div class="ddp-wrap-option-multy ddp-clear">
-                    <div class="ddp-col-5">
-                        <span class="ddp-label-txt">{{'msg.page.common.map.layer.license' | translate}}</span>
-                    </div>
-                    <div class="ddp-col-7">
-                        <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation">
-                    </div>
-                </div>
+              <div class="ddp-list-label">{{'msg.page.common.map.layer.license' | translate}}</div>
+              <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation">
             </div>
             <!-- //divide -->
+          </div>
         </div>
       </div>
     </div>
