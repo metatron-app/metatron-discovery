@@ -345,10 +345,10 @@ export class PageDataContextComponent extends AbstractComponent {
     if( metaData ) {
       switch( metaData.type ) {
         case LogicalType.LNT :
-          name = 'Latitude';
+          name = 'LATITUDE';
           break;
         case LogicalType.LNG :
-          name = 'Longitude';
+          name = 'LONGITUDE';
           break;
         default :
           name = metaData.type.toString();
