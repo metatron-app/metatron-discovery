@@ -28,7 +28,7 @@
                  </div>
                 <div class="ddp-wrap-tab-type2">
                   <ul class="ddp-list-tab-type2 ddp-clear">
-                        <li [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'symbol'}" (click)="mapLayerType('symbol');">
+                        <li *ngIf="uiOption.layers[0].type === 'symbol' || uiOption.layers[0].type === 'heatmap' || uiOption.layers[0].type === 'tile'" [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'symbol'}" (click)="mapLayerType('symbol');">
                             <a href="javascript:">
                                 <em class="ddp-icon-map-sign"></em>
                             </a>
@@ -40,31 +40,31 @@
                             <!-- //tooltip -->
 
                         </li>
-                        <!--<li [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'line'}" (click)="mapLayerType('line');">-->
-                            <!--<a href="javascript:">-->
-                                <!--<em class="ddp-img-map-line"></em>-->
-                            <!--</a>-->
+                        <!-- <li *ngIf="uiOption.layers[0].type === 'line'" [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'line'}" (click)="mapLayerType('line');">
+                            <a href="javascript:">
+                                <em class="ddp-img-map-line"></em>
+                            </a> -->
                             <!--&lt;!&ndash; tooltip &ndash;&gt;-->
-                            <!--<div class="ddp-ui-tooltip-info">-->
-                                <!--<em class="ddp-icon-view-top"></em>-->
-                                <!--<span class="ddp-txt-tooltip">{{'msg.page.layer.map.type.line' | translate}}</span>-->
-                            <!--</div>-->
+                            <!-- <div class="ddp-ui-tooltip-info">
+                                <em class="ddp-icon-view-top"></em>
+                                <span class="ddp-txt-tooltip">{{'msg.page.layer.map.type.line' | translate}}</span>
+                            </div> -->
                             <!--&lt;!&ndash; //tooltip &ndash;&gt;-->
 
-                        <!--</li>-->
-                        <!--<li [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'polygon'}" (click)="mapLayerType('polygon');">-->
-                            <!--<a href="javascript:">-->
-                                <!--<em class="ddp-img-map-polygon"></em>-->
-                            <!--</a>-->
+                        <!-- </li> -->
+                        <!-- <li *ngIf="uiOption.layers[0].type === 'polygon'" [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'polygon'}" (click)="mapLayerType('polygon');">
+                            <a href="javascript:">
+                                <em class="ddp-img-map-polygon"></em>
+                            </a> -->
                             <!--&lt;!&ndash; tooltip &ndash;&gt;-->
-                            <!--<div class="ddp-ui-tooltip-info">-->
-                                <!--<em class="ddp-icon-view-top"></em>-->
-                                <!--<span class="ddp-txt-tooltip">{{'msg.page.layer.map.type.polygon' | translate}}</span>-->
-                            <!--</div>-->
+                            <!-- <div class="ddp-ui-tooltip-info">
+                                <em class="ddp-icon-view-top"></em>
+                                <span class="ddp-txt-tooltip">{{'msg.page.layer.map.type.polygon' | translate}}</span>
+                            </div> -->
                             <!--&lt;!&ndash; //tooltip &ndash;&gt;-->
 
-                        <!--</li>-->
-                        <li [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'heatmap'}" (click)="mapLayerType('heatmap');">
+                        <!-- </li> -->
+                        <li *ngIf="uiOption.layers[0].type === 'symbol' || uiOption.layers[0].type === 'heatmap' || uiOption.layers[0].type === 'tile'" [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'heatmap'}" (click)="mapLayerType('heatmap');">
                             <a href="javascript:">
                                 <em class="ddp-icon-map-heatmap"></em>
                             </a>
@@ -75,7 +75,7 @@
                             </div>
                             <!-- //tooltip -->
                         </li>
-                        <li [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'tile'}" (click)="mapLayerType('tile');">
+                        <li *ngIf="uiOption.layers[0].type === 'symbol' || uiOption.layers[0].type === 'heatmap' || uiOption.layers[0].type === 'tile'" [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'tile'}" (click)="mapLayerType('tile');">
                             <a href="javascript:">
                                 <em class="ddp-icon-map-tile"></em>
                             </a>

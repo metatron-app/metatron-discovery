@@ -118,7 +118,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   }
 
   public attribution(): string {
-    console.log(this.uiOption);
     // return this.uiOption.licenseNotation;
     return '© OpenStreetMap contributer';
   }
@@ -335,59 +334,15 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           })
         });
       } else if(layerType === 'polygon') {
-        let polyStyle = new ol.style.Style({
+        style = new ol.style.Style({
           stroke: new ol.style.Stroke({
             color: outlineColor,
             width: 2
           }),
           fill: new ol.style.Fill({
             color: featureColor
-          }),
-          zIndex: 100
+          })
         });
-
-        let labelText = "";
-        for(var key in feature.getProperties()) {
-          if (key !== 'geometry') {
-            labelText = labelText + feature.get(key) + "\n";
-          }
-        }
-
-        let labelStyle = new ol.style.Style({
-          geometry: function(feature) {
-            var geometry = feature.getGeometry();
-            if (geometry.getType() == 'MultiPolygon') {
-              // Only render label for the widest polygon of a multipolygon
-              var polygons = geometry.getPolygons();
-              var widest = 0;
-              for (var i = 0, ii = polygons.length; i < ii; ++i) {
-                var polygon = polygons[i];
-                var width = ol.extent.getWidth(polygon.getExtent());
-                if (width > widest) {
-                  widest = width;
-                  geometry = polygon;
-                }
-              }
-            }
-            return geometry;
-          },
-          text: new ol.style.Text({
-            text: labelText,
-            font: '12px Calibri,sans-serif',
-            overflow: true,
-            fill: new ol.style.Fill({
-              color: '#000'
-            }),
-            stroke: new ol.style.Stroke({
-              color: '#fff',
-              width: 3
-            })
-          }),
-          zIndex: 1000000
-        });
-
-        style = [polyStyle, labelStyle];
-
       } else if(layerType === 'tile') {
         style = new ol.style.Style({
           stroke: new ol.style.Stroke({
@@ -399,7 +354,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           })
         });
       }
-
       return style;
     }
   }
@@ -455,7 +409,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           color: featureColor
         })
       });
-
       return style;
     }
   }
@@ -508,7 +461,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           })
         })
       });
-
       return labelStyle;
     }
   }
@@ -594,16 +546,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             });
             break;
         }
-      } else if(layerType === 'tile') {
-        style = new ol.style.Style({
-          stroke: new ol.style.Stroke({
-            color: outlineColor,
-            width: 2
-          }),
-          fill: new ol.style.Fill({
-            color: featureColor
-          })
-        });
       }
 
       return style;
@@ -747,18 +689,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let feature = new ol.Feature();
       feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
 
-      // if(geomType === "GEO_LINE" || geomType === "GEO_POLYGON") {
-      //   feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
-      // } else {
-      //   if(this.data[0].features[i]["geometry"] === null) {
-      //     feature.setGeometry(new ol.geom.Point([this.data[0]["features"][i].properties["gis.lon"], this.data[0]["features"][i].properties["gis.lat"]]));
-      //   } else {
-      //     feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
-      //   }
-      // }
-
-      // hexagonFeatures.push(feature);
-
       if(geomType === "GEO_POINT") {
 
         let featureCenter = feature.getGeometry().getCoordinates();
@@ -768,9 +698,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           featureCenter = ol.extent.getCenter(extent);
           feature.setGeometry(new ol.geom.Point(featureCenter));
         }
-
-        // let h3Index = h3.geoToH3(featureCenter[0], featureCenter[1], this.uiOption.layers[0].color.resolution);
-        // h3Indexs.push(h3Index);
       }
 
       if(this.uiOption.fieldMeasureList.length > 0) {
@@ -778,53 +705,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
       }
 
-
-      // Convert a lat/lng point to a hexagon index at resolution 7
-
-      // Get the center of the hexagon
-      // let hexCenterCoordinates = h3.h3ToGeo(h3Index);
-
-      // Get the vertices of the hexagon
-      // let hexBoundary = h3.h3ToGeoBoundary(h3Index, true);
-      //
-      // let hexagonFeature = new ol.Feature({
-      //   geometry: new ol.geom.Polygon([hexBoundary])
-      // })
-      //
-      // hexagonFeatures[i] = hexagonFeature;
-
-      // feature.setProperties(this.data[0]["features"][i].properties);
       features[i] = feature;
 
     }
-
-
-    // if(geomType === "GEO_POINT") {
-    //   let uniqueIndexs = [];
-    //   $.each(h3Indexs, function(i, el) {
-    //     if($.inArray(el, uniqueIndexs) === -1) uniqueIndexs.push(h3Indexs[i]);
-    //   });
-    //
-    //   let result = {};
-    //   for(let value in h3Indexs) {
-    //       let index = h3Indexs[value];
-    //       result[index] = result[index] === undefined ? 1 : result[index] += 1;
-    //   }
-    //
-    //   for(let index in result) {
-    //     let hexBoundary = h3.h3ToGeoBoundary(index, true);
-    //
-    //     let hexagonFeature = new ol.Feature({
-    //       geometry: new ol.geom.Polygon([hexBoundary])
-    //     })
-    //
-    //     hexagonFeature.setProperties({count:result[index]});
-    //
-    //     hexagonFeatures.push(hexagonFeature);
-    //   }
-    //
-    //   hexagonSource.addFeatures(hexagonFeatures);
-    // }
 
     hexagonSource.addFeatures(hexagonFeatures);
     source.addFeatures(features);
@@ -849,7 +732,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.addLayer(clusterLayer);
       this.olmap.addLayer(heatmapLayer);
       this.olmap.addLayer(hexagonLayer);
-      this.olmap.addLayer(textLayer);
+      // this.olmap.addLayer(textLayer);
 
 
       if(geomType === "GEO_POINT") {
@@ -897,11 +780,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         hexagonLayer.setVisible(true);
         textLayer.setVisible(false);
       } else if(this.uiOption.layers[0].type === "polygon") {
-        symbolLayer.setVisible(false);
+        symbolLayer.setVisible(true);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(false );
-        textLayer.setVisible(true);
+        textLayer.setVisible(false);
       }
 
       this.olmap.getView().fit(source.getExtent());
@@ -954,11 +837,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         hexagonLayer.setVisible(true);
         textLayer.setVisible(false);
       } else if(this.uiOption.layers[0].type === "polygon") {
-        symbolLayer.setVisible(false);
+        symbolLayer.setVisible(true);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(false);
-        textLayer.setVisible(true);
+        textLayer.setVisible(false);
       }
 
       if(this.uiOption.map === 'OSM') {
@@ -1017,20 +900,26 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         pointerX = coords[0].toFixed(4);
         pointerY = coords[1].toFixed(4);
 
-        content.innerHTML =
-            '<div class="ddp-ui-tooltip-info ddp-map-tooltip" style="display:block; position:absolute; top:0; left:0; z-index:99999;">' +
-            '<span class="ddp-txt-tooltip">' +
-            '<span class="ddp-label"><em class="ddp-icon-mapview1-w"></em> ' + tooltipOption.layers[0].name + '</span>' +
-            '<table class="ddp-table-info">' +
-            '<colgroup><col width="70px"><col width="*"></colgroup>' +
-            '<tbody><tr><th>Geo info</th><td>'+ pointerX + ', ' + pointerY + '</td></tr>';
+        let tooltipHtml = '<div class="ddp-ui-tooltip-info ddp-map-tooltip" style="display:block; position:absolute; top:0; left:0; z-index:99999;">' +
+        '<span class="ddp-txt-tooltip">' +
+        '<span class="ddp-label"><em class="ddp-icon-mapview1-w"></em> ' + tooltipOption.layers[0].name + '</span>' +
+        '<table class="ddp-table-info">' +
+        '<colgroup><col width="70px"><col width="*"></colgroup>' +
+        '<tbody><tr><th>Geo info</th><td>'+ pointerX + ', ' + pointerY + '</td></tr>';
 
-        // for(let displayColumn of tooltipOption.toolTip.displayColumns) {
-        //   content.innerHTML = content.innerHTML + '<tr><th>' + displayColumn + '</th><td>' + feature.getProperties()[displayColumn] + '</td></tr>';
-        // }
+        for(var key in feature.getProperties()) {
+          if (key !== 'geometry' && key !== 'weight') {
+            if (key === 'features') {
+              tooltipHtml = tooltipHtml + '<tr><th>' + key + '</th><td>' + feature.get(key).length + '</td></tr>';
+            } else {
+              tooltipHtml = tooltipHtml + '<tr><th>' + key + '</th><td>' + feature.get(key) + '</td></tr>';
+            }
+          }
+        }
 
-        content.innerHTML = content.innerHTML + '</tbody></table></span></div>';
+        tooltipHtml = tooltipHtml + '</tbody></table></span></div>';
 
+        content.innerHTML = tooltipHtml;
         popup.setPosition(coords);
 
       } else {
