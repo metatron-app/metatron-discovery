@@ -21,29 +21,20 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * Created by kyungtaak on 2016. 7. 31..
+ *
  */
 public class SshUtilsTest {
 
   @Test
   public void upload() {
 
-    List<String> fileNames = Lists.newArrayList(
-            "/Users/kyungtaak/apps/data/sale/salestarget.txt",
-            "/Users/kyungtaak/apps/data/sale/sale.txt.query.select.json"
-    );
+    List<String> fileNames = Lists.newArrayList();
 
-    String hostname = "ear-g04-04";
+    String hostname = "localhost";
     int port = 22;
     String username = "hadoop";
-    String password = "skt@cctb!";
+    String password = "test$00";
     String tagetDir = "/home/hadoop";
-
-//    String hostname = "exntu.kr";
-//    int port = 20022;
-//    String username = "exntu";
-//    String password = "exntu~!";
-//    String tagetDir = "/home/exntu";
 
     SshUtils.copyLocalToRemoteFileByScp(fileNames, tagetDir, hostname, port, username, password);
   }
@@ -51,15 +42,12 @@ public class SshUtilsTest {
   @Test
   public void uploadWithPem() {
 
-    List<String> fileNames = Lists.newArrayList(
-        "/Users/kyungtaak/apps/data/sale/salestarget.txt",
-        "/Users/kyungtaak/apps/data/sale/sale.txt.query.select.json"
-    );
+    List<String> fileNames = Lists.newArrayList();
 
-    String hostname = "skt-hadoop01.koreasouth.cloudapp.azure.com";
+    String hostname = "localhost";
     int port = 22;
     String username = "hadoop";
-    String password = "pem:/Users/kyungtaak/.ssh/Metatron-KR-South-CentOS72a-hadoop.pem";
+    String password = "pem:/hadoop.pem";
     String tagetDir = "/home/hadoop";
 
     SshUtils.copyLocalToRemoteFileByScp(fileNames, tagetDir, hostname, port, username, password);
@@ -69,21 +57,13 @@ public class SshUtilsTest {
   public void download() {
 
     List<String> fileNames = Lists.newArrayList(
-            "/home/hadoop/mysql-connector-java-5.1.34.jar"
-//            "/home/hadoop/common.runtime.properties"
     );
 
-    String hostname = "ear-g04-04";
+    String hostname = "localhost";
     int port = 22;
     String username = "hadoop";
-    String password = "skt@cctb!";
-    String targetDir = "/Users/kyungtaak/temp";
-
-//    String hostname = "exntu.kr";
-//    int port = 20022;
-//    String username = "exntu";
-//    String password = "exntu~!";
-//    String tagetDir = "/home/exntu";
+    String password = "test$00";
+    String targetDir = "/tmp";
 
     SshUtils.copyRemoteToLocalFileByScp(fileNames, targetDir, hostname, port, username, password);
   }
@@ -91,21 +71,13 @@ public class SshUtilsTest {
   @Test
   public void downloadBySftp() {
     List<String> fileNames = Lists.newArrayList(
-//            "/home/hadoop/mysql-connector-java-5.1.34.jar"
-            "/home/hadoop/common.runtime.properties"
     );
 
-    String hostname = "ear-g04-04";
+    String hostname = "localhos$00t";
     int port = 22;
     String username = "hadoop";
-    String password = "skt@cctb!";
-    String targetDir = "/Users/kyungtaak/temp";
-
-//    String hostname = "exntu.kr";
-//    int port = 20022;
-//    String username = "exntu";
-//    String password = "exntu~!";
-//    String tagetDir = "/home/exntu";
+    String password = "test";
+    String targetDir = "/tmp";
 
     SshUtils.copyRemoteToLocalFileBySftp(fileNames, targetDir, hostname, port, username, password, false, false);
   }
