@@ -120,13 +120,12 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
             dimensions.add(new DefaultDimension(dummyDimName));
             postAggregations.add(new ExprPostAggregator(geoHashFormat.toWktExpression(dummyDimName, geoName)));
 
-
           } else if (fieldFormat instanceof GeoBoundaryFormat) {
             enableExtension = true;
 
             GeoBoundaryFormat boundaryFormat = (GeoBoundaryFormat) fieldFormat;
             boundary = boundaryFormat.toBoundary();
-            boundaryJoin = boundaryFormat.toBoundaryJoin(geoCnt++, dimensionCnt++);
+            boundaryJoin = boundaryFormat.toBoundaryJoin(projectionMapper, geoCnt++, dimensionCnt++);
 
           } else {
             for (String geoPointKey : LogicalType.GEO_POINT.getGeoPointKeys()) {

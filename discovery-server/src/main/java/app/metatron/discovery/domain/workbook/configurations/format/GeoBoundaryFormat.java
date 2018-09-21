@@ -28,10 +28,21 @@ public class GeoBoundaryFormat extends GeoFormat implements FieldFormat {
     return dataSource + "." + geoColumn;
   }
 
-  public Map<String, Object> toBoundaryJoin(int geoCnt, int dimCnt) {
+  /**
+   *
+   * @param mapper
+   * @param geoCnt
+   * @param dimCnt
+   * @return
+   */
+  public Map<String, Object> toBoundaryJoin(Map<String, String> mapper, int geoCnt, int dimCnt) {
     Map<String, Object> joinMap = Maps.newLinkedHashMap();
+    String dimName = "__s" + dimCnt;
+
     joinMap.put("__g" + geoCnt, geoColumn);
-    joinMap.put("__s" + dimCnt, descColumn);
+    joinMap.put(dimName, descColumn);
+
+    mapper.put(dimName, descColumn);
 
     return joinMap;
   }
