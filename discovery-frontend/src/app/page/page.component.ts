@@ -580,6 +580,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // 데이터 필드 설정 (data panel의 pivot 설정)
     this.setDatasourceFields(true);
+
+    if (this.pagePivot) this.pagePivot.removeAnimation();
   } // function - selectDataSource
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
