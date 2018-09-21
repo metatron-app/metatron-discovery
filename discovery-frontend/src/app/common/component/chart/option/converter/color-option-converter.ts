@@ -268,7 +268,7 @@ export class ColorOptionConverter {
         }
 
         // deduct baseline value in range
-        if (null !== valueAxis.baseline && undefined !== valueAxis.baseline) {
+        if (valueAxis && null !== valueAxis.baseline && undefined !== valueAxis.baseline) {
           item.fixMin = null == item.fixMin ? null : item.fixMin - <number>valueAxis.baseline;
           item.fixMax = null == item.fixMax ? null : item.fixMax - <number>valueAxis.baseline;
           item.gt = null == item.gt ? null : item.gt - <number>valueAxis.baseline;
