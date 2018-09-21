@@ -316,21 +316,17 @@
                 </div>
 
                 <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
-                    <div class="ddp-col-7">
-                        <span class="ddp-label-txt">{{'msg.page.layer.map.outline.color' | translate}}</span>
+                  <div class="ddp-col-7">
+                      <span class="ddp-label-txt">{{'msg.page.layer.map.outline.color' | translate}}</span>
+                  </div>
+                  <div class="ddp-col-5 ddp-txt-right" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
+                    <!-- selectbox -->
+                    <div class="ddp-type-selectbox ddp-color-selectbox2">
+                      <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.outline?.color ? uiOption?.layers[0]?.outline?.color :'#FFF'" [showInitial]="true"
+                                    [showInput]="true" [showUserColor]="true" (selected)="selectOutlineColor($event);"></color-picker>
                     </div>
-                    <div class="ddp-col-5 ddp-txt-right">
-                      <div *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'" class="ddp-wrap-option-multy ddp-clear">
-                        <div class="ddp-col-6 ddp-txt-right">
-                          <!-- selectbox -->
-                          <div class="ddp-type-selectbox ddp-color-selectbox2">
-                            <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.outline?.color ? uiOption?.layers[0]?.outline?.color :'#FFF'" [showInitial]="true"
-                                          [showInput]="true" [showUserColor]="true" (selected)="selectOutlineColor($event);"></color-picker>
-                          </div>
-                          <!-- //selectbox -->
-                        </div>
-                      </div>
-                    </div>
+                    <!-- //selectbox -->
+                  </div>
                 </div>
 
                 <!-- multy -->
