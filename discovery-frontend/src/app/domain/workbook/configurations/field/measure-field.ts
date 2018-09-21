@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Field } from './field';
+import {Field} from './field';
 
 export class MeasureField extends Field {
   /**
@@ -48,7 +48,6 @@ export enum AggregationType {
   RANGE = <any>'RANGE',
   QUANTILE = <any>'QUANTILE',
 
-  // Hynix 전용 집계 타입
   SLOPE = <any>'SLOPE',
 
   // Ingestion 타입
