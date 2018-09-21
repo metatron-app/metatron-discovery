@@ -19,6 +19,8 @@ export interface UILayers {
   outline?: SymbolOutline;
 
   clustering?: boolean;
+
+  datasource?: string;
 }
 
 /**

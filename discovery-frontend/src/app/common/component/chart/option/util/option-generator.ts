@@ -2002,7 +2002,7 @@ export namespace OptionGenerator {
       return {
         type: ChartType.MAP,
         showMapLayer: true,
-        map: "POSITRON",
+        map: "Positron",
         licenseNotation: "© OpenStreetMap contributer",
         showDistrictLayer: true,
         districtUnit: "state",
@@ -2015,6 +2015,52 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#602663",
+              transparency: 100,
+              blur: 10,
+              radius: 10,
+              resolution: 9
+            },
+            size: {
+              "by": "NONE",
+              "column": "NONE"
+            },
+            outline: {
+              "color": "#000000",
+              "thickness": "NONE"              // THIN, NORMAL, THICK
+            },
+            clustering: true
+          },
+          {
+            type: "symbol",
+            name: "Layer2",
+            symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
+            color: {
+              by: "NONE",            // NONE, MEASURE, DIMENSION
+              column: "NONE",
+              schema: "#888fb4",
+              transparency: 100,
+              blur: 10,
+              radius: 10,
+              resolution: 9
+            },
+            size: {
+              "by": "NONE",
+              "column": "NONE"
+            },
+            outline: {
+              "color": "#000000",
+              "thickness": "NONE"              // THIN, NORMAL, THICK
+            },
+            clustering: true
+          },
+          {
+            type: "symbol",
+            name: "Layer3",
+            symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
+            color: {
+              by: "NONE",            // NONE, MEASURE, DIMENSION
+              column: "NONE",
+              schema: "#bccada",
               transparency: 100,
               blur: 10,
               radius: 10,

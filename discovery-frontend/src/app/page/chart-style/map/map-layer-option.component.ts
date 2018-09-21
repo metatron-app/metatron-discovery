@@ -397,6 +397,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        if (this.uiOption.layers[0]) {
          if (!this.uiOption.layers[0].size) this.uiOption.layers[0].size = {};
          this.uiOption.layers[0].size['column'] = "NONE";
+         this.clustering = false;
        }
      }
 

@@ -155,9 +155,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let layer = this.osmLayer;
 
-    if(this.uiOption.map === 'POSITRON') {
+    if(this.uiOption.map === 'Positron') {
       layer = this.cartoPositronLayer;
-    } else if(this.uiOption.map === 'DARK') {
+    } else if(this.uiOption.map === 'Dark') {
       layer = this.cartoDarkLayer;
     }
 
@@ -269,7 +269,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
               }),
               stroke: new ol.style.Stroke({
                 color: outlineColor,
-                width: 2
+                width: outlineWidth
               }),
               fill: new ol.style.Fill({
                 color: featureColor
@@ -287,7 +287,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
               }),
               stroke: new ol.style.Stroke({
                 color: outlineColor,
-                width: 2
+                width: outlineWidth
               }),
               fill: new ol.style.Fill({
                 color: featureColor
@@ -306,7 +306,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
               }),
               stroke: new ol.style.Stroke({
                 color: outlineColor,
-                width: 2
+                width: outlineWidth
               }),
               fill: new ol.style.Fill({
                 color: featureColor
@@ -317,7 +317,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             style = new ol.style.Style({
               stroke: new ol.style.Stroke({
                 color: outlineColor,
-                width: 2
+                width: outlineWidth
               }),
               fill: new ol.style.Fill({
                 color: featureColor
@@ -337,7 +337,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         style = new ol.style.Style({
           stroke: new ol.style.Stroke({
             color: outlineColor,
-            width: 2
+            width: outlineWidth
           }),
           fill: new ol.style.Fill({
             color: featureColor
@@ -347,7 +347,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         style = new ol.style.Style({
           stroke: new ol.style.Stroke({
             color: outlineColor,
-            width: 2
+            width: 1
           }),
           fill: new ol.style.Fill({
             color: featureColor
@@ -374,15 +374,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let featureColorType = styleOption.layers[0].color.by;
       let featureSizeType = styleOption.layers[0].size.by;
 
-      let outlineWidth = 0.00000001;
-      if(outlineType === 'THIN')  {
-        outlineWidth = 1;
-      } else if(outlineType === 'NORMAL') {
-        outlineWidth = 2;
-      } else if(outlineType === 'THICK') {
-        outlineWidth = 3;
-      }
-
       if(featureColorType === 'MEASURE') {
         let colorList = ChartColorList[featureColor];
         let avgNum = styleData[0].valueRange.maxValue / colorList.length;
@@ -403,7 +394,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let style = new ol.style.Style({
         stroke: new ol.style.Stroke({
           color: 'black',
-          width: 2
+          width: 1
         }),
         fill: new ol.style.Fill({
           color: featureColor
@@ -844,11 +835,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         textLayer.setVisible(false);
       }
 
-      if(this.uiOption.map === 'OSM') {
+      if(this.uiOption.map === 'OpenStreetMap') {
         this.olmap.getLayers().getArray()[0] = this.osmLayer;
-      } else if(this.uiOption.map === 'POSITRON') {
+      } else if(this.uiOption.map === 'Positron') {
         this.olmap.getLayers().getArray()[0] = this.cartoPositronLayer;
-      } else if(this.uiOption.map === 'DARK') {
+      } else if(this.uiOption.map === 'Dark') {
         this.olmap.getLayers().getArray()[0] = this.cartoDarkLayer;
       }
 
@@ -984,6 +975,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     //   source.addFeatures(features);
     //   mapchart.getView().fit(source.getExtent());
     // });
+
+    debugger
   }
 
   /**
