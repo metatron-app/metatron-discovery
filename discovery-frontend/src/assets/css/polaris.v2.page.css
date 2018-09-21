@@ -7136,6 +7136,9 @@ table.ddp-table-type3.ddp-popup tr td {padding:10px 10px 11px 10px;}
 .ddp-ui-preview-contents .ddp-data-details .ddp-wrap-sourcename {top:46px; overflow:auto;}
 .ddp-ui-preview-contents .ddp-data-details .ddp-wrap-detail {overflow:auto; height:100%; box-sizing:border-box;}
 .ddp-data-details .ddp-wrap-table-detail {margin-right:0; margin-left:0px; padding:40px 0;}
+
+.ddp-data-details.ddp-ui-preview-contents .ddp-type-input tbody tr > td.ddp-padding-none {padding:0;}
+.ddp-data-details.ddp-ui-preview-contents .ddp-type-input tbody tr > td .ddp-input-form {position:static;}
 /**********************************************************************************
         사용자 리스트
 **********************************************************************************/
