@@ -2058,7 +2058,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    */
   protected setMapping(): UIChartColor {
 
-    if (!this.uiOption.color || ChartColorType.SERIES !== this.uiOption.color.type) return this.uiOption.color;
+    if (!this.uiOption.color || ChartColorType.SERIES !== this.uiOption.color.type || !this.uiOption.fieldMeasureList || this.uiOption.fieldMeasureList.length == 0) return this.uiOption.color;
 
     // mapping값이 없거나, 선반값이 변경된경우 mapping값 초기화
     if (!(<UIChartColorBySeries>this.uiOption.color).mapping || EventType.CHANGE_PIVOT == this.drawByType) {
