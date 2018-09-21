@@ -29,7 +29,7 @@ import {
   SimpleChanges, SimpleChange
 } from '@angular/core';
 import { Workbook } from '../domain/workbook/workbook';
-import { Dashboard, PresentationDashboard, LayoutMode } from '../domain/dashboard/dashboard';
+import { Dashboard, PresentationDashboard, LayoutMode, BoardDataSource } from '../domain/dashboard/dashboard';
 import { Widget } from '../domain/dashboard/widget/widget';
 import { ChartSelectInfo } from '../common/component/chart/base-chart';
 import { SelectionFilter, SelectionFilterComponent } from './component/selection-filter/selection-filter.component';
@@ -37,7 +37,13 @@ import { DashboardLayoutComponent } from './component/dashboard-layout/dashboard
 import { Filter } from '../domain/workbook/configurations/filter/filter';
 import { PopupService } from '../common/service/popup.service';
 import { DatasourceService } from '../datasource/service/datasource.service';
-import { ConnectionType, Datasource, TempDsStatus, TemporaryDatasource } from 'app/domain/datasource/datasource';
+import {
+  ConnectionType,
+  Datasource,
+  Status,
+  TempDsStatus,
+  TemporaryDatasource
+} from 'app/domain/datasource/datasource';
 import { Modal } from '../common/domain/modal';
 import { ConfirmModalComponent } from '../common/component/modal/confirm/confirm.component';
 import { CommonConstant } from '../common/constant/common.constant';
@@ -391,24 +397,58 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       // Linked Datasource 인지 그리고 데이터소스가 적재되었는지 여부를 판단함
       const mainDsList:Datasource[] = DashboardUtil.getMainDataSources( dashboard );
 
-      const isLinkedDs:boolean = mainDsList.some( item => item.connType === ConnectionType.LINK );
-      if ( isLinkedDs ) {
+      const linkedDsList:Datasource[] = mainDsList.filter( item => item.connType === ConnectionType.LINK );
+      if ( linkedDsList && 0 < linkedDsList.length ) {
         // Multi Datasource Dashboard
         this.showBoardLoading();
-        this.datasourceService.getDatasourceDetail(dashboard.temporaryId).then((ds: Datasource) => {
 
-          console.info( ds );
+        const promises = [];
 
-          // (ds.temporary) && (this.datasourceStatus = ds.temporary.status);
-          // if (TempDsStatus.ENABLE === this.datasourceStatus) {
-          //   dashboard.configuration.dataSource.metaDataSource = ds;
-          //   this._runDashboard(dashboard);
-          // } else {
-          //   this.expiredDatasource = ds;
-          //   this.hideBoardLoading();
-          // }
-          // this.changeDetect.markForCheck();
-        }).catch(err => this.commonExceptionHandler(err));
+        linkedDsList.forEach( dsInfo => {
+          promises.push( new Promise<any>((res, rej) => {
+            const boardDsInfo:BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(dashboard,dsInfo);
+            this.datasourceService.getDatasourceDetail(boardDsInfo['temporaryId']).then((ds: Datasource) => {
+
+              if (this.datasourceStatus || TempDsStatus.ENABLE !== this.datasourceStatus) {
+                (ds.temporary) && (this.datasourceStatus = ds.temporary.status);
+              }
+
+              if (ds.temporary && TempDsStatus.ENABLE === ds.temporary.status) {
+                boardDsInfo.metaDataSource = ds;
+                // if( 'multi' === dashboard.configuration.dataSource.type ) {
+                //   dashboard.configuration.dataSource.dataSources.some( item => {
+                //     if( DashboardUtil.isSameDataSource( item, ds ) ) {
+                //       item.metaDataSource = ds;
+                //       return true;
+                //     }
+                //     return false;
+                //   });
+                // } else {
+                //   dashboard.configuration.dataSource.metaDataSource = ds;
+                // }
+              } else {
+                this.expiredDatasource = ds;
+                this.hideBoardLoading();
+              }
+
+              res();
+
+            }).catch(err => rej(err));
+          }));
+        });
+
+        Promise.all(promises).then(() => {
+          if (TempDsStatus.ENABLE === this.datasourceStatus) {
+            this._runDashboard(dashboard);
+          } else {
+            this.hideBoardLoading();
+          }
+          this.safelyDetectChanges();
+        }).catch((error) => {
+          this.commonExceptionHandler(error);
+          this.hideBoardLoading();
+        });
+
       } else {
         // Single Datasource Dashboard
         this.showBoardLoading();

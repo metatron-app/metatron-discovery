@@ -35,7 +35,7 @@ import {
   Dashboard,
   LayoutMode
 } from '../domain/dashboard/dashboard';
-import { Datasource, Field, FieldRole } from '../domain/datasource/datasource';
+import { ConnectionType, Datasource, Field, FieldRole, TempDsStatus } from '../domain/datasource/datasource';
 import { TextWidget } from '../domain/dashboard/widget/text-widget';
 import { PageWidget, PageWidgetConfiguration } from 'app/domain/dashboard/widget/page-widget';
 import { Widget } from '../domain/dashboard/widget/widget';
@@ -1433,21 +1433,37 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       const mainDsList: Datasource[] = DashboardUtil.getMainDataSources(boardInfo);
 
       if (0 < mainDsList.length) {
-        this._runDashboard(boardInfo);
-        /*
-                // Linked 에 대한 처리 추후 확인
-                if (mainDs.connType === ConnectionType.LINK) {
-                  this.showBoardLoading();
-                  this.datasourceService.getDatasourceDetail(boardInfo.temporaryId).then((ds: Datasource) => {
-                    boardInfo.configuration.dataSource.metaDataSource = ds;
-                    this._runDashboard(boardInfo);
-                    this.safelyDetectChanges();
-                  }).catch(err => this.commonExceptionHandler(err));
-                } else {
-                  this.showBoardLoading();
-                  this._runDashboard(boardInfo);
-                }
-        */
+        const linkedDsList:Datasource[] = mainDsList.filter( item => item.connType === ConnectionType.LINK );
+
+        if ( linkedDsList && 0 < linkedDsList.length ) {
+          // Multi Datasource Dashboard
+          this.showBoardLoading();
+
+          const promises = [];
+
+          linkedDsList.forEach( dsInfo => {
+            promises.push( new Promise<any>((res, rej) => {
+              const boardDsInfo:BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(boardInfo,dsInfo);
+              this.datasourceService.getDatasourceDetail(boardDsInfo['temporaryId']).then((ds: Datasource) => {
+                boardDsInfo.metaDataSource = ds;
+                res();
+              }).catch(err => rej(err));
+            }));
+          });
+
+          Promise.all(promises).then(() => {
+            this._runDashboard(boardInfo);
+            this.safelyDetectChanges();
+          }).catch((error) => {
+            this.commonExceptionHandler(error);
+            this.hideBoardLoading();
+          });
+
+        } else {
+          this.showBoardLoading();
+          this._runDashboard(boardInfo);
+        }
+
       } else {
         this.hideBoardLoading();
       }

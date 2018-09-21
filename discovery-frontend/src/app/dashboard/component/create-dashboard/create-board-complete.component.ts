@@ -22,6 +22,7 @@ import { StringUtil } from '../../../common/util/string.util';
 import { BoardGlobalOptions } from '../../../domain/dashboard/dashboard.globalOptions';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
 import { DashboardUtil } from '../../util/dashboard.util';
+import { ConnectionType } from '../../../domain/datasource/datasource';
 
 @Component({
   selector: 'create-board-complete',
@@ -132,6 +133,12 @@ export class CreateBoardCompleteComponent extends AbstractPopupComponent impleme
 
       // 데이터소스 & 연관관계 설정
       this.dashboard = DashboardUtil.setDataSourceAndRelations(this.dashboard, this._dataSources, this._relations);
+
+      // Linked Datasource 설정 추가
+      const linkedDs:BoardDataSource = this._dataSources.find( item => ConnectionType.LINK.toString() === item.connType );
+      if( linkedDs ) {
+        this.dashboard.temporaryId = linkedDs['temporaryId'];
+      }
 
       this.dashboardService.createDashboard(
         this._workbookId, this.dashboard, options,

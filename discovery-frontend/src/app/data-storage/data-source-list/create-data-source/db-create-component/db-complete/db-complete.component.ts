@@ -189,7 +189,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    * @returns {string}
    */
   public getSelectedDaysLabel(): string {
-    return this.getIngestionData.dateType
+    return this.getIngestionData.dateList
       .filter(date => date.checked)
       .map(day => day.label).toString();
   }
@@ -398,7 +398,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
    * @private
    */
   private _getPeriodWeekDays(): any {
-    return this.getIngestionData.dateType
+    return this.getIngestionData.dateList
       .filter(date => date.checked)
       .map(day => day.value);
   }

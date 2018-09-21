@@ -508,14 +508,15 @@ export class IngestionSettingComponent extends AbstractComponent {
       { label: this.translateService.instant('msg.storage.li.dsource.batch-weekly'), value: 'WEEKLY' },
       { label: this.translateService.instant('msg.storage.li.dsource.batch-expr'), value: 'EXPR' },
     ];
-    this.selectedBatchType = this.batchTypeList[0];
+    // default HOURLY
+    this.selectedBatchType = this.batchTypeList[1];
     // init hour list
     for (let i = 1; i < 24 ; i += 1) {
       this.hourList.push(i);
     }
     this.selectedHour = this.hourList[0];
     // init minute list
-    for (let i = 1; i < 60 ; i += 1) {
+    for (let i = 10; i < 60 ; i += 10) {
       this.minuteList.push(i);
     }
     this.selectedMinute = this.minuteList[0];
@@ -673,6 +674,8 @@ export class IngestionSettingComponent extends AbstractComponent {
       // load row
       this.ingestionOnceRow = ingestionData.ingestionOnceRow;
       this.ingestionPeriodRow = ingestionData.ingestionPeriodRow;
+      // cron text
+      this.cronText = ingestionData.cronText;
     }
     // if create type is StagingDB
     if (this.createType === 'STAGING') {
@@ -728,6 +731,8 @@ export class IngestionSettingComponent extends AbstractComponent {
       // save row
       sourceData['ingestionData'].ingestionOnceRow = this.ingestionOnceRow;
       sourceData['ingestionData'].ingestionPeriodRow = this.ingestionPeriodRow;
+      // cron text
+      sourceData['ingestionData'].cronText = this.cronText;
     }
     // if create type Staging
     if (this.createType === 'STAGING') {
