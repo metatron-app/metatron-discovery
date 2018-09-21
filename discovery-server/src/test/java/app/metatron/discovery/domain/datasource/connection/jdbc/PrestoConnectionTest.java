@@ -190,12 +190,12 @@ public class PrestoConnectionTest {
   @Test
   public void searchTableWithMetastoreInfo() {
     PrestoConnection connection = new PrestoConnection();
-    connection.setHostname("50.1.101.103");
+    connection.setHostname("localhost");
     connection.setCatalog("hive");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(8080);
-    connection.setMetastoreHost("metatron-poc-h04");
+    connection.setMetastoreHost("localhost");
     connection.setMetastorePort("3306");
     connection.setMetastoreSchema("hivemeta");
     connection.setMetastoreUserName("hiveuser");

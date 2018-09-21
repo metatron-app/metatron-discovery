@@ -1,5 +1,5 @@
 {
-  "type": "index_hynix",
+  "type": "index_hadoop",
   "spec": {
     "dataSchema": {
       "metricsSpec": [
@@ -75,7 +75,7 @@
       "inputSpec": {
         "type": "hive",
         "source": "default.sample_ingestion_time_orc",
-        "metastoreUri": "thrift://metatron-poc-h03:9083"
+        "metastoreUri": "thrift://localhost:9083"
       },
       "type": "hadoop"
     }

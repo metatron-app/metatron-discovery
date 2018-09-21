@@ -391,8 +391,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             lineChart.chart.resize();
           } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAPVIEW) {
 
-          } else if (this.widgetConfiguration.chart.type.toString() === 'grid') {
-            //(<GridChartComponent>this.chart).grid.arrange();
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
             (<NetworkChartComponent>this.chart).draw();
           } else {

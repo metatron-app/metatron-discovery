@@ -2934,7 +2934,7 @@ ul.ddp-list-layer-option li.ddp-hover {background:#f6f6f7 !important;}
 
 ul.ddp-list-layer-option li:hover .ddp-ui-2depth {display:block;}
 ul.ddp-list-layer-option li:hover {background-color:#f6f6f7}
-ul.ddp-list-layer-option li:first-of-type a {border-top:none;}
+ul.ddp-list-layer-option li:first-of-type > a {border-top:none;}
 ul.ddp-list-layer-option li a .ddp-label-toggle {margin:-10px -16px; padding:10px 16px; display:block; color:#4b515b; font-size:13px; cursor: pointer;}
 ul.ddp-list-layer-option li a .ddp-label-toggle input[type="checkbox"] {opacity:0;}
 ul.ddp-list-layer-option li a .ddp-label-toggle span.ddp-txt-toggle {position:absolute; top:50%; right:15px; margin-top:-9px;}

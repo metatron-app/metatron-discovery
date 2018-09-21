@@ -28,6 +28,7 @@ public class SAMLProperties {
   String entityBaseUrl;
   boolean requestSigned;
   SamlContext samlContext;
+  String userMapperClass;
 
   public List<SamlMetadata> getIdp() {
     return idp;
@@ -75,6 +76,14 @@ public class SAMLProperties {
 
   public void setSamlContext(SamlContext samlContext) {
     this.samlContext = samlContext;
+  }
+
+  public String getUserMapperClass() {
+    return userMapperClass;
+  }
+
+  public void setUserMapperClass(String userMapperClass) {
+    this.userMapperClass = userMapperClass;
   }
 
   public static class SamlMetadata{
@@ -126,6 +135,8 @@ public class SAMLProperties {
     public void setUrl(String url) {
       this.url = url;
     }
+    
+    
   }
 
   public static class SamlContext{
