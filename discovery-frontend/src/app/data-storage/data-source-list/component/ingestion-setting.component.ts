@@ -673,6 +673,8 @@ export class IngestionSettingComponent extends AbstractComponent {
       // load row
       this.ingestionOnceRow = ingestionData.ingestionOnceRow;
       this.ingestionPeriodRow = ingestionData.ingestionPeriodRow;
+      // cron text
+      this.cronText = ingestionData.cronText;
     }
     // if create type is StagingDB
     if (this.createType === 'STAGING') {
@@ -728,6 +730,8 @@ export class IngestionSettingComponent extends AbstractComponent {
       // save row
       sourceData['ingestionData'].ingestionOnceRow = this.ingestionOnceRow;
       sourceData['ingestionData'].ingestionPeriodRow = this.ingestionPeriodRow;
+      // cron text
+      sourceData['ingestionData'].cronText = this.cronText;
     }
     // if create type Staging
     if (this.createType === 'STAGING') {
