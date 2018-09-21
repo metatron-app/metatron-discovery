@@ -470,6 +470,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     dataSource.type = 'default';
     dataSource.metaDataSource = tempDatasource.info;
     dataSource.uiFilters = tempDatasource.filters;
+    dataSource['temporaryId'] = tempDatasource.id;
 
     this._dataSources.push(tempDatasource.info);
     this._addDataSource(dataSource);
@@ -639,7 +640,6 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
 
       // 네트워크 노드 추가
       const isKorean: boolean = this._checkKorean( ds.name );   // 한글 체크
-      console.info( '>>>>>> name : %s, isKorean : %s', ds.name, isKorean );
       if (360 < (isKorean ? 2 * ds.name.length : ds.name.length) * 14) {
         const nodeName: string = isKorean ? ds.name.substr(0, 11) + '...' : ds.name.substr(0, 22) + '...';
         this._nodes.add({ id: ds.id, label: nodeName, title: ds.name });

@@ -14,6 +14,18 @@
 
 package app.metatron.discovery.common.saml;
 
+import app.metatron.discovery.domain.user.UserRepository;
+import app.metatron.discovery.domain.user.UserService;
+import app.metatron.discovery.domain.user.group.Group;
+import app.metatron.discovery.domain.user.group.GroupMember;
+import app.metatron.discovery.domain.user.group.GroupService;
+import app.metatron.discovery.domain.user.role.RoleService;
+import app.metatron.discovery.domain.user.role.RoleSet;
+import app.metatron.discovery.domain.user.role.RoleSetRepository;
+import app.metatron.discovery.domain.user.role.RoleSetService;
+import app.metatron.discovery.domain.workspace.Workspace;
+import app.metatron.discovery.domain.workspace.WorkspaceRepository;
+import app.metatron.discovery.util.PolarisUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.opensaml.saml2.core.Attribute;
@@ -31,23 +43,10 @@ import org.springframework.security.saml.userdetails.SAMLUserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.persistence.EntityManager;
-
-import app.metatron.discovery.domain.user.UserRepository;
-import app.metatron.discovery.domain.user.UserService;
-import app.metatron.discovery.domain.user.group.Group;
-import app.metatron.discovery.domain.user.group.GroupMember;
-import app.metatron.discovery.domain.user.group.GroupService;
-import app.metatron.discovery.domain.user.role.RoleService;
-import app.metatron.discovery.domain.user.role.RoleSet;
-import app.metatron.discovery.domain.user.role.RoleSetRepository;
-import app.metatron.discovery.domain.user.role.RoleSetService;
-import app.metatron.discovery.domain.workspace.Workspace;
-import app.metatron.discovery.domain.workspace.WorkspaceRepository;
-import app.metatron.discovery.util.PolarisUtils;
 
 /**
  * this class is autowired to the SamlProvider, so it tries to get the user's details from the token using this 
@@ -180,18 +179,20 @@ public class SAMLUserDetailsServiceImpl implements SAMLUserDetailsService{
 	private SAMLUserMapper getUserMapper(SAMLCredential samlCredential) throws AuthenticationException{
     LOGGER.debug("search user mapper for remoteEntity {}", samlCredential.getRemoteEntityID());
 
-	  switch (samlCredential.getRemoteEntityID()){
-      case "azurehttp":
-        LOGGER.debug("found user : {}", "SAMLAzureUserMapper");
-	      return new SAMLAzureUserMapper();
-      case "http://adsso.airtel.com/adfs/services/trust":
-        LOGGER.debug("found user : {}", "SAMLBhartiUserMapper");
-        return new SAMLBhartiUserMapper();
-      case "https://idp.ssocircle.com":
-        LOGGER.debug("found user : {}", "SAMLSSOCircleUserMapper");
-        return new SAMLSSOCircleUserMapper();
-    }
-    return null;
+    //need add property userMapperClass
+		//ex) polaris.saml.userMapperClass=app.metatron.discovery.common.saml.SAMLBhartiUserMapper
+		String userMapperClassName = samlProperties.userMapperClass;
+		LOGGER.debug("found userMapperClassName : {}", userMapperClassName);
+		
+		if(StringUtils.isNotEmpty(userMapperClassName)){
+			try{
+				Class<?> clazz = Class.forName(userMapperClassName);
+				Constructor<?> ctor = clazz.getConstructor();
+				return (SAMLUserMapper) ctor.newInstance();
+			} catch (Exception e){
+			}
+		}
+		return null;
   }
 
   private String getAttributeValue(XMLObject attributeValue){

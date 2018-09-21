@@ -161,6 +161,7 @@ export class PresentationDashboardComponent extends AbstractPopupComponent imple
   public onDashboardEvent(event: { name: string, data?: any }) {
     if ('LAYOUT_INITIALISED' === event.name) {
       this._setTimer();
+      this.dashboardComponent.hideBoardLoading();
     }
   } // function - onDashboardEvent
 

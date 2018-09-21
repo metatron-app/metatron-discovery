@@ -255,7 +255,7 @@ public class PrepDataflowController {
                     dataflowRepository.saveAndFlush(dataflow);
 
                     for(String newId : newIds) {
-                        PrepTransformResponse response = this.transformService.create(newId, dataflow.getDfId());
+                        PrepTransformResponse response = this.transformService.create(newId, dataflow.getDfId(), true);
                     }
                 }
             } else {

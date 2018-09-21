@@ -20,7 +20,6 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,8 +61,8 @@ public class BookTreeService {
 
     List<Book> rootBooks = bookRepository.findRootBooksInWorkspace(workspaceId);
     rootBooks.sort(comparator);
-    for(Book book : rootBooks) {
-      if(book instanceof Folder) {
+    for (Book book : rootBooks) {
+      if (book instanceof Folder) {
         Folder folder = (Folder) book;
         List<Book> books = bookRepository.findOnlySubBooks(folder.getId());
         books.sort(comparator);
@@ -84,7 +83,7 @@ public class BookTreeService {
   public List<Book> findSubBooks(String bookId, boolean isRoot, String... type) {
 
     List<Book> books;
-    if(isRoot) {
+    if (isRoot) {
       books = bookRepository.findRootBooksInWorkspace(bookId, type);
     } else {
       books = bookRepository.findOnlySubBooks(bookId, type);
@@ -93,8 +92,8 @@ public class BookTreeService {
     books.sort(comparator);
 
     // 하위 Book 중 Folder Type 인 경우 하위 Book 들이 존재하는지 체크
-    for(Book book : books) {
-      if(book instanceof Folder) {
+    for (Book book : books) {
+      if (book instanceof Folder) {
         Folder folder = (Folder) book;
         folder.setHasSubBooks(
             bookRepository.countOnlySubBooks(folder.getId(), type) > 0 ? true : false
@@ -110,7 +109,7 @@ public class BookTreeService {
     List<Book> books = findSubBooks(bookId, isRoot, bookType);
 
     return books.stream().map(book -> {
-      if(type == LIST) {
+      if (type == LIST) {
         return book.listViewProjection();
       } else {
         return book.treeViewProjection();
@@ -143,19 +142,19 @@ public class BookTreeService {
     List<BookTree> bookTrees = Lists.newArrayList();
     bookTrees.add(new BookTree(book.getId(), book.getId(), 0));
 
-    if(Folder.ROOT.equals(book.getFolderId())) {
+    if (Folder.ROOT.equals(book.getFolderId())) {
       bookTreeRepository.save(bookTrees);
       return;
     }
 
     Folder folder = folderRepository.findOne(book.getFolderId());
-    if(folder == null) {
+    if (folder == null) {
       throw new IllegalArgumentException("Invalid Folder : " + book.getFolderId());
     }
 
     List<BookTree> ancestors = bookTreeRepository.findByIdDescendant(folder.getId());
 
-    for(BookTree ancestor : ancestors) {
+    for (BookTree ancestor : ancestors) {
       bookTrees.add(new BookTree(ancestor.getId().getAncestor(), book.getId(), ancestor.getDepth() + 1));
     }
 
@@ -167,7 +166,7 @@ public class BookTreeService {
     List<BookTree> bookTrees = Lists.newArrayList();
     List<String> deleteDescendants = Lists.newArrayList();
 
-    if("ROOT".equals(book.getFolderId())) {
+    if ("ROOT".equals(book.getFolderId())) {
 
       List<BookTree> descendants = bookTreeRepository.findDescendantNotAncenstor(book.getId());
       for (BookTree bookTree : descendants) {
@@ -195,7 +194,7 @@ public class BookTreeService {
       for (BookTree bookTree : descendants) {
         deleteDescendants.add(bookTree.getId().getDescendant());
         depthMap.forEach((ancestor, i) ->
-            bookTrees.add(new BookTree(ancestor, bookTree.getId().getDescendant(), i + bookTree.getDepth()))
+                             bookTrees.add(new BookTree(ancestor, bookTree.getId().getDescendant(), i + bookTree.getDepth()))
         );
       }
     }
@@ -209,21 +208,16 @@ public class BookTreeService {
 
   @Transactional
   public void deleteTree(Book book) {
-    // 하위 북 삭제
+    // delete sub-book
     List<BookTree> descendants = bookTreeRepository.findDescendantNotAncenstor(book.getId());
-    if(descendants.size() > 0) {
-      for(BookTree bookTree : descendants) {
-        try {
-          bookRepository.delete(bookTree.getId().getDescendant());
-          bookTreeRepository.delete(new BookTreeId(bookTree.getId().getDescendant(), bookTree.getId().getDescendant()));
-        } catch (EmptyResultDataAccessException e) {
-          LOGGER.warn("Fail to delete related book and tree from {}", book.getId(), e.getMessage());
-          continue;
-        }
+    if (descendants.size() > 0) {
+      for (BookTree bookTree : descendants) {
+        String descendantId = bookTree.getId().getDescendant();
+        bookRepository.delete(descendantId);
+        bookTreeRepository.deteleAllBookTree(descendantId);
       }
     }
 
-    // 트리 정보 삭제
     bookTreeRepository.deteleAllBookTree(book.getId());
   }
 
@@ -232,9 +226,9 @@ public class BookTreeService {
     @Override
     public int compare(Book book1, Book book2) {
 
-      if(book1 instanceof Folder && !(book2 instanceof Folder)) {
+      if (book1 instanceof Folder && !(book2 instanceof Folder)) {
         return -1;
-      } else if(!(book1 instanceof Folder) && book2 instanceof Folder) {
+      } else if (!(book1 instanceof Folder) && book2 instanceof Folder) {
         return 1;
       }
 

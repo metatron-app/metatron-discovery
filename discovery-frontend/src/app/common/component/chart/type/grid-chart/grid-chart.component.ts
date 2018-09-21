@@ -562,7 +562,7 @@ export class GridChartComponent extends BaseChart implements OnInit, OnDestroy, 
    */
   private setGradationRangeColor(cellColor: UIChartColorGradationByCell, gridModel: any) {
 
-    const codes = cellColor.visualGradations.map((item) => {return item['color']}).reverse();
+    const codes = cellColor.visualGradations.map((item) => {return item['color']});
 
     if (CellColorTarget.BACKGROUND == (<UIChartColorByCell>this.uiOption.color).colorTarget) {
       gridModel.body.color.stepColors = codes;

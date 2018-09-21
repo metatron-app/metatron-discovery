@@ -412,6 +412,20 @@ export class MetadataComponent extends AbstractComponent implements OnInit, OnDe
 
     })
   }
+
+  /**
+   * Get Name and description of metada
+   * @param metadata
+   * @returns {string}
+   */
+  public getTooltipValue(metadata) : string {
+
+    let result = metadata.name;
+    if (metadata.description) {
+      result += ` - ${metadata.description}`;
+    }
+    return result
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

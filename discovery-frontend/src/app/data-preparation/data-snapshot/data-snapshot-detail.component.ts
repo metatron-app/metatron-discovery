@@ -142,7 +142,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     this.originDsInfo = new OriginDsInfo();
     this.colCnt = 0;
     this.commandList = [
-      { command: 'create', alias: 'Cr', desc: this.translateService.instant('msg.dp.li.cr.description'), isHover:false },
       { command: 'header', alias: 'He', desc: this.translateService.instant('msg.dp.li.he.description'), isHover:false },
       { command: 'keep', alias: 'Ke', desc: this.translateService.instant('msg.dp.li.ke.description'), isHover:false },
       { command: 'replace', alias: 'Rp', desc: this.translateService.instant('msg.dp.li.rp.description'), isHover:false },
@@ -156,7 +155,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       { command: 'drop', alias: 'Dp', desc: this.translateService.instant('msg.dp.li.dp.description'), isHover:false },
       { command: 'pivot', alias: 'Pv', desc: this.translateService.instant('msg.dp.li.pv.description'), isHover:false },
       { command: 'unpivot', alias: 'Up', desc: this.translateService.instant('msg.dp.li.up.description'), isHover:false },
-      { command: 'join', alias: 'Jo', desc: this.translateService.instant('msg.dp.li.jo.description'), isHover:false },
+      { command: 'Join', alias: 'Jo', desc: this.translateService.instant('msg.dp.li.jo.description'), isHover:false },
       { command: 'extract', alias: 'Ex', desc: this.translateService.instant('msg.dp.li.ex.description'), isHover:false },
       { command: 'flatten', alias: 'Fl', desc: this.translateService.instant('msg.dp.li.fl.description'), isHover:false },
       { command: 'merge', alias: 'Me', desc: this.translateService.instant('msg.dp.li.me.description'), isHover:false },
@@ -165,7 +164,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       { command: 'aggregate', alias: 'Ag', desc: this.translateService.instant('msg.dp.li.ag.description'), isHover:false },
       { command: 'sort', alias: 'So', desc: this.translateService.instant('msg.dp.li.so.description'), isHover:false },
       { command: 'move', alias: 'Mv', desc: this.translateService.instant('msg.dp.li.mv.description'), isHover:false },
-      { command: 'union', alias: 'Ui', desc: this.translateService.instant('msg.dp.li.ui.description'), isHover:false },
+      { command: 'Union', alias: 'Ui', desc: this.translateService.instant('msg.dp.li.ui.description'), isHover:false },
       { command: 'setformat', alias: 'Sf', desc: 'set timestamp type .... ', isHover:false }
 
     ];
@@ -185,7 +184,9 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   // esc 창 닫힘
   @HostListener('document:keydown.escape', ['$event'])
   public onKeydownHandler(event: KeyboardEvent) {
-    event.keyCode === 27 ? this.close() : null;
+    if (this.isShow) {
+      event.keyCode === 27 ? this.close() : null;
+    }
   }
 
   public getRows() {
@@ -356,6 +357,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
         rule['desc'] = this.commandList[idx].desc;
+      } else {
+        rule['command'] = 'Create';
+        rule['alias'] = 'Cr';
+        rule['simplifiedRule'] = rule.ruleString;
       }
       // rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
       this.ruleList.push(rule);

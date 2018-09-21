@@ -294,10 +294,12 @@ export class CompleteCreateMetadataComponent extends AbstractPopupComponent impl
     if (this.isCreateType('datasource')) {
       const source = {
         name: this.getSelectedDatasource()['name'],
-        type: this.getSelectedDatasource()['connType'],
+        // type: this.getSelectedDatasource()['connType'],
+        type: 'ENGINE',
         sourceId: this.getSelectedDatasource()['id']
       };
-      params['sourceType'] = this.getSelectedDatasource()['connType'];
+      // params['sourceType'] = this.getSelectedDatasource()['connType'];
+      params['sourceType'] = 'ENGINE';
       params['source'] = source;
     } else if (this.isCreateType('hive')) {
       // hive

@@ -293,19 +293,31 @@ public interface Expr extends Expression {
       }
       else if (function instanceof BuiltinFunctions.Str.SubstringFunc) {
         // substring(expr)
-        assert (args.size() == 3) : args.size();
+        assert (args.size() == 2 || args.size() == 3) : args.size();
 
         try{
           ExprEval exprEval = args.get(0).eval(bindings);
-          int beginIndex = args.get(1).eval(bindings).intValue();
-          int endIndex = args.get(2).eval(bindings).intValue();
           String exprStr = exprEval.stringValue();
 
-          if(beginIndex > exprStr.length())
-            beginIndex=exprStr.length();
-          if(endIndex > exprStr.length())
-            endIndex=exprStr.length();
-          return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprStr.substring(beginIndex, endIndex));
+          int beginIndex = args.get(1).eval(bindings).intValue();
+          if(beginIndex > exprStr.length()) {
+            beginIndex = exprStr.length();
+          } else if (beginIndex < 0) {
+            beginIndex = exprStr.length()+beginIndex;
+          }
+
+          if(args.size()==2) {
+            exprStr = exprStr.substring(beginIndex);
+          } else {
+            int endIndex = beginIndex + args.get(2).eval(bindings).intValue();
+            if(endIndex > exprStr.length()) {
+              endIndex = exprStr.length();
+            }
+
+            exprStr = exprStr.substring(beginIndex, endIndex);
+          }
+
+          return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprStr);
         } catch (StringIndexOutOfBoundsException se) {
           throw new FunctionInvalidIndexNumberException("ExprEval.eval() substring: Wrong index param");
         } catch (NullPointerException ne){

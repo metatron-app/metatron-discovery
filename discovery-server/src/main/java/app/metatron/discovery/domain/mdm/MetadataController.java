@@ -14,8 +14,15 @@
 
 package app.metatron.discovery.domain.mdm;
 
+import app.metatron.discovery.common.entity.DomainType;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.tag.Tag;
+import app.metatron.discovery.domain.tag.TagProjections;
+import app.metatron.discovery.domain.tag.TagService;
+import app.metatron.discovery.util.ProjectionUtils;
 import com.google.common.collect.Maps;
-
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -31,24 +38,10 @@ import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.common.entity.DomainType;
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.tag.Tag;
-import app.metatron.discovery.domain.tag.TagProjections;
-import app.metatron.discovery.domain.tag.TagService;
-import app.metatron.discovery.util.ProjectionUtils;
 
 @RepositoryRestController
 public class MetadataController {
@@ -114,17 +107,20 @@ public class MetadataController {
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(metadatas, resourceAssembler));
   }
 
-  @RequestMapping(value = "/metadatas/metasources/{sourceId}", method = RequestMethod.GET)
+
+  @RequestMapping(value = "/metadatas/metasources/{sourceId}", method = RequestMethod.POST)
   public ResponseEntity<?> findMetadataByOriginSource(@PathVariable("sourceId") String sourceId,
-                                                      @RequestParam(value = "schema", required = false) String schema,
-                                                      @RequestParam(value = "table", required = false) List<String> table,
+                                                      @RequestBody Map<String, Object> requestParam,
                                                       @RequestParam(value = "projection", required = false, defaultValue = "default") String projection) {
 
-    List results = metadataRepository.findBySource(sourceId, schema, table);
+    String schema = (String) requestParam.get("schema");
+    List<String> tableList = (List) requestParam.get("table");
+
+    List results = metadataRepository.findBySource(sourceId, schema, tableList);
 
     return ResponseEntity.ok(ProjectionUtils.toListResource(projectionFactory,
-                                                            metadataProjections.getProjectionByName(projection),
-                                                            results));
+            metadataProjections.getProjectionByName(projection),
+            results));
 
   }
 

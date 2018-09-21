@@ -196,7 +196,7 @@ public class MeasureField extends Field {
    */
   public enum AggregationType {
     NONE, MIN, MAX, COUNT, COUNTD, SUM, AVG, STDDEV, MEDIAN, AREA, RANGE, PERCENTILE, // 사용자 노출 타입
-    SLOPE,              // Hynix 전용 집계 타입
+    SLOPE,
     VARIATION, APPROX,  // Ingestion 타입
     COMPLEX             // 계산식내 집계함수 포함 경우
   }

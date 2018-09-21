@@ -67,6 +67,12 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
   // Table detail
   public tables: any[] = [];
 
+  // result data
+  public resultData : any[] = [];
+
+  // select table
+  public selectedTable : string = '';
+
   @Output()
   public showLayer: EventEmitter<string> = new EventEmitter();
 
@@ -131,6 +137,8 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
   private _getTable(): void {
     // 호출 횟수 증가
     this._getTableReconnectCount++;
+    // select table
+    this.selectedTable = this.params['selectedTable'];
     // 로딩 show
     this.loadingShow();
     this.dataconnectionService.getTableInfomation(this.params['dataconnection'].id, this.params['dataconnection'].database, this.params['selectedTable'], WorkbenchService.websocketId, this.page)
@@ -167,13 +175,61 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
    * @private
    */
   private _getMetaData(): void {
-    this._metaDataService.getMetadataByConnection(this.params['dataconnection'].id, this.params['dataconnection'].database, this.params['selectedTable'])
+
+    // table array 생성
+    let tableNameArr: string[] = [];
+    tableNameArr.push( this.params['selectedTable'] );
+
+    this._metaDataService.getMetadataByConnection(this.params['dataconnection'].id, this.params['dataconnection'].database, tableNameArr)
       .then((result) => {
         // tables 최상단에 메타데이터 이름 push
         result.length > 0 && this.tables.unshift({
           itemkey: this.translateService.instant('msg.bench.ui.table.metadata.name'),
           item: result[0]['name']
         });
+
+        let tempLabel = '';
+        let tempArr : any[] = [];
+
+        this.resultData = [];
+
+        // result Data 생성
+        for (const key in this.tables) {
+
+          let tempData = {
+            'label' : '',
+            'data' : tempArr
+          };
+
+          if( this.tables[key]['itemkey'].startsWith('#') ){
+
+            if( key != '0' ){
+              tempData.label = tempLabel.split('#')[1];
+              tempData.data = tempArr;
+              this.resultData.push( tempData );
+
+              tempLabel = '';
+              tempArr = [];
+            }
+
+            // label
+            tempLabel = this.tables[key]['itemkey'];
+          } else {
+            // data
+            tempArr.push( this.tables[key] );
+          }
+
+          // 마지막 데이터일 경우
+          if( this.tables.length-1 == Number( key ) ){
+            tempData.label = tempLabel.split('#')[1];
+            tempData.data = tempArr;
+            this.resultData.push( tempData );
+          }
+
+
+
+        }
+
         // 로딩 hide
         this.loadingHide();
       })

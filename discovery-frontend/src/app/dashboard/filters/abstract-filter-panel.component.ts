@@ -28,6 +28,7 @@ import { Filter } from '../../domain/workbook/configurations/filter/filter';
 import { Dashboard } from '../../domain/dashboard/dashboard';
 import { Datasource, Field } from '../../domain/datasource/datasource';
 import { DashboardUtil } from '../util/dashboard.util';
+import { FilterUtil } from '../util/filter.util';
 
 export class AbstractFilterPanelComponent extends AbstractComponent implements OnInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -201,20 +202,27 @@ export class AbstractFilterPanelComponent extends AbstractComponent implements O
    */
   protected setPanelData(filter: Filter) {
 
-    // 대시보드 필터 여부
-    this.isBoardFilter = !filter.ui.widgetId;
+    this.dataSource = FilterUtil.getDataSourceForFilter(filter, this.dashboard);
 
-    // 필드
-    this.field = DashboardUtil.getFieldByName(this.dashboard, filter.dataSource, filter.field, filter.ref);
+    if( this.dataSource ) {
+      // 대시보드 필터 여부
+      this.isBoardFilter = !filter.ui.widgetId;
 
-    // 타임스탬프, 필수필터, 추천필터일 경우에도 변경 불가능
-    if ( 'recommended' === filter.ui.importanceType || 'timestamp' === filter.ui.importanceType  ) {
-      this.isChangeable = false;
+      // 필드
+      this.field = DashboardUtil.getFieldByName(this.dashboard, filter.dataSource, filter.field, filter.ref);
+
+      // 타임스탬프, 필수필터, 추천필터일 경우에도 변경 불가능
+      if ( 'recommended' === filter.ui.importanceType || 'timestamp' === filter.ui.importanceType  ) {
+        this.isChangeable = false;
+      }
+
+      // 기능 버튼 활성 여부
+      this.isDeletable = this.isChangeable && (this.isDashboardMode === this.isBoardFilter);
+      this.isEditable = (this.isDashboardMode === this.isBoardFilter);
+    } else {
+      this.isDeletable = true;
     }
 
-    // 기능 버튼 활성 여부
-    this.isDeletable = this.isChangeable && (this.isDashboardMode === this.isBoardFilter);
-    this.isEditable = (this.isDashboardMode === this.isBoardFilter);
   } // function - setPanelData
 
   /**

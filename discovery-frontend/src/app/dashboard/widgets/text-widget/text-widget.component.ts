@@ -59,6 +59,7 @@ export class TextWidgetComponent extends AbstractWidgetComponent implements OnIn
   public ngOnInit() {
     super.ngOnInit();
     this.processStart();
+    this.isValidWidget = true;
     this.processEnd();
   }
 

@@ -14,5 +14,6 @@
 
 <app-dashboard *ngIf="dashboard"
                [dashboard]="dashboard"
-               [standalone]="true">
+               [standalone]="true"
+               (dashboardEvent)="onDashboardEvent($event)" >
 </app-dashboard>
