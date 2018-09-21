@@ -351,7 +351,9 @@ export class PageDataContextComponent extends AbstractComponent {
           name = 'LONGITUDE';
           break;
         default :
-          name = metaData.type.toString();
+          if (metaData.type) {
+            name = metaData.type.toString();
+          }
       }
     }
     return name;
