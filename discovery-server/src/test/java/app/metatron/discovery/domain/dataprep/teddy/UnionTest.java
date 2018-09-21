@@ -14,9 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -33,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
+import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 
 import static org.junit.Assert.assertEquals;
 
@@ -90,13 +89,6 @@ public class UnionTest {
     @BeforeClass
     public static void setUp() throws Exception {
         loadGridCsv("sample", "teddy/sample.csv");
-        loadGridCsv("contract", "teddy/ibk_contract_n10000.csv");
-        loadGridCsv("product", "teddy/ibk_product_n5000.csv");
-        loadGridCsv("store", "teddy/ibk_store_n10000.csv");
-        loadGridCsv("store1", "teddy/ibk_store_n3000_1.csv");
-        loadGridCsv("store2", "teddy/ibk_store_n3000_2.csv");
-        loadGridCsv("store3", "teddy/ibk_store_n3000_3.csv");
-        loadGridCsv("store4", "teddy/ibk_store_n3000_4.csv");
         loadGridCsv("null_contained", "teddy/null_contained.csv");
     }
 

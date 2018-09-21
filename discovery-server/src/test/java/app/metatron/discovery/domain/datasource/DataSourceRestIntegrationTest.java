@@ -1361,7 +1361,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     /*
 
     {
-   "type":"index_hynix",
+   "type":"index_hadoop",
    "spec":{
       "dataSchema":{
          "dataSource":"hive_ingestion_csv_none_partition_ijmha",
@@ -1531,7 +1531,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     /*
 
     {
-   "type":"index_hynix",
+   "type":"index_hadoop",
    "spec":{
       "dataSchema":{
          "dataSource":"hive_ingestion_orc_none_partition_ecvof",

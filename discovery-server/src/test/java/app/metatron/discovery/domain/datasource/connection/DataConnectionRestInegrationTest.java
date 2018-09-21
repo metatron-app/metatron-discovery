@@ -846,7 +846,7 @@ import static org.hamcrest.Matchers.hasSize;
     PostgresqlConnection connection = new PostgresqlConnection();
     connection.setHostname("localhost");
     connection.setPort(5432);
-    connection.setDatabase("ibk_poc");
+    connection.setDatabase("etl");
     connection.setUsername("etl");
     connection.setPassword("metatron$$00");
 
@@ -875,7 +875,7 @@ import static org.hamcrest.Matchers.hasSize;
     PostgresqlConnection connection = new PostgresqlConnection();
     connection.setHostname("localhost");
     connection.setPort(5432);
-    connection.setDatabase("ibk_poc");
+    connection.setDatabase("etl");
     connection.setUsername("etl");
     connection.setPassword("metatron$$00");
 
@@ -904,7 +904,7 @@ import static org.hamcrest.Matchers.hasSize;
     PostgresqlConnection connection = new PostgresqlConnection();
     connection.setHostname("localhost");
     connection.setPort(5432);
-    connection.setDatabase("ibk_poc");
+    connection.setDatabase("etl");
     connection.setUsername("etl");
     connection.setPassword("metatron$$00");
 
@@ -934,7 +934,7 @@ import static org.hamcrest.Matchers.hasSize;
     PostgresqlConnection connection = new PostgresqlConnection();
     connection.setHostname("localhost");
     connection.setPort(5432);
-    connection.setDatabase("ibk_poc");
+    connection.setDatabase("etl");
     connection.setUsername("etl");
     connection.setPassword("metatron$$00");
 

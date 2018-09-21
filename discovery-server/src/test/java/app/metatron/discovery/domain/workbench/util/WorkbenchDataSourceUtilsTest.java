@@ -127,7 +127,7 @@ public class WorkbenchDataSourceUtilsTest {
         SingleConnectionDataSource ds1 = WorkbenchDataSourceUtils.createDataSourceInfo(hiveConn1, "websocket1", false)
                 .getSingleConnectionDataSource();;
         JdbcTemplate jt1 = new JdbcTemplate(ds1);
-        String testQuery = "drop table ibk_poc.contract_all_test1";
+        String testQuery = "drop table etl.contract_all_test1";
         System.out.println("=====drop table");
         jt1.execute(testQuery);
 
@@ -141,12 +141,12 @@ public class WorkbenchDataSourceUtilsTest {
 
             JdbcTemplate jt2 = new JdbcTemplate(ds2);
             System.out.println("ds2 = " + ds2);
-            String testQuery2 = "create table ibk_poc.contract_all_test1 as\n" +
+            String testQuery2 = "create table etl.contract_all_test1 as\n" +
                     "select\n" +
                     "  t1.*, t2.birth_date, t2.customer_sex\n" +
                     "from\n" +
-                    "  ibk_poc.contract t1\n" +
-                    "  join ibk_poc.customer t2 on (t1.customer_id = t2.customer_id)";
+                    "  etl.contract t1\n" +
+                    "  join etl.customer t2 on (t1.customer_id = t2.customer_id)";
 
             PreparedStatementCreator pstmtCreator = new PreparedStatementCreator() {
                 public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -186,7 +186,7 @@ public class WorkbenchDataSourceUtilsTest {
         latch.await();
         //Drop된 테이블 존재 확인
         System.out.println("query result...");
-        List<?> tables = jt1.queryForList("select * from ibk_poc.contract_all_test1 limit 10" );
+        List<?> tables = jt1.queryForList("select * from etl.contract_all_test1 limit 10" );
         System.out.println("tables = " + tables);
 
         System.out.println("Test End...");

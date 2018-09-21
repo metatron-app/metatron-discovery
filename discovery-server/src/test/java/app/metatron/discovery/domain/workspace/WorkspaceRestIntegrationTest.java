@@ -1025,7 +1025,7 @@ public class WorkspaceRestIntegrationTest extends AbstractRestIntegrationTest {
   @Test
   @OAuthRequest(username = "admin", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_MANAGE_SHARED_WORKSPACE"})
 //  @OAuthRequest(username = "guest", value = {"SYSTEM_GUEST"})
-  @Sql(value = {"/scripts/default_ibk_roleset.sql", "/sql/test_workbook.sql"})
+  @Sql(value = {"/sql/test_workbook.sql"})
   public void findWorkspaceWithDetailView() {
 
     // @Sql 내 데이터 기반 구성

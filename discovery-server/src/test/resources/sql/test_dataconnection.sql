@@ -3,7 +3,7 @@ INSERT INTO DATACONNECTION(DC_IMPLEMENTOR, ID, CREATED_BY, CREATED_TIME, MODIFIE
 ('MYSQL', 'mysql-connection', 'polaris', now(), 'polaris', '2017-08-13T15:11:07', 0, NULL, 'localhost', 'mysql-local-conn', NULL, 'polaris', 3306, 'JDBC', NULL, 'polaris', 'polaris', NULL, NULL, NULL, NULL);
 
 INSERT INTO DATACONNECTION(DC_IMPLEMENTOR, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, DC_DESC, DC_HOSTNAME, DC_NAME, DC_OPTIONS, DC_PASSWORD, DC_PORT, DC_TYPE, DC_URL, DC_USERNAME, DC_DATABASE, PATH, DC_CATALOG, DC_SID, REMOVEFIRSTROW) VALUES
-('POSTGRESQL', 'postgres-connection', 'polaris', now(), 'polaris', '2017-08-11T15:11:07', 0, NULL, 'localhost', 'postgres-connection', NULL, 'metatron$$00', 5432, 'JDBC', NULL, 'etl', 'ibk_poc', NULL, NULL, NULL, NULL);
+('POSTGRESQL', 'postgres-connection', 'polaris', now(), 'polaris', '2017-08-11T15:11:07', 0, NULL, 'localhost', 'postgres-connection', NULL, 'metatron$$00', 5432, 'JDBC', NULL, 'etl', 'etl', NULL, NULL, NULL, NULL);
 
 INSERT INTO DATACONNECTION(DC_IMPLEMENTOR, ID, CREATED_BY, CREATED_TIME, MODIFIED_BY, MODIFIED_TIME, VERSION, DC_DESC, DC_HOSTNAME, DC_NAME, DC_OPTIONS, DC_PASSWORD, DC_PORT, DC_TYPE, DC_URL, DC_USERNAME, DC_DATABASE, PATH, DC_CATALOG, DC_SID, REMOVEFIRSTROW) VALUES
 ('MYSQL', 'mysql-local-connection', 'polaris', now(), 'polaris', '2017-08-11T15:11:07', 0, NULL, 'localhost', 'mysql-local', NULL, 'polaris', 3306, 'JDBC', NULL, 'polaris', 'polaris', NULL, NULL, NULL, NULL);
