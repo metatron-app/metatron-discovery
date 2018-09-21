@@ -508,14 +508,15 @@ export class IngestionSettingComponent extends AbstractComponent {
       { label: this.translateService.instant('msg.storage.li.dsource.batch-weekly'), value: 'WEEKLY' },
       { label: this.translateService.instant('msg.storage.li.dsource.batch-expr'), value: 'EXPR' },
     ];
-    this.selectedBatchType = this.batchTypeList[0];
+    // default HOURLY
+    this.selectedBatchType = this.batchTypeList[1];
     // init hour list
     for (let i = 1; i < 24 ; i += 1) {
       this.hourList.push(i);
     }
     this.selectedHour = this.hourList[0];
     // init minute list
-    for (let i = 1; i < 60 ; i += 1) {
+    for (let i = 10; i < 60 ; i += 10) {
       this.minuteList.push(i);
     }
     this.selectedMinute = this.minuteList[0];
