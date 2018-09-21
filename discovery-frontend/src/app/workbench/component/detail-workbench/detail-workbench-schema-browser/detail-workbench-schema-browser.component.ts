@@ -190,6 +190,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     this.dataConnection = this.workbench.dataConnection;
     // 현재 선택된 데이터베이스 이름
     this.selectedDatabaseName = this.workbench.dataConnection.database;
+    // 선택된 테이블 초기화
+    this.selectedSchemaTable = '';
     // 데이터베이스 리스트 조회
     this._getDatabaseList();
   }
@@ -321,6 +323,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     this.selectedDatabaseName = database;
     // 기존 데이터 초기화
     this.schemaTableList = [];
+    // 선택된 테이블 초기화
+    this.selectedSchemaTable = '';
     // 재조회
     this.getTableList();
   }
