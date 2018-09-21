@@ -8166,6 +8166,25 @@ ul.ddp-list-tab-type li a:hover em[class*="ddp-img-map-"],
 ul.ddp-list-tab-type li.ddp-selected a em[class*="ddp-img-map-"]{background-position-y:-47px;}
 ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%; margin-top:5px; left:0;}
 
+.ddp-list-tab-type2 {width:100%; border-radius:2px;}
+.ddp-list-tab-type2 li {float:left; position:relative; width:33.333%; height:46px;  box-sizing:Border-box; background-color:#e7e7ea;}
+.ddp-list-tab-type2 li + li {border-left:1px solid #fff;}
+.ddp-list-tab-type2 li a {display:block; width:100%; height:100%; position:relative; }
+.ddp-list-tab-type2 li a [class*='ddp-icon-map-'] {display:inline-block; position:absolute; top:50%; left:50%; background:Url(../images/img_maptype2.png) no-repeat;}
+.ddp-list-tab-type2 li a [class*='ddp-icon-map-'] {display:inline-block; position:absolute; top:50%; left:50%; background:url(../images/img_maptype2.png) no-repeat;}
+.ddp-list-tab-type2 li a em.ddp-icon-map-sign {width:34px; height:27px; margin:-14px 0 0 -17px;}
+.ddp-list-tab-type2 li a em.ddp-icon-map-heatmap {width:29px; height:31px; background-position:left -28px; margin:-15px 0 0 -14px;}
+.ddp-list-tab-type2 li a em.ddp-icon-map-tile {width:22px; height:22px; background-position:left -60px; margin:-11px 0 0 -11px;}
+.ddp-list-tab-type2 li.ddp-selected a em.ddp-icon-map-sign {background-position-x:-35px;}
+.ddp-list-tab-type2 li.ddp-selected a em.ddp-icon-map-heatmap {background-position-x:-30px;}
+.ddp-list-tab-type2 li.ddp-selected a em.ddp-icon-map-tile {background-position-x:-23px;}
+.ddp-list-tab-type2 li.ddp-selected a:before,
+.ddp-list-tab-type2 li a:hover:before {position:absolute; top:0; left:0; right:0; bottom:0; border:1px solid #90969f; background-color:#f7f7f8; content:'';}
+.ddp-list-tab-type2 li.ddp-disabled a:before,
+.ddp-list-tab-type2 li.ddp-disabled a:hover:before{position:absolute; top:0; left:0; right:0; bottom:0; cursor:no-drop; background:none; border:none; content:''; z-index:1;}
+.ddp-list-tab-type2 li.ddp-disabled a em[class*="ddp-icon-map"] {opacity:0.5;}
+ul.ddp-list-tab-type2 li a:hover + .ddp-ui-tooltip-info {display:block; width:50px; left:50%; top:100%; margin-top:5px; margin-left:-25px; text-align:center; box-sizing:border-box;}
+
 /**************************************************************
   Integrator
 **************************************************************/
