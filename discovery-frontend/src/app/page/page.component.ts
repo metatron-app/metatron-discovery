@@ -31,7 +31,15 @@ import { PopupService } from '../common/service/popup.service';
 
 import { StringUtil } from '../common/util/string.util';
 import { Pivot } from '../domain/workbook/configurations/pivot';
-import { BIType, Datasource, Field, FieldPivot, FieldRole, LogicalType } from '../domain/datasource/datasource';
+import {
+  BIType,
+  ConnectionType,
+  Datasource,
+  Field,
+  FieldPivot,
+  FieldRole,
+  LogicalType
+} from '../domain/datasource/datasource';
 import {
   BarMarkType,
   ChartType,
@@ -570,7 +578,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.widget.configuration.filters = [];
       this.widget.configuration.customFields = [];
     }
-    this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.engineName );
+
+    if( ConnectionType.LINK === this.dataSource.connType ) {
+      this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.dataSource.engineName );
+    } else {
+      this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.engineName );
+    }
+
 
     if (StringUtil.isEmpty(this.widget.name)) {
       this.widget.name = 'New Chart';
