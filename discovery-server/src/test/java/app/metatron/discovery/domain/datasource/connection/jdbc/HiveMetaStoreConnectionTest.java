@@ -37,7 +37,7 @@ public class HiveMetaStoreConnectionTest {
   @Test
   public void initialTest() throws Exception{
     HiveConnection connection = new HiveConnection();
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
@@ -72,7 +72,7 @@ public class HiveMetaStoreConnectionTest {
   @Test
   public void searchTableViaJDBC() {
     HiveConnection connection = new HiveConnection();
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);

@@ -122,7 +122,7 @@ public class WorkbenchDataSourceUtilsTest {
         System.out.println("Test Start...");
         CountDownLatch latch = new CountDownLatch(1);
 
-        HiveConnection hiveConn1 = createHiveConnection("metatron-poc-h04", "hive", "hive", 10000, "hiveConn1");
+        HiveConnection hiveConn1 = createHiveConnection("localhost", "hive", "hive", 10000, "hiveConn1");
 
         SingleConnectionDataSource ds1 = WorkbenchDataSourceUtils.createDataSourceInfo(hiveConn1, "websocket1", false)
                 .getSingleConnectionDataSource();;
