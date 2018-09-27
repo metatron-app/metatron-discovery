@@ -126,7 +126,7 @@ public class SelectQueryBuilder {
 
     if (ingestionInfo.getDataType() == TABLE) {
       StringBuilder selectAllQuery = new StringBuilder();
-      selectAllQuery.append("SELECT * FROM ");
+      //selectAllQuery.append("SELECT * FROM ");
       selectAllQuery.append(jdbcDataConnection.getTableName(ingestionInfo.getDatabase(), ingestionInfo.getQuery()));
       this.query = selectAllQuery.toString();
     } else {
@@ -178,7 +178,7 @@ public class SelectQueryBuilder {
     return this;
   }
 
-  public String build() {
+  public String build(JdbcIngestionInfo.DataType dataType) {
 
     StringBuilder selectQuery = new StringBuilder();
     selectQuery.append("SELECT ");
@@ -191,7 +191,11 @@ public class SelectQueryBuilder {
     if (this.jdbcDataConnection instanceof OracleConnection || this.jdbcDataConnection instanceof TiberoConnection) {
       selectQuery.append(" ) ");
     } else {
-      selectQuery.append(" ) AS ").append(TEMP_TABLE_NAME).append(" ");
+      if (dataType == JdbcIngestionInfo.DataType.TABLE)
+        selectQuery.append(" ) ");
+      else
+        //JdbcIngestionInfo.DataType.QUERY or NULL
+        selectQuery.append(" ) AS ").append(TEMP_TABLE_NAME).append(" ");
     }
 
     if(StringUtils.isNotEmpty(incremental)) {
