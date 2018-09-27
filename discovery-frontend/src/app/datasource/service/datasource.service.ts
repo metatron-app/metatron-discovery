@@ -380,72 +380,77 @@ export class DatasourceService extends AbstractService {
       let layers = [];
 
       for(let column of query.pivot.columns) {
-        if(column.field.logicalType.toString() === 'GEO_POINT' || column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') {
+        if((column.field.logicalType.toString() === 'GEO_POINT' || column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') && (column["layerNum"] === undefined || column["layerNum"] === 1) ) {
           geoFieldCnt = geoFieldCnt +1;
         }
       }
 
       for(let column of query.pivot.columns) {
-        let layer = {
-          type: column.type,
-          name: column.name,
-          alias: column.alias,
-          ref: null,
-          format: null,
-          dataSource: null
-        }
-
-        layer.dataSource = column.field.dataSource;
-
-        if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
-          layer.format = {
-            type : "geo"
-          }
-        }
-
-
-        if(column.field.logicalType.toString() === 'GEO_POINT') {
-          layer.format = {
-            type: "geo_hash",
-            method: "h3",
-            precision: 9       // Precision 적용 (1~12)
+        if(column["layerNum"] === undefined || column["layerNum"] === 1) {
+          let layer = {
+            type: column.type,
+            name: column.name,
+            alias: column.alias,
+            ref: null,
+            format: null,
+            dataSource: null
           }
 
-          if(geoFieldCnt > 1) {
+          layer.dataSource = column.field.dataSource;
+
+          //dataSource가 여러개일 경우 첫번째 dataSource만 가져와서 column의 dataSource Name으로 변경
+          query.dataSource.engineName = column.field.dataSource;
+          query.dataSource.name = column.field.dataSource;
+          query.dataSource.id = column.field.dsId;
+
+          if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
             layer.format = {
-              type: "geo_boundary",
-              dataSource: query.pivot.columns[0].field.dataSource,
-              geoColumn: query.pivot.columns[0].field.name,
-              descColumn: 'desc' + query.pivot.columns[0].field.name
+              type : "geo"
             }
           }
-        } else if(column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') {
-          if(geoFieldCnt > 1) {
+
+          if(column.field.logicalType.toString() === 'GEO_POINT') {
             layer.format = {
-              type: "geo_join"
+              type: "geo_hash",
+              method: "h3",
+              precision: 9       // Precision 적용 (1~12)
+            }
+
+            if(geoFieldCnt > 1) {
+              layer.format = {
+                type: "geo_boundary",
+                dataSource: query.pivot.columns[0].field.dataSource,
+                geoColumn: query.pivot.columns[0].field.name,
+                descColumn: 'desc' + query.pivot.columns[0].field.name
+              }
+            }
+          } else if(column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') {
+            if(geoFieldCnt > 1) {
+              layer.format = {
+                type: "geo_join"
+              }
             }
           }
-        }
 
-        layers.push(layer);
+          layers.push(layer);
+        }
       }
 
-
-
-
       for(let aggregation of query.pivot.aggregations) {
-        let layer = {
-          type: aggregation.type,
-          name: aggregation.name,
-          alias: aggregation.alias,
-          ref: null,
-          aggregationType: aggregation.aggregationType,
-          dataSource: null
+        if(aggregation["layerNum"] === undefined || aggregation["layerNum"] === 1) {
+          let layer = {
+            type: aggregation.type,
+            name: aggregation.name,
+            alias: aggregation.alias,
+            ref: null,
+            aggregationType: aggregation.aggregationType,
+            dataSource: null
+          }
+
+          layer.dataSource = aggregation.field.dataSource;
+
+          layers.push(layer);
         }
-
-        layer.dataSource = aggregation.field.dataSource;
-
-        layers.push(layer);
       }
 
 
@@ -454,37 +459,14 @@ export class DatasourceService extends AbstractService {
         layers: [layers]
       };
 
-      // query.shelf = {
-      //   type: 'geo',
-      //   layers: [
-      //       [
-      //           {
-      //               type: 'dimension',
-      //               name: 'gis',
-      //               alias: 'gis',
-      //               ref: null,
-      //               format: {
-      //                   type: 'geohash',
-      //                   method: 'h3',
-      //                   precision: 5       // Precision 적용 (1~12)
-      //               }
-      //           },
-      //           {
-      //               type: 'measure',
-      //               name: 'py',
-      //               alias: 'AVG(py)',
-      //               ref: null,
-      //               aggregationType: 'AVG'
-      //           }
-      //       ]
-      //   ]
-      // };
-
       //map 은 limit 5000개 제한
       query.limits = {
         limit: 5000,
         sort: null
       }
+
+
+
     }
 
     if (!_.isEmpty(resultFormatOptions)) {

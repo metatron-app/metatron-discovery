@@ -10,8 +10,13 @@ import { BaseChart } from '../../base-chart';
 import {BaseOption} from "../../option/base-option";
 import {ChartType, ShelveType, ShelveFieldType} from "../../option/define/common";
 import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
+import {DatasourceService} from '../../../../../datasource/service/datasource.service';
+import {SearchQueryRequest} from "../../../../../domain/datasource/data/search-query-request";
+import {PageWidget} from "../../../../../domain/dashboard/widget/page-widget";
+
 import * as _ from 'lodash';
 import { UIOption } from '../../option/ui-option';
+
 import {
   ChartColorList
 } from '../../option/define/common';
@@ -39,11 +44,24 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
   public olmap: ol.Map = undefined;
   public mapVaild: boolean = false;
-  public data: Map = new Map()
+  public mapVaildSecondLayer: boolean = false;
+  public mapVaildThirdLayer: boolean = false;
+  public data: Map = new Map();
+  public data2: any;
+  public data3: any;
 
   public mouseX = 0;
   public mouseY = 0;
   public property = 0;
+
+  @Input()
+  public widget: PageWidget;
+
+  public query: SearchQueryRequest;
+  @Input("query")
+  public set setQuery(query: SearchQueryRequest) {
+    this.query = query;
+  }
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -61,7 +79,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   // 생성자
   constructor(
     protected elementRef: ElementRef,
-    protected injector: Injector ) {
+    protected injector: Injector,
+    private datasourceService: DatasourceService ) {
 
     super(elementRef, injector);
   }
@@ -174,7 +193,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
 
     if(document.getElementsByClassName("ddp-ui-chart-contents").length > 0) {
-      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '84px';
+      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
+      document.getElementsByClassName("ddp-ui-chart-area")[0]["style"].padding = '0 0 0 0';
     }
     this.olmap.updateSize();
 
@@ -188,21 +208,21 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   /**
    * map style function
    */
-  public mapStyleFunction = () => {
+  public mapStyleFunction = (layerNum) => {
 
     let styleOption = this.uiOption;
     let styleData = this.data;
 
     return function(feature, resolution) {
 
-      let layerType = styleOption.layers[0].type;
-      let symbolType = styleOption.layers[0].symbol;
-      let outlineType = styleOption.layers[0].outline.thickness;
-      let lineDashType = styleOption.layers[0].outline.lineDash;
-      let featureColor = styleOption.layers[0].color.schema;
-      let outlineColor = styleOption.layers[0].outline.color;
-      let featureColorType = styleOption.layers[0].color.by;
-      let featureSizeType = styleOption.layers[0].size.by;
+      let layerType = styleOption.layers[layerNum].type;
+      let symbolType = styleOption.layers[layerNum].symbol;
+      let outlineType = styleOption.layers[layerNum].outline.thickness;
+      let lineDashType = styleOption.layers[layerNum].outline.lineDash;
+      let featureColor = styleOption.layers[layerNum].color.schema;
+      let outlineColor = styleOption.layers[layerNum].outline.color;
+      let featureColorType = styleOption.layers[layerNum].color.by;
+      let featureSizeType = styleOption.layers[layerNum].size.by;
 
       let outlineWidth = 0.00000001;
       if(outlineType === 'THIN')  {
@@ -220,7 +240,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       let featureSize = 5;
       if(featureSizeType === 'MEASURE') {
-        featureSize = parseInt(feature.get(styleOption.layers[0].size.column)) / (styleData[0].valueRange.maxValue / 30);
+        featureSize = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData[0].valueRange.maxValue / 30);
       }
 
       if(featureColorType === 'MEASURE') {
@@ -361,18 +381,18 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   /**
    * hexagon map style function
    */
-  public hexagonStyleFunction = () => {
+  public hexagonStyleFunction = (layerNum) => {
 
     let styleOption = this.uiOption;
     let styleData = this.data;
 
     return function(feature, resolution) {
 
-      let outlineType = styleOption.layers[0].outline.thickness;
-      let featureColor = styleOption.layers[0].color.schema;
-      let outlineColor = styleOption.layers[0].outline.color;
-      let featureColorType = styleOption.layers[0].color.by;
-      let featureSizeType = styleOption.layers[0].size.by;
+      let outlineType = styleOption.layers[layerNum].outline.thickness;
+      let featureColor = styleOption.layers[layerNum].color.schema;
+      let outlineColor = styleOption.layers[layerNum].outline.color;
+      let featureColorType = styleOption.layers[layerNum].color.by;
+      let featureSizeType = styleOption.layers[layerNum].size.by;
 
       if(featureColorType === 'MEASURE') {
         let colorList = ChartColorList[featureColor];
@@ -456,17 +476,17 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
   }
 
-  public clusterStyleFunction = () => {
+  public clusterStyleFunction = (layerNum) => {
 
     let styleOption = this.uiOption;
 
     return function (feature, resolution) {
-      let layerType = (<any>window).uiOption.layers[0].type;
-      let symbolType = (<any>window).uiOption.layers[0].symbol;
-      let outlineType = (<any>window).uiOption.layers[0].outline.thickness;
-      let featureColor = (<any>window).uiOption.layers[0].color.schema;
-      let outlineColor = (<any>window).uiOption.layers[0].outline.color;
-      let featureColorType = (<any>window).uiOption.layers[0].color.by;
+      let layerType = (<any>window).uiOption.layers[layerNum].type;
+      let symbolType = (<any>window).uiOption.layers[layerNum].symbol;
+      let outlineType = (<any>window).uiOption.layers[layerNum].outline.thickness;
+      let featureColor = (<any>window).uiOption.layers[layerNum].color.schema;
+      let outlineColor = (<any>window).uiOption.layers[layerNum].outline.color;
+      let featureColorType = (<any>window).uiOption.layers[layerNum].color.by;
 
       let outlineWidth = 0.00000001;
       if(outlineType === 'THIN')  {
@@ -634,13 +654,13 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let symbolLayer = new ol.layer.Vector({
       source: source,
-      style: this.mapStyleFunction(),
+      style: this.mapStyleFunction(0),
       opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
     let clusterLayer = new ol.layer.Vector({
       source: source,
-      style: this.clusterStyleFunction(),
+      style: this.clusterStyleFunction(0),
       opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
@@ -649,7 +669,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let heatmapLayer = new ol.layer.Heatmap({
       source: source,
-      style: this.clusterStyleFunction(),
+      style: this.clusterStyleFunction(0),
       opacity: this.uiOption.layers[0].color.transparency / 100,
       blur: this.uiOption.layers[0].color.blur,
       radius: this.uiOption.layers[0].color.radius,
@@ -658,7 +678,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let hexagonLayer = new ol.layer.Vector({
       source: hexagonSource,
-      style: this.hexagonStyleFunction(),
+      style: this.hexagonStyleFunction(0),
       opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
@@ -786,19 +806,19 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.getLayers().getArray()[2] = clusterLayer;
       this.olmap.getLayers().getArray()[3] = heatmapLayer;
       this.olmap.getLayers().getArray()[4] = hexagonLayer;
-      this.olmap.getLayers().getArray()[5] = textLayer;
+      // this.olmap.getLayers().getArray()[5] = textLayer;
 
-      symbolLayer.setStyle(this.mapStyleFunction());
+      symbolLayer.setStyle(this.mapStyleFunction(0));
       symbolLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
-      clusterLayer.setStyle(this.clusterStyleFunction());
+      clusterLayer.setStyle(this.clusterStyleFunction(0));
       clusterLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
       heatmapLayer.setBlur(this.uiOption.layers[0].color.blur);
       heatmapLayer.setRadius(this.uiOption.layers[0].color.radius);
       heatmapLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
-      hexagonLayer.setStyle(this.hexagonStyleFunction());
+      hexagonLayer.setStyle(this.hexagonStyleFunction(0));
       hexagonLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
       if(this.uiOption.layers[0].type === "symbol") {
@@ -844,6 +864,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
 
       this.olmap.updateSize();
+
+      this.drawSecondLayer(this.data2);
     }
 
     this.tooltipRender();
@@ -919,6 +941,539 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     });
   }
 
+  /**
+   * 차트에 설정된 옵션으로 차트를 그린다.
+   * - 각 차트에서 ride
+   * @param isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
+   */
+  public drawSecondLayer(data: any): void {
+    if(this.data2 === undefined) {
+      return;
+    }
+
+    console.log('=== map component draw2 ===');
+    // console.log(this.data2);
+    (<any>window).uiOption = this.uiOption;
+    // (<any>window).styleData = this.data2;
+
+    ////////////////////////////////////////////////////////
+    // 업데이트
+    ////////////////////////////////////////////////////////
+
+    // 엘리먼트 반영
+    this.changeDetect.detectChanges();
+
+    let source = new ol.source.Vector();
+    let hexagonSource = new ol.source.Vector();
+
+    let symbolLayer = new ol.layer.Vector({
+      source: source,
+      style: this.mapStyleFunction(1),
+      opacity: this.uiOption.layers[1].color.transparency / 100
+    });
+
+    let clusterLayer = new ol.layer.Vector({
+      source: source,
+      style: this.clusterStyleFunction(1),
+      opacity: this.uiOption.layers[1].color.transparency / 100
+    });
+
+    let featureColor = this.uiOption.layers[1].color.schema;
+    let colorList = ChartColorList[featureColor];
+
+    let heatmapLayer = new ol.layer.Heatmap({
+      source: source,
+      style: this.clusterStyleFunction(1),
+      opacity: this.uiOption.layers[1].color.transparency / 100,
+      blur: this.uiOption.layers[1].color.blur,
+      radius: this.uiOption.layers[1].color.radius,
+      gradient: colorList
+    });
+
+    let hexagonLayer = new ol.layer.Vector({
+      source: hexagonSource,
+      style: this.hexagonStyleFunction(1),
+      opacity: this.uiOption.layers[1].color.transparency / 100
+    });
+
+    let textLayer = new ol.layer.Vector({
+      source: source,
+      style: this.textStyleFunction()
+    });
+
+    let features = [];
+    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(data[0]);;
+    // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
+    let h3Indexs = [];
+
+    let field;
+    for(let column of this.pivot.columns) {
+      if(column["layerNum"] === 2) {
+        field = column;
+        break;
+      }
+    }
+
+    let geomType = field.field.logicalType.toString();
+
+    for(let i=0;i<data[0]["features"].length;i++) {
+
+      let feature = new ol.Feature();
+      feature = (new ol.format.GeoJSON()).readFeature(data[0].features[i]);
+
+      if(geomType === "GEO_POINT") {
+
+        let featureCenter = feature.getGeometry().getCoordinates();
+
+        if(featureCenter.length === 1) {
+          let extent = feature.getGeometry().getExtent();
+          featureCenter = ol.extent.getCenter(extent);
+          feature.setGeometry(new ol.geom.Point(featureCenter));
+        }
+      }
+
+      if(this.uiOption.fieldMeasureList.length > 0) {
+        //히트맵 weight 설정
+        feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+      }
+
+      features[i] = feature;
+
+    }
+
+    hexagonSource.addFeatures(hexagonFeatures);
+    source.addFeatures(features);
+
+    let clusterSource = new ol.source.Cluster({
+      distance: 10,
+      source: source
+    });
+
+    symbolLayer.setSource(source);
+    hexagonLayer.setSource(hexagonSource);
+    textLayer.setSource(source);
+
+    if(geomType === "GEO_POINT") {
+      clusterLayer.setSource(clusterSource);
+    }
+
+    if(!this.mapVaildSecondLayer) {
+
+      this.olmap.addLayer(symbolLayer);
+      this.olmap.addLayer(clusterLayer);
+      this.olmap.addLayer(heatmapLayer);
+      this.olmap.addLayer(hexagonLayer);
+      // this.olmap.addLayer(textLayer);
+
+      if(geomType === "GEO_POINT") {
+        // this.uiOption.layers[0].type = "symbol";
+      } else if(geomType === "GEO_LINE") {
+        this.uiOption.layers[1].type = "line";
+      } else if(geomType === "GEO_POLYGON") {
+        this.uiOption.layers[1].type = "polygon";
+      }
+
+      if(geomType !== "GEO_POINT") {
+        clusterLayer.setSource(new ol.source.Vector());
+        heatmapLayer.setSource(new ol.source.Vector());
+        hexagonLayer.setSource(new ol.source.Vector());
+
+        clusterLayer.setStyle(new ol.style.Style());
+        heatmapLayer.setStyle(new ol.style.Style());
+        hexagonLayer.setStyle(new ol.style.Style());
+      }
+
+      if(this.uiOption.layers[1].type === "symbol") {
+        if(this.uiOption.layers[1].clustering) {
+          symbolLayer.setVisible(false);
+          clusterLayer.setVisible(true);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
+        } else {
+          symbolLayer.setVisible(true);
+          clusterLayer.setVisible(false);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
+        }
+      } else if(this.uiOption.layers[1].type === "heatmap") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(true);
+        hexagonLayer.setVisible(false);
+        textLayer.setVisible(false);
+      } else if(this.uiOption.layers[1].type === "tile") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(true);
+        textLayer.setVisible(false);
+      } else if(this.uiOption.layers[1].type === "polygon") {
+        symbolLayer.setVisible(true);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(false );
+        textLayer.setVisible(false);
+      }
+
+      this.olmap.getView().fit(source.getExtent());
+      this.mapVaildSecondLayer = !this.mapVaildSecondLayer;
+    } else {
+
+      this.olmap.getLayers().getArray()[5] = symbolLayer;
+      this.olmap.getLayers().getArray()[6] = clusterLayer;
+      this.olmap.getLayers().getArray()[7] = heatmapLayer;
+      this.olmap.getLayers().getArray()[8] = hexagonLayer;
+      // this.olmap.getLayers().getArray()[10] = textLayer;
+
+      symbolLayer.setStyle(this.mapStyleFunction(1));
+      symbolLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
+
+      clusterLayer.setStyle(this.clusterStyleFunction(1));
+      clusterLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
+
+      heatmapLayer.setBlur(this.uiOption.layers[1].color.blur);
+      heatmapLayer.setRadius(this.uiOption.layers[1].color.radius);
+      heatmapLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
+
+      hexagonLayer.setStyle(this.hexagonStyleFunction(1));
+      hexagonLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
+
+      if(this.uiOption.layers[1].type === "symbol") {
+        if(this.uiOption.layers[1].clustering) {
+          symbolLayer.setVisible(false);
+          clusterLayer.setVisible(true);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
+        } else {
+          symbolLayer.setVisible(true);
+          clusterLayer.setVisible(false);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
+        }
+      } else if(this.uiOption.layers[1].type === "heatmap") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(true);
+        hexagonLayer.setVisible(false);
+        textLayer.setVisible(false);
+      } else if(this.uiOption.layers[1].type === "tile") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(true);
+        textLayer.setVisible(false);
+      } else if(this.uiOption.layers[1].type === "polygon") {
+        symbolLayer.setVisible(true);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(false);
+        textLayer.setVisible(false);
+      }
+
+      this.olmap.updateSize();
+    }
+
+    // this.tooltipRender();
+
+    // 차트 반영
+    this.apply();
+
+    // 완료
+    this.drawFinished.emit();
+  }
+
+  /**
+   * 차트에 설정된 옵션으로 차트를 그린다.
+   * - 각 차트에서 ride
+   * @param isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
+   */
+  public drawThirdLayer(data: any): void {
+    if(this.data2 === undefined) {
+      return;
+    }
+
+    console.log('=== map component draw3 ===');
+    // console.log(this.data2);
+    (<any>window).uiOption = this.uiOption;
+    // (<any>window).styleData = this.data2;
+
+    ////////////////////////////////////////////////////////
+    // 업데이트
+    ////////////////////////////////////////////////////////
+
+    // 엘리먼트 반영
+    this.changeDetect.detectChanges();
+
+    let source = new ol.source.Vector();
+    let hexagonSource = new ol.source.Vector();
+
+    let symbolLayer = new ol.layer.Vector({
+      source: source,
+      style: this.mapStyleFunction(2),
+      opacity: this.uiOption.layers[2].color.transparency / 100
+    });
+
+    let clusterLayer = new ol.layer.Vector({
+      source: source,
+      style: this.clusterStyleFunction(2),
+      opacity: this.uiOption.layers[2].color.transparency / 100
+    });
+
+    let featureColor = this.uiOption.layers[2].color.schema;
+    let colorList = ChartColorList[featureColor];
+
+    let heatmapLayer = new ol.layer.Heatmap({
+      source: source,
+      style: this.clusterStyleFunction(2),
+      opacity: this.uiOption.layers[2].color.transparency / 100,
+      blur: this.uiOption.layers[2].color.blur,
+      radius: this.uiOption.layers[2].color.radius,
+      gradient: colorList
+    });
+
+    let hexagonLayer = new ol.layer.Vector({
+      source: hexagonSource,
+      style: this.hexagonStyleFunction(2),
+      opacity: this.uiOption.layers[2].color.transparency / 100
+    });
+
+    let textLayer = new ol.layer.Vector({
+      source: source,
+      style: this.textStyleFunction()
+    });
+
+    let features = [];
+    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(data[0]);;
+    // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
+    let h3Indexs = [];
+
+    let field;
+    for(let column of this.pivot.columns) {
+      if(column["layerNum"] === 3) {
+        field = column;
+        break;
+      }
+    }
+
+    let geomType = field.field.logicalType.toString();
+
+    for(let i=0;i<data[0]["features"].length;i++) {
+
+      let feature = new ol.Feature();
+      feature = (new ol.format.GeoJSON()).readFeature(data[0].features[i]);
+
+      if(geomType === "GEO_POINT") {
+
+        let featureCenter = feature.getGeometry().getCoordinates();
+
+        if(featureCenter.length === 1) {
+          let extent = feature.getGeometry().getExtent();
+          featureCenter = ol.extent.getCenter(extent);
+          feature.setGeometry(new ol.geom.Point(featureCenter));
+        }
+      }
+
+      if(this.uiOption.fieldMeasureList.length > 0) {
+        //히트맵 weight 설정
+        feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+      }
+
+      features[i] = feature;
+
+    }
+
+    hexagonSource.addFeatures(hexagonFeatures);
+    source.addFeatures(features);
+
+    let clusterSource = new ol.source.Cluster({
+      distance: 10,
+      source: source
+    });
+
+    symbolLayer.setSource(source);
+    hexagonLayer.setSource(hexagonSource);
+    textLayer.setSource(source);
+
+    if(geomType === "GEO_POINT") {
+      clusterLayer.setSource(clusterSource);
+    }
+
+    if(!this.mapVaildSecondLayer) {
+
+      this.olmap.addLayer(symbolLayer);
+      this.olmap.addLayer(clusterLayer);
+      this.olmap.addLayer(heatmapLayer);
+      this.olmap.addLayer(hexagonLayer);
+      // this.olmap.addLayer(textLayer);
+
+      if(geomType === "GEO_POINT") {
+        // this.uiOption.layers[0].type = "symbol";
+      } else if(geomType === "GEO_LINE") {
+        this.uiOption.layers[2].type = "line";
+      } else if(geomType === "GEO_POLYGON") {
+        this.uiOption.layers[2].type = "polygon";
+      }
+
+      if(geomType !== "GEO_POINT") {
+        clusterLayer.setSource(new ol.source.Vector());
+        heatmapLayer.setSource(new ol.source.Vector());
+        hexagonLayer.setSource(new ol.source.Vector());
+
+        clusterLayer.setStyle(new ol.style.Style());
+        heatmapLayer.setStyle(new ol.style.Style());
+        hexagonLayer.setStyle(new ol.style.Style());
+      }
+
+      if(this.uiOption.layers[2].type === "symbol") {
+        if(this.uiOption.layers[2].clustering) {
+          symbolLayer.setVisible(false);
+          clusterLayer.setVisible(true);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
+        } else {
+          symbolLayer.setVisible(true);
+          clusterLayer.setVisible(false);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
+        }
+      } else if(this.uiOption.layers[2].type === "heatmap") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(true);
+        hexagonLayer.setVisible(false);
+        textLayer.setVisible(false);
+      } else if(this.uiOption.layers[2].type === "tile") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(true);
+        textLayer.setVisible(false);
+      } else if(this.uiOption.layers[2].type === "polygon") {
+        symbolLayer.setVisible(true);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(false );
+        textLayer.setVisible(false);
+      }
+
+      this.olmap.getView().fit(source.getExtent());
+      this.mapVaildSecondLayer = !this.mapVaildSecondLayer;
+    } else {
+
+      this.olmap.getLayers().getArray()[9] = symbolLayer;
+      this.olmap.getLayers().getArray()[10] = clusterLayer;
+      this.olmap.getLayers().getArray()[11] = heatmapLayer;
+      this.olmap.getLayers().getArray()[12] = hexagonLayer;
+      // this.olmap.getLayers().getArray()[10] = textLayer;
+
+      symbolLayer.setStyle(this.mapStyleFunction(2));
+      symbolLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
+
+      clusterLayer.setStyle(this.clusterStyleFunction(2));
+      clusterLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
+
+      heatmapLayer.setBlur(this.uiOption.layers[2].color.blur);
+      heatmapLayer.setRadius(this.uiOption.layers[2].color.radius);
+      heatmapLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
+
+      hexagonLayer.setStyle(this.hexagonStyleFunction(2));
+      hexagonLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
+
+      if(this.uiOption.layers[2].type === "symbol") {
+        if(this.uiOption.layers[2].clustering) {
+          symbolLayer.setVisible(false);
+          clusterLayer.setVisible(true);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
+        } else {
+          symbolLayer.setVisible(true);
+          clusterLayer.setVisible(false);
+          heatmapLayer.setVisible(false);
+          hexagonLayer.setVisible(false);
+          textLayer.setVisible(false);
+        }
+      } else if(this.uiOption.layers[2].type === "heatmap") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(true);
+        hexagonLayer.setVisible(false);
+        textLayer.setVisible(false);
+      } else if(this.uiOption.layers[2].type === "tile") {
+        symbolLayer.setVisible(false);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(true);
+        textLayer.setVisible(false);
+      } else if(this.uiOption.layers[2].type === "polygon") {
+        symbolLayer.setVisible(true);
+        clusterLayer.setVisible(false);
+        heatmapLayer.setVisible(false);
+        hexagonLayer.setVisible(false);
+        textLayer.setVisible(false);
+      }
+
+      this.olmap.updateSize();
+    }
+
+    // this.tooltipRender();
+
+    // 차트 반영
+    this.apply();
+
+    // 완료
+    this.drawFinished.emit();
+  }
+
+  /**
+   * 두번째 레이어를 제거한다.
+   */
+  public removeSecondLayer(): void {
+
+    ////////////////////////////////////////////////////////
+    // 업데이트
+    ////////////////////////////////////////////////////////
+
+    if(this.olmap.getLayers().getArray().length > 6) {
+      this.olmap.getLayers().getArray()[5].setVisible(false);
+      this.olmap.getLayers().getArray()[6].setVisible(false);
+      this.olmap.getLayers().getArray()[7].setVisible(false);
+      this.olmap.getLayers().getArray()[8].setVisible(false);
+      this.data2 = undefined;
+    }
+
+    // 완료
+    this.drawFinished.emit();
+  }
+
+  /**
+   * 세번째 레이어를 제거한다.
+   */
+  public removeThirdLayer(): void {
+
+    ////////////////////////////////////////////////////////
+    // 업데이트
+    ////////////////////////////////////////////////////////
+
+    if(this.olmap.getLayers().getArray().length > 10) {
+      this.olmap.getLayers().getArray()[9].setVisible(false);
+      this.olmap.getLayers().getArray()[10].setVisible(false);
+      this.olmap.getLayers().getArray()[11].setVisible(false);
+      this.olmap.getLayers().getArray()[12].setVisible(false);
+      this.data2 = undefined;
+    }
+
+    // 완료
+    this.drawFinished.emit();
+  }
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -976,7 +1531,191 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     //   mapchart.getView().fit(source.getExtent());
     // });
 
-    debugger
+
+
+    let secondLayerQuery = this.query;
+    secondLayerQuery.dataSource = this.widget.configuration.dataSource;
+
+    let thirdLayerQuery = this.query;
+    thirdLayerQuery.dataSource = this.widget.configuration.dataSource;
+
+    let layers2 = [];
+    let layers3 = [];
+    for(let column of this.pivot.columns) {
+      if(column["layerNum"] === 2) {
+        let layer = {
+          type: column.type,
+          name: column.name,
+          alias: column.alias,
+          ref: null,
+          format: null,
+          dataSource: null
+        }
+
+        layer.dataSource = column.field.dataSource;
+
+        this.widget.configuration.dataSource.engineName = column.field.dataSource;
+        this.widget.configuration.dataSource.name = column.field.dataSource;
+        this.widget.configuration.dataSource.id = column.field.dsId;
+
+        if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
+          layer.format = {
+            type : "geo"
+          }
+        }
+
+        if(column.field.logicalType.toString() === 'GEO_POINT') {
+          layer.format = {
+            type: "geo_hash",
+            method: "h3",
+            precision: 9       // Precision 적용 (1~12) jjh123
+          }
+        }
+
+        layers2.push(layer);
+      } else if(column["layerNum"] === 3) {
+        let layer = {
+          type: column.type,
+          name: column.name,
+          alias: column.alias,
+          ref: null,
+          format: null,
+          dataSource: null
+        }
+
+        layer.dataSource = column.field.dataSource;
+
+        this.widget.configuration.dataSource.engineName = column.field.dataSource;
+        this.widget.configuration.dataSource.name = column.field.dataSource;
+        this.widget.configuration.dataSource.id = column.field.dsId;
+
+        if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
+          layer.format = {
+            type : "geo"
+          }
+        }
+
+        if(column.field.logicalType.toString() === 'GEO_POINT') {
+          layer.format = {
+            type: "geo_hash",
+            method: "h3",
+            precision: 9       // Precision 적용 (1~12) jjh123
+          }
+        }
+
+        layers3.push(layer);
+      }
+    }
+
+    for(let aggregation of this.pivot.aggregations) {
+      if(aggregation["layerNum"] === 2) {
+        let layer = {
+          type: aggregation.type,
+          name: aggregation.name,
+          alias: aggregation.alias,
+          ref: null,
+          aggregationType: aggregation.aggregationType,
+          dataSource: null
+        }
+
+        layer.dataSource = aggregation.field.dataSource;
+        layers2.push(layer);
+      } else if(aggregation["layerNum"] === 2) {
+        let layer = {
+          type: aggregation.type,
+          name: aggregation.name,
+          alias: aggregation.alias,
+          ref: null,
+          aggregationType: aggregation.aggregationType,
+          dataSource: null
+        }
+
+        layer.dataSource = aggregation.field.dataSource;
+        layers3.push(layer);
+      }
+    }
+
+    secondLayerQuery.shelf = {
+      type: 'geo',
+      layers: [layers2]
+    };
+
+    thirdLayerQuery.shelf = {
+      type: 'geo',
+      layers: [layers3]
+    };
+
+    let secondLayerVaild: boolean = false;
+    for(let column of this.pivot.columns) {
+      if(column["layerNum"] === 2) {
+        secondLayerVaild = true;
+      }
+    }
+
+    if(!secondLayerVaild) {
+     this.removeSecondLayer();
+    }
+
+    let thirdLayerVaild: boolean = false;
+    for(let column of this.pivot.columns) {
+      if(column["layerNum"] === 3) {
+        thirdLayerVaild = true;
+      }
+    }
+
+    if(!thirdLayerVaild) {
+     this.removeThirdLayer();
+    }
+
+    if(this.data2 === undefined && secondLayerVaild) {
+      this.datasourceService.searchQuery(secondLayerQuery).then(
+        (data) => {
+
+          console.log(data);
+          this.data2 = data;
+          console.log(this.mapVaild);
+          this.drawSecondLayer(data);
+          // if (this.params.successCallback) {
+          //   this.params.successCallback();
+          // }
+        }
+      ).catch((reason) => {
+        console.error('Search Query Error =>', reason);
+        // this.isChartShow = false;
+
+        // 변경사항 반영
+        // this.changeDetect.detectChanges();
+        // this.loadingHide();
+      });
+    } else {
+      // this.drawSecondLayer(this.data2);
+      this.data2 = undefined;
+    }
+
+    if(this.data3 === undefined && thirdLayerVaild) {
+      this.datasourceService.searchQuery(thirdLayerQuery).then(
+        (data) => {
+
+          console.log(data);
+          this.data3 = data;
+          this.drawThirdLayer(data);
+          // if (this.params.successCallback) {
+          //   this.params.successCallback();
+          // }
+        }
+      ).catch((reason) => {
+        console.error('Search Query Error =>', reason);
+        // this.isChartShow = false;
+
+        // 변경사항 반영
+        // this.changeDetect.detectChanges();
+        // this.loadingHide();
+      });
+    } else {
+      this.data3 = undefined;
+    }
+
+
   }
 
   /**
@@ -1017,7 +1756,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   @HostListener('window:resize', ['$event'])
   protected onResize(event) {
     console.log('map resize');
-    document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '84px';
+    document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
+    document.getElementsByClassName("ddp-ui-chart-area")[0]["style"].padding = '0 0 0 0';
     this.olmap.updateSize();
   }
 

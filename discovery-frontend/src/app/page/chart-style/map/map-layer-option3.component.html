@@ -11,7 +11,7 @@
               <div class="ddp-list-label">
                 {{'msg.page.layer.map.name' | translate}}
               </div>
-              <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.layers[0].name">
+              <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.layers[2].name">
           </div>
           <!-- //divide -->
           <!-- divide -->
@@ -28,7 +28,7 @@
                  </div>
                 <div class="ddp-wrap-tab-type2">
                   <ul class="ddp-list-tab-type2 ddp-clear">
-                        <li *ngIf="uiOption.layers[0].type === 'symbol' || uiOption.layers[0].type === 'heatmap' || uiOption.layers[0].type === 'tile'" [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'symbol'}" (click)="mapLayerType('symbol');">
+                        <li *ngIf="uiOption.layers[2].type === 'symbol' || uiOption.layers[2].type === 'heatmap' || uiOption.layers[2].type === 'tile'" [ngClass]="{'ddp-selected': uiOption.layers[2].type === 'symbol'}" (click)="mapLayerType('symbol');">
                             <a href="javascript:">
                                 <em class="ddp-icon-map-sign"></em>
                             </a>
@@ -40,7 +40,7 @@
                             <!-- //tooltip -->
 
                         </li>
-                        <!-- <li *ngIf="uiOption.layers[0].type === 'line'" [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'line'}" (click)="mapLayerType('line');">
+                        <!-- <li *ngIf="uiOption.layers[2].type === 'line'" [ngClass]="{'ddp-selected': uiOption.layers[2].type === 'line'}" (click)="mapLayerType('line');">
                             <a href="javascript:">
                                 <em class="ddp-img-map-line"></em>
                             </a> -->
@@ -52,7 +52,7 @@
                             <!--&lt;!&ndash; //tooltip &ndash;&gt;-->
 
                         <!-- </li> -->
-                        <!-- <li *ngIf="uiOption.layers[0].type === 'polygon'" [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'polygon'}" (click)="mapLayerType('polygon');">
+                        <!-- <li *ngIf="uiOption.layers[2].type === 'polygon'" [ngClass]="{'ddp-selected': uiOption.layers[2].type === 'polygon'}" (click)="mapLayerType('polygon');">
                             <a href="javascript:">
                                 <em class="ddp-img-map-polygon"></em>
                             </a> -->
@@ -64,7 +64,7 @@
                             <!--&lt;!&ndash; //tooltip &ndash;&gt;-->
 
                         <!-- </li> -->
-                        <li *ngIf="uiOption.layers[0].type === 'symbol' || uiOption.layers[0].type === 'heatmap' || uiOption.layers[0].type === 'tile'" [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'heatmap'}" (click)="mapLayerType('heatmap');">
+                        <li *ngIf="uiOption.layers[2].type === 'symbol' || uiOption.layers[2].type === 'heatmap' || uiOption.layers[2].type === 'tile'" [ngClass]="{'ddp-selected': uiOption.layers[2].type === 'heatmap'}" (click)="mapLayerType('heatmap');">
                             <a href="javascript:">
                                 <em class="ddp-icon-map-heatmap"></em>
                             </a>
@@ -75,7 +75,7 @@
                             </div>
                             <!-- //tooltip -->
                         </li>
-                        <li *ngIf="uiOption.layers[0].type === 'symbol' || uiOption.layers[0].type === 'heatmap' || uiOption.layers[0].type === 'tile'" [ngClass]="{'ddp-selected': uiOption.layers[0].type === 'tile'}" (click)="mapLayerType('tile');">
+                        <li *ngIf="uiOption.layers[2].type === 'symbol' || uiOption.layers[2].type === 'heatmap' || uiOption.layers[2].type === 'tile'" [ngClass]="{'ddp-selected': uiOption.layers[2].type === 'tile'}" (click)="mapLayerType('tile');">
                             <a href="javascript:">
                                 <em class="ddp-icon-map-tile"></em>
                             </a>
@@ -93,28 +93,28 @@
             <!-- //divide -->
 
           <!-- 레이어 유형 : 기호 -->
-          <div class="ddp-ui-layer-type" *ngIf="uiOption.layers[0].type === 'symbol'">
+          <div class="ddp-ui-layer-type" *ngIf="uiOption.layers[2].type === 'symbol'">
               <div class="ddp-wrap-divide">
                 <!-- divide -->
                 <div class="ddp-divide2 ">
                     <div class="ddp-list-label">{{'msg.page.layer.map.point' | translate}}</div>
                     <ul class="ddp-list-express ddp-tab6 ddp-type2">
-                        <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'CIRCLE'}" (click)="symbolType('CIRCLE');">
+                        <li [ngClass]="{'ddp-selected': uiOption.layers[2].symbol === 'CIRCLE'}" (click)="symbolType('CIRCLE');">
                             <em class="ddp-icon-circle"></em> {{'msg.page.layer.map.point.circle' | translate}}
                         </li>
-                        <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'SQUARE'}" (click)="symbolType('SQUARE');">
+                        <li [ngClass]="{'ddp-selected': uiOption.layers[2].symbol === 'SQUARE'}" (click)="symbolType('SQUARE');">
                             <em class="ddp-icon-square"></em> {{'msg.page.layer.map.point.square' | translate}}
                         </li>
-                        <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'TRIANGLE'}" (click)="symbolType('TRIANGLE');">
+                        <li [ngClass]="{'ddp-selected': uiOption.layers[2].symbol === 'TRIANGLE'}" (click)="symbolType('TRIANGLE');">
                             <em class="ddp-icon-triangle"></em> {{'msg.page.layer.map.point.triangle' | translate}}
                         </li>
-                        <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'PIN'}" (click)="symbolType('PIN');">
+                        <li [ngClass]="{'ddp-selected': uiOption.layers[2].symbol === 'PIN'}" (click)="symbolType('PIN');">
                             <em class="ddp-icon-pin"></em> {{'msg.page.layer.map.point.pin' | translate}}
                         </li>
-                        <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'PLANE'}" (click)="symbolType('PLANE');">
+                        <li [ngClass]="{'ddp-selected': uiOption.layers[2].symbol === 'PLANE'}" (click)="symbolType('PLANE');">
                             <em class="ddp-icon-fly"></em> {{'msg.page.layer.map.point.plain' | translate}}
                         </li>
-                        <li [ngClass]="{'ddp-selected': uiOption.layers[0].symbol === 'USER'}" (click)="symbolType('USER');">
+                        <li [ngClass]="{'ddp-selected': uiOption.layers[2].symbol === 'USER'}" (click)="symbolType('USER');">
                             <em class="ddp-icon-user"></em> {{'msg.page.layer.map.point.people' | translate}}
                         </li>
                     </ul>
@@ -130,9 +130,9 @@
                       <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                       <!-- 사용자 색상 설정 'on' 인 경우 ddp-disabled 추가 -->
                       <!-- part -->
-                      <div class="ddp-type-selectbox" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}"
+                      <div class="ddp-type-selectbox" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[2].color.by.toString() && uiOption.layers[2].color['customMode']}"
                            (click)="colorTypeFlag=!colorTypeFlag;colorListFlag=false;" (clickOutside)="colorTypeFlag=false" [excludeBeforeClick]="true">
-                        <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[0].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].color.by) }}</span>
+                        <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[2].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[2].color.by) }}</span>
                         <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                           <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                           <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
@@ -141,19 +141,19 @@
                       </div>
                       <!-- //part -->
                     </div>
-                    <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'DIMENSION'">
+                    <div class="ddp-divide2" *ngIf="uiOption.layers[2].color.by.toString() === 'DIMENSION'">
                       <!-- SELECTBOX -->
                       <component-select
                         [array]="uiOption.fieldList"
-                        [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[0].color['column'])"
+                        [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[2].color['column'])"
                         (onSelected)="changeColorColumn($event)"
                       ></component-select>
                     </div>
-                    <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                    <div class="ddp-divide2" *ngIf="uiOption.layers[2].color.by.toString() === 'MEASURE'">
                       <!-- SELECTBOX -->
                       <component-select
                         [array]="measureList"
-                        [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[0].color['column'])"
+                        [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[2].color['column'])"
                         (onSelected)="changeColorColumn($event)"
                       ></component-select>
                     </div>
@@ -162,7 +162,7 @@
                       <div class="ddp-ui-colorby">
 
                         <!-- colorby button -->
-                        <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' !== uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                        <div *ngIf="'NONE' !== uiOption.layers[2].color.by.toString() && 'MEASURE' !== uiOption.layers[2].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                           <em class="ddp-icon-colorby"></em>
                           <!-- series, dimension 색일때 -->
                           <button class="ddp-btn-color-series{{checkDefaultSelectedColor()}} ddp-type"></button>
@@ -171,7 +171,7 @@
                         <!-- //colorby button -->
 
                         <!-- colorby button -->
-                        <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' === uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                        <div *ngIf="'NONE' !== uiOption.layers[2].color.by.toString() && 'MEASURE' === uiOption.layers[2].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                           <em class="ddp-icon-colorby"></em>
                           <!-- measure 색일때 -->
                           <button class="ddp-btn-color-type{{checkMeasureSelectedColor()}} ddp-type"></button>
@@ -179,14 +179,14 @@
                         </div>
                         <!-- //colorby button -->
 
-                        <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
+                        <div *ngIf="'NONE' === uiOption.layers[2].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
                           <div class="ddp-col-6">
                             <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                           </div>
                           <div class="ddp-col-6 ddp-txt-right">
                             <!-- selectbox -->
                             <div class="ddp-type-selectbox ddp-color-selectbox2">
-                              <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.color?.schema ? uiOption?.layers[0]?.color?.schema :'#FFF'" [showInitial]="true"
+                              <color-picker [showAlpha]="true" [color]="uiOption?.layers[2]?.color?.schema ? uiOption?.layers[2]?.color?.schema :'#FFF'" [showInitial]="true"
                                             [showInput]="true" [showUserColor]="true" (selected)="selectSingleColor($event);"></color-picker>
                             </div>
                             <!-- //selectbox -->
@@ -202,23 +202,23 @@
                           </div>
                           <!-- //top -->
                           <!-- contents -->
-                          <div *ngIf="'MEASURE' !== uiOption.layers[0].color.by.toString()" class="ddp-pop-side-contents">
+                          <div *ngIf="'MEASURE' !== uiOption.layers[2].color.by.toString()" class="ddp-pop-side-contents">
                             <ul class="ddp-list-series">
                               <li *ngFor="let item of defaultColorList" (click)="changeColor(item)">
                                 <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                               </li>
                             </ul>
                           </div>
                           <!-- //contents -->
                           <!--uiOption.type.toString() == 'grid' ? gridMeasureColorList : measureColorList-->
                           <!-- contents -->
-                          <div *ngIf="'MEASURE' === uiOption.layers[0].color.by.toString()"  class="ddp-pop-side-contents">
+                          <div *ngIf="'MEASURE' === uiOption.layers[2].color.by.toString()"  class="ddp-pop-side-contents">
                             <span class="ddp-pop-sub-title">{{'msg.page.th.seq.display' | translate}}</span>
                             <ul class="ddp-list-series">
                               <li *ngFor="let item of measureColorList; let num = index" (click)="changeColor(item, measureColorList[num])">
                                 <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                               </li>
                             </ul>
 
@@ -226,7 +226,7 @@
                             <ul class="ddp-list-series">
                               <li *ngFor="let item of measureReverseColorList; let num = index" (click)="changeColor(item, measureReverseColorList[num])">
                                 <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                               </li>
                             </ul>
                           </div>
@@ -239,7 +239,7 @@
                         <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                         <!-- SELECTBOX -->
                         <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
-                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[0].color.transparency }}</span>
+                            <span class="ddp-txt-selectbox">{{ uiOption.layers[2].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[2].color.transparency }}</span>
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
                                 <li (click)="changeTransparency(100)"><a href="#">{{'msg.page.layer.map.color.transparency.none' | translate}}</a></li>
                                 <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
@@ -264,7 +264,7 @@
                               <div class="ddp-list-label">{{'msg.page.layer.map.size.by' | translate}}</div>
                               <!-- SELECTBOX -->
                               <div class="ddp-type-selectbox" (click)="sizeTypeFlag=!sizeTypeFlag;" (clickOutside)="sizeTypeFlag=false" [excludeBeforeClick]="true">
-                                  <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].size.by }}</span>
+                                  <span class="ddp-txt-selectbox">{{ uiOption.layers[2].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[2].size.by }}</span>
                                   <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
                                       <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.size.by.none' | translate}}</a></li>
                                       <li (click)="changeSizeType('MEASURE')"><a href="#">{{'msg.page.layer.map.size.by.measure' | translate}}</a></li>
@@ -273,11 +273,11 @@
                               <!-- //SELECTBOX -->
 
                               <!-- part -->
-                              <div class="ddp-list-part ddp-divide" *ngIf="uiOption.layers[0].size.by.toString() === 'MEASURE'">
+                              <div class="ddp-list-part ddp-divide" *ngIf="uiOption.layers[2].size.by.toString() === 'MEASURE'">
                                 <!-- SELECTBOX -->
                                 <component-select
                                   [array]="measureList"
-                                  [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[0].size['column'])"
+                                  [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[2].size['column'])"
                                   (onSelected)="changeSizeColumn($event)"
                                 ></component-select>
                               </div>
@@ -295,21 +295,21 @@
                           <span class="ddp-label-slider">{{'msg.page.layer.map.outline' | translate}}</span>
                           <!-- Slide THREE -->
                           <div class="ddp-checkbox-slide ddp-checkbox-automatic2" >
-                              <input type="checkbox" name="check" [checked]="uiOption.layers[0].outline.thickness !== 'NONE'" (click)="changeOutlineFlag()">
+                              <input type="checkbox" name="check" [checked]="uiOption.layers[2].outline.thickness !== 'NONE'" (click)="changeOutlineFlag()">
                               <label for="check2"><span class="ddp-slide"></span></label>
                           </div>
                           <!-- //Slide THREE -->
 
                       </div>
 
-                      <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
+                      <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[2].outline.thickness !== 'NONE'">
                         <div class="ddp-col-7">
                             <span class="ddp-label-txt">{{'msg.page.layer.map.outline.color' | translate}}</span>
                         </div>
-                        <div class="ddp-col-5 ddp-txt-right" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
+                        <div class="ddp-col-5 ddp-txt-right" *ngIf="uiOption.layers[2].outline.thickness !== 'NONE'">
                           <!-- selectbox -->
                           <div class="ddp-type-selectbox ddp-color-selectbox2">
-                            <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.outline?.color ? uiOption?.layers[0]?.outline?.color :'#FFF'" [showInitial]="true"
+                            <color-picker [showAlpha]="true" [color]="uiOption?.layers[2]?.outline?.color ? uiOption?.layers[2]?.outline?.color :'#FFF'" [showInitial]="true"
                                           [showInput]="true" [showUserColor]="true" (selected)="selectOutlineColor($event);"></color-picker>
                           </div>
                           <!-- //selectbox -->
@@ -317,15 +317,15 @@
                       </div>
 
                       <!-- multy -->
-                      <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
+                      <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[2].outline.thickness !== 'NONE'">
                           <div class="ddp-col-6">
                               <span class="ddp-label-txt">{{'msg.page.layer.map.outline.thickness' | translate}}</span>
                           </div>
                           <div class="ddp-col-6 ddp-txt-right">
                               <ul class="ddp-list-express ddp-tab3 ddp-type">
-                                  <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.thickness === 'THIN'}" (click)="outlineType('THIN');"><em class="ddp-line-bold1"></em></li>
-                                  <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.thickness === 'NORMAL'}" (click)="outlineType('NORMAL');"><em class="ddp-line-bold2"></em></li>
-                                  <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.thickness === 'THICK'}" (click)="outlineType('THICK');"><em class="ddp-line-bold3"></em></li>
+                                  <li [ngClass]="{'ddp-selected': uiOption.layers[2].outline.thickness === 'THIN'}" (click)="outlineType('THIN');"><em class="ddp-line-bold1"></em></li>
+                                  <li [ngClass]="{'ddp-selected': uiOption.layers[2].outline.thickness === 'NORMAL'}" (click)="outlineType('NORMAL');"><em class="ddp-line-bold2"></em></li>
+                                  <li [ngClass]="{'ddp-selected': uiOption.layers[2].outline.thickness === 'THICK'}" (click)="outlineType('THICK');"><em class="ddp-line-bold3"></em></li>
                               </ul>
                           </div>
                       </div>
@@ -336,7 +336,7 @@
               <div class="ddp-wrap-divide">
                   <div class="ddp-part-check-b ">
                       <label class="ddp-label-checkbox ddp-position">
-                          <input type="checkbox" [checked]="uiOption.layers[0].clustering" (click)="changeClusteringFlag()">
+                          <input type="checkbox" [checked]="uiOption.layers[2].clustering" (click)="changeClusteringFlag()">
                           <i class="ddp-icon-checkbox"></i>
                           <span class="ddp-txt-checkbox">{{'msg.page.layer.map.clustering' | translate}}</span>
                       </label>
@@ -346,7 +346,7 @@
           <!-- //레이어 유형 : 기호 -->
 
           <!-- 레이어 유형 : 선 -->
-          <div class="ddp-ui-layer-type" *ngIf="uiOption.layers[0].type === 'line'">
+          <div class="ddp-ui-layer-type" *ngIf="uiOption.layers[2].type === 'line'">
             <div class="ddp-wrap-divide">
 
               <!-- divide -->
@@ -355,9 +355,9 @@
                   <div class="ddp-list-sub2">
                       <div class="ddp-divide2">
                         <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
-                        <div class="ddp-type-selectbox" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}"
+                        <div class="ddp-type-selectbox" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[2].color.by.toString() && uiOption.layers[2].color['customMode']}"
                              (click)="colorTypeFlag=!colorTypeFlag;colorListFlag=false;" (clickOutside)="colorTypeFlag=false" [excludeBeforeClick]="true">
-                          <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[0].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].color.by) }}</span>
+                          <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[2].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[2].color.by) }}</span>
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                             <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                             <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
@@ -365,26 +365,26 @@
                           </ul>
                         </div>
                       </div>
-                      <div *ngIf="uiOption.layers[0].color.by.toString() === 'DIMENSION'" class="ddp-divide2">
+                      <div *ngIf="uiOption.layers[2].color.by.toString() === 'DIMENSION'" class="ddp-divide2">
                         <!-- SELECTBOX -->
                         <component-select
                           [array]="uiOption.fieldList"
-                          [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[0].color['column'])"
+                          [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[2].color['column'])"
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
-                      <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                      <div class="ddp-divide2" *ngIf="uiOption.layers[2].color.by.toString() === 'MEASURE'">
                         <!-- SELECTBOX -->
                         <component-select
                           [array]="measureList"
-                          [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[0].color['column'])"
+                          [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[2].color['column'])"
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
                       <div class="ddp-divide2">
                         <div class="ddp-ui-colorby">
                           <!-- colorby button -->
-                          <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' !== uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                          <div *ngIf="'NONE' !== uiOption.layers[2].color.by.toString() && 'MEASURE' !== uiOption.layers[2].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                             <em class="ddp-icon-colorby"></em>
                             <!-- series, dimension 색일때 -->
                             <button class="ddp-btn-color-series{{checkDefaultSelectedColor()}} ddp-type"></button>
@@ -393,7 +393,7 @@
                           <!-- //colorby button -->
 
                           <!-- colorby button -->
-                          <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' === uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                          <div *ngIf="'NONE' !== uiOption.layers[2].color.by.toString() && 'MEASURE' === uiOption.layers[2].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                             <em class="ddp-icon-colorby"></em>
                             <!-- measure 색일때 -->
                             <button class="ddp-btn-color-type{{checkMeasureSelectedColor()}} ddp-type"></button>
@@ -401,14 +401,14 @@
                           </div>
                           <!-- //colorby button -->
 
-                          <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
+                          <div *ngIf="'NONE' === uiOption.layers[2].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
                             <div class="ddp-col-6">
                               <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                             </div>
                             <div class="ddp-col-6 ddp-txt-right">
                               <!-- selectbox -->
                               <div class="ddp-type-selectbox ddp-color-selectbox2">
-                                <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.color?.schema ? uiOption?.layers[0]?.color?.schema :'#FFF'" [showInitial]="true"
+                                <color-picker [showAlpha]="true" [color]="uiOption?.layers[2]?.color?.schema ? uiOption?.layers[2]?.color?.schema :'#FFF'" [showInitial]="true"
                                               [showInput]="true" [showUserColor]="true" (selected)="selectSingleColor($event);"></color-picker>
                               </div>
                               <!-- //selectbox -->
@@ -424,23 +424,23 @@
                             </div>
                             <!-- //top -->
                             <!-- contents -->
-                            <div *ngIf="'MEASURE' !== uiOption.layers[0].color.by.toString()" class="ddp-pop-side-contents">
+                            <div *ngIf="'MEASURE' !== uiOption.layers[2].color.by.toString()" class="ddp-pop-side-contents">
                               <ul class="ddp-list-series">
                                 <li *ngFor="let item of defaultColorList" (click)="changeColor(item)">
                                   <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                  <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                                 </li>
                               </ul>
                             </div>
                             <!-- //contents -->
                             <!--uiOption.type.toString() == 'grid' ? gridMeasureColorList : measureColorList-->
                             <!-- contents -->
-                            <div *ngIf="'MEASURE' === uiOption.layers[0].color.by.toString()"  class="ddp-pop-side-contents">
+                            <div *ngIf="'MEASURE' === uiOption.layers[2].color.by.toString()"  class="ddp-pop-side-contents">
                               <span class="ddp-pop-sub-title">{{'msg.page.th.seq.display' | translate}}</span>
                               <ul class="ddp-list-series">
                                 <li *ngFor="let item of measureColorList; let num = index" (click)="changeColor(item, measureColorList[num])">
                                   <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                  <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                                 </li>
                               </ul>
 
@@ -448,7 +448,7 @@
                               <ul class="ddp-list-series">
                                 <li *ngFor="let item of measureReverseColorList; let num = index" (click)="changeColor(item, measureReverseColorList[num])">
                                   <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                  <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                                 </li>
                               </ul>
                             </div>
@@ -462,7 +462,7 @@
                           <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                           <!-- SELECTBOX -->
                           <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
-                              <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[0].color.transparency }}</span>
+                              <span class="ddp-txt-selectbox">{{ uiOption.layers[2].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[2].color.transparency }}</span>
                               <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
                                   <li (click)="changeTransparency(100)"><a href="#">{{'msg.page.layer.map.color.transparency.none' | translate}}</a></li>
                                   <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
@@ -487,7 +487,7 @@
                             <div class="ddp-list-label">{{'msg.page.layer.map.stroke.by' | translate}}</div>
                             <!-- SELECTBOX -->
                             <div class="ddp-type-selectbox" (click)="sizeTypeFlag=!sizeTypeFlag;" (clickOutside)="sizeTypeFlag=false" [excludeBeforeClick]="true">
-                                <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].size.by }}</span>
+                                <span class="ddp-txt-selectbox">{{ uiOption.layers[2].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[2].size.by }}</span>
                                 <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
                                     <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.stroke.none' | translate}}</a></li>
                                     <li (click)="changeSizeType('MEASURE')"><a href="#">{{'msg.page.layer.map.stroke.measure' | translate}}</a></li>
@@ -498,8 +498,8 @@
 
                         <div class="ddp-divide2">
                             <!-- SELECTBOX -->
-                            <div *ngIf="uiOption.layers[0].size.by.toString() !== 'NONE'" class="ddp-type-selectbox" (click)="sizeColumnFlag=!sizeColumnFlag;" (clickOutside)="sizeColumnFlag=false" [excludeBeforeClick]="true">
-                                <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.column.toString() === 'NONE' ? 'NONE' : uiOption.layers[0].size.column }}</span>
+                            <div *ngIf="uiOption.layers[2].size.by.toString() !== 'NONE'" class="ddp-type-selectbox" (click)="sizeColumnFlag=!sizeColumnFlag;" (clickOutside)="sizeColumnFlag=false" [excludeBeforeClick]="true">
+                                <span class="ddp-txt-selectbox">{{ uiOption.layers[2].size.column.toString() === 'NONE' ? 'NONE' : uiOption.layers[2].size.column }}</span>
                                 <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeColumnFlag">
                                     <li (click)="changeSizeColumn('NONE')"><a href="#">NONE</a></li>
                                     <li (click)="changeSizeColumn('amt')"><a href="#">col1</a></li>
@@ -520,7 +520,7 @@
                     <div class="ddp-list-label">{{'msg.page.layer.map.line.type' | translate}}</div>
                     <!-- SELECTBOX -->
                     <div class="ddp-type-selectbox" (click)="lineDashTypeFlag=!lineDashTypeFlag;" (clickOutside)="lineDashTypeFlag=false" [excludeBeforeClick]="true">
-                        <span class="ddp-txt-selectbox">{{ uiOption.layers[0].outline.lineDash === 'SOLID' ? translateService.instant('msg.page.layer.map.line.type.solid') : translateService.instant('msg.page.layer.map.line.type.dotted') }}</span>
+                        <span class="ddp-txt-selectbox">{{ uiOption.layers[2].outline.lineDash === 'SOLID' ? translateService.instant('msg.page.layer.map.line.type.solid') : translateService.instant('msg.page.layer.map.line.type.dotted') }}</span>
                         <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="lineDashTypeFlag">
                             <li (click)="lineDashType('SOLID')"><a href="#">{{'msg.page.layer.map.line.type.solid' | translate}}</a></li>
                             <li (click)="lineDashType('DOT')"><a href="#">{{'msg.page.layer.map.line.type.dotted' | translate}}</a></li>
@@ -534,7 +534,7 @@
           <!-- //레이어 유형 : 선 -->
 
           <!-- 레이어 유형 : 폴리곤 -->
-          <div class="ddp-ui-layer-type" *ngIf="uiOption.layers[0].type === 'polygon'">
+          <div class="ddp-ui-layer-type" *ngIf="uiOption.layers[2].type === 'polygon'">
             <div class="ddp-wrap-divide">
 
               <!-- divide -->
@@ -543,9 +543,9 @@
                   <div class="ddp-list-sub2">
                       <div class="ddp-divide2">
                         <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
-                        <div class="ddp-type-selectbox" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}"
+                        <div class="ddp-type-selectbox" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[2].color.by.toString() && uiOption.layers[2].color['customMode']}"
                              (click)="colorTypeFlag=!colorTypeFlag;colorListFlag=false;" (clickOutside)="colorTypeFlag=false" [excludeBeforeClick]="true">
-                          <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[0].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].color.by) }}</span>
+                          <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[2].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[2].color.by) }}</span>
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                             <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                             <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
@@ -553,19 +553,19 @@
                           </ul>
                         </div>
                       </div>
-                      <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'DIMENSION'">
+                      <div class="ddp-divide2" *ngIf="uiOption.layers[2].color.by.toString() === 'DIMENSION'">
                         <!-- SELECTBOX -->
                         <component-select
                           [array]="uiOption.fieldList"
-                          [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[0].color['column'])"
+                          [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[2].color['column'])"
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
-                      <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                      <div class="ddp-divide2" *ngIf="uiOption.layers[2].color.by.toString() === 'MEASURE'">
                         <!-- SELECTBOX -->
                         <component-select
                           [array]="measureList"
-                          [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[0].color['column'])"
+                          [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[2].color['column'])"
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
@@ -573,7 +573,7 @@
                         <div class="ddp-ui-colorby">
 
                           <!-- colorby button -->
-                          <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' !== uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                          <div *ngIf="'NONE' !== uiOption.layers[2].color.by.toString() && 'MEASURE' !== uiOption.layers[2].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                             <em class="ddp-icon-colorby"></em>
                             <!-- series, dimension 색일때 -->
                             <button class="ddp-btn-color-series{{checkDefaultSelectedColor()}} ddp-type"></button>
@@ -582,7 +582,7 @@
                           <!-- //colorby button -->
 
                           <!-- colorby button -->
-                          <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' === uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                          <div *ngIf="'NONE' !== uiOption.layers[2].color.by.toString() && 'MEASURE' === uiOption.layers[2].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                             <em class="ddp-icon-colorby"></em>
                             <!-- measure 색일때 -->
                             <button class="ddp-btn-color-type{{checkMeasureSelectedColor()}} ddp-type"></button>
@@ -590,14 +590,14 @@
                           </div>
                           <!-- //colorby button -->
 
-                          <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
+                          <div *ngIf="'NONE' === uiOption.layers[2].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
                             <div class="ddp-col-6">
                               <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                             </div>
                             <div class="ddp-col-6 ddp-txt-right">
                               <!-- selectbox -->
                               <div class="ddp-type-selectbox ddp-color-selectbox2">
-                                <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.color?.schema ? uiOption?.layers[0]?.color?.schema :'#FFF'" [showInitial]="true"
+                                <color-picker [showAlpha]="true" [color]="uiOption?.layers[2]?.color?.schema ? uiOption?.layers[2]?.color?.schema :'#FFF'" [showInitial]="true"
                                               [showInput]="true" [showUserColor]="true" (selected)="selectSingleColor($event);"></color-picker>
                               </div>
                               <!-- //selectbox -->
@@ -613,23 +613,23 @@
                             </div>
                             <!-- //top -->
                             <!-- contents -->
-                            <div *ngIf="'MEASURE' !== uiOption.layers[0].color.by.toString()" class="ddp-pop-side-contents">
+                            <div *ngIf="'MEASURE' !== uiOption.layers[2].color.by.toString()" class="ddp-pop-side-contents">
                               <ul class="ddp-list-series">
                                 <li *ngFor="let item of defaultColorList" (click)="changeColor(item)">
                                   <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                  <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                                 </li>
                               </ul>
                             </div>
                             <!-- //contents -->
                             <!--uiOption.type.toString() == 'grid' ? gridMeasureColorList : measureColorList-->
                             <!-- contents -->
-                            <div *ngIf="'MEASURE' === uiOption.layers[0].color.by.toString()"  class="ddp-pop-side-contents">
+                            <div *ngIf="'MEASURE' === uiOption.layers[2].color.by.toString()"  class="ddp-pop-side-contents">
                               <span class="ddp-pop-sub-title">{{'msg.page.th.seq.display' | translate}}</span>
                               <ul class="ddp-list-series">
                                 <li *ngFor="let item of measureColorList; let num = index" (click)="changeColor(item, measureColorList[num])">
                                   <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                  <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                                 </li>
                               </ul>
 
@@ -637,7 +637,7 @@
                               <ul class="ddp-list-series">
                                 <li *ngFor="let item of measureReverseColorList; let num = index" (click)="changeColor(item, measureReverseColorList[num])">
                                   <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                  <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                                 </li>
                               </ul>
                             </div>
@@ -651,7 +651,7 @@
                           <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                           <!-- SELECTBOX -->
                           <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
-                              <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[0].color.transparency }}</span>
+                              <span class="ddp-txt-selectbox">{{ uiOption.layers[2].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[2].color.transparency }}</span>
                               <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
                                   <li (click)="changeTransparency(100)"><a href="#">{{'msg.page.layer.map.color.transparency.none' | translate}}</a></li>
                                   <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
@@ -676,7 +676,7 @@
                             <div class="ddp-list-label">{{'msg.page.layer.map.size.by' | translate}}</div>
                             <!-- SELECTBOX -->
                             <div class="ddp-type-selectbox" (click)="sizeTypeFlag=!sizeTypeFlag;" (clickOutside)="sizeTypeFlag=false" [excludeBeforeClick]="true">
-                                <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].size.by }}</span>
+                                <span class="ddp-txt-selectbox">{{ uiOption.layers[2].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[2].size.by }}</span>
                                 <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
                                     <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.size.by.none' | translate}}</a></li>
                                     <li (click)="changeSizeType('MEASURE')"><a href="#">{{'msg.page.layer.map.size.by.measure' | translate}}</a></li>
@@ -687,8 +687,8 @@
 
                         <div class="ddp-divide2">
                             <!-- SELECTBOX -->
-                            <div *ngIf="uiOption.layers[0].size.by.toString() !== 'NONE'" class="ddp-type-selectbox" (click)="sizeColumnFlag=!sizeColumnFlag;" (clickOutside)="sizeColumnFlag=false" [excludeBeforeClick]="true">
-                                <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.column.toString() === 'NONE' ? 'NONE' : uiOption.layers[0].size.column }}</span>
+                            <div *ngIf="uiOption.layers[2].size.by.toString() !== 'NONE'" class="ddp-type-selectbox" (click)="sizeColumnFlag=!sizeColumnFlag;" (clickOutside)="sizeColumnFlag=false" [excludeBeforeClick]="true">
+                                <span class="ddp-txt-selectbox">{{ uiOption.layers[2].size.column.toString() === 'NONE' ? 'NONE' : uiOption.layers[2].size.column }}</span>
                                 <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeColumnFlag">
                                     <li (click)="changeSizeColumn('NONE')"><a href="#">NONE</a></li>
                                     <li (click)="changeSizeColumn('amt')"><a href="#">col1</a></li>
@@ -709,21 +709,21 @@
                         <span class="ddp-label-slider">{{'msg.page.layer.map.outline' | translate}}</span>
                         <!-- Slide THREE -->
                         <div class="ddp-checkbox-slide ddp-checkbox-automatic2" >
-                            <input type="checkbox" name="check" [checked]="uiOption.layers[0].outline.thickness !== 'NONE'" (click)="changeOutlineFlag()">
+                            <input type="checkbox" name="check" [checked]="uiOption.layers[2].outline.thickness !== 'NONE'" (click)="changeOutlineFlag()">
                             <label for="check2"><span class="ddp-slide"></span></label>
                         </div>
                         <!-- //Slide THREE -->
 
                     </div>
 
-                    <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
+                    <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[2].outline.thickness !== 'NONE'">
                         <div class="ddp-col-7">
                             <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                         </div>
-                        <div class="ddp-col-5 ddp-txt-right" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
+                        <div class="ddp-col-5 ddp-txt-right" *ngIf="uiOption.layers[2].outline.thickness !== 'NONE'">
                           <!-- selectbox -->
                           <div class="ddp-type-selectbox ddp-color-selectbox2">
-                            <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.outline?.color ? uiOption?.layers[0]?.outline?.color :'#FFF'" [showInitial]="true"
+                            <color-picker [showAlpha]="true" [color]="uiOption?.layers[2]?.outline?.color ? uiOption?.layers[2]?.outline?.color :'#FFF'" [showInitial]="true"
                                           [showInput]="true" [showUserColor]="true" (selected)="selectOutlineColor($event);"></color-picker>
                           </div>
                           <!-- //selectbox -->
@@ -731,15 +731,15 @@
                     </div>
 
                     <!-- multy -->
-                    <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[0].outline.thickness !== 'NONE'">
+                    <div class="ddp-wrap-option-multy ddp-clear" *ngIf="uiOption.layers[2].outline.thickness !== 'NONE'">
                         <div class="ddp-col-6">
                             <span class="ddp-label-txt">{{'msg.page.layer.map.stroke' | translate}}</span>
                         </div>
                         <div class="ddp-col-6 ddp-txt-right">
                             <ul class="ddp-list-express ddp-tab3 ddp-type">
-                                <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.thickness === 'THIN'}" (click)="outlineType('THIN');"><em class="ddp-line-bold1"></em></li>
-                                <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.thickness === 'NORMAL'}" (click)="outlineType('NORMAL');"><em class="ddp-line-bold2"></em></li>
-                                <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.thickness === 'THICK'}" (click)="outlineType('THICK');"><em class="ddp-line-bold3"></em></li>
+                                <li [ngClass]="{'ddp-selected': uiOption.layers[2].outline.thickness === 'THIN'}" (click)="outlineType('THIN');"><em class="ddp-line-bold1"></em></li>
+                                <li [ngClass]="{'ddp-selected': uiOption.layers[2].outline.thickness === 'NORMAL'}" (click)="outlineType('NORMAL');"><em class="ddp-line-bold2"></em></li>
+                                <li [ngClass]="{'ddp-selected': uiOption.layers[2].outline.thickness === 'THICK'}" (click)="outlineType('THICK');"><em class="ddp-line-bold3"></em></li>
                             </ul>
                         </div>
                     </div>
@@ -751,7 +751,7 @@
           <!-- //레이어 유형 : 폴리곤 -->
 
           <!-- 레이어 유형 : 히트맵 -->
-          <div class="ddp-ui-layer-type" *ngIf="uiOption.layers[0].type === 'heatmap'">
+          <div class="ddp-ui-layer-type" *ngIf="uiOption.layers[2].type === 'heatmap'">
             <div class="ddp-wrap-divide">
               <!-- divide -->
               <div class="ddp-divide2 ">
@@ -759,20 +759,20 @@
                   <div class="ddp-list-sub2">
                       <div class="ddp-divide2">
                         <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
-                        <div class="ddp-type-selectbox" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}"
+                        <div class="ddp-type-selectbox" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[2].color.by.toString() && uiOption.layers[2].color['customMode']}"
                              (click)="colorTypeFlag=!colorTypeFlag;colorListFlag=false;" (clickOutside)="colorTypeFlag=false" [excludeBeforeClick]="true">
-                          <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[0].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].color.by) }}</span>
+                          <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[2].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[2].color.by) }}</span>
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                             <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                             <li (click)="changeColorType('MEASURE')"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                           </ul>
                         </div>
                       </div>
-                    <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                    <div class="ddp-divide2" *ngIf="uiOption.layers[2].color.by.toString() === 'MEASURE'">
                       <!-- SELECTBOX -->
                       <component-select
                         [array]="measureList"
-                        [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[0].color['column'])"
+                        [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[2].color['column'])"
                         (onSelected)="changeColorColumn($event)"
                       ></component-select>
                     </div>
@@ -780,7 +780,7 @@
                       <div class="ddp-ui-colorby">
 
                         <!-- colorby button -->
-                        <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' !== uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                        <div *ngIf="'NONE' !== uiOption.layers[2].color.by.toString() && 'MEASURE' !== uiOption.layers[2].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                           <em class="ddp-icon-colorby"></em>
                           <!-- series, dimension 색일때 -->
                           <button class="ddp-btn-color-series{{checkDefaultSelectedColor()}} ddp-type"></button>
@@ -789,7 +789,7 @@
                         <!-- //colorby button -->
 
                         <!-- colorby button -->
-                        <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' === uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                        <div *ngIf="'NONE' !== uiOption.layers[2].color.by.toString() && 'MEASURE' === uiOption.layers[2].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                           <em class="ddp-icon-colorby"></em>
                           <!-- measure 색일때 -->
                           <button class="ddp-btn-color-type{{checkMeasureSelectedColor()}} ddp-type"></button>
@@ -797,14 +797,14 @@
                         </div>
                         <!-- //colorby button -->
 
-                        <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
+                        <div *ngIf="'NONE' === uiOption.layers[2].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
                           <div class="ddp-col-6">
                             <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                           </div>
                           <div class="ddp-col-6 ddp-txt-right">
                             <!-- selectbox -->
                             <div class="ddp-type-selectbox ddp-color-selectbox2">
-                              <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.color?.schema ? uiOption?.layers[0]?.color?.schema :'#FFF'" [showInitial]="true"
+                              <color-picker [showAlpha]="true" [color]="uiOption?.layers[2]?.color?.schema ? uiOption?.layers[2]?.color?.schema :'#FFF'" [showInitial]="true"
                                             [showInput]="true" [showUserColor]="true" (selected)="selectSingleColor($event);"></color-picker>
                             </div>
                             <!-- //selectbox -->
@@ -820,23 +820,23 @@
                           </div>
                           <!-- //top -->
                           <!-- contents -->
-                          <div *ngIf="'MEASURE' !== uiOption.layers[0].color.by.toString()" class="ddp-pop-side-contents">
+                          <div *ngIf="'MEASURE' !== uiOption.layers[2].color.by.toString()" class="ddp-pop-side-contents">
                             <ul class="ddp-list-series">
                               <li *ngFor="let item of defaultColorList" (click)="changeColor(item)">
                                 <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                               </li>
                             </ul>
                           </div>
                           <!-- //contents -->
                           <!--uiOption.type.toString() == 'grid' ? gridMeasureColorList : measureColorList-->
                           <!-- contents -->
-                          <div *ngIf="'MEASURE' === uiOption.layers[0].color.by.toString()"  class="ddp-pop-side-contents">
+                          <div *ngIf="'MEASURE' === uiOption.layers[2].color.by.toString()"  class="ddp-pop-side-contents">
                             <span class="ddp-pop-sub-title">{{'msg.page.th.seq.display' | translate}}</span>
                             <ul class="ddp-list-series">
                               <li *ngFor="let item of measureColorList; let num = index" (click)="changeColor(item, measureColorList[num])">
                                 <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                               </li>
                             </ul>
 
@@ -844,7 +844,7 @@
                             <ul class="ddp-list-series">
                               <li *ngFor="let item of measureReverseColorList; let num = index" (click)="changeColor(item, measureReverseColorList[num])">
                                 <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                               </li>
                             </ul>
                           </div>
@@ -858,7 +858,7 @@
                         <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                         <!-- SELECTBOX -->
                         <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
-                            <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[0].color.transparency }}</span>
+                            <span class="ddp-txt-selectbox">{{ uiOption.layers[2].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[2].color.transparency }}</span>
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
                                 <li (click)="changeTransparency(100)"><a href="#">{{'msg.page.layer.map.color.transparency.none' | translate}}</a></li>
                                 <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
@@ -879,9 +879,8 @@
                     <div class="ddp-list-label">{{'msg.page.layer.map.blur' | translate}}</div>
                     <!-- SELECTBOX -->
                     <div class="ddp-type-selectbox" (click)="blurFlag=!blurFlag;" (clickOutside)="blurFlag=false" [excludeBeforeClick]="true">
-                        <span class="ddp-txt-selectbox">{{ translateNumber('heatmapBlur', uiOption.layers[0].color.blur) }}</span>
+                        <span class="ddp-txt-selectbox">{{ uiOption.layers[2].color.blur }}</span>
                         <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="blurFlag">
-                            <li (click)="changeBlur(30)"><a href="#">100%</a></li>
                             <li (click)="changeBlur(25)"><a href="#">80%</a></li>
                             <li (click)="changeBlur(20)"><a href="#">60%</a></li>
                             <li (click)="changeBlur(15)"><a href="#">40%</a></li>
@@ -896,9 +895,8 @@
                     <div class="ddp-list-label">{{'msg.page.layer.map.radius' | translate}}</div>
                     <!-- SELECTBOX -->
                     <div class="ddp-type-selectbox" (click)="radiusFlag=!radiusFlag;" (clickOutside)="radiusFlag=false" [excludeBeforeClick]="true">
-                        <span class="ddp-txt-selectbox">{{ translateNumber('heatmapRadius', uiOption.layers[0].color.radius) }}</span>
+                        <span class="ddp-txt-selectbox">{{ uiOption.layers[2].color.radius }}</span>
                         <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="radiusFlag">
-                            <li (click)="changeRadius(30)"><a href="#">80%</a></li>
                             <li (click)="changeRadius(25)"><a href="#">80%</a></li>
                             <li (click)="changeRadius(20)"><a href="#">60%</a></li>
                             <li (click)="changeRadius(15)"><a href="#">40%</a></li>
@@ -913,16 +911,16 @@
           <!-- 레이어 유형 : //히트맵 -->
 
           <!-- 레이어 유형 : 타일 -->
-          <div class="ddp-ui-layer-type"  *ngIf="uiOption.layers[0].type === 'tile'">
+          <div class="ddp-ui-layer-type"  *ngIf="uiOption.layers[2].type === 'tile'">
               <div class="ddp-wrap-divide">
                   <!-- divide -->
                   <!-- <div class="ddp-divide2">
                       <div class="ddp-list-label">타일 유형</div>
                       <ul class="ddp-list-express  ddp-type2">
-                          <li [ngClass]="{'ddp-selected': uiOption.layers[0].tile === 'HEXAGON'}" (click)="tileType('HEXAGON');">
+                          <li [ngClass]="{'ddp-selected': uiOption.layers[2].tile === 'HEXAGON'}" (click)="tileType('HEXAGON');">
                               <em class="ddp-icon-hexagon"></em> 육각형
                           </li>
-                          <li [ngClass]="{'ddp-selected': uiOption.layers[0].tile === 'GRID'}" (click)="tileType('GRID');">
+                          <li [ngClass]="{'ddp-selected': uiOption.layers[2].tile === 'GRID'}" (click)="tileType('GRID');">
                               <em class="ddp-icon-square"></em> 사각형
                           </li>
                       </ul>
@@ -935,9 +933,9 @@
                       <div class="ddp-list-sub2">
                         <div class="ddp-divide2">
                           <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
-                          <div class="ddp-type-selectbox" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}"
+                          <div class="ddp-type-selectbox" [ngClass]="{'ddp-disabled' :'MEASURE' == uiOption.layers[2].color.by.toString() && uiOption.layers[2].color['customMode']}"
                                (click)="colorTypeFlag=!colorTypeFlag;colorListFlag=false;" (clickOutside)="colorTypeFlag=false" [excludeBeforeClick]="true">
-                            <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[0].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].color.by) }}</span>
+                            <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[2].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[2].color.by) }}</span>
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                               <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                               <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
@@ -945,19 +943,19 @@
                             </ul>
                           </div>
                         </div>
-                        <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'DIMENSION'">
+                        <div class="ddp-divide2" *ngIf="uiOption.layers[2].color.by.toString() === 'DIMENSION'">
                           <!-- SELECTBOX -->
                           <component-select
                             [array]="uiOption.fieldList"
-                            [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[0].color['column'])"
+                            [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[2].color['column'])"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
                         </div>
-                        <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                        <div class="ddp-divide2" *ngIf="uiOption.layers[2].color.by.toString() === 'MEASURE'">
                           <!-- SELECTBOX -->
                           <component-select
                             [array]="measureList"
-                            [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[0].color['column'])"
+                            [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[2].color['column'])"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
                         </div>
@@ -965,7 +963,7 @@
                           <div class="ddp-ui-colorby">
 
                             <!-- colorby button -->
-                            <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' !== uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                            <div *ngIf="'NONE' !== uiOption.layers[2].color.by.toString() && 'MEASURE' !== uiOption.layers[2].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                               <em class="ddp-icon-colorby"></em>
                               <!-- series, dimension 색일때 -->
                               <button class="ddp-btn-color-series{{checkDefaultSelectedColor()}} ddp-type"></button>
@@ -974,7 +972,7 @@
                             <!-- //colorby button -->
 
                             <!-- colorby button -->
-                            <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' === uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                            <div *ngIf="'NONE' !== uiOption.layers[2].color.by.toString() && 'MEASURE' === uiOption.layers[2].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                               <em class="ddp-icon-colorby"></em>
                               <!-- measure 색일때 -->
                               <button class="ddp-btn-color-type{{checkMeasureSelectedColor()}} ddp-type"></button>
@@ -982,14 +980,14 @@
                             </div>
                             <!-- //colorby button -->
 
-                            <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
+                            <div *ngIf="'NONE' === uiOption.layers[2].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
                               <div class="ddp-col-6">
                                 <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                               </div>
                               <div class="ddp-col-6 ddp-txt-right">
                                 <!-- selectbox -->
                                 <div class="ddp-type-selectbox ddp-color-selectbox2">
-                                  <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.color?.schema ? uiOption?.layers[0]?.color?.schema :'#FFF'" [showInitial]="true"
+                                  <color-picker [showAlpha]="true" [color]="uiOption?.layers[2]?.color?.schema ? uiOption?.layers[2]?.color?.schema :'#FFF'" [showInitial]="true"
                                                 [showInput]="true" [showUserColor]="true" (selected)="selectSingleColor($event);"></color-picker>
                                 </div>
                                 <!-- //selectbox -->
@@ -1005,23 +1003,23 @@
                               </div>
                               <!-- //top -->
                               <!-- contents -->
-                              <div *ngIf="'MEASURE' !== uiOption.layers[0].color.by.toString()" class="ddp-pop-side-contents">
+                              <div *ngIf="'MEASURE' !== uiOption.layers[2].color.by.toString()" class="ddp-pop-side-contents">
                                 <ul class="ddp-list-series">
                                   <li *ngFor="let item of defaultColorList" (click)="changeColor(item)">
                                     <!-- 선택시 ddp-selected 추가 -->
-                                    <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                    <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                                   </li>
                                 </ul>
                               </div>
                               <!-- //contents -->
                               <!--uiOption.type.toString() == 'grid' ? gridMeasureColorList : measureColorList-->
                               <!-- contents -->
-                              <div *ngIf="'MEASURE' === uiOption.layers[0].color.by.toString()"  class="ddp-pop-side-contents">
+                              <div *ngIf="'MEASURE' === uiOption.layers[2].color.by.toString()"  class="ddp-pop-side-contents">
                                 <span class="ddp-pop-sub-title">{{'msg.page.th.seq.display' | translate}}</span>
                                 <ul class="ddp-list-series">
                                   <li *ngFor="let item of measureColorList; let num = index" (click)="changeColor(item, measureColorList[num])">
                                     <!-- 선택시 ddp-selected 추가 -->
-                                    <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                    <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                                   </li>
                                 </ul>
 
@@ -1029,7 +1027,7 @@
                                 <ul class="ddp-list-series">
                                   <li *ngFor="let item of measureReverseColorList; let num = index" (click)="changeColor(item, measureReverseColorList[num])">
                                     <!-- 선택시 ddp-selected 추가 -->
-                                    <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
+                                    <button class="ddp-btn-color-type{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[2].color['schema']}"></button>
                                   </li>
                                 </ul>
                               </div>
@@ -1043,7 +1041,7 @@
                             <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                             <!-- SELECTBOX -->
                             <div class="ddp-type-selectbox" (click)="transparencyFlag=!transparencyFlag;" (clickOutside)="transparencyFlag=false" [excludeBeforeClick]="true">
-                                <span class="ddp-txt-selectbox">{{ uiOption.layers[0].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[0].color.transparency }}</span>
+                                <span class="ddp-txt-selectbox">{{ uiOption.layers[2].color.transparency === 100 ? translateService.instant('msg.page.layer.map.color.transparency.none') : uiOption.layers[2].color.transparency }}</span>
                                 <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="transparencyFlag">
                                     <li (click)="changeTransparency(100)"><a href="#">{{'msg.page.layer.map.color.transparency.none' | translate}}</a></li>
                                     <li (click)="changeTransparency(80)"><a href="#">80%</a></li>
@@ -1064,13 +1062,13 @@
                   <div class="ddp-list-label">{{'msg.page.layer.map.coverage' | translate}}</div>
                   <!-- SELECTBOX -->
                   <div class="ddp-type-selectbox" (click)="resolutionFlag=!resolutionFlag;" (clickOutside)="resolutionFlag=false" [excludeBeforeClick]="true">
-                      <span class="ddp-txt-selectbox">{{ translateNumber('hexagonRadius', uiOption.layers[0].color.resolution) }}</span>
+                      <span class="ddp-txt-selectbox">{{ uiOption.layers[2].color.resolution }}</span>
                       <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="resolutionFlag">
-                          <li (click)="changeResolution(5)"><a href="#">100%</a></li>
-                          <li (click)="changeResolution(6)"><a href="#">80%</a></li>
-                          <li (click)="changeResolution(7)"><a href="#">60%</a></li>
-                          <li (click)="changeResolution(8)"><a href="#">40%</a></li>
-                          <li (click)="changeResolution(9)"><a href="#">20%</a></li>
+                          <li (click)="changeResolution(5)"><a href="#">5</a></li>
+                          <li (click)="changeResolution(6)"><a href="#">6</a></li>
+                          <li (click)="changeResolution(7)"><a href="#">7</a></li>
+                          <li (click)="changeResolution(8)"><a href="#">8</a></li>
+                          <li (click)="changeResolution(9)"><a href="#">9</a></li>
                       </ul>
                   </div>
                   <!-- //SELECTBOX -->

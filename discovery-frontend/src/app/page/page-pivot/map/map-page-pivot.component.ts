@@ -97,15 +97,70 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
    public addLayer(layerNum: number): void {
+     debugger
+
+     if(layerNum < this.layerNum) {
+       for(let column of this.pivot.columns) {
+         if(column["layerNum"] === this.layerNum) {
+           this.removeField("event", FieldPivot.COLUMNS, this.pivot.columns, this.pivot.columns.indexOf(column));
+         }
+       }
+
+       for(let aggregation of this.pivot.aggregations) {
+         if(aggregation["layerNum"] === this.layerNum) {
+           this.removeField("event", FieldPivot.AGGREGATIONS, this.pivot.aggregations, this.pivot.aggregations.indexOf(aggregation));
+         }
+       }
+
+       // this.removeField("event", )
+     }
+
      this.layerNum = layerNum;
 
      if(layerNum === 1) {
-       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '84px';
+       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
      } else if(layerNum === 2) {
-       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '121px';
+       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '149px';
      } else if(layerNum === 3) {
-       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '158px';
+       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '194px';
      }
+   }
+
+   /**
+    * 선반 삭제
+    * @param shelf
+    * @param {number} idx
+    */
+   public removeField(event: any, fieldPivot: FieldPivot, shelf, idx: number) {
+
+     // 선반에서 필드제거
+     let field: AbstractField = shelf.splice(idx, 1)[0];
+
+     // if (shelf[idx]) {
+     // let aggregationType = shelf[idx].aggregationType;
+
+     // aggregationTypeList에서 해당 aggregationType 제거
+     // shelf.forEach((item) => {
+     //   _.remove(item.aggregationTypeList, aggregationType);
+     // })
+     // }
+
+     // 필드의 선반정보 제거
+     field.field.pivot.splice(field.field.pivot.indexOf(fieldPivot), 1);
+
+     // 필드의 Alias정보 제거
+     // delete field.field.pivotAlias;
+
+     // 해당 선반을 타겟으로 잡기
+     // if (event) {
+     //   let target = $(event.currentTarget.parentElement.parentElement.parentElement.parentElement);
+     //
+     //   // 선반 total width 설정, 애니메이션 여부 설정
+     //   this.onShelveAnimation(target);
+     // }
+
+     // 이벤트
+     this.changePivot(EventType.CHANGE_PIVOT);
    }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

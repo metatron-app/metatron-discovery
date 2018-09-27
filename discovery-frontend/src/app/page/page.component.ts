@@ -3529,7 +3529,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       let geoFieldCnt = 0;
       for(let column of this.widget.configuration.pivot.columns) {
-        if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
+        if(column.field.logicalType.toString().substring(0,3) === 'GEO' && column["layerNum"] === 1) {
           geoFieldCnt = geoFieldCnt + 1;
         }
       }
@@ -3554,11 +3554,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.chart['setQuery'] = this.query;
     }
 
-
-    if ( ChartType.MAP === this.widget.configuration.chart.type ) {
-
-    }
-
+    // if ( ChartType.MAP === this.widget.configuration.chart.type ) {
+    //
+    // }
 
     this.datasourceService.searchQuery(cloneQuery).then(
       (data) => {

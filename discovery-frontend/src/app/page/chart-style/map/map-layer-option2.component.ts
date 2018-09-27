@@ -25,11 +25,11 @@ import { BaseOptionComponent } from "../base-option.component";
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 
 @Component({
-  selector: 'map-layer-option',
-  templateUrl: './map-layer-option.component.html'
+  selector: 'map-layer-option2',
+  templateUrl: './map-layer-option2.component.html'
 })
 
-export class MapLayerOptionComponent extends BaseOptionComponent implements OnInit, OnDestroy {
+export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnInit, OnDestroy {
 
   // series, dimension 색상 리스트
   public defaultColorList: Object[] = [
@@ -201,7 +201,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        layers: this.changeLayerOption()
      });
 
-     this.update({});
+     this.update();
    }
 
    /**
@@ -261,16 +261,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      } else if(colorType === 'DIMENSION') {
        this.color['schema'] = 'SC1';
        // init column
-       if (this.uiOption.layers[0]) {
-         if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
-         this.uiOption.layers[0].color['column'] = "NONE";
+       if (this.uiOption.layers[1]) {
+         if (!this.uiOption.layers[1].color) this.uiOption.layers[1].color = {};
+         this.uiOption.layers[1].color['column'] = "NONE";
        }
      } else if(colorType === 'MEASURE') {
        this.color['schema'] = 'VC1';
        // init column
-       if (this.uiOption.layers[0]) {
-         if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
-         this.uiOption.layers[0].color['column'] = "NONE";
+       if (this.uiOption.layers[1]) {
+         if (!this.uiOption.layers[1].color) this.uiOption.layers[1].color = {};
+         this.uiOption.layers[1].color['column'] = "NONE";
        }
      }
 
@@ -288,9 +288,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    public changeColor(color: Object, gridColor?: Object) {
 
      // 차트 타입이 MEASURE인경우
-     if (this.uiOption.layers[0].color.by === 'MEASURE') {
+     if (this.uiOption.layers[1].color.by === 'MEASURE') {
 
-       // this.uiOption.layers[0].color['ranges'] = this.setMeasureColorRange(ChartColorList[color['colorNum']]);
+       // this.uiOption.layers[1].color['ranges'] = this.setMeasureColorRange(ChartColorList[color['colorNum']]);
        //
        // // 선택된 컬러를 변수에 설정
        // if( _.eq(this.uiOption.type, ChartType.GRID) ) {
@@ -348,8 +348,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      this.update();
    }
 
-
-
    /**
     * 반경 변경시
     * @param blur 흐림
@@ -379,7 +377,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        layers: this.changeLayerOption()
      });
 
-     this.update({});
+     this.update();
    }
 
    /**
@@ -396,9 +394,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      } else if(sizeType === 'MEASURE') {
 
        // init column
-       if (this.uiOption.layers[0]) {
-         if (!this.uiOption.layers[0].size) this.uiOption.layers[0].size = {};
-         this.uiOption.layers[0].size['column'] = "NONE";
+       if (this.uiOption.layers[1]) {
+         if (!this.uiOption.layers[1].size) this.uiOption.layers[1].size = {};
+         this.uiOption.layers[1].size['column'] = "NONE";
          this.clustering = false;
        }
      }
@@ -536,7 +534,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
    public changeLayerOption() {
 
-     this.layerOptions = [{
+     this.layerOptions = [this.uiOption.layers[0],{
        type: this.type,
        name: this.name,
        symbol: this.symbol,
@@ -544,7 +542,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        size: this.size,
        outline: this.outline,
        clustering: this.clustering
-     },this.uiOption.layers[1],this.uiOption.layers[2]]
+     },this.uiOption.layers[2]]
 
      this.measureList = [];
      for(let measureField of this.uiOption.fieldMeasureList) {
@@ -553,93 +551,40 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
      // when color column is none or empty, set default column
      if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
-         'NONE' == this.uiOption.layers[0].color['column'] || !this.uiOption.layers[0].color['column']) {
+         'NONE' == this.uiOption.layers[1].color['column'] || !this.uiOption.layers[1].color['column']) {
 
-       if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
+       if (!this.uiOption.layers[1].color) this.uiOption.layers[1].color = {};
 
-       const colorType = this.uiOption.layers[0].color.by;
+       const colorType = this.uiOption.layers[1].color.by;
 
        // when it's dimension, set default column
        if ('DIMENSION' === colorType) {
 
-         this.uiOption.layers[0].color['column'] = this.uiOption.fieldList[0];
+         this.uiOption.layers[1].color['column'] = this.uiOption.fieldList[0];
 
          // when it's measure, set default column
        } else if ('MEASURE' === colorType && this.measureList && this.measureList.length > 0) {
 
-         this.uiOption.layers[0].color['column'] = this.measureList[0];
+         this.uiOption.layers[1].color['column'] = this.measureList[0];
        }
      }
 
      // when size column is none or empty, set default column
      if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
-         'NONE' == this.uiOption.layers[0].size['column'] || !this.uiOption.layers[0].size['column']) {
+         'NONE' == this.uiOption.layers[1].size['column'] || !this.uiOption.layers[1].size['column']) {
 
-       if (!this.uiOption.layers[0].size) this.uiOption.layers[0].size = {};
+       if (!this.uiOption.layers[1].size) this.uiOption.layers[1].size = {};
 
-       const sizeType = this.uiOption.layers[0].size.by;
+       const sizeType = this.uiOption.layers[1].size.by;
 
          // when it's measure, set default column
        if ('MEASURE' === sizeType && this.measureList && this.measureList.length > 0) {
 
-         this.uiOption.layers[0].size['column'] = this.measureList[0];
+         this.uiOption.layers[1].size['column'] = this.measureList[0];
        }
      }
 
      return this.layerOptions;
-   }
-
-   /**
-    * 옵션관련 숫자값 문자형으로 변환
-    * @param type, val
-    * @return string
-    */
-   public translateNumber(type: string, val: number) {
-     let resultVal = '';
-
-     if(type === 'heatmapBlur') {
-       if(val === 10) {
-         resultVal = '20%';
-       } else if(val === 15) {
-         resultVal = '40%';
-       } else if(val === 20) {
-         resultVal = '60%';
-       } else if(val === 25) {
-         resultVal = '80%';
-       } else if(val === 30) {
-         resultVal = '100%';
-       }
-     }
-
-     if(type === 'heatmapRadius') {
-       if(val === 10) {
-         resultVal = '20%';
-       } else if(val === 15) {
-         resultVal = '40%';
-       } else if(val === 20) {
-         resultVal = '60%';
-       } else if(val === 25) {
-         resultVal = '80%';
-       } else if(val === 30) {
-         resultVal = '100%';
-       }
-     }
-
-     if(type === 'hexagonRadius') {
-       if(val === 9) {
-         resultVal = '20%';
-       } else if(val === 8) {
-         resultVal = '40%';
-       } else if(val === 7) {
-         resultVal = '60%';
-       } else if(val === 6) {
-         resultVal = '80%';
-       } else if(val === 5) {
-         resultVal = '100%';
-       }
-     }
-
-     return resultVal;
    }
 
    /**
@@ -678,7 +623,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      for (const item of this.defaultColorList) {
 
        // 코드값이 같은경우
-       if (JSON.stringify(this.uiOption.layers[0].color['schema']) === JSON.stringify(item['colorNum'])) {
+       if (JSON.stringify(this.uiOption.layers[1].color['schema']) === JSON.stringify(item['colorNum'])) {
 
          return item['index'];
        }
@@ -701,7 +646,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      for (const item of colorList) {
 
        // 코드값이 같은경우
-       if (JSON.stringify(this.uiOption.layers[0].color['schema']) === JSON.stringify(item['colorNum'])) {
+       if (JSON.stringify(this.uiOption.layers[1].color['schema']) === JSON.stringify(item['colorNum'])) {
 
          return item['index'];
        }
@@ -717,7 +662,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      // for (const item of colorList) {
      //
      //   // 코드값이 같은경우
-     //   if (JSON.stringify(this.uiOption.layers[0].color['schema']) === JSON.stringify(item['colorNum'])) {
+     //   if (JSON.stringify(this.uiOption.layers[1].color['schema']) === JSON.stringify(item['colorNum'])) {
      //
      //     return item['index'];
      //   }
@@ -753,13 +698,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   // Init
   public ngOnInit() {
 
-    this.type = this.uiOption.layers[0].type;
-    this.name = this.uiOption.layers[0].name;
-    this.symbol = this.uiOption.layers[0].symbol;
-    this.color = this.uiOption.layers[0].color;
-    this.size = this.uiOption.layers[0].size;
-    this.outline = this.uiOption.layers[0].outline;
-    this.clustering = this.uiOption.layers[0].clustering;
+    this.type = this.uiOption.layers[1].type;
+    this.name = this.uiOption.layers[1].name;
+    this.symbol = this.uiOption.layers[1].symbol;
+    this.color = this.uiOption.layers[1].color;
+    this.size = this.uiOption.layers[1].size;
+    this.outline = this.uiOption.layers[1].outline;
+    this.clustering = this.uiOption.layers[1].clustering;
 
     // Init
     super.ngOnInit();
@@ -786,7 +731,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    //   if (drawChartParam) {
    //     this.setDrawChartParam.emit(drawChartParam);
    //   }
-   //   // debugger
+   //   debugger
    //   console.log('map update');
    // }
 
