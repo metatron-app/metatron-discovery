@@ -93,7 +93,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   private _isDuringProcess: boolean = false;
 
   private _interval: any;   // 실시간 데이터소스 조회 타이머
-  private _timer:any;       // 차트 리사이즈 타이머
+  private _timer: any;       // 차트 리사이즈 타이머
 
   // 대시보드 영역 overflow 여부
   private _dashboardOverflow: string;
@@ -312,11 +312,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
-    if( this._timer ) {
+    if (this._timer) {
       clearTimeout(this._timer);
       this._timer = null;
     }
-    if( this._interval ) {
+    if (this._interval) {
       clearInterval(this._interval);
       this._interval = null;
     }
@@ -397,7 +397,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             try {
               if (this.chart && this.chart.chart) this.chart.chart.resize();
             }
-            catch(error) { }
+            catch (error) {
+            }
           }
           // 변경 적용
           this.safelyDetectChanges();
@@ -436,13 +437,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
       // 마지막 외부필터로 들어온 데이터는 선택불가
       let selectData = [];
-      if( data.data ) {
-        data.data.map( (field) => {
+      if (data.data) {
+        data.data.map((field) => {
           let isExternalFilter: boolean = false;
-          if( this._externalFilters ) {
-            this._externalFilters.map( (filter) => {
+          if (this._externalFilters) {
+            this._externalFilters.map((filter) => {
               // 동일한 필터가 있는지 찾는다.
-              if( _.eq(field.alias, filter.field) ) {
+              if (_.eq(field.alias, filter.field)) {
                 isExternalFilter = true;
               }
             });
@@ -456,12 +457,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             }
           });
 
-          if( !isExternalFilter || isAlreadyFilter ) {
+          if (!isExternalFilter || isAlreadyFilter) {
             selectData.push(field);
           }
         });
       }
-      if( selectData.length == 0 && !_.eq(data.mode, ChartSelectMode.CLEAR) ) {
+      if (selectData.length == 0 && !_.eq(data.mode, ChartSelectMode.CLEAR)) {
         return;
       }
       else {
@@ -493,10 +494,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public changeSelectFilterList(data: ChartSelectInfo): void {
 
     // 추가
-    if( _.eq(data.mode, ChartSelectMode.ADD) ) {
+    if (_.eq(data.mode, ChartSelectMode.ADD)) {
 
       // 필터 목록 추가
-      data.data.map( (field) => {
+      data.data.map((field) => {
         // 이미 추가된 필터인지 체크
         let isAlreadyFilter: boolean = false;
         this._selectFilterList.map((filter) => {
@@ -528,16 +529,16 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       });
     }
     // 삭제
-    else if( _.eq(data.mode, ChartSelectMode.SUBTRACT) ) {
+    else if (_.eq(data.mode, ChartSelectMode.SUBTRACT)) {
 
       // 필터 목록 제거
-      for( let num = (this._selectFilterList.length - 1) ; num >= 0 ; num-- ) {
+      for (let num = (this._selectFilterList.length - 1); num >= 0; num--) {
         let filter = this._selectFilterList[num];
-        data.data.map( (field) => {
+        data.data.map((field) => {
           // 동일한 필터를 찾은다음
-          if( _.eq(field.alias, filter.alias) ) {
+          if (_.eq(field.alias, filter.alias)) {
             // 동일한 데이터를 제거한다.
-            for( let num2 = (field.data.length - 1) ; num2 >= 0 ; num2-- ) {
+            for (let num2 = (field.data.length - 1); num2 >= 0; num2--) {
               let data1 = field.data[num2];
               filter.data.map((data2) => {
                 if (_.eq(data1, data2)) {
@@ -547,7 +548,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             }
 
             // 데이터가 모두 제거되었다면 필터자체를 제거한다.
-            if( filter.data.length == 0 ) {
+            if (filter.data.length == 0) {
               this._selectFilterList.splice(num, 1);
             }
           }
@@ -555,7 +556,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
     }
     // 초기화
-    else if( _.eq(data.mode, ChartSelectMode.CLEAR) ) {
+    else if (_.eq(data.mode, ChartSelectMode.CLEAR)) {
 
       // 셀력션 데이터 치환
       data.mode = ChartSelectMode.SUBTRACT;
@@ -574,15 +575,15 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
 
     // 대시보드에서 필터를 발생시킨경우 => 필터 목록 제거
-    for( let num = (this._selectFilterList.length - 1) ; num >= 0 ; num-- ) {
+    for (let num = (this._selectFilterList.length - 1); num >= 0; num--) {
       let filter = this._selectFilterList[num];
       let isNotFilter: boolean = true;
-      externalFilters.map( (externalFilter) => {
+      externalFilters.map((externalFilter) => {
         // 동일한 필터를 찾은다음
-        if( _.eq(externalFilter.field, filter.alias) ) {
+        if (_.eq(externalFilter.field, filter.alias)) {
           isNotFilter = false;
           // 필터에 없는 데이터를 제거한다.
-          for( let num2 = (filter.data.length - 1) ; num2 >= 0 ; num2-- ) {
+          for (let num2 = (filter.data.length - 1); num2 >= 0; num2--) {
             let data1 = filter.data[num2];
             let isNotData = true;
             externalFilter['valueList'].map((data2) => {
@@ -590,26 +591,26 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
                 isNotData = false;
               }
             });
-            if( isNotData ) {
+            if (isNotData) {
               filter.data.splice(num, 1);
             }
           }
 
           // 데이터가 모두 제거되었다면 필터자체를 제거한다.
-          if( filter.data.length == 0 ) {
+          if (filter.data.length == 0) {
             this._selectFilterList.splice(num, 1);
           }
         }
       });
 
       // 발생시켰던 필터가 없어졌다면 저장목록에서도 제거
-      if( isNotFilter ) {
+      if (isNotFilter) {
         this._selectFilterList.splice(num, 1);
       }
     }
 
     // 현재 차트에서 필터를 발생시킨경우
-    if( externalFilters ) {
+    if (externalFilters) {
 
       // 복사
       externalFilters = _.cloneDeep(externalFilters);
@@ -758,6 +759,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
     return iconClass;
   } // function - getChartIconClass
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - for Header
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -769,8 +771,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     let strName: string = '';
     if (this.widget && this.widget.configuration.dataSource) {
       const widgetDataSource: Datasource
-        = DashboardUtil.getDataSourceFromBoardDataSource( this.widget.dashBoard, this.widget.configuration.dataSource );
-      ( widgetDataSource ) && ( strName = widgetDataSource.name );
+        = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widget.configuration.dataSource);
+      (widgetDataSource) && (strName = widgetDataSource.name);
     }
     return strName;
   } // function - getDataSourceName
@@ -979,7 +981,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       const widgetDataSource: Datasource
         = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
 
-      if( isNullOrUndefined( widgetDataSource ) ) {
+      if (isNullOrUndefined(widgetDataSource)) {
         // If the widget does not have a data source
         this.processStart();
         this._isDuringProcess = true;
@@ -1032,7 +1034,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           const syncOpts: BoardSyncOptions = boardConf.options.sync;
           this._interval = setInterval(() => {
             this.safelyDetectChanges();
-            if(this.parentWidget) {
+            if (this.parentWidget) {
               // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
               this.processStart();
               this._isDuringProcess = true;
@@ -1045,7 +1047,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
         this.safelyDetectChanges();
 
-        if(this.parentWidget) {
+        if (this.parentWidget) {
           // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
           this.processStart();
           this._isDuringProcess = true;
@@ -1142,7 +1144,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     // 필터 설정
     const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
 
-    if( isNullOrUndefined( widgetDataSource ) ) {
+    if (isNullOrUndefined(widgetDataSource)) {
       this.isValidWidget = false;
       this.showError();
       return;
@@ -1267,7 +1269,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
 
-    cloneQuery.userFields = CommonUtil.objectToArray( cloneQuery.userFields );
+    cloneQuery.userFields = CommonUtil.objectToArray(cloneQuery.userFields);
 
     return cloneQuery;
   } // function - _makeSearchQueryParam
@@ -1342,11 +1344,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         .resolve()
         .then(() => {
           if (this.isAnalysisPredictionEnabled()) {
-            this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData);
+            this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData)
+              .catch(() => {
+                this.showError();
+              });
           } else {
             this.predictionLineDisabled();
           }
-        });
+        })
     } else {
       this.predictionLineDisabled();
     }
