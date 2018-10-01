@@ -85,6 +85,7 @@
                   <em class="ddp-icon-type-local" *ngIf="field.type === 'LNG' || field.type === 'LNT'"></em>
                   <em class="ddp-icon-type-calen" *ngIf="field.type === 'TIMESTAMP'"></em>
                   <em class="ddp-icon-type-sharp" *ngIf="field.type === 'LONG' || field.type === 'INTEGER' || field.type === 'DOUBLE' || field.type === 'CALCULATED'"></em>
+                  <em class="ddp-icon-type-tf" *ngIf="field.type === 'BOOLEAN'"></em>
                   {{field.name}}
                   <em class="ddp-icon-plus"></em>
                 </a>
@@ -107,7 +108,7 @@
                 <div class="ddp-form-search">
                   <em class="ddp-icon-search"></em>
                   <input [(ngModel)]="searchFunction" (keyup.esc)="searchFunction = ''"
-                         type="text" placeholder="{{'msg.dp.ui.add.expression.ph' | translate}}" >
+                          placeholder="{{'msg.dp.ui.add.expression.ph' | translate}}">
                   <em class="ddp-btn-search-close" (click)="searchFunction = ''"></em>
                 </div>
                 <!-- //검색 -->

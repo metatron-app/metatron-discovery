@@ -1137,6 +1137,7 @@
   "msg.dp.ui.expression.functiondesc.math.tanh" : "Returns the hyperbolic tangent value of the entered value.",
   "msg.dp.ui.add.expression" : "Add expression",
   "msg.dp.ui.add.expression.ph" : "Search expression",
+  "msg.dp.btn.advanced.editor" : "Advanced editor",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
