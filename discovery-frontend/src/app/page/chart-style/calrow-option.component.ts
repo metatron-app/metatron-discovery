@@ -48,6 +48,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
     {name: this.translateService.instant('msg.page.calrow.label.operator.min'), value: Operator.MIN},
     {name: this.translateService.instant('msg.page.calrow.label.operator.count'), value: Operator.COUNT},
   ];
+  public operatorDefaultIdx:number = 0;
 
   // 가로 align리스트
   public hAlignList: Object[] = [
@@ -56,6 +57,7 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.center'), value: TextAlign.CENTER},
     {name: this.translateService.instant('msg.page.chart.datalabel.text.align.right'), value: TextAlign.RIGHT}
   ];
+  public hAlignDefaultIdx:number = 0;
 
   // 차트정보
   @Input('uiOption')
@@ -69,6 +71,13 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
 
       this.uiOption = <UIOption>_.extend({}, this.uiOption, { totalValueStyle: null });
       this.update();
+    } else if( this.uiOption ) {
+      const gridUiOption = (<UIGridChart>this.uiOption);
+      if( gridUiOption.totalValueStyle ) {
+        this.operatorDefaultIdx = this.operatorList.findIndex( item => item['value'] === gridUiOption.totalValueStyle.aggregationType );
+        this.hAlignDefaultIdx = this.hAlignList.findIndex( item => item['value'] === gridUiOption.totalValueStyle.hAlign );
+        ( -1 === this.hAlignDefaultIdx ) && ( this.hAlignDefaultIdx = 0 );
+      }
     }
   }
 
@@ -124,6 +133,9 @@ export class CalculatedRowOptionComponent extends BaseOptionComponent {
       uiOption.totalValueStyle.hAlign = UIPosition.AUTO;
       uiOption.totalValueStyle.vAlign = UIPosition.MIDDLE;
       uiOption.totalValueStyle.aggregationType = Operator.SUM;
+
+      this.operatorDefaultIdx = 0;
+      this.hAlignDefaultIdx = 0;
 
     // annotation이 있을때
     } else {
