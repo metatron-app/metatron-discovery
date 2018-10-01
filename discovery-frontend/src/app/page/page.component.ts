@@ -895,6 +895,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // rnbMenu show hide 설정반영
     this.changeDetect.detectChanges();
 
+    // set shelve animation
+    this.pagePivot.onShelveAnimation(this.$element.find('.ddp-wrap-default'));
+
     // 차트 리사이즈
     this.chartResize();
   }
