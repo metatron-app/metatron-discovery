@@ -1626,7 +1626,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       rule['ruleVO']['command'] = rule['ruleVO']['name'];
       rule['ruleVO']['ruleNo'] = rule['ruleNo'];
 
-      const idx = commandNames.indexOf(rule['ruleVO'].name);
+      if (rule['ruleVO'].command === 'join') {
+        rule['ruleVO'].command = 'Join'
+      } else if (rule['ruleVO'].command === 'union') {
+        rule['ruleVO'].command = 'Union'
+      }
+
+      const idx = commandNames.indexOf(rule['ruleVO'].command);
       if (idx > -1) {
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
