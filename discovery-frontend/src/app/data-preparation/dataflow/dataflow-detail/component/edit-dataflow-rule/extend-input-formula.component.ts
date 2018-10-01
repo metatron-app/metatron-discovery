@@ -26,6 +26,7 @@ import { StringUtil } from '../../../../../common/util/string.util';
 import { DataflowService } from '../../../service/dataflow.service';
 import { Alert } from '../../../../../common/util/alert.util';
 import * as _ from 'lodash';
+import {isNullOrUndefined} from "util";
 declare let $;
 
 @Component({
@@ -52,7 +53,7 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 페이징 관련
+  // Paging
   public pageFields: Field[] = [];
   public pageSize: number = 10;
   public currentPage: number = 1;
@@ -66,7 +67,7 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
   public isShow: boolean = false;
   public isDisableVerifyButton: boolean = false;
 
-  // 수식 함수 목록
+  // expression list
   public totalFunctionCategoryList: FormulaFunctionCategory[] = [];
   public functionCategoryList: FormulaFunctionCategory[] = [];
   public selectedCategory: FormulaFunctionCategory;
@@ -80,7 +81,6 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
               private dataflowService: DataflowService) {
@@ -92,64 +92,62 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /**
-   * 컴포넌트 초기 실행
-   */
+
   public ngOnInit() {
     super.ngOnInit();
-  } // function - ngOnInit
+  }
 
-  /**
-   * 컴포넌트 제거
-   */
   public ngOnDestroy() {
     super.ngOnDestroy();
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 팝업 열기
+   * Open popup
    * @param {Field[]} fields
-   * @param {string} command : 수식 입력 대상 커맨드 명
+   * @param {string} command : command name
+   * @param {string} condition : If the formula has already been entered, also show in the popup
    */
-  public open(fields: Field[], command: string, forceCondition? : string ) {
+  public open(fields: Field[], command: string, condition?: string) {
     this.isShow = true;
     this._command = command;
 
-    if ( (! forceCondition) || forceCondition == null )  forceCondition = '';
-
-    // 필드 설정
+    // set fields (columns)
     this._fields = _.cloneDeep(fields);
 
-    // set 은 field 목록에 $col 추가
+    // add $col to field list when command is 'SET'
     if ('set' === this._command) {
-      //this._fields.unshift({name :'$col', type : 'STRING'});
       this._fields.unshift({name :'$col', type : 'STRING'});
     }
 
     this._setFieldPage(1);
 
-    // Input 영역 설정
+    // Input area setting
     this.safelyDetectChanges();
     this._$calculationInput = $(this._calculationInput.nativeElement);
 
-    this._$calculationInput.text(forceCondition);
+    // set condition
+    if (!isNullOrUndefined(condition)) {
+      this._$calculationInput.text(condition);
+    }
 
-    // 자동완성 설정
+    // auto complete setting
     this._setAutoComplete();
   } // function - open
 
+
   /**
-   * 팝업 닫기
+   * Close popup
    */
   public close() {
     this.isShow = false;
   } // function - close
 
+
   /**
-   * 수식 적용 및 팝업 닫기
+   * apply expression and close popup
    */
   public done() {
     // verifyStateFormula 가 Success 아닐때
@@ -166,20 +164,23 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
       return;
     }
 
-    // 수식 반환
+    // Emit expression
     this.doneEvent.emit({ command: this._command, formula: expr });
     this.close();
   } // function - done
+
+
   /**
-   * 수식 입력 영역 키다운 이벤트 함수
+   * Expression input area Keydown event function
    */
   public calculationInputKeyup(){
       this.verifyStateFormula = null;
-      this._setDisableVerifyButton();``
-  }
+      this._setDisableVerifyButton();
+  } // function - calculationInputKeyup
+
 
   /**
-   * 수식 검증
+   * Verify expression
    */
   public verifyFormula() {
     const inputText: string = this._$calculationInput.text();

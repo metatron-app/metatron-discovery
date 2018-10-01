@@ -108,15 +108,24 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
     });
     this.safelyDetectChanges();
   } // function - setValue
+
+
   /**
-   * 편집수정 수식 get/set
+   * Returns value of variable name equals the key
+   * @param {string} key
+   * @returns {string}
    */
-  public setForceCondition(forceCondition:string){
-    this.forceCondition = forceCondition;
-  }
-  public getForceCondition(){
-    return this.forceCondition;
-  }
+  public getValue( key:string ) : string {
+    let returnValue : string = undefined;
+
+    if (!isNullOrUndefined(this[key])) {
+      returnValue = this[key];
+    }
+
+    this.safelyDetectChanges();
+    return returnValue;
+  } // function - setValue
+
   /**
    * Rule 형식 정의 및 반환
    */

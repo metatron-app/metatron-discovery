@@ -1137,6 +1137,7 @@
   "msg.dp.ui.expression.functiondesc.math.tanh" : "입력된 값의 하이퍼볼릭 탄젠트 값을 반환합니다.",
   "msg.dp.ui.add.expression" : "수식 추가",
   "msg.dp.ui.add.expression.ph" : "수식 검색",
+  "msg.dp.btn.advanced.editor" : "고급 편집기",
 
   "msg.board.create.add-ds" : "데이터소스 추가",
   "msg.board.create.add-ds.desc" : "시각화 할 데이터소스를 추가하고 관계를 설정해 주세요",

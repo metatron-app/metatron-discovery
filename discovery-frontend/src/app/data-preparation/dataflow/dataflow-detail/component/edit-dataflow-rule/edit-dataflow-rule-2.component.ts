@@ -1093,10 +1093,18 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param {string} command
    */
   public openPopupFormulaInput(command: string) {
-    let forceCondition = this._editRuleComp.getForceCondition();
-
     const fields: Field[] = this.selectedDataSet.gridData.fields;
-    this.extendInputFormulaComponent.open(fields, command, forceCondition);
+
+    // variables vary according to the rule name
+    // use this._editRuleComp.getValue({}) to get condition of each rule
+    let val : string = 'rowNum';
+    if (this.ruleVO.command === 'derive') {
+      val = 'deriveVal';
+    } else if (this.ruleVO.command === 'set') {
+      val = 'inputValue';
+    }
+
+    this.extendInputFormulaComponent.open(fields, command, this._editRuleComp.getValue( val ));
   }
 
   /**
@@ -1104,7 +1112,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param {{command: string, formula: string}} data
    */
   public doneInputFormula(data: { command: string, formula: string }) {
-    // this._editRuleComp.init(this.selectedDataSet.gridData.fields, [], `row: ${data.formula}`);
     this._editRuleComp.setValue( 'forceCondition', data.formula );
 
   }
