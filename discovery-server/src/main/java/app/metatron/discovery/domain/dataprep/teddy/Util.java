@@ -26,8 +26,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDateTime;
 
 import java.io.*;
+import java.sql.Timestamp;
 import java.util.*;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
@@ -295,6 +298,22 @@ public class Util {
     }
 
     return jsonRuleString;
+  }
+
+  public static Date jodatToSQLDate(LocalDateTime localDateTime) {
+    return new Date(localDateTime.toDateTime().getMillis());
+  }
+
+  public static Timestamp jodaToSQLTimestamp(LocalDateTime localDateTime) {
+    return new Timestamp(localDateTime.toDateTime().getMillis());
+  }
+
+  public static LocalDateTime sqlTimestampToJodaLocalDateTime(Timestamp timestamp) {
+    return LocalDateTime.fromDateFields(timestamp);
+  }
+
+  public static DateTime sqlTimestampToJodaDateTime(Timestamp timestamp) {
+    return sqlTimestampToJodaLocalDateTime(timestamp).toDateTime();
   }
 
 }
