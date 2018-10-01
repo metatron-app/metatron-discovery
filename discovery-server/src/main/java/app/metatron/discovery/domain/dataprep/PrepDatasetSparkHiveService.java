@@ -594,8 +594,14 @@ public class PrepDatasetSparkHiveService {
                     app.metatron.discovery.domain.dataprep.teddy.Row row = new app.metatron.discovery.domain.dataprep.teddy.Row();
                     for (int i=0;i<numberOfColumns;i++) {
                         Object value = rs.getObject(i+1);
-                        // 현재 모두 String 처리중
-                        row.add( dataFrame.getColName(i), value );
+
+                        if(dataFrame.getColType(i)==ColumnType.TIMESTAMP) {
+                            DateTime jodaTime = new DateTime(value);
+                            row.add(dataFrame.getColName(i), jodaTime);
+                        } else {
+                            // 모두 Object 그대로 들어감
+                            row.add(dataFrame.getColName(i), value);
+                        }
                     }
                     dataFrame.rows.add(readRows++,row);
                     if( limitSize < readRows ) { break; }
