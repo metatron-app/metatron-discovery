@@ -12,10 +12,84 @@
  * limitations under the License.
  */
 
-import {isUndefined} from "util";
-import {Rule} from "../../domain/data-preparation/dataset";
+declare const moment: any;
 
 export class PreparationCommonUtil {
+
+
+  /**
+   * 문자열에 타임스탬프 포맷을 적용함
+   * @param {string} value
+   * @param {string} timestampStyle
+   * @return {string}
+   * @private
+   */
+  public static setTimeStampFormat(value: string, timestampStyle?: string): string {
+    (timestampStyle) || (timestampStyle = 'YYYY-MM-DDTHH:mm:ss');
+    return moment.utc(value).format(timestampStyle.replace(/y/g, 'Y').replace(/dd/g, 'DD').replace(/'/g, ''));
+  } // function - _setTimeStampFormat
+
+
+  /**
+   * 필드에 대한 형식 지정
+   * @param value
+   * @param {string} type
+   * @param {{timestampStyle: string, arrColDesc: any, mapColDesc: any}} colDescs
+   * @returns {string}
+   * @private
+   */
+  public static setFieldFormatter(value: any, type: string,
+                                  colDescs: { timestampStyle?: string, arrColDesc?: any, mapColDesc?: any }): string {
+    let strFormatVal: string = '';
+    if (colDescs) {
+      if ('TIMESTAMP' === type) {
+        // 단일 데이터에 대한 타임 스템프 처리
+        strFormatVal = PreparationCommonUtil.setTimeStampFormat(value, colDescs.timestampStyle);
+      } else if ('ARRAY' === type) {
+        // 배열 형식내 각 항목별 타임 스템프 처리
+        const arrColDescs = colDescs.arrColDesc ? colDescs.arrColDesc : {};
+        strFormatVal = JSON.stringify(
+          value.map((item: any, idx: number) => {
+            const colDesc = arrColDescs[idx] ? arrColDescs[idx] : {};
+            if ('TIMESTAMP' === colDesc['type']) {
+              return PreparationCommonUtil.setTimeStampFormat(item, colDesc['timestampStyle']);
+            } else {
+              // 재귀 호출 부분
+              const tempResult: string = PreparationCommonUtil.setFieldFormatter(item, colDesc['type'], colDesc);
+              // array, map 타임의 경우 stringify가 중복 적용되기에 parse 처리 해줌
+              return ('ARRAY' === colDesc['type'] || 'MAP' === colDesc['type']) ? JSON.parse(tempResult) : tempResult;
+            }
+          })
+        );
+      } else if ('MAP' === type) {
+        // 구조체내 각 항목별 타임 스템프 처리
+        const mapColDescs = colDescs.mapColDesc ? colDescs.mapColDesc : {};
+        let newMapValue = {};
+        for (let key in value) {
+          if (value.hasOwnProperty(key)) {
+            const colDesc = mapColDescs.hasOwnProperty(key) ? mapColDescs[key] : {};
+            if ('TIMESTAMP' === colDesc['type']) {
+              newMapValue[key] = PreparationCommonUtil.setTimeStampFormat(value[key], colDesc['timestampStyle']);
+            } else {
+              // 재귀 호출 부분
+              const tempResult: string = PreparationCommonUtil.setFieldFormatter(value[key], colDesc['type'], colDesc);
+              // array, map 타임의 경우 stringify가 중복 적용되기에 parse 처리 해줌
+              newMapValue[key]
+                = ('ARRAY' === colDesc['type'] || 'MAP' === colDesc['type']) ? JSON.parse(tempResult) : tempResult;
+            }
+          }
+        }
+        strFormatVal = JSON.stringify(newMapValue);
+      } else {
+        strFormatVal = <string>value;
+      }
+    } else {
+      strFormatVal = <string>value;
+    }
+
+    return strFormatVal;
+  } // function - _setFieldFormatter
+
 
   public static removeQuotation(val : string) : string {
     let result = val;
@@ -25,128 +99,4 @@ export class PreparationCommonUtil {
     return result
   }
 
-  public static makeRuleResult(rule: Rule) : string {
-    let result = '';
-    if(rule.cols) {
-      rule.col = rule.cols.join(',')
-    }
-    switch (rule.command) {
-      case 'header':
-        result = 'header rownum: ' + rule.rownum;
-        break;
-      case 'keep':
-        result = 'keep row: ' + rule.row;
-        break;
-      case 'replace':
-        result = 'replace col: ' + rule.col + ' with: ' + rule.with + ' on: ' + rule.on + ' global: ' + rule.global + ' ignoreCase: ' + rule.ignoreCase;
-        break;
-      case 'rename':
-        result = 'rename col: ' + rule.col + ' to: ' + rule.to;
-        break;
-      case 'set':
-        result = 'set col: ' + rule.col + ' value: ' + rule.value;
-        break;
-      case 'settype' :
-        result = 'settype col: ' + rule.col + ' type: ' + rule.type;
-        if(rule.timestamp) {
-          result += ' format: ' + rule.timestamp;
-        }
-        break;
-      case 'setformat':
-        result = 'setformat col: ' + rule.col + ' format: ' + rule.timestamp;
-        break;
-      case 'countpattern':
-        result = 'countpattern col: ' + rule.col + ' on: ' + rule.on + ' ignoreCase: ' + rule.ignoreCase;
-        break;
-      case 'split':
-        result = 'split col: ' + rule.col + ' on: ' + rule.on + ' limit: ' + rule.limit + ' ignoreCase: ' + rule.ignoreCase;
-        break;
-      case 'derive':
-        result = 'derive value: ' + rule.value + ' as: ' + rule.as;
-        break;
-      case 'delete':
-        result = 'delete row: ' + rule.row;
-        break;
-      case 'drop':
-        result = 'drop col: ' + rule.col;
-        break;
-      case 'extract':
-        result = 'extract col: ' + rule.col + ' on: ' + rule.on + ' limit: ' + rule.limit + ' ignoreCase: ' + rule.ignoreCase;
-        break;
-      case 'flatten':
-        result = 'flatten col: ' + rule.col;
-        break;
-      case 'merge':
-        result = 'merge col: ' + rule.col + ' with: ' + rule.with + ' as: ' + rule.as;
-        break;
-      case 'aggregate':
-        if(rule.value && rule.value['escapedValue']) {
-          rule.value = rule.value['escapedValue']
-        }
-        result = 'aggregate value: ' + rule.value + ' group: ' + rule.col;
-        break;
-      case 'splitrows':
-        result = 'splitrows col: ' + rule.col + ' on: ' + rule.on;
-        if (!isUndefined(rule.quote)) {
-          result += ' quote: ' + rule.quote;
-        }
-        break;
-      case 'sort':
-        let col = '';
-        rule.col ? col = rule.col : col = rule.order.value;
-        result = 'sort order: ' + col;
-
-        if (rule.type && rule.type.escapedValue) {
-          result = result + ' type:\''+ rule.type.escapedValue + '\'';
-        }
-
-        if (rule.type === 'desc') {
-          result = result + ' type:\'desc\'';
-        }
-        break;
-      case 'move':
-        result = 'move col: ' + rule.col;
-        if (rule.beforeOrAfter === 'before') {
-          result += ' before: ' + rule.colForMove;
-        } else {
-          result += ' after: ' + rule.colForMove;
-        }
-        break;
-      case 'pivot':
-        if(rule.value && rule.value['escapedValue']) {
-          rule.value = rule.value['escapedValue']
-        }
-        if(rule.groups) {
-          rule.group = rule.groups.join(',');
-        } else if(rule.group['escapedValue']) {
-          rule.group = rule.group['escapedValue'];
-        }
-        result = 'pivot col: ' + rule.col + ' value: ' + rule.value + ' group: ' + rule.group;
-        break;
-      case 'unpivot':
-        result = 'unpivot col: ' + rule.col + ' groupEvery: ' + rule.groupEvery;
-        break;
-      case 'nest':
-        result = 'nest col: ' + rule.col + ' into: ' + rule.into + ' as: ' + rule.as;
-        break;
-      case 'unnest':
-        result = 'unnest col: ' + rule.col + ' into: ' + rule.into + ' idx: ' + rule.idx;
-        break;
-      default :
-        break;
-    }
-    if (rule.command === 'replace' || rule.command === 'extract' || rule.command === 'countpattern' || rule.command === 'split') {
-      if (rule.quote && '' !== rule.quote.trim() && "''" !== rule.quote.trim()) {
-        result += ' quote: ' + rule.quote;
-      }
-    }
-
-    if (rule.command === 'replace' || rule.command === 'set') {
-      if (rule.row && '' !== rule.row.trim() && "''" !== rule.row.trim()) {
-        result += ' row: ' + rule.row;
-      }
-    }
-
-    return result;
-  }
 }
