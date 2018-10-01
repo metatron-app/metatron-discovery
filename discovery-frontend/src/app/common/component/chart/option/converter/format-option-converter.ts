@@ -150,11 +150,11 @@ export class FormatOptionConverter {
     if(format.abbr && format.type != String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
-          value = value > 1000000000
+          value = Math.abs(value) > 1000000000
             ? Number(value) / 1000000000
-            : value > 1000000
+            : Math.abs(value) > 1000000
               ? Number(value) / 1000000
-              : value > 1000
+              : Math.abs(value) > 1000
                 ? Number(value) / 1000
                 : value;
           break;
@@ -190,11 +190,11 @@ export class FormatOptionConverter {
     if(format.abbr && format.type != String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
-          value += originalValue > 1000000000
+          value += Math.abs(originalValue) > 1000000000
             ? "B"
-            : originalValue > 1000000
+            : Math.abs(originalValue) > 1000000
               ? "M"
-              : originalValue > 1000
+              : Math.abs(originalValue) > 1000
                 ? "K"
                 : "";
           break;
