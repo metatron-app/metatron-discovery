@@ -311,7 +311,6 @@ public class PrepTransformService {
           isNotORC = false;
       }
 
-      // FIXME: reconsider whether UNDO is necessary.
       if (prepProperties.isAutoTyping() && isNotORC) {
         setTypeRules = autoTypeDetection(gridResponse);
         //반환 받은 setType Rule 들을 적용
@@ -321,9 +320,7 @@ public class PrepTransformService {
             // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
             transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, i, setTypeRule);
           } catch (Exception e) {
-            LOGGER.info("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
-            transform(wrangledDsId, PrepDataset.OP_TYPE.UNDO, null, setTypeRule);
-            continue;
+            LOGGER.error("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
           }
         }
       }
@@ -440,8 +437,10 @@ public class PrepTransformService {
       doTypeCheck_100(df, i, columnTypes, columnTypesRow0, timestampStyles);
     }
 
-    //0번 Row의 예상 Type이 모두 String인 경우 header 룰을 추가하고 columnNames를 변경.
-    if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt) {
+    //If all column types of row 0 elements is String and predicted column types is not all String.
+    //Then add Header rule and change column name.
+    if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
+            Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt) {
       setTypeRules.add("header rownum: 1");
       columnNames.clear();
 
