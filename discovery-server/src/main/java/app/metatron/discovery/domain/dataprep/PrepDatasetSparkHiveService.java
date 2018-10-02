@@ -118,9 +118,9 @@ public class PrepDatasetSparkHiveService {
             try {
                 Connection conn = null;
                 if (customUrl != null) {
-                    DriverManager.getConnection(customUrl);
+                    conn = DriverManager.getConnection(customUrl);
                 } else {
-                    DriverManager.getConnection(connectUrl, username, password);
+                    conn = DriverManager.getConnection(connectUrl, username, password);
                 }
                 if (conn != null) {
                     Statement statement = conn.createStatement();
@@ -634,7 +634,7 @@ public class PrepDatasetSparkHiveService {
                 JdbcUtils.closeConnection(conn);
 
                 Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, customUrl, databaseName);
-                poolExecutorService.submit(callable);
+                this.futures.add( poolExecutorService.submit(callable) );
             }
         } catch (Exception e) {
             LOGGER.error("Failed to read hive : {}", e.getMessage());
