@@ -14,15 +14,35 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.TestEngineIngestion;
+import app.metatron.discovery.TestUtils;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
+import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
+import app.metatron.discovery.domain.datasource.ingestion.*;
+import app.metatron.discovery.domain.datasource.ingestion.file.*;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJobIntegrationTest;
+import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.util.JsonPatch;
+import app.metatron.discovery.util.PolarisUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,53 +68,13 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.TestUtils;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
-import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.BatchPeriod;
-import app.metatron.discovery.domain.datasource.ingestion.DiscardRule;
-import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.ReplaceRule;
-import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
-import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
-import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
-import app.metatron.discovery.util.JsonPatch;
-import app.metatron.discovery.util.PolarisUtils;
-
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK;
 import static app.metatron.discovery.domain.datasource.DataSource.DataSourceType.MASTER;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.DAY;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.HOUR;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.MONTH;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.SECOND;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HDFS;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HIVE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.*;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.REALTIME;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.DIMENSION;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.MEASURE;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.*;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -2585,6 +2565,127 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
             .statusCode(HttpStatus.SC_CREATED)
             .log().all();
     // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  @Sql({"/sql/test_datasource_field.sql"})
+  public void synchronizeFieldsInDataSource() throws InterruptedException {
+    // given
+    final String engineDataSourceName = "testsampleds";
+    final String testDataSourceId = "7b8005ae-eca0-4a56-9072-c3811138c7a6";
+
+    setUpTestFixtureSchemaNotMatchedEngineDataSource(engineDataSourceName);
+
+    // REST
+    // when, then
+    given()
+        .auth().oauth2(oauth_token)
+        .contentType(ContentType.JSON)
+    .when()
+        .patch("/api/datasources/{id}/fields/sync", testDataSourceId)
+    .then()
+        .statusCode(HttpStatus.SC_NO_CONTENT)
+        .log().all();
+  }
+
+  private void setUpTestFixtureSchemaNotMatchedEngineDataSource(String engineDataSourceName) throws InterruptedException {
+    final TestEngineIngestion testEngineIngestion = new TestEngineIngestion();
+
+    final String workerHost = testEngineIngestion.getEngineWorkerHost();
+    final String baseDir = DataSourceCheckJobIntegrationTest.class.getResource("/ingestion/").getPath();
+    final String filter = "sample_ingestion_extends.csv";
+
+    final String ingestionSpec = "{\n" +
+        "  \"context\": {\n" +
+        "    \"druid.task.runner.dedicated.host\": \"" + workerHost + "\"\n" +
+        "  },\n" +
+        "  \"spec\": {\n" +
+        "    \"dataSchema\": {\n" +
+        "      \"dataSource\": \"" + engineDataSourceName + "\",\n" +
+        "      \"granularitySpec\": {\n" +
+        "        \"intervals\": [\n" +
+        "          \"1970-01-01/2050-01-01\"\n" +
+        "        ],\n" +
+        "        \"queryGranularity\": \"DAY\",\n" +
+        "        \"rollup\": true,\n" +
+        "        \"segmentGranularity\": \"MONTH\",\n" +
+        "        \"type\": \"uniform\"\n" +
+        "      },\n" +
+        "      \"metricsSpec\": [\n" +
+        "        {\n" +
+        "          \"name\": \"count\",\n" +
+        "          \"type\": \"count\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"fieldName\": \"m1\",\n" +
+        "          \"inputType\": \"double\",\n" +
+        "          \"name\": \"m1\",\n" +
+        "          \"type\": \"sum\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"fieldName\": \"m2\",\n" +
+        "          \"inputType\": \"double\",\n" +
+        "          \"name\": \"m2\",\n" +
+        "          \"type\": \"sum\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"fieldName\": \"m3\",\n" +
+        "          \"inputType\": \"double\",\n" +
+        "          \"name\": \"m3\",\n" +
+        "          \"type\": \"sum\"\n" +
+        "        }\n" +
+        "      ],\n" +
+        "      \"parser\": {\n" +
+        "        \"parseSpec\": {\n" +
+        "          \"columns\": [\n" +
+        "            \"time\",\n" +
+        "            \"d\",\n" +
+        "            \"sd\",\n" +
+        "            \"m1\",\n" +
+        "            \"m2\",\n" +
+        "            \"m3\",\n" +
+        "            \"p\"\n" +
+        "          ],\n" +
+        "          \"dimensionsSpec\": {\n" +
+        "            \"dimensionExclusions\": [],\n" +
+        "            \"dimensions\": [\n" +
+        "              \"d\",\n" +
+        "              \"sd\",\n" +
+        "              \"p\"\n" +
+        "            ],\n" +
+        "            \"spatialDimensions\": []\n" +
+        "          },\n" +
+        "          \"format\": \"csv\",\n" +
+        "          \"timestampSpec\": {\n" +
+        "            \"column\": \"time\",\n" +
+        "            \"format\": \"yyyy-MM-dd\",\n" +
+        "            \"replaceWrongColumn\": false\n" +
+        "          }\n" +
+        "        },\n" +
+        "        \"type\": \"string\"\n" +
+        "      }\n" +
+        "    },\n" +
+        "    \"ioConfig\": {\n" +
+        "      \"firehose\": {\n" +
+        "        \"baseDir\": \"" + baseDir + "\",\n" +
+        "        \"filter\": \"" + filter + "\",\n" +
+        "        \"type\": \"local\"\n" +
+        "      },\n" +
+        "      \"type\": \"index\"\n" +
+        "    },\n" +
+        "    \"tuningConfig\": {\n" +
+        "      \"buildV9Directly\": true,\n" +
+        "      \"ignoreInvalidRows\": true,\n" +
+        "      \"maxRowsInMemory\": 75000,\n" +
+        "      \"type\": \"index\"\n" +
+        "    }\n" +
+        "  },\n" +
+        "  \"type\": \"index\"\n" +
+        "}";
+
+    testEngineIngestion.ingestionLocalFile(engineDataSourceName, ingestionSpec);
+
   }
 
 }

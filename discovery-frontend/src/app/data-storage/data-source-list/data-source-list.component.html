@@ -177,6 +177,7 @@
         <td>
           <div class="ddp-txt-long" [class.ddp-global]="datasource.published">
             {{datasource.name}}
+            <em class="ddp-icon-info3" *ngIf="datasource.fieldsMatched === false"></em>
             <span class="ddp-txt-colortype" *ngIf="datasource.description">-{{datasource.description}}</span>
             <em class="ddp-tag-global" *ngIf="datasource.published">{{'msg.comm.ui.list.ds.opendata' | translate}}</em>
           </div>

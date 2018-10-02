@@ -40,6 +40,7 @@ export class Datasource extends AbstractHistoryEntity {
   // dashBoards
   connection: Dataconnection;
   summary: DataSourceSummary;
+  fieldsMatched: boolean;
 
   implementor: string;
   owner: any[];

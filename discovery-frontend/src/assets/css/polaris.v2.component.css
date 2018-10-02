@@ -1615,6 +1615,7 @@ table.ddp-table-form tbody tr td .ddp-type-txt.ddp-info .ddp-ui-info:hover .ddp-
 
 table.ddp-table-form tbody tr td .ddp-wrap-long {display:inline-block; position:relative; padding-right:41px; max-width:100%; box-sizing:border-box;}
 table.ddp-table-form tbody tr td .ddp-txt-long {display:inline-block; position:relative; max-width:100%; line-height:21px; height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box; vertical-align:top;}
+table.ddp-table-form tbody tr td .ddp-txt-long .ddp-icon-info3 {display:inline-block; float:right; margin-left:3px;position:relative; top:5px; width:11px; height:11px; background:url(../images/icon_info3.png) no-repeat;}
 
 table.ddp-table-form tbody tr td .ddp-txt-long2 {display:inline-block; position:relative;max-width:100%; line-height:21px; height:21px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box;}
 table.ddp-table-form tbody tr td .ddp-wrap-long em.ddp-icon-new,
@@ -3377,3 +3378,15 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 .glyphicon-chevron-up:hover:before {background-position-x:-11px;}
 .glyphicon-home:before {width:13px; height:12px; background-position:left -52px;}
 .glyphicon-home:hover:before {background-position-x:-14px;}
+
+/**************************************************************
+  synch
+**************************************************************/
+.ddp-wrap-tab-contents .ddp-ui-tab-contents .ddp-box-synch {margin-bottom:-10px;}
+.ddp-box-synch {position:relative; padding:10px 12px; border:1px solid #cdd8f4; background-color:#f0f3fc; color:#6174b3; font-size:13px; border-radius:2px;}
+.ddp-box-synch .ddp-icon-info {display:inline-block; width:11px; height:11px; margin-right:4px; background:url(../images/icon_info3.png) no-repeat; color:#6174b3; font-size:13px; vertical-align:middle;}
+.ddp-box-synch .ddp-btn-blue {position:absolute; top:50%; right:12px; margin-top:-16px; }
+
+.ddp-btn-blue {padding:7px 17px 8px 17px; border-radius:2px; background-color:#6174b3; color:#fff; font-size:13px;}
+.ddp-btn-blue:hover {color:#fff;}
+.ddp-btn-blue .ddp-icon-btn-sync {display:inline-block; margin-right:6px; width:13px; height:12px; background:url(../images/icon_buttons.png) no-repeat; background-position:left -363px;}

@@ -55,10 +55,7 @@ import javax.persistence.Index;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
@@ -220,6 +217,13 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   @OneToOne(fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
   @JoinColumn(name = "smy_id", referencedColumnName = "id")
   DataSourceSummary summary;
+
+  /**
+   * 엔진 데이터 소스와 스키마 일치 여부
+   */
+  @Column(name = "ds_fields_matched")
+  @FieldBridge(impl = BooleanBridge.class)
+  Boolean fieldsMatched;
 
   @Transient
   String lookUpFileName;
@@ -741,6 +745,56 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
   public void setContexts(String contexts) {
     this.contexts = contexts;
+  }
+
+  public Boolean getFieldsMatched() {
+    return fieldsMatched;
+  }
+
+  public void setFieldsMatched(Boolean fieldsMatched) {
+    this.fieldsMatched = fieldsMatched;
+  }
+
+  public boolean isFieldMatchedByNames(final List<String> matchingFieldNames) {
+    if(this.getFields() == null || this.getFields().isEmpty()) {
+      return false;
+    }
+
+    final List<String> fieldNames = this.getFields().stream()
+        .filter(field -> field.getRole() != Field.FieldRole.TIMESTAMP)
+        .map(field -> field.getName())
+        .collect(Collectors.toList());
+
+    return fieldNames.containsAll(matchingFieldNames);
+  }
+
+  public void synchronizeFields(List<Field> candidateFields) {
+    final List<String> fieldNames = this.getFields().stream()
+        .filter(field -> field.getRole() != Field.FieldRole.TIMESTAMP)
+        .map(field -> field.getName())
+        .collect(Collectors.toList());
+
+    long lastFieldSeq = getLastFieldSeq();
+    long nextSeq = lastFieldSeq + 1;
+
+    for (Field candidateField : candidateFields) {
+      if(fieldNames.contains(candidateField.getName()) == false) {
+        candidateField.setSeq(nextSeq);
+        this.addField(candidateField);
+        nextSeq++;
+      }
+    }
+
+    this.fieldsMatched = true;
+  }
+
+  private long getLastFieldSeq() {
+    Field lastField = this.getFields().stream().sorted(Comparator.comparing(Field::getSeq)).reduce((first, second) -> second).orElse(null);
+    if(lastField == null) {
+      return 0l;
+    } else {
+      return lastField.getSeq().longValue();
+    }
   }
 
   @Override
