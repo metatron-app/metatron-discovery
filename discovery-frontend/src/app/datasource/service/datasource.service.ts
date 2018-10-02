@@ -671,6 +671,10 @@ export class DatasourceService extends AbstractService {
     return this.get(this.API_URL + `datasources/ingestion/options?ingestionType=${ingestionType}`);
   }
 
+  public synchronizeDatasourceFields(datasourceId: string): Promise<any> {
+    return this.patch(this.API_URL + `datasources/${datasourceId}/fields/sync`, null);
+  }
+  
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

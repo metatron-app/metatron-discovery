@@ -112,6 +112,7 @@ public class DataSourceProjections extends BaseProjections {
 
     DateTime getModifiedTime();
 
+    Boolean getFieldsMatched();
   }
 
   @Projection(types = DataSource.class, name = "forListInWorkspaceView")
@@ -190,6 +191,7 @@ public class DataSourceProjections extends BaseProjections {
 
     DateTime getModifiedTime();
 
+    Boolean getFieldsMatched();
   }
 
 }
