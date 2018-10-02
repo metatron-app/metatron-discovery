@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataprep.teddy;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.WrongTargetColumnExpressionException;
+import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.SetType;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.ExprType;
@@ -70,7 +71,11 @@ public class DfSetType extends DataFrame {
 
     for (int colno = 0; colno < prevDf.getColCnt(); colno++) {
       if (targetColnos.contains(colno)) {
-        addColumnWithTimestampStyle(prevDf.getColName(colno), toType, timestampFormat);
+        if(toType == ColumnType.TIMESTAMP) {
+          addColumnWithTimestampStyle(prevDf.getColName(colno), toType, timestampFormat);
+        } else {
+          addColumnWithTimestampStyle(prevDf.getColName(colno), toType, null);
+        }
       } else {
         addColumn(prevDf.getColName(colno), prevDf.getColDesc(colno));
       }
