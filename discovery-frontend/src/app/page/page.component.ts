@@ -285,8 +285,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   // Data Detail 팝업: 컬럼 디테일 여부
   public isColumnDetail: boolean = false;
 
-  // No Data 여부
-  public isNoData: boolean = false;
+  public isNoData: boolean = false;   // No Data 여부
+  public isError: boolean = false;    // 에러 상태 표시 여부
 
   // 센키차트 모든노트 표시안함 여부
   public isSankeyNotAllNode: boolean = false;
@@ -601,6 +601,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public boardUtil = DashboardUtil;
+
   /**
    * 차트 이미지 업로드
    * @param {string} widgetId
@@ -1241,6 +1243,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
         })
         .catch((error) => {
+          this.isError = true;
           this.loadingHide();
           console.info('error', error);
         });
@@ -3463,6 +3466,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // chart pivot valid
     if (false === this.chart.isValid(this.pivot)) {
       this.isChartShow = false;
+      this.isError = true;
       return;
     }
 
@@ -3485,6 +3489,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
     this.loadingShow();
     this.isNoData = false;
+    this.isError = false;
     this.isChartShow = true;
 
     // 변경사항 반영 (resultData설정시 설정할 옵션전에 패널이 켜지므로 off)
@@ -3545,7 +3550,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
                     .getAnalysisPredictionLineFromPage(this.widgetConfiguration, this.widget, this.lineChartComponent, resultData)
                     .catch(() => {
                       this.loadingHide();
-                      throw new Error('getAnalysis API error');
+                      this.isError = true;
                     });
                 } else {
                   this.lineChartComponent.analysis = null;
@@ -3571,6 +3576,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     ).catch((reason) => {
       console.error('Search Query Error =>', reason);
       this.isChartShow = false;
+      this.isError = true;
 
       // 변경사항 반영
       this.changeDetect.detectChanges();
