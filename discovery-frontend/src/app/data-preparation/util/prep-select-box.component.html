@@ -12,23 +12,26 @@
   ~ limitations under the License.
   -->
 
-<!-- 선택시 ddp-selected 추가 -->
-<div [ngClass]="{'ddp-selectbox-disabled': disabled, 'ddp-inline':inline}">
-  <div class="ddp-type-selectbox" [ngClass]="{'ddp-selected' : isShowSelectList && isShowSelectListForOutSide, 'ddp-nowrap-r': noWrapFl, 'ddp-full' : isFull}" (click)="toggleSelectList()" >
-    <input #inputSearch
-           [(ngModel)]="searchText"
-           placeholder="Search"
-           type="text" class="ddp-input-selectbox" *ngIf="isSearchAllowed">
-    <span class="ddp-txt-selectbox">{{selectedItem == null ? unselectedMessage :  isStringArray ? selectedItem : selectedItem[viewKey] }}</span>
-    <ul [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-pass' : isOptionToLeft, 'ddp-pass2' : !isOptionToLeft }"
-        class="ddp-list-selectbox">
-      <li *ngFor="let item of array">
-        <a href="javascript:" (click)="onSelect(item);">{{isStringArray ? item : item[viewKey]}}</a>
-      </li>
-      <li *ngIf="array.length === 0">
-        <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
-      </li>
-    </ul>
-  </div>
+<div class="ddp-type-selectbox"
+     [ngClass]="{'ddp-selected' : isShowSelectList, 'ddp-full' : isFull }"
+     (click)="toggleSelectList()"
+     (keydown)="comboKeyEvent($event)">
+  <input #inputSearchText
+         [(ngModel)]="searchText"
+         placeholder="Search"
+         class="ddp-input-selectbox" *ngIf="isSearchAllowed">
+  <span class="ddp-txt-selectbox">{{selectedItem == null ? unselectedMessage :  isStringArray ? selectedItem : selectedItem[viewKey] }}</span>
+  <ul [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-pass' : isOptionToLeft, 'ddp-pass2' : !isOptionToLeft }"
+      class="ddp-list-selectbox"
+      #sourceFieldCombo>
+    <li *ngFor="let item of filteredList"
+        (mouseover)="hoverSourceItem($event)"
+        (click)="$event.stopImmediatePropagation(); onSelect(item);">
+      <a href="javascript:">{{isStringArray ? item : item[viewKey]}}</a>
+    </li>
+    <li *ngIf="filteredList.length === 0">
+      <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
+    </li>
+  </ul>
 </div>
 <!-- //Drop down -->

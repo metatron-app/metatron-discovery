@@ -33,6 +33,7 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
   public isEditMode: boolean = false;
   public isViewMode: boolean = false;
   public isAuthMgmtViewMode: boolean = false;
+  public isValidWidget:boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -89,15 +90,17 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
    * 위젯 수정
    */
   public editWidget() {
-    // workbook.component 로 이벤트 전달 -> 워크북에서 대시보드 편집 화면으로 이동시킴
-    this.broadCaster.broadcast(
-      'MOVE_EDIT_WIDGET',
-      {
-        cmd: 'MODIFY',
-        id: this.widget.id,
-        type: this.widget.type.toUpperCase()
-      }
-    );
+    if( this.isValidWidget ) {
+      // workbook.component 로 이벤트 전달 -> 워크북에서 대시보드 편집 화면으로 이동시킴
+      this.broadCaster.broadcast(
+        'MOVE_EDIT_WIDGET',
+        {
+          cmd: 'MODIFY',
+          id: this.widget.id,
+          type: this.widget.type.toUpperCase()
+        }
+      );
+    }
   } // function - editWidget
 
   /**

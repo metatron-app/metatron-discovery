@@ -29,18 +29,17 @@
         </th>
         <td>
           <!-- 클릭시 ddp-selected 추가 -->
-          <div class="ddp-txt-edit" (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();" [class.ddp-selected]="isDescEdit">
+          <div class="ddp-txt-edit" [class.ddp-selected]="isDescEdit">
             <!-- data -->
-            <span class="ddp-data-name" [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata().description === ''}">
-                {{ '' === metadataModelService.getMetadata().description ? ('msg.metadata.ui.no.description' | translate ) : metadataModelService.getMetadata().description }}
-                <em *ngIf="!isDescEdit" class="ddp-icon-edit2"></em>
+            <span class="ddp-data-name" (click)="!isDescEdit ? onDescEdit($event) : $event.stopPropagation();" [ngClass]="{'ddp-data-none' : metadataModelService.getMetadata().description === ''}">
+              <span [innerHtml]="getDescription(metadataModelService.getMetadata().description)"></span>
+              <em class="ddp-icon-edit2"></em>
             </span>
             <!-- //data -->
 
             <!-- edit -->
             <div class="ddp-wrap-input">
               <textarea #metadataDesc
-                     (keyup.enter)="metadataDesc.blur(); isDescEdit ? onDescChange() : null;"
                      (clickOutside)="isDescEdit ? onDescEditCancel() : null"
                      maxlength="150"
                      class="ddp-input-edit" placeholder="{{metadataModelService.getMetadata().description}}" [(ngModel)]="editingDesc">

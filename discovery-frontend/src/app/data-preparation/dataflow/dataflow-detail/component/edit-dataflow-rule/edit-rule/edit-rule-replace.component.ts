@@ -13,7 +13,7 @@
  */
 
 import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
@@ -29,7 +29,8 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  @ViewChild('patternValue')
+  private _patternValue: ElementRef;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -50,7 +51,6 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   public condition:string = '';
   public isGlobal:boolean = true;
   public isIgnoreCase:boolean = false;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -105,7 +105,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
 
     // new val
     let clonedNewValue = this.newValue;
-    if (!isUndefined(this.newValue)) {
+    if (!isUndefined(clonedNewValue) && '' !== clonedNewValue) {
       let withVal = StringUtil.checkSingleQuote(clonedNewValue, { isPairQuote: true, isWrapQuote: true });
       if (withVal[0] === false) {
         Alert.warning(this.translateService.instant('mgs.dp.alert.check.new.val'));
@@ -184,7 +184,11 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    * @protected
    */
   protected afterShowComp() {
-
+    if (this.selectedFields.length > 0) {
+      setTimeout(() => {
+        this._patternValue.nativeElement.focus();
+      });
+    }
   } // function - _afterShowComp
 
   /**
@@ -199,9 +203,20 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    this.newValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'with', ruleString ));
+    // TODO : quotation marks
+    let withVal = ruleString.split('with: ')[1];
+    this.newValue = withVal.split(' on')[0];
+    if (this.newValue.startsWith('\'') && this.newValue.endsWith('\'')) {
+      this.newValue = this.newValue.substring(1, this.newValue.length - 1);
+    }
+    // this.newValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'with', ruleString ));
 
-    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
+    let onVal = ruleString.split('on: ')[1];
+    this.pattern = onVal.split(' global')[0];
+    if (this.pattern.startsWith('\'') && this.pattern.endsWith('\'')) {
+      this.pattern = this.pattern.substring(1, this.pattern.length - 1);
+    }
+    // this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
 
     this.isGlobal = Boolean( this.getAttrValueInRuleString( 'global', ruleString ) );
 

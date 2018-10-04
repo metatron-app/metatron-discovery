@@ -26,14 +26,16 @@
 <!-- part -->
 <div class="ddp-box-part ddp-editor" *ngIf="isShow" style="margin-right: 125px;">
   <div class="ddp-box-title">
-    {{'msg.dp.th.condition' | translate}}<em class="ddp-icon-essential"></em>
+    {{'msg.dp.th.expression' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
     <rule-condition-input
-      [formula]="inputValue" [command]="'set'" [forceFormula]="forceCondition" [fields]="fields" [tabIndex]="2"
+      [formula]="inputValue" [command]="'set'"
+      [forceFormula]="forceCondition" [fields]="fields"
+      [tabIndex]="2" [placeholder]="'msg.dp.th.expression.ph' | translate"
       (onChange)="inputValue = $event"></rule-condition-input>
   </div>
-  <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput()"><em class="ddp-icon-editor"></em>Advanced editor</a>
+  <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput()"><em class="ddp-icon-editor"></em>{{'msg.dp.btn.advanced.editor' | translate }}</a>
 </div>
 <!-- //part -->
 <!-- part -->

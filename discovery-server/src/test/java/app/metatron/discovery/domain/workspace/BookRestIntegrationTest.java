@@ -36,19 +36,19 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 
 /**
- * Created by kyungtaak on 2016. 12. 20..
+ *
  */
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class BookRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     RestAssured.port = serverPort;
   }
 
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_WORKBOOK"})
-  public void createWorkBookInWorkspaceShouldReturnWorkspaceInfo1() {
+  public void createWorkBookInWorkspaceShouldReturnWorkspaceInfo() {
 
     String workspaceId = "ws-02";
 
@@ -122,24 +122,6 @@ public class BookRestIntegrationTest extends AbstractRestIntegrationTest {
       .log().all();
     // @formatter:on
 
-    // Report 신규 생성
-    Map<String, Object> reportReq = Maps.newHashMap();
-    reportReq.put("type", "report");
-    reportReq.put("name", "report_test");
-    reportReq.put("workspace", "/api/workspaces/" + workspaceId);
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .body(reportReq)
-      .contentType(ContentType.JSON)
-    .when()
-      .post("/api/books")
-    .then()
-      .statusCode(HttpStatus.SC_CREATED)
-      .log().all();
-    // @formatter:on
-
     // Notebook 신규 생성
     Map<String, Object> notebookReq = Maps.newHashMap();
     notebookReq.put("type", "notebook");
@@ -167,13 +149,13 @@ public class BookRestIntegrationTest extends AbstractRestIntegrationTest {
     // @formatter:off
     given()
       .auth().oauth2(oauth_token)
-      .body(notebookReq)
       .contentType(ContentType.JSON)
+      .log().all()
     .when()
-      .post("/api/books/" + folder2Id + "/book/" + workbookId + "/move")
+      .post("/api/books/{bookId}/move/{folderId}", workbookId, folder2Id)
     .then()
-      .statusCode(HttpStatus.SC_NO_CONTENT)
-      .log().all();
+      .log().all()
+      .statusCode(HttpStatus.SC_NO_CONTENT);
     // @formatter:on
 
     // @formatter:off
@@ -184,7 +166,7 @@ public class BookRestIntegrationTest extends AbstractRestIntegrationTest {
     .when()
       .get("/api/workspaces/{workspace_id}", workspaceId)
     .then()
-//      .statusCode(HttpStatus.SC_OK)
+      .statusCode(HttpStatus.SC_OK)
       .log().all();
     // @formatter:on
 
@@ -213,7 +195,7 @@ public class BookRestIntegrationTest extends AbstractRestIntegrationTest {
     .when()
       .get("/api/workspaces/{workspace_id}", workspaceId)
     .then()
-//      .statusCode(HttpStatus.SC_OK)
+      .statusCode(HttpStatus.SC_OK)
       .log().all();
     // @formatter:on
   }

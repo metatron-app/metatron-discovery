@@ -170,7 +170,7 @@ public class OAuth2ServerConfig {
           .antMatchers(HttpMethod.PATCH, "/api/users/**").permitAll()
           .antMatchers(HttpMethod.GET, "/api/users/*/duplicated").permitAll()
           .antMatchers(HttpMethod.POST, "/api/users/*/signup/request").permitAll()
-           // sso 관련 허용 - ibk 용
+
           .antMatchers(HttpMethod.POST, "/api/sso").permitAll()
 
           //SSO SAML
@@ -184,17 +184,6 @@ public class OAuth2ServerConfig {
           .antMatchers(HttpMethod.POST, "/api/audits").permitAll()
           .antMatchers(HttpMethod.POST, "/api/audits/**").permitAll()
           .antMatchers(HttpMethod.PATCH, "/api/audits/**").permitAll()
-
-          // For Hynix 외 외부 연계
-//          .antMatchers(HttpMethod.POST, "/api/metis/**").permitAll()
-//          .antMatchers(HttpMethod.POST, "/api/datasources/query/**").permitAll()
-//          .antMatchers(HttpMethod.POST, "/api/datasources/validate/**").permitAll()
-//          .antMatchers(HttpMethod.POST, "/api/binaries/**").permitAll()
-//          .antMatchers(HttpMethod.POST, "/api/functions").permitAll()
-//          .antMatchers(HttpMethod.PUT, "/api/functions/**").permitAll()
-//          .antMatchers(HttpMethod.PATCH, "/api/functions/**").permitAll()
-//          .antMatchers(HttpMethod.DELETE, "/api/functions/**").permitAll()
-
           .antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
 
           // Token 관련 처리 허용

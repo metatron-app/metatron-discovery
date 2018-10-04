@@ -102,6 +102,9 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   // request reconnect count
   private _getTableListReconnectCount: number = 0;
 
+  // 선택된 row number
+  public selectedNum: number = 0;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -307,6 +310,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   public showTableInfo(item: string, index: number): void {
     this.selectedTableInfoLayer = false;
     this.selectedTableInfoLayer = true;
+    this.selectedNum = index;
+    // $('.ddp-list-table').find('li:eq('+ index + ')').addClass('ddp-info-selected');
     event.stopImmediatePropagation();
     const offset: ClientRect = document.getElementById(`info${index}`).getBoundingClientRect();
     this.tableParams = {
@@ -324,6 +329,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     this.selectedTableInfoLayer = false;
     this.selectedTableSchemaLayer = false;
     this.selectedTableSchemaLayer = true;
+    // $('.ddp-list-table').find('li:eq('+ index + ')').removeClass('ddp-info-selected');
+    this.selectedNum = -1;
     //const offset: ClientRect = document.getElementById(`info${index}`).getBoundingClientRect();
     document.getElementById(`workbenchQuery`).className="ddp-ui-query ddp-tablepop";
     this.schemaParams = {

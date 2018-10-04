@@ -42,13 +42,7 @@ public class PrepPreviewLineService {
     }
 
     private String getPreviewPath() {
-        String tempDirPath = prepProperties.getLocalBaseDir();
-
-        if(true==tempDirPath.endsWith(File.separator)) {
-            tempDirPath += "previews";
-        } else {
-            tempDirPath += File.separator + "previews";
-        }
+        String tempDirPath = prepProperties.getLocalBaseDir() + File.separator + PrepProperties.dirDataprep;
 
         File tempPath = new File(tempDirPath);
         if(!tempPath.exists()){

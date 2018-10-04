@@ -14,11 +14,11 @@
 
 import * as _ from 'lodash';
 import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from 'util';
+import { isNullOrUndefined, isUndefined } from 'util';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
 @Component({
@@ -40,6 +40,8 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
   public selectedFields: Field[] = [];
   public newFieldName: string = '';
 
+  @ViewChild('newColName')
+  private _newColName: ElementRef;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -102,7 +104,8 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       return undefined
     }
 
-    let check = StringUtil.checkSingleQuote(this.newFieldName, { isAllowBlank: false, isWrapQuote: true });
+    let clonedNewFieldName : string = this.newFieldName;
+    let check = StringUtil.checkSingleQuote(clonedNewFieldName, { isAllowBlank: false, isWrapQuote: true });
     if (check[0] === false) {
       Alert.warning('Special characters are not allowed');
       return undefined
@@ -113,7 +116,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
           check[1] = check[1].replace(' ', '_');
         }
       }
-      this.newFieldName = check[1];
+      clonedNewFieldName = check[1];
     }
 
     const selectedFieldName:string = this.selectedFields[0].name;
@@ -122,7 +125,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       command: 'rename',
       to: this.newFieldName,
       col: selectedFieldName,
-      ruleString: 'rename col: ' + selectedFieldName + ' to: ' + this.newFieldName
+      ruleString: 'rename col: ' + selectedFieldName + ' to: ' + clonedNewFieldName
     };
 
   } // function - getRuleData
@@ -160,7 +163,12 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
-
+    if (this.selectedFields.length === 1) {
+      this.newFieldName = this.selectedFields[0].name + '_1';
+    }
+    setTimeout(() => {
+      this._newColName.nativeElement.focus();
+    });
   } // function - _afterShowComp
 
   /**

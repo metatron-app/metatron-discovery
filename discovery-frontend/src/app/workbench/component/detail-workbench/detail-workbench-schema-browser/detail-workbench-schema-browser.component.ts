@@ -190,6 +190,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     this.dataConnection = this.workbench.dataConnection;
     // 현재 선택된 데이터베이스 이름
     this.selectedDatabaseName = this.workbench.dataConnection.database;
+    // 선택된 테이블 초기화
+    this.selectedSchemaTable = '';
     // 데이터베이스 리스트 조회
     this._getDatabaseList();
   }
@@ -321,6 +323,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     this.selectedDatabaseName = database;
     // 기존 데이터 초기화
     this.schemaTableList = [];
+    // 선택된 테이블 초기화
+    this.selectedSchemaTable = '';
     // 재조회
     this.getTableList();
   }
@@ -817,7 +821,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @private
    */
   private _getTableMetaDataList(tableList: any[]): void {
-    this._metaDataService.getMetadataByConnection(this.dataConnection.id, this.selectedDatabaseName, tableList.map(item => item.name).join(','), 'forItemListView')
+    this._metaDataService.getMetadataByConnection(this.dataConnection.id, this.selectedDatabaseName, tableList.map(item => item.name), 'forItemListView')
       .then((result) => {
         // result가 존재한다면 테이블리스트 merge
         if (result.length > 0) {
@@ -839,7 +843,14 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @private
    */
   private _getTableMetaDataDetail(tableName: string): void {
-    this._metaDataService.getMetadataByConnection(this.dataConnection.id, this.selectedDatabaseName, tableName)
+
+    // table array 생성
+    let tableNameArr: string[] = [];
+    if( tableName != '' ){
+      tableNameArr.push( tableName );
+    }
+
+    this._metaDataService.getMetadataByConnection(this.dataConnection.id, this.selectedDatabaseName, tableNameArr)
       .then((result) => {
         // result가 존재한다면 컬럼리스트 merge
         if (result.length > 0) {
@@ -876,7 +887,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     // Type
     headers.push(this._createSlickGridHeader('type', 'Type', 200));
     // Desc
-    headers.push(this._createSlickGridHeader('comment', 'Description', 300));
+    headers.push(this._createSlickGridHeader('description', 'Description', 300));
     // rows
     const rows: any[] = [];
     for (let idx: number = 0; idx < data.length; idx = idx + 1) {
@@ -888,7 +899,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       // Type
       row['type'] = data[idx]['columnType'] + '(' + data[idx]['columnSize'] + ')';
       // Desc
-      row['comment'] = data[idx]['columnComment'];
+      row['description'] = data[idx]['description'];
       rows.push(row);
     }
     // 그리드 생성

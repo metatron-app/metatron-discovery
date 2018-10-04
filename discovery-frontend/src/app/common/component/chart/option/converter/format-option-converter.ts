@@ -210,11 +210,27 @@ export class FormatOptionConverter {
       }
     }
 
+    // Add decimal zero
+    if (value && format.type != String(UIFormatType.EXPONENT10) && format.decimal > 0) {
+      let stringValue: string = String(value);
+      if( stringValue.indexOf(".") == -1 ) {
+        value += ".";
+        for( let num: number = 0 ; num < format.decimal ; num++ ) {
+          value += "0";
+        }
+      }
+      else {
+        for( let num: number = stringValue.split(".")[1].length ; num < format.decimal ; num++ ) {
+          value += "0";
+        }
+      }
+    }
+
     // 통화
     if ((!customSymbol || _.trim(customSymbol.value).length == 0) && format.type == String(UIFormatType.CURRENCY)) {
       switch (format.sign) {
         case String(UIFormatCurrencyType.KRW) :
-          value = '₩ ' + value
+          value = '₩ ' + value;
           break;
         case String(UIFormatCurrencyType.USD) :
           value = '$ ' + value;
@@ -309,14 +325,14 @@ export class FormatOptionConverter {
 
           let pivotList = _.cloneDeep(pivot.rows);
           // category Name List 설정
-          result = this.getTooltipName(seriesNameList, pivotList, result, true, pivot, ShelveType.ROWS);
+          result = this.getTooltipName(seriesNameList, pivotList, result, false, pivot, ShelveType.ROWS);
 
           // aggregations의 measure가 2개이상인경우
         } else if (pivot.aggregations.length > 1) {
 
           let pivotList = _.cloneDeep(pivot.aggregations);
           // category Name List 설정
-          result = this.getTooltipName(seriesNameList, pivotList, result, true, pivot, ShelveType.AGGREGATIONS);
+          result = this.getTooltipName(seriesNameList, pivotList, result, false, pivot, ShelveType.AGGREGATIONS);
 
           // 단일시리즈인 경우 category Name으로 설정
         } else {
@@ -629,7 +645,7 @@ export class FormatOptionConverter {
     if( uiData ) {
 
       if (!uiOption.toolTip) uiOption.toolTip = {};
-      if (!uiOption.toolTip.displayTypes) uiOption.toolTip.displayTypes = this.setDisplayTypes(uiOption.type);
+      if (!uiOption.toolTip.displayTypes) uiOption.toolTip.displayTypes = this.setDisplayTypes(uiOption.type, pivot);
 
       // UI 데이터 가공
       let result: string[] = [];
@@ -770,7 +786,7 @@ export class FormatOptionConverter {
   /**
    * 차트별 displayTypes 기본값 설정
    */
-  public static setDisplayTypes(chartType: ChartType): UIChartDataLabelDisplayType[] {
+  public static setDisplayTypes(chartType: ChartType, pivot?: Pivot): UIChartDataLabelDisplayType[] {
 
     let displayTypes = [];
 
@@ -778,6 +794,18 @@ export class FormatOptionConverter {
 
       case ChartType.BAR:
       case ChartType.LINE:
+        // when bar, line chart has single series
+        if ((chartType === ChartType.BAR && pivot.aggregations.length <= 1 && pivot.rows.length < 1) ||
+          (chartType === ChartType.LINE && pivot.aggregations.length <= 1)) {
+          displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
+          displayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
+          // when bar, line chart has multi series
+        } else {
+          displayTypes[3] = UIChartDataLabelDisplayType.SERIES_NAME;
+          displayTypes[4] = UIChartDataLabelDisplayType.SERIES_VALUE;
+        }
+        break;
+
       case ChartType.CONTROL:
       case ChartType.COMBINE:
       case ChartType.WATERFALL:
@@ -921,6 +949,35 @@ export class FormatOptionConverter {
 
       return colorEl + legendName + value + '<br />' + seriesName;
     }
+  }
+
+  /**
+   * convert value to deciaml value with thousand comma
+   * @param value
+   * @param {number} decimal
+   * @returns {string}
+   */
+  public static getDecimalValue(value: any, decimal: number, useThousandsSep: boolean): string {
+
+    const numberValue = Number(value);
+
+    if (useThousandsSep) {
+
+      return numberValue.toLocaleString(undefined, {maximumFractionDigits: decimal, minimumFractionDigits: decimal});
+    }
+
+    else return numberValue.toFixed(decimal);
+  }
+
+  /**
+   * convert decimal value with thousand comma to number value
+   * @param value
+   * @param {number} decimal
+   * @returns {string}
+   */
+  public static getNumberValue(value: any): number {
+
+    return parseFloat(value.toString().replace(/,/g, ''));
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

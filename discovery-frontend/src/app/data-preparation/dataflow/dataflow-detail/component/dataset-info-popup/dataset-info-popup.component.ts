@@ -142,7 +142,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
     this.isBtnOptionOpen = false;
     this.commandList = [
-      { command: 'create', alias: 'Cr'},
       { command: 'header', alias: 'He'},
       { command: 'keep', alias: 'Ke'},
       { command: 'replace', alias: 'Rp'},
@@ -156,7 +155,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'drop', alias: 'Dp'},
       { command: 'pivot', alias: 'Pv'},
       { command: 'unpivot', alias: 'Up'},
-      { command: 'join', alias: 'Jo'},
+      { command: 'Join', alias: 'Jo'},
       { command: 'extract', alias: 'Ex'},
       { command: 'flatten', alias: 'Fl'},
       { command: 'merge', alias: 'Me'},
@@ -165,7 +164,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'aggregate', alias: 'Ag'},
       { command: 'sort', alias: 'So'},
       { command: 'move', alias: 'Mv'},
-      { command: 'union', alias: 'Ui'},
+      { command: 'Union', alias: 'Ui'},
       { command: 'setformat', alias: 'Sf'}
     ];
 
@@ -288,21 +287,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   } // function - deleteDataSet
 
   /**
-   * Check if excel
-   */
-  public isExcel(ds:any) {
-    if( ds.importType && ds.importType === 'FILE' ) {
-      if( ds.custom ) {
-        let customJson = JSON.parse(ds.custom);
-        if( customJson.fileType && customJson.fileType==='EXCEL') {
-          return true;
-        }
-      }
-    }
-    return false;
-  } // function - isExcel
-
-  /**
    * get total bytes
    */
   public get getTotalBytes() {
@@ -418,45 +402,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         }
       },0);
 
-      /*
-      if (dataset.dsType && DsType.WRANGLED === dataset.dsType) {   // if dsType is wrangled
-        setTimeout(()=>{
-
-          this.dataflowService.getDatasetWrangledData(this.selectedDataSet.dsId, 50).then((transform: any) => {
-            if(!isUndefined(transform['gridResponse'])) {
-              this.selectedDataSet.gridResponse = transform['gridResponse'];
-              this.selectedDataSet.ruleStringInfos = transform['ruleStringInfos'];
-              this.setRuleList(this.selectedDataSet.ruleStringInfos);    // rule 미리보기
-              this.setGridData(this.selectedDataSet.gridResponse);        // 그리드 데이터 설정
-            }
-          }).catch((error) => {
-            this.loadingHide();
-            let prep_error = this.dataprepExceptionHandler(error);
-            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-          });
-
-        },0);
-      } else if (dataset.dsType && DsType.IMPORTED === dataset.dsType) {    // if dsType is Imported
-        setTimeout(()=>{
-          if( isUndefined(this.selectedDataSet.gridResponse) ) {
-            this.loadingShow();
-            this.datasetService.getImportedPreviewReload(this.selectedDataSet.dsId).then((preview: any) => {
-              if(!isUndefined(preview['gridResponse'])) {
-                this.selectedDataSet.gridResponse = preview['gridResponse'];
-                this.setGridData(this.selectedDataSet.gridResponse);
-              }
-            }).catch((error) => {
-                this.loadingHide();
-                let prep_error = this.dataprepExceptionHandler(error);
-                PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-            });
-          } else {
-            this.setGridData(this.selectedDataSet.gridResponse);
-          }
-        },0);
-      }
-      */
-
     }).catch((error) => {
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
@@ -496,13 +441,23 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       rule['ruleVO']['command'] = rule['ruleVO']['name'];
       rule['ruleVO']['ruleNo'] = rule['ruleNo'];
 
-      const idx = commandNames.indexOf(rule['ruleVO'].name);
+      if (rule['ruleVO'].command === 'join') {
+        rule['ruleVO'].command = 'Join'
+      } else if (rule['ruleVO'].command === 'union') {
+        rule['ruleVO'].command = 'Union'
+      }
+      const idx = commandNames.indexOf(rule['ruleVO'].command);
       if (idx > -1) {
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
         rule['desc'] = this.commandList[idx].desc;
+        rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
+      } else {
+        rule['command'] = 'Create';
+        rule['alias'] = 'Cr';
+        rule['simplifiedRule'] = rule.ruleString;
       }
-      rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
+
       this.ruleList.push(rule);
     });
   }
@@ -525,9 +480,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     }
 
     switch(rule.command) {
-      case 'create':
-        result = `Create with DS ${rule.with}`;
-        break;
       case 'header':
         result = `Convert row${rule.rownum} to header`;
         break;
@@ -638,8 +590,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       case 'unnest' :
         result = `Create new columns from ${column}`;
         break;
-      case 'union':
-      case 'join':
+      case 'Union':
+      case 'Join':
         result = `${rule.command} with `;
 
         let datasetIds = [];
@@ -818,6 +770,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       .SyncColumnCellResize(true)
       .NullCellStyleActivate(true)
       .RowHeight(32)
+      .EnableColumnReorder(false)
       .NullCellStyleActivate(true)
       .build()
     );

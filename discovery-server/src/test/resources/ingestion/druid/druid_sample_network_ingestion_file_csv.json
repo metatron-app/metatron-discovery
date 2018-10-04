@@ -1,0 +1,70 @@
+{
+  "type": "index",
+  "spec": {
+    "dataSchema": {
+      "metricsSpec": [
+        {
+          "type": "count",
+          "name": "count"
+        },
+        {
+          "fieldName": "m1",
+          "type": "sum",
+          "inputType": "double",
+          "name": "m1"
+        },
+        {
+          "fieldName": "m2",
+          "type": "sum",
+          "inputType": "double",
+          "name": "m2"
+        }
+      ],
+      "granularitySpec": {
+        "queryGranularity": "DAY",
+        "segmentGranularity": "MONTH",
+        "type": "uniform",
+        "intervals": [
+          "1970-01-01/2050-01-01"
+        ]
+      },
+      "parser": {
+        "parseSpec": {
+          "dimensionsSpec": {
+            "dimensionExclusions": [],
+            "dimensions": [
+              "d",
+              "nd",
+              "sd"
+            ],
+            "spatialDimensions": []
+          },
+          "timestampSpec": {
+            "column": "time",
+            "format": "yyyy-MM-dd"
+          },
+          "columns": [
+            "time","d","nd","sd","m1", "m2"
+          ],
+          "format": "csv"
+        },
+        "type": "string"
+      },
+      "dataSource": "sample_network_ingestion_01"
+    },
+    "tuningConfig": {
+      "type": "index",
+      "maxRowsInMemory": 75000,
+      "ignoreInvalidRows": true,
+      "buildV9Directly": true
+    },
+    "ioConfig": {
+      "type": "index",
+      "firehose": {
+        "type": "local",
+        "filter": "sample_network_ingestion.csv",
+        "baseDir": "/tmp"
+      }
+    }
+  }
+}

@@ -37,7 +37,7 @@ import { SharedMemberManageComponent } from './component/permission/shared-membe
 import { SubscribeArg } from '../common/domain/subscribe-arg';
 import { PopupService } from '../common/service/popup.service';
 import { SetNotebookServerComponent } from './component/etc/set-notebook-server.component';
-import { isUndefined } from 'util';
+import { isNullOrUndefined } from 'util';
 import { CookieConstant } from '../common/constant/cookie.constant';
 import { DashboardService } from '../dashboard/service/dashboard.service';
 import { EventBroadcaster } from '../common/event/event.broadcaster';
@@ -239,50 +239,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
 
     // Router에서 파라미터 전달 받기
     this.activatedRoute.params.subscribe((params) => {
-
-      // 쿠키 조회
-      this.getCookie();
-
-      // 외부에서 url에서 아이디 받아오기
-      this.workspaceId = params['id'];
-      this.currentFolderId = params['folderId'];
-      if (!isUndefined(this.workspaceId)) {
-        this.cookieWorkspace.workspaceId = this.workspaceId;
-      }
-      if (!isUndefined(this.currentFolderId)) {
-        this.cookieWorkspace.folderId = this.isRoot ? null : this.currentFolderId;
-      }
-
-      if (this.viewType === null) {
-        this.viewType = 'CARD';
-        this.cookieWorkspace.viewType = this.viewType;
-      }
-      this.cookieService.set(CookieConstant.KEY.CURRENT_WORKSPACE, JSON.stringify(this.cookieWorkspace), 0, '/');
-      // 로딩 show
-      this.loadingShow();
-      // 뷰
-      this.initViewPage();
-
-      // 워크스페이스 접속 통계 소켓
-      if ('my' !== this.workspaceId ) {
-        setTimeout(() => {
-          this.checkAndConnectWebSocket().then(() => {
-            try {
-              // 메세지 발신
-              const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
-              const params = {
-                'type': 'View',
-                'object': { 'id': this.workspace.id, 'type': 'WORKSPACE' },
-                'generator': { 'type': 'WEBAPP', 'name': navigator.userAgent }
-              };
-              CommonConstant.stomp.send('/message/activities/add', params, headers);
-            } catch (err) {
-              console.error(err);
-            }
-          });
-        }, 500);
-      }
-
+      this._initViewPage( params['id'], params['folderId'] );
     });
 
     // 워크벤치 생성 step 구독
@@ -298,20 +255,19 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     this.subscriptions.push(popupSubscription);
 
     // 글로벌 이벤트 리스너 - 워크스페이스 폴더 이동
-    this.broadCaster.on<string>('moveFromLnb').subscribe(() => {
-      // 쿠키 조회
-      this.getCookie();
-      // 로딩 show
-      this.loadingShow();
-      // 뷰
-      this.initViewPage();
-    });
+    this.subscriptions.push(
+      this.broadCaster.on<string>('moveFromLnb').subscribe( workspaceId => {
+        this._initViewPage( 'my' === workspaceId ? null : workspaceId );
+      })
+    );
     // 글로벌 이벤트 리스너 - 퍼미션 스키마 변경
-    this.broadCaster.on<string>('CHANGE_WORKSPACE_PERMS_SCHEMA').subscribe(() => {
-      this.loadWorkspace(true).then(() => {
-        this._wsPermSchemaSetComp.init(this.workspace);
-      });
-    });
+    this.subscriptions.push(
+      this.broadCaster.on<string>('CHANGE_WORKSPACE_PERMS_SCHEMA').subscribe(() => {
+        this.loadWorkspace(true).then(() => {
+          this._wsPermSchemaSetComp.init(this.workspace);
+        });
+      })
+    );
 
   } // function - ngOnInit
 
@@ -319,7 +275,6 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public ngOnDestroy() {
     super.ngOnDestroy();
   }
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
@@ -366,7 +321,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           // 저장된 폴더 구조 추적
           this._traceFolderHierarchies();
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
           // 실행 종료 처리
           resolve();
         })
@@ -391,13 +346,13 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           // 즐겨찾기 상태 제거
           this.workspace.favorite = false;
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
         })
         .catch(() => {
           // 실패 알림
           Alert.error(this.translateService.instant('msg.space.alert.del.favor'));
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
         });
     } else {
       this.workspaceService.setFavorite(this.workspaceId)
@@ -405,13 +360,13 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           // 즐겨찾기 상태 추가
           this.workspace.favorite = true;
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
         })
         .catch(() => {
           // 실패 알림
           Alert.error(this.translateService.instant('msg.space.alert.add.favor'));
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
         });
     }
   }
@@ -424,7 +379,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     event.stopPropagation();
 
     if (this.currentFolderId === this.moveTargetFolderId
-      || ( !this.currentFolderId && 'ROOT' === this.moveTargetFolderId && this.workspaceId === this.moveTargetWorkspaceId )) {
+      || (!this.currentFolderId && 'ROOT' === this.moveTargetFolderId && this.workspaceId === this.moveTargetWorkspaceId)) {
       Alert.warning(this.translateService.instant('msg.space.alert.mov.currentdisable'));
       return;
     }
@@ -445,7 +400,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       const params = {
         'toWorkspace': this.moveTargetWorkspaceId
       };
-      const folderId: string = ( 'ROOT' !== this.moveTargetFolderId ) ? this.moveTargetFolderId : null;
+      const folderId: string = ('ROOT' !== this.moveTargetFolderId) ? this.moveTargetFolderId : null;
 
       // 워크북 이동
       this.workbookService.moveWorkbook(bookIds, folderId, params)
@@ -455,7 +410,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           // 실패 알림
           Alert.error(this.translateService.instant('msg.space.alert.mov.fail'));
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
         });
     } else {
       // 다른 타입일 경우 이동
@@ -466,7 +421,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           // 실패 알림
           Alert.error(this.translateService.instant('msg.space.alert.mov.fail'));
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
         });
     }
   } // function - moveContents
@@ -488,7 +443,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         // 실패 알림
         Alert.error(this.translateService.instant('msg.space.alert.copy.workbook.fail'));
         // 로딩 hide
-        ( this.initFolderHierarchies ) || ( this.loadingHide() );
+        (this.initFolderHierarchies) || (this.loadingHide());
       });
     }
   } // function - cloneWorkbooks
@@ -499,7 +454,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    * @param {Book} folder
    */
   public updateFolderNamePressEnter(event: KeyboardEvent, folder: Book) {
-    ( 13 === event.keyCode ) && ( this.updateFolderName(folder) );
+    (13 === event.keyCode) && (this.updateFolderName(folder));
   } // function - updateFolderNamePressEnter
 
   /**
@@ -532,7 +487,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         // 실패 알림
         Alert.error(this.translateService.instant('msg.space.alert.edit.folder.fail'));
         // 로딩 hide
-        ( this.initFolderHierarchies ) || ( this.loadingHide() );
+        (this.initFolderHierarchies) || (this.loadingHide());
       });
   } // function - updateFolderName
 
@@ -583,7 +538,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           this.folder = new Folder;
 
           // 해당 워크스페이스가 공유인지 개인인지 판단
-          this.isShareType = ( 'SHARED' === workspace.publicType );
+          this.isShareType = ('SHARED' === workspace.publicType);
 
           // 워크스페이스 데이터
           this._setWorkspaceData(workspace);
@@ -591,7 +546,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           this._traceFolderHierarchies();
 
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
 
           this.workspace.books.some((book) => {
             if (book.id === result.id) {
@@ -605,7 +560,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           // 실패 알림
           Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
         });
       } else {
         // 내부 워크스페이스 폴더인 경우
@@ -615,7 +570,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           // 저장된 폴더 구조 추적
           this._traceFolderHierarchies();
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
 
           this.folder.books.some((book) => {
             if (book.id === result.id) {
@@ -629,14 +584,14 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           // 실패 알림
           Alert.error(this.translateService.instant('msg.space.alert.folder.retrieve'));
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
         });
       }
     }).catch(() => {
       // 실패 알림
       Alert.error(this.translateService.instant('msg.space.alert.add.folder.fail'));
       // 로딩 hide
-      ( this.initFolderHierarchies ) || ( this.loadingHide() );
+      (this.initFolderHierarchies) || (this.loadingHide());
     });
   } // function - createFoldeer
 
@@ -660,7 +615,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public getList(): Book[] {
     // 최상단 폴더라면 워크스페이스내 컨텐츠 보여주
     let list: Book[] = this.isRoot ? this.workspace.books : this.folder.books;
-    ( list ) || ( list = [] );
+    (list) || (list = []);
     if (this.permissionChecker && this.permissionChecker.isWorkspaceGuest()) {
       return list ? list.filter((item: Book) => 'folder' === item.type || 'workbook' === item.type) : [];
     } else {
@@ -818,8 +773,28 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
   public loadWorkspace(completeFl?: boolean): Promise<any> {
     // 업데이트 상태면 재조회
     if (completeFl) {
-      // 리스트 재조회
-      return this.isRoot ? this.getSharedWorkspace() : this.getWorkspaceFolder();
+      // reload workspace data
+      if( this.isRoot ) {
+        if (this.workspaceId == null) {
+          return this.getMyWorkspace();
+        } else {
+          return this.getSharedWorkspace();
+        }
+      } else {
+        if (this.workspaceId == null) {
+          return this.workspaceService.getMyWorkspace('forDetailView').then((workspace) => {
+            this.workspace = workspace;
+            this._setWorkspaceData(workspace);
+            return this.getWorkspaceFolder();
+          });
+        } else {
+          return this.workspaceService.getWorkSpace(this.workspaceId, 'forDetailView').then((workspace) => {
+            this.workspace = workspace;
+            this._setWorkspaceData(workspace);
+            return this.getWorkspaceFolder();
+          });
+        }
+      }
     } else {
       return Promise.resolve();
     }
@@ -851,8 +826,8 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    */
   public createWorkbook() {
     if (this.permissionChecker
-      && ( this.permissionChecker.isManageWorkbook()
-        || this.permissionChecker.isEditWorkbook(this.loginUserId) )) {
+      && (this.permissionChecker.isManageWorkbook()
+        || this.permissionChecker.isEditWorkbook(this.loginUserId))) {
       if (this.isRoot) {
         this.createWorkbookComponent.init(this.workspaceId);
       } else {
@@ -866,8 +841,8 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    */
   public createWorkbench() {
     if (this.permissionChecker
-      && ( this.permissionChecker.isManageWorkbench()
-        || this.permissionChecker.isEditWorkbench(this.loginUserId) )) {
+      && (this.permissionChecker.isManageWorkbench()
+        || this.permissionChecker.isEditWorkbench(this.loginUserId))) {
       this.workbenchStep = 'workbench-create-select';
     }
   } // function - createWorkbench
@@ -877,10 +852,10 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    */
   public createNotebook() {
     if (this.permissionChecker
-      && ( this.permissionChecker.isManageNotebook()
+      && (this.permissionChecker.isManageNotebook()
         || this.permissionChecker.isEditNotebook(this.loginUserId))) {
       this.loadingShow();
-      this.getNotebookServer(this.workspaceId).then((result) => {
+      this.workspaceService.getNotebookServers(this.workspaceId).then((result) => {
         // 데이터가 없다면
         if (!result['_embedded'] || result['_embedded'].connectors.length === 0) {
           const modal = new Modal();
@@ -896,9 +871,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
             };
           } else {
             // 열람자
-            modal.name = this.translateService.instant( 'msg.space.ui.no.notebook.server' );
-            modal.description = this.translateService.instant( 'msg.space.ui.create.notebook.warning' );
-            modal.subDescription = this.translateService.instant( 'msg.space.ui.ask.space.admin' );
+            modal.name = this.translateService.instant('msg.space.ui.no.notebook.server');
+            modal.description = this.translateService.instant('msg.space.ui.create.notebook.warning');
+            modal.subDescription = this.translateService.instant('msg.space.ui.ask.space.admin');
             modal.isShowCancel = false;
             modal.data = { eventType: 'CREATE_NOTEBOOK' };
           }
@@ -927,16 +902,16 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    */
   public checkEditAuth(book: Book): boolean {
     let isPossible: boolean = false;
-    const bookCreator: string = ( book.createdBy ) ? book.createdBy.username : '';
+    const bookCreator: string = (book.createdBy) ? book.createdBy.username : '';
     switch (book.type.toUpperCase()) {
       case 'WORKBOOK' :
-        isPossible = ( this.permissionChecker.isManageWorkbook() || this.permissionChecker.isEditWorkbook(bookCreator) );
+        isPossible = (this.permissionChecker.isManageWorkbook() || this.permissionChecker.isEditWorkbook(bookCreator));
         break;
       case 'WORKBENCH' :
-        isPossible = ( this.permissionChecker.isManageWorkbench() || this.permissionChecker.isEditWorkbench(bookCreator) );
+        isPossible = (this.permissionChecker.isManageWorkbench() || this.permissionChecker.isEditWorkbench(bookCreator));
         break;
       case 'NOTEBOOK' :
-        isPossible = ( this.permissionChecker.isManageNotebook() || this.permissionChecker.isEditNotebook(bookCreator) );
+        isPossible = (this.permissionChecker.isManageNotebook() || this.permissionChecker.isEditNotebook(bookCreator));
         break;
       case 'FOLDER' :
         isPossible = this.permissionChecker.isManageWsFolder();
@@ -1075,7 +1050,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     };
     this.workspaceService.getWorkspaceImportAvailable(this.checkContents[0].id, params).then(items => {
       if (items) {
-        ( items['page'] ) && ( this.pageAvailableSpaces = items['page'] );
+        (items['page']) && (this.pageAvailableSpaces = items['page']);
         if (items['_embedded'] && items['_embedded']['workspaces']) {
           this.importAvailWorkspaces = this.importAvailWorkspaces.concat(items['_embedded']['workspaces']);
         }
@@ -1165,7 +1140,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    * @returns {boolean}
    */
   public isDisableMove(targetId: string): boolean {
-    return ( -1 < this.checkContents.findIndex((item: Book) => item.id === targetId) );
+    return (-1 < this.checkContents.findIndex((item: Book) => item.id === targetId));
   } // function - isDisableMove
 
   /**
@@ -1238,7 +1213,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         eventType: 'MULTI_DELETE',
         target: this.checkContents
       };
-      modal.afterConfirm = (confirmData:Modal) => {
+      modal.afterConfirm = (confirmData: Modal) => {
         this.deleteBooks(confirmData.data.target); // 여러건 삭제
       };
 
@@ -1259,28 +1234,14 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 노트북 서버 조회 api
-  private getNotebookServer(workspaceId: string): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
-
-      this.workspaceService.getNotebookServers(workspaceId)
-        .then((result) => {
-          resolve(result);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  }
-
   /**
    * 개인 워크스페이스 조회
    */
-  private getMyWorkspace() {
+  private getMyWorkspace():Promise<any> {
     // 로딩 show
     this.loadingShow();
     // 개인 워크스페이스 조회
-    this.workspaceService.getMyWorkspace('forDetailView').then((workspace) => {
+    return this.workspaceService.getMyWorkspace('forDetailView').then((workspace) => {
       if (PublicType.SHARED === workspace.publicType && workspace.published) {
         // 게스트 사용자의 경우 전체 공개 워크스페이스로 강제 이동
         this.router.navigate(['/workspace', workspace.id]).then();
@@ -1290,7 +1251,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         // 저장된 폴더 구조 추적
         this._traceFolderHierarchies();
         // 로딩 hide
-        ( this.initFolderHierarchies ) || ( this.loadingHide() );
+        (this.initFolderHierarchies) || (this.loadingHide());
       }
 
     }).catch(() => {
@@ -1321,7 +1282,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           this.folder = new Folder;
 
           // 해당 워크스페이스가 공유인지 개인인지 판단
-          this.isShareType = ( workspace.publicType === 'SHARED' );
+          this.isShareType = (workspace.publicType === 'SHARED');
 
           // 워크스페이스 데이터 설정
           this._setWorkspaceData(workspace);
@@ -1329,7 +1290,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           this._traceFolderHierarchies();
 
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
 
           resolve();
         })
@@ -1337,7 +1298,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
           // 실패 알림
           Alert.error(this.translateService.instant('msg.space.alert.retrieve'));
           // 로딩 hide
-          ( this.initFolderHierarchies ) || ( this.loadingHide() );
+          (this.initFolderHierarchies) || (this.loadingHide());
         });
     });
   } // function - getSharedWorkspace
@@ -1376,7 +1337,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       // 실패 알림
       Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
       // 로딩 hide
-      ( this.initFolderHierarchies ) || ( this.loadingHide() );
+      (this.initFolderHierarchies) || (this.loadingHide());
     });
   } // function - deleteBook
 
@@ -1420,7 +1381,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         // 실패 알림
         Alert.error(this.translateService.instant('msg.alert.batch.del.fail'));
         // 로딩 hide
-        ( this.initFolderHierarchies ) || ( this.loadingHide() );
+        (this.initFolderHierarchies) || (this.loadingHide());
       });
     }
   } // function - deleteBooks
@@ -1508,7 +1469,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
         // 데이터소스 수
         this.countOfDataSources = workspace.countOfDataSources;
         // 퍼미션
-        ( this.isRoot ) && ( this.permissionChecker = new PermissionChecker(workspace) );
+        (this.isRoot) && (this.permissionChecker = new PermissionChecker(workspace));
       } else {
         // 워크스페이스 이름
         this.workspaceName = workspace.name;
@@ -1530,7 +1491,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
       this.loadingShow();
       setTimeout(() => {
         const tempId = this.initFolderHierarchies.shift().id;
-        ( 0 === this.initFolderHierarchies.length ) && ( this.initFolderHierarchies = null );
+        (0 === this.initFolderHierarchies.length) && (this.initFolderHierarchies = null);
         this.detailFolder(tempId);
       }, 200); // 로딩 표시를 위한 시간 지연
     } else {
@@ -1539,38 +1500,67 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     }
   } //  function - _traceFolderHierarchies
 
-  // View초기화
-  private initViewPage() {
-    // UI 구성요소 초기화
-    this.isInfoType = null;
-    this.workspace = new Workspace();
-    this.workspace.books = [];
-    this.countByBookType = new CountByBookType();
-    this.owner = new UserProfile();
-    this.isRoot = true;
+  /**
+   * initialize View
+   * @param {string} workspaceId
+   * @param {string} folderId
+   * @private
+   */
+  private _initViewPage(workspaceId?: string, folderId?: string) {
 
-    this.contentFilter = [
-      { key: 'all', value: this.translateService.instant('msg.comm.ui.list.all') },
-      { key: 'workbook', value: this.translateService.instant('msg.comm.ui.list.workbook') },
-      { key: 'notebook', value: this.translateService.instant('msg.comm.ui.list.notebook') },
-      { key: 'workbench', value: this.translateService.instant('msg.comm.ui.list.workbench') },
-    ];
-    this.selectedContentFilter = this.contentFilter[0];
+    // 쿠키 조회
+    this.getCookie();
 
-    this.contentSort = [
-      { key: 'name', value: this.translateService.instant('msg.comm.ui.list.name.asc'), type: 'asc' },
-      { key: 'name', value: this.translateService.instant('msg.comm.ui.list.name.desc'), type: 'desc' },
-      { key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.asc'), type: 'asc' },
-      { key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.desc'), type: 'desc' },
-    ];
-    this.selectedContentSort = this.contentSort[3];
-    // this.isShowContentSort = false;
+    // initialize Data
+    this.workspaceId = (workspaceId) ? workspaceId : undefined;
+    this.currentFolderId = (folderId) ? folderId : undefined;
 
-    // this.dataSourceCnt = 0;
+    (isNullOrUndefined(this.workspaceId)) || (this.cookieWorkspace.workspaceId = this.workspaceId);
+    (isNullOrUndefined(this.currentFolderId)) || (this.cookieWorkspace.folderId = this.isRoot ? null : this.currentFolderId);
 
-    // 데이터 초기화
-    this.getWorkspaceData();
-  }
+    if (this.viewType === null) {
+      this.viewType = 'CARD';
+      this.cookieWorkspace.viewType = this.viewType;
+    }
+    this.cookieService.set(CookieConstant.KEY.CURRENT_WORKSPACE, JSON.stringify(this.cookieWorkspace), 0, '/');
+    // 로딩 show
+    this.loadingShow();
+
+    {
+      // initialize UI Component
+      this.isInfoType = null;
+      this.workspace = new Workspace();
+      this.workspace.books = [];
+      this.countByBookType = new CountByBookType();
+      this.owner = new UserProfile();
+      this.isRoot = true;
+
+      this.contentFilter = [
+        { key: 'all', value: this.translateService.instant('msg.comm.ui.list.all') },
+        { key: 'workbook', value: this.translateService.instant('msg.comm.ui.list.workbook') },
+        { key: 'notebook', value: this.translateService.instant('msg.comm.ui.list.notebook') },
+        { key: 'workbench', value: this.translateService.instant('msg.comm.ui.list.workbench') },
+      ];
+      this.selectedContentFilter = this.contentFilter[0];
+
+      this.contentSort = [
+        { key: 'name', value: this.translateService.instant('msg.comm.ui.list.name.asc'), type: 'asc' },
+        { key: 'name', value: this.translateService.instant('msg.comm.ui.list.name.desc'), type: 'desc' },
+        { key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.asc'), type: 'asc' },
+        { key: 'modifiedTime', value: this.translateService.instant('msg.comm.ui.list.update.desc'), type: 'desc' },
+      ];
+      this.selectedContentSort = this.contentSort[3];
+
+      // initialize data
+      this.getWorkspaceData();
+    }
+
+    // Send statistics data
+    if ( this.workspaceId && 'my' !== this.workspaceId ) {
+      this.sendViewActivityStream( this.workspaceId, 'WORKSPACE' );
+    }
+    
+  } // function - _initViewPage
 
   /**
    * 컨텐츠 이동 후의 처리
@@ -1604,9 +1594,9 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
     // 워크북 타입이 체크되었는지 확인
     const cntContents = this.checkContents.length;
     if (0 < cntContents) {
-      this.isCheckedWorkbook = ( -1 < this.checkContents.findIndex(item => item.type === 'workbook') );
+      this.isCheckedWorkbook = (-1 < this.checkContents.findIndex(item => item.type === 'workbook'));
       // workbook 타입은 무조건 1개만 이동할 수 있고, workbook 이 아닌 경우 여러개 이동 가능
-      this.isDisableMoveContent = ( this.isCheckedWorkbook && 1 < cntContents );
+      this.isDisableMoveContent = (this.isCheckedWorkbook && 1 < cntContents);
     } else {
       this.isDisableMoveContent = true;
       this.isCheckedWorkbook = false;
@@ -1619,7 +1609,7 @@ export class WorkspaceComponent extends AbstractComponent implements OnInit, OnD
    */
   private _updateStateSelectAll() {
     let filteredList: Book[] = this._getDisplayItems();
-    this.isAllChecked = ( filteredList.length === filteredList.filter((item: Book) => item.checked).length );
+    this.isAllChecked = (filteredList.length === filteredList.filter((item: Book) => item.checked).length);
   } // function - _updateStateSelectAll
 
   /**

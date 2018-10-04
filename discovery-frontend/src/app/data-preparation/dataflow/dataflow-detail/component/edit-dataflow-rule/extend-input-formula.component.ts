@@ -24,7 +24,9 @@ import { AbstractComponent } from '../../../../../common/component/abstract.comp
 import { Field } from '../../../../../domain/data-preparation/dataset';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { DataflowService } from '../../../service/dataflow.service';
-
+import { Alert } from '../../../../../common/util/alert.util';
+import * as _ from 'lodash';
+import {isNullOrUndefined} from "util";
 declare let $;
 
 @Component({
@@ -51,7 +53,7 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 페이징 관련
+  // Paging
   public pageFields: Field[] = [];
   public pageSize: number = 10;
   public currentPage: number = 1;
@@ -65,7 +67,7 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
   public isShow: boolean = false;
   public isDisableVerifyButton: boolean = false;
 
-  // 수식 함수 목록
+  // expression list
   public totalFunctionCategoryList: FormulaFunctionCategory[] = [];
   public functionCategoryList: FormulaFunctionCategory[] = [];
   public selectedCategory: FormulaFunctionCategory;
@@ -79,7 +81,6 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // 생성자
   constructor(protected elementRef: ElementRef,
               protected injector: Injector,
               private dataflowService: DataflowService) {
@@ -91,72 +92,95 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /**
-   * 컴포넌트 초기 실행
-   */
+
   public ngOnInit() {
     super.ngOnInit();
-  } // function - ngOnInit
+  }
 
-  /**
-   * 컴포넌트 제거
-   */
   public ngOnDestroy() {
     super.ngOnDestroy();
-  } // function - ngOnDestroy
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 팝업 열기
+   * Open popup
    * @param {Field[]} fields
-   * @param {string} command : 수식 입력 대상 커맨드 명
+   * @param {string} command : command name
+   * @param {string} condition : If the formula has already been entered, also show in the popup
    */
-  public open(fields: Field[], command: string) {
+  public open(fields: Field[], command: string, condition?: string) {
     this.isShow = true;
     this._command = command;
 
-    // 필드 설정
-    this._fields = fields;
+    // set fields (columns)
+    this._fields = _.cloneDeep(fields);
+
+    // add $col to field list when command is 'SET'
+    if ('set' === this._command) {
+      this._fields.unshift({name :'$col', type : 'STRING'});
+    }
+
     this._setFieldPage(1);
 
-    // Input 영역 설정
+    // Input area setting
     this.safelyDetectChanges();
     this._$calculationInput = $(this._calculationInput.nativeElement);
 
-    // 자동완성 설정
+    // set condition
+    if (!isNullOrUndefined(condition)) {
+      this._$calculationInput.text(condition);
+    }
+
+    // auto complete setting
     this._setAutoComplete();
   } // function - open
 
+
   /**
-   * 팝업 닫기
+   * Close popup
    */
   public close() {
     this.isShow = false;
   } // function - close
 
+
   /**
-   * 수식 적용 및 팝업 닫기
+   * apply expression and close popup
    */
   public done() {
-
     // verifyStateFormula 가 Success 아닐때
-    if ('S' !== this.verifyStateFormula) {
+    // if ('S' !== this.verifyStateFormula) {
+    //  return;
+    // }
+
+    let expr: string = this._$calculationInput.text();
+
+    // expr = expr.replace(/[[\]]/g, '"');
+    expr = StringUtil.trim(expr);
+    if (! expr || expr.length < 1){
+      Alert.info(this.translateService.instant('msg.dp.alert.check.insert.expression'));
       return;
     }
 
-    let expr: string = this._$calculationInput.text();
-    // expr = expr.replace(/[[\]]/g, '"');
-    expr = StringUtil.trim(expr);
-
-    // 수식 반환
+    // Emit expression
     this.doneEvent.emit({ command: this._command, formula: expr });
     this.close();
   } // function - done
 
+
   /**
-   * 수식 검증
+   * Expression input area Keydown event function
+   */
+  public calculationInputKeyup(){
+      this.verifyStateFormula = null;
+      this._setDisableVerifyButton();
+  } // function - calculationInputKeyup
+
+
+  /**
+   * Verify expression
    */
   public verifyFormula() {
     const inputText: string = this._$calculationInput.text();
@@ -390,7 +414,7 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
   } // function - _insertAtCursor
 
   /**
-   * 수식 검증 버튼 활성화 여부
+   * 수식 검증 버튼 활성화 여부 -> 조건 없이 활성화
    */
   private _setDisableVerifyButton() {
     this.verifyStateFormula = null;
@@ -403,185 +427,54 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
    */
   public _initializeFunctionList() {
 
-    // 함수 목록 설정
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'length', '입력된 문자열의 길이를 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'upper', '입력된 문자열 내의 알파벳을 모두 대문자로 치환하여 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'lower', '입력된 문자열 내의 알파벳을 모두 소문자로 치환하여 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'trim', '입력된 문자열의 앞/뒤에 있는 공백을 제거하여 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'ltrim', '입력된 문자열의 앞(왼쪽)에 있는 공백을 제거하여 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'rtrim', '입력된 문자열의 뒤(오른쪽)에 있는 공백을 제거하여 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'substring', '입력된 문자열의 일부를 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'concat', '입력된 복수의 문자열을 연결하여 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.STRING, 'concat_ws', '입력된 복수의 문자열을 연결하면서 문자열 사이에 Separator(구분자)를 넣어 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.LOGICAL, 'if', '조건문을 검사하여 TRUE나 FALSE에 해당하는 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.LOGICAL, 'ismismatched', '입력된 컬럼의 값과 타입이 일치하는지 판단합니다. 일치하면 TRUE, 아니면 FALSE를 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.LOGICAL, 'isnull', '입력된 컬럼의 값이 null 인지 판단합니다. null이면 TRUE, 아니면 FALSE를 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.LOGICAL, 'isnan', '입력된 값이 NaN(Not-a-Number) 인지 판단합니다. NaN이면 TRUE, 아니면 FALSE를 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'year', '입력된 Timestamp 값에서 연도에 해당하는 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'month', '입력된 Timestamp 값에서 월에 해당하는 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'day', '입력된 Timestamp 값에서 일에 해당하는 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'hour', '입력된 Timestamp 값에서 시간에 해당하는 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'minute', '입력된 Timestamp 값에서 분에 해당하는 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'second', '입력된 Timestamp 값에서 초에 해당하는 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'millisecond', '입력된 Timestamp 값에서 밀리초(1/1000 초)에 해당하는 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'now', '입력된 Timezone 기준의 현재 시간을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.TIMESTAMP, 'add_time', '입력된 Timestamp 값에 일정 Time unit 값을 더하거나 뺀 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.AGGREGATION, 'sum', '대상 값들의 합을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.AGGREGATION, 'avg', '대상 값들의 평균을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.AGGREGATION, 'max', '대상 값들 중 가장 큰 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.AGGREGATION, 'min', '대상 값들 중 가장 작은 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.AGGREGATION, 'count', '대상의 줄(row)수를 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.abs', '입력된 값의 절대값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.acos', '입력된 값의 아크코사인 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.asin', '입력된 값의 아크사인 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.atan', '입력된 값의 아크탄젠트 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.cbrt', '입력된 값의 세제곱근 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.ceil', '입력된 값을 일의 배수가 되도록 올림한 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.cos', '입력된 값의 코사인 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.cosh', '입력된 값의 하이퍼볼릭 코사인 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.exp', '자연 로그값 e를 입력된 값만큼 거듭제곱한 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.expm1', '자연 로그값 e를 입력된 값만큼 거듭제곱한 값에서 1을 뺀 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.getExponent', '입력된 값 N에 대하여 2exp <= N을 만족하는 exp 값 중 가장 큰 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.round', '입력된 값을 일의 자리로 반올림 한 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.signum', '입력된 값의 부호를 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.sin', '입력된 값의 사인 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.sinh', '입력된 값의 하이퍼볼릭 사인 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.sqrt', '입력된 값의 제곱근을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.tan', '입력된 값의 탄젠트 값을 반환합니다.')
-    );
-    this._functionList.push(
-      new FormulaFunction(FunctionCategory.MATH, 'math.tanh', '입력된 값의 하이퍼볼릭 탄젠트 값을 반환합니다.')
-    );
 
+    this.dataflowService.getFunctionList().then((result) => {
+      this._functionList = result['function_list'];
 
-    // 카테고리 목록 설정
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory('ALL', 'ALL')
-    );
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory(
-        FunctionCategory.STRING,
-        FunctionCategory.STRING.toString(),
-        this._functionList.filter(item => item.category === FunctionCategory.STRING)
-      )
-    );
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory(
-        FunctionCategory.LOGICAL,
-        FunctionCategory.LOGICAL.toString(),
-        this._functionList.filter(item => item.category === FunctionCategory.LOGICAL)
-      )
-    );
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory(
-        FunctionCategory.TIMESTAMP,
-        FunctionCategory.TIMESTAMP.toString(),
-        this._functionList.filter(item => item.category === FunctionCategory.TIMESTAMP)
-      )
-    );
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory(
-        FunctionCategory.AGGREGATION,
-        FunctionCategory.AGGREGATION.toString(),
-        this._functionList.filter(item => item.category === FunctionCategory.AGGREGATION)
-      )
-    );
-    this.totalFunctionCategoryList.push(
-      new FormulaFunctionCategory(
-        FunctionCategory.MATH,
-        FunctionCategory.MATH.toString(),
-        this._functionList.filter(item => item.category === FunctionCategory.MATH)
-      )
-    );
+      // 카테고리 목록 설정
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory('ALL', 'ALL')
+      );
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory(
+          FunctionCategory.STRING,
+          FunctionCategory.STRING.toString(),
+          this._functionList.filter(item => item.category === FunctionCategory.STRING)
+        )
+      );
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory(
+          FunctionCategory.LOGICAL,
+          FunctionCategory.LOGICAL.toString(),
+          this._functionList.filter(item => item.category === FunctionCategory.LOGICAL)
+        )
+      );
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory(
+          FunctionCategory.TIMESTAMP,
+          FunctionCategory.TIMESTAMP.toString(),
+          this._functionList.filter(item => item.category === FunctionCategory.TIMESTAMP)
+        )
+      );
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory(
+          FunctionCategory.AGGREGATION,
+          FunctionCategory.AGGREGATION.toString(),
+          this._functionList.filter(item => item.category === FunctionCategory.AGGREGATION)
+        )
+      );
+      this.totalFunctionCategoryList.push(
+        new FormulaFunctionCategory(
+          FunctionCategory.MATH,
+          FunctionCategory.MATH.toString(),
+          this._functionList.filter(item => item.category === FunctionCategory.MATH)
+        )
+      );
 
-    this.functionCategoryList = this.totalFunctionCategoryList.filter(item => item.key !== 'ALL');
+      this.functionCategoryList = this.totalFunctionCategoryList.filter(item => item.key !== 'ALL');
+
+    });
+
 
   } // function - _initializeFunctionList
 
@@ -612,10 +505,13 @@ class FormulaFunction {
   public name: string;
   public description: string;
   public example: string;
+  public exampleResult: string;
 
-  constructor(category: FunctionCategory, name: string, description: string) {
+  constructor(category: FunctionCategory, name: string, description: string, example: string, exampleResult: string) {
     this.category = category;
     this.name = name;
     this.description = description;
+    this.example = example;
+    this.exampleResult = exampleResult;
   }
 }

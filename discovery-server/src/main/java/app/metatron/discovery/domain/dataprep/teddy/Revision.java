@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.dataprep.teddy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Revision {
   public List<DataFrame> dfs;
@@ -60,6 +61,7 @@ public class Revision {
   }
 
   public void add(DataFrame df) {
+    df.slaveDsNameMap = dfs.get(0).slaveDsNameMap;
     dfs.add(df);
   }
 
@@ -67,14 +69,27 @@ public class Revision {
     return dfs.size();
   }
 
-  public DataFrame get(int idx) {
+  public DataFrame get(Integer idx) {
+    if (idx == null) {
+      return get();
+    }
+
     if (idx == -1) {
       idx = dfs.size() - 1;
     }
+
     return dfs.get(idx);
   }
 
   public DataFrame get() {
     return dfs.get(curStageIdx);
+  }
+
+  // Keep dsId -> dsName map for join, union rules, accumulatively
+  // All the maps of dataframes in the revision are synchronized to each other.
+  // This is to serve the map when JUMP.
+  // The reason to keep the map in the dataframe, not in the revision, is that only one dataframe is serialized for preview use.
+  public void saveSlaveDsNameMap(Map<String, String> moreSlaveDsNameMap) {
+    dfs.get(0).slaveDsNameMap.putAll(moreSlaveDsNameMap);
   }
 }

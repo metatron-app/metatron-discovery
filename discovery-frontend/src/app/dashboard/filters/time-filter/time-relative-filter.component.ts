@@ -22,7 +22,7 @@ import {
   Input,
   SimpleChanges,
   SimpleChange,
-  EventEmitter, Output, ViewChild
+  EventEmitter, Output, ViewChild, AfterViewInit
 } from '@angular/core';
 import { TimeUnit } from '../../../domain/workbook/configurations/field/timestamp-field';
 import {
@@ -30,6 +30,7 @@ import {
   TimeRelativeTense
 } from '../../../domain/workbook/configurations/filter/time-relative-filter';
 import { isNullOrUndefined } from 'util';
+import { EventBroadcaster } from '../../../common/event/event.broadcaster';
 
 declare let moment;
 
@@ -37,7 +38,7 @@ declare let moment;
   selector: 'app-time-relative-filter',
   templateUrl: './time-relative-filter.component.html'
 })
-export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent implements OnInit, OnDestroy {
+export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent implements OnInit, AfterViewInit, OnDestroy {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -47,6 +48,9 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
 
   @ViewChild('inputNextValue')
   private _inputNextValue: ElementRef;
+
+  @ViewChild('filterArea')
+  private _filterArea:ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -82,12 +86,14 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
   @Output('change')
   public changeEvent: EventEmitter<TimeRelativeFilter> = new EventEmitter();
 
+  public isShortLabel:boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(
+  constructor(protected broadCaster: EventBroadcaster,
     protected elementRef: ElementRef,
     protected injector: Injector) {
     super(elementRef, injector);
@@ -114,6 +120,28 @@ export class TimeRelativeFilterComponent extends AbstractFilterPopupComponent im
       this.setData(filterChanges.currentValue);
     }
   } // function - ngOnChanges
+
+
+  /**
+   * After View Init
+   */
+  public ngAfterViewInit() {
+
+    // Set whether short labels
+    this.isShortLabel = ( 'PANEL' === this.mode );
+    this.safelyDetectChanges();
+
+    // Widget Resize Event
+    const $filterArea = $( this._filterArea.nativeElement );
+    this.subscriptions.push(
+      this.broadCaster.on<any>('RESIZE_WIDGET').subscribe(() => {
+        if ('WIDGET' === this.mode) {
+          this.isShortLabel = ( 320 > $filterArea.width() );
+          this.safelyDetectChanges();
+        }
+      })
+    );
+  } // function - ngAfterViewInit
 
   /**
    * 컴포넌트 제거

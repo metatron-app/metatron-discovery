@@ -24,6 +24,8 @@ public class PrepTransformRequest implements Serializable {
   private Integer ruleIdx;
   private String ruleString;
 
+  private Integer count;
+
   public String getDfId() {
     return dfId;
   }
@@ -38,5 +40,9 @@ public class PrepTransformRequest implements Serializable {
 
   public String getRuleString() {
     return ruleString;
+  }
+
+  public Integer getCount() {
+    return count;
   }
 }

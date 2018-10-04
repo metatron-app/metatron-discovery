@@ -14,9 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-
-import app.metatron.discovery.prep.parser.preparation.rule.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -34,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
+import app.metatron.discovery.prep.parser.preparation.rule.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -143,13 +142,6 @@ public class DataFrameTest {
   @BeforeClass
   public static void setUp() throws Exception {
     grids.put("sample", Util.loadGridLocalCsv(getResourcePath("teddy/sample.csv"), ",", limitRowCnt));
-    grids.put("contract", Util.loadGridLocalCsv(getResourcePath("teddy/ibk_contract_n10000.csv"), ",", limitRowCnt));
-    grids.put("product", Util.loadGridLocalCsv(getResourcePath("teddy/ibk_product_n5000.csv"), ",", limitRowCnt));
-    grids.put("store", Util.loadGridLocalCsv(getResourcePath("teddy/ibk_store_n10000.csv"), ",", limitRowCnt));
-    grids.put("store1", Util.loadGridLocalCsv(getResourcePath("teddy/ibk_store_n3000_1.csv"), ",", limitRowCnt));
-    grids.put("store2", Util.loadGridLocalCsv(getResourcePath("teddy/ibk_store_n3000_2.csv"), ",", limitRowCnt));
-    grids.put("store3", Util.loadGridLocalCsv(getResourcePath("teddy/ibk_store_n3000_3.csv"), ",", limitRowCnt));
-    grids.put("store4", Util.loadGridLocalCsv(getResourcePath("teddy/ibk_store_n3000_4.csv"), ",", limitRowCnt));
     grids.put("null_contained", Util.loadGridLocalCsv(getResourcePath("teddy/null_contained.csv"), ",", limitRowCnt));
     grids.put("crime", Util.loadGridLocalCsv(getResourcePath("teddy/crime.csv"), ",", limitRowCnt));
     grids.put("sale", Util.loadGridLocalCsv(getResourcePath("teddy/sale.csv"), ",", limitRowCnt));

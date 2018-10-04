@@ -16,7 +16,6 @@ import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output } 
 import { isUndefined } from 'util';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { Alert } from '../../../common/util/alert.util';
 
 declare let moment: any;
 
@@ -78,10 +77,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     this.timestampType = type;
   }
 
-  // 현재 설정되어 있는 추천필터 갯수
-  @Input('recommendation')
-  public recommendationLength: number;
-
   // 데이터소스 타입
   @Input('connType')
   public connType: string;
@@ -89,14 +84,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   // 타입 변경 이벤트 시 호출
   @Output('changeEvent')
   public changeEvent = new EventEmitter();
-
-  // 추천 필터 설정 및 해제시 호출
-  @Output('filtering')
-  public changeFiltering = new EventEmitter();
-
-  // 추천 필터 순서 변경모달 오픈 호출
-  @Output('editOrder')
-  public editOrder = new EventEmitter();
 
   // 현재 타임스탬프로 지정된 컬럼
   public selectedTimestamp: any;
@@ -153,60 +140,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 추천 필터 설정
-   * @param {string} type
-   */
-  public setRecommendFilter(type: string) {
-    // 이벤트 중복 제거
-    event.preventDefault();
-
-    switch (type) {
-      // 최근 기간만 허용
-      case 'timestamp':
-        // option 이 있을때
-        if (this.column.hasOwnProperty('filteringOptions')) {
-          delete this.column.filteringOptions;
-        } else {
-          this.column.filteringOptions = {
-            type: 'INTERVAL',
-            defaultSelector: 'RELATIVE',
-            allowSelectors: ['RELATIVE']
-          };
-        }
-        break;
-      // 추천 필터 설정 flag
-      case 'filterFl':
-        // filtering flag
-        this.column.filtering = !this.column.filtering;
-        // 추천 필터 해제 상태라면
-        // 선택 해제시 다음 차순이였던 필터 순서 앞당기기 emit
-        if (!this.column.filtering) {
-          const seqNumber = this.column.filteringSeq;
-          delete this.column.filtering;
-          delete this.column.filteringSeq;
-          delete this.column.filteringOptions;
-          this.changeFiltering.emit({ column: this.column, seq: seqNumber });
-        } else {
-          this.changeFiltering.emit({ column: this.column });
-        }
-        break;
-      // 단일 선택값만 허용
-      case 'single':
-        // option 이 있을때
-        if (this.column.hasOwnProperty('filteringOptions')) {
-          delete this.column.filteringOptions;
-        } else {
-          this.column.filteringOptions = {
-            type: 'INCLUSION',
-            defaultSelector: 'SINGLE_LIST',
-            allowSelectors: ['SINGLE_LIST']
-          };
-        }
-        break;
-    }
-  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - getter
@@ -434,11 +367,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
       return;
     }
 
-    // timestamp 타입에서 일반 타입으로 변경
-    if (this.column.logicalType === 'TIMESTAMP' || type === 'TIMESTAMP') {
-      delete this.column.filteringOptions;
-    }
-
     // 타입 변경
     this.column.logicalType = type.value;
 
@@ -483,15 +411,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     delete this.column.format;
     delete this.column.errorFl;
     delete this.column.replaceFl;
-
-    // 변경된 role이 measure 인경우 추천필터 삭제
-    if (this.column.role === 'MEASURE' && this.column.filtering) {
-      const seqNumber = this.column.filteringSeq;
-      delete this.column.filtering;
-      delete this.column.filteringSeq;
-      delete this.column.filteringOptions;
-      this.changeFiltering.emit({ column: this.column, seq: seqNumber });
-    }
 
     this.changeEvent.emit();
   }
@@ -567,14 +486,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
    */
   public isTimestampColumn(): boolean {
     return (this.timestampType === 'COLUMN' && this.selectedTimestamp && this.selectedTimestamp.name === this.column.name);
-  }
-
-  /**
-   * 추천필터가 있는지 여부
-   * @returns {boolean}
-   */
-  public isFirstRecommendation(): boolean {
-    return (this.recommendationLength === 0 || this.column.hasOwnProperty('filteringSeq') && this.column.filteringSeq === 0);
   }
 
   /**

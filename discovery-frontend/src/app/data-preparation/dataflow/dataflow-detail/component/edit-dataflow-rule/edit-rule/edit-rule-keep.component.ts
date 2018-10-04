@@ -41,7 +41,7 @@ export class EditRuleKeepComponent extends EditRuleComponent implements OnInit, 
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public keepRow:string = '';
-  public forceCondition : string = '';
+//  public forceCondition : string = '';
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();

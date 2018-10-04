@@ -44,7 +44,7 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   public deriveVal:string;
   public deriveAs:string;
   public isTooltipShow:boolean = false;
-  public forceCondition : string = '';
+//  public forceCondition : string = '';
 
   @Output()
   public advancedEditorClickEvent = new EventEmitter();
@@ -152,6 +152,7 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
+    this.deriveAs = 'col_1';
   } // function - afterShowComp
 
   /**

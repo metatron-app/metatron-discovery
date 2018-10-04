@@ -4,7 +4,7 @@
 # --polaris.analyze.pivot=false --polaris.analyze.forward=JSON
 spring:
   profiles:
-    active: local,h2-default-db,logging-console-debug,spark-local-yarn,scheduling # cloud-local #, saml-azure #, initial #,dataprep, bcrypt-encoder, encode-password-initial
+    active: local,h2-default-db,logging-console-debug,spark-local-yarn,scheduling # cloud-local #, initial #,dataprep, bcrypt-encoder, encode-password-initial
   application:
     name: ${METATRON_NAME:metatron}
   datasource:
@@ -188,7 +188,7 @@ spring:
       hibernate:
         hbm2ddl:
           auto: create
-          import_files: /scripts/default.sql,/scripts/default_expressions.sql
+          import_files: /scripts/default.sql,/scripts/default_expressions.sql,/scripts/default_datasource_ingestion_options.sql
           import_files_sql_extractor: org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor
 ---
 spring:

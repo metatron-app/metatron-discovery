@@ -13,25 +13,36 @@
  */
 
 import {
-  UIChartColor, UIChartColorByDimension, UIChartColorBySeries, UIChartColorByValue,
+  UIChartColor,
+  UIChartColorByDimension,
+  UIChartColorBySeries,
+  UIChartColorByValue,
   UIOption
 } from '../ui-option';
 import { PivotTableInfo } from '../../base-chart';
 import {
+  AxisLabelType,
   AxisType,
-  CHART_STRING_DELIMITER, ChartColorList, ChartColorType, ChartPivotType, ChartType, ColorCustomMode, EventType,
-  MeasureColorRange,
-  PointShape,
-  SymbolType, VisualMapDimension
+  CHART_STRING_DELIMITER,
+  ChartColorList,
+  ChartColorType,
+  ChartPivotType,
+  ChartType,
+  ColorCustomMode,
+  ColorRangeType,
+  EventType,
+  VisualMapDimension
 } from '../define/common';
 import { BaseOption } from '../base-option';
 import * as _ from 'lodash'
 import { OptionGenerator } from '../util/option-generator';
-import UI = OptionGenerator.UI;
 import { VisualMapType } from '../define/visualmap';
-import {Series} from "../define/series";
+import { Series } from '../define/series';
 import { UIScatterChart } from '../ui-option/ui-scatter-chart';
 import { ColorRange } from '../ui-option/ui-color';
+import { FormatOptionConverter } from './format-option-converter';
+import UI = OptionGenerator.UI;
+
 /**
  * 색상 패널 converter
  */
@@ -43,7 +54,15 @@ export class ColorOptionConverter {
 
   /**
    * 색상 type(series, dimension,measure)에 따른 converter
-   * @param subType series 이외의 서브 타입 (optional)
+   * @param {BaseOption} option
+   * @param {UIOption} uiOption
+   * @param {PivotTableInfo} fieldOriginInfo
+   * @param {PivotTableInfo} fieldInfo
+   * @param {PivotTableInfo} pivotInfo
+   * @param {EventType} drawByType
+   * @param {Series[]} series
+   * @param data
+   * @returns {BaseOption}
    */
   public static convertColor(
       option: BaseOption,
@@ -222,12 +241,11 @@ export class ColorOptionConverter {
     const schema = (<UIChartColorByDimension>uiOption.color).schema;
     const codes = _.cloneDeep(ChartColorList[schema]);
 
-    // stacked value값이 있는경우 stacked value로 설정
-    const minValue = !_.isUndefined(uiOption.stackedMinValue) ? uiOption.stackedMinValue : uiOption.minValue;
-    const maxValue = !_.isUndefined(uiOption.stackedMaxvalue) ? uiOption.stackedMaxvalue : uiOption.maxValue;
-
     // 기존 스타일이 존재 하지 않을 경우 기본스타일 생성 후 적용
     if (_.isUndefined(option.visualMap)) option.visualMap = OptionGenerator.VisualMap.continuousVisualMap();
+
+    // get axis baseline
+    const valueAxis = !uiOption.yAxis ? null : AxisLabelType.COLUMN == uiOption.yAxis.mode ? uiOption.yAxis : uiOption.xAxis;
 
     // 색상 리스트 적용
     option.visualMap.color = <any>codes;
@@ -235,9 +253,28 @@ export class ColorOptionConverter {
     // ranges값이 있는경우 option.visualMap타입을 piecewise로 변경
     if (ranges && ranges.length > 0) {
 
-      let rangeList = [];
+      let rangeList = <any>_.cloneDeep(ranges);
 
-      rangeList = _.cloneDeep(ranges);
+      // set label for showing decimal number
+      for (const item of rangeList) {
+
+        if (null == item.lte) {
+          item.label = '> ' + FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+        } else if (null == item.gt) {
+          item.label = '≤ ' + FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+        } else {
+          item.label = FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep) + ' - ' +
+            FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+        }
+
+        // deduct baseline value in range
+        if (valueAxis && null !== valueAxis.baseline && undefined !== valueAxis.baseline) {
+          item.fixMin = null == item.fixMin ? null : item.fixMin - <number>valueAxis.baseline;
+          item.fixMax = null == item.fixMax ? null : item.fixMax - <number>valueAxis.baseline;
+          item.gt = null == item.gt ? null : item.gt - <number>valueAxis.baseline;
+          item.lte = null == item.lte ? null : item.lte - <number>valueAxis.baseline;
+        }
+      }
 
       delete option.visualMap.itemHeight;
       option.visualMap.type = VisualMapType.PIECEWISE;
@@ -301,6 +338,108 @@ export class ColorOptionConverter {
     return option;
   }
 
+  /**
+   * return ranges of color by measure
+   * @returns {any}
+   */
+  public static setMeasureColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
+
+    // return value
+    let rangeList = [];
+
+    let rowsListLength = data.rows.length;
+
+    // 차트타입에 따라서 range리스트 계산하는 rows리스트의 값을 다르게 설정
+    switch (uiOption.type) {
+
+      // 그리드차트의경우 행 / 열의 length를 합하여 비교
+      case ChartType.GRID:
+        let gridRowsListLength = 0;
+        // when rows are not empty
+        if (data.rows.length > 0 && !_.isEmpty(data.rows[0])) {
+
+          gridRowsListLength += data.rows.length;
+        }
+
+        // when columns are not empty
+        if (data.columns.length > 0 && -1 !== data.columns[0].name.indexOf(CHART_STRING_DELIMITER)) {
+
+          gridRowsListLength += data.columns.length;
+
+        // chart_string_delimiter 데이터가 없는경우 => original일때
+        } else {
+          gridRowsListLength += data.columns[0].value.length;
+        }
+
+        rowsListLength = gridRowsListLength;
+        break;
+
+      // pie, wordcloud의 경우 columns의 value length로 설정
+      case ChartType.PIE:
+      case ChartType.WORDCLOUD:
+        rowsListLength = data.columns[0].value.length;
+        // set 2 decimal (wordcloud doesn't have format)
+        uiOption['valueFormat'] = {decimal: 2};
+        break;
+      case ChartType.HEATMAP:
+        rowsListLength = data.columns.length + data.rows.length;
+        break;
+      // gauge차트는 dimension에 따라서 개수가 다르므로 가장 많은 데이터를 가져온다
+      case ChartType.GAUGE:
+        rowsListLength = (<any>_.max(data.columns)).length;
+    }
+
+    // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
+    let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
+
+    // less than 0, set minValue
+    const minValue = uiOption.minValue >= 0 ? 0 : _.cloneDeep(uiOption.minValue);
+
+    // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
+    const addValue = (uiOption.maxValue - minValue) / colorListLength;
+
+    let maxValue = _.cloneDeep(uiOption.maxValue);
+
+    let shape;
+    if ((<UIScatterChart>uiOption).pointShape) {
+      shape = (<UIScatterChart>uiOption).pointShape.toString().toLowerCase();
+    }
+
+    // set decimal value
+    const formatValue = ((value) => {
+      return parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal));
+    });
+
+    // decimal min value
+    let formatMinValue = formatValue(uiOption.minValue);
+    // decimal max value
+    let formatMaxValue = formatValue(uiOption.maxValue);
+
+    // set ranges
+    for (let index = colorListLength; index >= 0; index--) {
+
+      let color = colorList[index];
+
+      // set the biggest value in min(gt)
+      if (colorListLength == index) {
+
+        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, shape));
+
+      } else {
+        // if it's the last value, set null in min(gt)
+        let min = 0 == index ? null : formatValue(maxValue - addValue);
+
+        // if value if lower than minValue, set it as minValue
+        if (min < uiOption.minValue && min < 0) min = _.cloneDeep(formatMinValue);
+
+          rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
+
+        maxValue = min;
+      }
+    }
+
+    return rangeList;
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

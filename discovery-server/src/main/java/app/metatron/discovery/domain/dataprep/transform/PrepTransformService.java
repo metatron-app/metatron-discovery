@@ -20,10 +20,10 @@ import app.metatron.discovery.domain.dataprep.PrepDataset.OP_TYPE;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.rule.ExprFunction;
+import app.metatron.discovery.domain.dataprep.rule.ExprFunctionCategory;
 import app.metatron.discovery.domain.dataprep.teddy.*;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionFailedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutException;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
@@ -33,6 +33,7 @@ import app.metatron.discovery.prep.parser.preparation.rule.Set;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import com.facebook.presto.jdbc.internal.guava.collect.Lists;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
@@ -49,6 +50,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
@@ -264,7 +266,7 @@ public class PrepTransformService {
 
   // create stage0 (POST)
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse create(String importedDsId, String dfId) throws Exception {
+  public PrepTransformResponse create(String importedDsId, String dfId, boolean doAutoTyping) throws Exception {
     PrepDataset importedDataset = datasetRepository.findRealOne(datasetRepository.findOne(importedDsId));
     PrepDataflow dataflow = dataflowRepository.findOne(dfId);
     List<String> setTypeRules;
@@ -299,29 +301,32 @@ public class PrepTransformService {
     response.setWrangledDsId(wrangledDsId);
     this.putAddedInfo(response, wrangledDataset);
 
-    //Auto Heading 및 Auto Typing을 위한 로직.
+    if (doAutoTyping) {
+      //Auto Heading 및 Auto Typing을 위한 로직.
 
-    // 이미 "지정된 타입이 있으면" 인 듯
-    Boolean isNotORC = true;
-    for(ColumnDescription cd : gridResponse.colDescs) {
-      if(cd.getType() != ColumnType.STRING)
-        isNotORC = false;
-    }
+      // 이미 "지정된 타입이 있으면" 인 듯
+      Boolean isNotORC = true;
+      for (ColumnDescription cd : gridResponse.colDescs) {
+        if (cd.getType() != ColumnType.STRING)
+          isNotORC = false;
+      }
 
-    // FIXME: reconsider whether UNDO is necessary.
-    if(prepProperties.isAutoTyping() && isNotORC) {
+      // FIXME: reconsider whether UNDO is necessary.
+      if (prepProperties.isAutoTyping() && isNotORC) {
         setTypeRules = autoTypeDetection(gridResponse);
         //반환 받은 setType Rule 들을 적용
-        for (String setTypeRule : setTypeRules) {
-            try {
-                // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
-              transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, -1, setTypeRule);
-            } catch (Exception e) {
-                LOGGER.info("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
-                transform(wrangledDsId, PrepDataset.OP_TYPE.UNDO, -1, setTypeRule);
-                continue;
-            }
+        for (int i = 0; i < setTypeRules.size(); i++) {
+          String setTypeRule = setTypeRules.get(i);
+          try {
+            // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
+            transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, i, setTypeRule);
+          } catch (Exception e) {
+            LOGGER.info("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
+            transform(wrangledDsId, PrepDataset.OP_TYPE.UNDO, null, setTypeRule);
+            continue;
+          }
         }
+      }
     }
 
     LOGGER.trace("create(): end");
@@ -484,12 +489,13 @@ public class PrepTransformService {
     PrepDataset wrangledDataset = datasetRepository.findRealOne(datasetRepository.findOne(wrangledDsId));
     String upstreamDsId = getFirstUpstreamDsId(wrangledDsId);
 
-    PrepTransformResponse response = create(upstreamDsId, wrangledDataset.getCreatorDfId());
+    PrepTransformResponse response = create(upstreamDsId, wrangledDataset.getCreatorDfId(), false);
     String cloneDsId = response.getWrangledDsId();
 
-    for (PrepTransformRule transformRule : getRulesInOrder(wrangledDsId)) {
-      String ruleString = transformRule.getRuleString();
-      response = transform(cloneDsId, OP_TYPE.APPEND, -1, ruleString);
+    List<PrepTransformRule> transformRules = getRulesInOrder(wrangledDsId);
+    for (int i = 1; i < transformRules.size(); i++) {
+      String ruleString = transformRules.get(i).getRuleString();
+      response = transform(cloneDsId, OP_TYPE.APPEND, i - 1, ruleString);
     }
     return response;
   }
@@ -546,8 +552,10 @@ public class PrepTransformService {
 
     for (int i = 1; i < ruleStrings.size(); i++) {
       String ruleString = ruleStrings.get(i);
-      gridResponse = teddyImpl.append(dsId, ruleString);
+      gridResponse = teddyImpl.append(dsId, i - 1, ruleString);
     }
+    adjustStageIdx(dsId, ruleStrings.size() - 1, true);
+
     LOGGER.trace("load_internal(): end (applied rules)");
     return gridResponse;
   }
@@ -580,32 +588,22 @@ public class PrepTransformService {
     return colHists;
   }
 
-  // Although this is not used for now, but it would be better to be used in the initial loading.
-  // FETCH is used for too many purposes.
-  // load (and apply transitions if needed) (GET)
-//  @Transactional(rollbackFor = Exception.class)
-//  public PrepTransformResponse load(String dsId) throws Exception {
-//    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-//    PrepTransformResponse response;
-//    DataFrame gridResponse;
-//
-//    LOGGER.trace("load(): start");
-//
-//    gridResponse = load_internal(dsId);
-//    response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
-//    response.setRuleStringInfos(getRulesInOrder(dsId), false, false);
-//
-//    if (gridResponse != null) {
-//      previewLineService.putPreviewLines(dsId, gridResponse);
-//    }
-//
-//    LOGGER.debug("load(): done");
-//    return response;
-//  }
+  private void adjustStageIdx(String dsId, Integer stageIdx, boolean persist) {
+
+    assert stageIdx != null;
+
+    teddyImpl.setCurStageIdx(dsId, stageIdx);
+
+    if (persist) {
+      PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
+      dataset.setRuleCurIdx(stageIdx);
+      datasetRepository.saveAndFlush(dataset);
+    }
+  }
 
   // transform (PUT)
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse transform(String dsId, OP_TYPE op, int stageIdx, String ruleString) throws Exception {
+  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx, String ruleString) throws Exception {
     LOGGER.trace("transform(): start: dsId={} op={} stageIdx={} ruleString={}", dsId, op, stageIdx, ruleString);
 
     if(op==OP_TYPE.APPEND || op==OP_TYPE.UPDATE || op==OP_TYPE.PREVIEW) {
@@ -613,57 +611,67 @@ public class PrepTransformService {
     }
 
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    PrepTransformResponse response;
-
     assert dataset != null : dsId;
 
+    PrepTransformResponse response = null;
+    int origStageIdx = teddyImpl.getCurStageIdx(dsId);
+
+    // dataset이 loading되지 않았으면 loading
     if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
       load_internal(dsId);
     }
 
-    if (stageIdx >= 0) {
-      dataset.setRuleCurIdx(stageIdx);
-      teddyImpl.setStageIdx(dsId, stageIdx);
+    // join이나 union의 경우, 대상 dataset들도 loading
+    if (ruleString != null) {
+      for (String targetDsId : getTargetDsIds(Util.parseRuleString(ruleString))) {
+        if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
+          load_internal(targetDsId);
+        }
+      }
     }
 
     // 아래 각 case에서 ruleCurIdx, matrixResponse는 채워서 리턴
     // rule list는 transform()을 마칠 때에 채움. 모든 op에 대해 동일하기 때문에.
     switch (op) {
       case APPEND:
-        response = append(dsId, ruleString);
+        teddyImpl.append(dsId, stageIdx, ruleString);
+        if (stageIdx >= origStageIdx) {
+          adjustStageIdx(dsId, stageIdx + 1, true);
+        } else {
+          adjustStageIdx(dsId, origStageIdx + 1, true);
+        }
         break;
       case DELETE:
-        response = delete(dsId);
-        break;
-      case UNDO:
-        response = undo(dsId);
-        break;
-      case REDO:
-        response = redo(dsId);
-        break;
-      case JUMP:
-        response = jump(dsId);
-        break;
-      case FETCH:
-        response = fetch(dsId);
+        teddyImpl.delete(dsId, stageIdx);
+        if (stageIdx <= origStageIdx) {
+          adjustStageIdx(dsId, origStageIdx - 1, true);
+        } else {
+          adjustStageIdx(dsId, origStageIdx, true);  // Currently, this case does not happen (no delete butten after curRuleIdx)
+        }
         break;
       case UPDATE:
-        response = update(dataset, ruleString);
+        teddyImpl.update(dsId, stageIdx, ruleString);
+        break;
+      case UNDO:
+        assert stageIdx == null;
+        teddyImpl.undo(dsId);
+        adjustStageIdx(dsId, teddyImpl.getCurStageIdx(dsId), true);
+        break;
+      case REDO:
+        assert stageIdx == null;
+        teddyImpl.redo(dsId);
+        adjustStageIdx(dsId, teddyImpl.getCurStageIdx(dsId), true);
+        break;
+      case JUMP:
+        adjustStageIdx(dsId, stageIdx, true);
         break;
       case PREVIEW:
-        response = preview(dataset, ruleString);
+        response = new PrepTransformResponse(teddyImpl.preview(dsId, stageIdx, ruleString));
         break;
       case NOT_USED:
       default:
         throw new IllegalArgumentException("invalid transform op: " + op.toString());
     }
-
-    datasetRepository.save(dataset);
-
-    transformRuleRepository.flush();
-    datasetRepository.flush();
-
-    DataFrame gridResponse = response.getGridResponse();
 
     switch (op) {
       case APPEND:
@@ -672,19 +680,20 @@ public class PrepTransformService {
       case REDO:
       case UPDATE:
         updateTransformRules(dsId);
-        if(null!=gridResponse) {
-          dataset.setTotalLines(gridResponse.rows.size());
-        }
-        this.previewLineService.putPreviewLines(dsId, gridResponse);
+        response = fetch_internal(dsId, dataset.getRuleCurIdx());
+        dataset.setTotalLines(response.getGridResponse().rows.size());
+        this.previewLineService.putPreviewLines(dsId, response.getGridResponse());
         break;
       case JUMP:
-      case FETCH:
+        response = fetch_internal(dsId, dataset.getRuleCurIdx());
+        break;
       case PREVIEW:
       case NOT_USED:
       default:
         break;
     }
 
+    response.setRuleCurIdx(dataset.getRuleCurIdx());
     response.setRuleStringInfos(getRulesInOrder(dsId), teddyImpl.isUndoable(dsId), teddyImpl.isRedoable(dsId));
 
     LOGGER.trace("transform(): end");
@@ -695,10 +704,11 @@ public class PrepTransformService {
     for (PrepTransformRule rule : getRulesInOrder(dsId)) {
       transformRuleRepository.delete(rule);
     }
+    transformRuleRepository.flush();
 
     List<String> ruleStrings = teddyImpl.getRuleStrings(dsId);
+    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     for (int i = 0; i < ruleStrings.size(); i++) {
-      PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
       PrepTransformRule rule = new PrepTransformRule(dataset, i, ruleStrings.get(i));
       transformRuleRepository.save(rule);
     }
@@ -707,15 +717,18 @@ public class PrepTransformService {
   }
 
   // transform_histogram (POST)
-  public PrepHistogramResponse transform_histogram(String dsId, List<Integer> colnos, List<Integer> colWidths) throws Exception {
-    LOGGER.trace("transform_histogram(): start: dsId={} curRevIdx={} curStageIdx={} colnos={} colWidths={}",
-                 dsId, teddyImpl.getCurRevIdx(dsId), teddyImpl.getCurStageIdx(dsId), colnos, colWidths);
+  public PrepHistogramResponse transform_histogram(String dsId, Integer stageIdx, List<Integer> colnos, List<Integer> colWidths) throws Exception {
+    LOGGER.trace("transform_histogram(): start: dsId={} curRevIdx={} stageIdx={} colnos={} colWidths={}",
+                 dsId, teddyImpl.getCurRevIdx(dsId), stageIdx, colnos, colWidths);
 
     if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
       load_internal(dsId);
     }
 
-    DataFrame df = teddyImpl.getCurDf(dsId);
+    assert stageIdx != null;
+    assert stageIdx >= 0 : stageIdx;
+
+    DataFrame df = teddyImpl.fetch(dsId, stageIdx);
     List<Histogram> colHists = createHistsWithColWidths(df, colnos, colWidths);
 
     LOGGER.trace("transform_histogram(): end");
@@ -727,6 +740,12 @@ public class PrepTransformService {
     List<TimestampTemplate> timestampStyleGuess = new ArrayList<>();
     int colNo;
 
+    // 기본 포맷은 항상 리턴
+    for(TimestampTemplate tt : TimestampTemplate.values()) {
+      String timestampFormat = tt.getFormatForRuleString();
+      timestampFormatList.put(timestampFormat, 0);
+    }
+
     if(colName.equals("")) {
     }
     else {
@@ -734,7 +753,12 @@ public class PrepTransformService {
       try {
         colNo = df.getColnoByColName(colName);
       } catch (Exception e) {
-        return null;
+        //return null;
+
+        // null은 안된다는 UI 요청. 원칙적으로 colNo가 없을 수는 없는데 룰 로직의 버그로 발생할 수 있는 듯.
+        // 확인 필요.
+        // 우선 템플릿 중 첫번째 포맷을 디폴트로 사용함
+        return timestampFormatList;
       }
 
       int rowCount = df.rows.size() < 100 ? df.rows.size() : 100;
@@ -759,10 +783,12 @@ public class PrepTransformService {
       }
     }
 
+    /*
     for(TimestampTemplate tt : TimestampTemplate.values()) {
       String timestampFormat = tt.getFormatForRuleString();
       timestampFormatList.put(timestampFormat, 0);
     }
+    */
 
     for(TimestampTemplate tt : timestampStyleGuess) {
       String timestampFormat = tt.getFormatForRuleString();
@@ -1049,217 +1075,23 @@ public class PrepTransformService {
     return response;
   }
 
-  // APPEND ////////////////////////////////////////////////////////////
-  //  - leave an APPEND transition
-  //  - transform the grid, ruleCurIdx, ruleString[]
-  //  - return a response which contains grid, ruleCurIdx (ruleString[] will be added in caller)
-  private PrepTransformResponse append(String dsId, String ruleString) throws Exception {
-    LOGGER.trace("append(): start: dsId={} ruleString={}", dsId, ruleString);
-
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    assert dataset != null : dsId;
-
-    int lastIdx = teddyImpl.getCurStageIdx(dsId);
-
-    // increase ruleNos after the new rule.
-    List<PrepTransformRule> rules = getRulesInOrder(dsId);
-    for (int i = rules.size() - 1; i > lastIdx; i--) {
-      PrepTransformRule rule = rules.get(i);
-      rule.setRuleNo(rule.getRuleNo() + 1);
-      transformRuleRepository.save(rule);
+  public PrepTransformResponse fetch(String dsId, Integer stageIdx) throws Exception {
+    if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
+      load_internal(dsId);
     }
 
-    PrepTransformRule rule = new PrepTransformRule(dataset, lastIdx + 1, ruleString);
-    transformRuleRepository.save(rule);
+    PrepTransformResponse response = fetch_internal(dsId, stageIdx);
 
-    dataset.setRuleCnt(dataset.getRuleCnt() + 1);
-    dataset.setRuleCurIdx(lastIdx + 1);
-    datasetRepository.save(dataset);
-
-    DataFrame gridResponse = teddyImpl.append(dsId, ruleString);
-    return new PrepTransformResponse(teddyImpl.getCurStageIdx(dsId), gridResponse);
-  }
-
-  private PrepTransformResponse preview(PrepDataset dataset, String ruleString) throws Exception {
-    // join이나 union의 경우, 각각 대상 dataset들을 함께 인자로 넘겨준다.
-    List<String> targetDsIds = getTargetDsIds(Util.parseRuleString(ruleString));
-
-    for (String targetDsId : targetDsIds) {
-      load_internal(targetDsId);  // 필요한 경우 PLM cache에 loading하거나, transition을 다시 적용한다.
-    }
-
-    DataFrame gridResponse = teddyImpl.preview(dataset.getDsId(), ruleString);
-
-    PrepTransformResponse response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
-    return response;
-  }
-
-  private PrepTransformResponse append_internal(String dsId, int lastIdx, String ruleString) throws Exception {
-    assert teddyImpl.revisionSetCache.containsKey(dsId) : dsId;
-    assert lastIdx >= 0;
-
-    DataFrame gridResponse = teddyImpl.append(dsId, ruleString);
-
-    PrepTransformResponse response = new PrepTransformResponse(lastIdx + 1, gridResponse);
-    return response;
-  }
-
-  // DELETE ////////////////////////////////////////////////////////////
-  private PrepTransformResponse delete(String dsId) throws TransformTimeoutException, TransformExecutionFailedException {
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    DataFrame gridResponse;
-
-    int stageIdx = teddyImpl.getCurStageIdx(dsId);
-    assert stageIdx == dataset.getRuleCurIdx() : String.format(
-            "delete(): ruleCurIdx != stageIdx: ruleCurIdx=%d stageIdx=%d", stageIdx, dataset.getRuleCurIdx());
-
-    // delete할 것이 없는 경우 처리
-    if (dataset.getRuleCurIdx() == 0) {   // rule 0 -> "create" rule
-      throw new IllegalArgumentException(
-              String.format("delete(): no rule exists: dsId=%s", dataset.getDsId()));
-    }
-
-    int ruleCnt = dataset.getRuleCnt();
-    assert stageIdx < ruleCnt : String.format(
-            "delete(): stageIdx >= ruleCnt: stageIdx=%d ruleCnt=%d", stageIdx, ruleCnt);
-
-    // Now, we can delete in the middle of the rule list
-//    if (stageIdx != ruleCnt - 1) {
-//      assert dataset.getRuleCurIdx() < dataset.getRuleCnt() :
-//        String.format("ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt());
-//      throw new IllegalArgumentException(
-//              String.format("DELETE is only permitted at the end of the rules: dsId=%s", dataset.getDsId()));
-//    }
-
-    /*
-    // UPDATE의 경우 revision에 따라 룰을 새로 저장하므로 없어도 됨
-    List<PrepTransformRule> rules = getRulesInOrder(dsId);
-
-    PrepTransformRule rule = getTransformRuleAt(dataset, stageIdx);
-    transformRuleRepository.delete(rule);
-
-    // decrease ruleNos after the new rule.
-    for (int i = stageIdx + 1; i < rules.size(); i++) {
-      rule = rules.get(i);
-      rule.setRuleNo(rule.getRuleNo() - 1);
-      transformRuleRepository.save(rule);
-    }
-
-    transformRuleRepository.flush();
-    */
-
-    gridResponse = teddyImpl.delete(dsId);
-
-    // FIXME: we should not use PrepDataset's rule_no, rule_cnt.
-    //        they're confused with stage indice.
-    //        to saving the last stage index could be useful. that's enough. rule_cnt must be removed anyway.
-    dataset.setRuleCnt(dataset.getRuleCnt() - 1);
-    dataset.setRuleCurIdx(Math.min(stageIdx, dataset.getRuleCnt() - 1));
-    datasetRepository.save(dataset);
-
-    PrepTransformResponse response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
-    return response;
-  }
-
-  // UPDATE ////////////////////////////////////////////////////////////
-  private PrepTransformResponse update(PrepDataset dataset, String ruleString) throws Exception {
-    /*
-    if (dataset.getRuleCurIdx() != dataset.getRuleCnt() - 1) {
-      assert dataset.getRuleCurIdx() < dataset.getRuleCnt() :
-        String.format("ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt());
-      throw new IllegalArgumentException("UPDATE not permitted: UPDATE from the last as needed");
-    }
-    */
-    if (dataset.getRuleCurIdx() <= 0) { // || dataset.getRuleCnt()<dataset.getRuleCurIdx()) {
-      throw new IllegalArgumentException( String.format("UPDATE not permitted: ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt()) );
-    }
-
-    PrepTransformRule rule = new PrepTransformRule(dataset, dataset.getRuleCurIdx(), ruleString);
-    transformRuleRepository.save(rule);
-
-    PrepTransformResponse response = update_internal(dataset, ruleString);
-    return response;
-  }
-
-  private PrepTransformResponse update_internal(PrepDataset dataset, String ruleString) throws Exception {
-    List<String> newRules = new ArrayList<>();  // one-element array (all the time)
-    newRules.add(ruleString);
-
-    assert teddyImpl.revisionSetCache.containsKey(dataset.getDsId()) : dataset.getDsId();
-    DataFrame gridResponse = teddyImpl.update(dataset.getDsId(), ruleString);
-
-    PrepTransformResponse response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
-
-    assert dataset.getRuleCurIdx() == dataset.getRuleCnt() :
-            String.format("ruleCurIdx=%d ruleCurCnt=%d", dataset.getRuleCurIdx(), dataset.getRuleCnt());
-
-    return response;
-  }
-
-  // Only difference between jump() and fetch() is that jump() changes ruleCurIdx of the entity, and fetch() doesn't.
-  private PrepTransformResponse jump(String dsId) throws PrepException {
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    dataset.setRuleCurIdx(teddyImpl.getCurStageIdx(dsId));
-    return fetch(dsId);
-  }
-
-  private PrepTransformResponse fetch(String dsId) throws PrepException {
-    DataFrame gridResponse;
-    gridResponse = teddyImpl.fetch(dsId);
-
-    PrepTransformResponse response = new PrepTransformResponse(teddyImpl.getCurStageIdx(dsId), gridResponse);
     response.setRuleStringInfos(getRulesInOrder(dsId), false, false);
+    response.setRuleCurIdx(stageIdx != null ? stageIdx : teddyImpl.getCurStageIdx(dsId));
+
     return response;
   }
 
-  // UNDO ////////////////////////////////////////////////////////////
-  //  - leave an undo transition (for redo later)
-  //  - transform the grid, ruleCurIdx, ruleString[]
-  private PrepTransformResponse undo(String dsId) throws PrepException { // TeddyException {
-    DataFrame gridResponse = teddyImpl.undo(dsId);
-    int newIdx = teddyImpl.getCurStageIdx(dsId);
-
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-
-    dataset.setRuleCnt(newIdx+1);
-    dataset.setRuleCurIdx(newIdx);
-    datasetRepository.save(dataset);
-
-    PrepTransformResponse response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
+  public PrepTransformResponse fetch_internal(String dsId, Integer stageIdx) throws Exception {
+    DataFrame gridResponse = teddyImpl.fetch(dsId, stageIdx);
+    PrepTransformResponse response = new PrepTransformResponse(gridResponse);
     return response;
-  }
-
-  // REDO ////////////////////////////////////////////////////////////
-  // 단지 UNDO transition 제거
-  private PrepTransformResponse redo(String dsId) throws PrepException { // TeddyException {
-    DataFrame gridResponse = teddyImpl.redo(dsId);
-
-    int newIdx = teddyImpl.getCurStageIdx(dsId);
-
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-
-    dataset.setRuleCnt(newIdx+1);
-    dataset.setRuleCurIdx(newIdx);
-    datasetRepository.save(dataset);
-
-    PrepTransformResponse response = new PrepTransformResponse(dataset.getRuleCurIdx(), gridResponse);
-    return response;
-  }
-
-  private PrepTransformRule getTransformRuleAt(PrepDataset dataset, int stageIdx) {
-    List<PrepTransformRule> transformRules = transformRuleRepository.findAllByOrderByRuleNoAsc();
-
-    for (PrepTransformRule transformRule : transformRules) {
-      if (transformRule.getDataset().getDsId().equals(dataset.getDsId()) == false)
-        continue;
-
-      // FIXME: sadly, we have changed the meaning of "rule_no" into stageIdx
-      //        yet, we didn't change. Server code and UI code will be changed at once.
-      if (transformRule.getRuleNo() == stageIdx) {
-        return transformRule;
-      }
-    }
-    throw new IllegalArgumentException(String.format("rule not found: dsId=%s stageIdx=%d", dataset.getDsId(), stageIdx));
   }
 
   private static PrepDataset makeWrangledDataset(PrepDataset importedDataset, PrepDataflow dataflow, String dfId) {
@@ -1367,7 +1199,7 @@ public class PrepTransformService {
     }
 
     wrangledDataset.setRuleCurIdx(0);
-    wrangledDataset.setRuleCnt(1);
+//    wrangledDataset.setRuleCnt(1);
 
     assert gridResponse != null : wrangledDsId;
     wrangledDataset.setTotalLines(gridResponse.rows.size());
@@ -1802,5 +1634,193 @@ public class PrepTransformService {
           default:
               return "UNKNOWN_ERROR";
       }
+  }
+
+  // Parser쪽에서 함수명을 상수로 정리하고나면 코드 일원화 시켜야함
+  public List<ExprFunction> getFunctionList() {
+    List<ExprFunction> functionList = Lists.newArrayList();
+
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "length", "msg.dp.ui.expression.functiondesc.string.length"
+                    , "length(‘hello world’)", "11")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "upper", "msg.dp.ui.expression.functiondesc.string.upper"
+                    , "upper(‘Hello world’)", "’HELLO WORLD’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "lower", "msg.dp.ui.expression.functiondesc.string.lower"
+                    , "lower(‘Hello WORLD’)", "’hello world’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "trim", "msg.dp.ui.expression.functiondesc.string.trim"
+                    , "trim(‘  .   Hi!   ‘)", "‘.   Hi!’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "ltrim", "msg.dp.ui.expression.functiondesc.string.ltrim"
+                    , "ltrim(‘  .   Hi!   ‘)", "’.   Hi!   ‘")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "rtrim", "msg.dp.ui.expression.functiondesc.string.rtrim"
+                    , "rtrim(‘  .   Hi!   ‘)", "‘  .   Hi!’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "substring", "msg.dp.ui.expression.functiondesc.string.substring"
+                    , "substring(‘hello world’, 1, 7)", "‘ello w’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "concat", "msg.dp.ui.expression.functiondesc.string.concat"
+                    , "concat(‘1980’, ’02’)", "‘198002’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "concat_ws", "msg.dp.ui.expression.functiondesc.string.concat_ws"
+                    , "concat_ws(‘-‘, ‘010’, ‘1234’, ‘5678’)", "’010-1234-5678’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "if", "msg.dp.ui.expression.functiondesc.logical.if"
+                    , "if(gender==‘male’)", "TRUE")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "ismismatched", "msg.dp.ui.expression.functiondesc.logical.ismismatched"
+                    , "", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnull", "msg.dp.ui.expression.functiondesc.logical.isnull"
+                    , "isnull(telephone)", "FALSE")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnan", "msg.dp.ui.expression.functiondesc.logical.isnan"
+                    , "isnan(1000/ratio)", "FALSE")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "year", "msg.dp.ui.expression.functiondesc.timestamp.year"
+                    , "year(birthday)", " 1987")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "month", "msg.dp.ui.expression.functiondesc.timestamp.month"
+                    , "month(birthday)", " 2")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "day", "msg.dp.ui.expression.functiondesc.timestamp.day"
+                    , "day(birthday)", " 13")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "hour", "msg.dp.ui.expression.functiondesc.timestamp.hour"
+                    , "hour(last_login)", " 21")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "minute", "msg.dp.ui.expression.functiondesc.timestamp.minute"
+                    , "minute(last_login)", " 49")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "second", "msg.dp.ui.expression.functiondesc.timestamp.second"
+                    , "second(last_login)", " 28")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "millisecond", "msg.dp.ui.expression.functiondesc.timestamp.millisecond"
+                    , "millisecond(last_login)", " 831")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "now", "msg.dp.ui.expression.functiondesc.timestamp.now"
+                    , "now()", "2018-04-18T12:20:90.220Z")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "add_time", "msg.dp.ui.expression.functiondesc.timestamp.add_time"
+                    , "add_time(timestamp, delta, time_unit)", "add_time(end_date, 10, ‘day’)")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "sum", "msg.dp.ui.expression.functiondesc.aggregation.sum"
+                    , "sum(profit)", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "avg", "msg.dp.ui.expression.functiondesc.aggregation.avg"
+                    , "avg(profit)", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "max", "msg.dp.ui.expression.functiondesc.aggregation.max"
+                    , "max(profit)", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "min", "msg.dp.ui.expression.functiondesc.aggregation.min"
+                    , "min(profit)", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "count", "msg.dp.ui.expression.functiondesc.aggregation.count"
+                    , "count()", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.abs", "msg.dp.ui.expression.functiondesc.math.abs"
+                    , "math.abs(-10)", "10")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.acos", "msg.dp.ui.expression.functiondesc.math.acos"
+                    , "math.acos(-1)", " 3.141592653589793")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.asin", "msg.dp.ui.expression.functiondesc.math.asin"
+                    , "math.asin(-1)", "-1.5707963267948966")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.atan", "msg.dp.ui.expression.functiondesc.math.atan"
+                    , "math.atan(-1)", "-0.7853981633974483")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cbrt", "msg.dp.ui.expression.functiondesc.math.cbrt"
+                    , "math.cbrt(5)", " 1.709975946676697")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.ceil", "msg.dp.ui.expression.functiondesc.math.ceil"
+                    , "math.ceil(15.142)", " 16")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cos", "msg.dp.ui.expression.functiondesc.math.cos"
+                    , "math.cos(45)", "0.5253219888177297")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cosh", "msg.dp.ui.expression.functiondesc.math.cosh"
+                    , "math.cosh(9)", "4051.5420254925943")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.exp", "msg.dp.ui.expression.functiondesc.math.exp"
+                    , "math.exp(4)", "54.598150033144236")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.expm1", "msg.dp.ui.expression.functiondesc.math.expm1"
+                    , "math.expm1(4)", "53.598150033144236")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.getExponent", "msg.dp.ui.expression.functiondesc.math.getExponent"
+                    , "math.getExponent(9)", "3")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.round", "msg.dp.ui.expression.functiondesc.math.round"
+                    , "math.round(14.2)", "14")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.signum", "msg.dp.ui.expression.functiondesc.math.signum"
+                    , "math.signum(-24)", "-1")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sin", "msg.dp.ui.expression.functiondesc.math.sin"
+                    , "math.sin(90)", "0.8939966636005579")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sinh", "msg.dp.ui.expression.functiondesc.math.sinh"
+                    , "math.sinh(1)", "1.1752011936438014")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sqrt", "msg.dp.ui.expression.functiondesc.math.sqrt"
+                    , "math.sqrt(4)", "2")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.tan", "msg.dp.ui.expression.functiondesc.math.tan"
+                    , "math.tan(10)", "0.6483608274590866")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.tanh", "msg.dp.ui.expression.functiondesc.math.tanh"
+                    , "math.tanh(4)", "0.999329299739067")
+    );
+
+    return functionList;
   }
 }

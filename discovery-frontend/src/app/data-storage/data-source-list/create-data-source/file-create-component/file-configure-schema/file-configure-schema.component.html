@@ -51,12 +51,6 @@
             <!-- //edit option -->
           </div>
           <!-- //role 필터 -->
-          <!-- 추천 필터 -->
-          <a href="javascript:" class="ddp-link-toggle ddp-fleft"
-             [ngClass]="{'ddp-selected' : recommendAndEssentialFl}" (click)="recommendAndEssentialFl = !recommendAndEssentialFl">
-            <em class="ddp-icon-recommend"></em>{{'msg.storage.btn.recommend.filter' | translate}}
-          </a>
-          <!-- //추천 필터 -->
           <!-- 타입 필터 -->
           <div class="ddp-form-label2 ddp-fleft">
             <label class="ddp-label-type">{{'msg.comm.th.type' | translate}}</label>
@@ -133,10 +127,6 @@
                     <!-- value -->
                     <div class="ddp-wrap-value-icon ddp-type">
                       <em *ngIf="getTimestampIcon(column)" class="ddp-icon-time"></em>
-                      <div *ngIf="isFilterColumn(column)" class="ddp-wrap-datarecommend">
-                        {{column.filteringSeq + 1}}
-                        <em class="ddp-icon-recommend-s"></em>
-                      </div>
                       <em class="ddp-icon-view"></em>
                     </div>
                     <!-- //value -->
@@ -157,7 +147,7 @@
                       <a href="javascript:" class="ddp-btn-box" (click)="onClickRevival(column)" *ngIf="isDeletedColumn(column)">revival</a>
                     </div>
                     <!-- tooltip -->
-                    <div class="ddp-ui-tooltip-info ddp-left2" style="display:;">
+                    <div class="ddp-ui-tooltip-info ddp-left2">
                       <em class="ddp-icon-view-top"></em>{{column.name}}
                     </div>
                     <!-- //tooltip -->
@@ -189,7 +179,7 @@
                       </div>
                     </div>
                     <!-- tooltip -->
-                    <div class="ddp-ui-tooltip-info ddp-left2" style="display:;">
+                    <div class="ddp-ui-tooltip-info ddp-left2">
                       <em class="ddp-icon-view-top"></em>Current time
                     </div>
                     <!-- //tooltip -->
@@ -214,13 +204,10 @@
         <!-- right -->
         <app-schema-detail
           (changeEvent)="initTimestampColumn()"
-          (filtering)="setFilterSeq($event)"
-          (editOrder)="openEditFilterOrder()"
           [connType]="'ENGINE'"
           [columnData]="selectedColumnData"
           [selectedTime]="selectedTimestampColumn"
           [selectedTimestampType]="selectedTimestampType"
-          [recommendation]="getRecommendationLength()"
           [column]="selectedColumn">
         </app-schema-detail>
         <!-- //right -->
@@ -273,5 +260,3 @@
   <!-- //buttons -->
 
 </div>
-
-<app-set-filter-order [connType]="'ENGINE'"></app-set-filter-order>

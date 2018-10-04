@@ -593,7 +593,7 @@
             <div class="ddp-ui-naviarea">
               <!-- name -->
               <!-- 클릭시 ddp-selected 추가 -->
-              <div class="ddp-box-navi" (click)="!isPageNameEdit ? onNameEdit($event) : $event.stopPropagation();"
+              <div class="ddp-box-navi ddp-check-none" (click)="!isPageNameEdit ? onNameEdit($event) : $event.stopPropagation();"
               [class.ddp-selected]="isPageNameEdit">
                 <!-- 클릭시 ddp-selected 추가 -->
                 <div class="ddp-wrap-naviname ddp-full">
