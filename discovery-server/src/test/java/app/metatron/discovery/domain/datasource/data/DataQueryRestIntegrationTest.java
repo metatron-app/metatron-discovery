@@ -1096,7 +1096,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Case 1. 디멘젼에 열선반에만 존재
     Pivot pivot1 = new Pivot();
-    pivot1.setColumns(Lists.newArrayList(new DimensionField("Category"),
+    pivot1.setColumns(Lists.newArrayList(new DimensionField("Category", "카테고리", null, null),
                                          new DimensionField("Sub-Category"),
                                          new DimensionField("Segment")));
     pivot1.setAggregations(Lists.newArrayList(

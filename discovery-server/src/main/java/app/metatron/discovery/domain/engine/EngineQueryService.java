@@ -178,7 +178,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       SearchQueryRequest sizeRequest = request.copyOf();
       final List<List<String>> groupingSets = Lists.newArrayList();
       dimFields.forEach(field ->
-        groupingSets.add(Lists.newArrayList(field.getColunm()))
+        groupingSets.add(Lists.newArrayList(field.getAlias()))
       );
       sizeRequest.setGroupingSets(groupingSets);
       sizeRequest.setResultFormat(new ObjectResultFormat());
