@@ -78,7 +78,7 @@
     <div *ngIf="filter" class="ddp-itemtype-title">
       <div class="ddp-data-itemtype ddp-type">
         <span class="ddp-icon-box">
-          <em class="{{getDimensionTypeIconClass(field)}}" ></em>
+          <em *ngIf="field" class="{{getDimensionTypeIconClass(field)}}" ></em>
           <em class="ddp-icon-use3" *ngIf="isWidgetInLayout"></em>
         </span>
         <span class="ddp-txt-itemtype">
@@ -104,9 +104,9 @@
   <div *ngIf="!isDiscontinuousFilter && isContinuousByAll" class="ddp-ui-divide">
     <!-- 탭 영역 -->
     <div class="ddp-toggle">
-      <ul [ngClass]="{ 'ddp-tab3' : isLiveStatus, 'ddp-tab2' : !isLiveStatus }" class="ddp-list-buttons" >
+      <ul class="ddp-list-buttons ddp-tab3" >
         <li (click)="setTimeAllFilter()" [class.ddp-selected]="isAllType">All time</li>
-        <li *ngIf="isLiveStatus" (click)="setTimeRelativeFilter()" [class.ddp-selected]="isRelativeType">Relative</li>
+        <li (click)="setTimeRelativeFilter()" [class.ddp-selected]="isRelativeType">Relative</li>
         <li (click)="setTimeRangeFilter()" [class.ddp-selected]="isRangeType">Specific</li>
       </ul>
     </div>

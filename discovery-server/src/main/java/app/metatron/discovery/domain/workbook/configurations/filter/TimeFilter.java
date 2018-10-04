@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.workbook.configurations.filter;
 
+import com.google.common.collect.Lists;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.joda.time.DateTime;
@@ -31,6 +33,8 @@ public abstract class TimeFilter extends Filter {
 
   private static final DateTimeFormatter DATETIMEFORMATTER_WITHOUTZONE = ISODateTimeFormat.dateHourMinuteSecond();
   private static final DateTimeFormatter DATETIMEFORMATTER_WITHUTCZONE = ISODateTimeFormat.dateHourMinuteSecond().withZoneUTC();
+
+  public static final List<String> filterOptionTypes = Lists.newArrayList("RELATIVE", "RANGE");
 
   Boolean discontinuous;
 

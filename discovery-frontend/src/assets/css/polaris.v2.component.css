@@ -305,7 +305,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 .ddp-box-layout4 .ddp-wrap-data-detail .ddp-ui-top-title {padding-bottom:15px; color:#4b515b; font-weight:bold; font-size:12px;}
 .ddp-box-layout4 table.ddp-table-pop {width:100%;}
 .ddp-box-layout4 table.ddp-table-pop tr th {padding:3px 0; text-align:left; color:#b7bac1; font-weight:300; font-size:12px;}
-.ddp-box-layout4 table.ddp-table-pop tr td {padding:3px 0; color:#4b515b; font-size:12px;}
+.ddp-box-layout4 table.ddp-table-pop tr td {padding:3px 0; color:#4b515b; font-size:12px; word-break: break-all;}
 .ddp-box-layout4 .ddp-link-view {display:inline-block; margin-top:20px; color:#666eb2; font-weight:300; font-size:12px;}
 .ddp-box-layout4 table.ddp-table-pop tr td a {color:#4b515b; font-size:12px;}
 .ddp-box-layout4 table.ddp-table-pop tr td a:hover {text-decoration:underline;}
@@ -460,7 +460,6 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 .ddp-edit-setting.ddp-selected .ddp-label-name .ddp-icon-drop {transform: rotate(0deg);}
 .ddp-edit-setting .ddp-label-sub {display:block; position:absolute; top:20px; left:0; width:172px; padding:0 20px 5px 20px; line-height:16px; color:#4c515a; font-size:13px; word-break:break-word; box-sizing:border-box;}
 .ddp-edit-setting .ddp-clear.ddp-list-code {margin-bottom:2px;}
-.ddp-edit-setting .ddp-clear {margin:0 -6px;}
 .ddp-edit-setting .ddp-col-6 {padding:0 6px;}
 .ddp-edit-setting  textarea {display:block; width:100%; border:1px solid #d0d1d9; overflow:hidden;}
 .ddp-edit-setting  .ddp-wrap-down {display:none; padding-left:172px;}
@@ -577,7 +576,7 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
 
 /*.ddp-label-checkbox.ddp-num input:checked + i + .ddp-txt-checkbox + .ddp-box-num {background-color:#6870ae; text-indent:0;}*/
 /*.ddp-label-checkbox.ddp-num input:checked + i + .ddp-txt-checkbox + .ddp-box-num:before {display:none;}*/
-.ddp-num-checkbox {display:inline-block;}
+.ddp-num-checkbox {display:inline-block; cursor:pointer;}
 .ddp-num-checkbox i {display:inline-block; position:relative; width:31px; height:21px; padding:2px 0; color:#fff; font-size:14px; font-weight:bold;text-align:center; font-style:normal; text-indent:-300000px; border-radius:2px; background-color:#d0d1d8; box-sizing:border-box; vertical-align:middle; }
 .ddp-num-checkbox i:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-6px 0 0 -7px; width:14px; height:10px; background:url(../images/icon_select2.png) no-repeat;  content:'';}
 .ddp-num-checkbox input {display:none;}
@@ -961,6 +960,8 @@ ul.ddp-list-popup li.ddp-disabled:hover .ddp-wrap-popup2 {display:none;}
 
 ul.ddp-list-popup li a {display:block; position:relative; padding:6px 14px 6px 14px; font-size:13px; color:#4b515b; white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
 ul.ddp-list-popup li a:hover {background-color:#f6f6f7;}
+ul.ddp-list-selectbox2.ddp-hover-none li:hover,
+ul.ddp-list-popup.ddp-hover-none li a:hover {background:none !important;}
 ul.ddp-list-popup li a em.ddp-icon-view {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-4px;width:4px; height:7px; background:url(../images/icon_tagview.png) no-repeat; transform:rotate(180deg);}
 ul.ddp-list-popup li.ddp-sub a em.ddp-icon-view {background:url(../images/icon_dataview.png) no-repeat; background-position:left -19px; transform:rotate(0);}
 ul.ddp-list-popup li.ddp-selected > a {color:#666eb2; padding-right:28px;}
@@ -1297,6 +1298,8 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {border:
 .ddp-wrap-drop-search .ddp-type-selectbox2:hover:after {background-position:-8px top;}
 
 .ddp-wrap-drop-search .ddp-type-selectbox2 span.ddp-txt-selectbox {display:block; position:relative; padding-left:20px; color:#b7bac2; font-size:13px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal; box-sizing:border-box;}
+.ddp-wrap-drop-search.ddp-result .ddp-type-selectbox2 span.ddp-txt-selectbox {padding-left:0px; color:#4b515b;}
+.ddp-wrap-drop-search.ddp-result .ddp-type-selectbox2 span.ddp-txt-selectbox:before {display:none;}
 .ddp-wrap-drop-search .ddp-type-selectbox2 span.ddp-txt-selectbox:before {display:inline-block; position:absolute; left:0; top:50%; width:11px; height:11px; margin-top:-6px; background:url(../images/icon_search.png) no-repeat; background-position:-24px top; content:'';}
 
 .ddp-wrap-drop-search.ddp-selected .ddp-ui-drop-search {display:block;}
@@ -1307,7 +1310,8 @@ table.ddp-table-form.ddp-inherit .ddp-box-layout4 .ddp-table-code tr td {border:
 }
 .ddp-wrap-drop-search .ddp-ui-drop-search:after {display:inline-block; position:absolute; top:12px; right:12px; width:7px; height:4px; margin-top:-2px; background:url(../images/icon_select.png) no-repeat; background-position:-8px top; content:'';}
 
-.ddp-wrap-drop-search .ddp-ui-drop-search input.ddp-input-search {display:block; width:100%; padding:7px 26px 6px 13px; box-sizing:border-box; border:none; color:#666eb3;}
+.ddp-wrap-drop-search .ddp-ui-drop-search input.ddp-input-search {display:block; width:100%; padding:7px 26px 6px 13px; box-sizing:border-box; border:none; font-size:13px; }
+.ddp-wrap-drop-search .ddp-ui-drop-search input.ddp-input-search.ddp-value {color:#666eb3;}
 .ddp-wrap-drop-search.ddp-offset input.ddp-input-search {display:none;}
 .ddp-wrap-drop-search.ddp-offset.ddp-selected input.ddp-input-search {display:block; position:absolute; top:0; left:0; right:0; width:100%; padding:7px 26px 6px 13px; box-sizing:border-box; border:1px solid #d0d1d9;}
 
@@ -3323,10 +3327,10 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 /**************************************************************
   meta-grid
 **************************************************************/
-.meta-grid[_nghost-c1] .slick-headerrow-columns {height:25px !important;}
-.meta-grid[_nghost-c1] .slick-headerrow.ui-state-default {margin-top:-1px; border-top:1px solid #fff;}
-.meta-grid[_nghost-c1] .slick-headerrow .slick-data {padding:0 10px 10px 10px; text-align:left; color:#b7b9c2; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
-.meta-grid[_nghost-c1] .slick-viewport {top:55px !important;}
+.meta-grid .slick-headerrow-columns {height:25px !important;}
+.meta-grid .slick-headerrow.ui-state-default {margin-top:-1px; border-top:1px solid #fff;}
+.meta-grid .slick-headerrow .slick-data {padding:0 10px 10px 10px; text-align:left; color:#b7b9c2; font-size:12px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
+.meta-grid .slick-viewport {top:55px !important;}
 
 /**************************************************************
   split

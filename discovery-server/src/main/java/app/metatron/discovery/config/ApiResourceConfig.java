@@ -248,7 +248,7 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
     public ByteArrayHttpMessageConverter byteArrayHttpMessageConverter() {
         final ByteArrayHttpMessageConverter byteArrayHttpMessageConverter = new ByteArrayHttpMessageConverter();
         byteArrayHttpMessageConverter.setSupportedMediaTypes(Arrays.asList(
-                MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG, MediaType.IMAGE_GIF, MediaType.APPLICATION_OCTET_STREAM
+                MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG, MediaType.IMAGE_GIF, MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL
         ));
 
         return byteArrayHttpMessageConverter;

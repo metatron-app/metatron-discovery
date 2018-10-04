@@ -30,9 +30,6 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @ActiveProfiles({"local", "h2-in-memory-db", "logging-console-debug", "spark-local-standalone", "initial"})
-//@ActiveProfiles({"local", "h2-in-memory-db", "logging-console-debug", "spark-local-standalone"})
-//@ActiveProfiles({"exntu-pangyo-druid", "h2-in-memory-db", "logging-console-debug", "spark-local-standalone", "initial"})
-//@ActiveProfiles({"local", "mysql-local-db", "logging-console-info", "spark-local-standalone", "initial"})
 @SpringBootTest(classes = {MetatronDiscoveryApplication.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class AbstractRestIntegrationTest {
 

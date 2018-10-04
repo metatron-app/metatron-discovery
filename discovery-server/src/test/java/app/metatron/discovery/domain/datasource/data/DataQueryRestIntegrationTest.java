@@ -24,6 +24,7 @@ import com.jayway.restassured.response.Response;
 
 import org.apache.http.HttpStatus;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.jdbc.Sql;
@@ -558,7 +559,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     List<Filter> filters = Lists.newArrayList();
 
     List<UserDefinedField> userFields = Lists.newArrayList(
-        new ExpressionField("test", "AVGOF(\"Sales\")", "measure",true)
+        new ExpressionField("test(%)", "AVGOF(\"Sales\")", "measure",true)
         //        new ExpressionField("test", "countd(\"City\")", "measure", null,true)
         //        new ExpressionField("test", "Sales + 1", "measure", null,false)
     );
@@ -567,8 +568,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     Pivot pivot = new Pivot();
     pivot.setColumns(Lists.newArrayList(new DimensionField("Category")));
     pivot.setAggregations(Lists.newArrayList(
-        new MeasureField("Sales", null, MeasureField.AggregationType.SUM)
-        //        new MeasureField("test", "user_defined", MeasureField.AggregationType.NONE)
+//        new MeasureField("Sales", null, MeasureField.AggregationType.SUM)
+                new MeasureField("test(%)", "user_defined", MeasureField.AggregationType.NONE)
     ));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, pivot, limit);
@@ -1063,7 +1064,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     ));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, null, pivot1, limit);
-    GraphResultFormat format = new GraphResultFormat(true);
+    GraphResultFormat format = new GraphResultFormat(true, true);
     request.setResultFormat(format);
 
     // @formatter:off
@@ -1075,7 +1076,46 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     .when()
       .post("/api/datasources/query/search")
     .then()
-//      .statusCode(HttpStatus.SC_OK)
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Ignore
+//  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @Sql("/sql/test_sample_network_datasource.sql")
+  public void searchQueryForSampleWithNetworkChart() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sample_network_ingestion_01");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(1000000);
+    limit.setSort(Lists.newArrayList());
+
+    Pivot pivot1 = new Pivot();
+    pivot1.setColumns(Lists.newArrayList(new DimensionField("d")));
+    pivot1.setRows(Lists.newArrayList(new DimensionField("nd")));
+    pivot1.setAggregations(Lists.newArrayList(
+        new MeasureField("m1", MeasureField.AggregationType.SUM)
+    ));
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, null, pivot1, limit);
+    GraphResultFormat format = new GraphResultFormat(true, true);
+    request.setResultFormat(format);
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(request)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
       .log().all();
     // @formatter:on
 

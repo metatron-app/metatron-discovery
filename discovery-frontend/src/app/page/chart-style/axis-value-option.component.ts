@@ -29,6 +29,7 @@ import { isUndefined } from 'util';
 import UI = OptionGenerator.UI;
 import {AxisOptionConverter} from "../../common/component/chart/option/converter/axis-option-converter";
 import {Alert} from "../../common/util/alert.util";
+import { FormatOptionConverter } from '../../common/component/chart/option/converter/format-option-converter';
 
 @Component({
   selector: 'axis-value-option',
@@ -72,7 +73,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
   @Input('axis')
   public set setAxis(axis: UIChartAxis) {
     this.axis = axis;
-    axis.baseline = !isUndefined(axis.baseline) && !isNaN(axis.baseline) ? axis.baseline : undefined;
+    axis.baseline = !isUndefined(axis.baseline) && !isNaN(<number>axis.baseline) ? axis.baseline : undefined;
     this.axisTemp = _.cloneDeep(axis);
     if( this.axisTemp.grid ) {
       let isZero: boolean = this.axisTemp.grid.min == 0 && this.axisTemp.grid.max == 0;
@@ -222,14 +223,24 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
    */
   public changeBaseLine(): void {
 
-    if( isNaN(this.axisTemp.baseline) ) {
-      this.axisTemp.baseline = _.isUndefined(this.axis.baseline) ? 0 : this.axis.baseline;
+    // convert string to number
+    const tempBaseline = _.isEmpty(this.axisTemp.baseline) ? 0 : FormatOptionConverter.getNumberValue(this.axisTemp.baseline);
+
+    if( isNaN(tempBaseline) ) {
+
+      // set thousand comma, decimal value
+      const originBaseline = _.isUndefined(this.axis.baseline) ? undefined : FormatOptionConverter.getDecimalValue(_.cloneDeep(this.axis.baseline), this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
+
+      this.axisTemp.baseline = _.isUndefined(this.axis.baseline) ? FormatOptionConverter.getNumberValue(0) : originBaseline;
       return;
     }
 
+    // set thousand comma, decimal value
+    this.axisTemp.baseline = FormatOptionConverter.getDecimalValue(this.axisTemp.baseline, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep)
+
     // 기준선 변경
     delete this.axis.grid;
-    this.axis.baseline = Number(this.axisTemp.baseline);
+    this.axis.baseline = tempBaseline;
     this.changeBaseline.emit(this.axis);
   }
 
@@ -239,8 +250,12 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
   public showBaseLine(): void {
 
     // off일떄
-    if( isNaN(this.axisTemp.baseline) ) {
-      this.axisTemp.baseline = _.isUndefined(this.axis.baseline) ? 0 : this.axis.baseline;
+    if( undefined === this.axisTemp.baseline ) {
+
+      // convert number to formatted string value
+      const originBaseline = undefined !== this.axis.baseline ? FormatOptionConverter.getNumberValue(_.cloneDeep(this.axis.baseline)) : undefined;
+
+      this.axisTemp.baseline = _.isUndefined(this.axis.baseline) ? FormatOptionConverter.getDecimalValue(0, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep) : originBaseline;
 
     // show일떄
     } else {
@@ -263,17 +278,23 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
       this.axisTemp.grid.min = 0;
     }
 
+    // convert string to number
+    this.axisTemp.grid.min = FormatOptionConverter.getNumberValue(this.axisTemp.grid.min);
+
+    // convert number to formatted string value
+    const originAxisMin = FormatOptionConverter.getNumberValue(_.cloneDeep(this.axis.grid.min));
+
     // Validation
     if( isNaN(this.axisTemp.grid.min) ) {
-      this.axisTemp.grid.min = _.isUndefined(this.axis.grid.min) || this.axis.grid.min == 0 ? null : this.axis.grid.min;
+      this.axisTemp.grid.min = _.isUndefined(this.axis.grid.min) || this.axis.grid.min == 0 ? null : originAxisMin;
       return;
     }
 
     let min: number = Number(this.axisTemp.grid.min);
-    let max: number = !isNaN(this.axis.grid.max) ? Number(this.axis.grid.max) : 0;
+    let max = Number(this.axis.grid.max);
     if( min >= max ) {
       Alert.info(this.translateService.instant('msg.page.yaxis.grid.min.alert'));
-      this.axisTemp.grid.min = this.axis.grid.min != 0 ? this.axis.grid.min : null;
+      this.axisTemp.grid.min = this.axis.grid.min != 0 ? originAxisMin : null;
       return;
     }
 
@@ -290,6 +311,9 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     // 값이 0이라면 빈값으로 치환
     if( _.eq(value, "") ) {
       this.axisTemp.grid.min = null;
+    // set thousand comma, decimal value
+    } else {
+      this.axisTemp.grid.min = FormatOptionConverter.getDecimalValue(this.axisTemp.grid.min, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
     }
   }
 
@@ -304,9 +328,15 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
       this.axisTemp.grid.max = 0;
     }
 
+    // convert string to number
+    this.axisTemp.grid.max = FormatOptionConverter.getNumberValue(this.axisTemp.grid.max);
+
+    // convert number to formatted string value
+    const originAxisMax = FormatOptionConverter.getNumberValue(_.cloneDeep(this.axis.grid.max));
+
     // Validation
     if( isNaN(this.axisTemp.grid.max) ) {
-      this.axisTemp.grid.max = _.isUndefined(this.axis.grid.max) || this.axis.grid.max == 0 ? null : this.axis.grid.max;
+      this.axisTemp.grid.max = _.isUndefined(this.axis.grid.max) || this.axis.grid.max == 0 ? null : originAxisMax;
       return;
     }
 
@@ -314,7 +344,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     let max: number = !isNaN(this.axisTemp.grid.max) ? Number(this.axisTemp.grid.max) : 0;
     if( max <= min ) {
       Alert.info(this.translateService.instant('msg.page.yaxis.grid.max.alert'));
-      this.axisTemp.grid.max = this.axis.grid.max != 0 ? this.axis.grid.max : null;
+      this.axisTemp.grid.max = this.axis.grid.max != 0 ? originAxisMax : null;
       return;
     }
 
@@ -331,6 +361,9 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     // 값이 0이라면 빈값으로 치환
     if( _.eq(value, "") ) {
       this.axisTemp.grid.max = null;
+    // set thousand comma, decimal value
+    } else {
+      this.axisTemp.grid.max = FormatOptionConverter.getDecimalValue(this.axisTemp.grid.max, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
     }
   }
 
@@ -372,7 +405,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     if( this.axisTemp.grid && !this.axisTemp.grid.autoScaled ) {
 
       // 사용자가 입력한 min / max
-      let inputMin = this.axisTemp.grid.min;
+      let inputMin = FormatOptionConverter.getNumberValue(this.axisTemp.grid.min);
 
       // 서버데이터 min / max
       let dataMin = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].min;
@@ -394,7 +427,7 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
     if( this.axisTemp.grid && !this.axisTemp.grid.autoScaled ) {
 
       // 사용자가 입력한 min / max
-      let inputMax = this.axisTemp.grid.max;
+      let inputMax = FormatOptionConverter.getNumberValue(this.axisTemp.grid.max);
 
       // 서버데이터 min / max
       let dataMax = AxisOptionConverter.axisMinMax[(_.eq(this.axis.mode,AxisLabelType.ROW) ? 'xAxis' : 'yAxis')].max;
@@ -408,12 +441,12 @@ export class AxisValueOptionComponent extends FormatOptionComponent {
   }
 
   /**
-   * 소수점 자리수 2자리에서 반올림 처리 반환
+   * set decimal point, thousand comma
    * @param value
    */
-  public getDecimalRoundNumber(value: number): number {
+  public getDecimalRoundNumber(value: number): string {
 
-    return Math.round(Number(value) * (Math.pow(10, 2))) / Math.pow(10, 2);
+    return FormatOptionConverter.getDecimalValue(Number(value), this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

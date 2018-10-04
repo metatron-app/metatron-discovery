@@ -155,7 +155,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'drop', alias: 'Dp'},
       { command: 'pivot', alias: 'Pv'},
       { command: 'unpivot', alias: 'Up'},
-      { command: 'join', alias: 'Jo'},
+      { command: 'Join', alias: 'Jo'},
       { command: 'extract', alias: 'Ex'},
       { command: 'flatten', alias: 'Fl'},
       { command: 'merge', alias: 'Me'},
@@ -164,7 +164,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'aggregate', alias: 'Ag'},
       { command: 'sort', alias: 'So'},
       { command: 'move', alias: 'Mv'},
-      { command: 'union', alias: 'Ui'},
+      { command: 'Union', alias: 'Ui'},
       { command: 'setformat', alias: 'Sf'}
     ];
 
@@ -441,7 +441,12 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       rule['ruleVO']['command'] = rule['ruleVO']['name'];
       rule['ruleVO']['ruleNo'] = rule['ruleNo'];
 
-      const idx = commandNames.indexOf(rule['ruleVO'].name);
+      if (rule['ruleVO'].command === 'join') {
+        rule['ruleVO'].command = 'Join'
+      } else if (rule['ruleVO'].command === 'union') {
+        rule['ruleVO'].command = 'Union'
+      }
+      const idx = commandNames.indexOf(rule['ruleVO'].command);
       if (idx > -1) {
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
@@ -585,8 +590,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       case 'unnest' :
         result = `Create new columns from ${column}`;
         break;
-      case 'union':
-      case 'join':
+      case 'Union':
+      case 'Join':
         result = `${rule.command} with `;
 
         let datasetIds = [];

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,15 @@ public class CollectionPatch implements Serializable {
     }
 
     return (T) this.properties.get(key);
+  }
+
+  @JsonIgnore
+  public Object getObjectValue(String key) {
+    if(!hasProperty(key)) {
+      return null;
+    }
+
+    return this.properties.get(key);
   }
 
   @JsonIgnore

@@ -46,17 +46,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
-
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.Util;
-import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.util.PolarisUtils;
+import java.util.concurrent.Future;
 
 @Service
 public class PrepDatasetFileService {
@@ -68,9 +58,15 @@ public class PrepDatasetFileService {
     @Autowired(required = false)
     PrepProperties prepProperties;
 
-    private String uploadDirectory = "uploads";
+    @Autowired
+    PrepDatasetFileUploadService fileUploadService;
+
+    Map<String, Future<Map<String,Object>>> futures = null;
+
+    public PrepDatasetFileService() {
+        this.futures = Maps.newHashMap();
+    }
     private String fileDatasetUploadLocalPath=null;
-    private String fileDatasetUploadHdfsPath=null;
 
     private String prefixColumnName = "column";
 
@@ -80,11 +76,7 @@ public class PrepDatasetFileService {
             pathStr = fileKey;
         } else {
             if(null==fileDatasetUploadLocalPath) {
-                if(true==prepProperties.getLocalBaseDir().endsWith(File.separator)) {
-                    fileDatasetUploadLocalPath = prepProperties.getLocalBaseDir() + uploadDirectory;
-                } else {
-                    fileDatasetUploadLocalPath = prepProperties.getLocalBaseDir() + File.separator + uploadDirectory;
-                }
+                fileDatasetUploadLocalPath = prepProperties.getLocalBaseDir() + File.separator + PrepProperties.dirUpload;
             }
 
             File tempPath = new File(fileDatasetUploadLocalPath);
@@ -561,6 +553,83 @@ public class PrepDatasetFileService {
         }
 
         return dataFrame;
+    }
+
+    public Map<String, Object> uploadFile(MultipartFile file) {
+        Map<String, Object> responseMap = Maps.newHashMap();
+
+        String fileName = file.getOriginalFilename();
+        String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
+        if(extensionType!=null && extensionType.isEmpty()) {
+            extensionType = "none";
+        }
+
+        FileOutputStream fos=null;
+        try {
+            String tempFileName = null;
+            String tempFilePath = null;
+
+            int i=0;
+            while(i<5) {
+                tempFileName = UUID.randomUUID().toString() + "." + extensionType;
+                tempFilePath = this.getPathLocal_new(tempFileName);
+
+                File newFile = new File(tempFilePath);
+                if(false==newFile.exists()) {
+                    file.transferTo(newFile);
+                    break;
+                }
+                i++;
+            }
+            if(5<=i) {
+                responseMap.put("success", false);
+                responseMap.put("message", "making UUID was failed. try again");
+            } else {
+                responseMap.put("success", true);
+                responseMap.put("filekey", tempFileName);
+                responseMap.put("filepath", tempFilePath);
+                responseMap.put("filename", fileName);
+                responseMap.put("createTime", DateTime.now());
+
+                Future<Map<String,Object>> future = this.fileUploadService.postUpload(extensionType, responseMap);
+                futures.put(tempFileName, future);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Failed to upload file : {}", e.getMessage());
+            responseMap.put("success", false);
+            responseMap.put("message", e.getMessage());
+        } finally {
+            if(null!=fos) {
+                try {
+                    fos.close();
+                } catch(IOException e) {
+                    LOGGER.error("fos.close()", e.getMessage());
+                }
+            }
+        }
+        return  responseMap;
+    }
+
+    public Map<String, Object> pollUploadFile(String fileKey) throws Exception {
+        Map<String,Object> responseMap = null;
+        try {
+            Future<Map<String, Object>> future = this.futures.get(fileKey);
+            if (null == future) {
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_WRONG_MAP_KEY, "No key : " + fileKey);
+            } else {
+                if (true == future.isDone()) {
+                    responseMap = future.get();
+                } else if(true == future.isCancelled()) {
+                } else {
+                    responseMap = Maps.newHashMap();
+                    responseMap.put("state","running");
+                }
+            }
+        } catch(Exception e) {
+            throw e;
+        }
+
+        return responseMap;
     }
 
     public Map<String, Object> uploadFile2(MultipartFile file) {

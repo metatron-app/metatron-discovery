@@ -87,7 +87,7 @@
   </div>
   <!-- //top -->
 
-  <div class="ddp-wrap-datadetail">
+  <div class="ddp-wrap-datadetail ddp-size-resize">
     <!-- tab -->
     <div class="ddp-wrap-tab">
       <ul class="ddp-ui-tab ddp-clear">
@@ -107,14 +107,14 @@
         <!-- Column details -->
         <li [ngClass]="{'ddp-selected' : mode ==='columns'}"
             (click)="onChangeMode('columns')"
-            *ngIf="isEnabled() && datasource.connType.toString() !== 'LINK'">
+            *ngIf="isEnabled()">
           <a href="javascript:">{{'msg.storage.btn.columns' | translate}}</a>
         </li>
         <!-- //Column details -->
         <!-- monitoring -->
         <li [ngClass]="{'ddp-selected' : mode ==='monitoring'}"
             (click)="onChangeMode('monitoring')"
-            *ngIf="isEnabled()">
+            *ngIf="isEnabled() && datasource.connType.toString() !== 'LINK'">
           <a href="javascript:">{{'msg.storage.btn.monitoring' | translate}}</a>
         </li>
         <!-- //monitoring -->

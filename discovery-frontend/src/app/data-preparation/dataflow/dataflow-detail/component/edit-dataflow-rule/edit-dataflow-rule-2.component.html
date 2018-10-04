@@ -66,6 +66,7 @@
         </div>
       </div>
       <div class="right-component rule-right" style="float: left; height: 100%;">
+
         <!-- Rule list -->
         <app-rule-list [ruleList]="ruleList"
                        [redoable]="redoable"
@@ -78,6 +79,7 @@
                        (snapshotDetailEvent)="getSnapshotDetail($event)">
         </app-rule-list>
         <!-- // Rule list -->
+
       </div>
     </div>
     <div class="bottom rule-bottom" >
@@ -128,7 +130,7 @@
                 <!-- 클릭시 ddp-selected 추가 -->
                 <div class="ddp-type-selectbox ddp-type-search-select"
                      tabindex="1"
-                     [ngClass]="{'ddp-selected' : isCommandListShow, 'ddp-disabled' : opString === 'UPDATE' }"
+                     [ngClass]="{'ddp-selected' : isCommandListShow }"
                      [class.ddp-result]="ruleVO.command"
                      (click)="$event.stopImmediatePropagation(); showCommandList()"
                      (keydown)="navigateWithKeyboardShortList($event, filteredCommandList, 'command')">
@@ -256,7 +258,16 @@
     </div>
   </div>
 </div>
-<create-snapshot-popup (snapshotCreateFinishEvent)="initSnapshotList(selectedDataSet.dsId, true)"  (snapshotCloseEvent)="snapshotCreateClose()"></create-snapshot-popup>
+
+<!-- Snapshot create popup -->
+<create-snapshot-popup (snapshotCreateFinishEvent)="initSnapshotList(selectedDataSet.dsId, true)"
+                       (snapshotCloseEvent)="snapshotCreateClose()">
+
+</create-snapshot-popup>
+<!-- // Snapshot create popup -->
+
+
+<!-- Join rule popup -->
 <app-rule-join-popup [existingDataSet]="selectedDataSet"
                      [serverSyncIndex]="serverSyncIndex"
                      (joinComplete)="ruleJoinComplete($event);"
@@ -265,7 +276,9 @@
                      [rightDataset]="rightDataset"
                      [editRuleStr]="editJoinOrUnionRuleStr">
 </app-rule-join-popup>
+<!-- // Join rule popup -->
 
+<!-- Union rule popup -->
 <app-rule-union-popup [masterDataset]="selectedDataSet"
                       [serverSyncIndex]="serverSyncIndex"
                       [dfId]="dataflow.dfId"
@@ -273,8 +286,19 @@
                       (unionComplete)="ruleUnionComplete($event);"
                       *ngIf="isRuleUnionModalShow">
 </app-rule-union-popup>
+<!-- // Union rule popup -->
 
+<!-- Advanced editor popup -->
 <app-extend-input-formula (done)="doneInputFormula($event)"></app-extend-input-formula>
-<app-data-snapshot-detail (snapshotDetailCloseEvent)="initSnapshotList(selectedDataSet.dsId,true)" (navigateToDataflow)="prev()"></app-data-snapshot-detail>
+<!-- // Advanced editor popup -->
 
+
+<!-- Snapshot detail popup -->
+<app-data-snapshot-detail (snapshotDetailCloseEvent)="initSnapshotList(selectedDataSet.dsId,true)"
+                          (navigateToDataflow)="prev()">
+</app-data-snapshot-detail>
+<!-- // Snapshot detail popup -->
+
+<!-- Multi column rename -->
 <multicolumn-rename (renameEvent)="applyMultiColumnRename($event)"></multicolumn-rename>
+<!-- // Multi column rename -->

@@ -113,7 +113,7 @@ public class SelectQueryBuilder {
   private String getProjectionName(Field field) {
 
     // 기존 컬럼외 추가로 지정한 TIME
-    if ("current_datetime".equals(field.getName()) && field.getBiType() == Field.BIType.TIMESTAMP) {
+    if ("current_datetime".equals(field.getName()) && field.getRole() == Field.FieldRole.TIMESTAMP) {
       return jdbcDataConnection.getCurrentTimeStamp();
     }
 

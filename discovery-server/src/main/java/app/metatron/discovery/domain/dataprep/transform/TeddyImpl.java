@@ -36,6 +36,7 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,6 +116,19 @@ public class TeddyImpl {
     getCurRev(dsId).setCurStageIdx(dfIdx);
   }
 
+  private Map<String, String> getSlaveDsNameMapOfRuleString(String ruleString) {
+    Map<String, String> slaveDsNameMap = new HashMap();
+
+    List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
+    if (slaveDsIds != null) {
+      for (String slaveDsId : slaveDsIds) {
+        slaveDsNameMap.put(slaveDsId, getFirstRev(slaveDsId).get(0).dsName);
+      }
+    }
+
+    return slaveDsNameMap;
+  }
+
   // APPEND *AFTER* stageIdx
   public DataFrame append(String dsId, int stageIdx, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
@@ -125,13 +139,14 @@ public class TeddyImpl {
       newRev.add(apply(newRev.get(i), rev.get(i).ruleString));    // apply trailing rules of the original revision into the new revision.
     }
     newRev.setCurStageIdx(rev.getCurStageIdx() + 1);
+    newRev.saveSlaveDsNameMap(getSlaveDsNameMapOfRuleString(ruleString));
     addRev(dsId, newRev);
     return newDf;
   }
 
-  public DataFrame preview(String dsId, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
+  public DataFrame preview(String dsId, int stageIdx, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
-    return apply(rev.get(), ruleString);
+    return apply(rev.get(stageIdx), ruleString);
   }
 
   public DataFrame fetch(String dsId, Integer stageIdx) {
@@ -156,14 +171,6 @@ public class TeddyImpl {
     } catch (TeddyException e) {
       LOGGER.error("apply(): TeddyException occurred from TeddyImpl.applyRule()", e);
       throw PrepException.fromTeddyException(e);
-    }
-
-    // join, union등에서 dataset의 이름을 누적으로 제공
-    newDf.slaveDsNameMap.putAll(df.slaveDsNameMap);
-    if (slaveDsIds != null) {
-      for (String slaveDsId : slaveDsIds) {
-        newDf.slaveDsNameMap.put(slaveDsId, getFirstRev(slaveDsId).get(0).dsName);
-      }
     }
 
     return newDf;
@@ -214,6 +221,7 @@ public class TeddyImpl {
     for (int i = stageIdx + 1; i < rev.size(); i++) {
       newRev.add(apply(newRev.get(-1), rev.get(i).ruleString));    // apply trailing rules of the original revision into the new revision.
     }
+    newRev.saveSlaveDsNameMap(getSlaveDsNameMapOfRuleString(ruleString));
     addRev(dsId, newRev);
   }
 

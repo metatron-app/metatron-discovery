@@ -20,10 +20,10 @@ import app.metatron.discovery.domain.dataprep.PrepDataset.OP_TYPE;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.rule.ExprFunction;
+import app.metatron.discovery.domain.dataprep.rule.ExprFunctionCategory;
 import app.metatron.discovery.domain.dataprep.teddy.*;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionFailedException;
-import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutException;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
@@ -33,6 +33,7 @@ import app.metatron.discovery.prep.parser.preparation.rule.Set;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
+import com.facebook.presto.jdbc.internal.guava.collect.Lists;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
@@ -49,6 +50,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.*;
@@ -664,9 +666,7 @@ public class PrepTransformService {
         adjustStageIdx(dsId, stageIdx, true);
         break;
       case PREVIEW:
-        adjustStageIdx(dsId, stageIdx, false);
-        response = new PrepTransformResponse(teddyImpl.preview(dsId, ruleString));
-        adjustStageIdx(dsId, origStageIdx, false);
+        response = new PrepTransformResponse(teddyImpl.preview(dsId, stageIdx, ruleString));
         break;
       case NOT_USED:
       default:
@@ -680,12 +680,12 @@ public class PrepTransformService {
       case REDO:
       case UPDATE:
         updateTransformRules(dsId);
-        response = fetch(dsId, dataset.getRuleCurIdx());
+        response = fetch_internal(dsId, dataset.getRuleCurIdx());
         dataset.setTotalLines(response.getGridResponse().rows.size());
         this.previewLineService.putPreviewLines(dsId, response.getGridResponse());
         break;
       case JUMP:
-        response = fetch(dsId, dataset.getRuleCurIdx());
+        response = fetch_internal(dsId, dataset.getRuleCurIdx());
         break;
       case PREVIEW:
       case NOT_USED:
@@ -740,6 +740,12 @@ public class PrepTransformService {
     List<TimestampTemplate> timestampStyleGuess = new ArrayList<>();
     int colNo;
 
+    // 기본 포맷은 항상 리턴
+    for(TimestampTemplate tt : TimestampTemplate.values()) {
+      String timestampFormat = tt.getFormatForRuleString();
+      timestampFormatList.put(timestampFormat, 0);
+    }
+
     if(colName.equals("")) {
     }
     else {
@@ -747,7 +753,12 @@ public class PrepTransformService {
       try {
         colNo = df.getColnoByColName(colName);
       } catch (Exception e) {
-        return null;
+        //return null;
+
+        // null은 안된다는 UI 요청. 원칙적으로 colNo가 없을 수는 없는데 룰 로직의 버그로 발생할 수 있는 듯.
+        // 확인 필요.
+        // 우선 템플릿 중 첫번째 포맷을 디폴트로 사용함
+        return timestampFormatList;
       }
 
       int rowCount = df.rows.size() < 100 ? df.rows.size() : 100;
@@ -772,10 +783,12 @@ public class PrepTransformService {
       }
     }
 
+    /*
     for(TimestampTemplate tt : TimestampTemplate.values()) {
       String timestampFormat = tt.getFormatForRuleString();
       timestampFormatList.put(timestampFormat, 0);
     }
+    */
 
     for(TimestampTemplate tt : timestampStyleGuess) {
       String timestampFormat = tt.getFormatForRuleString();
@@ -1070,9 +1083,7 @@ public class PrepTransformService {
     PrepTransformResponse response = fetch_internal(dsId, stageIdx);
 
     response.setRuleStringInfos(getRulesInOrder(dsId), false, false);
-
-    PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    response.setRuleCurIdx(dataset.getRuleCurIdx());
+    response.setRuleCurIdx(stageIdx != null ? stageIdx : teddyImpl.getCurStageIdx(dsId));
 
     return response;
   }
@@ -1623,5 +1634,193 @@ public class PrepTransformService {
           default:
               return "UNKNOWN_ERROR";
       }
+  }
+
+  // Parser쪽에서 함수명을 상수로 정리하고나면 코드 일원화 시켜야함
+  public List<ExprFunction> getFunctionList() {
+    List<ExprFunction> functionList = Lists.newArrayList();
+
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "length", "msg.dp.ui.expression.functiondesc.string.length"
+                    , "length(‘hello world’)", "11")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "upper", "msg.dp.ui.expression.functiondesc.string.upper"
+                    , "upper(‘Hello world’)", "’HELLO WORLD’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "lower", "msg.dp.ui.expression.functiondesc.string.lower"
+                    , "lower(‘Hello WORLD’)", "’hello world’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "trim", "msg.dp.ui.expression.functiondesc.string.trim"
+                    , "trim(‘  .   Hi!   ‘)", "‘.   Hi!’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "ltrim", "msg.dp.ui.expression.functiondesc.string.ltrim"
+                    , "ltrim(‘  .   Hi!   ‘)", "’.   Hi!   ‘")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "rtrim", "msg.dp.ui.expression.functiondesc.string.rtrim"
+                    , "rtrim(‘  .   Hi!   ‘)", "‘  .   Hi!’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "substring", "msg.dp.ui.expression.functiondesc.string.substring"
+                    , "substring(‘hello world’, 1, 7)", "‘ello w’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "concat", "msg.dp.ui.expression.functiondesc.string.concat"
+                    , "concat(‘1980’, ’02’)", "‘198002’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.STRING, "concat_ws", "msg.dp.ui.expression.functiondesc.string.concat_ws"
+                    , "concat_ws(‘-‘, ‘010’, ‘1234’, ‘5678’)", "’010-1234-5678’")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "if", "msg.dp.ui.expression.functiondesc.logical.if"
+                    , "if(gender==‘male’)", "TRUE")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "ismismatched", "msg.dp.ui.expression.functiondesc.logical.ismismatched"
+                    , "", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnull", "msg.dp.ui.expression.functiondesc.logical.isnull"
+                    , "isnull(telephone)", "FALSE")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnan", "msg.dp.ui.expression.functiondesc.logical.isnan"
+                    , "isnan(1000/ratio)", "FALSE")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "year", "msg.dp.ui.expression.functiondesc.timestamp.year"
+                    , "year(birthday)", " 1987")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "month", "msg.dp.ui.expression.functiondesc.timestamp.month"
+                    , "month(birthday)", " 2")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "day", "msg.dp.ui.expression.functiondesc.timestamp.day"
+                    , "day(birthday)", " 13")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "hour", "msg.dp.ui.expression.functiondesc.timestamp.hour"
+                    , "hour(last_login)", " 21")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "minute", "msg.dp.ui.expression.functiondesc.timestamp.minute"
+                    , "minute(last_login)", " 49")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "second", "msg.dp.ui.expression.functiondesc.timestamp.second"
+                    , "second(last_login)", " 28")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "millisecond", "msg.dp.ui.expression.functiondesc.timestamp.millisecond"
+                    , "millisecond(last_login)", " 831")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "now", "msg.dp.ui.expression.functiondesc.timestamp.now"
+                    , "now()", "2018-04-18T12:20:90.220Z")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "add_time", "msg.dp.ui.expression.functiondesc.timestamp.add_time"
+                    , "add_time(timestamp, delta, time_unit)", "add_time(end_date, 10, ‘day’)")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "sum", "msg.dp.ui.expression.functiondesc.aggregation.sum"
+                    , "sum(profit)", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "avg", "msg.dp.ui.expression.functiondesc.aggregation.avg"
+                    , "avg(profit)", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "max", "msg.dp.ui.expression.functiondesc.aggregation.max"
+                    , "max(profit)", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "min", "msg.dp.ui.expression.functiondesc.aggregation.min"
+                    , "min(profit)", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "count", "msg.dp.ui.expression.functiondesc.aggregation.count"
+                    , "count()", "")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.abs", "msg.dp.ui.expression.functiondesc.math.abs"
+                    , "math.abs(-10)", "10")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.acos", "msg.dp.ui.expression.functiondesc.math.acos"
+                    , "math.acos(-1)", " 3.141592653589793")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.asin", "msg.dp.ui.expression.functiondesc.math.asin"
+                    , "math.asin(-1)", "-1.5707963267948966")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.atan", "msg.dp.ui.expression.functiondesc.math.atan"
+                    , "math.atan(-1)", "-0.7853981633974483")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cbrt", "msg.dp.ui.expression.functiondesc.math.cbrt"
+                    , "math.cbrt(5)", " 1.709975946676697")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.ceil", "msg.dp.ui.expression.functiondesc.math.ceil"
+                    , "math.ceil(15.142)", " 16")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cos", "msg.dp.ui.expression.functiondesc.math.cos"
+                    , "math.cos(45)", "0.5253219888177297")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cosh", "msg.dp.ui.expression.functiondesc.math.cosh"
+                    , "math.cosh(9)", "4051.5420254925943")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.exp", "msg.dp.ui.expression.functiondesc.math.exp"
+                    , "math.exp(4)", "54.598150033144236")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.expm1", "msg.dp.ui.expression.functiondesc.math.expm1"
+                    , "math.expm1(4)", "53.598150033144236")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.getExponent", "msg.dp.ui.expression.functiondesc.math.getExponent"
+                    , "math.getExponent(9)", "3")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.round", "msg.dp.ui.expression.functiondesc.math.round"
+                    , "math.round(14.2)", "14")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.signum", "msg.dp.ui.expression.functiondesc.math.signum"
+                    , "math.signum(-24)", "-1")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sin", "msg.dp.ui.expression.functiondesc.math.sin"
+                    , "math.sin(90)", "0.8939966636005579")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sinh", "msg.dp.ui.expression.functiondesc.math.sinh"
+                    , "math.sinh(1)", "1.1752011936438014")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sqrt", "msg.dp.ui.expression.functiondesc.math.sqrt"
+                    , "math.sqrt(4)", "2")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.tan", "msg.dp.ui.expression.functiondesc.math.tan"
+                    , "math.tan(10)", "0.6483608274590866")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.MATH, "math.tanh", "msg.dp.ui.expression.functiondesc.math.tanh"
+                    , "math.tanh(4)", "0.999329299739067")
+    );
+
+    return functionList;
   }
 }

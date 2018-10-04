@@ -78,14 +78,14 @@
             <!-- 그리드뷰, 리스트뷰 -->
             <ul class="ddp-list-tab-button">
               <li [ngClass]="{'ddp-selected' : listType == 'CARD'}">
-                <a href="javascript:" (click)="listType = 'CARD'"><em class="ddp-icon-grid"></em></a>
+                <a href="javascript:" (click)="changeListType('CARD')"><em class="ddp-icon-grid"></em></a>
                 <div class="ddp-ui-tooltip-info">
                   <em class="ddp-icon-view-top"></em>
                   {{'msg.comm.ui.list.thumbnail.view' | translate}}
                 </div>
               </li>
               <li [ngClass]="{'ddp-selected' : listType == 'LIST'}">
-                <a href="javascript:" (click)="listType = 'LIST'"><em class="ddp-icon-listgrid"></em></a>
+                <a href="javascript:" (click)="changeListType('LIST')"><em class="ddp-icon-listgrid"></em></a>
                 <div class="ddp-ui-tooltip-info">
                   <em class="ddp-icon-view-top"></em>
                   {{'msg.comm.ui.list.list.view' | translate}}
@@ -425,6 +425,8 @@
         </div>
       </div>
     </div>
+    <!-- // 대시보드 없음 -->
+
     <!-- board buttons -->
     <div class="ddp-ui-fix-buttons" *ngIf="isChangeAuthUser && selectedDashboard">
       <div class="ddp-btn-widget">
@@ -465,7 +467,6 @@
       </div>
     </div>
     <!-- //board buttons -->
-    <!-- // 대시보드 없음 -->
     <app-dashboard [isManagementUser]="isChangeAuthUser" [dashboard]="selectedDashboard" ></app-dashboard>
   </div>
 

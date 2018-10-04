@@ -48,8 +48,7 @@ public class HiveConnectionTest {
   @Test
   public void checkHiveConnection() {
     HiveConnection connection = new HiveConnection();
-    connection.setHostname("52.9.219.16");
-    //    //connection.setDatabase("default");
+    connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
@@ -60,7 +59,7 @@ public class HiveConnectionTest {
   @Test
   public void showHiveSchemas() {
     HiveConnection connection = new HiveConnection();
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     //    //connection.setDatabase("default");
     connection.setUsername("hive");
     connection.setPassword("hive");
@@ -73,8 +72,7 @@ public class HiveConnectionTest {
   @Test
   public void showHiveTables() {
     HiveConnection connection = new HiveConnection();
-    connection.setHostname("metatron-poc-h04");
-    //connection.setDatabase("ibk_poc");
+    connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
@@ -86,8 +84,7 @@ public class HiveConnectionTest {
   @Test
   public void findTablesInDatabase() {
     HiveConnection connection = new HiveConnection();
-    connection.setHostname("metatron-poc-h04");
-    //connection.setDatabase("ibk_poc");
+    connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
@@ -310,11 +307,11 @@ public class HiveConnectionTest {
   @Test
   public void searchTableWithMetastoreInfo() {
     HiveConnection connection = new HiveConnection();
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setUsername("hive");
     connection.setPassword("hive");
     connection.setPort(10000);
-    connection.setMetastoreHost("metatron-poc-h04");
+    connection.setMetastoreHost("localhost");
     connection.setMetastorePort("3306");
     connection.setMetastoreSchema("hivemeta");
     connection.setMetastoreUserName("hiveuser");

@@ -52,7 +52,7 @@
 
     <logger name="org.apache.hadoop" level="warn"/>
 
-    <logger name="app.metatron.discovery" level="info"/>
+    <logger name="app.metatron.discovery" level="debug"/>
 
     <root level="WARN">
         <appender-ref ref="CONSOLE"/>

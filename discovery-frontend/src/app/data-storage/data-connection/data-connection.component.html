@@ -126,7 +126,7 @@
           {{connection.name}}
         </td>
         <td>
-          {{connection.implementor}}
+          {{getConnectionType(connection.implementor)}}
         </td>
         <td>
           <span *ngIf="isDefaultType(connection)">{{connection.hostname}} / {{connection.port}}</span>

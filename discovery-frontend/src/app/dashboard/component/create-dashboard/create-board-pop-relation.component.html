@@ -26,7 +26,7 @@
     </div>
     <!-- // 상단 제목 -->
     <!-- 컨텐츠 영역 -->
-    <div class="ddp-box-pop-contents ddp-default">
+    <div class="ddp-box-pop-contents ddp-default ddp-key">
 
       <!-- Join Popup Left Grid -->
       <div class="ddp-ui-part">
@@ -35,51 +35,58 @@
           <span class="ddp-txt-title">{{relation.ui.source.name}}</span>
         </div>
         <!-- // 데이터소스 명 -->
-        <!-- 연결 키 이름 -->
-        <div class="ddp-box-key">
-          {{ relation.ui.sourceField ? relation.ui.sourceField.name : 'msg.board.create.select-association' | translate }}
-        </div>
-        <!-- // 연결 키 이름 -->
         <!-- set -->
         <div class="ddp-ui-set">
+
           <!-- 검색 Select box -->
-          <div [class.ddp-selected]="isShowSrcComboOpts" (clickOutside)="isShowSrcComboOpts = false"
+          <div [ngClass]="{'ddp-selected' : isShowSrcComboOpts, 'ddp-result' : relation.ui.sourceField }"
+               (clickOutside)="isShowSrcComboOpts = false"
                class="ddp-wrap-drop-search" >
-            <div (click)="isShowSrcComboOpts = !isShowSrcComboOpts; sourceSearchText = '';" class="ddp-type-selectbox2">
-              <span class="ddp-txt-selectbox ddp-result"> {{ 'msg.board.ui.search' | translate }} </span>
+            <div (click)="openSearchSourceFields();" class="ddp-type-selectbox2">
+              <span class="ddp-txt-selectbox ddp-result">
+                {{ relation.ui.sourceField ? relation.ui.sourceField.name : 'msg.board.create.select-association' | translate }}
+              </span>
             </div>
-            <div class="ddp-ui-drop-search">
-              <input [(ngModel)]="sourceSearchText" type="text" class="ddp-input-search" placeholder="Search">
-              <ul class="ddp-list-selectbox2">
-                <li *ngFor="let field of relation.ui.source.uiFields | baseFilter : ['name', sourceSearchText]"
-                    (click)="selectSourceField(field)"> {{field.name}}
+            <div class="ddp-ui-drop-search" (keydown)="sourceComboKeyEvent($event)">
+              <input #inputSourceSearchText [(ngModel)]="sourceSearchText"
+                     [class.ddp-value]="isContainsSearchText( sourceSearchText, filteredSourceList )"
+                     type="text" class="ddp-input-search" placeholder="{{'msg.board.ui.search' | translate }}">
+              <ul #sourceFieldCombo class="ddp-list-selectbox2 ddp-list-popup ddp-hover-none">
+                <li *ngFor="let field of filteredSourceList"
+                    (click)="selectSourceField(field)" (mouseover)="hoverSourceItem($event)"
+                    [class.ddp-selected]="relation.ui.sourceField && relation.ui.sourceField.name === field.name">
+                  <a href="javascript:">
+                    <!--<em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>-->
+                    <span [innerHTML]="highlightText(field.name, sourceSearchText)"></span>
+                    <em class="ddp-icon-check"></em>
+                  </a>
                 </li>
+                <li *ngIf="filteredSourceList.length ===0"><span class="ddp-noresult">{{'msg.dp.ui.search.no.rslt' | translate}}</span></li>
               </ul>
             </div>
           </div>
           <!-- // 검색 Select box -->
           <ul class="ddp-list-tab-button">
-            <li (click)="isFromGridMode = true" [class.ddp-selected]="isFromGridMode" >
+            <li (click)="changeViewModeSource( true )" [class.ddp-selected]="isFromGridMode" >
               <a href="javascript:"><em class="ddp-icon-grid"></em></a>
               <div class="ddp-ui-tooltip-info">
                 <em class="ddp-icon-view-top"></em>
                 {{'msg.comm.ui.list.grid.view' | translate}}
               </div>
             </li>
-            <li (click)="isFromGridMode = false" [class.ddp-selected]="!isFromGridMode" >
+            <li (click)="changeViewModeSource( false )" [class.ddp-selected]="!isFromGridMode" >
               <a href="javascript:"><em class="ddp-icon-listgrid"></em></a>
               <div class="ddp-ui-tooltip-info">
                 <em class="ddp-icon-view-top"></em>
                 {{'msg.comm.ui.list.list.view' | translate}}
               </div>
-
             </li>
           </ul>
         </div>
         <!-- //set -->
 
         <!-- 그리드 -->
-        <div class="ddp-ui-grid-form" >
+        <div #leftSide class="ddp-ui-grid-form" >
           <!-- Grid Component -->
           <div grid-component #leftGrid
                [hidden]="!isFromGridMode"
@@ -87,7 +94,7 @@
                style="width:100%;height:100%;" ></div>
           <!-- // Grid Component -->
           <!-- Table List -->
-          <div class="ddp-wrap-scroll" *ngIf="!isFromGridMode">
+          <div class="ddp-wrap-scroll" [hidden]="isFromGridMode">
             <!-- 선택시 tr class="ddp-selected" 추가 -->
             <table class="ddp-table-grid-list">
               <colgroup>
@@ -118,38 +125,45 @@
           <span class="ddp-txt-title">{{relation.ui.target.name}}</span>
         </div>
         <!-- // 데이터소스 명 -->
-        <!-- 연결 키 이름 -->
-        <div class="ddp-box-key">
-          {{ relation.ui.targetField ? relation.ui.targetField.name : 'msg.board.create.select-association' | translate }}
-        </div>
-        <!-- // 연결 키 이름 -->
         <!-- set -->
         <div class="ddp-ui-set">
           <!-- 검색 Select box -->
-          <div [class.ddp-selected]="isShowTgtComboOpts" (clickOutside)="isShowTgtComboOpts = false"
+          <div [ngClass]="{'ddp-selected' : isShowTgtComboOpts, 'ddp-result' : relation.ui.targetField }"
+               (clickOutside)="isShowTgtComboOpts = false"
                class="ddp-wrap-drop-search" >
-            <div (click)="isShowTgtComboOpts = !isShowTgtComboOpts; targetSearchText = '';" class="ddp-type-selectbox2" >
-              <span class="ddp-txt-selectbox ddp-result"> {{ 'msg.board.ui.search' | translate }} </span>
+            <div (click)="openSearchTargetFields();" class="ddp-type-selectbox2" >
+              <span class="ddp-txt-selectbox ddp-result">
+                {{ relation.ui.targetField ? relation.ui.targetField.name : 'msg.board.create.select-association' | translate }}
+              </span>
             </div>
-            <div class="ddp-ui-drop-search">
-              <input [(ngModel)]="targetSearchText" type="text" class="ddp-input-search" placeholder="Search">
-              <ul class="ddp-list-selectbox2">
-                <li *ngFor="let field of relation.ui.target.uiFields | baseFilter : ['name', targetSearchText]"
-                    (click)="selectTargetField(field)"> {{field.name}}
+            <div class="ddp-ui-drop-search" (keydown)="targetComboKeyEvent($event)">
+              <input #inputTargetSearchText [(ngModel)]="targetSearchText"
+                     [class.ddp-value]="isContainsSearchText( targetSearchText, filteredTargetList )"
+                     type="text" class="ddp-input-search" placeholder="{{'msg.board.ui.search' | translate }}">
+              <ul #targetFieldCombo class="ddp-list-selectbox2 ddp-list-popup ddp-hover-none">
+                <li *ngFor="let field of filteredTargetList"
+                    (click)="selectTargetField(field)" (mouseover)="hoverTargetItem($event)"
+                    [class.ddp-selected]="relation.ui.targetField && relation.ui.targetField.name === field.name">
+                  <a href="javascript:">
+                    <!--<em ngClass="{{getFieldTypeIconClass(field.type)}}"></em>-->
+                    <span [innerHTML]="highlightText(field.name, targetSearchText)"></span>
+                    <em class="ddp-icon-check"></em>
+                  </a>
                 </li>
+                <li *ngIf="filteredTargetList.length ===0"><span class="ddp-noresult">{{'msg.dp.ui.search.no.rslt' | translate}}</span></li>
               </ul>
             </div>
           </div>
           <!-- // 검색 Select box -->
           <ul class="ddp-list-tab-button" >
-            <li (click)="isToGridMode = true" [class.ddp-selected]="isToGridMode" >
+            <li (click)="changeViewModeTarget( true )" [class.ddp-selected]="isToGridMode" >
               <a href="javascript:"><em class="ddp-icon-grid"></em></a>
               <div class="ddp-ui-tooltip-info">
                 <em class="ddp-icon-view-top"></em>
                 {{'msg.comm.ui.list.grid.view' | translate}}
               </div>
             </li>
-            <li (click)="isToGridMode = false" [class.ddp-selected]="!isToGridMode" >
+            <li (click)="changeViewModeTarget( false )" [class.ddp-selected]="!isToGridMode" >
               <a href="javascript:"><em class="ddp-icon-listgrid"></em></a>
               <div class="ddp-ui-tooltip-info">
                 <em class="ddp-icon-view-top"></em>
@@ -161,7 +175,7 @@
         <!-- // set -->
 
         <!-- 그리드 -->
-        <div class="ddp-ui-grid-form" >
+        <div #rightSide class="ddp-ui-grid-form" >
           <!-- Grid Component -->
           <div grid-component #rightGrid
                [hidden]="!isToGridMode"
@@ -169,7 +183,7 @@
                style="width:100%;height:100%;" ></div>
           <!-- // Grid Component -->
           <!-- Table List -->
-          <div class="ddp-wrap-scroll" *ngIf="!isToGridMode">
+          <div class="ddp-wrap-scroll" [hidden]="isToGridMode">
             <!-- 선택시 tr class="ddp-selected" 추가 -->
             <table class="ddp-table-grid-list">
               <colgroup>

@@ -264,10 +264,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 기준선 변경
       if( !_.isUndefined(this.uiOption.yAxis.baseline)
-          && !isNaN(this.uiOption.yAxis.baseline)
+          && !isNaN(<number>this.uiOption.yAxis.baseline)
           && this.uiOption.yAxis.baseline != 0) {
 
-        this.calculateBaseline(this.uiOption.yAxis.baseline, result, true);
+        this.calculateBaseline(<number>this.uiOption.yAxis.baseline, result, true);
       }
 
       // Min/Max 변경
@@ -284,10 +284,10 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
       // 기준선 변경
       if( !_.isUndefined(this.uiOption.xAxis.baseline)
-          && !isNaN(this.uiOption.xAxis.baseline)
+          && !isNaN(<number>this.uiOption.xAxis.baseline)
           && this.uiOption.xAxis.baseline != 0) {
 
-        this.calculateBaseline(this.uiOption.xAxis.baseline, result, false);
+        this.calculateBaseline(<number>this.uiOption.xAxis.baseline, result, false);
       }
 
       // Min/Max 변경
@@ -438,7 +438,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
                 column.value[index] = grid.max;
               }
               else {
-                column.value[index] = grid.max - totalValue[index];
+                column.value[index] = (<number>grid.max) - totalValue[index];
               }
             }
             else if( totalValue[index] + value < grid.min ) {
@@ -2058,7 +2058,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    */
   protected setMapping(): UIChartColor {
 
-    if (!this.uiOption.color || ChartColorType.SERIES !== this.uiOption.color.type) return this.uiOption.color;
+    if (!this.uiOption.color || ChartColorType.SERIES !== this.uiOption.color.type || !this.uiOption.fieldMeasureList || this.uiOption.fieldMeasureList.length == 0) return this.uiOption.color;
 
     // mapping값이 없거나, 선반값이 변경된경우 mapping값 초기화
     if (!(<UIChartColorBySeries>this.uiOption.color).mapping || EventType.CHANGE_PIVOT == this.drawByType) {

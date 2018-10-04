@@ -21,6 +21,7 @@ import {
 } from '../ui-option';
 import { PivotTableInfo } from '../../base-chart';
 import {
+  AxisLabelType,
   AxisType,
   CHART_STRING_DELIMITER,
   ChartColorList,
@@ -243,6 +244,9 @@ export class ColorOptionConverter {
     // 기존 스타일이 존재 하지 않을 경우 기본스타일 생성 후 적용
     if (_.isUndefined(option.visualMap)) option.visualMap = OptionGenerator.VisualMap.continuousVisualMap();
 
+    // get axis baseline
+    const valueAxis = !uiOption.yAxis ? null : AxisLabelType.COLUMN == uiOption.yAxis.mode ? uiOption.yAxis : uiOption.xAxis;
+
     // 색상 리스트 적용
     option.visualMap.color = <any>codes;
 
@@ -261,6 +265,14 @@ export class ColorOptionConverter {
         } else {
           item.label = FormatOptionConverter.getDecimalValue(item.gt, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep) + ' - ' +
             FormatOptionConverter.getDecimalValue(item.lte, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+        }
+
+        // deduct baseline value in range
+        if (valueAxis && null !== valueAxis.baseline && undefined !== valueAxis.baseline) {
+          item.fixMin = null == item.fixMin ? null : item.fixMin - <number>valueAxis.baseline;
+          item.fixMax = null == item.fixMax ? null : item.fixMax - <number>valueAxis.baseline;
+          item.gt = null == item.gt ? null : item.gt - <number>valueAxis.baseline;
+          item.lte = null == item.lte ? null : item.lte - <number>valueAxis.baseline;
         }
       }
 

@@ -71,6 +71,7 @@ export class TimeRangeFilterComponent extends AbstractFilterPopupComponent imple
   // 필터 변경 이벤트
   @Output('change')
   public changeEvent: EventEmitter<TimeRangeFilter> = new EventEmitter();
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
