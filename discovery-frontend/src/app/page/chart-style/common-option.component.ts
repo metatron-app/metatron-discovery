@@ -229,7 +229,10 @@ export class CommonOptionComponent extends BaseOptionComponent {
           // 아이콘 타겟
           //////////////////////////////////////////
           const field: any = this.pivot.aggregations[num];
-          const alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
+          let alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
+          if( field.aggregationType && field.aggregationType != "" ) {
+            alias = field.aggregationType +"("+ alias +")";
+          }
 
           /////////////////////
           // Pivot이 추가되었을때 처리

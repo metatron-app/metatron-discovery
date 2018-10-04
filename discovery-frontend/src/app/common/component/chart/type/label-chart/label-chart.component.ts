@@ -384,7 +384,13 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
       //format = format ? format : this.uiOption.format;
 
       // 값이 없을경우 처리
-      const alias: any = this.pivot.aggregations[num]['field']['alias'];
+      const field: any = this.pivot.aggregations[num];
+      let alias: any = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
+      if( field.aggregationType
+          && field.aggregationType != ""
+          && alias.indexOf(field.aggregationType +"(") == -1 ) {
+        alias = this.pivot.aggregations[num].aggregationType +"("+ alias +")";
+      }
       //const alias: any = this.pivot.aggregations[num].alias;
 
       /////////////////////
@@ -593,6 +599,10 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
           }
           // 소수점 자리수
           value = Math.floor(Number(value) * (Math.pow(10, 1))) / Math.pow(10, 1);
+
+          // NaN일 경우 처리
+          if( isNaN(value) ) { value = 0; }
+
           // 천단위 표시
           kpi.targetValue = value.toLocaleString();
           kpi.targetOriginalValue = (Math.floor(Number(targetValue) * (Math.pow(10, 1))) / Math.pow(10, 1)).toLocaleString();
