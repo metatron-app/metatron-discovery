@@ -1195,12 +1195,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
       let geoFieldCnt = 0;
       for(let column of this.widget.configuration.pivot.columns) {
-        if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
+        if(column.field.logicalType.toString().substring(0,3) === 'GEO' && column["layerNum"] === 1) {
           geoFieldCnt = geoFieldCnt + 1;
         }
       }
 
       if( geoFieldCnt > 1 ) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
+        debugger
         cloneQuery.dataSource = _.cloneDeep( this.widget.dashBoard.configuration.dataSource );
 
         for(let layer of cloneQuery.shelf.layers[0]) {

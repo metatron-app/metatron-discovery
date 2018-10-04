@@ -55,8 +55,15 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
       this.pivot.columns = [];
       this.pivot.rows = [];
       this.pivot.aggregations = [];
-  } else {
+    } else {
       this.pivot = pivot;
+
+      for(let column of this.pivot.columns) {
+        if(column["layerNum"] > this.layerNum) {
+          this.layerNum = column["layerNum"];
+          this.addLayer(this.layerNum);
+        }
+      }
     }
 
     this.changePivot();
@@ -97,7 +104,6 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
    public addLayer(layerNum: number): void {
-     debugger
 
      if(layerNum < this.layerNum) {
        for(let column of this.pivot.columns) {

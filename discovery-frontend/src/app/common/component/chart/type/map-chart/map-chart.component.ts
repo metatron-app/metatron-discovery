@@ -193,7 +193,21 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
 
     if(document.getElementsByClassName("ddp-ui-chart-contents").length > 0) {
-      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
+      let layerNum = 1;
+      for(let column of this.pivot.columns) {
+        if(column["layerNum"] > layerNum) {
+          layerNum = column["layerNum"];
+        }
+      }
+
+      if(layerNum === 1) {
+        document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
+      } else if(layerNum === 2) {
+        document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '149px';
+      } else if(layerNum === 3) {
+        document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '194px';
+      }
+
       document.getElementsByClassName("ddp-ui-chart-area")[0]["style"].padding = '0 0 0 0';
     }
     this.olmap.updateSize();
@@ -889,6 +903,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     this.olmap.addOverlay(popup);
 
     let tooltipOption = this.uiOption;
+
     this.olmap.on('pointermove', function(evt) {
 
       let feature = this.forEachFeatureAtPixel(evt.pixel,
@@ -914,21 +929,37 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         pointerY = coords[1].toFixed(4);
 
         let tooltipHtml = '<div class="ddp-ui-tooltip-info ddp-map-tooltip" style="display:block; position:absolute; top:0; left:0; z-index:99999;">' +
-        '<span class="ddp-txt-tooltip">' +
-        '<span class="ddp-label"><em class="ddp-icon-mapview1-w"></em> ' + tooltipOption.layers[0].name + '</span>' +
-        '<table class="ddp-table-info">' +
-        '<colgroup><col width="70px"><col width="*"></colgroup>' +
-        '<tbody><tr><th>Geo info</th><td>'+ pointerX + ', ' + pointerY + '</td></tr>';
+        '<span class="ddp-txt-tooltip">';
 
-        for(var key in feature.getProperties()) {
-          if (key !== 'geometry' && key !== 'weight') {
-            if (key === 'features') {
-              tooltipHtml = tooltipHtml + '<tr><th>' + key + '</th><td>' + feature.get(key).length + '</td></tr>';
-            } else {
-              tooltipHtml = tooltipHtml + '<tr><th>' + key + '</th><td>' + feature.get(key) + '</td></tr>';
+        //Layer Name (LAYER_NAME)
+        // if(tooltipOption.toolTip.displayTypes[17] !== null) {
+          tooltipHtml = tooltipHtml + '<span class="ddp-label"><em class="ddp-icon-mapview1-w"></em> ' + tooltipOption.layers[0].name + '</span>';
+        // }
+
+        tooltipHtml = tooltipHtml + '<table class="ddp-table-info"><colgroup><col width="70px"><col width="*"></colgroup><tbody>';
+
+        //Coordinates info (LOCATION_INFO)
+        // if(tooltipOption.toolTip.displayTypes[18] !== null) {
+          '<tr><th>Geo info</th><td>'+ pointerX + ', ' + pointerY + '</td></tr>';
+        // }
+
+        //Properties (DATA_VALUE)
+        // if(tooltipOption.toolTip.displayTypes[19] !== null) {
+          for(var key in feature.getProperties()) {
+            let tooltipVal = feature.get(key);
+
+            if (key !== 'geometry' && key !== 'weight') {
+              if (key === 'features') {
+                tooltipHtml = tooltipHtml + '<tr><th>' + key + '</th><td>' + feature.get(key).length + '</td></tr>';
+              } else {
+                if(typeof(tooltipVal) === "number") {
+                  tooltipVal = tooltipVal.toFixed(tooltipOption.valueFormat.decimal);
+                }
+                tooltipHtml = tooltipHtml + '<tr><th>' + key + '</th><td>' + tooltipVal + '</td></tr>';
+              }
             }
           }
-        }
+        // }
 
         tooltipHtml = tooltipHtml + '</tbody></table></span></div>';
 
@@ -1484,236 +1515,193 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
    * @param initFl 차트 초기화 여부
    */
   protected apply(initFl: boolean = true): void {
-    // 초기화를 하는경우
-    // externalFilters가 true인 경우 - 다른차트에서 selection필터를 설정시 적용되는 차트를 그리는경우 차트 초기화
-    // if ((this.isUpdateRedraw && initFl) || this.params.externalFilters) {
-    //   this.createMap();
-    // }
-    //
-    // // Apply!
-    // // chart.setOption(option, notMerge, lazyUpdate);
-    // const source = new ol.source.Vector();
-    // const layer = new ol.layer.Vector({
-    //   source: source,
-    //   style: this.createStyle()
-    // });
-    //
-    // this.olmap.addLayer(layer);
-    //
-    // // GetFeature request 생성
-    // var featureRequest = new ol.format.WFS().writeGetFeature({
-    //   srsName: 'EPSG:4326',
-    //   featureNS: 'http://map.discovery.metatron.app',
-    //   featurePrefix: 'metatron',
-    //   featureTypes: ['real_price'],
-    //   outputFormat: 'application/json',
-    //   // filter: this.creteFilter('like', 'py', '40*')
-    //   // filter: this.creteFilter('equalTo', 'py', '40.42')
-    //   // filter: this.creteFilter('notEqualTo', 'py', '40.42')
-    //   // filter: this.creteFilter('greaterThan', 'py', 40)
-    //   filter: this.creteFilter('lessThan', 'py', 50)
-    //   // filter: this.creteFilter('bbox','the_geom', [127.12729586618846, 37.53434930078757, 126.98919428842967, 37.46516976587546])
-    //   // filter: ol.format.filter.and(
-    //   //     ol.format.filter.like('py', '40*')
-    //   // )
-    // });
-    //
-    // let mapchart = this.olmap;
-    // // geoserver로 데이터 요청, response data -> features 추가
-    // fetch('/geoserver/wfs', {
-    //   method: 'POST',
-    //   body: new XMLSerializer().serializeToString(featureRequest)
-    // }).then(function(response) {
-    //   return response.json();
-    // }).then(function(json) {
-    //   let features = new ol.format.GeoJSON().readFeatures(json);
-    //   source.addFeatures(features);
-    //   mapchart.getView().fit(source.getExtent());
-    // });
 
+    let secondLayerQuery: SearchQueryRequest = _.clone(this.query);
+    // secondLayerQuery.dataSource = this.widget.configuration.dataSource;
 
-
-    let secondLayerQuery = this.query;
-    secondLayerQuery.dataSource = this.widget.configuration.dataSource;
-
-    let thirdLayerQuery = this.query;
-    thirdLayerQuery.dataSource = this.widget.configuration.dataSource;
+    let thirdLayerQuery: SearchQueryRequest = _.clone(this.query);
+    // thirdLayerQuery.dataSource = this.widget.configuration.dataSource;
 
     let layers2 = [];
     let layers3 = [];
-    for(let column of this.pivot.columns) {
-      if(column["layerNum"] === 2) {
-        let layer = {
-          type: column.type,
-          name: column.name,
-          alias: column.alias,
-          ref: null,
-          format: null,
-          dataSource: null
-        }
 
-        layer.dataSource = column.field.dataSource;
-
-        this.widget.configuration.dataSource.engineName = column.field.dataSource;
-        this.widget.configuration.dataSource.name = column.field.dataSource;
-        this.widget.configuration.dataSource.id = column.field.dsId;
-
-        if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
-          layer.format = {
-            type : "geo"
+    if(secondLayerQuery) {
+      for(let column of this.pivot.columns) {
+        if(column["layerNum"] === 2) {
+          let layer = {
+            type: column.type,
+            name: column.name,
+            alias: column.alias,
+            ref: null,
+            format: null,
+            dataSource: column.field.dataSource
           }
-        }
 
-        if(column.field.logicalType.toString() === 'GEO_POINT') {
-          layer.format = {
-            type: "geo_hash",
-            method: "h3",
-            precision: 9       // Precision 적용 (1~12) jjh123
+          layer.dataSource = column.field.dataSource;
+
+          // this.widget.configuration.dataSource.engineName = column.field.dataSource;
+          // this.widget.configuration.dataSource.name = column.field.dataSource;
+          // this.widget.configuration.dataSource.id = column.field.dsId;
+
+          secondLayerQuery.dataSource.engineName = column.field.dataSource;
+          secondLayerQuery.dataSource.name = column.field.dataSource;
+          secondLayerQuery.dataSource.id = column.field.dsId;
+
+          if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
+            layer.format = {
+              type : "geo"
+            }
           }
-        }
 
-        layers2.push(layer);
-      } else if(column["layerNum"] === 3) {
-        let layer = {
-          type: column.type,
-          name: column.name,
-          alias: column.alias,
-          ref: null,
-          format: null,
-          dataSource: null
-        }
-
-        layer.dataSource = column.field.dataSource;
-
-        this.widget.configuration.dataSource.engineName = column.field.dataSource;
-        this.widget.configuration.dataSource.name = column.field.dataSource;
-        this.widget.configuration.dataSource.id = column.field.dsId;
-
-        if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
-          layer.format = {
-            type : "geo"
+          if(column.field.logicalType.toString() === 'GEO_POINT') {
+            layer.format = {
+              type: "geo_hash",
+              method: "h3",
+              precision: 8       // Precision 적용 (1~12) jjh123
+            }
           }
-        }
 
-        if(column.field.logicalType.toString() === 'GEO_POINT') {
-          layer.format = {
-            type: "geo_hash",
-            method: "h3",
-            precision: 9       // Precision 적용 (1~12) jjh123
+          layers2.push(layer);
+        } else if(column["layerNum"] === 3) {
+          let layer = {
+            type: column.type,
+            name: column.name,
+            alias: column.alias,
+            ref: null,
+            format: null,
+            dataSource: column.field.dataSource
           }
-        }
 
-        layers3.push(layer);
+          thirdLayerQuery.dataSource.engineName = column.field.dataSource;
+          thirdLayerQuery.dataSource.name = column.field.dataSource;
+          thirdLayerQuery.dataSource.id = column.field.dsId;
+
+          if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
+            layer.format = {
+              type : "geo"
+            }
+          }
+
+          if(column.field.logicalType.toString() === 'GEO_POINT') {
+            layer.format = {
+              type: "geo_hash",
+              method: "h3",
+              precision: 8       // Precision 적용 (1~12) jjh123
+            }
+          }
+
+          layers3.push(layer);
+        }
+      }
+
+      for(let aggregation of this.pivot.aggregations) {
+        if(aggregation["layerNum"] === 2) {
+          let layer = {
+            type: aggregation.type,
+            name: aggregation.name,
+            alias: aggregation.alias,
+            ref: null,
+            aggregationType: aggregation.aggregationType,
+            dataSource: aggregation.field.dataSource
+          }
+
+          layers2.push(layer);
+
+        } else if(aggregation["layerNum"] === 3) {
+          let layer = {
+            type: aggregation.type,
+            name: aggregation.name,
+            alias: aggregation.alias,
+            ref: null,
+            aggregationType: aggregation.aggregationType,
+            dataSource: aggregation.field.dataSource
+          }
+
+          layers3.push(layer);
+        }
+      }
+
+      secondLayerQuery.shelf = {
+        type: 'geo',
+        layers: [layers2]
+      };
+
+      thirdLayerQuery.shelf = {
+        type: 'geo',
+        layers: [layers3]
+      };
+
+      let secondLayerVaild: boolean = false;
+      for(let column of this.pivot.columns) {
+        if(column["layerNum"] === 2) {
+          secondLayerVaild = true;
+        }
+      }
+
+      if(!secondLayerVaild) {
+       this.removeSecondLayer();
+      }
+
+      let thirdLayerVaild: boolean = false;
+      for(let column of this.pivot.columns) {
+        if(column["layerNum"] === 3) {
+          thirdLayerVaild = true;
+        }
+      }
+
+      if(!thirdLayerVaild) {
+       this.removeThirdLayer();
+      }
+
+      if(this.data2 === undefined && secondLayerVaild) {
+        this.datasourceService.searchQuery(secondLayerQuery).then(
+          (data) => {
+
+            console.log(data);
+            this.data2 = data;
+            console.log(this.mapVaild);
+            this.drawSecondLayer(data);
+            // if (this.params.successCallback) {
+            //   this.params.successCallback();
+            // }
+          }
+        ).catch((reason) => {
+          console.error('Search Query Error =>', reason);
+          // this.isChartShow = false;
+
+          // 변경사항 반영
+          // this.changeDetect.detectChanges();
+          // this.loadingHide();
+        });
+      } else {
+        // this.drawSecondLayer(this.data2);
+        this.data2 = undefined;
+      }
+
+      if(this.data3 === undefined && thirdLayerVaild) {
+        this.datasourceService.searchQuery(thirdLayerQuery).then(
+          (data) => {
+
+            console.log(data);
+            this.data3 = data;
+            this.drawThirdLayer(data);
+            // if (this.params.successCallback) {
+            //   this.params.successCallback();
+            // }
+          }
+        ).catch((reason) => {
+          console.error('Search Query Error =>', reason);
+          // this.isChartShow = false;
+
+          // 변경사항 반영
+          // this.changeDetect.detectChanges();
+          // this.loadingHide();
+        });
+      } else {
+        this.data3 = undefined;
       }
     }
 
-    for(let aggregation of this.pivot.aggregations) {
-      if(aggregation["layerNum"] === 2) {
-        let layer = {
-          type: aggregation.type,
-          name: aggregation.name,
-          alias: aggregation.alias,
-          ref: null,
-          aggregationType: aggregation.aggregationType,
-          dataSource: null
-        }
-
-        layer.dataSource = aggregation.field.dataSource;
-        layers2.push(layer);
-      } else if(aggregation["layerNum"] === 2) {
-        let layer = {
-          type: aggregation.type,
-          name: aggregation.name,
-          alias: aggregation.alias,
-          ref: null,
-          aggregationType: aggregation.aggregationType,
-          dataSource: null
-        }
-
-        layer.dataSource = aggregation.field.dataSource;
-        layers3.push(layer);
-      }
-    }
-
-    secondLayerQuery.shelf = {
-      type: 'geo',
-      layers: [layers2]
-    };
-
-    thirdLayerQuery.shelf = {
-      type: 'geo',
-      layers: [layers3]
-    };
-
-    let secondLayerVaild: boolean = false;
-    for(let column of this.pivot.columns) {
-      if(column["layerNum"] === 2) {
-        secondLayerVaild = true;
-      }
-    }
-
-    if(!secondLayerVaild) {
-     this.removeSecondLayer();
-    }
-
-    let thirdLayerVaild: boolean = false;
-    for(let column of this.pivot.columns) {
-      if(column["layerNum"] === 3) {
-        thirdLayerVaild = true;
-      }
-    }
-
-    if(!thirdLayerVaild) {
-     this.removeThirdLayer();
-    }
-
-    if(this.data2 === undefined && secondLayerVaild) {
-      this.datasourceService.searchQuery(secondLayerQuery).then(
-        (data) => {
-
-          console.log(data);
-          this.data2 = data;
-          console.log(this.mapVaild);
-          this.drawSecondLayer(data);
-          // if (this.params.successCallback) {
-          //   this.params.successCallback();
-          // }
-        }
-      ).catch((reason) => {
-        console.error('Search Query Error =>', reason);
-        // this.isChartShow = false;
-
-        // 변경사항 반영
-        // this.changeDetect.detectChanges();
-        // this.loadingHide();
-      });
-    } else {
-      // this.drawSecondLayer(this.data2);
-      this.data2 = undefined;
-    }
-
-    if(this.data3 === undefined && thirdLayerVaild) {
-      this.datasourceService.searchQuery(thirdLayerQuery).then(
-        (data) => {
-
-          console.log(data);
-          this.data3 = data;
-          this.drawThirdLayer(data);
-          // if (this.params.successCallback) {
-          //   this.params.successCallback();
-          // }
-        }
-      ).catch((reason) => {
-        console.error('Search Query Error =>', reason);
-        // this.isChartShow = false;
-
-        // 변경사항 반영
-        // this.changeDetect.detectChanges();
-        // this.loadingHide();
-      });
-    } else {
-      this.data3 = undefined;
-    }
 
 
   }
@@ -1755,8 +1743,21 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
    */
   @HostListener('window:resize', ['$event'])
   protected onResize(event) {
-    console.log('map resize');
-    document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
+    let layerNum = 1;
+    for(let column of this.pivot.columns) {
+      if(column["layerNum"] > layerNum) {
+        layerNum = column["layerNum"];
+      }
+    }
+
+    if(layerNum === 1) {
+      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
+    } else if(layerNum === 2) {
+      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '149px';
+    } else if(layerNum === 3) {
+      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '194px';
+    }
+
     document.getElementsByClassName("ddp-ui-chart-area")[0]["style"].padding = '0 0 0 0';
     this.olmap.updateSize();
   }

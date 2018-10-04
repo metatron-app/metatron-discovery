@@ -393,10 +393,8 @@ export class DatasourceService extends AbstractService {
             alias: column.alias,
             ref: null,
             format: null,
-            dataSource: null
+            dataSource: column.field.dataSource
           }
-
-          layer.dataSource = column.field.dataSource;
 
           //dataSource가 여러개일 경우 첫번째 dataSource만 가져와서 column의 dataSource Name으로 변경
           query.dataSource.engineName = column.field.dataSource;
@@ -408,7 +406,6 @@ export class DatasourceService extends AbstractService {
               type : "geo"
             }
           }
-
           if(column.field.logicalType.toString() === 'GEO_POINT') {
             layer.format = {
               type: "geo_hash",
@@ -444,10 +441,8 @@ export class DatasourceService extends AbstractService {
             alias: aggregation.alias,
             ref: null,
             aggregationType: aggregation.aggregationType,
-            dataSource: null
+            dataSource: aggregation.field.dataSource
           }
-
-          layer.dataSource = aggregation.field.dataSource;
 
           layers.push(layer);
         }

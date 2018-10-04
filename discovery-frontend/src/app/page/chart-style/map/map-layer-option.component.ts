@@ -201,7 +201,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        layers: this.changeLayerOption()
      });
 
-     this.update({});
+     this.update();
    }
 
    /**

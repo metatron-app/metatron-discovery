@@ -343,7 +343,11 @@
     <map-chart #chart
                  *ngIf="chartType === 'map' && uiOption" [uiOption]="uiOption" [isUpdateRedraw]="isUpdateRedraw"
                  (uiOptionUpdated)="uiOptionUpdatedHandler($event)"
-                 (drawFinished)="updateComplete()">
+                 (drawFinished)="updateComplete()"
+                 (drawChartParam)="onSetDrawChartParam($event)"
+                 [query]="query"
+                 [widget]="widget">
+
     </map-chart>
 
   </div>
