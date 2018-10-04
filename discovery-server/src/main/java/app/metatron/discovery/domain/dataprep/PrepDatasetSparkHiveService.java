@@ -597,7 +597,7 @@ public class PrepDatasetSparkHiveService {
 
                         if(dataFrame.getColType(i)==ColumnType.TIMESTAMP) {
                             DateTime jodaTime = new DateTime(value);
-                            row.add(dataFrame.getColName(i), jodaTime.toString());
+                            row.add(dataFrame.getColName(i), jodaTime);
                         } else {
                             // 모두 Object 그대로 들어감
                             row.add(dataFrame.getColName(i), value);
