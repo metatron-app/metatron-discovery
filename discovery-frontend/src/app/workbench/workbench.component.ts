@@ -1084,6 +1084,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
                 // log 초기화
                 (this.hiveLogs[0]) || (this.hiveLogs[0] = { isShow: true, log: [] });
+                this.datagridCurList.push({name: 'Loading..'});
+                this.safelyDetectChanges();
+
 
                 // 쿼리 초기화
                 this.runningQueryArr = [];
@@ -1169,8 +1172,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
             }
 
-
             if( result.length > 0 ) {
+
+              // console.error("==================== test1");
 
               // Editor Selected Tab
               this.tempEditorSelectedTabNum = tempSelectedTabNum;
@@ -2008,6 +2012,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         if ('HIVE' === this.mimeType && !isNullOrUndefined(data.queryIndex)) {
 
           // console.info('data.command ====================>>> ' + data.command);
+          // console.error('data.command ====================>>> ' + data.command);
 
           let isPassLogData: boolean = false;
 
@@ -2016,11 +2021,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
             for (let cancelIndex: number = 0; cancelIndex < this.isLogCancelTabQuery.length; cancelIndex++) {
               // console.info('data.log.toString() ====================>>> ' + data.log.toString());
-              // console.info('this.isLogCancelTabQuery[cancelIndex] ====================>>> ' + this.isLogCancelTabQuery[cancelIndex] );
+              let canCalQuery = this.isLogCancelTabQuery[cancelIndex].trim();
+              // console.info('this.isLogCancelTabQuery[cancelIndex] ====================>>> ' + canCalQuery );
 
-              // 소켓데이터 줄바꿈 콤마로 리턴되며, 에디터 줄바꿈은 ↵ 특수문자로 리턴
-              if (data.log.toString().indexOf(this.isLogCancelTabQuery[cancelIndex].trim().replace(/\u21b5/g,",") ) != -1) {
+              // 소켓데이터 줄바꿈 콤마로 리턴되며, 에디터 줄바꿈은 \n 리턴
+              if (data.log.toString().indexOf(this.isLogCancelTabQuery[cancelIndex].trim().replace(/\n/g,",") ) != -1) {
                 // console.info('isPassLogData = true ===================');
+                // console.error('isPassLogData = true ===================');
                 isPassLogData = true;
                 break;
               }
@@ -2037,8 +2044,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             if (!isNullOrUndefined(this.runningQueryArr[this.runningQueryDoneIndex])) {
               this.runningQueryEditor.query = this.runningQueryArr[this.runningQueryDoneIndex];
 
-              // Editor Selected Tab
-              // this.tempEditorSelectedTabNum = tempSelectedTabNum;
+              // console.error('isPassLogData = true ===================2');
               // 다음 쿼리 호출
               this.runSingleQueryWithInvalidQuery(this.runningQueryEditor, this.tempEditorSelectedTabNum, this.runningQueryDoneIndex);
             }
@@ -2046,139 +2052,91 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             return false;
           }
 
-          // 첫번째일 경우
-          // if( this.runningQueryDoneIndex == -1 ) {
-          //   // index 증가
-          //   this.runningQueryDoneIndex++;
-          //   // 임시로 탭 추가
-          //   // this.editorResultListObj = new EditorList();
-          //   this.datagridCurList.push({name : 'Loading..'});
-          //
-          //   this.safelyDetectChanges();
-          // }
+          if ('LOG' === data.command && data.log.length != 0) {
 
-          // // 현재 실행중 로그가 없을경우 생성
-          // if (isNullOrUndefined(this.hiveLogs[this.runningQueryDoneIndex])) {
-          //   (this.hiveLogs[this.runningQueryDoneIndex]) || (this.hiveLogs[this.runningQueryDoneIndex] = {
-          //     isShow: false,
-          //     log: []
-          //   });
-          //   this.datagridCurList.push({name: 'Loading..'});
-          // }
-          // const currHiveLog = this.hiveLogs[this.runningQueryDoneIndex];
-          if ('LOG' === data.command) {
+            // result tab title 텍스트 추가
+            // if( isNullOrUndefined(this.datagridCurList[this.runningQueryDoneIndex].name) ){
+            // if( isNullOrUndefined(this.datagridCurList[this.runningQueryDoneIndex]) ){
+            //   this.datagridCurList.push({name : 'Loading..'});
+            // }
 
             this.loadingBar.hide();
 
-            // 현재 실행중 로그가 없을경우 생성
-            if (isNullOrUndefined(this.hiveLogs[this.runningQueryDoneIndex])) {
-              (this.hiveLogs[this.runningQueryDoneIndex]) || (this.hiveLogs[this.runningQueryDoneIndex] = {
-                isShow: false,
-                log: []
-              });
-              this.datagridCurList.push({name: 'Loading..'});
-            }
             const currHiveLog = this.hiveLogs[this.runningQueryDoneIndex];
-
             currHiveLog.isShow = true;
             currHiveLog.log = currHiveLog.log.concat(data.log);
 
-            if (data.log.length != 0) {
+            const gridList = this.datagridCurList[this.runningQueryDoneIndex];
+            gridList.name = 'Loading..';
 
-              // result tab title 텍스트 추가
-              // if( isNullOrUndefined(this.datagridCurList[this.runningQueryDoneIndex].name) ){
-              // if( isNullOrUndefined(this.datagridCurList[this.runningQueryDoneIndex]) ){
-              //   this.datagridCurList.push({name : 'Loading..'});
-              // }
+            this.safelyDetectChanges();
+            // log data 가 있을경우 scroll 이동
+            if ($('#workbenchHiveLogText').text() != '') {
 
-              const gridList = this.datagridCurList[this.runningQueryDoneIndex];
-              if( !isUndefined(gridList) ) {
-                gridList.name = 'Loading..';
-              }
+              let textAreaHeight = $('#workbenchHiveLogText').height();
+              let lineBreakLength = $('#workbenchHiveLogText').find('br').length;
+              let offsetTop =  textAreaHeight * (Math.ceil(lineBreakLength / 12));
 
-              this.safelyDetectChanges();
-              // log data 가 있을경우 scroll 이동
-              if ($('#workbenchHiveLogText').text() != '') {
-
-                let textAreaHeight = $('#workbenchHiveLogText').height();
-                let lineBreakLength = $('#workbenchHiveLogText').find('br').length;
-                let offsetTop =  textAreaHeight * (Math.ceil(lineBreakLength / 12));
-
-                $('#workbenchHiveLogText').scrollTop(offsetTop);
-              }
-
+              $('#workbenchHiveLogText').scrollTop(offsetTop);
             }
+
 
           } else if ('DONE' === data.command) {
 
-            if (isNullOrUndefined(this.hiveLogs[this.runningQueryDoneIndex])) {
-              (this.hiveLogs[this.runningQueryDoneIndex]) || (this.hiveLogs[this.runningQueryDoneIndex] = {
-                isShow: false,
-                log: []
-              });
-              this.datagridCurList.push({name: 'Loading..'});
-            }
-            const currHiveLog = this.hiveLogs[this.runningQueryDoneIndex];
-            currHiveLog.isShow = false;
-
-            // 실제 결과 데이터 response
+            // 로그 결과가 미리 떨어지는 경우 대비
             setTimeout(() => {
 
-              if( this.datagridCurList.length > 0 ){
+              this.runningQueryDoneIndex++;
 
-                this.runningQueryDoneIndex++;
+              // 마지막 쿼리가 아닐경우 다음 쿼리 호출
+              if( !isNullOrUndefined(this.runningQueryArr[this.runningQueryDoneIndex]) ){
 
-                // 마지막 쿼리가 아닐경우 다음 쿼리 호출
-                if( this.runningQueryArr.length > this.runningQueryDoneIndex ){
+                // console.error( "======================= test loading2" );
 
-                  let nextIndex = this.runningQueryDoneIndex;
+                let nextIndex = this.runningQueryDoneIndex;
 
-                  if( !isNullOrUndefined(this.runningQueryArr[nextIndex]) ){
+                // 로그와 데이터 response 통신 부분이 끝나는 시점이 정해져 있지 않기 때문에 강제로 탭을 추가
+                // 이전 타이틀 변경 tab title 기존 으로 변경
+                const gridList = this.datagridCurList[nextIndex-1];
+                gridList.name = this.textList[this.tempEditorSelectedTabNum].name + ' - ' + this.translateService.instant('msg.bench.ui.rslt') + (nextIndex);
 
-                    // 로그와 데이터 response 통신 부분이 끝나는 시점이 정해져 있지 않기 때문에 강제로 탭을 추가
-                    // 이전 타이틀 변경 tab title 기존 으로 변경
-                    const gridList = this.datagridCurList[nextIndex-1];
-                    gridList.name = this.textList[this.tempEditorSelectedTabNum].name + ' - ' + this.translateService.instant('msg.bench.ui.rslt') + (nextIndex);
+                // 임시 tab 데이터 생성
+                (this.hiveLogs[nextIndex]) || (this.hiveLogs[nextIndex] = { isShow: true, log: [] });
+                this.datagridCurList.push({name : 'Loading..'});
 
-                    // 임시 tab 데이터 생성
-                    this.datagridCurList.push({name : 'Loading..'});
+                // 다음 탭 log 화면 전환
+                this.selectedGridTabNum = nextIndex;
 
-                    // 다음 탭 log 화면 전환
-                    (this.hiveLogs[nextIndex]) || (this.hiveLogs[nextIndex] = { isShow: false, log: [] });
-                    const currHiveLog = this.hiveLogs[nextIndex];
-                    currHiveLog.isShow = true;
-                    currHiveLog.log = [];
-                    this.selectedGridTabNum = nextIndex;
+                this.changeDetect.detectChanges();
 
-                    this.changeDetect.detectChanges();
+                // 다음 탭 쿼리 호출
+                this.runningQueryEditor.query = this.runningQueryArr[nextIndex];
+                this.runSingleQueryWithInvalidQuery(this.runningQueryEditor, this.tempEditorSelectedTabNum, nextIndex);
 
-                    // 다음 탭 쿼리 호출
-                    this.runningQueryEditor.query = this.runningQueryArr[nextIndex];
-                    this.runSingleQueryWithInvalidQuery(this.runningQueryEditor, this.tempEditorSelectedTabNum, nextIndex);
-                  }
+              } else {
 
-                } else {
+                // finish
+                // console.error("==================== finish ");
 
-                  // finish
-
-                  // 시점때문에 변경 안된 tab title 기존 으로 변경
-                  for (let index: number = 0; index < this.datagridCurList.length; index = index + 1) {
-                    const gridList = this.datagridCurList[index];
-                    gridList.name = this.textList[this.tempEditorSelectedTabNum].name + ' - ' + this.translateService.instant('msg.bench.ui.rslt') + (index + 1);
-                  }
-
-                  // 마지막일 경우 0번째 탭으로
-                  this.datagridCurList[0]['selected'] = true;
-                  this.selectedGridTabNum = 0;
-                  this.safelyDetectChanges();
-
-                  this.drawGridData(0);
-
+                // 시점때문에 변경 안된 tab title 기존 으로 변경
+                for (let index: number = 0; index < this.datagridCurList.length; index = index + 1) {
+                  const gridList = this.datagridCurList[index];
+                  gridList.name = this.textList[this.tempEditorSelectedTabNum].name + ' - ' + this.translateService.instant('msg.bench.ui.rslt') + (index + 1);
                 }
 
-              } // end if - data length check
+                // 마지막일 경우 0번째 탭으로
+                this.datagridCurList[0]['selected'] = true;
+                this.selectedGridTabNum = 0;
+                this.hiveLogs[0].isShow = false;
+                this.safelyDetectChanges();
+
+                this.drawGridData(0);
+
+              }
 
             }, 100);
+
+            // } // end if - data length check
 
           } // end if - command log, done
 
@@ -2360,10 +2318,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // this.safelyDetectChanges();
 
     const params = {
-      query: this.runningQueryArr[selectedGridTabNum],
-      // query: '',
+      // query: this.runningQueryArr[selectedGridTabNum],
+      query: '',
       webSocketId: this.websocketId
     };
+    // console.error("logCancel setQueryRunCancel");
     console.info("logCancel setQueryRunCancel param query : " + params.query);
     console.info("logCancel setQueryRunCancel param websocketId : " + params.webSocketId);
     this.workbenchService.setQueryRunCancel(this.selectedEditorId, params)
