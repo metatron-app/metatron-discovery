@@ -95,7 +95,6 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
   public dashboard: Dashboard;
 
   // T/F
-  public isVisibleScrollbar: boolean = false;   // 스크롤바 표시 여부 체크
   public isTimeFilter: boolean = false;              // TimeFilter 여부
   public isContinuousByAll: boolean = false;        // Granularity 가 지정되지 않은 연속성 여부 판단
   public isDiscontinuousFilter: boolean = false;    // 불연속 필터 여부
@@ -441,7 +440,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
         $filterWidgetEl.closest('.lm_content').css('overflow', 'inherit');
       }
     }
-    this._setIsVisibleScrollbar();    // 스크롤바 표시 여부 설정
+    ( this.isShowTitle ) || ( this._setIsVisibleScrollbar() );  // 스크롤바 표시 여부 설정
   } // function - _initialContainer
 
   /**
@@ -602,16 +601,16 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
     return candidate;
   } // function - _stringToCandidate
 
-
   /**
    * 스크롤바 표시 여부를 설정한다.
    */
   private _setIsVisibleScrollbar() {
-    const $container: JQuery = $(this.filterWidget.nativeElement);
-    const $title: JQuery = $container.find('.ddp-ui-title');
-    const $contents: JQuery = $container.find('.ddp-ui-widget-contents');
-    this.isVisibleScrollbar = ($container.height() < $title.height() + $contents.height());
-    this.safelyDetectChanges();
+    if( this.filterWidget ) {
+      const $container: JQuery = $(this.filterWidget.nativeElement).find('.ddp-ui-widget-contents');
+      const $contents: JQuery = $container.find( 'ul' );
+      this.isVisibleScrollbar = ($container.height() < $contents.height());
+      this.safelyDetectChanges();
+    }
   } // function - _setIsVisibleScrollbar
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
