@@ -1205,7 +1205,7 @@ public class JdbcConnectionService {
         .query(batchIngestionInfo)
         .incremental(timestampField, incrementalTime.toString(CURRENT_DATE_FORMAT))
         .limit(0, fechSize)
-        .build();
+        .build(batchIngestionInfo.getDataType());
 
     LOGGER.debug("Generated incremental query : {} ", queryString);
 
@@ -1244,7 +1244,7 @@ public class JdbcConnectionService {
     String queryString = new SelectQueryBuilder(connection)
         .countProjection()
         .query(jdbcInfo)
-        .build();
+        .build(jdbcInfo.getDataType());
 
     int count = 0;
     try {

@@ -331,7 +331,7 @@ public class QueryEditorController {
       query = new SelectQueryBuilder(jdbcDataConnection)
               .allProjection()
               .query(null, null, tempTable)
-              .build();
+              .build(null);
     }
 
     //@ TODO 임시 테스트코드
