@@ -1081,7 +1081,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               if( this.mimeType == 'HIVE' ) {
 
                 //쿼리 실행
-                this.loadingBar.show();
+                this.loadingBar.hide();
 
                 // log 초기화
                 (this.hiveLogs[0]) || (this.hiveLogs[0] = { isShow: true, log: [] });
@@ -2004,9 +2004,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this._subscription
         = CommonConstant.stomp.subscribe('/user/queue/workbench/' + this.workbenchId, (data) => {
 
-        if ('HIVE' === this.mimeType && !isNullOrUndefined(data.queryIndex)) {
+        this.loadingBar.hide();
 
-          this.loadingBar.hide();
+        if ('HIVE' === this.mimeType && !isNullOrUndefined(data.queryIndex)) {
 
           /*
           let isPassLogData: boolean = false;
