@@ -13,17 +13,15 @@
  */
 
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
+import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
+import { PopupService } from '../../../common/service/popup.service';
 import { FileLikeObject, FileUploader } from 'ng2-file-upload';
-import { CommonConstant } from '../../../../common/constant/common.constant';
-import { CookieService } from 'ng2-cookies';
-import { CookieConstant } from '../../../../common/constant/cookie.constant';
-import { DatasetFile } from '../../../../domain/data-preparation/dataset';
-import { Alert } from '../../../../common/util/alert.util';
-import { PreparationAlert } from '../../../util/preparation-alert.util';
+import { CommonConstant } from '../../../common/constant/common.constant';
+import { CookieConstant } from '../../../common/constant/cookie.constant';
+import { DatasetFile } from '../../../domain/data-preparation/dataset';
+import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from 'util';
-import { DatasetService } from '../../service/dataset.service';
+import { DatasetService } from '../service/dataset.service';
 
 @Component({
   selector: 'app-create-dataset-selectfile',
@@ -63,7 +61,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
   // 생성자
   constructor(private popupService: PopupService,
-              private datasetService: DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 

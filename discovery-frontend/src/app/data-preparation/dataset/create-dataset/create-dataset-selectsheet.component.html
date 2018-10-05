@@ -12,17 +12,19 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents">
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
-  <div class="ddp-ui-name2 ddp-type3">
-    {{'msg.dp.ui.ds.create.title' | translate : {type : 'File'} }}
-    <em class="ddp-bg-order-line2-type"></em>
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.dp.ui.ds.create.title' | translate : {type : 'File'} }}
+      <span class="ddp-txt-info ddp-type">{{'msg.dp.ui.ds-sel.create.title' | translate}}</span>
+      <em class="ddp-bg-order-line2-type"></em>
+    </div>
   </div>
   <!-- contents in  -->
-  <div class="ddp-type-contents-in">
-    <span class="ddp-txt-info ddp-type">{{'msg.dp.ui.ds-sel.create.title' | translate}}</span>
+  <div class="ddp-type-contents-in ddp-sheet-resize">
     <div class="ddp-box-popupcontents ddp-wrap-file-create">
 
       <!-- upload box -->
@@ -41,40 +43,38 @@
         </div>
       </div>
       <!-- //upload box -->
-      <!-- wrap sheet -->
-      <!-- ddp-full 추가 -->
-      <div class="ddp-wrap-sheet" [ngClass]="{'ddp-full':datasetFile.sheets.length === 0 || datasetFile.sheets.length === 1}">
+      <div class="ddp-wrap-variable">
+        <!-- wrap sheet -->
+        <!-- ddp-full 추가 -->
+        <div class="ddp-wrap-sheet" [ngClass]="{'ddp-full':datasetFile.sheets.length === 0 || datasetFile.sheets.length === 1}">
 
-        <!-- sheet list -->
-        <div class="ddp-ui-sheet-list">
-          <ul class="ddp-list-sheet" *ngFor="let item of datasetFile.selectedSheets; let idx = index">
-            <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetname}" (click)="setDataSetSheetIndex($event,item.name, idx)">
-              <!--<label class="ddp-label-checkbox">-->
-                <!--<input type="checkbox" [(ngModel)]="item.selected">-->
-                <!--<i class="ddp-icon-checkbox"></i>-->
-              <!--</label>-->
-              <span class="ddp-txt-checkbox">{{item.name}}</span>
-            </li>
-          </ul>
+          <!-- sheet list -->
+          <div class="ddp-ui-sheet-list">
+            <ul class="ddp-list-sheet"  *ngFor="let item of datasetFile.selectedSheets; let idx = index">
+              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetname}" (click)="setDataSetSheetIndex($event,item.name, idx)">
+                <span class="ddp-txt-checkbox">{{item.name}}</span>
+              </li>
+            </ul>
 
-        </div>
-        <!-- //sheet list -->
-        <!-- sheet view -->
-        <div class="ddp-view-sheet">
-          <div class="ddp-data-name" *ngIf="datasetFile.sheetname && ''!==datasetFile.sheetname">
-            {{datasetFile.sheetname}}
           </div>
-          <!-- 그리드 영역 -->
-          <div class="ddp-wrap-grid" [hidden]="clearGrid" [ngStyle]="getGridStyle()">
-            <div grid-component style="width:100%; height:100%;" ></div>
+          <!-- //sheet list -->
+          <!-- sheet view -->
+          <div class="ddp-view-sheet">
+            <div class="ddp-data-name" *ngIf="datasetFile.sheetname && ''!==datasetFile.sheetname">
+              {{datasetFile.sheetname}}
+            </div>
+            <!-- 그리드 영역 -->
+            <div class="ddp-wrap-grid" [hidden]="clearGrid" [ngStyle]="getGridStyle()">
+              <div grid-component style="width:100%; height:100%;" ></div>
+            </div>
+
+            <!-- //그리드 영역 -->
+
           </div>
-
-          <!-- //그리드 영역 -->
-
+          <!-- //sheet view -->
         </div>
-        <!-- //sheet view -->
+        <!-- //wrap sheet -->
       </div>
-      <!-- //wrap sheet -->
       <div class="ddp-wrap-edit-form">
         <div class="ddp-wrap-edit3 ddp-type">
           <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>

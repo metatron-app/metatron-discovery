@@ -16,18 +16,17 @@ import {
   Component, ElementRef, Injector, OnInit, Input, ViewChild, HostListener, EventEmitter,
   Output
 } from '@angular/core';
-import { DatasetService } from '../../service/dataset.service';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { Page } from '../../../../domain/common/page';
-import { PreparationAlert } from '../../../util/preparation-alert.util';
-import { DatasetJdbc, DsType, RsType, ImportType, Field } from '../../../../domain/data-preparation/dataset';
-import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { GridComponent } from '../../../../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../../../../common/component/grid/grid.header';
-import { GridOption } from '../../../../common/component/grid/grid.option';
-import { StringUtil } from '../../../../common/util/string.util';
+import { DatasetService } from '../service/dataset.service';
+import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
+import { PopupService } from '../../../common/service/popup.service';
+import { Page } from '../../../domain/common/page';
+import { PreparationAlert } from '../../util/preparation-alert.util';
+import { DatasetJdbc, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/dataset';
+import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
+import { GridComponent } from '../../../common/component/grid/grid.component';
+import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
+import { GridOption } from '../../../common/component/grid/grid.option';
+import { StringUtil } from '../../../common/util/string.util';
 import * as $ from "jquery";
 
 @Component({
@@ -257,9 +256,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.clickable = true;
       })
       .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
     this.initSelectedCommand(this.filteredSchemaList);
   } // function - onChangeTable
@@ -315,7 +314,11 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         this.datasetJdbc.rsType = RsType.SQL;
       }
       this.tableOrQuery = method;
-      this.gridComponent.destroy(); // destroy grid
+
+      if (this.gridComponent) {
+        this.gridComponent.destroy(); // destroy grid
+      }
+
       this.clickable = false; // prevent moving to next stage
       this.isDatabaseListShow = false;
       this.isSchemaListShow = false;
@@ -330,10 +333,10 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     if (this.datasetJdbc.queryStmt == '') {
       return;
     }
-        this.loadingShow();
+    this.loadingShow();
     this.queryErrorMsg = '';
     this.datasetService.getResultWithJdbcQuery(this.datasetJdbc.dcId,this.datasetJdbc.databaseName,this.datasetJdbc.queryStmt).then((result) => {
-        this.loadingHide();
+      this.loadingHide();
       if (result.hasOwnProperty('errorMsg')) {
         this.showQueryStatus = true;
         this.isQuerySuccess = false;
@@ -386,9 +389,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
       this.loadingHide();
     }).catch((error) => {
 
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      this.loadingHide();
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
 
       this.gridComponent.destroy(); // destroy grid
       this.showQueryStatus = true;
@@ -599,44 +602,44 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
     let page: Page = new Page();
     this.connectionService.getDatabases(this.datasetJdbc.dcId, page)
-    .then((data) => {
-      this.loadingHide();
+      .then((data) => {
+        this.loadingHide();
 
-      this.databaseList = [];
-      this.datasetJdbc.databaseName = '';
-      if(page.size<data.page.totalElements) {
-        page.size = data.page.totalElements;
+        this.databaseList = [];
+        this.datasetJdbc.databaseName = '';
+        if(page.size<data.page.totalElements) {
+          page.size = data.page.totalElements;
 
-        this.loadingShow();
-        this.connectionService.getDatabases(this.datasetJdbc.dcId, page)
-        .then((data) => {
-          this.loadingHide();
+          this.loadingShow();
+          this.connectionService.getDatabases(this.datasetJdbc.dcId, page)
+            .then((data) => {
+              this.loadingHide();
+              if (data && data.databases) {
+                for (let idx = 0, nMax = data.databases.length; idx < nMax; idx = idx + 1) {
+                  this.databaseList.push({ idx : idx, name : data.databases[idx], selected : false });
+                }
+              }
+              this.showDatabaseList();
+            })
+            .catch((error) => {
+              this.loadingHide();
+              let prep_error = this.dataprepExceptionHandler(error);
+              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+            });
+        } else {
           if (data && data.databases) {
             for (let idx = 0, nMax = data.databases.length; idx < nMax; idx = idx + 1) {
               this.databaseList.push({ idx : idx, name : data.databases[idx], selected : false });
             }
           }
           this.showDatabaseList();
-        })
-        .catch((error) => {
-          this.loadingHide();
-          let prep_error = this.dataprepExceptionHandler(error);
-          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-      } else {
-        if (data && data.databases) {
-          for (let idx = 0, nMax = data.databases.length; idx < nMax; idx = idx + 1) {
-            this.databaseList.push({ idx : idx, name : data.databases[idx], selected : false });
-          }
         }
-        this.showDatabaseList();
-      }
-    })
-    .catch((error) => {
-       this.loadingHide();
-       let prep_error = this.dataprepExceptionHandler(error);
-       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-    });
+      })
+      .catch((error) => {
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      });
 
     /*
     this.datasetService.getStagingConnectionInfo()
@@ -692,19 +695,19 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
           this.loadingShow();
           this.connectionService.getTables(this.datasetJdbc.dcId, schema, page)
-          .then((data) => {
-            this.loadingHide();
-            if (data && data.tables) {
-              for (let idx = 0, nMax = data.tables.length; idx < nMax; idx = idx + 1) {
-                this.schemaList.push({ idx : idx, name : data.tables[idx].name, selected : false });
+            .then((data) => {
+              this.loadingHide();
+              if (data && data.tables) {
+                for (let idx = 0, nMax = data.tables.length; idx < nMax; idx = idx + 1) {
+                  this.schemaList.push({ idx : idx, name : data.tables[idx].name, selected : false });
+                }
               }
-            }
-          })
-          .catch((error) => {
-            this.loadingHide();
-            let prep_error = this.dataprepExceptionHandler(error);
-            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-          });
+            })
+            .catch((error) => {
+              this.loadingHide();
+              let prep_error = this.dataprepExceptionHandler(error);
+              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+            });
         } else {
           if (data && data.tables) {
             for (let idx = 0, nMax = data.tables.length; idx < nMax; idx = idx + 1) {
@@ -714,9 +717,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         }
       })
       .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
 
     /*

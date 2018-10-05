@@ -811,7 +811,7 @@
   "msg.dp.btn.run": "Run",
   "msg.dp.btn.show.rslt": "Show result",
   "msg.dp.btn.union.add" : "Add selections",
-  "msg.dp.create.sel.data.type": "Select source type",
+  "msg.dp.create.sel.data.type": "Select data type",
   "msg.dp.create.staging.sub.title": "Please select data",
   "msg.dp.create.staging.title": "Create staging DB type dataset",
   "msg.dp.li.ag.description" : "Group fields and perform statistical functions",
@@ -1852,7 +1852,6 @@
   "msg.storage.ui.max.row.error": "You can enter up to {{value}}.",
   "msg.storage.ui.db.connection" : "DB connection",
   "msg.storage.ui.conn.dialog.desc" : "Can not ingestion by batch method.",
-  "msg.storage.ui.max.row.error": "You can enter up to {{value}}.",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",
