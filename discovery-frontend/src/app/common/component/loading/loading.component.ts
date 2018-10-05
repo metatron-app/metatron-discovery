@@ -102,8 +102,8 @@ export class LoadingComponent extends AbstractComponent {
      */
     public hide(): void {
 
-        // Set
-        this.visible = false ;
+        // Init 전이라면 중단
+        if( !this.isLoaded ) { return; }
 
         this.$element.hide();
     }

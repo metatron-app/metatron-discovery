@@ -1021,7 +1021,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.datagridCurList = [];
     this.tabGridNum = 0;
     this.selectedGridTabNum = 0;
-    // this.resultMode = '';
 
     this.workbenchService.checkConnectionStatus(this.textList[this.selectedTabNum]['editorId'], this.websocketId)
       .then((result) => {
@@ -1078,11 +1077,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 }
               }
 
-              //쿼리 실행
-              this.loadingBar.show();
-
               // hive log view show
               if( this.mimeType == 'HIVE' ) {
+
+                //쿼리 실행
+                this.loadingBar.show();
 
                 // log 초기화
                 (this.hiveLogs[0]) || (this.hiveLogs[0] = { isShow: true, log: [] });
@@ -1158,7 +1157,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             tempArr.push(result[0]);
             result = tempArr;
 
-
+            /*
             // 현재 중지된 쿼리가 있을경우
             if (this.isLogCancelTabQuery.length > 0) {
               // cancel log 시 현재 탭의 데이터 제거
@@ -1174,7 +1173,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               }
 
             }
-
+            */
 
             // 중지된 쿼리가 있을경우
             if( this.isLogCancelTabQuery.length > 0 ){
@@ -2007,6 +2006,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
         if ('HIVE' === this.mimeType && !isNullOrUndefined(data.queryIndex)) {
 
+          this.loadingBar.hide();
+
           /*
           let isPassLogData: boolean = false;
 
@@ -2044,8 +2045,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
           // log 데이터 그리는 부분, done 인 부분으로 분리
           if ('LOG' === data.command && data.log.length != 0) {
-
-            this.loadingBar.hide();
 
             const currHiveLog = this.hiveLogs[this.runningQueryDoneIndex];
 
