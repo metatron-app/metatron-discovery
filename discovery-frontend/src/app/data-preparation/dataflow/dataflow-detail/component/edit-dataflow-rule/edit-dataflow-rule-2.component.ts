@@ -186,13 +186,22 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // 검색어가 있는지 체크
     const isSearchTextEmpty = StringUtil.isNotEmpty(this.commandSearchText);
 
+    let enCheckReg = /^[A-Za-z]+$/;
+
     // 검색어가 있다면
     if (isSearchTextEmpty) {
       commandList = commandList.filter((item) => {
-        return item.command.toLowerCase().indexOf(this.commandSearchText.toLowerCase()) > -1;
+        //return item.command.toLowerCase().indexOf(this.commandSearchText.toLowerCase()) > -1;
+        // en or ko
+        if(enCheckReg.test(this.commandSearchText)) {
+          return item.command.toLowerCase().indexOf(this.commandSearchText.toLowerCase()) > -1;
+        } else {
+          return item.command_h.indexOf(this.commandSearchText) > -1;
+        }
       });
     }
     return commandList;
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1668,106 +1677,165 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         command: 'header',
         alias: 'He',
         desc: this.translateService.instant('msg.dp.li.he.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅗㄷㅁㅇㄷㄱ'
       },
-      { command: 'keep', alias: 'Ke', desc: this.translateService.instant('msg.dp.li.ke.description'), isHover: false },
+      { command: 'keep',
+        alias: 'Ke',
+        desc: this.translateService.instant('msg.dp.li.ke.description'),
+        isHover: false,
+        command_h: 'ㅏㄷ데'
+      },
       {
         command: 'replace',
         alias: 'Rp',
         desc: this.translateService.instant('msg.dp.li.rp.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㄱ데ㅣㅁㅊㄷ'
       },
       {
         command: 'rename',
         alias: 'Rn',
         desc: this.translateService.instant('msg.dp.li.rn.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㄱ두믇'
       },
-      { command: 'set', alias: 'Se', desc: this.translateService.instant('msg.dp.li.se.description'), isHover: false },
+      { command: 'set',
+        alias: 'Se',
+        desc: this.translateService.instant('msg.dp.li.se.description'),
+        isHover: false,
+        command_h: 'ㄴㄷㅅ'
+      },
       {
         command: 'settype',
         alias: 'St',
         desc: this.translateService.instant('msg.dp.li.st.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㄴㄷㅅ쇼ㅔㄷ'
       },
       {
         command: 'countpattern',
         alias: 'Co',
         desc: this.translateService.instant('msg.dp.li.co.description'),
-        isHover: false
+        isHover: false,
+        command_h: '채ㅕㅜ셈ㅅㅅㄷ구'
       },
       {
         command: 'split',
         alias: 'Sp',
         desc: this.translateService.instant('msg.dp.li.sp.description'),
-        isHover: false
+        isHover: false,
+        command_h: '네ㅣㅑㅅ'
       },
       {
         command: 'derive',
         alias: 'Dr',
         desc: this.translateService.instant('msg.dp.li.dr.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅇㄷ걒ㄷ'
       },
       {
         command: 'delete',
         alias: 'De',
         desc: this.translateService.instant('msg.dp.li.de.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅇ딛ㅅㄷ'
       },
-      { command: 'drop', alias: 'Dp', desc: this.translateService.instant('msg.dp.li.dp.description'), isHover: false },
+      { command: 'drop',
+        alias: 'Dp',
+        desc: this.translateService.instant('msg.dp.li.dp.description'),
+        isHover: false,
+        command_h: 'ㅇ개ㅔ'
+      },
       {
         command: 'pivot',
         alias: 'Pv',
         desc: this.translateService.instant('msg.dp.li.pv.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅔㅑ팻'
       },
       {
         command: 'unpivot',
         alias: 'Up',
         desc: this.translateService.instant('msg.dp.li.up.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅕㅞㅑ팻'
       },
-      { command: 'Join', alias: 'Jo', desc: this.translateService.instant('msg.dp.li.jo.description'), isHover: false },
+      { command: 'Join',
+        alias: 'Jo',
+        desc: this.translateService.instant('msg.dp.li.jo.description'),
+        isHover: false,
+        command_h:'ㅓㅐㅑㅜ'
+      },
       {
         command: 'extract',
         alias: 'Ex',
         desc: this.translateService.instant('msg.dp.li.ex.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㄷㅌㅅㄱㅁㅊㅅ'
       },
       {
         command: 'flatten',
         alias: 'Fl',
         desc: this.translateService.instant('msg.dp.li.fl.description'),
-        isHover: false
+        isHover: false,
+        command_h: '림ㅅㅅ두'
       },
       {
         command: 'merge',
         alias: 'Me',
         desc: this.translateService.instant('msg.dp.li.me.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅡㄷㄱㅎㄷ'
       },
-      { command: 'nest', alias: 'Ne', desc: this.translateService.instant('msg.dp.li.ne.description'), isHover: false },
+      { command: 'nest',
+        alias: 'Ne',
+        desc: this.translateService.instant('msg.dp.li.ne.description'),
+        isHover: false,
+        command_h: 'ㅜㄷㄴㅅ'
+      },
       {
         command: 'unnest',
         alias: 'Un',
         desc: this.translateService.instant('msg.dp.li.un.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅕㅜㅜㄷㄴㅅ'
       },
       {
         command: 'aggregate',
         alias: 'Ag',
         desc: this.translateService.instant('msg.dp.li.ag.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅁㅎㅎㄱㄷㅎㅁㅅㄷ'
       },
-      { command: 'sort', alias: 'So', desc: this.translateService.instant('msg.dp.li.so.description'), isHover: false },
-      { command: 'move', alias: 'Mv', desc: this.translateService.instant('msg.dp.li.mv.description'), isHover: false },
+      {
+        command: 'sort',
+        alias: 'So',
+        desc: this.translateService.instant('msg.dp.li.so.description'),
+        isHover: false,
+        command_h: '낷'
+      },
+      {
+        command: 'move',
+        alias: 'Mv',
+        desc: this.translateService.instant('msg.dp.li.mv.description'),
+        isHover: false,
+        command_h: 'ㅡㅐㅍㄷ'
+      },
       {
         command: 'Union',
         alias: 'Ui',
         desc: this.translateService.instant('msg.dp.li.ui.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅕㅜㅑㅐㅜ'
       },
-      { command: 'setformat', alias: 'Sf', desc: this.translateService.instant('msg.dp.li.sf.description'), isHover: false }
+      {
+        command: 'setformat',
+        alias: 'Sf',
+        desc: this.translateService.instant('msg.dp.li.sf.description'),
+        isHover: false,
+        command_h: 'ㄴㄷㅅ래금ㅅ'
+      }
     ];
 
     // set rule
