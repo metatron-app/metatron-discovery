@@ -123,7 +123,7 @@ export class AbstractService {
     const headers = new Headers({
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
 
     });
 
@@ -158,7 +158,7 @@ export class AbstractService {
     const headers = new Headers({
       'Content-Type': 'multipart/form-data',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
 
     });
 
@@ -188,7 +188,7 @@ export class AbstractService {
     const headers = new Headers({
       'Content-Type': 'text/html',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
 
     });
 
@@ -223,15 +223,21 @@ export class AbstractService {
     const headers = new Headers({
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
 
     });
 
-    // 호출
-    return this.http.post(url, JSON.stringify(data), { headers })
-      .toPromise()
-      .then(response => scope.resultHandler(scope, response))
-      .catch(error => scope.errorHandler(scope, error, httpMethod.POST, data));
+    try {
+      // 호출
+      return this.http.post(url, JSON.stringify(data), { headers })
+        .toPromise()
+        .then(response => scope.resultHandler(scope, response))
+        .catch(error => scope.errorHandler(scope, error, httpMethod.POST, data));
+    } catch (err) {
+      console.error( err );
+      return Promise.reject(err);
+    }
+
   }
 
   // Post 바이너리
@@ -242,7 +248,7 @@ export class AbstractService {
       Accept: 'application/octet-stream',
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
     });
     this.http.post(url, JSON.stringify(data), { headers }).subscribe(
       (response) => {
@@ -262,7 +268,7 @@ export class AbstractService {
       Accept: 'application/octet-stream',
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
     });
 
     // 호출
@@ -282,7 +288,7 @@ export class AbstractService {
     const headers = new Headers({
       'Content-Type': contentType,
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
 
     });
 
@@ -328,7 +334,7 @@ export class AbstractService {
     const headers = new Headers({
       'Content-Type': type,
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
 
     });
 
@@ -370,7 +376,7 @@ export class AbstractService {
     const headers = new Headers({
       'Content-Type': 'application/json',
       Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-      + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+        + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
 
     });
 
@@ -453,7 +459,7 @@ export class AbstractService {
           const headers = new Headers({
             'Content-Type': 'application/json',
             Authorization: this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN_TYPE)
-            + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
+              + ' ' + this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN),
           });
 
           // 기존 API를 다시 호출

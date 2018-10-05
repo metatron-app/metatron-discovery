@@ -325,6 +325,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public boardUtil = DashboardUtil;
 
   /**
    * 범례 표시여부 변경
@@ -691,74 +692,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isShowWidgetName(): boolean {
     return this.isViewMode && this.widget && this.widget.name && this.isShowTitle && !this.isShowHierarchyView;
   } // function - isShowWidgetName
-
-  /**
-   * 차트의 아이콘 클래스명 반환
-   * @return {string}
-   */
-  public getChartIconClass(): string {
-    let iconClass: string = '';
-    switch (this.widget.configuration.chart.type) {
-      case ChartType.BAR :
-        iconClass = 'ddp-chart-bar';
-        break;
-      case ChartType.LINE :
-        iconClass = 'ddp-chart-linegraph';
-        break;
-      case ChartType.GRID :
-        iconClass = 'ddp-chart-table';
-        break;
-      case ChartType.SCATTER :
-        iconClass = 'ddp-chart-scatter';
-        break;
-      case ChartType.HEATMAP :
-        iconClass = 'ddp-chart-heatmap';
-        break;
-      case ChartType.PIE :
-        iconClass = 'ddp-chart-pie';
-        break;
-      case ChartType.MAPVIEW :
-        iconClass = 'ddp-chart-map';
-        break;
-      case ChartType.CONTROL :
-        iconClass = 'ddp-chart-cont';
-        break;
-      case ChartType.LABEL :
-        iconClass = 'ddp-chart-kpi';
-        break;
-      case ChartType.LABEL2 :
-        iconClass = 'ddp-chart-kpi';
-        break;
-      case ChartType.BOXPLOT :
-        iconClass = 'ddp-chart-boxplot';
-        break;
-      case ChartType.WATERFALL :
-        iconClass = 'ddp-chart-waterfall';
-        break;
-      case ChartType.WORDCLOUD :
-        iconClass = 'ddp-chart-wordcloud';
-        break;
-      case ChartType.COMBINE :
-        iconClass = 'ddp-chart-combo';
-        break;
-      case ChartType.TREEMAP :
-        iconClass = 'ddp-chart-treemap';
-        break;
-      case ChartType.RADAR :
-        iconClass = 'ddp-chart-radar';
-        break;
-      case ChartType.NETWORK :
-        iconClass = 'ddp-chart-network';
-        break;
-      case ChartType.SANKEY :
-        iconClass = 'ddp-chart-sankey';
-        break;
-      case ChartType.GAUGE :
-        iconClass = 'ddp-chart-bar';
-        break;
-    }
-    return iconClass;
-  } // function - getChartIconClass
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - for Header
