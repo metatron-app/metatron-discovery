@@ -456,8 +456,10 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
       // Pivot의 순서가 변경되었을때 처리
       /////////////////////
 
+      let isPush: boolean = false;
       for( let num2: number = 0 ; num2 < this.pivot.aggregations.length ; num2++ ) {
         if( option.series.length >= (num2+1) && _.eq(alias, option.series[num2].name) ) {
+          isPush = true;
           series.push(option.series[num2]);
         }
         if( option.icons.length >= (num2+1) && _.eq(alias, option.icons[num2].seriesName) ) {
@@ -468,6 +470,32 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
         }
         if( option.secondaryIndicators.length >= (num2+1) && _.eq(alias, option.secondaryIndicators[num2].seriesName) ) {
           secondaryIndicators.push(option.secondaryIndicators[num2]);
+        }
+      }
+
+      /////////////////////
+      // Change alias process
+      /////////////////////
+
+      if( !isPush ) {
+        option.series[num].name = alias;
+        option.icons[num].seriesName = alias;
+        option.annotations[num].seriesName = alias;
+        option.secondaryIndicators[num].seriesName = alias;
+
+        for( let num2: number = 0 ; num2 < this.pivot.aggregations.length ; num2++ ) {
+          if( option.series.length >= (num2+1) && _.eq(alias, option.series[num2].name) ) {
+            series.push(option.series[num2]);
+          }
+          if( option.icons.length >= (num2+1) && _.eq(alias, option.icons[num2].seriesName) ) {
+            icons.push(option.icons[num2]);
+          }
+          if( option.annotations.length >= (num2+1) && _.eq(alias, option.annotations[num2].seriesName) ) {
+            annotations.push(option.annotations[num2]);
+          }
+          if( option.secondaryIndicators.length >= (num2+1) && _.eq(alias, option.secondaryIndicators[num2].seriesName) ) {
+            secondaryIndicators.push(option.secondaryIndicators[num2]);
+          }
         }
       }
     }
