@@ -155,6 +155,7 @@ export class SecondaryIndicatorComponent extends BaseOptionComponent {
         // Pivot이 추가되었을때 처리
         /////////////////////
 
+        //if( option.series.length <= num || option.series.length != this.pivot.aggregations.length ) {
         if( option.series.length <= num ) {
           if( num > 0 ) {
             option.series[num] = {

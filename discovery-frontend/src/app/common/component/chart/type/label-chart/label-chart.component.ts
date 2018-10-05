@@ -397,6 +397,7 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
       // Pivot이 추가되었을때 처리
       /////////////////////
 
+      //if( option.series.length <= num || option.series.length != seriesLength ) {
       if( option.series.length <= num ) {
         if( num > 0 ) {
           option.series[num] = {
@@ -451,6 +452,46 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
         option.series[num] = {};
       }
 
+      /////////////////////
+      // Pivot의 순서가 변경되었을때 처리
+      /////////////////////
+
+      for( let num2: number = 0 ; num2 < this.pivot.aggregations.length ; num2++ ) {
+        if( option.series.length >= (num2+1) && _.eq(alias, option.series[num2].name) ) {
+          series.push(option.series[num2]);
+        }
+        if( option.icons.length >= (num2+1) && _.eq(alias, option.icons[num2].seriesName) ) {
+          icons.push(option.icons[num2]);
+        }
+        if( option.annotations.length >= (num2+1) && _.eq(alias, option.annotations[num2].seriesName) ) {
+          annotations.push(option.annotations[num2]);
+        }
+        if( option.secondaryIndicators.length >= (num2+1) && _.eq(alias, option.secondaryIndicators[num2].seriesName) ) {
+          secondaryIndicators.push(option.secondaryIndicators[num2]);
+        }
+      }
+    }
+
+    // 변경된 순서 반영
+    option.series = series;
+    option.icons = icons;
+    option.annotations = annotations;
+    option.secondaryIndicators = secondaryIndicators;
+
+    if( seriesLength != option.series.length ) {
+      (option).series = (option).series.slice(0, seriesLength);
+      (option).icons = (option).icons.slice(0, seriesLength);
+      (option).annotations = (option).annotations.slice(0, seriesLength);
+      (option).secondaryIndicators = (option).secondaryIndicators.slice(0, seriesLength);
+    }
+
+    // Calculate secondary indicators
+    for( let num: number = 0 ; num < seriesLength ; num++ ) {
+
+      // 포맷정보
+      let format: UIChartFormatItem = !this.uiOption.valueFormat.isAll && this.uiOption.valueFormat.each.length > 0 ? this.uiOption.valueFormat.each[num] : this.uiOption.valueFormat;
+
+      // KPI Info
       let kpi: KPI = new KPI();
       let kpiValue: number = _.sum(this.data.columns[num].value);
 
@@ -480,9 +521,9 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
 
       // 목표값
       if( option.secondaryIndicators[num].show
-          && !_.eq(option.secondaryIndicators[num].indicatorType, LabelSecondaryIndicatorType.PERIOD)
-          && option.secondaryIndicators[num].targetValue
-          && option.secondaryIndicators[num].targetValue != 0 ) {
+        && !_.eq(option.secondaryIndicators[num].indicatorType, LabelSecondaryIndicatorType.PERIOD)
+        && option.secondaryIndicators[num].targetValue
+        && option.secondaryIndicators[num].targetValue != 0 ) {
 
         let value: number = kpiValue - option.secondaryIndicators[num].targetValue;
         // 목표값 양수여부
@@ -633,41 +674,10 @@ export class LabelChartComponent extends BaseChart implements OnInit, OnDestroy,
         kpi.show = false;
       }
 
-      /////////////////////
-      // Pivot의 순서가 변경되었을때 처리
-      /////////////////////
-
-      for( let num2: number = 0 ; num2 < this.pivot.aggregations.length ; num2++ ) {
-        if( option.series.length >= (num2+1) && _.eq(alias, option.series[num2].name) ) {
-          series.push(option.series[num2]);
-        }
-        if( option.icons.length >= (num2+1) && _.eq(alias, option.icons[num2].seriesName) ) {
-          icons.push(option.icons[num2]);
-        }
-        if( option.annotations.length >= (num2+1) && _.eq(alias, option.annotations[num2].seriesName) ) {
-          annotations.push(option.annotations[num2]);
-        }
-        if( option.secondaryIndicators.length >= (num2+1) && _.eq(alias, option.secondaryIndicators[num2].seriesName) ) {
-          secondaryIndicators.push(option.secondaryIndicators[num2]);
-        }
-      }
-
       // 추가
       this.list.push(kpi);
     }
 
-    // 변경된 순서 반영
-    option.series = series;
-    option.icons = icons;
-    option.annotations = annotations;
-    option.secondaryIndicators = secondaryIndicators;
-
-    if( seriesLength != option.series.length ) {
-      (option).series = (option).series.slice(0, seriesLength);
-      (option).icons = (option).icons.slice(0, seriesLength);
-      (option).annotations = (option).annotations.slice(0, seriesLength);
-      (option).secondaryIndicators = (option).secondaryIndicators.slice(0, seriesLength);
-    }
 
     // KPI 차트는 엘리먼트로 구성되지 않기 때문에 chartOption을 쓰지 않지만 override를 위해 반환
     return this.chartOption;

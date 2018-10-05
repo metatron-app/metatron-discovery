@@ -238,7 +238,8 @@ export class CommonOptionComponent extends BaseOptionComponent {
           // Pivot이 추가되었을때 처리
           /////////////////////
 
-          if (option.series.length <= num) {
+          //if( option.series.length <= num || option.series.length != this.pivot.aggregations.length ) {
+          if( option.series.length <= num ) {
             if (num > 0) {
               option.series[num] = {
                 name: alias
@@ -304,19 +305,8 @@ export class CommonOptionComponent extends BaseOptionComponent {
             }
           }
 
-          // if (!isIconAll) {
-          //   this.kpiIconTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
-          // }
-
-          //////////////////////////////////////////
-          // 설명
-          //////////////////////////////////////////
-
-          this.kpiText = option.annotations[0].show ? option.annotations[0].description : "";
-          this.kpiTextTemp = this.kpiText;
-          // if (!isTextAll) {
-          //   this.kpiTextTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
-          // }
+          // this.kpiText = option.annotations[0].show ? option.annotations[0].description : "";
+          // this.kpiTextTemp = this.kpiText;
         }
 
         // 변경된 순서 반영
@@ -330,6 +320,14 @@ export class CommonOptionComponent extends BaseOptionComponent {
         }
         if (!isTextAll) {
           this.kpiTextTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
+
+          if( option.annotations[0].show ) {
+            this.kpiText = this.kpiIconTargetList.length > 1 ? option.annotations[0].description : "";
+          }
+          else {
+            this.kpiText = "";
+          }
+          this.kpiTextTemp = this.kpiText;
         }
       }
     }
