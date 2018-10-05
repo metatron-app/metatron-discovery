@@ -183,16 +183,15 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   get filteredCommandList() {
 
     let commandList = this.commandList;
-    // 검색어가 있는지 체크
+
     const isSearchTextEmpty = StringUtil.isNotEmpty(this.commandSearchText);
 
     let enCheckReg = /^[A-Za-z]+$/;
 
-    // 검색어가 있다면
+    // Check Search Text
     if (isSearchTextEmpty) {
       commandList = commandList.filter((item) => {
-        //return item.command.toLowerCase().indexOf(this.commandSearchText.toLowerCase()) > -1;
-        // en or ko
+        // language(en or ko) check
         if(enCheckReg.test(this.commandSearchText)) {
           return item.command.toLowerCase().indexOf(this.commandSearchText.toLowerCase()) > -1;
         } else {
