@@ -69,6 +69,24 @@ public class DataFrame implements Serializable, Transformable {
   @JsonIgnore
   public List<String> ruleColumns;
 
+  public boolean valid;
+
+  // copy the references to all members (to avoid deep copy, but make a non-identical object)
+  public DataFrame(DataFrame df) {
+    colCnt             = df.colCnt;
+    colDescs           = df.colDescs;
+    colHists           = df.colHists;
+    rows               = df.rows;
+    mapColno           = df.mapColno;
+    newColNames        = df.newColNames;
+    interestedColNames = df.interestedColNames;
+    dsName             = df.dsName;
+    slaveDsNameMap     = df.slaveDsNameMap;
+    newColPos          = df.newColPos;
+    ruleString         = df.ruleString;
+    ruleColumns        = df.ruleColumns;
+    valid              = df.valid;
+  }
 
   // Constructor
   public DataFrame() {
@@ -88,6 +106,7 @@ public class DataFrame implements Serializable, Transformable {
     ruleString = "ORIGINAL";
 
     ruleColumns = new ArrayList<>();
+    valid = true;
   }
 
   public DataFrame(String dsName) {
@@ -106,6 +125,14 @@ public class DataFrame implements Serializable, Transformable {
 
   public String getRuleString() {
     return ruleString;
+  }
+
+  public boolean isValid() {
+    return valid;
+  }
+
+  public void setValid(boolean valid) {
+    this.valid = valid;
   }
 
   public static DataFrame getNewDf(Rule rule, String dsName, String ruleString) {

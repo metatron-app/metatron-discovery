@@ -645,7 +645,7 @@ public class PrepTransformService {
         if (stageIdx <= origStageIdx) {
           adjustStageIdx(dsId, origStageIdx - 1, true);
         } else {
-          adjustStageIdx(dsId, origStageIdx, true);  // Currently, this case does not happen (no delete butten after curRuleIdx)
+          adjustStageIdx(dsId, origStageIdx, true);  // Currently, this case does not happen (no delete button after curRuleIdx)
         }
         break;
       case UPDATE:
@@ -706,9 +706,12 @@ public class PrepTransformService {
     transformRuleRepository.flush();
 
     List<String> ruleStrings = teddyImpl.getRuleStrings(dsId);
+    List<Boolean> valids = teddyImpl.getValids(dsId);
+
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     for (int i = 0; i < ruleStrings.size(); i++) {
       PrepTransformRule rule = new PrepTransformRule(dataset, i, ruleStrings.get(i));
+      rule.setValid(valids.get(i));
       transformRuleRepository.save(rule);
     }
 
