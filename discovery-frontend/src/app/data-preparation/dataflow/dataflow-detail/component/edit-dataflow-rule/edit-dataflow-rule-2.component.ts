@@ -15,7 +15,6 @@
 import { isNullOrUndefined, isUndefined } from 'util';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
-import Split from 'split.js';
 import {
   AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnDestroy, OnInit,
   Output,
@@ -37,6 +36,8 @@ import { CreateSnapshotPopup } from '../../../../component/create-snapshot-popup
 import { RuleListComponent } from './rule-list.component';
 import { DataSnapshotDetailComponent } from '../../../../data-snapshot/data-snapshot-detail.component';
 import { EventBroadcaster } from '../../../../../common/event/event.broadcaster';
+
+declare let Split;
 
 @Component({
   selector: 'app-edit-dataflow-rule-2',
