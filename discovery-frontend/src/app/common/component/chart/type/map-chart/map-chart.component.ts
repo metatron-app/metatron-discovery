@@ -13,6 +13,7 @@ import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
 import {DatasourceService} from '../../../../../datasource/service/datasource.service';
 import {SearchQueryRequest} from "../../../../../domain/datasource/data/search-query-request";
 import {PageWidget} from "../../../../../domain/dashboard/widget/page-widget";
+import {FormatOptionConverter} from '../../../../../common/component/chart/option/converter/format-option-converter';
 
 import * as _ from 'lodash';
 import { UIOption } from '../../option/ui-option';
@@ -136,34 +137,26 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     console.info(extent);
   }
 
-  public attribution(): string {
-    // return this.uiOption.licenseNotation;
-    return '© OpenStreetMap contributer';
+  public attribution(): any {
+    return [new ol.Attribution({
+      html: this.uiOption.licenseNotation
+    })];
+    // return '© OpenStreetMap contributer';
   }
 
   public osmLayer = new ol.layer.Tile({
-      source: new ol.source.OSM({
-        attributions: [new ol.Attribution({
-          html: this.attribution()
-        })]
-      })
+      source: new ol.source.OSM()
   });
 
   public cartoPositronLayer = new ol.layer.Tile({
       source: new ol.source.XYZ({
-        url:'http://{1-4}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-        attributions: [new ol.Attribution({
-          html: this.attribution()
-        })]
+        url:'http://{1-4}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
       })
   });
 
   public cartoDarkLayer = new ol.layer.Tile({
       source: new ol.source.XYZ({
-        url:'http://{1-4}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-        attributions: [new ol.Attribution({
-          html: this.attribution()
-        })]
+        url:'http://{1-4}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
       })
   });
 
@@ -730,6 +723,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
       }
 
+      feature.set('layerNum', 1);
+
       features[i] = feature;
 
     }
@@ -752,6 +747,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     if(!this.mapVaild) {
       this.createMap();
+
+      this.osmLayer.getSource().setAttributions(this.attribution());
+      this.cartoPositronLayer.getSource().setAttributions(this.attribution());
+      this.cartoDarkLayer.getSource().setAttributions(this.attribution());
 
       this.olmap.addLayer(symbolLayer);
       this.olmap.addLayer(clusterLayer);
@@ -815,6 +814,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.getView().fit(source.getExtent());
 
     } else {
+
+      this.osmLayer.getSource().setAttributions(this.attribution());
+      this.cartoPositronLayer.getSource().setAttributions(this.attribution());
+      this.cartoDarkLayer.getSource().setAttributions(this.attribution());
+
 
       this.olmap.getLayers().getArray()[1] = symbolLayer;
       this.olmap.getLayers().getArray()[2] = clusterLayer;
@@ -932,34 +936,41 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         '<span class="ddp-txt-tooltip">';
 
         //Layer Name (LAYER_NAME)
-        // if(tooltipOption.toolTip.displayTypes[17] !== null) {
-          tooltipHtml = tooltipHtml + '<span class="ddp-label"><em class="ddp-icon-mapview1-w"></em> ' + tooltipOption.layers[0].name + '</span>';
-        // }
+        if(tooltipOption.toolTip.displayTypes[17] !== null) {
+          if(feature.get('layerNum') === 1) {
+            tooltipHtml = tooltipHtml + '<span class="ddp-label"><em class="ddp-icon-mapview1-w"></em> ' + tooltipOption.layers[0].name + '</span>';
+          } else if(feature.get('layerNum') === 2) {
+            tooltipHtml = tooltipHtml + '<span class="ddp-label"><em class="ddp-icon-mapview2-w"></em> ' + tooltipOption.layers[1].name + '</span>';
+          } else if(feature.get('layerNum') === 3) {
+            tooltipHtml = tooltipHtml + '<span class="ddp-label"><em class="ddp-icon-mapview3-w"></em> ' + tooltipOption.layers[2].name + '</span>';
+          }
+
+        }
 
         tooltipHtml = tooltipHtml + '<table class="ddp-table-info"><colgroup><col width="70px"><col width="*"></colgroup><tbody>';
 
         //Coordinates info (LOCATION_INFO)
-        // if(tooltipOption.toolTip.displayTypes[18] !== null) {
-          '<tr><th>Geo info</th><td>'+ pointerX + ', ' + pointerY + '</td></tr>';
-        // }
+        if(tooltipOption.toolTip.displayTypes[18] !== null) {
+          tooltipHtml = tooltipHtml + '<tr><th>Geo info</th><td>'+ pointerX + ', ' + pointerY + '</td></tr>';
+        }
 
         //Properties (DATA_VALUE)
-        // if(tooltipOption.toolTip.displayTypes[19] !== null) {
+        if(tooltipOption.toolTip.displayTypes[19] !== null) {
           for(var key in feature.getProperties()) {
             let tooltipVal = feature.get(key);
 
-            if (key !== 'geometry' && key !== 'weight') {
+            if (key !== 'geometry' && key !== 'weight' && key !== 'layerNum') {
               if (key === 'features') {
                 tooltipHtml = tooltipHtml + '<tr><th>' + key + '</th><td>' + feature.get(key).length + '</td></tr>';
               } else {
                 if(typeof(tooltipVal) === "number") {
-                  tooltipVal = tooltipVal.toFixed(tooltipOption.valueFormat.decimal);
+                  tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, tooltipOption.valueFormat);
                 }
                 tooltipHtml = tooltipHtml + '<tr><th>' + key + '</th><td>' + tooltipVal + '</td></tr>';
               }
             }
           }
-        // }
+        }
 
         tooltipHtml = tooltipHtml + '</tbody></table></span></div>';
 
@@ -1067,6 +1078,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         //히트맵 weight 설정
         feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
       }
+
+      feature.set('layerNum', 2);
 
       features[i] = feature;
 
@@ -1312,6 +1325,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         //히트맵 weight 설정
         feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
       }
+
+      feature.set('layerNum', 3);
 
       features[i] = feature;
 

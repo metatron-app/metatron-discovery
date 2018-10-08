@@ -48,13 +48,27 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
    }
 
    /**
-    * 팔레트 색상을 변경한다
+    * 배경맵을 변경한다
     */
    public changeMapType(type?: string) {
-     console.log(type);
+
      // 해당 베이스맵 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
        map: type
+     });
+
+     // update
+     this.update();
+   }
+
+   /**
+    * 라이센스 Notation을 변경한다
+    */
+   public changeLicenseNotation() {
+
+     // 해당 라이센스 Notation으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       licenseNotation: this.uiOption.licenseNotation
      });
 
      // update

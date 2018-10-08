@@ -1201,7 +1201,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
 
       if( geoFieldCnt > 1 ) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
-        debugger
         cloneQuery.dataSource = _.cloneDeep( this.widget.dashBoard.configuration.dataSource );
 
         for(let layer of cloneQuery.shelf.layers[0]) {

@@ -808,6 +808,29 @@
               <!-- 차트 가이드 -->
               <div *ngIf="selectChart!='' && !isChartShow" style="width: 100%; height: 100%">
 
+                <!-- layout 6 -->
+                <div class="ddp-ui-cahrt-layout ddp-box-layout2" *ngIf="isShowGuide && this.guideLayout['layout6'].indexOf(selectChart) > -1">
+
+                  <div class="ddp-ui-layout-center" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'aggregation-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore ddp-ui-condition">
+                      <em class="ddp-icon-cross2"></em>
+                      <span class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.desc' | translate: { value : '1' } }}</span>
+                    </div>
+
+                  </div>
+                  <div class="ddp-ui-layout-bottom" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'row-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore dragIgnore ddp-ui-condition">
+                      <em class="ddp-icon-columns2"></em>
+                      <span class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }}</span>
+                    </div>
+                    <!-- //조건 -->
+
+                  </div>
+                </div>
+                <!-- //layout 5 -->
+
                 <!-- layout 5 -->
                 <div class="ddp-ui-cahrt-layout ddp-box-layout2" *ngIf="isShowGuide && this.guideLayout['layout5'].indexOf(selectChart) > -1">
 
@@ -825,7 +848,7 @@
                     <!-- 조건 -->
                     <div class="dragIgnore dragIgnore ddp-ui-condition">
                       <em class="ddp-icon-columns2"></em>
-                      <span class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }}</span>
+                      <span class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.desc' | translate: { value : '1' } }}</span>
                     </div>
                     <!-- //조건 -->
 

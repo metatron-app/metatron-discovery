@@ -761,6 +761,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     this.outline = this.uiOption.layers[0].outline;
     this.clustering = this.uiOption.layers[0].clustering;
 
+
+    this.measureList = [];
+    for(let measureField of this.uiOption.fieldMeasureList) {
+      this.measureList.push(measureField.alias.toString());
+    }
+
     // Init
     super.ngOnInit();
   }

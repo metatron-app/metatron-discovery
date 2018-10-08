@@ -118,10 +118,11 @@
                             <em class="ddp-icon-user"></em> {{'msg.page.layer.map.point.people' | translate}}
                         </li>
                     </ul>
-
                 </div>
                 <!-- //divide -->
+              </div>
 
+              <div class="ddp-wrap-divide">
                 <!-- divide -->
                 <div class="ddp-divide2 ">
                   <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
@@ -140,22 +141,23 @@
                         </ul>
                       </div>
                       <!-- //part -->
-                    </div>
-                    <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'DIMENSION'">
-                      <!-- SELECTBOX -->
-                      <component-select
-                        [array]="uiOption.fieldList"
-                        [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[0].color['column'])"
-                        (onSelected)="changeColorColumn($event)"
-                      ></component-select>
-                    </div>
-                    <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
-                      <!-- SELECTBOX -->
-                      <component-select
-                        [array]="measureList"
-                        [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[0].color['column'])"
-                        (onSelected)="changeColorColumn($event)"
-                      ></component-select>
+
+                      <div class="ddp-list-part ddp-divide" *ngIf="uiOption.layers[0].color.by.toString() === 'DIMENSION'">
+                        <!-- SELECTBOX -->
+                        <component-select
+                          [array]="uiOption.fieldList"
+                          [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[0].color['column'])"
+                          (onSelected)="changeColorColumn($event)"
+                        ></component-select>
+                      </div>
+                      <div class="ddp-list-part ddp-divide" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                        <!-- SELECTBOX -->
+                        <component-select
+                          [array]="measureList"
+                          [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[0].color['column'])"
+                          (onSelected)="changeColorColumn($event)"
+                        ></component-select>
+                      </div>
                     </div>
 
                     <div class="ddp-divide2">
@@ -181,7 +183,7 @@
 
                         <div *ngIf="'NONE' === uiOption.layers[0].color.by.toString()" class="ddp-wrap-option-multy ddp-clear">
                           <div class="ddp-col-6">
-                            <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
+                            <span class="ddp-label-txt"> </span>
                           </div>
                           <div class="ddp-col-6 ddp-txt-right">
                             <!-- selectbox -->
@@ -191,6 +193,18 @@
                             </div>
                             <!-- //selectbox -->
                           </div>
+
+
+
+                          <!-- <div class="ddp-col-6">
+                            <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
+                          </div>
+                          <div class="ddp-col-6 ddp-txt-right">
+                            <div class="ddp-type-selectbox ddp-color-selectbox2">
+                              <color-picker [showAlpha]="true" [color]="uiOption?.layers[0]?.color?.schema ? uiOption?.layers[0]?.color?.schema :'#FFF'" [showInitial]="true"
+                                            [showInput]="true" [showUserColor]="true" (selected)="selectSingleColor($event);"></color-picker>
+                            </div>
+                          </div> -->
                         </div>
 
                         <!-- popup -->

@@ -19,7 +19,7 @@
               <div class="ddp-type-selectbox" (click)="mapTypeFlag=!mapTypeFlag;" (clickOutside)="mapTypeFlag=false" [excludeBeforeClick]="true">
                 <span class="ddp-txt-selectbox">{{ uiOption.map.toString() === 'NONE' ? 'none' : uiOption.map }}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="mapTypeFlag">
-                  <li (click)="changeMapType('NONE')"><a href="#">{{'msg.page.common.map.layer.service.none' | translate}}</a></li>
+                  <!-- <li (click)="changeMapType('NONE')"><a href="#">{{'msg.page.common.map.layer.service.none' | translate}}</a></li> -->
                   <li (click)="changeMapType('OpenStreetMap')"><a href="#">OpenStreetMap</a></li>
                   <li (click)="changeMapType('Positron')"><a href="#">Positron</a></li>
                   <li (click)="changeMapType('Dark')"><a href="#">Dark</a></li>
@@ -31,7 +31,7 @@
             <!-- divide -->
             <div class="ddp-divide2">
               <div class="ddp-list-label">{{'msg.page.common.map.layer.license' | translate}}</div>
-              <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation">
+              <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation" (keyup.enter)="changeLicenseNotation()">
             </div>
             <!-- //divide -->
           </div>

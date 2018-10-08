@@ -3247,7 +3247,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       // 컨트롤차트 지원중단
       // layout3: ['waterfall', 'control', 'sankey'], // column, aggregation
       layout4: ['scatter', 'heatmap', 'boxplot', 'treemap', 'network'], // aggregation, column, rows
-      layout5: ['gauge'] // aggregation, rows
+      layout5: ['gauge'], // aggregation, rows
+      layout6: ['map'] // geo column
     };
 
   }

@@ -169,6 +169,33 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      this.changePivot(EventType.CHANGE_PIVOT);
    }
 
+
+   /**
+    * 타입(행, 열, 교차)에 따른 가이드 문구 반환
+    * @param type
+    */
+   public getGuideText(type: string, isText: boolean = true): string {
+
+     // 차트 타입 선택전이라면 공백 반환
+     if (this.chartType == '') {
+       return '';
+     }
+
+     // 행
+     if (_.eq(type, ShelveType.COLUMNS)) {
+
+         return isText ? '1+ Dimension (GEO type)' : 'ddp-box-dimension';
+
+     }
+     // 교차
+     if (_.eq(type, ShelveType.AGGREGATIONS)) {
+
+         return isText ? '1+  measure' : 'ddp-box-measure';
+     }
+
+     return '';
+   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
