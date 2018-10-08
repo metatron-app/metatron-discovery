@@ -40,8 +40,8 @@ public class PrepHdfsService {
     private Configuration hadoopConf = null;
 
     private String getUploadPath() {
-        if(null==uploadHdfsPath && null!=prepProperties.getStagingBaseDir()) {
-            String stagingBaseDir = prepProperties.getStagingBaseDir();
+        if(null==uploadHdfsPath && null!=prepProperties.getStagingBaseDir(true)) {
+            String stagingBaseDir = prepProperties.getStagingBaseDir(true);
             uploadHdfsPath = stagingBaseDir + File.separator + PrepProperties.dirUpload;
         }
         return uploadHdfsPath;
@@ -66,7 +66,7 @@ public class PrepHdfsService {
     public Configuration getConf() {
         if(null==hadoopConf) {
             hadoopConf = new Configuration();
-            String hadoopConfDir = prepProperties.getHadoopConfDir();
+            String hadoopConfDir = prepProperties.getHadoopConfDir(false);      // FIXME: after implementing specifying upload locations
             if(null!=hadoopConfDir) {
                 hadoopConf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
                 hadoopConf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
@@ -79,7 +79,7 @@ public class PrepHdfsService {
         Map<String, Object> result = Maps.newHashMap();
 
         try {
-            String stagingBaseDir = prepProperties.getStagingBaseDir();
+            String stagingBaseDir = prepProperties.getStagingBaseDir(false);    // FIXME: after implementing specifying upload locations
             result.put("stagingBaseDir", stagingBaseDir);
             result.put("checkConnection", false);
             if(null!=stagingBaseDir) {

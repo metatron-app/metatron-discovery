@@ -182,8 +182,8 @@ public class PrepDatasetSparkHiveService {
     }
 
     public String getHiveDefaultHDFSPath() {
-        if(null==hiveDefaultHDFSPath && null!=prepProperties.getStagingBaseDir()) {
-            hiveDefaultHDFSPath = prepProperties.getStagingBaseDir() + File.separator + PrepProperties.dirSnapshot;
+        if(null==hiveDefaultHDFSPath && null!=prepProperties.getStagingBaseDir(false)) {
+            hiveDefaultHDFSPath = prepProperties.getStagingBaseDir(false) + File.separator + PrepProperties.dirSnapshot;
         }
         return hiveDefaultHDFSPath;
     }
@@ -328,14 +328,13 @@ public class PrepDatasetSparkHiveService {
             List<Field> fields = Lists.newArrayList();
             List<Map<String, String>> headers = Lists.newArrayList();
 
-            PrepProperties.HiveInfo hive = prepProperties.getHive();
             StageDataConnection stageDataConnection = new StageDataConnection();
-            stageDataConnection.setHostname(prepProperties.getHive().getHostname());
-            stageDataConnection.setPort(hive.getPort());
-            stageDataConnection.setUsername(hive.getUsername());
-            stageDataConnection.setPassword(hive.getPassword());
-            stageDataConnection.setUrl(hive.getCustomUrl());
-            stageDataConnection.setMetastoreUrl(prepProperties.getHive().getMetastoreUris());
+            stageDataConnection.setHostname(    prepProperties.getHiveHostname(true));
+            stageDataConnection.setPort(        prepProperties.getHivePort(true));
+            stageDataConnection.setUsername(    prepProperties.getHiveUsername(true));
+            stageDataConnection.setPassword(    prepProperties.getHivePassword(true));
+            stageDataConnection.setUrl(         prepProperties.getHiveCustomUrl(true));
+            stageDataConnection.setMetastoreUrl(prepProperties.getHiveMetastoreUris(true));     // FIXME: metastore는 spark에서만 필요
             stageDataConnection.setDatabase(dbName);
 
             String connectUrl = stageDataConnection.getConnectUrl();
@@ -433,14 +432,13 @@ public class PrepDatasetSparkHiveService {
                 dbName = "default";
             }
 
-            PrepProperties.HiveInfo hive = prepProperties.getHive();
             StageDataConnection stageDataConnection = new StageDataConnection();
-            stageDataConnection.setHostname(hive.getHostname());
-            stageDataConnection.setPort(hive.getPort());
-            stageDataConnection.setUsername(hive.getUsername());
-            stageDataConnection.setPassword(hive.getPassword());
-            stageDataConnection.setUrl(hive.getCustomUrl());
-            stageDataConnection.setMetastoreUrl(hive.getMetastoreUris());
+            stageDataConnection.setHostname(    prepProperties.getHiveHostname(true));
+            stageDataConnection.setPort(        prepProperties.getHivePort(true));
+            stageDataConnection.setUsername(    prepProperties.getHiveUsername(true));
+            stageDataConnection.setPassword(    prepProperties.getHivePassword(true));
+            stageDataConnection.setUrl(         prepProperties.getHiveCustomUrl(true));
+            stageDataConnection.setMetastoreUrl(prepProperties.getHiveMetastoreUris(true));     // FIXME: metastore는 spark에서만 필요
             stageDataConnection.setDatabase(dbName);
 
             String connectUrl = stageDataConnection.getConnectUrl();
@@ -550,14 +548,13 @@ public class PrepDatasetSparkHiveService {
                 sql = "SELECT * FROM " + tableName + " LIMIT " + size;
             }
 
-            PrepProperties.HiveInfo hive = prepProperties.getHive();
             StageDataConnection stageDataConnection = new StageDataConnection();
-            stageDataConnection.setHostname(hive.getHostname());
-            stageDataConnection.setPort(hive.getPort());
-            stageDataConnection.setUsername(hive.getUsername());
-            stageDataConnection.setPassword(hive.getPassword());
-            stageDataConnection.setUrl(hive.getCustomUrl());
-            stageDataConnection.setMetastoreUrl(hive.getMetastoreUris());
+            stageDataConnection.setHostname(    prepProperties.getHiveHostname(true));
+            stageDataConnection.setPort(        prepProperties.getHivePort(true));
+            stageDataConnection.setUsername(    prepProperties.getHiveUsername(true));
+            stageDataConnection.setPassword(    prepProperties.getHivePassword(true));
+            stageDataConnection.setUrl(         prepProperties.getHiveCustomUrl(true));
+            stageDataConnection.setMetastoreUrl(prepProperties.getHiveMetastoreUris(true));     // FIXME: metastore는 spark에서만 필요
             stageDataConnection.setDatabase(databaseName);
 
             String connectUrl = stageDataConnection.getConnectUrl();
@@ -669,14 +666,13 @@ public class PrepDatasetSparkHiveService {
 
     public void writeSnapshot(ServletOutputStream outputStream, String dbName, String sql ) throws PrepException {
         try {
-            PrepProperties.HiveInfo hive = prepProperties.getHive();
             StageDataConnection stageDataConnection = new StageDataConnection();
-            stageDataConnection.setHostname(hive.getHostname());
-            stageDataConnection.setPort(hive.getPort());
-            stageDataConnection.setUsername(hive.getUsername());
-            stageDataConnection.setPassword(hive.getPassword());
-            stageDataConnection.setUrl(hive.getCustomUrl());
-            stageDataConnection.setMetastoreUrl(hive.getMetastoreUris());
+            stageDataConnection.setHostname(    prepProperties.getHiveHostname(true));
+            stageDataConnection.setPort(        prepProperties.getHivePort(true));
+            stageDataConnection.setUsername(    prepProperties.getHiveUsername(true));
+            stageDataConnection.setPassword(    prepProperties.getHivePassword(true));
+            stageDataConnection.setUrl(         prepProperties.getHiveCustomUrl(true));
+            stageDataConnection.setMetastoreUrl(prepProperties.getHiveMetastoreUris(true));     // FIXME: metastore는 spark에서만 필요
 
             String connectUrl = stageDataConnection.getConnectUrl();
             String username = stageDataConnection.getUsername();

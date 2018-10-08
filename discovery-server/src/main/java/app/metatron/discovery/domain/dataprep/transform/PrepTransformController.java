@@ -47,9 +47,6 @@ public class PrepTransformController {
   @Autowired(required = false)
   PrepTransformService transformService;
 
-  @Value("${polaris.dataprep.sampleRows:10000}")
-  private int limitConf;
-
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform", method = RequestMethod.POST, produces = "application/json")
   public @ResponseBody ResponseEntity<?> create(
     @PathVariable("dsId") String importedDsId,
