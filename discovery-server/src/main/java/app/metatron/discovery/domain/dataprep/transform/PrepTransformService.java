@@ -58,7 +58,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static app.metatron.discovery.domain.dataprep.PrepDataset.DS_TYPE.WRANGLED;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.*;
 
 @Service
 public class PrepTransformService {
@@ -129,32 +128,18 @@ public class PrepTransformService {
 
     // check polaris.dataprep.hadoopConfDir
     if (ssHdfs || ssHive) {
-      if (prepProperties.getHadoopConfDir() == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
-      }
-      if (prepProperties.getStagingBaseDir() == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, STAGING_BASE_DIR);
-      }
+      prepProperties.getHadoopConfDir(true);
+      prepProperties.getStagingBaseDir(true);
     }
 
     // check polaris.dataprep.hive
     if (dsHive || ssHive) {
-      PrepProperties.HiveInfo hive = prepProperties.getHive();
-      if (hive == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HIVE_HOSTNAME);
-      }
+      prepProperties.getHive(true);
     }
 
     // check polaris.dataprep.etl.jar
     if (engine == PrepSnapshot.ENGINE.TWINKLE) {
-      EtlInfo etlInfo = prepProperties.getEtl();
-      if (etlInfo == null || etlInfo.getJar() == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, ETL_JAR);
-      }
+      prepProperties.getEtlJar();
     }
 
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(prepProperties.getEveryForEtl());
@@ -180,14 +165,14 @@ public class PrepTransformService {
         map.put("fileUri",        requestPost.getUri());
         break;
       case HDFS:
-        map.put("stagingBaseDir", prepProperties.getStagingBaseDir());
+        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
         map.put("fileUri",        requestPost.getUri());
         break;
       case JDBC:
         assert false : ssId;
         break;
       case HIVE:
-        map.put("stagingBaseDir", prepProperties.getStagingBaseDir());
+        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
         map.put("partKeys",       requestPost.getPartKeys());
         map.put("mode",           mode.name());
         map.put("dbName",         requestPost.getDbName());
@@ -612,13 +597,13 @@ public class PrepTransformService {
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     assert dataset != null : dsId;
 
-    PrepTransformResponse response = null;
-    int origStageIdx = teddyImpl.getCurStageIdx(dsId);
-
     // dataset이 loading되지 않았으면 loading
     if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
       load_internal(dsId);
     }
+
+    PrepTransformResponse response = null;
+    int origStageIdx = teddyImpl.getCurStageIdx(dsId);
 
     // join이나 union의 경우, 대상 dataset들도 loading
     if (ruleString != null) {
@@ -1236,29 +1221,24 @@ public class PrepTransformService {
         fileUri.put("was", wasDir);
 
         try {
-          Map<String,Object> checked = this.hdfsService.checkHdfs();
-          if(checked.get("checkConnection").equals(true)) {
-            String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(), ssName);
-            hdfsDir = this.snapshotService.escapeSsNameOfUri(hdfsDir);
-            fileUri.put("hdfs", hdfsDir);
-          }
+          String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
+          hdfsDir = this.snapshotService.escapeSsNameOfUri(hdfsDir);
+          fileUri.put("hdfs", hdfsDir);
         } catch (Exception e) {
+          // MSG_DP_ALERT_STAGING_DIR_NOT_CONFIGURED is suppressed
         }
         configuration.put("file_uri", fileUri);
       }
 
       if(PrepSnapshot.SS_TYPE.HIVE==PrepSnapshot.SS_TYPE.HIVE) {
-        Map<String,Object> hive = null;
-        PrepProperties.HiveInfo hiveInfo = prepProperties.getHive();
-        if(hiveInfo!=null) {
-          hive = Maps.newHashMap();
-          hive.put("custom_url", hiveInfo.getCustomUrl());
-          hive.put("metastore_uris", hiveInfo.getMetastoreUris());
-          hive.put("hostname", hiveInfo.getHostname());
-          hive.put("port", hiveInfo.getPort());
-          hive.put("username", hiveInfo.getUsername());
-          hive.put("password", hiveInfo.getPassword());
-        }
+        Map<String,Object> hive = Maps.newHashMap();
+        hive.put("hostname",       prepProperties.getHiveHostname(true));
+        hive.put("port",           prepProperties.getHivePort(true));
+        hive.put("username",       prepProperties.getHiveUsername(true));
+        hive.put("password",       prepProperties.getHivePassword(true));
+        hive.put("custom_url",     prepProperties.getHiveCustomUrl(true));
+        hive.put("metastore_uris", prepProperties.getHiveMetastoreUris(true));
+
         configuration.put("hive_info", hive);
       }
     } catch (Exception e) {
