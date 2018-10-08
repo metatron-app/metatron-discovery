@@ -134,7 +134,7 @@ public class PrepTransformService {
 
     // check polaris.dataprep.hive
     if (dsHive || ssHive) {
-      prepProperties.getHive(true);
+      prepProperties.getHiveHostname(true);
     }
 
     // check polaris.dataprep.etl.jar
@@ -1232,12 +1232,12 @@ public class PrepTransformService {
 
       if(PrepSnapshot.SS_TYPE.HIVE==PrepSnapshot.SS_TYPE.HIVE) {
         Map<String,Object> hive = Maps.newHashMap();
-        hive.put("hostname",       prepProperties.getHiveHostname(true));
-        hive.put("port",           prepProperties.getHivePort(true));
-        hive.put("username",       prepProperties.getHiveUsername(true));
-        hive.put("password",       prepProperties.getHivePassword(true));
-        hive.put("custom_url",     prepProperties.getHiveCustomUrl(true));
-        hive.put("metastore_uris", prepProperties.getHiveMetastoreUris(true));
+        hive.put("hostname",       prepProperties.getHiveHostname(false));
+        hive.put("port",           prepProperties.getHivePort(false));
+        hive.put("username",       prepProperties.getHiveUsername(false));
+        hive.put("password",       prepProperties.getHivePassword(false));
+        hive.put("custom_url",     prepProperties.getHiveCustomUrl(false));
+        hive.put("metastore_uris", prepProperties.getHiveMetastoreUris(false));
 
         configuration.put("hive_info", hive);
       }

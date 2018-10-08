@@ -86,19 +86,19 @@ public class PrepProperties {
     return stagingBaseDir;
   }
 
-  public HiveInfo getHive(boolean mandatory) {
+  private HiveInfo getHive(boolean mandatory) {
     if (mandatory && hive == null) {
       throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_HIVE_NOT_CONFIGURED, "Hive not configured");
     }
     return hive;
   }
 
-  public String  getHiveHostname(boolean mandatory)      { return getHive(mandatory).getHostname(); }
-  public Integer getHivePort(boolean mandatory)          { return getHive(mandatory).getPort(); }
-  public String  getHiveUsername(boolean mandatory)      { return getHive(mandatory).getUsername(); }
-  public String  getHivePassword(boolean mandatory)      { return getHive(mandatory).getPassword(); }
-  public String  getHiveCustomUrl(boolean mandatory)     { return getHive(mandatory).getCustomUrl(); }
-  public String  getHiveMetastoreUris(boolean mandatory) { return getHive(mandatory).getMetastoreUris(); }
+  public String  getHiveHostname(boolean mandatory)      { return getHive(mandatory) == null ? null : getHive(mandatory).getHostname(); }
+  public Integer getHivePort(boolean mandatory)          { return getHive(mandatory) == null ? null : getHive(mandatory).getPort(); }
+  public String  getHiveUsername(boolean mandatory)      { return getHive(mandatory) == null ? null : getHive(mandatory).getUsername(); }
+  public String  getHivePassword(boolean mandatory)      { return getHive(mandatory) == null ? null : getHive(mandatory).getPassword(); }
+  public String  getHiveCustomUrl(boolean mandatory)     { return getHive(mandatory) == null ? null : getHive(mandatory).getCustomUrl(); }
+  public String  getHiveMetastoreUris(boolean mandatory) { return getHive(mandatory) == null ? null : getHive(mandatory).getMetastoreUris(); }
 
   // sampling, etl cannot be null (see init())
   public Integer getSamplingCores()      { return sampling.getCores(); }
