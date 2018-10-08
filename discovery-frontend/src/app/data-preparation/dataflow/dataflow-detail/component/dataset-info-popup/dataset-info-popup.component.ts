@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import Split from 'split.js';
 import * as $ from "jquery";
 import * as pixelWidth from 'string-pixel-width';
 import { isNull, isUndefined } from 'util';
@@ -36,6 +35,8 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { GridOption } from 'app/common/component/grid/grid.option';
 import { DatasetService } from '../../../../dataset/service/dataset.service';
 import { StringUtil } from '../../../../../common/util/string.util';
+
+declare let Split;
 
 @Component({
   selector: 'app-dataset-info-popup',
