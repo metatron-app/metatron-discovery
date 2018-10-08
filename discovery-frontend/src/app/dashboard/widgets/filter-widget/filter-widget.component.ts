@@ -684,11 +684,13 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * 스크롤바 표시 여부를 설정한다.
    */
   private _setIsVisibleScrollbar() {
-    const $container: JQuery = $(this.filterWidget.nativeElement);
-    const $title: JQuery = $container.find('.ddp-ui-title');
-    const $contents: JQuery = $container.find('.ddp-ui-widget-contents');
-    this.isVisibleScrollbar = ($container.height() < $title.height() + $contents.height());
-    this.safelyDetectChanges();
+    if( this.filterWidget ) {
+      const $container: JQuery = $(this.filterWidget.nativeElement);
+      const $title: JQuery = $container.find('.ddp-ui-title');
+      const $contents: JQuery = $container.find('.ddp-ui-widget-contents');
+      this.isVisibleScrollbar = ($container.height() < $title.height() + $contents.height());
+      this.safelyDetectChanges();
+    }
   } // function - _setIsVisibleScrollbar
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
