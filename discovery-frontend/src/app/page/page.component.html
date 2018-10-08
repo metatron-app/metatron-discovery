@@ -1432,9 +1432,9 @@
             <calrow-option #calculateOption *ngIf="isChartShow && possibleChartCheck('calculatedRow', selectChart) && 'calculatedRow' === rnbMenu" [(uiOption)]="uiOption"></calrow-option>
             <!-- MapView -->
             <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu" [(uiOption)]="uiOption"></map-common-option>
-            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer1' === rnbMenu" [(uiOption)]="uiOption"></map-layer-option>
-            <map-layer-option2 #mapLayerOption *ngIf="isChartShow && 'mapLayer2' === rnbMenu" [(uiOption)]="uiOption"></map-layer-option2>
-            <map-layer-option3 #mapLayerOption *ngIf="isChartShow && 'mapLayer3' === rnbMenu" [(uiOption)]="uiOption"></map-layer-option3>
+            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer1' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)"></map-layer-option>
+            <map-layer-option2 #mapLayerOption *ngIf="isChartShow && 'mapLayer2' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)"></map-layer-option2>
+            <map-layer-option3 #mapLayerOption *ngIf="isChartShow && 'mapLayer3' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)"></map-layer-option3>
             <map-legend-option #mapLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)"></map-legend-option>
             <map-format-option #mapFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu" (changeCommon)="onFormatCommonChange($event)" (changeEach)="onFormatEachChange($event)" (drawChartParam)="onSetDrawChartParam($event)"
                                [(pivot)]="pivot" [(uiOption)]="uiOption">
