@@ -4728,7 +4728,7 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-box-contents .ddp-wrap-part .ddp-box-part .ddp-btn-bg {display:inline-block; margin-left:7px; padding:8px 12px; vertical-align:middle;}
 .ddp-wrap-addrule {position:absolute; bottom:0; left:0; right:0;}
 .ddp-wrap-addrule.ddp-split {position:relative; top:0; left:0; right:0; bottom:0; height:inherit;}
-.ddp-wrap-addrule .ddp-box-top {position:fixed; left:0; right:0; bottom:180px; padding-bottom:15px; }
+.ddp-wrap-addrule .ddp-box-top {position:fixed; left:0; right:0; bottom:180px;}
 .ddp-wrap-addrule .ddp-box-top.ddp-split {position:relative; top:0; left:0; right:0; bottom:0;}
 .ddp-wrap-addrule .ddp-box-title {padding:15px 15px 5px 15px; color:#4b515b; font-size:12px; font-weight:bold;}
 .ddp-wrap-addrule .ddp-box-title a.ddp-link-switch {margin-left:10px; font-size:11px; font-weight:normal; color:#727ab7; text-decoration: underline;}
@@ -4743,7 +4743,7 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 .ddp-wrap-addrule ul.ddp-list-command li a span.ddp-ui-type {display:block; color:#656eb2; font-size:12px;}
 .ddp-wrap-addrule ul.ddp-list-command li a span.ddp-ui-code {display:block; padding:5px 0 0 29px; color:#b7b9c2; font-size:12px;}
 
-.ddp-box-contents .ddp-box-part .ddp-box-title {padding:0 0 5px 0;}
+.ddp-box-contents .ddp-box-part .ddp-box-title {position:relative; padding:0 0 5px 0; z-index:2;}
 .ddp-box-contents .ddp-box-part .ddp-list-buttons {width:100%;}
 .ddp-box-contents .ddp-box-part .ddp-list-buttons li {width:50%; box-sizing:border-box;}
 
@@ -4763,6 +4763,7 @@ ul.ddp-list-rule2 li.ddp-disabled2 .ddp-wrap-line-add {display:block;}
 	-webkit-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
 	box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
 }
+.ddp-wrap-addrule .ddp-wrap-box-info {margin-top:-20px; padding-top:20px; box-sizing:Border-box;}
 .ddp-wrap-box-info {position:relative; height:100%;}
 .ddp-wrap-box-info.ddp-selected .ddp-box-info {display:block;}
 .ddp-wrap-box-info .ddp-box-info {display:none; position:absolute; top:inherit; bottom:103%; background-color:#fff; border-radius:2px; border:1px solid #aeb0bb; white-space:initial; box-sizing:border-box;

@@ -99,8 +99,11 @@
 <div *ngIf="isShow" class="ddp-box-part" >
   <div class="ddp-box-title"> {{'msg.dp.ui.cond' | translate}} </div>
   <div class="ddp-wrap-datainput">
-    <input [(ngModel)]="condition" tabindex="6" placeholder="{{'msg.dp.ui.cond.ph' | translate}}"
-           type="text" class="ddp-input-typebasic" >
+    <rule-condition-input
+      [formula]="condition" [command]="'keep'"
+      [fields]="fields"
+      [tabIndex]="6" [placeholder]="'msg.dp.ui.cond.ph' | translate"
+      (onChange)="condition = $event"></rule-condition-input>
     <!-- ddp-selected 추가시 display:block; -->
   </div>
 </div>
