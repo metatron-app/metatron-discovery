@@ -28,6 +28,7 @@ import {
 import { Field, Rule } from '../../../../../../domain/data-preparation/dataset';
 import { PreparationAlert } from '../../../../../util/preparation-alert.util';
 import { DataflowService } from '../../../../service/dataflow.service';
+import { EventBroadcaster } from "../../../../../../common/event/event.broadcaster";
 
 @Component({
   selector: 'rule-condition-input',
@@ -84,6 +85,7 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   constructor(
     protected elementRef: ElementRef,
     protected injector: Injector,
+    private broadCaster: EventBroadcaster,
     protected dataflowService: DataflowService) {
     super(elementRef, injector);
   }
@@ -97,6 +99,12 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
    */
   public ngOnInit() {
     super.ngOnInit();
+
+    this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean }) => {
+
+      this.isAutoCompleteSuggestionListOpen = false;
+
+    })
   } // function - ngOnInit
 
   /**
@@ -188,82 +196,79 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
       }
       if (this.autoCompleteSuggestions && 0 < this.autoCompleteSuggestions.length) {
         if ($event.keyCode === 38 || $event.keyCode === 40) {
-          if ($event.keyCode === 38) {
+          if ($event.keyCode === 38) {  // Arrow Up
             this.autoCompleteSuggestions_selectedIdx--;
-          } else if ($event.keyCode === 40) {
+          } else if ($event.keyCode === 40) { // Arrow Down
             this.autoCompleteSuggestions_selectedIdx++;
           }
-
           if (this.autoCompleteSuggestions_selectedIdx < 0) {
             this.autoCompleteSuggestions_selectedIdx = this.autoCompleteSuggestions.length - 1;
           } else if (this.autoCompleteSuggestions.length <= this.autoCompleteSuggestions_selectedIdx) {
             this.autoCompleteSuggestions_selectedIdx = 0;
           }
-
           let height = 25;
           this.$element.find('.ddp-list-command').scrollTop(this.autoCompleteSuggestions_selectedIdx * height);
-
           return false;
-        } else if ($event.keyCode === 27) {
+        } else if ($event.keyCode === 27) {   // ESC
           this.isAutoCompleteSuggestionListOpen = false;
           this.autoCompleteSuggestions = [];
           this.autoCompleteSuggestions_selectedIdx = -2;
           return false;
-        } else if ($event.keyCode === 13 || $event.keyCode === 108) {
+        } else if ($event.keyCode === 13 || $event.keyCode === 108) {   // Enter
           if (0 <= this.autoCompleteSuggestions_selectedIdx
             && this.autoCompleteSuggestions_selectedIdx < this.autoCompleteSuggestions.length) {
             this.onSelectAutoComplete(this.autoCompleteSuggestions[this.autoCompleteSuggestions_selectedIdx]);
           }
           return false;
         } else if ($event.keyCode === 8 || $event.keyCode === 46 || $event.keyCode === 37 || $event.keyCode === 39) {
-
-          let input = $event.target;
-          let input_value = input.value;
-          let start = input.selectionStart;
-          let end = input.selectionEnd;
-
-          if ($event.keyCode === 8) {
-            if (0 <= start && end <= input_value.length) {
-              if (start == end) {
+          if( !$event.shiftKey ) {
+            let input = $event.target;
+            let input_value = input.value;
+            let start = input.selectionStart;
+            let end = input.selectionEnd;
+            if ($event.keyCode === 8) {
+              // 8 : Backspace
+              if (0 <= start && end <= input_value.length) {
+                if (start == end) {
+                  start--;
+                  end--;
+                  input_value = input_value.substring(0, start) + input_value.substring(start + 1);
+                } else if (start < end) {
+                  input_value = input_value.substring(0, start) + input_value.substring(end);
+                  end = start;
+                }
+              }
+            } else if ($event.keyCode === 46) {
+              // 46 : Delete
+              if (0 <= start && end <= input_value.length) {
+                if (start == end) {
+                  input_value = input_value.substring(0, start + 1) + input_value.substring(end + 2);
+                } else if (start < end) {
+                  input_value = input_value.substring(0, start) + input_value.substring(end);
+                  end = start;
+                }
+              }
+            } else if ($event.keyCode === 37 && !$event.shiftKey) {
+              // 37 : Arrow Left
+              if (0 < start) {
                 start--;
                 end--;
-                input_value = input_value.substring(0, start) + input_value.substring(start + 1);
-              } else if (start < end) {
-                input_value = input_value.substring(0, start) + input_value.substring(end);
-                end = start;
+              }
+            } else if ($event.keyCode === 39 && !$event.shiftKey) {
+              // 37 : Arrow Right
+              if (end < input_value.length) {
+                start++;
+                end++;
               }
             }
-          } else if ($event.keyCode === 46) {
-            if (0 <= start && end <= input_value.length) {
-              if (start == end) {
-                input_value = input_value.substring(0, start + 1) + input_value.substring(end + 2);
-              } else if (start < end) {
-                input_value = input_value.substring(0, start) + input_value.substring(end);
-                end = start;
-              }
-            }
-          } else if ($event.keyCode === 37) {
-            if (0 < start) {
-              start--;
-              end--;
-            }
-          } else if ($event.keyCode === 39) {
-            if (end < input_value.length) {
-              start++;
-              end++;
-            }
+            input.blur();
+            input.value = input_value;
+            input.selectionStart = start;
+            input.selectionEnd = end;
+            input.dispatchEvent(new Event('input'));
+            input.focus();
+            return false;
           }
-
-          input.blur();
-
-          input.value = input_value;
-          input.selectionStart = start;
-          input.selectionEnd = end;
-
-          input.dispatchEvent(new Event('input'));
-          input.focus();
-
-          return false;
         } else if (
           (8 <= $event.keyCode && $event.keyCode <= 9) ||
           (12 <= $event.keyCode && $event.keyCode <= 13) ||
@@ -300,16 +305,12 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
         }
       }
     }
-
     this.onChange.emit(value);
-
     this.dataflowService.autoComplete('', this.command, rulePart).then((data) => {
       let columnNames = [];
-
       if (this.command == 'set' && 0 < this.fields.length) {
         columnNames.push('$col');
       }
-
       for (let _column of this.fields) {
         columnNames.push(_column.name);
       }
@@ -419,7 +420,6 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
                 'source': item.tokenSource,
                 'value': item.tokenString
               };
-
               // column name for aggregate function
               if (suggest.value == ')' &&
                 (tokenSource0.startsWith('sum') || tokenSource0.startsWith('avg') || tokenSource0.startsWith('min') || tokenSource0.startsWith('max'))
@@ -458,7 +458,6 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
       this.isAutoCompleteSuggestionListOpen = false;
       this.autoCompleteSuggestions_selectedIdx = -1;
       this.autoCompleteSuggestions = [];
-
       let prep_error = this.dataprepExceptionHandler(error);
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
