@@ -114,7 +114,9 @@ public class PrepProperties {
 
   // wrapper functions
   public boolean isHDFSConfigured()      { return (hadoopConfDir != null && stagingBaseDir != null); }
+  public boolean isFileSnapshotEnabled() { return (true); } // always true
   public boolean isHiveSnapshotEnabled() { return (isHDFSConfigured() && hive != null); }
+  public boolean isHiveDatasetEnabled() { return (hadoopConfDir != null && hive != null); }
   public boolean isAutoTyping()          { return sampling.getAutoTyping(); }
 
   // Everything for ETL

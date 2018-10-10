@@ -1213,7 +1213,7 @@ public class PrepTransformService {
       String ssName = this.snapshotService.makeSnapshotName(wrangledDataset.getDsName(),launchTime);
       configuration.put("ss_name", ssName);
 
-      if(PrepSnapshot.SS_TYPE.FILE==PrepSnapshot.SS_TYPE.FILE) {
+      if(prepProperties.isFileSnapshotEnabled()) {
         Map<String,Object> fileUri = Maps.newHashMap();
 
         String wasDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
@@ -1230,7 +1230,7 @@ public class PrepTransformService {
         configuration.put("file_uri", fileUri);
       }
 
-      if(PrepSnapshot.SS_TYPE.HIVE==PrepSnapshot.SS_TYPE.HIVE) {
+      if(true == prepProperties.isHiveSnapshotEnabled()) {
         Map<String,Object> hive = Maps.newHashMap();
         hive.put("hostname",       prepProperties.getHiveHostname(false));
         hive.put("port",           prepProperties.getHivePort(false));
