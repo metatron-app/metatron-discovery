@@ -1613,7 +1613,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
     const boardCastData = { filters: boardFilters };
     ( excludeWidgetId ) && ( boardCastData['excludeWidgetId'] = excludeWidgetId );
-    this.broadCaster.broadcast('SET_EXTERNAL_FILTER', boardCastData );
+    this.broadCaster.broadcast('SET_GLOBAL_FILTER', boardCastData );
 
   } // function - syncFilterWidget
 

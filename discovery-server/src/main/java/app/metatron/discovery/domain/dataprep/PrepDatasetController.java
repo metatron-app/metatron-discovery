@@ -211,13 +211,15 @@ public class PrepDatasetController {
     public @ResponseBody ResponseEntity<?> getStagingConnection() {
         Map<String, Object> response = Maps.newHashMap();
         try {
-            PrepProperties.HiveInfo hive = prepProperties.getHive();
             response.put("implementor","HIVE");
-            response.put("hostname",hive.getHostname());
-            response.put("port",String.valueOf(hive.getPort()));
-            response.put("username",hive.getUsername());
-            response.put("password",hive.getPassword());
-            response.put("url",hive.getCustomUrl());
+            response.put("hostname", prepProperties.getHiveHostname(true));
+            response.put("port",     String.valueOf(prepProperties.getHivePort(true)));
+            response.put("username", prepProperties.getHiveUsername(true));
+            response.put("password", prepProperties.getHivePassword(true));
+            response.put("url",      prepProperties.getHiveCustomUrl(true));
+        } catch (PrepException pe) {
+            LOGGER.error("getStaingConnection(): caught an preparation exception: ", pe);
+            throw pe;
         } catch (Exception e) {
             LOGGER.error("getStaingConnection(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
@@ -394,7 +396,7 @@ public class PrepDatasetController {
         Map<String, Object> response = new HashMap();
         try {
             if (prepProperties.isHDFSConfigured()) {
-                response.put("stagingBaseDir", prepProperties.getStagingBaseDir());
+                response.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
             }
         } catch (Exception e) {
             LOGGER.error("uploadExcelfile(): caught an exception: ", e);

@@ -5971,7 +5971,7 @@ ul.ddp-list-dbtype li .ddp-label-dbtype.type-tibero:before{width:19px; height:22
 ************************************************************************************************************/
 .ddp-ui-import-option {display:inline-block; width:880px; padding:0px 0 26px 0; text-align:left;}
 .ddp-ui-import-option .ddp-ui-textarea {position:relative; width:100%; margin-bottom:12px;}
-.ddp-ui-import-option ul.ddp-list-buttons {margin-bottom:20px;}
+.ddp-ui-import-option ul.ddp-list-buttons {display: block; margin-bottom:20px;}
 .ddp-ui-import-option ul.ddp-list-buttons li {font-size:13px;}
 .ddp-ui-import-option .ddp-ui-input-form {padding-bottom:42px;}
 .ddp-ui-import-option label.ddp-label-type {font-size:13px; color:#444; font-weight:bold;}

@@ -69,6 +69,4 @@ discovery-server/src/main/resources/hive-site.xml
 discovery-frontend/src/environments/build.env.ts
 
 # dataprep local base dir
-dataprep/uploads
-dataprep/snapshots
-dataprep/previews
+dataprep/
