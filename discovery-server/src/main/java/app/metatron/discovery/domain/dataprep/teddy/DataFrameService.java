@@ -44,7 +44,7 @@ import java.util.concurrent.TimeoutException;
 public class DataFrameService {
   private static Logger LOGGER = LoggerFactory.getLogger(DataFrame.class);
 
-  @Value("${polaris.dataprep.sampling.cores:0}")
+  @Value("${polaris.dataprep.sampling.cores:2}")
   private int cores;
 
   static final int hardRowLimit = 100 * 10000;
@@ -87,14 +87,8 @@ public class DataFrameService {
 
   public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slaveDfs,
                              int limitRows, int timeout) throws TeddyException {
-    LOGGER.trace("applyRule(): start");
+      LOGGER.trace("applyRule(): start");
 
-    // single thread
-    if (cores == 0) {
-      LOGGER.trace("applyRule(): end (single)");
-      return applyRuleInternal(df, ruleString, slaveDfs, limitRows);
-    }
-    else {
       List<Future<List<Row>>> futures = new ArrayList<>();
       Rule rule = new RuleVisitorParser().parse(ruleString);
       DataFrame newDf = DataFrame.getNewDf(rule, df.dsName, ruleString);
@@ -106,7 +100,7 @@ public class DataFrameService {
 
         if (rowcnt > 0) {
           if (DataFrame.isParallelizable(rule)) {
-            int partSize = rowcnt / cores + 1;  // +1 to prevent being 0
+            int partSize = rowcnt / (cores + 1);  // +1 to prevent being 0
 
             for (int rowno = 0; rowno < rowcnt; rowno += partSize) {
               LOGGER.debug("applyRuleString(): add thread: rowno={} partSize={} rowcnt={}", rowno, partSize, rowcnt);
@@ -144,7 +138,6 @@ public class DataFrameService {
 
       LOGGER.trace("applyRule(): end (parallel)");
       return newDf;
-    }
   }
 
   @Async("threadPoolTaskExecutor")
@@ -153,7 +146,7 @@ public class DataFrameService {
     return new AsyncResult<>(newDf.gather(prevDf, preparedArgs, offset, length, limit));
   }
 
-  // public for tests
+  //single thread
   public DataFrame applyRuleInternal(DataFrame df, String ruleString, List<DataFrame> slaveDfs, int limitRows) throws TeddyException {
     DataFrame newDf;
     Rule rule;
@@ -169,7 +162,6 @@ public class DataFrameService {
 
     switch (rule.getName()) {
       // 내용이 손실되지 않는 룰
-      case "move":          newDf = df.doMove((Move) rule); break;
       case "sort":          newDf = df.doSort((Sort) rule); break;
       case "union":
         newDf = df.union(slaveDfs, limitRows);

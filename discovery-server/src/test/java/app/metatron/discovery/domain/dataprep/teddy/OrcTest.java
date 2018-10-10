@@ -190,13 +190,13 @@ public class OrcTest {
     newDf.show();
   }
 
+  //Single thread
   static DataFrame apply_rule(DataFrame df, List<String> ruleStrings) throws TeddyException {
     for (String ruleString : ruleStrings) {
       Rule rule = new RuleVisitorParser().parse(ruleString);
       switch (rule.getName()) {
         // 계산할 필요가 없음
         case "drop":          df = df.doDrop((Drop) rule); break;
-        case "move":          df = df.doMove((Move) rule); break;
         case "sort":          df = df.doSort((Sort) rule); break;
 
         // 기존 컬럼 중 1개가 영향을 받는 경우
@@ -1043,6 +1043,7 @@ public class OrcTest {
     assertEquals("uid00000014", newDf.rows.get(2).get("customer_id"));
   }
 
+  /*
   @Test
   public void test_move_before() throws IOException, TeddyException {
     DataFrame contract = new DataFrame();
@@ -1164,6 +1165,7 @@ public class OrcTest {
       System.out.println(e);
     }
   }
+  */
 
 
   private DataFrame newNullContainedDataFrame() throws IOException, TeddyException {
@@ -1173,6 +1175,7 @@ public class OrcTest {
     null_contained.show();
     return null_contained;
   }
+
 
   @Test
   public void test_header_exceptional_case() throws IOException, TeddyException {

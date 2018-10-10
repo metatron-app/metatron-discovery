@@ -87,17 +87,63 @@ public class DataFrameTest {
     return grid;
   }
 
+  static DataFrame apply_rules(DataFrame df, List<String> ruleStrings) throws TeddyException {
+    DataFrameService dataFrameService = new DataFrameService();
+
+    for (String ruleString : ruleStrings) {
+      // XXX: slaveDsId가 있는 경우 (join, union) 는 이런 식으로 사용할 수 없음
+      df = dataFrameService.applyRule(df, ruleString, new ArrayList<>(), limitRowCnt,  0);
+    }
+    return df;
+  }
+  static DataFrame apply_rule(DataFrame df, String ruleString) throws TeddyException {
+    DataFrameService dataFrameService = new DataFrameService();
+
+    df = dataFrameService.applyRule(df, ruleString, new ArrayList<>(), limitRowCnt,  0);
+
+    return df;
+  }
+
+  static DataFrame prepare_sample(DataFrame df) throws IOException, TeddyException {
+    List<String> ruleStrings = new ArrayList<>();
+
+    ruleStrings.add("header rownum: 1");
+    ruleStrings.add("settype col: itemNo type: long");
+    ruleStrings.add("settype col: speed type: long");
+    ruleStrings.add("settype col: weight type: double");
+
+    return apply_rules(df, ruleStrings);
+  }
+
+  static DataFrame prepare_null_contained(DataFrame df) throws IOException, TeddyException {
+    List<String> ruleStrings = new ArrayList<>();
+
+    ruleStrings.add("header rownum: 1");
+    ruleStrings.add("set col: itemNo value: if(itemNo=='NULL', null, itemNo)");
+    ruleStrings.add("set col: name value: if(name=='NULL', null, name)");
+    ruleStrings.add("set col: speed value: if(speed=='NULL', null, speed)");
+
+    ruleStrings.add("settype col: itemNo type: long");
+    ruleStrings.add("settype col: speed type: long");
+    ruleStrings.add("settype col: weight type: long");
+
+    df = apply_rules(df, ruleStrings);
+    return df;
+//    df.objGrid.get(1).set("itemNo", null);
+//    return df;
+  }
+
   static DataFrame prepare_multi(DataFrame multi) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings.add("header rownum: 1");
     ruleStrings.add("settype col: measure type: long");
-    return DataFrameTest.apply_rule(multi, ruleStrings);
+    return DataFrameTest.apply_rules(multi, ruleStrings);
   }
 
   static DataFrame prepare_crime(DataFrame crime) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings.add("header rownum: 1");
-    return DataFrameTest.apply_rule(crime, ruleStrings);
+    return DataFrameTest.apply_rules(crime, ruleStrings);
   }
 
   static DataFrame prepare_crime_more(DataFrame crime) throws TeddyException {
@@ -107,13 +153,13 @@ public class DataFrameTest {
     ruleStrings.add("header rownum: 1");
     ruleStrings.add("replace col: Population, Total_Crime, Violent_Crime, Property_Crime, Murder, Forcible_Rape, Robbery, Aggravated_Assault, Burglary, Larceny_Theft, Vehicle_Theft with: '' on: ',' global: true");
     ruleStrings.add("replace col: Population, Violent_Crime, Total_Crime, Property_Crime, Murder, Forcible_Rape, Robbery, Aggravated_Assault, Burglary, Larceny_Theft, Vehicle_Theft with: '' on: ' ' global: true");
-    return DataFrameTest.apply_rule(crime, ruleStrings);
+    return DataFrameTest.apply_rules(crime, ruleStrings);
   }
 
   static DataFrame prepare_timestamp(DataFrame dataFrame) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings.add("header rownum: 1");
-    return DataFrameTest.apply_rule(dataFrame, ruleStrings);
+    return DataFrameTest.apply_rules(dataFrame, ruleStrings);
   }
 
   static DataFrame prepare_timestamp2(DataFrame dataFrame) throws TeddyException {
@@ -122,7 +168,7 @@ public class DataFrameTest {
     ruleStrings.add("settype col: birth_date type: timestamp format: 'MM.dd.yyyy HH:mm:ss'");
     ruleStrings.add("set col: memo value: if(memo=='null', null, memo)");
 
-    return DataFrameTest.apply_rule(dataFrame, ruleStrings);
+    return DataFrameTest.apply_rules(dataFrame, ruleStrings);
   }
 
   static DataFrame prepare_sale(DataFrame sale) throws TeddyException {
@@ -136,7 +182,40 @@ public class DataFrameTest {
     ruleStrings.add("rename col: column25 to: 'price'");
     ruleStrings.add("settype col: price type: long");
 //    ruleStrings.add("sort order: price type: 'desc'");
-    return DataFrameTest.apply_rule(sale, ruleStrings);
+    return DataFrameTest.apply_rules(sale, ruleStrings);
+  }
+
+  static DataFrame prepare_contract(DataFrame contract) throws TeddyException {
+    List<String> ruleStrings = new ArrayList<>();
+    ruleStrings.add("rename col: column8, column2, column3, column4, column5, column6, column7 to: 'cdate', 'pcode1', 'pcode2', 'pcode3', 'pcode4', 'customer_id', 'detail_store_code'");
+    ruleStrings.add("drop col: column1");
+
+    ruleStrings.add("settype col: pcode1 type: long");
+    ruleStrings.add("settype col: pcode2 type: long");
+    ruleStrings.add("settype col: pcode3 type: long");
+    ruleStrings.add("settype col: pcode4 type: long");
+    ruleStrings.add("settype col: detail_store_code type: long");
+
+    return apply_rules(contract, ruleStrings);
+  }
+
+  private DataFrame prepare_product(DataFrame product) throws TeddyException {
+    List<String> ruleStrings = new ArrayList<>();
+    ruleStrings.add("rename col: column1, column2, column3, column4, column5 to: 'pcode1', 'pcode2', 'pcode3', 'pcode4', 'pcode'");
+    ruleStrings.add("settype col: pcode1 type: long");
+    ruleStrings.add("settype col: pcode2 type: long");
+    ruleStrings.add("settype col: pcode3 type: long");
+    ruleStrings.add("settype col: pcode4 type: long");
+
+    return apply_rules(product, ruleStrings);
+  }
+
+  public static DataFrame prepare_store(DataFrame store) throws TeddyException {
+    List<String> ruleStrings = new ArrayList<>();
+    ruleStrings.add("header rownum: 1");
+    ruleStrings.add("drop col: store_name");
+    ruleStrings.add("settype col: detail_store_code type: long");
+    return apply_rules(store, ruleStrings);
   }
 
   @BeforeClass
@@ -145,6 +224,7 @@ public class DataFrameTest {
     grids.put("null_contained", Util.loadGridLocalCsv(getResourcePath("teddy/null_contained.csv"), ",", limitRowCnt));
     grids.put("crime", Util.loadGridLocalCsv(getResourcePath("teddy/crime.csv"), ",", limitRowCnt));
     grids.put("sale", Util.loadGridLocalCsv(getResourcePath("teddy/sale.csv"), ",", limitRowCnt));
+    grids.put("contract", Util.loadGridLocalCsv(getResourcePath("teddy/contract.csv"), ",", limitRowCnt));
   }
 
   @Test
@@ -173,45 +253,6 @@ public class DataFrameTest {
     Rule rule = new RuleVisitorParser().parse(ruleString);
     DataFrame newDf = df.doDrop((Drop)rule);
     newDf.show();
-  }
-
-  static DataFrame apply_rule(DataFrame df, List<String> ruleStrings) throws TeddyException {
-    DataFrameService dataFrameService = new DataFrameService();
-
-    for (String ruleString : ruleStrings) {
-      // XXX: slaveDsId가 있는 경우 (join, union) 는 이런 식으로 사용할 수 없음
-      df = dataFrameService.applyRuleInternal(df, ruleString, new ArrayList<>(), limitRowCnt);
-    }
-    return df;
-  }
-
-  static DataFrame prepare_sample(DataFrame df) throws IOException, TeddyException {
-    List<String> ruleStrings = new ArrayList<>();
-
-    ruleStrings.add("header rownum: 1");
-    ruleStrings.add("settype col: itemNo type: long");
-    ruleStrings.add("settype col: speed type: long");
-    ruleStrings.add("settype col: weight type: double");
-
-    return apply_rule(df, ruleStrings);
-  }
-
-  static DataFrame prepare_null_contained(DataFrame df) throws IOException, TeddyException {
-    List<String> ruleStrings = new ArrayList<>();
-
-    ruleStrings.add("header rownum: 1");
-    ruleStrings.add("set col: itemNo value: if(itemNo=='NULL', null, itemNo)");
-    ruleStrings.add("set col: name value: if(name=='NULL', null, name)");
-    ruleStrings.add("set col: speed value: if(speed=='NULL', null, speed)");
-
-    ruleStrings.add("settype col: itemNo type: long");
-    ruleStrings.add("settype col: speed type: long");
-    ruleStrings.add("settype col: weight type: long");
-
-    df = apply_rule(df, ruleStrings);
-    return df;
-//    df.objGrid.get(1).set("itemNo", null);
-//    return df;
   }
 
   @Test
@@ -396,41 +437,8 @@ public class DataFrameTest {
 
     ruleStrings.clear();
     ruleStrings.add("header rownum: 1");
-    store = apply_rule(store, ruleStrings);
+    store = apply_rules(store, ruleStrings);
     store.show();
-  }
-
-  static DataFrame prepare_contract(DataFrame contract) throws TeddyException {
-    List<String> ruleStrings = new ArrayList<>();
-    ruleStrings.add("rename col: column1, column3, column4, column5, column6, column7, column8 to: 'cdate', 'pcode1', 'pcode2', 'pcode3', 'pcode4', 'customer_id', 'detail_store_code'");
-    ruleStrings.add("drop col: column2, column9");
-
-    ruleStrings.add("settype col: pcode1 type: long");
-    ruleStrings.add("settype col: pcode2 type: long");
-    ruleStrings.add("settype col: pcode3 type: long");
-    ruleStrings.add("settype col: pcode4 type: long");
-    ruleStrings.add("settype col: detail_store_code type: long");
-
-    return apply_rule(contract, ruleStrings);
-  }
-
-  private DataFrame prepare_product(DataFrame product) throws TeddyException {
-    List<String> ruleStrings = new ArrayList<>();
-    ruleStrings.add("rename col: column1, column2, column3, column4, column5 to: 'pcode1', 'pcode2', 'pcode3', 'pcode4', 'pcode'");
-    ruleStrings.add("settype col: pcode1 type: long");
-    ruleStrings.add("settype col: pcode2 type: long");
-    ruleStrings.add("settype col: pcode3 type: long");
-    ruleStrings.add("settype col: pcode4 type: long");
-
-    return apply_rule(product, ruleStrings);
-  }
-
-  public static DataFrame prepare_store(DataFrame store) throws TeddyException {
-    List<String> ruleStrings = new ArrayList<>();
-    ruleStrings.add("header rownum: 1");
-    ruleStrings.add("drop col: store_name");
-    ruleStrings.add("settype col: detail_store_code type: long");
-    return apply_rule(store, ruleStrings);
   }
 
   @Test
@@ -1017,15 +1025,14 @@ public class DataFrameTest {
     contract.show();
 
     String ruleString = "move col: pcode4 before: pcode1";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = contract.doMove((Move) rule);
+    DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
 
     ruleString = "move col: pcode4 before: cdate";
-    rule = new RuleVisitorParser().parse(ruleString);
-    newDf = newDf.doMove((Move) rule);
+    newDf = apply_rule(contract, ruleString);
     newDf.show();
   }
+
 
   @Test
   public void test_move_after() throws IOException, TeddyException {
@@ -1035,8 +1042,7 @@ public class DataFrameTest {
     contract.show();
 
     String ruleString = "move col: pcode4 after: customer_id";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = contract.doMove((Move) rule);
+    DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
   }
 
@@ -1048,8 +1054,7 @@ public class DataFrameTest {
     contract.show();
 
     String ruleString = "move col: pcode4 after: detail_store_code";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = contract.doMove((Move) rule);
+    DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
   }
   @Test
@@ -1061,13 +1066,11 @@ public class DataFrameTest {
     contract.show();
 
     String ruleString = "move col: pcode3, pcode4 before: pcode1";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = contract.doMove((Move) rule);
+    DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
 
     ruleString = "move col: pcode3, pcode4 before: cdate";
-    rule = new RuleVisitorParser().parse(ruleString);
-    newDf = newDf.doMove((Move) rule);
+    newDf = apply_rule(contract, ruleString);
     newDf.show();
   }
 
@@ -1079,8 +1082,7 @@ public class DataFrameTest {
     contract.show();
 
     String ruleString = "move col: pcode2, pcode3, pcode4 after: customer_id";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = contract.doMove((Move) rule);
+    DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
   }
 
@@ -1092,8 +1094,7 @@ public class DataFrameTest {
     contract.show();
 
     String ruleString = "move col: pcode1, pcode2, pcode3, pcode4 after: detail_store_code";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = contract.doMove((Move) rule);
+    DataFrame newDf = apply_rule(contract, ruleString);
     newDf.show();
   }
 
@@ -1105,10 +1106,10 @@ public class DataFrameTest {
     contract.show();
 
     String ruleString = "move col: pcode1, pcode4 after: detail_store_code";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
 
     try {
-      contract.doMove((Move) rule);
+      DataFrame newDf = apply_rule(contract, ruleString);
+      newDf.show();
     } catch (TeddyException e) {
       System.out.println(e);
     }
@@ -1122,14 +1123,15 @@ public class DataFrameTest {
     contract.show();
 
     String ruleString = "move col: pcode1, pcode3, pcode2, pcode4 after: detail_store_code";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
 
     try {
-      contract.doMove((Move) rule);
+      DataFrame newDf = apply_rule(contract, ruleString);
+      newDf.show();
     } catch (TeddyException e) {
       System.out.println(e);
     }
   }
+
 
 
   private DataFrame newNullContainedDataFrame() throws IOException, TeddyException {

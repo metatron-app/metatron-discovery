@@ -92,7 +92,7 @@ public class UnstructuredTest {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings.add("header rownum: 1");
     ruleStrings.add("settype col: GM_본사와_한국_정부 type: string");
-    return DataFrameTest.apply_rule(unstructured, ruleStrings);
+    return DataFrameTest.apply_rules(unstructured, ruleStrings);
   }
 
   @Test
