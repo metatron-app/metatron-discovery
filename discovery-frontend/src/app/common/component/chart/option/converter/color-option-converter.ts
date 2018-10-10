@@ -378,9 +378,6 @@ export class ColorOptionConverter {
       case ChartType.PIE:
       case ChartType.WORDCLOUD:
         rowsListLength = data.columns[0].value.length;
-        // set 2 decimal (wordcloud doesn't have format)
-        if (!uiOption['valueFormat']) uiOption['valueFormat'] = {};
-        uiOption['valueFormat']['decimal'] = 2;
         break;
       case ChartType.HEATMAP:
         rowsListLength = data.columns.length + data.rows.length;
