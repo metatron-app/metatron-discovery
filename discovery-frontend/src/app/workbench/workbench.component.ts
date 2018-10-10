@@ -1106,6 +1106,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 this.datagridCurList.push({name: 'Loading..'});
                 this.safelyDetectChanges();
 
+                // 첫번째 로그 탭에서 선택 표시
+                this.datagridCurList[0]['selected'] = true;
 
                 // 쿼리 초기화
                 this.runningQueryArr = [];
@@ -2023,6 +2025,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
         this.loadingBar.hide();
 
+        if (this.runningQueryDoneIndex == 0) {
+          this.datagridCurList[0]['selected'] = true;
+        }
+
         if ('HIVE' === this.mimeType && !isNullOrUndefined(data.queryIndex)) {
 
           // log 데이터 그리는 부분, done 인 부분으로 분리
@@ -2048,7 +2054,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
               let textAreaHeight = $('#workbenchHiveLogText').height();
               let lineBreakLength = $('#workbenchHiveLogText').find('br').length;
-              let offsetTop =  textAreaHeight * (Math.ceil(lineBreakLength / 12));
+              let offsetTop =  textAreaHeight * (Math.ceil(lineBreakLength / 8));
 
               $('#workbenchHiveLogText').scrollTop(offsetTop);
             }
