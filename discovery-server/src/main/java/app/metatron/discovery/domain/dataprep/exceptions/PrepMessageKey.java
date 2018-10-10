@@ -34,6 +34,10 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_FAILED_TO_CALCULATE_ROWNO(                      "msg.dp.alert.failed.to.calculate.rowno"),
     MSG_DP_ALERT_PREP_FILE_TYPE_NOT_SUPPORTED(                   "msg.dp.alert.prep.file.type.not.supported"),
     MSG_DP_ALERT_FILE_FORMAT_WRONG(                              "msg.dp.alert.file.format.wrong"),
+    MSG_DP_ALERT_HADOOP_NOT_CONFIGURED(                          "msg.dp.alert.hadoop.not.configured"),
+    MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED(                "msg.dp.alert.staging.base.dir.not.configured"),
+    MSG_DP_ALERT_HIVE_NOT_CONFIGURED(                            "msg.dp.alert.hive.not.configured"),
+    MSG_DP_ALERT_EXTERNAL_JAR_NOT_CONFIGURED(                    "msg.dp.alert.external.jar.not.configured"),
 
     MSG_DP_ALERT_TEDDY_PARSE_FAILED(                             "msg.dp.alert.teddy.parse.failed"),
     MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_RULENAME(                 "msg.dp.alert.teddy.parse.failed.by.rulename"),

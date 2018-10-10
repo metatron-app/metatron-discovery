@@ -1134,18 +1134,35 @@
                   <div *ngIf="isSankeyNotAllNode && !isNoData && isChartView && selectChart == 'sankey'" class="ddp-txt-detail">※ {{'msg.page.ui.sankey.data.part' | translate}}</div>
                   <!-- //Sankey Information -->
 
-                  <!-- data none -->
+                  <!-- No Data 영역 -->
                   <div *ngIf="isNoData" class="ddp-box-data-none">
                     <div class="ddp-wrap-data-none">
                       <div class="ddp-ui-data-none">
                         <div class="ddp-txt-none">
-                          {{'msg.page.ui.no.data.show' | translate}}
+                          <em class="{{boardUtil.getChartIconClass(widget)}}"></em>
+                          <span class="ddp-data-name">{{widget.name}}</span>
+                          <span class="ddp-txt-det">
+                            {{'msg.page.ui.no.data.show' | translate}}
+                          </span>
                         </div>
-
                       </div>
                     </div>
                   </div>
-                  <!-- //data none -->
+                  <!-- // No Data 영역 -->
+
+                  <!-- Error 표시 영역 -->
+                  <div *ngIf="isError" class="ddp-box-data-none">
+                    <div class="ddp-wrap-data-none">
+                      <div class="ddp-ui-data-none">
+                        <div class="ddp-txt-none">
+                          <em class="{{boardUtil.getChartIconClass(widget)}} ddp-error"></em>
+                          <span class="ddp-data-name">{{widget.name}}</span>
+                          <span class="ddp-txt-det">{{ 'msg.page.ui.no.data.error' | translate }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- // Error 표시 영역 -->
 
                   <!-- page -->
                   <!-- 차트 개발 붙이고 디자인 수정 예정 -->
@@ -1170,7 +1187,7 @@
                   </div>
 
                   <div style="width: 100%; height: 100%"
-                       [style.display]="!isNoData && isChartView ? 'block' : 'none'">
+                       [style.display]="!isError && !isNoData && isChartView ? 'block' : 'none'">
                     <bar-chart #chart
                                [isPage]="true"
                                *ngIf="selectChart == 'bar'"
