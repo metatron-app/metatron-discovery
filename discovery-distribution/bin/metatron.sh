@@ -131,7 +131,7 @@ function wait_for_metatron_to_die() {
 
 function check_if_process_is_alive() {
   local pid
-  pid=$(cat ${METATRON_PID})
+  pid=$(cat "${METATRON_PID}")
   if ! kill -0 ${pid} >/dev/null 2>&1; then
     echo "${METATRON_NAME} process died" "${SET_ERROR}"
     return 1
@@ -144,14 +144,14 @@ function upstart() {
 
   echo "METATRON_CLASSPATH: ${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}" >> "${METATRON_OUTFILE}"
 
-  $METATRON_RUNNER $JAVA_OPTS -cp $METATRON_CLASSPATH_OVERRIDES:$CLASSPATH $METATRON_MAIN $METATRON_OPTION >> "${METATRON_OUTFILE}"
+  $METATRON_RUNNER $JAVA_OPTS -cp "${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}" $METATRON_MAIN $METATRON_OPTION >> "${METATRON_OUTFILE}"
 }
 
 function start() {
   local pid
 
   if [[ -f "${METATRON_PID}" ]]; then
-    pid=$(cat ${METATRON_PID})
+    pid=$(cat "${METATRON_PID}")
     if kill -0 ${pid} >/dev/null 2>&1; then
       echo "${METATRON_NAME} is already running"
       return 0;
@@ -162,14 +162,14 @@ function start() {
 
   echo "METATRON_CLASSPATH: ${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}" >> "${METATRON_OUTFILE}"
 
-  nohup nice -n $METATRON_NICENESS $METATRON_RUNNER $JAVA_OPTS -cp $METATRON_CLASSPATH_OVERRIDES:$CLASSPATH $METATRON_MAIN $METATRON_OPTION >> "${METATRON_OUTFILE}" 2>&1 < /dev/null &
+  nohup nice -n $METATRON_NICENESS $METATRON_RUNNER $JAVA_OPTS -cp "${METATRON_CLASSPATH_OVERRIDES}:${CLASSPATH}" $METATRON_MAIN $METATRON_OPTION >> "${METATRON_OUTFILE}" 2>&1 < /dev/null &
   pid=$!
   if [[ -z "${pid}" ]]; then
     echo "${METATRON_NAME} start" "${SET_ERROR}"
     return 1;
   else
     echo "${METATRON_NAME} start" "${SET_OK}"
-    echo ${pid} > ${METATRON_PID}
+    echo ${pid} > "${METATRON_PID}"
   fi
 
   sleep 2
@@ -183,23 +183,23 @@ function stop() {
   if [[ ! -f "${METATRON_PID}" ]]; then
     echo "${METATRON_NAME} is not running"
   else
-    pid=$(cat ${METATRON_PID})
+    pid=$(cat "${METATRON_PID}")
     if [[ -z "${pid}" ]]; then
       echo "${METATRON_NAME} is not running"
     else
       wait_for_metatron_to_die $pid 40
-      $(rm -f ${METATRON_PID})
+      $(rm -f "${METATRON_PID}")
       echo "${METATRON_NAME} stop" "${SET_OK}"
     fi
   fi
 
   # list all pid that used in remote interpreter and kill them
-  for f in ${METATRON_PID_DIR}/*.pid; do
+  for f in "${METATRON_PID_DIR}/*.pid"; do
     if [[ ! -f ${f} ]]; then
       continue;
     fi
 
-    pid=$(cat ${f})
+    pid=$(cat "${f}")
     wait_for_metatron_to_die $pid 20
     $(rm -f ${f})
   done
@@ -210,7 +210,7 @@ function find_metatron_process() {
   local pid
 
   if [[ -f "${METATRON_PID}" ]]; then
-    pid=$(cat ${METATRON_PID})
+    pid=$(cat "${METATRON_PID}")
     if ! kill -0 ${pid} > /dev/null 2>&1; then
       echo "${METATRON_NAME} running but process is dead" "${SET_ERROR}"
       return 1

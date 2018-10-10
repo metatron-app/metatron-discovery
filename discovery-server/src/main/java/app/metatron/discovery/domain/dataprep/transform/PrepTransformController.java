@@ -14,7 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import app.metatron.discovery.domain.dataprep.PrepDataset;
 import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -128,7 +127,9 @@ public class PrepTransformController {
       assert stageIdx == null || stageIdx >= 0 : stageIdx;
 
       response = transformService.fetch(wrangledDsId, stageIdx);
+      Integer totalRowCnt = response.getGridResponse().rows!=null?response.getGridResponse().rows.size():0;
       response.setGridResponse(getSubGrid(response.getGridResponse(), offset, count));
+      response.setTotalRowCnt( totalRowCnt );
     } catch (Exception e) {
       LOGGER.error("fetch(): caught an exception: ", e);
       if (System.getProperty("dataprep").equals("disabled")) {
@@ -167,7 +168,10 @@ public class PrepTransformController {
 
     LOGGER.trace("transform(): end");
 
+
+    Integer totalRowCnt = response.getGridResponse().rows!=null?response.getGridResponse().rows.size():0;
     response.setGridResponse(getSubGrid(response.getGridResponse(), 0, request.getCount()));
+    response.setTotalRowCnt( totalRowCnt );
 
     return ResponseEntity.ok(response);
   }

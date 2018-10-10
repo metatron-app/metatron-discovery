@@ -134,4 +134,20 @@
   </div>
   <!-- // No Data 영역 -->
 
+  <!-- Error 표시 영역 -->
+  <div *ngIf="isError" class="ddp-view-widget ddp-view-widget-grid">
+    <div class="ddp-box-data-none">
+      <div class="ddp-wrap-data-none">
+        <div class="ddp-ui-data-none">
+          <div class="ddp-txt-none">
+            <em class="{{getChartIconClass()}} ddp-error"></em>
+            <span class="ddp-data-name">{{widget.name}}</span>
+            <span class="ddp-txt-det">{{ 'msg.page.ui.no.data.error' | translate }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- // Error 표시 영역 -->
+
 </div>
