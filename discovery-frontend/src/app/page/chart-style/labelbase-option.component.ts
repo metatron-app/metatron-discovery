@@ -83,8 +83,9 @@ export class LabelBaseOptionComponent extends BaseOptionComponent implements OnI
         }
         break;
 
-      // when line chart has multi series, disable category value, category percentage
+      // when line, combine chart has multi series, disable category value, category percentage
       case ChartType.LINE:
+      case ChartType.COMBINE:
         if (this.pivot.aggregations.length > 1) categoryDisable = true;
         break;
     }
@@ -109,6 +110,7 @@ export class LabelBaseOptionComponent extends BaseOptionComponent implements OnI
 
       // when line chart has single series, disable series
       case ChartType.LINE:
+      case ChartType.COMBINE:
         if (this.pivot.aggregations.length <= 1) seriesDisable = true;
         break;
     }
