@@ -517,7 +517,7 @@ public class PrepDataset extends AbstractHistoryEntity {
                                 if(jodaTime instanceof LinkedHashMap) {
                                     try {
                                         LinkedHashMap mapTime = (LinkedHashMap)jodaTime;
-                                        DateTime dateTime = new DateTime((Long) mapTime.get("millis"));
+                                        DateTime dateTime = new DateTime(Long.parseLong(mapTime.get("millis").toString()));
                                         row.objCols.set(colNo,dateTime);
                                     } catch (Exception e) {
                                         LOGGER.debug(e.getMessage());

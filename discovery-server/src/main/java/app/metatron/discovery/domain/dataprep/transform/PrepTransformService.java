@@ -58,7 +58,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static app.metatron.discovery.domain.dataprep.PrepDataset.DS_TYPE.WRANGLED;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.*;
 
 @Service
 public class PrepTransformService {
@@ -129,32 +128,18 @@ public class PrepTransformService {
 
     // check polaris.dataprep.hadoopConfDir
     if (ssHdfs || ssHive) {
-      if (prepProperties.getHadoopConfDir() == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
-      }
-      if (prepProperties.getStagingBaseDir() == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, STAGING_BASE_DIR);
-      }
+      prepProperties.getHadoopConfDir(true);
+      prepProperties.getStagingBaseDir(true);
     }
 
     // check polaris.dataprep.hive
     if (dsHive || ssHive) {
-      PrepProperties.HiveInfo hive = prepProperties.getHive();
-      if (hive == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HIVE_HOSTNAME);
-      }
+      prepProperties.getHiveHostname(true);
     }
 
     // check polaris.dataprep.etl.jar
     if (engine == PrepSnapshot.ENGINE.TWINKLE) {
-      EtlInfo etlInfo = prepProperties.getEtl();
-      if (etlInfo == null || etlInfo.getJar() == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, ETL_JAR);
-      }
+      prepProperties.getEtlJar();
     }
 
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(prepProperties.getEveryForEtl());
@@ -180,14 +165,14 @@ public class PrepTransformService {
         map.put("fileUri",        requestPost.getUri());
         break;
       case HDFS:
-        map.put("stagingBaseDir", prepProperties.getStagingBaseDir());
+        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
         map.put("fileUri",        requestPost.getUri());
         break;
       case JDBC:
         assert false : ssId;
         break;
       case HIVE:
-        map.put("stagingBaseDir", prepProperties.getStagingBaseDir());
+        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
         map.put("partKeys",       requestPost.getPartKeys());
         map.put("mode",           mode.name());
         map.put("dbName",         requestPost.getDbName());
@@ -311,7 +296,6 @@ public class PrepTransformService {
           isNotORC = false;
       }
 
-      // FIXME: reconsider whether UNDO is necessary.
       if (prepProperties.isAutoTyping() && isNotORC) {
         setTypeRules = autoTypeDetection(gridResponse);
         //반환 받은 setType Rule 들을 적용
@@ -321,9 +305,7 @@ public class PrepTransformService {
             // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
             transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, i, setTypeRule);
           } catch (Exception e) {
-            LOGGER.info("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
-            transform(wrangledDsId, PrepDataset.OP_TYPE.UNDO, null, setTypeRule);
-            continue;
+            LOGGER.error("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
           }
         }
       }
@@ -440,8 +422,10 @@ public class PrepTransformService {
       doTypeCheck_100(df, i, columnTypes, columnTypesRow0, timestampStyles);
     }
 
-    //0번 Row의 예상 Type이 모두 String인 경우 header 룰을 추가하고 columnNames를 변경.
-    if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt) {
+    //If all column types of row 0 elements is String and predicted column types is not all String.
+    //Then add Header rule and change column name.
+    if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
+            Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt) {
       setTypeRules.add("header rownum: 1");
       columnNames.clear();
 
@@ -613,13 +597,13 @@ public class PrepTransformService {
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     assert dataset != null : dsId;
 
-    PrepTransformResponse response = null;
-    int origStageIdx = teddyImpl.getCurStageIdx(dsId);
-
     // dataset이 loading되지 않았으면 loading
     if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
       load_internal(dsId);
     }
+
+    PrepTransformResponse response = null;
+    int origStageIdx = teddyImpl.getCurStageIdx(dsId);
 
     // join이나 union의 경우, 대상 dataset들도 loading
     if (ruleString != null) {
@@ -1229,7 +1213,7 @@ public class PrepTransformService {
       String ssName = this.snapshotService.makeSnapshotName(wrangledDataset.getDsName(),launchTime);
       configuration.put("ss_name", ssName);
 
-      if(PrepSnapshot.SS_TYPE.FILE==PrepSnapshot.SS_TYPE.FILE) {
+      if(prepProperties.isFileSnapshotEnabled()) {
         Map<String,Object> fileUri = Maps.newHashMap();
 
         String wasDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
@@ -1237,29 +1221,24 @@ public class PrepTransformService {
         fileUri.put("was", wasDir);
 
         try {
-          Map<String,Object> checked = this.hdfsService.checkHdfs();
-          if(checked.get("checkConnection").equals(true)) {
-            String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(), ssName);
-            hdfsDir = this.snapshotService.escapeSsNameOfUri(hdfsDir);
-            fileUri.put("hdfs", hdfsDir);
-          }
+          String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
+          hdfsDir = this.snapshotService.escapeSsNameOfUri(hdfsDir);
+          fileUri.put("hdfs", hdfsDir);
         } catch (Exception e) {
+          // MSG_DP_ALERT_STAGING_DIR_NOT_CONFIGURED is suppressed
         }
         configuration.put("file_uri", fileUri);
       }
 
-      if(PrepSnapshot.SS_TYPE.HIVE==PrepSnapshot.SS_TYPE.HIVE) {
-        Map<String,Object> hive = null;
-        PrepProperties.HiveInfo hiveInfo = prepProperties.getHive();
-        if(hiveInfo!=null) {
-          hive = Maps.newHashMap();
-          hive.put("custom_url", hiveInfo.getCustomUrl());
-          hive.put("metastore_uris", hiveInfo.getMetastoreUris());
-          hive.put("hostname", hiveInfo.getHostname());
-          hive.put("port", hiveInfo.getPort());
-          hive.put("username", hiveInfo.getUsername());
-          hive.put("password", hiveInfo.getPassword());
-        }
+      if(true == prepProperties.isHiveSnapshotEnabled()) {
+        Map<String,Object> hive = Maps.newHashMap();
+        hive.put("hostname",       prepProperties.getHiveHostname(false));
+        hive.put("port",           prepProperties.getHivePort(false));
+        hive.put("username",       prepProperties.getHiveUsername(false));
+        hive.put("password",       prepProperties.getHivePassword(false));
+        hive.put("custom_url",     prepProperties.getHiveCustomUrl(false));
+        hive.put("metastore_uris", prepProperties.getHiveMetastoreUris(false));
+
         configuration.put("hive_info", hive);
       }
     } catch (Exception e) {
