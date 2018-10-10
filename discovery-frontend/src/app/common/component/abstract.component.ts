@@ -93,8 +93,6 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   // 로그인 아이디
   public loginUserId: string;
 
-  // IBK 패치 체크를 위한 임시 변수 ( Filter의 Selector를 고정하기 위한 용도 )
-  public isLiveStatus:boolean = true;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -201,7 +199,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    * 퍼미션 관리자 여부
    */
   public isPermissionManager() {
-    return CommonUtil.isValidPermission( SYSTEM_PERMISSION.MANAGE_WORKSPACE );
+    return CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_WORKSPACE);
   } // function - isPermissionManager
 
   // noinspection JSMethodCanBeStatic
@@ -223,8 +221,6 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         case 'TEXT':
         case 'DIMENSION':
         case 'STRING':
-          result = 'ddp-icon-type-ab';
-          break;
         case 'USER_DEFINED':
           result = 'ddp-icon-type-ab';
           break;
@@ -296,6 +292,119 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
     return result;
   } // function - getIconClass
 
+  /**
+   * 필드에 맞는 role 타입 아이콘
+   * @param {string} roleType
+   * @returns {string}
+   */
+  public getFieldRoleTypeIconClass(roleType: string): string {
+    return roleType === 'MEASURE' ? 'ddp-measure' : 'ddp-dimension' ;
+  }
+
+  /**
+   * 필드에 맞는 Dimension 타입의 아이콘
+   * @param {string} type
+   * @returns {string}
+   */
+  public getFieldDimensionTypeIconClass(type: string): string {
+    if (type) {
+      switch (type) {
+        case 'TIMESTAMP':
+          return 'ddp-icon-dimension-calen';
+        case 'BOOLEAN':
+          return 'ddp-icon-dimension-tf';
+        case 'TEXT':
+        case 'DIMENSION':
+        case 'STRING':
+        case 'USER_DEFINED':
+          return 'ddp-icon-dimension-ab';
+        case 'INT':
+        case 'INTEGER':
+        case 'LONG':
+          return 'ddp-icon-dimension-int';
+        case 'DOUBLE':
+        case 'FLOAT':
+          return 'ddp-icon-dimension-float';
+        case 'MAP':
+          return 'ddp-icon-dimension-maplink';
+        case 'ARRAY':
+          return 'ddp-icon-dimension-array';
+        case 'CALCULATED':
+          return 'ddp-icon-dimension-sharp';
+        case 'LNG':
+        case 'LONGITUDE':
+          return 'ddp-icon-dimension-longitude';
+        case 'LNT':
+        case 'LATITUDE':
+          return 'ddp-icon-dimension-latitude';
+        case 'ACCOUNT':
+          return 'ddp-icon-dimension-account';
+        case 'COUNTRY':
+        case 'STATE':
+        case 'CITY':
+        case 'GU':
+        case 'DONG':
+          return 'ddp-icon-dimension-local';
+        default:
+          return 'ddp-icon-dimension-ab';
+      }
+    } else {
+      return '';
+    }
+
+  }
+
+  /**
+   * 필드에 맞는 Measure 타입의 아이콘
+   * @param {string} type
+   * @returns {string}
+   */
+  public getFieldMeasureTypeIconClass(type: string): string {
+    if (type) {
+      switch (type) {
+        case 'TIMESTAMP':
+          return 'ddp-icon-measure-calen';
+        case 'BOOLEAN':
+          return 'ddp-icon-measure-tf';
+        case 'TEXT':
+        case 'DIMENSION':
+        case 'STRING':
+        case 'USER_DEFINED':
+          return 'ddp-icon-measure-ab';
+        case 'INT':
+        case 'INTEGER':
+        case 'LONG':
+          return 'ddp-icon-measure-int';
+        case 'DOUBLE':
+        case 'FLOAT':
+          return 'ddp-icon-measure-float';
+        case 'MAP':
+          return 'ddp-icon-measure-maplink';
+        case 'ARRAY':
+          return 'ddp-icon-measure-array';
+        case 'CALCULATED':
+          return 'ddp-icon-measure-sharp';
+        case 'LNG':
+        case 'LONGITUDE':
+          return 'ddp-icon-measure-longitude';
+        case 'LNT':
+        case 'LATITUDE':
+          return 'ddp-icon-measure-latitude';
+        case 'ACCOUNT':
+          return 'ddp-icon-measure-account';
+        case 'COUNTRY':
+        case 'STATE':
+        case 'CITY':
+        case 'GU':
+        case 'DONG':
+          return 'ddp-icon-measure-local';
+        default:
+          return 'ddp-icon-measure-ab';
+      }
+    } else {
+      return '';
+    }
+  }
 
   /**
    * 사용가능한 커넥션 타입
@@ -304,7 +413,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    */
   public getEnabledConnectionTypes(isDeleteAll: boolean = false) {
     const types = [
-      { label: this.translateService.instant('msg.storage.ui.list.all'), value: 'all'},
+      { label: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
       // { label: 'Oracle', value: 'ORACLE', icon: 'type-oracle'  },
       { label: 'MySQL', value: 'MYSQL', icon: 'type-mysql' },
       { label: 'PostgreSQL', value: 'POSTGRESQL', icon: 'type-postgre' },
@@ -328,18 +437,50 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    */
   public getMetaDataLogicalTypeList(): any[] {
     return [
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.string'), value: 'STRING', icon: 'ddp-icon-type-ab' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.boolean'), value: 'BOOLEAN', icon: 'ddp-icon-type-tf' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.integer'), value: 'INTEGER', icon: 'ddp-icon-type-int' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.double'), value: 'DOUBLE', icon: 'ddp-icon-type-float' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.timestamp'), value: 'TIMESTAMP', icon: 'ddp-icon-type-calen' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.latitude'), value: 'LNT', icon: 'ddp-icon-type-latitude' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.longitude'), value: 'LNG', icon: 'ddp-icon-type-longitude' },
+      {
+        label: this.translateService.instant('msg.metadata.ui.dictionary.type.string'),
+        value: 'STRING',
+        icon: 'ddp-icon-type-ab'
+      },
+      {
+        label: this.translateService.instant('msg.metadata.ui.dictionary.type.boolean'),
+        value: 'BOOLEAN',
+        icon: 'ddp-icon-type-tf'
+      },
+      {
+        label: this.translateService.instant('msg.metadata.ui.dictionary.type.integer'),
+        value: 'INTEGER',
+        icon: 'ddp-icon-type-int'
+      },
+      {
+        label: this.translateService.instant('msg.metadata.ui.dictionary.type.double'),
+        value: 'DOUBLE',
+        icon: 'ddp-icon-type-float'
+      },
+      {
+        label: this.translateService.instant('msg.metadata.ui.dictionary.type.timestamp'),
+        value: 'TIMESTAMP',
+        icon: 'ddp-icon-type-calen'
+      },
+      {
+        label: this.translateService.instant('msg.metadata.ui.dictionary.type.latitude'),
+        value: 'LNT',
+        icon: 'ddp-icon-type-latitude'
+      },
+      {
+        label: this.translateService.instant('msg.metadata.ui.dictionary.type.longitude'),
+        value: 'LNG',
+        icon: 'ddp-icon-type-longitude'
+      },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.image'), value: 'IMAGE', icon: '' },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.binary'), value: 'BINARY', icon: '' },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.spatial'), value: 'SPATIAL', icon: '' },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.private'), value: 'PRIVATE', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.phone'), value: 'PHONE_NUMBER', icon: '' },
+      {
+        label: this.translateService.instant('msg.metadata.ui.dictionary.type.phone'),
+        value: 'PHONE_NUMBER',
+        icon: ''
+      },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.email'), value: 'EMAIL', icon: '' },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.gender'), value: 'SEX', icon: '' },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.url'), value: 'URL', icon: '' },
@@ -363,7 +504,11 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.binary'), value: 'BINARY', icon: '' },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.spatial'), value: 'SPATIAL', icon: '' },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.private'), value: 'PRIVATE', icon: '' },
-      { label: this.translateService.instant('msg.metadata.ui.dictionary.type.phone'), value: 'PHONE_NUMBER', icon: '' },
+      {
+        label: this.translateService.instant('msg.metadata.ui.dictionary.type.phone'),
+        value: 'PHONE_NUMBER',
+        icon: ''
+      },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.email'), value: 'EMAIL', icon: '' },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.gender'), value: 'SEX', icon: '' },
       { label: this.translateService.instant('msg.metadata.ui.dictionary.type.url'), value: 'URL', icon: '' },
@@ -393,11 +538,11 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   // noinspection JSMethodCanBeStatic
   /**
    * 사용자의 Full Name 조회
-    * @param {User | UserDetail} user
+   * @param {User | UserDetail} user
    * @return {string}
    */
-  public getUserFullName( user:User|UserDetail ) {
-    return ( user && '__UNKNOWN_USER' !== user.fullName ) ? user.fullName : '';
+  public getUserFullName(user: User | UserDetail) {
+    return (user && '__UNKNOWN_USER' !== user.fullName) ? user.fullName : '';
   } // function - getUserFullName
 
   /**
@@ -405,8 +550,8 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    * @param {Group} group
    * @return {string}
    */
-  public getGroupName( group:Group ) {
-    return ( group && '__UNKNOWN_GROUP' !== group.name ) ? group.name : '';
+  public getGroupName(group: Group) {
+    return (group && '__UNKNOWN_GROUP' !== group.name) ? group.name : '';
   } // function - getGroupName
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -419,18 +564,18 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    * @return {Promise<string>}
    * @protected
    */
-  protected checkAndConnectWebSocket(isReload:boolean = false): Promise<string> {
+  protected checkAndConnectWebSocket(isReload: boolean = false): Promise<string> {
 
     this._webSocketReConnectCnt = this._webSocketReConnectCnt + 1;
     // 초기화 -> 연결 재 시도
     if (20 === this._webSocketReConnectCnt) {
       Alert.error(this.translateService.instant(this.translateService.instant('msg.bench.alert.socket.link.fail.retry')));
-      ( isReload ) && ( window.location.reload() );
+      (isReload) && (window.location.reload());
     }
 
     return new Promise<string>((resolve, reject) => {
       try {
-        (isUndefined(CommonConstant.stomp)) && ( CommonConstant.stomp = this.stomp );
+        (isUndefined(CommonConstant.stomp)) && (CommonConstant.stomp = this.stomp);
 
         if ('CONNECTED' === CommonConstant.stomp.status) {
           this._webSocketReConnectCnt = 0;
@@ -440,22 +585,22 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
           resolve('CONNECTED');
         } else if ('CONNECTING' === CommonConstant.stomp.status) {
           setTimeout(() => {
-            this.checkAndConnectWebSocket().then( resolve );
+            this.checkAndConnectWebSocket().then(resolve);
           }, 500);
         } else if (CommonConstant.stomp.status === 'CLOSED') {
           this.stomp.configure({
             host: CommonConstant.API_CONSTANT.URL + '/stomp',
             headers: { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) },
             debug: false,
-            heartbeatOut : 1000,
-            heartbeatIn : 0,
+            heartbeatOut: 1000,
+            heartbeatIn: 0,
             queue: { init: false }
           });
           this.stomp.startConnect().then(() => {
             const temp: string = this.stomp['socket']['_transport']['url'];
             const tempArr = temp.split('/');
             CommonConstant.websocketId = tempArr[5];
-            this.checkAndConnectWebSocket().then( resolve );
+            this.checkAndConnectWebSocket().then(resolve);
           }).catch(err => console.error(err));
         }
       } catch (err) {
@@ -468,10 +613,61 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
   /**
    * 웹소켓 연결 해제
    */
-  public disconnectWebSocket() {
-    ( CommonConstant.stomp ) && ( CommonConstant.stomp.disconnect() );
+  protected disconnectWebSocket() {
+    (CommonConstant.stomp) && (CommonConstant.stomp.disconnect());
   } // function - disconnectWebSocket
 
+  /**
+   * Send View Activity Stream
+   * @param {string} id
+   * @param {string} type : WORKBOOK, NOTEBOOK, WORKBENCH, DASHBOARD
+   */
+  protected sendViewActivityStream(id: string, type: string) {
+    setTimeout(() => {
+      this.checkAndConnectWebSocket().then(() => {
+        try {
+          // 메세지 발신
+          const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
+          const params = {
+            'type': 'View',
+            'object': { 'id': id, 'type': type },
+            'generator': { 'type': 'WEBAPP', 'name': navigator.userAgent }
+          };
+          CommonConstant.stomp.send('/message/activities/add', params, headers);
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    }, 500);
+  } // function - sendViewActivityStream
+
+
+  /**
+   * Send Link Activity Stream
+   * @param {string} sourceId
+   * @param {string} sourceType : DASHBOARD
+   * @param {string} targetId
+   * @param {string} targetType : DATASOURCE
+   */
+  protected sendLinkActivityStream(sourceId: string, sourceType: string, targetId: string, targetType: string) {
+    setTimeout(() => {
+      this.checkAndConnectWebSocket().then(() => {
+        try {
+          // 메세지 발신
+          const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
+          const params = {
+            'type': 'Link',
+            'object': { 'id': sourceId, 'type': sourceType },
+            'target': { 'id': targetId, 'type': targetType },
+            'generator': { 'type': 'WEBAPP', 'name': navigator.userAgent }
+          };
+          CommonConstant.stomp.send('/message/activities/add', params, headers);
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    }, 500);
+  } // function - sendLinkActivityStream
 
   /**
    * xhr 에 대한 공통 에러 핸들러
@@ -480,8 +676,8 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    */
   protected commonExceptionHandler(err: any, errMessage?: string) {
     console.error(err);
-    const url:string = this.router.url;
-    if( -1 < url.indexOf( '/management' ) || -1 < url.indexOf( '/admin' ) ) {
+    const url: string = this.router.url;
+    if (-1 < url.indexOf('/management') || -1 < url.indexOf('/admin')) {
       Alert.errorDetail(err.message, err.details);
     } else {
       if (err && err.details) {
@@ -502,7 +698,7 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
    */
   protected dataprepExceptionHandler(err) {
     //this.loadingHide();
-    console.error( err );
+    console.error(err);
 
     if (err.code && err.code.startsWith('PR') && err.message) {
       return err;
@@ -510,8 +706,8 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
       return err;
     } else {
       return {
-          'message' : 'msg.dp.alert.unknown.error',
-          'details' : JSON.stringify(err)
+        'message': 'msg.dp.alert.unknown.error',
+        'details': JSON.stringify(err)
       };
     }
   } // function - commonExceptionHandler

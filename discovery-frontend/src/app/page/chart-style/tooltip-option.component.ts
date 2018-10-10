@@ -19,6 +19,7 @@ import * as _ from 'lodash';
 import { FormatOptionConverter } from '../../common/component/chart/option/converter/format-option-converter';
 import { UIChartFormat } from '../../common/component/chart/option/ui-option/ui-format';
 import { LabelBaseOptionComponent } from './labelbase-option.component';
+import { TooltipOptionConverter } from '../../common/component/chart/option/converter/tooltip-option-converter';
 @Component({
   selector: 'tooltip-option',
   templateUrl: './tooltip-option.component.html'
@@ -45,10 +46,10 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
     }
     // displayTypes가 없는경우 차트에 따라서 기본 displayTypes설정
     if (!uiOption.toolTip.displayTypes) {
-      uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
+      uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type, this.pivot);
     }
 
-    uiOption.toolTip.previewList = this.setPreviewList(uiOption);
+    uiOption.toolTip.previewList = TooltipOptionConverter.setTooltipPreviewList(uiOption);
 
     // useDefaultFormat이 없는경우
     if (typeof uiOption.toolTip.useDefaultFormat === 'undefined') uiOption.toolTip.useDefaultFormat = true;
@@ -116,7 +117,7 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
     }
 
     // preview 설정
-    this.uiOption.toolTip.previewList = this.setPreviewList(this.uiOption);
+    this.uiOption.toolTip.previewList = TooltipOptionConverter.setTooltipPreviewList(this.uiOption);
 
     // 적용
     this.apply();
@@ -148,107 +149,4 @@ export class TooltipOptionComponent extends LabelBaseOptionComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 미리보기 설정
-   */
-  private setPreviewList(uiOption: UIOption): Object[] {
-
-    // 미리보기 리스트 초기화
-    uiOption.toolTip.previewList = [];
-
-    let format: UIChartFormat = uiOption.valueFormat;
-
-    // 축의 포멧이 있는경우 축의 포멧으로 설정
-    const axisFormat = FormatOptionConverter.getlabelAxisScaleFormatTooltip(uiOption);
-    if (axisFormat) format = axisFormat;
-
-    // 포멧값이 설정된 숫자값
-    let numValue = FormatOptionConverter.getFormatValue(1000, format);
-
-    if (uiOption.toolTip.displayTypes) {
-      // displayType에 따라서 미리보기 설정
-      for (const type of uiOption.toolTip.displayTypes) {
-
-        switch(type) {
-
-          case UIChartDataLabelDisplayType.CATEGORY_NAME:
-            uiOption.toolTip.previewList.push({name: 'Category: Category Name', value: UIChartDataLabelDisplayType.CATEGORY_NAME});
-            break;
-          case UIChartDataLabelDisplayType.CATEGORY_VALUE:
-            uiOption.toolTip.previewList.push({name: 'Category Value: ' + numValue, value: UIChartDataLabelDisplayType.CATEGORY_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.CATEGORY_PERCENT:
-            uiOption.toolTip.previewList.push({name: 'Category %: 100%', value: UIChartDataLabelDisplayType.CATEGORY_PERCENT});
-            break;
-          case UIChartDataLabelDisplayType.SERIES_NAME:
-            uiOption.toolTip.previewList.push({name: 'Series: Series Name', value: UIChartDataLabelDisplayType.SERIES_NAME});
-            break;
-          case UIChartDataLabelDisplayType.SERIES_VALUE:
-            uiOption.toolTip.previewList.push({name: 'Series Value: ' + numValue, value: UIChartDataLabelDisplayType.SERIES_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.SERIES_PERCENT:
-            uiOption.toolTip.previewList.push({name: 'Series %: 100%', value: UIChartDataLabelDisplayType.SERIES_PERCENT});
-            break;
-          case UIChartDataLabelDisplayType.XAXIS_VALUE:
-            uiOption.toolTip.previewList.push({name: 'X axis Value: ' + numValue, value: UIChartDataLabelDisplayType.XAXIS_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.YAXIS_VALUE:
-            uiOption.toolTip.previewList.push({name: 'Y axis Value: ' + numValue, value: UIChartDataLabelDisplayType.YAXIS_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.VALUE:
-            uiOption.toolTip.previewList.push({name: 'Value: ' + numValue, value: UIChartDataLabelDisplayType.VALUE});
-            break;
-          case UIChartDataLabelDisplayType.NODE_NAME:
-            uiOption.toolTip.previewList.push({name: 'Node: Node Name', value: UIChartDataLabelDisplayType.NODE_NAME});
-            break;
-          case UIChartDataLabelDisplayType.LINK_VALUE:
-            uiOption.toolTip.previewList.push({name: 'Link Value: ' + numValue, value: UIChartDataLabelDisplayType.LINK_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.NODE_VALUE:
-            uiOption.toolTip.previewList.push({name: 'Node Value: ' + numValue, value: UIChartDataLabelDisplayType.NODE_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.HIGH_VALUE:
-            uiOption.toolTip.previewList.push({name: 'High: ' + numValue, value: UIChartDataLabelDisplayType.HIGH_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.THREE_Q_VALUE:
-            uiOption.toolTip.previewList.push({name: '3Q: ' + numValue, value: UIChartDataLabelDisplayType.THREE_Q_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.MEDIAN_VALUE:
-            uiOption.toolTip.previewList.push({name: 'Median: ' + numValue, value: UIChartDataLabelDisplayType.MEDIAN_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.FIRST_Q_VALUE:
-            uiOption.toolTip.previewList.push({name: '1Q: ' + numValue, value: UIChartDataLabelDisplayType.FIRST_Q_VALUE});
-            break;
-          case UIChartDataLabelDisplayType.LOW_VALUE:
-            uiOption.toolTip.previewList.push({name: 'Low: ' + numValue, value: UIChartDataLabelDisplayType.LOW_VALUE});
-            break;
-        }
-      }
-    }
-
-    // value / percent가 있을때 한줄로 나오게 설정
-    const filteredDisplayTypes = _.cloneDeep(_.filter(uiOption.toolTip.displayTypes));
-    let categoryValIdx = filteredDisplayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_VALUE);
-    let categoryPerIdx = filteredDisplayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT);
-    if (-1 !== categoryValIdx && -1 !== categoryPerIdx) {
-      uiOption.toolTip.previewList[categoryValIdx]['name'] = 'Category Value: ' + numValue + '(100%)';
-      uiOption.toolTip.previewList.splice(categoryPerIdx, 1);
-    }
-
-    let seriesValIdx = filteredDisplayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE);
-    let seriesPerIdx = filteredDisplayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT);
-    if (-1 !== seriesValIdx && -1 !== seriesPerIdx) {
-
-      // category value/percent가 둘다있는경우 previewList length가 하나줄어드므로 index 이동
-      if (-1 !== categoryValIdx && -1 !== categoryPerIdx) {
-        seriesValIdx += -1;
-        seriesPerIdx += -1;
-      }
-      uiOption.toolTip.previewList[seriesValIdx]['name'] = 'Series Value: ' + numValue + '(100%)';
-      uiOption.toolTip.previewList.splice(seriesPerIdx, 1);
-    }
-
-    return uiOption.toolTip.previewList;
-  }
 }

@@ -149,9 +149,9 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
   public getAnalysisPredictionLineFromDashBoard(widgetConfiguration: PageWidgetConfiguration,
                                                 widget: PageWidget,
                                                 chart: any,
-                                                resultData?: { data: any; config: SearchQueryRequest; uiOption: UIOption }): void {
+                                                resultData?: { data: any; config: SearchQueryRequest; uiOption: UIOption }): Promise<any> {
 
-    this.getAnalysis(this.createGetAnalysisParameter(widgetConfiguration, widget))
+    return this.getAnalysis(this.createGetAnalysisParameter(widgetConfiguration, widget))
       .then((result) => {
         this.createPredictionLineSeriesList(result, widgetConfiguration);
         return result;
@@ -164,7 +164,7 @@ export class AnalysisPredictionService extends AbstractService implements OnInit
       })
       .catch((error) => {
         chart.analysis = null;
-        console.info('error', error);
+        throw error;
       });
   }
 

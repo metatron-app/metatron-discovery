@@ -33,12 +33,12 @@
   <!-- //column option -->
   <div class="ddp-data-details ddp-ui-preview-contents" (scroll)="onScrollColumnView()">
     <!-- header -->
-    <table class="ddp-table-form ddp-table-type2 ddp-table-details">
+    <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-type-input">
       <colgroup>
-        <col width="140px">
+        <col width="160px">
         <col width="100px">
-        <col width="140px">
-        <col width="120px">
+        <col width="180px">
+        <col width="180px">
         <col width="150px">
         <col width="150px">
         <col width="200px">
@@ -52,70 +52,112 @@
       <thead>
       <tr>
         <th class="ddp-cursor" (click)="onClickSort('popularity')">
-          {{'msg.metadata.th.column.popularity' | translate}}
-          <div class="ddp-wrap-hover-info">
-            <em class="ddp-icon-info3"></em>
-            <!-- popup -->
-            <div class="ddp-box-layout4 ddp-popularity">
-              <div class="ddp-data-title">
-                {{'msg.metadata.th.column.popularity.tooltip.title' | translate}}
+          <div class="ddp-th-long">
+            <div class="ddp-th-icons">
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4 ddp-popularity">
+                  <div class="ddp-data-title">
+                    {{'msg.metadata.th.column.popularity.tooltip.title' | translate}}
+                  </div>
+                  <div class="ddp-data-det">
+                    {{'msg.metadata.th.column.popularity.tooltip.desc' | translate}}
+                    <ul>
+                      <li>• {{'msg.metadata.th.column.popularity.tooltip.dashboard.conn' | translate}}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <!-- //popup -->
               </div>
-              <div class="ddp-data-det">
-                {{'msg.metadata.th.column.popularity.tooltip.desc' | translate}}
-                <ul>
-                  <li>• {{'msg.metadata.th.column.popularity.tooltip.dashboard.conn' | translate}}
-                  </li>
-                </ul>
-              </div>
+              <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'popularity' || selectedContentSort.sort === 'default'"></em>
+              <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'asc'"></em>
+              <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'desc'"></em>
             </div>
-            <!-- //popup -->
+            <span class="ddp-th-txt" title="{{'msg.metadata.th.column.popularity' | translate}}">
+              {{'msg.metadata.th.column.popularity' | translate}}
+            </span>
           </div>
-          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'popularity' || selectedContentSort.sort === 'default'"></em>
-          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'asc'"></em>
-          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'popularity' && selectedContentSort.sort === 'desc'"></em>
         </th>
         <th>
-          {{'msg.metadata.th.physical.type' | translate}}
+          <div class="ddp-th-long">
+            <div class="ddp-th-txt" title="{{'msg.metadata.th.physical.type' | translate}}">
+              {{'msg.metadata.th.physical.type' | translate}}
+            </div>
+          </div>
         </th>
         <th class="ddp-cursor" (click)="onClickSort('physicalName')">
-          {{'msg.metadata.th.physical.name' | translate}}
-          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'physicalName' || selectedContentSort.sort === 'default'"></em>
-          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'asc'"></em>
-          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'desc'"></em>
+          <div class="ddp-th-long">
+            <div class="ddp-th-icons">
+              <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'physicalName' || selectedContentSort.sort === 'default'"></em>
+              <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'asc'"></em>
+              <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'physicalName' && selectedContentSort.sort === 'desc'"></em>
+            </div>
+            <span class="ddp-th-txt" title="{{'msg.metadata.th.physical.name' | translate}}">
+              {{'msg.metadata.th.physical.name' | translate}}
+            </span>
+          </div>
         </th>
         <th class="ddp-cursor" (click)="onClickSort('name')">
-          {{'msg.metadata.th.name' | translate}}
-          <div class="ddp-wrap-hover-info">
-            <em class="ddp-icon-info3"></em>
-            <!-- popup -->
-            <div class="ddp-box-layout4 ddp-popularity">
-              <div class="ddp-data-title">
-                {{'msg.metadata.th.column.popularity.tooltip.title' | translate}}
+          <div class="ddp-th-long">
+            <div class="ddp-th-icons">
+              <div class="ddp-wrap-hover-info">
+                <em class="ddp-icon-info3"></em>
+                <!-- popup -->
+                <div class="ddp-box-layout4 ddp-popularity">
+                  <div class="ddp-data-title">
+                    {{'msg.metadata.th.column.logical.tooltip.title' | translate}}
+                  </div>
+                  <div class="ddp-data-det">
+                    {{'msg.metadata.th.column.logical.tooltip.desc' | translate}}
+                  </div>
+                </div>
+                <!-- //popup -->
               </div>
-              <div class="ddp-data-det">
-                {{'msg.metadata.th.column.popularity.tooltip.desc' | translate}}
-              </div>
+              <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
+              <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
+              <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
             </div>
-            <!-- //popup -->
+            <span class="ddp-th-txt" title="{{'msg.metadata.th.name' | translate}}">
+              {{'msg.metadata.th.name' | translate}}
+            </span>
           </div>
-          <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'name' || selectedContentSort.sort === 'default'"></em>
-          <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'asc'"></em>
-          <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'name' && selectedContentSort.sort === 'desc'"></em>
         </th>
         <th>
-          {{'msg.metadata.th.dictionary' | translate}}
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="{{'msg.metadata.th.dictionary' | translate}}">
+              {{'msg.metadata.th.dictionary' | translate}}
+            </span>
+          </div>
         </th>
         <th>
-          {{'msg.storage.ui.th.logical.type'| translate}}
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="{{'msg.storage.ui.th.logical.type'| translate}}">
+              {{'msg.storage.ui.th.logical.type'| translate}}
+            </span>
+          </div>
         </th>
         <th>
-          {{'msg.storage.ui.th.format' | translate}}
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="{{'msg.storage.ui.th.format' | translate}}">
+              {{'msg.storage.ui.th.format' | translate}}
+            </span>
+          </div>
         </th>
         <th>
-          {{'msg.storage.ui.th.code.table' | translate}}
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="{{'msg.storage.ui.th.code.table' | translate}}">
+              {{'msg.storage.ui.th.code.table' | translate}}
+            </span>
+          </div>
         </th>
         <th>
-          {{'msg.storage.ui.th.description' | translate}}
+          <div class="ddp-th-long">
+            <span class="ddp-th-txt" title="{{'msg.storage.ui.th.description' | translate}}">
+              {{'msg.storage.ui.th.description' | translate}}
+            </span>
+          </div>
         </th>
         <!--<th>-->
           <!--{{'msg.metadata.th.max.digit' | translate}}-->
@@ -151,7 +193,7 @@
         </td>
         <!-- //물리 컬럼 명 -->
         <!-- 논리 컬럼 명 -->
-        <td>
+        <td class="ddp-padding-none">
           <div class="ddp-input-form">
             <input type="text" class="ddp-txt-input"
                    [ngModel]="column.name"
@@ -256,142 +298,142 @@
                 </li>
               </ul>
               <!-- Etc(Source형) -->
-              <ul class="ddp-list-popup" *ngIf="isDataSourceMetaDataType()">
-                <li [class.ddp-selected]="isEtcLogicalType(column)">
-                  <a href="javascript:" (click)="onChangeLogicalType(column, 'ETC')">
-                    <em class="ddp-icon-type-etc"></em>
-                    {{'msg.metadata.ui.dictionary.type.etc' | translate}}
-                    <em class="ddp-icon-check"></em>
-                  </a>
-                </li>
-              </ul>
+              <!--<ul class="ddp-list-popup" *ngIf="isDataSourceMetaDataType()">-->
+                <!--<li [class.ddp-selected]="isEtcLogicalType(column)">-->
+                  <!--<a href="javascript:" (click)="onChangeLogicalType(column, 'ETC')">-->
+                    <!--<em class="ddp-icon-type-etc"></em>-->
+                    <!--{{'msg.metadata.ui.dictionary.type.etc' | translate}}-->
+                    <!--<em class="ddp-icon-check"></em>-->
+                  <!--</a>-->
+                <!--</li>-->
+              <!--</ul>-->
               <!-- //Etc(Source형) -->
               <!-- sub popup(HIVE형일때만) -->
-              <ul class="ddp-list-popup" *ngIf="!isDataSourceMetaDataType()">
-                <li class="ddp-sub">
-                  <a href="javascript:">
-                    {{'msg.metadata.ui.dictionary.type.more' | translate}}
-                    <em class="ddp-icon-view"></em>
-                  </a>
-                  <div class="ddp-wrap-popup2 ddp-types">
-                    <ul class="ddp-list-popup">
-                      <li [class.ddp-selected]="isSelectedLogicalType(column, 'IMAGE')">
-                        <a href="javascript:" (click)="onChangeLogicalType(column, 'IMAGE')">
-                          <em class="ddp-icon-type-image "></em>
-                          {{'msg.metadata.ui.dictionary.type.image' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType(column, 'BINARY')">
-                        <a href="javascript:" (click)="onChangeLogicalType(column, 'BINARY')">
-                          <em class="ddp-icon-type-binary"></em>
-                          {{'msg.metadata.ui.dictionary.type.binary' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-selected]="isSelectedLogicalType(column, 'SPATIAL')">
-                        <a href="javascript:" (click)="onChangeLogicalType(column, 'SPATIAL')">
-                          <em class="ddp-icon-type-spatial"></em>
-                          {{'msg.metadata.ui.dictionary.type.spatial' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                    </ul>
-                    <ul class="ddp-list-popup">
-                      <li [class.ddp-selected]="isSelectedLogicalType(column, 'PRIVATE')">
-                        <a href="javascript:" (click)="onChangeLogicalType(column, 'PRIVATE')">
-                          <em class="ddp-icon-type-private"></em>
-                          {{'msg.metadata.ui.dictionary.type.private' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                    </ul>
-                    <ul class="ddp-list-popup">
-                      <li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'PHONE')">
-                        <a href="javascript:">
-                          <em class="ddp-icon-type-phone"></em>
-                          {{'msg.metadata.ui.dictionary.type.phone' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'EMAIL')">
-                        <a href="javascript:">
-                          <em class="ddp-icon-type-email"></em>
-                          {{'msg.metadata.ui.dictionary.type.email' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'GENDER')">
-                        <a href="javascript:">
-                          <em class="ddp-icon-type-gender"></em>
-                          {{'msg.metadata.ui.dictionary.type.gender' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                    </ul>
-                    <ul class="ddp-list-popup">
-                      <li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'URL')">
-                        <a href="javascript:">
-                          <em class="ddp-icon-type-url"></em>
-                          {{'msg.metadata.ui.dictionary.type.url' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'POST')">
-                        <a href="javascript:">
-                          <em class="ddp-icon-type-zipcode"></em>
-                          {{'msg.metadata.ui.dictionary.type.post' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'COUNTRY')">
-                        <a href="javascript:">
-                          <em class="ddp-icon-type-local "></em>
-                          {{'msg.metadata.ui.dictionary.type.country' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'STATE')">
-                        <a href="javascript:">
-                          <em class="ddp-icon-type-local "></em>
-                          {{'msg.metadata.ui.dictionary.type.state' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'CITY')">
-                        <a href="javascript:">
-                          <em class="ddp-icon-type-local "></em>
-                          {{'msg.metadata.ui.dictionary.type.city' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'GU')">
-                        <a href="javascript:">
-                          <em class="ddp-icon-type-local "></em>
-                          {{'msg.metadata.ui.dictionary.type.gu' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                      <li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'DONG')">
-                        <a href="javascript:">
-                          <em class="ddp-icon-type-local "></em>
-                          {{'msg.metadata.ui.dictionary.type.dong' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                    </ul>
-                    <ul class="ddp-list-popup">
-                      <li [class.ddp-selected]="isSelectedLogicalType(column, 'ETC')">
-                        <a href="javascript:" (click)="onChangeLogicalType(column, 'ETC')">
-                          <em class="ddp-icon-type-etc"></em>
-                          {{'msg.metadata.ui.dictionary.type.etc' | translate}}
-                          <em class="ddp-icon-check"></em>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </li>
-              </ul>
+              <!--<ul class="ddp-list-popup" *ngIf="!isDataSourceMetaDataType()">-->
+                <!--<li class="ddp-sub">-->
+                  <!--<a href="javascript:">-->
+                    <!--{{'msg.metadata.ui.dictionary.type.more' | translate}}-->
+                    <!--<em class="ddp-icon-view"></em>-->
+                  <!--</a>-->
+                  <!--<div class="ddp-wrap-popup2 ddp-types">-->
+                    <!--<ul class="ddp-list-popup">-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType(column, 'IMAGE')">-->
+                        <!--<a href="javascript:" (click)="onChangeLogicalType(column, 'IMAGE')">-->
+                          <!--<em class="ddp-icon-type-image "></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.image' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType(column, 'BINARY')">-->
+                        <!--<a href="javascript:" (click)="onChangeLogicalType(column, 'BINARY')">-->
+                          <!--<em class="ddp-icon-type-binary"></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.binary' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType(column, 'SPATIAL')">-->
+                        <!--<a href="javascript:" (click)="onChangeLogicalType(column, 'SPATIAL')">-->
+                          <!--<em class="ddp-icon-type-spatial"></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.spatial' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                    <!--</ul>-->
+                    <!--<ul class="ddp-list-popup">-->
+                      <!--<li [class.ddp-selected]="isSelectedLogicalType(column, 'PRIVATE')">-->
+                        <!--<a href="javascript:" (click)="onChangeLogicalType(column, 'PRIVATE')">-->
+                          <!--<em class="ddp-icon-type-private"></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.private' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                    <!--</ul>-->
+                    <!--<ul class="ddp-list-popup">-->
+                      <!--<li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'PHONE')">-->
+                        <!--<a href="javascript:">-->
+                          <!--<em class="ddp-icon-type-phone"></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.phone' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'EMAIL')">-->
+                        <!--<a href="javascript:">-->
+                          <!--<em class="ddp-icon-type-email"></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.email' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'GENDER')">-->
+                        <!--<a href="javascript:">-->
+                          <!--<em class="ddp-icon-type-gender"></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.gender' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                    <!--</ul>-->
+                    <!--<ul class="ddp-list-popup">-->
+                      <!--<li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'URL')">-->
+                        <!--<a href="javascript:">-->
+                          <!--<em class="ddp-icon-type-url"></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.url' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'POST')">-->
+                        <!--<a href="javascript:">-->
+                          <!--<em class="ddp-icon-type-zipcode"></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.post' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'COUNTRY')">-->
+                        <!--<a href="javascript:">-->
+                          <!--<em class="ddp-icon-type-local "></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.country' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'STATE')">-->
+                        <!--<a href="javascript:">-->
+                          <!--<em class="ddp-icon-type-local "></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.state' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'CITY')">-->
+                        <!--<a href="javascript:">-->
+                          <!--<em class="ddp-icon-type-local "></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.city' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'GU')">-->
+                        <!--<a href="javascript:">-->
+                          <!--<em class="ddp-icon-type-local "></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.gu' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                      <!--<li [class.ddp-disabled]="true" [class.ddp-selected]="isSelectedLogicalType(column, 'DONG')">-->
+                        <!--<a href="javascript:">-->
+                          <!--<em class="ddp-icon-type-local "></em>-->
+                          <!--{{'msg.metadata.ui.dictionary.type.dong' | translate}}-->
+                          <!--<em class="ddp-icon-check"></em>-->
+                        <!--</a>-->
+                      <!--</li>-->
+                    <!--</ul>-->
+                    <!--&lt;!&ndash;<ul class="ddp-list-popup">&ndash;&gt;-->
+                      <!--&lt;!&ndash;<li [class.ddp-selected]="isSelectedLogicalType(column, 'ETC')">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<a href="javascript:" (click)="onChangeLogicalType(column, 'ETC')">&ndash;&gt;-->
+                          <!--&lt;!&ndash;<em class="ddp-icon-type-etc"></em>&ndash;&gt;-->
+                          <!--&lt;!&ndash;{{'msg.metadata.ui.dictionary.type.etc' | translate}}&ndash;&gt;-->
+                          <!--&lt;!&ndash;<em class="ddp-icon-check"></em>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                      <!--&lt;!&ndash;</li>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</ul>&ndash;&gt;-->
+                  <!--</div>-->
+                <!--</li>-->
+              <!--</ul>-->
               <!-- //sub popup -->
             </div>
             <!-- //popup -->
@@ -400,7 +442,7 @@
         </td>
         <!-- //logical type -->
         <!-- Format -->
-        <td [class.ddp-disabled]="isSelectedDictionary(column)">
+        <td [class.ddp-padding-none]="!isSelectedDictionary(column)" [class.ddp-disabled]="isSelectedDictionary(column)">
           <span *ngIf="isSelectedDictionary(column)">{{column.format}}</span>
           <div class="ddp-input-form" *ngIf="!isSelectedDictionary(column) && isTimeType(column)">
             <input type="text" class="ddp-txt-input"
@@ -427,7 +469,7 @@
                 {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
               </div>
               <div class="ddp-data-code ddp-size" *ngIf="column.codeTable">
-                <table class="ddp-table-code ddp-inherit">
+                <table class="ddp-table-code ddp-inherit ">
                   <colgroup>
                     <col width="90px">
                     <col width="*">
@@ -466,7 +508,7 @@
         </td>
         <!-- //Code Table -->
         <!-- Description -->
-        <td [class.ddp-disabled]="isSelectedDictionary(column)">
+        <td [class.ddp-padding-none]="!isSelectedDictionary(column)" [class.ddp-disabled]="isSelectedDictionary(column)">
           <span *ngIf="isSelectedDictionary(column)">{{column.description}}</span>
           <div class="ddp-input-form" *ngIf="!isSelectedDictionary(column)">
             <input type="text" class="ddp-txt-input"

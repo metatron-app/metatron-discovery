@@ -21,7 +21,7 @@ import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
 import * as _ from 'lodash';
-import { isUndefined } from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 
 @Component({
@@ -45,7 +45,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   public advancedEditorClickEvent = new EventEmitter();
   public inputValue: string;
   public condition: string = '';
-  public forceCondition : string = '';
+//  public forceCondition : string = '';
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -73,6 +73,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
    * Returns rule string
    * @return {{command: string, col: string, ruleString: string}}
@@ -112,7 +113,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
         ruleString: `set col: ${columnsStr} value: ${val}`
       };
 
-      if ('' !== this.condition) {
+      if ('' !== this.condition && !isNullOrUndefined(this.condition)) {
         rules.ruleString += ` row: ${this.condition}`;
       }
 

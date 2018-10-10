@@ -12,10 +12,9 @@
  * limitations under the License.
  */
 
-import Split from 'split.js';
 import * as $ from "jquery";
 import * as pixelWidth from 'string-pixel-width';
-import { isNull, isUndefined } from 'util';
+import {isNull, isNullOrUndefined, isUndefined} from 'util';
 import {
   ChangeDetectorRef,
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
@@ -36,6 +35,10 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { GridOption } from 'app/common/component/grid/grid.option';
 import { DatasetService } from '../../../../dataset/service/dataset.service';
 import { StringUtil } from '../../../../../common/util/string.util';
+import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
+declare const moment: any;
+
+declare let Split;
 
 @Component({
   selector: 'app-dataset-info-popup',
@@ -155,7 +158,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'drop', alias: 'Dp'},
       { command: 'pivot', alias: 'Pv'},
       { command: 'unpivot', alias: 'Up'},
-      { command: 'join', alias: 'Jo'},
+      { command: 'Join', alias: 'Jo'},
       { command: 'extract', alias: 'Ex'},
       { command: 'flatten', alias: 'Fl'},
       { command: 'merge', alias: 'Me'},
@@ -164,19 +167,21 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'aggregate', alias: 'Ag'},
       { command: 'sort', alias: 'So'},
       { command: 'move', alias: 'Mv'},
-      { command: 'union', alias: 'Ui'},
+      { command: 'Union', alias: 'Ui'},
       { command: 'setformat', alias: 'Sf'}
     ];
 
-    this.setDataset(this.selectedDataSet);
+    if (!isNullOrUndefined(this.selectedDataSet)) {
+      this.setDataset(this.selectedDataSet);
+    }
 
   }
 
   public ngAfterViewInit() {
     setTimeout( () => {
       this._split = Split(['.sys-dataflow-left-panel', '.sys-dataflow-right-panel'], { sizes: [80, 20], minSize: [700,300], onDragEnd : (() => {
-          this.gridComponent.resize();
-        }) });
+        this.gridComponent.resize();
+      }) });
     }, 500 );
   } // function -  ngAfterViewInit
 
@@ -280,9 +285,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       this.initEventAfterDelete.emit();
       Alert.success(this.translateService.instant('msg.dp.ui.ds.del.success'));
     }).catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      this.loadingHide();
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
   } // function - deleteDataSet
 
@@ -307,9 +312,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     let colCnt = '0';
 
     if( this.selectedDataSet && this.selectedDataSet.gridResponse && this.selectedDataSet.gridResponse.colCnt ) {
-        if(true==Number.isInteger(this.selectedDataSet.gridResponse.colCnt)) {
-            colCnt = new Intl.NumberFormat().format(this.selectedDataSet.gridResponse.colCnt);
-        }
+      if(true==Number.isInteger(this.selectedDataSet.gridResponse.colCnt)) {
+        colCnt = new Intl.NumberFormat().format(this.selectedDataSet.gridResponse.colCnt);
+      }
     }
     return colCnt;
   }
@@ -354,7 +359,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
   public get getTableOrSql() {
     if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.FILE ) {
-     return null;
+      return null;
     }
 
     if( this.selectedDataSet['rsType'] && this.selectedDataSet['rsType']===RsType.TABLE ) {
@@ -403,9 +408,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       },0);
 
     }).catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      this.loadingHide();
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
   } // function - setDataset
 
@@ -441,7 +446,12 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       rule['ruleVO']['command'] = rule['ruleVO']['name'];
       rule['ruleVO']['ruleNo'] = rule['ruleNo'];
 
-      const idx = commandNames.indexOf(rule['ruleVO'].name);
+      if (rule['ruleVO'].command === 'join') {
+        rule['ruleVO'].command = 'Join'
+      } else if (rule['ruleVO'].command === 'union') {
+        rule['ruleVO'].command = 'Union'
+      }
+      const idx = commandNames.indexOf(rule['ruleVO'].command);
       if (idx > -1) {
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
@@ -585,8 +595,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       case 'unnest' :
         result = `Create new columns from ${column}`;
         break;
-      case 'union':
-      case 'join':
+      case 'Union':
+      case 'Join':
         result = `${rule.command} with `;
 
         let datasetIds = [];
@@ -688,39 +698,26 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     const maxDataLen: any = {};
     let fields: Field[] = data.fields;
     let rows: any[] = data.data.splice(0,50); // preview는 50 rows 까지만
-
-    /*
-    let total = 0;
-    let limit = 260;
-    if( 0 === fields.length || 0 === rows.length ) {
-      return;
-    }
-
-    column width 에 따라서 preview에 보여지는 수가 다름
-    fields = fields.filter((item) => {
-      if (total < limit ) {
-        total += (item.name.length * 10);
-        return item;
-      }
-    });
-    */
-
-    // Row 생성 및 컬럼별 최대 길이 측정
-    if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
-      rows = rows.map((row: any, idx: number) => {
+    const maxLength = 500;
+    if (rows.length > 0) {
+      rows.forEach((row: any, idx: number) => {
         // 컬럼 길이 측정
         fields.forEach((field: Field) => {
-          if(field.type === 'ARRAY' ||field.type === 'MAP') {
-            row[field.name] = JSON.stringify(row[field.name])
+          let colWidth: number = 0;
+          if (typeof row[field.name] === 'string') {
+            colWidth = Math.floor((row[field.name]).length * 12);
           }
-          const colWidth: number = pixelWidth(row[field.name], { size: 12 });
-          if (!maxDataLen[field.name] || ( maxDataLen[field.name] < colWidth )) {
-            maxDataLen[field.name] = colWidth;
+          if (!maxDataLen[field.name] || (maxDataLen[field.name] < colWidth)) {
+            if (colWidth > 500) {
+              maxDataLen[field.name] = maxLength;
+            } else {
+              maxDataLen[field.name] = colWidth;
+            }
           }
         });
         // row id 설정
-        row.id = idx;
-        return row;
+        (row.hasOwnProperty('id')) || (row.id = idx);
+
       });
     }
 
@@ -744,17 +741,16 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         .Unselectable(true)
         .Sortable(false)
         .ColumnType(field.type)
-        .Formatter((function (scope) {
-          return function (row, cell, value, columnDef) {
+        .Formatter((row, cell, value, columnDef) => {
+          const colDescs = (this.selectedDataSet.gridResponse && this.selectedDataSet.gridResponse.colDescs) ? this.selectedDataSet.gridResponse.colDescs[cell] : {};
+          value = PreparationCommonUtil.setFieldFormatter(value, columnDef.columnType, colDescs);
 
-            if (isNull(value)) {
-              return '<div style=\'position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px; font-style: italic ; color:#b8bac2;\'>' + '(null)' + '</div>';
-            } else {
-              return value;
-            }
-          };
-        })(this))
-        .build();
+          if (isNull(value)) {
+            return '<div style=\'position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px; font-style: italic ; color:#b8bac2;\'>' + '(null)' + '</div>';
+          } else {
+            return value;
+          }
+        }).build();
     });
 
     // 헤더 필수
@@ -773,6 +769,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
     this.loadingHide();
   }
+
 
   /**
    * get format of bytes

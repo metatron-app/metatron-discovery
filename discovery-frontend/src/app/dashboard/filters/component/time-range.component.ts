@@ -380,6 +380,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
     return this._getRangeFromMoment(moment().year(sYear).week(sWeek), moment().year(eYear).week(eWeek), 'week');
   } // function - _getRangeFromWeek
 
+  // noinspection JSMethodCanBeStatic
   /**
    * Moment 로 부터 Range 정보를 얻는다.
    * @param fromMoment

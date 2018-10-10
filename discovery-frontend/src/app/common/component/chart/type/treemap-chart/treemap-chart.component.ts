@@ -128,17 +128,6 @@ export class TreeMapChartComponent extends BaseChart implements OnInit, AfterVie
 
     this.pivotInfo = new PivotTableInfo(cols, [], this.fieldInfo.aggs);
 
-    // color by measure일때 ranges값이 없는경우
-    if (this.uiOption.color && ChartColorType.MEASURE == this.uiOption.color.type &&
-       (!this.uiOption.color['ranges'] || 0 == this.uiOption.color['ranges'].length)) {
-      delete (<UIChartColorByValue>this.uiOption.color).ranges;
-      delete (<UIChartColorGradationByValue>this.uiOption.color).visualGradations;
-      delete (<UIChartColorByValue>this.uiOption.color).customMode;
-
-      // ranges가 초기화
-      this.uiOption.color['ranges'] = this.setMeasureColorRange(this.uiOption.color['schema']);
-    }
-
     super.draw(isKeepRange);
   }
 

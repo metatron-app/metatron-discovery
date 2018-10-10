@@ -334,7 +334,7 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
       }
       String fieldName = field.getName();
 
-      switch (field.getBiType()) {
+      switch (field.getRole()) {
         case DIMENSION:
           resultFields.add(new DimensionField(fieldName, ref));
           break;

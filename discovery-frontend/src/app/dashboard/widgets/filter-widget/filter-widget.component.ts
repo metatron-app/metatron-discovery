@@ -16,6 +16,7 @@ import {
   Component, ElementRef, Injector, Input, OnDestroy, OnInit, SimpleChange, SimpleChanges,
   ViewChild
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { AbstractWidgetComponent } from '../abstract-widget.component';
 import { FilterWidget, FilterWidgetConfiguration } from '../../../domain/dashboard/widget/filter-widget';
 import { Filter } from '../../../domain/workbook/configurations/filter/filter';
@@ -42,6 +43,12 @@ import { StringUtil } from '../../../common/util/string.util';
 import { DashboardUtil } from '../../util/dashboard.util';
 import { FilterUtil } from '../../util/filter.util';
 import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
+import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
+import {
+  TimeRelativeFilter,
+  TimeRelativeTense
+} from "../../../domain/workbook/configurations/filter/time-relative-filter";
+import {TimeUnit} from "../../../domain/workbook/configurations/field/timestamp-field";
 import { DIRECTION } from '../../../domain/workbook/configurations/sort';
 import { isNullOrUndefined } from 'util';
 
@@ -94,11 +101,9 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
   public field: Field;
   public dashboard: Dashboard;
 
-  public globalFilters: Filter[] = [];
-
   // T/F
   public isVisibleScrollbar: boolean = false;   // 스크롤바 표시 여부 체크
-  public isTimeFilter:boolean = false;              // TimeFilter 여부
+  public isTimeFilter: boolean = false;              // TimeFilter 여부
   public isContinuousByAll: boolean = false;        // Granularity 가 지정되지 않은 연속성 여부 판단
   public isDiscontinuousFilter: boolean = false;    // 불연속 필터 여부
   public isAllTypeTimeFilter: boolean = false;      // All Time Filter
@@ -122,7 +127,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
               private datasourceService: DatasourceService,
               protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              private activatedRoute: ActivatedRoute) {
     super(broadCaster, elementRef, injector);
   }
 
@@ -140,7 +146,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
     const popupSubscribe = this.popupService.filterView$.subscribe((data: SubscribeArg) => {
       if ('reset-general-filter' === data.name) {
         if (this.filter.ui.importanceType === 'general') {
-          const inclusionFilter:InclusionFilter = (<InclusionFilter>this.filter);
+          const inclusionFilter: InclusionFilter = (<InclusionFilter>this.filter);
           inclusionFilter.valueList = [];
           switch (inclusionFilter.selector) {
             case InclusionSelectorType.SINGLE_COMBO:
@@ -150,11 +156,11 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
               this.filterMultiSelectComponent.updateView(this.selectedItems);
               break;
             default :
-              this._candidate( inclusionFilter );
+              this._candidate(inclusionFilter);
           }
         }
       }
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
     });
     this.subscriptions.push(popupSubscribe);
 
@@ -163,14 +169,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
       this.broadCaster.on<any>('CHANGE_FILTER_SELECTOR').subscribe(data => {
         if (this.widget.id === data.widget.id) {
           this.setConfiguration(data.widget.configuration);
+          this.safelyDetectChanges();
         }
-      })
-    );
-
-    // 외부 필터 설정
-    this.subscriptions.push(
-      this.broadCaster.on<any>('SET_EXTERNAL_FILTER').subscribe(data => {
-        this.globalFilters = data.filters;
       })
     );
 
@@ -180,6 +180,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
       this.broadCaster.on<any>('SET_WIDGET_CONFIG').subscribe(data => {
         if (data.widgetId === this.widget.id) {
           this.setConfiguration(data.config);
+          this.safelyDetectChanges();
         }
       })
     );
@@ -193,21 +194,20 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
   public ngOnChanges(changes: SimpleChanges) {
     const widgetChanges: SimpleChange = changes.inputWidget;
     if (widgetChanges && widgetChanges.currentValue) {
-      const widget: FilterWidget = widgetChanges.currentValue;
-
-      this.widget = widget;
-      const filter:Filter = this.getFilter();
+      this.widget = widgetChanges.currentValue;
+      const filter: Filter = this.getFilter();
 
       this.dashboard = this.widget.dashBoard;
       this.field = DashboardUtil.getFieldByName( this.widget.dashBoard, filter.dataSource, filter.field, filter.ref );
 
-      // 글로벌 필터 셋팅
-      if (widget.dashBoard.configuration.filters) {
-        this.globalFilters = widget.dashBoard.configuration.filters;
+      if( this.field ) {
+        // 필터 후보값 조회
+        this._candidate( filter );
+      } else {
+        this.processStart();
+        this.isValidWidget = false;
+        this.processEnd();
       }
-
-      // 필터 후보값 조회
-      this._candidate( filter );
     }
 
   } // function - ngOnChanges
@@ -231,8 +231,10 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * @param {FilterWidgetConfiguration} objConfig
    */
   public setConfiguration(objConfig: FilterWidgetConfiguration) {
-    this.widget.configuration = objConfig;
-    this._candidate( this.getFilter() );
+    if( this.isValidWidget ) {
+      this.widget.configuration = objConfig;
+      this._candidate( this.getFilter() );
+    }
   } // function - setConfiguration
 
   /**
@@ -242,7 +244,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
   public getFilter(): Filter {
     const conf: FilterWidgetConfiguration = <FilterWidgetConfiguration>this.widget.configuration;
     const filter: Filter = _.cloneDeep(conf.filter);
-    if (FilterUtil.isTimeFilter(filter) ) {
+    if (FilterUtil.isTimeFilter(filter)) {
       this._setTimeFilterStatus(<TimeFilter>filter);
     }
     return filter;
@@ -282,7 +284,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * 목록에 사용자 정의값 추가
    * @param {InclusionFilter} filter
    */
-  public addDefineValues(filter:InclusionFilter) {
+  public addDefineValues(filter: InclusionFilter) {
     if (filter.definedValues && filter.definedValues.length > 0) {
       this.candidateList = filter.definedValues.map(item => this._stringToCandidate(item)).concat(this.candidateList);
     }
@@ -431,15 +433,16 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * @private
    */
   private _initialContainer() {
+    this.isValidWidget = true;
     // 콤보박스 관련된 필터 뷰 설정
     this.safelyDetectChanges();
-    if (!this.isEditMode ) {
-      const filter:Filter = this.filter;
-      const isInterval:boolean = ( 'interval' === filter.type );
-      const isIncludeCombo:boolean = ( 'include' === filter.type
-        && ( (<InclusionFilter>filter).selector === InclusionSelectorType.SINGLE_COMBO
-          || (<InclusionFilter>filter).selector === InclusionSelectorType.MULTI_COMBO ));
-      if( isInterval || isIncludeCombo ) {
+    if (!this.isEditMode) {
+      const filter: Filter = this.filter;
+      const isInterval: boolean = ('interval' === filter.type);
+      const isIncludeCombo: boolean = ('include' === filter.type
+        && ((<InclusionFilter>filter).selector === InclusionSelectorType.SINGLE_COMBO
+          || (<InclusionFilter>filter).selector === InclusionSelectorType.MULTI_COMBO));
+      if (isInterval || isIncludeCombo) {
         // 필터 z-index 최상으로 처리
         const $filterWidgetEl = $(this.filterWidget.nativeElement);
         $filterWidgetEl.closest('.lm_item .lm_stack').css({ 'z-index': 100, 'position': 'relative' });
@@ -467,7 +470,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * Inclusion 및 Bound 필터에 대한 후보값 조회
    * @param {Filter} filter
    */
-  private _candidate(filter:Filter) {
+  private _candidate(filter: Filter) {
 
     // 프로세스 실행 등록
     this.processStart();
@@ -477,12 +480,12 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
       // 필터 데이터 후보 조회
       // this.datasourceService.getCandidateForFilter(
       //   this.filter, this.dashboard, this.getFiltersParam(this.filter), this.field).then((result) => {
-      this.datasourceService.getCandidateForFilter( filter, this.dashboard, [], this.field).then((result) => {
+      this.datasourceService.getCandidateForFilter(filter, this.dashboard, [], this.field).then((result) => {
 
         if ('include' === filter.type) {
 
           // 기본값 설정
-          const inclusionFilter:InclusionFilter = <InclusionFilter>filter;
+          const inclusionFilter: InclusionFilter = <InclusionFilter>filter;
           if (inclusionFilter.hasOwnProperty('valueList') && inclusionFilter.valueList.length > 0) {
             this.selectedItems = inclusionFilter.valueList.map(item => this._stringToCandidate(item));
           }
@@ -490,7 +493,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
           this.candidateList = [];
 
           // 사용자 정의 값 추가
-          this.addDefineValues( inclusionFilter );
+          this.addDefineValues(inclusionFilter);
 
           // 선택된 후보값 목록
           const selectedCandidateValues: string[] = inclusionFilter.candidateValues;
@@ -509,13 +512,13 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
           }
 
           // Sort List
-          if( isNullOrUndefined( inclusionFilter.sort ) ) {
-            inclusionFilter.sort = new InclusionItemSort( InclusionSortBy.TEXT, DIRECTION.ASC );
+          if (isNullOrUndefined(inclusionFilter.sort)) {
+            inclusionFilter.sort = new InclusionItemSort(InclusionSortBy.TEXT, DIRECTION.ASC);
           }
-          if (InclusionSortBy.COUNT === inclusionFilter.sort.by ) {
+          if (InclusionSortBy.COUNT === inclusionFilter.sort.by) {
             // sort by count
             this.candidateList.sort((val1: Candidate, val2: Candidate) => {
-              return ( DIRECTION.ASC === inclusionFilter.sort.direction ) ? val1.count - val2.count : val2.count - val1.count;
+              return (DIRECTION.ASC === inclusionFilter.sort.direction) ? val1.count - val2.count : val2.count - val1.count;
             });
           } else {
             // sort by text
@@ -523,10 +526,10 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
               const name1: string = (val1.name) ? val1.name.toUpperCase() : '';
               const name2: string = (val2.name) ? val2.name.toUpperCase() : '';
               if (name1 < name2) {
-                return (DIRECTION.ASC === inclusionFilter.sort.direction ) ? -1 : 1;
+                return (DIRECTION.ASC === inclusionFilter.sort.direction) ? -1 : 1;
               }
               if (name1 > name2) {
-                return (DIRECTION.ASC === inclusionFilter.sort.direction ) ? 1 : -1;
+                return (DIRECTION.ASC === inclusionFilter.sort.direction) ? 1 : -1;
               }
               return 0;
             });
@@ -534,7 +537,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
 
           this.filter = inclusionFilter;
         } else if ('bound' === filter.type) {
-          const boundFilter:BoundFilter = <BoundFilter>filter;
+          const boundFilter: BoundFilter = <BoundFilter>filter;
           if (result && result.hasOwnProperty('maxValue')) {
             if (boundFilter.min === 0 && boundFilter.max === 0) {
               boundFilter.min = result.minValue;
@@ -552,10 +555,13 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
           this.filter = boundFilter;
         }
 
+        this._setQueryParameterAsDefaultValue();
         this._initialContainer();         // 컨테이너 초기화
 
         this.processEnd();
       }).catch((error) => {
+        this.isValidWidget = false;
+
         this.commonExceptionHandler(error);
         // 목록 비움
         this.candidateList = [];
@@ -565,10 +571,78 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
 
     } else {
       this.filter = filter;
+
+      this._setQueryParameterAsDefaultValue();
       this._initialContainer();   // 컨테이너 초기화
       this.processEnd();
     }
   } // function - _candidate
+
+  /**
+   * Request Query Parameter 값을 이용하여 필터의 초기 값을 설정한다.
+   */
+  private _setQueryParameterAsDefaultValue() {
+    if (this.filter) {
+      this.activatedRoute.queryParams.subscribe(params => {
+        Object.keys(params).forEach(key => {
+          if (key !== this.filter.field) {
+            return;
+          }
+          const value: any = params[key];
+          if (this.filter.type === 'include') {
+            const paramValues = Array.isArray(value) ? value : [value];
+            this.selectedItems = this.candidateList.filter((item: Candidate) => {
+              const matchedItems = paramValues.filter(param => {
+                return item.name === param;
+              });
+              return matchedItems.length > 0;
+            });
+          } else if (this.filter.type === "bound") {
+            const boundFilter: BoundFilter = <BoundFilter>this.filter;
+            const paramValues: string[] = value.split(",");
+            if (paramValues.length == 2) {
+              const min = Number(paramValues[0]);
+              const max = Number(paramValues[1]);
+              if (!isNaN(min) && !isNaN(max)) {
+                boundFilter.min = min;
+                boundFilter.max = max;
+                boundFilter.minValue = min;
+                boundFilter.maxValue = max;
+              }
+            }
+          } else if (this.filter.type === "time_range") {
+            const timeRangeFilter: TimeRangeFilter = <TimeRangeFilter>this.filter;
+            if (Array.isArray(value)) {
+              timeRangeFilter.intervals = value;
+            } else {
+              timeRangeFilter.intervals = [value];
+            }
+          } else if (this.filter.type === "time_relative") {
+            const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>this.filter;
+            const valueAttributes = value.split(",");
+            valueAttributes.forEach(attr => {
+              const keyValue: string[] = attr.split(":");
+              if (keyValue[0] === "tense") {
+                timeRelativeFilter.tense = TimeRelativeTense[keyValue[1]];
+              } else if (keyValue[0] === "relTimeUnit") {
+                timeRelativeFilter.relTimeUnit = TimeUnit[keyValue[1]];
+              } else if (keyValue[0] === 'value') {
+                timeRelativeFilter.value = +keyValue[1];
+              }
+            });
+          } else if (this.filter.type === "time_list") {
+            const paramValues = Array.isArray(value) ? value : [value];
+            this.selectedItems = this.candidateList.filter((item: Candidate) => {
+              const matchedItems = paramValues.filter(param => {
+                return item.name === param;
+              });
+              return matchedItems.length > 0;
+            });
+          }
+        })
+      });
+    }
+  }
 
   // noinspection JSMethodCanBeStatic
   /**
@@ -610,11 +684,13 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * 스크롤바 표시 여부를 설정한다.
    */
   private _setIsVisibleScrollbar() {
-    const $container: JQuery = $(this.filterWidget.nativeElement);
-    const $title: JQuery = $container.find('.ddp-ui-title');
-    const $contents: JQuery = $container.find('.ddp-ui-widget-contents');
-    this.isVisibleScrollbar = ($container.height() < $title.height() + $contents.height());
-    this.safelyDetectChanges();
+    if( this.filterWidget ) {
+      const $container: JQuery = $(this.filterWidget.nativeElement);
+      const $title: JQuery = $container.find('.ddp-ui-title');
+      const $contents: JQuery = $container.find('.ddp-ui-widget-contents');
+      this.isVisibleScrollbar = ($container.height() < $title.height() + $contents.height());
+      this.safelyDetectChanges();
+    }
   } // function - _setIsVisibleScrollbar
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -626,7 +702,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * @param {TimeFilter} timeFilter
    * @private
    */
-  private _setTimeFilterStatus(timeFilter:TimeFilter) {
+  private _setTimeFilterStatus(timeFilter: TimeFilter) {
     this.isTimeFilter = true;
     this.isContinuousByAll = FilterUtil.isContinuousByAll(timeFilter);
     this.isDiscontinuousFilter = FilterUtil.isDiscontinuousTimeFilter(timeFilter);

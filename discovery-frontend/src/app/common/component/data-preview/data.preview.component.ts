@@ -40,6 +40,7 @@ import { CommonUtil } from '../../util/common.util';
 import { DataDownloadComponent } from '../data-download/data.download.component';
 import { MetadataColumn } from '../../../domain/meta-data-management/metadata-column';
 import { DashboardUtil } from '../../../dashboard/util/dashboard.util';
+import { ConnectionType, Dataconnection } from '../../../domain/dataconnection/dataconnection';
 
 declare let echarts: any;
 
@@ -190,17 +191,16 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       this.isDashboard = true;
       const dashboardInfo: Dashboard = (<Dashboard>this.source);
       this.datasources = DashboardUtil.getMainDataSources(dashboardInfo);
-
-      // 데이터소스 array에 메타데이터가 존재하는경우 merge
-      this.datasources.forEach((source) => {
-        source.fields.forEach((field) => {
-          this._setMetaDataField(field, source);
-        });
-      });
     } else {
       this.isDashboard = false;
       this.datasources.push(<Datasource>this.source);
     }
+    // 데이터소스 array에 메타데이터가 존재하는경우 merge
+    this.datasources.forEach((source) => {
+      source.fields.forEach((field) => {
+        this._setMetaDataField(field, source);
+      });
+    });
     this.selectDataSource(this.datasources[0]);
 
   } // function - ngOnInit
@@ -213,6 +213,16 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // z-index 설정 해제
     $('.ddp-wrap-tab-popup').css( 'z-index', this._zIndex );
   }
+
+  /**
+   * Is tooltip class changed
+   * @param columnList
+   * @param {number} index
+   * @returns {boolean}
+   */
+  // public isChangeTooltipClass(columnList: any, index: number): boolean {
+  //   return index > (columnList.length / 2 - 1) ? true : false;
+  // }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
@@ -369,9 +379,9 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
           .build();
       });
 
-    let rows: any[] = (data) ? data : this.gridData;
-
-    if (0 < rows.length && 0 < headers.length) {
+    let rows: any[] = data || this.gridData;
+    // row and headers가 있을 경우에만 그리드 생성
+    if (rows && 0 < headers.length) {
       if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
         rows = rows.map((row: any, idx: number) => {
           Object.keys( row ).forEach( key => {
@@ -411,27 +421,28 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     }
   } // function - updateGrid
 
-
   /**
-   * linked 일때 grid data 얻기
+   * Get query data for linked type
    * @param source
-   * @returns {Promise<any>}
+   * @private
    */
-  private getQueryDataInLinked(source) {
-    return new Promise((resolve, reject) => {
-      // 프리셋을 생성한 연결형 : source.connection 사용
-      // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
-      const params = source.ingestion && (source.connection || source.ingestion.connection)
-        ? this._getConnectionParams(source.ingestion, source.connection ? source.connection : source.ingestion.connection)
-        : {};
-      this.connectionService.getTableDetailWitoutId(params)
-        .then((data) => {
-          resolve(data);
-        })
-        .catch((error) => {
-          reject(error);
-        })
-    });
+  private _getQueryDataInLinked(source): void {
+    // loading show
+    this.loadingShow();
+    // 프리셋을 생성한 연결형 : source.connection 사용
+    // 커넥션 정보로 생성한 연결형 : source.ingestion.connection 사용
+    const connection: Dataconnection = source.connection || source.ingestion.connection;
+    const params = source.ingestion && connection
+      ? this._getConnectionParams(source.ingestion, connection)
+      : {};
+    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE ? true : false)
+      .then((data) => {
+        this.gridData = data['data'];
+        this.updateGrid(this.gridData, this.columns);
+        // loading hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   // noinspection JSMethodCanBeStatic
@@ -934,6 +945,18 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       field['codeTable'] = fieldMetaData.codeTable;
       // dictionary
       field['dictionary'] = fieldMetaData.dictionary;
+      // type
+      if (fieldMetaData.type) {
+        field['metaType'] = fieldMetaData.type;
+      }
+      // description
+      if (fieldMetaData.description) {
+        field['description'] = fieldMetaData.description;
+      }
+      // format
+      if (fieldMetaData.format) {
+        field['format'] = fieldMetaData.format;
+      }
     }
   }
 
@@ -948,6 +971,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
     this.mainDatasource = dataSource;
     this.rowNum = 100;
+    // seletedfield init
+    this.selectedField = null;
 
     // set columns info
     if (this.isDashboard) {
@@ -1005,14 +1030,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     // linked인 경우
     if (this.connType === 'LINK') {
       // TODO 마스터 데이터소스만 해당되는지 join된 소스까지 해당되는지 확인하기
-      this.getQueryDataInLinked(this.mainDatasource)
-        .then((data) => {
-          this.gridData = data['data'];
-          this.updateGrid(this.gridData, this.columns);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      this._getQueryDataInLinked(this.mainDatasource);
     } else {
       // Query Data
       this.queryData(this.mainDatasource)
@@ -1088,6 +1106,34 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - column detail
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * Is linked type datasource
+   * @param {Datasource} source
+   * @returns {boolean}
+   */
+  public isLinkedTypeSource(source: Datasource): boolean {
+    return source.connType.toString() === 'LINK';
+  }
+
+  /**
+   * Is enable filtering in column
+   * @param column
+   * @returns {boolean}
+   */
+  public isEnableFiltering(column: any): boolean {
+    return column.filtering;
+  }
+
+  /**
+   * Get column type label
+   * @param {string} type
+   * @param typeList
+   * @returns {string}
+   */
+  public getColumnTypeLabel(type:string, typeList: any): string {
+    return typeList[_.findIndex(typeList, item => item['value'] === type)].label;
+  }
 
   /**
    * Covariance 리스트
@@ -1292,66 +1338,71 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     this.selectedField = field;
     // 데이터소스 선택
     this.selectedSource = source;
+    // detect changes
+    this.changeDetect.detectChanges();
     // engine 이름
     const engineName = source.engineName;
     // 메타데이터
     this._setMetaDataField(field, source);
-    // 통계 조회
-    if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
-      || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {
+    // if only engine type source, get statistics and covariance
+    if (!this.isLinkedTypeSource(source)) {
+      // 통계 조회
+      if ((this.selectedField.role === 'TIMESTAMP' && !this.statsData.hasOwnProperty('__time'))
+        || (this.selectedField.role !== 'TIMESTAMP' && !this.statsData.hasOwnProperty(field.name))) {
 
-      // 로딩 show
-      this.loadingShow();
+        // 로딩 show
+        this.loadingShow();
 
-      this.getFieldStats(field, engineName)
-        .then((stats) => {
+        this.getFieldStats(field, engineName)
+          .then((stats) => {
 
-          // stats 리스트 저장
-          for (const property in stats[0]) {
-            // 존재하지 않을 경우에만 넣어줌
-            if (!this.statsData.hasOwnProperty(property)) {
-              this.statsData[property] = stats[0][property];
+            // stats 리스트 저장
+            for (const property in stats[0]) {
+              // 존재하지 않을 경우에만 넣어줌
+              if (!this.statsData.hasOwnProperty(property)) {
+                this.statsData[property] = stats[0][property];
+              }
             }
-          }
 
-          // 로딩 hide
-          this.loadingHide();
+            // 로딩 hide
+            this.loadingHide();
 
-          // 히스토그램 차트
-          this.getHistogramChart(this.selectedField.role);
-        })
-        .catch((error) => {
-          Alert.error(error.message);
-          // 로딩 hide
-          this.loadingHide();
-        });
-    } else {
-      // 히스토그램 차트
-      this.getHistogramChart(this.selectedField.role);
-    }
+            // 히스토그램 차트
+            this.getHistogramChart(this.selectedField.role);
+          })
+          .catch((error) => {
+            Alert.error(error.message);
+            // 로딩 hide
+            this.loadingHide();
+          });
+      } else {
+        // 히스토그램 차트
+        this.getHistogramChart(this.selectedField.role);
+      }
 
-    // covariance 조회
-    if (field.role === 'MEASURE' && !this.covarianceData.hasOwnProperty(field.name)) {
-      // 로딩 show
-      this.loadingShow();
+      // covariance 조회
+      if (field.role === 'MEASURE' && !this.covarianceData.hasOwnProperty(field.name)) {
+        // 로딩 show
+        this.loadingShow();
 
-      this.getFieldCovariance(field, engineName)
-        .then((covariance) => {
-          this.covarianceData[field.name] = covariance;
-          // 로딩 hide
-          this.loadingHide();
+        this.getFieldCovariance(field, engineName)
+          .then((covariance) => {
+            this.covarianceData[field.name] = covariance;
+            // 로딩 hide
+            this.loadingHide();
 
-          // covariance 차트
-          this.getCovarianceChart(engineName);
-        })
-        .catch((error) => {
-          Alert.error(error.message);
-          // 로딩 hide
-          this.loadingHide();
-        });
-    } else if (field.role === 'MEASURE' && this.covarianceData.hasOwnProperty(field.name)) {
-      // covariance 차트
-      this.getCovarianceChart(engineName);
+            // covariance 차트
+            this.getCovarianceChart(engineName);
+          })
+          .catch((error) => {
+            Alert.error(error.message);
+            // 로딩 hide
+            this.loadingHide();
+          });
+      } else if (field.role === 'MEASURE' && this.covarianceData.hasOwnProperty(field.name)) {
+        // covariance 차트
+        this.getCovarianceChart(engineName);
+      }
     }
   }
 
@@ -1411,7 +1462,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @returns {boolean}
    */
   public isEnableSecondHeader(): boolean {
-    return this.datasources.some(source => this.isExistMetaData(source));
+    return this.joinDataSources.some(source => this.isExistMetaData(source));
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

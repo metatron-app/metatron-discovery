@@ -155,7 +155,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       { command: 'drop', alias: 'Dp', desc: this.translateService.instant('msg.dp.li.dp.description'), isHover:false },
       { command: 'pivot', alias: 'Pv', desc: this.translateService.instant('msg.dp.li.pv.description'), isHover:false },
       { command: 'unpivot', alias: 'Up', desc: this.translateService.instant('msg.dp.li.up.description'), isHover:false },
-      { command: 'join', alias: 'Jo', desc: this.translateService.instant('msg.dp.li.jo.description'), isHover:false },
+      { command: 'Join', alias: 'Jo', desc: this.translateService.instant('msg.dp.li.jo.description'), isHover:false },
       { command: 'extract', alias: 'Ex', desc: this.translateService.instant('msg.dp.li.ex.description'), isHover:false },
       { command: 'flatten', alias: 'Fl', desc: this.translateService.instant('msg.dp.li.fl.description'), isHover:false },
       { command: 'merge', alias: 'Me', desc: this.translateService.instant('msg.dp.li.me.description'), isHover:false },
@@ -164,7 +164,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       { command: 'aggregate', alias: 'Ag', desc: this.translateService.instant('msg.dp.li.ag.description'), isHover:false },
       { command: 'sort', alias: 'So', desc: this.translateService.instant('msg.dp.li.so.description'), isHover:false },
       { command: 'move', alias: 'Mv', desc: this.translateService.instant('msg.dp.li.mv.description'), isHover:false },
-      { command: 'union', alias: 'Ui', desc: this.translateService.instant('msg.dp.li.ui.description'), isHover:false },
+      { command: 'Union', alias: 'Ui', desc: this.translateService.instant('msg.dp.li.ui.description'), isHover:false },
       { command: 'setformat', alias: 'Sf', desc: 'set timestamp type .... ', isHover:false }
 
     ];

@@ -65,9 +65,9 @@
   <!-- //edit option -->
 </div>
 
-<div class="ddp-ui-calen ddp-inline ddp-clear" style="width:320px;" *ngIf="!isShowButtons">
+<div class="ddp-ui-calen" *ngIf="!isShowButtons">
 
-  <div class="ddp-box-calen ddp-clear" [ngClass]="{'ddp-disabled' : disabled}">
+  <div class="ddp-box-calen" [ngClass]="{'ddp-disabled' : disabled}">
     <input #startPickerInput type="text" class="ddp-input-typebasic ddp-data-calen" placeholder="yyyy-MM-dd hh:mm"/>
   </div>
   <span class="ddp-bar">~</span>

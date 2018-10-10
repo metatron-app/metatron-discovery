@@ -125,7 +125,7 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
       if (data.type === 'page' && this.isDashboardMode) return;
 
       // 필터 위젯에서 값이 변경될 경우
-      if ('change-filter' === data.name && this.filter.field === data.data.field && this.filter.dataSource === data.data.dataSource ) {
+      if ('change-filter' === data.name && this.filter.field === data.data.field && this.filter.dataSource === data.data.dataSource) {
         this._initComponent(data.data);
       } else if ('remove-filter' === data.name && this.filter.ui.importanceType === 'general') {
         this._resetList(data.data);
@@ -245,15 +245,15 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
    */
   public sortCandidateValues(filter: InclusionFilter, sortBy?: InclusionSortBy, direction?: DIRECTION) {
     // 정렬 정보 저장
-    ( sortBy ) && ( filter.sort.by = sortBy );
-    ( direction ) && ( filter.sort.direction = direction );
+    (sortBy) && (filter.sort.by = sortBy);
+    (direction) && (filter.sort.direction = direction);
 
     // 데이터 정렬
     const allCandidates: Candidate[] = _.cloneDeep(this._candidateList);
-    if (InclusionSortBy.COUNT === filter.sort.by ) {
+    if (InclusionSortBy.COUNT === filter.sort.by) {
       // value 기준으로 정렬
       allCandidates.sort((val1: Candidate, val2: Candidate) => {
-        return ( DIRECTION.ASC === filter.sort.direction ) ? val1.count - val2.count : val2.count - val1.count;
+        return (DIRECTION.ASC === filter.sort.direction) ? val1.count - val2.count : val2.count - val1.count;
       });
     } else {
       // name 기준으로 정렬
@@ -261,10 +261,10 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
         const name1: string = (val1.name) ? val1.name.toUpperCase() : '';
         const name2: string = (val2.name) ? val2.name.toUpperCase() : '';
         if (name1 < name2) {
-          return (DIRECTION.ASC === filter.sort.direction ) ? -1 : 1;
+          return (DIRECTION.ASC === filter.sort.direction) ? -1 : 1;
         }
         if (name1 > name2) {
-          return (DIRECTION.ASC === filter.sort.direction ) ? 1 : -1;
+          return (DIRECTION.ASC === filter.sort.direction) ? 1 : -1;
         }
         return 0;
       });
@@ -350,17 +350,15 @@ export class InclusionFilterPanelComponent extends AbstractFilterPanelComponent 
   private _initComponent(filter: InclusionFilter) {
     const currFilter: InclusionFilter = _.cloneDeep(filter);
 
-    // 패널에서 사용하는 데이터 설정
-    this.setPanelData(currFilter);
-
     // Selector 설정
     this.isMultiSelector = (currFilter.selector === InclusionSelectorType.MULTI_COMBO || currFilter.selector === InclusionSelectorType.MULTI_LIST);
 
     this.filter = currFilter;
 
-    this.dataSource = FilterUtil.getDataSourceForFilter(currFilter, this.dashboard);
+    this.setPanelData(currFilter);  // 패널에서 사용하는 데이터 설정
 
-    this._candidate();    // 데이터 목록 조회
+    (this.dataSource) && (this._candidate()); // 데이터 목록 조회
+
   } // function - _initComponent
 
   /**

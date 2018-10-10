@@ -211,13 +211,15 @@ public class PrepDatasetController {
     public @ResponseBody ResponseEntity<?> getStagingConnection() {
         Map<String, Object> response = Maps.newHashMap();
         try {
-            PrepProperties.HiveInfo hive = prepProperties.getHive();
             response.put("implementor","HIVE");
-            response.put("hostname",hive.getHostname());
-            response.put("port",String.valueOf(hive.getPort()));
-            response.put("username",hive.getUsername());
-            response.put("password",hive.getPassword());
-            response.put("url",hive.getCustomUrl());
+            response.put("hostname", prepProperties.getHiveHostname(true));
+            response.put("port",     String.valueOf(prepProperties.getHivePort(true)));
+            response.put("username", prepProperties.getHiveUsername(true));
+            response.put("password", prepProperties.getHivePassword(true));
+            response.put("url",      prepProperties.getHiveCustomUrl(true));
+        } catch (PrepException pe) {
+            LOGGER.error("getStaingConnection(): caught an preparation exception: ", pe);
+            throw pe;
         } catch (Exception e) {
             LOGGER.error("getStaingConnection(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
@@ -365,12 +367,36 @@ public class PrepDatasetController {
         return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
     }
 
+    @RequestMapping(value = "/upload_async", method = RequestMethod.POST, produces = "application/json")
+    public @ResponseBody ResponseEntity<?> upload_async(@RequestParam("file") MultipartFile file) {
+        Map<String, Object> response = null;
+        try {
+            response = this.datasetFileService.uploadFile(file);
+        } catch (Exception e) {
+            LOGGER.error("upload_async(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+        }
+        return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
+    }
+
+    @RequestMapping(value = "/upload_async_poll", method = RequestMethod.POST, produces = "application/json")
+    public @ResponseBody ResponseEntity<?> upload_async_poll(@RequestBody String fileKey) {
+        Map<String, Object> response = null;
+        try {
+            response = this.datasetFileService.pollUploadFile(fileKey);
+        } catch (Exception e) {
+            LOGGER.error("upload_async_poll(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+        }
+        return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
+    }
+
     @RequestMapping(value = "/check_hdfs", method = RequestMethod.GET, produces = "application/json")
     public @ResponseBody ResponseEntity<?> checkHdfs() {
         Map<String, Object> response = new HashMap();
         try {
             if (prepProperties.isHDFSConfigured()) {
-                response.put("stagingBaseDir", prepProperties.getStagingBaseDir());
+                response.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
             }
         } catch (Exception e) {
             LOGGER.error("uploadExcelfile(): caught an exception: ", e);

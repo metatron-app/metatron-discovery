@@ -14,7 +14,7 @@
 
 :host /deep/ div {
   font-size:12px;
-  color : #4b515b;
+  /*color : #4b515b;*/
 }
 
 :host /deep/ .nicEdit-main ol {

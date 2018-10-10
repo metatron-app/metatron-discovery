@@ -29,7 +29,7 @@ import {
   SimpleChanges, SimpleChange
 } from '@angular/core';
 import { Workbook } from '../domain/workbook/workbook';
-import { Dashboard, PresentationDashboard, LayoutMode } from '../domain/dashboard/dashboard';
+import { Dashboard, PresentationDashboard, LayoutMode, BoardDataSource } from '../domain/dashboard/dashboard';
 import { Widget } from '../domain/dashboard/widget/widget';
 import { ChartSelectInfo } from '../common/component/chart/base-chart';
 import { SelectionFilter, SelectionFilterComponent } from './component/selection-filter/selection-filter.component';
@@ -37,7 +37,12 @@ import { DashboardLayoutComponent } from './component/dashboard-layout/dashboard
 import { Filter } from '../domain/workbook/configurations/filter/filter';
 import { PopupService } from '../common/service/popup.service';
 import { DatasourceService } from '../datasource/service/datasource.service';
-import { Datasource, TempDsStatus, TemporaryDatasource } from 'app/domain/datasource/datasource';
+import {
+  ConnectionType,
+  Datasource,
+  TempDsStatus,
+  TemporaryDatasource
+} from 'app/domain/datasource/datasource';
 import { Modal } from '../common/domain/modal';
 import { ConfirmModalComponent } from '../common/component/modal/confirm/confirm.component';
 import { CommonConstant } from '../common/constant/common.constant';
@@ -143,7 +148,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
    */
   public ngOnChanges(changes: SimpleChanges) {
     const boardChanges: SimpleChange = changes.inputDashboard;
-    if (boardChanges && boardChanges.currentValue) {
+    if (boardChanges) {
       this.dashboard = boardChanges.currentValue;
       this._initViewPage();
     }
@@ -184,7 +189,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     // 대시보드 필터 정보 조회 및 각 위젯 적용
     const boardFilters: Filter[] = DashboardUtil.getBoardFilters(this.dashboard);
     if (boardFilters && boardFilters.length > 0) {
-      this.broadCaster.broadcast('SET_EXTERNAL_FILTER', { filters: boardFilters });
+      this.broadCaster.broadcast('SET_GLOBAL_FILTER', { filters: boardFilters });
     }
     this.selectionFilter.init();
     // TODO 필터 변경알림 나중에 제거할 로직
@@ -207,17 +212,14 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       // console.info('셀렉션필터에 의한 변경', selectionFilters);
       // console.info('모든 차트에 필터 추가');
 
-      this.broadCaster.broadcast(
-        'SET_EXTERNAL_FILTER',
-        { filters: DashboardUtil.getBoardFilters(this.dashboard).concat(selectionFilters) }
-      );
+      this.broadCaster.broadcast( 'SET_SELECTION_FILTER', { filters: selectionFilters } );
 
     } else {
       // 차트에 의한 변경
       // console.info('위젯에 의한 변경', data, data.chartSelectInfo.mode);
       // console.info('위젯 해당 필터들 추가해서 다시 draw 요청');
 
-      const externalFilterData:any = {};
+      const externalFilterData: any = {};
 
       let widgetId: string = '';
 
@@ -228,28 +230,31 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       }
 
       // 2. 선택 필터 데이터 변환
-      let cloneBoardFilters:Filter[] = DashboardUtil.getBoardFilters(this.dashboard, true);
-      let selectionFilters:SelectionFilter[] = data.filters.map((filter: SelectionFilter) => {
+      let selectionFilters: SelectionFilter[] = data.filters.map((filter: SelectionFilter) => {
         filter.valueList = _.uniq(_.flattenDeep(filter.valueList));
         (widgetId) && (filter.selectedWidgetId = widgetId); // detail 차트를 위해 필터 선택을 한 위젯의 아이디를 저장해준다.
         return filter;
       });
 
       // 3. 선택필터와 보드필터 병합 ( 같은 필드 )
-      cloneBoardFilters.forEach( item1 => {
-        const idx:number = selectionFilters.findIndex( item2 => item1.field === item2.field && item1.ref === item2.ref );
-        if( -1 < idx ) {
-          if( 'include' === item1.type ) {
-            const selection:SelectionFilter = selectionFilters.splice( idx, 1 )[0];
-            ( selection.selectedWidgetId ) && ( item1['sourceWidgetId'] = selection.selectedWidgetId );
-            item1['valueList'] = item1['valueList'] ? _.uniq( item1['valueList'].concat( selection.valueList ) ) : selection.valueList;
+/*
+      let cloneBoardFilters: Filter[] = DashboardUtil.getBoardFilters(this.dashboard, true);
+      cloneBoardFilters.forEach(item1 => {
+        const idx: number = selectionFilters.findIndex(item2 => item1.field === item2.field && item1.ref === item2.ref);
+        if (-1 < idx) {
+          if ('include' === item1.type) {
+            const selection: SelectionFilter = selectionFilters.splice(idx, 1)[0];
+            (selection.selectedWidgetId) && (item1['sourceWidgetId'] = selection.selectedWidgetId);
+            item1['valueList'] = item1['valueList'] ? _.uniq(item1['valueList'].concat(selection.valueList)) : selection.valueList;
           }
         }
       });
+      externalFilterData.filters = cloneBoardFilters.concat(selectionFilters);
+*/
 
-      externalFilterData.filters = cloneBoardFilters.concat( selectionFilters );
+      externalFilterData.filters = selectionFilters;
 
-      this.broadCaster.broadcast( 'SET_EXTERNAL_FILTER', externalFilterData );
+      this.broadCaster.broadcast('SET_SELECTION_FILTER', externalFilterData);
 
     }
   } // function - changedSelectionFilter
@@ -365,6 +370,10 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method - Linked Datasource Ingestion
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
    * 화면 초기화
    * @private
@@ -381,34 +390,73 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     const dashboard = this.dashboard;
     if (dashboard) {
 
-      // Linked Datasource 인지 그리고 데이터소스가 적재되었는지 여부를 판단함
-      const mainDsList:Datasource[] = DashboardUtil.getMainDataSources( dashboard );
+      // Send statistics data
+      this.sendViewActivityStream(dashboard.id, 'DASHBOARD');
 
-      if (0 < mainDsList.length) {
+      // Linked Datasource 인지 그리고 데이터소스가 적재되었는지 여부를 판단함
+      const mainDsList: Datasource[] = DashboardUtil.getMainDataSources(dashboard);
+
+      const linkedDsList: Datasource[] = mainDsList.filter(item => item.connType === ConnectionType.LINK);
+      if (linkedDsList && 0 < linkedDsList.length) {
+        // Multi Datasource Dashboard
+        this.showBoardLoading();
+
+        const promises = [];
+
+        linkedDsList.forEach(dsInfo => {
+          promises.push(new Promise<any>((res, rej) => {
+            const boardDsInfo: BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(dashboard, dsInfo);
+            this.datasourceService.getDatasourceDetail(boardDsInfo['temporaryId']).then((ds: Datasource) => {
+
+              if (this.datasourceStatus || TempDsStatus.ENABLE !== this.datasourceStatus) {
+                (ds.temporary) && (this.datasourceStatus = ds.temporary.status);
+              }
+
+              if (ds.temporary && TempDsStatus.ENABLE === ds.temporary.status) {
+                boardDsInfo.metaDataSource = ds;
+                // if( 'multi' === dashboard.configuration.dataSource.type ) {
+                //   dashboard.configuration.dataSource.dataSources.some( item => {
+                //     if( DashboardUtil.isSameDataSource( item, ds ) ) {
+                //       item.metaDataSource = ds;
+                //       return true;
+                //     }
+                //     return false;
+                //   });
+                // } else {
+                //   dashboard.configuration.dataSource.metaDataSource = ds;
+                // }
+              } else {
+                this.expiredDatasource = ds;
+                this.hideBoardLoading();
+              }
+
+              res();
+
+            }).catch(err => rej(err));
+          }));
+        });
+
+        Promise.all(promises).then(() => {
+          if (TempDsStatus.ENABLE === this.datasourceStatus) {
+            this._runDashboard(dashboard);
+          } else {
+            this.hideBoardLoading();
+          }
+          this.safelyDetectChanges();
+        }).catch((error) => {
+          this.commonExceptionHandler(error);
+          this.hideBoardLoading();
+        });
+
+      } else {
+        // Single Datasource Dashboard
         this.showBoardLoading();
         this._runDashboard(dashboard);
-/*
-        // Linked 에 대한 처리 추후 확인
-        if (mainDs.connType === ConnectionType.LINK) {
-          this.showBoardLoading();
-          this.datasourceService.getDatasourceDetail(dashboard.temporaryId).then((ds: Datasource) => {
-            (ds.temporary) && (this.datasourceStatus = ds.temporary.status);
-            if (TempDsStatus.ENABLE === this.datasourceStatus) {
-              dashboard.configuration.dataSource.metaDataSource = ds;
-              this._runDashboard(dashboard);
-            } else {
-              this.expiredDatasource = ds;
-              this.hideBoardLoading();
-            }
-            this.changeDetect.markForCheck();
-          }).catch(err => this.commonExceptionHandler(err));
-        } else {
-          this.showBoardLoading();
-          this._runDashboard(dashboard);
-        }
-*/
       }
-    } // end if - this._inputDashboard
+
+    } else {
+      this.destroyDashboard();
+    }
 
   } // function - _initViewPage
 
@@ -420,8 +468,8 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
   private _runDashboard(targetDashboard: Dashboard) {
     this.initializeDashboard(targetDashboard, this._getLayoutMode()).then(() => {
       this.safelyDetectChanges();
-    }).catch( (error) => {
-      console.error( error );
+    }).catch((error) => {
+      console.error(error);
       this.hideBoardLoading();
     });
   } // function - _runDashboard

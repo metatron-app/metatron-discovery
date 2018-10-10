@@ -37,52 +37,36 @@ public class PrepHdfsService {
     private String snapshotHdfsPath = null;
     private String previewHdfsPath = null;
 
-    private String uploadDirectory = "uploads";
-    private String snapshotDirectory = "snapshots";
-    private String previewDirectory = "previews";
-
     private Configuration hadoopConf = null;
 
     private String getUploadPath() {
-        if(null==uploadHdfsPath) {
-            String stagingBaseDir = prepProperties.getStagingBaseDir();
-            if (true == stagingBaseDir.endsWith(File.separator)) {
-                uploadHdfsPath = stagingBaseDir + uploadDirectory;
-            } else {
-                uploadHdfsPath = stagingBaseDir + File.separator + uploadDirectory;
-            }
+        if(null==uploadHdfsPath && null!=prepProperties.getStagingBaseDir(true)) {
+            String stagingBaseDir = prepProperties.getStagingBaseDir(true);
+            uploadHdfsPath = stagingBaseDir + File.separator + PrepProperties.dirUpload;
         }
         return uploadHdfsPath;
     }
 
+    /*
     private String getSnapshotPath() {
-        if(null==snapshotHdfsPath) {
-            String stagingBaseDir = prepProperties.getStagingBaseDir();
-            if (true == stagingBaseDir.endsWith(File.separator)) {
-                snapshotHdfsPath = stagingBaseDir + snapshotDirectory;
-            } else {
-                snapshotHdfsPath = stagingBaseDir + File.separator + snapshotDirectory;
-            }
+        if(null==snapshotHdfsPath && null!=prepProperties.getStagingBaseDir()) {
+            snapshotHdfsPath = prepProperties.getStagingBaseDir() + File.separator + PrepProperties.dirSnapshot;
         }
         return snapshotHdfsPath;
     }
 
     private String getPreviewPath() {
-        if(null==previewHdfsPath) {
-            String stagingBaseDir = prepProperties.getStagingBaseDir();
-            if (true == stagingBaseDir.endsWith(File.separator)) {
-                previewHdfsPath = stagingBaseDir + previewDirectory;
-            } else {
-                previewHdfsPath = stagingBaseDir + File.separator + previewDirectory;
-            }
+        if(null==previewHdfsPath && null!=prepProperties.getStagingBaseDir()) {
+            previewHdfsPath = prepProperties.getStagingBaseDir() + File.separator + PrepProperties.dirPreview ;
         }
         return previewHdfsPath;
     }
+    */
 
     public Configuration getConf() {
         if(null==hadoopConf) {
             hadoopConf = new Configuration();
-            String hadoopConfDir = prepProperties.getHadoopConfDir();
+            String hadoopConfDir = prepProperties.getHadoopConfDir(false);      // FIXME: after implementing specifying upload locations
             if(null!=hadoopConfDir) {
                 hadoopConf.addResource(new Path(hadoopConfDir + File.separator + "core-site.xml"));
                 hadoopConf.addResource(new Path(hadoopConfDir + File.separator + "hdfs-site.xml"));
@@ -95,7 +79,7 @@ public class PrepHdfsService {
         Map<String, Object> result = Maps.newHashMap();
 
         try {
-            String stagingBaseDir = prepProperties.getStagingBaseDir();
+            String stagingBaseDir = prepProperties.getStagingBaseDir(false);    // FIXME: after implementing specifying upload locations
             result.put("stagingBaseDir", stagingBaseDir);
             result.put("checkConnection", false);
             if(null!=stagingBaseDir) {

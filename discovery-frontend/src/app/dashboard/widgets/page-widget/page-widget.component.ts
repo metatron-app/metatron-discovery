@@ -65,6 +65,7 @@ import { isNullOrUndefined } from 'util';
 import { TimeListFilter } from '../../../domain/workbook/configurations/filter/time-list-filter';
 import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
 import { Datasource, Field } from '../../../domain/datasource/datasource';
+import { CommonUtil } from '../../../common/util/common.util';
 
 declare let $;
 
@@ -92,7 +93,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   private _isDuringProcess: boolean = false;
 
   private _interval: any;   // 실시간 데이터소스 조회 타이머
-  private _timer:any;       // 차트 리사이즈 타이머
+  private _timer: any;       // 차트 리사이즈 타이머
 
   // 대시보드 영역 overflow 여부
   private _dashboardOverflow: string;
@@ -100,8 +101,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // 현재 위젯에서 발생시킨 필터정보
   private _selectFilterList: any[] = [];
 
-  // 마지막으로 호출된 필터 목록
-  private _externalFilters: Filter[] = [];
+  // Current Selection Filters
+  private _currentSelectionFilters: Filter[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -267,11 +268,22 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 외부 필터 설정
     this.subscriptions.push(
-      this.broadCaster.on<any>('SET_EXTERNAL_FILTER').subscribe(data => {
+      this.broadCaster.on<any>('SET_GLOBAL_FILTER').subscribe(data => {
         if (data.widgetId && data.widgetId === this.widget.id) {
           this._search(data.filters);
         } else if (data.excludeWidgetId !== this.widget.id) {
           this._search(data.filters);
+        }
+      })
+    );
+
+    // 선택 필터 설정
+    this.subscriptions.push(
+      this.broadCaster.on<any>('SET_SELECTION_FILTER').subscribe(data => {
+        if (data.widgetId && data.widgetId === this.widget.id) {
+          this._search(null, data.filters);
+        } else if (data.excludeWidgetId !== this.widget.id) {
+          this._search(null, data.filters);
         }
       })
     );
@@ -311,11 +323,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // Destroy
   public ngOnDestroy() {
     super.ngOnDestroy();
-    if( this._timer ) {
+    if (this._timer) {
       clearTimeout(this._timer);
       this._timer = null;
     }
-    if( this._interval ) {
+    if (this._interval) {
       clearInterval(this._interval);
       this._interval = null;
     }
@@ -324,6 +336,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public boardUtil = DashboardUtil;
 
   /**
    * 범례 표시여부 변경
@@ -390,15 +403,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             lineChart.chart.resize();
           } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAPVIEW) {
 
-          } else if (this.widgetConfiguration.chart.type.toString() === 'grid') {
-            //(<GridChartComponent>this.chart).grid.arrange();
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
             (<NetworkChartComponent>this.chart).draw();
           } else {
             try {
               if (this.chart && this.chart.chart) this.chart.chart.resize();
             }
-            catch(error) { }
+            catch (error) {
+            }
           }
           // 변경 적용
           this.safelyDetectChanges();
@@ -437,32 +449,23 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
       // 마지막 외부필터로 들어온 데이터는 선택불가
       let selectData = [];
-      if( data.data ) {
-        data.data.map( (field) => {
+      if (data.data) {
+        data.data.map((field) => {
           let isExternalFilter: boolean = false;
-          if( this._externalFilters ) {
-            this._externalFilters.map( (filter) => {
-              // 동일한 필터가 있는지 찾는다.
-              if( _.eq(field.alias, filter.field) ) {
-                isExternalFilter = true;
-              }
-            });
+          if (this._currentSelectionFilters) {
+            // 동일한 필터가 있는지 찾는다.
+            isExternalFilter = this._currentSelectionFilters.some(filter => field.alias === filter.field);
           }
 
           // 내가 선택한거면 예외
-          let isAlreadyFilter: boolean = false;
-          this._selectFilterList.map((filter) => {
-            if (_.eq(field.alias, filter.alias)) {
-              isAlreadyFilter = true;
-            }
-          });
+          let isAlreadyFilter: boolean = this._selectFilterList.some(filter => field.alias === filter.alias);
 
-          if( !isExternalFilter || isAlreadyFilter ) {
+          if (!isExternalFilter || isAlreadyFilter) {
             selectData.push(field);
           }
         });
       }
-      if( selectData.length == 0 && !_.eq(data.mode, ChartSelectMode.CLEAR) ) {
+      if (selectData.length == 0 && !_.eq(data.mode, ChartSelectMode.CLEAR)) {
         return;
       }
       else {
@@ -494,10 +497,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public changeSelectFilterList(data: ChartSelectInfo): void {
 
     // 추가
-    if( _.eq(data.mode, ChartSelectMode.ADD) ) {
+    if (_.eq(data.mode, ChartSelectMode.ADD)) {
 
       // 필터 목록 추가
-      data.data.map( (field) => {
+      data.data.map((field) => {
         // 이미 추가된 필터인지 체크
         let isAlreadyFilter: boolean = false;
         this._selectFilterList.map((filter) => {
@@ -529,16 +532,16 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       });
     }
     // 삭제
-    else if( _.eq(data.mode, ChartSelectMode.SUBTRACT) ) {
+    else if (_.eq(data.mode, ChartSelectMode.SUBTRACT)) {
 
       // 필터 목록 제거
-      for( let num = (this._selectFilterList.length - 1) ; num >= 0 ; num-- ) {
+      for (let num = (this._selectFilterList.length - 1); num >= 0; num--) {
         let filter = this._selectFilterList[num];
-        data.data.map( (field) => {
+        data.data.map((field) => {
           // 동일한 필터를 찾은다음
-          if( _.eq(field.alias, filter.alias) ) {
+          if (_.eq(field.alias, filter.alias)) {
             // 동일한 데이터를 제거한다.
-            for( let num2 = (field.data.length - 1) ; num2 >= 0 ; num2-- ) {
+            for (let num2 = (field.data.length - 1); num2 >= 0; num2--) {
               let data1 = field.data[num2];
               filter.data.map((data2) => {
                 if (_.eq(data1, data2)) {
@@ -548,7 +551,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             }
 
             // 데이터가 모두 제거되었다면 필터자체를 제거한다.
-            if( filter.data.length == 0 ) {
+            if (filter.data.length == 0) {
               this._selectFilterList.splice(num, 1);
             }
           }
@@ -556,7 +559,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       }
     }
     // 초기화
-    else if( _.eq(data.mode, ChartSelectMode.CLEAR) ) {
+    else if (_.eq(data.mode, ChartSelectMode.CLEAR)) {
 
       // 셀력션 데이터 치환
       data.mode = ChartSelectMode.SUBTRACT;
@@ -573,17 +576,18 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public changeExternalFilterList(externalFilters?: Filter[]): Filter[] {
 
+    ( isNullOrUndefined( externalFilters ) ) && ( externalFilters = [] );
 
     // 대시보드에서 필터를 발생시킨경우 => 필터 목록 제거
-    for( let num = (this._selectFilterList.length - 1) ; num >= 0 ; num-- ) {
+    for (let num = (this._selectFilterList.length - 1); num >= 0; num--) {
       let filter = this._selectFilterList[num];
       let isNotFilter: boolean = true;
-      externalFilters.map( (externalFilter) => {
+      externalFilters.map((externalFilter) => {
         // 동일한 필터를 찾은다음
-        if( _.eq(externalFilter.field, filter.alias) ) {
+        if (_.eq(externalFilter.field, filter.alias)) {
           isNotFilter = false;
           // 필터에 없는 데이터를 제거한다.
-          for( let num2 = (filter.data.length - 1) ; num2 >= 0 ; num2-- ) {
+          for (let num2 = (filter.data.length - 1); num2 >= 0; num2--) {
             let data1 = filter.data[num2];
             let isNotData = true;
             externalFilter['valueList'].map((data2) => {
@@ -591,26 +595,26 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
                 isNotData = false;
               }
             });
-            if( isNotData ) {
+            if (isNotData) {
               filter.data.splice(num, 1);
             }
           }
 
           // 데이터가 모두 제거되었다면 필터자체를 제거한다.
-          if( filter.data.length == 0 ) {
+          if (filter.data.length == 0) {
             this._selectFilterList.splice(num, 1);
           }
         }
       });
 
       // 발생시켰던 필터가 없어졌다면 저장목록에서도 제거
-      if( isNotFilter ) {
+      if (isNotFilter) {
         this._selectFilterList.splice(num, 1);
       }
     }
 
     // 현재 차트에서 필터를 발생시킨경우
-    if( externalFilters ) {
+    if (externalFilters) {
 
       // 복사
       externalFilters = _.cloneDeep(externalFilters);
@@ -692,73 +696,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     return this.isViewMode && this.widget && this.widget.name && this.isShowTitle && !this.isShowHierarchyView;
   } // function - isShowWidgetName
 
-  /**
-   * 차트의 아이콘 클래스명 반환
-   * @return {string}
-   */
-  public getChartIconClass(): string {
-    let iconClass: string = '';
-    switch (this.widget.configuration.chart.type) {
-      case ChartType.BAR :
-        iconClass = 'ddp-chart-bar';
-        break;
-      case ChartType.LINE :
-        iconClass = 'ddp-chart-linegraph';
-        break;
-      case ChartType.GRID :
-        iconClass = 'ddp-chart-table';
-        break;
-      case ChartType.SCATTER :
-        iconClass = 'ddp-chart-scatter';
-        break;
-      case ChartType.HEATMAP :
-        iconClass = 'ddp-chart-heatmap';
-        break;
-      case ChartType.PIE :
-        iconClass = 'ddp-chart-pie';
-        break;
-      case ChartType.MAPVIEW :
-        iconClass = 'ddp-chart-map';
-        break;
-      case ChartType.CONTROL :
-        iconClass = 'ddp-chart-cont';
-        break;
-      case ChartType.LABEL :
-        iconClass = 'ddp-chart-kpi';
-        break;
-      case ChartType.LABEL2 :
-        iconClass = 'ddp-chart-kpi';
-        break;
-      case ChartType.BOXPLOT :
-        iconClass = 'ddp-chart-boxplot';
-        break;
-      case ChartType.WATERFALL :
-        iconClass = 'ddp-chart-waterfall';
-        break;
-      case ChartType.WORDCLOUD :
-        iconClass = 'ddp-chart-wordcloud';
-        break;
-      case ChartType.COMBINE :
-        iconClass = 'ddp-chart-combo';
-        break;
-      case ChartType.TREEMAP :
-        iconClass = 'ddp-chart-treemap';
-        break;
-      case ChartType.RADAR :
-        iconClass = 'ddp-chart-radar';
-        break;
-      case ChartType.NETWORK :
-        iconClass = 'ddp-chart-network';
-        break;
-      case ChartType.SANKEY :
-        iconClass = 'ddp-chart-sankey';
-        break;
-      case ChartType.GAUGE :
-        iconClass = 'ddp-chart-bar';
-        break;
-    }
-    return iconClass;
-  } // function - getChartIconClass
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - for Header
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -769,9 +706,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public getDataSourceName(): string {
     let strName: string = '';
     if (this.widget && this.widget.configuration.dataSource) {
-      strName = DashboardUtil.getDataSourceFromBoardDataSource(
-        this.widget.dashBoard, this.widget.configuration.dataSource
-      ).name;
+      const widgetDataSource: Datasource
+        = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widget.configuration.dataSource);
+      (widgetDataSource) && (strName = widgetDataSource.name);
     }
     return strName;
   } // function - getDataSourceName
@@ -968,6 +905,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @private
    */
   private _setWidget(widget: PageWidget) {
+
     this.widget = <PageWidget>_.extend(new PageWidget(), widget);
     this.widgetConfiguration = <PageWidgetConfiguration>this.widget.configuration;
     this.chartType = this.widgetConfiguration.chart.type.toString();
@@ -978,68 +916,83 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       // Pivot 내 누락된 필드 정보 설정
       const widgetDataSource: Datasource
         = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
-      const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.engineName);
-      fields.forEach((field) => {
-        this.widgetConfiguration.pivot.rows
-          .forEach((abstractField) => {
-            if (isNullOrUndefined(abstractField.field)
-              && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-              abstractField.field = field;
-            }
-          });
 
-        this.widgetConfiguration.pivot.columns
-          .forEach((abstractField) => {
-            if (isNullOrUndefined(abstractField.field)
-              && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-              abstractField.field = field;
-            }
-          });
-
-        this.widgetConfiguration.pivot.aggregations
-          .forEach((abstractField) => {
-            if (isNullOrUndefined(abstractField.field)
-              && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
-              abstractField.field = field;
-            }
-          });
-      });
-
-      // Hierarchy 설정
-      if (boardConf.relations) {
-        const relations: DashboardPageRelation[] = boardConf.relations;
-        const parentWidgetId: string = this._findParentWidgetId(this.widget.id, relations);
-        if (parentWidgetId) {
-          this.parentWidget = widget.dashBoard.widgets.find(item => item.id === parentWidgetId);
-          this.isShowHierarchyView = true;
-        }
-      }
-      // RealTime 데이터갱신 설정
-      if (this.layoutMode !== LayoutMode.EDIT && boardConf.options.sync && boardConf.options.sync.enabled) {
-        const syncOpts: BoardSyncOptions = boardConf.options.sync;
-        this._interval = setInterval(() => {
-          this.safelyDetectChanges();
-          if(this.parentWidget) {
-            // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
-            this.processStart();
-            this._isDuringProcess = true;
-            this.updateComplete();
-          } else {
-            this._search();
-          }
-        }, syncOpts.interval * 1000);
-      }
-
-      this.safelyDetectChanges();
-
-      if(this.parentWidget) {
-        // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
+      if (isNullOrUndefined(widgetDataSource)) {
+        // If the widget does not have a data source
         this.processStart();
         this._isDuringProcess = true;
-        this.updateComplete();
+        this.isValidWidget = false;
+        this.showError();
       } else {
-        this._search();
-      }
+        // If the widget has a data source
+
+        this.isValidWidget = true;
+
+        const fields: Field[] = DashboardUtil.getFieldsForMainDataSource(this.widget.dashBoard.configuration, widgetDataSource.engineName);
+        fields.forEach((field) => {
+          this.widgetConfiguration.pivot.rows
+            .forEach((abstractField) => {
+              if (isNullOrUndefined(abstractField.field)
+                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                abstractField.field = field;
+              }
+            });
+
+          this.widgetConfiguration.pivot.columns
+            .forEach((abstractField) => {
+              if (isNullOrUndefined(abstractField.field)
+                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                abstractField.field = field;
+              }
+            });
+
+          this.widgetConfiguration.pivot.aggregations
+            .forEach((abstractField) => {
+              if (isNullOrUndefined(abstractField.field)
+                && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                abstractField.field = field;
+              }
+            });
+        });
+
+        // Hierarchy 설정
+        if (boardConf.relations) {
+          const relations: DashboardPageRelation[] = boardConf.relations;
+          const parentWidgetId: string = this._findParentWidgetId(this.widget.id, relations);
+          if (parentWidgetId) {
+            this.parentWidget = widget.dashBoard.widgets.find(item => item.id === parentWidgetId);
+            this.isShowHierarchyView = true;
+          }
+        }
+
+        // RealTime 데이터갱신 설정
+        if (this.layoutMode !== LayoutMode.EDIT && boardConf.options.sync && boardConf.options.sync.enabled) {
+          const syncOpts: BoardSyncOptions = boardConf.options.sync;
+          this._interval = setInterval(() => {
+            this.safelyDetectChanges();
+            if (this.parentWidget) {
+              // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
+              this.processStart();
+              this._isDuringProcess = true;
+              this.updateComplete();
+            } else {
+              this._search();
+            }
+          }, syncOpts.interval * 1000);
+        }
+
+        this.safelyDetectChanges();
+
+        if (this.parentWidget) {
+          // 차트에 대한 프로세스가 진행되었다는 것을 전파하기 위해 추가
+          this.processStart();
+          this._isDuringProcess = true;
+          this.updateComplete();
+        } else {
+          this._search();
+        }
+      } // end of - widgetDataSource
+
     } // end if - dashboard.configuration
 
     this.safelyDetectChanges();
@@ -1049,10 +1002,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   /**
    * 데이터 검색
-   * @param {Filter[]} externalFilters
+   * @param {Filter[]} globalFilters
+   * @param {Filter[]} selectionFilters
    * @private
    */
-  private _search(externalFilters?: Filter[]) {
+  private _search(globalFilters?:Filter[], selectionFilters?: Filter[]) {
 
     // 프로세스 실행 등록
     this.processStart();
@@ -1063,20 +1017,19 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       return;
     }
 
-    // 현재 위젯에서 발생시킨 필터정보 제외처리
-    externalFilters = this.changeExternalFilterList(externalFilters);
-    this._externalFilters = externalFilters;
-
     // 버전 확인
     if (!this.uiOption.version || this.uiOption.version < SPEC_VERSION) {
       // 옵션 초기화
       this.uiOption = OptionGenerator.initUiOption(this.uiOption);
     }
 
+    // 현재 위젯에서 발생시킨 필터정보 제외처리
+    this._currentSelectionFilters = this.changeExternalFilterList(selectionFilters);
+
     // Hierarchy View 설정
     if (this.parentWidget) {
-      if (externalFilters) {
-        const idx = externalFilters.findIndex(item => this.parentWidget.id === item['selectedWidgetId']);
+      if (selectionFilters) {
+        const idx = selectionFilters.findIndex(item => this.parentWidget.id === item['selectedWidgetId']);
         if (-1 < idx) {
           this.isShowHierarchyView = false;
         } else {
@@ -1126,12 +1079,21 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 필터 설정
     const widgetDataSource: Datasource = DashboardUtil.getDataSourceFromBoardDataSource(this.widget.dashBoard, this.widgetConfiguration.dataSource);
-    if (isNullOrUndefined(externalFilters)) {
-      // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
-      const boardFilter: Filter[] = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName);
-      (boardFilter && 0 < boardFilter.length) && (uiCloneQuery.filters = boardFilter.concat(uiCloneQuery.filters));
-    } else {
-      // 외부 필터 ( 글로벌 필터 + Selection Filter )
+
+    if (isNullOrUndefined(widgetDataSource)) {
+      this.isValidWidget = false;
+      this.showError();
+      return;
+    }
+
+    // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
+    if (isNullOrUndefined(globalFilters)) {
+      globalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName);
+    }
+
+    // 외부 필터 ( 글로벌 필터 + Selection Filter )
+    {
+      let externalFilters = selectionFilters ? globalFilters.concat( selectionFilters ) : globalFilters;
       externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName, externalFilters);
 
       uiCloneQuery.filters.forEach(item1 => {
@@ -1175,7 +1137,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         uiOption: this.uiOption,
         params: {
           widgetId: this.widget.id,
-          externalFilters: (externalFilters !== undefined),
+          externalFilters: (selectionFilters !== undefined),
           // 현재 차트가 선택한 필터목록
           selectFilterListList: this._selectFilterList
         }
@@ -1202,11 +1164,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         this.chart.resultData = this.resultData;
       }
 
+      this.isValidWidget = true;
+
       // 변경 적용
       this.safelyDetectChanges();
     }).catch((error) => {
       console.error(error);
       // 프로세스 종료 등록 및 No Data 표시
+      this.isValidWidget = false;
       this.showError();
       // 변경 적용
       this.safelyDetectChanges();
@@ -1221,7 +1186,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 선반 데이터 설정
     for (let field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
-      // delete field['field'];
+      delete field['field'];
       delete field['currentPivot'];
       delete field['granularity'];
       delete field['segGranularity'];
@@ -1241,6 +1206,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         FilterUtil.isTimeRangeFilter(item) ||
         (FilterUtil.isTimeListFilter(item) && item['valueList'] && 0 < item['valueList'].length);
     });
+
+    cloneQuery.userFields = CommonUtil.objectToArray(cloneQuery.userFields);
 
     return cloneQuery;
   } // function - _makeSearchQueryParam
@@ -1315,11 +1282,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         .resolve()
         .then(() => {
           if (this.isAnalysisPredictionEnabled()) {
-            this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData);
+            this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData)
+              .catch(() => {
+                this.showError();
+              });
           } else {
             this.predictionLineDisabled();
           }
-        });
+        })
     } else {
       this.predictionLineDisabled();
     }

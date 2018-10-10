@@ -109,7 +109,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public isShowCreateDashboard: boolean;
 
   // LNB 로딩 표시 여부
-  public isShowLnbLoading:boolean = false;
+  public isShowLnbLoading: boolean = false;
 
   // 대시보드 왼쪽 탭 : DASHBOARD, CHAT
   public leftTab: string;
@@ -238,11 +238,11 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
     // 대시보드 생성 완료
     this.subscriptions.push(
-      this.broadCaster.on<any>('WORKBOOK_RELOAD_BOARD_LIST').subscribe((data: { boardName: string }) => {
+      this.broadCaster.on<any>('WORKBOOK_RELOAD_BOARD_LIST').subscribe((data: { boardId: string }) => {
         this._getWorkbook().then(() => {
           // 생성 후 체크가 모두 선택
           this.selectedDatasources = this.datasources.map(ds => ds.id);
-          this.loadDashboardList(0, data.boardName);
+          this.loadDashboardList(0, data.boardId);
         });
       })
     );
@@ -253,7 +253,11 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       // 워크북 아이디 저장
       this.workbookId = params['workbookId'];
 
+      // Send statistics data
+      this.sendViewActivityStream( this.workbookId, 'WORKBOOK' );
+
       this._getWorkbook().then((workbook: Workbook) => {
+
 
         // 워크스페이스 조회
         this.workspaceService.getWorkSpace(this.workbook.workspaceId, 'forDetailView').then((workspace: Workspace) => {
@@ -367,15 +371,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         Alert.error(this.translateService.instant('msg.comm.alert.save.fail'));
         this.commonExceptionHandler(err);
       });
-    } else if ('CLONE_DASHBOARD' === info.type) {
-      // 로딩 show
-      this.loadingShow();
-      this.dashboardService.copyDashboard(info.id).then(() => {
-        Alert.success('\'' + info.name + '\' ' + this.translateService.instant('msg.board.alert.dashboard.copy.success'));
-        this._popupInputNameDescComp.close();
-        this.loadingHide();
-        this.loadDashboardList(0, info.name);
-      }).catch(() => this.loadingHide());
     }
   } // function - afterInputInfo
 
@@ -656,9 +651,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   /**
    * 대쉬보드 목록 갱신
    * @param {number} page
-   * @param {string} selectDashboardName
+   * @param {string} targetBoardId
    */
-  public loadDashboardList(page: number = 0, selectDashboardName?: string) {
+  public loadDashboardList(page: number = 0, targetBoardId?: string) {
     this.loadingShow();
 
     if (!this.workspace) return;
@@ -718,22 +713,57 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
       this.loadingHide();
 
-      if (0 < this.dashboards.length) { // 한개가 이미 있으면 선택
-        if (selectDashboardName) { // 일치하는 이름이 있으면 선택
-          this.loadAndSelectDashboard(this.dashboards.filter(item => item.name === selectDashboardName)[0]);
+      // Select Dashboard
+      if (0 < this.dashboards.length) {
+        if (targetBoardId) {
+          const selectedBoard: Dashboard = this.dashboards.find(item => item.id === targetBoardId);
+          if (selectedBoard) {
+            this.loadAndSelectDashboard(selectedBoard);
+          } else {
+            if (this.dashboardPage.totalPages > this.dashboardPage.number + 1) {
+              this.loadDashboardList(this.dashboardPage.number + 1, targetBoardId);
+            }
+          }
         } else {
           this.loadAndSelectDashboard(this.dashboards[0]);
         }
+      } else {
+        this.selectedDashboard = null;
       }
 
-      // 변경 확인
-      this.changeDetect.detectChanges();
+      // detect changes
+      this.safelyDetectChanges();
 
     }).catch(() => {
       Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
       this.loadingHide();
     });
   } // function - loadDashboardList
+
+  /**
+   * Change list type
+   * @param {string} type
+   */
+  public changeListType(type: string) {
+    this.listType = type;
+    this.safelyDetectChanges();
+    if (this.selectedDashboard) {
+      this.scrollToDashboard(this.selectedDashboard.id);
+    }
+  } // function - changeListType
+
+  /**
+   * Scroll to target dashboard
+   * @param {string} dashboardId
+   */
+  public scrollToDashboard(dashboardId: string) {
+    const selectedIdx: number = this.dashboards.findIndex(item => item.id === dashboardId);
+    if ('LIST' === this.listType) {
+      $('.ddp-ui-board-listview').animate({ scrollTop: selectedIdx * 52 }, 800, 'swing');
+    } else {
+      $('.ddp-ui-board-thumbview').animate({ scrollTop: selectedIdx * 185 }, 800, 'swing');
+    }
+  } // function - scrollToDashboard
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Comment
@@ -839,12 +869,14 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * @param {Dashboard} dashboard
    */
   public copyDashboard(dashboard: Dashboard) {
-    this._popupInputNameDescComp.init({
-      type: 'CLONE_DASHBOARD',
-      id: dashboard.id,
-      name: 'Copy of ' + dashboard.name,
-      desc: dashboard.description
-    });
+    // 로딩 show
+    this.loadingShow();
+    this.dashboardService.copyDashboard(dashboard.id).then((copyBoard: Dashboard) => {
+      Alert.success('\'' + dashboard.name + '\' ' + this.translateService.instant('msg.board.alert.dashboard.copy.success'));
+      this._popupInputNameDescComp.close();
+      this.loadingHide();
+      this.loadDashboardList(0, copyBoard.id);
+    }).catch(() => this.loadingHide());
   } // function - copyDashboard
 
   /**
@@ -929,9 +961,13 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     if (!this.selectedDashboard || this.selectedDashboard.id !== dashboard.id) {
       this.dashboardComponent.showBoardLoading();
       this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
-        this.dashboardComponent.hideBoardLoading();
+        // save data for selected dashboard
         board.workBook = this.workbook;
         this.selectedDashboard = board;
+
+        this.scrollToDashboard(board.id); // scroll to item
+
+        this.dashboardComponent.hideBoardLoading();
         this.safelyDetectChanges();
       });
     } else {
@@ -1229,6 +1265,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     const cookieIsCloseDashboardList = this.cookieService.get(CookieConstant.KEY.WORKBOOK_CLOSE_DASHBOARD_LIST);
     this.toggleFoldDashboardList('true' === cookieIsCloseDashboardList);
 
-    this.changeMode('VIEW');
+    this.changeMode('NO_DATA');
   } // function - _initViewPage
 }
