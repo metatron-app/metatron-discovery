@@ -521,6 +521,20 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     return StringUtil.isEmpty(this.getConnection.url);
   }
 
+  /**
+   * 고급 옵션이 사용 가능한 상태인지
+   * @returns {boolean}
+   */
+  public isEnableAdvancedSettings(): boolean {
+    // tuningOptions 이나 jobProperties 있고 key가 있을 경우에만 true
+    if ((this.getIngestion.tuningOptions && Object.keys(this.getIngestion.tuningOptions).length)
+      || (this.getIngestion.jobProperties && Object.keys(this.getIngestion.jobProperties).length)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

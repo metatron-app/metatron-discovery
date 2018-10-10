@@ -488,7 +488,7 @@
     </div>
     <!-- detail setting -->
     <!-- advanced -->
-    <div class="ddp-detail-setting" [class.ddp-selected]="isShowAdvancedSetting">
+    <div class="ddp-detail-setting" [class.ddp-selected]="isShowAdvancedSetting" *ngIf="isEnableAdvancedSettings()">
       <a href="javascript:" class="ddp-fold-link" (click)="isShowAdvancedSetting = !isShowAdvancedSetting">{{'msg.storage.th.advanced.setting' | translate}}</a>
       <div class="ddp-wrap-down">
         <table class="ddp-table-detail ddp-mgt0 ddp-setting">
@@ -497,22 +497,6 @@
             <col width="*">
           </colgroup>
           <tbody>
-          <!-- job properties -->
-          <tr *ngIf="getIngestion.jobProperties">
-            <th>{{'msg.storage.ui.dsource.create.job.properties' | translate}}</th>
-            <td>
-              <div class="ddp-wrap-edit3 ddp-type" *ngFor="let key of getObjectKeys(getIngestion.jobProperties)">
-                <label class="ddp-label-type">{{key}}
-                </label>
-                <!-- edit option -->
-                <div class="ddp-ui-edit-option">
-                  {{getIngestion.jobProperties[key]}}
-                </div>
-                <!-- //edit option -->
-              </div>
-            </td>
-          </tr>
-          <!-- //job properties -->
           <!-- tuning config -->
           <tr *ngIf="getIngestion.tuningOptions">
             <th>{{'msg.storage.ui.tuning.settings' | translate}}</th>
@@ -529,6 +513,22 @@
             </td>
           </tr>
           <!-- //tuning config -->
+          <!-- job properties -->
+          <tr *ngIf="getIngestion.jobProperties">
+            <th>{{'msg.storage.ui.dsource.create.job.properties' | translate}}</th>
+            <td>
+              <div class="ddp-wrap-edit3 ddp-type" *ngFor="let key of getObjectKeys(getIngestion.jobProperties)">
+                <label class="ddp-label-type">{{key}}
+                </label>
+                <!-- edit option -->
+                <div class="ddp-ui-edit-option">
+                  {{getIngestion.jobProperties[key]}}
+                </div>
+                <!-- //edit option -->
+              </div>
+            </td>
+          </tr>
+          <!-- //job properties -->
           </tbody>
         </table>
 
