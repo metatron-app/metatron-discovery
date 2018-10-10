@@ -225,7 +225,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * @returns {any}
    */
   public get getIngestion() {
-    return this.datasource.ingestion || {};
+    return this.datasource.ingestion;
   }
 
   /**

@@ -151,7 +151,7 @@
     </div>
     <!-- //Permission -->
     <!-- ingestion -->
-    <div class="ddp-wrap-table-detail ddp-last" >
+    <div class="ddp-wrap-table-detail ddp-last" *ngIf="getIngestion">
       <label class="ddp-label-detail">{{'msg.storage.ui.ingestion.info' | translate}}</label>
       <table class="ddp-table-detail">
         <colgroup>
@@ -396,7 +396,7 @@
           </ng-template>
         </tr>
         <!-- //Engine 형 -->
-        <tr *ngIf="getConnType.toString() === 'ENGINE' && getIngestion">
+        <tr *ngIf="getConnType.toString() === 'ENGINE'">
           <th>
             {{'msg.storage.th.ingestion-settings' | translate}}
           </th>
