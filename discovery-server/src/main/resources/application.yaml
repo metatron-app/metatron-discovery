@@ -4,7 +4,7 @@
 # --polaris.analyze.pivot=false --polaris.analyze.forward=JSON
 spring:
   profiles:
-    active: local,h2-default-db,logging-console-debug,spark-local-yarn,scheduling # cloud-local #, initial #,dataprep, bcrypt-encoder, encode-password-initial
+    active: local,h2-default-db,logging-console-debug,spark-local-yarn,scheduling # cloud-local #, initial #, bcrypt-encoder, encode-password-initial
   application:
     name: ${METATRON_NAME:metatron}
   datasource:
@@ -235,6 +235,16 @@ polaris:
     maxFetchSize: 10000
     tempHdfsPath: /tmp/hive
     tempCSVPath: /tmp
+  dataprep:
+    localBaseDir: ${user.home}/dataprep
+#    hadoopConfDir: /etc/hadoop
+#    stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep
+#    hive:
+#      hostname: localhost
+#   sampling:
+#      timeout: 20
+#    etl:
+#      timeout: 36000
 ---
 # (mysql DB 생성 script)
 # create database polaris CHARACTER SET utf8;
@@ -367,18 +377,6 @@ management:
   health:
     mail:
       enabled: false
-
----
-spring:
-  profiles: dataprep
-polaris:
-  dataprep:
-    hadoopConfDir: /home/hadoop/servers/hadoop/etc/hadoop
-    hive:
-      hostname: localhost
-      username: hive
-    localBaseDir: ${METATRON_HOME}/dataprep
-    stagingBaseDir: hdfs://localhost:9000/user/hive/dataprep
 
 # Password Encoder
 ---

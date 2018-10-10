@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <property name="CONSOLE_PATTERN"
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr([%X{ip}-%X{username}]){magenta} %clr([%thread]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <logger name="org.apache.catalina" level="off"/>
+
+    <!-- show hibernate sql with debug -->
+    <logger name="org.hibernate.SQL" level="info"/>
+    <!-- show bound hibernate parameters with trace -->
+    <logger name="org.hibernate.type" level="info"/>
+
+    <logger name="org.springframework.web" level="info"/>
+
+    <logger name="org.springframework.web.client" level="info"/>
+
+    <logger name="org.springframework.web.servlet.mvc" level="info"/>
+
+    <logger name="org.apache.http" level="warn"/>
+
+    <logger name="org.springframework.data.rest" level="info"/>
+
+    <logger name="org.springframework.security" level="warn"/>
+
+    <logger name="org.springframework.session" level="info"/>
+
+    <logger name="org.springframework.session.web.http.SessionRepositoryFilter.SESSION_LOGGER_NAME" level="info"/>
+
+    <logger name="org.apache.hadoop" level="warn"/>
+
+    <logger name="app.metatron.discovery" level="info"/>
+
+    <logger name="app.metatron.discovery.domain.datasource" level="off"/>
+    <logger name="app.metatron.discovery.domain.scheduling.engine" level="off"/>
+    <logger name="app.metatron.discovery.domain.engine.AbstractEngineRepository" level="off"/>
+
+    <logger name="app.metatron.discovery.domain.dataprep" level="trace"/>
+
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <jmxConfigurator/>
+
+</configuration>
