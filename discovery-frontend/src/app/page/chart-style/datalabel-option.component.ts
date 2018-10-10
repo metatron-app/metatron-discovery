@@ -501,19 +501,19 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
 
       case ChartType.BAR:
       case ChartType.LINE:
+      case ChartType.COMBINE:
         // when bar, line chart has single series
         if ((chartType === ChartType.BAR && this.pivot.aggregations.length <= 1 && this.pivot.rows.length < 1) ||
-            (chartType === ChartType.LINE && this.pivot.aggregations.length <= 1)) {
+           ((chartType === ChartType.LINE || chartType === ChartType.COMBINE) && this.pivot.aggregations.length <= 1)) {
           displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
           displayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
-        // when bar, line chart has multi series
+        // when bar, line, combine chart has multi series
         } else {
           displayTypes[3] = UIChartDataLabelDisplayType.SERIES_NAME;
           displayTypes[4] = UIChartDataLabelDisplayType.SERIES_VALUE;
         }
         break;
       case ChartType.CONTROL:
-      case ChartType.COMBINE:
       case ChartType.WATERFALL:
         displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
         displayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
