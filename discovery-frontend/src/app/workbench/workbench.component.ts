@@ -1185,6 +1185,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               // Editor Selected Tab
               this.tempEditorSelectedTabNum = tempSelectedTabNum;
 
+
+              // if( result.queryResultStatus == 'FAIL' ){
+              //   // this( )
+              // }
+
               // hive일 경우 단건 호출
               this.setHiveDatagridData(result, tempSelectedTabNum, selectedResultTabNum, this.runningQueryArr.length);
 
@@ -1683,7 +1688,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // 길이 계산은 index가 0일 경우에만 계산한다
-    if (this.editorResultListObj.index === 0) {
+    if ( this.mimeType != 'HIVE' && this.editorResultListObj.index === 0) {
       // 변경이 다 일어났을 때
       this.changeDetect.detectChanges();
       // 아이콘 버튼 show flag
@@ -1788,7 +1793,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       }
       if (data[selectedResultTabNum].queryResultStatus === 'FAIL') {
         // if (index === 0) { // 0 번쨰가 Fail 일 경우
-        this.resultMode = 'text';
+        // this.resultMode = 'text';
         this.resultTextOutput = data[selectedResultTabNum].message;
         // }
         const temp = {
@@ -1993,7 +1998,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.drawGridData(selectedGridTabNum);
     } else {
       // hive log cancel
-      this.isHiveLog = false;
       this.hiveLogs[selectedGridTabNum].isShow = true;
       this.safelyDetectChanges();
     }
@@ -2329,16 +2333,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         currHiveLog.isShow = true;
         currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.success'));
 
+        this.isHiveLog = false;
 
-        // 현재 탭 제거
-        // let arr :any = [];
-        // arr = this.hiveLogs;
-        //
-        // arr.splice(selectedGridTabNum, 1);
-        // this.hiveLogs = arr;
-        //
-        // this.datagridCurList.pop();
-        // this.safelyDetectChanges();
 
       })
       .catch((error) => {
