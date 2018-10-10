@@ -359,7 +359,7 @@
                   <div class="ddp-ui-setting">
                     <div class="ddp-ui-buttons">
 
-                      <a *ngIf="isHiveLog" href="javascript:" class="ddp-btn-box" (click)="logCancel(selectedGridTabNum)">
+                      <a *ngIf="isHiveLogCancel" href="javascript:" class="ddp-btn-box" (click)="logCancel(selectedGridTabNum)">
                         <em class="ddp-icon-cancel"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>
@@ -367,7 +367,7 @@
                         </div>
                       </a>
 
-                      <a *ngIf="!isHiveLog" href="javascript:" class="ddp-btn-box" (click)="hiveLogToggleClick(selectedGridTabNum, 'log')">
+                      <a *ngIf="!isHiveLogCancel" href="javascript:" class="ddp-btn-box" (click)="hiveLogToggleClick(selectedGridTabNum, 'log')">
                         <em class="ddp-icon-result-grid"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>

@@ -319,6 +319,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 화면 로딩 완료
   public isHiveLog : boolean = false;
 
+  // hive 로그 버튼
+  public isHiveLogCancel : boolean = false;
+
   // 로그 취소 탭 넘버
   public isLogCancelTabQuery: string[] = [];
 
@@ -862,6 +865,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       // 현재 실행 생성중인 탭의 경우 log 정보 호출
       if( this.runningQueryDoneIndex == selectedTabNum ){
 
+        this.isHiveLogCancel = true;
+
         for (let index: number = 0; index < this.datagridCurList.length; index = index + 1) {
           const gridList = this.datagridCurList[index];
           gridList.selected = false;
@@ -1054,6 +1059,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         } else {
           // hive log cancel 여부
           this.isHiveLog = true;
+          this.isHiveLogCancel = true;
 
           const queryEditor: QueryEditor = new QueryEditor();
           queryEditor.name = this.textList[this.selectedTabNum]['name'];
@@ -1991,6 +1997,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public hiveLogToggleClick(selectedGridTabNum: number, type : string){
 
+    this.isHiveLogCancel = false;
+
     // data, log 타입 구분
     if( type == 'log' ){
       this.hiveLogs[selectedGridTabNum].isShow = false;
@@ -1999,6 +2007,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       // 그리드 생성
       this.drawGridData(selectedGridTabNum);
     } else {
+
       // hive log cancel
       this.hiveLogs[selectedGridTabNum].isShow = true;
       this.safelyDetectChanges();
@@ -2167,6 +2176,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     // 탭 닫힘 표시
     this.isHiveLog = false;
+    this.isHiveLogCancel = false;
     this.safelyDetectChanges();
 
   }
