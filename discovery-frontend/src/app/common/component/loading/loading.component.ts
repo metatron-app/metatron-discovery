@@ -40,6 +40,10 @@ export class LoadingComponent extends AbstractComponent {
     @Input()
     public cancel: boolean = false;
 
+    // 취소중 text
+    @Input()
+    public canceling: boolean = false;
+
     // 취소 이벤트
     @Output("cancel")
     public cancelEvent: EventEmitter<void> = new EventEmitter<void>();

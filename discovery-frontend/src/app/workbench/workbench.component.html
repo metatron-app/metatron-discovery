@@ -342,7 +342,7 @@
                         <em *ngIf="item.name.startsWith('Loading')" class="ddp-icon-tabloading"></em>
                         <!--Loading<em class="ddp-icon-dot">...</em>-->
                         {{item.name}}
-                        <a href="javascript:" class="ddp-btn-close-s" (click)="tabGridCloseHandler(findIndexInList(datagridCurList, item))"></a>
+                        <a *ngIf="!isHiveLog"  href="javascript:" class="ddp-btn-close-s" (click)="tabGridCloseHandler(findIndexInList(datagridCurList, item))"></a>
                       </div>
                     </li>
                   </ul>
@@ -351,7 +351,7 @@
               <!-- tab -->
               <!-- 결과 -->
               <div class="ddp-view-result">
-                <div loading #loading [visible]="isLoadingBarShow" [cancel]="true" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
+                <div loading #loading [visible]="isLoadingBarShow" [cancel]="mimeType != 'HIVE'"  [canceling]="hiveLogCanceling" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
 
                 <!-- Hive Log 표시 영역 -->
                 <div *ngIf="hiveLogs[selectedGridTabNum] && hiveLogs[selectedGridTabNum].isShow" class="ddp-wrap-result" >

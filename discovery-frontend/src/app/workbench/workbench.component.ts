@@ -340,6 +340,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // editor selected tab number
   public tempEditorSelectedTabNum: number = 0;
 
+  // hive log 취소중
+  public hiveLogCanceling : boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1043,7 +1046,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         // 호출횟수 초기화
         this._executeSqlReconnectCnt = 0;
 
-        // console.info( "checkConnectionStatus =======================>>> " + result );
         // if (result === 'RUNNING' || result === 'CANCELLED') {
         if (result === 'RUNNING' ) {
           Alert.warning(this.translateService.instant('msg.bench.ui.query.run'));
@@ -1187,19 +1189,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               this.setHiveDatagridData(result, tempSelectedTabNum, selectedResultTabNum, this.runningQueryArr.length);
 
 
-              // 호출한 데이터가 주석일 경우에만 다음 쿼리 호출
+              // 데이터가 주석일 경우에만
               // if( this.runningQueryArr[this.runningQueryDoneIndex].trim().startsWith("--") ) {
               //
-              //   // 마지막일 경우
               //   if( isNullOrUndefined(this.runningQueryArr[this.runningQueryDoneIndex+1]) ){
               //     // finish
+              //     // this.drawGridData(this.runningQueryDoneIndex);
               //     this.hiveLogFinish();
               //     return false;
               //   }
-              //
-              //   this.runningQueryDoneIndex++;
-              //   // 다음 쿼리 호출
-              //   this.hiveNextQueryExequte();
               //
               // }
 
@@ -2157,13 +2155,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     this.runningQueryDoneIndex = -1;
 
-    // 마지막일 경우 0번째 탭으로
-    // this.datagridCurList[0]['selected'] = true;
-    // this.selectedGridTabNum = 0;
-    // this.hiveLogs[0].isShow = false;
-    // this.safelyDetectChanges();
-    //
-    // this.drawGridData(0);
+    // 탭 닫힘 표시
+    this.isHiveLog = false;
+    this.safelyDetectChanges();
 
   }
 
@@ -2306,6 +2300,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // log cancel
   public logCancel(selectedGridTabNum) {
 
+    this.hiveLogCanceling = true;
+    this.safelyDetectChanges();
+
+    this.loadingBar.show();
+
     // query cancel 호출
     const params = {
       // query: this.runningQueryArr[selectedGridTabNum],
@@ -2316,22 +2315,38 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     console.info("logCancel setQueryRunCancel param webSocketId : " + params.webSocketId);
     this.workbenchService.setQueryRunCancel(this.selectedEditorId, params)
       .then(() => {
+
+        Alert.success(this.translateService.instant('msg.bench.alert.log.cancel.success'));
+        this.loadingBar.hide();
+        this.hiveLogCanceling = false;
+
         console.info("logCancel setQueryRunCancel success");
 
         this.isLogCancelTabQuery.push(this.runningQueryArr[selectedGridTabNum]);
 
+        const currHiveLog = this.hiveLogs[selectedGridTabNum];
+
+        currHiveLog.isShow = true;
+        currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.success'));
+
+
         // 현재 탭 제거
-        let arr :any = [];
-        arr = this.hiveLogs;
-
-        arr.splice(selectedGridTabNum, 1);
-        this.hiveLogs = arr;
-
-        this.datagridCurList.pop();
-        this.safelyDetectChanges();
+        // let arr :any = [];
+        // arr = this.hiveLogs;
+        //
+        // arr.splice(selectedGridTabNum, 1);
+        // this.hiveLogs = arr;
+        //
+        // this.datagridCurList.pop();
+        // this.safelyDetectChanges();
 
       })
       .catch((error) => {
+
+        Alert.error(this.translateService.instant('msg.bench.alert.log.cancel.error'));
+        this.loadingBar.hide();
+        this.hiveLogCanceling = false;
+
         console.info("logCancel setQueryRunCancel error");
       });
 
