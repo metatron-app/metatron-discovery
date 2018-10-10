@@ -195,7 +195,9 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
 
       if (TimeUnit.WEEK === this.compData.timeUnit) {
         this.comboList = _.cloneDeep(this._weekList);
-        const startWeek: number = fromMoment.week();
+        const arrDateInfo = (<string>interval.startDate).split( '-' );
+        fromMoment = moment( arrDateInfo[0] + '-01-01' );
+        const startWeek: number = Number(arrDateInfo[1]);
         this.fromComboIdx = this.comboList.findIndex(item => item.value === startWeek);
         this.selectedFromComboItem = this.comboList[this.fromComboIdx];
       } else if (TimeUnit.QUARTER === this.compData.timeUnit) {
@@ -205,7 +207,11 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
         this.selectedFromComboItem = this.comboList[this.fromComboIdx];
       }
 
-      this._fromDate = fromMoment.subtract(9, 'hours').toDate();
+      if( TimeUnit.HOUR === this.compData.timeUnit || TimeUnit.MINUTE === this.compData.timeUnit ) {
+        this._fromDate = fromMoment.subtract(9, 'hours').toDate();
+      } else {
+        this._fromDate = fromMoment.toDate();
+      }
 
       // 시작일 DatePicker 생성
       const startPickerSettings: TimeRangePickerSettings
@@ -235,7 +241,9 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
 
       if (TimeUnit.WEEK === this.compData.timeUnit) {
         this.comboList = _.cloneDeep(this._weekList);
-        const endWeek: number = toMoment.week();
+        const arrDateInfo = (<string>interval.endDate).split( '-' );
+        toMoment = moment( arrDateInfo[0] + '-01-01' );
+        const endWeek: number = Number(arrDateInfo[1]);
         this.toComboIdx = this.comboList.findIndex(item => item.value === endWeek);
         this.selectedToComboItem = this.comboList[this.toComboIdx];
       } else if (TimeUnit.QUARTER === this.compData.timeUnit) {
@@ -245,7 +253,11 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
         this.selectedToComboItem = this.comboList[this.toComboIdx];
       }
 
-      this._toDate = toMoment.subtract(9, 'hours').toDate();
+      if( TimeUnit.HOUR === this.compData.timeUnit || TimeUnit.MINUTE === this.compData.timeUnit ) {
+        this._toDate = toMoment.subtract(9, 'hours').toDate();
+      } else {
+        this._toDate = toMoment.toDate();
+      }
 
       // 종료일 DatePicker 생성
       if (interval.endDate !== TimeRangeFilter.LATEST_DATETIME) {
@@ -377,7 +389,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
    * @private
    */
   private _getRangeFromWeek(sWeek: number, sYear: number, eWeek: number, eYear: number): TimeRange {
-    return this._getRangeFromMoment(moment().year(sYear).week(sWeek), moment().year(eYear).week(eWeek), 'week');
+    return new TimeRange( sYear + '-' + sWeek, eYear + '-' + eWeek );
   } // function - _getRangeFromWeek
 
   // noinspection JSMethodCanBeStatic
