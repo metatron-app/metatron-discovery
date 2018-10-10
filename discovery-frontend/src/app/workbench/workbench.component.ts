@@ -291,6 +291,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     matchBrackets: true,
     autofocus: true,
     indentUnit: 4,
+    smartIndent:false,
     showSearchButton: true,
     extraKeys: {
       'Ctrl-Space': 'autocomplete',
