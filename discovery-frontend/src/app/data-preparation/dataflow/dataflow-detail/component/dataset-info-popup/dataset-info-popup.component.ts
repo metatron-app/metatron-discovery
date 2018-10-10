@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import Split from 'split.js';
 import * as $ from "jquery";
 import * as pixelWidth from 'string-pixel-width';
 import {isNull, isNullOrUndefined, isUndefined} from 'util';
@@ -38,6 +37,8 @@ import { DatasetService } from '../../../../dataset/service/dataset.service';
 import { StringUtil } from '../../../../../common/util/string.util';
 import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
 declare const moment: any;
+
+declare let Split;
 
 @Component({
   selector: 'app-dataset-info-popup',
