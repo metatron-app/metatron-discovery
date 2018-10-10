@@ -14,15 +14,87 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.file;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
- * Created by kyungtaak on 2017. 4. 30..
+ * Json File Format
  */
 @JsonTypeName("json")
 public class JsonFileFormat implements FileFormat {
+
+  /**
+   * allows nested JSON fields to be flattened during ingestion time, only supporting JsonPath notation
+   */
+  List<JsonFlatten> flattenRules;
+
+  public JsonFileFormat() {
+  }
+
+  @JsonCreator
+  public JsonFileFormat(@JsonProperty("flattenRules") List<JsonFlatten> flattenRules) {
+    this.flattenRules = flattenRules;
+  }
+
   @Override
   public String getInputFormat() {
     return null;
+  }
+
+  public List<JsonFlatten> getFlattenRules() {
+    return flattenRules;
+  }
+
+  @Override
+  public String toString() {
+    return "JsonFileFormat{" +
+        "flattenRules=" + flattenRules +
+        '}';
+  }
+
+  /**
+   * Specify rule of json flatten
+   */
+  public static class JsonFlatten implements Serializable {
+    /**
+     * name for field name
+     */
+    String name;
+
+    /**
+     * JsonPath expression
+     */
+    String expr;
+
+    public JsonFlatten() {
+      // Empty Constructor
+    }
+
+    @JsonCreator
+    public JsonFlatten(@JsonProperty("name") String name,
+                   @JsonProperty("expr") String expr) {
+      this.name = name;
+      this.expr = expr;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getExpr() {
+      return expr;
+    }
+
+    @Override
+    public String toString() {
+      return "JsonFlatten{" +
+          "name='" + name + '\'' +
+          ", expr='" + expr + '\'' +
+          '}';
+    }
   }
 }

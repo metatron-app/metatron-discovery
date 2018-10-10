@@ -30,6 +30,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -61,6 +63,7 @@ import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo
 import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.realtime.KafkaClient;
@@ -303,10 +306,8 @@ public class EngineIngestionService {
 
     EngineProperties.IngestionInfo ingestionInfo = engineProperties.getIngestion();
 
-    boolean removeFirstRow = localFileInfo.getRemoveFirstRow();
-
-    // Upload 한 파일인 경우 내부 파일 처리에 따름
-    String sourceFilePath;
+    // Set path of source file
+    String sourceFilePath = null;
     if (StringUtils.isNotEmpty(localFileInfo.getOriginalFileName())) {
       sourceFilePath = System.getProperty("java.io.tmpdir") + File.separator + localFileInfo.getPath();
     } else {
@@ -314,43 +315,53 @@ public class EngineIngestionService {
       localFileInfo.setOriginalFileName(FilenameUtils.getName(sourceFilePath));
     }
 
-    String destFilePath = ingestionInfo.getBaseDir() + File.separator
-        + dataSource.getEngineName() + "-" + String.format("%04d", 0) + ".csv";
-    //localFileInfo.setPath(destFilePath);
+    Path destFilePath = null;
+    if(localFileInfo.getFormat() instanceof CsvFileFormat
+        || localFileInfo.getFormat() instanceof ExcelFileFormat) {
 
-    // 파일 포맷별 처리
-    if (localFileInfo.getFormat() instanceof CsvFileFormat) {
-      if (removeFirstRow) {
-        PolarisUtils.removeCSVHeaderRow(sourceFilePath);
+      boolean removeFirstRow = localFileInfo.getRemoveFirstRow();
+
+      destFilePath = Paths.get(ingestionInfo.getBaseDir(),
+                               dataSource.getEngineName() + "-" + System.currentTimeMillis() + ".csv");
+
+      if (localFileInfo.getFormat() instanceof CsvFileFormat) {
+        if (removeFirstRow) {
+          PolarisUtils.removeCSVHeaderRow(sourceFilePath);
+        }
+        PolarisUtils.fileCopy(sourceFilePath, destFilePath.toString());
+      } else if (localFileInfo.getFormat() instanceof ExcelFileFormat) {
+        ExcelFileFormat excelFileFormat = (ExcelFileFormat) localFileInfo.getFormat();
+        PolarisUtils.convertExcelToCSV(excelFileFormat.getSheetIndex(), removeFirstRow, sourceFilePath, destFilePath.toString());
       }
-      PolarisUtils.fileCopy(sourceFilePath, destFilePath);
 
-    } else if (localFileInfo.getFormat() instanceof ExcelFileFormat) {
-      ExcelFileFormat excelFileFormat = (ExcelFileFormat) localFileInfo.getFormat();
-      PolarisUtils.convertExcelToCSV(excelFileFormat.getSheetIndex(), removeFirstRow, sourceFilePath, destFilePath);
+      // TODO: Remove processing timestamp field
+      int fieldSize = dataSource.getFields().size();
+      Field lastField = dataSource.getFields().get(fieldSize - 1);
+      if (lastField.getType() == DataType.TIMESTAMP && "current_datetime".equals(lastField.getName())) {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat(lastField.getFormat());//yyyy-MM-dd HH:mm:ss
+        String timestampValue = sdf.format(date);
+        PolarisUtils.addTimestampColumn(timestampValue, destFilePath.toString());
+      }
 
+    } else if (localFileInfo.getFormat() instanceof JsonFileFormat) {
+
+      destFilePath = Paths.get(ingestionInfo.getBaseDir(),
+                               dataSource.getEngineName() + "-" + System.currentTimeMillis() + ".json");
+
+      PolarisUtils.fileCopy(sourceFilePath, destFilePath.toString());
     } else {
       throw new IllegalArgumentException("Not supported file format. ( " + GlobalObjectMapper.writeValueAsString(localFileInfo.getFormat()) + " )");
     }
 
-    // 시간필드가 없을 경우 추가
-    int fieldSize = dataSource.getFields().size();
-    Field lastField = dataSource.getFields().get(fieldSize - 1);
-    if (lastField.getType() == DataType.TIMESTAMP && "current_datetime".equals(lastField.getName())) {
-      Date date = new Date();
-      SimpleDateFormat sdf = new SimpleDateFormat(lastField.getFormat());//yyyy-MM-dd HH:mm:ss
-      String timestampValue = sdf.format(date);
-      PolarisUtils.addTimestampColumn(timestampValue, destFilePath);
-    }
-
-    // Middle Manager에 파일 복사
-    String worker = copyLocalToRemoteMiddleManager(Lists.newArrayList(destFilePath)).orElse("");
+    // Copy source file to middle manager
+    String worker = copyLocalToRemoteMiddleManager(Lists.newArrayList(destFilePath.toString())).orElse("");
 
     IngestionSpec spec = new IngestionSpecBuilder()
         .dataSchema(dataSource)
         .batchTuningConfig(ingestionOptionService.findTuningOptionMap(IngestionOption.IngestionType.BATCH,
                                                                       localFileInfo.getTuningOptions()))
-        .localIoConfig(ingestionInfo.getBaseDir(), dataSource.getEngineName() + "-*.csv")
+        .localIoConfig(ingestionInfo.getBaseDir(), destFilePath.getFileName().toString())
         .build();
 
     return doIngestion(dataSource.getId(), localFileInfo, new BatchIndex(spec, worker));
