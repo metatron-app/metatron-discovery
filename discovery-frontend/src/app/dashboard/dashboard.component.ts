@@ -40,7 +40,6 @@ import { DatasourceService } from '../datasource/service/datasource.service';
 import {
   ConnectionType,
   Datasource,
-  Status,
   TempDsStatus,
   TemporaryDatasource
 } from 'app/domain/datasource/datasource';
@@ -190,7 +189,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     // 대시보드 필터 정보 조회 및 각 위젯 적용
     const boardFilters: Filter[] = DashboardUtil.getBoardFilters(this.dashboard);
     if (boardFilters && boardFilters.length > 0) {
-      this.broadCaster.broadcast('SET_EXTERNAL_FILTER', { filters: boardFilters });
+      this.broadCaster.broadcast('SET_GLOBAL_FILTER', { filters: boardFilters });
     }
     this.selectionFilter.init();
     // TODO 필터 변경알림 나중에 제거할 로직
@@ -213,10 +212,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       // console.info('셀렉션필터에 의한 변경', selectionFilters);
       // console.info('모든 차트에 필터 추가');
 
-      this.broadCaster.broadcast(
-        'SET_EXTERNAL_FILTER',
-        { filters: DashboardUtil.getBoardFilters(this.dashboard).concat(selectionFilters) }
-      );
+      this.broadCaster.broadcast( 'SET_SELECTION_FILTER', { filters: selectionFilters } );
 
     } else {
       // 차트에 의한 변경
@@ -234,7 +230,6 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       }
 
       // 2. 선택 필터 데이터 변환
-      let cloneBoardFilters: Filter[] = DashboardUtil.getBoardFilters(this.dashboard, true);
       let selectionFilters: SelectionFilter[] = data.filters.map((filter: SelectionFilter) => {
         filter.valueList = _.uniq(_.flattenDeep(filter.valueList));
         (widgetId) && (filter.selectedWidgetId = widgetId); // detail 차트를 위해 필터 선택을 한 위젯의 아이디를 저장해준다.
@@ -242,6 +237,8 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       });
 
       // 3. 선택필터와 보드필터 병합 ( 같은 필드 )
+/*
+      let cloneBoardFilters: Filter[] = DashboardUtil.getBoardFilters(this.dashboard, true);
       cloneBoardFilters.forEach(item1 => {
         const idx: number = selectionFilters.findIndex(item2 => item1.field === item2.field && item1.ref === item2.ref);
         if (-1 < idx) {
@@ -252,10 +249,12 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
           }
         }
       });
-
       externalFilterData.filters = cloneBoardFilters.concat(selectionFilters);
+*/
 
-      this.broadCaster.broadcast('SET_EXTERNAL_FILTER', externalFilterData);
+      externalFilterData.filters = selectionFilters;
+
+      this.broadCaster.broadcast('SET_SELECTION_FILTER', externalFilterData);
 
     }
   } // function - changedSelectionFilter

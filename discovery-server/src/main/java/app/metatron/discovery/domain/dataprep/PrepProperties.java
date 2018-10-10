@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -26,8 +29,8 @@ import java.util.Map;
 @ConfigurationProperties(prefix="polaris.dataprep")
 public class PrepProperties {
   public static final String LOCAL_BASE_DIR       = "polaris.dataprep.localBaseDir";
-  public static final String STAGING_BASE_DIR     = "polaris.dataprep.stagingBaseDir";
   public static final String HADOOP_CONF_DIR      = "polaris.dataprep.hadoopConfDir";
+  public static final String STAGING_BASE_DIR     = "polaris.dataprep.stagingBaseDir";
 
   public static final String HIVE_HOSTNAME        = "polaris.dataprep.hive.hostname";
   public static final String HIVE_PORT            = "polaris.dataprep.hive.port";
@@ -58,6 +61,98 @@ public class PrepProperties {
   public HiveInfo hive;
   public SamplingInfo sampling;
   public EtlInfo etl;
+
+
+  // Commonly, only below getters will be used
+
+  public String getLocalBaseDir() {
+    if (localBaseDir == null) {
+      localBaseDir = System.getProperty("user.home") + File.separator + dirDataprep;
+    }
+    return localBaseDir;
+  }
+
+  public String getHadoopConfDir(boolean mandatory) {
+    if (mandatory && hadoopConfDir == null) {
+      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, "Hive not configured");
+    }
+    return hadoopConfDir;
+  }
+
+  public String getStagingBaseDir(boolean mandatory) {
+    if (mandatory && stagingBaseDir == null) {
+      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED, "StagingDir not configured");
+    }
+    return stagingBaseDir;
+  }
+
+  private HiveInfo getHive(boolean mandatory) {
+    if (mandatory && hive == null) {
+      throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_HIVE_NOT_CONFIGURED, "Hive not configured");
+    }
+    return hive;
+  }
+
+  public String  getHiveHostname(boolean mandatory)      { return getHive(mandatory) == null ? null : getHive(mandatory).getHostname(); }
+  public Integer getHivePort(boolean mandatory)          { return getHive(mandatory) == null ? null : getHive(mandatory).getPort(); }
+  public String  getHiveUsername(boolean mandatory)      { return getHive(mandatory) == null ? null : getHive(mandatory).getUsername(); }
+  public String  getHivePassword(boolean mandatory)      { return getHive(mandatory) == null ? null : getHive(mandatory).getPassword(); }
+  public String  getHiveCustomUrl(boolean mandatory)     { return getHive(mandatory) == null ? null : getHive(mandatory).getCustomUrl(); }
+  public String  getHiveMetastoreUris(boolean mandatory) { return getHive(mandatory) == null ? null : getHive(mandatory).getMetastoreUris(); }
+
+  // sampling, etl cannot be null (see init())
+  public Integer getSamplingCores()      { return sampling.getCores(); }
+  public Integer getSamplingTimeout()    { return sampling.getTimeout(); }
+  public Integer getSamplingLimitRows()  { return sampling.getLimitRows(); }
+  public Boolean getSamplingAutoTyping() { return sampling.getAutoTyping(); }
+
+  public Integer getEtlCores()           { return etl.getCores(); }
+  public Integer getEtlTimeout()         { return etl.getTimeout(); }
+  public Integer getEtlLimitRows()       { return etl.getLimitRows(); }
+  public String  getEtlJar()             { return etl.getJar(); }
+  public String  getEtlJvmOptions()      { return etl.getJvmOptions(); }
+
+  // wrapper functions
+  public boolean isHDFSConfigured()      { return (hadoopConfDir != null && stagingBaseDir != null); }
+  public boolean isFileSnapshotEnabled() { return (true); } // always true
+  public boolean isHiveSnapshotEnabled() { return (isHDFSConfigured() && hive != null); }
+  public boolean isHiveDatasetEnabled() { return (hadoopConfDir != null && hive != null); }
+  public boolean isAutoTyping()          { return sampling.getAutoTyping(); }
+
+  // Everything for ETL
+  public Map<String, Object> getEveryForEtl() {
+    Map<String, Object> map = new HashMap();
+
+    map.put(HADOOP_CONF_DIR,     getHadoopConfDir(false));
+
+    map.put(HIVE_HOSTNAME,       getHiveHostname(false));
+    map.put(HIVE_PORT,           getHivePort(false));
+    map.put(HIVE_USERNAME,       getHiveUsername(false));
+    map.put(HIVE_PASSWORD,       getHivePassword(false));
+    map.put(HIVE_CUSTOM_URL,     getHiveCustomUrl(false));
+    map.put(HIVE_METASTORE_URIS, getHiveMetastoreUris(false));
+
+    map.put(ETL_CORES,           getEtlCores());
+    map.put(ETL_TIMEOUT,         getEtlTimeout());
+    map.put(ETL_LIMIT_ROWS,      getEtlLimitRows());
+    map.put(ETL_JVM_OPTIONS,     getEtlJvmOptions());
+
+    return map;
+  }
+
+
+  // Belows might be used only in this class
+
+  @PostConstruct
+  public void init() {
+    if (sampling == null) {
+      sampling = new SamplingInfo();
+    }
+
+    if (etl == null) {
+      etl = new EtlInfo();
+    }
+  }
 
   public static class HiveInfo {
     public String hostname;
@@ -151,19 +246,19 @@ public class PrepProperties {
 
     public Integer getCores() {
       if (cores == null) {
-        cores = 0;
+        cores = 1;
       }
       return cores;
     }
 
     public Integer getTimeout() {
       if (timeout == null) {
-        timeout = 10;   // in seconds
+        timeout = 20;   // in seconds
       }
       return timeout;
     }
 
-    public Integer getRows() {
+    public Integer getLimitRows() {
       if (limitRows == null) {
         limitRows = 10000;
       }
@@ -212,7 +307,7 @@ public class PrepProperties {
 
     public Integer getCores() {
       if (cores == null) {
-        cores = 0;
+        cores = 1;
       }
       return cores;
     }
@@ -232,6 +327,9 @@ public class PrepProperties {
     }
 
     public String getJar() {
+      if (jar == null) {
+        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_EXTERNAL_JAR_NOT_CONFIGURED, "External jar not configured");
+      }
       return jar;
     }
 
@@ -269,22 +367,20 @@ public class PrepProperties {
     }
   }
 
-  @PostConstruct
-  public void init() {
-    if (sampling == null) {
-      sampling = new SamplingInfo();
-    }
-
-    if (etl == null) {
-      etl = new EtlInfo();
+  public void setLocalBaseDir(String localBaseDir) {
+    if(null!=localBaseDir && 1<localBaseDir.length() && true==localBaseDir.endsWith(File.separator)) {
+      this.localBaseDir = localBaseDir.substring(0,localBaseDir.length());
+    } else {
+      this.localBaseDir = localBaseDir;
     }
   }
 
-  public String getLocalBaseDir() {
-    if (localBaseDir == null) {
-      localBaseDir = System.getProperty("user.home") + File.separator + dirDataprep;
+  public void setStagingBaseDir(String stagingBaseDir) {
+    if(null!=stagingBaseDir && 1<stagingBaseDir.length() && true==stagingBaseDir.endsWith(File.separator)) {
+      this.stagingBaseDir = stagingBaseDir.substring(0,stagingBaseDir.length());
+    } else {
+      this.stagingBaseDir = stagingBaseDir;
     }
-    return localBaseDir;
   }
 
   public String getStagingBaseDir() {
@@ -307,20 +403,20 @@ public class PrepProperties {
     return etl;
   }
 
-  public void setLocalBaseDir(String localBaseDir) {
-    if(null!=localBaseDir && 1<localBaseDir.length() && true==localBaseDir.endsWith(File.separator)) {
-      this.localBaseDir = localBaseDir.substring(0,localBaseDir.length());
-    } else {
-      this.localBaseDir = localBaseDir;
-    }
+  public static void setDirDataprep(String dirDataprep) {
+    PrepProperties.dirDataprep = dirDataprep;
   }
 
-  public void setStagingBaseDir(String stagingBaseDir) {
-    if(null!=stagingBaseDir && 1<stagingBaseDir.length() && true==stagingBaseDir.endsWith(File.separator)) {
-      this.stagingBaseDir = stagingBaseDir.substring(0,stagingBaseDir.length());
-    } else {
-      this.stagingBaseDir = stagingBaseDir;
-    }
+  public static void setDirPreview(String dirPreview) {
+    PrepProperties.dirPreview = dirPreview;
+  }
+
+  public static void setDirUpload(String dirUpload) {
+    PrepProperties.dirUpload = dirUpload;
+  }
+
+  public static void setDirSnapshot(String dirSnapshot) {
+    PrepProperties.dirSnapshot = dirSnapshot;
   }
 
   public void setHadoopConfDir(String hadoopConfDir) {
@@ -343,42 +439,5 @@ public class PrepProperties {
   public String toString() {
     return String.format("PrepProperties{localBaseDir=%s stagingBaseDir=%s hadoopConfDir=%s hive=%s sampling=%s etl=%s}",
                                          localBaseDir, stagingBaseDir, hadoopConfDir, hive, sampling, etl);
-  }
-
-  // wrapper functions
-  public boolean isHDFSConfigured() {
-    return (hadoopConfDir != null && stagingBaseDir != null);
-  }
-
-  public boolean isHiveSnapshotEnabled() {
-    return (isHDFSConfigured() && hive != null);
-  }
-
-  public boolean isAutoTyping() {
-    return sampling.getAutoTyping();
-  }
-
-  // Everything for ETL
-  public Map<String, Object> getEveryForEtl() {
-    Map<String, Object> map = new HashMap();
-
-    map.put(HADOOP_CONF_DIR,  getHadoopConfDir());
-
-    HiveInfo hive = getHive();
-    map.put(HIVE_HOSTNAME,       hive.getHostname());
-    map.put(HIVE_PORT,           hive.getPort());
-    map.put(HIVE_USERNAME,       hive.getUsername());
-    map.put(HIVE_PASSWORD,       hive.getPassword());
-    map.put(HIVE_CUSTOM_URL,     hive.getCustomUrl());
-    map.put(HIVE_METASTORE_URIS, hive.getMetastoreUris());
-
-    EtlInfo etl = getEtl();
-    map.put(ETL_CORES,       etl.getCores());
-    map.put(ETL_TIMEOUT,     etl.getTimeout());
-    map.put(ETL_LIMIT_ROWS,  etl.getLimitRows());
-    map.put(ETL_JAR,         etl.getJar());
-    map.put(ETL_JVM_OPTIONS, etl.getJvmOptions());
-
-    return map;
   }
 }
