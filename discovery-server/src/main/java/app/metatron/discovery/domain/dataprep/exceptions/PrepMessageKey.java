@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.dataprep.exceptions;
 
 public enum PrepMessageKey {
-    MSG_DP_ALERT_INVALID_CONFIG_CODE(                           "msg.dp.alert.invalid.config.code"),
     MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING(                     "msg.dp.alert.required.property.missing"),
 
     MSG_DP_ALERT_DATASET_FAILED_AFTERCREATE(                     "msg.dp.alert.dataset.failed.aftercreate"),
