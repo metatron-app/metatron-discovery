@@ -593,7 +593,7 @@ export class FormatOptionConverter {
 
         let resultData: string = '';
         if (titleUseFl) {
-          resultData = targetPivot.name + ' : ';
+          resultData = targetPivot.alias + ' : ';
         }
         resultData += item;
         result.push(resultData);

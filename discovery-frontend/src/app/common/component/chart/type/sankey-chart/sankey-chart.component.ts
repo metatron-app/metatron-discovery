@@ -408,7 +408,7 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
       let sumValue;
 
       // 첫번째에 위치한 값은 source에서 값을 더하기, 그이후에는 target에서 값을 찾아 더하기
-      if (0 == _.findIndex(this.pivot.columns, {name : node.field})) {
+      if (0 == _.findIndex(this.pivot.columns, {alias : node.field})) {
 
         sumValue = _.sumBy(_.filter(this.data.links, (data) => {
           // if (-1 !== data.source.indexOf(node.value)){
@@ -481,14 +481,14 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
       // set source tooltip
       if( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ){
 
-        targetColumn = _.find(this.pivot.columns, {'name' : params.data.sourceField});
+        targetColumn = _.find(this.pivot.columns, {'alias' : params.data.sourceField});
 
         result = FormatOptionConverter.getTooltipName([params.data.sourceValue], this.pivot.columns, result, true);
       }
       // set target tooltip
       if ( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME) ) {
 
-        targetColumn = _.find(this.pivot.columns, {'name' : params.data.targetField});
+        targetColumn = _.find(this.pivot.columns, {'alias' : params.data.targetField});
 
         result = FormatOptionConverter.getTooltipName([params.data.targetValue], [targetColumn], result, true);
       }
