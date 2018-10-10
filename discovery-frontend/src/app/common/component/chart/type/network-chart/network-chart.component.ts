@@ -16,25 +16,33 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnInit, OnDestroy} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
 import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
-import {BaseOption} from "../../option/base-option";
+import { BaseOption } from '../../option/base-option';
 import {
-  ChartType, SymbolType, ShelveType, ShelveFieldType, SeriesType, GraphLayoutType, TriggerType, ChartColorList,
-  UIChartDataLabelDisplayType, CHART_STRING_DELIMITER, ChartSelectMode
+  CHART_STRING_DELIMITER,
+  ChartColorList,
+  ChartSelectMode,
+  ChartType,
+  GraphLayoutType,
+  Position,
+  SeriesType,
+  ShelveFieldType,
+  ShelveType,
+  SymbolType,
+  TriggerType,
+  UIChartDataLabelDisplayType
 } from '../../option/define/common';
-import {Position} from '../../option/define/common';
-import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
+import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import {OptionGenerator} from "../../option/util/option-generator";
-import {Observable} from "rxjs";
-import {Legend} from "../../option/define/legend";
+import { OptionGenerator } from '../../option/util/option-generator';
+import { Legend } from '../../option/define/legend';
 import { Field } from '../../../../../domain/workbook/configurations/field/field';
-import {FormatOptionConverter} from "../../option/converter/format-option-converter";
-import {ColorOptionConverter} from "../../option/converter/color-option-converter";
+import { FormatOptionConverter } from '../../option/converter/format-option-converter';
+import { ColorOptionConverter } from '../../option/converter/color-option-converter';
 import { UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption } from '../../option/ui-option';
-import {LegendOptionConverter} from "../../option/converter/legend-option-converter";
-import {LabelOptionConverter} from "../../option/converter/label-option-converter";
+import { LegendOptionConverter } from '../../option/converter/legend-option-converter';
+import { LabelOptionConverter } from '../../option/converter/label-option-converter';
 
 declare let echarts: any;
 
@@ -614,8 +622,6 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     this.chart.off('click');
     this.chart.on('click', (params) => {
 
-      console.log(params);
-
       let selectMode: ChartSelectMode;
       let selectedColValues: string[];
       let selectedRowValues: string[];
@@ -627,7 +633,6 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
         selectMode = ChartSelectMode.CLEAR;
         this.chartOption = this.selectionClear(this.chartOption);
 
-        // 차트에서 선택한 데이터가 없음을 설정
         this.isSelected = false;
       } else if (params != null) {
 
@@ -636,20 +641,19 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
         const dataIndex = params.dataIndex;
         const selectedData = series[seriesIndex].data[dataIndex];
 
-        // 이미 선택이 되어있는지 여부
+        // check selected or not selected
         const isSelectMode = params.data['sourceField'] ? _.isUndefined(series[seriesIndex].links[dataIndex].lineStyle) : _.isUndefined(params.data.itemStyle);
 
         if (isSelectMode) {
-          // 선택 처리
+          // set add style
           selectMode = ChartSelectMode.ADD;
           this.chartOption = this.selectionAdd(this.chartOption, params);
         } else {
-          // 선택 해제
+          // set substract style
           selectMode = ChartSelectMode.SUBTRACT;
           this.chartOption = this.selectionSubstract(this.chartOption, params);
         }
 
-        // 차트에서 선택한 데이터 존재 여부 설정
         this.isSelected = isSelectMode;
 
         // get source, target matching params
@@ -692,13 +696,18 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
 
           if (!isNaN(selectedData.selectCnt)) {
 
-            // link에서 target이나 source에서 해당값이 있는경우 없애기 않기
-            const linkList = series[seriesIndex].links.filter((item) => {
-              if ((item.originalSource === params.data.originalName || item.originalTarget === params.data.originalName) && item.linkCnt > 0) return item;
+            // source of link has target value, do not remove in filter
+            const sourceLinkList = series[seriesIndex].links.filter((item) => {
+              if (item.originalSource === params.data.originalName && item.linkCnt > 0) return item;
             });
 
-            const colCondition = (ChartSelectMode.SUBTRACT == selectMode && selectedData.selectCnt == 0 && linkList.length == 0) || (ChartSelectMode.SUBTRACT !== selectMode);
-            const rowCondition = (ChartSelectMode.SUBTRACT == selectMode && selectedData.selectCnt == 0 && linkList.length == 0) || (ChartSelectMode.SUBTRACT !== selectMode);
+            // target of link has target value, do not remove in filter
+            const targetLinkList = series[seriesIndex].links.filter((item) => {
+              if (item.originalTarget === params.data.originalName && item.linkCnt > 0) return item;
+            });
+
+            const colCondition = (ChartSelectMode.SUBTRACT == selectMode && selectedData.selectCnt == 0 && sourceLinkList.length == 0) || (ChartSelectMode.SUBTRACT !== selectMode);
+            const rowCondition = (ChartSelectMode.SUBTRACT == selectMode && selectedData.selectCnt == 0 && targetLinkList.length == 0) || (ChartSelectMode.SUBTRACT !== selectMode);
 
             // when it's substract mode, only the last data is removed in filter
             const colMatchPivot = colCondition ? this.pivot.columns.filter((item) => {return -1 !== params.data.fields.indexOf(item.name)}) : [];
@@ -713,10 +722,10 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
         return;
       }
 
-      // 자기자신을 선택시 externalFilters는 false로 설정
+      // if choose itself, set externalFilters as false
       if (this.params.externalFilters) this.params.externalFilters = false;
 
-      // UI에 전송할 선택정보 설정
+      // set filter data
       const selectData = this.setSelectData(params, selectedColValues, selectedRowValues);
 
       this.isUpdateRedraw = true;
@@ -905,7 +914,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
     // when it's node
     } else {
 
-      if (isNaN(selectedData.selectCnt - 1)) return option;
+      if (isNaN(selectedData.selectCnt - 1) || selectedData.selectCnt <= 0) return option;
 
       selectedData.selectCnt -= 1;
 
@@ -914,7 +923,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
       });
 
       // clear dimmed value
-      if (0 === selectedData.selectCnt && 0 == filterLink.length) {
+      if (0 === selectedData.selectCnt && 0 === filterLink.length) {
         delete selectedData.itemStyle;
       }
     }
