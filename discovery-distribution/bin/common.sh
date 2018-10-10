@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -L ${BASH_SOURCE-$0} ]; then
+if [ -L "${BASH_SOURCE-$0}" ]; then
   FWDIR=$(dirname $(readlink "${BASH_SOURCE-$0}"))
 else
   FWDIR=$(dirname "${BASH_SOURCE-$0}")
@@ -76,8 +76,8 @@ METATRON_CLASSPATH="${METATRON_CONF_DIR}"
 
 function addEachJarInDir(){
   if [[ -d "${1}" ]]; then
-    for jar in $(find -L "${1}" -maxdepth 1 -name '*jar'); do
-      METATRON_CLASSPATH="$jar:$METATRON_CLASSPATH"
+    for jar in "$(find -L "${1}" -maxdepth 1 -name '*jar')"; do
+      METATRON_CLASSPATH="$jar:${METATRON_CLASSPATH}"
     done
   fi
 }

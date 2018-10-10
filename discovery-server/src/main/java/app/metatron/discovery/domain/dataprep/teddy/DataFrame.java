@@ -14,8 +14,10 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
+import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.*;
@@ -370,6 +372,7 @@ public class DataFrame implements Serializable, Transformable {
       for (int i = 1; i <= colCnt; i++) {                 // i --> 1-base integer
         String colName = rsmd.getColumnName(i);
         ColumnType colType = ColumnType.UNKNOWN;
+        String colTimestampStyle = null;
 
         if (colName.contains(".")) {
           colName = colName.substring(colName.indexOf(".") + 1);
@@ -387,16 +390,24 @@ public class DataFrame implements Serializable, Transformable {
             colType = ColumnType.DOUBLE;
             break;
           case BOOLEAN:
-          case ARRAY: case MAP:
+            colType = ColumnType.BOOLEAN;
+            break;
+          case ARRAY:
+            colType = ColumnType.ARRAY;
+            break;
+          case MAP:
+            colType = ColumnType.MAP;
+            break;
           case TIMESTAMP:   // 임시로 그냥 둠. toString한 후에 STRING으로 바꿀 예정. (이렇게 하는 것 역시 임시방편임)
             colType = ColumnType.TIMESTAMP;
+            colTimestampStyle = TimestampTemplate.DATE_TIME_01.getFormat();
             break;
           case UNKNOWN:
             throw new JdbcTypeNotSupportedException("setByJDBC(): not supported type: " + columnType.name());
         }
 
         assert colType != ColumnType.UNKNOWN;
-        addColumn(colName, colType);
+        addColumnWithTimestampStyle(colName, colType, colTimestampStyle);
       }
 
       while (rs.next()) {
@@ -603,6 +614,12 @@ public class DataFrame implements Serializable, Transformable {
   }
 
   protected ColumnType decideType(Expression expr) throws TeddyException {
+    ruleColumns.clear();
+
+    return decideType_internal(expr);
+  }
+
+  protected ColumnType decideType_internal(Expression expr) throws TeddyException {
     ColumnType resultType = ColumnType.UNKNOWN;
     String errmsg;
 
@@ -638,8 +655,8 @@ public class DataFrame implements Serializable, Transformable {
     }
     // Binary Operation
     else if (expr instanceof Expr.BinaryNumericOpExprBase) {
-      ColumnType left = decideType(((Expr.BinaryNumericOpExprBase) expr).getLeft());
-      ColumnType right = decideType(((Expr.BinaryNumericOpExprBase) expr).getRight());
+      ColumnType left = decideType_internal(((Expr.BinaryNumericOpExprBase) expr).getLeft());
+      ColumnType right = decideType_internal(((Expr.BinaryNumericOpExprBase) expr).getRight());
       if (left == right) {
         return (expr instanceof Expr.BinDivExpr) ? ColumnType.DOUBLE : left;    // for compatability to twinkle, which acts like this because of spark's behavior
       } else if (left == ColumnType.DOUBLE && right == ColumnType.LONG || left == ColumnType.LONG && right == ColumnType.DOUBLE) {
@@ -654,7 +671,7 @@ public class DataFrame implements Serializable, Transformable {
       String func = ((Expr.FunctionExpr) expr).getName();
       List<Expr> args = ((Expr.FunctionExpr) expr).getArgs();
       for(Expr arg : args) {  //args를 다시 decideType을 돌려서 함수 내에 있는 identifier들도 찾아낸다.
-        decideType(arg);
+        decideType_internal(arg);
       }
       switch (func) {
         // conditional function
@@ -662,8 +679,8 @@ public class DataFrame implements Serializable, Transformable {
           if (args.size() == 1) {
             resultType = ColumnType.BOOLEAN;
           } else if (args.size() == 3) {
-            ColumnType trueExpr = decideType(args.get(1));
-            ColumnType falseExpr = decideType(args.get(2));
+            ColumnType trueExpr = decideType_internal(args.get(1));
+            ColumnType falseExpr = decideType_internal(args.get(2));
             if (trueExpr == falseExpr) {
               resultType = trueExpr;
             } else {
@@ -707,7 +724,7 @@ public class DataFrame implements Serializable, Transformable {
           assertArgsEq(1, args, func);
           break;
         case "math.abs":
-          resultType = decideType(args.get(0));
+          resultType = decideType_internal(args.get(0));
           assertArgsEq(1, args, func);
           break;
         case "math.acos":
