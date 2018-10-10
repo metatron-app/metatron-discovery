@@ -17,8 +17,10 @@ package app.metatron.discovery.domain.datasource.ingestion.file;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.io.Serializable;
+
 /**
- * Created by kyungtaak on 2017. 4. 30..
+ * File Format Spec.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
 @JsonSubTypes({
@@ -28,6 +30,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = OrcFileFormat.class, name = "orc"),
     @JsonSubTypes.Type(value = ParquetFileFormat.class, name = "parquet")
 })
-public interface FileFormat {
+public interface FileFormat extends Serializable {
   String getInputFormat();
 }
