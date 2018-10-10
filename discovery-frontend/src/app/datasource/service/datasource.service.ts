@@ -401,16 +401,23 @@ export class DatasourceService extends AbstractService {
           query.dataSource.name = column.field.dataSource;
           query.dataSource.id = column.field.dsId;
 
-          if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
+          if(column.field.logicalType.toString().indexOf('GEO') > -1) {
             layer.format = {
               type : "geo"
             }
           }
+
+          let precision = column["precision"];
+
+          if(precision === undefined) {
+            precision = 8;
+          }
+
           if(column.field.logicalType.toString() === 'GEO_POINT') {
             layer.format = {
               type: "geo_hash",
               method: "h3",
-              precision: 8       // Precision 적용 (1~12)
+              precision: precision       // Precision 적용 (1~12)
             }
 
             if(geoFieldCnt > 1) {

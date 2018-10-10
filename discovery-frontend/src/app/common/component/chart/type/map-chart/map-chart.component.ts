@@ -267,6 +267,24 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       }
 
+      if(styleOption.layers[layerNum].color['customMode'] === 'SECTION') {
+        for(let range of styleOption.layers[layerNum].color['ranges']) {
+          let rangeMax = range.fixMax;
+          let rangeMin = range.fixMin;
+
+          if(rangeMax === null) {
+            rangeMax = rangeMin + 1;
+          } else if(rangeMin === null) {
+            rangeMin = 0;
+          }
+
+          if( feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] > rangeMin &&  feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] < rangeMax) {
+            featureColor = range.color;
+          }
+
+        }
+      }
+
       let style = new ol.style.Style({
         image: new ol.style.Circle({
             radius: 4,
@@ -697,7 +715,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let features = [];
     let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(this.data[0]);;
     // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
-    let h3Indexs = [];
 
     let field = this.pivot.columns[0];
     let geomType = field.field.logicalType.toString();
@@ -708,7 +725,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
 
       if(geomType === "GEO_POINT") {
-
         let featureCenter = feature.getGeometry().getCoordinates();
 
         if(featureCenter.length === 1) {
@@ -724,9 +740,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
 
       feature.set('layerNum', 1);
-
       features[i] = feature;
-
     }
 
     hexagonSource.addFeatures(hexagonFeatures);
@@ -1046,7 +1060,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let features = [];
     let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(data[0]);;
     // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
-    let h3Indexs = [];
+
 
     let field;
     for(let column of this.pivot.columns) {
@@ -1293,7 +1307,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let features = [];
     let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(data[0]);;
     // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
-    let h3Indexs = [];
+
 
     let field;
     for(let column of this.pivot.columns) {

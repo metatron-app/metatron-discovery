@@ -2018,7 +2018,7 @@ export namespace OptionGenerator {
               transparency: 100,
               blur: 10,
               radius: 10,
-              resolution: 9
+              resolution: 8
             },
             size: {
               "by": "NONE",
@@ -2041,7 +2041,7 @@ export namespace OptionGenerator {
               transparency: 100,
               blur: 10,
               radius: 10,
-              resolution: 9
+              resolution: 8
             },
             size: {
               "by": "NONE",
@@ -2064,7 +2064,7 @@ export namespace OptionGenerator {
               transparency: 100,
               blur: 10,
               radius: 10,
-              resolution: 9
+              resolution: 8
             },
             size: {
               "by": "NONE",
