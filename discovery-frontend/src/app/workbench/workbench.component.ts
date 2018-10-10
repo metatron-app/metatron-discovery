@@ -1790,9 +1790,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         continue;
       }
 
+      // 최초 row 정보
+      if( selectedResultTabNum == 0 ){
+        this.resultRow = data[selectedResultTabNum].numRows;
+      }
+
       // 선택된 부분만 변경
       let selectedYn = false;
-      that.resultRow = data[selectedResultTabNum].numRows;
       if (totalResultNum === 0) {
         selectedYn = true;
         // this.resultTime = data.startDateTime - data.finishDateTime
