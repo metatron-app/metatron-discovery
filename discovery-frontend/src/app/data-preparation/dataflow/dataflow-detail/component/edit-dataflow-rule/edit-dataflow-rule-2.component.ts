@@ -1617,24 +1617,63 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   @HostListener('document:keydown.enter', ['$event'])
   private onEnterKeydownHandler(event: KeyboardEvent) {
-    // enter key only works when there is not popup or selectbox opened
 
-    let hasFocus = $('#gridSearch').is(':focus');
+    /*
+      1. 편집중이 아닐 떄 : 동작 안함
+      2. 편집중일떄
+        2.0. 일반적인 경우 : 동작
+        2.1. 콤보박스 : 동작 안함
+        2.2. 자동완성 : 레이어가 닫혀있거나, 레이어에 포커스가 안된 상태에서만 동작
+        2.3. 설명레이어 : 관계 없이 동작
+        2.4. 팝업 : 동작 안함
+     */
+    if( !isNullOrUndefined( this.ruleVO.command ) && ( 'BODY' === event.target['tagName'] || 0 < $( event.target ).closest( '.ddp-wrap-addrule' ).length )  ) {
+      // enter key only works when there is not popup or selectbox opened
 
-    if (event.keyCode === 13) {
-      if ( !this.isCommandListShow
-        && !this.isRuleUnionModalShow
-        && !this.isRuleJoinModalShow
-        && this.step !== 'create-snapshot' && !hasFocus
-        && !this.extendInputFormulaComponent.isShow
-        && isNullOrUndefined(this.isEnterKeyPressedFromOuter)
-      ) {
-        this.addRule();
+      const openComboList = $( '.ddp-list-selectbox:visible' );
+
+      if( 0 < openComboList.length ) {
+        const isAutoComple:boolean = 0 < openComboList.closest( 'rule-condition-input' ).length;
+        if( isAutoComple ) {
+          // 자동완성 : 레이어가 열려있음
+
+          let isPrevBackColor:string = '';
+          let isFocus:boolean = false;
+          $( '.ddp-list-selectbox:visible' ).find( 'li a' ).each( ( idx, val ) => {
+            const $listItem = $( val );
+            if( 0 === idx ) {
+              isPrevBackColor = $listItem.css( 'background-color' );
+            } else {
+              if( isPrevBackColor !== $listItem.css( 'background-color' ) ) {
+                isFocus = true;
+                return;
+              } else {
+                isPrevBackColor = $listItem.css( 'background-color' );
+              }
+            }
+          });
+
+          if( isFocus ) {
+            // 포커스가 된 상태 - 동작 안함
+            return;
+          } else {
+            // 포커스가 안 된 상태 - 동작
+            this.addRule();
+          }
+        } else {
+          // 콤보박스 : 열림 상태 - 동작 안함
+          return;
+        }
+      } else if( 0 < $( '.ddp-bg-popup:visible' ).length ) {
+        // 팝업 : 열림 상태 - 동작 안함
+        return;
       } else {
-        this.isEnterKeyPressedFromOuter = undefined;
+        this.addRule();
       }
     }
-  }
+
+  } // function - onEnterKeydownHandler
+
 
   /**
    * Set rule list

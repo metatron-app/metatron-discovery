@@ -15,6 +15,7 @@
 import { ScrollLoadingGridComponent } from './scroll-loading-grid.component';
 
 declare const Slick: any;
+import * as _ from 'lodash';
 
 export class ScrollLoadingGridModel {
 
@@ -72,6 +73,7 @@ export class ScrollLoadingGridModel {
     this.loadData = loadData;
     this.loadSuccess = loadSuccess;
     if (data) {
+      this._orgData = _.cloneDeep( data );
       data.forEach((item: any, idx: number) => {
         // 아이디 중복나지 않도록 처리
         item[ScrollLoadingGridComponent.ID_PROPERTY] = idx + 1;
