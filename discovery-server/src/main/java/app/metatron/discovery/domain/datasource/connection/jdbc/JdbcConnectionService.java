@@ -48,7 +48,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
 import org.supercsv.prefs.CsvPreference;
@@ -111,8 +110,6 @@ public class JdbcConnectionService {
       resultMap.put("connected", false);
       resultMap.put("message", e.getMessage());
       return resultMap;
-    } finally {
-      closeConnection(dataSource);
     }
 
     return resultMap;
@@ -220,8 +217,6 @@ public class JdbcConnectionService {
       LOGGER.error("Fail to get desc of table : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get desc of table : " + e.getMessage());
-    } finally {
-      closeConnection(dataSource);
     }
 
     //Filter
@@ -351,8 +346,6 @@ public class JdbcConnectionService {
       LOGGER.error("Fail to get desc of table : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get desc of table : " + e.getMessage());
-    } finally {
-      closeConnection(dataSource);
     }
 
     return hiveTableInformation;
@@ -401,8 +394,6 @@ public class JdbcConnectionService {
       LOGGER.error("Fail to get list of Columns : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of Columns : " + e.getMessage());
-    } finally {
-      closeConnection(dataSource);
     }
     return columns;
   }
@@ -411,17 +402,21 @@ public class JdbcConnectionService {
                                                                    String schema, String tableName, String columnNamePattern) {
     List<Map<String, Object>> columns = Lists.newArrayList();
     String catalog = schema;
+    Connection conn = null;
+    ResultSet resultSet = null;
+
     if (connection instanceof MssqlConnection) {
       catalog = null;
     } else if (connection instanceof PrestoConnection) {
       catalog = ((PrestoConnection) connection).getCatalog();
     }
     try {
+      conn = dataSource.getConnection();
       String columnName = null;
       if (StringUtils.isNotEmpty(columnNamePattern)) {
         columnName = "%" + columnNamePattern + "%";
       }
-      ResultSet resultSet = dataSource.getConnection().getMetaData().getColumns(catalog, schema, tableName, columnName);
+      resultSet = conn.getMetaData().getColumns(catalog, schema, tableName, columnName);
 
       //      1.TABLE_CAT String => table catalog (may be null)
       //      2.TABLE_SCHEM String => table schema (may be null)
@@ -467,13 +462,12 @@ public class JdbcConnectionService {
         rowMap.put("columnSize", resultSet.getInt(7));
         columns.add(rowMap);
       }
-
     } catch (Exception e) {
       LOGGER.error("Fail to get list of columns : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of columns : " + e.getMessage());
     } finally {
-      closeConnection(dataSource);
+      closeConnection(conn, null, resultSet);
     }
 
     return columns;
@@ -483,20 +477,23 @@ public class JdbcConnectionService {
 
     List<String> databaseNames = Lists.newArrayList();
 
+    Connection conn = null;
+    ResultSet resultSet = null;
+
     try {
-      ResultSet resultSet = dataSource.getConnection().getMetaData().getCatalogs();
+      conn = dataSource.getConnection();
+      resultSet = conn.getMetaData().getCatalogs();
 
       // 1. TABLE_CAT String => catalog name
       while (resultSet.next()) {
         databaseNames.add(resultSet.getString(1));
       }
-
     } catch (Exception e) {
       LOGGER.error("Fail to get list of database : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of database : " + e.getMessage());
     } finally {
-      closeConnection(dataSource);
+      closeConnection(conn, null, resultSet);
     }
 
     return databaseNames;
@@ -506,8 +503,11 @@ public class JdbcConnectionService {
   public List<String> showSchemas(JdbcDataConnection connection, DataSource dataSource) {
 
     List<String> schemaNames = Lists.newArrayList();
+    Connection conn = null;
+    ResultSet resultSet = null;
     try {
-      ResultSet resultSet = dataSource.getConnection().getMetaData().getSchemas();
+      conn = dataSource.getConnection();
+      resultSet = conn.getMetaData().getSchemas();
 
       // 1. TABLE_SCHEM String => schema name
       // 2. TABLE_CATALOG String => catalog name (may be null)
@@ -518,13 +518,12 @@ public class JdbcConnectionService {
         }
         schemaNames.add(resultSet.getString(1));
       }
-
     } catch (Exception e) {
       LOGGER.error("Fail to get list of schema : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of schema : " + e.getMessage());
     } finally {
-      closeConnection(dataSource);
+      closeConnection(conn, null, resultSet);
     }
 
     // TODO : 임시조치
@@ -541,18 +540,20 @@ public class JdbcConnectionService {
   public List<Map<String, String>> showTables(JdbcDataConnection connection, DataSource dataSource, String schema) {
 
     List<Map<String, String>> tableInfos = Lists.newArrayList();
-    try {
-      ResultSet resultSet;
+    Connection conn = null;
+    ResultSet resultSet = null;
 
+    try {
+      conn = dataSource.getConnection();
       if (connection instanceof MySQLConnection
           || connection instanceof HiveConnection) {
         schema = schema == null ? connection.getDatabase() : schema;
-        resultSet = dataSource.getConnection().getMetaData().getTables(schema,
+        resultSet = conn.getMetaData().getTables(schema,
                                                                        schema, null, RESULTSET_TABLE_TYPES);
       } else if(connection instanceof PrestoConnection){
-        resultSet = dataSource.getConnection().getMetaData().getTables(connection.getDatabase(), schema, null, RESULTSET_TABLE_TYPES_PRESTO);
+        resultSet = conn.getMetaData().getTables(connection.getDatabase(), schema, null, RESULTSET_TABLE_TYPES_PRESTO);
       } else {
-        resultSet = dataSource.getConnection().getMetaData().getTables(connection.getDatabase(), schema, null, RESULTSET_TABLE_TYPES);
+        resultSet = conn.getMetaData().getTables(connection.getDatabase(), schema, null, RESULTSET_TABLE_TYPES);
       }
 
       while (resultSet.next()) {
@@ -585,7 +586,7 @@ public class JdbcConnectionService {
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of table : " + e.getMessage());
     } finally {
-      closeConnection(dataSource);
+      closeConnection(conn, null, resultSet);
     }
 
     return tableInfos;
@@ -647,8 +648,6 @@ public class JdbcConnectionService {
       LOGGER.error("Fail to get list of table : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of database : " + e.getMessage());
-    } finally {
-      closeConnection(dataSource);
     }
 
     int size = 20;
@@ -690,8 +689,6 @@ public class JdbcConnectionService {
       LOGGER.error("Fail to get list of table : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of table : " + e.getMessage());
-    } finally {
-      closeConnection(dataSource);
     }
 
     int size = 20;
@@ -715,18 +712,19 @@ public class JdbcConnectionService {
     }
 
     List<Map<String, String>> tableInfos = Lists.newArrayList();
+    Connection conn = null;
+    ResultSet resultSet = null;
     try {
-      ResultSet resultSet;
-
+      conn = dataSource.getConnection();
       if (connection instanceof MySQLConnection
           || connection instanceof HiveConnection) {
         String targetSchema = schema == null ? connection.getDatabase() : schema;
-        resultSet = dataSource.getConnection().getMetaData().getTables(targetSchema, targetSchema, tableNamePattern, RESULTSET_TABLE_TYPES);
+        resultSet = conn.getMetaData().getTables(targetSchema, targetSchema, tableNamePattern, RESULTSET_TABLE_TYPES);
       } else if (connection instanceof PrestoConnection) {
         String catalog = ((PrestoConnection) connection).getCatalog();
-        resultSet = dataSource.getConnection().getMetaData().getTables(catalog, schema, tableNamePattern, RESULTSET_TABLE_TYPES_PRESTO);
+        resultSet = conn.getMetaData().getTables(catalog, schema, tableNamePattern, RESULTSET_TABLE_TYPES_PRESTO);
       } else {
-        resultSet = dataSource.getConnection().getMetaData().getTables(connection.getDatabase(), schema, tableNamePattern, RESULTSET_TABLE_TYPES);
+        resultSet = conn.getMetaData().getTables(connection.getDatabase(), schema, tableNamePattern, RESULTSET_TABLE_TYPES);
       }
 
       while (resultSet.next()) {
@@ -759,7 +757,7 @@ public class JdbcConnectionService {
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of table : " + e.getMessage());
     } finally {
-      closeConnection(dataSource);
+      closeConnection(conn, null, resultSet);
     }
 
     Map<String, Object> tableMap = new LinkedHashMap<>();
@@ -787,10 +785,12 @@ public class JdbcConnectionService {
 
     LOGGER.debug("Query : {} ", query);
 
+    Connection conn = null;
     Statement stmt = null;
     ResultSet rs = null;
     try {
-      stmt = dataSource.getConnection().createStatement();
+      conn = dataSource.getConnection();
+      stmt = conn.createStatement();
 
       if (limit > 0)
         stmt.setMaxRows(limit);
@@ -804,7 +804,7 @@ public class JdbcConnectionService {
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to query : " + e.getMessage());
     } finally {
-      closeConnection(dataSource, rs, stmt);
+      closeConnection(conn, stmt, rs);
     }
 
     return queryResultSet;
@@ -881,17 +881,19 @@ public class JdbcConnectionService {
 
     LOGGER.debug("Query : {} ", query);
 
+    Connection conn = null;
     Statement stmt = null;
+    ResultSet rs = null;
     try {
-      stmt = dataSource.getConnection().createStatement();
+      conn = dataSource.getConnection();
+      stmt = conn.createStatement();
       stmt.executeUpdate(query);
     } catch (Exception e) {
       LOGGER.error("Fail to query for select :  {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to query : " + e.getMessage());
     } finally {
-      JdbcUtils.closeStatement(stmt);
-      closeConnection(dataSource);
+      closeConnection(conn, stmt, rs);
     }
 
     return queryResultSet;
@@ -1252,8 +1254,6 @@ public class JdbcConnectionService {
       LOGGER.error("Fail to get count of query : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get count of query : " + e.getMessage());
-    } finally {
-      closeConnection(dataSource);
     }
 
     return count;
@@ -1386,8 +1386,6 @@ public class JdbcConnectionService {
       LOGGER.error("Fail to get list of database : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of database : " + e.getMessage());
-    } finally {
-      closeConnection(dataSource);
     }
 
     databaseMap.put("databases", databaseNames);
@@ -1414,8 +1412,6 @@ public class JdbcConnectionService {
       LOGGER.error("Fail to get list of database : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of database : " + e.getMessage());
-    } finally {
-      closeConnection(dataSource);
     }
 
     databaseMap.put("databases", databaseNames);
@@ -1490,8 +1486,6 @@ public class JdbcConnectionService {
       LOGGER.error("Fail to get list of database : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of database : " + e.getMessage());
-    } finally {
-      closeConnection(dataSource);
     }
 
     databaseMap.put("databases", databaseNames);
@@ -1518,8 +1512,6 @@ public class JdbcConnectionService {
       LOGGER.error("Fail to get list of database : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of database : " + e.getMessage());
-    } finally {
-      closeConnection(dataSource);
     }
 
     int size = 20;
@@ -1582,8 +1574,6 @@ public class JdbcConnectionService {
         LOGGER.error("Fail to Use database : {}", e.getMessage());
         throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                               "Fail to Use database : " + e.getMessage());
-      } finally {
-        closeConnection(dataSource);
       }
     } else {
       LOGGER.debug("Database Change Not Supported.");
@@ -1656,27 +1646,9 @@ public class JdbcConnectionService {
     return driverManagerDataSource;
   }
 
-  public void closeConnection(DataSource dataSource) {
-    try {
-      if (!(dataSource instanceof SingleConnectionDataSource)) {
-        JdbcUtils.closeConnection(dataSource.getConnection());
-      }
-    } catch (SQLException e) {
-      LOGGER.warn("Fail to Close connection.");
-    }
-  }
-
-  public void closeConnection(DataSource dataSource, ResultSet rs, Statement stmt) {
-    try {
-      if (dataSource instanceof SingleConnectionDataSource) {
-        JdbcUtils.closeResultSet(rs);
-      } else {
-        JdbcUtils.closeResultSet(rs);
-        JdbcUtils.closeStatement(stmt);
-        JdbcUtils.closeConnection(dataSource.getConnection());
-      }
-    } catch (SQLException e) {
-      LOGGER.warn("Fail to Close connection.");
-    }
+  public void closeConnection(Connection connection, Statement stmt, ResultSet rs) {
+    JdbcUtils.closeResultSet(rs);
+    JdbcUtils.closeStatement(stmt);
+    JdbcUtils.closeConnection(connection);
   }
 }

@@ -33,7 +33,7 @@
   <!-- //column option -->
   <div class="ddp-data-details ddp-ui-preview-contents" (scroll)="onScrollColumnView()">
     <!-- header -->
-    <table class="ddp-table-form ddp-table-type2 ddp-table-details">
+    <table class="ddp-table-form ddp-table-type2 ddp-table-details ddp-type-input">
       <colgroup>
         <col width="160px">
         <col width="100px">
@@ -193,7 +193,7 @@
         </td>
         <!-- //물리 컬럼 명 -->
         <!-- 논리 컬럼 명 -->
-        <td>
+        <td class="ddp-padding-none">
           <div class="ddp-input-form">
             <input type="text" class="ddp-txt-input"
                    [ngModel]="column.name"
@@ -442,7 +442,7 @@
         </td>
         <!-- //logical type -->
         <!-- Format -->
-        <td [class.ddp-disabled]="isSelectedDictionary(column)">
+        <td [class.ddp-padding-none]="!isSelectedDictionary(column)" [class.ddp-disabled]="isSelectedDictionary(column)">
           <span *ngIf="isSelectedDictionary(column)">{{column.format}}</span>
           <div class="ddp-input-form" *ngIf="!isSelectedDictionary(column) && isTimeType(column)">
             <input type="text" class="ddp-txt-input"
@@ -469,7 +469,7 @@
                 {{'msg.metadata.ui.codetable.choose.code.table.preview.title' | translate}}
               </div>
               <div class="ddp-data-code ddp-size" *ngIf="column.codeTable">
-                <table class="ddp-table-code ddp-inherit">
+                <table class="ddp-table-code ddp-inherit ">
                   <colgroup>
                     <col width="90px">
                     <col width="*">
@@ -508,7 +508,7 @@
         </td>
         <!-- //Code Table -->
         <!-- Description -->
-        <td [class.ddp-disabled]="isSelectedDictionary(column)">
+        <td [class.ddp-padding-none]="!isSelectedDictionary(column)" [class.ddp-disabled]="isSelectedDictionary(column)">
           <span *ngIf="isSelectedDictionary(column)">{{column.description}}</span>
           <div class="ddp-input-form" *ngIf="!isSelectedDictionary(column)">
             <input type="text" class="ddp-txt-input"

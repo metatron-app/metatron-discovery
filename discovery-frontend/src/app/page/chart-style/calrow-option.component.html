@@ -57,7 +57,7 @@
                 <component-select
                   [array]="operatorList"
                   [viewKey]="'name'"
-                  [defaultIndex]="0"
+                  [defaultIndex]="operatorDefaultIdx"
                   (onSelected)="changeOperator($event)"
                 ></component-select>
                 <!-- //selectbox -->
@@ -75,7 +75,7 @@
                 <component-select
                   [array]="hAlignList"
                   [viewKey]="'name'"
-                  [defaultIndex]="0"
+                  [defaultIndex]="hAlignDefaultIdx"
                   (onSelected)="changeHAlign($event)"
                 ></component-select>
                 <!-- //selectbox -->

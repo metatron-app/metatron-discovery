@@ -335,6 +335,30 @@ export class PageDataContextComponent extends AbstractComponent {
     return field.type !== 'user_expr' && isString(this.selectedField.nameAlias.dashBoardId);
   } // function - isAllowNameAlias
 
+  /**
+   * Get metaData logical type name
+   * @return {string}
+   */
+  public getMetaDataLogicalTypeName():string {
+    let name:string = '';
+    let metaData = this.selectedField.uiMetaData;
+    if( metaData ) {
+      switch( metaData.type ) {
+        case LogicalType.LNT :
+          name = 'LATITUDE';
+          break;
+        case LogicalType.LNG :
+          name = 'LONGITUDE';
+          break;
+        default :
+          if (metaData.type) {
+            name = metaData.type.toString();
+          }
+      }
+    }
+    return name;
+  } // function - getMetaDataLogicalTypeName
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

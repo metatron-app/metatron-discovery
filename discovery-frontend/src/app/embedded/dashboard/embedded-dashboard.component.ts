@@ -12,12 +12,20 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, HostListener, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Dashboard } from '../../domain/dashboard/dashboard';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { ActivatedRoute } from '@angular/router';
 import { CookieConstant } from '../../common/constant/cookie.constant';
 import { DashboardService } from '../../dashboard/service/dashboard.service';
+import {SelectionFilter} from "../../dashboard/component/selection-filter/selection-filter.component";
+import {Filter} from "../../domain/workbook/configurations/filter/filter";
+import {Widget} from "../../domain/dashboard/widget/widget";
+import {FilterWidgetConfiguration} from "../../domain/dashboard/widget/filter-widget";
+import {InclusionFilter} from "../../domain/workbook/configurations/filter/inclusion-filter";
+import {FilterUtil} from "../../dashboard/util/filter.util";
+import * as $ from "jquery";
+import { DashboardComponent } from '../../dashboard/dashboard.component';
 
 @Component({
   selector: 'app-embedded-dashboard',
@@ -28,6 +36,10 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // 대시보드 컴포넌트
+  @ViewChild(DashboardComponent)
+  private dashboardComponent: DashboardComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -61,8 +73,7 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public ngOnInit() {
-    // Init
-    super.ngOnInit();
+    super.ngOnInit();   // Init
 
     window.history.pushState(null, null, window.location.href);
 
@@ -76,9 +87,16 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
         this.getDashboardDetail(params['dashboardId']);
       }
     });
-    // this.cookieService.set(CookieConstant.KEY.FORCE_LOGIN, 'FORCE', 0, '/');
 
+    // this.cookieService.set(CookieConstant.KEY.FORCE_LOGIN, 'FORCE', 0, '/');
   }
+
+  /**
+   * 화면 초기화
+   */
+  public ngAfterViewInit() {
+    super.ngAfterViewInit();
+  } // function - ngAfterViewInit
 
   public ngOnDestroy() {
     super.ngOnDestroy();
@@ -101,6 +119,7 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
     this.dashboardService.getDashboard(dashboardId)
       .then((result: Dashboard) => {
 
+        this._setParameterFilterValues(result);
         this.dashboard = result;
 
         // 로딩 hide
@@ -108,7 +127,43 @@ export class EmbeddedDashboardComponent extends AbstractComponent implements OnI
       });
   }
 
+  /**
+   * 대시보드 이벤트 핸들러
+   * @param {Event} event
+   */
+  public onDashboardEvent(event: { name: string, data?: any }) {
+    if ('LAYOUT_INITIALISED' === event.name) {
+      $('body').removeClass('body-hidden');
+      this.dashboardComponent.hideBoardLoading();
+    }
+  } // function - onDashboardEvent
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * Query Parameter에서 받은 값을 이용하여 dashboard의 filter초기 값을 설정한다.
+   * @param dashboard
+   */
+  private _setParameterFilterValues(dashboard) {
+    this.activatedRoute.queryParams.subscribe(params => {
+      Object.keys(params).forEach(key => {
+        dashboard.configuration.filters.forEach((eachFilter: Filter) => {
+          if (eachFilter.field == key) {
+            FilterUtil.setParameterFilterValue(eachFilter, key, params[key]);
+          }
+        });
+        dashboard.widgets.forEach((widget) => {
+          if (widget.type === 'filter' && widget.name == key) {
+            const widgetConf: FilterWidgetConfiguration  = <FilterWidgetConfiguration>widget.configuration;
+            FilterUtil.setParameterFilterValue(widgetConf.filter, key, params[key]);
+          }
+        })
+      })
+    });
+  }
+
+
+
 }

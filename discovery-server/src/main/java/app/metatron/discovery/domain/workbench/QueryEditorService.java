@@ -237,6 +237,7 @@ public class QueryEditorService {
     ResultSet resultSet = null;
     QueryResult queryResult = null;
     Statement stmt = null;
+    Connection connection = null;
 
     if(isComment(query)){
       queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
@@ -254,7 +255,7 @@ public class QueryEditorService {
     DateTime startDateTime = DateTime.now();
     try {
 
-      Connection connection = singleConnectionDataSource.getConnection();
+      connection = singleConnectionDataSource.getConnection();
       stmt = connection.createStatement();
       stmt.setFetchSize(workbenchProperties.getMaxFetchSize());
 
@@ -310,6 +311,8 @@ public class QueryEditorService {
       e.printStackTrace();
     } finally {
       JdbcUtils.closeResultSet(resultSet);
+      JdbcUtils.closeStatement(stmt);
+      JdbcUtils.closeConnection(connection);
 
       //Query 실행 상태 IDLE로 전환
       if(dataSourceInfo.getQueryStatus() != QueryStatus.CANCELLED){

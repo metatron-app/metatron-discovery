@@ -32,9 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MetatronDiscoveryApplication.class)
 @WebAppConfiguration
-//@ActiveProfiles({"local", "h2-in-memory-db", "logging-console-debug", "spark-local-standalone", "initial"})
 @ActiveProfiles({"local", "h2-in-memory-db", "logging-console-debug", "spark-local-standalone", "initial"})
-//@ActiveProfiles({"exntu", "h2-in-memory-db", "logging-console-debug", "spark-local-standalone", "initial"})
 @Transactional
 public abstract class AbstractIntegrationTest {
   

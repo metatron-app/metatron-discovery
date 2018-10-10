@@ -37,7 +37,7 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
 
   public fields : Field[];
   public selectedFields: Field[] = [];
-
+  public forceCondition : string = '';
   @Output()
   public onEvent:EventEmitter<any> = new EventEmitter();
 
@@ -107,6 +107,23 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
       }
     });
     this.safelyDetectChanges();
+  } // function - setValue
+
+
+  /**
+   * Returns value of variable name equals the key
+   * @param {string} key
+   * @returns {string}
+   */
+  public getValue( key:string ) : string {
+    let returnValue : string = undefined;
+
+    if (!isNullOrUndefined(this[key])) {
+      returnValue = this[key];
+    }
+
+    this.safelyDetectChanges();
+    return returnValue;
   } // function - setValue
 
   /**

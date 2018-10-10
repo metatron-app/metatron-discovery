@@ -14,13 +14,14 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
-import app.metatron.discovery.AbstractIntegrationTest;
-import app.metatron.discovery.domain.datasource.connection.file.LocalFileConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.H2Connection;
 import org.junit.Test;
 import org.springframework.test.annotation.Rollback;
 
 import javax.inject.Inject;
+
+import app.metatron.discovery.AbstractIntegrationTest;
+import app.metatron.discovery.domain.datasource.connection.file.LocalFileConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.H2Connection;
 
 public class DataConnectionRepositoryTest extends AbstractIntegrationTest {
   @Inject
@@ -50,7 +51,6 @@ public class DataConnectionRepositoryTest extends AbstractIntegrationTest {
   public void fileTest() {
     LocalFileConnection connection = new LocalFileConnection();
     connection.setName("export.xlsx");
-//    connection.setFileKey("a8107d8d-880d-4e72-8eac-98d1cc469826.xlsx");
     connection.setPath("a8107d8d-880d-4e72-8eac-98d1cc469826.xlsx");
     connection.setDescription("0,Y");
 

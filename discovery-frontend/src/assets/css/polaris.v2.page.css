@@ -2934,7 +2934,7 @@ ul.ddp-list-layer-option li.ddp-hover {background:#f6f6f7 !important;}
 
 ul.ddp-list-layer-option li:hover .ddp-ui-2depth {display:block;}
 ul.ddp-list-layer-option li:hover {background-color:#f6f6f7}
-ul.ddp-list-layer-option li:first-of-type a {border-top:none;}
+ul.ddp-list-layer-option li:first-of-type > a {border-top:none;}
 ul.ddp-list-layer-option li a .ddp-label-toggle {margin:-10px -16px; padding:10px 16px; display:block; color:#4b515b; font-size:13px; cursor: pointer;}
 ul.ddp-list-layer-option li a .ddp-label-toggle input[type="checkbox"] {opacity:0;}
 ul.ddp-list-layer-option li a .ddp-label-toggle span.ddp-txt-toggle {position:absolute; top:50%; right:15px; margin-top:-9px;}
@@ -4396,7 +4396,7 @@ table.ddp-table-order tr td {padding:13px 13px; border-top:1px solid #e7e7ea; fo
 .ddp-view-formula .ddp-ui-detail .ddp-btn-close {display:inline-block; position:absolute; right:27px; top:19px; width:16px; height:16px; background:url(../images/btn_close.png) no-repeat; cursor: pointer;}
 .ddp-view-formula .ddp-ui-detail .ddp-ui-det-title {display:block; padding:15px 0 10px 0; color:#4b515b; font-size:13px; font-weight:bold;}
 .ddp-view-formula .ddp-ui-detail .ddp-ui-det-category {display:block; padding-bottom:25px; font-size:11px; color:#4b515b;}
-.ddp-view-formula .ddp-ui-detail .ddp-txt-det {color:#90969f; font-size:13px; line-height:21px;}
+.ddp-view-formula .ddp-ui-detail .ddp-txt-det {display:block; padding-bottom:10px; color:#90969f; font-size:13px; line-height:21px;}
 
 .ddp-view-formula.ddp-full .ddp-ui-detail {display:none;}
 .ddp-ui-userfield {position:absolute; top:240px; left:50px; right:50px; bottom:0; padding:40px 0 0 0; border-top:1px solid #e7e7ea;}
@@ -5971,7 +5971,7 @@ ul.ddp-list-dbtype li .ddp-label-dbtype.type-tibero:before{width:19px; height:22
 ************************************************************************************************************/
 .ddp-ui-import-option {display:inline-block; width:880px; padding:0px 0 26px 0; text-align:left;}
 .ddp-ui-import-option .ddp-ui-textarea {position:relative; width:100%; margin-bottom:12px;}
-.ddp-ui-import-option ul.ddp-list-buttons {margin-bottom:20px;}
+.ddp-ui-import-option ul.ddp-list-buttons {display: block; margin-bottom:20px;}
 .ddp-ui-import-option ul.ddp-list-buttons li {font-size:13px;}
 .ddp-ui-import-option .ddp-ui-input-form {padding-bottom:42px;}
 .ddp-ui-import-option label.ddp-label-type {font-size:13px; color:#444; font-weight:bold;}
@@ -7136,6 +7136,9 @@ table.ddp-table-type3.ddp-popup tr td {padding:10px 10px 11px 10px;}
 .ddp-ui-preview-contents .ddp-data-details .ddp-wrap-sourcename {top:46px; overflow:auto;}
 .ddp-ui-preview-contents .ddp-data-details .ddp-wrap-detail {overflow:auto; height:100%; box-sizing:border-box;}
 .ddp-data-details .ddp-wrap-table-detail {margin-right:0; margin-left:0px; padding:40px 0;}
+
+.ddp-data-details.ddp-ui-preview-contents .ddp-type-input tbody tr > td.ddp-padding-none {padding:0;}
+.ddp-data-details.ddp-ui-preview-contents .ddp-type-input tbody tr > td .ddp-input-form {position:static;}
 /**********************************************************************************
         사용자 리스트
 **********************************************************************************/
