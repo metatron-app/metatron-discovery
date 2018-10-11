@@ -349,6 +349,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // hive log 취소중
   public hiveLogCanceling : boolean = false;
 
+  // hive query 실행 중
+  public isHiveQueryExecute: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -777,10 +779,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // 에디터 탭 변경
   public tabChangeHandler(selectedTabNum: number, deleteFlag: boolean = false, selectedItem?: any): void {
-
     // hive 일경우
+    if( this.isHiveQueryExecute ) {
+      this.alertHiveQueryExecuting();
+    }
     if( this.mimeType == 'HIVE' ){
-
       for (let index: number = 0; index < this.hiveTabLogs.length; index = index + 1) {
         if( this.hiveTabLogs[index]['selectedTabNum'] == selectedTabNum ){
           this.hiveLogs = [];
@@ -873,7 +876,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @param {number} selectedTabNum
    */
   public tabGridChangeHandler(selectedTabNum: number)  {
-
     // hive 일경우
     if( this.mimeType == 'HIVE' ){
       let arr :any = [];
@@ -1061,6 +1063,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 쿼리 실행
   public setExecuteSql(param: string) {
     this.loadingBar.show();
+    this.isHiveQueryExecute = true;
 
     // 호출횟수 증가
     this._executeSqlReconnectCnt++;
@@ -2105,7 +2108,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
 
           } else if ('DONE' === data.command) {
-
             // 로그 결과가 미리 떨어지는 경우 대비
             setTimeout(() => {
 
@@ -2194,7 +2196,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // hive log DONE 종료
   public hiveLogFinish(){
-
+    this.isHiveQueryExecute = false;
     // 처음 쿼리를 취소한 경우
     if( this.datagridCurList.length == 0 ){
       return false;
@@ -2416,6 +2418,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public setQueryRunCancel(isSuccess : boolean, selectedGridTabNum : number){
 
     this.hiveLogCanceling = false;
+    this.isHiveQueryExecute = false;
 
     this.isLogCancelTabQuery.push(this.runningQueryArr[selectedGridTabNum]);
 
@@ -2939,6 +2942,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     } else {
       this.editor.setModeOptions('text/x-mysql');
     }
+  }
+
+  /**
+   * hive query 실행시 warning
+   */
+  public alertHiveQueryExecuting(){
+    Alert.warning(this.translateService.instant('msg.bench.ui.query.run'));
+    return false;
   }
 
 }

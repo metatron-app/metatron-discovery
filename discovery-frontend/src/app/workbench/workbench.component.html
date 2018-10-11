@@ -196,12 +196,12 @@
                    #editorListTabs
                    [class.ddp-slide]="editorListObj.showBtnFl">
                 <div class="ddp-btn-listslider">
-                  <a href="javascript:" class="ddp-btn-sliderprev" (click)="onClickPrevSlideBtn(editorListObj)"></a>
-                  <a href="javascript:" class="ddp-btn-slidernext" (click)="onClickNextSlideBtn(editorListObj)"></a>
+                  <a href="javascript:" class="ddp-btn-sliderprev" (click)="isHiveQueryExecute ? alertHiveQueryExecuting(): onClickPrevSlideBtn(editorListObj)"></a>
+                  <a href="javascript:" class="ddp-btn-slidernext" (click)="isHiveQueryExecute ? alertHiveQueryExecuting(): onClickNextSlideBtn(editorListObj)"></a>
                 </div>
                 <ul class="ddp-list-tabs">
                   <li *ngFor="let item of getFilteringList(textList, editorListObj)"
-                      (click)="tabChangeHandler(findIndexInList(textList, item), false, item )"
+                      (click)="isHiveQueryExecute ? alertHiveQueryExecuting(): tabChangeHandler(findIndexInList(textList, item), false, item )"
                       [ngClass]="{'ddp-selected': item['selected'],'ddp-edit': item['editorMode']}">
                     <div class="ddp-data-tab">
                       {{item['name']}}
@@ -218,7 +218,7 @@
                   </li>
                 </ul>
 
-                <a href="javascript:" class="ddp-btn-plus" (click)="tabCreateHandler('', true, true)"><em
+                <a href="javascript:" class="ddp-btn-plus" (click)="isHiveQueryExecute ? alertHiveQueryExecuting(): tabCreateHandler('', true, true)"><em
                   class="ddp-icon-plus"></em></a>
               </div>
             </div>
@@ -237,7 +237,7 @@
                          [(ngModel)]="queryResultNumber"
                          (keyup.esc)="queryResultNumber = 1000; setExecuteSql('ALL')"
                          (keyup.enter)="setExecuteSql('ALL')">
-                  <a href="javascript:" class="ddp-btn-check2" (click)="setExecuteSql('ALL')"></a>
+                  <a href="javascript:" class="ddp-btn-check2" (click)="isHiveQueryExecute ? alertHiveQueryExecuting(): setExecuteSql('ALL')"></a>
                 </div>
               </div>
               <!-- //row 수 -->
@@ -246,8 +246,8 @@
               <!-- //SQL BEAUTIFIER -->
               <!-- foot button -->
               <div class="ddp-ui-edit-foot">
-                <a href="javascript:" class="ddp-btn-play" (click)="setExecuteSql('ALL')" title="ALL SQL EXECUTE"></a>
-                <a href="javascript:" class="ddp-btn-stop" (click)="setExecuteSql('SELECTED')"
+                <a href="javascript:" class="ddp-btn-play" (click)="isHiveQueryExecute ? alertHiveQueryExecuting(): setExecuteSql('ALL')" title="ALL SQL EXECUTE"></a>
+                <a href="javascript:" class="ddp-btn-stop" (click)="isHiveQueryExecute ? alertHiveQueryExecuting(): setExecuteSql('SELECTED')"
                    title="SELECTED  SQL EXECUTE"></a>
                 <a href="javascript:" class="ddp-btn-delete" (click)="clearSql()" title="CLEAR SQL"></a>
               </div>
