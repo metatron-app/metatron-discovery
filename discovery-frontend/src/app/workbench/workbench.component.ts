@@ -1166,6 +1166,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
           if( this.mimeType == 'HIVE' ){
 
+            // 중지된 쿼리가 있을경우
+            if( this.isLogCancelTabQuery.length > 0 ){
+              this.hiveLogFinish();
+              return false;
+            }
+
             let tempArr : any[] = [];
 
             // log 시점때문에 더미로 추가된 데이터 제거
@@ -1182,21 +1188,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             tempArr.push(result[0]);
             result = tempArr;
 
-            // 중지된 쿼리가 있을경우
-            if( this.isLogCancelTabQuery.length > 0 ){
-              this.hiveLogFinish();
-              return false;
-            }
-
             if( result.length > 0 ) {
 
               // Editor Selected Tab
               this.tempEditorSelectedTabNum = tempSelectedTabNum;
-
-
-              // if( result.queryResultStatus == 'FAIL' ){
-              //   // this( )
-              // }
 
               // hive일 경우 단건 호출
               this.setHiveDatagridData(result, tempSelectedTabNum, selectedResultTabNum, this.runningQueryArr.length);
