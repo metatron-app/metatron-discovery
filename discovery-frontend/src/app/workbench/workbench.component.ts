@@ -779,17 +779,26 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // 에디터 탭 변경
   public tabChangeHandler(selectedTabNum: number, deleteFlag: boolean = false, selectedItem?: any): void {
+
     // hive 일경우
     if( this.isHiveQueryExecute ) {
       this.alertHiveQueryExecuting();
     }
     if( this.mimeType == 'HIVE' ){
+
+      this.hiveLogs = [];
       for (let index: number = 0; index < this.hiveTabLogs.length; index = index + 1) {
         if( this.hiveTabLogs[index]['selectedTabNum'] == selectedTabNum ){
-          this.hiveLogs = [];
           this.hiveLogs = this.hiveTabLogs[index]['data'];
-          this.hiveLogs[0]['isShow'] = false;
           break;
+        }
+      }
+
+      let hiveCurrLogs : any = [];
+      hiveCurrLogs = this.hiveLogs;
+      if( hiveCurrLogs.length > 0 ){
+        for (let index: number = 0; index < hiveCurrLogs.length; index = index + 1) {
+          hiveCurrLogs[index]['isShow'] = false;
         }
       }
 
@@ -876,6 +885,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @param {number} selectedTabNum
    */
   public tabGridChangeHandler(selectedTabNum: number)  {
+
     // hive 일경우
     if( this.mimeType == 'HIVE' ){
       let arr :any = [];
@@ -2108,6 +2118,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
 
           } else if ('DONE' === data.command) {
+
             // 로그 결과가 미리 떨어지는 경우 대비
             setTimeout(() => {
 
