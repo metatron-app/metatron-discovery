@@ -3565,10 +3565,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
               this.analysisComponent.changePredictionLineDisabled();
             }
             this.lineChartComponent.analysis = null;
-            setTimeout( () => { this.chart.resultData = resultData; }, 1000 );
+            setTimeout( () => { this.chart.resultData = resultData; }, 300 );
           }
         } else {
-          setTimeout( () => { this.chart.resultData = resultData; }, 1000 );
+          setTimeout( () => { this.chart.resultData = resultData; }, 300 );
         }
 
         this.loadingHide();
