@@ -207,7 +207,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
         this.selectedFromComboItem = this.comboList[this.fromComboIdx];
       }
 
-      if (TimeUnit.HOUR === this.compData.timeUnit || TimeUnit.MINUTE === this.compData.timeUnit) {
+      if ( [TimeUnit.NONE, TimeUnit.HOUR, TimeUnit.MINUTE ].some( unit => unit === this.compData.timeUnit ) ) {
         this._fromDate = fromMoment.subtract(9, 'hours').toDate();
       } else {
         this._fromDate = fromMoment.toDate();
@@ -253,7 +253,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
         this.selectedToComboItem = this.comboList[this.toComboIdx];
       }
 
-      if (TimeUnit.HOUR === this.compData.timeUnit || TimeUnit.MINUTE === this.compData.timeUnit) {
+      if ( [TimeUnit.NONE, TimeUnit.HOUR, TimeUnit.MINUTE ].some( unit => unit === this.compData.timeUnit ) ) {
         this._toDate = toMoment.subtract(9, 'hours').toDate();
       } else {
         this._toDate = toMoment.toDate();
@@ -290,133 +290,58 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
    */
   private _getTimeRange(isStart: boolean): TimeRange {
 
+    if( this._fromDate && this._toDate && 0 < (this._fromDate.getTime() - this._toDate.getTime()) ) {
+      // 선택한 시작날짜가 종료날짜보다 크면 시작날짜로 셋팅
+      if (isStart) {
+        this._toDate = this._fromDate;
+        // 선택한 종료날짜가 시간날짜보다 크면 종료 날짜로 셋팅
+      } else {
+        this._fromDate = this._toDate;
+      }
+      this._fromPicker.selectDate(this._fromDate);
+      this._toPicker.selectDate(this._toDate);
+    }
+
     const currTimeUnit: TimeUnit = this.compData.timeUnit;
     if (TimeUnit.YEAR === currTimeUnit) {
-      return this._getRangeFromYear(this._fromDate.getFullYear(), this._toDate.getFullYear());
+      return this._getRangeFromMoment(
+        (this.isEarliestDateTime) ? TimeRangeFilter.EARLIEST_DATETIME : moment().year(this._fromDate.getFullYear()),
+        (this.isLatestDateTime) ? TimeRangeFilter.LATEST_DATETIME : moment().year(this._toDate.getFullYear()),
+        'year'
+      );
     } else if (TimeUnit.QUARTER === currTimeUnit) {
-      return this._getRangeFromQuarter(
-        this.selectedFromComboItem.value, this._fromDate.getFullYear(),
-        this.selectedToComboItem.value, this._toDate.getFullYear());
+      return this._getRangeFromMoment(
+        (this.isEarliestDateTime) ? TimeRangeFilter.EARLIEST_DATETIME : moment().year(this._fromDate.getFullYear()).quarter(this.selectedFromComboItem.value),
+        (this.isLatestDateTime) ? TimeRangeFilter.LATEST_DATETIME : moment().year(this._toDate.getFullYear()).quarter(this.selectedToComboItem.value),
+        'quarter'
+      );
     } else if (TimeUnit.MONTH === currTimeUnit) {
-      return this._getRangeFromMonth(
-        this._fromDate.getMonth(), this._fromDate.getFullYear(), this._toDate.getMonth(), this._toDate.getFullYear());
+      return this._getRangeFromMoment(
+        (this.isEarliestDateTime) ? TimeRangeFilter.EARLIEST_DATETIME : moment().year(this._fromDate.getFullYear()).month(this._fromDate.getMonth()),
+        (this.isLatestDateTime) ? TimeRangeFilter.LATEST_DATETIME : moment().year(this._toDate.getFullYear()).month(this._toDate.getMonth()),
+        'month'
+      );
     } else if (TimeUnit.WEEK === currTimeUnit) {
-      return this._getRangeFromWeek(
-        this.selectedFromComboItem.value, this._fromDate.getFullYear(),
-        this.selectedToComboItem.value, this._toDate.getFullYear());
+      return new TimeRange(
+        (this.isEarliestDateTime) ? TimeRangeFilter.EARLIEST_DATETIME : this._fromDate.getFullYear() + '-' + this.selectedFromComboItem.value,
+        (this.isLatestDateTime) ? TimeRangeFilter.LATEST_DATETIME : this._toDate.getFullYear() + '-' + this.selectedToComboItem.value
+      );
     } else {
 
-      const timeUnitStr: string = currTimeUnit ? currTimeUnit.toString().toLowerCase() : TimeUnit.MINUTE.toString();
-
-      if (this.isEarliestDateTime && this.isLatestDateTime) {
-        return new TimeRange(TimeRangeFilter.EARLIEST_DATETIME, TimeRangeFilter.LATEST_DATETIME);
-      } else {
-        if (this.isEarliestDateTime) {
-          const range: TimeRange
-            = this._getRangeFromMoment(moment(this._toDate), moment(this._toDate), timeUnitStr);
-          return new TimeRange(TimeRangeFilter.EARLIEST_DATETIME, range.endDate);
-        } else if (this.isLatestDateTime) {
-          const range: TimeRange
-            = this._getRangeFromMoment(moment(this._fromDate), moment(this._fromDate), timeUnitStr);
-          return new TimeRange(range.startDate, TimeRangeFilter.LATEST_DATETIME);
-        }
-      }
-
-      if ((this._fromDate.getTime() - this._toDate.getTime()) > 0) {
-        // 선택한 시작날짜가 종료날짜보다 크면 시작날짜로 셋팅
-        if (isStart) {
-          this._toDate = this._fromDate;
-          // 선택한 종료날짜가 시간날짜보다 크면 종료 날짜로 셋팅
-        } else {
-          this._fromDate = this._toDate;
-        }
-        this._fromPicker.selectDate(this._fromDate);
-        this._toPicker.selectDate(this._toDate);
-      }
-
       if (TimeUnit.DAY === currTimeUnit) {
-        return this._getRangeFromDate(
-          this._fromDate.getDate(), this._fromDate.getMonth(), this._fromDate.getFullYear(),
-          this._toDate.getDate(), this._toDate.getMonth(), this._toDate.getFullYear()
+        return new TimeRange(
+          (this.isEarliestDateTime) ? TimeRangeFilter.EARLIEST_DATETIME : moment().year(this._fromDate.getFullYear()).month(this._fromDate.getMonth()).date(this._fromDate.getDate()).startOf('date').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z',
+          (this.isLatestDateTime) ? TimeRangeFilter.LATEST_DATETIME : moment().year(this._toDate.getFullYear()).month(this._toDate.getMonth()).date(this._toDate.getDate()).startOf('date').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z'
         );
       } else {
         return new TimeRange(
-          moment(this._fromDate).format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z',
-          moment(this._toDate).format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z'
+          (this.isEarliestDateTime) ? TimeRangeFilter.EARLIEST_DATETIME : moment(this._fromDate).format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z',
+          (this.isLatestDateTime) ? TimeRangeFilter.LATEST_DATETIME : moment(this._toDate).format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z'
         );
       }
     }
 
   } // function - _getTimeRange
-
-  /**
-   * Year 에 대한 Range 를 얻음
-   * @param {number} sYear
-   * @param {number} eYear
-   * @returns {TimeRange}
-   * @private
-   */
-  private _getRangeFromYear(sYear: number, eYear: number): TimeRange {
-    return this._getRangeFromMoment(moment().year(sYear), moment().year(eYear), 'year');
-  } // function - _getRangeFromYear
-
-  /**
-   * Quarter 에 대한 Range 를 얻음
-   * @param {number} sQuarter
-   * @param {number} sYear
-   * @param {number} eQuarter
-   * @param {number} eYear
-   * @returns {TimeRange}
-   * @private
-   */
-  private _getRangeFromQuarter(sQuarter: number, sYear: number, eQuarter: number, eYear: number): TimeRange {
-    return this._getRangeFromMoment(moment().year(sYear).quarter(sQuarter), moment().year(eYear).quarter(eQuarter), 'quarter');
-  } // function - _getRangeFromQuarter
-
-  /**
-   * Month 에 대한 Range 를 얻음
-   * @param {number} sMonth
-   * @param {number} sYear
-   * @param {number} eMonth
-   * @param {number} eYear
-   * @returns {TimeRange}
-   * @private
-   */
-  private _getRangeFromMonth(sMonth: number, sYear: number, eMonth: number, eYear: number): TimeRange {
-    return this._getRangeFromMoment(moment().year(sYear).month(sMonth), moment().year(eYear).month(eMonth), 'month');
-  } // function - _getRangeFromMonth
-
-  /**
-   * Week 에 대한 Range 를 얻음
-   * @param {number} sWeek
-   * @param {number} sYear
-   * @param {number} eWeek
-   * @param {number} eYear
-   * @returns {TimeRange}
-   * @private
-   */
-  private _getRangeFromWeek(sWeek: number, sYear: number, eWeek: number, eYear: number): TimeRange {
-    return new TimeRange(sYear + '-' + sWeek, eYear + '-' + eWeek);
-  } // function - _getRangeFromWeek
-
-  /**
-   * Date 에 대한 Range 를 얻음
-   * @param {number} sDate
-   * @param {number} sMonth
-   * @param {number} sYear
-   * @param {number} eDate
-   * @param {number} eMonth
-   * @param {number} eYear
-   * @returns {TimeRange}
-   * @private
-   */
-  private _getRangeFromDate(sDate: number, sMonth: number, sYear: number, eDate: number, eMonth: number, eYear: number): TimeRange {
-    // return this._getRangeFromMoment(moment().year(sYear).month(sMonth).date(sDate), moment().year(eYear).month(eMonth).date(eDate), 'date');
-    return new TimeRange(
-      moment().year(sYear).month(sMonth).date(sDate).startOf('date').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z',
-      moment().year(eYear).month(eMonth).date(eDate).startOf('date').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z'
-    );
-  } // function - _getRangeFromDate
 
   // noinspection JSMethodCanBeStatic
   /**
