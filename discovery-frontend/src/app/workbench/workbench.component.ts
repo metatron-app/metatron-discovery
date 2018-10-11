@@ -2389,6 +2389,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
+    this.datagridCurList[selectedGridTabNum]['selected'] = true;
+    this.selectedGridTabNum = selectedGridTabNum;
 
     this.isHiveLog = false;
   }
