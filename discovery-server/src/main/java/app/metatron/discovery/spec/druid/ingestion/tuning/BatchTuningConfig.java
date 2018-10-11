@@ -14,10 +14,15 @@
 
 package app.metatron.discovery.spec.druid.ingestion.tuning;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections4.MapUtils;
+
+import java.util.Map;
+
 import app.metatron.discovery.spec.druid.ingestion.partition.PartitionSpec;
 
 /**
- * Created by kyungtaak on 2016. 6. 17..
+ *
  */
 public class BatchTuningConfig implements TuningConfig {
 
@@ -48,13 +53,21 @@ public class BatchTuningConfig implements TuningConfig {
   public BatchTuningConfig() {
   }
 
-  public static BatchTuningConfig defaultConfig() {
-    BatchTuningConfig config = new BatchTuningConfig();
-    config.setIgnoreInvalidRows(true);
-    config.setMaxRowsInMemory(75000);
-    config.setBuildV9Directly(true);
+  public BatchTuningConfig(Map<String, Object> tuningConfig) {
+    overrideConfig(tuningConfig);
+  }
 
-    return config;
+  public void overrideConfig(Map<String, Object> tuningConfig) {
+
+    if(MapUtils.isNotEmpty(tuningConfig)) {
+      for (String key : tuningConfig.keySet()) {
+        try {
+          BeanUtils.setProperty(this, key, tuningConfig.get(key));
+        } catch (Exception e) {
+        }
+      }
+    }
+
   }
 
   public String getWorkingPath() {

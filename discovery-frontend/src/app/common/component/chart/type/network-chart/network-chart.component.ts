@@ -16,25 +16,33 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnInit, OnDestroy} from '@angular/core';
-import {BaseChart, PivotTableInfo} from '../../base-chart';
-import {BaseOption} from "../../option/base-option";
+import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
+import { BaseOption } from '../../option/base-option';
 import {
-  ChartType, SymbolType, ShelveType, ShelveFieldType, SeriesType, GraphLayoutType, TriggerType, ChartColorList,
-  UIChartDataLabelDisplayType, CHART_STRING_DELIMITER
+  CHART_STRING_DELIMITER,
+  ChartColorList,
+  ChartSelectMode,
+  ChartType,
+  GraphLayoutType,
+  Position,
+  SeriesType,
+  ShelveFieldType,
+  ShelveType,
+  SymbolType,
+  TriggerType,
+  UIChartDataLabelDisplayType
 } from '../../option/define/common';
-import {Position} from '../../option/define/common';
-import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
+import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import {OptionGenerator} from "../../option/util/option-generator";
-import {Observable} from "rxjs";
-import {Legend} from "../../option/define/legend";
+import { OptionGenerator } from '../../option/util/option-generator';
+import { Legend } from '../../option/define/legend';
 import { Field } from '../../../../../domain/workbook/configurations/field/field';
-import {FormatOptionConverter} from "../../option/converter/format-option-converter";
-import {ColorOptionConverter} from "../../option/converter/color-option-converter";
+import { FormatOptionConverter } from '../../option/converter/format-option-converter';
+import { ColorOptionConverter } from '../../option/converter/color-option-converter';
 import { UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption } from '../../option/ui-option';
-import {LegendOptionConverter} from "../../option/converter/legend-option-converter";
-import {LabelOptionConverter} from "../../option/converter/label-option-converter";
+import { LegendOptionConverter } from '../../option/converter/legend-option-converter';
+import { LabelOptionConverter } from '../../option/converter/label-option-converter';
 
 declare let echarts: any;
 
@@ -595,19 +603,346 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
   }
 
   /**
-   * 차트에 옵션 반영
-   * - Echart기반 차트가 아닐경우 Override 필요
-   * @param initFl 차트 초기화 여부
+   * add selection event
    */
-  protected apply(initFl: boolean = true): void {
+  protected selection(): void {
 
-    setTimeout(() => {
-      super.apply(initFl)
-    }, 500);
+    this.addChartSelectEventListener();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /**
+   * Chart Select(Click) Event Listener
+   *
+   */
+  public addChartSelectEventListener(): void {
+    this.chart.off('click');
+    this.chart.on('click', (params) => {
+
+      let selectMode: ChartSelectMode;
+      let selectedColValues: string[];
+      let selectedRowValues: string[];
+
+      // current chart seires
+      const series = this.chartOption.series;
+      // when click empty space, clear dimmed style, remove filter
+      if (this.isSelected && _.isNull(params)) {
+        selectMode = ChartSelectMode.CLEAR;
+        this.chartOption = this.selectionClear(this.chartOption);
+
+        this.isSelected = false;
+      } else if (params != null) {
+
+        // parameter 정보를 기반으로 시리즈정보 설정
+        const seriesIndex = params.seriesIndex;
+        const dataIndex = params.dataIndex;
+        const selectedData = series[seriesIndex].data[dataIndex];
+
+        // check selected or not selected
+        const isSelectMode = params.data['sourceField'] ? _.isUndefined(series[seriesIndex].links[dataIndex].lineStyle) : _.isUndefined(params.data.itemStyle);
+
+        if (isSelectMode) {
+          // set add style
+          selectMode = ChartSelectMode.ADD;
+          this.chartOption = this.selectionAdd(this.chartOption, params);
+        } else {
+          // set substract style
+          selectMode = ChartSelectMode.SUBTRACT;
+          this.chartOption = this.selectionSubstract(this.chartOption, params);
+        }
+
+        this.isSelected = isSelectMode;
+
+        // get source, target matching params
+        let sourceTarget = this.getSourceTarget(series[params.seriesIndex].data, params);
+
+        // when it's link
+        if (params.data['originalSource'] && params.data['originalTarget']) {
+
+          const sourceLinkList = series[seriesIndex].links.filter((item) => {
+            if (item.originalSource === sourceTarget['source'].name && item.linkCnt > 0) return item;
+          });
+
+          const targetLinkList = series[seriesIndex].links.filter((item) => {
+            if (item.originalTarget === sourceTarget['target'].name && item.linkCnt > 0) return item;
+          });
+
+          const sourceCon = (undefined === sourceTarget['source'].selectCnt || 0 === sourceTarget['source'].selectCnt) && 0 == sourceLinkList.length;
+          const targetCon = (undefined === sourceTarget['target'].selectCnt || 0 === sourceTarget['target'].selectCnt) && 0 == targetLinkList.length;
+
+          if ((ChartSelectMode.SUBTRACT == selectMode && sourceCon) || ChartSelectMode.SUBTRACT !== selectMode) {
+
+            selectedColValues = [params.data['originalSource']];
+            // if fields are multiple, remove in multiple fields
+            if (sourceTarget['target'].fields.length > 1 && !sourceTarget['target'].itemStyle) {
+              if (undefined == selectedColValues) selectedColValues = [];
+              selectedColValues.push(params.data['originalTarget']);
+            }
+          }
+          if ((ChartSelectMode.SUBTRACT == selectMode && targetCon) || ChartSelectMode.SUBTRACT !== selectMode) {
+            selectedRowValues = [params.data['originalTarget']];
+            // if fields are multiple, remove in multiple fields
+            if (sourceTarget['source'].fields.length > 1 && !sourceTarget['source'].itemStyle) {
+              if (undefined == selectedColValues) selectedColValues = [];
+              selectedColValues.push(params.data['originalSource']);
+            }
+          }
+
+        // when it's node
+        } else {
+
+          if (!isNaN(selectedData.selectCnt)) {
+
+            // source of link has target value, do not remove in filter
+            const sourceLinkList = series[seriesIndex].links.filter((item) => {
+              if (item.originalSource === params.data.originalName && item.linkCnt > 0) return item;
+            });
+
+            // target of link has target value, do not remove in filter
+            const targetLinkList = series[seriesIndex].links.filter((item) => {
+              if (item.originalTarget === params.data.originalName && item.linkCnt > 0) return item;
+            });
+
+            const colCondition = (ChartSelectMode.SUBTRACT == selectMode && selectedData.selectCnt == 0 && sourceLinkList.length == 0) || (ChartSelectMode.SUBTRACT !== selectMode);
+            const rowCondition = (ChartSelectMode.SUBTRACT == selectMode && selectedData.selectCnt == 0 && targetLinkList.length == 0) || (ChartSelectMode.SUBTRACT !== selectMode);
+
+            // when it's substract mode, only the last data is removed in filter
+            const colMatchPivot = colCondition ? this.pivot.columns.filter((item) => {return -1 !== params.data.fields.indexOf(item.name)}) : [];
+            selectedColValues = colMatchPivot.length > 0 ? [params.data.originalName] : [];
+
+            const rowMatchPivot = rowCondition ? this.pivot.rows.filter((item) => {return -1 !== params.data.fields.indexOf(item.name)}) : [];
+            selectedRowValues = rowMatchPivot.length > 0 ? [params.data.originalName] : [];
+          }
+        }
+
+      } else {
+        return;
+      }
+
+      // if choose itself, set externalFilters as false
+      if (this.params.externalFilters) this.params.externalFilters = false;
+
+      // set filter data
+      const selectData = this.setSelectData(params, selectedColValues, selectedRowValues);
+
+      this.isUpdateRedraw = true;
+      // apply to chart
+      this.apply(true);
+
+      // set selection event
+      if (!this.isPage) {
+        this.selection();
+      }
+
+      this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
+
+      // emit event
+      this.chartSelectInfo.emit(new ChartSelectInfo(selectMode, selectData, this.params));
+    });
+  }
+
+  /**
+   * when add selection filter
+   * @param {BaseOption} option
+   * @param params
+   * @returns {BaseOption}
+   */
+  protected selectionAdd(option: BaseOption, params: any): BaseOption {
+
+    const series = option.series;
+    const selectedSeries = series[params.seriesIndex];
+
+    // when it's link
+    if (params.data['sourceField']) {
+
+      // set series links (lineStyle)
+      const seriesLink = selectedSeries.links[params.dataIndex];
+
+      if (!seriesLink.lineStyle) seriesLink.lineStyle = {normal : {}};
+      seriesLink.lineStyle.normal['opacity'] = 0.7;
+      seriesLink.linkCnt = undefined == seriesLink.linkCnt ? 1 : seriesLink.linkCnt + 1;
+
+      // set other values dimmed
+      if (selectedSeries.lineStyle && selectedSeries.lineStyle.normal) selectedSeries.lineStyle.normal.opacity = 0.2;
+
+      seriesLink.existSelectData = true;
+
+      // set source, target style (itemStyle)
+      const sourceTarget = this.getSourceTarget(selectedSeries.data, params);
+
+      const source = sourceTarget['source'];
+      const target = sourceTarget['target'];
+
+      if (!source.itemStyle) source.itemStyle = {normal : {}};
+      source.itemStyle.normal['opacity'] = 0.7;
+      // set select count
+      // source.selectCnt = undefined == source.selectCnt ? 1 : source.selectCnt + 1;
+
+      if (!target.itemStyle) target.itemStyle = {normal : {}};
+      target.itemStyle.normal['opacity'] = 0.7;
+      // target.selectCnt = undefined == target.selectCnt ? 1 : target.selectCnt + 1;
+
+      // set other values dimmed
+      if (selectedSeries.itemStyle && selectedSeries.itemStyle.normal) selectedSeries.itemStyle.normal.opacity = 0.2;
+
+    // when it's node
+    } else {
+      // set series data style (itemStyle)
+      const seriesData = selectedSeries.data[params.dataIndex];
+
+      if (!seriesData.itemStyle) seriesData.itemStyle = {normal : {}};
+      seriesData.itemStyle.normal['opacity'] = 0.7;
+
+      // set other values dimmed
+      if (selectedSeries.itemStyle && selectedSeries.itemStyle.normal) selectedSeries.itemStyle.normal.opacity = 0.2;
+      if (selectedSeries.lineStyle && selectedSeries.lineStyle.normal) selectedSeries.lineStyle.normal.opacity = 0.2;
+
+      // set select count
+      seriesData.selectCnt = undefined == seriesData.selectCnt ? 1 : seriesData.selectCnt + 1;
+    }
+
+    return option;
+  }
+
+  private getSourceTarget(data : any[], params: any) {
+
+    const sourceIndex = _.findIndex(data, (item) => {
+      return item.name === params.data.source;
+    });
+
+    // find target
+    const targetIndex = _.findIndex(data, (item) => {
+      return item.name === params.data.target;
+    });
+
+    return {source: data[sourceIndex], target : data[targetIndex]};
+  }
+
+  /**
+   * clear all selection filter
+   *
+   * @param option
+   * @returns {BaseOption}
+   */
+  protected selectionClear(option: BaseOption): BaseOption {
+
+    const series = option.series;
+
+    // init opacity
+    series.map((obj) => {
+
+      obj.data.map((item) => {
+        delete item.itemStyle;
+        delete item.selectCnt;
+      });
+
+      obj.links.map((item) => {
+        delete item.itemStyle;
+        delete item.existSelectData;
+        delete item.linkCnt;
+      });
+
+      if (obj.lineStyle && obj.lineStyle.normal) obj.lineStyle.normal.opacity = 0.7;
+      if (obj.itemStyle && obj.itemStyle.normal) obj.itemStyle.normal.opacity = 0.7;
+
+    });
+    return option;
+  }
+
+  /**
+   * clear selected filter
+   *
+   * @param option
+   * @param params
+   * @returns {BaseOption}
+   */
+  protected selectionSubstract(option: BaseOption, params: any): BaseOption {
+
+    // 현재 차트 시리즈 리스트
+    const series = option.series;
+    const selectedSeries = series[params.seriesIndex];
+    const selectedData = selectedSeries.data[params.dataIndex];
+
+    // when it's link
+    if (params.data['sourceField']) {
+
+      // set series link style(lineStyle)
+      const link = selectedSeries.links[params.dataIndex];
+
+      link.linkCnt -= 1;
+
+      // set source, target style (itemStyle)
+      let sourceTarget = this.getSourceTarget(selectedSeries.data, params);
+
+      const source = sourceTarget['source'];
+      const target = sourceTarget['target'];
+
+      // when it's last selected value, init itemStyle
+      if (0 === link.linkCnt) {
+        delete link.lineStyle;
+
+        const sourceLinkList = selectedSeries.links.filter((item) => {
+          if ((item.originalSource === source.name || item.originalTarget === source.name) && item.linkCnt > 0) return item;
+        });
+
+        const targetLinkList = selectedSeries.links.filter((item) => {
+          if ((item.originalSource === target.name || item.originalTarget === target.name) && item.linkCnt > 0) return item;
+        });
+
+        if ((undefined === source.selectCnt || 0 === source.selectCnt) && 0 == sourceLinkList.length) delete source.itemStyle;
+        if ((undefined === target.selectCnt || 0 === target.selectCnt) && 0 == targetLinkList.length) delete target.itemStyle;
+      }
+
+      link.existSelectData = false;
+
+      // when it's last data, init opacity
+      let selectedList = selectedSeries.links.filter((item) => {
+        return item.linkCnt && 0 !== item.linkCnt;
+      });
+
+      let selectedDataList = selectedSeries.data.filter((item) => {
+        return item.selectCnt && 0 !== item.selectCnt;
+      });
+
+      if ((!selectedList || 0 == selectedList.length) && (!selectedDataList || 0 == selectedDataList.length)) {
+        selectedSeries.lineStyle.normal['opacity'] = 0.7;
+      }
+
+    // when it's node
+    } else {
+
+      if (isNaN(selectedData.selectCnt - 1) || selectedData.selectCnt <= 0) return option;
+
+      selectedData.selectCnt -= 1;
+
+      const filterLink = selectedSeries.links.filter((item) => {
+        if ((item.originalSource === selectedData.name || item.originalTarget === selectedData.name) && item.linkCnt) return item;
+      });
+
+      // clear dimmed value
+      if (0 === selectedData.selectCnt && 0 === filterLink.length) {
+        delete selectedData.itemStyle;
+      }
+    }
+
+    // when it's last data, init opacity
+    let selectedList = selectedSeries.data.filter((item) => {
+      return item.selectCnt && 0 !== item.selectCnt;
+    });
+
+    // when it's last data, init opacity
+    let selectedLinkList = selectedSeries.links.filter((item) => {
+      return item.linkCnt && 0 !== item.linkCnt;
+    });
+
+    if (!selectedList || 0 == selectedList.length && (!selectedLinkList || 0 == selectedLinkList.length)) {
+      selectedSeries.itemStyle.normal['opacity'] = 0.7;
+      selectedSeries.lineStyle.normal['opacity'] = 0.7;
+    }
+
+    return option;
+  }
 }

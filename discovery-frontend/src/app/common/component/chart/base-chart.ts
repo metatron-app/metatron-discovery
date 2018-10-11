@@ -45,7 +45,7 @@ import {
   EventType,
   SeriesType,
   ShelveFieldType,
-  ShelveType
+  ShelveType, UIChartDataLabelDisplayType
 } from './option/define/common';
 import { Field as AbstractField, Field } from '../../../domain/workbook/configurations/field/field';
 
@@ -66,6 +66,7 @@ import { ColorRange, UIChartColorGradationByValue } from './option/ui-option/ui-
 import { UIScatterChart } from './option/ui-option/ui-scatter-chart';
 import UI = OptionGenerator.UI;
 import {UIChartAxisGrid} from "./option/ui-option/ui-axis";
+import { TooltipOptionConverter } from './option/converter/tooltip-option-converter';
 
 declare let echarts: any;
 
@@ -1307,11 +1308,11 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * - Echart기반 차트가 아닐경우 Override 필요
    * @param initFl 차트 초기화 여부
    */
-  protected apply(initFl: boolean = true): void {
+  protected apply(initFl: boolean = false): void {
 
     // 초기화를 하는경우
     // externalFilters가 true인 경우 - 다른차트에서 selection필터를 설정시 적용되는 차트를 그리는경우 차트 초기화
-    if ((this.isUpdateRedraw && initFl) || this.params.externalFilters) {
+    if ((this.isUpdateRedraw && initFl) || (this.params && this.params.externalFilters)) {
       // 차트 제거
       this.chart.dispose();
 
@@ -1321,7 +1322,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     // Apply!
     // chart.setOption(option, notMerge, lazyUpdate);
-    this.chart.setOption(this.chartOption, false, false);
+    this.chart.setOption(this.chartOption, initFl, false);
     console.info(this.chartOption);
   }
 
@@ -2380,7 +2381,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       const selectData = this.setSelectData(params, selectedColValues, selectedRowValues);
 
       // 차트에 적용
-      this.apply(false);
+      this.apply(true);
       this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
 
       // 이벤트 데이터 전송
@@ -2711,6 +2712,96 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     return this.chartOption;
   }
 
+  /**
+   * set datalabel when chart has axis
+   * @param {Pivot} prevPivot
+   * @param {boolean} prevPivotCondition - prev pivot has multi series(true) single series(false)
+   * @param {boolean} pivotCondition - pivot has multi series(true) single series(false)
+   * @returns {UIOption}
+   */
+  protected setAxisDataLabel(prevPivot: Pivot, checkChangeSeries: boolean): UIOption {
+
+    if (!this.pivot || !this.pivot.aggregations || !this.pivot.rows) return this.uiOption;
+
+    // 시리즈관련 리스트 제거
+    const spliceSeriesTypeList = ((seriesTypeList, dataLabel: any): any => {
+
+      // displayTypes를 찾는 index
+      let index: number;
+      for (const item of seriesTypeList) {
+        index = dataLabel.displayTypes.indexOf(item);
+
+        if (-1 !== index) {
+          // 라벨에서 제거
+          dataLabel.displayTypes[index] = null;
+        }
+      }
+      return dataLabel.displayTypes;
+    });
+
+    const setDefaultDisplayTypes = ((value): any => {
+
+      if (!value || !value.displayTypes) return [];
+
+      let defaultDisplayTypes = [];
+
+      // when it has single series
+      if (this.pivot.aggregations.length <= 1 && this.pivot.rows.length < 1) {
+
+        // set disabled list when it has single series
+        const disabledList = [UIChartDataLabelDisplayType.SERIES_NAME, UIChartDataLabelDisplayType.SERIES_VALUE, UIChartDataLabelDisplayType.SERIES_PERCENT];
+
+        // remove disabled list
+        defaultDisplayTypes = spliceSeriesTypeList(disabledList, value);
+
+        // set default datalabel, tooltip list
+        defaultDisplayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
+        defaultDisplayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
+        // when it has multi series
+      } else {
+
+        // set disabled list when it has multi series
+        const disabledList = [UIChartDataLabelDisplayType.CATEGORY_VALUE, UIChartDataLabelDisplayType.CATEGORY_PERCENT];
+
+        // remove disabled list
+        defaultDisplayTypes = spliceSeriesTypeList(disabledList, value);
+
+        // set default datalabel, tooltip list
+        defaultDisplayTypes[3] = UIChartDataLabelDisplayType.SERIES_NAME;
+        defaultDisplayTypes[4] = UIChartDataLabelDisplayType.SERIES_VALUE;
+      }
+
+      return defaultDisplayTypes;
+    });
+
+    // when draw chart or change single <=> multi series
+    if ((EventType.CHANGE_PIVOT === this.drawByType && checkChangeSeries) || EventType.CHART_TYPE === this.drawByType) {
+
+      // set datalabel display types
+      let datalabelDisplayTypes = setDefaultDisplayTypes(this.uiOption.dataLabel);
+
+      // set tooltip display types
+      let tooltipDisplayTypes = setDefaultDisplayTypes(this.uiOption.toolTip);
+
+      // set default datalabel value
+      if (this.uiOption.dataLabel && this.uiOption.dataLabel.displayTypes) {
+        // set dataLabel
+        this.uiOption.dataLabel.displayTypes = datalabelDisplayTypes;
+        // set previewList
+        this.uiOption.dataLabel.previewList = LabelOptionConverter.setDataLabelPreviewList(this.uiOption);
+      }
+
+      // set default tooltip value
+      if (this.uiOption.toolTip && this.uiOption.toolTip.displayTypes) {
+        // set dataLabel
+        this.uiOption.toolTip.displayTypes = tooltipDisplayTypes;
+        // set previewList
+        this.uiOption.toolTip.previewList = TooltipOptionConverter.setTooltipPreviewList(this.uiOption);
+      }
+    }
+
+    return this.uiOption;
+  }
 }
 
 
