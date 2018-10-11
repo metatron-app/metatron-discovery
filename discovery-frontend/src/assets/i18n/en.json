@@ -1795,7 +1795,7 @@
   "msg.storage.ui.ph.timestamp.column" : "No time-type column",
   "msg.storage.ui.invalid.json": "Invalid JSON",
   "msg.storage.ui.valid.json": "Valid JSON",
-  "msg.storage.ui.tuning.settings": "ingestion tuning configuration(Opt.)",
+  "msg.storage.ui.tuning.settings": "Ingestion tuning configuration(Opt.)",
   "msg.storage.ui.tuning.description.title": "What is Ingestion tuning configuration?",
   "msg.storage.ui.tuning.description": "Ingestion tuning configuration describes effective options when ingestion.Now put it in the corresponding text box in JSON format",
   "msg.storage.btn.recommend.filter.first": "Apply as priority filter",

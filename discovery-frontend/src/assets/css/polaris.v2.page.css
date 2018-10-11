@@ -5067,6 +5067,10 @@ table.ddp-table-detail tbody tr td .ddp-ui-summary ul.ddp-list-sub li a {color:#
 .ddp-wrap-table-detail .ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-normal {font-size:16px;}
 .ddp-wrap-table-detail {position:relative; border-top:1px dotted #ccc; margin:40px -20px 0 -20px; padding:40px 20px 0 20px;}
 .ddp-wrap-table-detail .ddp-type-plan .ddp-label-detail {display:inline-block; padding-right: 15px; line-height:30px;}
+.ddp-wrap-table-detail.ddp-last {padding-bottom:40px;}
+
+.ddp-wrap-table-detail.ddp-last .ddp-detail-setting .ddp-wrap-down {margin-bottom:-40px;}
+
 .ddp-wrap-table-detail .ddp-type-plan .ddp-label-detail a.ddp-btn-option2 {margin-left:4px; vertical-align:middle;}
 .ddp-wrap-table-detail .ddp-type-plan .ddp-btn-pop {min-width:140px;}
 .ddp-wrap-table-detail .ddp-btn-pop em.ddp-icon-email {display:inline-block; width:14px; height:12px; margin-right:5px; background:url(../images/icon_mail.png) no-repeat ;}
