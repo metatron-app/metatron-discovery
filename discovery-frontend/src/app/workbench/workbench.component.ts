@@ -310,6 +310,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 단축키 show flag
   public shortcutsFl: boolean = false;
 
+  // Hive Tab logs
+  public hiveTabLogs: any[] = [];
+
   // Hive Log 표시 여부
   public hiveLogs: { [key: number]: { isShow: boolean, log: string[] } } = [];
 
@@ -774,6 +777,23 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // 에디터 탭 변경
   public tabChangeHandler(selectedTabNum: number, deleteFlag: boolean = false, selectedItem?: any): void {
+
+    // hive 일경우
+    if( this.mimeType == 'HIVE' ){
+
+      for (let index: number = 0; index < this.hiveTabLogs.length; index = index + 1) {
+        if( this.hiveTabLogs[index]['selectedTabNum'] == selectedTabNum ){
+          this.hiveLogs = [];
+          this.hiveLogs = this.hiveTabLogs[index]['data'];
+          this.hiveLogs[0]['isShow'] = false;
+          break;
+        }
+      }
+
+      this.safelyDetectChanges();
+
+    }
+
     // 이전에 선택된 Query tab 저장
     if (!isUndefined(this.selectedEditorId) && deleteFlag === false) {
       // 로컬 스토리지에 선택된 tab 순번과 schema 저장
@@ -2194,6 +2214,25 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.isHiveLogCancel = false;
     this.safelyDetectChanges();
 
+    this.setHiveTabLogs();
+
+  }
+
+  // set hive tab log
+  public setHiveTabLogs() {
+
+    for (let index: number = 0; index < this.hiveTabLogs.length; index = index + 1) {
+      if( this.hiveTabLogs[index]['selectedTabNum'] == this.selectedTabNum ){
+        this.hiveTabLogs.splice(index, 1);
+        break;
+      }
+    }
+
+    this.hiveTabLogs.push({
+      selectedTabNum: this.selectedTabNum,
+      data : this.hiveLogs
+    });
+
   }
 
   // 에디터 컴포넌트 래핑 엘리먼트 높이 값 반환
@@ -2387,6 +2426,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     } else {
       currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.error'));
     }
+
+    this.setHiveTabLogs();
 
     this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
     this.datagridCurList[selectedGridTabNum]['selected'] = true;
