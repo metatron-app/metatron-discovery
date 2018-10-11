@@ -1183,10 +1183,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           if( this.mimeType == 'HIVE' ){
 
             // 중지된 쿼리가 있을경우
-            if( this.isLogCancelTabQuery.length > 0 ){
-              this.hiveLogFinish();
-              return false;
-            }
+            // if( this.isLogCancelTabQuery.length > 0 ){
+            //   this.hiveLogFinish();
+            //   return false;
+            // }
 
             let tempArr : any[] = [];
 
@@ -2349,40 +2349,48 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       query: '',
       webSocketId: this.websocketId
     };
-    console.info("logCancel setQueryRunCancel param query : " + params.query);
-    console.info("logCancel setQueryRunCancel param webSocketId : " + params.webSocketId);
     this.workbenchService.setQueryRunCancel(this.selectedEditorId, params)
       .then(() => {
 
         Alert.success(this.translateService.instant('msg.bench.alert.log.cancel.success'));
         this.loadingBar.hide();
-        this.hiveLogCanceling = false;
 
         console.info("logCancel setQueryRunCancel success");
 
-        this.isLogCancelTabQuery.push(this.runningQueryArr[selectedGridTabNum]);
-
-        const currHiveLog = this.hiveLogs[selectedGridTabNum];
-
-        currHiveLog.isShow = true;
-        currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.success'));
-
-        this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
-
-        this.isHiveLog = false;
-
+        this.setQueryRunCancel(true, selectedGridTabNum);
 
       })
       .catch((error) => {
 
         Alert.error(this.translateService.instant('msg.bench.alert.log.cancel.error'));
         this.loadingBar.hide();
-        this.hiveLogCanceling = false;
 
         console.info("logCancel setQueryRunCancel error");
+
+        this.setQueryRunCancel(false, selectedGridTabNum);
+
       });
 
+  }
 
+  // query cancel
+  public setQueryRunCancel(isSuccess : boolean, selectedGridTabNum : number){
+
+    this.hiveLogCanceling = false;
+
+    this.isLogCancelTabQuery.push(this.runningQueryArr[selectedGridTabNum]);
+
+    const currHiveLog = this.hiveLogs[selectedGridTabNum];
+    currHiveLog.isShow = true;
+    if( isSuccess ){
+      currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.success'));
+    } else {
+      currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.error'));
+    }
+
+    this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
+
+    this.isHiveLog = false;
   }
 
   // 뒤로 돌아가기
