@@ -208,7 +208,9 @@
                       <!-- more -->
                       <div class="ddp-wrap-morebutton">
                         <em class="ddp-icon-more" id="tabLayer{{findIndexInList(textList, item)}}"
-                            (click)="setTabLayer($event, findIndexInList(textList, item)); tabChangeHandler(findIndexInList(textList, item), false)"></em>
+                            (click)="isHiveQueryExecute ? alertHiveQueryExecuting(): setTabLayer($event, findIndexInList(textList, item));
+                                     isHiveQueryExecute ? alertHiveQueryExecuting(): tabChangeHandler(findIndexInList(textList, item), false);">
+                        </em>
                       </div>
                       <!-- //more -->
                     </div>

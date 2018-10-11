@@ -1073,8 +1073,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 쿼리 실행
   public setExecuteSql(param: string) {
     this.loadingBar.show();
-    this.isHiveQueryExecute = true;
-
+    if( this.mimeType == 'HIVE' ) {
+      this.isHiveQueryExecute = true;
+    }
     // 호출횟수 증가
     this._executeSqlReconnectCnt++;
     // 보고있는 탭이 에러인경우 초기화
@@ -1458,7 +1459,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   // 탭 레이어 보이기
-  protected setTabLayer($event: Event, index: number): void {
+  public setTabLayer($event: Event, index: number): void {
 
     $event.stopImmediatePropagation();
 
