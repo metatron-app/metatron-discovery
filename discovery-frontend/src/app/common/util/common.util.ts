@@ -199,6 +199,16 @@ export class CommonUtil {
       $popupContainer.find('.ddp-pop-title').html('');
     }
 
+    // 설명 설정
+    let description: string = '';
+    (confirmData.description) && (description = description + confirmData.description);
+    (confirmData.subDescription) && (description = description + '<br/>' + confirmData.subDescription);
+    if (confirmData.isScroll) {
+      $scrollContentsBox.find('.ddp-txt-detail').text(description);
+    } else {
+      $nonScrollContentsBox.text(description);
+    }
+
     // 버튼 설정
     const $btnCancel = $popupContainer.find('.ddp-btn-type-popup:first');
     const $btnDone = $btnCancel.next();
@@ -219,16 +229,6 @@ export class CommonUtil {
     });
 
     $popupContainer.show();
-
-    // 설명 설정
-    let description: string = '';
-    (confirmData.description) && (description = description + confirmData.description);
-    (confirmData.subDescription) && (description = description + '<br/>' + confirmData.subDescription);
-    if (confirmData.isScroll) {
-      $scrollContentsBox.find('.ddp-txt-detail').html(description);
-    } else {
-      $nonScrollContentsBox.html(description);
-    }
   } // function - confirm
 
   //////////////////////////////////////////////////
