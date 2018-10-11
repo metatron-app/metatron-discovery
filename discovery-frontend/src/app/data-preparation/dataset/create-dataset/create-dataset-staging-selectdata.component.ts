@@ -16,16 +16,16 @@ import {
   Component, ElementRef, Injector, OnInit, Input, ViewChild, HostListener, EventEmitter,
   Output
 } from '@angular/core';
-import { DatasetService } from '../../service/dataset.service';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
-import { Alert } from '../../../../common/util/alert.util';
-import { PreparationAlert } from '../../../util/preparation-alert.util';
-import { DatasetHive, DsType, RsType, ImportType, Field } from '../../../../domain/data-preparation/dataset';
-import { GridComponent } from '../../../../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../../../../common/component/grid/grid.header';
-import { GridOption } from '../../../../common/component/grid/grid.option';
-import { StringUtil } from '../../../../common/util/string.util';
+import { DatasetService } from '../service/dataset.service';
+import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
+import { PopupService } from '../../../common/service/popup.service';
+import { Alert } from '../../../common/util/alert.util';
+import { PreparationAlert } from '../../util/preparation-alert.util';
+import { DatasetHive, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/dataset';
+import { GridComponent } from '../../../common/component/grid/grid.component';
+import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
+import { GridOption } from '../../../common/component/grid/grid.option';
+import { StringUtil } from '../../../common/util/string.util';
 import * as $ from "jquery";
 import { isNull } from "util";
 
@@ -263,9 +263,9 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
         this.clickable = true;
       })
       .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
     this.initSelectedCommand(this.filteredSchemaList);
   } // function - onChangeTable
@@ -321,7 +321,10 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
         this.datasetHive.rsType = RsType.SQL;
       }
       this.tableOrQuery = method;
-      this.gridComponent.destroy(); // destroy grid
+
+      if (this.gridComponent) {
+        this.gridComponent.destroy(); // destroy grid
+      }
       this.clickable = false; // prevent moving to next stage
       this.isDatabaseListShow = false;
       this.isSchemaListShow = false;
@@ -338,7 +341,7 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       return;
     }
 
-      this.loadingShow();
+    this.loadingShow();
     this.queryErrorMsg = '';
     this.datasetService.getResultWithStagingDBQuery(this.datasetHive.queryStmt).then((result) => {
       this.loadingHide();
@@ -402,9 +405,9 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
       this.clickable = true;
     }).catch((error) => {
 
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      this.loadingHide();
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
 
       this.gridComponent.destroy();
       this.showQueryStatus = true;
@@ -632,16 +635,16 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
               this.showDatabaseList();
             })
             .catch((error) => {
-                    this.loadingHide();
-                    let prep_error = this.dataprepExceptionHandler(error);
-                    PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+              this.loadingHide();
+              let prep_error = this.dataprepExceptionHandler(error);
+              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
             });
         }
       })
       .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
   } // function - getDatabases
 
@@ -662,9 +665,9 @@ export class CreateDatasetStagingSelectdataComponent extends AbstractPopupCompon
         }
       })
       .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
   } // function - getTables
 

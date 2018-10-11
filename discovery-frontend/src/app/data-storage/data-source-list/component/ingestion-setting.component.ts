@@ -150,6 +150,8 @@ export class IngestionSettingComponent extends AbstractComponent {
   // advanced settings
   public tuningConfig: any[] = [];
   public jobProperties: any[] = [];
+  // isShowAdvancedSetting
+  public isShowAdvancedSetting: boolean = false;
 
   // step change
   @Output()
@@ -646,6 +648,8 @@ export class IngestionSettingComponent extends AbstractComponent {
     this.selectedRollUpType = ingestionData.selectedRollUpType;
     // load tuning configuration
     this.tuningConfig = ingestionData.tuningConfig;
+    // isShowAdvancedSetting
+    this.isShowAdvancedSetting = ingestionData.isShowAdvancedSetting;
     // if create type is DB
     if (this.createType === 'DB') {
       // load selected expiration time
@@ -707,7 +711,9 @@ export class IngestionSettingComponent extends AbstractComponent {
       // save selected rollup type
       selectedRollUpType : this.selectedRollUpType,
       // save tuning configuration
-      tuningConfig : this.tuningConfig
+      tuningConfig : this.tuningConfig,
+      // isShowAdvancedSetting
+      isShowAdvancedSetting: this.isShowAdvancedSetting
     };
     // if create type DB
     if (this.createType === 'DB') {

@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +31,13 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-
 @Controller
 public class WorkbenchWebSocketController {
 
   private static Logger LOGGER = LoggerFactory.getLogger(WorkbenchWebSocketController.class);
 
   enum WorkbenchWebSocketCommand{
-    CONNECT, DISCONNECT
+    CONNECT, DISCONNECT, LOG, DONE
   }
 
   @Autowired

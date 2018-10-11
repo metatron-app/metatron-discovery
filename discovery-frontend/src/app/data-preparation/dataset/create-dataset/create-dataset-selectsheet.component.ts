@@ -17,22 +17,22 @@ import {
   Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnInit, Output, SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
-import { DatasetFile } from '../../../../domain/data-preparation/dataset';
-import { Alert } from '../../../../common/util/alert.util';
-import { PreparationAlert } from '../../../util/preparation-alert.util';
+import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
+import { PopupService } from '../../../common/service/popup.service';
+import { DatasetFile } from '../../../domain/data-preparation/dataset';
+import { Alert } from '../../../common/util/alert.util';
+import { PreparationAlert } from '../../util/preparation-alert.util';
 import { isUndefined } from 'util';
-import { DatasetService } from '../../service/dataset.service';
+import { DatasetService } from '../service/dataset.service';
 import { FileLikeObject, FileUploader } from 'ng2-file-upload';
-import { CookieConstant } from '../../../../common/constant/cookie.constant';
-import { CommonConstant } from '../../../../common/constant/common.constant';
+import { CookieConstant } from '../../../common/constant/cookie.constant';
+import { CommonConstant } from '../../../common/constant/common.constant';
 import { DomSanitizer } from '@angular/platform-browser';
-import { GridComponent } from '../../../../common/component/grid/grid.component';
-import { header, SlickGridHeader } from '../../../../common/component/grid/grid.header';
-import { Field } from '../../../../domain/datasource/datasource';
+import { GridComponent } from '../../../common/component/grid/grid.component';
+import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
+import { Field } from '../../../domain/datasource/datasource';
 import * as pixelWidth from 'string-pixel-width';
-import { GridOption } from '../../../../common/component/grid/grid.option';
+import { GridOption } from '../../../common/component/grid/grid.option';
 
 @Component({
   selector: 'app-create-dataset-selectsheet',
@@ -343,48 +343,48 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         }
       })
         .catch((error) => {
-                this.loadingHide();
-                let prep_error = this.dataprepExceptionHandler(error);
-                PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+          this.loadingHide();
+          let prep_error = this.dataprepExceptionHandler(error);
+          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
         });
-    /*
-    if (isUndefined(this.datasetFile.sheets)) {
-      // csv
-      this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
-        this.loadingHide();
-        const temp: any = {};
-        temp.header = result.headers;
-        temp.data = result.data;
-        this.clearGrid = true;
-        this.datasetFile.sheetname = '';
-        this.rowData = temp.data['0'][0]; // index 0,0에 파일 앞 250 바이트 들어있음
-        this.rowData = this.rowData.replace(regEx,'<br>');
-        // this.rowData = JSON.stringify(temp);
-      })
-        .catch((error) => {
-                this.loadingHide();
-                let prep_error = this.dataprepExceptionHandler(error);
-                PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-    } else if (this.datasetFile.sheets.length === 0) {
-      // csv
-      this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
-        this.loadingHide();
-        const temp: any = {};
-        this.clearGrid = true;
-        this.datasetFile.sheetname = '';
-        temp.header = result.headers;
-        temp.data = result.data;
-        this.rowData = temp.data['0'][0]; // index 0,0에 파일 앞 250 바이트 들어있음
-        this.rowData = this.rowData.replace(regEx,'<br>');
-        // this.rowData = JSON.stringify(temp);
-      })
-        .catch((error) => {
-                this.loadingHide();
-                let prep_error = this.dataprepExceptionHandler(error);
-                PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-    */
+      /*
+      if (isUndefined(this.datasetFile.sheets)) {
+        // csv
+        this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
+          this.loadingHide();
+          const temp: any = {};
+          temp.header = result.headers;
+          temp.data = result.data;
+          this.clearGrid = true;
+          this.datasetFile.sheetname = '';
+          this.rowData = temp.data['0'][0]; // index 0,0에 파일 앞 250 바이트 들어있음
+          this.rowData = this.rowData.replace(regEx,'<br>');
+          // this.rowData = JSON.stringify(temp);
+        })
+          .catch((error) => {
+                  this.loadingHide();
+                  let prep_error = this.dataprepExceptionHandler(error);
+                  PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+          });
+      } else if (this.datasetFile.sheets.length === 0) {
+        // csv
+        this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
+          this.loadingHide();
+          const temp: any = {};
+          this.clearGrid = true;
+          this.datasetFile.sheetname = '';
+          temp.header = result.headers;
+          temp.data = result.data;
+          this.rowData = temp.data['0'][0]; // index 0,0에 파일 앞 250 바이트 들어있음
+          this.rowData = this.rowData.replace(regEx,'<br>');
+          // this.rowData = JSON.stringify(temp);
+        })
+          .catch((error) => {
+                  this.loadingHide();
+                  let prep_error = this.dataprepExceptionHandler(error);
+                  PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+          });
+      */
     } else {
       // excel
       this.datasetService.getDatasetExcelFile(this.datasetFile).then((result) => {
@@ -425,9 +425,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
           return;
         }
       }).catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
     }
   }

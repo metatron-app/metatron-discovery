@@ -1,0 +1,165 @@
+package app.metatron.discovery.domain.workbench;
+
+import app.metatron.discovery.common.ProgressResponse;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hive.jdbc.HiveStatement;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.SimpMessageType;
+import org.springframework.stereotype.Component;
+
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Project : metatron-discovery
+ * Created by IntelliJ IDEA
+ * Developer : ufoscw
+ * Date : 2018. 8. 22.
+ * Time : AM 9:28
+ */
+@Component
+public class HiveQueryLogThread implements Runnable {
+
+  private static Logger LOGGER = LoggerFactory.getLogger(HiveQueryLogThread.class);
+
+  private SimpMessageSendingOperations messagingTemplate;
+  private HiveStatement stmt;
+  private String workbenchId;
+  private String webSocketId;
+  private int queryIndex;
+  private long queryProgressInterval;
+  private String totalLog;
+
+
+  private HiveQueryLogThread(){
+
+  }
+
+  public HiveQueryLogThread(HiveStatement stmt, String workbenchId, String webSocketId, int queryIndex, long queryProgressInterval, SimpMessageSendingOperations messagingTemplate){
+    this.stmt = stmt;
+    this.workbenchId = workbenchId;
+    this.webSocketId = webSocketId;
+    this.queryIndex = queryIndex;
+    this.queryProgressInterval = queryProgressInterval;
+    this.messagingTemplate = messagingTemplate;
+  }
+
+  @Override
+  public void run() {
+    try{
+      while (stmt.hasMoreLogs()) {
+        LOGGER.debug("HiveQueryLogThread Tick : {}", DateTime.now().getSecondOfDay());
+
+        //get current log
+        //required hive property in server-side (hive.async.log.enabled=false)
+        List<String> logLists = stmt.getQueryLog();
+        sendLogMessage(logLists);
+        Thread.sleep(queryProgressInterval);
+      }
+    } catch(SQLException e){
+      LOGGER.debug(e.getMessage());
+    } catch(InterruptedException e){
+      LOGGER.debug("Log Thread Interrupted..", e);
+    } finally {
+      showRemainingLogsIfAny(stmt);
+      sendDoneMessage();
+    }
+  }
+
+  private ProgressResponse parseProgress(List<String> logLists){
+    ProgressResponse progress = null;
+    for(String log : logLists){
+      if(isProgressIndicatedLog(log)){
+        String progressIndicatedLog = parseProgressIndicatedLog(log);
+        VerticesProgress verticesProgress = new VerticesProgress(log);
+        progress = new ProgressResponse(verticesProgress.getProgress(), progressIndicatedLog);
+        LOGGER.debug("progress : {}%, progressIndicatedLog : {}", verticesProgress.getProgress(), progressIndicatedLog);
+      }
+    }
+    return progress;
+  }
+
+  public boolean isProgressIndicatedLog(String log){
+    if(StringUtils.isNotEmpty(log)){
+      return VerticesProgress.isProgressIndicatedLog(log);
+    }
+    return false;
+  }
+
+  private String parseProgressIndicatedLog(String log){
+    int firstMapString = StringUtils.indexOf(log, "Map");
+    int firstReducerString = StringUtils.indexOf(log, "Reducer");
+    if(firstMapString > 0 && firstReducerString > 0){
+      return StringUtils.substring(log, Math.min(firstMapString, firstReducerString), log.length());
+    } else if(firstMapString > 0){
+      return StringUtils.substring(log, firstMapString, log.length());
+    } else if(firstReducerString > 0){
+      return StringUtils.substring(log, firstReducerString, log.length());
+    }
+    return log;
+  }
+
+  private void sendLogMessage(List<String> logLists){
+    String currrentLog = StringUtils.join(logLists, "\n");
+
+    //append to total log
+    String newTotalLog = StringUtils.join(totalLog, "\n", currrentLog);
+    totalLog = newTotalLog;
+
+    //parse progress
+    ProgressResponse progress = parseProgress(logLists);
+
+    Map<String, Object> message = new HashMap<>();
+    message.put("command", WorkbenchWebSocketController.WorkbenchWebSocketCommand.LOG);
+    message.put("log", logLists);
+    message.put("progress", progress);
+    message.put("queryIndex", queryIndex);
+
+    messagingTemplate.convertAndSendToUser(webSocketId, "/queue/workbench/" + workbenchId, message, createHeaders(webSocketId));
+  }
+
+
+  private void sendDoneMessage(){
+    Map<String, Object> message = new HashMap<>();
+    message.put("command", WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE);
+    message.put("queryIndex", queryIndex);
+
+    messagingTemplate.convertAndSendToUser(webSocketId, "/queue/workbench/" + workbenchId, message, createHeaders(webSocketId));
+  }
+
+  private void showRemainingLogsIfAny(Statement statement) {
+    if (statement instanceof HiveStatement) {
+      LOGGER.debug("showRemainingLogsIfAny.");
+      HiveStatement hiveStatement = (HiveStatement) statement;
+      List<String> logs = null;
+      do {
+        try {
+          LOGGER.debug("showRemainingLogsIfAny. do!");
+          logs = hiveStatement.getQueryLog();
+        } catch (SQLException e) {
+          LOGGER.error(e.getMessage());
+          return;
+        }
+        sendLogMessage(logs);
+      } while (logs.size() > 0);
+    } else {
+      LOGGER.debug("The statement instance is not HiveStatement type: " + statement.getClass());
+    }
+  }
+
+  private MessageHeaders createHeaders(String sessionId) {
+    SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+    headerAccessor.setSessionId(sessionId);
+    headerAccessor.setLeaveMutable(true);
+    return headerAccessor.getMessageHeaders();
+  }
+
+}
