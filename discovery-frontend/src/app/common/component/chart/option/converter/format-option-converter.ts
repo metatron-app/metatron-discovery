@@ -323,7 +323,7 @@ export class FormatOptionConverter {
       }
       if( uiData['categoryPercent'] && uiData['categoryPercent'].length > 0 && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT) ){
         let value = uiData['categoryPercent'][params.dataIndex];
-        value = Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
+        value = (Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
         result.push(value +'%');
         isUiData = true;
       }
@@ -372,7 +372,7 @@ export class FormatOptionConverter {
       }
       if( uiData['seriesPercent'] && uiData['seriesPercent'].length > 0 && -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ){
         let value = uiData['seriesPercent'][params.dataIndex];
-        value = Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
+        value = (Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
         result.push(value +'%');
         isUiData = true;
       }
@@ -688,7 +688,8 @@ export class FormatOptionConverter {
         // category percent가 있는경우
         if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_PERCENT)) {
           let value = uiData['categoryPercent'][params.dataIndex];
-          value = Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
+
+          value = (Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
 
           categoryValue += ' (' + value + '%)';
         }
@@ -764,7 +765,7 @@ export class FormatOptionConverter {
         // series percent가 있는경우
         if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
           let value = uiData['seriesPercent'][params.dataIndex];
-          value = Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
+          value = (Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
 
           seriesValue += ' (' + value + '%)';
         }
