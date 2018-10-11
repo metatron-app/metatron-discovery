@@ -183,7 +183,36 @@ export class FormatOptionConverter {
 
     // 천단위 표시여부
     if (format.type != String(UIFormatType.EXPONENT10) && format.useThousandsSep) {
-      value = value.toLocaleString();
+
+      // Decimal Separation
+      let decimalValue: string = "";
+      if( String(value).indexOf(".") != -1 ) {
+        decimalValue = String(value).split(".")[1];
+      }
+
+      // Thousand units
+      value = String(value).split(".")[0].toLocaleString();
+
+      // Append Decimal
+      if( decimalValue != "" ) {
+        value += "." + decimalValue;
+      }
+    }
+
+    // Add decimal zero
+    if (value && format.type != String(UIFormatType.EXPONENT10) && format.decimal > 0) {
+      let stringValue: string = String(value);
+      if( stringValue.indexOf(".") == -1 ) {
+        value += ".";
+        for( let num: number = 0 ; num < format.decimal ; num++ ) {
+          value += "0";
+        }
+      }
+      else {
+        for( let num: number = stringValue.split(".")[1].length ; num < format.decimal ; num++ ) {
+          value += "0";
+        }
+      }
     }
 
     // 수치표기 약어설정
@@ -207,22 +236,6 @@ export class FormatOptionConverter {
         case String(UIFormatNumericAliasType.GIGA) :
           value += 'B';
           break;
-      }
-    }
-
-    // Add decimal zero
-    if (value && format.type != String(UIFormatType.EXPONENT10) && format.decimal > 0) {
-      let stringValue: string = String(value);
-      if( stringValue.indexOf(".") == -1 ) {
-        value += ".";
-        for( let num: number = 0 ; num < format.decimal ; num++ ) {
-          value += "0";
-        }
-      }
-      else {
-        for( let num: number = stringValue.split(".")[1].length ; num < format.decimal ; num++ ) {
-          value += "0";
-        }
       }
     }
 
