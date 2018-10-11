@@ -887,8 +887,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         if (this.datagridCurList[index]['output'] === 'text') {
           this.resultMode = 'text';
           this.resultTextOutput = this.datagridCurList[index]['message'];
+          this.isGridResultNoData = true;
         } else if (this.datagridCurList[index]['output'] === 'grid') {
           this.resultMode = 'grid';
+          this.isGridResultNoData = false;
         }
         this.datagridCurList[index]['selected'] = true;
         this.selectedGridTabNum = index;
@@ -906,11 +908,17 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.datagridCurList[index]['selected'] = false;
       }
     }
-    if (this.resultMode === 'grid') {
-      // 데이터 그리드 뿌리기
-      if( this.mimeType == 'HIVE' ){
-        this.safelyDetectChanges();
+    // 데이터 그리드 뿌리기
+    if( this.mimeType == 'HIVE' ){
+
+      const currHiveLog = this.hiveLogs[selectedTabNum];
+      if( currHiveLog.log.length > 0 ) {
+        this.isGridResultNoData = false;
       }
+
+      this.safelyDetectChanges();
+    }
+    if (this.resultMode === 'grid') {
       this.drawGridData(this.selectedGridTabNum);
     } else if (this.resultMode === 'text') {
 
@@ -1807,26 +1815,27 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         selectedYn = false;
       }
       if (data[selectedResultTabNum].queryResultStatus === 'FAIL') {
-        // if (index === 0) { // 0 번쨰가 Fail 일 경우
-        // this.resultMode = 'text';
-        this.resultTextOutput = data[selectedResultTabNum].message;
-        // }
+        if (index === 0) { // 0 번쨰가 Fail 일 경우
+          this.resultMode = 'text';
+          this.resultTextOutput = data[selectedResultTabNum].message;
+          this.isGridResultNoData = true;
+        }
         const temp = {
           name: this.textList[selectedNum].name + '- 오류 ' + (selectedResultTabNum + 1),
           data: data[selectedResultTabNum],
           selected: selectedYn,
           output: 'text',
-          message: data[selectedNum].message,
+          message: data[selectedResultTabNum].message,
           queryTabNum: selectedNum,
           editorId: this.textList[selectedNum].editorId
         };
         this.tabGridNum = this.tabGridNum + 1;
-        this.isGridResultNoData = true;
         this.datagridList.push(temp);
       } else {
-        // if (index === 0) { // 0 번쨰가 SUCCESS 일 경우
-        this.resultMode = 'grid';
-        // }
+        if (index === 0) { // 0 번쨰가 SUCCESS 일 경우
+          this.resultMode = 'grid';
+          this.isGridResultNoData = false;
+        }
         const temp = {
           name: this.textList[selectedNum].name + ' - ' + this.translateService.instant('msg.bench.ui.rslt') + (selectedResultTabNum + 1),
           data: data[selectedResultTabNum],
@@ -1837,7 +1846,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           editorId: this.textList[selectedNum].editorId
         };
         this.tabGridNum = this.tabGridNum + 1;
-        this.isGridResultNoData = false;
         this.datagridList.push(temp);
       }
     }
@@ -2224,13 +2232,16 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // data fields가 없다면 return
     if (!data || !data.fields) {
 
+      $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
+
+      // hive 일 경우 log 데이터 확인 필요
       if( this.mimeType == 'HIVE' ){
         this.hiveLogs[idx].isShow = false;
         this.safelyDetectChanges();
+        return false;
       }
 
       this.gridComponent.noShowData();
-      $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
       this.isGridResultNoData = true;
       return false;
     } else {
@@ -2355,6 +2366,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
         currHiveLog.isShow = true;
         currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.success'));
+
+        this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
 
         this.isHiveLog = false;
 
