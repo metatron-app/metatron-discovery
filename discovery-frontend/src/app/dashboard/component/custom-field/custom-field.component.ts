@@ -94,10 +94,7 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   public columnType = ColumnType;
 
   // 필드 페이지 사이
-  public pageSize = 14;
-
-  // 필드 갯수
-  public totalFieldsSize = 0;
+  public pageSize = 13;
 
   // 현재 페이지
   public currentPage = 1;
@@ -191,6 +188,9 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
   // Init
   public ngOnInit() {
 
+    // Init
+    super.ngOnInit();
+
     this._$calculationInput = $('#calculationInput');
 
     // 초기
@@ -220,14 +220,10 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     } else {
       this.setColumnName();
     }
-
-    // Init
-    super.ngOnInit();
   }
 
   // Destory
   public ngOnDestroy() {
-    this._$calculationInput.remove();
     // Destory
     super.ngOnDestroy();
   }
@@ -314,19 +310,16 @@ export class CustomFieldComponent extends AbstractComponent implements OnInit, O
     // 필드 페이징
     if (this.fields.hasOwnProperty('length')) {
       // 총사이즈
-      this.totalFieldsSize = this.fields.length;
+      const totalFieldsSize:number = this.fields.length;
       // 마지막 페이지 계산
-      this.lastPage = (this.totalFieldsSize % this.pageSize === 0) ? (this.totalFieldsSize / this.pageSize) : Math.floor(this.totalFieldsSize / this.pageSize) + 1;
+      this.lastPage = Math.ceil( totalFieldsSize / this.pageSize );
 
-      start = (page * this.pageSize) - this.pageSize;
-      end = (page * this.pageSize) - 1;
-      if (end > this.totalFieldsSize) {
-        end = this.totalFieldsSize;
-      }
-      // 현재 페이지에 맞게 데이터 자르기
-      this.pagedFields = this.fields.slice(start, end);
+      start = ( page - 1 ) * this.pageSize;
+      end = start + this.pageSize;
+
+      this.pagedFields = this.fields.slice(start, end);   // 현재 페이지에 맞게 데이터 자르기
     }
-  }
+  } // function - setFieldPage
 
   // 자동완성 필터리스트 셋팅
   public setFilters() {

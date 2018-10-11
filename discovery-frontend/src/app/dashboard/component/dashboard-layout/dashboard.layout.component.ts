@@ -181,10 +181,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-    if (this._widgetComps && 0 < this._widgetComps.length) {
-      this._widgetComps.forEach(item => item.destroy());
-    }
-    (this._layoutObj) && (this._layoutObj.destroy());
+    this.destroyDashboard();
   } // function - ngOnDestroy
 
   @HostListener('window:resize', ['$event'])
@@ -231,17 +228,8 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    */
   private _initConf() {
 
-    // 객체 초기화
-    if (this._layoutObj) {
-
-      // 현재 위젯이 존재할 경우 삭제함 ( 위젯별 destroy를 호출하기 위함 )
-      if (this._widgetComps && 0 < this._widgetComps.length) {
-        this._widgetComps.forEach(item => item.destroy());
-      }
-
-      this._layoutObj.destroy();
-      this._layoutObj = null;
-    }
+    // initialize dashboard - destroy prev dashboard
+    this.destroyDashboard();
 
     // 컴포넌트 목록 및 주요 데이터 초기화
     this._widgetComps = [];
@@ -1212,6 +1200,17 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
   public getLayoutContent(): any[] {
     return this._layoutObj.toConfig().content;
   } // function - getLayoutContent
+
+  /**
+   * Destroy dashboard
+   */
+  public destroyDashboard() {
+    if (this._widgetComps && 0 < this._widgetComps.length) {
+      this._widgetComps.forEach(item => item.destroy());
+    }
+    (this._layoutObj) && (this._layoutObj.destroy());
+    this._layoutObj = null;
+  } // function - destroyDashboard
 
   /**
    * 대시보드 설정

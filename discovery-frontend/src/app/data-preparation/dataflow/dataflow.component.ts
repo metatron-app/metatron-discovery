@@ -17,12 +17,9 @@ import { AbstractComponent } from '../../common/component/abstract.component';
 import { DataflowService } from './service/dataflow.service';
 import { Dataflow } from '../../domain/data-preparation/dataflow';
 import { Subscription } from 'rxjs/Subscription';
-import { PopupService } from '../../common/service/popup.service';
-import { SubscribeArg } from '../../common/domain/subscribe-arg';
 import { Modal } from '../../common/domain/modal';
 import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
 import { Alert } from '../../common/util/alert.util';
-import { ActivatedRoute } from '@angular/router';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { CreateDataflowNameDescComponent } from './create-dataflow-name-desc.component';
 
@@ -74,8 +71,6 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   constructor(private dataflowService: DataflowService,
-              private popupService: PopupService,
-              private activatedRoute: ActivatedRoute,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -91,28 +86,10 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
     this.page.sort = 'createdTime,desc';
     this.getDataflows();
 
-    this.popupSubscription = this.popupService.view$.subscribe((data:SubscribeArg) => {
-
-      this.step = data.name;
-      if (this.step === 'close-update') {
-        this.page.page = 0;
-        this.pageResult.totalPages = 0;
-        this.getDataflows();
-
-      } else if (this.step === 'complete-create') {
-        // 데이터플로우를 만든 후에는 목록이 아니라 디테일 페이지로 보낸다
-        this.step = 'update-dataflow';
-        this.dfId = data.data;
-
-      }
-
-    });
 
   }
 
   public ngOnDestroy() {
-
-    this.popupSubscription.unsubscribe();
 
     super.ngOnDestroy();
   }
@@ -123,7 +100,6 @@ export class DataflowComponent extends AbstractComponent implements OnInit, OnDe
 
   // 데이터 플로우 생성
   public createDataflow() {
-    // this.step = 'select-dataset';
     this.createDataflowComponent.init();
   }
 

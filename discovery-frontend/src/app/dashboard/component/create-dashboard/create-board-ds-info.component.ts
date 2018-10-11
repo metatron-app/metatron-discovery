@@ -14,7 +14,6 @@
 
 import * as pixelWidth from 'string-pixel-width';
 import * as _ from 'lodash';
-import Split from 'split.js';
 import {
   Component,
   ElementRef,
@@ -47,6 +46,8 @@ import { CommonUtil } from '../../../common/util/common.util';
 import { FilterUtil } from '../../util/filter.util';
 import { InclusionFilter } from '../../../domain/workbook/configurations/filter/inclusion-filter';
 import { Filter } from '../../../domain/workbook/configurations/filter/filter';
+
+declare let Split;
 
 @Component({
   selector: 'create-board-ds-info',

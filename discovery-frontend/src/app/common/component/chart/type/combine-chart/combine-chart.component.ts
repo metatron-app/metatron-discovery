@@ -16,26 +16,33 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
+import { AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
+import { BaseChart, PivotTableInfo } from '../../base-chart';
+import { BaseOption } from '../../option/base-option';
 import {
-  AfterViewInit, Component, ElementRef, Injector, OnInit, OnDestroy,
-  Output, EventEmitter
-} from '@angular/core';
-import {BaseChart, PivotTableInfo} from '../../base-chart';
-import {BaseOption} from "../../option/base-option";
-import {
-  ChartType, SymbolType, ShelveType, ShelveFieldType, CHART_STRING_DELIMITER, SeriesType, AxisType,
-  Orient, SeriesConvertType, BarMarkType, LineMarkType, DataLabelPosition
+  AxisType,
+  BarMarkType,
+  CHART_STRING_DELIMITER,
+  ChartType,
+  DataLabelPosition,
+  LineMarkType,
+  Orient,
+  Position,
+  SeriesType,
+  ShelveFieldType,
+  ShelveType,
+  SymbolType
 } from '../../option/define/common';
-import {OptionGenerator} from '../../option/util/option-generator';
-import {Position} from '../../option/define/common';
-import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
+import { OptionGenerator } from '../../option/util/option-generator';
+import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
-import {Series} from "../../option/define/series";
+import { Series } from '../../option/define/series';
 import { UICombineChart } from '../../option/ui-option/ui-combine-chart';
-import {UIChartAxis, UIChartAxisGrid, UIChartAxisLabelValue} from "../../option/ui-option/ui-axis";
-import {AxisOptionConverter} from "../../option/converter/axis-option-converter";
-import {Axis} from "../../option/define/axis";
-import {DataZoomType} from '../../option/define/datazoom';
+import { UIChartAxis, UIChartAxisGrid, UIChartAxisLabelValue } from '../../option/ui-option/ui-axis';
+import { AxisOptionConverter } from '../../option/converter/axis-option-converter';
+import { Axis } from '../../option/define/axis';
+import { DataZoomType } from '../../option/define/datazoom';
+import { UIOption } from '../../option/ui-option';
 
 @Component({
   selector: 'combine-chart',
@@ -46,6 +53,9 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  // set previous pivot (compare previous pivot, current pivot)
+  private prevPivot: Pivot;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -655,5 +665,41 @@ export class CombineChartComponent extends BaseChart implements OnInit, OnDestro
     }
   }
 
+  /**
+   * change dataLabel, tooltip by single series, multi series
+   * @returns {UIOption}
+   */
+  protected setDataLabel(): UIOption {
 
+    /**
+     * check multi series <=> single series
+     * @type {() => boolean}
+     */
+    const checkChangeSeries = ((): boolean => {
+
+      if (!this.prevPivot) return true;
+
+      // prev series is multi(true) or single
+      const prevSeriesMulti: boolean = this.prevPivot.aggregations.length > 1 ? true : false;
+
+      // current series is multi(true) or single
+      const currentSeriesMulti: boolean = this.pivot.aggregations.length > 1 ? true : false;
+
+      // if it's changed
+      if (prevSeriesMulti !== currentSeriesMulti) {
+
+        return true;
+      }
+
+      // not changed
+      return false;
+    });
+
+    this.uiOption = this.setAxisDataLabel(this.prevPivot, checkChangeSeries());
+
+    // set previous pivot value (compare previous pivot, current pivot)
+    this.prevPivot = this.pivot;
+
+    return this.uiOption;
+  }
 }

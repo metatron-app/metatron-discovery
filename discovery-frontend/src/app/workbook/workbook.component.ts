@@ -1265,6 +1265,6 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     const cookieIsCloseDashboardList = this.cookieService.get(CookieConstant.KEY.WORKBOOK_CLOSE_DASHBOARD_LIST);
     this.toggleFoldDashboardList('true' === cookieIsCloseDashboardList);
 
-    this.changeMode('VIEW');
+    this.changeMode('NO_DATA');
   } // function - _initViewPage
 }

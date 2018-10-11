@@ -402,6 +402,8 @@
     <!-- //Roll up -->
     <!-- Advanced setting -->
     <advanced-setting [createType]="createType"
+                      [isShowAdvancedSetting]="isShowAdvancedSetting"
+                      (changedShowFlag)="isShowAdvancedSetting = $event"
                       [tuningConfig]="tuningConfig"
                       [jobProperties]="jobProperties"></advanced-setting>
     <!-- //Advanced setting -->

@@ -150,11 +150,11 @@ export class FormatOptionConverter {
     if(format.abbr && format.type != String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
-          value = value > 1000000000
+          value = Math.abs(value) > 1000000000
             ? Number(value) / 1000000000
-            : value > 1000000
+            : Math.abs(value) > 1000000
               ? Number(value) / 1000000
-              : value > 1000
+              : Math.abs(value) > 1000
                 ? Number(value) / 1000
                 : value;
           break;
@@ -190,11 +190,11 @@ export class FormatOptionConverter {
     if(format.abbr && format.type != String(UIFormatType.EXPONENT10)) {
       switch (format.abbr) {
         case String(UIFormatNumericAliasType.AUTO) :
-          value += originalValue > 1000000000
+          value += Math.abs(originalValue) > 1000000000
             ? "B"
-            : originalValue > 1000000
+            : Math.abs(originalValue) > 1000000
               ? "M"
-              : originalValue > 1000
+              : Math.abs(originalValue) > 1000
                 ? "K"
                 : "";
           break;
@@ -593,7 +593,7 @@ export class FormatOptionConverter {
 
         let resultData: string = '';
         if (titleUseFl) {
-          resultData = targetPivot.name + ' : ';
+          resultData = targetPivot.alias + ' : ';
         }
         resultData += item;
         result.push(resultData);
@@ -794,9 +794,10 @@ export class FormatOptionConverter {
 
       case ChartType.BAR:
       case ChartType.LINE:
+      case ChartType.COMBINE:
         // when bar, line chart has single series
         if ((chartType === ChartType.BAR && pivot.aggregations.length <= 1 && pivot.rows.length < 1) ||
-          (chartType === ChartType.LINE && pivot.aggregations.length <= 1)) {
+          ((chartType === ChartType.LINE || chartType === ChartType.COMBINE) && pivot.aggregations.length <= 1)) {
           displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
           displayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
           // when bar, line chart has multi series
@@ -807,7 +808,6 @@ export class FormatOptionConverter {
         break;
 
       case ChartType.CONTROL:
-      case ChartType.COMBINE:
       case ChartType.WATERFALL:
         displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
         displayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
