@@ -183,7 +183,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
 
     this.safelyDetectChanges();
 
-    if( this.isEarliestDateTime ) {
+    if (this.isEarliestDateTime) {
       (this._fromPicker) && (this._fromPicker.destroy());
     } else {
       let fromMoment;
@@ -195,8 +195,8 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
 
       if (TimeUnit.WEEK === this.compData.timeUnit) {
         this.comboList = _.cloneDeep(this._weekList);
-        const arrDateInfo = (<string>interval.startDate).split( '-' );
-        fromMoment = moment( arrDateInfo[0] + '-01-01' );
+        const arrDateInfo = (<string>interval.startDate).split('-');
+        fromMoment = moment(arrDateInfo[0] + '-01-01');
         const startWeek: number = Number(arrDateInfo[1]);
         this.fromComboIdx = this.comboList.findIndex(item => item.value === startWeek);
         this.selectedFromComboItem = this.comboList[this.fromComboIdx];
@@ -207,7 +207,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
         this.selectedFromComboItem = this.comboList[this.fromComboIdx];
       }
 
-      if( TimeUnit.HOUR === this.compData.timeUnit || TimeUnit.MINUTE === this.compData.timeUnit ) {
+      if (TimeUnit.HOUR === this.compData.timeUnit || TimeUnit.MINUTE === this.compData.timeUnit) {
         this._fromDate = fromMoment.subtract(9, 'hours').toDate();
       } else {
         this._fromDate = fromMoment.toDate();
@@ -229,7 +229,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
       this._fromPicker.selectDate(this._fromDate);
     }
 
-    if( this.isLatestDateTime ) {
+    if (this.isLatestDateTime) {
       (this._toPicker) && (this._toPicker.destroy());
     } else {
       let toMoment;
@@ -241,8 +241,8 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
 
       if (TimeUnit.WEEK === this.compData.timeUnit) {
         this.comboList = _.cloneDeep(this._weekList);
-        const arrDateInfo = (<string>interval.endDate).split( '-' );
-        toMoment = moment( arrDateInfo[0] + '-01-01' );
+        const arrDateInfo = (<string>interval.endDate).split('-');
+        toMoment = moment(arrDateInfo[0] + '-01-01');
         const endWeek: number = Number(arrDateInfo[1]);
         this.toComboIdx = this.comboList.findIndex(item => item.value === endWeek);
         this.selectedToComboItem = this.comboList[this.toComboIdx];
@@ -253,7 +253,7 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
         this.selectedToComboItem = this.comboList[this.toComboIdx];
       }
 
-      if( TimeUnit.HOUR === this.compData.timeUnit || TimeUnit.MINUTE === this.compData.timeUnit ) {
+      if (TimeUnit.HOUR === this.compData.timeUnit || TimeUnit.MINUTE === this.compData.timeUnit) {
         this._toDate = toMoment.subtract(9, 'hours').toDate();
       } else {
         this._toDate = toMoment.toDate();
@@ -334,10 +334,17 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
         this._toPicker.selectDate(this._toDate);
       }
 
-      return new TimeRange(
-        moment(this._fromDate).format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z',
-        moment(this._toDate).format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z'
-      );
+      if (TimeUnit.DAY === currTimeUnit) {
+        return this._getRangeFromDate(
+          this._fromDate.getDate(), this._fromDate.getMonth(), this._fromDate.getFullYear(),
+          this._toDate.getDate(), this._toDate.getMonth(), this._toDate.getFullYear()
+        );
+      } else {
+        return new TimeRange(
+          moment(this._fromDate).format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z',
+          moment(this._toDate).format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z'
+        );
+      }
     }
 
   } // function - _getTimeRange
@@ -389,8 +396,27 @@ export class TimeRangeComponent extends AbstractComponent implements OnInit, OnD
    * @private
    */
   private _getRangeFromWeek(sWeek: number, sYear: number, eWeek: number, eYear: number): TimeRange {
-    return new TimeRange( sYear + '-' + sWeek, eYear + '-' + eWeek );
+    return new TimeRange(sYear + '-' + sWeek, eYear + '-' + eWeek);
   } // function - _getRangeFromWeek
+
+  /**
+   * Date 에 대한 Range 를 얻음
+   * @param {number} sDate
+   * @param {number} sMonth
+   * @param {number} sYear
+   * @param {number} eDate
+   * @param {number} eMonth
+   * @param {number} eYear
+   * @returns {TimeRange}
+   * @private
+   */
+  private _getRangeFromDate(sDate: number, sMonth: number, sYear: number, eDate: number, eMonth: number, eYear: number): TimeRange {
+    // return this._getRangeFromMoment(moment().year(sYear).month(sMonth).date(sDate), moment().year(eYear).month(eMonth).date(eDate), 'date');
+    return new TimeRange(
+      moment().year(sYear).month(sMonth).date(sDate).startOf('date').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z',
+      moment().year(eYear).month(eMonth).date(eDate).startOf('date').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z'
+    );
+  } // function - _getRangeFromDate
 
   // noinspection JSMethodCanBeStatic
   /**
