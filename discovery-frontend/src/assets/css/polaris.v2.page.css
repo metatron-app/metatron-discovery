@@ -4560,7 +4560,7 @@ ul.ddp-list-tab-button.ddp-disabled:after {display:inline-block; position:absolu
 .ddp-rule-tab li a {display:inline-block; position:relative; padding:0 13px; color:#b8b9c2; font-size:13px;}
 .ddp-rule-tab li + li a:before {display:inline-block; position:absolute; top:50%; left:0; margin-top:-7px; height:14px; border-left:1px solid #e7e7ea; content:'';}
 .ddp-rule-tab li.ddp-selected a {color:#6f7cc4; font-weight:bold;}
-.ddp-rule-tab li.ddp-selected a:after {display:inline-block; width:5px; height:5px; margin-left:2px; border-radius:50%; background-color:#6f7cc4; vertical-align:top; content:'';}
+.ddp-rule-tab li a em.ddp-icon-selected {display:inline-block; width:5px; height:5px; margin-left:2px; border-radius:50%; background-color:#6f7cc4; vertical-align:top; content:'';}
 .ddp-wrap-rules-flow.ddp-snapshot .ddp-box-title {padding:20px 0 15px 0; border-bottom:1px solid  #eaeaec; color:#36393f; font-size:14px; font-weight:bold; line-height:18px;}
 .ddp-wrap-rules-flow.ddp-snapshot .ddp-box-title em.ddp-data-num {display:inline-block; padding:2px 2px 1px 2px; min-width:18px; min-height:18px; margin-right:6px; color:#3d4147; font-size:9px; text-align:center; border-radius:50%; border:1px solid #3d4147; vertical-align:middle; box-sizing:border-box;}
 
