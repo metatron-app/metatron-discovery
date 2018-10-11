@@ -781,12 +781,19 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // hive 일경우
     if( this.mimeType == 'HIVE' ){
 
+      this.hiveLogs = [];
       for (let index: number = 0; index < this.hiveTabLogs.length; index = index + 1) {
         if( this.hiveTabLogs[index]['selectedTabNum'] == selectedTabNum ){
-          this.hiveLogs = [];
           this.hiveLogs = this.hiveTabLogs[index]['data'];
-          this.hiveLogs[0]['isShow'] = false;
           break;
+        }
+      }
+
+      let hiveCurrLogs : any = [];
+      hiveCurrLogs = this.hiveLogs;
+      if( hiveCurrLogs.length > 0 ){
+        for (let index: number = 0; index < hiveCurrLogs.length; index = index + 1) {
+          hiveCurrLogs[index]['isShow'] = false;
         }
       }
 
