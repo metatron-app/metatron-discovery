@@ -182,20 +182,22 @@ export class FormatOptionConverter {
     }
 
     // 천단위 표시여부
-    if (format.type != String(UIFormatType.EXPONENT10) && format.useThousandsSep) {
+    if (format.type !== 'exponent10' && format.useThousandsSep) {
+
+      let arrSplitFloatPoint = String( value ).split( '.' );
 
       // Decimal Separation
-      let decimalValue: string = "";
-      if( String(value).indexOf(".") != -1 ) {
-        decimalValue = String(value).split(".")[1];
+      let floatValue = '';
+      if( 1 < arrSplitFloatPoint.length ) {
+        floatValue = arrSplitFloatPoint[1];
       }
 
       // Thousand units
-      value = String(value).split(".")[0].toLocaleString();
+      value = arrSplitFloatPoint[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
       // Append Decimal
-      if( decimalValue != "" ) {
-        value += "." + decimalValue;
+      if( '' !== floatValue ) {
+        value += '.' + floatValue;
       }
     }
 
