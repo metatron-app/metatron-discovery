@@ -892,7 +892,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         }
         this.datagridCurList[index]['selected'] = true;
         this.selectedGridTabNum = index;
-        this.resultRow = this.datagridCurList[index].data.numRows;
+
+        // 중지된 탭의 경우 체크
+        if( isNullOrUndefined(this.datagridCurList[index].data) ){
+          $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
+          this.resultRow = '0';
+        } else {
+          this.resultRow = this.datagridCurList[index].data.numRows;
+        }
+
       } else {
         // 선택되지 않은 탭이면
         this.datagridCurList[index]['selected'] = false;
@@ -2214,7 +2222,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     const data: any = this.datagridCurList[idx].data;
     const headers: header[] = [];
     // data fields가 없다면 return
-    if (!data.fields) {
+    if (!data || !data.fields) {
 
       if( this.mimeType == 'HIVE' ){
         this.hiveLogs[idx].isShow = false;
