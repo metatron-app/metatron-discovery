@@ -428,7 +428,12 @@ export class DataLabelOptionComponent extends LabelBaseOptionComponent {
    */
   public toggleOutsideLabel(showOutside: boolean): void {
 
-    this.uiOption.dataLabel.showOutside = showOutside;
+    const dataLabel = this.uiOption.dataLabel;
+
+    dataLabel.showOutside = showOutside;
+
+    // when set outside label, delete text align
+    delete dataLabel.textAlign;
 
     this.uiOption = <UIOption>_.extend({}, this.uiOption, { dataLabel: this.uiOption.dataLabel });
     this.update();
