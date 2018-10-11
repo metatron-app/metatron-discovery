@@ -1308,11 +1308,11 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * - Echart기반 차트가 아닐경우 Override 필요
    * @param initFl 차트 초기화 여부
    */
-  protected apply(initFl: boolean = false): void {
+  protected apply(initFl: boolean = true): void {
 
     // 초기화를 하는경우
     // externalFilters가 true인 경우 - 다른차트에서 selection필터를 설정시 적용되는 차트를 그리는경우 차트 초기화
-    if ((this.isUpdateRedraw && initFl) || (this.params && this.params.externalFilters)) {
+    if ((this.isUpdateRedraw && initFl) || this.params.externalFilters) {
       // 차트 제거
       this.chart.dispose();
 
@@ -1322,7 +1322,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     // Apply!
     // chart.setOption(option, notMerge, lazyUpdate);
-    this.chart.setOption(this.chartOption, initFl, false);
+    this.chart.setOption(this.chartOption, false, false);
     console.info(this.chartOption);
   }
 
@@ -2381,7 +2381,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       const selectData = this.setSelectData(params, selectedColValues, selectedRowValues);
 
       // 차트에 적용
-      this.apply(true);
+      this.apply(false);
       this.lastDrawSeries = _.cloneDeep(this.chartOption['series']);
 
       // 이벤트 데이터 전송
