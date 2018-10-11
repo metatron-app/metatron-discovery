@@ -404,8 +404,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAPVIEW) {
 
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
-            // (<NetworkChartComponent>this.chart).draw();
-            this.chart.chart.resize();
+            (<NetworkChartComponent>this.chart).draw();
           } else {
             try {
               if (this.chart && this.chart.chart) this.chart.chart.resize();

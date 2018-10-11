@@ -730,7 +730,7 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
 
       this.isUpdateRedraw = true;
       // apply to chart
-      this.apply(true);
+      this.networkFilterApply();
 
       // set selection event
       if (!this.isPage) {
@@ -945,4 +945,26 @@ export class NetworkChartComponent extends BaseChart implements OnInit, OnDestro
 
     return option;
   }
+
+  /**
+   * apply network chart filter
+   * @param {boolean} initFl
+   */
+  private networkFilterApply(initFl: boolean = true): void {
+
+    // 초기화를 하는경우
+    // externalFilters가 true인 경우 - 다른차트에서 selection필터를 설정시 적용되는 차트를 그리는경우 차트 초기화
+    if ((this.isUpdateRedraw && initFl) || (this.params && this.params.externalFilters)) {
+      // 차트 제거
+      this.chart.dispose();
+
+      // Chart Instance 생성
+      this.chart = this.echarts.init(this.$element.find('.chartCanvas')[0], 'exntu');
+    }
+
+    // Apply!
+    // chart.setOption(option, notMerge, lazyUpdate);
+    this.chart.setOption(this.chartOption, true, false);
+  }
 }
+
