@@ -330,6 +330,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // grid 값이 NO DATA  일 경우 icon show flag
   public isGridResultNoData: boolean = false;
+  public isHiveGridResultNoData: boolean = false;
 
   // query loadingBar 보여줄지 말지 여부
   public isLoadingBarShow: boolean = false;
@@ -2274,20 +2275,26 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     const headers: header[] = [];
     // data fields가 없다면 return
     if (!data || !data.fields) {
-
-      $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
-
       // hive 일 경우 log 데이터 확인 필요
       if( this.mimeType == 'HIVE' ){
         this.hiveLogs[idx].isShow = false;
+        // hive 일 경우  field 한 번더 체크
+        if( !data || !data.fields ) {
+          this.isHiveGridResultNoData = true;
+          $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
+        } else {
+          this.isHiveGridResultNoData = false;
+        }
         this.safelyDetectChanges();
         return false;
       }
-
       this.gridComponent.noShowData();
+      $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
+      this.isHiveGridResultNoData = true;
       this.isGridResultNoData = true;
       return false;
     } else {
+      this.isHiveGridResultNoData = false;
       this.isGridResultNoData = false;
     }
 
