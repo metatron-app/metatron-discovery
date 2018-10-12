@@ -34,6 +34,8 @@ import { TimeRelativeFilter } from '../../../domain/workbook/configurations/filt
 import { TimeListFilter } from '../../../domain/workbook/configurations/filter/time-list-filter';
 import { isNullOrUndefined } from "util";
 import { Filter } from '../../../domain/workbook/configurations/filter/filter';
+import { PopupService } from '../../../common/service/popup.service';
+import { SubscribeArg } from '../../../common/domain/subscribe-arg';
 
 @Component({
   selector: 'time-filter-panel',
@@ -86,7 +88,8 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected elementRef: ElementRef,
+  constructor(private popupService: PopupService,
+              protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
   }
@@ -109,6 +112,20 @@ export class TimeFilterPanelComponent extends AbstractFilterPanelComponent imple
     super.ngAfterViewInit();
     // 컴포넌트 초기화
     this._initialize(this.originalFilter);
+
+    // 위젯에서 필터를 업데이트 popup은 아니지만 동일한 기능이 필요해서 popupService를 사용
+    const popupSubscribe = this.popupService.filterView$.subscribe((data: SubscribeArg) => {
+
+      // 페이지에서 호출했는데 대시보드인경우 처리 하지 않음
+      if (data.type === 'page' && this.isDashboardMode) return;
+
+      // 필터 위젯에서 값이 변경될 경우
+      if ('change-filter' === data.name && this.filter.field === data.data.field && this.filter.dataSource === data.data.dataSource) {
+        this._initialize(data.data);
+      }
+    });
+    this.subscriptions.push(popupSubscribe);
+
   } // function - ngAfterViewInit
 
   /**
