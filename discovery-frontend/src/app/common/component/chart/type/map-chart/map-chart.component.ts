@@ -285,6 +285,18 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         }
       }
 
+      if(styleOption.layers[layerNum].color['customMode'] === 'GRADIENT') {
+        let colorList = ChartColorList[featureColor];
+        let avgNum = styleData[0].valueRange.maxValue / colorList.length;
+
+        for(let i=0;i<colorList.length;i++) {
+          if(feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] <= avgNum * (i+1) &&
+            feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] >= avgNum * (i)) {
+            featureColor = colorList[i];
+          }
+        }
+      }
+
       let style = new ol.style.Style({
         image: new ol.style.Circle({
             radius: 4,
@@ -349,6 +361,57 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 angle: 0,
                 stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
               }),
+              stroke: new ol.style.Stroke({
+                color: outlineColor,
+                width: outlineWidth
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
+              })
+            });
+            break;
+          case 'PIN' :
+            style = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+                color: featureColor,
+                crossOrigin: 'anonymous',
+                scale: featureSize * 0.1,
+                src: '../../../../../../assets/images/ic_map_marker.png'
+              })),
+              stroke: new ol.style.Stroke({
+                color: outlineColor,
+                width: outlineWidth
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
+              })
+            });
+            break;
+          case 'PLANE' :
+            style = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+                color: featureColor,
+                crossOrigin: 'anonymous',
+                scale: featureSize * 0.1,
+                src: '../../../../../../assets/images/ic_map_airport.png'
+              })),
+              stroke: new ol.style.Stroke({
+                color: outlineColor,
+                width: outlineWidth
+              }),
+              fill: new ol.style.Fill({
+                color: featureColor
+              })
+            });
+            break;
+          case 'USER' :
+            style = new ol.style.Style({
+              image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+                color: featureColor,
+                crossOrigin: 'anonymous',
+                scale: featureSize * 0.1,
+                src: '../../../../../../assets/images/ic_map_human.png'
+              })),
               stroke: new ol.style.Stroke({
                 color: outlineColor,
                 width: outlineWidth
@@ -901,12 +964,17 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
 
     this.tooltipRender();
+    this.legendRender();
 
     // 차트 반영
     this.apply();
 
     // 완료
     this.drawFinished.emit();
+  }
+
+  public legendRender(): void {
+    
   }
 
   public tooltipRender(): void {
@@ -1250,7 +1318,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
    * @param isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
    */
   public drawThirdLayer(data: any): void {
-    if(this.data2 === undefined) {
+    if(this.data3 === undefined) {
       return;
     }
 
@@ -1526,7 +1594,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.getLayers().getArray()[10].setVisible(false);
       this.olmap.getLayers().getArray()[11].setVisible(false);
       this.olmap.getLayers().getArray()[12].setVisible(false);
-      this.data2 = undefined;
+      this.data3 = undefined;
     }
 
     // 완료

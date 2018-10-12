@@ -1307,7 +1307,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   public changeRangeMaxInput(range: any, index: number): void {
 
     // 색상 범위리스트
-    let rangeList = (<UIChartColorByValue>this.uiOption.color).ranges;
+    let rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
 
     if (!range.lte || isNaN(FormatOptionConverter.getNumberValue(range.lte))) {
 
@@ -1320,7 +1320,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.checkMinZero(this.uiOption.minValue, this.uiOption.minValue);
+    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, this.resultData['data'][0].valueRange.minValue);
 
     // 하위 fixMin값
     const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
@@ -1365,7 +1365,80 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // set changed range in list
     rangeList[index] = range;
 
-    this.uiOption = <UIOption>_.extend({}, this.uiOption, { color : this.uiOption.color });
+    this.color = this.uiOption.layers[0].color;
+
+    // 해당 레이어 타입으로 설정
+    this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+     layers: this.changeLayerOption()
+    });
+
+    this.update();
+  }
+
+  /**
+   * range min 입력값 수정시
+   * @param range
+   * @param index
+   */
+  public changeRangeMinInput(range: any, index: number): void {
+
+    // 색상 범위리스트
+    let rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
+
+    if (!range.gt || isNaN(FormatOptionConverter.getNumberValue(range.gt))) {
+      // set original value
+      range.gt = _.cloneDeep(FormatOptionConverter.getDecimalValue(rangeList[index].fixMin, this.uiOption.valueFormat.decimal, this.uiOption.valueFormat.useThousandsSep));
+      return;
+    }
+
+    // parse string to value
+    range = this.parseStrFloat(range);
+
+    let decimalValue = this.resultData['data'][0].valueRange.minValue;
+
+    // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
+    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, decimalValue);
+
+    // 입력가능 최소 / 최대범위 구하기
+    let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
+                   rangeList[index].gt ? rangeList[index].gt : rangeList[index].lte;
+    let maxValue = range.lte;
+
+    // 최대값인경우 (변경불가)
+    if (!rangeList[index - 1]) {
+
+      // 최대값보다 큰거나 하위의 최대값보다 값이 작은경우
+      if (this.resultData['data'][0].valueRange.maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
+        range.gt = range.fixMin;
+      } else {
+        range.fixMin = range.gt;
+      }
+    }
+    // 최소값이 입력가능범위를 벗어나는경우
+    else if (minValue > range.gt || maxValue < range.gt) {
+
+      // 기존값으로 리턴
+      range.gt = range.fixMin;
+    } else {
+      range.fixMin = range.gt;
+    }
+
+    // 하위의 최대값에 같은값 입력
+    if (rangeList[index + 1]) {
+
+      rangeList[index + 1].lte = range.gt;
+      rangeList[index + 1].fixMax = range.gt;
+    }
+
+    // set changed range in list
+    rangeList[index] = range;
+
+    this.color = this.uiOption.layers[0].color;
+
+    // 해당 레이어 타입으로 설정
+    this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+     layers: this.changeLayerOption()
+    });
 
     this.update();
   }
