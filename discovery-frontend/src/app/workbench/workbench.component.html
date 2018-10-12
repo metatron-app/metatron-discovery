@@ -484,7 +484,7 @@
                     </div>
                   </div>
                   <!--<span class="ddp-data-number">{{resultRow | numberCommas}} rows | {{resultTime}}</span>-->
-                  <span class="ddp-data-number" [hidden]="isGridResultNoData">{{resultRow}} {{'msg.comm.detail.rows'|translate}}</span>
+                  <span class="ddp-data-number" [hidden]="isGridResultNoData || isHiveGridResultNoData">{{resultRow}} {{'msg.comm.detail.rows'|translate}}</span>
                 </div>
               </div>
               <!-- //결과 -->
