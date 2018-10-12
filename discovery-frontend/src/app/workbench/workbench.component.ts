@@ -350,6 +350,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // hive log 취소중
   public hiveLogCanceling : boolean = false;
 
+  // hive query 실행 중
+  public isHiveQueryExecute: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -779,7 +781,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 에디터 탭 변경
   public tabChangeHandler(selectedTabNum: number, deleteFlag: boolean = false, selectedItem?: any): void {
 
-    // hive 일 경우
+    // hive 일경우
+    if( this.isHiveQueryExecute ) {
+      this.alertHiveQueryExecuting();
+    }
     if( this.mimeType == 'HIVE' ){
 
       this.hiveLogs = [];
@@ -1067,7 +1072,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 쿼리 실행
   public setExecuteSql(param: string) {
     this.loadingBar.show();
-
+    if( this.mimeType == 'HIVE' ) {
+      this.isHiveQueryExecute = true;
+    }
     // 호출횟수 증가
     this._executeSqlReconnectCnt++;
     // 보고있는 탭이 에러인경우 초기화
@@ -1099,9 +1106,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.loadingBar.hide();
           return;
         } else {
-          // hive log cancel 여부
-          this.isHiveLog = true;
-          this.isHiveLogCancel = true;
 
           const queryEditor: QueryEditor = new QueryEditor();
           queryEditor.name = this.textList[this.selectedTabNum]['name'];
@@ -1152,10 +1156,19 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 // log 초기화
                 (this.hiveLogs[0]) || (this.hiveLogs[0] = { isShow: true, log: [] });
                 this.datagridCurList.push({name: 'Loading..'});
-                this.safelyDetectChanges();
 
                 // 첫번째 로그 탭에서 선택 표시
                 this.datagridCurList[0]['selected'] = true;
+
+                // hive log cancel 여부
+                this.isHiveLog = true;
+                this.isHiveLogCancel = true;
+
+                // console.error("selected push  ================================");
+
+                this.safelyDetectChanges();
+
+
 
                 // 쿼리 초기화
                 this.runningQueryArr = [];
@@ -1209,19 +1222,20 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           if( this.mimeType == 'HIVE' ){
 
             // 중지된 쿼리가 있을경우
-            if( this.isLogCancelTabQuery.length > 0 ){
-              this.hiveLogFinish();
-              return false;
-            }
+            // if( this.isLogCancelTabQuery.length > 0 ){
+            //   this.hiveLogFinish();
+            //   return false;
+            // }
 
             let tempArr : any[] = [];
 
             // log 시점때문에 더미로 추가된 데이터 제거
-            for (let index: number = 0; index < this.datagridCurList.length; index++) {
-              if( this.datagridCurList[index].name.startsWith('Loading') ){
-                this.datagridCurList.pop();
-              }
-            }
+            // for (let index: number = 0; index < this.datagridCurList.length; index++) {
+            //   if( this.datagridCurList[index].name.startsWith('Loading') ){
+            //     console.error("Loading pop() ====================================");
+            //     this.datagridCurList.pop();
+            //   }
+            // }
 
             // 호출된 현재 그리드 목록 생성
             for (let index: number = 0; index < this.datagridCurList.length; index++) {
@@ -1451,7 +1465,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   // 탭 레이어 보이기
-  protected setTabLayer($event: Event, index: number): void {
+  public setTabLayer($event: Event, index: number): void {
 
     $event.stopImmediatePropagation();
 
@@ -2200,7 +2214,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // hive log DONE 종료
   public hiveLogFinish(){
-
+    this.isHiveQueryExecute = false;
     // 처음 쿼리를 취소한 경우
     if( this.datagridCurList.length == 0 ){
       return false;
@@ -2399,42 +2413,57 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       query: '',
       webSocketId: this.websocketId
     };
-    console.info("logCancel setQueryRunCancel param query : " + params.query);
-    console.info("logCancel setQueryRunCancel param webSocketId : " + params.webSocketId);
     this.workbenchService.setQueryRunCancel(this.selectedEditorId, params)
       .then(() => {
 
         Alert.success(this.translateService.instant('msg.bench.alert.log.cancel.success'));
         this.loadingBar.hide();
-        this.hiveLogCanceling = false;
 
         console.info("logCancel setQueryRunCancel success");
 
-        this.isLogCancelTabQuery.push(this.runningQueryArr[selectedGridTabNum]);
-
-        const currHiveLog = this.hiveLogs[selectedGridTabNum];
-
-        currHiveLog.isShow = true;
-        currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.success'));
-
-        this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
-
-        this.setHiveTabLogs();
-
-        this.isHiveLog = false;
-
+        this.setQueryRunCancel(true, selectedGridTabNum);
 
       })
       .catch((error) => {
 
         Alert.error(this.translateService.instant('msg.bench.alert.log.cancel.error'));
         this.loadingBar.hide();
-        this.hiveLogCanceling = false;
 
         console.info("logCancel setQueryRunCancel error");
+
+        this.setQueryRunCancel(false, selectedGridTabNum);
+
       });
 
+  }
 
+  // query cancel
+  public setQueryRunCancel(isSuccess : boolean, selectedGridTabNum : number){
+
+    this.hiveLogCanceling = false;
+    this.isHiveQueryExecute = false;
+
+    this.isLogCancelTabQuery.push(this.runningQueryArr[selectedGridTabNum]);
+
+    const currHiveLog = this.hiveLogs[selectedGridTabNum];
+    currHiveLog.isShow = true;
+    if( isSuccess ){
+      currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.success'));
+    } else {
+      currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.error'));
+    }
+
+    this.setHiveTabLogs();
+
+    // console.error("cancel selectedGridTabNum ================================ : " + selectedGridTabNum);
+    // console.error("this.datagridCurList.length ================================ : " + this.datagridCurList.length);
+
+    // this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
+    this.datagridCurList[selectedGridTabNum]['selected'] = true;
+    this.selectedGridTabNum = selectedGridTabNum;
+    this.safelyDetectChanges();
+
+    this.isHiveLog = false;
   }
 
   // 뒤로 돌아가기
@@ -2940,6 +2969,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     } else {
       this.editor.setModeOptions('text/x-mysql');
     }
+  }
+
+  /**
+   * hive query 실행시 warning
+   */
+  public alertHiveQueryExecuting(){
+    Alert.warning(this.translateService.instant('msg.bench.ui.query.run'));
+    return false;
   }
 
 }
