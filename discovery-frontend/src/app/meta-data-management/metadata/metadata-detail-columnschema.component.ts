@@ -423,14 +423,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
           break;
       }
     }
-    this.columnList.sort((prev, next) => {
-      // 내림 차순
-      if (this.selectedContentSort.sort === 'desc') {
-        return prev[this.selectedContentSort.key] > next[this.selectedContentSort.key] ? -1 : prev[this.selectedContentSort.key] < next[this.selectedContentSort.key]? 1 : 0;
-      } else {
-        return prev[this.selectedContentSort.key] < next[this.selectedContentSort.key] ? -1 : prev[this.selectedContentSort.key] > next[this.selectedContentSort.key] ? 1 : 0;
-      }});
-
+    this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, this.selectedContentSort.sort);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

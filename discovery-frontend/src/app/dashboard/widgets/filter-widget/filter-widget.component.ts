@@ -16,6 +16,7 @@ import {
   Component, ElementRef, Injector, Input, OnDestroy, OnInit, SimpleChange, SimpleChanges,
   ViewChild
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { AbstractWidgetComponent } from '../abstract-widget.component';
 import { FilterWidget, FilterWidgetConfiguration } from '../../../domain/dashboard/widget/filter-widget';
 import { Filter } from '../../../domain/workbook/configurations/filter/filter';
@@ -42,6 +43,12 @@ import { StringUtil } from '../../../common/util/string.util';
 import { DashboardUtil } from '../../util/dashboard.util';
 import { FilterUtil } from '../../util/filter.util';
 import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
+import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
+import {
+  TimeRelativeFilter,
+  TimeRelativeTense
+} from "../../../domain/workbook/configurations/filter/time-relative-filter";
+import {TimeUnit} from "../../../domain/workbook/configurations/field/timestamp-field";
 import { DIRECTION } from '../../../domain/workbook/configurations/sort';
 import { isNullOrUndefined } from 'util';
 
@@ -95,7 +102,6 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
   public dashboard: Dashboard;
 
   // T/F
-  public isVisibleScrollbar: boolean = false;   // 스크롤바 표시 여부 체크
   public isTimeFilter: boolean = false;              // TimeFilter 여부
   public isContinuousByAll: boolean = false;        // Granularity 가 지정되지 않은 연속성 여부 판단
   public isDiscontinuousFilter: boolean = false;    // 불연속 필터 여부
@@ -120,7 +126,8 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
               private datasourceService: DatasourceService,
               protected broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
-              protected injector: Injector) {
+              protected injector: Injector,
+              private activatedRoute: ActivatedRoute) {
     super(broadCaster, elementRef, injector);
   }
 
@@ -441,7 +448,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
         $filterWidgetEl.closest('.lm_content').css('overflow', 'inherit');
       }
     }
-    this._setIsVisibleScrollbar();    // 스크롤바 표시 여부 설정
+    ( this.isShowTitle ) || ( this._setIsVisibleScrollbar() );  // 스크롤바 표시 여부 설정
   } // function - _initialContainer
 
   /**
@@ -547,6 +554,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
           this.filter = boundFilter;
         }
 
+        this._setQueryParameterAsDefaultValue();
         this._initialContainer();         // 컨테이너 초기화
 
         this.processEnd();
@@ -562,10 +570,78 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
 
     } else {
       this.filter = filter;
+
+      this._setQueryParameterAsDefaultValue();
       this._initialContainer();   // 컨테이너 초기화
       this.processEnd();
     }
   } // function - _candidate
+
+  /**
+   * Request Query Parameter 값을 이용하여 필터의 초기 값을 설정한다.
+   */
+  private _setQueryParameterAsDefaultValue() {
+    if (this.filter) {
+      this.activatedRoute.queryParams.subscribe(params => {
+        Object.keys(params).forEach(key => {
+          if (key !== this.filter.field) {
+            return;
+          }
+          const value: any = params[key];
+          if (this.filter.type === 'include') {
+            const paramValues = Array.isArray(value) ? value : [value];
+            this.selectedItems = this.candidateList.filter((item: Candidate) => {
+              const matchedItems = paramValues.filter(param => {
+                return item.name === param;
+              });
+              return matchedItems.length > 0;
+            });
+          } else if (this.filter.type === "bound") {
+            const boundFilter: BoundFilter = <BoundFilter>this.filter;
+            const paramValues: string[] = value.split(",");
+            if (paramValues.length == 2) {
+              const min = Number(paramValues[0]);
+              const max = Number(paramValues[1]);
+              if (!isNaN(min) && !isNaN(max)) {
+                boundFilter.min = min;
+                boundFilter.max = max;
+                boundFilter.minValue = min;
+                boundFilter.maxValue = max;
+              }
+            }
+          } else if (this.filter.type === "time_range") {
+            const timeRangeFilter: TimeRangeFilter = <TimeRangeFilter>this.filter;
+            if (Array.isArray(value)) {
+              timeRangeFilter.intervals = value;
+            } else {
+              timeRangeFilter.intervals = [value];
+            }
+          } else if (this.filter.type === "time_relative") {
+            const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>this.filter;
+            const valueAttributes = value.split(",");
+            valueAttributes.forEach(attr => {
+              const keyValue: string[] = attr.split(":");
+              if (keyValue[0] === "tense") {
+                timeRelativeFilter.tense = TimeRelativeTense[keyValue[1]];
+              } else if (keyValue[0] === "relTimeUnit") {
+                timeRelativeFilter.relTimeUnit = TimeUnit[keyValue[1]];
+              } else if (keyValue[0] === 'value') {
+                timeRelativeFilter.value = +keyValue[1];
+              }
+            });
+          } else if (this.filter.type === "time_list") {
+            const paramValues = Array.isArray(value) ? value : [value];
+            this.selectedItems = this.candidateList.filter((item: Candidate) => {
+              const matchedItems = paramValues.filter(param => {
+                return item.name === param;
+              });
+              return matchedItems.length > 0;
+            });
+          }
+        })
+      });
+    }
+  }
 
   // noinspection JSMethodCanBeStatic
   /**
@@ -602,16 +678,16 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
     return candidate;
   } // function - _stringToCandidate
 
-
   /**
    * 스크롤바 표시 여부를 설정한다.
    */
   private _setIsVisibleScrollbar() {
-    const $container: JQuery = $(this.filterWidget.nativeElement);
-    const $title: JQuery = $container.find('.ddp-ui-title');
-    const $contents: JQuery = $container.find('.ddp-ui-widget-contents');
-    this.isVisibleScrollbar = ($container.height() < $title.height() + $contents.height());
-    this.safelyDetectChanges();
+    if( this.filterWidget ) {
+      const $container: JQuery = $(this.filterWidget.nativeElement).find('.ddp-ui-widget-contents');
+      const $contents: JQuery = $container.find( 'ul' );
+      this.isVisibleScrollbar = ($container.height() < $contents.height());
+      this.safelyDetectChanges();
+    }
   } // function - _setIsVisibleScrollbar
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -40,7 +40,6 @@ import { DatasourceService } from '../datasource/service/datasource.service';
 import {
   ConnectionType,
   Datasource,
-  Status,
   TempDsStatus,
   TemporaryDatasource
 } from 'app/domain/datasource/datasource';
@@ -149,7 +148,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
    */
   public ngOnChanges(changes: SimpleChanges) {
     const boardChanges: SimpleChange = changes.inputDashboard;
-    if (boardChanges && boardChanges.currentValue) {
+    if (boardChanges) {
       this.dashboard = boardChanges.currentValue;
       this._initViewPage();
     }
@@ -190,7 +189,7 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     // 대시보드 필터 정보 조회 및 각 위젯 적용
     const boardFilters: Filter[] = DashboardUtil.getBoardFilters(this.dashboard);
     if (boardFilters && boardFilters.length > 0) {
-      this.broadCaster.broadcast('SET_EXTERNAL_FILTER', { filters: boardFilters });
+      this.broadCaster.broadcast('SET_GLOBAL_FILTER', { filters: boardFilters });
     }
     this.selectionFilter.init();
     // TODO 필터 변경알림 나중에 제거할 로직
@@ -213,17 +212,14 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       // console.info('셀렉션필터에 의한 변경', selectionFilters);
       // console.info('모든 차트에 필터 추가');
 
-      this.broadCaster.broadcast(
-        'SET_EXTERNAL_FILTER',
-        { filters: DashboardUtil.getBoardFilters(this.dashboard).concat(selectionFilters) }
-      );
+      this.broadCaster.broadcast( 'SET_SELECTION_FILTER', { filters: selectionFilters } );
 
     } else {
       // 차트에 의한 변경
       // console.info('위젯에 의한 변경', data, data.chartSelectInfo.mode);
       // console.info('위젯 해당 필터들 추가해서 다시 draw 요청');
 
-      const externalFilterData:any = {};
+      const externalFilterData: any = {};
 
       let widgetId: string = '';
 
@@ -234,28 +230,31 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       }
 
       // 2. 선택 필터 데이터 변환
-      let cloneBoardFilters:Filter[] = DashboardUtil.getBoardFilters(this.dashboard, true);
-      let selectionFilters:SelectionFilter[] = data.filters.map((filter: SelectionFilter) => {
+      let selectionFilters: SelectionFilter[] = data.filters.map((filter: SelectionFilter) => {
         filter.valueList = _.uniq(_.flattenDeep(filter.valueList));
         (widgetId) && (filter.selectedWidgetId = widgetId); // detail 차트를 위해 필터 선택을 한 위젯의 아이디를 저장해준다.
         return filter;
       });
 
       // 3. 선택필터와 보드필터 병합 ( 같은 필드 )
-      cloneBoardFilters.forEach( item1 => {
-        const idx:number = selectionFilters.findIndex( item2 => item1.field === item2.field && item1.ref === item2.ref );
-        if( -1 < idx ) {
-          if( 'include' === item1.type ) {
-            const selection:SelectionFilter = selectionFilters.splice( idx, 1 )[0];
-            ( selection.selectedWidgetId ) && ( item1['sourceWidgetId'] = selection.selectedWidgetId );
-            item1['valueList'] = item1['valueList'] ? _.uniq( item1['valueList'].concat( selection.valueList ) ) : selection.valueList;
+/*
+      let cloneBoardFilters: Filter[] = DashboardUtil.getBoardFilters(this.dashboard, true);
+      cloneBoardFilters.forEach(item1 => {
+        const idx: number = selectionFilters.findIndex(item2 => item1.field === item2.field && item1.ref === item2.ref);
+        if (-1 < idx) {
+          if ('include' === item1.type) {
+            const selection: SelectionFilter = selectionFilters.splice(idx, 1)[0];
+            (selection.selectedWidgetId) && (item1['sourceWidgetId'] = selection.selectedWidgetId);
+            item1['valueList'] = item1['valueList'] ? _.uniq(item1['valueList'].concat(selection.valueList)) : selection.valueList;
           }
         }
       });
+      externalFilterData.filters = cloneBoardFilters.concat(selectionFilters);
+*/
 
-      externalFilterData.filters = cloneBoardFilters.concat( selectionFilters );
+      externalFilterData.filters = selectionFilters;
 
-      this.broadCaster.broadcast( 'SET_EXTERNAL_FILTER', externalFilterData );
+      this.broadCaster.broadcast('SET_SELECTION_FILTER', externalFilterData);
 
     }
   } // function - changedSelectionFilter
@@ -392,21 +391,21 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
     if (dashboard) {
 
       // Send statistics data
-      this.sendViewActivityStream( dashboard.id, 'DASHBOARD' );
+      this.sendViewActivityStream(dashboard.id, 'DASHBOARD');
 
       // Linked Datasource 인지 그리고 데이터소스가 적재되었는지 여부를 판단함
-      const mainDsList:Datasource[] = DashboardUtil.getMainDataSources( dashboard );
+      const mainDsList: Datasource[] = DashboardUtil.getMainDataSources(dashboard);
 
-      const linkedDsList:Datasource[] = mainDsList.filter( item => item.connType === ConnectionType.LINK );
-      if ( linkedDsList && 0 < linkedDsList.length ) {
+      const linkedDsList: Datasource[] = mainDsList.filter(item => item.connType === ConnectionType.LINK);
+      if (linkedDsList && 0 < linkedDsList.length) {
         // Multi Datasource Dashboard
         this.showBoardLoading();
 
         const promises = [];
 
-        linkedDsList.forEach( dsInfo => {
-          promises.push( new Promise<any>((res, rej) => {
-            const boardDsInfo:BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(dashboard,dsInfo);
+        linkedDsList.forEach(dsInfo => {
+          promises.push(new Promise<any>((res, rej) => {
+            const boardDsInfo: BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(dashboard, dsInfo);
             this.datasourceService.getDatasourceDetail(boardDsInfo['temporaryId']).then((ds: Datasource) => {
 
               if (this.datasourceStatus || TempDsStatus.ENABLE !== this.datasourceStatus) {
@@ -454,7 +453,10 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
         this.showBoardLoading();
         this._runDashboard(dashboard);
       }
-    } // end if - this._inputDashboard
+
+    } else {
+      this.destroyDashboard();
+    }
 
   } // function - _initViewPage
 
@@ -466,8 +468,8 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
   private _runDashboard(targetDashboard: Dashboard) {
     this.initializeDashboard(targetDashboard, this._getLayoutMode()).then(() => {
       this.safelyDetectChanges();
-    }).catch( (error) => {
-      console.error( error );
+    }).catch((error) => {
+      console.error(error);
       this.hideBoardLoading();
     });
   } // function - _runDashboard

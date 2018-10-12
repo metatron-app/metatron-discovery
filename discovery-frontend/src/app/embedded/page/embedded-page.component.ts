@@ -65,6 +65,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
   public widgetConfiguration: PageWidgetConfiguration = new PageWidgetConfiguration();
   public chartType: string;
   public isShowNoData: boolean = false;
+  public isError: boolean = false;                // 에러 상태 표시 여부
 
   // 데이터 조회 쿼리
   public query: SearchQueryRequest;
@@ -173,7 +174,87 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
    */
   public showNoData() {
     this.isShowNoData = true;
+    this.loadingHide();
   } // function - showNoData
+
+  /**
+   * 에러 표시
+   */
+  public showError() {
+    this.isError = true;
+    this.loadingHide();
+
+    // 변경 적용
+    this.safelyDetectChanges();
+  } // function - showError
+
+  /**
+   * 차트의 아이콘 클래스명 반환
+   * @return {string}
+   */
+  public getChartIconClass(): string {
+    let iconClass: string = '';
+    switch (this.widget.configuration.chart.type) {
+      case ChartType.BAR :
+        iconClass = 'ddp-chart-bar';
+        break;
+      case ChartType.LINE :
+        iconClass = 'ddp-chart-linegraph';
+        break;
+      case ChartType.GRID :
+        iconClass = 'ddp-chart-table';
+        break;
+      case ChartType.SCATTER :
+        iconClass = 'ddp-chart-scatter';
+        break;
+      case ChartType.HEATMAP :
+        iconClass = 'ddp-chart-heatmap';
+        break;
+      case ChartType.PIE :
+        iconClass = 'ddp-chart-pie';
+        break;
+      case ChartType.MAPVIEW :
+        iconClass = 'ddp-chart-map';
+        break;
+      case ChartType.CONTROL :
+        iconClass = 'ddp-chart-cont';
+        break;
+      case ChartType.LABEL :
+        iconClass = 'ddp-chart-kpi';
+        break;
+      case ChartType.LABEL2 :
+        iconClass = 'ddp-chart-kpi';
+        break;
+      case ChartType.BOXPLOT :
+        iconClass = 'ddp-chart-boxplot';
+        break;
+      case ChartType.WATERFALL :
+        iconClass = 'ddp-chart-waterfall';
+        break;
+      case ChartType.WORDCLOUD :
+        iconClass = 'ddp-chart-wordcloud';
+        break;
+      case ChartType.COMBINE :
+        iconClass = 'ddp-chart-combo';
+        break;
+      case ChartType.TREEMAP :
+        iconClass = 'ddp-chart-treemap';
+        break;
+      case ChartType.RADAR :
+        iconClass = 'ddp-chart-radar';
+        break;
+      case ChartType.NETWORK :
+        iconClass = 'ddp-chart-network';
+        break;
+      case ChartType.SANKEY :
+        iconClass = 'ddp-chart-sankey';
+        break;
+      case ChartType.GAUGE :
+        iconClass = 'ddp-chart-bar';
+        break;
+    }
+    return iconClass;
+  } // function - getChartIconClass
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
@@ -245,6 +326,8 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
       this.chart['setQuery'] = this.query;
     }
 
+    this.loadingShow();
+
     this.datasourceService.searchQuery(cloneQuery).then((data) => {
 
       this.resultData = {
@@ -262,21 +345,25 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
         delete this.resultData.uiOption;
       }
 
-      // line차트이면서 columns 데이터가 있는경우
-      if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
-        // 고급분석 예측선 API 호출
-        this.getAnalysis();
-      } else {
-        this.chart.resultData = this.resultData;
-      }
+      setTimeout( () => {
+        // line차트이면서 columns 데이터가 있는경우
+        if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
+          // 고급분석 예측선 API 호출
+          this.getAnalysis();
+        } else {
+          this.chart.resultData = this.resultData;
+        }
+      }, 1000 );
+
+      this.loadingHide();
 
       // 변경 적용
-      this.changeDetect.markForCheck();
+      this.safelyDetectChanges();
+
     }).catch((error) => {
       console.error(error);
-      if (error.hasOwnProperty('message')) {
-        Alert.error(error.message);
-      }
+      this.showError();
+      this.loadingHide();
     });
   } // function - _search
 
@@ -342,7 +429,10 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
         .resolve()
         .then(() => {
           if (this.isAnalysisPredictionEnabled()) {
-            this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData);
+            this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData)
+              .catch(() => {
+                this.showError();
+              });
           } else {
             this.predictionLineDisabled();
           }

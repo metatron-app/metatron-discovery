@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
+import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.prep.parser.preparation.rule.Derive;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
@@ -37,8 +38,8 @@ public class DfDerive extends DataFrame {
     List<Object> preparedArgs = new ArrayList<>();
     Derive derive = (Derive) rule;
 
-    String targetColName = derive.getAs().replaceAll("'", "");  // FIXME: use makeParsible()
-    String timestampStyle;
+    String newColName = derive.getAs().replaceAll("'", "");  // FIXME: use makeParsible()
+    String timestampStyle = null;
     Expression expr = derive.getValue();
     int newColPos = -1;
 
@@ -48,12 +49,11 @@ public class DfDerive extends DataFrame {
     //concat에 포함된 timestamp column 처리
     convertTimestampForConcat(expr);
 
-    // 새 컬럼의 타입을 결정 (+ rule에 등장하는 identifier들도 체크)
+    //Decide new column's type.(And check identifiers that occurs in rule string.)
     ColumnType newColType = decideType(expr);
 
     if (ruleColumns.size() == 0) {             // identifier가 없거나 2개 이상인 경우, 제일 끝으로 붙인다.
       newColPos = getColCnt();
-      timestampStyle = null;
     } else if(ruleColumns.size() == 1){                        // 딱 한 개의 identifier가 있는 경우 해당 identifier 뒤로 붙인다.
       newColPos = prevDf.getColnoByColName(ruleColumns.get(0))+1;
       timestampStyle = colDescs.get(newColPos-1).getTimestampStyle();
@@ -61,17 +61,20 @@ public class DfDerive extends DataFrame {
       for(String colName : ruleColumns) {
         newColPos = getColnoByColName(colName) > newColPos ? getColnoByColName(colName) : newColPos;
       }
-
       newColPos++;
+    }
+
+    if(newColType == ColumnType.TIMESTAMP) {
+      timestampStyle = timestampStyle == null ? TimestampTemplate.DATE_TIME_01.getFormat() : timestampStyle;
+    } else {
       timestampStyle = null;
     }
 
-    // TODO: targetColName -> newColName (makes better sense)
-    targetColName = addColumnWithTimestampStyle(newColPos, targetColName, newColType, timestampStyle);
-    interestedColNames.add(targetColName);
+    newColName = addColumnWithTimestampStyle(newColPos, newColName, newColType, timestampStyle);
+    interestedColNames.add(newColName);
 
     preparedArgs.add(newColPos);
-    preparedArgs.add(targetColName);
+    preparedArgs.add(newColName);
     preparedArgs.add(expr);
     return preparedArgs;
   }

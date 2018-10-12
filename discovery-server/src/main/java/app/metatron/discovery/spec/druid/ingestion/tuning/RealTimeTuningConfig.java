@@ -16,6 +16,9 @@ package app.metatron.discovery.spec.druid.ingestion.tuning;
 
 import com.google.common.collect.Maps;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections4.MapUtils;
+
 import java.util.Map;
 
 /**
@@ -56,6 +59,23 @@ public class RealTimeTuningConfig implements TuningConfig {
   Boolean ignorePreviousSegments;
 
   public RealTimeTuningConfig() {
+  }
+
+  public RealTimeTuningConfig(Map<String, Object> tuningConfig) {
+    overrideConfig(tuningConfig);
+  }
+
+  public void overrideConfig(Map<String, Object> tuningConfig) {
+
+    if(MapUtils.isNotEmpty(tuningConfig)) {
+      for (String key : tuningConfig.keySet()) {
+        try {
+          BeanUtils.setProperty(this, key, tuningConfig.get(key));
+        } catch (Exception e) {
+        }
+      }
+    }
+
   }
 
   public static RealTimeTuningConfig defaultConfig() {

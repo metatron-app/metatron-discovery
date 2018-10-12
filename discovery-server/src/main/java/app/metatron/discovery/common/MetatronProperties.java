@@ -67,6 +67,8 @@ public class MetatronProperties {
 
         private String from = "admin@metatron.com";
 
+        private String admin = "admin@metatron.com";
+
         private String baseUrl = "";
 
         public String getFrom() {
@@ -83,6 +85,14 @@ public class MetatronProperties {
 
         public void setBaseUrl(String baseUrl) {
             this.baseUrl = baseUrl;
+        }
+
+        public String getAdmin() {
+            return admin;
+        }
+
+        public void setAdmin(String admin) {
+            this.admin = admin;
         }
     }
 

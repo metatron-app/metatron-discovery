@@ -15,9 +15,9 @@
 import {
   Component, ElementRef, HostListener, Injector, OnDestroy, OnInit
 } from '@angular/core';
-import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../common/service/popup.service';
-import { DatasetService } from '../../service/dataset.service';
+import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
+import { PopupService } from '../../../common/service/popup.service';
+import { DatasetService } from '../service/dataset.service';
 
 @Component({
   selector: 'app-create-dataset-datatype',
