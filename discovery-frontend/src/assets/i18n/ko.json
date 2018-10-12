@@ -41,6 +41,7 @@
   "msg.comm.ui.downloading" : "저장중",
   "msg.comm.ui.soring.order" : "정렬순서",
   "msg.comm.ui.soring.by" : "정렬기준",
+  "msg.comm.ui.error" : "오류",
   "msg.comm.ui.soring.frequency.asc" : "빈도수 오름차순",
   "msg.comm.ui.soring.frequency.desc" : "빈도수 내림차순",
   "msg.comm.ui.soring.alphnumeric.asc" : "영숫자 오름차순",
