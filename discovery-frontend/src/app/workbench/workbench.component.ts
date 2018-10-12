@@ -1322,8 +1322,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method - 슬라이드 아이콘 관련
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  | Public Method - 슬라이드 아이콘 관련
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
    * 필터링된 탭 리스트
@@ -1950,10 +1950,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.connectionService.getDataconnectionDetail(this.workbench.dataConnection.id)
       .then((connection) => {
         const selectedSecurityType = [
-            { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
-            { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
-            { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
-          ].find(type => type.value === this.workbench.dataConnection.authenticationType) || { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' };
+          { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+          { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+          { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+        ].find(type => type.value === this.workbench.dataConnection.authenticationType) || { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' };
         this.mainViewShow = false;
         this.mode = 'db-configure-schema';
         this.setDatasource = {
@@ -2109,10 +2109,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     param['fields'] = column;
 
     const selectedSecurityType = [
-        { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
-        { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
-        { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
-      ].find(type => type.value === connection.authenticationType) || { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' };
+      { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+      { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+      { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+    ].find(type => type.value === connection.authenticationType) || { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' };
 
     // ingestion param
     const connInfo: Dataconnection = this.workbench.dataConnection;
