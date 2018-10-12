@@ -251,15 +251,20 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
 
       if(featureColorType === 'MEASURE') {
-        let colorList = ChartColorList[featureColor];
-        let avgNum = styleData[0].valueRange.maxValue / colorList.length;
 
-        for(let i=0;i<colorList.length;i++) {
-          if(feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] <= avgNum * (i+1) &&
-            feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] >= avgNum * (i)) {
-            featureColor = colorList[i];
+        if(styleData[0].valueRange) {
+          let colorList = ChartColorList[featureColor];
+
+          let avgNum = styleData[0].valueRange.maxValue / colorList.length;
+
+          for(let i=0;i<colorList.length;i++) {
+            if(feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] <= avgNum * (i+1) &&
+              feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] >= avgNum * (i)) {
+              featureColor = colorList[i];
+            }
           }
         }
+
 
         // featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       } else if(featureColorType === 'DIMENSION') {
@@ -795,11 +800,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           featureCenter = ol.extent.getCenter(extent);
           feature.setGeometry(new ol.geom.Point(featureCenter));
         }
-      }
 
-      if(this.uiOption.fieldMeasureList.length > 0) {
-        //히트맵 weight 설정
-        feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+        if(this.uiOption.fieldMeasureList.length > 0) {
+          //히트맵 weight 설정
+          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+        }
       }
 
       feature.set('layerNum', 1);
@@ -974,7 +979,70 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   }
 
   public legendRender(): void {
-    
+
+    if(document.getElementsByClassName('ddp-layout-remark').length > 0) {
+      for(let i=0;i<document.getElementsByClassName('ddp-layout-remark').length;i++) {
+        let element = document.getElementsByClassName('ddp-layout-remark')[i];
+
+        let legendHtml;
+
+        if(this.uiOption.layers[0].color["by"] === 'DIMENSION') {
+          legendHtml = '<div class="ddp-ui-layer">' +
+              '<span class="ddp-label">' + this.uiOption.layers[0].name + '</span>' +
+              '<span class="ddp-data">'+ this.uiOption.layers[0].type +'</span>' +
+              '<ul class="ddp-list-remark">';
+
+          for(let field of this.uiOption.fieldList) {
+            legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:#602663"></em>' + field + '</li>';
+          }
+
+          legendHtml = legendHtml + '</ul></div>';
+        } else if(this.uiOption.layers[0].color["by"] === 'MEASURE') {
+          legendHtml = '<div class="ddp-ui-layer">' +
+              '<span class="ddp-label">' + this.uiOption.layers[0].name + '</span>' +
+              '<span class="ddp-data">' + this.uiOption.layers[0].type + ' by ' + this.uiOption.layers[0].color.column + '</span>' +
+              '<ul class="ddp-list-remark">';
+
+              let colorList = ChartColorList[this.uiOption.layers[0].color["schema"]];
+
+              if(this.data[0].valueRange) {
+                let avgNum = this.data[0].valueRange.maxValue / colorList.length;
+
+                for(let i=0;i<colorList.length;i++) {
+                    let minVal = FormatOptionConverter.getFormatValue(avgNum * i, this.uiOption.valueFormat);
+                    let maxVal = FormatOptionConverter.getFormatValue(avgNum * (i+1), this.uiOption.valueFormat);
+
+                    legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + colorList[i] + '"></em>' + minVal + ' ~ ' + maxVal + '</li>';
+                }
+              }
+
+          if(this.uiOption.layers[0].color["customMode"]) {
+            legendHtml = '<div class="ddp-ui-layer">' +
+                '<span class="ddp-label">' + this.uiOption.layers[0].name + '</span>' +
+                '<span class="ddp-data">' + this.uiOption.layers[0].type + ' by ' + this.uiOption.layers[0].color.column + '</span>' +
+                '<ul class="ddp-list-remark">';
+
+            if(this.uiOption.layers[0].color["customMode"] === 'SECTION') {
+              for(let range of this.uiOption.layers[0].color["ranges"]) {
+
+                let minVal = range.fixMin;
+                let maxVal = range.fixMax;
+
+                if(minVal === null) minVal = 0;
+                if(maxVal === null) maxVal = minVal;
+
+                legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
+              }
+            }
+          }
+
+        }
+
+        legendHtml = legendHtml + '</ul></div>';
+        // console.log(legendHtml);
+        element.innerHTML = legendHtml;
+      }
+    }
   }
 
   public tooltipRender(): void {
@@ -1154,11 +1222,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           featureCenter = ol.extent.getCenter(extent);
           feature.setGeometry(new ol.geom.Point(featureCenter));
         }
-      }
 
-      if(this.uiOption.fieldMeasureList.length > 0) {
-        //히트맵 weight 설정
-        feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+        if(this.uiOption.fieldMeasureList.length > 0) {
+          //히트맵 weight 설정
+          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+        }
       }
 
       feature.set('layerNum', 2);
@@ -1401,11 +1469,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           featureCenter = ol.extent.getCenter(extent);
           feature.setGeometry(new ol.geom.Point(featureCenter));
         }
-      }
 
-      if(this.uiOption.fieldMeasureList.length > 0) {
-        //히트맵 weight 설정
-        feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+        if(this.uiOption.fieldMeasureList.length > 0) {
+          //히트맵 weight 설정
+          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+        }
       }
 
       feature.set('layerNum', 3);

@@ -192,10 +192,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      // if (typeof uiOption.toolTip.useDefaultFormat === 'undefined') uiOption.toolTip.useDefaultFormat = true;
 
      // Set
-     const minValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, this.resultData['data'][0].valueRange.minValue);
+     if(this.resultData['data'][0].valueRange) {
+       const minValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, this.resultData['data'][0].valueRange.minValue);
 
-     this.minValue = FormatOptionConverter.getDecimalValue(minValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
-     this.maxValue = FormatOptionConverter.getDecimalValue(this.resultData['data'][0].valueRange.maxValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+       this.minValue = FormatOptionConverter.getDecimalValue(minValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+       this.maxValue = FormatOptionConverter.getDecimalValue(this.resultData['data'][0].valueRange.maxValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+     }
 
      this.uiOption = uiOption;
    }
