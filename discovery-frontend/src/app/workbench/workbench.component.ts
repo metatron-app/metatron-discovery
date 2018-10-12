@@ -2101,10 +2101,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             const currHiveLog = this.hiveLogs[this.runningQueryDoneIndex];
 
             // 시점상으로 취소 쿼리를 호출하였으나 넘어온 경우 예외처리
-            if( isUndefined(currHiveLog) ){
-              this.hiveLogFinish();
-              return false;
-            }
+            // if( isUndefined(currHiveLog) ){
+            //   this.hiveLogFinish();
+            //   return false;
+            // }
 
             currHiveLog.isShow = true;
             currHiveLog.log = currHiveLog.log.concat(data.log);
@@ -2458,8 +2458,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // console.error("cancel selectedGridTabNum ================================ : " + selectedGridTabNum);
     // console.error("this.datagridCurList.length ================================ : " + this.datagridCurList.length);
 
-    // this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
-    this.datagridCurList[selectedGridTabNum]['selected'] = true;
+    // if( !isUndefined( this.datagridCurList[selectedGridTabNum] ) ){
+    //   console.error("!isUndefined( this.datagridCurList[selectedGridTabNum] ) ================================ : ");
+      this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
+      this.datagridCurList[selectedGridTabNum]['selected'] = true;
+    // }
+
     this.selectedGridTabNum = selectedGridTabNum;
     this.safelyDetectChanges();
 
