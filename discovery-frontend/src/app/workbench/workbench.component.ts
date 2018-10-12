@@ -1846,7 +1846,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.isGridResultNoData = true;
         }
         const temp = {
-          name: this.textList[selectedNum].name + '- 오류 ' + (selectedResultTabNum + 1),
+          name: this.textList[selectedNum].name + '- ' + this.translateService.instant('msg.comm.ui.error') + ' ' + (selectedResultTabNum + 1),
           data: data[selectedResultTabNum],
           selected: selectedYn,
           output: 'text',
@@ -1917,7 +1917,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.resultTextOutput = data[index].message;
         }
         const temp = {
-          name: this.textList[selectedNum].name + '- 오류 ' + (index + 1),
+          name: this.textList[selectedNum].name + '- ' + this.translateService.instant('msg.comm.ui.error') + ' ' + (index + 1),
           data: data[index],
           selected: selectedYn,
           output: 'text',
