@@ -52,6 +52,9 @@ polaris:
         method: POST
         api: /api/users/signup
       -
+        method: POST
+        api: /api/users/password/reset
+      -
         method: GET
         api: /api/common/manual/download
       -
@@ -227,7 +230,7 @@ polaris:
     baseDir: ${java.io.tmpdir:-/tmp}
     sparkDir: /usr/local/spark
   mail:
-    from: admin@metatron.com
+    admin: admin@metatron.com
     baseUrl: http://localhost:8180
   workbench:
     defaultResultSize: 1000
