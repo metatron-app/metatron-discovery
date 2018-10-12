@@ -17,7 +17,7 @@
  * Advanced setting component
  */
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, Injector, Input } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@angular/core';
 import { StringUtil } from '../../../common/util/string.util';
 
 @Component({
@@ -27,7 +27,10 @@ import { StringUtil } from '../../../common/util/string.util';
 export class AdvancedSettingComponent extends AbstractComponent {
 
   // advanced list show hide flag
-  public isShowAdvancedSetting: boolean = true;
+  @Input()
+  public isShowAdvancedSetting: boolean;
+  @Output()
+  public changedShowFlag: EventEmitter<boolean> = new EventEmitter();
 
   // tuning configuration
   @Input()
@@ -68,6 +71,15 @@ export class AdvancedSettingComponent extends AbstractComponent {
    */
   public isTextEmpty(text: string): boolean {
     return StringUtil.isEmpty(text);
+  }
+
+  /**
+   * Setting option show click event
+   */
+  public onClickSettingOption(): void {
+    this.isShowAdvancedSetting = !this.isShowAdvancedSetting;
+    // emit
+    this.changedShowFlag.emit(this.isShowAdvancedSetting);
   }
 
   /**

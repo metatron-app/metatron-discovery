@@ -14,7 +14,8 @@
 
 <div class="ddp-box-widget">
   <!-- Top Control -->
-  <div *ngIf="isAuthMgmtViewMode" class="ddp-top-control ddp-clear">
+  <div *ngIf="isAuthMgmtViewMode" class="ddp-top-control ddp-clear"
+       [ngStyle]="{'margin-right': isVisibleScrollbar ? '20px' : '' }">
     <div class="ddp-ui-buttons">
       <div class="ddp-box-btn2" (click)="editWidget()">
         <em class="ddp-icon-widget-edit"></em>

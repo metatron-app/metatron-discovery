@@ -403,6 +403,10 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 .ddp-wrap-source-name.ddp-white .ddp-data-in .ddp-txt-namesub {color:#4b515b;}
 .ddp-wrap-source-name .ddp-txt {display:inline-block; padding:8px 0 7px 0; color:#4b515b; font-size:12px;}
 .ddp-wrap-source-name .ddp-txt .ddp-icon-database3 {margin-right:9px; background-position-x:-26px}
+.ddp-wrap-source-name .ddp-data-in .ddp-box-layout4.ddp-datasource {padding-bottom:0;}
+.ddp-wrap-source-name .ddp-data-in .ddp-box-layout4.ddp-datasource .ddp-btn-more {padding-bottom:20px;}
+.ddp-wrap-source-name .ddp-data-in .ddp-box-layout4.ddp-datasource .ddp-box-search {padding:0 20px;}
+.ddp-wrap-source-name .ddp-data-in .ddp-box-layout4.ddp-datasource .ddp-box-search .ddp-form-search {margin:0; width:100%;}
 /***********************************************************************************************************
             PAGE : 대시보드 생성 팝업 (join popup)    ************************************************************************************************************/
 .ddp-wrap-join-popup {display:none; position:absolute; top:48px; left:177px; width:304px; color:#fff; border-radius:3px; background-color:#3c3f40; z-index:120;}
@@ -1993,8 +1997,8 @@ ul.ddp-list-chart li a .ddp-btn-control em.ddp-icon-del-s:hover:before {backgrou
 /***********************************************************************************************************
 	PAGE : 워크북 데이터소스 상세 팝업
 ************************************************************************************************************/
-.ddp-type-option .ddp-box-btn2 {position:relative; float:left; margin:8px 5px 0 20px; z-index:60;}
-.ddp-type-option .ddp-box-btn2 .ddp-icon-widget-gridsave {position:relative; top:-1px;}
+.ddp-type-option .ddp-box-btn2 {position:relative; float:left; margin:8px 15px 0 20px; z-index:60;}
+.ddp-type-option .ddp-box-btn2 .ddp-icon-widget-gridsave {position:relative; top:-1px; margin-right:4px;}
 .ddp-type-option .ddp-box-btn2 .ddp-ui-tooltip-info {display:none; top:25px; left:inherit; right:0;}
 .ddp-type-option .ddp-box-btn2:hover .ddp-ui-tooltip-info {display:block;}
 .ddp-type-option .ddp-box-btn2 .ddp-ui-tooltip-info em.ddp-icon-view-top {left:inherit; right:5px;}
@@ -2439,9 +2443,9 @@ ul.ddp-list-workspace li a:hover .ddp-btn-control {display:block;}
 
 ul.ddp-list-workspace li a .ddp-box-tag,
 ul.ddp-list-workspace li a .ddp-box-tag-value {display:inline-block; position:absolute; top:50%; left:50px; margin-top:-7px; padding:1px 2px 2px 2px; border-radius:1px; font-size:10px; font-weight:bold; line-height:1em; vertical-align: top;}
-ul.ddp-list-workspace li a .ddp-box-tag.ddp-workbook {border:1px solid #90969f; color:#565c65;}
-ul.ddp-list-workspace li a .ddp-box-tag.ddp-notebook {border:1px solid #f2c445; color:#efcd6e;}
-ul.ddp-list-workspace li a .ddp-box-tag.ddp-workbench {border:1px solid #bac1e5; color:#8c97d3;}
+ul.ddp-list-workspace li a .ddp-box-tag.ddp-workbook {min-width:62px; border:1px solid #90969f; color:#565c65; text-align:center;}
+ul.ddp-list-workspace li a .ddp-box-tag.ddp-notebook {min-width:62px; border:1px solid #5ecfea; color:#5ecfea; text-align:center;}
+ul.ddp-list-workspace li a .ddp-box-tag.ddp-workbench {min-width:62px; border:1px solid #bac1e5; color:#8c97d3; text-align:center;}
 
 ul.ddp-list-workspace li a .ddp-ui-data-list {float:right; padding-left:20px; background-color:#fff;}
 ul.ddp-list-workspace li a:hover .ddp-ui-data-list {background-color:#f6f6f7;}
@@ -2761,12 +2765,12 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 
 .ddp-wrap-drop-submenu .ddp-ui-sub-title {position:relative; padding-left:22px;}
 .ddp-wrap-drop-submenu .ddp-ui-sub-title:hover {background-color:#2f3339; cursor:pointer;}
-.ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-icon-add {display:inline-block; position:absolute; top:50%; right:18px; margin-top:-7px; width:13px; height:13px; background:url(../images/icon_add.png) no-repeat; background-position:left -22px;}
+.ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-icon-add {display:inline-block; position:absolute; top:50%; right:14px; margin-top:-7px; width:13px; height:13px; background:url(../images/icon_add.png) no-repeat; background-position:-98px -22px;}
 .ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-icon-add:hover {background-position-x:-14px;}
-.ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-wrap-add-type { position:absolute; top:50%; right:16px; margin-top:-9px;  }
-.ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-wrap-add-type .ddp-icon-add2 {display:inline-block; position:relative; width:13px; height:13px; top:2px; right:2px; background:url(../images/icon_add.png) no-repeat; background-position:left -22px; z-index:5}
+.ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-wrap-add-type {position:absolute; top:50%; right:14px; margin-top:-6px;}
+.ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-wrap-add-type .ddp-icon-add2 {display:inline-block; position:relative; width:13px; height:13px; background:url(../images/icon_add.png) no-repeat; background-position:-98px -22px; z-index:5}
 .ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-wrap-add-type:hover .ddp-icon-add2 {background-position-x:-28px}
-.ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-wrap-add-type .ddp-wrap-link-type {display:none; position:absolute; top:0; right:0; padding-right:20px; white-space:nowrap;}
+.ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-wrap-add-type .ddp-wrap-link-type {display:none; position:absolute; top:-3px; right:-3px; padding-right:20px; white-space:nowrap;}
 .ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-wrap-add-type:hover .ddp-wrap-link-type {display:block;}
 .ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-wrap-add-type:hover .ddp-wrap-link-type {padding:2px 20px 2px 2px; background-color:#4c515a; border-radius:15px;}
 .ddp-wrap-drop-submenu .ddp-ui-sub-title .ddp-wrap-add-type .ddp-wrap-link-type .ddp-link-type {margin-left:10px; color:#b7b9c2; font-size:12px;}
@@ -4193,10 +4197,10 @@ ul.ddp-list-selectbox.ddp-color-select li a:hover {background-color:#f6f6f7;}
 
 .ddp-column-detail .ddp-wrap-list .ddp-ui-top {background-color:#e7e7ea;}
 .ddp-wrap-list .ddp-ui-dataname {padding:20px 10px 10px 10px;background-color:#e7e7ea}
-.ddp-wrap-list .ddp-ui-dataname .ddp-top-title {display:block; position:relative; padding:0 20px 10px 9px;}
-.ddp-wrap-list .ddp-ui-dataname .ddp-txt-name {display:inline-block; font-size:16px; font-weight:bold; color:#4b515b; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.ddp-wrap-list .ddp-ui-dataname .ddp-top-title {display:inline-block; position:relative; max-width:100%; padding:0 20px 10px 9px; box-sizing:border-box;}
+.ddp-wrap-list .ddp-ui-dataname .ddp-txt-name {display:inline-block; max-width:100%;font-size:16px; font-weight:bold; color:#4b515b; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 
-.ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info {position:relative; display:inline-block; vertical-align:top; top:5px; }
+.ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info {position:absolute; top:0; right:0; display:inline-block; vertical-align:top; top:5px; }
 .ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-btn-info2:before
 {display:inline-block; content:''; width:13px; height:13px; margin-left:5px; background:url(../images/icon_info.png) no-repeat; background-position:left -30px;}
 .ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-btn-info2:hover:before {background-position:-14px -30px;}
@@ -5063,6 +5067,10 @@ table.ddp-table-detail tbody tr td .ddp-ui-summary ul.ddp-list-sub li a {color:#
 .ddp-wrap-table-detail .ddp-wrap-edit3.ddp-type .ddp-label-type.ddp-normal {font-size:16px;}
 .ddp-wrap-table-detail {position:relative; border-top:1px dotted #ccc; margin:40px -20px 0 -20px; padding:40px 20px 0 20px;}
 .ddp-wrap-table-detail .ddp-type-plan .ddp-label-detail {display:inline-block; padding-right: 15px; line-height:30px;}
+.ddp-wrap-table-detail.ddp-last {padding-bottom:40px;}
+
+.ddp-wrap-table-detail.ddp-last .ddp-detail-setting .ddp-wrap-down {margin-bottom:-40px;}
+
 .ddp-wrap-table-detail .ddp-type-plan .ddp-label-detail a.ddp-btn-option2 {margin-left:4px; vertical-align:middle;}
 .ddp-wrap-table-detail .ddp-type-plan .ddp-btn-pop {min-width:140px;}
 .ddp-wrap-table-detail .ddp-btn-pop em.ddp-icon-email {display:inline-block; width:14px; height:12px; margin-right:5px; background:url(../images/icon_mail.png) no-repeat ;}
@@ -7934,7 +7942,7 @@ table.ddp-table-form2.ddp-type tr td .ddp-data-used {font-weight:bold; white-spa
 .ddp-type-multidata .ddp-view-multidata {width:100%; height:100%; overflow:auto;}
 .ddp-type-multidata .ddp-view-multidata .ddp-txt-edit {position:absolute; top:20px; left:20px; color:#4b515b; font-size:16px; font-weight:bold;}
 .ddp-type-multidata.ddp-edit {border:1px solid #b7b9c2;}
-.ddp-type-multidata.ddp-edit .ddp-ui-multidata {margin-top:-49px; padding-top:49px;box-sizing:border-box;}
+.ddp-type-multidata.ddp-edit .ddp-ui-multidata {margin-top:-49px; padding-top:49px;box-sizing:border-box; background-color:#e7e7ea}
 .ddp-type-multidata.ddp-edit .ddp-view-multidata {position:relative; height:100%; z-index:1;}
 .ddp-type-multidata.ddp-edit .ddp-view-multidata .ddp-txt-message {display:inline-block; position:absolute; top:0; left:0; padding:16px 0 0 20px;color:#4b515b; font-size:13px;}
 .ddp-ui-multidata .ddp-ui-add {display:table-cell; width:100%; height:100%; text-align:center; vertical-align:middle;}

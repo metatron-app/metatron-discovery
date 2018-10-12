@@ -308,8 +308,8 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         isUiData = true;
       }
       if(  -1 !== uiOption.dataLabel.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT) ){
-        let value = params.percent;
-        value = Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
+        let value = params.data.percentage;
+        value = (Math.floor(Number(value) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
         result.push(value +'%');
         isUiData = true;
       }
@@ -636,7 +636,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
 
       // when series percent is selected
       if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {
-        let value = Math.floor(Number(params.percent) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal);
+        let value = (Math.floor(Number(params.data.percentage) * (Math.pow(10, format.decimal))) / Math.pow(10, format.decimal)).toFixed(format.decimal);
 
         seriesValue += ' (' + value + '%)';
       }
@@ -647,7 +647,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
 
       // when series value is not selected
       if (-1 == this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE)) {
-        let seriesPercent = FormatOptionConverter.getTooltipValue(params.seriesName, pivot.aggregations, this.uiOption.valueFormat, params.percent);
+        let seriesPercent = FormatOptionConverter.getTooltipValue(params.seriesName, pivot.aggregations, this.uiOption.valueFormat, params.data.percentage);
 
         seriesPercent += '%';
         result.push(seriesPercent);

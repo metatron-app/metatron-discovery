@@ -129,9 +129,6 @@ public class PrepTransformController {
       response.setTotalRowCnt( totalRowCnt );
     } catch (Exception e) {
       LOGGER.error("fetch(): caught an exception: ", e);
-      if (System.getProperty("dataprep").equals("disabled")) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_CONFIG_CODE);
-      }
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
     }
 
@@ -157,9 +154,6 @@ public class PrepTransformController {
       response = transformService.transform(wrangledDsId, request.getOp(), stageIdx, request.getRuleString());
     } catch (Exception e) {
       LOGGER.error("transform(): caught an exception: ", e);
-      if (System.getProperty("dataprep").equals("disabled")) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_CONFIG_CODE);
-      }
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
     }
 
@@ -259,9 +253,6 @@ public class PrepTransformController {
       response = transformService.getCacheInfo();
     } catch (Exception e) {
       LOGGER.error("getCacheInfo(): caught an exception: ", e);
-      if (System.getProperty("dataprep").equals("disabled")) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_CONFIG_CODE);
-      }
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
     }
     return ResponseEntity.ok(response);
@@ -394,9 +385,6 @@ public class PrepTransformController {
       response.put("function_list",functionList);
     } catch (Exception e) {
       LOGGER.error("getCacheInfo(): caught an exception: ", e);
-      if (System.getProperty("dataprep").equals("disabled")) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_CONFIG_CODE);
-      }
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
     }
     return ResponseEntity.ok(response);

@@ -338,11 +338,9 @@
                     <!-- ddp-selected -->
                     <li *ngFor="let item of getFilteringList(datagridCurList, editorResultListObj)"
                         [ngClass]="{'ddp-selected': item['selected']}" (click)="tabGridChangeHandler(findIndexInList(datagridCurList, item))">
-                      <div class="ddp-data-tab ddp-data-loading" [ngStyle]="{'color': item.output === 'text' ? 'red' : 'black'}">
-                        <em *ngIf="item.name.startsWith('Loading')" class="ddp-icon-tabloading"></em>
-                        <!--Loading<em class="ddp-icon-dot">...</em>-->
+                      <div class="ddp-data-tab" [ngStyle]="{'color': item.output === 'text' ? 'red' : 'black'}">
                         {{item.name}}
-                        <a *ngIf="!isHiveLog"  href="javascript:" class="ddp-btn-close-s" (click)="tabGridCloseHandler(findIndexInList(datagridCurList, item))"></a>
+                        <a href="javascript:" class="ddp-btn-close-s" (click)="tabGridCloseHandler(findIndexInList(datagridCurList, item))"></a>
                       </div>
                     </li>
                   </ul>
@@ -351,42 +349,8 @@
               <!-- tab -->
               <!-- 결과 -->
               <div class="ddp-view-result">
-                <div loading #loading [visible]="isLoadingBarShow" [cancel]="mimeType != 'HIVE'"  [canceling]="hiveLogCanceling" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
-
-                <!-- Hive Log 표시 영역 -->
-                <div *ngIf="hiveLogs[selectedGridTabNum] && hiveLogs[selectedGridTabNum].isShow" class="ddp-wrap-result" >
-
-                  <div class="ddp-ui-setting">
-                    <div class="ddp-ui-buttons">
-
-                      <a *ngIf="isHiveLogCancel" href="javascript:" class="ddp-btn-box" (click)="logCancel(selectedGridTabNum)">
-                        <em class="ddp-icon-cancel"></em>
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
-                          {{'msg.bench.btn.log.cancel' | translate}}
-                        </div>
-                      </a>
-
-                      <a *ngIf="!isHiveLogCancel" href="javascript:" class="ddp-btn-box" (click)="hiveLogToggleClick(selectedGridTabNum, 'log')">
-                        <em class="ddp-icon-result-grid"></em>
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
-                          {{'msg.bench.btn.view.result' | translate}}
-                        </div>
-                      </a>
-
-                    </div>
-                  </div>
-
-                  <div class="ddp-box-grid">
-                    <div id="workbenchHiveLogText" class="ddp-text-result"
-                         [innerHTML]="hiveLogs[selectedGridTabNum].log.join('<br>')"></div>
-                  </div>
-                </div>
-                <!-- // Hive Log 표시 영역 -->
-
-                <div *ngIf="!hiveLogs[selectedGridTabNum] || !hiveLogs[selectedGridTabNum].isShow"
-                     class="ddp-wrap-result"
+                <div loading #loading [cancel]="true" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
+                <div class="ddp-wrap-result"
                      [ngStyle]="{'visibility': datagridCurList.length !== 0 ? 'visible':'hidden'}">
                   <div class="ddp-ui-setting">
                     <!-- 검색 -->
@@ -457,16 +421,6 @@
                           </ul>
                         </div>
                       </div>
-
-                      <!-- hive 관련 button -->
-                      <a *ngIf="hiveLogs[selectedGridTabNum]" href="javascript:" class="ddp-btn-box" (click)="hiveLogToggleClick(selectedGridTabNum, 'data')">
-                        <em class="ddp-icon-result-list"></em>
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
-                          {{'msg.bench.btn.view.log' | translate}}
-                        </div>
-                      </a>
-                      <!-- //hive 관련 button -->
                       <!-- //엑셀 다운로드 -->
                     </div>
                     <!-- //button -->

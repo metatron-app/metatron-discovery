@@ -41,3 +41,29 @@ If you discover a security issue in this project, please report in private to ou
 Please do **NOT** create publicly viewable issues for suspected security vulnerabilities.
 
 Thanks for helping make Metatron safe for everyone.
+
+
+## Code Convention
+Our project uses some rules to validate the style of the code.
+Its automatically executed within the pull request process and will reject the PR if it detects violations.
+You can import the ruleset file into your IDE(intellij is our standard) for convenience.
+
+### Java
+- **Checkstyle**  
+We are using checkstyle based on Google java style.  
+Some rules are tuned for our project, include as follows :  
+  - Max. line length : 120
+  - Accept star import : java.awt, javax.swing
+  - Allowed abbreviation length : 2
+  - Import order  
+    1. static
+    2. standard java packages
+    3. third party packages (Alphabetical order)
+    4. Metatron packages - app.metatron.discovery  
+    
+- Intellij code style config file
+([metatron_Java_codestyle_intellij.xml.txt](https://github.com/metatron-app/metatron-discovery/files/2463148/metatron_Java_codestyle_intellij.xml.txt))  
+
+### TypeScript
+- Intellij code style config file
+([google_typescript_code_style.xml.txt](https://github.com/metatron-app/metatron-discovery/files/2463155/google_typescript_code_style.xml.txt))

@@ -17,6 +17,7 @@ import { AbstractComponent } from '../../common/component/abstract.component';
 import { Widget } from '../../domain/dashboard/widget/widget';
 import { EventBroadcaster } from '../../common/event/event.broadcaster';
 import { LayoutMode } from '../../domain/dashboard/dashboard';
+import * as $ from "jquery";
 
 export abstract class AbstractWidgetComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -34,6 +35,8 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
   public isViewMode: boolean = false;
   public isAuthMgmtViewMode: boolean = false;
   public isValidWidget:boolean = false;
+
+  public isVisibleScrollbar: boolean = false;   // 스크롤바 표시 여부 체크
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
