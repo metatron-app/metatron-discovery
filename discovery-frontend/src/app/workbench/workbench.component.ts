@@ -1230,12 +1230,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             let tempArr : any[] = [];
 
             // log 시점때문에 더미로 추가된 데이터 제거
-            // for (let index: number = 0; index < this.datagridCurList.length; index++) {
-            //   if( this.datagridCurList[index].name.startsWith('Loading') ){
-            //     console.error("Loading pop() ====================================");
-            //     this.datagridCurList.pop();
-            //   }
-            // }
+            for (let index: number = 0; index < this.datagridCurList.length; index++) {
+              if( this.datagridCurList[index].name.startsWith('Loading') ){
+                // console.error("Loading pop() ====================================");
+                this.datagridCurList.pop();
+              }
+            }
 
             // 호출된 현재 그리드 목록 생성
             for (let index: number = 0; index < this.datagridCurList.length; index++) {
