@@ -119,7 +119,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
   public size: Object = {
     by: 'NONE',
-    column: ''
+    column: '',
+    max: 10
   };
 
   public outline: Object = {
@@ -601,8 +602,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      },this.uiOption.layers[1],this.uiOption.layers[2]]
 
      this.measureList = [];
-     for(let measureField of this.uiOption.fieldMeasureList) {
-       this.measureList.push(measureField.alias.toString());
+     for(let field of this.uiOption.fieldMeasureList) {
+       if(!field["layerNum"]) {
+         this.measureList.push(field.alias.toString());
+       }
      }
 
      // when color column is none or empty, set default column
@@ -689,6 +692,20 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        } else if(val === 6) {
          resultVal = '80%';
        } else if(val === 5) {
+         resultVal = '100%';
+       }
+     }
+
+     if(type === 'transparency') {
+       if(val === 80) {
+         resultVal = '20%';
+       } else if(val === 60) {
+         resultVal = '40%';
+       } else if(val === 40) {
+         resultVal = '60%';
+       } else if(val === 20) {
+         resultVal = '80%';
+       } else if(val === 0) {
          resultVal = '100%';
        }
      }
@@ -818,8 +835,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
 
     this.measureList = [];
-    for(let measureField of this.uiOption.fieldMeasureList) {
-      this.measureList.push(measureField.alias.toString());
+    for(let field of this.uiOption.fieldMeasureList) {
+      if(!field["layerNum"]) {
+        this.measureList.push(field.alias.toString());
+      }
     }
 
     if(this.color['customMode']) {

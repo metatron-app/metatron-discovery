@@ -48,9 +48,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   public mapVaildSecondLayer: boolean = false;
   public mapVaildThirdLayer: boolean = false;
   public data: Map = new Map();
-  public data2: any;
-  public data3: any;
-
   public mouseX = 0;
   public mouseY = 0;
   public property = 0;
@@ -165,7 +162,16 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
    */
   public createMap(): void {
 
-    let layer = this.osmLayer;
+    let layer = this.cartoPositronLayer;
+
+    if( !this.uiOption.toolTip ) {
+      this.uiOption.toolTip = {};
+    }
+
+    // init displayTypes
+    if (!this.uiOption.toolTip.displayTypes) {
+      this.uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(this.uiOption.type);
+    }
 
     if(this.uiOption.map === 'Positron') {
       layer = this.cartoPositronLayer;
@@ -215,10 +221,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   /**
    * map style function
    */
-  public mapStyleFunction = (layerNum) => {
+  public mapStyleFunction = (layerNum, data) => {
 
     let styleOption = this.uiOption;
-    let styleData = this.data;
+    let styleData = data[layerNum];
 
     return function(feature, resolution) {
 
@@ -226,6 +232,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let symbolType = styleOption.layers[layerNum].symbol;
       let outlineType = styleOption.layers[layerNum].outline.thickness;
       let lineDashType = styleOption.layers[layerNum].outline.lineDash;
+      let lineMaxVal = styleOption.layers[layerNum].size.max;
       let featureColor = styleOption.layers[layerNum].color.schema;
       let outlineColor = styleOption.layers[layerNum].outline.color;
       let featureColorType = styleOption.layers[layerNum].color.by;
@@ -247,59 +254,62 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       let featureSize = 5;
       if(featureSizeType === 'MEASURE') {
-        featureSize = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData[0].valueRange.maxValue / 30);
+        featureSize = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange.maxValue / 30);
+      }
+
+      let lineThickness = 2;
+      if(featureSizeType === 'MEASURE') {
+        lineThickness = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange.maxValue / lineMaxVal);
       }
 
       if(featureColorType === 'MEASURE') {
 
-        if(styleData[0].valueRange) {
+        if(styleData.valueRange) {
           let colorList = ChartColorList[featureColor];
 
-          let avgNum = styleData[0].valueRange.maxValue / colorList.length;
+          let avgNum = styleData.valueRange.maxValue / colorList.length;
 
           for(let i=0;i<colorList.length;i++) {
-            if(feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] <= avgNum * (i+1) &&
-              feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] >= avgNum * (i)) {
+            if(feature.getProperties()[styleOption.layers[layerNum].color.column] <= avgNum * (i+1) &&
+              feature.getProperties()[styleOption.layers[layerNum].color.column] >= avgNum * (i)) {
               featureColor = colorList[i];
             }
           }
         }
 
+        if(styleOption.layers[layerNum].color['customMode'] === 'SECTION') {
+          for(let range of styleOption.layers[layerNum].color['ranges']) {
+            let rangeMax = range.fixMax;
+            let rangeMin = range.fixMin;
 
-        // featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+            if(rangeMax === null) {
+              rangeMax = rangeMin + 1;
+            } else if(rangeMin === null) {
+              rangeMin = 0;
+            }
+
+            if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&  feature.getProperties()[styleOption.layers[layerNum].color.column] < rangeMax) {
+              featureColor = range.color;
+            }
+
+          }
+        } else if(styleOption.layers[layerNum].color['customMode'] === 'GRADIENT') {
+          let colorList = ChartColorList[featureColor];
+          let avgNum = styleData.valueRange.maxValue / colorList.length;
+
+          for(let i=0;i<colorList.length;i++) {
+            if(feature.getProperties()[styleOption.layers[layerNum].color.column] <= avgNum * (i+1) &&
+              feature.getProperties()[styleOption.layers[layerNum].color.column] >= avgNum * (i)) {
+              featureColor = colorList[i];
+            }
+          }
+        }
+
       } else if(featureColorType === 'DIMENSION') {
         let colorList = ChartColorList[featureColor];
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
-      }
-
-      if(styleOption.layers[layerNum].color['customMode'] === 'SECTION') {
-        for(let range of styleOption.layers[layerNum].color['ranges']) {
-          let rangeMax = range.fixMax;
-          let rangeMin = range.fixMin;
-
-          if(rangeMax === null) {
-            rangeMax = rangeMin + 1;
-          } else if(rangeMin === null) {
-            rangeMin = 0;
-          }
-
-          if( feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] > rangeMin &&  feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] < rangeMax) {
-            featureColor = range.color;
-          }
-
-        }
-      }
-
-      if(styleOption.layers[layerNum].color['customMode'] === 'GRADIENT') {
-        let colorList = ChartColorList[featureColor];
-        let avgNum = styleData[0].valueRange.maxValue / colorList.length;
-
-        for(let i=0;i<colorList.length;i++) {
-          if(feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] <= avgNum * (i+1) &&
-            feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] >= avgNum * (i)) {
-            featureColor = colorList[i];
-          }
-        }
+      } else if(featureColorType === 'NONE') {
+        featureColor = styleOption.layers[layerNum].color.schema;
       }
 
       let style = new ol.style.Style({
@@ -381,7 +391,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 color: featureColor,
                 crossOrigin: 'anonymous',
                 scale: featureSize * 0.1,
-                src: '../../../../../../assets/images/ic_map_marker.png'
+                src: '../../../../../../assets/images/ic_pin.png'
               })),
               stroke: new ol.style.Stroke({
                 color: outlineColor,
@@ -442,7 +452,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         style = new ol.style.Style({
           stroke: new ol.style.Stroke({
             color: featureColor,
-            width: 2,
+            width: lineThickness,
             lineDash: lineDash
           })
         });
@@ -474,10 +484,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   /**
    * hexagon map style function
    */
-  public hexagonStyleFunction = (layerNum) => {
+  public hexagonStyleFunction = (layerNum, data) => {
 
     let styleOption = this.uiOption;
-    let styleData = this.data;
+    let styleData = data[layerNum];
 
     return function(feature, resolution) {
 
@@ -489,11 +499,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       if(featureColorType === 'MEASURE') {
         let colorList = ChartColorList[featureColor];
-        let avgNum = styleData[0].valueRange.maxValue / colorList.length;
+        let avgNum = styleData.valueRange.maxValue / colorList.length;
 
         for(let i=0;i<colorList.length;i++) {
-          if(feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] <= avgNum * (i+1) &&
-            feature.getProperties()[styleOption.fieldMeasureList[0].aggregationType + '(' + styleOption.fieldMeasureList[0].name + ')'] >= avgNum * (i)) {
+          if(feature.getProperties()[styleOption.layers[layerNum].color.column] <= avgNum * (i+1) &&
+            feature.getProperties()[styleOption.layers[layerNum].color.column] >= avgNum * (i)) {
             featureColor = colorList[i];
           }
         }
@@ -747,7 +757,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let symbolLayer = new ol.layer.Vector({
       source: source,
-      style: this.mapStyleFunction(0),
+      style: this.mapStyleFunction(0, this.data),
       opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
@@ -771,7 +781,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let hexagonLayer = new ol.layer.Vector({
       source: hexagonSource,
-      style: this.hexagonStyleFunction(0),
+      style: this.hexagonStyleFunction(0, this.data),
       opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
@@ -908,7 +918,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.getLayers().getArray()[4] = hexagonLayer;
       // this.olmap.getLayers().getArray()[5] = textLayer;
 
-      symbolLayer.setStyle(this.mapStyleFunction(0));
+      symbolLayer.setStyle(this.mapStyleFunction(0, this.data));
       symbolLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
       clusterLayer.setStyle(this.clusterStyleFunction(0));
@@ -918,7 +928,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       heatmapLayer.setRadius(this.uiOption.layers[0].color.radius);
       heatmapLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
-      hexagonLayer.setStyle(this.hexagonStyleFunction(0));
+      hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data));
       hexagonLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
       if(this.uiOption.layers[0].type === "symbol") {
@@ -955,6 +965,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         textLayer.setVisible(false);
       }
 
+      //show basemap
+      this.osmLayer.setVisible(this.uiOption.showMapLayer);
+      this.cartoPositronLayer.setVisible(this.uiOption.showMapLayer);
+      this.cartoDarkLayer.setVisible(this.uiOption.showMapLayer);
+
+      //choose basemap
       if(this.uiOption.map === 'OpenStreetMap') {
         this.olmap.getLayers().getArray()[0] = this.osmLayer;
       } else if(this.uiOption.map === 'Positron') {
@@ -965,7 +981,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       this.olmap.updateSize();
 
-      this.drawSecondLayer(this.data2);
+      this.drawSecondLayer(this.data);
+      this.drawThirdLayer(this.data);
     }
 
     this.tooltipRender();
@@ -982,7 +999,29 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     if(document.getElementsByClassName('ddp-layout-remark').length > 0) {
       for(let i=0;i<document.getElementsByClassName('ddp-layout-remark').length;i++) {
-        let element = document.getElementsByClassName('ddp-layout-remark')[i];
+        let element = document.getElementsByClassName('ddp-layout-remark')[i] as HTMLElement;
+
+        if(this.uiOption.legend.pos.toString() === "RIGHT_BOTTOM") {
+          element.style.left = '';
+          element.style.top = '';
+          element.style.right = '20px';
+          element.style.bottom = '20px';
+        } else if(this.uiOption.legend.pos.toString() === "RIGHT_TOP") {
+          element.style.left = '';
+          element.style.top = '20px';
+          element.style.right = '20px';
+          element.style.bottom = '';
+        } else if(this.uiOption.legend.pos.toString() === "LEFT_BOTTOM") {
+          element.style.left = '20px';
+          element.style.top = '';
+          element.style.right = '';
+          element.style.bottom = '20px';
+        } else if(this.uiOption.legend.pos.toString() === "LEFT_TOP") {
+          element.style.left = '20px';
+          element.style.top = '20px';
+          element.style.right = '';
+          element.style.bottom = '';
+        }
 
         let legendHtml;
 
@@ -1036,11 +1075,24 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             }
           }
 
+        } else if(this.uiOption.layers[0].color["by"] === 'NONE') {
+          legendHtml = '<div class="ddp-ui-layer">' +
+              '<span class="ddp-label">' + this.uiOption.layers[0].name + '</span>' +
+              '<span class="ddp-data">' + this.uiOption.layers[0].type + ' Color</span>' +
+              '<ul class="ddp-list-remark">';
+
+          for(let field of this.uiOption.fieldList) {
+            legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:#602663"></em>' + field + '</li>';
+          }
+
+          legendHtml = legendHtml + '</ul></div>';
         }
 
         legendHtml = legendHtml + '</ul></div>';
         // console.log(legendHtml);
         element.innerHTML = legendHtml;
+
+
       }
     }
   }
@@ -1086,7 +1138,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         '<span class="ddp-txt-tooltip">';
 
         //Layer Name (LAYER_NAME)
-        if(tooltipOption.toolTip.displayTypes[17] !== null) {
+        if(tooltipOption.toolTip["displayTypes"] != undefined && tooltipOption.toolTip.displayTypes[17] !== null) {
           if(feature.get('layerNum') === 1) {
             tooltipHtml = tooltipHtml + '<span class="ddp-label"><em class="ddp-icon-mapview1-w"></em> ' + tooltipOption.layers[0].name + '</span>';
           } else if(feature.get('layerNum') === 2) {
@@ -1100,12 +1152,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         tooltipHtml = tooltipHtml + '<table class="ddp-table-info"><colgroup><col width="70px"><col width="*"></colgroup><tbody>';
 
         //Coordinates info (LOCATION_INFO)
-        if(tooltipOption.toolTip.displayTypes[18] !== null) {
+        if(tooltipOption.toolTip["displayTypes"] != undefined && tooltipOption.toolTip.displayTypes[18] !== null) {
           tooltipHtml = tooltipHtml + '<tr><th>Geo info</th><td>'+ pointerX + ', ' + pointerY + '</td></tr>';
         }
 
         //Properties (DATA_VALUE)
-        if(tooltipOption.toolTip.displayTypes[19] !== null) {
+        if(tooltipOption.toolTip["displayTypes"] != undefined && tooltipOption.toolTip.displayTypes[19] !== null) {
           for(var key in feature.getProperties()) {
             let tooltipVal = feature.get(key);
 
@@ -1139,14 +1191,21 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
    * @param isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
    */
   public drawSecondLayer(data: any): void {
-    if(this.data2 === undefined) {
+    if(this.data[1] === undefined) {
       return;
     }
 
+    if(this.olmap.getLayers().getArray().length > 6) {
+      this.olmap.getLayers().getArray()[5].setVisible(true);
+      this.olmap.getLayers().getArray()[6].setVisible(true);
+      this.olmap.getLayers().getArray()[7].setVisible(true);
+      this.olmap.getLayers().getArray()[8].setVisible(true);
+    }
+
     console.log('=== map component draw2 ===');
-    // console.log(this.data2);
+    // console.log(this.data[1]);
     (<any>window).uiOption = this.uiOption;
-    // (<any>window).styleData = this.data2;
+    // (<any>window).styleData = this.data[1];
 
     ////////////////////////////////////////////////////////
     // 업데이트
@@ -1160,7 +1219,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let symbolLayer = new ol.layer.Vector({
       source: source,
-      style: this.mapStyleFunction(1),
+      style: this.mapStyleFunction(1, this.data),
       opacity: this.uiOption.layers[1].color.transparency / 100
     });
 
@@ -1184,7 +1243,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let hexagonLayer = new ol.layer.Vector({
       source: hexagonSource,
-      style: this.hexagonStyleFunction(1),
+      style: this.hexagonStyleFunction(1, this.data),
       opacity: this.uiOption.layers[1].color.transparency / 100
     });
 
@@ -1194,7 +1253,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     });
 
     let features = [];
-    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(data[0]);;
+    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(data[1]);;
     // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
 
 
@@ -1208,10 +1267,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let geomType = field.field.logicalType.toString();
 
-    for(let i=0;i<data[0]["features"].length;i++) {
+    for(let i=0;i<data[1]["features"].length;i++) {
 
       let feature = new ol.Feature();
-      feature = (new ol.format.GeoJSON()).readFeature(data[0].features[i]);
+      feature = (new ol.format.GeoJSON()).readFeature(data[1].features[i]);
 
       if(geomType === "GEO_POINT") {
 
@@ -1225,7 +1284,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(this.uiOption.fieldMeasureList.length > 0) {
           //히트맵 weight 설정
-          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].alias] / this.data[1].valueRange.maxValue);
         }
       }
 
@@ -1321,7 +1380,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.getLayers().getArray()[8] = hexagonLayer;
       // this.olmap.getLayers().getArray()[10] = textLayer;
 
-      symbolLayer.setStyle(this.mapStyleFunction(1));
+      symbolLayer.setStyle(this.mapStyleFunction(1, this.data));
       symbolLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
 
       clusterLayer.setStyle(this.clusterStyleFunction(1));
@@ -1331,7 +1390,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       heatmapLayer.setRadius(this.uiOption.layers[1].color.radius);
       heatmapLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
 
-      hexagonLayer.setStyle(this.hexagonStyleFunction(1));
+      hexagonLayer.setStyle(this.hexagonStyleFunction(1, this.data));
       hexagonLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
 
       if(this.uiOption.layers[1].type === "symbol") {
@@ -1374,7 +1433,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     // this.tooltipRender();
 
     // 차트 반영
-    this.apply();
+    // this.apply();
 
     // 완료
     this.drawFinished.emit();
@@ -1386,14 +1445,21 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
    * @param isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
    */
   public drawThirdLayer(data: any): void {
-    if(this.data3 === undefined) {
+    if(this.data[2] === undefined) {
       return;
     }
 
+    if(this.olmap.getLayers().getArray().length > 10) {
+      this.olmap.getLayers().getArray()[9].setVisible(true);
+      this.olmap.getLayers().getArray()[10].setVisible(true);
+      this.olmap.getLayers().getArray()[11].setVisible(true);
+      this.olmap.getLayers().getArray()[12].setVisible(true);
+    }
+
     console.log('=== map component draw3 ===');
-    // console.log(this.data2);
-    (<any>window).uiOption = this.uiOption;
-    // (<any>window).styleData = this.data2;
+    // console.log(this.data[1]);
+    // (<any>window).uiOption = this.uiOption;
+    // (<any>window).styleData = this.data[1];
 
     ////////////////////////////////////////////////////////
     // 업데이트
@@ -1407,7 +1473,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let symbolLayer = new ol.layer.Vector({
       source: source,
-      style: this.mapStyleFunction(2),
+      style: this.mapStyleFunction(2, this.data),
       opacity: this.uiOption.layers[2].color.transparency / 100
     });
 
@@ -1431,7 +1497,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let hexagonLayer = new ol.layer.Vector({
       source: hexagonSource,
-      style: this.hexagonStyleFunction(2),
+      style: this.hexagonStyleFunction(2, this.data),
       opacity: this.uiOption.layers[2].color.transparency / 100
     });
 
@@ -1441,7 +1507,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     });
 
     let features = [];
-    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(data[0]);;
+    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(data[2]);;
     // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
 
 
@@ -1455,10 +1521,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let geomType = field.field.logicalType.toString();
 
-    for(let i=0;i<data[0]["features"].length;i++) {
+    for(let i=0;i<data[2]["features"].length;i++) {
 
       let feature = new ol.Feature();
-      feature = (new ol.format.GeoJSON()).readFeature(data[0].features[i]);
+      feature = (new ol.format.GeoJSON()).readFeature(data[2].features[i]);
 
       if(geomType === "GEO_POINT") {
 
@@ -1472,7 +1538,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(this.uiOption.fieldMeasureList.length > 0) {
           //히트맵 weight 설정
-          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].alias] / this.data[2].valueRange.maxValue);
         }
       }
 
@@ -1568,7 +1634,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.getLayers().getArray()[12] = hexagonLayer;
       // this.olmap.getLayers().getArray()[10] = textLayer;
 
-      symbolLayer.setStyle(this.mapStyleFunction(2));
+      symbolLayer.setStyle(this.mapStyleFunction(2, this.data));
       symbolLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
 
       clusterLayer.setStyle(this.clusterStyleFunction(2));
@@ -1578,7 +1644,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       heatmapLayer.setRadius(this.uiOption.layers[2].color.radius);
       heatmapLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
 
-      hexagonLayer.setStyle(this.hexagonStyleFunction(2));
+      hexagonLayer.setStyle(this.hexagonStyleFunction(2, this.data));
       hexagonLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
 
       if(this.uiOption.layers[2].type === "symbol") {
@@ -1621,7 +1687,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     // this.tooltipRender();
 
     // 차트 반영
-    this.apply();
+    // this.apply();
 
     // 완료
     this.drawFinished.emit();
@@ -1641,7 +1707,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.getLayers().getArray()[6].setVisible(false);
       this.olmap.getLayers().getArray()[7].setVisible(false);
       this.olmap.getLayers().getArray()[8].setVisible(false);
-      this.data2 = undefined;
+      this.data[1] = undefined;
     }
 
     // 완료
@@ -1662,7 +1728,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.getLayers().getArray()[10].setVisible(false);
       this.olmap.getLayers().getArray()[11].setVisible(false);
       this.olmap.getLayers().getArray()[12].setVisible(false);
-      this.data3 = undefined;
+      this.data[2] = undefined;
     }
 
     // 완료
@@ -1690,10 +1756,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let layers2 = [];
     let layers3 = [];
 
-    if(secondLayerQuery) {
+    if(this.uiOption["layerCnt"] > 1) {
       for(let column of this.pivot.columns) {
         if(column["layerNum"] === 2) {
-          let layer = {
+          let layer2 = {
             type: column.type,
             name: column.name,
             alias: column.alias,
@@ -1702,33 +1768,32 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             dataSource: column.field.dataSource
           }
 
-          layer.dataSource = column.field.dataSource;
-
-          // this.widget.configuration.dataSource.engineName = column.field.dataSource;
-          // this.widget.configuration.dataSource.name = column.field.dataSource;
-          // this.widget.configuration.dataSource.id = column.field.dsId;
+          layer2.dataSource = column.field.dataSource;
 
           secondLayerQuery.dataSource.engineName = column.field.dataSource;
           secondLayerQuery.dataSource.name = column.field.dataSource;
           secondLayerQuery.dataSource.id = column.field.dsId;
 
           if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
-            layer.format = {
+            layer2.format = {
               type : "geo"
             }
           }
 
           if(column.field.logicalType.toString() === 'GEO_POINT') {
-            layer.format = {
+            layer2.format = {
               type: "geo_hash",
               method: "h3",
               precision: 8       // Precision 적용 (1~12) jjh123
             }
           }
 
-          layers2.push(layer);
-        } else if(column["layerNum"] === 3) {
-          let layer = {
+          layers2.push(layer2);
+        }
+console.log("====second====");
+console.log(secondLayerQuery);
+        if(column["layerNum"] === 3) {
+          let layer3 = {
             type: column.type,
             name: column.name,
             alias: column.alias,
@@ -1742,21 +1807,23 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           thirdLayerQuery.dataSource.id = column.field.dsId;
 
           if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
-            layer.format = {
+            layer3.format = {
               type : "geo"
             }
           }
 
           if(column.field.logicalType.toString() === 'GEO_POINT') {
-            layer.format = {
+            layer3.format = {
               type: "geo_hash",
               method: "h3",
               precision: 8       // Precision 적용 (1~12) jjh123
             }
           }
 
-          layers3.push(layer);
+          layers3.push(layer3);
         }
+console.log("====third====");
+console.log(thirdLayerQuery);
       }
 
       for(let aggregation of this.pivot.aggregations) {
@@ -1818,14 +1885,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
        this.removeThirdLayer();
       }
 
-      if(this.data2 === undefined && secondLayerVaild) {
+      if(this.data[1] === undefined && secondLayerVaild) {
         this.datasourceService.searchQuery(secondLayerQuery).then(
           (data) => {
 
-            console.log(data);
-            this.data2 = data;
-            console.log(this.mapVaild);
-            this.drawSecondLayer(data);
+            this.data[1] = data[0];
+            this.drawSecondLayer(this.data);
             // if (this.params.successCallback) {
             //   this.params.successCallback();
             // }
@@ -1839,17 +1904,16 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           // this.loadingHide();
         });
       } else {
-        // this.drawSecondLayer(this.data2);
-        this.data2 = undefined;
+        // this.drawSecondLayer(this.data[1]);
+        this.data[1] = undefined;
       }
 
-      if(this.data3 === undefined && thirdLayerVaild) {
+      if(this.data[2] === undefined && thirdLayerVaild) {
         this.datasourceService.searchQuery(thirdLayerQuery).then(
           (data) => {
 
-            console.log(data);
-            this.data3 = data;
-            this.drawThirdLayer(data);
+            this.data[2] = data[0];
+            this.drawThirdLayer(this.data);
             // if (this.params.successCallback) {
             //   this.params.successCallback();
             // }
@@ -1863,7 +1927,29 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           // this.loadingHide();
         });
       } else {
-        this.data3 = undefined;
+        this.data[2] = undefined;
+      }
+    } else {
+      let secondLayerVaild: boolean = false;
+      for(let column of this.pivot.columns) {
+        if(column["layerNum"] === 2) {
+          secondLayerVaild = true;
+        }
+      }
+
+      if(!secondLayerVaild) {
+       this.removeSecondLayer();
+      }
+
+      let thirdLayerVaild: boolean = false;
+      for(let column of this.pivot.columns) {
+        if(column["layerNum"] === 3) {
+          thirdLayerVaild = true;
+        }
+      }
+
+      if(!thirdLayerVaild) {
+       this.removeThirdLayer();
       }
     }
 

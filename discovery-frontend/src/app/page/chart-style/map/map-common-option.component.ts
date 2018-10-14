@@ -75,6 +75,18 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
      this.update();
    }
 
+   /**
+    * toggle basemap
+    */
+   public toggleBaseMap(): void {
+
+     this.uiOption.showMapLayer = !this.uiOption.showMapLayer;
+
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, { showMapLayer : this.uiOption.showMapLayer });
+
+     this.update();
+   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

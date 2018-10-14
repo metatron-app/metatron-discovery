@@ -82,7 +82,7 @@
           </div>
           <!-- //Pivot -->
           <!-- Guide -->
-          <div class="dragIgnore ddp-wrap-example">
+          <div *ngIf="isGuide('columns')" class="dragIgnore ddp-wrap-example">
             <div [attr.class]="getGuideText('columns', false)">
               {{getGuideText('columns')}}
             </div>

@@ -9,9 +9,16 @@
           <!-- slider -->
           <div class="ddp-wrap-option-slider">
             <span class="ddp-label-slider">{{'msg.page.common.map.layer' | translate}}</span>
+            <!-- Slide THREE -->
+            <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+              <input type="checkbox" id="check3" [ngModel]="uiOption.showMapLayer"
+              (click)="toggleBaseMap()">
+              <label for="check3"><span class="ddp-slide"></span></label>
+            </div>
+            <!-- //Slide THREE -->
           </div>
           <!-- //slider -->
-          <div class="ddp-list-sub2">
+          <div class="ddp-list-sub2" *ngIf="uiOption.showMapLayer">
             <!-- divide -->
             <div class="ddp-divide2">
               <div class="ddp-list-label">{{'msg.page.common.map.layer.service' | translate}}</div>
@@ -31,7 +38,7 @@
             <!-- divide -->
             <div class="ddp-divide2">
               <div class="ddp-list-label">{{'msg.page.common.map.layer.license' | translate}}</div>
-              <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation" (keyup.enter)="changeLicenseNotation()">
+              <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation" (keyup.enter)="changeLicenseNotation()" (focusout)="changeLicenseNotation()">
             </div>
             <!-- //divide -->
           </div>

@@ -130,6 +130,11 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      } else if(layerNum === 3) {
        document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '194px';
      }
+
+     this.uiOption["layerCnt"] = layerNum;
+
+     // 이벤트
+     this.changePivot();
    }
 
    /**
@@ -165,10 +170,25 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      //   this.onShelveAnimation(target);
      // }
 
+     let layerNum = field["layerNum"]-1;
+     if(field.field.pivot.length === 0) {
+       this.uiOption.layers[layerNum]["color"].by = "NONE";
+       if(layerNum === 0) {
+         this.uiOption.layers[layerNum]["color"].schema = "#602663";
+       } else if(layerNum === 1) {
+         this.uiOption.layers[layerNum]["color"].schema = "#888fb4";
+       } else if(layerNum === 2) {
+         this.uiOption.layers[layerNum]["color"].schema = "#bccada";
+       }
+       this.uiOption.layers[layerNum]["size"].by = "NONE";
+       this.uiOption.layers[layerNum]["color"]["customMode"] = undefined;
+     } else {
+       debugger
+     }
+
      // 이벤트
      this.changePivot(EventType.CHANGE_PIVOT);
    }
-
 
    /**
     * 타입(행, 열, 교차)에 따른 가이드 문구 반환
@@ -187,13 +207,29 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
          return isText ? '1+ Dimension (GEO type)' : 'ddp-box-dimension';
 
      }
-     // 교차
-     if (_.eq(type, ShelveType.AGGREGATIONS)) {
-
-         return isText ? '1+  measure' : 'ddp-box-measure';
-     }
 
      return '';
+   }
+
+   /**
+    * 타입(행, 열, 교차)에 따른 가이드 표시여부 반환
+    * @param type
+    */
+   public isGuide(type: string): boolean {
+
+     // 차트 타입 선택전이라면 false 반환
+     if (this.chartType == '') {
+       return false;
+     }
+
+     // 개수체크
+     let count: number = 0;
+     for (let field of this.pivot.columns) {
+       if (field.field.logicalType.toString().indexOf("GEO") > -1 && (_.eq(field.type, ShelveFieldType.DIMENSION) || _.eq(field.type, ShelveFieldType.TIMESTAMP))) {
+         count++;
+       }
+     }
+     return count < 1;
    }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

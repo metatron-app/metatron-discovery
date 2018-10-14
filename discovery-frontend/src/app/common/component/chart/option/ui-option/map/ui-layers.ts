@@ -53,6 +53,8 @@ interface SymbolSize {
 
   column?: string;
 
+  max?: number;
+
 }
 
 /**

@@ -1,11 +1,12 @@
 import { UIOption } from '../../ui-option';
 import { UILayers } from './ui-layers';
+import { UITooltip } from './ui-tooltip';
 import {
   AnnotationPosition, FontSize,
   GridViewType, Operator, UIFontStyle, UIOrient, UIPosition
 } from '../../define/common';
 /**
- * 그리드차트 화면 UI에 필요한 옵션
+ * 맵뷰 화면 UI에 필요한 옵션
  * Version 2.0
  */
 export interface UIMapViewChart extends UIOption {

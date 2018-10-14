@@ -2015,20 +2015,21 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#602663",
-              transparency: 100,
+              transparency: 80,
               blur: 10,
               radius: 10,
               resolution: 8
             },
             size: {
               "by": "NONE",
-              "column": "NONE"
+              "column": "NONE",
+              "max": 10
             },
             outline: {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
-            clustering: true
+            clustering: false
           },
           {
             type: "symbol",
@@ -2038,20 +2039,21 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#888fb4",
-              transparency: 100,
+              transparency: 80,
               blur: 10,
               radius: 10,
               resolution: 8
             },
             size: {
               "by": "NONE",
-              "column": "NONE"
+              "column": "NONE",
+              "max": 10
             },
             outline: {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
-            clustering: true
+            clustering: false
           },
           {
             type: "symbol",
@@ -2061,20 +2063,21 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#bccada",
-              transparency: 100,
+              transparency: 80,
               blur: 10,
               radius: 10,
               resolution: 8
             },
             size: {
               "by": "NONE",
-              "column": "NONE"
+              "column": "NONE",
+              "max": 10
             },
             outline: {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
-            clustering: true
+            clustering: false
           }
         ],
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),
