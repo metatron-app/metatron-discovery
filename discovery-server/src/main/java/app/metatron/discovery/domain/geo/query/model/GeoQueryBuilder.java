@@ -90,6 +90,8 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
     setMainDataSource(projections);
 
+    boolean needExtension = needExtension(projections);
+
     int measureCnt = 1;
     int dimensionCnt = 1;
     int geoCnt = 1;
@@ -131,8 +133,8 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
             for (String geoPointKey : LogicalType.GEO_POINT.getGeoPointKeys()) {
               String propName = fieldName + "." + geoPointKey;
               propertyNames.add(new PropertyName(propName));
-              dimensions.add(new DefaultDimension(propName));
             }
+            //dimensions.add(new DefaultDimension(field.getColunm(), field.getAlias()));
           }
         } else if (datasourceField.getLogicalType() == LogicalType.GEO_POLYGON) {
           if (fieldFormat instanceof GeoJoinFormat) {
@@ -141,7 +143,6 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
           propertyNames.add(new PropertyName(fieldName));
 
         } else if (datasourceField.getLogicalType() == LogicalType.GEO_LINE) {
-          mainDataSource = field.getRef();
           propertyNames.add(new PropertyName(fieldName));
 
         } else {  // Case of Normal Dimension
@@ -158,14 +159,20 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
           continue;
         }
 
-        if (postAggregations == null) {
-          postAggregations = Lists.newArrayList();
-        }
-        addAggregationFunction((MeasureField) field);
+        if(needExtension) {
+          if (postAggregations == null) {
+            postAggregations = Lists.newArrayList();
+          }
+          enableExtension = true;
+          addAggregationFunction((MeasureField) field);
 
-        String predefinedMeasure = "__d" + measureCnt++;
-        postAggregations.add(new ExprPostAggregator(predefinedMeasure + "=\\\"" + field.getAlias() + "\\\""));
-        projectionMapper.put(predefinedMeasure, field.getAlias());
+          String predefinedMeasure = "__d" + measureCnt++;
+          postAggregations.add(new ExprPostAggregator(predefinedMeasure + "=\\\"" + field.getAlias() + "\\\""));
+          projectionMapper.put(predefinedMeasure, field.getAlias());
+        } else {
+          propertyNames.add(new PropertyName(field.getName()));
+          projectionMapper.put(field.getName(), field.getAlias());
+        }
       }
     }
 
@@ -176,6 +183,19 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
     if(StringUtils.isNotEmpty(dataSource)
         && !mainDataSource.equals(dataSource)) {
       return true;
+    }
+
+    return false;
+  }
+
+  private boolean needExtension(List<Field> fields) {
+
+    for (Field field : fields) {
+      if(field.getFormat() instanceof GeoJoinFormat
+          || field.getFormat() instanceof GeoBoundaryFormat
+          || field.getFormat() instanceof GeoHashFormat) {
+        return true;
+      }
     }
 
     return false;
