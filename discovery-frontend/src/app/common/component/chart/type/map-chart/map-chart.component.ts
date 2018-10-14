@@ -813,7 +813,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(this.uiOption.fieldMeasureList.length > 0) {
           //히트맵 weight 설정
-          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].aggregationType + '(' + this.uiOption.fieldMeasureList[0].name + ')'] / this.data[0].valueRange.maxValue);
+          feature.set('weight', feature.getProperties()[this.uiOption.layers[0].color.column] / this.data[0].valueRange.maxValue);
         }
       }
 
