@@ -11,7 +11,7 @@
               <div class="ddp-list-label">
                 {{'msg.page.layer.map.name' | translate}}
               </div>
-              <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.layers[0].name">
+              <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.layers[0].name" (keyup.enter)="changeLayerName()" (focusout)="changeLayerName()">
           </div>
           <!-- //divide -->
           <!-- divide -->

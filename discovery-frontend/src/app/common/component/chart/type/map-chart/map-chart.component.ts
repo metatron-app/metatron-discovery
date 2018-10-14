@@ -1784,14 +1784,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             layer2.format = {
               type: "geo_hash",
               method: "h3",
-              precision: 8       // Precision 적용 (1~12) jjh123
+              precision: this.uiOption.layers[1].color["resolution"]
             }
           }
 
           layers2.push(layer2);
         }
-console.log("====second====");
-console.log(secondLayerQuery);
         if(column["layerNum"] === 3) {
           let layer3 = {
             type: column.type,
@@ -1816,14 +1814,12 @@ console.log(secondLayerQuery);
             layer3.format = {
               type: "geo_hash",
               method: "h3",
-              precision: 8       // Precision 적용 (1~12) jjh123
+              precision: this.uiOption.layers[2].color["resolution"]
             }
           }
 
           layers3.push(layer3);
         }
-console.log("====third====");
-console.log(thirdLayerQuery);
       }
 
       for(let aggregation of this.pivot.aggregations) {

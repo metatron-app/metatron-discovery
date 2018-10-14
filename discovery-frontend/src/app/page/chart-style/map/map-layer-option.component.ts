@@ -589,6 +589,21 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      this.update();
    }
 
+   /**
+    * 레이어명을 변경한다.
+    */
+   public changeLayerName() {
+     this.name = this.uiOption.layers[0].name;
+
+     // 해당 레이어명으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     // update
+     this.update();
+   }
+
    public changeLayerOption() {
 
      this.layerOptions = [{
