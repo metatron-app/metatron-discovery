@@ -1994,7 +1994,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     );
 
     //    List<Field> layer1 = Lists.newArrayList(new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.AVG));
-    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu", "구", null, null));
+    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu", "구", null, null), new MeasureField("py", null, MeasureField.AggregationType.AVG));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);

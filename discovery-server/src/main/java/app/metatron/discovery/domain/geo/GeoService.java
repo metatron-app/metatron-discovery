@@ -26,7 +26,6 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.geo.query.model.GeoQuery;
 import app.metatron.discovery.domain.geo.query.model.GetFeature;
-import app.metatron.discovery.domain.geo.query.model.extension.AggregationExtension;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
 
@@ -52,9 +51,9 @@ public class GeoService {
   public String search(SearchQueryRequest searchQueryRequest) {
 
     StringJoiner resultJoiner = new StringJoiner(",", "[", "]");
-    if(searchQueryRequest.getShelf() instanceof GeoShelf) {
+    if (searchQueryRequest.getShelf() instanceof GeoShelf) {
       GeoShelf geoShelf = (GeoShelf) searchQueryRequest.getShelf();
-      for(List<Field> fields : geoShelf.getLayers()) {
+      for (List<Field> fields : geoShelf.getLayers()) {
         GeoQuery geoQuery = GeoQuery.builder(searchQueryRequest.getDataSource())
                                     .projections(fields)
                                     .filters(searchQueryRequest.getFilters())
@@ -88,30 +87,30 @@ public class GeoService {
     }
 
     LOGGER.debug("Geo Server Query : {}", geoQueryStr);
-    if(geoQuery.getExtension() != null) {
+    if (geoQuery.getExtension() != null) {
       LOGGER.debug("Geo Server Query = Druid : {}", geoQuery.getExtension().toParamString());
     }
 
     JsonNode node = geoRepository.query(geoQueryStr, JsonNode.class);
 
-    customizeResult(node, geoQuery.getProjectionMapper(), geoQuery.getExtension() instanceof AggregationExtension);
+    customizeResult(node, geoQuery.getProjectionMapper());
 
     return GlobalObjectMapper.writeValueAsString(node);
   }
 
-  public void customizeResult(JsonNode result, Map<String, String> projectionMapper, boolean addMinMax) {
+  public void customizeResult(JsonNode result, Map<String, String> projectionMapper) {
 
     JsonNode features = result.get("features");
 
     List<Double> forMinMaxValues = Lists.newArrayList();
     ObjectNode newPropertiesNode = null;
-    for(JsonNode feature : features) {
+    for (JsonNode feature : features) {
       ObjectNode featureNode = (ObjectNode) feature;
       JsonNode propertiesNode = feature.get("properties");
       newPropertiesNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
       for (String key : projectionMapper.keySet()) {
         JsonNode value = propertiesNode.get(key);
-        if(addMinMax && key.startsWith("__d") && value != null) {
+        if (value.isNumber() && !(key.endsWith(".lat") || key.endsWith(".lon"))) {
           forMinMaxValues.add(value.asDouble(0.0));
         }
         newPropertiesNode.set(projectionMapper.get(key), propertiesNode.get(key));
@@ -120,11 +119,9 @@ public class GeoService {
       featureNode.set("properties", newPropertiesNode);
     }
 
-    if(addMinMax) {
-      ObjectNode minMaxNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
-      addMinMax(forMinMaxValues, minMaxNode);
-      ((ObjectNode) result).set("valueRange", minMaxNode);
-    }
+    ObjectNode minMaxNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
+    addMinMax(forMinMaxValues, minMaxNode);
+    ((ObjectNode) result).set("valueRange", minMaxNode);
 
   }
 
@@ -151,7 +148,6 @@ public class GeoService {
     minMaxNode.put("maxValue", max);
     minMaxNode.put("minValue", min);
   }
-
 
 
 }

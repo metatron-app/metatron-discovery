@@ -3,6 +3,8 @@ package app.metatron.discovery.domain.geo.query.model.extension;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.thymeleaf.util.StringUtils;
 
 import java.util.List;
@@ -15,6 +17,8 @@ import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.virtualcolumns.VirtualColumn;
 
 public class AggregationExtension implements DruidExtension {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AggregationExtension.class);
 
   List<VirtualColumn> virtualColumns;
 
@@ -71,6 +75,8 @@ public class AggregationExtension implements DruidExtension {
   @Override
   public String toParamString() {
     String queryStr = GlobalObjectMapper.writeValueAsString(this);
+
+    LOGGER.debug("Aggregation Extension : " + queryStr);
 
     queryStr = StringUtils.replace(queryStr, ",", "\\,");
 
