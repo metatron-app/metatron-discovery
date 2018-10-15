@@ -1449,9 +1449,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // 패널 사이즈 변경 - 드래그 한 후 사용자가 구분 기호를 놓을 때 발생
   public onEndedResizing(): void {
-    if (this.resultMode === 'text') {
-      return;
-    }
     // 에디터의 높이 값 구하기
     const editorHeight = this.getEditorComponentElementHeight();
 
@@ -2276,6 +2273,18 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // // 에디터 높이
     const editorHeight: number = editorWrapElement.clientHeight;
 
+    // 전체 화면일 경우 계산
+    if( this.isQueryEditorFull ) {
+      const editorFullElement: Element = this.element.nativeElement
+        .querySelector('.ddp-ui-query');
+      const editorTabElement: Element = this.element.nativeElement
+        .querySelector('.ddp-wrap-tabs-edit');
+
+      return editorFullElement.clientHeight - editorTabElement.clientHeight;
+
+    }
+
+
     // // 반환
     // return editorHeight;
     return editorHeight;
@@ -2468,11 +2477,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // console.error("cancel selectedGridTabNum ================================ : " + selectedGridTabNum);
     // console.error("this.datagridCurList.length ================================ : " + this.datagridCurList.length);
 
-    // if( !isUndefined( this.datagridCurList[selectedGridTabNum] ) ){
-    //   console.error("!isUndefined( this.datagridCurList[selectedGridTabNum] ) ================================ : ");
     this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
     this.datagridCurList[selectedGridTabNum]['selected'] = true;
-    // }
 
     this.selectedGridTabNum = selectedGridTabNum;
     this.safelyDetectChanges();
