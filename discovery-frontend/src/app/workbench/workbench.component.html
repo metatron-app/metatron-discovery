@@ -353,7 +353,8 @@
               <!-- tab -->
               <!-- 결과 -->
               <div class="ddp-view-result">
-                <div loading #loading [visible]="isLoadingBarShow" [cancel]="mimeType != 'HIVE'"  [canceling]="hiveLogCanceling" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
+                <div loading #loading [visible]="isLoadingBarShow" [cancel]="mimeType != 'HIVE'"
+                     [canceling]="hiveLogCanceling" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
 
                 <!-- Hive Log 표시 영역 -->
                 <div *ngIf="hiveLogs[selectedGridTabNum] && hiveLogs[selectedGridTabNum].isShow" class="ddp-wrap-result" >
@@ -407,7 +408,7 @@
                     <!--| translate}}</a>-->
 
                     <!-- button -->
-                    <div class="ddp-ui-buttons" [hidden]="isGridResultNoData">
+                    <div class="ddp-ui-buttons" >
                       <a href="javascript:" class="ddp-btn-link" (click)="createDatasourceTemporary()" [hidden]="isHiveGridResultNoData">
                         <em class="ddp-icon-chart"></em>
                         <div class="ddp-ui-tooltip-info">
@@ -461,7 +462,7 @@
                       </div>
 
                       <!-- hive 관련 button -->
-                      <a *ngIf="hiveLogs[selectedGridTabNum]" href="javascript:" class="ddp-btn-box" (click)="hiveLogToggleClick(selectedGridTabNum, 'data')">
+                      <a *ngIf="mimeType === 'HIVE'" href="javascript:" class="ddp-btn-box" (click)="hiveLogToggleClick(selectedGridTabNum, 'data')">
                         <em class="ddp-icon-result-list"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>
