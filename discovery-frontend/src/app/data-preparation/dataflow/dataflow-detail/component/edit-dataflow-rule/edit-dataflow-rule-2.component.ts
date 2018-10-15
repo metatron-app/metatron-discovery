@@ -26,7 +26,6 @@ import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { PreparationAlert } from '../../../../util/preparation-alert.util';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../../common/service/popup.service';
 import { DataflowService } from '../../../service/dataflow.service';
 import { MulticolumnRenameComponent } from './multicolumn-rename.component';
 import { ExtendInputFormulaComponent } from './extend-input-formula.component';
@@ -209,8 +208,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private popupService: PopupService,
-              private dataflowService: DataflowService,
+  constructor(private dataflowService: DataflowService,
               private broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {

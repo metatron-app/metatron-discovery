@@ -252,7 +252,9 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
   public addDatasets() {
     this.isDatasetAddPopupOpen = true;
-    this.datasetInfoPopup.clearExistingInterval();
+    if (this.datasetInfoPopup) {
+      this.datasetInfoPopup.clearExistingInterval();
+    }
   }
 
   public closeAddDatasetPopup() {

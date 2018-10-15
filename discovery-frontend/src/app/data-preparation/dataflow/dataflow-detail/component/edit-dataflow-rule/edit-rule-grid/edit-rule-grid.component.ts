@@ -571,11 +571,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    */
   public onContextMenuClick(data) {
 
-    // 컨텍스트 메뉴 클릭시 헤더가 클릭 되게 변경 단, row가 선택되어있으면 컬럼 선택 안됨(전체 해제 -> 컬럼 선택)
-    // if (0 === this._clickedSeries[data.index].length) {
-    //   this.unSelectionAll('COL');
-    //   this.selectColumn(data.columnName, true, null, false, data.columnType);
-    // }
+    let param: any = {};
 
     // 컨텍스트 메뉴 클릭시 헤더가 클릭 되게 변경 단, row가 선택되어있으면 컬럼 선택 안됨(전체 해제 -> 컬럼 선택)
     if (this._selectedColumns.length > 1) {
@@ -583,6 +579,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     } else if (0 === this._barClickedSeries[data.index].length && 0 === this._clickedSeries[data.index].length) {
       this.unSelectionAll('COL');
       this.selectColumn(data.columnName, true, data.columnType);
+    } else { // histogram 이 클릭 되어 있는 상태
+      param['selected'] = [data.columnName];
     }
 
     const currentContextMenuInfo = {
@@ -594,23 +592,18 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       gridResponse: _.cloneDeep(this._apiGridData)
     };
 
-    let param: any = {};
     Object.keys(this._clickedSeries).forEach((key, index) => {
       if (this._clickedSeries[key].length >= 1 && index === data.index) {
-        param = {
-          clickable: true,
-          values: this._clickedSeries[key]
-        }
+        param['clickable']= true;
+        param['values'] = this._clickedSeries[key];
       }
     });
 
     Object.keys(this._barClickedSeries).forEach((key, index) => {
       if (this._barClickedSeries[key].length >= 1 && index === data.index) {
-        param = {
-          clickable: true,
-          values: this._barClickedSeries[key],
-          isColumnSelect: true
-        }
+        param['clickable']= true;
+        param['values'] = this._clickedSeries[key];
+        param['isColumnSelect'] = true;
       }
     });
 

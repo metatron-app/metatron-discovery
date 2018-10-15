@@ -185,8 +185,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
   public ngOnDestroy() {
     super.ngOnDestroy();
-    this._split.destroy();
-    this._split = undefined;
+    if (this._split) {
+      this._split.destroy();
+      this._split = undefined;
+    }
     this.clearExistingInterval();
   }
 
@@ -867,7 +869,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   /** 그리드 데이터 가공 */
   private setGridData(data: any) {
     this.selectedDataSet.gridData = this.getGridDataFromGridResponse(data);
-    this.updateGrid(this.selectedDataSet.gridData);
+
+    if (this.selectedDataSet.gridData) {
+      this.updateGrid(this.selectedDataSet.gridData);
+    }
   }
 
   /** 데이터 미리보기 */
