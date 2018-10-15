@@ -171,6 +171,11 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      // }
 
      let layerNum = field["layerNum"]-1;
+
+     if(!field["layerNum"]) {
+       layerNum = 0;
+     }
+
      if(field.field.pivot.length === 0) {
        this.uiOption.layers[layerNum]["color"].by = "NONE";
        if(layerNum === 0) {

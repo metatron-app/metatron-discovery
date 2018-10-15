@@ -618,7 +618,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
      this.measureList = [];
      for(let field of this.uiOption.fieldMeasureList) {
-       if(!field["layerNum"]) {
+       if(!field["layerNum"] || field["layerNum"] === 1) {
          this.measureList.push(field.alias.toString());
        }
      }
