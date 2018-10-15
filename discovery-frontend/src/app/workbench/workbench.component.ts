@@ -2111,8 +2111,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               //   return false;
               // }
 
-              currHiveLog.isShow = true;
-              currHiveLog.log = currHiveLog.log.concat(data.log);
+              if( currHiveLog ) {
+                currHiveLog.isShow = true;
+                currHiveLog.log = currHiveLog.log.concat(data.log);
+              }
 
               const gridList = this.datagridCurList[this.runningQueryDoneIndex];
               gridList.name = 'Loading..';
