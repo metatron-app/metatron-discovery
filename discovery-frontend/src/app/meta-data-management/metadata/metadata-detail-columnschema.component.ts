@@ -423,7 +423,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
           break;
       }
     }
-    this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, this.selectedContentSort.sort);
+    this.columnList = _.orderBy(this.columnList, this.selectedContentSort.key, 'asc' === this.selectedContentSort.sort ? 'asc' : 'desc' );
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
