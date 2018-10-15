@@ -81,7 +81,7 @@ export class ColorOptionConverter {
     switch (color.type) {
       case ChartColorType.DIMENSION: {
 
-        option = this.convertColorByDimension(option, fieldOriginInfo, pivotInfo, uiOption);
+        option = this.convertColorByDimension(option, fieldInfo, pivotInfo, uiOption);
         break;
       }
       case ChartColorType.SERIES: {
@@ -193,6 +193,9 @@ export class ColorOptionConverter {
     const setColor = ((params) => {
       let name = _.split(params[paramType], CHART_STRING_DELIMITER)[fieldIdx];
       if (_.isUndefined(name)) name = params[paramType];
+
+      legendData = _.uniq(legendData);
+
       let colorIdx = _.indexOf(legendData, name);
       colorIdx = colorIdx >= codes['length'] ? colorIdx % codes['length'] : colorIdx;
       return codes[colorIdx];

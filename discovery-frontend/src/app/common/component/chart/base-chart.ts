@@ -1323,7 +1323,6 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // Apply!
     // chart.setOption(option, notMerge, lazyUpdate);
     this.chart.setOption(this.chartOption, false, false);
-    console.info(this.chartOption);
   }
 
   ////////////////////////////////////////////////////////
@@ -1439,7 +1438,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
         let pivotType: ChartPivotType;
 
         // 열/행/교차 여부 및 몇번째 필드인지 확인
-        _.forEach(this.fieldOriginInfo, (value, key) => {
+        _.forEach(this.fieldInfo, (value, key) => {
           if (_.indexOf(value, this.uiOption.color['targetField']) > -1) {
             fieldIdx = _.indexOf(value, this.uiOption.color['targetField']);
             pivotType = _.eq(key, ChartPivotType.COLS) ? ChartPivotType.COLS : _.eq(key, ChartPivotType.ROWS) ? ChartPivotType.ROWS : ChartPivotType.AGGS;
@@ -1661,7 +1660,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       _.forEach(shelve, (value, key) => {
         shelve[key].map((item) => {
           if (_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) {
-            resultList.push(item.name);
+            resultList.push(item.alias);
           }
         });
       });
