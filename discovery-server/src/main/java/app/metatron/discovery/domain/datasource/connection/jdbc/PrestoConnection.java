@@ -34,6 +34,7 @@ public class PrestoConnection extends HiveMetastoreConnection {
   private static final String PRESTO_DEFAULT_OPTIONS = "";
   private static final String[] DESCRIBE_PROP = {};
 
+//  @NotNull
   @Column(name = "dc_catalog")
   String catalog;
 

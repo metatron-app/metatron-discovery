@@ -18,9 +18,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.validation.constraints.NotNull;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -34,8 +34,8 @@ public class OracleConnection extends JdbcDataConnection {
   private static final String ORCLE_DEFAULT_OPTIONS = "";
   private static final String[] DESCRIBE_PROP = {};
 
-  @NotNull
-//  @Column(name = "dc_sid")
+//  @NotNull
+  @Column(name = "dc_sid")
   String sid;
 
   public OracleConnection() {

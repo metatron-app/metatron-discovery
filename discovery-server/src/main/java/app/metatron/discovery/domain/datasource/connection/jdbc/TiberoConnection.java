@@ -18,9 +18,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @DiscriminatorValue("TIBERO")
@@ -30,8 +30,8 @@ public class TiberoConnection extends JdbcDataConnection {
   private static final String TIBERO_URL_PREFIX = "jdbc:tibero:thin:@";
   private static final String[] DESCRIBE_PROP = {};
 
-  @NotNull
-//  @Column(name = "dc_sid")
+//  @NotNull
+  @Column(name = "dc_sid")
   String sid;
 
   public TiberoConnection() {
