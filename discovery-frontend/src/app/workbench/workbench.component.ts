@@ -955,6 +955,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public editorKeyEvent(event) {
     // 쿼리 실행.
     if (event.ctrlKey && event.keyCode === 13) {
+      if( this.isHiveQueryExecute ){
+        this.alertHiveQueryExecuting();
+        return false;
+      }
       this.setExecuteSql('SELECTED');
     }
 
@@ -967,6 +971,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     if (event.altKey && event.keyCode === 13) {
+      if( this.isHiveQueryExecute ){
+        this.alertHiveQueryExecuting();
+        return false;
+      }
       this.setExecuteSql('ALL');
     }
 
@@ -1090,6 +1098,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.datagridCurList = [];
     this.tabGridNum = 0;
     this.selectedGridTabNum = 0;
+    this.editorResultListObj = new EditorList();
 
     this.workbenchService.checkConnectionStatus(this.textList[this.selectedTabNum]['editorId'], this.websocketId)
       .then((result) => {
