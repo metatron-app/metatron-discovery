@@ -87,6 +87,7 @@ public class PrepTransformService {
   @Autowired DataConnectionRepository connectionRepository;
   @Autowired PrepHdfsService hdfsService;
   @Autowired PrepSnapshotService snapshotService;
+  @Autowired DataFrameService dataFrameService;
 
   @Autowired(required = false)
   TeddyImpl teddyImpl;
@@ -441,11 +442,13 @@ public class PrepTransformService {
     //Then add Header rule and change column name.
     if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
             Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt) {
-      setTypeRules.add("header rownum: 1");
+      String ruleString = "header rownum: 1";
+
+      setTypeRules.add(ruleString);
       columnNames.clear();
 
       Header header = new Header(1L);
-      DataFrame newDf = df.doHeader(header);
+      DataFrame newDf = dataFrameService.applyRule(df, ruleString, new ArrayList<>(), 100, 0);
 
       columnNames.addAll(newDf.colNames);
     }
