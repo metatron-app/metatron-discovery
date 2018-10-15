@@ -859,9 +859,9 @@
             <!-- //slider -->
             <div class="ddp-divide2">
               <component-select
+                #iconTargetListComp
                 [array]="kpiIconTargetList"
                 [viewKey]="'name'"
-                [defaultIndex]="kpiGetIconTargetIndex()"
                 (onSelected)="kpiChangeIconTarget($event)"
               ></component-select>
             </div>
@@ -911,10 +911,10 @@
               <!-- //slider -->
               <div class="ddp-divide2">
                 <component-select
+                  #textTargetListComp
                   [class.ddp-disabled]="!uiOption?.annotations[0]?.show"
                   [array]="kpiIconTargetList"
                   [viewKey]="'name'"
-                  [defaultIndex]="kpiGetTextTargetIndex()"
                   (onSelected)="kpiChangeTextTarget($event)"
                 ></component-select>
               </div>
