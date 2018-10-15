@@ -14,25 +14,10 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
-import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.Pivot;
-import app.metatron.discovery.prep.parser.preparation.rule.Rule;
-import app.metatron.discovery.prep.parser.preparation.rule.Unpivot;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 
@@ -41,56 +26,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * WrangleTest
  */
-public class PivotTest {
-
-  static String getResourcePath(String relPath, boolean fromHdfs) {
-    if (fromHdfs) {
-      throw new IllegalArgumentException("HDFS not supported yet");
-    }
-    URL url = DataFrameTest.class.getClassLoader().getResource(relPath);
-    return (new File(url.getFile())).getAbsolutePath();
-  }
-
-  public static String getResourcePath(String relPath) {
-    return getResourcePath(relPath, false);
-  }
-
-  private static Map<String, List<String[]>> grids = new HashMap<>();
-
-  static int limitRowCnt = 10000;
-
-  static private List<String[]> loadGridCsv(String alias, String path) {
-    List<String[]> grid = new ArrayList<>();
-
-    BufferedReader br = null;
-    String line;
-    String cvsSplitBy = ",";
-
-    try {
-      br = new BufferedReader(new InputStreamReader(new FileInputStream(getResourcePath(path))));
-      while ((line = br.readLine()) != null) {
-        String[] strCols = line.split(cvsSplitBy);
-        grid.add(strCols);
-        if (grid.size() == limitRowCnt)
-          break;
-      }
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (br != null) {
-        try {
-          br.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    }
-
-    grids.put(alias, grid);
-    return grid;
-  }
+public class PivotTest extends TeddyTest {
 
   @BeforeClass
   public static void setUp() throws Exception {
@@ -100,7 +36,7 @@ public class PivotTest {
   private DataFrame newMultiDataFrame() throws IOException, TeddyException {
     DataFrame multi = new DataFrame();
     multi.setByGrid(grids.get("multi"), null);
-    multi = DataFrameTest.prepare_multi(multi);
+    multi = prepare_multi(multi);
     multi.show();
     return multi;
   }
@@ -108,8 +44,8 @@ public class PivotTest {
   @Test
   public void test_pivot1() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("pivot col: minute value: 'sum(measure)' group: machine_code");
-    DataFrame newDf = multi.doPivot((Pivot) rule);
+    String ruleString = "pivot col: minute value: 'sum(measure)' group: machine_code";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals(new Long(124), newDf.rows.get(0).get("sum_measure_00_00"));
@@ -118,8 +54,8 @@ public class PivotTest {
   @Test
   public void test_pivot2() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("pivot col: minute value: 'sum(measure)' group: machine_code,module_code");
-    DataFrame newDf = multi.doPivot((Pivot) rule);
+    String ruleString = "pivot col: minute value: 'sum(measure)' group: machine_code,module_code";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals(new Long(30), newDf.rows.get(0).get("sum_measure_00_00"));
@@ -128,8 +64,8 @@ public class PivotTest {
   @Test
   public void test_pivot3() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("pivot col: minute,column15 value: 'count()','sum(measure)' group: machine_code,module_code");
-    DataFrame newDf = multi.doPivot((Pivot) rule);
+    String ruleString = "pivot col: minute,column15 value: 'count()','sum(measure)' group: machine_code,module_code";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals(new Long(30), newDf.rows.get(0).get("sum_measure_00_00_true"));
@@ -138,8 +74,8 @@ public class PivotTest {
   @Test
   public void test_pivot4() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("pivot col: minute,column15 value: 'sum(measure)','count()' group: machine_code,module_code");
-    DataFrame newDf = multi.doPivot((Pivot) rule);
+    String ruleString = "pivot col: minute,column15 value: 'sum(measure)','count()' group: machine_code,module_code";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals(new Long(30), newDf.rows.get(0).get("sum_measure_00_00_true"));
@@ -148,8 +84,8 @@ public class PivotTest {
   @Test
   public void test_pivot5() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("pivot col: minute,column15 value: 'sum(measure)','min(measure)','max(measure)','count()' group: machine_code");
-    DataFrame newDf = multi.doPivot((Pivot) rule);
+    String ruleString = "pivot col: minute,column15 value: 'sum(measure)','min(measure)','max(measure)','count()' group: machine_code";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals(new Long(32), newDf.rows.get(0).get("sum_measure_00_00_false"));
@@ -158,8 +94,8 @@ public class PivotTest {
   @Test
   public void test_pivot6() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("pivot col: minute,column15 value: 'sum(measure)','count()' group: machine_code,module_code");
-    DataFrame newDf = multi.doPivot((Pivot) rule);
+    String ruleString = "pivot col: minute,column15 value: 'sum(measure)','count()' group: machine_code,module_code";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals(new Long(0), newDf.rows.get(0).get("sum_measure_00_00_false"));
@@ -168,8 +104,8 @@ public class PivotTest {
   @Test
   public void test_pivot7() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("pivot col: minute,column15,column7 value: 'sum(measure)','count()' group: machine_code,module_code");
-    DataFrame newDf = multi.doPivot((Pivot) rule);
+    String ruleString = "pivot col: minute,column15,column7 value: 'sum(measure)','count()' group: machine_code,module_code";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals(new Long(0), newDf.rows.get(0).get("sum_measure_00_00_false_3"));
@@ -178,8 +114,8 @@ public class PivotTest {
   @Test
   public void test_pivot8() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("pivot col: minute,column11 value: 'count()'");
-    DataFrame newDf = multi.doPivot((Pivot) rule);
+    String ruleString = "pivot col: minute,column11 value: 'count()'";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals(new Long(8), newDf.rows.get(0).get("row_count_00_00_0_0"));
@@ -188,8 +124,8 @@ public class PivotTest {
   @Test
   public void test_unpivot1() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("unpivot col: minute,column15,column7 groupEvery: 3");
-    DataFrame newDf = multi.doUnpivot((Unpivot) rule);
+    String ruleString = "unpivot col: minute,column15,column7 groupEvery: 3";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals("00:00", newDf.rows.get(0).get("value1"));
@@ -198,8 +134,8 @@ public class PivotTest {
   @Test
   public void test_unpivot2() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("unpivot col: column7,column11,column16,column12 groupEvery: 1");
-    DataFrame newDf = multi.doUnpivot((Unpivot) rule);
+    String ruleString = "unpivot col: column7,column11,column16,column12 groupEvery: 1";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals("2", newDf.rows.get(0).get("value1"));
@@ -208,8 +144,8 @@ public class PivotTest {
   @Test
   public void test_unpivot3() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("unpivot col: column7 groupEvery: 1");
-    DataFrame newDf = multi.doUnpivot((Unpivot) rule);
+    String ruleString = "unpivot col: column7 groupEvery: 1";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals("2", newDf.rows.get(0).get("value1"));
@@ -218,8 +154,8 @@ public class PivotTest {
   @Test
   public void test_unpivot4() throws IOException, TeddyException {
     DataFrame multi = newMultiDataFrame();
-    Rule rule = new RuleVisitorParser().parse("unpivot col: column7");
-    DataFrame newDf = multi.doUnpivot((Unpivot) rule);
+    String ruleString = "unpivot col: column7";
+    DataFrame newDf = apply_rule(multi, ruleString);
     newDf.show();
 
     assertEquals("2", newDf.rows.get(0).get("value1"));

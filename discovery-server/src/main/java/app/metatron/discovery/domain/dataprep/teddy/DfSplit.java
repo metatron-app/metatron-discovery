@@ -48,7 +48,8 @@ public class DfSplit extends DataFrame {
     Integer limit = split.getLimit();
     Boolean ignoreCase = split.getIgnoreCase();
     String patternStr;
-    String quoteStr;
+    String quoteStr=null;
+    String regExQuoteStr=null;
     int targetColno = -1;
     int colno;
 
@@ -100,18 +101,19 @@ public class DfSplit extends DataFrame {
     }
     else if (quote instanceof Constant.StringExpr) {
       quoteStr = ((Constant.StringExpr) quote).getEscapedValue();
-      quoteStr = disableRegexSymbols(quoteStr);
+      regExQuoteStr = disableRegexSymbols(quoteStr);
     } else if (expr instanceof RegularExpr) {
-      quoteStr = ((RegularExpr) quote).getEscapedValue();
+      regExQuoteStr = ((RegularExpr) quote).getEscapedValue();
     } else {
       throw new IllegalPatternTypeException("deReplace(): illegal pattern type: " + quote.toString());
     }
 
     if(quoteStr != "")
-      patternStr = compilePatternWithQuote(patternStr, quoteStr);
+      patternStr = compilePatternWithQuote(patternStr, regExQuoteStr);
 
     preparedArgs.add(targetColno);
     preparedArgs.add(patternStr);
+    preparedArgs.add(regExQuoteStr);
     preparedArgs.add(quoteStr);
     preparedArgs.add(limit);
     return preparedArgs;
@@ -123,7 +125,8 @@ public class DfSplit extends DataFrame {
     int targetColno = (int) preparedArgs.get(0);
     String patternStr = (String) preparedArgs.get(1);
     String quoteStr = (String) preparedArgs.get(2);
-    int splitLimit = (int) preparedArgs.get(3);
+    String originalQuoteStr = (String) preparedArgs.get(3);
+    int splitLimit = (int) preparedArgs.get(4);
     int colno;
 
     LOGGER.trace("DfSplit.gather(): start: offset={} length={} targetColno={}", offset, length, targetColno);
@@ -141,7 +144,7 @@ public class DfSplit extends DataFrame {
       String[] tokens = new String[splitLimit+1];
       int index = 0;
 
-      if(StringUtils.countMatches(targetStr, quoteStr)%2 == 0) {
+      if(StringUtils.countMatches(targetStr, originalQuoteStr)%2 == 0) {
         String[] tempTokens = targetStr.split(patternStr, splitLimit+1);
         if(tempTokens.length<=limit) {
           for(index=0; index<tempTokens.length; index++) {
@@ -150,7 +153,7 @@ public class DfSplit extends DataFrame {
         } else
           tokens=tempTokens;
       } else {
-        int lastQuoteMark = targetStr.lastIndexOf(quoteStr);
+        int lastQuoteMark = targetStr.lastIndexOf(originalQuoteStr);
 
         String[] firstHalf = targetStr.substring(0, lastQuoteMark).split(patternStr, splitLimit+1);
 

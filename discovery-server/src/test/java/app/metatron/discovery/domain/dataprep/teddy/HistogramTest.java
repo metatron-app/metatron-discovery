@@ -27,21 +27,7 @@ import java.util.Map;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.ColumnNotFoundException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 
-public class HistogramTest {
-
-  static String getResourcePath(String relPath, boolean fromHdfs) {
-    if (fromHdfs) {
-      throw new IllegalArgumentException("HDFS not supported yet");
-    }
-    URL url = HistogramTest.class.getClassLoader().getResource(relPath);
-    return (new File(url.getFile())).getAbsolutePath();
-  }
-
-  public static String getResourcePath(String relPath) {
-    return getResourcePath(relPath, false);
-  }
-
-  static int limitRowCnt = 10000;
+public class HistogramTest extends  TeddyTest{
 
   @BeforeClass
   public static void setUp() throws Exception {

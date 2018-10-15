@@ -40,57 +40,8 @@ import static org.junit.Assert.assertEquals;
 /**
  * WrangleTest
  */
-public class SetTest {
-
-  static String getResourcePath(String relPath, boolean fromHdfs) {
-    if (fromHdfs) {
-      throw new IllegalArgumentException("HDFS not supported yet");
-    }
-    URL url = DataFrameTest.class.getClassLoader().getResource(relPath);
-    return (new File(url.getFile())).getAbsolutePath();
-  }
-
-  public static String getResourcePath(String relPath) {
-    return getResourcePath(relPath, false);
-  }
-
-  private static Map<String, List<String[]>> grids = new HashMap<>();
-
-  static int limitRowCnt = 10000;
-
-  static private List<String[]> loadGridCsv(String alias, String path) {
-    List<String[]> grid = new ArrayList<>();
-
-    BufferedReader br = null;
-    String line;
-    String cvsSplitBy = ",";
-
-    try {
-      br = new BufferedReader(new InputStreamReader(new FileInputStream(getResourcePath(path))));
-      while ((line = br.readLine()) != null) {
-        String[] strCols = line.split(cvsSplitBy);
-        grid.add(strCols);
-        if (grid.size() == limitRowCnt)
-          break;
-      }
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (br != null) {
-        try {
-          br.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    }
-
-    grids.put(alias, grid);
-    return grid;
-  }
-
+public class SetTest extends  TeddyTest{
+  
   @BeforeClass
   public static void setUp() throws Exception {
     loadGridCsv("null_contained", "teddy/null_contained.csv");
@@ -99,7 +50,7 @@ public class SetTest {
   private DataFrame newNullContainedDataFrame() throws IOException, TeddyException {
     DataFrame null_contained = new DataFrame();
     null_contained.setByGrid(grids.get("null_contained"), null);
-    null_contained = DataFrameTest.prepare_null_contained(null_contained);
+    null_contained = prepare_null_contained(null_contained);
     null_contained.show();
     return null_contained;
   }
@@ -108,8 +59,8 @@ public class SetTest {
   public void testSet1() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(itemNo, 'a', 'b')";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("a", newDf.rows.get(0).get("name"));   // 1
@@ -120,8 +71,8 @@ public class SetTest {
   public void testSet2() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: itemNo value: if(itemNo)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(true,  newDf.rows.get(0).get("itemNo"));   // 1
@@ -132,8 +83,8 @@ public class SetTest {
   public void testSet3() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: itemNo value: if(itemNo, '1', '2')";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("1", newDf.rows.get(0).get("itemNo"));   // 1
@@ -144,8 +95,8 @@ public class SetTest {
   public void testSet4() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: itemNo value: if(itemNo, 1, 2)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(1), newDf.rows.get(0).get("itemNo"));   // 1
@@ -156,8 +107,8 @@ public class SetTest {
   public void testSet5() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: itemNo value: if(itemNo, 1.0, 2.0)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(1.0, newDf.rows.get(0).get("itemNo"));   // 1
@@ -168,8 +119,8 @@ public class SetTest {
   public void testSet6() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: itemNo value: if(itemNo == 5)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(false, newDf.rows.get(0).get("itemNo"));   // 1
@@ -181,8 +132,8 @@ public class SetTest {
   public void testSet7() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(name == 'Ferrari')";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(true,  newDf.rows.get(0).get("name"));   // Ferrari
@@ -194,8 +145,8 @@ public class SetTest {
   public void testSet8() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(name == 'Ferrari', '1', '0')";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("1", newDf.rows.get(0).get("name"));   // Ferrari
@@ -207,8 +158,8 @@ public class SetTest {
   public void testSet9() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(name == 'Ferrari', 1, 0)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(1), newDf.rows.get(0).get("name"));   // Ferrari
@@ -220,8 +171,8 @@ public class SetTest {
   public void testSet10() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(name == 'Ferrari', 10.0, 1.0)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(10.0, newDf.rows.get(0).get("name"));   // Ferrari
@@ -233,8 +184,8 @@ public class SetTest {
   public void testSet11() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: itemNo value: if(itemNo <= 3, 1, 0)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(1), newDf.rows.get(0).get("itemNo"));   // Ferrari
@@ -246,8 +197,8 @@ public class SetTest {
   public void testSet12() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: weight value: if(weight > 1000, 'heavy', 'light')";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("light", newDf.rows.get(0).get("weight"));   // 800
@@ -270,8 +221,8 @@ public class SetTest {
   public void testSet13() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: itemNo value: if(itemNo < 3)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(true,  newDf.rows.get(0).get("itemNo"));   // 1
@@ -283,8 +234,8 @@ public class SetTest {
   public void testSet14() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed value: if(speed > 300 && speed < 400 && speed != 350)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(false, newDf.rows.get(0).get("speed"));   // 259
@@ -296,8 +247,8 @@ public class SetTest {
   public void testSet15() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed  value: if(speed > 300 && speed < 400 || weight < 1000)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(true,  newDf.rows.get(0).get("speed"));   // 259, 800
@@ -310,8 +261,8 @@ public class SetTest {
   public void testSet16() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed value: if(speed > 300 && speed < 400 && weight < 1000)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(false, newDf.rows.get(0).get("speed"));   // 259, 800
@@ -324,8 +275,8 @@ public class SetTest {
   public void testSet17() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed value: if(speed > 300 && speed < 400 && weight < 1000, 'good', 'bad')";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("bad",  newDf.rows.get(0).get("speed"));   // 259, 800
@@ -338,8 +289,8 @@ public class SetTest {
   public void testSet18() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed value: if(speed > 300 && speed < 400 && weight < 1000, 1, 0)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(0),  newDf.rows.get(0).get("speed"));   // 259, 800
@@ -352,8 +303,8 @@ public class SetTest {
   public void testSet19() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed value: if(speed > 300 && speed < 400 && weight < 1000, 10.0, 1.0)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(1.0,  newDf.rows.get(0).get("speed"));   // 259, 800
@@ -366,8 +317,8 @@ public class SetTest {
   public void testSet20() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: upper(name)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("FERRARI", newDf.rows.get(0).get("name"));
@@ -377,8 +328,8 @@ public class SetTest {
   public void testSet21() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: isnull(name)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(false, newDf.rows.get(0).get("name"));   // Ferrari
@@ -389,8 +340,8 @@ public class SetTest {
   public void testSet22() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: length(name)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(7), newDf.rows.get(0).get("name"));   // Ferrari
@@ -401,8 +352,8 @@ public class SetTest {
   public void testSet23() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(length(name))";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(true,  newDf.rows.get(0).get("name"));   // Ferrari
@@ -413,8 +364,8 @@ public class SetTest {
   public void testSet24() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(length(name) > 5, '1', '0')";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("1", newDf.rows.get(0).get("name"));  // Ferrari
@@ -427,8 +378,8 @@ public class SetTest {
   public void testSet25() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(length(name) < 7, 1, 0)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(0), newDf.rows.get(0).get("name"));  // Ferrari
@@ -441,8 +392,8 @@ public class SetTest {
   public void testSet26() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(length(name) < 7, 10.0, 1.0)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(1.0,  newDf.rows.get(0).get("name"));  // Ferrari
@@ -455,8 +406,8 @@ public class SetTest {
   public void testSet27() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(length(name) == 4, '4c', 'others')";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("others", newDf.rows.get(0).get("name"));  // Ferrari
@@ -469,8 +420,8 @@ public class SetTest {
   public void testSet28() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: weight value: weight + 100";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(900), newDf.rows.get(0).get("weight"));  // 800
@@ -480,8 +431,8 @@ public class SetTest {
   public void testSet29() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: weight value: weight + 100.78";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(900.78, newDf.rows.get(0).get("weight"));  // 800
@@ -491,8 +442,8 @@ public class SetTest {
   public void testSet30() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: weight value: weight - 100";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(700), newDf.rows.get(0).get("weight"));  // 800
@@ -502,8 +453,8 @@ public class SetTest {
   public void testSet31() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: weight value: weight * 100";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(80000), newDf.rows.get(0).get("weight"));  // 800
@@ -513,8 +464,8 @@ public class SetTest {
   public void testSet32() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: weight value: weight / 100";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(8.0, newDf.rows.get(0).get("weight"));  // 800
@@ -524,8 +475,8 @@ public class SetTest {
   public void testSet33() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: weight value: speed + weight";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(1059), newDf.rows.get(0).get("weight"));  // 259, 800
@@ -535,8 +486,8 @@ public class SetTest {
   public void testSet34() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: weight value: weight + speed + itemNo";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(1060), newDf.rows.get(0).get("weight"));  // 259, 800, 1
@@ -546,8 +497,8 @@ public class SetTest {
   public void testSet35() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: weight value: speed + 100 - weight + 2 - 3";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(-442), newDf.rows.get(0).get("weight"));  // 259, 800
@@ -557,8 +508,8 @@ public class SetTest {
   public void testSet36() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: length(name) + speed + itemNo + 100";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(367), newDf.rows.get(0).get("name"));  // Ferrari, 259, 800
@@ -568,8 +519,8 @@ public class SetTest {
   public void testSet37() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: math.sqrt(speed) + math.sqrt(weight)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("44.377", newDf.rows.get(0).get("name").toString().substring(0, 6));  // 259, 800
@@ -579,8 +530,8 @@ public class SetTest {
   public void testSet38() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: weight value: 5 + weight";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(805), newDf.rows.get(0).get("weight"));  // 800
@@ -600,8 +551,8 @@ public class SetTest {
   public void testSet40() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: itemNo value: if(itemNo) row: itemNo > 2";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(Long.valueOf(1), newDf.rows.get(0).get("itemNo"));  // 1
@@ -622,8 +573,8 @@ public class SetTest {
   public void testSet51() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed value: '001'";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("001", newDf.rows.get(0).get("speed"));  // 259
@@ -633,8 +584,8 @@ public class SetTest {
   public void testSet52() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: length(upper(name))";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(7), newDf.rows.get(0).get("name"));  // Ferrari
@@ -648,8 +599,8 @@ public class SetTest {
   public void testSet56() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(name == 'Ferrari', itemNo, 3)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(1), newDf.rows.get(0).get("name"));  // Ferrari
@@ -659,8 +610,8 @@ public class SetTest {
   public void testSet57() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(name == 'Ferrari', 'Ferrari', name)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("Ferrari", newDf.rows.get(0).get("name"));  // Ferrari
@@ -671,8 +622,8 @@ public class SetTest {
   public void testSet58() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: coalesce(speed, weight)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(259),  newDf.rows.get(0).get("name"));  // 259, 800
@@ -691,8 +642,8 @@ public class SetTest {
   public void testSet59() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: itemNo value: if(isnull(speed), null, weight)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(new Long(800), newDf.rows.get(0).get("itemNo"));  // Ferrari
@@ -703,8 +654,8 @@ public class SetTest {
   public void testSet60() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(name=='Ferrari', true, false)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(true, newDf.rows.get(0).get("name"));  // Ferrari
@@ -715,8 +666,8 @@ public class SetTest {
   public void testSet61() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(name=='Ferrari')";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(true, newDf.rows.get(0).get("name"));  // Ferrari
@@ -727,8 +678,8 @@ public class SetTest {
   public void testSet62() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: name value: if(name == 'Ferrari', null, name)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals(null, newDf.rows.get(0).get("name"));  // Ferrari
@@ -739,8 +690,8 @@ public class SetTest {
   public void testSet63() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed value: if(isnull(speed), -1, speed)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals((long)259, newDf.rows.get(0).get("speed"));  // Ferrari
@@ -751,8 +702,8 @@ public class SetTest {
   public void testSet64() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed value: if(speed>=300, 'Fast', 'Slow')";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("Slow", newDf.rows.get(0).get("speed"));  // Ferrari
@@ -763,8 +714,8 @@ public class SetTest {
   public void testSet65() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed value: concat_ws('|', birth_date, itemNo, weight, name)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("2010-01-01|1|800|Ferrari", newDf.rows.get(0).get("speed"));  // Ferrari
@@ -774,8 +725,8 @@ public class SetTest {
   public void testSet66() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed value: concat(birth_date, itemNo, weight, name)";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("2010-01-011800Ferrari", newDf.rows.get(0).get("speed"));  // Ferrari
@@ -785,8 +736,8 @@ public class SetTest {
   public void testSet67() throws IOException, TeddyException {
     DataFrame null_contained = newNullContainedDataFrame();
     String ruleString = "set col: speed value: if ( itemNo == 1, 'a', if (itemNo == 3, 'b', if (itemNo == 4, 'c', if (itemNo == 4, 'd', if (itemNo == 5, 'e', 'f')))))";
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    DataFrame newDf = null_contained.doSet((Set) rule, ruleString);
+    
+    DataFrame newDf = apply_rule(null_contained, ruleString);
     newDf.show();
 
     assertEquals("a", newDf.rows.get(0).get("speed"));  // Ferrari
