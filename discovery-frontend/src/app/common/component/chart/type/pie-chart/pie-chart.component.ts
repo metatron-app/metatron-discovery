@@ -174,7 +174,7 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
         }
         return isOtherValue;
       }).map((dataObj) => {
-        return dataObj.value;
+        return {value : dataObj.value, percentage : dataObj.percentage};
       });
 
       resultSeries.data = resultSeries.data.filter((dataObj, index) => {
@@ -183,9 +183,9 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
       });
 
       // when otherList exists
-      if (_.sum(otherValueList) > 0) {
+      if (otherValueList.length > 0) {
         existEtcData = true;
-        resultSeries.data.push({ value: _.sum(otherValueList), name: 'OTHER' });
+        resultSeries.data.push({ value: _.sumBy(otherValueList, 'value'), percentage : _.sumBy(otherValueList, 'percentage'), name: 'OTHER' });
       }
       resultSeries.originData = _.cloneDeep(resultSeries.data);
 
@@ -425,16 +425,6 @@ export class PieChartComponent extends BaseChart implements OnInit, AfterViewIni
       let pivotType: ChartPivotType;
 
       let fieldInfo = _.cloneDeep(this.fieldInfo);
-
-      // aggregations에서 measure부분 제거
-      for (let index = this.pivot.aggregations.length - 1; index >= 0; index--) {
-
-        let item = this.pivot.aggregations[index];
-
-        if ('measure' == item.type) {
-          fieldInfo.aggs.splice(index, 1);
-        }
-      }
 
       // 열/행/교차 여부 및 몇번째 필드인지 확인
       _.forEach(fieldInfo, (value, key) => {

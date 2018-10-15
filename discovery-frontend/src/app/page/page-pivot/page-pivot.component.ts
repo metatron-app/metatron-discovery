@@ -848,12 +848,30 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       if (_.eq(this.chartType, ChartType.BAR)
         || _.eq(this.chartType, ChartType.LINE)
         || _.eq(this.chartType, ChartType.SCATTER)
-        || _.eq(this.chartType, ChartType.PIE)
         || _.eq(this.chartType, ChartType.LABEL)
         || _.eq(this.chartType, ChartType.WORDCLOUD)
         || _.eq(this.chartType, ChartType.RADAR)
         || _.eq(this.chartType, ChartType.GRID)) {
         return true;
+      }
+      // no dimension or more dimensions, no measure or more measures
+      else if (_.eq(this.chartType, ChartType.PIE)) {
+
+        // check count
+        let dCount: number = 0;
+        let mCount: number = 0;
+        for (let field of this.pivot.aggregations) {
+          if (_.eq(field.type, ShelveFieldType.DIMENSION)) {
+            dCount++;
+          }
+        }
+
+        for (let field of this.pivot.aggregations) {
+          if (_.eq(field.type, ShelveFieldType.MEASURE) || _.eq(field.type, ShelveFieldType.CALCULATED)) {
+            mCount++;
+          }
+        }
+        return dCount == 0 || dCount > 1 || mCount == 0 || mCount > 1;
       }
       // 1 measure
       else if (_.eq(this.chartType, ChartType.HEATMAP)
