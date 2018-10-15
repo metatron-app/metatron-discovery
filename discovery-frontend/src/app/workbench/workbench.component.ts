@@ -1752,7 +1752,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // 길이 계산은 index가 0일 경우에만 계산한다
-    if (this.mimeType != 'HIVE' && this.editorResultListObj.index === 0) {
+    if (this.editorResultListObj.index === 0) {
       // 변경이 다 일어났을 때
       this.changeDetect.detectChanges();
       // 아이콘 버튼 show flag
