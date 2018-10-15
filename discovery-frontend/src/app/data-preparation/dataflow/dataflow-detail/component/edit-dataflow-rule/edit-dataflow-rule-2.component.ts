@@ -1112,10 +1112,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // variables vary according to the rule name
     // use this._editRuleComp.getValue({}) to get condition of each rule
     let val : string = 'rowNum';
-    if (this.ruleVO.command === 'derive') {
+    if (command === 'derive') {
       val = 'deriveVal';
-    } else if (this.ruleVO.command === 'set') {
+    } else if (command === 'set') {
       val = 'inputValue';
+    } else if (command === 'replace' || command === 'setCondition') {
+      val = 'condition';
     }
 
     this.extendInputFormulaComponent.open(fields, command, this._editRuleComp.getValue( val ));
@@ -1126,7 +1128,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param {{command: string, formula: string}} data
    */
   public doneInputFormula(data: { command: string, formula: string }) {
-    this._editRuleComp.setValue( 'forceCondition', data.formula );
+
+    if (data.command === 'setCondition') {
+      this._editRuleComp.setValue( 'forceCondition', data.formula );
+    } else {
+      this._editRuleComp.setValue( 'forceFormula', data.formula );
+    }
 
   }
 

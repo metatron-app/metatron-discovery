@@ -67,6 +67,9 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   @Input()
   public forceFormula: string;
 
+  @Input()
+  public forceCondition: string;
+
   public formula: string;
 
   @Input()
@@ -121,10 +124,14 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   public ngOnChanges(changes: SimpleChanges) {
     const inputFormulaChanges: SimpleChange = changes.inputFormula;
     const forceFormulaChanges:SimpleChange = changes.forceFormula;
+    const forceConditionChanges:SimpleChange = changes.forceCondition;
     if( inputFormulaChanges && inputFormulaChanges.firstChange ) {
       this.formula = inputFormulaChanges.currentValue;
     } else if( forceFormulaChanges && forceFormulaChanges.currentValue !== forceFormulaChanges.previousValue ) {
       this.formula = forceFormulaChanges.currentValue;
+      this.onChange.emit(this.formula);
+    } else if( forceConditionChanges && forceConditionChanges.currentValue !== forceConditionChanges.previousValue ) {
+      this.formula = forceConditionChanges.currentValue;
       this.onChange.emit(this.formula);
     }
   } // function - ngOnChanges
