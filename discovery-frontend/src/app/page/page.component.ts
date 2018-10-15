@@ -1634,7 +1634,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param {Filter} filter
    * @param {boolean} isSetPanel
    */
-  public updateFilter(filter: Filter, isSetPanel: boolean = true) {
+  public updateFilter(filter: Filter, isSetPanel: boolean = false) {
     if (!this.isDashboard) {
       return;
     }

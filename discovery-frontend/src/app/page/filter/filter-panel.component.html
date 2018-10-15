@@ -47,10 +47,8 @@
               <div *ngFor="let filter of boardFilters" class="ddp-list-data">
                 <!-- name -->
                 <div class="ddp-data-name">
-                  <!-- <em *ngIf="filter.type !== 'bound'" class="{{getDimensionTypeIconClass(filter['fieldObj'])}}" ></em>
-                  <em *ngIf="filter.type === 'bound'" class="{{getMeasureTypeIconClass(filter['fieldObj'])}}" ></em> -->
-                  <em *ngIf="filter.type !== 'bound'" ></em>
-                  <em *ngIf="filter.type === 'bound'" ></em>
+                  <em *ngIf="filter.type !== 'bound'" class="{{getDimensionTypeIconClass(filter['fieldObj'])}}" ></em>
+                  <em *ngIf="filter.type === 'bound'" class="{{getMeasureTypeIconClass(filter['fieldObj'])}}" ></em>
                   {{filter.field}}
                 </div>
                 <!-- //name -->
