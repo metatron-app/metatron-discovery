@@ -2222,6 +2222,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // hive log DONE 종료
   public hiveLogFinish() {
+    // 로그 취소된 경우 취소된 결과 탭을 선택 표시
+    if( this.isLogCancelTabQuery.length > 0 ) {
+      this.datagridCurList[this.selectedGridTabNum]['selected'] = true;
+    }
+
     this.isHiveQueryExecute = false;
     // 처음 쿼리를 취소한 경우
     if (this.datagridCurList.length == 0) {
@@ -2477,13 +2482,20 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // console.error("cancel selectedGridTabNum ================================ : " + selectedGridTabNum);
     // console.error("this.datagridCurList.length ================================ : " + this.datagridCurList.length);
 
+    // 시점상 탭 그려지기 이전에 취소한 경우 결과 탭을 생성
+    if( isUndefined( this.datagridCurList[selectedGridTabNum] ) ){
+      this.datagridCurList.push({name : this.textList[this.tempEditorSelectedTabNum].name + ' - ' + this.translateService.instant('msg.bench.ui.rslt') + (selectedGridTabNum + 1)});
+    }
+
     this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
     this.datagridCurList[selectedGridTabNum]['selected'] = true;
 
     this.selectedGridTabNum = selectedGridTabNum;
+    this.isHiveLogCancel = false;
+    this.isHiveLog = false;
     this.safelyDetectChanges();
 
-    this.isHiveLog = false;
+
   }
 
   // 뒤로 돌아가기
