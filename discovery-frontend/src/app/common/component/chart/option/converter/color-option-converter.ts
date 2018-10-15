@@ -250,6 +250,13 @@ export class ColorOptionConverter {
     // get axis baseline
     const valueAxis = !uiOption.yAxis ? null : AxisLabelType.COLUMN == uiOption.yAxis.mode ? uiOption.yAxis : uiOption.xAxis;
 
+    // the chart which doesn't have format
+    if (uiOption.type === ChartType.WORDCLOUD) {
+      if (!uiOption.valueFormat) uiOption.valueFormat = {};
+      if (!uiOption.valueFormat.decimal) uiOption.valueFormat.decimal = 2;
+      if (!uiOption.valueFormat.useThousandsSep) uiOption.valueFormat.useThousandsSep = true;
+    }
+
     // 색상 리스트 적용
     option.visualMap.color = <any>codes;
 
@@ -381,6 +388,12 @@ export class ColorOptionConverter {
       case ChartType.PIE:
       case ChartType.WORDCLOUD:
         rowsListLength = data.columns[0].value.length;
+
+        if (uiOption.type === ChartType.WORDCLOUD) {
+          // set 2 decimal (wordcloud doesn't have format)
+          if (!uiOption['valueFormat']) uiOption['valueFormat'] = {};
+          uiOption['valueFormat']['decimal'] = 2;
+        }
         break;
       case ChartType.HEATMAP:
         rowsListLength = data.columns.length + data.rows.length;

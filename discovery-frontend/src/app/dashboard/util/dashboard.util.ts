@@ -211,6 +211,10 @@ export class DashboardUtil {
 
     delete configuration.dataSource.fields;
 
+    if (configuration.chart.type === ChartType.WORDCLOUD) {
+      delete configuration.chart.valueFormat;
+    }
+
     // convert spec UI to server ( customFields -> fields )
     if (configuration.customFields) {
       configuration['fields'] = _.cloneDeep(configuration.customFields);

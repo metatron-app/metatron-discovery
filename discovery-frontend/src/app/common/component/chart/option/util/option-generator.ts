@@ -1729,8 +1729,7 @@ export namespace OptionGenerator {
       return {
         type: ChartType.WORDCLOUD,
         color: UI.Color.dimensionUIChartColor('SC1'),
-        // 워드클라우드에는 포멧설정시 없으므로 제거
-        // valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
+        valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true)
       };
     }
 

@@ -48,7 +48,7 @@
               <span class="ddp-type-value" *ngIf="field.type && 'timestamp' === field.type">{{getGranularityName(field)}}</span>
               <!-- //timestamp type -->
               <!-- aggregation type -->
-              <span class="ddp-type-value" *ngIf="field.name != field.pivotAlias && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
+              <span class="ddp-type-value" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias)  && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
               <!-- //aggregation type -->
               <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
               <div class="ddp-ui-icons">
