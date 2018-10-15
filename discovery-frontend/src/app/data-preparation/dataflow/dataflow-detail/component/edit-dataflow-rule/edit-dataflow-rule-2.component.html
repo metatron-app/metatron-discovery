@@ -170,7 +170,7 @@
                 <!-- //endKeep-->
 
                 <!-- startReplace -->
-                <edit-rule-replace #editRule *ngIf="'replace' === ruleVO.command" ></edit-rule-replace>
+                <edit-rule-replace #editRule *ngIf="'replace' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('replace')"></edit-rule-replace>
                 <!-- // endReplace -->
 
                 <!-- startRename -->
@@ -179,7 +179,8 @@
                 <!-- // endRename -->
 
                 <!--startSet-->
-                <edit-rule-set #editRule *ngIf="'set' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('set')"></edit-rule-set>
+                <edit-rule-set #editRule *ngIf="'set' === ruleVO.command" (advancedEditorClickEvent)="openPopupFormulaInput('set')"
+                               (conditionClickEvent)="openPopupFormulaInput('setCondition')"></edit-rule-set>
                 <!--//endSet-->
 
                 <!--startSettype-->
