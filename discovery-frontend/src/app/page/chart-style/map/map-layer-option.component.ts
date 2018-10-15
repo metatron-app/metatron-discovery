@@ -658,6 +658,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        }
      }
 
+     if(this.color['customMode']) {
+       this.rangesViewList = this.color['ranges'];
+     }
+
      return this.layerOptions;
    }
 
@@ -857,7 +861,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     }
 
     if(this.color['customMode']) {
-      this.rangesViewList = this.color['ranges'];
+      this.rangesViewList = this.uiOption.layers[0].color['ranges'];
     }
 
     // Init

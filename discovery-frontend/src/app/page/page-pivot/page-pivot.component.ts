@@ -285,8 +285,6 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     this.pivot.rows = this.pivot.rows.map(this.checkAlias);
     this.pivot.aggregations = this.pivot.aggregations.map(this.checkAlias);
 
-console.log(this.pivot);
-
     this.changePivotEvent.emit({ pivot: this.pivot, eventType: eventType });
   }
 

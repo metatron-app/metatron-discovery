@@ -509,6 +509,33 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         }
 
         // featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+        if(styleOption.layers[layerNum].color['customMode'] === 'SECTION') {
+          for(let range of styleOption.layers[layerNum].color['ranges']) {
+            let rangeMax = range.fixMax;
+            let rangeMin = range.fixMin;
+
+            if(rangeMax === null) {
+              rangeMax = rangeMin + 1;
+            } else if(rangeMin === null) {
+              rangeMin = 0;
+            }
+
+            if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&  feature.getProperties()[styleOption.layers[layerNum].color.column] < rangeMax) {
+              featureColor = range.color;
+            }
+
+          }
+        } else if(styleOption.layers[layerNum].color['customMode'] === 'GRADIENT') {
+          let colorList = ChartColorList[featureColor];
+          let avgNum = styleData.valueRange.maxValue / colorList.length;
+
+          for(let i=0;i<colorList.length;i++) {
+            if(feature.getProperties()[styleOption.layers[layerNum].color.column] <= avgNum * (i+1) &&
+              feature.getProperties()[styleOption.layers[layerNum].color.column] >= avgNum * (i)) {
+              featureColor = colorList[i];
+            }
+          }
+        }
       } else if(featureColorType === 'DIMENSION') {
         let colorList = ChartColorList[featureColor];
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
