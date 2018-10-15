@@ -53,14 +53,6 @@ public class SetTypeTest extends  TeddyTest{
     return df;
   }
 
-  static DataFrame apply_rule(DataFrame df, String ruleString) throws TeddyException {
-    DataFrameService dataFrameService = new DataFrameService();
-
-    df = dataFrameService.applyRule(df, ruleString, new ArrayList<>(), limitRowCnt,  0);
-
-    return df;
-  }
-
   @Test
   public void testSetType1() throws IOException, TeddyException {
     DataFrame sampleDataFrame = newSampleDataFrame();

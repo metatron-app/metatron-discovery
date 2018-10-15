@@ -419,7 +419,8 @@ export class FilterUtil {
       case TimeUnit.DAY:
         return moment(date).format('YYYY-MM-DD');
       case TimeUnit.WEEK:
-        return moment(date).format('YYYY-WW');
+        // return moment(date).format('YYYY-WW');
+        return (<string>date);
       case TimeUnit.MONTH:
         return moment(date).format('YYYY-MM');
       case TimeUnit.QUARTER:

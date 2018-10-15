@@ -40,14 +40,6 @@ public class FunctionTest extends TeddyTest{
     return df;
   }
 
-  static DataFrame apply_rule(DataFrame df, String ruleString) throws TeddyException {
-    DataFrameService dataFrameService = new DataFrameService();
-
-    df = dataFrameService.applyRule(df, ruleString, new ArrayList<>(), limitRowCnt,  0);
-
-    return df;
-  }
-
   @Test
   public void functionTest1_year() throws IOException, TeddyException {
     DataFrame sampleDataFrame = newSampleDataFrame();

@@ -33,12 +33,16 @@ export class LoadingComponent extends AbstractComponent {
     | Public Variables
     |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-    // 로딩을 보여줄지 여부
+    @Input()
     public visible: boolean = false;
 
     // Cancel 가능여부
     @Input()
     public cancel: boolean = false;
+
+    // 취소중 text
+    @Input()
+    public canceling: boolean = false;
 
     // 취소 이벤트
     @Output("cancel")
@@ -47,23 +51,6 @@ export class LoadingComponent extends AbstractComponent {
     /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     | Getter & Setter
     |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-    /**
-     * 로딩을 보여줄지 여부
-     * @param isShow
-     */
-    @Input("visible")
-    public set setVisible(visible: boolean) {
-
-        // Set
-        this.visible = visible;
-
-        // Init 전이라면 중단
-        if( !this.isLoaded ) { return; }
-
-        // Element Visible
-        this.visible ? this.$element.show() : this.$element.hide();
-    }
 
     /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     | Constructor
@@ -107,9 +94,6 @@ export class LoadingComponent extends AbstractComponent {
      */
     public show(): void {
 
-        // Set
-        this.visible = true;
-
         // Init 전이라면 중단
         if( !this.isLoaded ) { return; }
 
@@ -122,14 +106,10 @@ export class LoadingComponent extends AbstractComponent {
      */
     public hide(): void {
 
-        // Set
-        this.visible = false ;
-
         // Init 전이라면 중단
         if( !this.isLoaded ) { return; }
 
-        // Element Visible
-        this.visible ? this.$element.show() : this.$element.hide();
+        this.$element.hide();
     }
 
     /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

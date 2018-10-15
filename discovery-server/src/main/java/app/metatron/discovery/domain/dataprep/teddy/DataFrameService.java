@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -28,6 +29,7 @@ import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -44,8 +46,8 @@ import java.util.concurrent.TimeoutException;
 public class DataFrameService {
   private static Logger LOGGER = LoggerFactory.getLogger(DataFrame.class);
 
-  @Value("${polaris.dataprep.sampling.cores:2}")
-  private int cores;
+  @Autowired
+  PrepProperties prepProperties;
 
   static final int hardRowLimit = 100 * 10000;
 
@@ -85,9 +87,11 @@ public class DataFrameService {
     }
   }
 
-  public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slaveDfs,
-                             int limitRows, int timeout) throws TeddyException {
-      LOGGER.trace("applyRule(): start");
+public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slaveDfs) throws TeddyException {
+    int cores     = prepProperties.getSamplingCores();
+    int limitRows = prepProperties.getSamplingLimitRows();
+    int timeout   = prepProperties.getSamplingTimeout();
+    LOGGER.trace("applyRule(): start");
 
       List<Future<List<Row>>> futures = new ArrayList<>();
       Rule rule = new RuleVisitorParser().parse(ruleString);
@@ -138,6 +142,63 @@ public class DataFrameService {
 
       LOGGER.trace("applyRule(): end (parallel)");
       return newDf;
+  }
+
+  public DataFrame applyRule_Test(DataFrame df, String ruleString, List<DataFrame> slaveDfs) throws TeddyException {
+    int cores     = 2;
+    int limitRows = 1000;
+    int timeout   = 60;
+    LOGGER.trace("applyRule(): start");
+
+    List<Future<List<Row>>> futures = new ArrayList<>();
+    Rule rule = new RuleVisitorParser().parse(ruleString);
+    DataFrame newDf = DataFrame.getNewDf(rule, df.dsName, ruleString);
+
+    try {
+      LOGGER.debug("applyRule(): start: ruleString={}", ruleString);
+      List<Object> preparedArgs = newDf.prepare(df, rule, slaveDfs);
+      int rowcnt = df.rows.size();
+
+      if (rowcnt > 0) {
+        if (DataFrame.isParallelizable(rule)) {
+          int partSize = rowcnt / (cores + 1);  // +1 to prevent being 0
+
+          for (int rowno = 0; rowno < rowcnt; rowno += partSize) {
+            LOGGER.debug("applyRuleString(): add thread: rowno={} partSize={} rowcnt={}", rowno, partSize, rowcnt);
+            futures.add(gatherAsync(df, newDf, preparedArgs, rowno, Math.min(partSize, rowcnt - rowno), hardRowLimit));
+          }
+
+          for (int i = 0; i < futures.size(); i++) {
+            List<Row> rows = futures.get(i).get(timeout, TimeUnit.SECONDS);
+            assert rows != null : rule.toString();
+            newDf.rows.addAll(rows);
+          }
+        } else {
+          // if not parallelizable, newDf comes to be modified directly.
+          // then, 'rows' returned is only for assertion.
+          List<Row> rows = newDf.gather(df, preparedArgs, 0, rowcnt, hardRowLimit);
+          assert rows == null : ruleString;
+        }
+      }
+    }
+    catch (ExecutionException e) {
+      String msg = "loadContentsByRule(): transform execution failed";
+      LOGGER.error(msg, e);
+      throw new TransformExecutionFailedException(msg);
+    }
+    catch (InterruptedException e) {
+      String msg = "loadContentsByRule(): transform execution interrupted";
+      LOGGER.error(msg, e);
+      throw new TransformExecutionInterrupteddException(msg);
+    }
+    catch (TimeoutException e) {
+      String msg = String.format("loadContentsByRule(): transform timeout: timeout=%ds", timeout);
+      LOGGER.error(msg, e);
+      throw new TransformTimeoutException(msg);
+    }
+
+    LOGGER.trace("applyRule(): end (parallel)");
+    return newDf;
   }
 
   @Async("threadPoolTaskExecutor")

@@ -352,7 +352,7 @@ export class CommonOptionConverter {
       if (item.label) {
 
         // rich가 있는경우
-        if (item.label.normal.rich) {
+        if (item.label.normal.rich && item.label.normal.rich['align']) {
           item.label.normal.rich['align']['fontSize'] = fontSize;
 
         // rich가 없는경우
