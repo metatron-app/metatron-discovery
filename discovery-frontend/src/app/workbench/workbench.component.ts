@@ -2225,6 +2225,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public hiveLogFinish() {
     // 로그 취소된 경우 취소된 결과 탭을 선택 표시
     if( this.isLogCancelTabQuery.length > 0 ) {
+      for (let index: number = 0; index < this.datagridCurList.length; index = index + 1) {
+        this.datagridCurList[index]['selected'] = false;
+      }
       this.datagridCurList[this.selectedGridTabNum]['selected'] = true;
     }
 
