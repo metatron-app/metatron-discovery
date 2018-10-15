@@ -45,7 +45,7 @@ import {
   EventType,
   SeriesType,
   ShelveFieldType,
-  ShelveType
+  ShelveType, UIChartDataLabelDisplayType
 } from './option/define/common';
 import { Field as AbstractField, Field } from '../../../domain/workbook/configurations/field/field';
 
@@ -66,6 +66,7 @@ import { ColorRange, UIChartColorGradationByValue } from './option/ui-option/ui-
 import { UIScatterChart } from './option/ui-option/ui-scatter-chart';
 import UI = OptionGenerator.UI;
 import {UIChartAxisGrid} from "./option/ui-option/ui-axis";
+import { TooltipOptionConverter } from './option/converter/tooltip-option-converter';
 
 declare let echarts: any;
 
@@ -2098,7 +2099,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    */
   protected setMapping(): UIChartColor {
 
-    if (!this.uiOption.color || ChartColorType.SERIES !== this.uiOption.color.type) return this.uiOption.color;
+    if (!this.uiOption.color || ChartColorType.SERIES !== this.uiOption.color.type || !this.uiOption.fieldMeasureList || this.uiOption.fieldMeasureList.length == 0) return this.uiOption.color;
 
     // mapping값이 없거나, 선반값이 변경된경우 mapping값 초기화
     if (!(<UIChartColorBySeries>this.uiOption.color).mapping || EventType.CHANGE_PIVOT == this.drawByType) {
@@ -2751,6 +2752,96 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     return this.chartOption;
   }
 
+  /**
+   * set datalabel when chart has axis
+   * @param {Pivot} prevPivot
+   * @param {boolean} prevPivotCondition - prev pivot has multi series(true) single series(false)
+   * @param {boolean} pivotCondition - pivot has multi series(true) single series(false)
+   * @returns {UIOption}
+   */
+  protected setAxisDataLabel(prevPivot: Pivot, checkChangeSeries: boolean): UIOption {
+
+    if (!this.pivot || !this.pivot.aggregations || !this.pivot.rows) return this.uiOption;
+
+    // 시리즈관련 리스트 제거
+    const spliceSeriesTypeList = ((seriesTypeList, dataLabel: any): any => {
+
+      // displayTypes를 찾는 index
+      let index: number;
+      for (const item of seriesTypeList) {
+        index = dataLabel.displayTypes.indexOf(item);
+
+        if (-1 !== index) {
+          // 라벨에서 제거
+          dataLabel.displayTypes[index] = null;
+        }
+      }
+      return dataLabel.displayTypes;
+    });
+
+    const setDefaultDisplayTypes = ((value): any => {
+
+      if (!value || !value.displayTypes) return [];
+
+      let defaultDisplayTypes = [];
+
+      // when it has single series
+      if (this.pivot.aggregations.length <= 1 && this.pivot.rows.length < 1) {
+
+        // set disabled list when it has single series
+        const disabledList = [UIChartDataLabelDisplayType.SERIES_NAME, UIChartDataLabelDisplayType.SERIES_VALUE, UIChartDataLabelDisplayType.SERIES_PERCENT];
+
+        // remove disabled list
+        defaultDisplayTypes = spliceSeriesTypeList(disabledList, value);
+
+        // set default datalabel, tooltip list
+        defaultDisplayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
+        defaultDisplayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
+        // when it has multi series
+      } else {
+
+        // set disabled list when it has multi series
+        const disabledList = [UIChartDataLabelDisplayType.CATEGORY_VALUE, UIChartDataLabelDisplayType.CATEGORY_PERCENT];
+
+        // remove disabled list
+        defaultDisplayTypes = spliceSeriesTypeList(disabledList, value);
+
+        // set default datalabel, tooltip list
+        defaultDisplayTypes[3] = UIChartDataLabelDisplayType.SERIES_NAME;
+        defaultDisplayTypes[4] = UIChartDataLabelDisplayType.SERIES_VALUE;
+      }
+
+      return defaultDisplayTypes;
+    });
+
+    // when draw chart or change single <=> multi series
+    if ((EventType.CHANGE_PIVOT === this.drawByType && checkChangeSeries) || EventType.CHART_TYPE === this.drawByType) {
+
+      // set datalabel display types
+      let datalabelDisplayTypes = setDefaultDisplayTypes(this.uiOption.dataLabel);
+
+      // set tooltip display types
+      let tooltipDisplayTypes = setDefaultDisplayTypes(this.uiOption.toolTip);
+
+      // set default datalabel value
+      if (this.uiOption.dataLabel && this.uiOption.dataLabel.displayTypes) {
+        // set dataLabel
+        this.uiOption.dataLabel.displayTypes = datalabelDisplayTypes;
+        // set previewList
+        this.uiOption.dataLabel.previewList = LabelOptionConverter.setDataLabelPreviewList(this.uiOption);
+      }
+
+      // set default tooltip value
+      if (this.uiOption.toolTip && this.uiOption.toolTip.displayTypes) {
+        // set dataLabel
+        this.uiOption.toolTip.displayTypes = tooltipDisplayTypes;
+        // set previewList
+        this.uiOption.toolTip.previewList = TooltipOptionConverter.setTooltipPreviewList(this.uiOption);
+      }
+    }
+
+    return this.uiOption;
+  }
 }
 
 

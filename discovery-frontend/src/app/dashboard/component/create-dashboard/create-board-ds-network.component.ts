@@ -470,6 +470,7 @@ export class CreateBoardDsNetworkComponent extends AbstractComponent implements 
     dataSource.type = 'default';
     dataSource.metaDataSource = tempDatasource.info;
     dataSource.uiFilters = tempDatasource.filters;
+    dataSource['temporaryId'] = tempDatasource.id;
 
     this._dataSources.push(tempDatasource.info);
     this._addDataSource(dataSource);

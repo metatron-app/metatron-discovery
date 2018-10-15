@@ -31,7 +31,15 @@ import { PopupService } from '../common/service/popup.service';
 
 import { StringUtil } from '../common/util/string.util';
 import { Pivot } from '../domain/workbook/configurations/pivot';
-import { BIType, Datasource, Field, FieldPivot, FieldRole, LogicalType } from '../domain/datasource/datasource';
+import {
+  BIType,
+  ConnectionType,
+  Datasource,
+  Field,
+  FieldPivot,
+  FieldRole,
+  LogicalType
+} from '../domain/datasource/datasource';
 import {
   BarMarkType,
   ChartType,
@@ -299,8 +307,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   // Data Detail 팝업: 컬럼 디테일 여부
   public isColumnDetail: boolean = false;
 
-  // No Data 여부
-  public isNoData: boolean = false;
+  public isNoData: boolean = false;   // No Data 여부
+  public isError: boolean = false;    // 에러 상태 표시 여부
 
   // 센키차트 모든노트 표시안함 여부
   public isSankeyNotAllNode: boolean = false;
@@ -601,7 +609,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         this.widget.configuration.filters = [];
         this.widget.configuration.customFields = [];
       }
-      this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.engineName );
+
+      if( ConnectionType.LINK === this.dataSource.connType ) {
+        this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.dataSource.engineName );
+      } else {
+        this.boardFilters = DashboardUtil.getAllFiltersDsRelations( this.widget.dashBoard, this.widget.configuration.dataSource.engineName );
+      }
 
       if (StringUtil.isEmpty(this.widget.name)) {
         this.widget.name = 'New Chart';
@@ -611,12 +624,16 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // 데이터 필드 설정 (data panel의 pivot 설정)
       this.setDatasourceFields(true);
+
+      if (this.pagePivot) this.pagePivot.removeAnimation();
     }
   } // function - selectDataSource
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public boardUtil = DashboardUtil;
+
   /**
    * 차트 이미지 업로드
    * @param {string} widgetId
@@ -910,6 +927,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // rnbMenu show hide 설정반영
     this.changeDetect.detectChanges();
+
+    // set shelve animation
+    this.pagePivot.onShelveAnimation(this.$element.find('.ddp-wrap-default'));
 
     // 차트 리사이즈
     this.chartResize();
@@ -1257,6 +1277,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
         })
         .catch((error) => {
+          this.isError = true;
           this.loadingHide();
           console.info('error', error);
         });
@@ -3408,6 +3429,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           } else if (this.chart.uiOption.type === ChartType.LABEL) {
 
           } else if (this.widgetConfiguration.chart.type.toString() === 'grid') {
+            if (this.chart && this.chart.chart) this.chart.chart.resize();
             //(<GridChartComponent>this.chart).grid.arrange();
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
             this.networkChart.draw();
@@ -3488,6 +3510,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // chart pivot valid
     if (false === this.chart.isValid(this.pivot)) {
       this.isChartShow = false;
+      this.isError = true;
       return;
     }
 
@@ -3510,6 +3533,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
     this.loadingShow();
     this.isNoData = false;
+    this.isError = false;
     this.isChartShow = true;
 
     // 변경사항 반영 (resultData설정시 설정할 옵션전에 패널이 켜지므로 off)
@@ -3599,7 +3623,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
                     .getAnalysisPredictionLineFromPage(this.widgetConfiguration, this.widget, this.lineChartComponent, resultData)
                     .catch(() => {
                       this.loadingHide();
-                      throw new Error('getAnalysis API error');
+                      this.isError = true;
                     });
                 } else {
                   this.lineChartComponent.analysis = null;
@@ -3611,10 +3635,10 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
               this.analysisComponent.changePredictionLineDisabled();
             }
             this.lineChartComponent.analysis = null;
-            this.chart.resultData = resultData;
+            setTimeout( () => { this.chart.resultData = resultData; }, 300 );
           }
         } else {
-          this.chart.resultData = resultData;
+          setTimeout( () => { this.chart.resultData = resultData; }, 300 );
         }
 
         this.loadingHide();
@@ -3625,6 +3649,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     ).catch((reason) => {
       console.error('Search Query Error =>', reason);
       this.isChartShow = false;
+      this.isError = true;
 
       // 변경사항 반영
       this.changeDetect.detectChanges();

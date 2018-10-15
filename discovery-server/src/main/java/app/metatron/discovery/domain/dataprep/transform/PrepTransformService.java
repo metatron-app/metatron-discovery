@@ -58,7 +58,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static app.metatron.discovery.domain.dataprep.PrepDataset.DS_TYPE.WRANGLED;
-import static app.metatron.discovery.domain.dataprep.PrepProperties.*;
 
 @Service
 public class PrepTransformService {
@@ -129,32 +128,18 @@ public class PrepTransformService {
 
     // check polaris.dataprep.hadoopConfDir
     if (ssHdfs || ssHive) {
-      if (prepProperties.getHadoopConfDir() == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
-      }
-      if (prepProperties.getStagingBaseDir() == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, STAGING_BASE_DIR);
-      }
+      prepProperties.getHadoopConfDir(true);
+      prepProperties.getStagingBaseDir(true);
     }
 
     // check polaris.dataprep.hive
     if (dsHive || ssHive) {
-      PrepProperties.HiveInfo hive = prepProperties.getHive();
-      if (hive == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HIVE_HOSTNAME);
-      }
+      prepProperties.getHiveHostname(true);
     }
 
     // check polaris.dataprep.etl.jar
     if (engine == PrepSnapshot.ENGINE.TWINKLE) {
-      EtlInfo etlInfo = prepProperties.getEtl();
-      if (etlInfo == null || etlInfo.getJar() == null) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE,
-                PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, ETL_JAR);
-      }
+      prepProperties.getEtlJar();
     }
 
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(prepProperties.getEveryForEtl());
@@ -180,14 +165,14 @@ public class PrepTransformService {
         map.put("fileUri",        requestPost.getUri());
         break;
       case HDFS:
-        map.put("stagingBaseDir", prepProperties.getStagingBaseDir());
+        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
         map.put("fileUri",        requestPost.getUri());
         break;
       case JDBC:
         assert false : ssId;
         break;
       case HIVE:
-        map.put("stagingBaseDir", prepProperties.getStagingBaseDir());
+        map.put("stagingBaseDir", prepProperties.getStagingBaseDir(true));
         map.put("partKeys",       requestPost.getPartKeys());
         map.put("mode",           mode.name());
         map.put("dbName",         requestPost.getDbName());
@@ -311,7 +296,6 @@ public class PrepTransformService {
           isNotORC = false;
       }
 
-      // FIXME: reconsider whether UNDO is necessary.
       if (prepProperties.isAutoTyping() && isNotORC) {
         setTypeRules = autoTypeDetection(gridResponse);
         //반환 받은 setType Rule 들을 적용
@@ -321,9 +305,7 @@ public class PrepTransformService {
             // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
             transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, i, setTypeRule);
           } catch (Exception e) {
-            LOGGER.info("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
-            transform(wrangledDsId, PrepDataset.OP_TYPE.UNDO, null, setTypeRule);
-            continue;
+            LOGGER.error("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
           }
         }
       }
@@ -440,8 +422,10 @@ public class PrepTransformService {
       doTypeCheck_100(df, i, columnTypes, columnTypesRow0, timestampStyles);
     }
 
-    //0번 Row의 예상 Type이 모두 String인 경우 header 룰을 추가하고 columnNames를 변경.
-    if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt) {
+    //If all column types of row 0 elements is String and predicted column types is not all String.
+    //Then add Header rule and change column name.
+    if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
+            Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt) {
       setTypeRules.add("header rownum: 1");
       columnNames.clear();
 
@@ -613,13 +597,13 @@ public class PrepTransformService {
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     assert dataset != null : dsId;
 
-    PrepTransformResponse response = null;
-    int origStageIdx = teddyImpl.getCurStageIdx(dsId);
-
     // dataset이 loading되지 않았으면 loading
     if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
       load_internal(dsId);
     }
+
+    PrepTransformResponse response = null;
+    int origStageIdx = teddyImpl.getCurStageIdx(dsId);
 
     // join이나 union의 경우, 대상 dataset들도 loading
     if (ruleString != null) {
@@ -1229,7 +1213,7 @@ public class PrepTransformService {
       String ssName = this.snapshotService.makeSnapshotName(wrangledDataset.getDsName(),launchTime);
       configuration.put("ss_name", ssName);
 
-      if(PrepSnapshot.SS_TYPE.FILE==PrepSnapshot.SS_TYPE.FILE) {
+      if(prepProperties.isFileSnapshotEnabled()) {
         Map<String,Object> fileUri = Maps.newHashMap();
 
         String wasDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
@@ -1237,29 +1221,24 @@ public class PrepTransformService {
         fileUri.put("was", wasDir);
 
         try {
-          Map<String,Object> checked = this.hdfsService.checkHdfs();
-          if(checked.get("checkConnection").equals(true)) {
-            String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(), ssName);
-            hdfsDir = this.snapshotService.escapeSsNameOfUri(hdfsDir);
-            fileUri.put("hdfs", hdfsDir);
-          }
+          String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);
+          hdfsDir = this.snapshotService.escapeSsNameOfUri(hdfsDir);
+          fileUri.put("hdfs", hdfsDir);
         } catch (Exception e) {
+          // MSG_DP_ALERT_STAGING_DIR_NOT_CONFIGURED is suppressed
         }
         configuration.put("file_uri", fileUri);
       }
 
-      if(PrepSnapshot.SS_TYPE.HIVE==PrepSnapshot.SS_TYPE.HIVE) {
-        Map<String,Object> hive = null;
-        PrepProperties.HiveInfo hiveInfo = prepProperties.getHive();
-        if(hiveInfo!=null) {
-          hive = Maps.newHashMap();
-          hive.put("custom_url", hiveInfo.getCustomUrl());
-          hive.put("metastore_uris", hiveInfo.getMetastoreUris());
-          hive.put("hostname", hiveInfo.getHostname());
-          hive.put("port", hiveInfo.getPort());
-          hive.put("username", hiveInfo.getUsername());
-          hive.put("password", hiveInfo.getPassword());
-        }
+      if(true == prepProperties.isHiveSnapshotEnabled()) {
+        Map<String,Object> hive = Maps.newHashMap();
+        hive.put("hostname",       prepProperties.getHiveHostname(false));
+        hive.put("port",           prepProperties.getHivePort(false));
+        hive.put("username",       prepProperties.getHiveUsername(false));
+        hive.put("password",       prepProperties.getHivePassword(false));
+        hive.put("custom_url",     prepProperties.getHiveCustomUrl(false));
+        hive.put("metastore_uris", prepProperties.getHiveMetastoreUris(false));
+
         configuration.put("hive_info", hive);
       }
     } catch (Exception e) {
@@ -1641,139 +1620,184 @@ public class PrepTransformService {
     List<ExprFunction> functionList = Lists.newArrayList();
 
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "length", "입력된 문자열의 길이를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "length", "msg.dp.ui.expression.functiondesc.string.length"
+                    , "length(‘hello world’)", "11")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "upper", "입력된 문자열 내의 알파벳을 모두 대문자로 치환하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "upper", "msg.dp.ui.expression.functiondesc.string.upper"
+                    , "upper(‘Hello world’)", "’HELLO WORLD’")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "lower", "입력된 문자열 내의 알파벳을 모두 소문자로 치환하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "lower", "msg.dp.ui.expression.functiondesc.string.lower"
+                    , "lower(‘Hello WORLD’)", "’hello world’")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "trim", "입력된 문자열의 앞/뒤에 있는 공백을 제거하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "trim", "msg.dp.ui.expression.functiondesc.string.trim"
+                    , "trim(‘  .   Hi!   ‘)", "‘.   Hi!’")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "ltrim", "입력된 문자열의 앞(왼쪽)에 있는 공백을 제거하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "ltrim", "msg.dp.ui.expression.functiondesc.string.ltrim"
+                    , "ltrim(‘  .   Hi!   ‘)", "’.   Hi!   ‘")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "rtrim", "입력된 문자열의 뒤(오른쪽)에 있는 공백을 제거하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "rtrim", "msg.dp.ui.expression.functiondesc.string.rtrim"
+                    , "rtrim(‘  .   Hi!   ‘)", "‘  .   Hi!’")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "substring", "입력된 문자열의 일부를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "substring", "msg.dp.ui.expression.functiondesc.string.substring"
+                    , "substring(‘hello world’, 1, 7)", "‘ello w’")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "concat", "입력된 복수의 문자열을 연결하여 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "concat", "msg.dp.ui.expression.functiondesc.string.concat"
+                    , "concat(‘1980’, ’02’)", "‘198002’")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.STRING, "concat_ws", "입력된 복수의 문자열을 연결하면서 문자열 사이에 Separator(구분자)를 넣어 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.STRING, "concat_ws", "msg.dp.ui.expression.functiondesc.string.concat_ws"
+                    , "concat_ws(‘-‘, ‘010’, ‘1234’, ‘5678’)", "’010-1234-5678’")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "if", "조건문을 검사하여 TRUE나 FALSE에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "if", "msg.dp.ui.expression.functiondesc.logical.if"
+                    , "if(gender==‘male’)", "TRUE")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "ismismatched", "입력된 컬럼의 값과 타입이 일치하는지 판단합니다. 일치하면 TRUE, 아니면 FALSE를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "ismismatched", "msg.dp.ui.expression.functiondesc.logical.ismismatched"
+                    , "", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnull", "입력된 컬럼의 값이 null 인지 판단합니다. null이면 TRUE, 아니면 FALSE를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnull", "msg.dp.ui.expression.functiondesc.logical.isnull"
+                    , "isnull(telephone)", "FALSE")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnan", "입력된 값이 NaN(Not-a-Number) 인지 판단합니다. NaN이면 TRUE, 아니면 FALSE를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "isnan", "msg.dp.ui.expression.functiondesc.logical.isnan"
+                    , "isnan(1000/ratio)", "FALSE")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "year", "입력된 Timestamp 값에서 연도에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "year", "msg.dp.ui.expression.functiondesc.timestamp.year"
+                    , "year(birthday)", " 1987")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "month", "입력된 Timestamp 값에서 월에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "month", "msg.dp.ui.expression.functiondesc.timestamp.month"
+                    , "month(birthday)", " 2")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "day", "입력된 Timestamp 값에서 일에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "day", "msg.dp.ui.expression.functiondesc.timestamp.day"
+                    , "day(birthday)", " 13")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "hour", "입력된 Timestamp 값에서 시간에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "hour", "msg.dp.ui.expression.functiondesc.timestamp.hour"
+                    , "hour(last_login)", " 21")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "minute", "입력된 Timestamp 값에서 분에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "minute", "msg.dp.ui.expression.functiondesc.timestamp.minute"
+                    , "minute(last_login)", " 49")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "second", "입력된 Timestamp 값에서 초에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "second", "msg.dp.ui.expression.functiondesc.timestamp.second"
+                    , "second(last_login)", " 28")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "millisecond", "입력된 Timestamp 값에서 밀리초(1/1000 초)에 해당하는 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "millisecond", "msg.dp.ui.expression.functiondesc.timestamp.millisecond"
+                    , "millisecond(last_login)", " 831")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "now", "입력된 Timezone 기준의 현재 시간을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "now", "msg.dp.ui.expression.functiondesc.timestamp.now"
+                    , "now()", "2018-04-18T12:20:90.220Z")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "add_time", "입력된 Timestamp 값에 일정 Time unit 값을 더하거나 뺀 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.TIMESTAMP, "add_time", "msg.dp.ui.expression.functiondesc.timestamp.add_time"
+                    , "add_time(timestamp, delta, time_unit)", "add_time(end_date, 10, ‘day’)")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "sum", "대상 값들의 합을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "sum", "msg.dp.ui.expression.functiondesc.aggregation.sum"
+                    , "sum(profit)", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "avg", "대상 값들의 평균을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "avg", "msg.dp.ui.expression.functiondesc.aggregation.avg"
+                    , "avg(profit)", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "max", "대상 값들 중 가장 큰 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "max", "msg.dp.ui.expression.functiondesc.aggregation.max"
+                    , "max(profit)", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "min", "대상 값들 중 가장 작은 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "min", "msg.dp.ui.expression.functiondesc.aggregation.min"
+                    , "min(profit)", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.AGGREGATION, "count", "대상의 줄(row)수를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.AGGREGATION, "count", "msg.dp.ui.expression.functiondesc.aggregation.count"
+                    , "count()", "")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.abs", "입력된 값의 절대값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.abs", "msg.dp.ui.expression.functiondesc.math.abs"
+                    , "math.abs(-10)", "10")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.acos", "입력된 값의 아크코사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.acos", "msg.dp.ui.expression.functiondesc.math.acos"
+                    , "math.acos(-1)", " 3.141592653589793")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.asin", "입력된 값의 아크사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.asin", "msg.dp.ui.expression.functiondesc.math.asin"
+                    , "math.asin(-1)", "-1.5707963267948966")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.atan", "입력된 값의 아크탄젠트 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.atan", "msg.dp.ui.expression.functiondesc.math.atan"
+                    , "math.atan(-1)", "-0.7853981633974483")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.cbrt", "입력된 값의 세제곱근 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cbrt", "msg.dp.ui.expression.functiondesc.math.cbrt"
+                    , "math.cbrt(5)", " 1.709975946676697")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.ceil", "입력된 값을 일의 배수가 되도록 올림한 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.ceil", "msg.dp.ui.expression.functiondesc.math.ceil"
+                    , "math.ceil(15.142)", " 16")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.cos", "입력된 값의 코사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cos", "msg.dp.ui.expression.functiondesc.math.cos"
+                    , "math.cos(45)", "0.5253219888177297")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.cosh", "입력된 값의 하이퍼볼릭 코사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.cosh", "msg.dp.ui.expression.functiondesc.math.cosh"
+                    , "math.cosh(9)", "4051.5420254925943")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.exp", "자연 로그값 e를 입력된 값만큼 거듭제곱한 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.exp", "msg.dp.ui.expression.functiondesc.math.exp"
+                    , "math.exp(4)", "54.598150033144236")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.expm1", "자연 로그값 e를 입력된 값만큼 거듭제곱한 값에서 1을 뺀 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.expm1", "msg.dp.ui.expression.functiondesc.math.expm1"
+                    , "math.expm1(4)", "53.598150033144236")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.getExponent", "입력된 값 N에 대하여 2exp <= N을 만족하는 exp 값 중 가장 큰 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.getExponent", "msg.dp.ui.expression.functiondesc.math.getExponent"
+                    , "math.getExponent(9)", "3")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.round", "입력된 값을 일의 자리로 반올림 한 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.round", "msg.dp.ui.expression.functiondesc.math.round"
+                    , "math.round(14.2)", "14")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.signum", "입력된 값의 부호를 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.signum", "msg.dp.ui.expression.functiondesc.math.signum"
+                    , "math.signum(-24)", "-1")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.sin", "입력된 값의 사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sin", "msg.dp.ui.expression.functiondesc.math.sin"
+                    , "math.sin(90)", "0.8939966636005579")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.sinh", "입력된 값의 하이퍼볼릭 사인 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sinh", "msg.dp.ui.expression.functiondesc.math.sinh"
+                    , "math.sinh(1)", "1.1752011936438014")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.sqrt", "입력된 값의 제곱근을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.sqrt", "msg.dp.ui.expression.functiondesc.math.sqrt"
+                    , "math.sqrt(4)", "2")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.tan", "입력된 값의 탄젠트 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.tan", "msg.dp.ui.expression.functiondesc.math.tan"
+                    , "math.tan(10)", "0.6483608274590866")
     );
     functionList.add(
-            new ExprFunction(ExprFunctionCategory.MATH, "math.tanh", "입력된 값의 하이퍼볼릭 탄젠트 값을 반환합니다.", "")
+            new ExprFunction(ExprFunctionCategory.MATH, "math.tanh", "msg.dp.ui.expression.functiondesc.math.tanh"
+                    , "math.tanh(4)", "0.999329299739067")
     );
 
     return functionList;

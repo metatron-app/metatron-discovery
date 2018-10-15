@@ -167,7 +167,7 @@
     "ioConfig": {
       "type" : "hadoop",
       "inputSpec" : {
-        "type" : "hynix",
+        "type" : "hadoop",
         "findRecursive" : true,
         "extractPartition" : true,
         "inputFormat" : "org.apache.hadoop.mapreduce.lib.input.TextInputFormat",

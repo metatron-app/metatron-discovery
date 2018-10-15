@@ -16,8 +16,15 @@ import * as $ from 'jquery';
 import * as _ from 'lodash';
 
 import {
-  ApplicationRef, ComponentFactoryResolver, ComponentRef,
-  ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild
+  ApplicationRef,
+  ComponentFactoryResolver,
+  ComponentRef,
+  ElementRef,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild
 } from '@angular/core';
 
 import { Widget } from '../../../domain/dashboard/widget/widget';
@@ -25,11 +32,22 @@ import { AbstractComponent } from '../../../common/component/abstract.component'
 import { DashboardWidgetComponent } from './dashboard.widget.component';
 import { DashboardWidgetHeaderComponent } from './dashboard.widget.header.component';
 import {
-  BoardConfiguration, BoardDataSource, BoardDataSourceRelation, Dashboard, DashboardLayout, JoinMapping,
-  LayoutMode, LayoutWidgetInfo
+  BoardConfiguration,
+  BoardDataSource,
+  BoardDataSourceRelation,
+  Dashboard,
+  DashboardLayout,
+  JoinMapping,
+  LayoutMode,
+  LayoutWidgetInfo
 } from '../../../domain/dashboard/dashboard';
 import {
-  ConnectionType, Datasource, Field, FieldNameAlias, FieldRole, FieldValueAlias,
+  ConnectionType,
+  Datasource,
+  Field,
+  FieldNameAlias,
+  FieldRole,
+  FieldValueAlias,
   LogicalType
 } from '../../../domain/datasource/datasource';
 import { PageWidget, PageWidgetConfiguration } from '../../../domain/dashboard/widget/page-widget';
@@ -39,7 +57,10 @@ import { DatasourceService } from '../../../datasource/service/datasource.servic
 import { PopupService } from '../../../common/service/popup.service';
 import { FilterUtil } from '../../util/filter.util';
 import {
-  BoardGlobalOptions, BoardLayoutOptions, BoardLayoutType, BoardWidgetOptions,
+  BoardGlobalOptions,
+  BoardLayoutOptions,
+  BoardLayoutType,
+  BoardWidgetOptions,
   WidgetShowType
 } from 'app/domain/dashboard/dashboard.globalOptions';
 import { WidgetService } from '../../service/widget.service';
@@ -160,10 +181,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    */
   public ngOnDestroy() {
     super.ngOnDestroy();
-    if (this._widgetComps && 0 < this._widgetComps.length) {
-      this._widgetComps.forEach(item => item.destroy());
-    }
-    (this._layoutObj) && (this._layoutObj.destroy());
+    this.destroyDashboard();
   } // function - ngOnDestroy
 
   @HostListener('window:resize', ['$event'])
@@ -210,17 +228,8 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    */
   private _initConf() {
 
-    // 객체 초기화
-    if (this._layoutObj) {
-
-      // 현재 위젯이 존재할 경우 삭제함 ( 위젯별 destroy를 호출하기 위함 )
-      if (this._widgetComps && 0 < this._widgetComps.length) {
-        this._widgetComps.forEach(item => item.destroy());
-      }
-
-      this._layoutObj.destroy();
-      this._layoutObj = null;
-    }
+    // initialize dashboard - destroy prev dashboard
+    this.destroyDashboard();
 
     // 컴포넌트 목록 및 주요 데이터 초기화
     this._widgetComps = [];
@@ -990,31 +999,30 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
       // 데이터소스별 추천 필터 설정
       dsList.forEach((dsInfo: Datasource) => {
-        if (ConnectionType.LINK !== dsInfo.connType) {
-          promises.push(new Promise<any>((res2, rej2) => {
-            // 데이터소스의 필터 목록
-            const dsFilters: Filter[] = boardFilters.filter(filter => filter.dataSource === dsInfo.engineName);
-            // 최초 추천 필터
-            const firstFilter: Filter = dsFilters.find(filter => {
-              return 'recommended' === filter.ui.importanceType && 1 === filter.ui.filteringSeq;
-            });
+        // if (ConnectionType.LINK !== dsInfo.connType) {
+        promises.push(new Promise<any>((res2, rej2) => {
+          // 데이터소스의 필터 목록
+          const dsFilters: Filter[] = boardFilters.filter(filter => filter.dataSource === dsInfo.engineName);
+          // 최초 추천 필터
+          const firstFilter: Filter = dsFilters.find(filter => {
+            return 'recommended' === filter.ui.importanceType && 1 === filter.ui.filteringSeq;
+          });
 
-            if (firstFilter
-              && (firstFilter['valueList'] && 0 === firstFilter['valueList'].length)
-              && (firstFilter['intervals'] && 0 === firstFilter['intervals'].length)) {
-              // 필터의 값이 사전에 정의 안되어 있는 경우
+          if (firstFilter
+            && ((firstFilter['valueList'] && 0 === firstFilter['valueList'].length) || (firstFilter['intervals'] && 0 === firstFilter['intervals'].length))) {
+            // 필터의 값이 사전에 정의 안되어 있는 경우
 
-              const prevFilters: Filter[] = dsFilters.filter(item => item.ui.filteringSeq < firstFilter.ui.filteringSeq);
-              this.setRecommandedFilter(firstFilter, prevFilters, dsFilters, boardInfo).then(() => {
-                console.log('초기화 완료');
-                res2();
-              }).catch(() => rej2());
-            } else {
-              console.log('셋팅 되어 있음 or 값이 없음');
+            const prevFilters: Filter[] = dsFilters.filter(item => item.ui.filteringSeq < firstFilter.ui.filteringSeq);
+            this.setRecommandedFilter(firstFilter, prevFilters, dsFilters, boardInfo).then(() => {
+              console.log('초기화 완료');
               res2();
-            }
-          }));
-        }
+            }).catch(() => rej2());
+          } else {
+            console.log('셋팅 되어 있음 or 값이 없음');
+            res2();
+          }
+        }));
+        // }
       });
 
       Promise.all(promises).then(() => {
@@ -1036,6 +1044,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
    * @return {Promise<any>}
    */
   protected setRecommandedFilter(targetFilter: Filter, prevFilters: Filter[], dsFilters: Filter[], dashboard: Dashboard): Promise<any> {
+
     // candidate 서비스 요청
     return this.datasourceService.getCandidateForFilter(targetFilter, dashboard, prevFilters).then((result) => {
 
@@ -1063,7 +1072,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       prevFilters.push(targetFilter);
 
       // 다음 필터 처리
-      const nextFilter: Filter = dsFilters.find(item => item.ui.filteringSeq === targetFilter.ui.filteringSeq);
+      const nextFilter: Filter = dsFilters.find(item => item.ui.filteringSeq === (targetFilter.ui.filteringSeq + 1));
       if (nextFilter) {
         // 다음 필터가 있을 경우
         return this.setRecommandedFilter(nextFilter, prevFilters, dsFilters, dashboard);
@@ -1193,6 +1202,17 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
   } // function - getLayoutContent
 
   /**
+   * Destroy dashboard
+   */
+  public destroyDashboard() {
+    if (this._widgetComps && 0 < this._widgetComps.length) {
+      this._widgetComps.forEach(item => item.destroy());
+    }
+    (this._layoutObj) && (this._layoutObj.destroy());
+    this._layoutObj = null;
+  } // function - destroyDashboard
+
+  /**
    * 대시보드 설정
    * @param {Dashboard} boardInfo
    * @param {LayoutMode} mode
@@ -1217,10 +1237,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
             if (dataSource.some(item => DashboardUtil.isSameDataSource(boardDs, item))) {
               return true;
             } else {
-              const engineName:string = boardDs.engineName ? boardDs.engineName : boardDs.name;
-              if( boardInfo.configuration.filters ) {
+              const engineName: string = boardDs.engineName ? boardDs.engineName : boardDs.name;
+              if (boardInfo.configuration.filters) {
                 boardInfo.configuration.filters
-                  = boardInfo.configuration.filters.filter( item => item.dataSource !== engineName );
+                  = boardInfo.configuration.filters.filter(item => item.dataSource !== engineName);
               }
               this._removeDsEngineNames.push(engineName);
               return false;
@@ -1242,7 +1262,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           }
         }
 
-        boardInfo = DashboardUtil.convertSpecToUI( boardInfo );
+        boardInfo = DashboardUtil.convertSpecToUI(boardInfo);
       } // end of data migration
 
       // 글로벌 필터 셋팅
