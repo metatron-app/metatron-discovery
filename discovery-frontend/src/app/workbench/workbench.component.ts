@@ -2491,12 +2491,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // 시점상 탭 그려지기 이전에 취소한 경우 결과 탭을 생성
     if( isUndefined( this.datagridCurList[selectedGridTabNum] ) ){
       this.datagridCurList.push({name : this.textList[this.tempEditorSelectedTabNum].name + ' - ' + this.translateService.instant('msg.bench.ui.rslt') + (selectedGridTabNum + 1)});
+      this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
+      this.datagridCurList[selectedGridTabNum]['selected'] = true;
+      this.selectedGridTabNum = selectedGridTabNum;
     }
 
-    this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
-    this.datagridCurList[selectedGridTabNum]['selected'] = true;
-
-    this.selectedGridTabNum = selectedGridTabNum;
     this.isHiveLogCancel = false;
     this.isHiveLog = false;
     this.safelyDetectChanges();
