@@ -14,55 +14,8 @@
   -->
 
 <div class="ddp-edit-setting ddp-type" [class.ddp-selected]="isShowAdvancedSetting">
-  <a href="javascript:" class="ddp-fold-link" (click)="isShowAdvancedSetting = !isShowAdvancedSetting">{{'msg.storage.th.advanced.setting' | translate}}</a>
+  <a href="javascript:" class="ddp-fold-link" (click)="onClickSettingOption()">{{'msg.storage.th.advanced.setting' | translate}}</a>
   <div class="ddp-wrap-down">
-    <!-- job properties -->
-    <div class="ddp-wrap-edit2 ddp-type" *ngIf="createType === 'STAGING'">
-      <label class="ddp-label-type ddp-info-inline ddp-bold ">
-        {{'msg.storage.ui.dsource.create.job.properties' | translate}}
-        <!-- hover info -->
-        <div class="ddp-wrap-hover-info ddp-type">
-          <em class="ddp-icon-info3"></em>
-          <!-- popup -->
-          <div class="ddp-box-layout4 ddp-config">
-            <div class="ddp-data-title">
-              {{'msg.storage.ui.job.properties.description.title' | translate}}
-            </div>
-            <div class="ddp-data-det">
-              {{'msg.storage.ui.job.properties.description' | translate}}
-            </div>
-          </div>
-          <!-- //popup -->
-        </div>
-        <!-- //hover info -->
-      </label>
-      <div class="ddp-box-code">
-        <!-- list -->
-        <div class="ddp-clear ddp-list-code" *ngFor="let option of jobProperties; let i = index">
-          <!-- key -->
-          <div class="ddp-col-5">
-            <div class="ddp-txt-label" *ngIf="option.defaultOpt">{{option.key}}</div>
-            <input type="text" *ngIf="!option.defaultOpt" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.key' | translate}}"
-                   [(ngModel)]="option.key">
-          </div>
-          <!-- //key -->
-          <!-- value -->
-          <div class="ddp-col-7">
-            <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{option.ph || ('msg.storage.ph.config.value' | translate)}}"
-                   [(ngModel)]="option.value">
-          </div>
-          <!-- value -->
-          <!-- delete -->
-          <a href="javascript:" class="ddp-icon-close" *ngIf="!option.defaultOpt" (click)="onClickRemoveOption('jobProperties', i)"></a>
-          <!-- //delete -->
-        </div>
-        <!-- //list -->
-        <!-- add option -->
-        <a href="javascript:" class="ddp-btn-add" (click)="onClickAddOption('jobProperties')"><em class="ddp-icon-plus"></em> {{'msg.comm.btn.add' | translate}}</a>
-        <!-- //add option -->
-      </div>
-    </div>
-    <!-- //job properties -->
     <!-- Ingestion tuning config -->
     <div class="ddp-wrap-edit2 ddp-type">
       <label class="ddp-label-type ddp-info-inline ddp-bold ">
@@ -110,5 +63,52 @@
       </div>
     </div>
     <!-- //Ingestion tuning config -->
+    <!-- job properties -->
+    <div class="ddp-wrap-edit2 ddp-type" *ngIf="createType === 'STAGING'">
+      <label class="ddp-label-type ddp-info-inline ddp-bold ">
+        {{'msg.storage.ui.dsource.create.job.properties' | translate}}
+        <!-- hover info -->
+        <div class="ddp-wrap-hover-info ddp-type">
+          <em class="ddp-icon-info3"></em>
+          <!-- popup -->
+          <div class="ddp-box-layout4 ddp-config">
+            <div class="ddp-data-title">
+              {{'msg.storage.ui.job.properties.description.title' | translate}}
+            </div>
+            <div class="ddp-data-det">
+              {{'msg.storage.ui.job.properties.description' | translate}}
+            </div>
+          </div>
+          <!-- //popup -->
+        </div>
+        <!-- //hover info -->
+      </label>
+      <div class="ddp-box-code">
+        <!-- list -->
+        <div class="ddp-clear ddp-list-code" *ngFor="let option of jobProperties; let i = index">
+          <!-- key -->
+          <div class="ddp-col-5">
+            <div class="ddp-txt-label" *ngIf="option.defaultOpt">{{option.key}}</div>
+            <input type="text" *ngIf="!option.defaultOpt" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.config.key' | translate}}"
+                   [(ngModel)]="option.key">
+          </div>
+          <!-- //key -->
+          <!-- value -->
+          <div class="ddp-col-7">
+            <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{option.ph || ('msg.storage.ph.config.value' | translate)}}"
+                   [(ngModel)]="option.value">
+          </div>
+          <!-- value -->
+          <!-- delete -->
+          <a href="javascript:" class="ddp-icon-close" *ngIf="!option.defaultOpt" (click)="onClickRemoveOption('jobProperties', i)"></a>
+          <!-- //delete -->
+        </div>
+        <!-- //list -->
+        <!-- add option -->
+        <a href="javascript:" class="ddp-btn-add" (click)="onClickAddOption('jobProperties')"><em class="ddp-icon-plus"></em> {{'msg.comm.btn.add' | translate}}</a>
+        <!-- //add option -->
+      </div>
+    </div>
+    <!-- //job properties -->
   </div>
 </div>

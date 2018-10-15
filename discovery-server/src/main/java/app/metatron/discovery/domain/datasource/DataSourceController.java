@@ -76,9 +76,8 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionPredicate;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionProjections;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionRepository;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.engine.EngineLoadService;
 import app.metatron.discovery.domain.engine.EngineQueryService;
@@ -95,7 +94,7 @@ import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PR
 import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.FAILED;
 
 /**
- * Created by kyungtaak on 2016. 7. 22..
+ *
  */
 @RepositoryRestController
 public class DataSourceController {
@@ -124,9 +123,6 @@ public class DataSourceController {
   DataConnectionRepository dataConnectionRepository;
 
   @Autowired
-  IngestionOptionRepository ingestionOptionRepository;
-
-  @Autowired
   DataSourceService dataSourceService;
 
   @Autowired
@@ -134,6 +130,9 @@ public class DataSourceController {
 
   @Autowired
   EngineLoadService engineLoadService;
+
+  @Autowired
+  IngestionOptionService ingestionOptionService;
 
   @Autowired
   PagedResourcesAssembler pagedResourcesAssembler;
@@ -640,13 +639,11 @@ public class DataSourceController {
     IngestionOption.IngestionType ingestionEnumType = SearchParamValidator
         .enumUpperValue(IngestionOption.IngestionType.class, ingestionType, "ingestionType");
 
-    Iterable<IngestionOption> resultOptions = ingestionOptionRepository.findAll(
-        IngestionOptionPredicate.searchList(optionEnumType, ingestionEnumType)
-    );
+    List resultOptions = ingestionOptionService.findIngestionOptions(optionEnumType, ingestionEnumType);
 
     return ResponseEntity.ok(ProjectionUtils.toListResource(projectionFactory,
                                                             IngestionOptionProjections.DefaultProjection.class,
-                                                            Lists.newArrayList(resultOptions)));
+                                                            resultOptions));
   }
 
 

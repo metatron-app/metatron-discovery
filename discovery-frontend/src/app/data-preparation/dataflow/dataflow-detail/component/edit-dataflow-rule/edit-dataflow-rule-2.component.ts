@@ -254,13 +254,20 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public ngAfterViewInit() {
     this._split = [];
     this._split.push(Split(['.rule-left', '.rule-right'], {
-      sizes: [80, 20],
-      minSize: 300,
-    }));
+        sizes: [80, 20],
+        minSize: 300,
+        onDragEnd: (() => {
+          this._editRuleGridComp.resizeGrid();
+        })
+      })
+    );
     this._split.push(Split(['.rule-top', '.rule-bottom'], {
       direction: 'vertical',
       sizes: [70, 30],
       minSize: 280,
+      onDragEnd: (() => {
+        this._editRuleGridComp.resizeGrid();
+      })
     }));
     this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data)=> {
 

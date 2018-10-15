@@ -14,29 +14,11 @@
 
 package app.metatron.discovery.domain.engine;
 
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.exception.MetatronException;
-import app.metatron.discovery.common.fileloader.FileLoaderFactory;
-import app.metatron.discovery.common.fileloader.FileLoaderProperties;
-import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceIngetionException;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.*;
-import app.metatron.discovery.domain.datasource.ingestion.*;
-import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.datasource.realtime.KafkaClient;
-import app.metatron.discovery.domain.datasource.realtime.RealTimeProperties;
-import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
-import app.metatron.discovery.spec.druid.ingestion.*;
-import app.metatron.discovery.util.PolarisUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -54,12 +36,58 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.exception.MetatronException;
+import app.metatron.discovery.common.fileloader.FileLoaderFactory;
+import app.metatron.discovery.common.fileloader.FileLoaderProperties;
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceIngetionException;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveTableInformation;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnectionException;
+import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService;
+import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.realtime.KafkaClient;
+import app.metatron.discovery.domain.datasource.realtime.RealTimeProperties;
+import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
+import app.metatron.discovery.spec.druid.ingestion.BatchIndex;
+import app.metatron.discovery.spec.druid.ingestion.HadoopIndex;
+import app.metatron.discovery.spec.druid.ingestion.Index;
+import app.metatron.discovery.spec.druid.ingestion.IngestionSpec;
+import app.metatron.discovery.spec.druid.ingestion.IngestionSpecBuilder;
+import app.metatron.discovery.spec.druid.ingestion.KafkaRealTimeIndexBuilder;
+import app.metatron.discovery.spec.druid.ingestion.SupervisorIndex;
+import app.metatron.discovery.util.PolarisUtils;
+
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HDFS;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HIVE;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.REALTIME;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
-import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.*;
+import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.FAILED;
+import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.PASS;
+import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.RUNNING;
 
 /**
- * Created by kyungtaak on 2016. 6. 18..
+ *
  */
 @Component
 @Transactional(readOnly = true)
@@ -74,6 +102,9 @@ public class EngineIngestionService {
 
   @Autowired
   JdbcConnectionService jdbcConnectionService;
+
+  @Autowired
+  IngestionOptionService ingestionOptionService;
 
   @Autowired
   DruidEngineMetaRepository engineMetaRepository;
@@ -201,11 +232,16 @@ public class EngineIngestionService {
       mapSplitSize = (String) hdfsInfo.getTuningOptions().get("mapSplitSize");
     }
 
+    Map<String,Object> tuningOptions = ingestionOptionService.findTuningOptionMap(IngestionOption.IngestionType.HADOOP,
+                                                                                  hdfsInfo.getTuningOptions());
+    Map<String,Object> jobProperties = ingestionOptionService.findJobOptionMap(IngestionOption.IngestionType.HADOOP,
+                                                                                  hdfsInfo.getJobProperties());
+
     // Ingestion Task 생성
     IngestionSpec spec = new IngestionSpecBuilder()
         .dataSchema(dataSource)
         .hdfsIoConfig(hdfsInfo.getPaths(), hdfsInfo.isFindRecursive(), mapSplitSize)
-        .hdfsTuningConfig(hdfsInfo.getTuningOptions(), hdfsInfo.getJobProperties())
+        .hdfsTuningConfig(tuningOptions, jobProperties)
         .build();
 
     return doIngestion(dataSource.getId(), hdfsInfo, new HadoopIndex(spec));
@@ -240,11 +276,16 @@ public class EngineIngestionService {
       mapSplitSize = (String) hiveInfo.getTuningOptions().get("mapSplitSize");
     }
 
+    Map<String,Object> tuningOptions = ingestionOptionService.findTuningOptionMap(IngestionOption.IngestionType.HADOOP,
+                                                                                  hiveInfo.getTuningOptions());
+    Map<String,Object> jobProperties = ingestionOptionService.findJobOptionMap(IngestionOption.IngestionType.HADOOP,
+                                                                               hiveInfo.getJobProperties());
+
     // Ingestion Task 생성
     IngestionSpec spec = new IngestionSpecBuilder()
         .dataSchema(dataSource)
         .hiveIoConfig(hiveInfo.getSource(), metastoreUri, hiveInfo.getPartitions(), mapSplitSize)
-        .hiveTuningConfig(hiveInfo.getTuningOptions(), hiveInfo.getJobProperties())
+        .hiveTuningConfig(tuningOptions, jobProperties)
         .build();
 
     return doIngestion(dataSource.getId(), hiveInfo, new HadoopIndex(spec, hiveInfo.getContext()));
@@ -307,7 +348,8 @@ public class EngineIngestionService {
 
     IngestionSpec spec = new IngestionSpecBuilder()
         .dataSchema(dataSource)
-        .defaultBatchTuningConfig()
+        .batchTuningConfig(ingestionOptionService.findTuningOptionMap(IngestionOption.IngestionType.BATCH,
+                                                                      localFileInfo.getTuningOptions()))
         .localIoConfig(ingestionInfo.getBaseDir(), dataSource.getEngineName() + "-*.csv")
         .build();
 
@@ -352,7 +394,8 @@ public class EngineIngestionService {
     EngineProperties.IngestionInfo ingestionInfo = engineProperties.getIngestion();
     IngestionSpec spec = new IngestionSpecBuilder()
         .dataSchema(dataSource)
-        .defaultBatchTuningConfig()
+        .batchTuningConfig(ingestionOptionService.findTuningOptionMap(IngestionOption.IngestionType.BATCH,
+                                                                      jdbcInfo.getTuningOptions()))
         .localIoConfig(ingestionInfo.getBaseDir(), tempFile.getName())
         .build();
 
@@ -409,7 +452,8 @@ public class EngineIngestionService {
     EngineProperties.IngestionInfo ingestionInfo = engineProperties.getIngestion();
     IngestionSpec spec = new IngestionSpecBuilder()
         .dataSchema(dataSource)
-        .defaultBatchTuningConfig()
+        .batchTuningConfig(ingestionOptionService.findTuningOptionMap(IngestionOption.IngestionType.BATCH,
+                                                                      jdbcInfo.getTuningOptions()))
         .localIoConfig(ingestionInfo.getBaseDir(), tempFile.getName())
         .build();
 
