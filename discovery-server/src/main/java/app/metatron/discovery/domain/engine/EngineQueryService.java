@@ -178,7 +178,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       SearchQueryRequest sizeRequest = request.copyOf();
       final List<List<String>> groupingSets = Lists.newArrayList();
       dimFields.forEach(field ->
-        groupingSets.add(Lists.newArrayList(field.getColunm()))
+        groupingSets.add(Lists.newArrayList(field.getAlias()))
       );
       sizeRequest.setGroupingSets(groupingSets);
       sizeRequest.setResultFormat(new ObjectResultFormat());
@@ -196,18 +196,20 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
 
         // source 필드 지정
         app.metatron.discovery.domain.workbook.configurations.field.Field source = SerializationUtils.clone(fields.get(i));
+        String originalFieldName = source.getAlias();
         source.setAlias("source");
         newProjection.add(source);
 
-        newRequest.addUserDefinedFields(new ExpressionField("sourceField", "'" + source.getColunm() + "'", "dimension"));
+        newRequest.addUserDefinedFields(new ExpressionField("sourceField", "'" + originalFieldName + "'", "dimension"));
         newProjection.add(new DimensionField("sourceField", "sourceField", UserDefinedField.REF_NAME, null));
 
         // target 필드 지정
         app.metatron.discovery.domain.workbook.configurations.field.Field target = SerializationUtils.clone(fields.get(i + 1));
+        originalFieldName = target.getAlias();
         target.setAlias("target");
         newProjection.add(target);
 
-        newRequest.addUserDefinedFields(new ExpressionField("targetField", "'" + target.getColunm() + "'", "dimension"));
+        newRequest.addUserDefinedFields(new ExpressionField("targetField", "'" + originalFieldName + "'", "dimension"));
         newProjection.add(new DimensionField("targetField", "targetField", UserDefinedField.REF_NAME, null));
 
         if(BooleanUtils.isTrue(graphResultFormat.getUseLinkCount())) {

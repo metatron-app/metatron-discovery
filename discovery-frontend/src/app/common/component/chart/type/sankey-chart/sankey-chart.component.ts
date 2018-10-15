@@ -16,20 +16,26 @@
  * Created by Dolkkok on 2017. 7. 18..
  */
 
-import {AfterViewInit, Component, ElementRef, Injector, OnInit, OnDestroy, Output, EventEmitter} from '@angular/core';
-import {BaseChart, PivotTableInfo, ChartSelectInfo} from '../../base-chart';
-import {BaseOption} from "../../option/base-option";
+import { AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
+import { BaseChart, ChartSelectInfo, PivotTableInfo } from '../../base-chart';
+import { BaseOption } from '../../option/base-option';
 import {
-  ChartType, SymbolType, ShelveType, ShelveFieldType, CHART_STRING_DELIMITER, SeriesType, GraphLayoutType,
-  ChartColorList, ChartSelectMode, UIChartDataLabelDisplayType
+  CHART_STRING_DELIMITER,
+  ChartColorList,
+  ChartSelectMode,
+  ChartType,
+  GraphLayoutType,
+  SeriesType,
+  ShelveFieldType,
+  ShelveType,
+  UIChartDataLabelDisplayType
 } from '../../option/define/common';
-import {OptionGenerator} from '../../option/util/option-generator';
-import {Position} from '../../option/define/common';
-import {Pivot} from "../../../../../domain/workbook/configurations/pivot";
+import { OptionGenerator } from '../../option/util/option-generator';
+import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import * as _ from 'lodash';
 import { UIChartColorByDimension, UIChartFormat, UIChartFormatItem, UIOption } from '../../option/ui-option';
-import {FormatOptionConverter} from "../../option/converter/format-option-converter";
-import {LabelOptionConverter} from "../../option/converter/label-option-converter";
+import { FormatOptionConverter } from '../../option/converter/format-option-converter';
+import { LabelOptionConverter } from '../../option/converter/label-option-converter';
 import { Series } from '../../option/define/series';
 
 @Component({
@@ -402,7 +408,7 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
       let sumValue;
 
       // 첫번째에 위치한 값은 source에서 값을 더하기, 그이후에는 target에서 값을 찾아 더하기
-      if (0 == _.findIndex(this.pivot.columns, {name : node.field})) {
+      if (0 == _.findIndex(this.pivot.columns, {alias : node.field})) {
 
         sumValue = _.sumBy(_.filter(this.data.links, (data) => {
           // if (-1 !== data.source.indexOf(node.value)){
@@ -469,31 +475,31 @@ export class SankeyChartComponent extends BaseChart implements OnInit, OnDestroy
       if (!uiOption.toolTip.displayTypes) uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
 
       // UI 데이터 가공
-      let result: string = '';
+      let result: string[] = [];
 
+      let targetColumn;
+      // set source tooltip
       if( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.CATEGORY_NAME) ){
 
-        result = params.data.sourceValue + ' > ';
+        targetColumn = _.find(this.pivot.columns, {'alias' : params.data.sourceField});
+
+        result = FormatOptionConverter.getTooltipName([params.data.sourceValue], this.pivot.columns, result, true);
+      }
+      // set target tooltip
+      if ( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME) ) {
+
+        targetColumn = _.find(this.pivot.columns, {'alias' : params.data.targetField});
+
+        result = FormatOptionConverter.getTooltipName([params.data.targetValue], [targetColumn], result, true);
       }
       if ( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_VALUE) ) {
 
-        result = result + FormatOptionConverter.getFormatValue(params.value, format) + ' > ';
+        let name = this.pivot.aggregations[0].alias;
+
+        result.push(FormatOptionConverter.getTooltipValue(name, this.pivot.aggregations, format, params.value));
+
       }
-      if ( -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.NODE_NAME) ) {
-
-        result = result + params.data.targetValue;
-      }
-
-      return result;
-    }
-
-    const value = FormatOptionConverter.getFormatValue(params.data.value, format);
-
-    if( value && value.toUpperCase().indexOf('NAN') == -1 ) {
-      return params.data.sourceValue + " > " + params.data.targetValue + " : " + value;
-    }
-    else {
-      return params.data.name;
+      return result.join('<br/>');
     }
   }
 

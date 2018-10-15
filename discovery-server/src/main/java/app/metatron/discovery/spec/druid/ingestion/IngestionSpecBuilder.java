@@ -35,7 +35,7 @@ import app.metatron.discovery.spec.druid.ingestion.tuning.RealTimeTuningConfig;
 import app.metatron.discovery.spec.druid.ingestion.tuning.TuningConfig;
 
 /**
- * Created by kyungtaak on 2016. 7. 30..
+ *
  */
 public class IngestionSpecBuilder extends AbstractSpecBuilder {
 
@@ -50,23 +50,14 @@ public class IngestionSpecBuilder extends AbstractSpecBuilder {
     return this;
   }
 
-  public IngestionSpecBuilder defaultBatchTuningConfig() {
-
-    tuningConfig = BatchTuningConfig.defaultConfig();
-
-    return this;
-  }
-
-  public IngestionSpecBuilder defaultRealtimeTuningConfig() {
-
-    tuningConfig = RealTimeTuningConfig.defaultConfig();
+  public IngestionSpecBuilder batchTuningConfig(Map<String, Object> tuningProperties) {
+    tuningConfig = new BatchTuningConfig(tuningProperties);
 
     return this;
   }
 
-  public IngestionSpecBuilder defaultHiveTuningConfig() {
-
-    tuningConfig = HadoopTuningConfig.hiveDefaultConfig();
+  public IngestionSpecBuilder realTimeTuningConfig(Map<String, Object> tuningProperties) {
+    tuningConfig = new RealTimeTuningConfig(tuningProperties);
 
     return this;
   }
@@ -117,8 +108,8 @@ public class IngestionSpecBuilder extends AbstractSpecBuilder {
     firehose.setBaseDir(baseDir);
     firehose.setFilter(filter);
 
-//    RealTimeIoConfig config = new RealTimeIoConfig();
-//    config.setFirehose(firehose);
+    //    RealTimeIoConfig config = new RealTimeIoConfig();
+    //    config.setFirehose(firehose);
 
     BatchIoConfig config = new BatchIoConfig();
     config.setFirehose(firehose);
@@ -141,7 +132,7 @@ public class IngestionSpecBuilder extends AbstractSpecBuilder {
   public IngestionSpecBuilder hdfsIoConfig(List<String> paths, boolean findRecursive, String splitSize) {
 
     HadoopIoConfig hadoopIoConfig = new HadoopIoConfig();
-    if(fileFormat == null) {
+    if (fileFormat == null) {
       hadoopIoConfig.setInputSpec(new HadoopInputSpec(paths, findRecursive, splitSize));
     } else {
       hadoopIoConfig.setInputSpec(new HadoopInputSpec(paths, findRecursive, splitSize, fileFormat.getInputFormat()));

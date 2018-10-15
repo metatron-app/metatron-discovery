@@ -32,8 +32,77 @@ import { DashboardPageRelation } from '../../domain/dashboard/widget/page-widget
 import { BoardWidgetOptions, WidgetShowType } from '../../domain/dashboard/dashboard.globalOptions';
 import { StringUtil } from '../../common/util/string.util';
 import { CommonUtil } from '../../common/util/common.util';
+import { ChartType } from '../../common/component/chart/option/define/common';
 
 export class DashboardUtil {
+
+  /**
+   * 차트의 아이콘 클래스명 반환
+   * @return {string}
+   */
+  public static getChartIconClass(widget:PageWidget): string {
+    let iconClass: string = '';
+    switch (widget.configuration.chart.type) {
+      case ChartType.BAR :
+        iconClass = 'ddp-chart-bar';
+        break;
+      case ChartType.LINE :
+        iconClass = 'ddp-chart-linegraph';
+        break;
+      case ChartType.GRID :
+        iconClass = 'ddp-chart-table';
+        break;
+      case ChartType.SCATTER :
+        iconClass = 'ddp-chart-scatter';
+        break;
+      case ChartType.HEATMAP :
+        iconClass = 'ddp-chart-heatmap';
+        break;
+      case ChartType.PIE :
+        iconClass = 'ddp-chart-pie';
+        break;
+      case ChartType.MAP :
+        iconClass = 'ddp-chart-map';
+        break;
+      case ChartType.CONTROL :
+        iconClass = 'ddp-chart-cont';
+        break;
+      case ChartType.LABEL :
+        iconClass = 'ddp-chart-kpi';
+        break;
+      case ChartType.LABEL2 :
+        iconClass = 'ddp-chart-kpi';
+        break;
+      case ChartType.BOXPLOT :
+        iconClass = 'ddp-chart-boxplot';
+        break;
+      case ChartType.WATERFALL :
+        iconClass = 'ddp-chart-waterfall';
+        break;
+      case ChartType.WORDCLOUD :
+        iconClass = 'ddp-chart-wordcloud';
+        break;
+      case ChartType.COMBINE :
+        iconClass = 'ddp-chart-combo';
+        break;
+      case ChartType.TREEMAP :
+        iconClass = 'ddp-chart-treemap';
+        break;
+      case ChartType.RADAR :
+        iconClass = 'ddp-chart-radar';
+        break;
+      case ChartType.NETWORK :
+        iconClass = 'ddp-chart-network';
+        break;
+      case ChartType.SANKEY :
+        iconClass = 'ddp-chart-sankey';
+        break;
+      case ChartType.GAUGE :
+        iconClass = 'ddp-chart-bar';
+        break;
+    }
+    return iconClass;
+  } // function - getChartIconClass
 
   /**
    * 생성/수정 시 대시보드의 데이터소스와 데이터소스 연관 관계를 설정함
@@ -897,4 +966,4 @@ export class DashboardUtil {
     return boardInfo;
   } // function - convertSpecToUI
 
-} // class - DashboardModelService
+} // class - DashboardUtil

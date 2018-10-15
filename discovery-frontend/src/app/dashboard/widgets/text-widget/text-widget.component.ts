@@ -17,6 +17,7 @@ import { AbstractWidgetComponent } from '../abstract-widget.component';
 import { TextWidget } from '../../../domain/dashboard/widget/text-widget';
 import { DomSanitizer } from '@angular/platform-browser';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
+import * as $ from "jquery";
 
 @Component({
   selector: 'text-widget',
@@ -59,6 +60,7 @@ export class TextWidgetComponent extends AbstractWidgetComponent implements OnIn
   public ngOnInit() {
     super.ngOnInit();
     this.processStart();
+    this.isValidWidget = true;
     this.processEnd();
   }
 
@@ -67,7 +69,10 @@ export class TextWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public ngAfterViewInit() {
     super.ngAfterViewInit();
-    this.safelyDetectChanges();
+    setTimeout(() => {
+      this._setIsVisibleScrollbar();    // 스크롤바 표시 여부 설정
+      this.safelyDetectChanges();
+    }, 1000 );
   }
 
   /**
@@ -101,5 +106,14 @@ export class TextWidgetComponent extends AbstractWidgetComponent implements OnIn
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /**
+   * 스크롤바 표시 여부를 설정한다.
+   */
+  private _setIsVisibleScrollbar() {
+    const $container: JQuery = $(this.elementRef.nativeElement).find('.ddp-view-widget');
+    const $contents: JQuery = $container.children();
+    this.isVisibleScrollbar = ($container.height() < $contents.height());
+    this.safelyDetectChanges();
+  } // function - _setIsVisibleScrollbar
 
 }

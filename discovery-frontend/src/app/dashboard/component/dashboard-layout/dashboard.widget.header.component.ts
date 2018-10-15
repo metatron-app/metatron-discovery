@@ -114,9 +114,11 @@ export class DashboardWidgetHeaderComponent extends AbstractComponent implements
         );
 
         (widgetDataSource) && ( this.isValidWidget = true );
+      } else {
+        this.isValidWidget = true;
       }
 
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
     }, 200);
   }
 

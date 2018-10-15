@@ -391,7 +391,7 @@
       <div class="ddp-wrap-data-none">
         <div class="ddp-ui-data-none">
           <div class="ddp-txt-none">
-            <em class="{{getChartIconClass()}} ddp-error"></em>
+            <em class="{{boardUtil.getChartIconClass(widget)}} ddp-error"></em>
             <span class="ddp-data-name">{{widget.name}}</span>
             <span class="ddp-txt-det" [innerHTML]="'msg.board.ui.invalid-pivot' | translate"></span>
           </div>
@@ -407,7 +407,7 @@
       <div class="ddp-wrap-data-none">
         <div class="ddp-ui-data-none">
           <div class="ddp-txt-none">
-            <em class="{{getChartIconClass()}}"></em>
+            <em class="{{boardUtil.getChartIconClass(widget)}}"></em>
             <span class="ddp-data-name">{{widget.name}}</span>
             <span class="ddp-txt-det">
               {{'msg.page.ui.no.data.show' | translate}}
@@ -425,7 +425,7 @@
       <div class="ddp-wrap-data-none">
         <div class="ddp-ui-data-none">
           <div class="ddp-txt-none">
-            <em class="{{getChartIconClass()}} ddp-error"></em>
+            <em class="{{boardUtil.getChartIconClass(widget)}} ddp-error"></em>
             <span class="ddp-data-name">{{widget.name}}</span>
             <span class="ddp-txt-det">{{ 'msg.page.ui.no.data.error' | translate }}</span>
           </div>

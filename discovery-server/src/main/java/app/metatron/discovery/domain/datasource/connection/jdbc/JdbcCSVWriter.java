@@ -17,22 +17,17 @@ package app.metatron.discovery.domain.datasource.connection.jdbc;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.supercsv.io.CsvResultSetWriter;
 import org.supercsv.io.ICsvResultSetWriter;
 import org.supercsv.prefs.CsvPreference;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.Writer;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.sql.DataSource;
 
 public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWriter {
 
@@ -170,9 +165,11 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
 
     Statement stmt = null;
     ResultSet rs = null;
+    Connection connection = null;
 
     try {
-      stmt = dataSource.getConnection().createStatement();
+      connection = dataSource.getConnection();
+      stmt = connection.createStatement();
 
       if (fetchSize == 0) {
         fetchSize = MAX_FETCH_SIZE;
@@ -208,23 +205,15 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
       } catch (IOException e) {
         // swallow exception
       }
-      closeConnection(dataSource, rs, stmt);
+      closeConnection(connection, stmt, rs);
     }
 
     return fileName;
   }
 
-  private void closeConnection(DataSource dataSource, ResultSet rs, Statement stmt) {
-    try {
-      if(dataSource instanceof SingleConnectionDataSource){
-        JdbcUtils.closeResultSet(rs);
-      } else {
-        JdbcUtils.closeResultSet(rs);
-        JdbcUtils.closeStatement(stmt);
-        JdbcUtils.closeConnection(dataSource.getConnection());
-      }
-    } catch (SQLException e) {
-      LOGGER.warn("Fail to Close connection.");
-    }
+  private void closeConnection(Connection connection, Statement stmt, ResultSet rs) {
+    JdbcUtils.closeResultSet(rs);
+    JdbcUtils.closeStatement(stmt);
+    JdbcUtils.closeConnection(connection);
   }
 }

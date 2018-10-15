@@ -14,18 +14,13 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.TestUtils;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.datasource.connection.jdbc.*;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Maps;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.joda.time.DateTime;
@@ -39,6 +34,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.TestUtils;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.datasource.connection.jdbc.H2Connection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.OracleConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.PhoenixConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.PostgresqlConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.PrestoConnection;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
@@ -291,35 +300,6 @@ import static org.hamcrest.Matchers.hasSize;
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void checkHawqConnection() throws JsonProcessingException {
-
-    HawqConnection connection = new HawqConnection();
-    connection.setHostname("exntu.kr");
-    connection.setPort(42432);
-    connection.setDatabase("mytest");
-    connection.setUsername("gpadmin");
-    connection.setPassword("gpadmin");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
-    .when()
-      .post("/api/connections/query/check").
-    then()
-      .statusCode(HttpStatus.SC_OK)
-//      .body("name", is(workspace1.getName()))
-    .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void checkMysqlConnection() throws JsonProcessingException {
 
     MySQLConnection connection = new MySQLConnection();
@@ -339,35 +319,6 @@ import static org.hamcrest.Matchers.hasSize;
       .contentType(ContentType.JSON)
       .body(request)
             .log().all()
-    .when()
-      .post("/api/connections/query/check").
-    then()
-      .statusCode(HttpStatus.SC_OK)
-//      .body("name", is(workspace1.getName()))
-    .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void checkPhoenixConnection() throws JsonProcessingException {
-
-    PhoenixConnection connection = new PhoenixConnection();
-    connection.setHostname("localhost");
-    connection.setPort(2181);
-    connection.setDatabase("hbase");
-    connection.setUsername("root");
-    connection.setPassword("root");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
     .when()
       .post("/api/connections/query/check").
     then()
@@ -500,7 +451,7 @@ import static org.hamcrest.Matchers.hasSize;
 
     MySQLConnection connection = new MySQLConnection();
     connection.setName("test");
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setPort(3306);
     connection.setDatabase("sample");
     connection.setUsername("sample");
@@ -545,7 +496,7 @@ import static org.hamcrest.Matchers.hasSize;
 
     MySQLConnection connection = new MySQLConnection();
     connection.setName("test");
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setPort(3306);
     connection.setDatabase("sample");
     connection.setUsername("sample");
@@ -890,43 +841,12 @@ import static org.hamcrest.Matchers.hasSize;
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void queryPhoenixBySelectTableCase() throws JsonProcessingException {
-
-    PhoenixConnection connection = new PhoenixConnection();
-    connection.setHostname("localhost");
-    connection.setPort(2181);
-    connection.setDatabase("hbase");
-    connection.setUsername("polaris");
-    connection.setPassword("polaris");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-    request.setType(JdbcIngestionInfo.DataType.QUERY);
-    request.setQuery("select * from sales");
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
-    .when()
-      .post("/api/connections/query/data").
-    then()
-//      .statusCode(HttpStatus.SC_OK)
-//      .body("name", is(workspace1.getName()))
-    .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void checkConnectionForPostgresql() throws JsonProcessingException {
 
     PostgresqlConnection connection = new PostgresqlConnection();
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setPort(5432);
-    connection.setDatabase("ibk_poc");
+    connection.setDatabase("etl");
     connection.setUsername("etl");
     connection.setPassword("metatron$$00");
 
@@ -953,9 +873,9 @@ import static org.hamcrest.Matchers.hasSize;
   public void showSchemaForPostgresql() throws JsonProcessingException {
 
     PostgresqlConnection connection = new PostgresqlConnection();
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setPort(5432);
-    connection.setDatabase("ibk_poc");
+    connection.setDatabase("etl");
     connection.setUsername("etl");
     connection.setPassword("metatron$$00");
 
@@ -982,9 +902,9 @@ import static org.hamcrest.Matchers.hasSize;
   public void showTablesForPostgresql() throws JsonProcessingException {
 
     PostgresqlConnection connection = new PostgresqlConnection();
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setPort(5432);
-    connection.setDatabase("ibk_poc");
+    connection.setDatabase("etl");
     connection.setUsername("etl");
     connection.setPassword("metatron$$00");
 
@@ -1012,9 +932,9 @@ import static org.hamcrest.Matchers.hasSize;
   public void queryBySelectTableForPostgresql() throws JsonProcessingException {
 
     PostgresqlConnection connection = new PostgresqlConnection();
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setPort(5432);
-    connection.setDatabase("ibk_poc");
+    connection.setDatabase("etl");
     connection.setUsername("etl");
     connection.setPassword("metatron$$00");
 
@@ -1041,298 +961,10 @@ import static org.hamcrest.Matchers.hasSize;
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void checkConnectionForMssql() throws JsonProcessingException {
-
-    MssqlConnection connection = new MssqlConnection();
-    connection.setHostname("metatron-poc-sql.database.windows.net");
-    connection.setPort(1433);
-//    connection.setDatabase("metatron-poc-sql");
-    connection.setUsername("kyungtaak");
-    connection.setPassword("imsi$$00");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
-    .when()
-      .post("/api/connections/query/check").
-    then()
-      .statusCode(HttpStatus.SC_OK)
-//      .body("name", is(workspace1.getName()))
-    .log().all();
-    // @formatter:on
-  }
-
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void showDatabaseForMssql() throws JsonProcessingException {
-
-    MssqlConnection connection = new MssqlConnection();
-    connection.setHostname("metatron-poc-sql.database.windows.net");
-    connection.setPort(1433);
-//    connection.setDatabase("metatron-poc-sql");
-    connection.setUsername("kyungtaak");
-    connection.setPassword("imsi$$00");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
-    .when()
-      .post("/api/connections/query/databases").
-    then()
-      .statusCode(HttpStatus.SC_OK)
-//      .body("name", is(workspace1.getName()))
-    .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void showSchemaForMssql() throws JsonProcessingException {
-
-    MssqlConnection connection = new MssqlConnection();
-    connection.setHostname("metatron-poc-sql.database.windows.net");
-    connection.setPort(1433);
-    connection.setDatabase("metatron-poc-sql");
-    connection.setUsername("kyungtaak");
-    connection.setPassword("imsi$$00");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
-    .when()
-      .post("/api/connections/query/schemas").
-    then()
-      .statusCode(HttpStatus.SC_OK)
-//      .body("name", is(workspace1.getName()))
-    .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void showTablesForMssql() throws JsonProcessingException {
-
-    MssqlConnection connection = new MssqlConnection();
-    connection.setHostname("metatron-poc-sql.database.windows.net");
-    connection.setPort(1433);
-    connection.setDatabase("metatron-poc-sql");
-    connection.setUsername("kyungtaak");
-    connection.setPassword("imsi$$00");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
-    .when()
-      .post("/api/connections/query/tables").
-    then()
-      .statusCode(HttpStatus.SC_OK)
-//      .body("name", is(workspace1.getName()))
-    .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void queryBySelectTableForMssql() throws JsonProcessingException {
-
-    MssqlConnection connection = new MssqlConnection();
-    connection.setHostname("metatron-poc-sql.database.windows.net");
-    connection.setPort(1433);
-    connection.setDatabase("metatron-poc-sql");
-    connection.setUsername("kyungtaak");
-    connection.setPassword("imsi$$00");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-    request.setType(JdbcIngestionInfo.DataType.TABLE);
-    request.setDatabase("dbo");
-    request.setQuery("product");
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
-    .when()
-      .post("/api/connections/query/data").
-    then()
-//      .statusCode(HttpStatus.SC_OK)
-//      .body("name", is(workspace1.getName()))
-    .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void checkConnectionForOracle() throws JsonProcessingException {
-
-//    OracleConnection connection = new OracleConnection();
-//    connection.setHostname("piggy-g03-04");
-//    connection.setPort(1521);
-//    connection.setSid("ORCL");
-//    connection.setUsername("fdc");
-//    connection.setPassword("fdc");
-
-    OracleConnection connection = new OracleConnection();
-    connection.setHostname("ora11.cof5lvzznx9y.ap-northeast-2.rds.amazonaws.com");
-    connection.setPort(1521);
-    connection.setSid("ora11");
-    connection.setUsername("metatron");
-    connection.setPassword("metatron");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
-    .when()
-      .post("/api/connections/query/check").
-    then()
-      .statusCode(HttpStatus.SC_OK)
-    .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void showSchemasForOracle() throws JsonProcessingException {
-
-//    OracleConnection connection = new OracleConnection();
-//    connection.setHostname("piggy-g03-04");
-//    connection.setPort(1521);
-//    connection.setSid("ORCL");
-//    connection.setUsername("fdc");
-//    connection.setPassword("fdc");
-
-    OracleConnection connection = new OracleConnection();
-    connection.setHostname("ora11.cof5lvzznx9y.ap-northeast-2.rds.amazonaws.com");
-    connection.setPort(1521);
-    connection.setSid("ora11");
-    connection.setUsername("metatron");
-    connection.setPassword("metatron");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
-    .when()
-      .post("/api/connections/query/schemas").
-    then()
-//      .statusCode(HttpStatus.SC_OK)
-//      .body("name", is(workspace1.getName()))
-    .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void showTablesForOracle() throws JsonProcessingException {
-
-//    OracleConnection connection = new OracleConnection();
-//    connection.setHostname("piggy-g03-04");
-//    connection.setPort(1521);
-//    connection.setSid("ORCL");
-//    connection.setUsername("fdc");
-//    connection.setPassword("fdc");
-
-    OracleConnection connection = new OracleConnection();
-    connection.setHostname("ora11.cof5lvzznx9y.ap-northeast-2.rds.amazonaws.com");
-    connection.setPort(1521);
-    connection.setSid("ora11");
-    connection.setUsername("metatron");
-    connection.setPassword("metatron");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-    request.setDatabase(null);
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
-    .when()
-      .post("/api/connections/query/tables").
-    then()
-//      .statusCode(HttpStatus.SC_OK)
-//      .body("name", is(workspace1.getName()))
-    .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void queryOracleBySelectTableCase1() throws JsonProcessingException {
-
-    OracleConnection connection = new OracleConnection();
-    connection.setHostname("piggy-g03-04");
-    connection.setPort(1521);
-    connection.setSid("ORCL");
-    connection.setUsername("fdc");
-    connection.setPassword("fdc");
-
-    ConnectionRequest request = new ConnectionRequest();
-    request.setConnection(connection);
-    request.setType(JdbcIngestionInfo.DataType.TABLE);
-    request.setQuery("sales");
-
-    // @formatter:off
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-      .body(request)
-    .when()
-      .post("/api/connections/query/data").
-    then()
-//      .statusCode(HttpStatus.SC_OK)
-//      .body("name", is(workspace1.getName()))
-    .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void checkConnectionForHive() throws JsonProcessingException {
 
     HiveConnection connection = new HiveConnection();
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setPort(10000);
     connection.setUsername("hive");
     connection.setPassword("hive");
@@ -1362,7 +994,7 @@ import static org.hamcrest.Matchers.hasSize;
   public void showSchemasForHive() throws JsonProcessingException {
 
     HiveConnection connection = new HiveConnection();
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setPort(10000);
     connection.setUsername("hive");
     connection.setPassword("hive");
@@ -1391,7 +1023,7 @@ import static org.hamcrest.Matchers.hasSize;
   public void showTablesForHive() throws JsonProcessingException {
 
     HiveConnection connection = new HiveConnection();
-    connection.setHostname("metatron-poc-h04");
+    connection.setHostname("localhost");
     connection.setPort(10000);
     connection.setUsername("hive");
     connection.setPassword("hive");
@@ -1420,7 +1052,7 @@ import static org.hamcrest.Matchers.hasSize;
   public void queryHiveBySelectTableCase1() throws JsonProcessingException {
 
     HiveConnection connection = new HiveConnection();
-    connection.setHostname("metatron-poc-h03");
+    connection.setHostname("localhost");
     connection.setPort(10000);
     connection.setUsername("hive");
     connection.setPassword("hive");
@@ -1874,8 +1506,8 @@ import static org.hamcrest.Matchers.hasSize;
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
   public void createWorkbenchConnection() throws JsonProcessingException {
     HiveConnection connection = new HiveConnection();
-    connection.setName("Hive-POC-For-Workbench");
-    connection.setHostname("metatron-poc-h04");
+    connection.setName("Hive-For-Workbench");
+    connection.setHostname("localhost");
     connection.setPort(10000);
     connection.setUsername("hive");
     connection.setPassword("hive");
@@ -2039,7 +1671,7 @@ import static org.hamcrest.Matchers.hasSize;
   public void searchHiveColumns() throws JsonProcessingException {
 
     //Path Variable
-    String connectionId = "hive-azure";
+    String connectionId = "hive-connection";
     String databaseName = "default";
     String tableName = "sales";
 
@@ -2133,38 +1765,6 @@ import static org.hamcrest.Matchers.hasSize;
 
     String connectionId = "presto-connection";
     String databaseName = "def";
-
-    // @formatter:off
-    Response resp =
-            given()
-                    .auth().oauth2(oauth_token)
-                    .accept(ContentType.JSON)
-                    .contentType(ContentType.JSON)
-                    .param("databaseName", databaseName)
-//                    .param("size", 10)
-//                    .param("page", 1)
-                    .when()
-                    .get("/api/connections/{connectionId}/databases", connectionId)
-                    .then()
-                    .log().all()
-                    .statusCode(HttpStatus.SC_OK)
-                    .extract().response()
-            ;
-    // @formatter:on
-    List<String> databaseList = from(resp.asString()).getList("databases", String.class);
-    for(String database : databaseList){
-      System.out.println(database);
-      Assert.isTrue(StringUtils.containsIgnoreCase(database, databaseName));
-    }
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  @Sql({"/sql/test_dataconnection.sql"})
-  public void searchOracleDatabase() throws JsonProcessingException {
-
-    String connectionId = "oracle-connection";
-    String databaseName = "sys";
 
     // @formatter:off
     Response resp =

@@ -34,6 +34,7 @@ import { Dataflow } from '../../../domain/data-preparation/dataflow';
 import { CreateSnapshotPopup } from '../../component/create-snapshot-popup.component';
 import { SnapshotLoadingComponent } from '../../component/snapshot-loading.component';
 import { DataSnapshotService } from '../../data-snapshot/service/data-snapshot.service';
+import {PreparationCommonUtil} from "../../util/preparation-common.util";
 declare let moment: any;
 
 @Component({
@@ -173,12 +174,12 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    */
   public confirmDelete(event, dataset) {
 
-      event.stopPropagation();
-      const modal = new Modal();
-      modal.name = this.translateService.instant('msg.comm.ui.del.description');
-      modal.description = this.translateService.instant('msg.dp.alert.ds.del.sub.description');
-      this.selectedDatasetId = dataset.dsId;
-      this.deleteModalComponent.init(modal);
+    event.stopPropagation();
+    const modal = new Modal();
+    modal.name = this.translateService.instant('msg.comm.ui.del.description');
+    modal.description = this.translateService.instant('msg.dp.alert.ds.del.sub.description');
+    this.selectedDatasetId = dataset.dsId;
+    this.deleteModalComponent.init(modal);
 
   } // function - confirmDelete
 
@@ -240,9 +241,9 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         this._getPreviewData();
       })
       .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
   } // function - updateDataset
 
@@ -374,7 +375,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   public get getTableOrSql() {
     if( this.dataset['importType'] && this.dataset['importType']===ImportType.FILE ) {
-     return null;
+      return null;
     }
 
     if( this.dataset['rsType'] && this.dataset['rsType']===RsType.TABLE ) {
@@ -401,9 +402,9 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
     let today = moment();
     let param = new Dataflow();
-      param.datasets = [this.dataset['_links'].self.href];
-      param.dfName = `${this.dataset.dsName}_${today.format('MM')}${today.format('DD')}_${today.format('HH')}${today.format('mm')}`  ;
-      this.loadingShow();
+    param.datasets = [this.dataset['_links'].self.href];
+    param.dfName = `${this.dataset.dsName}_${today.format('MM')}${today.format('DD')}_${today.format('HH')}${today.format('mm')}`  ;
+    this.loadingShow();
     this.dataflowService.createDataflow(param).then((result) => {
       this.loadingHide();
       if (result.dfId) {
@@ -502,32 +503,32 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
         })
           .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+            this.loadingHide();
+            let prep_error = this.dataprepExceptionHandler(error);
+            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
           });
       } else {
         if (result.gridResponse) {
-            this.importedDatasetColumn = result.gridResponse.colCnt;
-            const gridData = this._getGridDataFromGridResponse(result.gridResponse);
-            this.getDatasetInformationList(this.dataset);
-            this._updateGrid(gridData);
+          this.importedDatasetColumn = result.gridResponse.colCnt;
+          const gridData = this._getGridDataFromGridResponse(result.gridResponse);
+          this.getDatasetInformationList(this.dataset);
+          this._updateGrid(gridData);
           this.loadingHide();
         } else {
-            this.datasetService.getImportedPreviewReload(this.dataset.dsId).then((preview: any) => {
-              if(!isUndefined(preview['gridResponse'])) {
-                result.gridResponse = preview['gridResponse'];
-                this.importedDatasetColumn = result.gridResponse.colCnt;
-                const gridData = this._getGridDataFromGridResponse(result.gridResponse);
-                this.getDatasetInformationList(this.dataset);
-                this._updateGrid(gridData);
-                this.loadingHide();
-              }
-            }).catch((error) => {
+          this.datasetService.getImportedPreviewReload(this.dataset.dsId).then((preview: any) => {
+            if(!isUndefined(preview['gridResponse'])) {
+              result.gridResponse = preview['gridResponse'];
+              this.importedDatasetColumn = result.gridResponse.colCnt;
+              const gridData = this._getGridDataFromGridResponse(result.gridResponse);
+              this.getDatasetInformationList(this.dataset);
+              this._updateGrid(gridData);
               this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-            });
+            }
+          }).catch((error) => {
+            this.loadingHide();
+            let prep_error = this.dataprepExceptionHandler(error);
+            PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+          });
         }
       }
     })
@@ -587,22 +588,26 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       return;
     }
 
-    // Row 생성 및 컬럼별 최대 길이 측정
-    if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
-      rows = rows.map((row: any, idx: number) => {
+    const maxLength = 500;
+    if (rows.length > 0) {
+      rows.forEach((row: any, idx: number) => {
         // 컬럼 길이 측정
         fields.forEach((field: Field) => {
-          if(field.type === 'ARRAY' ||field.type === 'MAP') {
-            row[field.name] = JSON.stringify(row[field.name])
+          let colWidth: number = 0;
+          if (typeof row[field.name] === 'string') {
+            colWidth = Math.floor((row[field.name]).length * 12);
           }
-          const colWidth: number = pixelWidth(row[field.name], { size: 12 });
-          if (!maxDataLen[field.name] || ( maxDataLen[field.name] < colWidth )) {
-            maxDataLen[field.name] = colWidth;
+          if (!maxDataLen[field.name] || (maxDataLen[field.name] < colWidth)) {
+            if (colWidth > 500) {
+              maxDataLen[field.name] = maxLength;
+            } else {
+              maxDataLen[field.name] = colWidth;
+            }
           }
         });
         // row id 설정
-        row.id = idx;
-        return row;
+        (row.hasOwnProperty('id')) || (row.id = idx);
+
       });
     }
 
@@ -626,22 +631,15 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         .Unselectable(true)
         .Sortable(false)
         .ColumnType(field.type)
-        .Formatter((function (scope) {
-          return function ( row, cell, value, columnDef ) {
-            // if (columnDef.columnType === 'TIMESTAMP') {
-            //   let strFormat:string = scope.dataset.gridResponse.colDescs[cell]['timestampStyle'];
-            //   strFormat = strFormat.replace( /y/g, 'Y' ).replace( /d/g, 'DD' ).replace( /'/g, '' );
-            //   value = moment(value).format(strFormat);
-            // }
-
-            if (isNull(value)) {
-              return '<div style=\'position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px; font-style: italic ; color:#b8bac2;\'>' + '(null)' + '</div>';
-            } else {
-              return value;
-            }
-          };
-        })(this))
-        .build();
+        .Formatter(( row, cell, value, columnDef ) => {
+          const colDescs = (this.dataset.gridResponse && this.dataset.gridResponse.colDescs) ? this.dataset.gridResponse.colDescs[cell] : {};
+          value = PreparationCommonUtil.setFieldFormatter(value, columnDef.columnType, colDescs);
+          if (isNull(value)) {
+            return '<div style=\'position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px; font-style: italic ; color:#b8bac2;\'>' + '(null)' + '</div>';
+          } else {
+            return value;
+          }
+        }).build();
     });
 
     setTimeout(() => {

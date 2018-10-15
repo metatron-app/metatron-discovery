@@ -14,34 +14,15 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.TestUtils;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.datasource.connection.jdbc.HawqConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
-import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.*;
-import app.metatron.discovery.domain.datasource.ingestion.file.*;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
-import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
-import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
-import app.metatron.discovery.util.JsonPatch;
-import app.metatron.discovery.util.PolarisUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,13 +48,53 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.TestUtils;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
+import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
+import app.metatron.discovery.domain.datasource.ingestion.BatchPeriod;
+import app.metatron.discovery.domain.datasource.ingestion.DiscardRule;
+import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.ReplaceRule;
+import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
+import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.util.JsonPatch;
+import app.metatron.discovery.util.PolarisUtils;
+
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK;
 import static app.metatron.discovery.domain.datasource.DataSource.DataSourceType.MASTER;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.*;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.DAY;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.HOUR;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.MONTH;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.SECOND;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HDFS;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HIVE;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.*;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.REALTIME;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.DIMENSION;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.MEASURE;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -545,62 +566,6 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     connRes.then()
 //      .statusCode(HttpStatus.SC_OK)
     .log().all();
-    // @formatter:on
-  }
-
-  @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-  public void findConnectableDataSourceByWorkspaceId() throws JsonProcessingException {
-
-    // connection 생성
-    HawqConnection connection1 = new HawqConnection();
-    connection1.setDatabase("gpadmin");
-    connection1.setHostname("exntu.kr");
-    connection1.setName("Test connection");
-    connection1.setUsername("gpadmin");
-    connection1.setPassword("gpadmin");
-    connection1.setPort(42432);
-
-    // @formatter:off
-    // connection 생성
-    Response addResponse =
-    given()
-      .auth().oauth2(oauth_token)
-      .body(GlobalObjectMapper.writeValueAsString(connection1))
-      .contentType(ContentType.JSON)
-    .when()
-      .post("api/connections");
-
-    String connectionId = from(addResponse.asString()).get("id");
-    // @formatter:on
-
-    // ds 생성
-    DataSource dataSource1 = new DataSourceBuilder()
-            .name("Published datasource")
-            .type(MASTER)
-            .ownerId("kyungtaak@sk.com")
-            .published(true)
-            .build();
-
-
-    // @formatter:off
-    // 퍼블릭 데이터소스 생성
-    given()
-      .auth().oauth2(oauth_token)
-      .body(GlobalObjectMapper.writeValueAsString(dataSource1))
-      .contentType(ContentType.JSON)
-    .when()
-      .post("/api/datasources");
-
-    // 조회
-    given()
-      .auth().oauth2(oauth_token)
-      .accept(ContentType.JSON)
-      .contentType(ContentType.JSON)
-    .when()
-      .get("/api/datasources/search/connectable?workspaceId=ws-02")
-    .then()
-      .log().all();
     // @formatter:on
   }
 
@@ -1396,7 +1361,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     /*
 
     {
-   "type":"index_hynix",
+   "type":"index_hadoop",
    "spec":{
       "dataSchema":{
          "dataSource":"hive_ingestion_csv_none_partition_ijmha",
@@ -1469,7 +1434,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
          "inputSpec":{
             "type":"hive",
             "source":"default.sample_ingestion_types",
-            "metastoreUri":"thrift://metatron-poc-h03:9083"
+            "metastoreUri":"thrift://localhost:9083"
          }
       },
       "tuningConfig":{
@@ -1566,7 +1531,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     /*
 
     {
-   "type":"index_hynix",
+   "type":"index_hadoop",
    "spec":{
       "dataSchema":{
          "dataSource":"hive_ingestion_orc_none_partition_ecvof",
@@ -1633,7 +1598,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
          "inputSpec":{
             "type":"hive",
             "source":"default.sample_ingestion_types_orc",
-            "metastoreUri":"thrift://metatron-poc-h03:9083"
+            "metastoreUri":"thrift://localhost:9083"
          }
       },
       "tuningConfig":{
@@ -1775,7 +1740,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // 사전에 HDFS 경로에 파일 위치
     String sourceTable = "default.sample_ingestion_orc";
-//    String metastoreUri = "thrift://metatron-poc-h03:9083";
+//    String metastoreUri = "thrift://localhost:9083";
 //    String typeString = "struct<time:date,d:string,sd:string,m1:double,m2:double>";
 
     DataSource dataSource = new DataSource();

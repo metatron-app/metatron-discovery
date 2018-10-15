@@ -419,7 +419,8 @@ export class FilterUtil {
       case TimeUnit.DAY:
         return moment(date).format('YYYY-MM-DD');
       case TimeUnit.WEEK:
-        return moment(date).format('YYYY-WW');
+        // return moment(date).format('YYYY-WW');
+        return (<string>date);
       case TimeUnit.MONTH:
         return moment(date).format('YYYY-MM');
       case TimeUnit.QUARTER:
@@ -652,4 +653,54 @@ export class FilterUtil {
   } // function - getTimeListFilter
 
 
+  static setParameterFilterValue(filter: Filter, key: string, value: any): void {
+    if (filter.type === 'include') {
+      const inclusionFilter: InclusionFilter = <InclusionFilter>filter;
+      if (Array.isArray(value)) {
+        inclusionFilter.valueList = value;
+      } else {
+        inclusionFilter.valueList = [value];
+      }
+    } else if (filter.type === "bound") {
+      const boundFilter: BoundFilter = <BoundFilter>filter;
+      const paramValues: string[] = value.split(",");
+      if (paramValues.length === 2) {
+        const min = Number(paramValues[0]);
+        const max = Number(paramValues[1]);
+        if (!isNaN(min) && !isNaN(max)) {
+          boundFilter.min = min;
+          boundFilter.max = max;
+          boundFilter.minValue = min;
+          boundFilter.maxValue = max;
+        }
+      }
+    } else if (filter.type === "time_range") {
+      const timeRangeFilter: TimeRangeFilter = <TimeRangeFilter>filter;
+      if (Array.isArray(value)) {
+        timeRangeFilter.intervals = value;
+      } else {
+        timeRangeFilter.intervals = [value];
+      }
+    } else if (filter.type === "time_relative") {
+      const timeRelativeFilter: TimeRelativeFilter = <TimeRelativeFilter>filter;
+      const valueAttributes: string[] = value.split(",");
+      valueAttributes.forEach(attr => {
+        const keyValue = attr.split(":");
+        if (keyValue[0] === "tense") {
+          timeRelativeFilter.tense = TimeRelativeTense[keyValue[1]];
+        } else if (keyValue[0] === "relTimeUnit") {
+          timeRelativeFilter.relTimeUnit = TimeUnit[keyValue[1]];
+        } else if (keyValue[0] === 'value') {
+          timeRelativeFilter.value = +keyValue[1];
+        }
+      });
+    } else if (filter.type === "time_list") {
+      const timeListFilter: TimeListFilter = <TimeListFilter>filter;
+      if (Array.isArray(value)) {
+        timeListFilter.valueList = value;
+      } else {
+        timeListFilter.valueList = [value];
+      }
+    }
+  }
 }

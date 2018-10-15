@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.PrepProperties;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -28,6 +29,7 @@ import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -44,8 +46,8 @@ import java.util.concurrent.TimeoutException;
 public class DataFrameService {
   private static Logger LOGGER = LoggerFactory.getLogger(DataFrame.class);
 
-  @Value("${polaris.dataprep.sampling.cores:0}")
-  private int cores;
+  @Autowired
+  PrepProperties prepProperties;
 
   static final int hardRowLimit = 100 * 10000;
 
@@ -85,8 +87,10 @@ public class DataFrameService {
     }
   }
 
-  public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slaveDfs,
-                             int limitRows, int timeout) throws TeddyException {
+  public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slaveDfs) throws TeddyException {
+    int cores     = prepProperties.getSamplingCores();
+    int limitRows = prepProperties.getSamplingLimitRows();
+    int timeout   = prepProperties.getSamplingTimeout();
     LOGGER.trace("applyRule(): start");
 
     // single thread

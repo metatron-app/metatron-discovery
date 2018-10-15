@@ -177,14 +177,28 @@ export class DatasourceService extends AbstractService {
     } else {
 
       // 필드 설정
-      if (field) {
-        param.targetField = { alias: field.alias, name: field.name };
-        if ('user_expr' === field.type) {
-          param.targetField.ref = 'user_defined';
-        } else if (field.ref) {
-          param.targetField.ref = field.ref;
-        }
+      if (isNullOrUndefined(field)) {
+        board.dataSources.some(ds => {
+          if (ds.engineName === filter.dataSource) {
+            return ds.fields.some(dsField => {
+              if (dsField.name === filter.field) {
+                field = dsField;
+                return true;
+              } else {
+                return false;
+              }
+            });
+          }
+        });
       }
+
+      param.targetField = { alias: field.alias, name: field.name };
+      if ('user_expr' === field.type) {
+        param.targetField.ref = 'user_defined';
+      } else if (field.ref) {
+        param.targetField.ref = field.ref;
+      }
+
       (board.configuration.customFields) && (param.userFields = board.configuration.customFields);
 
       // 조회 정보 및 필드 추가 정보 설정
@@ -210,11 +224,13 @@ export class DatasourceService extends AbstractService {
           }
         });
         param.filters = param.filters.concat(tempFilters);
-        param.targetField.type = 'dimension';
+        ( param.targetField ) && ( param.targetField.type = 'dimension' );
       } else if ('bound' === filter.type) {
         // Measure Filter
-        param.targetField.aggregationType = 'NONE';
-        param.targetField.type = 'measure';
+        if( param.targetField ) {
+          param.targetField.aggregationType = 'NONE';
+          param.targetField.type = 'measure';
+        }
         param.filters = [];
       }
 

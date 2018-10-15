@@ -229,13 +229,17 @@ export class CommonOptionComponent extends BaseOptionComponent {
           // 아이콘 타겟
           //////////////////////////////////////////
           const field: any = this.pivot.aggregations[num];
-          const alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
+          let alias: string = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : field['name'];
+          if( field.aggregationType && field.aggregationType != "" ) {
+            alias = field.aggregationType +"("+ alias +")";
+          }
 
           /////////////////////
           // Pivot이 추가되었을때 처리
           /////////////////////
 
-          if (option.series.length <= num) {
+          //if( option.series.length <= num || option.series.length != this.pivot.aggregations.length ) {
+          if( option.series.length <= num ) {
             if (num > 0) {
               option.series[num] = {
                 name: alias
@@ -286,8 +290,10 @@ export class CommonOptionComponent extends BaseOptionComponent {
           // Pivot의 순서가 변경되었을때 처리
           /////////////////////
 
+          let isPush: boolean = false;
           for( let num2: number = 0 ; num2 < this.pivot.aggregations.length ; num2++ ) {
             if( option.series.length >= (num2+1) && _.eq(alias, option.series[num2].name) ) {
+              isPush = true;
               series.push(option.series[num2]);
             }
             if( option.icons.length >= (num2+1) && _.eq(alias, option.icons[num2].seriesName) ) {
@@ -301,19 +307,31 @@ export class CommonOptionComponent extends BaseOptionComponent {
             }
           }
 
-          // if (!isIconAll) {
-          //   this.kpiIconTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
-          // }
+          /////////////////////
+          // Change alias process
+          /////////////////////
 
-          //////////////////////////////////////////
-          // 설명
-          //////////////////////////////////////////
+          if( !isPush ) {
+            option.series[num].name = alias;
+            option.icons[num].seriesName = alias;
+            option.annotations[num].seriesName = alias;
+            option.secondaryIndicators[num].seriesName = alias;
 
-          this.kpiText = option.annotations[0].show ? option.annotations[0].description : "";
-          this.kpiTextTemp = this.kpiText;
-          // if (!isTextAll) {
-          //   this.kpiTextTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
-          // }
+            for( let num2: number = 0 ; num2 < this.pivot.aggregations.length ; num2++ ) {
+              if( option.series.length >= (num2+1) && _.eq(alias, option.series[num2].name) ) {
+                series.push(option.series[num2]);
+              }
+              if( option.icons.length >= (num2+1) && _.eq(alias, option.icons[num2].seriesName) ) {
+                icons.push(option.icons[num2]);
+              }
+              if( option.annotations.length >= (num2+1) && _.eq(alias, option.annotations[num2].seriesName) ) {
+                annotations.push(option.annotations[num2]);
+              }
+              if( option.secondaryIndicators.length >= (num2+1) && _.eq(alias, option.secondaryIndicators[num2].seriesName) ) {
+                secondaryIndicators.push(option.secondaryIndicators[num2]);
+              }
+            }
+          }
         }
 
         // 변경된 순서 반영
@@ -327,6 +345,14 @@ export class CommonOptionComponent extends BaseOptionComponent {
         }
         if (!isTextAll) {
           this.kpiTextTarget = this.kpiIconTargetList.length > 1 ? this.kpiIconTargetList[1] : this.kpiIconTargetList[0];
+
+          if( option.annotations[0].show ) {
+            this.kpiText = this.kpiIconTargetList.length > 1 ? option.annotations[0].description : "";
+          }
+          else {
+            this.kpiText = "";
+          }
+          this.kpiTextTemp = this.kpiText;
         }
       }
     }
