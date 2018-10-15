@@ -51,6 +51,7 @@ public class DfExtract extends DataFrame {
     Boolean isCaseIgnore = extract.getIgnoreCase();
     String patternStr;
     String quoteStr = null;
+    String regExQuoteStr=null;
     Pattern pattern;
 
     int limit = extract.getLimit();
@@ -106,9 +107,9 @@ public class DfExtract extends DataFrame {
 
       if (quote instanceof Constant.StringExpr) {
         quoteStr = ((Constant.StringExpr) quote).getEscapedValue();
-        quoteStr = disableRegexSymbols(quoteStr);
+        regExQuoteStr = disableRegexSymbols(quoteStr);
       } else if (expr instanceof RegularExpr) {
-        quoteStr = ((RegularExpr) quote).getEscapedValue();
+        regExQuoteStr = ((RegularExpr) quote).getEscapedValue();
       } else {
         throw new IllegalPatternTypeException("deReplace(): illegal pattern type: " + quote.toString());
       }
@@ -119,6 +120,7 @@ public class DfExtract extends DataFrame {
 
     preparedArgs.add(targetColno);
     preparedArgs.add(pattern);
+    preparedArgs.add(regExQuoteStr);
     preparedArgs.add(quoteStr);
     preparedArgs.add(limit);
     return preparedArgs;
@@ -130,7 +132,8 @@ public class DfExtract extends DataFrame {
     int targetColno = (int) preparedArgs.get(0);
     Pattern pattern = (Pattern) preparedArgs.get(1);
     String quoteStr = (String) preparedArgs.get(2);
-    int extract_limit = (int) preparedArgs.get(3);
+    String originalQuoteStr = (String) preparedArgs.get(3);
+    int extract_limit = (int) preparedArgs.get(4);
     int colno;
 
     LOGGER.trace("DfExtract.gather(): start: offset={} length={} targetColno={}", offset, length, targetColno);
@@ -176,14 +179,14 @@ public class DfExtract extends DataFrame {
 
         // quote의 수가 홀수개 일 때 마지막 quote 이후의 문자열은 처리대상이 아님으로 날려버린다
         String targetStr = (String) row.get(targetColno);
-        if (StringUtils.countMatches(targetStr, quoteStr) % 2 != 0) {
-          targetStr = targetStr.substring(0, targetStr.lastIndexOf(quoteStr));
+        if (StringUtils.countMatches(targetStr, originalQuoteStr) % 2 != 0) {
+          targetStr = targetStr.substring(0, targetStr.lastIndexOf(originalQuoteStr));
         }
 
         Matcher matcher = pattern.matcher(targetStr);
 
         // 새 컬럼들 추가
-        for (int i = 0; i < limit; i++) {
+        for (int i = 0; i < extract_limit; i++) {
           if (matcher.find()) {
             String newColData = targetStr.substring(matcher.start(), matcher.end());
             newRow.add(newColNames.get(i), newColData);
