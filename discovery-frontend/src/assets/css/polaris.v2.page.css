@@ -1685,7 +1685,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-wrap-editboard .ddp-datasorce-selected .ddp-wrap-datasource {top:53px;}
 .ddp-wrap-editboard .ddp-datasorce-selected .ddp-wrap-datasource .ddp-ui-drop-contents {display:block; position:absolute; top:50px; left:0; right:0; bottom:0; overflow:auto;}
 
-.ddp-wrap-editboard .ddp-wrap-datasource {position:absolute; height:54px; right:-61px; left:0; bottom:0; background-color:#36393e; z-index:10;
+.ddp-wrap-editboard .ddp-wrap-datasource {position:absolute; height:54px; right:-61px; left:0; bottom:0; background-color:#36393e; z-index:20;
 	-webkit-transition: height 0.5s;
 	transition: height 0.5s;}
 
@@ -2756,7 +2756,7 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-ui-drop-contents ul.ddp-list-source li em.ddp-icon-columns,
 .ddp-ui-drop-contents ul.ddp-list-source li em.ddp-icon-cross {position:absolute; top:7px; left:22px;}
 .ddp-ui-drop-contents ul.ddp-list-source li em.ddp-icon-cross {top:9px;}
-.ddp-ui-drop-contents ul.ddp-list-source li em.ddp-icon-alias {margin-left:5px;}
+.ddp-ui-drop-contents ul.ddp-list-source li em.ddp-icon-alias {margin-left:2px;}
 .ddp-ui-drop-contents ul.ddp-list-source li em.ddp-icon-network {display:inline-block; position:absolute; top:50%; left:19px; margin-top:-8px; }
 .ddp-ui-drop-contents ul.ddp-list-source li em.ddp-icon-network.icon-source {width:15px; height:15px; background:url(../images/icon_network.png) no-repeat;}
 .ddp-ui-drop-contents ul.ddp-list-source li em.ddp-icon-network.icon-target{width:15px; height:15px; background:url(../images/icon_network.png) no-repeat; background-position:left -16px;}

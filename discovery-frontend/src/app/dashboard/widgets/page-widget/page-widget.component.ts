@@ -404,8 +404,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAPVIEW) {
 
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
-            // (<NetworkChartComponent>this.chart).draw();
-            this.chart.chart.resize();
+            (<NetworkChartComponent>this.chart).draw();
           } else {
             try {
               if (this.chart && this.chart.chart) this.chart.chart.resize();
@@ -577,7 +576,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public changeExternalFilterList(externalFilters?: Filter[]): Filter[] {
 
-    ( isNullOrUndefined( externalFilters ) ) && ( externalFilters = [] );
+    (isNullOrUndefined(externalFilters)) && (externalFilters = []);
 
     // 대시보드에서 필터를 발생시킨경우 => 필터 목록 제거
     for (let num = (this._selectFilterList.length - 1); num >= 0; num--) {
@@ -1007,7 +1006,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @param {Filter[]} selectionFilters
    * @private
    */
-  private _search(globalFilters?:Filter[], selectionFilters?: Filter[]) {
+  private _search(globalFilters?: Filter[], selectionFilters?: Filter[]) {
 
     // 프로세스 실행 등록
     this.processStart();
@@ -1094,7 +1093,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 외부 필터 ( 글로벌 필터 + Selection Filter )
     {
-      let externalFilters = selectionFilters ? globalFilters.concat( selectionFilters ) : globalFilters;
+      let externalFilters = selectionFilters ? globalFilters.concat(selectionFilters) : globalFilters;
       externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName, externalFilters);
 
       uiCloneQuery.filters.forEach(item1 => {
@@ -1157,13 +1156,15 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         delete this.resultData.params;
       }
 
-      // line차트이면서 columns 데이터가 있는경우
-      if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
-        // 고급분석 예측선 API 호출
-        this.getAnalysis();
-      } else {
-        this.chart.resultData = this.resultData;
-      }
+      setTimeout( () => {
+        // line차트이면서 columns 데이터가 있는경우
+        if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
+          // 고급분석 예측선 API 호출
+          this.getAnalysis();
+        } else {
+          this.chart.resultData = this.resultData;
+        }
+      }, 1000 );
 
       this.isValidWidget = true;
 

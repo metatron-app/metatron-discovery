@@ -18,6 +18,7 @@ import app.metatron.discovery.domain.dataprep.teddy.exceptions.UnknownTypeExcept
 import org.joda.time.DateTime;
 
 import java.math.BigInteger;
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.List;
@@ -80,6 +81,10 @@ public enum ColumnType {
     }
     else if (obj instanceof Timestamp) {
       return Util.sqlTimestampToJodaDateTime((Timestamp) obj);
+    }
+    else if (obj instanceof Date) {
+      long millis = ((Date) obj).getTime();
+      return Util.sqlTimestampToJodaDateTime(new Timestamp(millis));
     }
 
     return obj;

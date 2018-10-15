@@ -1860,9 +1860,10 @@
   "msg.storage.ui.job.properties.description": "Ingestion tuning configuration describes effective options when ingestion. Now put it in the corresponding text box in JSON format",
   "msg.storage.ph.config.key": "Please enter a configuration key",
   "msg.storage.ph.config.value": "Please enter a configuration value",
-  "msg.storage.ui.max.row.error": "You can enter up to {{value}}.",
   "msg.storage.ui.db.connection" : "DB connection",
   "msg.storage.ui.conn.dialog.desc" : "Can not ingest by batch method.",
+  "msg.storage.ui.max.row.error": "You can enter up to {{value}}.",
+  "msg.storage.ui.user.input": "Direct input",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",

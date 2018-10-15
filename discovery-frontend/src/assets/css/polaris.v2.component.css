@@ -2576,7 +2576,7 @@ a.ddp-btn-switch.ddp-selected {background-position:-8px top;}
 
 em.ddp-icon-lock {display:inline-block; width:11px; height:13px; background:url(../images/icon_lock.png) no-repeat; background-position:left top;}
 
-em.ddp-icon-alias {display:inline-block; width:36px; height:11px; background:url(../images/icon_alias.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-alias {display:inline-block; position:relative; top:-2px;height:11px; font-size:12px; color:#656d7b; vertical-align: middle; font-family:sans-serif; font-weight:bold;}
 
 .ddp-icon-database-s,
 .ddp-icon-database-s2,
