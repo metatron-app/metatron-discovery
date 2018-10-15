@@ -332,9 +332,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public isGridResultNoData: boolean = false;
   public isHiveGridResultNoData: boolean = false;
 
-  // query loadingBar 보여줄지 말지 여부
-  public isLoadingBarShow: boolean = false;
-
   // 현재 실행 쿼리
   public runningQueryArr: string [] = [];
 
@@ -399,10 +396,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       })
     });
     setTimeout(() => this.onEndedResizing(), 500);
-  }
-
-  public ngAfterViewInit() {
-    this.isLoadingBarShow = true;
   }
 
   /**
