@@ -1162,19 +1162,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 //쿼리 실행
                 this.loadingBar.hide();
 
-                // log 초기화
-                (this.hiveLogs[0]) || (this.hiveLogs[0] = { isShow: true, log: [] });
-                this.datagridCurList.push({ name: 'Loading..' });
-
-                // 첫번째 로그 탭에서 선택 표시
-                this.datagridCurList[0]['selected'] = true;
-
-                // hive log cancel 여부
-                this.isHiveLog = true;
-                this.isHiveLogCancel = true;
-
-                this.safelyDetectChanges();
-
                 // 쿼리 초기화
                 this.runningQueryArr = [];
                 this.runningQueryDoneIndex = 0;
@@ -1195,6 +1182,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
                 let queryStrArr = tempText.split(';');
 
+                if( tempText.trim() == '' ){
+                  Alert.warning(this.translateService.instant('msg.bench.alert.execute.query'));
+                  this.isHiveQueryExecute = false;
+                  this.loadingBar.hide();
+                  return;
+                }
+
                 // 전체 query data 생성
                 for (let index: number = 0; index < queryStrArr.length; index++) {
                   if (queryStrArr[index].trim() != '') {
@@ -1203,6 +1197,19 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 }
 
                 queryEditor.query = this.runningQueryArr[0];
+
+                // log 초기화
+                (this.hiveLogs[0]) || (this.hiveLogs[0] = { isShow: true, log: [] });
+                this.datagridCurList.push({ name: 'Loading..' });
+
+                // 첫번째 로그 탭에서 선택 표시
+                this.datagridCurList[0]['selected'] = true;
+
+                // hive log cancel 여부
+                this.isHiveLog = true;
+                this.isHiveLogCancel = true;
+
+                this.safelyDetectChanges();
 
               }
 
