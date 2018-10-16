@@ -1452,6 +1452,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // 패널 사이즈 변경 - 드래그 한 후 사용자가 구분 기호를 놓을 때 발생
   public onEndedResizing(): void {
+
+    this.safelyDetectChanges();
+
     // 에디터의 높이 값 구하기
     const editorHeight = this.getEditorComponentElementHeight();
 
