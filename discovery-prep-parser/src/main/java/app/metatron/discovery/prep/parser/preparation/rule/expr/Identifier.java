@@ -22,7 +22,10 @@ public interface Identifier extends Constant {
     private String value;     // 원래는 final이었으나, set rule에서 각 컬럼별 작업시 해당 컬럼값으로 치환되어야 하는 경우가 생겨서 바꿈 (col$)
 
     public IdentifierExpr(String value) {
-      this.value = value;
+      if(value.matches("\".+\""))
+        this.value= value.substring(1, value.length()-1);
+      else
+        this.value = value;
     }
 
     public String getValue() {
@@ -30,7 +33,10 @@ public interface Identifier extends Constant {
     }
 
     public void setValue (String value) {
-      this.value = value;
+      if(value.matches("\".+\""))
+        this.value= value.substring(1, value.length()-1);
+      else
+        this.value = value;
     }
 
     @Override
