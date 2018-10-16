@@ -6448,7 +6448,7 @@ table.ddp-table-simple tr td .ddp-ui-action {height:30px; white-space:normal; ov
 .ddp-ui-tabs a.ddp-btn-plus {display:inline-block; position:absolute; top:0; right:0; width:33px; height:32px; border-right:1px solid #ddd; border-left:1px solid #ddd; background-color:#fff;}
 .ddp-ui-tabs a.ddp-btn-plus:hover {background-color:#f9f9f9;}
 .ddp-ui-tabs a.ddp-btn-plus em {position:absolute; top:50%; left:50%; display:inline-block; width:9px; height:9px; margin:-4px 0 0 -4px; background:url(../images/btn_minus_plus.png) no-repeat; background-position:-20px -2px;}
-.ddp-ui-tabs ul.ddp-list-tabs {height:33px; white-space:nowrap; overflow:hidden;}
+.ddp-ui-tabs ul.ddp-list-tabs {height:32px; white-space:nowrap; overflow:hidden;}
 .ddp-ui-tabs ul.ddp-list-tabs li {display:inline-block; float:left; position:relative; box-sizing:border-box;border-right:1px solid #ddd; cursor: pointer; vertical-align: top;}
 .ddp-ui-tabs ul.ddp-list-tabs li:hover {background-color:#f9f9f9;}
 
@@ -6559,8 +6559,8 @@ table.ddp-table-simple tr td .ddp-ui-action {height:30px; white-space:normal; ov
 .ddp-box-query-result .ddp-wrap-result .ddp-ui-setting .ddp-ui-buttons a.ddp-btn-box .ddp-icon-result-grid,
 .ddp-box-query-result .ddp-wrap-result .ddp-ui-setting .ddp-ui-buttons a.ddp-btn-box .ddp-icon-result-list{display:inline-block;  width:16px; height:16px;position:absolute; top:50%; left:50%; margin:-8px 0 0 -8px; background:url(../images/icon_query.png) no-repeat; background-position:left -139px;}
 .ddp-box-query-result .ddp-wrap-result .ddp-ui-setting .ddp-ui-buttons a.ddp-btn-box:hover .ddp-icon-cancel { background-position-x:-17px;}
-.ddp-box-query-result .ddp-wrap-result .ddp-ui-setting .ddp-ui-buttons a.ddp-btn-box .ddp-icon-result-grid {margin:-7px 0 0 -8px;background-position:left -156px;}
-.ddp-box-query-result .ddp-wrap-result .ddp-ui-setting .ddp-ui-buttons a.ddp-btn-box .ddp-icon-result-list {margin:-6px 0 0 -5px; width:15px; height:14px;background-position:left -173px;}
+.ddp-box-query-result .ddp-wrap-result .ddp-ui-setting .ddp-ui-buttons a.ddp-btn-box .ddp-icon-result-grid {margin:-6px 0 0 -7px;background-position:left -156px;}
+.ddp-box-query-result .ddp-wrap-result .ddp-ui-setting .ddp-ui-buttons a.ddp-btn-box .ddp-icon-result-list {margin:-5px 0 0 -6px; width:15px; height:14px;background-position:left -173px;}
 .ddp-box-query-result .ddp-wrap-result .ddp-ui-setting .ddp-ui-buttons a.ddp-btn-box:hover .ddp-icon-result-grid {background-position-x:-17px;}
 .ddp-box-query-result .ddp-wrap-result .ddp-ui-setting .ddp-ui-buttons a.ddp-btn-box:hover .ddp-icon-result-list {background-position-x:-16px;}
 .ddp-box-query-result .ddp-wrap-result .ddp-ui-setting .ddp-ui-buttons a.ddp-btn-box:hover .ddp-ui-tooltip-info {display:block; top:100%; left:inherit; right:-10px; margin-top:8px;}

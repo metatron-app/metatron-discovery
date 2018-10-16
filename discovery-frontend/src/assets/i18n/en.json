@@ -41,6 +41,7 @@
   "msg.comm.ui.downloading" : "Downloading",
   "msg.comm.ui.soring.order" : "Sort",
   "msg.comm.ui.soring.by" : "Sort by",
+  "msg.comm.ui.error" : "Error",
   "msg.comm.ui.soring.frequency.asc" : "Frequency ascending",
   "msg.comm.ui.soring.frequency.desc" : "Frequency descending",
   "msg.comm.ui.soring.alphnumeric.asc" : "Alpahnumeric ascending",
