@@ -1086,6 +1086,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     if (this.getSelectedTabText() === '') {
       Alert.warning(this.translateService.instant('msg.bench.alert.execute.query'));
+      this.isHiveQueryExecute = false;
       this.loadingBar.hide();
       return;
     }
