@@ -48,10 +48,9 @@
             </div>
             <!-- 편집 input -->
             <div class="ddp-wrap-input">
-              <input type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.name' | translate}}"
-                     #dsName
+              <input class="ddp-input-navi" #dsName maxlength="50"
+                     placeholder="{{'msg.comm.ui.create.name' | translate}}"
                      [(ngModel)]="datasetName"
-                     maxlength="50"
                      (keyup.enter)="isDatasetNameEditMode? updateDataset() : null;"
                      (clickOutside)="isDatasetNameEditMode? setDatasetName() : null;">
               <span class="ddp-btn-check" (click)="$event.stopPropagation();updateDataset();"></span>
@@ -70,10 +69,9 @@
             </div>
             <!-- 편집 input -->
             <div class="ddp-wrap-input">
-              <input type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                     #dsDesc
+              <input class="ddp-input-navi" #dsDesc maxlength="150"
+                     placeholder="{{'msg.comm.ui.create.desc' | translate}}"
                      [(ngModel)]="datasetDesc"
-                     maxlength="150"
                      (keyup.enter)="isDatasetDescEditMode ? updateDataset() : null;"
                      (clickOutside)="isDatasetDescEditMode? setDatasetDescription() : null">
               <span class="ddp-btn-check" (click)="$event.stopPropagation();updateDataset();"></span>
@@ -138,7 +136,7 @@
           <a href="javascript:" class="ddp-btn-line" (click)="addToDataflow()" *ngIf="dataset.importType"><em class="ddp-icon-add"></em>{{'msg.dp.btn.add-to-dataflow' | translate}}</a>
         </label>
         <div class="ddp-data-none" *ngIf="dataset.dataflows && dataset.dataflows.length === 0">{{'msg.dp.ui.no-use' | translate }}</div>
-        <ul class="ddp-list-detail ddp-cursor" *ngIf="dataset.dataflows.length > 0">
+        <ul class="ddp-list-detail ddp-cursor" *ngIf="dataset.dataflows && dataset.dataflows.length > 0">
           <li *ngFor="let item of dataset.dataflows; let index = index" (click)="navigateToDataflow(item)">
             <span class="ddp-box-tag2" *ngIf="index === 0">{{ 'msg.dp.ui.created.in' | translate }}</span>
 

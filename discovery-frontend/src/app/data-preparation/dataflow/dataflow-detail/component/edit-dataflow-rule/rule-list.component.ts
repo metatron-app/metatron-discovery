@@ -20,7 +20,7 @@ import { AbstractComponent } from '../../../../../common/component/abstract.comp
 import { DataflowService } from '../../../service/dataflow.service';
 import { RuleSnapshotListComponent } from './rule-snapshot-list.component';
 import { DataSnapshot } from '../../../../../domain/data-preparation/data-snapshot';
-import { isNullOrUndefined, isUndefined } from 'util';
+import {isNull, isNullOrUndefined, isUndefined} from 'util';
 import { Rule } from '../../../../../domain/data-preparation/dataset';
 
 @Component({
@@ -98,13 +98,13 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
   // Init
   public ngOnInit() {
 
-    // Init
     super.ngOnInit();
   }
 
   // Destroy
   public ngOnDestroy() {
     clearInterval(this.interval);
+    this.interval = undefined;
     super.ngOnDestroy();
   }
 
@@ -126,6 +126,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    */
   public getSnapshotWithInterval(dsId) {
     clearInterval(this.interval);
+    this.interval = undefined;
     this.interval = setInterval(() => {
       this.getSnapshotList(dsId);
     },1000)
@@ -155,6 +156,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
         if (!isUndefined(this.ruleSnapshotListComponent)) { // 현재 탭이 snapshot list 아닐 때 을 하면 에러..
           if (-1 === this.pollingContinue(this.snapshotList)) {
             clearInterval(this.interval);
+            this.interval = undefined;
           }
           this.ruleSnapshotListComponent.init(this.snapshotList);
         }
@@ -164,6 +166,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
           this.ruleSnapshotListComponent.init(this.snapshotList);
         }
         clearInterval(this.interval);
+        this.interval = undefined;
       }
     }).catch((error) => {
       console.info(error);
@@ -176,6 +179,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    */
   public clearSnapshotInterval() {
     clearInterval(this.interval);
+    this.interval = undefined;
   } // function - clearInterval
 
   /**
@@ -190,6 +194,7 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
       this.getSnapshotWithInterval(this.dsId);
     } else {
       clearInterval(this.interval);
+      this.interval = undefined;
     }
   } // function - changeTab
 
@@ -294,6 +299,16 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
       return false;
     }
   }
+
+
+  /**
+   * Check if interval exists
+   * @returns {boolean}
+   */
+  public checkIfIntervalExists() {
+    return !isNullOrUndefined(this.interval)
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

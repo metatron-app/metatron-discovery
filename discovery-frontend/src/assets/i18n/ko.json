@@ -1148,6 +1148,7 @@
   "msg.dp.ui.add.expression" : "수식 추가",
   "msg.dp.ui.add.expression.ph" : "수식 검색",
   "msg.dp.btn.advanced.editor" : "고급 편집기",
+  "msg.dp.btn.make.copy" : "데이터셋 복사",
 
   "msg.board.create.add-ds" : "데이터소스 추가",
   "msg.board.create.add-ds.desc" : "시각화 할 데이터소스를 추가하고 관계를 설정해 주세요",
