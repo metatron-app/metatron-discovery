@@ -677,6 +677,14 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   } // function - onHeaderRowCellRendered
 
   /**
+   * Resizing grid outside of this component
+   */
+  public resizeGrid() {
+    return this._gridComp.resize();
+  }
+
+
+  /**
    * 컬럼별로 히스토그램, 바차트 그리기
    * @param {any} data
    * @private
@@ -1010,7 +1018,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           $('#' + divId).empty().append(value);
         }
       });
-      this._histogramClickEvent(chart, histogramInfo, index);
+      this._histogramClickEvent(chart, index);
     }
   } // function - _histogramMouseEvent
 
@@ -1020,7 +1028,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    * @param histogramInfo - current histogram info
    * @param index - index from chart array (그리드에서 현재 클릭된 히스토그램이 몇번쨰 인지 확인하기 위한)
    */
-  private _histogramClickEvent(chart, histogramInfo, index) {
+  private _histogramClickEvent(chart, index) {
 
     let options;
     chart.off('click');
@@ -1030,7 +1038,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         if (this._clickedSeries[index].length > 0) {
           this._clickedSeries[index] = [];
           this.unSelectionAll('ROW');
-          options = this._getDefaultChartOption(histogramInfo, index);
+          options = this._getDefaultChartOption(this._getHistogramInfo(index), index);
           this._applyChart(chart, options)
         }
       } else {
@@ -1068,11 +1076,11 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         });
         let idx = this._clickedSeries[index].indexOf(params.name);
         if (idx === -1) {
-          this._selectedRows = _.union(this._selectedRows, histogramInfo.rownos[params.dataIndex]);
+          this._selectedRows = _.union(this._selectedRows, this._getHistogramInfo(index).rownos[params.dataIndex]);
           this._rowClickHandler(this._selectedRows);
           this._clickedSeries[index].push(params.name);
         } else {
-          histogramInfo.rownos[params.dataIndex].forEach((item) => {
+          this._getHistogramInfo(index).rownos[params.dataIndex].forEach((item) => {
             this._selectedRows.forEach((data, idx) => {
               if (data === item) {
                 this._selectedRows.splice(idx, 1);
@@ -1082,7 +1090,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           this._rowClickHandler(this._selectedRows);
           this._clickedSeries[index].splice(idx, 1);
         }
-        options = this._getDefaultChartOption(histogramInfo, index);
+        options = this._getDefaultChartOption(this._getHistogramInfo(index), index);
         this._applyChart(chart, options)
       }
     })

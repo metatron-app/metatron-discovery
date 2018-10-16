@@ -21,21 +21,18 @@ import { CommonModule } from '../common/common.module';
 import { DataflowComponent } from './dataflow/dataflow.component';
 import { DatasetComponent } from './dataset/dataset.component';
 import { DataSnapshotComponent } from './data-snapshot/data-snapshot.component';
-import { CreateDataflowComponent } from './dataflow/create-dataflow/create-dataflow.component';
-import { CreateDataflowDatasetComponent } from './dataflow/create-dataflow/create-dataflow-dataset/create-dataflow-dataset.component';
-import { CreateDataflowNameComponent } from './dataflow/create-dataflow/create-dataflow-name/create-dataflow-name.component';
 import { DataflowService } from './dataflow/service/dataflow.service';
 import { CreateDatasetComponent } from './dataset/create-dataset/create-dataset.component';
-import { CreateDatasetDataTypeComponent } from './dataset/create-dataset/create-dataset-datatype/create-dataset-datatype.component';
-import { CreateDatasetSelectfileComponent } from './dataset/create-dataset/create-dataset-selectfile/create-dataset-selectfile.component';
-import { CreateDatasetSelectsheetComponent } from './dataset/create-dataset/create-dataset-selectsheet/create-dataset-selectsheet.component';
-import { CreateDatasetStagingSelectdataComponent } from './dataset/create-dataset/create-dataset-staging-selectdata/create-dataset-staging-selectdata.component';
+import { CreateDatasetDataTypeComponent } from './dataset/create-dataset/create-dataset-datatype.component';
+import { CreateDatasetSelectfileComponent } from './dataset/create-dataset/create-dataset-selectfile.component';
+import { CreateDatasetSelectsheetComponent } from './dataset/create-dataset/create-dataset-selectsheet.component';
+import { CreateDatasetStagingSelectdataComponent } from './dataset/create-dataset/create-dataset-staging-selectdata.component';
 import { DatasetService } from './dataset/service/dataset.service';
 import { DataSnapshotDetailComponent } from './data-snapshot/data-snapshot-detail.component';
 import { DataSnapshotService } from './data-snapshot/service/data-snapshot.service';
 import { FileModule } from '../common/file.module';
-import { CreateDatasetDbSelectComponent } from './dataset/create-dataset/create-dataset-db-select/create-dataset-db-select.component';
-import { CreateDatasetDbQueryComponent } from './dataset/create-dataset/create-dataset-db-query/create-dataset-db-query.component';
+import { CreateDatasetDbSelectComponent } from './dataset/create-dataset/create-dataset-db-select.component';
+import { CreateDatasetDbQueryComponent } from './dataset/create-dataset/create-dataset-db-query.component';
 import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
 import { WorkbenchEditorModule } from '../workbench/workbench.editor.module';
 import { DataflowDetailComponent } from './dataflow/dataflow-detail/dataflow-detail.component';
@@ -107,9 +104,6 @@ const dataPreparationRoutes: Routes = [
   declarations: [
     DataPreparationComponent,
     DataflowComponent,
-    CreateDataflowComponent,
-    CreateDataflowDatasetComponent,
-    CreateDataflowNameComponent,
     DatasetComponent,
     CreateDatasetComponent,
     CreateDatasetDataTypeComponent,

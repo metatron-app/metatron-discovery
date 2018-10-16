@@ -38,7 +38,7 @@ export class DbSetDataConnection extends AbstractPopupComponent implements OnIni
   private _sourceData: DatasourceInfo;
 
   // connection preset list
-  public connectionPresetList: any[] = [{name: '직접입력', default: true}];
+  public connectionPresetList: any[] = [{name: this.translateService.instant('msg.storage.ui.user.input'), default: true}];
 
   @Input('sourceData')
   public set setSourceData(sourceData: DatasourceInfo) {

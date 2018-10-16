@@ -38,5 +38,8 @@
     <a (click)="cancelEvent.emit()"
        href="javascript:">{{'msg.comm.btn.cancl' | translate}}</a>
   </div>
+  <div class="ddp-btn-cancel" *ngIf="canceling">
+    <span>{{'msg.bench.btn.log.canceling' | translate}}</span>
+  </div>
 </div>
 <!-- //취소가능 로딩 -->
