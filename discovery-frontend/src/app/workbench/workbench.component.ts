@@ -1192,6 +1192,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 }
 
                 this.runningQueryEditor = queryEditor;
+
                 let queryStrArr = tempText.split(';');
 
                 // 전체 query data 생성
