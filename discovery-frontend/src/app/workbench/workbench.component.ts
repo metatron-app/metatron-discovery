@@ -1162,9 +1162,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 //쿼리 실행
                 this.loadingBar.hide();
 
+                let linesSql:string[] = queryEditor.query.split( '\n' );
                 let tempText: string = '';
-                for( let index=0; this.editor.getLines().length > index; index++ ) {
-                  let text = this.editor.getLines()[index]['text'];
+                for( let index=0; linesSql.length > index; index++ ) {
+                  let text = linesSql[index];
                   if( text.indexOf('--') == -1 ) {
                     tempText = tempText + '\n' + text;
                   } else {
