@@ -1413,10 +1413,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 결과창 검색어 초기화
   public gridSearchClear(): void {
     this.searchText = '';
-
-    if (this.mimeType != 'HIVE') {
-      this.gridComponent.search(this.searchText);
-    }
+    this.gridComponent.search(this.searchText);
   }
 
   // 그리드 검색 실행
