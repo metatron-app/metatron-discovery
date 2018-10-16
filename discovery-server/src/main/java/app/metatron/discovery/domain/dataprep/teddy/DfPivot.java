@@ -23,10 +23,7 @@ import app.metatron.discovery.prep.parser.preparation.rule.expr.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +34,7 @@ public class DfPivot extends DataFrame {
     super(dsName, ruleString);
   }
 
-  protected String buildPivotNewColName(AggrType aggrType, String aggrTargetColName,
+  private String buildPivotNewColName(AggrType aggrType, String aggrTargetColName,
                                           List<String> pivotColNames, List<String> oldColNames, Row row) throws TeddyException {
       String newColName = null;
 
@@ -62,7 +59,51 @@ public class DfPivot extends DataFrame {
       for (String pivotColName : pivotColNames) {
           newColName += "_" + row.get(pivotColName);
       }
+      newColName = makeParsable(newColName);
       return modifyDuplicatedColName(oldColNames, newColName);
+  }
+
+  private Map<String, Object> buildGroupByKey(Row row, List<String> groupByColNames) {
+    Map<String, Object> groupByKey = new HashMap<>();
+    for (String groupByColName : groupByColNames) {
+      groupByKey.put(groupByColName, row.get(groupByColName));
+    }
+    return groupByKey;
+  }
+
+  private boolean groupByKeyChanged(Row row, List<String> groupByColNames, Map<String, Object> groupByKey) {
+    for (String groupByColName : groupByColNames) {
+      if (!groupByKey.get(groupByColName).equals(row.get(groupByColName))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // row: row from aggregatedDf
+  private Row newPivotRow(Row row, DataFrame pivotDf, List<String> groupByColNames) throws TeddyException {
+    Row newRow = new Row();
+    int colno;
+
+    for (String groupByColName : groupByColNames) {
+      newRow.add(groupByColName, row.get(groupByColName));
+    }
+
+    // 일단 기본값으로 깔고, 실제 있는 값을 채우기로 함
+    for (colno = groupByColNames.size(); colno < pivotDf.getColCnt(); colno++) {
+      ColumnType colType = pivotDf.getColType(colno);
+      switch (colType) {
+        case DOUBLE:
+          newRow.add(pivotDf.getColName(colno), Double.valueOf(0));
+          break;
+        case LONG:
+          newRow.add(pivotDf.getColName(colno), Long.valueOf(0));
+          break;
+        default:
+          throw new ColumnTypeShouldBeDoubleOrLongException("doPivot(): column type of aggregation value should be DOUBLE or LONG: " + colType);
+      }
+    }
+    return newRow;
   }
 
   @Override
