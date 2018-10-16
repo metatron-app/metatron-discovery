@@ -74,6 +74,7 @@ public class DataFrame implements Serializable, Transformable {
   // copy the references to all members (to avoid deep copy, but make a non-identical object)
   public DataFrame(DataFrame df) {
     colCnt             = df.colCnt;
+    colNames           = df.colNames;
     colDescs           = df.colDescs;
     colHists           = df.colHists;
     rows               = df.rows;
