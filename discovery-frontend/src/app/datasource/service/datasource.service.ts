@@ -430,10 +430,13 @@ export class DatasourceService extends AbstractService {
           }
 
           if(column.field.logicalType.toString() === 'GEO_POINT') {
-            layer.format = {
-              type: "geo_hash",
-              method: "h3",
-              precision: precision       // Precision 적용 (1~12)
+
+            if(query.pivot.aggregations.length > 0) {
+              layer.format = {
+                type: "geo_hash",
+                method: "h3",
+                precision: precision       // Precision 적용 (1~12)
+              }
             }
 
             if(geoFieldCnt > 1) {

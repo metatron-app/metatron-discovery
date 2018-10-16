@@ -153,8 +153,8 @@
                       <div class="ddp-list-part ddp-divide" *ngIf="uiOption.layers[2].color.by.toString() === 'MEASURE'">
                         <!-- SELECTBOX -->
                         <component-select
-                          [array]="measureList"
-                          [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[2].color['column'])"
+                          [array]="uiOption.measureList[2]"
+                          [defaultIndex]="uiOption.measureList[2] && uiOption.measureList[2].indexOf(uiOption.layers[2].color['column'])"
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
@@ -407,8 +407,8 @@
                               <div class="ddp-list-part ddp-divide" *ngIf="uiOption.layers[2].size.by.toString() === 'MEASURE'">
                                 <!-- SELECTBOX -->
                                 <component-select
-                                  [array]="measureList"
-                                  [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[2].size['column'])"
+                                  [array]="uiOption.measureList[2]"
+                                  [defaultIndex]="uiOption.measureList[2] && uiOption.measureList[2].indexOf(uiOption.layers[2].size['column'])"
                                   (onSelected)="changeSizeColumn($event)"
                                 ></component-select>
                               </div>

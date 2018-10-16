@@ -8,7 +8,7 @@
       <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev" style="display: none;"><em class="ddp-icon-prev"></em></a>
       <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next" style="display: none"><em class="ddp-icon-next"></em></a>
       <div class="ddp-slide-control">
-          <a href="javascript:" class="ddp-btn-plus" (click)="addLayer(2)" *ngIf="layerNum === 1"></a>
+          <a href="javascript:" class="ddp-btn-plus" (click)="changeLayer(2)" *ngIf="layerNum === 1"></a>
       </div>
       <div class="ddp-ui-drag-slide-in">
 
@@ -104,8 +104,8 @@
       <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev" style="display: none;"><em class="ddp-icon-prev"></em></a>
       <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next" style="display: none"><em class="ddp-icon-next"></em></a>
       <div class="ddp-slide-control">
-          <a href="javascript:" class="ddp-btn-plus" (click)="addLayer(3)"  *ngIf="layerNum === 2"></a>
-          <a href="javascript:" class="ddp-btn-minus" (click)="addLayer(1)"  *ngIf="layerNum === 2"></a>
+          <a href="javascript:" class="ddp-btn-plus" (click)="changeLayer(3)"  *ngIf="layerNum === 2"></a>
+          <a href="javascript:" class="ddp-btn-minus" (click)="changeLayer(1)"  *ngIf="layerNum === 2"></a>
       </div>
       <div class="ddp-ui-drag-slide-in">
 
@@ -201,7 +201,7 @@
       <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev" style="display: none;"><em class="ddp-icon-prev"></em></a>
       <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next" style="display: none"><em class="ddp-icon-next"></em></a>
       <div class="ddp-slide-control">
-          <a href="javascript:" class="ddp-btn-minus" (click)="addLayer(2)"></a>
+          <a href="javascript:" class="ddp-btn-minus" (click)="changeLayer(2)"></a>
       </div>
       <div class="ddp-ui-drag-slide-in">
 

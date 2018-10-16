@@ -1116,9 +1116,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         }
 
         legendHtml = legendHtml + '</ul></div>';
-        // console.log(legendHtml);
+        // legendHtml = legendHtml + legendHtml;
         element.innerHTML = legendHtml;
-
 
       }
     }
@@ -1230,16 +1229,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
 
     console.log('=== map component draw2 ===');
-    // console.log(this.data[1]);
-    (<any>window).uiOption = this.uiOption;
-    // (<any>window).styleData = this.data[1];
-
-    ////////////////////////////////////////////////////////
-    // 업데이트
-    ////////////////////////////////////////////////////////
-
-    // 엘리먼트 반영
-    this.changeDetect.detectChanges();
 
     let source = new ol.source.Vector();
     let hexagonSource = new ol.source.Vector();
@@ -1484,16 +1473,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
 
     console.log('=== map component draw3 ===');
-    // console.log(this.data[1]);
-    // (<any>window).uiOption = this.uiOption;
-    // (<any>window).styleData = this.data[1];
-
-    ////////////////////////////////////////////////////////
-    // 업데이트
-    ////////////////////////////////////////////////////////
-
-    // 엘리먼트 반영
-    this.changeDetect.detectChanges();
 
     let source = new ol.source.Vector();
     let hexagonSource = new ol.source.Vector();
@@ -1785,93 +1764,75 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     if(this.uiOption["layerCnt"] > 1) {
       for(let column of this.pivot.columns) {
-        if(column["layerNum"] === 2) {
-          let layer2 = {
-            type: column.type,
-            name: column.name,
-            alias: column.alias,
-            ref: null,
-            format: null,
-            dataSource: column.field.dataSource
-          }
 
-          layer2.dataSource = column.field.dataSource;
+        let layer = {
+          type: column.type,
+          name: column.name,
+          alias: column.alias,
+          ref: null,
+          format: null,
+          dataSource: column.field.dataSource
+        }
+
+        if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
+          layer.format = {
+            type : "geo"
+          }
+        }
+
+        if(column["layerNum"] === 2) {
+          if(column.field.logicalType.toString() === 'GEO_POINT') {
+            for(let aggregation of this.pivot.aggregations) {
+              if(aggregation["layerNum"] === 2) {
+                layer.format = {
+                  type: "geo_hash",
+                  method: "h3",
+                  precision: this.uiOption.layers[1].color["resolution"]
+                }
+              }
+            }
+          }
 
           secondLayerQuery.dataSource.engineName = column.field.dataSource;
           secondLayerQuery.dataSource.name = column.field.dataSource;
           secondLayerQuery.dataSource.id = column.field.dsId;
 
-          if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
-            layer2.format = {
-              type : "geo"
-            }
-          }
-
-          if(column.field.logicalType.toString() === 'GEO_POINT') {
-            layer2.format = {
-              type: "geo_hash",
-              method: "h3",
-              precision: this.uiOption.layers[1].color["resolution"]
-            }
-          }
-
-          layers2.push(layer2);
+          layers2.push(layer);
         }
         if(column["layerNum"] === 3) {
-          let layer3 = {
-            type: column.type,
-            name: column.name,
-            alias: column.alias,
-            ref: null,
-            format: null,
-            dataSource: column.field.dataSource
+          if(column.field.logicalType.toString() === 'GEO_POINT') {
+            for(let aggregation of this.pivot.aggregations) {
+              if(aggregation["layerNum"] === 3) {
+                layer.format = {
+                  type: "geo_hash",
+                  method: "h3",
+                  precision: this.uiOption.layers[2].color["resolution"]
+                }
+              }
+            }
           }
 
           thirdLayerQuery.dataSource.engineName = column.field.dataSource;
           thirdLayerQuery.dataSource.name = column.field.dataSource;
           thirdLayerQuery.dataSource.id = column.field.dsId;
 
-          if(column.field.logicalType.toString().substring(0,3) === 'GEO') {
-            layer3.format = {
-              type : "geo"
-            }
-          }
-
-          if(column.field.logicalType.toString() === 'GEO_POINT') {
-            layer3.format = {
-              type: "geo_hash",
-              method: "h3",
-              precision: this.uiOption.layers[2].color["resolution"]
-            }
-          }
-
-          layers3.push(layer3);
+          layers3.push(layer);
         }
       }
 
       for(let aggregation of this.pivot.aggregations) {
+        let layer = {
+          type: aggregation.type,
+          name: aggregation.name,
+          alias: aggregation.alias,
+          ref: null,
+          aggregationType: aggregation.aggregationType,
+          dataSource: aggregation.field.dataSource
+        }
+
         if(aggregation["layerNum"] === 2) {
-          let layer = {
-            type: aggregation.type,
-            name: aggregation.name,
-            alias: aggregation.alias,
-            ref: null,
-            aggregationType: aggregation.aggregationType,
-            dataSource: aggregation.field.dataSource
-          }
-
           layers2.push(layer);
-
         } else if(aggregation["layerNum"] === 3) {
-          let layer = {
-            type: aggregation.type,
-            name: aggregation.name,
-            alias: aggregation.alias,
-            ref: null,
-            aggregationType: aggregation.aggregationType,
-            dataSource: aggregation.field.dataSource
-          }
-
           layers3.push(layer);
         }
       }
@@ -1887,21 +1848,18 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       };
 
       let secondLayerVaild: boolean = false;
+      let thirdLayerVaild: boolean = false;
       for(let column of this.pivot.columns) {
         if(column["layerNum"] === 2) {
           secondLayerVaild = true;
+        }
+        else if(column["layerNum"] === 3) {
+          thirdLayerVaild = true;
         }
       }
 
       if(!secondLayerVaild) {
        this.removeSecondLayer();
-      }
-
-      let thirdLayerVaild: boolean = false;
-      for(let column of this.pivot.columns) {
-        if(column["layerNum"] === 3) {
-          thirdLayerVaild = true;
-        }
       }
 
       if(!thirdLayerVaild) {

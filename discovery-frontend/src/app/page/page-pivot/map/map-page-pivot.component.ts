@@ -47,6 +47,9 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  public aggregationsCnt: number = 0;
+  public columnsCnt: number = 0;
+
   @Input('pivot')
   set setPivot(pivot: Pivot) {
 
@@ -61,14 +64,13 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
       for(let column of this.pivot.columns) {
         if(column["layerNum"] > this.layerNum) {
           this.layerNum = column["layerNum"];
-          this.addLayer(this.layerNum);
+          this.changeLayer(this.layerNum);
         }
       }
     }
 
     this.changePivot();
   }
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -103,7 +105,55 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-   public addLayer(layerNum: number): void {
+   /**
+    * 선반정보 변경시
+    */
+   public changePivot(eventType?: EventType) {
+
+     let measureList = new Array(new Array(), new Array());
+
+     for(let aggregation of this.pivot.aggregations) {
+       if(!aggregation["layerNum"] || aggregation["layerNum"] === 1) {
+         measureList[0].push(aggregation.aggregationType + '(' + aggregation.name + ')');
+       } else if(aggregation["layerNum"] === 2) {
+         measureList[1].push(aggregation.aggregationType + '(' + aggregation.name + ')');
+       } else if(aggregation["layerNum"] === 3) {
+         measureList[2].push(aggregation.aggregationType + '(' + aggregation.name + ')');
+       }
+     }
+
+     this.uiOption["measureList"] = measureList;
+
+     if(this.pivot.columns.length > this.columnsCnt) {
+       let column = this.pivot.columns[this.pivot.columns.length-1];
+       let layerNum = column["layerNum"];
+       if(this.uiOption.layers[layerNum-1].color.by === 'NONE') {
+         this.uiOption.layers[layerNum-1].color.by = 'DIMENSION';
+         this.uiOption.layers[layerNum-1].color.column = column.name;
+         this.uiOption.layers[layerNum-1].color.schema = 'SC1';
+       }
+     }
+
+     if(this.pivot.aggregations.length > this.aggregationsCnt) {
+       let aggregation = this.pivot.aggregations[this.pivot.aggregations.length-1];
+       let layerNum = aggregation["layerNum"];
+       if(this.uiOption.layers[layerNum-1].color.by === 'NONE' || this.uiOption.layers[layerNum-1].color.by === 'DIMENSION') {
+         this.uiOption.layers[layerNum-1].color.by = 'MEASURE';
+         this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + aggregation.name + ')';
+         this.uiOption.layers[layerNum-1].color.schema = 'VC1';
+       } else {
+         this.uiOption.layers[layerNum-1].size.by = 'MEASURE';
+         this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + aggregation.name + ')';
+       }
+     }
+
+     this.aggregationsCnt = this.pivot.aggregations.length;
+     this.columnsCnt = this.pivot.columns.length;
+
+     this.changePivotEvent.emit({ pivot: this.pivot, eventType: eventType });
+   }
+
+   public changeLayer(layerNum: number): void {
 
      if(layerNum < this.layerNum) {
        for(let column of this.pivot.columns) {
@@ -188,7 +238,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        this.uiOption.layers[layerNum]["size"].by = "NONE";
        this.uiOption.layers[layerNum]["color"]["customMode"] = undefined;
      } else {
-       debugger
+
      }
 
      // 이벤트
@@ -236,6 +286,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      }
      return count < 1;
    }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
