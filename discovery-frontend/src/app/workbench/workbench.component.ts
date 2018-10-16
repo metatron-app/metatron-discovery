@@ -1084,7 +1084,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // 보고있는 탭이 에러인경우 초기화
     if (this.resultMode === 'text') this.resultMode = '';
 
-    if (this.getSelectedTabText() === '') {
+    if (this.getSelectedTabText().trim() === '') {
       Alert.warning(this.translateService.instant('msg.bench.alert.execute.query'));
       this.isHiveQueryExecute = false;
       this.loadingBar.hide();
@@ -1109,6 +1109,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         // if (result === 'RUNNING' || result === 'CANCELLED') {
         if (result === 'RUNNING') {
           Alert.warning(this.translateService.instant('msg.bench.ui.query.run'));
+          this.isHiveQueryExecute = false;
           this.loadingBar.hide();
           return;
         } else {
@@ -1145,6 +1146,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                   this.editor.getFocusSelection();
                   if (this.getSelectedSqlTabText() === '') {
                     Alert.info(this.translateService.instant('msg.bench.alert.no.selected.query'));
+                    this.isHiveQueryExecute = false;
+                    this.loadingBar.hide();
                     return;
                   }
                   queryEditor.query = this.getSelectedSqlTabText();
