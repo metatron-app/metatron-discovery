@@ -1162,6 +1162,43 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 //쿼리 실행
                 this.loadingBar.hide();
 
+                let linesSql:string[] = queryEditor.query.split( '\n' );
+                let tempText: string = '';
+                for( let index=0; linesSql.length > index; index++ ) {
+                  let text = linesSql[index];
+                  if( text.indexOf('--') == -1 ) {
+                    tempText = tempText + '\n' + text;
+                  } else {
+                    if( text.split('--')[0] != null ) {
+                      tempText = tempText + '\n' + text.split('--')[0];
+                    }
+                  }
+                }
+
+                if( tempText.trim() == '' ){
+                  Alert.warning(this.translateService.instant('msg.bench.alert.execute.query'));
+                  this.isHiveQueryExecute = false;
+                  this.loadingBar.hide();
+                  return;
+                }
+
+                // 쿼리 초기화
+                this.runningQueryArr = [];
+                this.runningQueryDoneIndex = 0;
+
+                this.runningQueryEditor = queryEditor;
+
+                let queryStrArr = tempText.split(';');
+
+                // 전체 query data 생성
+                for (let index: number = 0; index < queryStrArr.length; index++) {
+                  if (queryStrArr[index].trim() != '') {
+                    this.runningQueryArr.push(queryStrArr[index]);
+                  }
+                }
+
+                queryEditor.query = this.runningQueryArr[0];
+
                 // log 초기화
                 (this.hiveLogs[0]) || (this.hiveLogs[0] = { isShow: true, log: [] });
                 this.datagridCurList.push({ name: 'Loading..' });
@@ -1173,27 +1210,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 this.isHiveLog = true;
                 this.isHiveLogCancel = true;
 
-                // console.error("selected push  ================================");
-
                 this.safelyDetectChanges();
-
-
-                // 쿼리 초기화
-                this.runningQueryArr = [];
-                this.runningQueryDoneIndex = 0;
-
-                this.runningQueryEditor = queryEditor;
-
-                let queryStrArr = queryEditor.query.split(';');
-
-                // 전체 query data 생성
-                for (let index: number = 0; index < queryStrArr.length; index++) {
-                  if (queryStrArr[index].trim() != '') {
-                    this.runningQueryArr.push(queryStrArr[index]);
-                  }
-                }
-
-                queryEditor.query = this.runningQueryArr[0];
 
               }
 
@@ -1258,19 +1275,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
               // hive일 경우 단건 호출
               this.setHiveDatagridData(result, tempSelectedTabNum, selectedResultTabNum, this.runningQueryArr.length);
-
-
-              // 데이터가 주석일 경우에만
-              // if( this.runningQueryArr[this.runningQueryDoneIndex].trim().startsWith("--") ) {
-              //
-              //   if( isNullOrUndefined(this.runningQueryArr[this.runningQueryDoneIndex+1]) ){
-              //     // finish
-              //     // this.drawGridData(this.runningQueryDoneIndex);
-              //     this.hiveLogFinish();
-              //     return false;
-              //   }
-              //
-              // }
 
 
             }
@@ -2138,7 +2142,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             } else if ('DONE' === data.command) {
 
               // 로그 결과가 미리 떨어지는 경우 대비
-              setTimeout(() => this._hiveQueryDone(), 500);
+              const timer = setInterval( () => {
+                const gridList = this.datagridCurList[this.runningQueryDoneIndex];
+                if( !!gridList.data ) {
+                  clearInterval( timer );
+                  this._hiveQueryDone();
+                }
+              }, 500 );
 
             } // end if - command log, done
 
