@@ -1183,7 +1183,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 for( let index=0; this.editor.getLines().length > index; index++ ) {
                   let text = this.editor.getLines()[index]['text'];
                   if( text.indexOf('--') == -1 ) {
-                    tempText = tempText + text;
+                    tempText = tempText + '\n' + text;
                   }
                 }
 
