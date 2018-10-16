@@ -126,10 +126,13 @@ public class TeddyImpl {
   private void appendNewDfs(Revision newRev, Revision rev, int startIdx) {
     for (int i = startIdx; i < rev.size(); i++) {
       DataFrame nextDf;
+      String ruleString = rev.get(i).ruleString;
+
       try {
-        nextDf = apply(newRev.get(-1), rev.get(i).ruleString);    // apply trailing rules of the original revision into the new revision.
+        nextDf = apply(newRev.get(-1), ruleString);   // apply trailing rules of the original revision into the new revision.
       } catch (Exception e) {
         nextDf = new DataFrame(newRev.get(-1));
+        nextDf.setRuleString(ruleString);
         nextDf.setValid(false);
       }
       newRev.add(nextDf);
