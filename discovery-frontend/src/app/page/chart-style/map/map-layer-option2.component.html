@@ -137,7 +137,7 @@
                         <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                           <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                           <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
-                          <li (click)="changeColorType('MEASURE')" *ngIf="pivot.aggregations.length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                          <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                         </ul>
                       </div>
                       <!-- //part -->
@@ -398,7 +398,7 @@
                                   <span class="ddp-txt-selectbox">{{ uiOption.layers[1].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[1].size.by }}</span>
                                   <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
                                       <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.size.by.none' | translate}}</a></li>
-                                      <li (click)="changeSizeType('MEASURE')" *ngIf="pivot.aggregations.length > 0"><a href="#">{{'msg.page.layer.map.size.by.measure' | translate}}</a></li>
+                                      <li (click)="changeSizeType('MEASURE')" *ngIf="uiOption.measureList[1].length > 0"><a href="#">{{'msg.page.layer.map.size.by.measure' | translate}}</a></li>
                                   </ul>
                               </div>
                               <!-- //SELECTBOX -->
@@ -492,7 +492,7 @@
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                             <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                             <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
-                            <li (click)="changeColorType('MEASURE')" *ngIf="pivot.aggregations.length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                            <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                           </ul>
                         </div>
                       </div>
@@ -507,8 +507,8 @@
                       <div class="ddp-divide2" *ngIf="uiOption.layers[1].color.by.toString() === 'MEASURE'">
                         <!-- SELECTBOX -->
                         <component-select
-                          [array]="measureList"
-                          [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[1].color['column'])"
+                          [array]="uiOption.measureList[1]"
+                          [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].color['column'])"
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
@@ -738,7 +738,7 @@
                                 <span class="ddp-txt-selectbox">{{ uiOption.layers[1].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[1].size.by }}</span>
                                 <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
                                     <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.stroke.none' | translate}}</a></li>
-                                    <li (click)="changeSizeType('MEASURE')" *ngIf="pivot.aggregations.length > 0"><a href="#">{{'msg.page.layer.map.stroke.measure' | translate}}</a></li>
+                                    <li (click)="changeSizeType('MEASURE')" *ngIf="uiOption.measureList[1].length > 0"><a href="#">{{'msg.page.layer.map.stroke.measure' | translate}}</a></li>
                                 </ul>
                             </div>
                             <!-- //SELECTBOX -->
@@ -747,8 +747,8 @@
                             <div class="ddp-list-part ddp-divide" *ngIf="uiOption.layers[1].size.by.toString() === 'MEASURE'">
                               <!-- SELECTBOX -->
                               <component-select
-                                [array]="measureList"
-                                [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[1].size['column'])"
+                                [array]="uiOption.measureList[1]"
+                                [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].size['column'])"
                                 (onSelected)="changeSizeColumn($event)"
                               ></component-select>
                             </div>
@@ -805,7 +805,7 @@
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                             <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                             <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
-                            <li (click)="changeColorType('MEASURE')" *ngIf="pivot.aggregations.length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                            <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                           </ul>
                         </div>
                       </div>
@@ -820,8 +820,8 @@
                       <div class="ddp-divide2" *ngIf="uiOption.layers[1].color.by.toString() === 'MEASURE'">
                         <!-- SELECTBOX -->
                         <component-select
-                          [array]="measureList"
-                          [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[1].color['column'])"
+                          [array]="uiOption.measureList[1]"
+                          [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].color['column'])"
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
@@ -1102,15 +1102,15 @@
                           <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[1].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[1].color.by) }}</span>
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                             <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
-                            <li (click)="changeColorType('MEASURE')" *ngIf="pivot.aggregations.length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                            <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                           </ul>
                         </div>
                       </div>
                     <div class="ddp-divide2" *ngIf="uiOption.layers[1].color.by.toString() === 'MEASURE'">
                       <!-- SELECTBOX -->
                       <component-select
-                        [array]="measureList"
-                        [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[1].color['column'])"
+                        [array]="uiOption.measureList[1]"
+                        [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].color['column'])"
                         (onSelected)="changeColorColumn($event)"
                       ></component-select>
                     </div>
@@ -1394,7 +1394,7 @@
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                               <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                               <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
-                              <li (click)="changeColorType('MEASURE')" *ngIf="pivot.aggregations.length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                              <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                             </ul>
                           </div>
                         </div>
@@ -1409,8 +1409,8 @@
                         <div class="ddp-divide2" *ngIf="uiOption.layers[1].color.by.toString() === 'MEASURE'">
                           <!-- SELECTBOX -->
                           <component-select
-                            [array]="measureList"
-                            [defaultIndex]="measureList && measureList.indexOf(uiOption.layers[1].color['column'])"
+                            [array]="uiOption.measureList[1]"
+                            [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].color['column'])"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
                         </div>
