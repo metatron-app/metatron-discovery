@@ -364,13 +364,13 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
    */
   protected setDataLabel(): UIOption {
 
-    if (!this.pivot || !this.pivot.aggregations || !this.pivot.rows) return this.uiOption;
-
     /**
-     * check multi series <=> single series
-     * @type {() => boolean}
-     */
+      * check multi series <=> single series
+      * @type {() => boolean}
+      */
     const checkChangeSeries = ((): boolean => {
+
+      if (!this.prevPivot) return true;
 
       // prev series is multi(true) or single
       const prevSeriesMulti: boolean = this.prevPivot.aggregations.length > 1 || this.prevPivot.rows.length >= 1 ? true : false;
@@ -388,82 +388,7 @@ export class BarChartComponent extends BaseChart implements OnInit, OnDestroy, A
       return false;
     });
 
-    // 시리즈관련 리스트 제거
-    const spliceSeriesTypeList = ((seriesTypeList, dataLabel: any): any => {
-
-      // displayTypes를 찾는 index
-      let index: number;
-      for (const item of seriesTypeList) {
-        index = dataLabel.displayTypes.indexOf(item);
-
-        if (-1 !== index) {
-          // 라벨에서 제거
-          dataLabel.displayTypes[index] = null;
-        }
-      }
-      return dataLabel.displayTypes;
-    });
-
-    const setDefaultDisplayTypes = ((value): any => {
-
-      if (!value || !value.displayTypes) return [];
-
-      let defaultDisplayTypes = [];
-
-      // when it has single series
-      if (this.pivot.aggregations.length <= 1 && this.pivot.rows.length < 1) {
-
-        // set disabled list when it has single series
-        const disabledList = [UIChartDataLabelDisplayType.SERIES_NAME, UIChartDataLabelDisplayType.SERIES_VALUE, UIChartDataLabelDisplayType.SERIES_PERCENT];
-
-        // remove disabled list
-        defaultDisplayTypes = spliceSeriesTypeList(disabledList, value);
-
-        // set default datalabel, tooltip list
-        defaultDisplayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
-        defaultDisplayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
-        // when it has multi series
-      } else {
-
-        // set disabled list when it has multi series
-        const disabledList = [UIChartDataLabelDisplayType.CATEGORY_VALUE, UIChartDataLabelDisplayType.CATEGORY_PERCENT];
-
-        // remove disabled list
-        defaultDisplayTypes = spliceSeriesTypeList(disabledList, value);
-
-        // set default datalabel, tooltip list
-        defaultDisplayTypes[3] = UIChartDataLabelDisplayType.SERIES_NAME;
-        defaultDisplayTypes[4] = UIChartDataLabelDisplayType.SERIES_VALUE;
-      }
-
-      return defaultDisplayTypes;
-    });
-
-    // when draw chart or change single <=> multi series
-    if ((EventType.CHANGE_PIVOT === this.drawByType && (!this.prevPivot || checkChangeSeries())) || EventType.CHART_TYPE === this.drawByType) {
-
-      // set datalabel display types
-      let datalabelDisplayTypes = setDefaultDisplayTypes(this.uiOption.dataLabel);
-
-      // set tooltip display types
-      let tooltipDisplayTypes = setDefaultDisplayTypes(this.uiOption.toolTip);
-
-      // set default datalabel value
-      if (this.uiOption.dataLabel && this.uiOption.dataLabel.displayTypes) {
-        // set dataLabel
-        this.uiOption.dataLabel.displayTypes = datalabelDisplayTypes;
-        // set previewList
-        this.uiOption.dataLabel.previewList = LabelOptionConverter.setDataLabelPreviewList(this.uiOption);
-      }
-
-      // set default tooltip value
-      if (this.uiOption.toolTip && this.uiOption.toolTip.displayTypes) {
-        // set dataLabel
-        this.uiOption.toolTip.displayTypes = tooltipDisplayTypes;
-        // set previewList
-        this.uiOption.toolTip.previewList = TooltipOptionConverter.setTooltipPreviewList(this.uiOption);
-      }
-    }
+    this.uiOption = this.setAxisDataLabel(this.prevPivot,checkChangeSeries());
 
     // set previous pivot value (compare previous pivot, current pivot)
     this.prevPivot = this.pivot;

@@ -13,13 +13,13 @@
   -->
 
 <div class="ddp-box-in">
-  <a href="javascript:" class="ddp-btn-popup-close" (click)="closePopup.emit(selectedDataSet); selectedDataSet.dsId = ''; isDataflowsShow=false;"></a>
+  <a href="javascript:" class="ddp-btn-popup-close" (click)="closeInfo()"></a>
   <div class="ddp-data-filename" [class.ddp-selected]="isDatasetNameEdit" (clickOutside)="isDatasetNameEdit ? setDatasetName(): null;">
     <em class="{{getIconClass(selectedDataSet.dsType?.toString()==='WRANGLED' ? 'dataset' : 'hive')}}"></em>
     <div class="ddp-ui-input">
       <textarea #dsName  placeholder="{{'msg.comm.ui.create.name' | translate}}"
-             (keyup.enter)="isDatasetNameEdit ? updateDataset() : null;"
-             [(ngModel)]="datasetName"
+                (keyup.enter)="isDatasetNameEdit ? updateDataset() : null;"
+                [(ngModel)]="datasetName"
                 maxlength="50"></textarea>
       <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataset();"></span>
     </div>
@@ -28,9 +28,9 @@
   <div class="ddp-data-explain" [class.ddp-selected]="isDatasetDescEdit">
     <div class="ddp-ui-input">
       <textarea #dsDesc placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-             (keyup.enter)="isDatasetDescEdit ? updateDataset() : null;"
-             (clickOutside)="isDatasetDescEdit ? setDatasetDescription(): null;"
-             [(ngModel)]="datasetDesc"
+                (keyup.enter)="isDatasetDescEdit ? updateDataset() : null;"
+                (clickOutside)="isDatasetDescEdit ? setDatasetDescription(): null;"
+                [(ngModel)]="datasetDesc"
                 maxlength="150"></textarea>
       <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataset();"></span>
     </div>
@@ -54,22 +54,16 @@
       <!-- popup -->
       <div class="ddp-wrap-popup2 ddp-types">
         <ul class="ddp-list-popup">
-          <!--<li>-->
-          <!--<a href="javascript:">-->
-          <!--<em class="ddp-icon-add2"></em>-->
-          <!--Generate new dataset-->
-          <!--</a>-->
-          <!--</li>-->
           <li>
             <a href="javascript:" (click)="cloneDataset()">
               <em class="ddp-icon-clone"></em>
-              Make a copy
+              {{'msg.dp.btn.make.copy' | translate }}
             </a>
           </li>
           <li>
             <a href="javascript:" (click)="createSnapshot()">
               <em class="ddp-icon-snapshot"></em>
-              Create snapshot
+              {{'msg.dp.ui.create.ss' | translate }}
             </a>
           </li>
         </ul>
@@ -79,23 +73,6 @@
     <!-- //more -->
   </div>
 
-  <!--<div class="ddp-ui-databuttons">-->
-  <!--<a href="javascript:"-->
-  <!--class="ddp-btn-buttons4 ddp-bg-black"-->
-  <!--*ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString() === 'WRANGLED'"-->
-  <!--(click)="onEditRulesBtnClicked()">{{'msg.dp.btn.edit.rules' | translate}}<em class="ddp-icon-window"></em>-->
-  <!--</a>-->
-  <!--<a href="javascript:"-->
-  <!--class="ddp-btn-buttons4"-->
-  <!--*ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString() === 'WRANGLED'"-->
-  <!--(click)="cloneEventHandler.emit(selectedDataSet)">Copy<em class="ddp-icon-window"></em>-->
-  <!--</a>-->
-  <!--<a href="javascript:"-->
-  <!--*ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString()=== 'IMPORTED'"-->
-  <!--class="ddp-btn-buttons4 ddp-full"-->
-  <!--(click)="datasetEventHandler.emit()">{{'msg.dp.btn.new.ds' | translate}}-->
-  <!--</a>-->
-  <!--</div>-->
   <!-- part -->
   <div class="ddp-wrap-part ddp-bg">
     <!-- 데이터 미리보기 -->
@@ -130,7 +107,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail 사이즈 [DB,FILE] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString()==='IMPORTED' && selectedDataSet.importType && selectedDataSet.importType.toString()==='FILE'">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString()==='IMPORTED'">
       <dt>
         {{'msg.comm.detail.size' | translate}}
       </dt>
@@ -158,7 +135,6 @@
         {{getRows}} {{'msg.comm.detail.rows' | translate}} <br>
         <!--<span *ngIf="temp.gridData && temp.dsType.toString() === 'WRANGLED'">{{temp.gridResponse.colCnt}} {{'msg.comm.detail.columns' | translate}}</span>-->
         <span *ngIf="selectedDataSet">{{getColCnt}} {{'msg.comm.detail.columns' | translate}}</span>
-
       </dd>
     </dl>
     <!-- //detail -->

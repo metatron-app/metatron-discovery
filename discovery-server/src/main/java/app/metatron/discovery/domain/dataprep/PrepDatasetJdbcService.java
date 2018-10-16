@@ -14,10 +14,15 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -27,11 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -41,12 +42,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,13 +53,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
-import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 
 @Service
 public class PrepDatasetJdbcService {
@@ -281,8 +270,14 @@ public class PrepDatasetJdbcService {
                     app.metatron.discovery.domain.dataprep.teddy.Row row = new app.metatron.discovery.domain.dataprep.teddy.Row();
                     for (int i=0;i<numberOfColumns;i++) {
                         Object value = rs.getObject(i+1);
-                        // 현재 모두 String 처리중
-                        row.add( dataFrame.getColName(i), value );
+
+                        if(dataFrame.getColType(i)==ColumnType.TIMESTAMP) {
+                            DateTime jodaTime = new DateTime(value);
+                            row.add(dataFrame.getColName(i), jodaTime);
+                        } else {
+                            // 모두 Object 그대로 들어감
+                            row.add(dataFrame.getColName(i), value);
+                        }
                     }
                     dataFrame.rows.add(readRows++,row);
                     if( limitSize < readRows ) { break; }
@@ -295,7 +290,7 @@ public class PrepDatasetJdbcService {
                 JdbcUtils.closeConnection(conn);
 
                 Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, databaseName);
-                poolExecutorService.submit(callable);
+                this.futures.add( poolExecutorService.submit(callable) );
             }
         } catch (Exception e) {
             LOGGER.error("Failed to read JDBC : {}", e.getMessage());

@@ -84,9 +84,7 @@ public class WorkbenchService {
 
       switch (authenticationType){
         case USERINFO:
-          connectionUsername = StringUtils.isEmpty(jdbcDataConnection.getUsername())
-                  ? AuthUtils.getAuthUserName()
-                  : jdbcDataConnection.getUsername();
+          connectionUsername = AuthUtils.getAuthUserName();
           User user = cachedUserService.findUser(connectionUsername);
           if(user == null){
             throw new ResourceNotFoundException("User(" + connectionUsername + ")");

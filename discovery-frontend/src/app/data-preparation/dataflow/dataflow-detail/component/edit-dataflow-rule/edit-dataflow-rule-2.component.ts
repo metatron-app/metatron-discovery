@@ -15,7 +15,6 @@
 import { isNullOrUndefined, isUndefined } from 'util';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
-import Split from 'split.js';
 import {
   AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnDestroy, OnInit,
   Output,
@@ -27,7 +26,6 @@ import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { PreparationAlert } from '../../../../util/preparation-alert.util';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { PopupService } from '../../../../../common/service/popup.service';
 import { DataflowService } from '../../../service/dataflow.service';
 import { MulticolumnRenameComponent } from './multicolumn-rename.component';
 import { ExtendInputFormulaComponent } from './extend-input-formula.component';
@@ -37,6 +35,8 @@ import { CreateSnapshotPopup } from '../../../../component/create-snapshot-popup
 import { RuleListComponent } from './rule-list.component';
 import { DataSnapshotDetailComponent } from '../../../../data-snapshot/data-snapshot-detail.component';
 import { EventBroadcaster } from '../../../../../common/event/event.broadcaster';
+
+declare let Split;
 
 @Component({
   selector: 'app-edit-dataflow-rule-2',
@@ -183,16 +183,24 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   get filteredCommandList() {
 
     let commandList = this.commandList;
-    // 검색어가 있는지 체크
+
     const isSearchTextEmpty = StringUtil.isNotEmpty(this.commandSearchText);
 
-    // 검색어가 있다면
+    let enCheckReg = /^[A-Za-z]+$/;
+
+    // Check Search Text
     if (isSearchTextEmpty) {
       commandList = commandList.filter((item) => {
-        return item.command.toLowerCase().indexOf(this.commandSearchText.toLowerCase()) > -1;
+        // language(en or ko) check
+        if(enCheckReg.test(this.commandSearchText)) {
+          return item.command.toLowerCase().indexOf(this.commandSearchText.toLowerCase()) > -1;
+        } else {
+          return item.command_h.indexOf(this.commandSearchText) > -1;
+        }
       });
     }
     return commandList;
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -200,8 +208,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private popupService: PopupService,
-              private dataflowService: DataflowService,
+  constructor(private dataflowService: DataflowService,
               private broadCaster: EventBroadcaster,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -246,13 +253,20 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public ngAfterViewInit() {
     this._split = [];
     this._split.push(Split(['.rule-left', '.rule-right'], {
-      sizes: [80, 20],
-      minSize: 300,
-    }));
+        sizes: [80, 20],
+        minSize: 300,
+        onDragEnd: (() => {
+          this._editRuleGridComp.resizeGrid();
+        })
+      })
+    );
     this._split.push(Split(['.rule-top', '.rule-bottom'], {
       direction: 'vertical',
       sizes: [70, 30],
       minSize: 280,
+      onDragEnd: (() => {
+        this._editRuleGridComp.resizeGrid();
+      })
     }));
     this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data)=> {
 
@@ -1098,10 +1112,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // variables vary according to the rule name
     // use this._editRuleComp.getValue({}) to get condition of each rule
     let val : string = 'rowNum';
-    if (this.ruleVO.command === 'derive') {
+    if (command === 'derive') {
       val = 'deriveVal';
-    } else if (this.ruleVO.command === 'set') {
+    } else if (command === 'set') {
       val = 'inputValue';
+    } else if (command === 'replace' || command === 'setCondition') {
+      val = 'condition';
     }
 
     this.extendInputFormulaComponent.open(fields, command, this._editRuleComp.getValue( val ));
@@ -1112,7 +1128,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param {{command: string, formula: string}} data
    */
   public doneInputFormula(data: { command: string, formula: string }) {
-    this._editRuleComp.setValue( 'forceCondition', data.formula );
+
+    if (data.command === 'setCondition') {
+      this._editRuleComp.setValue( 'forceCondition', data.formula );
+    } else {
+      this._editRuleComp.setValue( 'forceFormula', data.formula );
+    }
 
   }
 
@@ -1603,24 +1624,63 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   @HostListener('document:keydown.enter', ['$event'])
   private onEnterKeydownHandler(event: KeyboardEvent) {
-    // enter key only works when there is not popup or selectbox opened
 
-    let hasFocus = $('#gridSearch').is(':focus');
+    /*
+      1. 편집중이 아닐 떄 : 동작 안함
+      2. 편집중일떄
+        2.0. 일반적인 경우 : 동작
+        2.1. 콤보박스 : 동작 안함
+        2.2. 자동완성 : 레이어가 닫혀있거나, 레이어에 포커스가 안된 상태에서만 동작
+        2.3. 설명레이어 : 관계 없이 동작
+        2.4. 팝업 : 동작 안함
+     */
+    if( !isNullOrUndefined( this.ruleVO.command ) && ( 'BODY' === event.target['tagName'] || 0 < $( event.target ).closest( '.ddp-wrap-addrule' ).length )  ) {
+      // enter key only works when there is not popup or selectbox opened
 
-    if (event.keyCode === 13) {
-      if ( !this.isCommandListShow
-        && !this.isRuleUnionModalShow
-        && !this.isRuleJoinModalShow
-        && this.step !== 'create-snapshot' && !hasFocus
-        && !this.extendInputFormulaComponent.isShow
-        && isNullOrUndefined(this.isEnterKeyPressedFromOuter)
-      ) {
-        this.addRule();
+      const openComboList = $( '.ddp-list-selectbox:visible' );
+
+      if( 0 < openComboList.length ) {
+        const isAutoComple:boolean = 0 < openComboList.closest( 'rule-condition-input' ).length;
+        if( isAutoComple ) {
+          // 자동완성 : 레이어가 열려있음
+
+          let isPrevBackColor:string = '';
+          let isFocus:boolean = false;
+          $( '.ddp-list-selectbox:visible' ).find( 'li a' ).each( ( idx, val ) => {
+            const $listItem = $( val );
+            if( 0 === idx ) {
+              isPrevBackColor = $listItem.css( 'background-color' );
+            } else {
+              if( isPrevBackColor !== $listItem.css( 'background-color' ) ) {
+                isFocus = true;
+                return;
+              } else {
+                isPrevBackColor = $listItem.css( 'background-color' );
+              }
+            }
+          });
+
+          if( isFocus ) {
+            // 포커스가 된 상태 - 동작 안함
+            return;
+          } else {
+            // 포커스가 안 된 상태 - 동작
+            this.addRule();
+          }
+        } else {
+          // 콤보박스 : 열림 상태 - 동작 안함
+          return;
+        }
+      } else if( 0 < $( '.ddp-bg-popup:visible' ).length ) {
+        // 팝업 : 열림 상태 - 동작 안함
+        return;
       } else {
-        this.isEnterKeyPressedFromOuter = undefined;
+        this.addRule();
       }
     }
-  }
+
+  } // function - onEnterKeydownHandler
+
 
   /**
    * Set rule list
@@ -1668,106 +1728,165 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         command: 'header',
         alias: 'He',
         desc: this.translateService.instant('msg.dp.li.he.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅗㄷㅁㅇㄷㄱ'
       },
-      { command: 'keep', alias: 'Ke', desc: this.translateService.instant('msg.dp.li.ke.description'), isHover: false },
+      { command: 'keep',
+        alias: 'Ke',
+        desc: this.translateService.instant('msg.dp.li.ke.description'),
+        isHover: false,
+        command_h: 'ㅏㄷ데'
+      },
       {
         command: 'replace',
         alias: 'Rp',
         desc: this.translateService.instant('msg.dp.li.rp.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㄱ데ㅣㅁㅊㄷ'
       },
       {
         command: 'rename',
         alias: 'Rn',
         desc: this.translateService.instant('msg.dp.li.rn.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㄱ두믇'
       },
-      { command: 'set', alias: 'Se', desc: this.translateService.instant('msg.dp.li.se.description'), isHover: false },
+      { command: 'set',
+        alias: 'Se',
+        desc: this.translateService.instant('msg.dp.li.se.description'),
+        isHover: false,
+        command_h: 'ㄴㄷㅅ'
+      },
       {
         command: 'settype',
         alias: 'St',
         desc: this.translateService.instant('msg.dp.li.st.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㄴㄷㅅ쇼ㅔㄷ'
       },
       {
         command: 'countpattern',
         alias: 'Co',
         desc: this.translateService.instant('msg.dp.li.co.description'),
-        isHover: false
+        isHover: false,
+        command_h: '채ㅕㅜ셈ㅅㅅㄷ구'
       },
       {
         command: 'split',
         alias: 'Sp',
         desc: this.translateService.instant('msg.dp.li.sp.description'),
-        isHover: false
+        isHover: false,
+        command_h: '네ㅣㅑㅅ'
       },
       {
         command: 'derive',
         alias: 'Dr',
         desc: this.translateService.instant('msg.dp.li.dr.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅇㄷ걒ㄷ'
       },
       {
         command: 'delete',
         alias: 'De',
         desc: this.translateService.instant('msg.dp.li.de.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅇ딛ㅅㄷ'
       },
-      { command: 'drop', alias: 'Dp', desc: this.translateService.instant('msg.dp.li.dp.description'), isHover: false },
+      { command: 'drop',
+        alias: 'Dp',
+        desc: this.translateService.instant('msg.dp.li.dp.description'),
+        isHover: false,
+        command_h: 'ㅇ개ㅔ'
+      },
       {
         command: 'pivot',
         alias: 'Pv',
         desc: this.translateService.instant('msg.dp.li.pv.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅔㅑ팻'
       },
       {
         command: 'unpivot',
         alias: 'Up',
         desc: this.translateService.instant('msg.dp.li.up.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅕㅞㅑ팻'
       },
-      { command: 'Join', alias: 'Jo', desc: this.translateService.instant('msg.dp.li.jo.description'), isHover: false },
+      { command: 'Join',
+        alias: 'Jo',
+        desc: this.translateService.instant('msg.dp.li.jo.description'),
+        isHover: false,
+        command_h:'ㅓㅐㅑㅜ'
+      },
       {
         command: 'extract',
         alias: 'Ex',
         desc: this.translateService.instant('msg.dp.li.ex.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㄷㅌㅅㄱㅁㅊㅅ'
       },
       {
         command: 'flatten',
         alias: 'Fl',
         desc: this.translateService.instant('msg.dp.li.fl.description'),
-        isHover: false
+        isHover: false,
+        command_h: '림ㅅㅅ두'
       },
       {
         command: 'merge',
         alias: 'Me',
         desc: this.translateService.instant('msg.dp.li.me.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅡㄷㄱㅎㄷ'
       },
-      { command: 'nest', alias: 'Ne', desc: this.translateService.instant('msg.dp.li.ne.description'), isHover: false },
+      { command: 'nest',
+        alias: 'Ne',
+        desc: this.translateService.instant('msg.dp.li.ne.description'),
+        isHover: false,
+        command_h: 'ㅜㄷㄴㅅ'
+      },
       {
         command: 'unnest',
         alias: 'Un',
         desc: this.translateService.instant('msg.dp.li.un.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅕㅜㅜㄷㄴㅅ'
       },
       {
         command: 'aggregate',
         alias: 'Ag',
         desc: this.translateService.instant('msg.dp.li.ag.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅁㅎㅎㄱㄷㅎㅁㅅㄷ'
       },
-      { command: 'sort', alias: 'So', desc: this.translateService.instant('msg.dp.li.so.description'), isHover: false },
-      { command: 'move', alias: 'Mv', desc: this.translateService.instant('msg.dp.li.mv.description'), isHover: false },
+      {
+        command: 'sort',
+        alias: 'So',
+        desc: this.translateService.instant('msg.dp.li.so.description'),
+        isHover: false,
+        command_h: '낷'
+      },
+      {
+        command: 'move',
+        alias: 'Mv',
+        desc: this.translateService.instant('msg.dp.li.mv.description'),
+        isHover: false,
+        command_h: 'ㅡㅐㅍㄷ'
+      },
       {
         command: 'Union',
         alias: 'Ui',
         desc: this.translateService.instant('msg.dp.li.ui.description'),
-        isHover: false
+        isHover: false,
+        command_h: 'ㅕㅜㅑㅐㅜ'
       },
-      { command: 'setformat', alias: 'Sf', desc: this.translateService.instant('msg.dp.li.sf.description'), isHover: false }
+      {
+        command: 'setformat',
+        alias: 'Sf',
+        desc: this.translateService.instant('msg.dp.li.sf.description'),
+        isHover: false,
+        command_h: 'ㄴㄷㅅ래금ㅅ'
+      }
     ];
 
     // set rule

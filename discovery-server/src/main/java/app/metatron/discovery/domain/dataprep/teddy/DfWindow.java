@@ -185,6 +185,16 @@ public class DfWindow extends DataFrame {
                         throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
                     newColType = prevDf.getColTypeByColName(func.getArgs().get(0).toString());
                     break;
+                case "lag":
+                    if(func.getArgs().size()!=2)
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
+                    newColType = prevDf.getColTypeByColName(func.getArgs().get(0).toString());
+                    break;
+                case "lead":
+                    if(func.getArgs().size()!=2)
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
+                    newColType = prevDf.getColTypeByColName(func.getArgs().get(0).toString());
+                    break;
                 case "sum":
                 case "max":
                 case "min":
@@ -291,6 +301,50 @@ public class DfWindow extends DataFrame {
                                     }
                                 }
                                 value=value/avg_count;
+                                row.add(newColNames.get(j), value);
+                            }
+                            break;
+                        case "lag":
+                            targetColName = func.getArgs().get(0).toString();
+                            start = i - func.getArgs().get(1).eval(row).asInt();
+
+                            if (this.getColTypeByColName(targetColName) ==ColumnType.LONG) {
+                                Long value = 0L;
+                                if(start>=0 && partitionNumber.get(start)==partitionIndex) {
+                                        value = (long) rows.get(start).get(targetColName);
+                                } else {
+                                    value = null;
+                                }
+                                row.add(newColNames.get(j), value);
+                            } else {
+                                Double value = 0D;
+                                if(start>=0 && partitionNumber.get(start)==partitionIndex) {
+                                        value = value + (double) rows.get(start).get(targetColName);
+                                } else {
+                                    value = null;
+                                }
+                                row.add(newColNames.get(j), value);
+                            }
+                            break;
+                        case "lead":
+                            targetColName = func.getArgs().get(0).toString();
+                            start = i + func.getArgs().get(1).eval(row).asInt();
+
+                            if (this.getColTypeByColName(targetColName) ==ColumnType.LONG) {
+                                Long value = 0L;
+                                if(start>=0 && start<rows.size() && partitionNumber.get(start)==partitionIndex) {
+                                    value = (long) rows.get(start).get(targetColName);
+                                } else {
+                                    value = null;
+                                }
+                                row.add(newColNames.get(j), value);
+                            } else {
+                                Double value = 0D;
+                                if(start>=0 && start<rows.size() && partitionNumber.get(start)==partitionIndex) {
+                                    value = value + (double) rows.get(start).get(targetColName);
+                                } else {
+                                    value = null;
+                                }
                                 row.add(newColNames.get(j), value);
                             }
                             break;

@@ -14,7 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import app.metatron.discovery.domain.dataprep.PrepDataset;
 import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -47,9 +46,6 @@ public class PrepTransformController {
 
   @Autowired(required = false)
   PrepTransformService transformService;
-
-  @Value("${polaris.dataprep.sampleRows:10000}")
-  private int limitConf;
 
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform", method = RequestMethod.POST, produces = "application/json")
   public @ResponseBody ResponseEntity<?> create(
@@ -128,12 +124,11 @@ public class PrepTransformController {
       assert stageIdx == null || stageIdx >= 0 : stageIdx;
 
       response = transformService.fetch(wrangledDsId, stageIdx);
+      Integer totalRowCnt = response.getGridResponse().rows!=null?response.getGridResponse().rows.size():0;
       response.setGridResponse(getSubGrid(response.getGridResponse(), offset, count));
+      response.setTotalRowCnt( totalRowCnt );
     } catch (Exception e) {
       LOGGER.error("fetch(): caught an exception: ", e);
-      if (System.getProperty("dataprep").equals("disabled")) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_CONFIG_CODE);
-      }
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
     }
 
@@ -159,15 +154,15 @@ public class PrepTransformController {
       response = transformService.transform(wrangledDsId, request.getOp(), stageIdx, request.getRuleString());
     } catch (Exception e) {
       LOGGER.error("transform(): caught an exception: ", e);
-      if (System.getProperty("dataprep").equals("disabled")) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_CONFIG_CODE);
-      }
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
     }
 
     LOGGER.trace("transform(): end");
 
+
+    Integer totalRowCnt = response.getGridResponse().rows!=null?response.getGridResponse().rows.size():0;
     response.setGridResponse(getSubGrid(response.getGridResponse(), 0, request.getCount()));
+    response.setTotalRowCnt( totalRowCnt );
 
     return ResponseEntity.ok(response);
   }
@@ -258,9 +253,6 @@ public class PrepTransformController {
       response = transformService.getCacheInfo();
     } catch (Exception e) {
       LOGGER.error("getCacheInfo(): caught an exception: ", e);
-      if (System.getProperty("dataprep").equals("disabled")) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_CONFIG_CODE);
-      }
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
     }
     return ResponseEntity.ok(response);
@@ -393,9 +385,6 @@ public class PrepTransformController {
       response.put("function_list",functionList);
     } catch (Exception e) {
       LOGGER.error("getCacheInfo(): caught an exception: ", e);
-      if (System.getProperty("dataprep").equals("disabled")) {
-        throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_INVALID_CONFIG_CODE);
-      }
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
     }
     return ResponseEntity.ok(response);

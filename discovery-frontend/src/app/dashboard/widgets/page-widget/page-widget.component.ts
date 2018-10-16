@@ -101,8 +101,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // 현재 위젯에서 발생시킨 필터정보
   private _selectFilterList: any[] = [];
 
-  // 마지막으로 호출된 필터 목록
-  private _externalFilters: Filter[] = [];
+  // Current Selection Filters
+  private _currentSelectionFilters: Filter[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -268,11 +268,22 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 외부 필터 설정
     this.subscriptions.push(
-      this.broadCaster.on<any>('SET_EXTERNAL_FILTER').subscribe(data => {
+      this.broadCaster.on<any>('SET_GLOBAL_FILTER').subscribe(data => {
         if (data.widgetId && data.widgetId === this.widget.id) {
           this._search(data.filters);
         } else if (data.excludeWidgetId !== this.widget.id) {
           this._search(data.filters);
+        }
+      })
+    );
+
+    // 선택 필터 설정
+    this.subscriptions.push(
+      this.broadCaster.on<any>('SET_SELECTION_FILTER').subscribe(data => {
+        if (data.widgetId && data.widgetId === this.widget.id) {
+          this._search(null, data.filters);
+        } else if (data.excludeWidgetId !== this.widget.id) {
+          this._search(null, data.filters);
         }
       })
     );
@@ -325,6 +336,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public boardUtil = DashboardUtil;
 
   /**
    * 범례 표시여부 변경
@@ -440,22 +452,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       if (data.data) {
         data.data.map((field) => {
           let isExternalFilter: boolean = false;
-          if (this._externalFilters) {
-            this._externalFilters.map((filter) => {
-              // 동일한 필터가 있는지 찾는다.
-              if (_.eq(field.alias, filter.field)) {
-                isExternalFilter = true;
-              }
-            });
+          if (this._currentSelectionFilters) {
+            // 동일한 필터가 있는지 찾는다.
+            isExternalFilter = this._currentSelectionFilters.some(filter => field.alias === filter.field);
           }
 
           // 내가 선택한거면 예외
-          let isAlreadyFilter: boolean = false;
-          this._selectFilterList.map((filter) => {
-            if (_.eq(field.alias, filter.alias)) {
-              isAlreadyFilter = true;
-            }
-          });
+          let isAlreadyFilter: boolean = this._selectFilterList.some(filter => field.alias === filter.alias);
 
           if (!isExternalFilter || isAlreadyFilter) {
             selectData.push(field);
@@ -573,6 +576,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public changeExternalFilterList(externalFilters?: Filter[]): Filter[] {
 
+    (isNullOrUndefined(externalFilters)) && (externalFilters = []);
 
     // 대시보드에서 필터를 발생시킨경우 => 필터 목록 제거
     for (let num = (this._selectFilterList.length - 1); num >= 0; num--) {
@@ -691,74 +695,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isShowWidgetName(): boolean {
     return this.isViewMode && this.widget && this.widget.name && this.isShowTitle && !this.isShowHierarchyView;
   } // function - isShowWidgetName
-
-  /**
-   * 차트의 아이콘 클래스명 반환
-   * @return {string}
-   */
-  public getChartIconClass(): string {
-    let iconClass: string = '';
-    switch (this.widget.configuration.chart.type) {
-      case ChartType.BAR :
-        iconClass = 'ddp-chart-bar';
-        break;
-      case ChartType.LINE :
-        iconClass = 'ddp-chart-linegraph';
-        break;
-      case ChartType.GRID :
-        iconClass = 'ddp-chart-table';
-        break;
-      case ChartType.SCATTER :
-        iconClass = 'ddp-chart-scatter';
-        break;
-      case ChartType.HEATMAP :
-        iconClass = 'ddp-chart-heatmap';
-        break;
-      case ChartType.PIE :
-        iconClass = 'ddp-chart-pie';
-        break;
-      case ChartType.MAPVIEW :
-        iconClass = 'ddp-chart-map';
-        break;
-      case ChartType.CONTROL :
-        iconClass = 'ddp-chart-cont';
-        break;
-      case ChartType.LABEL :
-        iconClass = 'ddp-chart-kpi';
-        break;
-      case ChartType.LABEL2 :
-        iconClass = 'ddp-chart-kpi';
-        break;
-      case ChartType.BOXPLOT :
-        iconClass = 'ddp-chart-boxplot';
-        break;
-      case ChartType.WATERFALL :
-        iconClass = 'ddp-chart-waterfall';
-        break;
-      case ChartType.WORDCLOUD :
-        iconClass = 'ddp-chart-wordcloud';
-        break;
-      case ChartType.COMBINE :
-        iconClass = 'ddp-chart-combo';
-        break;
-      case ChartType.TREEMAP :
-        iconClass = 'ddp-chart-treemap';
-        break;
-      case ChartType.RADAR :
-        iconClass = 'ddp-chart-radar';
-        break;
-      case ChartType.NETWORK :
-        iconClass = 'ddp-chart-network';
-        break;
-      case ChartType.SANKEY :
-        iconClass = 'ddp-chart-sankey';
-        break;
-      case ChartType.GAUGE :
-        iconClass = 'ddp-chart-bar';
-        break;
-    }
-    return iconClass;
-  } // function - getChartIconClass
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - for Header
@@ -1066,10 +1002,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   /**
    * 데이터 검색
-   * @param {Filter[]} externalFilters
+   * @param {Filter[]} globalFilters
+   * @param {Filter[]} selectionFilters
    * @private
    */
-  private _search(externalFilters?: Filter[]) {
+  private _search(globalFilters?: Filter[], selectionFilters?: Filter[]) {
 
     // 프로세스 실행 등록
     this.processStart();
@@ -1080,20 +1017,19 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       return;
     }
 
-    // 현재 위젯에서 발생시킨 필터정보 제외처리
-    externalFilters = this.changeExternalFilterList(externalFilters);
-    this._externalFilters = externalFilters;
-
     // 버전 확인
     if (!this.uiOption.version || this.uiOption.version < SPEC_VERSION) {
       // 옵션 초기화
       this.uiOption = OptionGenerator.initUiOption(this.uiOption);
     }
 
+    // 현재 위젯에서 발생시킨 필터정보 제외처리
+    this._currentSelectionFilters = this.changeExternalFilterList(selectionFilters);
+
     // Hierarchy View 설정
     if (this.parentWidget) {
-      if (externalFilters) {
-        const idx = externalFilters.findIndex(item => this.parentWidget.id === item['selectedWidgetId']);
+      if (selectionFilters) {
+        const idx = selectionFilters.findIndex(item => this.parentWidget.id === item['selectedWidgetId']);
         if (-1 < idx) {
           this.isShowHierarchyView = false;
         } else {
@@ -1150,12 +1086,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       return;
     }
 
-    if (isNullOrUndefined(externalFilters)) {
-      // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
-      const boardFilter: Filter[] = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName);
-      (boardFilter && 0 < boardFilter.length) && (uiCloneQuery.filters = boardFilter.concat(uiCloneQuery.filters));
-    } else {
-      // 외부 필터 ( 글로벌 필터 + Selection Filter )
+    // 외부필터가 없고 글로벌 필터가 있을 경우 추가 (초기 진입시)
+    if (isNullOrUndefined(globalFilters)) {
+      globalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName);
+    }
+
+    // 외부 필터 ( 글로벌 필터 + Selection Filter )
+    {
+      let externalFilters = selectionFilters ? globalFilters.concat(selectionFilters) : globalFilters;
       externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName, externalFilters);
 
       uiCloneQuery.filters.forEach(item1 => {
@@ -1199,7 +1137,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         uiOption: this.uiOption,
         params: {
           widgetId: this.widget.id,
-          externalFilters: (externalFilters !== undefined),
+          externalFilters: (selectionFilters !== undefined),
           // 현재 차트가 선택한 필터목록
           selectFilterListList: this._selectFilterList
         }
@@ -1218,13 +1156,15 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         delete this.resultData.params;
       }
 
-      // line차트이면서 columns 데이터가 있는경우
-      if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
-        // 고급분석 예측선 API 호출
-        this.getAnalysis();
-      } else {
-        this.chart.resultData = this.resultData;
-      }
+      setTimeout( () => {
+        // line차트이면서 columns 데이터가 있는경우
+        if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
+          // 고급분석 예측선 API 호출
+          this.getAnalysis();
+        } else {
+          this.chart.resultData = this.resultData;
+        }
+      }, 1000 );
 
       this.isValidWidget = true;
 

@@ -58,12 +58,6 @@ public class TeddyImpl {
   @Autowired
   PrepProperties prepProperties;
 
-  @Value("${polaris.dataprep.sampling.rows:10000}")
-  private int sampleRows;
-
-  @Value("${polaris.dataprep.sampling.timeout:-1}")
-  private int timeout;
-
   public void checkNonAlphaNumericalColNames(String dsId) throws IllegalColumnNameForHiveException {
     Revision rev = getCurRev(dsId);
     DataFrame df = rev.get(-1);
@@ -167,7 +161,7 @@ public class TeddyImpl {
     }
 
     try {
-      newDf = dataFrameService.applyRule(df, ruleString, slaveDfs, sampleRows, timeout);
+      newDf = dataFrameService.applyRule(df, ruleString, slaveDfs);
     } catch (TeddyException e) {
       LOGGER.error("apply(): TeddyException occurred from TeddyImpl.applyRule()", e);
       throw PrepException.fromTeddyException(e);
@@ -227,7 +221,7 @@ public class TeddyImpl {
 
   public DataFrame loadFileDataset(String dsId, String targetUrl, String delimiter, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
-    df.setByGrid(Util.loadGridLocalCsv( targetUrl, delimiter, sampleRows, this.hdfsService.getConf(), null ), null);
+    df.setByGrid(Util.loadGridLocalCsv( targetUrl, delimiter, prepProperties.getSamplingLimitRows(), this.hdfsService.getConf(), null ), null);
 
     return createStage0(dsId, df);
   }
@@ -241,14 +235,13 @@ public class TeddyImpl {
 
   public DataFrame loadHiveDataset(String dsId, String sql, String dsName) throws PrepException {
 
-    PrepProperties.HiveInfo hive = prepProperties.getHive();
     HiveConnection hiveConnection = new HiveConnection();
 
-    hiveConnection.setHostname(hive.getHostname());
-    hiveConnection.setPort(hive.getPort());
-    hiveConnection.setUsername(hive.getUsername());
-    hiveConnection.setPassword(hive.getPassword());
-    hiveConnection.setUrl(hive.getCustomUrl());
+    hiveConnection.setHostname(prepProperties.getHiveHostname(true));
+    hiveConnection.setPort(    prepProperties.getHivePort(true));
+    hiveConnection.setUsername(prepProperties.getHiveUsername(true));
+    hiveConnection.setPassword(prepProperties.getHivePassword(true));
+    hiveConnection.setUrl(     prepProperties.getHiveCustomUrl(true));
 
     JdbcDataPrepService jdbcConnectionService = new JdbcDataPrepService();
     DataSource dataSource = jdbcConnectionService.getDataSource(hiveConnection, true);
@@ -264,7 +257,7 @@ public class TeddyImpl {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
 
     try {
-      df.setByJDBC(stmt, sql, sampleRows);
+      df.setByJDBC(stmt, sql, prepProperties.getSamplingLimitRows());
     } catch (JdbcTypeNotSupportedException e) {
       LOGGER.error("loadHiveDataset(): JdbcTypeNotSupportedException occurred", e);
       throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);
@@ -298,7 +291,7 @@ public class TeddyImpl {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
 
     try {
-      df.setByJDBC(stmt, sql, sampleRows);
+      df.setByJDBC(stmt, sql, prepProperties.getSamplingLimitRows());
     } catch (JdbcTypeNotSupportedException e) {
       LOGGER.error("loadContentsByImportedJdbc(): JdbcTypeNotSupportedException occurred", e);
       throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_NOT_SUPPORTED_TYPE);

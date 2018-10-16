@@ -1,0 +1,102 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.dp.ui.ds.create.title' | translate : {type : 'File'} }}
+      <span class="ddp-txt-info ddp-type">{{'msg.dp.ui.ds-sel.create.title' | translate}}</span>
+      <em class="ddp-bg-order-line2-type"></em>
+    </div>
+  </div>
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in ddp-sheet-resize">
+    <div class="ddp-box-popupcontents ddp-wrap-file-create">
+
+      <!-- upload box -->
+      <div class="ddp-box-upload" ng2FileDrop [uploader]="uploader">
+        <!-- name -->
+        <div class="ddp-data-load-name">
+          <em class="ddp-icon-file2"></em>{{datasetFile.filename}}
+        </div>
+        <!-- //name -->
+        <div class="ddp-txt-file-info">
+          <div class="ddp-link-file">
+            <input type="file" ng2FileSelect [uploader]="uploader" #fileUploadChange>
+            {{'msg.dp.ui.file.import' | translate}}
+          </div>
+          {{'msg.dp.ui.file.drop' | translate}}
+        </div>
+      </div>
+      <!-- //upload box -->
+      <div class="ddp-wrap-variable">
+        <!-- wrap sheet -->
+        <!-- ddp-full 추가 -->
+        <div class="ddp-wrap-sheet" [ngClass]="{'ddp-full':datasetFile.sheets.length === 0 || datasetFile.sheets.length === 1}">
+
+          <!-- sheet list -->
+          <div class="ddp-ui-sheet-list">
+            <ul class="ddp-list-sheet"  *ngFor="let item of datasetFile.selectedSheets; let idx = index">
+              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetname}" (click)="setDataSetSheetIndex($event,item.name, idx)">
+                <span class="ddp-txt-checkbox">{{item.name}}</span>
+              </li>
+            </ul>
+
+          </div>
+          <!-- //sheet list -->
+          <!-- sheet view -->
+          <div class="ddp-view-sheet">
+            <div class="ddp-data-name" *ngIf="datasetFile.sheetname && ''!==datasetFile.sheetname">
+              {{datasetFile.sheetname}}
+            </div>
+            <!-- 그리드 영역 -->
+            <div class="ddp-wrap-grid" [hidden]="clearGrid" [ngStyle]="getGridStyle()">
+              <div grid-component style="width:100%; height:100%;" ></div>
+            </div>
+
+            <!-- //그리드 영역 -->
+
+          </div>
+          <!-- //sheet view -->
+        </div>
+        <!-- //wrap sheet -->
+      </div>
+      <div class="ddp-wrap-edit-form">
+        <div class="ddp-wrap-edit3 ddp-type">
+          <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option">
+            <input type="text" class="ddp-input-typebasic ddp-input-size" id="fileDelimiter" placeholder="{{'msg.dp.th.col.delimiter.ph' | translate}}" [(ngModel)]="columnDelimiter" maxlength="5">
+          </div>
+          <!-- //edit option -->
+        </div>
+      </div>
+
+
+
+    </div>
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+  </div>
+  <!-- //buttons -->
+
+</div>

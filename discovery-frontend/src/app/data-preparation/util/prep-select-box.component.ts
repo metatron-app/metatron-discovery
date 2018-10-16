@@ -268,6 +268,8 @@ export class PrepSelectBoxComponent extends AbstractComponent implements OnInit 
    * @param {KeyboardEvent} event
    */
   public comboKeyEvent(event: KeyboardEvent) {
+
+    event.stopPropagation();
     const $currFocusItem = this._$sourceFieldCombo.find('li.sys-focus-item');
 
     switch (event.keyCode) {

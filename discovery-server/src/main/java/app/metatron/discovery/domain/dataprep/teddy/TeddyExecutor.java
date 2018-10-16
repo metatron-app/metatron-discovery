@@ -34,7 +34,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.hibernate.annotations.Synchronize;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -414,25 +413,6 @@ public class TeddyExecutor {
 
   private void applyRuleStrings(String masterFullDsId, List<String> ruleStrings, String ssId) throws Throwable {
     LOGGER.trace("applyRuleStrings(): start");
-
-    // single thread
-    if (cores == 0) {
-      List<DataFrame> slaveDfs = new ArrayList<>();
-      for (String ruleString : ruleStrings) {   // create rule has been removed already
-        List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
-        if (slaveDsIds != null) {
-          for (String slaveDsId : slaveDsIds) {
-            slaveDfs.add(cache.get(slaveDsId));
-          }
-        }
-        DataFrame df = cache.get(masterFullDsId);
-        DataFrame newDf = dataFrameService.applyRuleInternal(df, ruleString, slaveDfs, limitRows);
-        cache.put(masterFullDsId, newDf);
-        updateSnapshot("ruleCntDone", String.valueOf(incrRuleCntDone(ssId)), ssId);
-      }
-      return;
-    }
-
     // multi-thread
     for (String ruleString : ruleStrings) {     // create rule has been removed already
       List<Future<List<Row>>> futures = new ArrayList<>();

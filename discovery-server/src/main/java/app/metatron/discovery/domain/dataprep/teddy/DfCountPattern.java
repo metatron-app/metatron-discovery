@@ -39,13 +39,6 @@ public class DfCountPattern extends DataFrame {
     super(dsName, ruleString);
   }
 
-  private void putReplacedConditions(String targetColName, String ruleString, Map<String, Expr> rowConditionExprs) throws TeddyException {
-    Rule rule = new RuleVisitorParser().parse(ruleString);
-    Expression conditionExpr = ((Replace) rule).getRow();
-    replace$col(conditionExpr, targetColName);
-    rowConditionExprs.put(targetColName, (Expr) conditionExpr);
-  }
-
   @Override
   public List<Object> prepare(DataFrame prevDf, Rule rule, List<DataFrame> slaveDfs) throws TeddyException {
     List<Object> preparedArgs = new ArrayList<>();
@@ -58,6 +51,7 @@ public class DfCountPattern extends DataFrame {
     Boolean isCaseIgnore = countPattern.getIgnoreCase();
     String patternStr;
     String quoteStr = null;
+    String regExQuoteStr = null;
     Pattern pattern;
 
     List<String> targetColNames = new ArrayList<>();
@@ -122,9 +116,9 @@ public class DfCountPattern extends DataFrame {
 
       if (quote instanceof Constant.StringExpr) {
         quoteStr = ((Constant.StringExpr) quote).getEscapedValue();
-        quoteStr = disableRegexSymbols(quoteStr);
+        regExQuoteStr = disableRegexSymbols(quoteStr);
       } else if (expr instanceof RegularExpr) {
-        quoteStr = ((RegularExpr) quote).getEscapedValue();
+        regExQuoteStr = ((RegularExpr) quote).getEscapedValue();
       } else {
         throw new IllegalPatternTypeException("DfCountPattern.prepare(): illegal pattern type: " + quote.toString());
       }
@@ -135,6 +129,7 @@ public class DfCountPattern extends DataFrame {
 
     preparedArgs.add(targetColnos);
     preparedArgs.add(pattern);
+    preparedArgs.add(regExQuoteStr);
     preparedArgs.add(quoteStr);
     preparedArgs.add(newColName);
     return preparedArgs;
@@ -147,7 +142,8 @@ public class DfCountPattern extends DataFrame {
     List<Integer> targetColnos = (List<Integer>) preparedArgs.get(0);
     Pattern pattern = (Pattern) preparedArgs.get(1);
     String quoteStr = (String) preparedArgs.get(2);
-    String newColName = (String) preparedArgs.get(3);
+    String originalQuoteStr = (String) preparedArgs.get(3);
+    String newColName = (String) preparedArgs.get(4);
 
     LOGGER.trace("DfCountPattern.gather(): start: offset={} length={} pattern={} quoteStr={}",
                  offset, length, pattern, quoteStr);
@@ -195,8 +191,8 @@ public class DfCountPattern extends DataFrame {
         for (int targetColno : targetColnos) {
           String targetStr = row.get(targetColno).toString();
 
-          if (StringUtils.countMatches(targetStr, quoteStr) % 2 != 0) {
-            targetStr = targetStr.substring(0, targetStr.lastIndexOf(quoteStr));
+          if (StringUtils.countMatches(targetStr, originalQuoteStr) % 2 != 0) {
+            targetStr = targetStr.substring(0, targetStr.lastIndexOf(originalQuoteStr));
           }
 
           Matcher matcher = pattern.matcher(targetStr);
@@ -207,7 +203,7 @@ public class DfCountPattern extends DataFrame {
         newRow.add(newColName, count);
 
         // 나머지 추가
-        for (int colno = lastTargetColno + 1; colno < getColCnt(); colno++) {
+        for (int colno = lastTargetColno + 1; colno < prevDf.getColCnt(); colno++) {
           newRow.add(prevDf.getColName(colno), row.get(colno));
         }
         rows.add(newRow);

@@ -48,8 +48,7 @@ export class TooltipOptionConverter {
         switch(type) {
 
           case UIChartDataLabelDisplayType.CATEGORY_NAME:
-            let categoryName = ChartType.SANKEY == uiOption.type ? 'Category Name' : 'Category: Category Name';
-            uiOption.toolTip.previewList.push({name: categoryName, value: UIChartDataLabelDisplayType.CATEGORY_NAME});
+            uiOption.toolTip.previewList.push({name: 'Category: Category Name', value: UIChartDataLabelDisplayType.CATEGORY_NAME});
             break;
           case UIChartDataLabelDisplayType.CATEGORY_VALUE:
             uiOption.toolTip.previewList.push({name: 'Category Value: ' + numValue, value: UIChartDataLabelDisplayType.CATEGORY_VALUE});
@@ -76,15 +75,13 @@ export class TooltipOptionConverter {
             uiOption.toolTip.previewList.push({name: 'Value: ' + numValue, value: UIChartDataLabelDisplayType.VALUE});
             break;
           case UIChartDataLabelDisplayType.NODE_NAME:
-            let nodeName = ChartType.SANKEY == uiOption.type ? 'Node Name' : 'Node: Node Name';
-            uiOption.toolTip.previewList.push({name: nodeName, value: UIChartDataLabelDisplayType.NODE_NAME});
+            uiOption.toolTip.previewList.push({name: 'Node: Node Name', value: UIChartDataLabelDisplayType.NODE_NAME});
             break;
           case UIChartDataLabelDisplayType.LINK_VALUE:
             uiOption.toolTip.previewList.push({name: 'Link Value: ' + numValue, value: UIChartDataLabelDisplayType.LINK_VALUE});
             break;
           case UIChartDataLabelDisplayType.NODE_VALUE:
-            let nodeValue = ChartType.SANKEY == uiOption.type ? numValue : 'Node Value: ' + numValue;
-            uiOption.toolTip.previewList.push({name: nodeValue, value: UIChartDataLabelDisplayType.NODE_VALUE});
+            uiOption.toolTip.previewList.push({name: 'Node Value: ' + numValue, value: UIChartDataLabelDisplayType.NODE_VALUE});
             break;
           case UIChartDataLabelDisplayType.HIGH_VALUE:
             uiOption.toolTip.previewList.push({name: 'High: ' + numValue, value: UIChartDataLabelDisplayType.HIGH_VALUE});
@@ -103,23 +100,6 @@ export class TooltipOptionConverter {
             break;
         }
       }
-    }
-
-    // sankey차트의경우 previewList를 category name > node value > node name으로 변경한다
-    if (ChartType.SANKEY == uiOption.type) {
-      uiOption.toolTip.previewList.map((item, index, array) => {
-
-        // 끝으로 보내기
-        if (UIChartDataLabelDisplayType.NODE_NAME == item['value']) {
-          uiOption.toolTip.previewList.splice(index, 1);
-          uiOption.toolTip.previewList.push(item);
-        }
-
-        // 2개 이상이면서 index가 0 일때 > 를 붙음
-        if (array.length >= 2 && 0 == index) uiOption.toolTip.previewList[index]['name'] += " > ";
-        // 3개이상이면서 index 2일때 >를 붙임
-        if (array.length >= 3 && 1 == index) uiOption.toolTip.previewList[index]['name'] += " > ";
-      });
     }
 
     // value / percent가 있을때 한줄로 나오게 설정

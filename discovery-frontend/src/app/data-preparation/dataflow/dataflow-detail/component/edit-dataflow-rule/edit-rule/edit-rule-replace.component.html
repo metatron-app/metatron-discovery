@@ -45,8 +45,12 @@
         </div>
       </div>
       <div class="ddp-wrap-boxwrap">
-        <input [(ngModel)]="pattern" (focus)="showHidePatternLayer(true)" (blur)="showHidePatternLayer(false)"
-               type="text" tabindex="3" class="ddp-input-typebasic" placeholder="{{ 'msg.dp.th.pattern.ph' | translate }}" #patternValue>
+        <input #patternValue
+               [(ngModel)]="pattern" tabindex="3"
+               (focus)="showHidePatternLayer(true)"
+               (blur)="showHidePatternLayer(false)"
+               class="ddp-input-typebasic"
+               placeholder="{{ 'msg.dp.th.pattern.ph' | translate }}">
       </div>
     </div>
   </div>
@@ -57,8 +61,9 @@
 <div *ngIf="isShow" class="ddp-box-part" >
   <div class="ddp-box-title"> {{'msg.dp.th.new.value' | translate}} </div>
   <div class="ddp-wrap-datainput">
-    <input [(ngModel)]="newValue" tabindex="4" placeholder="{{'msg.dp.th.new.value.ph' | translate}}"
-           type="text" class="ddp-input-typebasic" >
+    <input [(ngModel)]="newValue" tabindex="4"
+           placeholder="{{'msg.dp.th.new.value.ph' | translate}}"
+           class="ddp-input-typebasic">
   </div>
 </div>
 <!--//part-->
@@ -67,8 +72,9 @@
 <div *ngIf="isShow" class="ddp-box-part ddp-box-s" >
   <div class="ddp-box-title"> {{'msg.dp.th.quote' | translate}} </div>
   <div class="ddp-wrap-datainput">
-    <input [(ngModel)]="ignore" tabindex="5" placeholder="{{'msg.dp.ui.enter.value' | translate}}"
-           type="text" class="ddp-input-typebasic" >
+    <input [(ngModel)]="ignore" tabindex="5"
+           placeholder="{{'msg.dp.ui.enter.value' | translate}}"
+           class="ddp-input-typebasic">
   </div>
 </div>
 <!--//part-->
@@ -96,12 +102,17 @@
 <!-- //part -->
 
 <!-- part -->
-<div *ngIf="isShow" class="ddp-box-part" >
+<div *ngIf="isShow" class="ddp-box-part ddp-editor" style="margin-right: 125px;">
   <div class="ddp-box-title"> {{'msg.dp.ui.cond' | translate}} </div>
   <div class="ddp-wrap-datainput">
-    <input [(ngModel)]="condition" tabindex="6" placeholder="{{'msg.dp.ui.cond.ph' | translate}}"
-           type="text" class="ddp-input-typebasic" >
+    <rule-condition-input
+      [formula]="condition" [command]="'keep'"
+      [forceFormula]="forceFormula"
+      [fields]="fields"
+      [tabIndex]="6" [placeholder]="'msg.dp.ui.cond.ph' | translate"
+      (onChange)="condition = $event"></rule-condition-input>
     <!-- ddp-selected 추가시 display:block; -->
   </div>
+  <a href="javascript:" class="ddp-btn-bg" (click)="openPopupFormulaInput()"><em class="ddp-icon-editor"></em>{{'msg.dp.btn.advanced.editor' | translate }}</a>
 </div>
 <!--// part-->

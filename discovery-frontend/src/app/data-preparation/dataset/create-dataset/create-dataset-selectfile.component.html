@@ -1,0 +1,60 @@
+<!--
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="ddp-type-contents ddp-resize2 ddp-type2">
+  <!-- 닫기 버튼 -->
+  <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+  <!-- //닫기 버튼 -->
+  <div class="ddp-icon-name">
+    <div class="ddp-ui-name2 ddp-type3">
+      {{'msg.dp.ui.ds.create.title' | translate : {type : 'File'} }}
+      <span class="ddp-txt-info ddp-type">{{'msg.dp.ui.ds-sel.create.title' | translate}}</span>
+      <em class="ddp-bg-order-line2-type"></em>
+    </div>
+  </div>
+
+  <!-- contents in  -->
+  <div class="ddp-type-contents-in ddp-full">
+
+    <div class="ddp-box-popupcontents">
+      <!-- file create -->
+      <div class="ddp-box-file-create" ng2FileDrop [uploader]="uploader">
+        <!-- default -->
+        <div class="ddp-box-default">
+          <div class="ddp-txt-file-info">
+            <div class="ddp-link-file">
+              <input type="file" ng2FileSelect [uploader]="uploader" #fileUpload>
+              {{'msg.dp.ui.file.import' | translate}}
+            </div>
+            {{'msg.dp.ui.file.drop' | translate}}
+          </div>
+          <div class="ddp-txt-file-info2">
+            {{'msg.dp.ui.file.upload.description' | translate}}
+          </div>
+        </div>
+        <!-- //default -->
+      </div>
+      <!-- //file create -->
+    </div>
+  </div>
+  <!-- //contents in  -->
+  <!-- buttons -->
+  <div class="ddp-ui-buttons">
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.cancl' | translate}}</a>
+    <!-- disabled 시 ddp-disabled 추가 -->
+    <!--<a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">Next</a>-->
+  </div>
+  <!-- //buttons -->
+
+</div>
