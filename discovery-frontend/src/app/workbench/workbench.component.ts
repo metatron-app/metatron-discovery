@@ -1142,9 +1142,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               if (param === 'ALL') {
                 queryEditor.query = this.getSelectedTabText();
               } else if (param === 'SELECTED') {
-                if (this.getSelectedSqlTabText() === '') {
+                if (this.getSelectedSqlTabText().trim() === '') {
                   this.editor.getFocusSelection();
-                  if (this.getSelectedSqlTabText() === '') {
+                  if (this.getSelectedSqlTabText().trim() === '') {
                     Alert.info(this.translateService.instant('msg.bench.alert.no.selected.query'));
                     this.isHiveQueryExecute = false;
                     this.loadingBar.hide();
