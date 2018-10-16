@@ -1183,12 +1183,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 for( let index=0; this.editor.getLines().length > index; index++ ) {
                   let text = this.editor.getLines()[index]['text'];
                   if( text.indexOf('--') == -1 ) {
-                    tempText = tempText + text;
+                    tempText = tempText + '\n' + text;
+                  } else {
+                    if( text.split('--')[0] != null ) {
+                      tempText = tempText + '\n' + text.split('--')[0];
+                    }
                   }
                 }
 
                 this.runningQueryEditor = queryEditor;
-
                 let queryStrArr = tempText.split(';');
 
                 // 전체 query data 생성
