@@ -37,6 +37,7 @@ public class DataFrameTest extends TeddyTest {
     loadGridCsv("crime", "teddy/crime.csv");
     loadGridCsv("sale", "teddy/sale.csv");
     loadGridCsv("contract", "teddy/contract.csv");
+    loadGridCsv("product", "teddy/product.csv");
     loadGridCsv("store", "teddy/store.csv");
     loadGridCsv("store1", "teddy/store.csv");
     loadGridCsv("store2", "teddy/store2.csv");
