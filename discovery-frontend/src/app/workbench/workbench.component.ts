@@ -1162,10 +1162,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 //쿼리 실행
                 this.loadingBar.hide();
 
-                // 쿼리 초기화
-                this.runningQueryArr = [];
-                this.runningQueryDoneIndex = 0;
-
                 let tempText: string = '';
                 for( let index=0; this.editor.getLines().length > index; index++ ) {
                   let text = this.editor.getLines()[index]['text'];
@@ -1178,16 +1174,20 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                   }
                 }
 
-                this.runningQueryEditor = queryEditor;
-
-                let queryStrArr = tempText.split(';');
-
                 if( tempText.trim() == '' ){
                   Alert.warning(this.translateService.instant('msg.bench.alert.execute.query'));
                   this.isHiveQueryExecute = false;
                   this.loadingBar.hide();
                   return;
                 }
+
+                // 쿼리 초기화
+                this.runningQueryArr = [];
+                this.runningQueryDoneIndex = 0;
+
+                this.runningQueryEditor = queryEditor;
+
+                let queryStrArr = tempText.split(';');
 
                 // 전체 query data 생성
                 for (let index: number = 0; index < queryStrArr.length; index++) {
