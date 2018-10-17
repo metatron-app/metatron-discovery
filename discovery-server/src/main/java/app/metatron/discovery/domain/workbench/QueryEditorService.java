@@ -94,7 +94,6 @@ public class QueryEditorService {
     if(dataSourceInfo == null){
       throw new ResourceNotFoundException("WorkbenchDataSource(webSocketId = " + webSocketId + ")");
     }
-
     int queryIndex = 0;
     for(String substitutedQuery : queryList){
       if(dataSourceInfo.getQueryStatus() == QueryStatus.CANCELLED){
@@ -134,7 +133,7 @@ public class QueryEditorService {
       LOGGER.debug("Audit Created : " + auditId);
 
       QueryResult queryResult = executeQuery(dataSourceInfo, substitutedQuery, workbench.getId(), webSocketId, jdbcDataConnection,
-              queryHistoryId, auditId, saveToTempTable, numRows, queryIndex);
+              queryHistoryId, auditId, saveToTempTable, numRows, queryIndex, queryEditor.getId());
       queryResults.add(queryResult);
 
       //increase query index
@@ -239,7 +238,7 @@ public class QueryEditorService {
 
   private QueryResult executeQuery(WorkbenchDataSource dataSourceInfo, String query, String workbenchId, String webSocketId,
                                    JdbcDataConnection jdbcDataConnection, long queryHistoryId, String auditId,
-                                   Boolean saveToTempTable, int numRows, int queryIndex){
+                                   Boolean saveToTempTable, int numRows, int queryIndex, String queryEditorId){
 
     ResultSet resultSet = null;
     QueryResult queryResult = null;
@@ -253,6 +252,7 @@ public class QueryEditorService {
       queryResult.setFinishDateTime(DateTime.now());
       queryResult.setAuditId(auditId);
       queryResult.setQueryHistoryId(queryHistoryId);
+      queryResult.setQueryEditorId(queryEditorId);
       return queryResult;
     }
 
@@ -309,12 +309,11 @@ public class QueryEditorService {
 
           //create hive query log print thread
           logThread = new Thread(
-                  new HiveQueryLogThread((HiveStatement) stmt, workbenchId, webSocketId, queryIndex,
+                  new HiveQueryLogThread((HiveStatement) stmt, workbenchId, webSocketId, queryIndex, queryEditorId,
                           1000L, messagingTemplate)
           );
 
           logThread.start();
-
           boolean hasResult = ((HiveStatement) stmt).execute(query);
           logThread.interrupt();
 
@@ -344,8 +343,6 @@ public class QueryEditorService {
         }
       }
 
-      JdbcUtils.closeConnection(connection);
-      JdbcUtils.closeStatement(stmt);
       JdbcUtils.closeResultSet(resultSet);
       JdbcUtils.closeStatement(stmt);
       JdbcUtils.closeConnection(connection);
@@ -364,6 +361,7 @@ public class QueryEditorService {
       queryResult.setFinishDateTime(finishDateTime);
       queryResult.setAuditId(auditId);
       queryResult.setQueryHistoryId(queryHistoryId);
+      queryResult.setQueryEditorId(queryEditorId);
     }
 
     return queryResult;

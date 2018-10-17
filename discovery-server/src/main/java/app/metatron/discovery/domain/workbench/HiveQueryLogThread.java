@@ -37,17 +37,19 @@ public class HiveQueryLogThread implements Runnable {
   private int queryIndex;
   private long queryProgressInterval;
   private String totalLog;
+  private String queryEditorId;
 
 
   private HiveQueryLogThread(){
 
   }
 
-  public HiveQueryLogThread(HiveStatement stmt, String workbenchId, String webSocketId, int queryIndex, long queryProgressInterval, SimpMessageSendingOperations messagingTemplate){
+  public HiveQueryLogThread(HiveStatement stmt, String workbenchId, String webSocketId, int queryIndex, String queryEditorId,long queryProgressInterval, SimpMessageSendingOperations messagingTemplate){
     this.stmt = stmt;
     this.workbenchId = workbenchId;
     this.webSocketId = webSocketId;
     this.queryIndex = queryIndex;
+    this.queryEditorId = queryEditorId;
     this.queryProgressInterval = queryProgressInterval;
     this.messagingTemplate = messagingTemplate;
   }
@@ -122,6 +124,7 @@ public class HiveQueryLogThread implements Runnable {
     message.put("log", logLists);
     message.put("progress", progress);
     message.put("queryIndex", queryIndex);
+    message.put("queryEditorId", queryEditorId);
 
     messagingTemplate.convertAndSendToUser(webSocketId, "/queue/workbench/" + workbenchId, message, createHeaders(webSocketId));
   }
@@ -131,6 +134,7 @@ public class HiveQueryLogThread implements Runnable {
     Map<String, Object> message = new HashMap<>();
     message.put("command", WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE);
     message.put("queryIndex", queryIndex);
+    message.put("queryEditorId", queryEditorId);
 
     messagingTemplate.convertAndSendToUser(webSocketId, "/queue/workbench/" + workbenchId, message, createHeaders(webSocketId));
   }
@@ -145,7 +149,7 @@ public class HiveQueryLogThread implements Runnable {
           LOGGER.debug("showRemainingLogsIfAny. do!");
           logs = hiveStatement.getQueryLog();
         } catch (SQLException e) {
-          LOGGER.error(e.getMessage());
+          LOGGER.debug(e.getMessage());
           return;
         }
         sendLogMessage(logs);
