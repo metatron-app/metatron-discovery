@@ -100,7 +100,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.uploader = new FileUploader(
       {
         url: CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload',
-        // allowedFileType: this.allowFileType
       }
     );
 
@@ -155,13 +154,18 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     // 마지막
     this.uploader.onCompleteAll = () => {
-      const that: any = this;
-      if (this.uploadResult && this.uploadResult.success) {
-        // 업로드 완료 후
-        console.info('Complete', this.uploadResult);
+      let res = JSON.parse(this.uploadResult.response);
+      if (res.success !== false) {
         this.columnDelimiter = ',';
         this.isChanged = true;
         this.getDataFile();
+      } else {
+        Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
+        this.loadingHide();
+        this.popupService.notiPopup({
+          name: 'select-file',
+          data: null
+        });
       }
     };
   }
@@ -318,7 +322,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
         this.loadingHide();
 
-        if (result.data.length > 0 && result.fields.length > 0) {
+        if (result.data && result.data.length > 0 && result.fields && result.fields.length > 0) {
           this.clearGrid = false;
           this.updateGrid(result.data , result.fields)
         } else {
@@ -338,7 +342,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.datasetService.getDatasetExcelFile(this.datasetFile).then((result) => {
 
         this.loadingHide();
-        if (result.data.length > 0 && result.fields.length > 0) {
+        if (result.data && result.data.length > 0 && result.fields && result.fields.length > 0) {
           this.clearGrid = false;
           this.updateGrid(result.data , result.fields)
         } else {
@@ -453,7 +457,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     };
     this.datasetService.getFileGridInfo(param).then((result) => {
       this.loadingHide();
-      if (result.data.length > 0 && result.fields.length > 0) {
+      if (result.data && result.data.length > 0 && result.fields && result.fields.length > 0) {
         this.updateGrid(result.data , result.fields);
       }
     });
