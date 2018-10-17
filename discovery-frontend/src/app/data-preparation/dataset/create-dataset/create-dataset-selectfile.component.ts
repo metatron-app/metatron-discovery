@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { FileLikeObject, FileUploader } from 'ng2-file-upload';
@@ -21,7 +21,6 @@ import { CookieConstant } from '../../../common/constant/cookie.constant';
 import { DatasetFile } from '../../../domain/data-preparation/dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from 'util';
-import { DatasetService } from '../service/dataset.service';
 
 @Component({
   selector: 'app-create-dataset-selectfile',
@@ -50,8 +49,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   // 파일 업로드 결과
   public uploadResult;
 
-  public allowFileType: string[] = ['text/csv'];
-
   @ViewChild('fileUpload')
   private fileUpload: ElementRef;
 
@@ -69,7 +66,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     this.uploader = new FileUploader(
       {
         url: CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload',
-        // allowedFileType: this.allowFileType
       }
     );
 
@@ -123,22 +119,14 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
     // 마지막
     this.uploader.onCompleteAll = () => {
-      const that: any = this;
-      if (this.uploadResult && this.uploadResult.success) { // file upload 성공
-        let _success = false;
-        if (this.uploadResult.response) {
-          let resp = JSON.parse(this.uploadResult.response);
-          if(resp && true==resp.success) {
-            _success = true;
-          }
-        }
-        if(true==_success) {
-          this.getDataFile();
-        } else {
-          Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-        }
-      }
       this.loadingHide();
+      let res = JSON.parse(this.uploadResult.response);
+      if (res.success !== false) {
+        this.getDataFile();
+      } else {
+        Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
+        return;
+      }
     };
 
   }
@@ -147,24 +135,13 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
   }
 
-  // change 이벤트 처리
-  public ngOnChanges(changes: SimpleChanges) {
 
-  }
-
-  // Destory
   public ngOnDestroy() {
-    // Destory
     super.ngOnDestroy();
-
-    // 이벤트도 해제 되겠지?
     this.uploader = null;
   }
 
@@ -200,7 +177,10 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     });
   }
 
-// 업로드 한 파일 조회
+
+  /**
+   * Get grid information of file
+   */
   public getDataFile() {
     if (isUndefined(this.datasetFile)) {
       return;
@@ -214,61 +194,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
       this.datasetFile.sheetname = response.sheets[0];
     }
     this.datasetFile.filekey = response.filekey;
-    /*
-    this.loadingShow();
-    if (isUndefined(this.datasetFile.sheets)) {
-      // csv
-      this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
-        this.datasetFile.totalLines = result.totalRows;
-        this.datasetFile.totalBytes = result.totalBytes;
-        this.loadingHide();
-        if (result.success === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-          return;
-        }
-      })
-        .catch((error) => {
-                this.loadingHide();
-                let prep_error = this.dataprepExceptionHandler(error);
-                PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-    } else if (this.datasetFile.sheets.length === 0) {
-      // csv
-      this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
-        this.datasetFile.totalLines = result.totalRows;
-        this.datasetFile.totalBytes = result.totalBytes;
-        this.loadingHide();
-        if (result.success === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-          return;
-        }
-      })
-        .catch((error) => {
-                this.loadingHide();
-                let prep_error = this.dataprepExceptionHandler(error);
-                PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-    } else {
-      // excel
-      this.datasetService.getDatasetExcelFile(this.datasetFile).then((result) => {
-        this.datasetFile.totalLines = result.totalRows;
-        this.datasetFile.totalBytes = result.totalBytes;
-        this.loadingHide();
-        if (result.success === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-          this.datasetFile = null;
-          this.datasetFile = new DatasetFile();
-          return;
-        }
-
-      })
-        .catch((error) => {
-                this.loadingHide();
-                let prep_error = this.dataprepExceptionHandler(error);
-                PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-    }
-    */
 
     if (!isUndefined(this.datasetFile.filename)) {
       this.popupService.notiPopup({
