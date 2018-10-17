@@ -89,8 +89,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     // add 가 처음
     this.uploader.onAfterAddingFile = (item) => {
       this.loadingShow();
-      let ext = item.file.name.split('.')[1];
-      if( ext !== 'csv' && false==ext.startsWith('xls') ) { // 윈도우에서 타입으로 파일 체크 불가 그래서 이름으로 ..
+      if( new RegExp(/^.*\.(csv | xls)$/).exec( item.file.name )) { // check file extension
         this.uploader.clearQueue();
         this.fileUpload.nativeElement.value = ''; // 같은 파일은 연속으로 올리면 잡지 못해서 초기화
         Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));

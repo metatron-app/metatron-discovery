@@ -498,6 +498,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
         })
           .catch((error) => {
+
+            clearInterval(this.interval);
             let prep_error = this.dataprepExceptionHandler(error);
             PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
           });
@@ -517,6 +519,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
               this._updateGrid(gridData);
             }
           }).catch((error) => {
+            clearInterval(this.interval);
             let prep_error = this.dataprepExceptionHandler(error);
             PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
           });
@@ -524,6 +527,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       }
     })
       .catch((error) => {
+        clearInterval(this.interval);
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
