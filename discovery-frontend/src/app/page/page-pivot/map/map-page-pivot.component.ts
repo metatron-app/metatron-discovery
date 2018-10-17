@@ -127,6 +127,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      if(this.pivot.columns.length > this.columnsCnt) {
        let column = this.pivot.columns[this.pivot.columns.length-1];
        let layerNum = column["layerNum"];
+       if(!layerNum) layerNum = 1;
        if(this.uiOption.layers[layerNum-1].color.by === 'NONE' && column.field.logicalType.toString().indexOf('GEO') !== 0) {
          this.uiOption.layers[layerNum-1].color.by = 'DIMENSION';
          this.uiOption.layers[layerNum-1].color.column = column.name;
@@ -137,6 +138,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      if(this.pivot.aggregations.length > this.aggregationsCnt) {
        let aggregation = this.pivot.aggregations[this.pivot.aggregations.length-1];
        let layerNum = aggregation["layerNum"];
+       if(!layerNum) layerNum = 1;
        if(this.uiOption.layers[layerNum-1].color.by === 'NONE' || this.uiOption.layers[layerNum-1].color.by === 'DIMENSION') {
          this.uiOption.layers[layerNum-1].color.by = 'MEASURE';
          this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + aggregation.name + ')';
