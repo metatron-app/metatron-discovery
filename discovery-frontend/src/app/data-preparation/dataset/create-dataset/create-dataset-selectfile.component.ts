@@ -58,6 +58,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
   // 생성자
   constructor(private popupService: PopupService,
+              private datasetService : DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -169,6 +170,12 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   }
 
   public close() {
+
+    // Check if came from dataflow
+    if (this.datasetService.dataflowId) {
+      this.datasetService.dataflowId = undefined;
+    }
+
     super.close();
 
     this.popupService.notiPopup({
