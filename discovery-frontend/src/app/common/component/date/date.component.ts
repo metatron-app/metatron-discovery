@@ -14,7 +14,6 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractComponent } from '../abstract.component';
-import { PeriodType } from '../period/period.component';
 import { PickerSettings } from '../../../domain/common/datepicker.settings';
 
 declare let moment: any;
@@ -41,6 +40,7 @@ export class DateComponent extends AbstractComponent implements OnInit {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   @ViewChild('date')
   public dateInput: ElementRef;
 
@@ -87,7 +87,7 @@ export class DateComponent extends AbstractComponent implements OnInit {
       = new PickerSettings(
       'ddp-input-typebasic',
       (fdate: string, date: Date) => {
-        this.onDateChange.emit(date);
+        this.onDateChange.emit(moment(date).format('YYYY-MM-DD'));
       },
       () => {}
     );
