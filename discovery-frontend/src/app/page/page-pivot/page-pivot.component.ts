@@ -1272,8 +1272,10 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    */
   public onShelveAnimation(element: JQuery) {
 
-    // 선반의 아이템들이 나오게 설정
-    this.changeDetect.detectChanges();
+    if (!this.changeDetect['destroyed']) {
+      // 선반의 아이템들이 나오게 설정
+      this.changeDetect.detectChanges();
+    }
 
     let scope = this;
 

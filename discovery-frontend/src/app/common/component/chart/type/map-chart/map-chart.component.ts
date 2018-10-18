@@ -97,6 +97,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   // Destory
   public ngOnDestroy() {
 
+    // init top
+    if (document.getElementsByClassName("ddp-ui-chart-contents") && document.getElementsByClassName("ddp-ui-chart-contents").length > 0) {
+      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '';
+    }
+
     // Destory
     super.ngOnDestroy();
   }
