@@ -3282,7 +3282,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // 차트별 가이드 레이아웃
     this.guideLayout = {
-      layout1: ['pie', 'label', 'map', 'wordcloud', 'radar'], // aggregation
+      layout1: ['pie', 'label', 'wordcloud', 'radar'], // aggregation
       layout2: ['bar', 'grid', 'line', 'combine'], // aggregation, column
       layout3: ['waterfall', 'sankey'], // column, aggregation
       // 컨트롤차트 지원중단

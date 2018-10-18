@@ -125,7 +125,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
    */
   public isValid(pivot: Pivot): boolean {
     // return true;
-    return (pivot !== undefined) && ((pivot.columns.length > 0) || (pivot.rows.length > 0) || (pivot.aggregations.length > 0));
+    // return (pivot !== undefined) && ((pivot.columns.length > 0) || (pivot.rows.length > 0) || (pivot.aggregations.length > 0));
+    // minimum condition is that dimension is more than 1
+    return pivot !== undefined && pivot.columns && pivot.columns.length > 0;
   }
 
   public onMoveEnd(evt) {

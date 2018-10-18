@@ -128,7 +128,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        let column = this.pivot.columns[this.pivot.columns.length-1];
        let layerNum = column["layerNum"];
        if(!layerNum) layerNum = 1;
-       if(this.uiOption.layers[layerNum-1].color.by === 'NONE' && column.field.logicalType.toString().indexOf('GEO') !== 0) {
+       if(this.uiOption.layers[layerNum-1].color.by === 'NONE' && column.field.logicalType && column.field.logicalType.toString().indexOf('GEO') !== 0) {
          this.uiOption.layers[layerNum-1].color.by = 'DIMENSION';
          this.uiOption.layers[layerNum-1].color.column = column.name;
          this.uiOption.layers[layerNum-1].color.schema = 'SC1';
