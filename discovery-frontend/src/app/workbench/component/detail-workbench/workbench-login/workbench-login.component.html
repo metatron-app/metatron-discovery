@@ -20,9 +20,7 @@
     <div class="ddp-ui-popup">
       <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
       <span class="ddp-ui-pop-title">{{'msg.space.ui.tag.workbench'|translate}} {{'msg.comm.usr.login'|translate}}</span>
-      <div class="ddp-txt-pop-info ddp-padt0">
-        {{'msg.bench.ui.wb.login.msg'|translate}}
-      </div>
+      <div class="ddp-txt-pop-info ddp-padt0" [innerHTML]="'msg.bench.ui.wb.login.msg'|translate"></div>
 
       <!-- contents -->
       <div class="ddp-ui-user-contet">

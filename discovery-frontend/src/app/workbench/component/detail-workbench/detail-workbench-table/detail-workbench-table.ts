@@ -364,9 +364,6 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   // 테이블 선택시.
   public setTableSql(item) {
-    if( this.disable ) {
-      return;
-    }
     this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '.' + item + ';');
   }
 
