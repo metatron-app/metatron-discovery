@@ -1,15 +1,13 @@
 package app.metatron.discovery.domain.workbench;
 
 import app.metatron.discovery.common.ProgressResponse;
+import app.metatron.discovery.util.WebSocketUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hive.jdbc.HiveStatement;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
@@ -110,10 +108,10 @@ public class HiveQueryLogThread implements Runnable {
   }
 
   private void sendLogMessage(List<String> logLists){
-    String currrentLog = StringUtils.join(logLists, "\n");
+    String currentLog = StringUtils.join(logLists, "\n");
 
     //append to total log
-    String newTotalLog = StringUtils.join(totalLog, "\n", currrentLog);
+    String newTotalLog = StringUtils.join(totalLog, "\n", currentLog);
     totalLog = newTotalLog;
 
     //parse progress
@@ -126,7 +124,7 @@ public class HiveQueryLogThread implements Runnable {
     message.put("queryIndex", queryIndex);
     message.put("queryEditorId", queryEditorId);
 
-    messagingTemplate.convertAndSendToUser(webSocketId, "/queue/workbench/" + workbenchId, message, createHeaders(webSocketId));
+    WebSocketUtils.sendMessage(messagingTemplate, webSocketId, "/queue/workbench/" + workbenchId, message);
   }
 
 
@@ -136,7 +134,7 @@ public class HiveQueryLogThread implements Runnable {
     message.put("queryIndex", queryIndex);
     message.put("queryEditorId", queryEditorId);
 
-    messagingTemplate.convertAndSendToUser(webSocketId, "/queue/workbench/" + workbenchId, message, createHeaders(webSocketId));
+    WebSocketUtils.sendMessage(messagingTemplate, webSocketId, "/queue/workbench/" + workbenchId, message);
   }
 
   private void showRemainingLogsIfAny(Statement statement) {
@@ -158,12 +156,4 @@ public class HiveQueryLogThread implements Runnable {
       LOGGER.debug("The statement instance is not HiveStatement type: " + statement.getClass());
     }
   }
-
-  private MessageHeaders createHeaders(String sessionId) {
-    SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
-    headerAccessor.setSessionId(sessionId);
-    headerAccessor.setLeaveMutable(true);
-    return headerAccessor.getMessageHeaders();
-  }
-
 }

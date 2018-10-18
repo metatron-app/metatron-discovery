@@ -14,18 +14,19 @@
 
 package app.metatron.discovery.domain.workbench.util;
 
+import app.metatron.discovery.domain.workbench.QueryStatus;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import java.sql.Statement;
-
-import app.metatron.discovery.domain.workbench.QueryStatus;
+import java.util.List;
 
 public class WorkbenchDataSource {
 
   private String connectionId;
   private String queryEditorId;
   private String webSocketId;
+  private List<String> queryList;
   private SingleConnectionDataSource singleConnectionDataSource;
   private QueryStatus queryStatus = QueryStatus.IDLE;
   private String applicationId;
@@ -128,6 +129,14 @@ public class WorkbenchDataSource {
 
   public void setCurrentStatement(Statement currentStatement) {
     this.currentStatement = currentStatement;
+  }
+
+  public List<String> getQueryList() {
+    return queryList;
+  }
+
+  public void setQueryList(List<String> queryList) {
+    this.queryList = queryList;
   }
 
   /**
