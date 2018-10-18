@@ -120,7 +120,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.uploader.onAfterAddingFile = (item) => {
       this.loadingShow();
 
-      if(new RegExp(/^.*\.(csv | xls)$/).exec( item.file.name )) { // check file extension
+      if(!new RegExp(/^.*\.(csv|xls|txt|xlxs|json)$/).test( item.file.name )) { // check file extension
         this.uploader.clearQueue();
         this.fileUploadChange.nativeElement.value = ''; // 같은 파일은 연속으로 올리면 잡지 못해서 초기화
         Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
@@ -237,9 +237,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    */
   public next() {
 
-    this.datasetFile.delimiter = this.columnDelimiter.trim();
+    this.datasetFile.delimiter = this.columnDelimiter;
 
-    if(isUndefined(this.datasetFile.delimiter) || this.datasetFile.delimiter.length ===0 ){
+    if(isUndefined(this.datasetFile.delimiter) || this.datasetFile.delimiter === '' ){
       this.columnDelimiter = '';
       Alert.warning(this.translateService.instant('msg.dp.alert.col.delim.required'));
       return;
@@ -259,13 +259,13 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public changeDelimiter() {
 
     // No change in grid when delimiter is empty
-    if (isNullOrUndefined(this.columnDelimiter) || '' === this.columnDelimiter.trim()) {
+    if (isNullOrUndefined(this.columnDelimiter) || '' === this.columnDelimiter) {
       return;
     }
 
     this.isChanged = true;
     this.loadingShow();
-    this.getGridInformation();
+    this.getGridInformation(this.getParamForGrid());
 
   }
 
@@ -317,44 +317,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     this.loadingShow();
 
-    // csv
-    if (isUndefined(this.datasetFile.sheets) || 0 == this.datasetFile.sheets.length) {
-      this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
-        this.loadingHide();
-
-        if (result.data && result.data.length > 0 && result.fields && result.fields.length > 0) {
-          this.clearGrid = false;
-          this.updateGrid(result.data , result.fields)
-        } else {
-          this.clearGrid = true;
-          return;
-        }
-      })
-        .catch((error) => {
-          this.loadingHide();
-          let prep_error = this.dataprepExceptionHandler(error);
-          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-
-    } else {
-
-      // excel
-      this.datasetService.getDatasetExcelFile(this.datasetFile).then((result) => {
-
-        this.loadingHide();
-        if (result.data && result.data.length > 0 && result.fields && result.fields.length > 0) {
-          this.clearGrid = false;
-          this.updateGrid(result.data , result.fields)
-        } else {
-          this.clearGrid = true;
-          return;
-        }
-      }).catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
-    }
+    this.getGridInformation(this.getParamForGrid());
   }
 
 
@@ -447,14 +410,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   /**
    * Get grid information
    */
-  private getGridInformation() {
+  private getGridInformation(param) {
 
-    let param = {
-      fileKey : this.datasetFile.filekey,
-      sheetname : this.datasetFile.sheetname,
-      delimiter : this.columnDelimiter,
-      fileType : (isUndefined(this.datasetFile.sheets) || 0 == this.datasetFile.sheets.length) ? 'CSV' : 'EXCEL'
-    };
     this.datasetService.getFileGridInfo(param).then((result) => {
       this.loadingHide();
       if (result.data && result.data.length > 0 && result.fields && result.fields.length > 0) {
@@ -463,6 +420,14 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     });
   }
 
+  private getParamForGrid() {
+    return {
+      fileKey : this.datasetFile.filekey,
+      sheetname : this.datasetFile.sheetname,
+      delimiter : this.columnDelimiter,
+      fileType : new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filename )[1]
+    };
+  }
 
 
   /**
