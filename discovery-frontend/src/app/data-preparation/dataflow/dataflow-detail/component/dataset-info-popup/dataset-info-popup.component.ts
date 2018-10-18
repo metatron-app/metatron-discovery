@@ -24,7 +24,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
-import { Dataset, ImportType, RsType, Rule } from '../../../../../domain/data-preparation/dataset';
+import { Dataset, DsType, ImportType, RsType, Rule } from '../../../../../domain/data-preparation/dataset';
 import { DeleteModalComponent } from '../../../../../common/component/modal/delete/delete.component';
 import { Dataflow } from '../../../../../domain/data-preparation/dataflow';
 import { Alert } from '../../../../../common/util/alert.util';
@@ -124,6 +124,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
   public isBtnOptionOpen : boolean = false;
 
+  public clearGrid : boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -141,6 +142,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     // Init
     super.ngOnInit();
 
+    this.clearGrid = false;
     this.isBtnOptionOpen = false;
     this.commandList = [
       { command: 'header', alias: 'He'},
@@ -429,12 +431,15 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
           this.setRuleList(this.selectedDataSet.ruleStringInfos);
         }
         if(this.selectedDataSet.gridResponse) {
+          this.clearGrid = false;
           this.setGridData(this.selectedDataSet.gridResponse);
+        } else {
+          this.clearGrid = true;
         }
       },0);
 
     }).catch((error) => {
-      this.loadingHide();
+      this.clearGrid = true;
       let prep_error = this.dataprepExceptionHandler(error);
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
@@ -695,14 +700,15 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   /**
    * get names of sheet
    */
-  public get getSheetName() {
-    let customJson = JSON.parse(this.selectedDataSet.custom);
-    let fileType = customJson.fileType;
-    if( fileType==="EXCEL" ) {
-      return customJson.sheet;
-    } else {
-      return "N/A"
+  public getSheetName() : string {
+
+    let result = "N/A";
+    if (this.selectedDataSet.custom) {
+      let customJson = JSON.parse(this.selectedDataSet.custom);
+      result = customJson.sheet ? customJson.sheet : "N/A";
     }
+    return result;
+
   }
 
   /**
