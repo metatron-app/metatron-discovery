@@ -154,6 +154,14 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        }
      }
 
+     // Aggregation type change
+     if( _.eq(eventType, EventType.AGGREGATION) ) {
+       let aggregation = this.pivot.aggregations[this.pivot.aggregations.length-1];
+       let layerNum = aggregation["layerNum"];
+       this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + aggregation.name + ')';
+       this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + aggregation.name + ')';
+     }
+
      this.aggregationsCnt = this.pivot.aggregations.length;
      this.columnsCnt = this.pivot.columns.length;
 
