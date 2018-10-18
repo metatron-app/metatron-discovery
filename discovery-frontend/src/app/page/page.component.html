@@ -633,7 +633,13 @@
               <div class="ddp-box-btnselect">
                 <!-- 선택시 ddp-selected 추가 -->
                 <!-- TODO GAUGE -->
-                <a href="javascript:" class="ddp-btn-selected" *ngIf="uiOption.legend && (uiOption['type'] && (uiOption['type'].toString() != 'gauge' || (uiOption['type'].toString() == 'gauge' && 'measure' == uiOption?.color?.type.toString())) && uiOption['type'].toString() != 'sankey')" [ngClass]="{'ddp-selected': uiOption.legend.auto}" (click)="showLegend(!uiOption.legend.auto)">
+                <a href="javascript:" class="ddp-btn-selected"
+                   *ngIf="uiOption.legend
+                   && (uiOption['type']
+                   && (uiOption['type'].toString() != 'gauge' || (uiOption['type'].toString() == 'gauge'
+                   && 'measure' == uiOption?.color?.type.toString()))
+                   && uiOption['type'].toString() != 'sankey')"
+                   [ngClass]="{'ddp-selected': uiOption.legend.auto}" (click)="showLegend(!uiOption.legend.auto)">
                   <em class="ddp-icon-tool-legend"></em>
                   {{'msg.page.ui.legend' | translate}}
                 </a>

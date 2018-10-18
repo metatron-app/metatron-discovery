@@ -1031,6 +1031,14 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
   public legendRender(): void {
 
+    if( !this.uiOption.legend.auto ) {
+      for(let i=0;i<document.getElementsByClassName('ddp-layout-remark').length;i++) {
+        let element = document.getElementsByClassName('ddp-layout-remark')[i] as HTMLElement;
+        element.innerHTML = "<div></div>";
+      }
+      return;
+    }
+
     if(document.getElementsByClassName('ddp-layout-remark').length > 0) {
       for(let i=0;i<document.getElementsByClassName('ddp-layout-remark').length;i++) {
         let element = document.getElementsByClassName('ddp-layout-remark')[i] as HTMLElement;
