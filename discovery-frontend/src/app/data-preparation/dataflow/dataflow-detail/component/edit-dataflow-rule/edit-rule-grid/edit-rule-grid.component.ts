@@ -602,7 +602,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     Object.keys(this._barClickedSeries).forEach((key, index) => {
       if (this._barClickedSeries[key].length >= 1 && index === data.index) {
         param['clickable']= true;
-        param['values'] = this._clickedSeries[key];
+        param['values'] = this._barClickedSeries[key];
         param['isColumnSelect'] = true;
       }
     });
