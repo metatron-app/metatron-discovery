@@ -14,20 +14,19 @@
 
 ///<reference path="../../../../common/util/string.util.ts"/>
 import {
-  Component, DoCheck,
+  Component,
   ElementRef,
   EventEmitter,
   Injector,
-  Input, KeyValueDiffers,
+  Input,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
+  Output, SimpleChange, SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
-import { isUndefined } from 'util';
-import { Alert } from '../../../../common/util/alert.util';
+import { isNullOrUndefined, isUndefined } from 'util';
 import { Page } from '../../../../domain/common/page';
 import { StringUtil } from '../../../../common/util/string.util';
 import { AbstractWorkbenchComponent } from '../../abstract-workbench.component';
@@ -37,7 +36,7 @@ import { WorkbenchService } from '../../../service/workbench.service';
   selector: 'detail-workbench-table',
   templateUrl: './detail-workbench-table.html',
 })
-export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements OnInit, OnDestroy, DoCheck {
+export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements OnInit, OnDestroy, OnChanges {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -59,7 +58,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   // public websocketId: string;
 
   @Input()
-  public disable:boolean = false;
+  public disable: boolean = false;
 
   @Input()
   public inputParams: any;
@@ -115,13 +114,11 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private differs: KeyValueDiffers,
-              protected workbenchService: WorkbenchService,
+  constructor(protected workbenchService: WorkbenchService,
               protected dataconnectionService: DataconnectionService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(workbenchService, element, injector);
-    this._differ = differs.find({}).create();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -133,11 +130,21 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   }
 
-  public ngDoCheck() {
-    // 데이터 베이스 가져오기.
-    if (!isUndefined(this.inputParams) && this._differ.diff(this.inputParams)) {
-      this.page.page = 0;
-      this.getTables();
+  public ngOnChanges(changes: SimpleChanges) {
+    const paramChanges: SimpleChange = changes.inputParams;
+
+    if (paramChanges) {
+      const prevVal = paramChanges.previousValue;
+      const currVal = paramChanges.currentValue;
+      if (isNullOrUndefined(prevVal) ||
+        (prevVal.dataconnection.id ! == currVal.dataconnection.id
+          || prevVal.dataconnection.database ! == currVal.dataconnection.database)
+      ) {
+        if (this.inputParams) {
+          this.page.page = 0;
+          this.getTables();
+        }
+      }
     }
   }
 
@@ -158,13 +165,13 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   // close table info popup
   public tableInfoClose($event) {
-    document.getElementById(`workbenchQuery`).className="ddp-ui-query";
+    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
     this.selectedTableInfoLayer = false;
   }
 
   // close schema info popup
   public tableSchemaClose() {
-    document.getElementById(`workbenchQuery`).className="ddp-ui-query";
+    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
     this.selectedTableSchemaLayer = false;
   }
 
@@ -209,6 +216,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
           this.tables = this.tables.concat(data['tables']);
         }
         this.tableDataEvent.emit(data['tables']);
+        this.safelyDetectChanges();
       })
       .catch((error) => {
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getTableListReconnectCount <= 5) {
@@ -315,7 +323,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   // Show/hide Table information popup
   public showTableInfo(item: string, index: number): void {
-    if( this.disable ) {
+    if (this.disable) {
       return;
     }
     this.selectedTableInfoLayer = false;
@@ -335,7 +343,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   // Show/hide Schema information popup
   public showTableSchemaInfo(item: string, index: number): void {
-    if( this.disable ) {
+    if (this.disable) {
       return;
     }
     event.stopImmediatePropagation();
@@ -345,7 +353,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     // $('.ddp-list-table').find('li:eq('+ index + ')').removeClass('ddp-info-selected');
     this.selectedNum = -1;
     //const offset: ClientRect = document.getElementById(`info${index}`).getBoundingClientRect();
-    document.getElementById(`workbenchQuery`).className="ddp-ui-query ddp-tablepop";
+    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query ddp-tablepop';
     this.schemaParams = {
       dataconnection: this.inputParams.dataconnection,
       selectedTable: item,
