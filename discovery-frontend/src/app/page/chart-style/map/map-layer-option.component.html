@@ -15,7 +15,7 @@
           </div>
           <!-- //divide -->
           <!-- divide -->
-          <div class="ddp-type-map-chart" style="display:;">
+          <div class="ddp-type-map-chart">
             <div class="ddp-divide2 ">
                 <div class="ddp-list-label">
                   {{'msg.page.layer.map.type' | translate}}
@@ -137,7 +137,7 @@
                         <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                           <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                           <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
-                          <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList[0].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                          <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.measureList[0].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                         </ul>
                       </div>
                       <!-- //part -->
@@ -150,7 +150,7 @@
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
-                      <div class="ddp-list-part ddp-divide" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                      <div class="ddp-list-part ddp-divide" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.layers[0].color.by.toString() === 'MEASURE'">
                         <!-- SELECTBOX -->
                         <component-select
                           [array]="uiOption.measureList[0]"
@@ -252,7 +252,7 @@
 
                     <!-- color by measure part -->
                     <!-- 사용자 색상 프리셋 box down color by measure일때 -->
-                    <div class="ddp-wrap-divide">
+                    <div *ngIf="uiOption.layers[0].color?.by && 'MEASURE' == uiOption.layers[0].color?.by" class="ddp-wrap-divide">
                       <div class="ddp-wrap-option-slider">
                         <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
                         <!-- Slide THREE -->
@@ -398,13 +398,13 @@
                                   <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].size.by }}</span>
                                   <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
                                       <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.size.by.none' | translate}}</a></li>
-                                      <li (click)="changeSizeType('MEASURE')" *ngIf="uiOption.measureList[0].length > 0"><a href="#">{{'msg.page.layer.map.size.by.measure' | translate}}</a></li>
+                                      <li (click)="changeSizeType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.measureList[0].length > 0"><a href="#">{{'msg.page.layer.map.size.by.measure' | translate}}</a></li>
                                   </ul>
                               </div>
                               <!-- //SELECTBOX -->
 
                               <!-- part -->
-                              <div class="ddp-list-part ddp-divide" *ngIf="uiOption.layers[0].size.by.toString() === 'MEASURE'">
+                              <div class="ddp-list-part ddp-divide" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.layers[0].size.by.toString() === 'MEASURE'">
                                 <!-- SELECTBOX -->
                                 <component-select
                                   [array]="uiOption.measureList[0]"
@@ -427,7 +427,7 @@
                           <!-- Slide THREE -->
                           <div class="ddp-checkbox-slide ddp-checkbox-automatic2" >
                               <input type="checkbox" name="check" [checked]="uiOption.layers[0].outline.thickness !== 'NONE'" (click)="changeOutlineFlag()">
-                              <label for="check2"><span class="ddp-slide"></span></label>
+                              <label><span class="ddp-slide"></span></label>
                           </div>
                           <!-- //Slide THREE -->
 
@@ -492,7 +492,7 @@
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                             <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                             <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
-                            <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList[0].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                            <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.measureList[0].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                           </ul>
                         </div>
                       </div>
@@ -504,7 +504,7 @@
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
-                      <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                      <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.layers[0].color.by.toString() === 'MEASURE'">
                         <!-- SELECTBOX -->
                         <component-select
                           [array]="uiOption.measureList[0]"
@@ -592,7 +592,7 @@
 
                       <!-- color by measure part -->
                       <!-- 사용자 색상 프리셋 box down color by measure일때 -->
-                      <div class="ddp-wrap-divide">
+                      <div *ngIf="uiOption.layers[0].color?.by && 'MEASURE' == uiOption.layers[0].color?.by" class="ddp-wrap-divide">
                         <div class="ddp-wrap-option-slider">
                           <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
                           <!-- Slide THREE -->
@@ -738,13 +738,13 @@
                                 <span class="ddp-txt-selectbox">{{ uiOption.layers[0].size.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].size.by }}</span>
                                 <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
                                     <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.stroke.none' | translate}}</a></li>
-                                    <li (click)="changeSizeType('MEASURE')" *ngIf="uiOption.measureList[0].length > 0"><a href="#">{{'msg.page.layer.map.stroke.measure' | translate}}</a></li>
+                                    <li (click)="changeSizeType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.measureList[0].length > 0"><a href="#">{{'msg.page.layer.map.stroke.measure' | translate}}</a></li>
                                 </ul>
                             </div>
                             <!-- //SELECTBOX -->
 
                             <!-- part -->
-                            <div class="ddp-list-part ddp-divide" *ngIf="uiOption.layers[0].size.by.toString() === 'MEASURE'">
+                            <div class="ddp-list-part ddp-divide" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.layers[0].size.by.toString() === 'MEASURE'">
                               <!-- SELECTBOX -->
                               <component-select
                                 [array]="uiOption.measureList[0]"
@@ -805,7 +805,7 @@
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                             <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                             <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
-                            <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList[0].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                            <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.measureList[0].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                           </ul>
                         </div>
                       </div>
@@ -817,7 +817,7 @@
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
-                      <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                      <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.layers[0].color.by.toString() === 'MEASURE'">
                         <!-- SELECTBOX -->
                         <component-select
                           [array]="uiOption.measureList[0]"
@@ -906,7 +906,7 @@
 
                       <!-- color by measure part -->
                       <!-- 사용자 색상 프리셋 box down color by measure일때 -->
-                      <div class="ddp-wrap-divide">
+                      <div *ngIf="uiOption.layers[0].color?.by && 'MEASURE' == uiOption.layers[0].color?.by" class="ddp-wrap-divide">
                         <div class="ddp-wrap-option-slider">
                           <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
                           <!-- Slide THREE -->
@@ -1102,11 +1102,11 @@
                           <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[0].color.by.toString() === 'NONE' ? 'none' : uiOption.layers[0].color.by) }}</span>
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                             <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
-                            <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList[0].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                            <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.measureList[0].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                           </ul>
                         </div>
                       </div>
-                    <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                    <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.layers[0].color.by.toString() === 'MEASURE'">
                       <!-- SELECTBOX -->
                       <component-select
                         [array]="uiOption.measureList[0]"
@@ -1194,7 +1194,7 @@
                     </div>
                     <!-- color by measure part -->
                     <!-- 사용자 색상 프리셋 box down color by measure일때 -->
-                    <div class="ddp-wrap-divide">
+                    <div *ngIf="uiOption.layers[0].color?.by && 'MEASURE' == uiOption.layers[0].color?.by" class="ddp-wrap-divide">
                       <div class="ddp-wrap-option-slider">
                         <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
                         <!-- Slide THREE -->
@@ -1394,7 +1394,7 @@
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                               <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                               <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
-                              <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList[0].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                              <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.measureList[0].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                             </ul>
                           </div>
                         </div>
@@ -1406,7 +1406,7 @@
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
                         </div>
-                        <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                        <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.layers[0].color.by.toString() === 'MEASURE'">
                           <!-- SELECTBOX -->
                           <component-select
                             [array]="uiOption.measureList[0]"
@@ -1495,7 +1495,7 @@
 
                         <!-- color by measure part -->
                         <!-- 사용자 색상 프리셋 box down color by measure일때 -->
-                        <div class="ddp-wrap-divide">
+                        <div *ngIf="uiOption.layers[0].color?.by && 'MEASURE' == uiOption.layers[0].color?.by" class="ddp-wrap-divide">
                           <div class="ddp-wrap-option-slider">
                             <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
                             <!-- Slide THREE -->
