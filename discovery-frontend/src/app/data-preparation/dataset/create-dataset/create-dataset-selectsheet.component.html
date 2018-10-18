@@ -64,8 +64,9 @@
               {{datasetFile.sheetname}}
             </div>
             <!-- 그리드 영역 -->
-            <div class="ddp-wrap-grid" [hidden]="clearGrid" [ngStyle]="getGridStyle()">
-              <div grid-component style="width:100%; height:100%;" ></div>
+            <div class="ddp-wrap-grid"  [ngStyle]="getGridStyle()">
+              <div class="ddp-ui-empty" *ngIf="clearGrid">{{'No preview' | translate}}</div>
+              <div grid-component style="width:100%; height:100%;" [hidden]="clearGrid" ></div>
             </div>
 
             <!-- //그리드 영역 -->
@@ -75,12 +76,16 @@
         </div>
         <!-- //wrap sheet -->
       </div>
-      <div class="ddp-wrap-edit-form">
+      <div class="ddp-wrap-edit-form" *ngIf="!datasetFile.sheets || 0 == datasetFile.sheets.length">
         <div class="ddp-wrap-edit3 ddp-type">
           <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>
           <!-- edit option -->
           <div class="ddp-ui-edit-option">
-            <input type="text" class="ddp-input-typebasic ddp-input-size" id="fileDelimiter" placeholder="{{'msg.dp.th.col.delimiter.ph' | translate}}" [(ngModel)]="columnDelimiter" maxlength="5">
+            <input class="ddp-input-typebasic ddp-input-size"
+                   id="fileDelimiter" maxlength="5"
+                   placeholder="{{'msg.dp.th.col.delimiter.ph' | translate}}"
+                   [(ngModel)]="columnDelimiter"
+                   (keyup)="changeDelimiter()">
           </div>
           <!-- //edit option -->
         </div>

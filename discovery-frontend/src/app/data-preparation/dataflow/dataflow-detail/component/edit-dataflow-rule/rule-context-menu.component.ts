@@ -66,21 +66,14 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
   | Override Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
-
     this.subscriptions.push(this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe(() => {
       this.isShow = false;
     }));
   }
 
-  // Destory
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -102,6 +95,9 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
     this.top = data.top + 'px';
     this.left = data.left + 'px';
 
+    if (params.selected) {
+      this.originalSelectedCols = params.selected ;
+    }
 
     // Check if settype rule should be disasbled or not
     let indexArray = [];

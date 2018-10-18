@@ -50,8 +50,8 @@ public class DfSet extends DataFrame {
     Expression conditionExpr = ((Set) rule).getRow();
     replace$col(exprCopy, targetColName);
     replace$col(conditionExpr, targetColName);
-    convertTimestampForConcat(exprCopy);
-    convertTimestampForConcat(conditionExpr);
+    prevDf.convertTimestampForConcat(exprCopy);
+    prevDf.convertTimestampForConcat(conditionExpr);
     replacedColExprs.put(colno, (Expr) exprCopy);
     replacedConditionExprs.put(colno, (Expr) conditionExpr);
   }

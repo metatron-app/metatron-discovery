@@ -12,38 +12,38 @@
  * limitations under the License.
  */
 
-import {AbstractComponent} from '../common/component/abstract.component';
-import {Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {GridComponent} from '../common/component/grid/grid.component';
-import {header, SlickGridHeader} from '../common/component/grid/grid.header';
-import {GridOption} from '../common/component/grid/grid.option';
-import {ActivatedRoute} from '@angular/router';
-import {WorkbenchService} from './service/workbench.service';
-import {QueryEditor, Workbench} from '../domain/workbench/workbench';
-import {Alert} from '../common/util/alert.util';
-import {DetailWorkbenchTable} from './component/detail-workbench/detail-workbench-table/detail-workbench-table';
-import {CommonConstant} from '../common/constant/common.constant';
-import {DeleteModalComponent} from '../common/component/modal/delete/delete.component';
-import {Modal} from '../common/domain/modal';
-import {UserDetail} from '../domain/common/abstract-history-entity';
-import {StringUtil} from '../common/util/string.util';
-import {CookieConstant} from '../common/constant/cookie.constant';
-import {isNullOrUndefined, isUndefined} from 'util';
-import {LoadingComponent} from '../common/component/loading/loading.component';
-import {DatasourceService} from '../datasource/service/datasource.service';
-import {PageWidget} from '../domain/dashboard/widget/page-widget';
-import {Dashboard, BoardDataSource, BoardConfiguration} from '../domain/dashboard/dashboard';
-import {BIType, ConnectionType, Datasource, Field, LogicalType} from '../domain/datasource/datasource';
-import {Workbook} from '../domain/workbook/workbook';
-import {DataconnectionService} from '../dataconnection/service/dataconnection.service';
-import {CommonUtil} from '../common/util/common.util';
+import { AbstractComponent } from '../common/component/abstract.component';
+import { Component, ElementRef, HostListener, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { GridComponent } from '../common/component/grid/grid.component';
+import { header, SlickGridHeader } from '../common/component/grid/grid.header';
+import { GridOption } from '../common/component/grid/grid.option';
+import { ActivatedRoute } from '@angular/router';
+import { WorkbenchService } from './service/workbench.service';
+import { QueryEditor, Workbench } from '../domain/workbench/workbench';
+import { Alert } from '../common/util/alert.util';
+import { DetailWorkbenchTable } from './component/detail-workbench/detail-workbench-table/detail-workbench-table';
+import { CommonConstant } from '../common/constant/common.constant';
+import { DeleteModalComponent } from '../common/component/modal/delete/delete.component';
+import { Modal } from '../common/domain/modal';
+import { UserDetail } from '../domain/common/abstract-history-entity';
+import { StringUtil } from '../common/util/string.util';
+import { CookieConstant } from '../common/constant/cookie.constant';
+import { isNullOrUndefined, isUndefined } from 'util';
+import { LoadingComponent } from '../common/component/loading/loading.component';
+import { DatasourceService } from '../datasource/service/datasource.service';
+import { PageWidget } from '../domain/dashboard/widget/page-widget';
+import { Dashboard, BoardDataSource, BoardConfiguration } from '../domain/dashboard/dashboard';
+import { BIType, ConnectionType, Datasource, Field, LogicalType } from '../domain/datasource/datasource';
+import { Workbook } from '../domain/workbook/workbook';
+import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
+import { CommonUtil } from '../common/util/common.util';
 import * as _ from 'lodash';
-import {DetailWorkbenchSchemaBrowserComponent} from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
-import {SYSTEM_PERMISSION} from '../common/permission/permission';
-import {PermissionChecker, Workspace} from '../domain/workspace/workspace';
-import {WorkspaceService} from '../workspace/service/workspace.service';
-import {CodemirrorComponent} from './component/editor-workbench/codemirror.component';
-import {Dataconnection} from '../domain/dataconnection/dataconnection';
+import { DetailWorkbenchSchemaBrowserComponent } from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
+import { SYSTEM_PERMISSION } from '../common/permission/permission';
+import { PermissionChecker, Workspace } from '../domain/workspace/workspace';
+import { WorkspaceService } from '../workspace/service/workspace.service';
+import { CodemirrorComponent } from './component/editor-workbench/codemirror.component';
+import { Dataconnection } from '../domain/dataconnection/dataconnection';
 
 @Component({
   selector: 'app-workbench',
@@ -256,7 +256,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public authenticationType: string = '';
 
   // 인터벌 객체
-  public timer: any;
   public intervalDownload: any;
 
   // container for workbench name&desc -> edit
@@ -288,7 +287,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     matchBrackets: true,
     autofocus: true,
     indentUnit: 4,
-    smartIndent:false,
+    smartIndent: false,
     showSearchButton: true,
     extraKeys: {
       'Ctrl-Space': 'autocomplete',
@@ -311,6 +310,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 단축키 show flag
   public shortcutsFl: boolean = false;
 
+  // Hive Tab logs
+  public hiveTabLogs: any[] = [];
+
   // Hive Log 표시 여부
   public hiveLogs: { [key: number]: { isShow: boolean, log: string[] } } = [];
 
@@ -318,19 +320,17 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public selectedGridTabNum: number = 0;
 
   // 화면 로딩 완료
-  public isHiveLog : boolean = false;
+  public isHiveLog: boolean = false;
 
   // hive 로그 버튼
-  public isHiveLogCancel : boolean = false;
+  public isHiveLogCancel: boolean = false;
 
   // 로그 취소 탭 넘버
   public isLogCancelTabQuery: string[] = [];
 
   // grid 값이 NO DATA  일 경우 icon show flag
   public isGridResultNoData: boolean = false;
-
-  // query loadingBar 보여줄지 말지 여부
-  public isLoadingBarShow: boolean = false;
+  public isHiveGridResultNoData: boolean = false;
 
   // 현재 실행 쿼리
   public runningQueryArr: string [] = [];
@@ -345,7 +345,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public tempEditorSelectedTabNum: number = 0;
 
   // hive log 취소중
-  public hiveLogCanceling : boolean = false;
+  public hiveLogCanceling: boolean = false;
+
+  // hive query 실행 중
+  public isHiveQueryExecute: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -374,14 +377,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.workbench.createdBy = new UserDetail();
 
     // Router에서 파라미터 전달 받기
-    const that = this;
     this.activatedRoute.params.subscribe((params) => {
-      console.info('timeout');
-      that.workbenchId = params['id'];
+      this.workbenchId = params['id'];
     });
 
     // Send statistics data
-    this.sendViewActivityStream( this.workbenchId, 'WORKBENCH' );
+    this.sendViewActivityStream(this.workbenchId, 'WORKBENCH');
 
     // 초기 데이터 조회
     this._loadInitData(() => {
@@ -395,10 +396,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       })
     });
     setTimeout(() => this.onEndedResizing(), 500);
-  }
-
-  public ngAfterViewInit() {
-    this.isLoadingBarShow = true;
   }
 
   /**
@@ -424,7 +421,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // this.webSocketCheck(() => {});
     (this._subscription) && (CommonConstant.stomp.unsubscribe(this._subscription));     // Socket 응답 해제
 
-    (this.timer) && (clearInterval(this.timer));
+    // (this.timer) && (clearInterval(this.timer));
 
     // save info
     if (this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) !== '') {
@@ -559,7 +556,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     //TODO The connection has not been established error
     try {
-      this.webSocketCheck(() => {});
+      this.webSocketCheck(() => {
+      });
     } catch (e) {
       console.log(e);
     }
@@ -728,8 +726,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public tabGridCloseHandler(tabNum) {
 
     // hive 일 경우 해당 탭 로그 삭제
-    if( this.mimeType == 'HIVE' ){
-      let arr :any = [];
+    if (this.mimeType == 'HIVE') {
+      let arr: any = [];
       arr = this.hiveLogs;
       arr.splice(tabNum, 1);
       this.hiveLogs = arr;
@@ -775,6 +773,31 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // 에디터 탭 변경
   public tabChangeHandler(selectedTabNum: number, deleteFlag: boolean = false, selectedItem?: any): void {
+
+    // hive 일경우
+    if (this.isHiveQueryExecute) {
+      this.alertHiveQueryExecuting();
+    }
+    if (this.mimeType == 'HIVE') {
+
+      this.hiveLogs = [];
+      for (let index: number = 0; index < this.hiveTabLogs.length; index = index + 1) {
+        if (this.hiveTabLogs[index]['selectedTabNum'] == selectedTabNum) {
+          this.hiveLogs = this.hiveTabLogs[index]['data'];
+          break;
+        }
+      }
+
+      let hiveCurrLogs: any = [];
+      hiveCurrLogs = this.hiveLogs;
+      if (hiveCurrLogs.length > 0) {
+        for (let index: number = 0; index < hiveCurrLogs.length; index = index + 1) {
+          hiveCurrLogs[index]['isShow'] = false;
+        }
+      }
+      this.safelyDetectChanges();
+    }
+
     // 이전에 선택된 Query tab 저장
     if (!isUndefined(this.selectedEditorId) && deleteFlag === false) {
       // 로컬 스토리지에 선택된 tab 순번과 schema 저장
@@ -853,18 +876,18 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * Change result tab
    * @param {number} selectedTabNum
    */
-  public tabGridChangeHandler(selectedTabNum: number)  {
+  public tabGridChangeHandler(selectedTabNum: number) {
 
     // hive 일경우
-    if( this.mimeType == 'HIVE' ){
-      let arr :any = [];
+    if (this.mimeType == 'HIVE') {
+      let arr: any = [];
       arr = this.hiveLogs;
-      if( arr.length > 0 && arr[selectedTabNum] ){
+      if (arr.length > 0 && arr[selectedTabNum]) {
         this.hiveLogs[selectedTabNum].isShow = false;
       }
 
       // 현재 실행 생성중인 탭의 경우 log 정보 호출
-      if( this.runningQueryDoneIndex == selectedTabNum ){
+      if (this.runningQueryDoneIndex == selectedTabNum) {
 
         this.isHiveLogCancel = true;
 
@@ -888,18 +911,23 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         if (this.datagridCurList[index]['output'] === 'text') {
           this.resultMode = 'text';
           this.resultTextOutput = this.datagridCurList[index]['message'];
+          this.isGridResultNoData = true;
         } else if (this.datagridCurList[index]['output'] === 'grid') {
           this.resultMode = 'grid';
+          this.isGridResultNoData = false;
         }
         this.datagridCurList[index]['selected'] = true;
         this.selectedGridTabNum = index;
 
         // 중지된 탭의 경우 체크
-        if( isNullOrUndefined(this.datagridCurList[index].data) ){
+        if (isNullOrUndefined(this.datagridCurList[index].data) || isNullOrUndefined(this.datagridCurList[index].data.data)) {
           $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
           this.resultRow = '0';
+          this.isGridResultNoData = true;
+          this.isHiveGridResultNoData = true;
         } else {
           this.resultRow = this.datagridCurList[index].data.numRows;
+
         }
 
       } else {
@@ -907,11 +935,17 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.datagridCurList[index]['selected'] = false;
       }
     }
-    if (this.resultMode === 'grid') {
-      // 데이터 그리드 뿌리기
-      if( this.mimeType == 'HIVE' ){
-        this.safelyDetectChanges();
+    // 데이터 그리드 뿌리기
+    if (this.mimeType == 'HIVE') {
+
+      const currHiveLog = this.hiveLogs[selectedTabNum];
+      if (currHiveLog.log.length > 0) {
+        this.isGridResultNoData = false;
       }
+
+      this.safelyDetectChanges();
+    }
+    if (this.resultMode === 'grid') {
       this.drawGridData(this.selectedGridTabNum);
     } else if (this.resultMode === 'text') {
 
@@ -921,6 +955,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public editorKeyEvent(event) {
     // 쿼리 실행.
     if (event.ctrlKey && event.keyCode === 13) {
+      if( this.isHiveQueryExecute ){
+        this.alertHiveQueryExecuting();
+        return false;
+      }
       this.setExecuteSql('SELECTED');
     }
 
@@ -933,6 +971,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     if (event.altKey && event.keyCode === 13) {
+      if( this.isHiveQueryExecute ){
+        this.alertHiveQueryExecuting();
+        return false;
+      }
       this.setExecuteSql('ALL');
     }
 
@@ -1034,14 +1076,17 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 쿼리 실행
   public setExecuteSql(param: string) {
     this.loadingBar.show();
-
+    if (this.mimeType == 'HIVE') {
+      this.isHiveQueryExecute = true;
+    }
     // 호출횟수 증가
     this._executeSqlReconnectCnt++;
     // 보고있는 탭이 에러인경우 초기화
     if (this.resultMode === 'text') this.resultMode = '';
 
-    if (this.getSelectedTabText() === '') {
+    if (this.getSelectedTabText().trim() === '') {
       Alert.warning(this.translateService.instant('msg.bench.alert.execute.query'));
+      this.isHiveQueryExecute = false;
       this.loadingBar.hide();
       return;
     }
@@ -1054,6 +1099,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.datagridCurList = [];
     this.tabGridNum = 0;
     this.selectedGridTabNum = 0;
+    this.editorResultListObj = new EditorList();
 
     this.workbenchService.checkConnectionStatus(this.textList[this.selectedTabNum]['editorId'], this.websocketId)
       .then((result) => {
@@ -1061,14 +1107,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this._executeSqlReconnectCnt = 0;
 
         // if (result === 'RUNNING' || result === 'CANCELLED') {
-        if (result === 'RUNNING' ) {
+        if (result === 'RUNNING') {
           Alert.warning(this.translateService.instant('msg.bench.ui.query.run'));
+          this.isHiveQueryExecute = false;
           this.loadingBar.hide();
           return;
         } else {
-          // hive log cancel 여부
-          this.isHiveLog = true;
-          this.isHiveLogCancel = true;
 
           const queryEditor: QueryEditor = new QueryEditor();
           queryEditor.name = this.textList[this.selectedTabNum]['name'];
@@ -1098,10 +1142,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               if (param === 'ALL') {
                 queryEditor.query = this.getSelectedTabText();
               } else if (param === 'SELECTED') {
-                if (this.getSelectedSqlTabText() === '') {
+                if (this.getSelectedSqlTabText().trim() === '') {
                   this.editor.getFocusSelection();
-                  if (this.getSelectedSqlTabText() === '') {
+                  if (this.getSelectedSqlTabText().trim() === '') {
                     Alert.info(this.translateService.instant('msg.bench.alert.no.selected.query'));
+                    this.isHiveQueryExecute = false;
+                    this.loadingBar.hide();
                     return;
                   }
                   queryEditor.query = this.getSelectedSqlTabText();
@@ -1111,18 +1157,30 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               }
 
               // hive log view show
-              if( this.mimeType == 'HIVE' ) {
+              if (this.mimeType == 'HIVE') {
 
                 //쿼리 실행
                 this.loadingBar.hide();
 
-                // log 초기화
-                (this.hiveLogs[0]) || (this.hiveLogs[0] = { isShow: true, log: [] });
-                this.datagridCurList.push({name: 'Loading..'});
-                this.safelyDetectChanges();
+                let linesSql:string[] = queryEditor.query.split( '\n' );
+                let tempText: string = '';
+                for( let index=0; linesSql.length > index; index++ ) {
+                  let text = linesSql[index];
+                  if( text.indexOf('--') == -1 ) {
+                    tempText = tempText + '\n' + text;
+                  } else {
+                    if( text.split('--')[0] != null ) {
+                      tempText = tempText + '\n' + text.split('--')[0];
+                    }
+                  }
+                }
 
-                // 첫번째 로그 탭에서 선택 표시
-                this.datagridCurList[0]['selected'] = true;
+                if( tempText.trim() == '' ){
+                  Alert.warning(this.translateService.instant('msg.bench.alert.execute.query'));
+                  this.isHiveQueryExecute = false;
+                  this.loadingBar.hide();
+                  return;
+                }
 
                 // 쿼리 초기화
                 this.runningQueryArr = [];
@@ -1130,19 +1188,31 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
                 this.runningQueryEditor = queryEditor;
 
-                let queryStrArr = queryEditor.query.split(';');
+                let queryStrArr = tempText.split(';');
 
                 // 전체 query data 생성
                 for (let index: number = 0; index < queryStrArr.length; index++) {
-                  if( queryStrArr[index].trim() != '' ) {
+                  if (queryStrArr[index].trim() != '') {
                     this.runningQueryArr.push(queryStrArr[index]);
                   }
                 }
 
                 queryEditor.query = this.runningQueryArr[0];
 
-              }
+                // log 초기화
+                (this.hiveLogs[0]) || (this.hiveLogs[0] = { isShow: true, log: [] });
+                this.datagridCurList.push({ name: 'Loading..' });
 
+                // 첫번째 로그 탭에서 선택 표시
+                this.datagridCurList[0]['selected'] = true;
+
+                // hive log cancel 여부
+                this.isHiveLog = true;
+                this.isHiveLogCancel = true;
+
+                this.safelyDetectChanges();
+
+              }
 
               this.runSingleQueryWithInvalidQuery(queryEditor, tempSelectedTabNum, 0);
 
@@ -1173,50 +1243,38 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
         try {
 
-          if( this.mimeType == 'HIVE' ){
+          if (this.mimeType == 'HIVE') {
 
             // 중지된 쿼리가 있을경우
-            if( this.isLogCancelTabQuery.length > 0 ){
-              this.hiveLogFinish();
-              return false;
-            }
+            // if( this.isLogCancelTabQuery.length > 0 ){
+            //   this.hiveLogFinish();
+            //   return false;
+            // }
 
-            let tempArr : any[] = [];
+            let tempArr: any[] = [];
 
             // log 시점때문에 더미로 추가된 데이터 제거
             for (let index: number = 0; index < this.datagridCurList.length; index++) {
-              if( this.datagridCurList[index].name.startsWith('Loading') ){
+              if (this.datagridCurList[index].name.startsWith('Loading')) {
+                // console.error("Loading pop() ====================================");
                 this.datagridCurList.pop();
               }
             }
 
             // 호출된 현재 그리드 목록 생성
             for (let index: number = 0; index < this.datagridCurList.length; index++) {
-              tempArr.push( this.datagridCurList[index] );
+              tempArr.push(this.datagridCurList[index]);
             }
             tempArr.push(result[0]);
             result = tempArr;
 
-            if( result.length > 0 ) {
+            if (result.length > 0) {
 
               // Editor Selected Tab
               this.tempEditorSelectedTabNum = tempSelectedTabNum;
 
               // hive일 경우 단건 호출
               this.setHiveDatagridData(result, tempSelectedTabNum, selectedResultTabNum, this.runningQueryArr.length);
-
-
-              // 데이터가 주석일 경우에만
-              // if( this.runningQueryArr[this.runningQueryDoneIndex].trim().startsWith("--") ) {
-              //
-              //   if( isNullOrUndefined(this.runningQueryArr[this.runningQueryDoneIndex+1]) ){
-              //     // finish
-              //     // this.drawGridData(this.runningQueryDoneIndex);
-              //     this.hiveLogFinish();
-              //     return false;
-              //   }
-              //
-              // }
 
 
             }
@@ -1231,10 +1289,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       })
       .catch((error) => {
         this.loadingBar.hide();
+
         if (!isUndefined(error.details)) {
           Alert.error(error.details);
         } else {
           Alert.error(error);
+        }
+
+        if( 'HIVE' === this.mimeType ) {
+          this.logCancel(this.selectedGridTabNum);
         }
       });
   }
@@ -1354,10 +1417,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 결과창 검색어 초기화
   public gridSearchClear(): void {
     this.searchText = '';
-
-    if( this.mimeType != 'HIVE' ){
-      this.gridComponent.search(this.searchText);
-    }
+    this.gridComponent.search(this.searchText);
   }
 
   // 그리드 검색 실행
@@ -1397,9 +1457,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // 패널 사이즈 변경 - 드래그 한 후 사용자가 구분 기호를 놓을 때 발생
   public onEndedResizing(): void {
-    if (this.resultMode === 'text') {
-      return;
-    }
+
+    this.safelyDetectChanges();
+
     // 에디터의 높이 값 구하기
     const editorHeight = this.getEditorComponentElementHeight();
 
@@ -1418,7 +1478,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   // 탭 레이어 보이기
-  protected setTabLayer($event: Event, index: number): void {
+  public setTabLayer($event: Event, index: number): void {
 
     $event.stopImmediatePropagation();
 
@@ -1700,7 +1760,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     // 길이 계산은 index가 0일 경우에만 계산한다
-    if ( this.mimeType != 'HIVE' && this.editorResultListObj.index === 0) {
+    if (this.editorResultListObj.index === 0) {
       // 변경이 다 일어났을 때
       this.changeDetect.detectChanges();
       // 아이콘 버튼 show flag
@@ -1795,7 +1855,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       }
 
       // 최초 row 정보
-      if( selectedResultTabNum == 0 ){
+      if (selectedResultTabNum == 0) {
         this.resultRow = data[selectedResultTabNum].numRows;
       }
 
@@ -1808,26 +1868,27 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         selectedYn = false;
       }
       if (data[selectedResultTabNum].queryResultStatus === 'FAIL') {
-        // if (index === 0) { // 0 번쨰가 Fail 일 경우
-        // this.resultMode = 'text';
-        this.resultTextOutput = data[selectedResultTabNum].message;
-        // }
+        if (index === 0) { // 0 번쨰가 Fail 일 경우
+          this.resultMode = 'text';
+          this.resultTextOutput = data[selectedResultTabNum].message;
+          this.isGridResultNoData = true;
+        }
         const temp = {
-          name: this.textList[selectedNum].name + '- 오류 ' + (selectedResultTabNum + 1),
+          name: this.textList[selectedNum].name + '- ' + this.translateService.instant('msg.comm.ui.error') + ' ' + (selectedResultTabNum + 1),
           data: data[selectedResultTabNum],
           selected: selectedYn,
           output: 'text',
-          message: data[selectedNum].message,
+          message: data[selectedResultTabNum].message,
           queryTabNum: selectedNum,
           editorId: this.textList[selectedNum].editorId
         };
         this.tabGridNum = this.tabGridNum + 1;
-        this.isGridResultNoData = true;
         this.datagridList.push(temp);
       } else {
-        // if (index === 0) { // 0 번쨰가 SUCCESS 일 경우
-        this.resultMode = 'grid';
-        // }
+        if (index === 0) { // 0 번쨰가 SUCCESS 일 경우
+          this.resultMode = 'grid';
+          this.isGridResultNoData = false;
+        }
         const temp = {
           name: this.textList[selectedNum].name + ' - ' + this.translateService.instant('msg.bench.ui.rslt') + (selectedResultTabNum + 1),
           data: data[selectedResultTabNum],
@@ -1838,7 +1899,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           editorId: this.textList[selectedNum].editorId
         };
         this.tabGridNum = this.tabGridNum + 1;
-        this.isGridResultNoData = false;
         this.datagridList.push(temp);
       }
     }
@@ -1885,7 +1945,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.resultTextOutput = data[index].message;
         }
         const temp = {
-          name: this.textList[selectedNum].name + '- 오류 ' + (index + 1),
+          name: this.textList[selectedNum].name + '- ' + this.translateService.instant('msg.comm.ui.error') + ' ' + (index + 1),
           data: data[index],
           selected: selectedYn,
           output: 'text',
@@ -2003,12 +2063,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * Hive result toggle button event
    * @param selectedGridTabNum
    */
-  public hiveLogToggleClick(selectedGridTabNum: number, type : string){
+  public hiveLogToggleClick(selectedGridTabNum: number, type: string) {
 
     this.isHiveLogCancel = false;
 
     // data, log 타입 구분
-    if( type == 'log' ){
+    if (type == 'log') {
       this.hiveLogs[selectedGridTabNum].isShow = false;
       this.safelyDetectChanges();
 
@@ -2040,94 +2100,70 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this._subscription
         = CommonConstant.stomp.subscribe('/user/queue/workbench/' + this.workbenchId, (data) => {
 
-        this.loadingBar.hide();
+          ( this.hiveLogCanceling ) || ( this.loadingBar.hide() );
 
-        if (this.runningQueryDoneIndex == 0) {
-          this.datagridCurList[0]['selected'] = true;
-        }
+          if (this.runningQueryDoneIndex == 0) {
+            this.datagridCurList[0]['selected'] = true;
+          }
 
-        if ('HIVE' === this.mimeType && !isNullOrUndefined(data.queryIndex)) {
+          if ('HIVE' === this.mimeType && !isNullOrUndefined(data.queryIndex)) {
 
-          // log 데이터 그리는 부분, done 인 부분으로 분리
-          if ('LOG' === data.command && data.log.length != 0) {
+            // log 데이터 그리는 부분, done 인 부분으로 분리
+            if ('LOG' === data.command && data.log.length != 0) {
 
-            const currHiveLog = this.hiveLogs[this.runningQueryDoneIndex];
+              const currHiveLog = this.hiveLogs[this.runningQueryDoneIndex];
 
-            // 시점상으로 취소 쿼리를 호출하였으나 넘어온 경우 예외처리
-            if( isUndefined(currHiveLog) ){
-              this.hiveLogFinish();
-              return false;
-            }
+              // 시점상으로 취소 쿼리를 호출하였으나 넘어온 경우 예외처리
+              // if( isUndefined(currHiveLog) ){
+              //   this.hiveLogFinish();
+              //   return false;
+              // }
 
-            currHiveLog.isShow = true;
-            currHiveLog.log = currHiveLog.log.concat(data.log);
-
-            const gridList = this.datagridCurList[this.runningQueryDoneIndex];
-            gridList.name = 'Loading..';
-
-            this.safelyDetectChanges();
-            // log data 가 있을경우 scroll 이동
-            if ($('#workbenchHiveLogText').text() != '') {
-
-              let textAreaHeight = $('#workbenchHiveLogText').height();
-              let lineBreakLength = $('#workbenchHiveLogText').find('br').length;
-              let offsetTop =  textAreaHeight * (Math.ceil(lineBreakLength / 8));
-
-              $('#workbenchHiveLogText').scrollTop(offsetTop);
-            }
-
-
-          } else if ('DONE' === data.command) {
-
-            // 로그 결과가 미리 떨어지는 경우 대비
-            setTimeout(() => {
-
-              if( this.isLogCancelTabQuery.length > 0 ){
-                this.hiveLogFinish();
-                return false;
+              if( currHiveLog ) {
+                currHiveLog.isShow = true;
+                currHiveLog.log = currHiveLog.log.concat(data.log);
               }
 
+              const gridList = this.datagridCurList[this.runningQueryDoneIndex];
+              gridList.name = 'Loading..';
 
-              // 선택된 탭이 로그가 그려지고 있을경우 그리드 전환
-              if( this.selectedGridTabNum == this.runningQueryDoneIndex ) {
+              this.safelyDetectChanges();
+              // log data 가 있을경우 scroll 이동
+              const $logContainer = $('#workbenchHiveLogText');
+              if ($logContainer.text() != '') {
 
-                this.datagridCurList[this.runningQueryDoneIndex]['selected'] = true;
-                this.selectedGridTabNum = this.runningQueryDoneIndex;
-                this.hiveLogs[this.runningQueryDoneIndex].isShow = false;
-                this.safelyDetectChanges();
+                let textAreaHeight = $logContainer.height();
+                let lineBreakLength = $logContainer.find('br').length;
+                let offsetTop = textAreaHeight * (Math.ceil(lineBreakLength / 8));
 
-                this.drawGridData(this.runningQueryDoneIndex);
+                $logContainer.scrollTop(offsetTop);
               }
 
-              // 마지막 쿼리가 아닐경우 다음 쿼리 호출
-              if( !isNullOrUndefined(this.runningQueryArr[this.runningQueryDoneIndex+1]) ){
+            } else if ('DONE' === data.command) {
 
-                this.runningQueryDoneIndex++;
-                this.hiveNextQueryExequte();
+              // 로그 결과가 미리 떨어지는 경우 대비
+              const timer = setInterval( () => {
+                const gridList = this.datagridCurList[this.runningQueryDoneIndex];
+                if( !!gridList.data ) {
+                  clearInterval( timer );
+                  this._hiveQueryDone();
+                }
+              }, 500 );
 
-              } else {
+            } // end if - command log, done
 
-                // finish
-                this.hiveLogFinish();
+          }
 
-              }
+          if (data['connected'] === true) {
+            console.info('connected');
+            this.databaseParam = {
+              dataconnection: this.workbenchTemp.dataConnection,
+              workbenchId: this.workbenchId,
+              webSocketId: CommonConstant.websocketId
+            };
+          }
 
-            }, 500);
-
-          } // end if - command log, done
-
-        }
-
-        if (data['connected'] === true) {
-          console.info('connected');
-          this.databaseParam = {
-            dataconnection: this.workbenchTemp.dataConnection,
-            workbenchId: this.workbenchId,
-            webSocketId: CommonConstant.websocketId
-          };
-        }
-
-        (callback) && (callback.call(this));
+          (callback) && (callback.call(this));
       }, headers);
       // 메세지 발신
       const params = {
@@ -2141,19 +2177,57 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   } // function - createWebSocket
 
+  /**
+   * hive query execute done
+   * @return {boolean}
+   * @private
+   */
+  private _hiveQueryDone() {
+
+    if (this.isLogCancelTabQuery.length > 0) {
+      this.hiveLogFinish();
+      return false;
+    }
+
+    // 선택된 탭이 로그가 그려지고 있을경우 그리드 전환
+    if (this.selectedGridTabNum == this.runningQueryDoneIndex) {
+
+      this.datagridCurList[this.runningQueryDoneIndex]['selected'] = true;
+      this.selectedGridTabNum = this.runningQueryDoneIndex;
+      this.hiveLogs[this.runningQueryDoneIndex].isShow = false;
+      this.safelyDetectChanges();
+
+      this.drawGridData(this.runningQueryDoneIndex);
+    }
+
+    // 마지막 쿼리가 아닐경우 다음 쿼리 호출
+    if (!isNullOrUndefined(this.runningQueryArr[this.runningQueryDoneIndex + 1])) {
+
+      this.runningQueryDoneIndex++;
+      this.hiveNextQueryExequte();
+
+    } else {
+
+      // finish
+      this.hiveLogFinish();
+
+    }
+
+  } // function - _hiveQueryDone
+
   // hive connection 다음 쿼리 호출
-  public hiveNextQueryExequte(){
+  public hiveNextQueryExequte() {
 
     let nextIndex = this.runningQueryDoneIndex;
 
     // 로그와 데이터 response 통신 부분이 끝나는 시점이 정해져 있지 않기 때문에 강제로 탭을 추가
     // 이전 타이틀 변경 tab title 기존 으로 변경
-    const gridList = this.datagridCurList[nextIndex-1];
+    const gridList = this.datagridCurList[nextIndex - 1];
     gridList.name = this.textList[this.tempEditorSelectedTabNum].name + ' - ' + this.translateService.instant('msg.bench.ui.rslt') + (nextIndex);
 
     // 임시 tab 데이터 생성
     (this.hiveLogs[nextIndex]) || (this.hiveLogs[nextIndex] = { isShow: true, log: [] });
-    this.datagridCurList.push({name : 'Loading..'});
+    this.datagridCurList.push({ name: 'Loading..' });
 
     // 다음 탭 log 화면 전환
     // this.selectedGridTabNum = nextIndex;
@@ -2166,10 +2240,18 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   // hive log DONE 종료
-  public hiveLogFinish(){
+  public hiveLogFinish() {
+    // 로그 취소된 경우 취소된 결과 탭을 선택 표시
+    if( this.isLogCancelTabQuery.length > 0 ) {
+      for (let index: number = 0; index < this.datagridCurList.length; index = index + 1) {
+        this.datagridCurList[index]['selected'] = false;
+      }
+      this.datagridCurList[this.selectedGridTabNum]['selected'] = true;
+    }
 
+    this.isHiveQueryExecute = false;
     // 처음 쿼리를 취소한 경우
-    if( this.datagridCurList.length == 0 ){
+    if (this.datagridCurList.length == 0) {
       return false;
     }
 
@@ -2186,6 +2268,24 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.isHiveLog = false;
     this.isHiveLogCancel = false;
     this.safelyDetectChanges();
+    this.setHiveTabLogs();
+
+  }
+
+  // set hive tab log
+  public setHiveTabLogs() {
+
+    for (let index: number = 0; index < this.hiveTabLogs.length; index = index + 1) {
+      if (this.hiveTabLogs[index]['selectedTabNum'] == this.selectedTabNum) {
+        this.hiveTabLogs.splice(index, 1);
+        break;
+      }
+    }
+
+    this.hiveTabLogs.push({
+      selectedTabNum: this.selectedTabNum,
+      data: this.hiveLogs
+    });
 
   }
 
@@ -2199,6 +2299,18 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     //
     // // 에디터 높이
     const editorHeight: number = editorWrapElement.clientHeight;
+
+    // 전체 화면일 경우 계산
+    if( this.isQueryEditorFull ) {
+      const editorFullElement: Element = this.element.nativeElement
+        .querySelector('.ddp-ui-query');
+      const editorTabElement: Element = this.element.nativeElement
+        .querySelector('.ddp-wrap-tabs-edit');
+
+      return editorFullElement.clientHeight - editorTabElement.clientHeight;
+
+    }
+
 
     // // 반환
     // return editorHeight;
@@ -2224,17 +2336,26 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     const headers: header[] = [];
     // data fields가 없다면 return
     if (!data || !data.fields) {
-
-      if( this.mimeType == 'HIVE' ){
+      // hive 일 경우 log 데이터 확인 필요
+      if (this.mimeType == 'HIVE') {
         this.hiveLogs[idx].isShow = false;
+        // hive 일 경우  field 한 번더 체크
+        if (!data || !data.fields) {
+          this.isHiveGridResultNoData = true;
+          $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
+        } else {
+          this.isHiveGridResultNoData = false;
+        }
         this.safelyDetectChanges();
+        return false;
       }
-
       this.gridComponent.noShowData();
       $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
+      this.isHiveGridResultNoData = true;
       this.isGridResultNoData = true;
       return false;
     } else {
+      this.isHiveGridResultNoData = false;
       this.isGridResultNoData = false;
     }
 
@@ -2322,7 +2443,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       .catch((error) => {
         // this.commonExceptionHandler(error);
       });
-
   }
 
   // log cancel
@@ -2339,36 +2459,62 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       query: '',
       webSocketId: this.websocketId
     };
-    console.info("logCancel setQueryRunCancel param query : " + params.query);
-    console.info("logCancel setQueryRunCancel param webSocketId : " + params.webSocketId);
     this.workbenchService.setQueryRunCancel(this.selectedEditorId, params)
       .then(() => {
 
         Alert.success(this.translateService.instant('msg.bench.alert.log.cancel.success'));
         this.loadingBar.hide();
-        this.hiveLogCanceling = false;
 
-        console.info("logCancel setQueryRunCancel success");
+        console.info('logCancel setQueryRunCancel success');
 
-        this.isLogCancelTabQuery.push(this.runningQueryArr[selectedGridTabNum]);
-
-        const currHiveLog = this.hiveLogs[selectedGridTabNum];
-
-        currHiveLog.isShow = true;
-        currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.success'));
-
-        this.isHiveLog = false;
-
+        this.setQueryRunCancel(true, selectedGridTabNum);
 
       })
       .catch((error) => {
 
         Alert.error(this.translateService.instant('msg.bench.alert.log.cancel.error'));
         this.loadingBar.hide();
-        this.hiveLogCanceling = false;
 
-        console.info("logCancel setQueryRunCancel error");
+        console.info('logCancel setQueryRunCancel error');
+
+        this.setQueryRunCancel(false, selectedGridTabNum);
+
       });
+
+  }
+
+  // query cancel
+  public setQueryRunCancel(isSuccess: boolean, selectedGridTabNum: number) {
+
+    this.hiveLogCanceling = false;
+    this.isHiveQueryExecute = false;
+
+    this.isLogCancelTabQuery.push(this.runningQueryArr[selectedGridTabNum]);
+
+    const currHiveLog = this.hiveLogs[selectedGridTabNum];
+    currHiveLog.isShow = true;
+    if (isSuccess) {
+      currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.success'));
+    } else {
+      currHiveLog.log = currHiveLog.log.concat(this.translateService.instant('msg.bench.alert.log.cancel.error'));
+    }
+
+    this.setHiveTabLogs();
+
+    // console.error("cancel selectedGridTabNum ================================ : " + selectedGridTabNum);
+    // console.error("this.datagridCurList.length ================================ : " + this.datagridCurList.length);
+
+    // 시점상 탭 그려지기 이전에 취소한 경우 결과 탭을 생성
+    if( isUndefined( this.datagridCurList[selectedGridTabNum] ) ){
+      this.datagridCurList.push({name : this.textList[this.tempEditorSelectedTabNum].name + ' - ' + this.translateService.instant('msg.bench.ui.rslt') + (selectedGridTabNum + 1)});
+      this.datagridCurList[selectedGridTabNum]['output'] = 'grid';
+      this.datagridCurList[selectedGridTabNum]['selected'] = true;
+      this.selectedGridTabNum = selectedGridTabNum;
+    }
+
+    this.isHiveLogCancel = false;
+    this.isHiveLog = false;
+    this.safelyDetectChanges();
 
 
   }
@@ -2432,10 +2578,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.connectionService.getDataconnectionDetail(this.workbench.dataConnection.id)
       .then((connection) => {
         const selectedSecurityType = [
-            { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
-            { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
-            { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
-          ].find(type => type.value === this.workbench.dataConnection.authenticationType) || { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' };
+          { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+          { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+          { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+        ].find(type => type.value === this.workbench.dataConnection.authenticationType) || {
+          label: this.translateService.instant('msg.storage.li.connect.always'),
+          value: 'MANUAL'
+        };
         this.mainViewShow = false;
         this.mode = 'db-configure-schema';
         this.setDatasource = {
@@ -2449,7 +2598,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             selectedDbType: this.getEnabledConnectionTypes(true)
               .find(type => type.value === this.workbench.dataConnection.implementor.toString()),
             selectedSecurityType: selectedSecurityType,
-            selectedIngestionType: { label : this.translateService.instant('msg.storage.ui.list.ingested.data'), value : ConnectionType.ENGINE },
+            selectedIngestionType: {
+              label: this.translateService.instant('msg.storage.ui.list.ingested.data'),
+              value: ConnectionType.ENGINE
+            },
             isUsedConnectionPreset: true
           },
           databaseData: {
@@ -2591,10 +2743,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     param['fields'] = column;
 
     const selectedSecurityType = [
-        { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
-        { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
-        { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
-      ].find(type => type.value === connection.authenticationType) || { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' };
+      { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+      { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+      { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+    ].find(type => type.value === connection.authenticationType) || {
+      label: this.translateService.instant('msg.storage.li.connect.always'),
+      value: 'MANUAL'
+    };
 
     // ingestion param
     const connInfo: Dataconnection = this.workbench.dataConnection;
@@ -2876,6 +3031,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     } else {
       this.editor.setModeOptions('text/x-mysql');
     }
+  }
+
+  /**
+   * hive query 실행시 warning
+   */
+  public alertHiveQueryExecuting() {
+    Alert.warning(this.translateService.instant('msg.bench.ui.query.run'));
+    return false;
   }
 
 }

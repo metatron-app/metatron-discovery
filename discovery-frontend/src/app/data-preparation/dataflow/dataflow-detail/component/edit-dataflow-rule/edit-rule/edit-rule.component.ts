@@ -37,7 +37,10 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
 
   public fields : Field[];
   public selectedFields: Field[] = [];
-  public forceCondition : string = '';
+  public forceFormula : string = '';
+
+  public forceCondition: string = '';
+
   @Output()
   public onEvent:EventEmitter<any> = new EventEmitter();
 

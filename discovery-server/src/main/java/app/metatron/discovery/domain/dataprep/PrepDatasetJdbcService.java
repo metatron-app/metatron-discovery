@@ -290,7 +290,7 @@ public class PrepDatasetJdbcService {
                 JdbcUtils.closeConnection(conn);
 
                 Callable<Integer> callable = new PrepDatasetTotalLinesCallable(this, dataset.getDsId(), queryStmt, connectUrl, username, password, databaseName);
-                poolExecutorService.submit(callable);
+                this.futures.add( poolExecutorService.submit(callable) );
             }
         } catch (Exception e) {
             LOGGER.error("Failed to read JDBC : {}", e.getMessage());
