@@ -676,10 +676,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
           let featurePropVal = 0;
 
-          for(let clusterFeature of feature.getFeatures()["features"]) {
+          for(let clusterFeature of feature.getProperties()["features"]) {
             featurePropVal = featurePropVal + clusterFeature.getProperties()[styleOption.layers[layerNum].color.column];
           }
-          featurePropVal = featurePropVal / feature.getFeatures()["features"].length;
+          featurePropVal = featurePropVal / feature.getProperties()["features"].length;
 
           for(let i=0;i<colorList.length;i++) {
             if(featurePropVal <= avgNum * (i+1) &&
