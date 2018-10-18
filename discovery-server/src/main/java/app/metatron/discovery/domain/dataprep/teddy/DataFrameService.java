@@ -104,7 +104,7 @@ public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slav
 
         if (rowcnt > 0) {
           if (DataFrame.isParallelizable(rule)) {
-            int partSize = rowcnt / (cores + 1);  // +1 to prevent being 0
+            int partSize = rowcnt / cores + 1;  // +1 to prevent being 0
 
             for (int rowno = 0; rowno < rowcnt; rowno += partSize) {
               LOGGER.debug("applyRuleString(): add thread: rowno={} partSize={} rowcnt={}", rowno, partSize, rowcnt);
