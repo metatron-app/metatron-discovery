@@ -472,6 +472,8 @@ public class DataFrame implements Serializable, Transformable {
       }
       newRows.add(newRow);
     }
+
+    colCnt = colCnt - targetColNames.size();
     rows = newRows;
   }
 
