@@ -276,6 +276,7 @@
   "msg.comm.ui.workspace.type" : "Workspace Type",
   "msg.comm.alert.error": "Please check the error",
   "msg.comm.alert.modify.success": "Your changes have been saved",
+  "msg.comm.btn.edit": "Edit",
 
   "msg.lnb.btn.Manual" : "Manuals",
   "msg.lnb.btn.workspace-list" : "Workspace list >>",
@@ -580,6 +581,7 @@
   "msg.bench.ui.editor.shortcut.cancl" : "Undo",
   "msg.bench.ui.editor.shortcut.auto.completion" : "Auto Completion",
   "msg.bench.ui.table.metadata.name" : "Metadata name",
+  "msg.bench.ui.global.variable.add.desc" : "You can add a global variable by pressing the button",
 
   "msg.nbook.alert.input.name": "Please enter notebook name",
   "msg.nbook.alert.input.description": "Please enter notebook description",
