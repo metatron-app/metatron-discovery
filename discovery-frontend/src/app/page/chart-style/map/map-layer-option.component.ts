@@ -176,6 +176,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    @Input('resultData')
    public resultData: Object;
 
+   @ViewChild('rangeSlider')
+   private _rangeSlider: ElementRef;
+
+   private _$rangeSlider: any;
+
    @Input('uiOption')
    public set setUiOption(uiOption: UIOption) {
 
@@ -1596,6 +1601,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     this.gradationComp.changeGradationColor(item.index, rgbColor);
   }
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Public Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+
   /**
    * hex에서 rgb값으로 변경
    * @param color
@@ -1612,9 +1622,42 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     return 'rgb(' + rColor + ',' + gColor + ',' + bColor + ')';
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 슬라이더 설정
+   * @param {number} from
+   * @param {number} to
+   * @param {number} min
+   * @param {number} max
+   * @private
+   */
+  private _setSlider(from: number, to: number, min?: number, max?: number) {
+    if (this._$rangeSlider) {
+      const slider = this._$rangeSlider.data('ionRangeSlider');
+      slider.update({ from: from, to: to });
+      // this.change.emit(this.filter);
+    } else {
+      const scope = this;
+      this._$rangeSlider = $(this._rangeSlider.nativeElement);
+      this._$rangeSlider.ionRangeSlider(
+        {
+          min: min,
+          max: max,
+          from: from,
+          to: to,
+          type: 'double',
+          onChange(data) {
+            // scope._updateBoundValue(data);
+            // console.lof(data);
+          },
+          onFinish(data) {
+            // scope._updateBoundValue(data);
+            // scope.change.emit(scope.getData());
+          }
+        }
+      );
+    }
+  } // function - _setSlider
+
 
    /**
     * 위에 uiOption 을 다시 재정의 하는 경우 레퍼런스가 변경되기 때문에

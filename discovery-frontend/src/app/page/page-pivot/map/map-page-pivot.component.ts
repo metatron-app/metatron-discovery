@@ -118,12 +118,16 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      let measureList = new Array(new Array(), new Array());
 
      for(let aggregation of this.pivot.aggregations) {
+       let fieldAlias = aggregation.field["alias"];
+       if(!fieldAlias) fieldAlias = aggregation.name;
+       if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
+
        if(!aggregation["layerNum"] || aggregation["layerNum"] === 1) {
-         measureList[0].push(aggregation.aggregationType + '(' + aggregation.name + ')');
+         measureList[0].push(aggregation.aggregationType + '(' + fieldAlias + ')');
        } else if(aggregation["layerNum"] === 2) {
-         measureList[1].push(aggregation.aggregationType + '(' + aggregation.name + ')');
+         measureList[1].push(aggregation.aggregationType + '(' + fieldAlias + ')');
        } else if(aggregation["layerNum"] === 3) {
-         measureList[2].push(aggregation.aggregationType + '(' + aggregation.name + ')');
+         measureList[2].push(aggregation.aggregationType + '(' + afieldAlias + ')');
        }
      }
 
@@ -144,13 +148,16 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        let aggregation = this.pivot.aggregations[this.pivot.aggregations.length-1];
        let layerNum = aggregation["layerNum"];
        if(!layerNum) layerNum = 1;
+       let fieldAlias = aggregations.field["alias"];
+       if(!fieldAlias) fieldAlias = aggregations.name;
+       if(aggregations.fieldAlias) fieldAlias = aggregations.fieldAlias;
        if(this.uiOption.layers[layerNum-1].color.by === 'NONE' || this.uiOption.layers[layerNum-1].color.by === 'DIMENSION') {
          this.uiOption.layers[layerNum-1].color.by = 'MEASURE';
-         this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + aggregation.name + ')';
+         this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
          this.uiOption.layers[layerNum-1].color.schema = 'VC1';
        } else {
          this.uiOption.layers[layerNum-1].size.by = 'MEASURE';
-         this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + aggregation.name + ')';
+         this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
        }
      }
 
@@ -158,8 +165,11 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      if( _.eq(eventType, EventType.AGGREGATION) ) {
        let aggregation = this.pivot.aggregations[this.pivot.aggregations.length-1];
        let layerNum = aggregation["layerNum"];
-       this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + aggregation.name + ')';
-       this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + aggregation.name + ')';
+       let fieldAlias = aggregations.field["alias"];
+       if(!fieldAlias) fieldAlias = aggregations.name;
+       if(aggregations.fieldAlias) fieldAlias = aggregations.fieldAlias;
+       this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+       this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
      }
 
      this.aggregationsCnt = this.pivot.aggregations.length;

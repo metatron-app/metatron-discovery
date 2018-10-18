@@ -233,6 +233,19 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let styleOption = this.uiOption;
     let styleData = data[layerNum];
 
+    function hexToRgbA(hex, alpha): string{
+      var c;
+      if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+          c= hex.substring(1).split('');
+          if(c.length== 3){
+              c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+          }
+          c= '0x'+c.join('');
+          return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')';
+      }
+      throw new Error('Bad Hex');
+    }
+
     return function(feature, resolution) {
 
       let layerType = styleOption.layers[layerNum].type;
@@ -260,16 +273,16 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
 
       let featureSize = 5;
-      if(featureSizeType === 'MEASURE') {
+      if(styleOption.layers[layerNum].size.column && featureSizeType === 'MEASURE') {
         featureSize = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange.maxValue / 30);
       }
 
       let lineThickness = 2;
-      if(featureSizeType === 'MEASURE') {
+      if(styleOption.layers[layerNum].size.column && featureSizeType === 'MEASURE') {
         lineThickness = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange.maxValue / lineMaxVal);
       }
 
-      if(featureColorType === 'MEASURE') {
+      if(styleOption.layers[layerNum].size.column && featureColorType === 'MEASURE') {
 
         if(styleData.valueRange) {
           let colorList = ChartColorList[featureColor];
@@ -300,16 +313,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             }
 
           }
-        } else if(styleOption.layers[layerNum].color['customMode'] === 'GRADIENT') {
-          let colorList = ChartColorList[featureColor];
-          let avgNum = styleData.valueRange.maxValue / colorList.length;
-
-          for(let i=0;i<colorList.length;i++) {
-            if(feature.getProperties()[styleOption.layers[layerNum].color.column] <= avgNum * (i+1) &&
-              feature.getProperties()[styleOption.layers[layerNum].color.column] >= avgNum * (i)) {
-              featureColor = colorList[i];
-            }
-          }
         }
 
       } else if(featureColorType === 'DIMENSION') {
@@ -318,6 +321,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       } else if(featureColorType === 'NONE') {
         featureColor = styleOption.layers[layerNum].color.schema;
       }
+
+      featureColor = hexToRgbA(featureColor, styleOption.layers[layerNum].color.transparency * 0.01);
 
       let style = new ol.style.Style({
         image: new ol.style.Circle({
@@ -496,6 +501,19 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let styleOption = this.uiOption;
     let styleData = data[layerNum];
 
+    function hexToRgbA(hex, alpha): string{
+      var c;
+      if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+          c= hex.substring(1).split('');
+          if(c.length== 3){
+              c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+          }
+          c= '0x'+c.join('');
+          return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')';
+      }
+      throw new Error('Bad Hex');
+    }
+
     return function(feature, resolution) {
 
       let outlineType = styleOption.layers[layerNum].outline.thickness;
@@ -547,6 +565,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         let colorList = ChartColorList[featureColor];
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
       }
+
+      featureColor = hexToRgbA(featureColor, styleOption.layers[layerNum].color.transparency * 0.01);
 
       let style = new ol.style.Style({
         stroke: new ol.style.Stroke({
@@ -613,9 +633,23 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
   }
 
-  public clusterStyleFunction = (layerNum) => {
+  public clusterStyleFunction = (layerNum, data) => {
 
     let styleOption = this.uiOption;
+    let styleData = data[layerNum];
+
+    function hexToRgbA(hex, alpha): string{
+      var c;
+      if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+          c= hex.substring(1).split('');
+          if(c.length== 3){
+              c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+          }
+          c= '0x'+c.join('');
+          return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')';
+      }
+      throw new Error('Bad Hex');
+    }
 
     return function (feature, resolution) {
       let layerType = (<any>window).uiOption.layers[layerNum].type;
@@ -635,12 +669,59 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
 
       if(featureColorType === 'MEASURE') {
-        let colorList = ChartColorList[featureColor];
-        featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
-      } else if(featureColorType === 'DIMENSION') {
-        let colorList = ChartColorList[featureColor];
-        featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+
+        if(styleData.valueRange) {
+          let colorList = ChartColorList[featureColor];
+          let avgNum = styleData.valueRange.maxValue / colorList.length;
+
+          let featurePropVal = 0;
+
+          for(let clusterFeature of feature.getFeatures()["features"]) {
+            featurePropVal = featurePropVal + clusterFeature.getProperties()[styleOption.layers[layerNum].color.column];
+          }
+          featurePropVal = featurePropVal / feature.getFeatures()["features"].length;
+
+          for(let i=0;i<colorList.length;i++) {
+            if(featurePropVal <= avgNum * (i+1) &&
+              featurePropVal >= avgNum * (i)) {
+              featureColor = colorList[i];
+            }
+          }
+        }
+
+        if(styleOption.layers[layerNum].color['customMode'] === 'SECTION') {
+          for(let range of styleOption.layers[layerNum].color['ranges']) {
+            let rangeMax = range.fixMax;
+            let rangeMin = range.fixMin;
+
+            if(rangeMax === null) {
+              rangeMax = rangeMin + 1;
+            } else if(rangeMin === null) {
+              rangeMin = 0;
+            }
+
+            let featurePropVal = 0;
+
+            for(let clusterFeature of feature.getFeatures()["features"]) {
+              featurePropVal = featurePropVal + clusterFeature.getProperties()[styleOption.layers[layerNum].color.column];
+            }
+            featurePropVal = featurePropVal / feature.getFeatures()["features"].length;
+
+            if( featurePropVal > rangeMin &&  featurePropVal < rangeMax) {
+              featureColor = range.color;
+            }
+
+          }
+        }
       }
+      else if(featureColorType === 'DIMENSION') {
+        let colorList = ChartColorList[featureColor];
+        featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+      } else if(featureColorType === 'NONE') {
+        featureColor = styleOption.layers[layerNum].color.schema;
+      }
+
+      featureColor = hexToRgbA(featureColor, styleOption.layers[layerNum].color.transparency * 0.01);
 
       let size = 0;
 
@@ -662,11 +743,17 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           case 'CIRCLE' :
             style = new ol.style.Style({
               image: new ol.style.Circle({
-                  radius: size,
+                  radius: 15,
                   fill: new ol.style.Fill({
                       color: featureColor
                   }),
                   stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
+              }),
+              text: new ol.style.Text({
+                text: size.toString(),
+                fill: new ol.style.Fill({
+                  color: '#fff'
+                })
               })
             });
             break;
@@ -676,8 +763,14 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 fill: new ol.style.Fill({color: featureColor}),
                 stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
                 points: 4,
-                radius: size,
+                radius: 15,
                 angle: Math.PI / 4
+              }),
+              text: new ol.style.Text({
+                text: size.toString(),
+                fill: new ol.style.Fill({
+                  color: '#fff'
+                })
               })
             });
             break;
@@ -687,9 +780,15 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 fill: new ol.style.Fill({color: featureColor}),
                 stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
                 points: 3,
-                radius: size,
+                radius: 15,
                 rotation: Math.PI / 4,
                 angle: 0
+              }),
+              text: new ol.style.Text({
+                text: size.toString(),
+                fill: new ol.style.Fill({
+                  color: '#fff'
+                })
               })
             });
             break;
@@ -792,13 +891,13 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let symbolLayer = new ol.layer.Vector({
       source: source,
       style: this.mapStyleFunction(0, this.data),
-      opacity: this.uiOption.layers[0].color.transparency / 100
+      // opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
     let clusterLayer = new ol.layer.Vector({
       source: source,
-      style: this.clusterStyleFunction(0),
-      opacity: this.uiOption.layers[0].color.transparency / 100
+      style: this.clusterStyleFunction(0, this.data),
+      // opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
     let featureColor = this.uiOption.layers[0].color.schema;
@@ -806,7 +905,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let heatmapLayer = new ol.layer.Heatmap({
       source: source,
-      style: this.clusterStyleFunction(0),
+      style: this.clusterStyleFunction(0, this.data),
       opacity: this.uiOption.layers[0].color.transparency / 100,
       blur: this.uiOption.layers[0].color.blur,
       radius: this.uiOption.layers[0].color.radius,
@@ -816,7 +915,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let hexagonLayer = new ol.layer.Vector({
       source: hexagonSource,
       style: this.hexagonStyleFunction(0, this.data),
-      opacity: this.uiOption.layers[0].color.transparency / 100
+      // opacity: this.uiOption.layers[0].color.transparency / 100
     });
 
     let textLayer = new ol.layer.Vector({
@@ -859,7 +958,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     source.addFeatures(features);
 
     let clusterSource = new ol.source.Cluster({
-      distance: 10,
+      distance: 30,
       source: source
     });
 
@@ -953,17 +1052,17 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       // this.olmap.getLayers().getArray()[5] = textLayer;
 
       symbolLayer.setStyle(this.mapStyleFunction(0, this.data));
-      symbolLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
+      // symbolLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
-      clusterLayer.setStyle(this.clusterStyleFunction(0));
-      clusterLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
+      clusterLayer.setStyle(this.clusterStyleFunction(0, this.data));
+      // clusterLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
       heatmapLayer.setBlur(this.uiOption.layers[0].color.blur);
       heatmapLayer.setRadius(this.uiOption.layers[0].color.radius);
       heatmapLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
       hexagonLayer.setStyle(this.hexagonStyleFunction(0, this.data));
-      hexagonLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
+      // hexagonLayer.setOpacity(this.uiOption.layers[0].color.transparency / 100);
 
       if(this.uiOption.layers[0].type === "symbol") {
         if(this.uiOption.layers[0].clustering) {
@@ -1256,7 +1355,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let clusterLayer = new ol.layer.Vector({
       source: source,
-      style: this.clusterStyleFunction(1),
+      style: this.clusterStyleFunction(1, this.data),
       opacity: this.uiOption.layers[1].color.transparency / 100
     });
 
@@ -1265,7 +1364,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let heatmapLayer = new ol.layer.Heatmap({
       source: source,
-      style: this.clusterStyleFunction(1),
+      style: this.clusterStyleFunction(1, this.data),
       opacity: this.uiOption.layers[1].color.transparency / 100,
       blur: this.uiOption.layers[1].color.blur,
       radius: this.uiOption.layers[1].color.radius,
@@ -1414,7 +1513,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       symbolLayer.setStyle(this.mapStyleFunction(1, this.data));
       symbolLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
 
-      clusterLayer.setStyle(this.clusterStyleFunction(1));
+      clusterLayer.setStyle(this.clusterStyleFunction(1, this.data));
       clusterLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
 
       heatmapLayer.setBlur(this.uiOption.layers[1].color.blur);
@@ -1500,7 +1599,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let clusterLayer = new ol.layer.Vector({
       source: source,
-      style: this.clusterStyleFunction(2),
+      style: this.clusterStyleFunction(2, this.data),
       opacity: this.uiOption.layers[2].color.transparency / 100
     });
 
@@ -1509,7 +1608,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let heatmapLayer = new ol.layer.Heatmap({
       source: source,
-      style: this.clusterStyleFunction(2),
+      style: this.clusterStyleFunction(2, this.data),
       opacity: this.uiOption.layers[2].color.transparency / 100,
       blur: this.uiOption.layers[2].color.blur,
       radius: this.uiOption.layers[2].color.radius,
@@ -1658,7 +1757,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       symbolLayer.setStyle(this.mapStyleFunction(2, this.data));
       symbolLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
 
-      clusterLayer.setStyle(this.clusterStyleFunction(2));
+      clusterLayer.setStyle(this.clusterStyleFunction(2, this.data));
       clusterLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
 
       heatmapLayer.setBlur(this.uiOption.layers[2].color.blur);
@@ -1755,7 +1854,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     // 완료
     this.drawFinished.emit();
   }
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
