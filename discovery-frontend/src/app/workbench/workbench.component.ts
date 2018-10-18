@@ -130,6 +130,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   private _subscription: any;
 
+  private _resizeTimer:any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -236,12 +238,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 페이지 엔진 이름
   public pageEngineName: string = '';
 
-  // result 모드
-  public resultMode: string = 'grid'; // true => grid, false => text
-
-  // output
-  public resultTextOutput: string = '';
-
   // 인증 방식
   public authenticationType: string = '';
 
@@ -308,10 +304,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   // 쿼리 실행 취소 여부
   public isCancelQuery: boolean = false;
-
-  // grid 값이 NO DATA  일 경우 icon show flag
-  public isGridResultNoData: boolean = false;
-  public isHiveGridResultNoData: boolean = false;
 
   // 현재 실행 쿼리
   public runningQueryArr: string [] = [];
@@ -441,7 +433,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   @HostListener('window:resize', ['$event'])
   protected onResize() {
-    this.onEndedResizing();
+    clearTimeout(this._resizeTimer);
+    this._resizeTimer = setTimeout( () => { this.onEndedResizing(); }, 500);
   } // function - onResize
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -722,7 +715,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       // Alert.warning('결과 탭을 닫을수 없습니다.');
       this._removeResultTab(tabId);
       this.selectedGridTabNum = 0;
-      this.resultMode = '';
       this.gridSearchClear();
       return;
     }
@@ -830,12 +822,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
       // 그리드 차트 뿌리기
       this.drawGridData();
-      // if (currentEditorResultTabs[0].output === 'text') {
-      //   this.resultMode = 'text';
-      // } else {
-      //   this.resultMode = 'grid';
-      //
-      // }
+
     }
     if (selectedItem) {
       this.saveLocalStorageGeneral();
@@ -853,14 +840,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     currentEditorResultTabs.forEach((tabItem: ResultTab, idx: number) => {
       // 선택된 탭이면
       if (tabItem.id === selectedTabId) {
-        if ('text' === tabItem.output) {
-          this.resultMode = 'text';
-          this.resultTextOutput = tabItem.message;
-          this.isGridResultNoData = true;
-        } else if ('grid' === tabItem.output) {
-          this.resultMode = 'grid';
-          this.isGridResultNoData = false;
-        }
+
         tabItem.selected = true;
         this.selectedGridTabNum = idx;
 
@@ -871,8 +851,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           // 중지된 탭의 경우 체크
           if (isNullOrUndefined(tabItem.data.data)) {
             $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
-            this.isGridResultNoData = true;
-            this.isHiveGridResultNoData = true;
           }
         }
         selectedTab = tabItem;
@@ -882,19 +860,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         tabItem.selected = false;
       }
     });
-
-    /*
-        // 데이터 그리드 뿌리기
-        if (this.mimeType == 'HIVE') {
-
-          const currHiveLog = this.hiveLogs[selectedTabNum];
-          if (currHiveLog.log.length > 0) {
-            this.isGridResultNoData = false;
-          }
-
-          this.safelyDetectChanges();
-        }
-    */
 
     (selectedTab.showLog) || (this.drawGridData());
 
@@ -1053,8 +1018,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
     // 호출횟수 증가
     this._executeSqlReconnectCnt++;
-    // 보고있는 탭이 에러인경우 초기화
-    if (this.resultMode === 'text') this.resultMode = '';
 
     if (this.getSelectedTabText().trim() === '') {
       Alert.warning(this.translateService.instant('msg.bench.alert.execute.query'));
@@ -1138,20 +1101,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 //쿼리 실행
                 this.loadingBar.hide();
 
-                let linesSql: string[] = runningQuery.split('\n');
-                let tempText: string = '';
-                for (let index = 0; linesSql.length > index; index++) {
-                  let text = linesSql[index];
-                  if (text.indexOf('--') == -1) {
-                    tempText = tempText + '\n' + text;
-                  } else {
-                    if (text.split('--')[0] != null) {
-                      tempText = tempText + '\n' + text.split('--')[0];
-                    }
-                  }
-                }
+                // 전체 query data 생성
+                let queryStrArr: string[]
+                  = runningQuery.replace( /--.*/gmi, '' ).split( ';' ).filter( item => !/^\s*$/.test( item ) );
 
-                if (tempText.trim() == '') {
+                if ( 0 === queryStrArr.length ) {
                   Alert.warning(this.translateService.instant('msg.bench.alert.execute.query'));
                   this.isHiveQueryExecute = false;
                   this.loadingBar.hide();
@@ -1159,16 +1113,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 }
 
                 // 쿼리 초기화
-                this.runningQueryArr = [];
+                this.runningQueryArr = queryStrArr;
                 this.runningQueryDoneIndex = 0;
-
-                // 전체 query data 생성
-                let queryStrArr = tempText.split(';');
-                for (let index: number = 0; index < queryStrArr.length; index++) {
-                  if (queryStrArr[index].trim() != '') {
-                    this.runningQueryArr.push(queryStrArr[index]);
-                  }
-                }
                 queryEditor.query = this.runningQueryArr[0];
 
                 // hive log cancel 여부
@@ -1197,6 +1143,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           Alert.error(error);
         }
       });
+
   } // function - setExecuteSql
 
   /**
@@ -1260,9 +1207,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.isQueryEditorFull = !this.isQueryEditorFull;
 
     this.onEndedResizing();
-
-    // 에디터 슬라이드 계산
-    this._calculateEditorSlideBtn();
   } // function - resizeQueryEditor
 
   /**
@@ -1417,7 +1361,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // }
   }
 
-  // 패널 사이즈 변경 - 드래그 한 후 사용자가 구분 기호를 놓을 때 발생
+  /**
+   * 패널 사이즈 변경 - 드래그 한 후 사용자가 구분 기호를 놓을 때 발생
+   */
   public onEndedResizing(): void {
 
     this.safelyDetectChanges();
@@ -1435,9 +1381,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       // 그리드 높이 값 변경 함수 호출
       this.gridComponent.resize();
     }
-    // setTimeout(() => {
-    // }, 50);
-  }
+
+    // 에디터 슬라이드 계산
+    this._calculateEditorSlideBtn();
+    this._calculateEditorResultSlideBtn();
+
+  } // function - onEndedResizing
 
   // 탭 레이어 보이기
   public setTabLayer($event: Event, index: number): void {
@@ -1813,10 +1762,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     resultTab.editorId = this.executeEditorId;
 
     if (data.queryResultStatus === 'FAIL') {
-      this.resultMode = 'text';
-      this.resultTextOutput = data.message;
-      this.isGridResultNoData = true;
-
       resultTab.name = this._genResultTabName(this.runningQueryEditor.name, 'ERROR', currentTabs.length);
       resultTab.output = 'text';
       resultTab.message = data.message;
@@ -1828,9 +1773,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         return;
       }
     } else {
-      this.resultMode = 'grid';
-      this.isGridResultNoData = false;
-
       resultTab.name = this._genResultTabName(this.runningQueryEditor.name, 'RESULT', currentTabs.length);
       resultTab.output = 'grid';
       resultTab.message = '';
@@ -1868,25 +1810,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       dataTab.showLog = false;
 
       if (item.queryResultStatus === 'FAIL') {
-        if (0 === idx) { // 0 번쨰가 Fail 일 경우
-          this.resultMode = 'text';
-          this.resultTextOutput = item.message;
-        }
-
         dataTab.name = this._genResultTabName(this.runningQueryEditor.name, 'ERROR', (idx + 1));
         dataTab.output = 'text';
         dataTab.message = item.message;
-
-        this.isGridResultNoData = true;
       } else {
-        if (0 === idx) { // 0 번쨰가 SUCCESS 일 경우
-          this.resultMode = 'grid';
-        }
         dataTab.name = this._genResultTabName(this.runningQueryEditor.name, 'RESULT', (idx + 1));
         dataTab.output = 'grid';
         dataTab.message = '';
-
-        this.isGridResultNoData = false;
       }
 
       (dataTab.selected) && (this.runningResultTabId = dataTab.id);
@@ -2240,22 +2170,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
         // hive 일 경우  field 한 번더 체크
         if (!data || !data.fields) {
-          this.isHiveGridResultNoData = true;
           $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
-        } else {
-          this.isHiveGridResultNoData = false;
         }
         this.safelyDetectChanges();
         return false;
       }
       this.gridComponent.noShowData();
       $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
-      this.isHiveGridResultNoData = true;
-      this.isGridResultNoData = true;
       return false;
-    } else {
-      this.isHiveGridResultNoData = false;
-      this.isGridResultNoData = false;
     }
 
     for (let index: number = 0; index < data.fields.length; index = index + 1) {

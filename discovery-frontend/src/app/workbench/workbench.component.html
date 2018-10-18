@@ -394,7 +394,7 @@
                      [ngStyle]="{'visibility': visibleResultTabs.length !== 0 ? 'visible':'hidden'}">
                   <div class="ddp-ui-setting">
                     <!-- 검색 -->
-                    <div class="ddp-form-search" [hidden]="isGridResultNoData || isHiveGridResultNoData" >
+                    <div class="ddp-form-search" [hidden]="'' !== visibleResultTab.message" >
                       <em class="ddp-icon-search"></em>
                       <input type="text"
                              placeholder="{{'msg.comm.search.col' | translate}}"
@@ -410,14 +410,14 @@
 
                     <!-- button -->
                     <div class="ddp-ui-buttons" >
-                      <a href="javascript:" class="ddp-btn-link" (click)="createDatasourceTemporary()" [hidden]="isHiveGridResultNoData">
+                      <a href="javascript:" class="ddp-btn-link" (click)="createDatasourceTemporary()" [hidden]="'' !== visibleResultTab.message">
                         <em class="ddp-icon-chart"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>
                           {{'msg.bench.btn.chart.preview' | translate}}
                         </div>
                       </a>
-                      <a *ngIf="isDataManager" href="javascript:" class="ddp-btn-link" (click)="createDatasource()" [hidden]="isHiveGridResultNoData">
+                      <a *ngIf="isDataManager" href="javascript:" class="ddp-btn-link" (click)="createDatasource()" [hidden]="'' !== visibleResultTab.message">
                         <em class="ddp-icon-save"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>
@@ -436,7 +436,7 @@
                       <!--</div>-->
                       <!-- //일괄 엑셀 다운로드 -->
                       <!-- 엑셀 다운로드 -->
-                      <div class="ddp-ui-link" [ngClass]="{'ddp-selected':csvDownloadLayer}" [hidden]="isHiveGridResultNoData">
+                      <div class="ddp-ui-link" [ngClass]="{'ddp-selected':csvDownloadLayer}" [hidden]="'' !== visibleResultTab.message">
                         <a href="javascript:" class="ddp-btn-link" (click)="downloadExcel()"
                            (clickOutside)="downloadExcelClose()">
                           <em class="ddp-icon-export"></em>
@@ -477,18 +477,18 @@
                     <!--[ngStyle]="{'width':valid}"-->
                   </div>
                   <div class="ddp-box-grid" #gridWrapElement
-                       [ngStyle]="{'visibility': resultMode === 'grid' && visibleResultTabs.length !== 0 ? 'visible':'hidden'}">
+                       [ngStyle]="{'visibility': visibleResultTab.output === 'grid' ? 'visible':'hidden'}">
                     <div grid-component #main style="width:100%; height: 100%;"></div>
                     <!-- [ngStyle]="{'visibility': datagridShow ? 'visible':'hidden'}" -->
                   </div>
                   <div class="ddp-box-grid"
-                       [ngStyle]="{'visibility': resultMode === 'text' && visibleResultTabs.length !== 0 ? 'visible':'hidden'}">
+                       [ngStyle]="{'visibility': visibleResultTab.output === 'text' ? 'visible':'hidden'}">
                     <div class="ddp-text-result" style="color:red">
-                      {{resultTextOutput}}
+                      {{visibleResultTab.message}}
                     </div>
                   </div>
                   <!--<span class="ddp-data-number">{{resultRow | numberCommas}} rows | {{resultTime}}</span>-->
-                  <span *ngIf="visibleResultTab.data" class="ddp-data-number" >
+                  <span *ngIf="'grid' === visibleResultTab.output && visibleResultTab.data" class="ddp-data-number" >
                     {{visibleResultTab.data.numRows}} {{'msg.comm.detail.rows'|translate}}
                   </span>
                 </div>
