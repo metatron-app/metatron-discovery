@@ -85,12 +85,12 @@ export class DatasetService extends AbstractService {
 
     let url = this.API_URL + 'preparationdatasets/file/' + param.fileKey;
 
-    if (param.fileType === 'CSV') {
+    if (param.fileType === 'csv' || param.fileType === 'txt') {
 
       url += '?hasFields=N';
 
       if (param.delimiter) {
-        url += `&delimiterCol=${param.delimiter}`;
+        url += `&delimiterCol=${encodeURI(param.delimiter)}`;
       }
 
     } else {
