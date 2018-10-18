@@ -13,15 +13,15 @@
  */
 
 import {
-  Component,
+  Component, DoCheck,
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, KeyValueDiffers,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output, ViewChild
+  Output, SimpleChanges, ViewChild
 } from '@angular/core';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
 import { isUndefined } from 'util';
@@ -37,7 +37,7 @@ import { StringUtil } from '../../../../common/util/string.util';
     '(document:click)': 'onClickHost($event)',
   }
 })
-export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implements OnInit, OnDestroy, OnChanges {
+export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implements OnInit, OnDestroy, DoCheck {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -48,9 +48,15 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
   // request reconnect count
   private _setDatabaseSchemaReconnectCnt: number = 0;
 
+  private _differ: any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  @Input()
+  public disable:boolean = false;
+
   @Input()
   public params: any;
 
@@ -83,11 +89,13 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected workbenchService: WorkbenchService,
+  constructor(private differs: KeyValueDiffers,
+              protected workbenchService: WorkbenchService,
               protected dataconnectionService: DataconnectionService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(workbenchService, element, injector);
+    this._differ = differs.find({}).create();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -99,9 +107,9 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
 
   }
 
-  public ngOnChanges(): void {
+  public ngDoCheck() {
     // 데이터 베이스 가져오기.
-    if (!isUndefined(this.params)) {
+    if (!isUndefined(this.params) && this._differ.diff(this.params)) {
       this.selectedDatabaseName = this.params.dataconnection.database;
       this.workbenchId = this.params.workbenchId;
       this.getDatabase();
@@ -109,8 +117,6 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
   }
 
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -122,6 +128,9 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
    * 스키마 브라우져 창 열기
    */
   public openSchemaBrowser(): void {
+    if( this.disable ) {
+      return;
+    }
     this.schemaBrowserEvent.emit();
   }
 
@@ -137,7 +146,7 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
    * 데이터 베이스 리스트 가져오기
    */
   public getDatabase(pageNum: number = 0, isSearch:boolean = false) {
-    if (isUndefined(this.params.dataconnection.id)) {
+    if (this.disable || isUndefined(this.params.dataconnection.id)) {
       return;
     }
 
@@ -225,6 +234,9 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
    * @param {boolean} init
    */
   public selectedDatabase(param: string, isSearchShow:boolean = false, init:boolean = false) {
+    if( this.disable ) {
+      return;
+    }
     this.params.dataconnection.database = param;
     this.selectedDatabaseName = param;
     this.isDatabaseSearchShow = isSearchShow;
@@ -235,7 +247,6 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
     } else {
       this.selectedDatabaseEvent.emit(param);
     }
-
   } // function - selectedDatabase
 
   /**

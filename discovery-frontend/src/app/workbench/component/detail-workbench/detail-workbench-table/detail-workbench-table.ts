@@ -14,11 +14,11 @@
 
 ///<reference path="../../../../common/util/string.util.ts"/>
 import {
-  Component,
+  Component, DoCheck,
   ElementRef,
   EventEmitter,
   Injector,
-  Input,
+  Input, KeyValueDiffers,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -37,7 +37,7 @@ import { WorkbenchService } from '../../../service/workbench.service';
   selector: 'detail-workbench-table',
   templateUrl: './detail-workbench-table.html',
 })
-export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements OnInit, OnDestroy, OnChanges {
+export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements OnInit, OnDestroy, DoCheck {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
@@ -45,6 +45,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   @ViewChild('tableInfo')
   private tableInfo: ElementRef;
+
+  private _differ: any;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
@@ -55,6 +57,9 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   //
   // @Input()
   // public websocketId: string;
+
+  @Input()
+  public disable:boolean = false;
 
   @Input()
   public inputParams: any;
@@ -110,11 +115,13 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(protected workbenchService: WorkbenchService,
+  constructor(private differs: KeyValueDiffers,
+              protected workbenchService: WorkbenchService,
               protected dataconnectionService: DataconnectionService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(workbenchService, element, injector);
+    this._differ = differs.find({}).create();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -126,9 +133,9 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   }
 
-  public ngOnChanges(): void {
+  public ngDoCheck() {
     // 데이터 베이스 가져오기.
-    if (!isUndefined(this.inputParams)) {
+    if (!isUndefined(this.inputParams) && this._differ.diff(this.inputParams)) {
       this.page.page = 0;
       this.getTables();
     }
@@ -308,6 +315,9 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   // Show/hide Table information popup
   public showTableInfo(item: string, index: number): void {
+    if( this.disable ) {
+      return;
+    }
     this.selectedTableInfoLayer = false;
     this.selectedTableInfoLayer = true;
     this.selectedNum = index;
@@ -325,6 +335,9 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   // Show/hide Schema information popup
   public showTableSchemaInfo(item: string, index: number): void {
+    if( this.disable ) {
+      return;
+    }
     event.stopImmediatePropagation();
     this.selectedTableInfoLayer = false;
     this.selectedTableSchemaLayer = false;
