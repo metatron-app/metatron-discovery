@@ -31,9 +31,9 @@
         <!-- 버튼 -->
         <div class="ddp-ui-buttons">
           <!-- 클릭시 ddp-selected 추가 -->
-          <em class="ddp-icon-info" id="info{{index}}" (click)="showTableInfo(item.name, index)"></em>
+          <em class="ddp-icon-info" [ngClass]="{'ddp-disabled':disable}" id="info{{index}}" (click)="showTableInfo(item.name, index)"></em>
           <!-- 클릭시 ddp-selected 추가 -->
-          <em class="ddp-icon-tableinfo" id="tableInfo{{index}}" (click)="showTableSchemaInfo(item.name, index)"></em>
+          <em class="ddp-icon-tableinfo" [ngClass]="{'ddp-disabled':disable}" id="tableInfo{{index}}" (click)="showTableSchemaInfo(item.name, index)"></em>
         </div>
         <!-- //버튼 -->
       </li>

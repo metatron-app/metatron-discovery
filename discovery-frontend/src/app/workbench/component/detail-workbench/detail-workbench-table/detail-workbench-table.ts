@@ -356,6 +356,9 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   // 테이블 선택시.
   public setTableSql(item) {
+    if( this.disable ) {
+      return;
+    }
     this.sqlIntoEditorEvent.emit('\nSELECT * FROM ' + this.inputParams.dataconnection.database + '.' + item + ';');
   }
 
@@ -371,6 +374,9 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
    * 테이블 검색 초기화
    */
   public searchTableTextInit() {
+    if( this.disable ) {
+      return;
+    }
     // 검색어 초기화
     this.searchText = '';
     // 테이블 조회
@@ -389,6 +395,9 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
    * 테이블 검색
    */
   private searchTable(): void {
+    if( this.disable ) {
+      return;
+    }
     // page 초기화
     this.page.page = 0;
     // 테이블 조회

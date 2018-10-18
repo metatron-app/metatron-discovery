@@ -224,6 +224,9 @@ export class DetailWorkbenchDatabase extends AbstractWorkbenchComponent implemen
    * 데이터베이스 이름 클릭했을 때
    */
   public databaseSearchShow() {
+    if( this.disable ) {
+      return;
+    }
     this.isDatabaseSearchShow = !this.isDatabaseSearchShow;
   } // function - databaseSearchShow
 
