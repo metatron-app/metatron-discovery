@@ -14,17 +14,14 @@
 
 package app.metatron.discovery.config;
 
+import app.metatron.discovery.common.web.CommonLocalVariableFilter;
+import app.metatron.discovery.common.web.LogbackMdcFilter;
 import de.codecentric.boot.admin.config.EnableAdminServer;
-
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.hateoas.config.EnableEntityLinks;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -34,10 +31,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-
-import app.metatron.discovery.common.web.CommonLocalVariableFilter;
-import app.metatron.discovery.common.web.LogbackMdcFilter;
-import app.metatron.discovery.domain.dataprep.filter.PrepFilter;
 
 @Configuration
 @EnableTransactionManagement
@@ -92,21 +85,6 @@ public class MainApplicationConfig {
     registrationBean.setFilter(localVariableFilter);
     // Spring Security Filter order(0) 다음
     registrationBean.setOrder(2);
-
-    return registrationBean;
-  }
-
-  @Bean
-  public FilterRegistrationBean prepFilterRegistrationBean() {
-    FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-    PrepFilter prepFilter = new PrepFilter();
-    registrationBean.setFilter(prepFilter);
-    registrationBean.addUrlPatterns(
-            "/api/preparationdataflows/*",
-            "/api/preparationdatasets/*",
-            "/api/preparationsnapshots/*"
-    );
-    registrationBean.setOrder(3);
 
     return registrationBean;
   }

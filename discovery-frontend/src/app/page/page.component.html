@@ -63,7 +63,7 @@
                     <div class="ddp-ui-sub-titlein ddp-dimension">
                       <em class="ddp-icon-menumove"></em>
                       {{'msg.page.th.dimension' | translate}}
-                      <a href="javascript:" (click)="$event.stopPropagation();openCustomFieldPopup(null, 'DIMENSION')" class="ddp-btn-addplus"></a>
+                      <a href="javascript:" (click)="$event.stopPropagation();openCustomFieldPopup(null, 'DIMENSION')" class="ddp-icon-add"></a>
                     </div>
                   </div>
                   <!-- //title -->
@@ -143,7 +143,9 @@
                         <span class="ddp-data-name" [class.ddp-alias]="field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name">
                           <span class="ddp-data-in">
                             {{field.name}}
-                            <em *ngIf="field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name" class="ddp-icon-alias"></em>
+                            <em *ngIf="field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name" class="ddp-icon-alias">
+                              ({{field['nameAlias']['nameAlias']}})
+                            </em>
                           </span>
                         </span>
                         <!-- // Name -->
@@ -170,7 +172,7 @@
                     <div class="ddp-ui-sub-titlein ddp-measure">
                       <em class="ddp-icon-menumove"></em>
                       {{'msg.page.th.measure' | translate}}
-                      <a href="javascript:" (click)="$event.stopPropagation();openCustomFieldPopup(null, 'MEASURE')" class="ddp-btn-addplus"></a>
+                      <a href="javascript:" (click)="$event.stopPropagation();openCustomFieldPopup(null, 'MEASURE')" class="ddp-icon-add"></a>
                     </div>
                   </div>
                   <!-- //title -->
@@ -234,7 +236,9 @@
                         <span class="ddp-data-name" [class.ddp-alias]="'user_expr' !== field.type && field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name">
                           <span class="ddp-data-in">
                             {{field.name}}
-                            <em *ngIf="'user_expr' !== field.type && field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name" class="ddp-icon-alias"></em>
+                            <em *ngIf="'user_expr' !== field.type && field['nameAlias'] && field['nameAlias']['nameAlias'] != field.name" class="ddp-icon-alias">
+                              ({{field['nameAlias']['nameAlias']}})
+                            </em>
                           </span>
                         </span>
                         <!-- // Name -->

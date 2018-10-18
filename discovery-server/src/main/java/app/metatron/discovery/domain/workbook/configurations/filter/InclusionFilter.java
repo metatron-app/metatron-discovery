@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -204,7 +205,7 @@ public class InclusionFilter extends Filter {
   /**
    * Define sort conditions
    */
-  public static class ItemSort {
+  public static class ItemSort implements Serializable {
 
     /**
      * Sort By

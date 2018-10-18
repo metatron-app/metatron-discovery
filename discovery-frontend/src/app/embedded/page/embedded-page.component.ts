@@ -345,13 +345,15 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
         delete this.resultData.uiOption;
       }
 
-      // line차트이면서 columns 데이터가 있는경우
-      if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
-        // 고급분석 예측선 API 호출
-        this.getAnalysis();
-      } else {
-        this.chart.resultData = this.resultData;
-      }
+      setTimeout( () => {
+        // line차트이면서 columns 데이터가 있는경우
+        if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
+          // 고급분석 예측선 API 호출
+          this.getAnalysis();
+        } else {
+          this.chart.resultData = this.resultData;
+        }
+      }, 1000 );
 
       this.loadingHide();
 

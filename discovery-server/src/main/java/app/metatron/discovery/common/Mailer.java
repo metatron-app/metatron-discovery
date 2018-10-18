@@ -118,10 +118,7 @@ public class Mailer {
 
 
     List<String> toList = Lists.newArrayList();
-
-    if (title.equals("deuron")) {
-      toList.add(metatronProperties.getMail().getFrom()); // TODO 임시로 polaris.mail.from 넣어둠
-    }
+    toList.add(metatronProperties.getMail().getAdmin());
 
     // TODO: 관리자 목록 가져올 것!
     sendEmail(toList, subject, content, false, true);
