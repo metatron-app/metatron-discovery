@@ -1068,17 +1068,37 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    */
   public onChangePivotFormat(field: AbstractField): void {
 
-    // RNB 토글
-    if (!this.formatOption) {
-      this.toggleRnb('format');
-    }
+    // Map chart
+    if( _.eq(this.selectChart, ChartType.MAP) ) {
 
-    // 필드 추가
-    if (field != null && this.formatOption) {
-      this.formatOption.setFormatType(field);
+      // RNB 토글
+      if (!this.mapFormatOption) {
+        this.toggleRnb('mapFormat');
+      }
+
+      // 필드 추가
+      if (field != null && this.mapFormatOption) {
+        this.mapFormatOption.setFormatType(field);
+      }
+      else if (field && !this.mapFormatOption) {
+        Alert.warning(this.translateService.instant('msg.page.alert.apply.after.chart'));
+      }
     }
-    else if (field && !this.formatOption) {
-      Alert.warning(this.translateService.instant('msg.page.alert.apply.after.chart'));
+    // Other
+    else {
+
+      // RNB 토글
+      if (!this.formatOption) {
+        this.toggleRnb('format');
+      }
+
+      // 필드 추가
+      if (field != null && this.formatOption) {
+        this.formatOption.setFormatType(field);
+      }
+      else if (field && !this.formatOption) {
+        Alert.warning(this.translateService.instant('msg.page.alert.apply.after.chart'));
+      }
     }
   }
 
