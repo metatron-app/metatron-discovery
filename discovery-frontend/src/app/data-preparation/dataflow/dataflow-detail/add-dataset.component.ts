@@ -439,6 +439,12 @@ export class AddDatasetComponent extends AbstractComponent implements OnInit, On
 
         if (sessionStorage.getItem('DATASET_ID')) {
           this.selectedDatasetId = sessionStorage.getItem('DATASET_ID');
+          this.datasets.filter((item) => {
+            if (item.dsId === this.selectedDatasetId) {
+              item.selected = true;
+              this.selectedDatasets.push(item);
+            }
+          });
           sessionStorage.removeItem('DATASET_ID');
           this.datasetService.dataflowId = undefined;
         }
