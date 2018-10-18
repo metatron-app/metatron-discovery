@@ -396,7 +396,8 @@ export class DatasourceService extends AbstractService {
       let layers = [];
 
       for(let column of query.pivot.columns) {
-        if((column.field.logicalType.toString() === 'GEO_POINT' || column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') && (column["layerNum"] === undefined || column["layerNum"] === 1) ) {
+        if(column && column.field && column.field.logicalType &&
+          (column.field.logicalType.toString() === 'GEO_POINT' || column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') && (column["layerNum"] === undefined || column["layerNum"] === 1) ) {
           geoFieldCnt = geoFieldCnt +1;
         }
       }
@@ -417,7 +418,7 @@ export class DatasourceService extends AbstractService {
           query.dataSource.name = column.field.dataSource;
           query.dataSource.id = column.field.dsId;
 
-          if(column.field.logicalType.toString().indexOf('GEO') > -1) {
+          if(column.field && column.field.logicalType && column.field.logicalType.toString().indexOf('GEO') > -1) {
             layer.format = {
               type : "geo"
             }
@@ -429,7 +430,7 @@ export class DatasourceService extends AbstractService {
             precision = 8;
           }
 
-          if(column.field.logicalType.toString() === 'GEO_POINT') {
+          if(column.field && column.field.logicalType && column.field.logicalType.toString() === 'GEO_POINT') {
 
             if(query.pivot.aggregations.length > 0) {
               layer.format = {
@@ -447,7 +448,7 @@ export class DatasourceService extends AbstractService {
                 descColumn: query.pivot.columns[0].field.name
               }
             }
-          } else if(column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') {
+          } else if(column.field && column.field.logicalType && (column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE')) {
             if(geoFieldCnt > 1) {
               layer.format = {
                 type: "geo_join"

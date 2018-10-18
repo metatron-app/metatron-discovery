@@ -3574,7 +3574,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       let geoFieldCnt = 0;
       for(let column of this.widget.configuration.pivot.columns) {
-        if(column.field.logicalType.toString().substring(0,3) === 'GEO' && column["layerNum"] === 1) {
+        if(column.field && column.field.logicalType && column.field.logicalType.toString().substring(0,3) === 'GEO' && column["layerNum"] === 1) {
           geoFieldCnt = geoFieldCnt + 1;
         }
       }

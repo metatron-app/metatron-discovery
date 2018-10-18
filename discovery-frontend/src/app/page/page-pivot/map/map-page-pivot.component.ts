@@ -282,7 +282,8 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      // 개수체크
      let count: number = 0;
      for (let field of this.pivot.columns) {
-       if (field.field.logicalType.toString().indexOf("GEO") > -1 && (_.eq(field.type, ShelveFieldType.DIMENSION) || _.eq(field.type, ShelveFieldType.TIMESTAMP))) {
+       if (field && field.field && field.field.logicalType &&
+           field.field.logicalType.toString().indexOf("GEO") > -1 && (_.eq(field.type, ShelveFieldType.DIMENSION) || _.eq(field.type, ShelveFieldType.TIMESTAMP))) {
          count++;
        }
      }
