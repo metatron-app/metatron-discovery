@@ -127,7 +127,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        } else if(aggregation["layerNum"] === 2) {
          measureList[1].push(aggregation.aggregationType + '(' + fieldAlias + ')');
        } else if(aggregation["layerNum"] === 3) {
-         measureList[2].push(aggregation.aggregationType + '(' + afieldAlias + ')');
+         measureList[2].push(aggregation.aggregationType + '(' + fieldAlias + ')');
        }
      }
 
@@ -148,9 +148,10 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        let aggregation = this.pivot.aggregations[this.pivot.aggregations.length-1];
        let layerNum = aggregation["layerNum"];
        if(!layerNum) layerNum = 1;
-       let fieldAlias = aggregations.field["alias"];
-       if(!fieldAlias) fieldAlias = aggregations.name;
-       if(aggregations.fieldAlias) fieldAlias = aggregations.fieldAlias;
+       let fieldAlias = aggregation.field["alias"];
+       if(!fieldAlias) fieldAlias = aggregation.name;
+       if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
+
        if(this.uiOption.layers[layerNum-1].color.by === 'NONE' || this.uiOption.layers[layerNum-1].color.by === 'DIMENSION') {
          this.uiOption.layers[layerNum-1].color.by = 'MEASURE';
          this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
@@ -165,9 +166,9 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      if( _.eq(eventType, EventType.AGGREGATION) ) {
        let aggregation = this.pivot.aggregations[this.pivot.aggregations.length-1];
        let layerNum = aggregation["layerNum"];
-       let fieldAlias = aggregations.field["alias"];
-       if(!fieldAlias) fieldAlias = aggregations.name;
-       if(aggregations.fieldAlias) fieldAlias = aggregations.fieldAlias;
+       let fieldAlias = aggregation.field["alias"];
+       if(!fieldAlias) fieldAlias = aggregation.name;
+       if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
        this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
        this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
      }
