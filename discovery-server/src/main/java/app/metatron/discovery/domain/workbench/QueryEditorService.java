@@ -403,8 +403,8 @@ public class QueryEditorService {
       if(stmt != null)
         stmt.cancel();
     } catch (SQLException sqle) {
-      JdbcUtils.closeStatement(stmt);
     } finally {
+      JdbcUtils.closeStatement(stmt);
       dataSourceInfo.setQueryStatus(QueryStatus.CANCELLED);
     }
   }
