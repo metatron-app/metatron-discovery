@@ -56,6 +56,10 @@ export class DateComponent extends AbstractComponent implements OnInit {
   @Input()
   public placeholder: string;
 
+  // return time format (default : YYYY-MM-DD)
+  @Input('timeFormat')
+  public timeFormat: string = 'YYYY-MM-DD';
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -87,7 +91,8 @@ export class DateComponent extends AbstractComponent implements OnInit {
       = new PickerSettings(
       'ddp-input-typebasic',
       (fdate: string, date: Date) => {
-        this.onDateChange.emit(moment(date).format('YYYY-MM-DD'));
+        // has changed, return time
+        this.onDateChange.emit(moment(date).format(this.timeFormat));
       },
       () => {}
     );

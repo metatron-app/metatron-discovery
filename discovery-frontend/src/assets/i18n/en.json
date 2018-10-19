@@ -586,6 +586,7 @@
   "msg.bench.ui.name" : "Name",
   "msg.bench.ui.value" : "Value",
   "msg.bench.alert.global.variable.delete" : "Are you sure you want to delete the global variable?",
+  "msg.bench.ui.global.variable.duplicated" : "Duplicated",
 
   "msg.nbook.alert.input.name": "Please enter notebook name",
   "msg.nbook.alert.input.description": "Please enter notebook description",

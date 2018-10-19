@@ -12,7 +12,10 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import {
+  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
+  ViewChild
+} from '@angular/core';
 import { AbstractComponent } from '../../../../common/component/abstract.component';
 import { Workbench } from '../../../../domain/workbench/workbench';
 import { isUndefined } from 'util';
@@ -21,16 +24,20 @@ import { CommonConstant } from '../../../../common/constant/common.constant';
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../common/util/string.util';
 import { Alert } from '../../../../common/util/alert.util';
+import { ConfirmSmallComponent } from '../../../../common/component/modal/confirm-small/confirm-small.component';
+import { Modal } from '../../../../common/domain/modal';
 
+/**
+ * Global variable in detail workbench
+ */
 @Component({
   selector: 'detail-workbench-variable',
   templateUrl: './detail-workbench-variable.html',
 })
 export class DetailWorkbenchVariable extends AbstractComponent implements OnInit, OnDestroy {
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild(ConfirmSmallComponent)
+  private _confirmSmallComp: ConfirmSmallComponent;
 
   @Input()
   public workbench: Workbench;
@@ -47,10 +54,10 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
     { key: 'c', value: this.translateService.instant('msg.bench.ui.calen') },
     { key: 't', value: this.translateService.instant('msg.bench.ui.text') }
   ];
-  // 선택된 결과값.
+  // selected global variable type
   public selectedType: any = this.typeList[0];
 
-  // 셀렉트 리스트 show/hide 플래그
+  // global variable list show/hide flag
   public isShowSelectList = false;
 
   // input name variable in add panel
@@ -64,27 +71,16 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
   // input value variable in edit panel
   public editVariableInputValue: string;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Variables
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 글로벌 변수 최대 갯수
+  // max global variable count
   private _globalVariableMax: number = 30;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Constructor
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  // 생성자
+  // constructor
   constructor(protected workbenchService: WorkbenchService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Override Method
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   public ngOnInit(): void {
     if (!isUndefined(this.workbench) && !isUndefined(this.workbench.globalVar)) {
@@ -125,6 +121,9 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
       this.selectedType = type;
       // init value
       this.addVariableObject.globalVar = '';
+      // init error
+      this.initErrorInVariable(this.addVariableObject, 'name');
+      this.initErrorInVariable(this.addVariableObject, 'value');
     }
   }
 
@@ -132,30 +131,37 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
    * Add global variable click event
    */
   public onClickAddVariable(): void {
-    // check empty name
+    // check empty name & check duplicated name & check variable count
     if (this._isNotEmptyGlobalVariable(this.addVariableObject)
       && this._isNotDuplicateGlobalVariableName(this.variableList, this.addVariableObject)
       && this._isNotOverMaxVariableList()) {
       // add globalType
       this.addVariableObject.globalType = this.selectedType.key;
-      // add variable in variable list
-      this.variableList.push(_.cloneDeep(this.addVariableObject));
+      // clone variable list
+      const list = _.cloneDeep(this.variableList);
+      // add variable in list
+      list.unshift(this.addVariableObject);
       // update global variable
-      this._updateGlobalVariable().then(() => {
-        // close add panel
-        this.addVariableObject.editMode = false
-      });
+      this._updateGlobalVariable(list)
+        .then(() => {
+          // close add panel
+          this.addVariableObject.editMode = false
+        }).catch(() => {});
     }
   }
 
   /**
    * Save global variable list click event
+   * @param globalVariable
    */
   public onClickSaveSelectedVariable(globalVariable: any): void {
     // check empty variable name
     if (this._isNotEmptyGlobalVariable(globalVariable) && this._isNotDuplicateGlobalVariableName(this.variableList.filter(item => item !== globalVariable), globalVariable)) {
       // save variable
-      this._updateGlobalVariable();
+      this._updateGlobalVariable(this.variableList)
+        .then(() => {
+          globalVariable.editMode = false;
+        }).catch(() => {});
     }
   }
 
@@ -165,7 +171,7 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
   public onClickShowHideAddGlobalVariable(): void {
     // if show flag
     if (!this.addVariableObject.editMode) {
-      // close edit mode in variable list
+      // if editMode true, close edit mode in variable list
       this.variableList.forEach(item => item.editMode && this.onClickCloseEditSelectedVariable(item));
       // init global variable value
       this.addVariableObject.globalNm = '';
@@ -186,14 +192,16 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
    */
   public onClickShowEditSelectedVariable(globalVariable: any): void {
     // close add panel
-    this.addVariableObject.editMode = false;
-    // close edit mode in variable list
+    this.addVariableObject.editMode && (this.addVariableObject.editMode = false);
+    // if editMode true, close edit mode in variable list
     this.variableList.forEach(item => item.editMode && this.onClickCloseEditSelectedVariable(item));
     // open edit mode
     globalVariable.editMode = true;
     // clone global variable value
     this.editVariableInputName = globalVariable.globalNm;
     this.editVariableInputValue = globalVariable.globalVar;
+    // TODO ExpressionChangedAfterItHasBeenCheckedError fix
+    this.changeDetect.detectChanges();
   }
 
   /**
@@ -216,9 +224,12 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
    * @param globalVariable
    */
   public onClickRemoveSelectedVariable(globalVariable: any): void {
-    this.variableList = _.filter(this.variableList, item => item !== globalVariable);
-    // update global variable
-    this._updateGlobalVariable();
+    const modal = new Modal();
+    modal.btnName = this.translateService.instant('msg.comm.ui.del');
+    modal.description = this.translateService.instant('msg.bench.alert.global.variable.delete');
+    modal.data = globalVariable;
+    // show confirm component
+    this._confirmSmallComp.init(modal);
   }
 
   /**
@@ -230,8 +241,31 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
   }
 
   /**
+   * Date value changed event
+   * @param {string} date
+   * @param globalVariable
+   */
+  public onChangedDateValue(date: string, globalVariable: any): void {
+    // change value
+    globalVariable.globalVar = date;
+    // init value error
+    this.initErrorInVariable(globalVariable, 'value');
+  }
+
+  /**
+   * Remove selected global variable
+   * @param globalVariable
+   */
+  public removeSelectedVariable(globalVariable: any): void {
+    // update global variable
+    this._updateGlobalVariable(_.filter(this.variableList, item => item !== globalVariable))
+      .then(() => {}).catch(() => {});
+  }
+
+  /**
    * Init error in variable
    * @param globalVariable
+   * @param {string} errorType
    */
   public initErrorInVariable(globalVariable: any, errorType: string): void {
     switch (errorType) {
@@ -273,13 +307,15 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
   /**
    * Is exist duplicate global variable name
    * @param variableList
+   * @param globalVariable
    * @returns {boolean}
    * @private
    */
   private _isNotDuplicateGlobalVariableName(variableList: any, globalVariable: any): boolean {
+    // if exist duplicate name in variable list
     if (_.some(variableList, item => globalVariable.globalNm.trim() === item.globalNm.trim())) {
       // set error message
-      globalVariable.nameErrorMessage = 'Variable name is duplicated';
+      globalVariable.nameErrorMessage = this.translateService.instant('msg.bench.ui.global.variable.duplicated');
       // set error flag
       globalVariable.isNameError = true;
       return false;
@@ -303,43 +339,45 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
 
   /**
    * Update global variable
+   * @param variableList
+   * @returns {Promise<any>}
    * @private
    */
-  private _updateGlobalVariable(): Promise<any> {
+  private _updateGlobalVariable(variableList: any): Promise<any> {
     return new Promise((resolve, reject) => {
       // loading show
       this.loadingShow();
-
-      const params: any = {};
-      params.id = this.workbench.id;
-      params.name = this.workbench.name;
-      if (!isUndefined(this.workbench.description)) {
+      // params
+      const params: any = {
+        id: this.workbench.id,
+        name: this.workbench.name,
+        folderId: this.workbench.folderId,
+        workspace: CommonConstant.API_CONSTANT.API_URL + 'workspace/' + this.workbench.workspace.id,
+        dataConnection: CommonConstant.API_CONSTANT.API_URL + 'dataconnections/' + this.workbench.dataConnection.id,
+        globalVar: JSON.stringify(this._getGlobalVariableListMap(variableList))
+      };
+      if (this.workbench.description) {
         params.description = this.workbench.description;
       }
-      if (!isUndefined(this.workbench.favorite)) {
+      if (this.workbench.favorite) {
         params.favorite = this.workbench.favorite;
       }
-      if (!isUndefined(this.workbench.tag)) {
+      if (this.workbench.tag) {
         params.tag = this.workbench.tag;
       }
-      params.folderId = this.workbench.folderId;
-      params.workspace = CommonConstant.API_CONSTANT.API_URL + 'workspace/' + this.workbench.workspace.id;
-      params.dataConnection = CommonConstant.API_CONSTANT.API_URL + 'dataconnections/' + this.workbench.dataConnection.id;
-      // change global variable
-      params.globalVar = JSON.stringify(this._getGlobalVariableListMap());
       // update global variable in workbench
       this.workbenchService.updateWorkbench(params)
         .then((result) => {
+          // loading hide
+          this.loadingHide();
           // if exist global variable in result
-          if (!isUndefined(result.globalVar)) {
+          if (result.globalVar) {
             // change global variable list
             this.workbench.globalVar = result.globalVar;
             this.variableList = JSON.parse(result.globalVar);
           } else {
             this.variableList = [];
           }
-          // loading hide
-          this.loadingHide();
           resolve(result);
         })
         .catch((error) => {
@@ -351,11 +389,12 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
 
   /**
    * Get global variable list
+   * @param variableList
    * @returns {any}
    * @private
    */
-  private _getGlobalVariableListMap(): any {
-    return _.map(this.variableList, (item) => {
+  private _getGlobalVariableListMap(variableList: any): any {
+    return _.map(variableList, (item) => {
       return {
         globalNm: item.globalNm,
         globalVar: item.globalVar,

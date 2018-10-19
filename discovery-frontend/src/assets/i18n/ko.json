@@ -586,6 +586,7 @@
   "msg.bench.ui.name" : "이름",
   "msg.bench.ui.value" : "값",
   "msg.bench.alert.global.variable.delete" : "글로벌 변수를 삭제하시겠습니까?",
+  "msg.bench.ui.global.variable.duplicated" : "중복",
 
   "msg.nbook.alert.input.name": "노트북 이름을 입력해 주세요",
   "msg.nbook.alert.input.description": "노트북 설명을 입력해 주세요",

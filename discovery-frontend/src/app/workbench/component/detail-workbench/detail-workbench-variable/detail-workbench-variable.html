@@ -14,7 +14,7 @@
 
 <div class="ddp-ui-rnb-contents ddp-type">
   <div class="ddp-ui-title">
-    {{'msg.bench.ui.global.variable'|translate}}<span class="ddp-data-num">{{variableList.length}}</span>
+    {{'msg.bench.ui.global.variable'|translate}}<span class="ddp-data-num">({{variableList.length}})</span>
   </div>
 
   <div class="ddp-ui-form-list">
@@ -31,7 +31,7 @@
               </colgroup>
               <tbody>
               <tr>
-                <th>Type</th>
+                <th>{{'msg.bench.ui.type' | translate}}</th>
                 <td>
                   <!-- select box -->
                   <!-- 클릭시 ddp-selected 추가 -->
@@ -55,7 +55,7 @@
                 </td>
               </tr>
               <tr>
-                <th>Name</th>
+                <th>{{'msg.bench.ui.name' | translate}}</th>
                 <td>
                   <input type="text" class="ddp-input-typebasic ddp-value" placeholder="{{'msg.bench.ui.input.variable.name' | translate}}"
                          [(ngModel)]="addVariableObject.globalNm" (ngModelChange)="initErrorInVariable(addVariableObject, 'name')">
@@ -63,7 +63,7 @@
                 </td>
               </tr>
               <tr>
-                <th>Value</th>
+                <th>{{'msg.bench.ui.value' | translate}}</th>
                 <td>
                   <input type="text" class="ddp-input-typebasic ddp-value" placeholder="{{'msg.bench.ui.input.val' | translate}}" *ngIf="selectedType.key === 't'" maxlength="20"
                          [(ngModel)]="addVariableObject.globalVar" (ngModelChange)="initErrorInVariable(addVariableObject, 'value')">
@@ -71,7 +71,7 @@
                                   [date]="addVariableObject.globalVar"
                                   [isReadOnly]="true"
                                   [placeholder]="'msg.bench.ui.input.date'|translate"
-                                  (onDateChange)="addVariableObject.globalVar = $event">
+                                  (onDateChange)="onChangedDateValue($event, addVariableObject)">
                   </component-date>
                   <span class="ddp-data-error" *ngIf="addVariableObject.isValueError"> {{addVariableObject.valueErrorMessage}}</span>
                 </td>
@@ -79,7 +79,7 @@
               </tbody>
             </table>
             <div class="ddp-box-buttons">
-              <a href="javascript:" class="ddp-btn-pop" (click)="onClickCloseEditSelectedVariable(addVariableObject); isShowSelectList = false">{{'msg.comm.btn.cancl' | translate}}</a>
+              <a href="javascript:" class="ddp-btn-pop" (click)="onClickCloseEditSelectedVariable(addVariableObject)">{{'msg.comm.btn.cancl' | translate}}</a>
               <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="onClickAddVariable()">{{'msg.comm.btn.add' | translate}}</a>
             </div>
           </div>
@@ -90,24 +90,24 @@
       <div class="ddp-list-form-plus">
         <div class="ddp-wrap-link-list" *ngFor="let variable of variableList">
           <!-- form -->
-          <div class="ddp-form-multy2 ddp-padr0 ddp-type ddp-clear">
+          <div class="ddp-form-multy2 ddp-type ddp-clear" [class.ddp-padr0]="variable.editMode">
             <em class="{{getGlobalVariableIcon(variable.globalType)}}"></em>
             <!-- name -->
             <div class="ddp-box-typebasic">
-              <input type="text" class="ddp-input-typebasic" [class.ddp-readonly]="!variable.editMode" value="{{variable.globalNm}}" placeholder="{{'msg.bench.ui.input.variable.name' | translate}}"
+              <input type="text" class="ddp-input-typebasic" [class.ddp-readonly]="!variable.editMode" value="{{variable.globalNm}}" placeholder="{{'msg.bench.ui.input.variable.name' | translate}}" title="{{variable.globalNm}}"
                      [readOnly]="!variable.editMode" [(ngModel)]="variable.globalNm" (ngModelChange)="initErrorInVariable(variable, 'name')">
               <span class="ddp-data-error" *ngIf="variable.isNameError"> {{variable.nameErrorMessage}}</span>
             </div>
             <!-- //name -->
             <!-- value -->
             <div class="ddp-box-typebasic ddp-value">
-              <input type="text" class="ddp-input-typebasic ddp-value" [class.ddp-readonly]="!variable.editMode" value="{{variable.globalVar}}" placeholder="{{'msg.bench.ui.input.val' | translate}}"
+              <input type="text" class="ddp-input-typebasic ddp-value" [class.ddp-readonly]="!variable.editMode" value="{{variable.globalVar}}" placeholder="{{'msg.bench.ui.input.val' | translate}}" maxlength="20" title="{{variable.globalVar}}"
                      *ngIf="variable.globalType === 't' || (!variable.editMode && variable.globalType === 'c')" [readOnly]="!variable.editMode" [(ngModel)]="variable.globalVar" (ngModelChange)="initErrorInVariable(variable, 'value')" >
               <component-date *ngIf="variable.editMode && variable.globalType === 'c'"
                               [date]="variable.globalVar"
                               [isReadOnly]="true"
                               [placeholder]="'msg.bench.ui.input.date'|translate"
-                              (onDateChange)="variable.globalVar = $event">
+                              (onDateChange)="onChangedDateValue($event, variable)">
               </component-date>
               <span class="ddp-data-error" *ngIf="variable.isValueError"> {{variable.valueErrorMessage}}</span>
             </div>
@@ -175,3 +175,7 @@
 
   </div>
 </div>
+
+<!-- small modal -->
+<app-confirm-small-modal [useCancelBtn]="true" (confirm)="removeSelectedVariable($event)"></app-confirm-small-modal>
+<!-- //small modal -->
