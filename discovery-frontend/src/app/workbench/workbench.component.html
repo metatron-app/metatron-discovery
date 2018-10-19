@@ -353,7 +353,7 @@
               <!-- tab -->
               <!-- 결과 -->
               <div class="ddp-view-result">
-                <div loading #loading [visible]="true" [cancel]="mimeType != 'HIVE'"
+                <div loading #loading [visible]="true" [cancel]="!isWaterfallProc"
                      [canceling]="hiveLogCanceling" (cancel)="cancelRunningQuery()" class="ddp-loading-part"></div>
 
                 <!-- Hive Log 표시 영역 -->
@@ -462,7 +462,7 @@
                       </div>
 
                       <!-- hive 관련 button -->
-                      <a *ngIf="mimeType === 'HIVE'" href="javascript:" class="ddp-btn-box" (click)="toggleHiveLog(true)">
+                      <a *ngIf="isWaterfallProc" href="javascript:" class="ddp-btn-box" (click)="toggleHiveLog(true)">
                         <em class="ddp-icon-result-list"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>

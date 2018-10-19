@@ -144,6 +144,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public isWaterfallProc:boolean = false;
 
   // editor 리스트 관리객체
   public editorListObj = new EditorList();
@@ -1053,7 +1054,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this._executeSqlReconnectCnt++; // 호출횟수 증가
 
     // 호출 정보 초기화
-    if (this.mimeType == 'HIVE') {
+    if (this.isWaterfallProc) {
       this.isHiveQueryExecute = true;
     }
     this.executeEditorId = this.selectedEditorId;
@@ -1125,7 +1126,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               this.removeLocalStorage(this.selectedEditorId);
 
               // hive log view show
-              if (this.mimeType == 'HIVE') {
+              if (this.isWaterfallProc) {
 
                 //쿼리 실행
                 // this.loadingBar.hide();
@@ -1184,7 +1185,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public runSingleQueryWithInvalidQuery(queryEditor, tempSelectedTabNum, selectedResultTabNum) {
 
-    if (this.mimeType == 'HIVE') {
+    if (this.isWaterfallProc) {
       const executeTab = this._appendResultTabByName(this.executeEditorId, 'Loading..');
       this.runningResultTabId = executeTab.id;
     }
@@ -1198,7 +1199,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         // console.info('%c >>>>>> End Query - this.runningResultTabId', 'color:#0000FF', this.runningResultTabId);
 
         try {
-          if (this.mimeType == 'HIVE') {
+          if (this.isWaterfallProc) {
             if (0 < result.length) {
               this.setHiveQueryResult(result[0]); // hive일 경우 단건 호출
             }
@@ -1625,6 +1626,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             (permissionChecker.isManageWorkbench() || permissionChecker.isEditWorkbench(data.createdBy.username));
 
           this.mimeType = data.dataConnection.implementor.toString();
+          this.isWaterfallProc = ( 'HIVE' === this.mimeType );
           this.authenticationType = data.dataConnection['authenticationType'] || 'MANUAL';
           if (data.dataConnection['authenticationType'] === 'DIALOG') {
             this.loginLayerShow = true;
@@ -1861,6 +1863,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.drawGridData();
     }
 
+    this.loadingBar.hide();
+
   } // function - setQueryResult
 
   // 선택된 탭의 텍스트 변경
@@ -1962,7 +1966,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this._subscription
         = CommonConstant.stomp.subscribe('/user/queue/workbench/' + this.workbenchId, (data) => {
 
-        (this.hiveLogCanceling) || (this.loadingBar.hide());
+        ( this.isWaterfallProc && !this.hiveLogCanceling ) && (this.loadingBar.hide());
 
         const resultTabInfo: ResultTab = this._getResultTab(this.runningResultTabId);
         if (1 === this._getResultTabsByEditorId(this.executeEditorId).length) {
@@ -1973,7 +1977,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
         // console.info('>>>>>> %s - command : %s', this.runningResultTabId, data.command);
 
-        if ('HIVE' === this.mimeType && !isNullOrUndefined(data.queryIndex)) {
+        if (this.isWaterfallProc && !isNullOrUndefined(data.queryIndex)) {
 
           // log 데이터 그리는 부분, done 인 부분으로 분리
           if ('LOG' === data.command && data.log.length != 0) {
@@ -2189,7 +2193,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // data fields가 없다면 return
     if (!data || !data.fields) {
       // hive 일 경우 log 데이터 확인 필요
-      if (this.mimeType == 'HIVE') {
+      if (this.isWaterfallProc) {
 
         currentTab.showLog = false;   // 로그 숨김
 
