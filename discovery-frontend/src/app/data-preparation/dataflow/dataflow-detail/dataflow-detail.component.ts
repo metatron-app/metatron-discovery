@@ -164,11 +164,11 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
   // 생성자
   constructor(
-              private dataflowService: DataflowService,
-              private commonLocation: Location,
-              private activatedRoute: ActivatedRoute,
-              protected elementRef: ElementRef,
-              protected injector: Injector) {
+    private dataflowService: DataflowService,
+    private commonLocation: Location,
+    private activatedRoute: ActivatedRoute,
+    protected elementRef: ElementRef,
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -356,12 +356,12 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     this.dataflow = new Dataflow();
     this.selectedDataSet = new Dataset();
 
-    // Router에서 파라미터 전달 받기
+    // Get param from url
     this.activatedRoute.params.subscribe((params) => {
       if (params['id']) {
         this.dataflow.dfId = params['id'];
       }
-      if (this.cookieService.get('SELECTED_DATASET_ID')) { // 데이터셋 상세 화면에서 이동한 경우
+      if (this.cookieService.get('SELECTED_DATASET_ID')) { // From dataset detail
 
         this.selectedDataSet.dsId = this.cookieService.get('SELECTED_DATASET_ID');
         let type;
@@ -377,10 +377,12 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         this.cookieService.delete('SELECTED_DATASET_ID');
         this.cookieService.delete('SELECTED_DATASET_TYPE');
         this.closeEditRule();
-      } else if (sessionStorage.getItem('DATASET_ID')) {
-        this.addDatasets();
       } else {
         this.getDataflow();
+        if (sessionStorage.getItem('DATASET_ID')) { // From dataflow detail
+          this.addDatasets();
+        }
+
       }
     });
   }
