@@ -124,8 +124,6 @@ public class QueryEditor extends AbstractHistoryEntity implements MetatronDomain
 						", order=" + order +
 						", query='" + query + '\'' +
 						", index=" + index +
-						", workbench=" + workbench +
-						", queryHistories=" + queryHistories +
 						'}';
 	}
 
