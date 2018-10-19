@@ -163,7 +163,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
-    if (this.selectedFields.length === 1) {
+    if (this.selectedFields.length === 1 && this.newFieldName === '') {
       this.newFieldName = this.selectedFields[0].name + '_1';
     }
     setTimeout(() => {
