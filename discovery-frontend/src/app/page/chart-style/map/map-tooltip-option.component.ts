@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import { Pivot } from '../../../domain/workbook/configurations/pivot';
 import { Field } from '../../../domain/workbook/configurations/field/field';
 import { Field as AbstractField } from '../../../domain/datasource/datasource';
+import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
 
 @Component({
   selector: 'map-tooltip-option',
@@ -92,7 +93,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     mapPivot.forEach((item) => {
 
-      returnList.push(item.name);
+      returnList.push( ChartUtil.getAggregationAlias(item) );
     });
 
     return returnList;
@@ -108,9 +109,11 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     let fields: Field[] = [];
 
     let field: Field;
-    columns.forEach((name) => {
+    columns.forEach((alias) => {
 
-      field = <any> _.find(this.selectedColumns, {'name' : name});
+      field = <any> _.find(this.selectedColumns, (field) => {
+        return _.eq(alias, ChartUtil.getAggregationAlias(field));
+      });
 
       if (field) fields.push(field);
     });
@@ -242,7 +245,10 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     event.stopPropagation();
 
-    const index = _.findIndex(this.selectedColumns, {'name': item.name});
+    let alias = ChartUtil.getAggregationAlias(item);
+    const index = _.findIndex(this.selectedColumns, (field) => {
+      return _.eq(alias, ChartUtil.getAggregationAlias(field));
+    });
 
     // if it's duplicate value
     if (-1 !== index) return;
@@ -250,7 +256,9 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     this.selectedColumns.push(item);
 
     // remove in unselectedColumns
-    const removeIndex = _.findIndex(this.unselectedColumns, {'name': item.name});
+    const removeIndex = _.findIndex(this.unselectedColumns, (field) => {
+      return _.eq(alias, ChartUtil.getAggregationAlias(field));
+    });
     this.unselectedColumns.splice(removeIndex, 1);
     this.originUnselectedColumns = _.cloneDeep(this.unselectedColumns);
 
