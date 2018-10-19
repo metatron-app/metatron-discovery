@@ -477,31 +477,6 @@ public class DataFrame implements Serializable, Transformable {
     rows = newRows;
   }
 
-  public DataFrame drop(List<String> targetColNames) {
-    DataFrame newDf = new DataFrame();
-
-    List<Integer> survivedColNos = new ArrayList<>();
-    for (int i = 0; i < getColCnt(); i++) {
-      if (targetColNames.contains(getColName(i))) {
-        continue;   // drop 대상 컬럼들은 새 df에서 누락
-      }
-      survivedColNos.add(i);
-    }
-
-    for (int colno : survivedColNos) {
-      newDf.addColumnWithDf(this, colno);
-    }
-
-    for (Row row : this.rows) {
-      Row newRow = new Row();
-      for (int colno : survivedColNos) {
-        newRow.add(getColName(colno), row.get(colno));
-      }
-      newDf.rows.add(newRow);
-    }
-    return newDf;
-  }
-
   //check if Args size are exactly matched with desirable size.
   private void assertArgsEq(int desirable, List<Expr> args, String func) throws TeddyException {
     if (args.size() != desirable) {
