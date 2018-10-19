@@ -99,7 +99,7 @@ body {font-size:12px; background-color:#fff;}
 header,footer,nav {display:block;}
 ul,ol {list-style:none;}
 img,button {border:0 none; font-family:'SpoqaHanSans', sans-serif;}
-table {border-spacing:0px; border-collapse:separate;}
+table {width:100%; border-spacing:0px; border-collapse:separate;}
 em {font-style:normal;}
 a,u,a:hover {text-decoration:none; color:#707070;}
 a {outline:0;}
