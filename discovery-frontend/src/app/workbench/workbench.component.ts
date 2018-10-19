@@ -830,6 +830,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       }
     }
 
+    this.safelyDetectChanges(); // 변경값 반영
+
     const currentEditorResultTabs: ResultTab[] = this._getCurrentEditorResultTabs();
 
     // 에디터 결과 슬라이드 버튼 계산
@@ -851,9 +853,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
       // 결과 탭 변경
       this.changeResultTabHandler(resultTab.id);
-
-      // 그리드 차트 뿌리기
-      this.drawGridData();
 
     }
     if (selectedItem) {
@@ -894,6 +893,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     });
 
     (selectedTab.showLog) || (this.drawGridData());
+
+    this.safelyDetectChanges();
 
   } // function - changeResultTabHandler
 
@@ -1807,7 +1808,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     } else {
       resultTab.name = this._genResultTabName(this.runningQueryEditor.name, 'RESULT', currentTabs.length);
       resultTab.output = 'grid';
-      resultTab.message = '';
+      resultTab.message = isNullOrUndefined( data.message ) ? '' : data.message;
     }
 
     // 에디터 결과 슬라이드 버튼 계산
@@ -1848,7 +1849,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       } else {
         dataTab.name = this._genResultTabName(this.runningQueryEditor.name, 'RESULT', (idx + 1));
         dataTab.output = 'grid';
-        dataTab.message = '';
+        dataTab.message = isNullOrUndefined( item.message ) ? '' : item.message;
       }
 
       (dataTab.selected) && (this.runningResultTabId = dataTab.id);

@@ -305,7 +305,7 @@
                       </tr>
                       <tr>
                         <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
-                        <td>Ctrl+Spacebar (Windows)<br/>Cmd+Shift+Spacebar (MacOS)</td>
+                        <td>Ctrl+Spacebar (Windows)<br/>Ctrl+Shift+Spacebar (MacOS)</td>
                       </tr>
                       </tbody>
                     </table>
@@ -487,7 +487,7 @@
                     </div>
                   </div>
                   <!--<span class="ddp-data-number">{{resultRow | numberCommas}} rows | {{resultTime}}</span>-->
-                  <span *ngIf="'grid' === visibleResultTab.output && visibleResultTab.data" class="ddp-data-number" >
+                  <span *ngIf="'grid' === visibleResultTab.output && visibleResultTab.data && -1 < visibleResultTab.data.numRows" class="ddp-data-number" >
                     {{visibleResultTab.data.numRows}} {{'msg.comm.detail.rows'|translate}}
                   </span>
                 </div>
