@@ -139,7 +139,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let mapVaild: boolean = false;
     if(pivot !== undefined) {
       for(let column of pivot.columns) {
-        if(column.field.logicalType.toString().indexOf("GEO") === 0) {
+        if(column.field && column.field.logicalType && column.field.logicalType.toString().indexOf("GEO") === 0) {
           mapVaild = true;
         }
       }
