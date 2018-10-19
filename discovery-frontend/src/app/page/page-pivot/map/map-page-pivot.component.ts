@@ -180,17 +180,20 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
    }
 
    public changeLayer(layerNum: number): void {
+     let pivotChanged: boolean = false;
 
      if(layerNum < this.layerNum) {
        for(let column of this.pivot.columns) {
          if(column["layerNum"] === this.layerNum) {
            this.removeField("event", FieldPivot.COLUMNS, this.pivot.columns, this.pivot.columns.indexOf(column));
+           pivotChanged = true;
          }
        }
 
        for(let aggregation of this.pivot.aggregations) {
          if(aggregation["layerNum"] === this.layerNum) {
            this.removeField("event", FieldPivot.AGGREGATIONS, this.pivot.aggregations, this.pivot.aggregations.indexOf(aggregation));
+           pivotChanged = true;
          }
        }
 
@@ -210,7 +213,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      this.uiOption["layerCnt"] = layerNum;
 
      // 이벤트
-     this.changePivot();
+     if(pivotChanged) this.changePivot();
    }
 
    /**

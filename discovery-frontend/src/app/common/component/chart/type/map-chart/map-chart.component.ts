@@ -61,6 +61,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     this.query = query;
   }
 
+  public secondLayerQuery: SearchQueryRequest;
+  public thirdLayerQuery: SearchQueryRequest;
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -1428,7 +1431,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     source.addFeatures(features);
 
     let clusterSource = new ol.source.Cluster({
-      distance: 10,
+      distance: 30,
       source: source
     });
 
@@ -1449,7 +1452,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       // this.olmap.addLayer(textLayer);
 
       if(geomType === "GEO_POINT") {
-        // this.uiOption.layers[0].type = "symbol";
+        this.uiOption.layers[1].type = "symbol";
       } else if(geomType === "GEO_LINE") {
         this.uiOption.layers[1].type = "line";
       } else if(geomType === "GEO_POLYGON") {
@@ -1511,17 +1514,17 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       // this.olmap.getLayers().getArray()[10] = textLayer;
 
       symbolLayer.setStyle(this.mapStyleFunction(1, this.data));
-      symbolLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
+      // symbolLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
 
       clusterLayer.setStyle(this.clusterStyleFunction(1, this.data));
-      clusterLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
+      // clusterLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
 
       heatmapLayer.setBlur(this.uiOption.layers[1].color.blur);
       heatmapLayer.setRadius(this.uiOption.layers[1].color.radius);
       heatmapLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
 
       hexagonLayer.setStyle(this.hexagonStyleFunction(1, this.data));
-      hexagonLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
+      // hexagonLayer.setOpacity(this.uiOption.layers[1].color.transparency / 100);
 
       if(this.uiOption.layers[1].type === "symbol") {
         if(this.uiOption.layers[1].clustering) {
@@ -1672,7 +1675,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     source.addFeatures(features);
 
     let clusterSource = new ol.source.Cluster({
-      distance: 10,
+      distance: 30,
       source: source
     });
 
@@ -1693,7 +1696,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       // this.olmap.addLayer(textLayer);
 
       if(geomType === "GEO_POINT") {
-        // this.uiOption.layers[0].type = "symbol";
+        this.uiOption.layers[2].type = "symbol";
       } else if(geomType === "GEO_LINE") {
         this.uiOption.layers[2].type = "line";
       } else if(geomType === "GEO_POLYGON") {
@@ -1755,17 +1758,17 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       // this.olmap.getLayers().getArray()[10] = textLayer;
 
       symbolLayer.setStyle(this.mapStyleFunction(2, this.data));
-      symbolLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
+      // symbolLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
 
       clusterLayer.setStyle(this.clusterStyleFunction(2, this.data));
-      clusterLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
+      // clusterLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
 
       heatmapLayer.setBlur(this.uiOption.layers[2].color.blur);
       heatmapLayer.setRadius(this.uiOption.layers[2].color.radius);
       heatmapLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
 
       hexagonLayer.setStyle(this.hexagonStyleFunction(2, this.data));
-      hexagonLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
+      // hexagonLayer.setOpacity(this.uiOption.layers[2].color.transparency / 100);
 
       if(this.uiOption.layers[2].type === "symbol") {
         if(this.uiOption.layers[2].clustering) {
@@ -1867,10 +1870,17 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   protected apply(initFl: boolean = true): void {
 
     let secondLayerQuery: SearchQueryRequest = _.clone(this.query);
-    // secondLayerQuery.dataSource = this.widget.configuration.dataSource;
-
     let thirdLayerQuery: SearchQueryRequest = _.clone(this.query);
-    // thirdLayerQuery.dataSource = this.widget.configuration.dataSource;
+
+    if(!this.secondLayerQuery) {
+      this.secondLayerQuery = secondLayerQuery;
+      this.secondLayerQuery.pivot = null;
+    }
+
+    if(!this.thirdLayerQuery) {
+      this.thirdLayerQuery = secondLayerQuery;
+      this.thirdLayerQuery.pivot = null;
+    }
 
     let layers2 = [];
     let layers3 = [];
@@ -1963,10 +1973,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let secondLayerVaild: boolean = false;
       let thirdLayerVaild: boolean = false;
       for(let column of this.pivot.columns) {
-        if(column["layerNum"] === 2) {
+        if(column["layerNum"] === 2 && column.field["logicalType"].toString().indexOf("GEO") > -1) {
           secondLayerVaild = true;
         }
-        else if(column["layerNum"] === 3) {
+        else if(column["layerNum"] === 3 && column.field["logicalType"].toString().indexOf("GEO") > -1) {
           thirdLayerVaild = true;
         }
       }
@@ -1980,48 +1990,55 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
 
       if(this.data[1] === undefined && secondLayerVaild) {
-        this.datasourceService.searchQuery(secondLayerQuery).then(
-          (data) => {
+        if(secondLayerQuery["pivot"] !== this.secondLayerQuery["pivot"]) {
+          this.datasourceService.searchQuery(secondLayerQuery).then(
+            (data) => {
 
-            this.data[1] = data[0];
-            this.drawSecondLayer(this.data);
-            // if (this.params.successCallback) {
-            //   this.params.successCallback();
-            // }
-          }
-        ).catch((reason) => {
-          console.error('Search Query Error =>', reason);
-          // this.isChartShow = false;
+              this.data[1] = data[0];
+              this.drawSecondLayer(this.data);
+              // if (this.params.successCallback) {
+              //   this.params.successCallback();
+              // }
+            }
+          ).catch((reason) => {
+            console.error('Search Query Error =>', reason);
+            // this.isChartShow = false;
 
-          // 변경사항 반영
-          // this.changeDetect.detectChanges();
-          // this.loadingHide();
-        });
-      } else {
-        // this.drawSecondLayer(this.data[1]);
-        this.data[1] = undefined;
+            // 변경사항 반영
+            // this.changeDetect.detectChanges();
+            // this.loadingHide();
+          });
+        } else {
+          this.drawSecondLayer(this.data);
+        }
+
+        this.secondLayerQuery = secondLayerQuery;
       }
 
       if(this.data[2] === undefined && thirdLayerVaild) {
-        this.datasourceService.searchQuery(thirdLayerQuery).then(
-          (data) => {
+        if(thirdLayerQuery["pivot"] !== this.thirdLayerQuery["pivot"]) {
+          this.datasourceService.searchQuery(thirdLayerQuery).then(
+            (data) => {
 
-            this.data[2] = data[0];
-            this.drawThirdLayer(this.data);
-            // if (this.params.successCallback) {
-            //   this.params.successCallback();
-            // }
-          }
-        ).catch((reason) => {
-          console.error('Search Query Error =>', reason);
-          // this.isChartShow = false;
+              this.data[2] = data[0];
+              this.drawThirdLayer(this.data);
+              // if (this.params.successCallback) {
+              //   this.params.successCallback();
+              // }
+            }
+          ).catch((reason) => {
+            console.error('Search Query Error =>', reason);
+            // this.isChartShow = false;
 
-          // 변경사항 반영
-          // this.changeDetect.detectChanges();
-          // this.loadingHide();
-        });
-      } else {
-        this.data[2] = undefined;
+            // 변경사항 반영
+            // this.changeDetect.detectChanges();
+            // this.loadingHide();
+          });
+        } else {
+          this.drawSecondLayer(this.data);
+        }
+
+        this.thirdLayerQuery = thirdLayerQuery;
       }
     } else {
       let secondLayerVaild: boolean = false;
