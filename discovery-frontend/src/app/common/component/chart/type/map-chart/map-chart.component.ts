@@ -1136,7 +1136,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     if( !this.uiOption.legend.auto ) {
       for(let i=0;i<document.getElementsByClassName('ddp-layout-remark').length;i++) {
         let element = document.getElementsByClassName('ddp-layout-remark')[i] as HTMLElement;
-        element.innerHTML = "<div></div>";
+        element.style.display = "none";
       }
       return;
     }
@@ -1144,6 +1144,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     if(document.getElementsByClassName('ddp-layout-remark').length > 0) {
       for(let i=0;i<document.getElementsByClassName('ddp-layout-remark').length;i++) {
         let element = document.getElementsByClassName('ddp-layout-remark')[i] as HTMLElement;
+        element.style.display = "block";
 
         if(this.uiOption.legend.pos.toString() === "RIGHT_BOTTOM") {
           element.style.left = '';
@@ -1252,6 +1253,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     this.olmap.addOverlay(popup);
 
     let tooltipOption = this.uiOption;
+    let pivot = this.pivot;
 
     this.olmap.on('pointermove', function(evt) {
 
@@ -1302,6 +1304,20 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         //Properties (DATA_VALUE)
         if(tooltipOption.toolTip["displayTypes"] != undefined && tooltipOption.toolTip.displayTypes[19] !== null) {
           for(var key in feature.getProperties()) {
+
+            // Show check
+            let isAggregation: boolean = false;
+            //_.each(pivot.aggregations, (field) => {
+            _.each(tooltipOption.toolTip["displayColumns"], (field) => {
+              if( _.eq(field, key) ) {
+                isAggregation = true;
+                return false;
+              }
+            });
+            if( !isAggregation ) {
+              continue;
+            }
+
             let tooltipVal = feature.get(key);
 
             if (key !== 'geometry' && key !== 'weight' && key !== 'layerNum') {
