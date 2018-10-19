@@ -414,7 +414,7 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    DataFrame getPreviewLinesFromFileForDataFrame( PrepDataset dataset, String fileKey, String sheetindex, String size) {
+    DataFrame getPreviewLinesFromFileForDataFrame( PrepDataset dataset, String fileKey, String size) {
         DataFrame dataFrame = new DataFrame();
 
         try {
@@ -428,7 +428,6 @@ public class PrepDatasetFileService {
                 filePath = getPathLocal_new( fileKey );
             }
             String extensionType = FilenameUtils.getExtension(fileKey);
-            int findSheetIndex = Integer.parseInt(sheetindex);
             int limitSize = Integer.parseInt(size);
             long totalBytes = 0L;
             int totalRows = 0;

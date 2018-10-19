@@ -17,10 +17,7 @@ package app.metatron.discovery.domain.dataprep;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.Row;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformRule;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformRuleStringinfo;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransition;
@@ -28,18 +25,14 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.hibernate.annotations.GenericGenerator;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +43,7 @@ import java.util.Map;
         name="prep_imported_dataset_info",
         pkJoinColumns = @PrimaryKeyJoinColumn(name="ds_id", referencedColumnName="ds_id")
 )
+@EntityListeners({PrepDatasetListner.class})
 public class PrepDataset extends AbstractHistoryEntity {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrepDataset.class);
 
@@ -187,6 +181,21 @@ public class PrepDataset extends AbstractHistoryEntity {
     @Lob
     @Column(name = "custom")
     private String custom;
+
+    @Transient
+    DataFrame dataFrame;
+
+    public DataFrame getDataFrame() {
+        return dataFrame;
+    }
+
+    public void setDataFrame(DataFrame dataFrame) {
+        this.dataFrame = dataFrame;
+    }
+
+    public DataFrame getGridResponse() {
+        return getDataFrame();
+    }
 
     public String getDsId() {
         return dsId;
@@ -487,53 +496,6 @@ public class PrepDataset extends AbstractHistoryEntity {
             }
         }
         return ruleStringinfos;
-    }
-
-    public DataFrame getGridResponse() throws PrepException {
-        DataFrame dataFrame = null;
-
-        try {
-            String previewPath = getCustomValue("previewPath");
-            if(null!=previewPath) {
-                ObjectMapper mapper = new ObjectMapper();
-                File theFile = new File(previewPath+File.separator+dsId+".df");
-                if(true==theFile.exists()) {
-                    dataFrame = mapper.readValue(theFile, DataFrame.class);
-
-                    List<ColumnDescription> columnDescs = dataFrame.colDescs;
-                    List<Integer> colNos = Lists.newArrayList();
-                    int colIdx = 0;
-                    for(ColumnDescription columnDesc : columnDescs) {
-                        if(columnDesc.getType().equals(ColumnType.TIMESTAMP)){
-                            colNos.add(colIdx);
-                        }
-                        colIdx++;
-                    }
-
-                    if(0<colNos.size()) {
-                        for (Row row : dataFrame.rows) {
-                            for(Integer colNo : colNos) {
-                                Object jodaTime = row.get(colNo);
-                                if(jodaTime instanceof LinkedHashMap) {
-                                    try {
-                                        LinkedHashMap mapTime = (LinkedHashMap)jodaTime;
-                                        DateTime dateTime = new DateTime(Long.parseLong(mapTime.get("millis").toString()));
-                                        row.objCols.set(colNo,dateTime);
-                                    } catch (Exception e) {
-                                        LOGGER.debug(e.getMessage());
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch(Exception e) {
-            LOGGER.debug(e.getMessage());
-            //throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
-        }
-
-        return dataFrame;
     }
 
     // TODO: think about LOCAL/REMOTE, HDFS, FTP later

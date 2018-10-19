@@ -15,6 +15,8 @@
 package app.metatron.discovery.domain.dataprep;
 
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,8 @@ import java.io.File;
 @Service
 @Transactional
 public class PrepDatasetService {
+    private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetService.class);
+
     @Autowired
     PrepPreviewLineService previewLineService;
 
@@ -82,6 +86,26 @@ public class PrepDatasetService {
     private String hivePreviewSize = "50";
     private String jdbcPreviewSize = "50";
 
+    public DataFrame getPreviewImportedDataset(PrepDataset dataset) throws Exception {
+        DataFrame dataFrame = null;
+
+        if (dataset != null && dataset.getDsTypeForEnum() == PrepDataset.DS_TYPE.IMPORTED) {
+            if (dataset.getImportTypeEnum() == PrepDataset.IMPORT_TYPE.FILE) {
+                String filekey = dataset.getFilekey();
+                if (null != filekey) {
+                    String sheetName = dataset.getSheetName();
+                    dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, filekey, filePreviewSize);
+                }
+            } else if (dataset.getImportTypeEnum() == PrepDataset.IMPORT_TYPE.HIVE) {
+                dataFrame = this.datasetSparkHivePreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, hivePreviewSize);
+            } else if (dataset.getImportTypeEnum() == PrepDataset.IMPORT_TYPE.DB) {
+                dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, jdbcPreviewSize);
+            }
+        }
+
+        return dataFrame;
+    }
+
     public void savePreview(PrepDataset dataset, String oAuthToken) throws Exception {
         DataFrame dataFrame = null;
 
@@ -118,7 +142,7 @@ public class PrepDatasetService {
                 filekey = newFileKey;
             }
 
-            dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, filekey, "0", this.filePreviewSize);
+            dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, filekey, this.filePreviewSize);
 
             dataset.setFileType(PrepDataset.FILE_TYPE.LOCAL);
             if( false==dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://") ) { // always

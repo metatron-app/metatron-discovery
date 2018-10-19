@@ -43,6 +43,9 @@ public class PrepDatasetController {
     @Autowired
     PrepPreviewLineService previewLineService;
 
+    @Autowired
+    private PrepDatasetService datasetService;
+
     @Autowired(required = false)
     private PrepDatasetFileService datasetFileService;
 
@@ -290,10 +293,8 @@ public class PrepDatasetController {
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value = "/reload_preview/{dsId}", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> previewFileCheckSheet(@PathVariable(value = "dsId") String dsId,
-            @RequestParam(value = "sheetindex", required = false, defaultValue = "0") String sheetindex,
-            @RequestParam(value = "resultSize", required = false, defaultValue = "2000") String size ) {
+    @RequestMapping(value = "/reload_preview/{dsId}", method = RequestMethod.GET) // for imported dataset only
+    public @ResponseBody ResponseEntity<?> previewFileCheckSheet(@PathVariable(value = "dsId") String dsId) {
         Map<String, Object> response = null;
         try {
             PrepDataset dataset = this.datasetRepository.findOne(dsId);
@@ -305,10 +306,20 @@ public class PrepDatasetController {
                 LOGGER.error("previewFileCheckSheet(): not imported type : "+ dsId);
                 throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NOT_IMPORTED_DATASET);
             }
+            DataFrame dataFrame = this.datasetService.getPreviewImportedDataset(dataset);
+            if (null != dataFrame) {
+                int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
+                response = Maps.newHashMap();
+                response.put("gridResponse", dataFrame);
+            } else {
+                LOGGER.error("previewFileCheckSheet(): no dataframe : "+ dsId);
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATAFRAME);
+            }
+            /*
             if(dataset.getImportTypeEnum()==PrepDataset.IMPORT_TYPE.FILE) {
                 String filekey = dataset.getFilekey();
                 if (null != filekey) {
-                    DataFrame dataFrame = this.datasetFileService.getPreviewLinesFromFileForDataFrame(dataset, filekey, sheetindex, size);
+                    DataFrame dataFrame = this.datasetFileService.getPreviewLinesFromFileForDataFrame(dataset, filekey, "2000");
                     if (null != dataFrame) {
                         int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
                         response = Maps.newHashMap();
@@ -316,20 +327,21 @@ public class PrepDatasetController {
                     }
                 }
             } else if(dataset.getImportTypeEnum()==PrepDataset.IMPORT_TYPE.HIVE) {
-                DataFrame dataFrame = this.datasetSparkHiveService.getPreviewLinesFromStagedbForDataFrame(dataset,size);
+                DataFrame dataFrame = this.datasetSparkHiveService.getPreviewLinesFromStagedbForDataFrame(dataset, "50");
                 if (null != dataFrame) {
                     int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
                     response = Maps.newHashMap();
                     response.put("gridResponse", dataFrame);
                 }
             } else if(dataset.getImportTypeEnum()==PrepDataset.IMPORT_TYPE.DB) {
-                DataFrame dataFrame = this.datasetJdbcService.getPreviewLinesFromJdbcForDataFrame(dataset,size);
+                DataFrame dataFrame = this.datasetJdbcService.getPreviewLinesFromJdbcForDataFrame(dataset, "50");
                 if (null != dataFrame) {
                     int previewSize = this.previewLineService.putPreviewLines(dsId, dataFrame);
                     response = Maps.newHashMap();
                     response.put("gridResponse", dataFrame);
                 }
             }
+            */
         } catch (Exception e) {
             LOGGER.error("previewFileCheckSheet(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
