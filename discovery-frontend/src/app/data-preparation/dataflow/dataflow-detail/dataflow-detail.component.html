@@ -107,7 +107,11 @@
       </div>
       <!-- //데이터 -->
       <!-- chart 부분 -->
-      <div id="chartCanvas" class="ddp-box-chart" [ngClass]="{'ddp-selected' : selectedDataSet.dsId && selectedDataSet.dsId !== null && selectedDataSet.dsType}"></div>
+      <!-- chart height resize 적용을 위해 하위 div 처리 -->
+      <div class="ddp-box-chart" [ngClass]="{'ddp-selected' : selectedDataSet.dsId && selectedDataSet.dsId !== null && selectedDataSet.dsType}">
+        <div id="chartCanvas" style="width:100%;height:100%;"></div>
+      </div>
+      <!-- //chart height resize 적용을 위해 하위 div 처리 -->
       <!-- //chart 부분 -->
     </div>
 
