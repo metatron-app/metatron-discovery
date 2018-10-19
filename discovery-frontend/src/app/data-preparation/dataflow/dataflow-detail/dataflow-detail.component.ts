@@ -25,7 +25,7 @@ import { DeleteModalComponent } from '../../../common/component/modal/delete/del
 import { Dataset, DsType, ImportType, Rule } from '../../../domain/data-preparation/dataset';
 import { DataflowService } from '../service/dataflow.service';
 import { StringUtil } from '../../../common/util/string.util';
-import { PreparationAlert } from '../../util/preparation-alert.util';
+import { PreparationAlert   } from '../../util/preparation-alert.util';
 import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from 'util';
 import * as $ from 'jquery';
@@ -651,6 +651,8 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         }
       }, 500)
     }
+
+    this.dataflowChartAreaResize();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -777,6 +779,32 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
 
   /**
+   * 데이터플로우 차트 Height Resize
+   */
+  private dataflowChartAreaResize(): void {
+    const itemMinSize: number = 64;
+    let minHeightSize: number = 600;
+    if($('.ddp-wrap-flow2')!=null && $('.ddp-wrap-flow2')!=undefined){minHeightSize = $('.ddp-wrap-flow2').height()- parseInt($('.ddp-box-chart').css('top').toString());}
+    let fixHeight: number = minHeightSize;
+    if(this.dataflow!=null && this.dataflow.hasOwnProperty('wrangledDsCount') && this.dataflow.hasOwnProperty('importedDsCount')){
+      let imported: number = this.dataflow.importedDsCount;
+      let wrangled: number = this.dataflow.wrangledDsCount;
+      if(imported == undefined) imported = 0;
+      if(wrangled == undefined) wrangled = 0;
+      const lImported: number = (imported * itemMinSize) + Math.floor(wrangled * itemMinSize/2);
+      const lWrangled: number = (wrangled * itemMinSize) + Math.floor(imported * itemMinSize/2);
+      if(lImported > minHeightSize || lWrangled > minHeightSize) {if(lImported>lWrangled) {fixHeight = lImported;}else{fixHeight = lWrangled;}}
+    }
+    const minWidthSize: number = $('.ddp-wrap-flow2').width();
+    $('#chartCanvas').css('height', fixHeight+'px').css('width', minWidthSize+'px').css('overflow', 'hidden');
+    if($('#chartCanvas').children()!=null && $('#chartCanvas').children()!=undefined){
+      $('#chartCanvas').children().css('height', fixHeight+'px').css('ßwidth', minWidthSize+'px');}
+    if($('#chartCanvas').children().children()!=null && $('#chartCanvas').children().children()!=undefined) {
+      $('#chartCanvas').children().children().css('height', fixHeight+'px').css('width', minWidthSize+'px');}
+  }
+
+
+  /**
    * 데이터플로우 조회
    */
   public getDataflow(isOpen: boolean = false) {
@@ -786,8 +814,12 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     this.dataflowService.getDataflow(this.dataflow.dfId).then((dataflow) => {
 
       if (dataflow) {
-
         this.dataflow = $.extend(this.dataflow, dataflow);
+
+        // canvas height resize
+        this.dataflowChartAreaResize();
+        // canvas height resize
+
 
         if (this.dataflow.datasets) {
           this.dataSetList = this.dataflow.datasets;
@@ -904,6 +936,8 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   private initChart() {
 
     this.chart = echarts.init(this.$element.find('#chartCanvas')[0]);
+    this.chart.clear();
+    // this.chart.setVi
 
     this.chartNodes = [];
     this.chartLinks = [];
@@ -955,6 +989,8 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     this.chart.setOption(this.chartOptions);
     this.chartClickEventListener(this.chart);
     this.cloneFlag = false;
+    this.chart.resize();
+
   } // function - initChart
 
   /**
