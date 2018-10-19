@@ -428,6 +428,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     }  else if (dataset.importType === ImportType.FILE) {
       this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType },
         {name : this.translateService.instant('msg.dp.th.file'), value : `${dataset.filename}` },
+        {name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() },
         {name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
         {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')}`}
       ]
@@ -439,6 +440,20 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.importedDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` }
       ]
     }
+  }
+
+  /**
+   * get names of sheet
+   */
+  public getSheetName() : string {
+
+    let result = "N/A";
+    if (this.dataset.custom) {
+      let customJson = JSON.parse(this.dataset.custom);
+      result = customJson.sheet ? customJson.sheet : "N/A";
+    }
+    return result;
+
   }
 
   /**
@@ -498,6 +513,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
         })
           .catch((error) => {
+
+            clearInterval(this.interval);
             let prep_error = this.dataprepExceptionHandler(error);
             PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
           });
@@ -517,6 +534,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
               this._updateGrid(gridData);
             }
           }).catch((error) => {
+            clearInterval(this.interval);
             let prep_error = this.dataprepExceptionHandler(error);
             PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
           });
@@ -524,6 +542,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       }
     })
       .catch((error) => {
+        clearInterval(this.interval);
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
