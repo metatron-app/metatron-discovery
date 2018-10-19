@@ -988,13 +988,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         },
         {
           color: colorList[colorList.length - 1],
-          position: 215,
+          position: 193,
           value: maxValue
         }
       ];
     }
 
-    let data : Object= {min: minValue, max: maxValue, separateValue: this.separateValue};
+    let data : Object= {min: minValue, max: maxValue, separateValue: this.separateValue, positionMin: -4, positionMax : 193};
 
     this.changeDetect.detectChanges();
 
@@ -1601,6 +1601,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     this.gradationComp.changeGradationColor(item.index, rgbColor);
   }
 
+  /**
+   * 그라데이션 색상의 범위를 추가
+   */
+  public addGradientRange(currentIndex: number) {
+
+    // 첫번째 아이템이 아닌경우에만 현재 index의 앞의 index 설정
+    currentIndex = 0 !== currentIndex ? currentIndex - 1 : 0;
+
+    // 새로운 범위 추가
+    this.gradationComp.addNewRangeIndex(currentIndex);
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
