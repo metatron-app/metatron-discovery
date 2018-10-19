@@ -581,7 +581,11 @@
   "msg.bench.ui.editor.shortcut.cancl" : "Undo",
   "msg.bench.ui.editor.shortcut.auto.completion" : "Auto Completion",
   "msg.bench.ui.table.metadata.name" : "Metadata name",
-  "msg.bench.ui.global.variable.add.desc" : "You can add a global variable by pressing the button",
+  "msg.bench.ui.global.variable.add.desc" : "You can add a global variable by pressing button",
+  "msg.bench.ui.type" : "Type",
+  "msg.bench.ui.name" : "Name",
+  "msg.bench.ui.value" : "Value",
+  "msg.bench.alert.global.variable.delete" : "Are you sure you want to delete the global variable?",
 
   "msg.nbook.alert.input.name": "Please enter notebook name",
   "msg.nbook.alert.input.description": "Please enter notebook description",
