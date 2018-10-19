@@ -783,6 +783,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    */
   private dataflowChartAreaResize(): void {
     const itemMinSize: number = 64;
+    const hScrollbarWith: number = 30;
     let minHeightSize: number = 600;
     if($('.ddp-wrap-flow2')!=null && $('.ddp-wrap-flow2')!=undefined){minHeightSize = $('.ddp-wrap-flow2').height()- parseInt($('.ddp-box-chart').css('top').toString());}
     let fixHeight: number = minHeightSize;
@@ -795,13 +796,15 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
       const lWrangled: number = (wrangled * itemMinSize) + Math.floor(imported * itemMinSize/2);
       if(lImported > minHeightSize || lWrangled > minHeightSize) {if(lImported>lWrangled) {fixHeight = lImported;}else{fixHeight = lWrangled;}}
     }
-    const minWidthSize: number = $('.ddp-wrap-flow2').width();
+    const minWidthSize: number = $('.ddp-wrap-flow2').width()- hScrollbarWith;
+    $('.ddp-box-chart').css('overflow-x', 'hidden');
     $('#chartCanvas').css('height', fixHeight+'px').css('width', minWidthSize+'px').css('overflow', 'hidden');
     if($('#chartCanvas').children()!=null && $('#chartCanvas').children()!=undefined){
-      $('#chartCanvas').children().css('height', fixHeight+'px').css('ßwidth', minWidthSize+'px');}
+      $('#chartCanvas').children().css('height', fixHeight+'px').css('width', minWidthSize+'px');}
     if($('#chartCanvas').children().children()!=null && $('#chartCanvas').children().children()!=undefined) {
       $('#chartCanvas').children().children().css('height', fixHeight+'px').css('width', minWidthSize+'px');}
   }
+
 
 
   /**
