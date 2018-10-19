@@ -135,7 +135,17 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     // return true;
     // return (pivot !== undefined) && ((pivot.columns.length > 0) || (pivot.rows.length > 0) || (pivot.aggregations.length > 0));
     // minimum condition is that dimension is more than 1
-    return pivot !== undefined && pivot.columns && pivot.columns.length > 0;
+
+    let mapVaild: boolean = false;
+    if(pivot !== undefined) {
+      for(let column of pivot.columns) {
+        if(column.field.logicalType.toString().indexOf("GEO") === 0) {
+          mapVaild = true;
+        }
+      }
+    }
+    // return pivot !== undefined && pivot.columns && pivot.columns.length > 0;
+    return mapVaild;
   }
 
   public onMoveEnd(evt) {
