@@ -713,7 +713,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       const multiSelectionMap: string[] = ['merge', 'replace', 'set', 'nest', 'settype', 'setformat', 'move', 'countpattern'];
 
       if (-1 < singleSelectionMap.indexOf(data.more.command)) {
-        this._gridComp.selectColumn(data.more.col[0], true);
+        this._gridComp.selectColumn(typeof data.more.col === 'string' ? data.more.col : data.more.col[0], true);
       } else if (-1 < multiSelectionMap.indexOf(data.more.command)) {
         this._selectedColumns = data.more.col;
         // let originalSelectedDatasets = _.cloneDeep(this._selectedColumns);
