@@ -783,8 +783,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    */
   private dataflowChartAreaResize(resizeCall?:boolean): void {
     if(resizeCall == undefined) resizeCall = false;
-    console.info('dataflowChartAreaResize', resizeCall);
-    console.info('sys-dataflow-left-panel', $('.sys-dataflow-left-panel').width());
     const itemMinSize: number = 64;
     const hScrollbarWith: number = 30;
     let minHeightSize: number = 600;
@@ -800,7 +798,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
       if(lImported > minHeightSize || lWrangled > minHeightSize) {if(lImported>lWrangled) {fixHeight = lImported;}else{fixHeight = lWrangled;}}
     }
     const minWidthSize: number = $('.ddp-wrap-flow2').width()- hScrollbarWith;
-    // const minWidthSize: number = $('.sys-dataflow-left-panel').width()- hScrollbarWith;
     $('.ddp-box-chart').css('overflow-x', 'hidden');
     $('#chartCanvas').css('height', fixHeight+'px').css('width', minWidthSize+'px').css('overflow', 'hidden');
     if($('#chartCanvas').children()!=null && $('#chartCanvas').children()!=undefined){
