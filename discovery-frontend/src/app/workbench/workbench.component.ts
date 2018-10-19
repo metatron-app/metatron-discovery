@@ -1152,6 +1152,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 this.isHiveLog = true;
 
                 this.safelyDetectChanges();
+              } else {
+                queryEditor.query = runningQuery;
               }
 
               this.runningQueryEditor = queryEditor;
@@ -2314,8 +2316,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       // query cancel 호출
       this.loadingBar.show();
     } else {
-      this.loadingBar.hide();
-      clearInterval(this.intervalDownload);
+      if( this.intervalDownload ) {
+        this.loadingBar.hide();
+        clearInterval(this.intervalDownload);
+      }
     }
     const params = { query: '', webSocketId: this.websocketId };
     this.workbenchService.setQueryRunCancel(this.selectedEditorId, params).then();
