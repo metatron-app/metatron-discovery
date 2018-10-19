@@ -1314,6 +1314,7 @@
   "msg.board.filter.alert.change.global.des" : "When you set it as a global filter, the filter settings of other charts may change.",
   "msg.board.filter.alert.change.chart" : "Do you want to set it as a chart filter?",
   "msg.board.filter.alert.change.chart.des" : "When you set up a chart filter, the filter settings of other charts may change.",
+  "msg.board.filter.alert.change.chart.warning-recommend" : "Recommended filters can not be set as chart filters.",
   "msg.board.filter.alert.defined.empty" : "Please enter defined value",
   "msg.board.filter.alert.recent.value.maxlength" : "Recent value should be less than 10 characters.",
   "msg.board.filter.btn.refresh" : "Refresh",

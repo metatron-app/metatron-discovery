@@ -1314,6 +1314,7 @@
   "msg.board.filter.alert.change.global.des" : "글로벌 필터로 설정 시,다른 차트의 필터 설정이 변경될 수 있습니다",
   "msg.board.filter.alert.change.chart" : "차트 필터로 설정하시겠습니까?",
   "msg.board.filter.alert.change.chart.des" : "차트 필터로 설정 시,다른 차트의 필터 설정이 변경될 수 있습니다",
+  "msg.board.filter.alert.change.chart.warning-recommend" : "추천 필터는 차트 필터로 설정할 수 없습니다.",
   "msg.board.filter.alert.defined.empty" : "사용자 정의값을 입력해 주세요",
   "msg.board.filter.alert.recent.value.maxlength" : "10자까지 입력할 수 있습니다",
   "msg.board.filter.btn.refresh" : "초기화",
