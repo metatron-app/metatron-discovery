@@ -288,8 +288,6 @@ public class QueryEditorService {
       }
       stmt.setMaxRows(maxRows);
 
-      stmt.setMaxRows(maxResultSize);
-
       if(saveToTempTable && isSelectQuery(query) && !isTempTable(query)){
         String tempTableName = createTempTable(stmt, query, webSocketId);
 
