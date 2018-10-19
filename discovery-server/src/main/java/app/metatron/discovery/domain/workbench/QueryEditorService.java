@@ -288,6 +288,8 @@ public class QueryEditorService {
       }
       stmt.setMaxRows(maxRows);
 
+      stmt.setMaxRows(maxResultSize);
+
       if(saveToTempTable && isSelectQuery(query) && !isTempTable(query)){
         String tempTableName = createTempTable(stmt, query, webSocketId);
 
@@ -358,9 +360,7 @@ public class QueryEditorService {
       JdbcUtils.closeConnection(connection);
 
       //Query 실행 상태 IDLE로 전환
-      if(dataSourceInfo.getQueryStatus() != QueryStatus.CANCELLED){
-        dataSourceInfo.setQueryStatus(QueryStatus.IDLE);
-      }
+      dataSourceInfo.setQueryStatus(QueryStatus.IDLE);
       dataSourceInfo.setCurrentStatement(null);
 
       //종료시간
@@ -372,6 +372,7 @@ public class QueryEditorService {
       queryResult.setAuditId(auditId);
       queryResult.setQueryHistoryId(queryHistoryId);
       queryResult.setQueryEditorId(queryEditorId);
+
     }
 
     return queryResult;
@@ -425,9 +426,6 @@ public class QueryEditorService {
     } catch (SQLException sqle) {
     } finally {
       JdbcUtils.closeStatement(stmt);
-      if(dataSourceInfo != null)
-        dataSourceInfo.setQueryStatus(QueryStatus.CANCELLED);
-      LOGGER.debug("Set status cancelled");
     }
   }
   
