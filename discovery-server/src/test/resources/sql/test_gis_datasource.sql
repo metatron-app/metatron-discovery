@@ -164,3 +164,15 @@ INSERT INTO field (id, pre_aggr_type, field_format, field_logical_type, field_na
 (10099908, 'NONE', null, 'DOUBLE', 'hdv_cei_va', null, 'MEASURE', 7, 'DOUBLE', null, 'gis_08'),
 (10099909, 'NONE', null, 'DOUBLE', 'hdv_voc_cn', null, 'MEASURE', 8, 'DOUBLE', null, 'gis_08'),
 (10099910, 'NONE', null, 'DOUBLE', 'hdv_user_c', null, 'MEASURE', 9, 'DOUBLE', null, 'gis_08');
+
+INSERT INTO datasource (id, created_by, created_time, modified_by, modified_time, version, ds_conn_type, datasource_contexts, ds_desc, ds_type, ds_engine_name, ds_granularity, ingestion_conf, ds_linked_workspaces, ds_name, ds_owner_id, ds_seg_granularity, ds_src_type, ds_status) VALUES
+('gis_09', 'admin', NOW(), 'unknown', NOW(), 0, 'ENGINE', null, null, 'MASTER', 'tmap_app_location', 'NONE', null, 0, 'tmap_app_location', null, 'NONE', 'IMPORT', 'ENABLED');
+
+INSERT INTO field (id, pre_aggr_type, field_format, field_logical_type, field_name, field_partitioned, field_role, seq, field_type, ref_id, ds_id) VALUES
+(10999901, 'NONE', null, 'TIMESTAMP', 'date_time', null, 'TIMESTAMP', 0, 'TIMESTAMP', null, 'gis_09'),
+(10999902, 'NONE', null, 'STRING', 'recv_time', null, 'DIMENSION', 1, 'STRING', null, 'gis_09'),
+(10999903, 'NONE', null, 'STRING', 'log_type', null, 'DIMENSION', 2, 'STRING', null, 'gis_09'),
+(10999904, 'NONE', null, 'STRING', 'app_version', null, 'DIMENSION', 3, 'STRING', null, 'gis_09'),
+(10999905, 'NONE', null, 'STRING', 'device_model', null, 'DIMENSION', 4, 'STRING', null, 'gis_09'),
+(10999906, 'NONE', null, 'GEO_POINT', 'location', null, 'DIMENSION', 5, 'STRUCT', null, 'gis_09'),
+(10999907, 'NONE', null, 'DOUBLE', 'count', null, 'MEASURE', 6, 'DOUBLE', null, 'gis_09');

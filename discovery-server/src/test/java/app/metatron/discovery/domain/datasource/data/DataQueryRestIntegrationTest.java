@@ -1917,7 +1917,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     GeoHashFormat hashFormat = new GeoHashFormat("h3", 5);
     DimensionField geoDimensionField = new DimensionField("gis", null, hashFormat);
 
-    List<Field> layer1 = Lists.newArrayList(geoDimensionField, new MeasureField("py", null, MeasureField.AggregationType.AVG));
+    List<Field> layer1 = Lists.newArrayList(geoDimensionField,
+                                            new MeasureField("py", null, MeasureField.AggregationType.AVG),
+                                            new MeasureField("amt", null, MeasureField.AggregationType.SUM));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);
@@ -1994,7 +1996,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     );
 
     //    List<Field> layer1 = Lists.newArrayList(new DimensionField("gu"), new MeasureField("py", null, MeasureField.AggregationType.AVG));
-    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu", "구", null, null), new MeasureField("py", null, MeasureField.AggregationType.AVG));
+    List<Field> layer1 = Lists.newArrayList(new DimensionField("gis", null, new GeoFormat()), new DimensionField("gu", "구", null, null), new MeasureField("py", null, MeasureField.AggregationType.AVG), new MeasureField("amt", null, MeasureField.AggregationType.SUM));
     Shelf geoShelf = new GeoShelf(Arrays.asList(layer1));
 
     SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, geoShelf, limit);

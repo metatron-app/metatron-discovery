@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,7 @@ public class GeoService {
       GeoShelf geoShelf = (GeoShelf) searchQueryRequest.getShelf();
       for (List<Field> fields : geoShelf.getLayers()) {
         GeoQuery geoQuery = GeoQuery.builder(searchQueryRequest.getDataSource())
+                                    .initVirtualColumns(searchQueryRequest.getUserFields())
                                     .projections(fields)
                                     .filters(searchQueryRequest.getFilters())
                                     .limit(searchQueryRequest.getLimits())
@@ -64,6 +66,7 @@ public class GeoService {
       }
     } else {
       GeoQuery geoQuery = GeoQuery.builder(searchQueryRequest.getDataSource())
+                                  .initVirtualColumns(searchQueryRequest.getUserFields())
                                   .projections(searchQueryRequest.getProjections())
                                   .filters(searchQueryRequest.getFilters())
                                   .limit(searchQueryRequest.getLimits())
@@ -93,16 +96,21 @@ public class GeoService {
 
     JsonNode node = geoRepository.query(geoQueryStr, JsonNode.class);
 
-    customizeResult(node, geoQuery.getProjectionMapper());
+    customizeResult(node, geoQuery.getProjectionMapper(), geoQuery.getMinMaxFields());
 
     return GlobalObjectMapper.writeValueAsString(node);
   }
 
-  public void customizeResult(JsonNode result, Map<String, String> projectionMapper) {
+  public void customizeResult(JsonNode result, Map<String, String> projectionMapper, List<String> minMaxFields) {
 
     JsonNode features = result.get("features");
 
-    List<Double> forMinMaxValues = Lists.newArrayList();
+    // Intermediate variables for processing min / max value by each measure value
+    List<List<Double>> forMinMaxValues = Lists.newArrayList();
+    if(CollectionUtils.isNotEmpty(minMaxFields)) {
+      minMaxFields.forEach(o -> forMinMaxValues.add(Lists.newArrayList()));
+    }
+
     ObjectNode newPropertiesNode = null;
     for (JsonNode feature : features) {
       ObjectNode featureNode = (ObjectNode) feature;
@@ -110,19 +118,27 @@ public class GeoService {
       newPropertiesNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
       for (String key : projectionMapper.keySet()) {
         JsonNode value = propertiesNode.get(key);
-        if (value.isNumber() && !(key.endsWith(".lat") || key.endsWith(".lon"))) {
-          forMinMaxValues.add(value.asDouble(0.0));
+        String mappedFieldName = projectionMapper.get(key);
+        int minMaxIdx = minMaxFields.indexOf(mappedFieldName);
+        if(minMaxIdx != -1) {
+          forMinMaxValues.get(minMaxIdx).add(value.asDouble(0.0));
         }
-        newPropertiesNode.set(projectionMapper.get(key), propertiesNode.get(key));
+        newPropertiesNode.set(mappedFieldName, propertiesNode.get(key));
       }
 
       featureNode.set("properties", newPropertiesNode);
     }
 
     ObjectNode minMaxNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
-    addMinMax(forMinMaxValues, minMaxNode);
     ((ObjectNode) result).set("valueRange", minMaxNode);
 
+    if(CollectionUtils.isNotEmpty(minMaxFields)) {
+      for(int i=0; i < minMaxFields.size(); i++) {
+        ObjectNode minMaxFieldNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
+        addMinMax(forMinMaxValues.get(i), minMaxFieldNode);
+        minMaxNode.set(minMaxFields.get(i), minMaxFieldNode);
+      }
+    }
   }
 
   public void addMinMax(List<Double> values, ObjectNode minMaxNode) {

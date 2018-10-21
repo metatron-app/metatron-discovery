@@ -23,6 +23,7 @@ import app.metatron.discovery.domain.workbook.configurations.datasource.DataSour
 import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.BoundFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
@@ -68,6 +69,8 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
   Map<String, String> projectionMapper = Maps.newHashMap();
 
+  List<String> minMaxFields = Lists.newArrayList();
+
   boolean enableExtension = false;
 
   int limit = 5000;
@@ -80,6 +83,13 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
     // TODO: Deciding where to place the type information of the coordinate system
     srsName = "EPSG:4326";
+  }
+
+  public GeoQueryBuilder initVirtualColumns(List<UserDefinedField> userFields) {
+
+    setVirtualColumns(userFields);
+
+    return this;
   }
 
   public GeoQueryBuilder projections(List<Field> projections) {
@@ -173,6 +183,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
           propertyNames.add(new PropertyName(field.getName()));
           projectionMapper.put(field.getName(), field.getAlias());
         }
+        minMaxFields.add(field.getAlias());
       }
     }
 
@@ -315,6 +326,7 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
     }
 
     geoQuery.setProjectionMapper(projectionMapper);
+    geoQuery.setMinMaxFields(minMaxFields);
     geoQuery.setLimit(limit);
 
     return geoQuery;

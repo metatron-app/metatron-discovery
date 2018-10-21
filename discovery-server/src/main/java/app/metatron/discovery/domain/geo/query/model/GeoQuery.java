@@ -41,6 +41,9 @@ public class GeoQuery extends Query {
   Map<String, String> projectionMapper;
 
   @JsonIgnore
+  List<String> minMaxFields;
+
+  @JsonIgnore
   Integer limit;
 
   public GeoQuery() {
@@ -97,6 +100,14 @@ public class GeoQuery extends Query {
 
   public void setProjectionMapper(Map<String, String> projectionMapper) {
     this.projectionMapper = projectionMapper;
+  }
+
+  public List<String> getMinMaxFields() {
+    return minMaxFields;
+  }
+
+  public void setMinMaxFields(List<String> minMaxFields) {
+    this.minMaxFields = minMaxFields;
   }
 
   public Integer getLimit() {
