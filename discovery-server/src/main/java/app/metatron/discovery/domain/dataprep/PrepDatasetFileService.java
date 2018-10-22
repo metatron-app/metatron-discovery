@@ -435,7 +435,7 @@ public class PrepDatasetFileService {
 
             File theFile = new File(filePath);
             if(false==theFile.exists()) {
-                throw new IllegalArgumentException("Invalid filekey.");
+                throw new IllegalArgumentException("Uploaded file does not found.");
             } else {
                 totalBytes = theFile.length();
 
