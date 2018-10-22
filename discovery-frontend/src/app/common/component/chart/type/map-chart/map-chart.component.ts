@@ -100,11 +100,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   // Destory
   public ngOnDestroy() {
 
-    // init top
-    if (document.getElementsByClassName("ddp-ui-chart-contents") && document.getElementsByClassName("ddp-ui-chart-contents").length > 0) {
-      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '';
-    }
-
     // Destory
     super.ngOnDestroy();
   }
@@ -210,25 +205,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       target: this.$area[0]
     });
 
-
-    if(document.getElementsByClassName("ddp-ui-chart-contents").length > 0) {
-      let layerNum = 1;
-      for(let column of this.pivot.columns) {
-        if(column["layerNum"] > layerNum) {
-          layerNum = column["layerNum"];
-        }
-      }
-
-      if(layerNum === 1) {
-        document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
-      } else if(layerNum === 2) {
-        document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '149px';
-      } else if(layerNum === 3) {
-        document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '194px';
-      }
-
-      document.getElementsByClassName("ddp-ui-chart-area")[0]["style"].padding = '0 0 0 0';
-    }
     this.olmap.updateSize();
 
     const zoomslider = new ol.control.ZoomSlider();
@@ -2138,15 +2114,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
     }
 
-    if(layerNum === 1) {
-      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
-    } else if(layerNum === 2) {
-      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '149px';
-    } else if(layerNum === 3) {
-      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '194px';
-    }
-
-    document.getElementsByClassName("ddp-ui-chart-area")[0]["style"].padding = '0 0 0 0';
     this.olmap.updateSize();
   }
 
