@@ -279,5 +279,13 @@ public class PrestoConnection extends HiveMetastoreConnection {
     this.catalog = catalog;
   }
 
+  @Override
+  public void setUrl(String url) {
+    super.setUrl(url);
 
+    if(url != null){
+      String[] spliced = StringUtils.split( url,"/");
+      this.catalog = spliced[spliced.length - 1];
+    }
+  }
 }
