@@ -45,39 +45,12 @@ public class PrepDatasetListner {
                     File theFile = new File(previewPath + File.separator + dataset.getDsId() + ".df");
                     if (true == theFile.exists()) {
                         dataFrame = mapper.readValue(theFile, DataFrame.class);
-
-                        List<ColumnDescription> columnDescs = dataFrame.colDescs;
-                        List<Integer> colNos = Lists.newArrayList();
-                        int colIdx = 0;
-                        for (ColumnDescription columnDesc : columnDescs) {
-                            if (columnDesc.getType().equals(ColumnType.TIMESTAMP)) {
-                                colNos.add(colIdx);
-                            }
-                            colIdx++;
-                        }
-
-                        if (0 < colNos.size()) {
-                            for (Row row : dataFrame.rows) {
-                                for (Integer colNo : colNos) {
-                                    Object jodaTime = row.get(colNo);
-                                    if (jodaTime instanceof LinkedHashMap) {
-                                        try {
-                                            LinkedHashMap mapTime = (LinkedHashMap) jodaTime;
-                                            DateTime dateTime = new DateTime(Long.parseLong(mapTime.get("millis").toString()));
-                                            row.objCols.set(colNo, dateTime);
-                                        } catch (Exception e) {
-                                            LOGGER.debug(e.getMessage());
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     } else {
-                        if(this.datasetService==null) {
-                            PrepAutowireHelper.autowire(this, this.datasetService);
-                        }
-
                         if(dataset.getDsTypeForEnum()== PrepDataset.DS_TYPE.IMPORTED) {
+                            if(this.datasetService==null) {
+                                PrepAutowireHelper.autowire(this, this.datasetService);
+                            }
+
                             dataFrame = this.datasetService.getPreviewImportedDataset(dataset);
                             if(null!=dataFrame) {
                                 HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
@@ -96,6 +69,34 @@ public class PrepDatasetListner {
                             dataFrame.addColumn("error", ColumnType.STRING);
                             dataFrame.addColumn("solution", ColumnType.STRING);
                             dataFrame.rows.add(row);
+                        }
+                    }
+                }
+                if(dataFrame!=null) {
+                    List<ColumnDescription> columnDescs = dataFrame.colDescs;
+                    List<Integer> colNos = Lists.newArrayList();
+                    int colIdx = 0;
+                    for (ColumnDescription columnDesc : columnDescs) {
+                        if (columnDesc.getType().equals(ColumnType.TIMESTAMP)) {
+                            colNos.add(colIdx);
+                        }
+                        colIdx++;
+                    }
+
+                    if (0 < colNos.size()) {
+                        for (Row row : dataFrame.rows) {
+                            for (Integer colNo : colNos) {
+                                Object jodaTime = row.get(colNo);
+                                if (jodaTime instanceof LinkedHashMap) {
+                                    try {
+                                        LinkedHashMap mapTime = (LinkedHashMap) jodaTime;
+                                        DateTime dateTime = new DateTime(Long.parseLong(mapTime.get("millis").toString()));
+                                        row.objCols.set(colNo, dateTime);
+                                    } catch (Exception e) {
+                                        LOGGER.debug(e.getMessage());
+                                    }
+                                }
+                            }
                         }
                     }
                 }
