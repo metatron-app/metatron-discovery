@@ -64,12 +64,16 @@ export class ScrollLoadingGridModel {
    */
   public loadFail: Function;
 
+
+  public totalRowCnt: number = 0;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(loadData: Function, loadSuccess: Function, data?: any[]) {
+    // console.info('loadData', data);
     this.loadData = loadData;
     this.loadSuccess = loadSuccess;
     if (data) {
@@ -90,6 +94,13 @@ export class ScrollLoadingGridModel {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   *  전체 row count
+   */
+  public setTotalRowCnt(totalRowCnt: number): void {
+    this.totalRowCnt = totalRowCnt;
+  }
 
   /**
    * 검색
@@ -124,9 +135,16 @@ export class ScrollLoadingGridModel {
       return;
     }
 
+    let lastPageNumber: number = Math.floor(this.totalRowCnt / this._pageSize);
+    if(this.totalRowCnt % this._pageSize !== 0) lastPageNumber = lastPageNumber +1;
+
     // 페이지 지정 ( to 에 20을 더한 것은 그만큼 미리 부르기 위한 것임 )
     const viewPortBottom:number = (isNaN(to) || ( to + 20 ) < 0) ? 0 : ( to + 20 );
     let nextPage: number = Math.floor( viewPortBottom / this._pageSize);
+
+    if( lastPageNumber <= nextPage ) {
+      return;
+    }
 
     if( this._currentPage >= nextPage ) {
       return;
@@ -135,11 +153,13 @@ export class ScrollLoadingGridModel {
     const startIdx: number = nextPage * this._pageSize;
     if (this.data.length <= startIdx) {
       this._isLoadingData = true;
-      this.onDataLoading.notify({ from: from, to: to });
-      this.loadData(nextPage, this._pageSize)
+      // this.onDataLoading.notify({ from: from, to: to });
+      this.loadData(startIdx, this._pageSize)
         .then((data) => {
           const result = this.loadSuccess(data);
           if (result) {
+            //
+            this.totalRowCnt = data.totalRowCnt;
 
             let currLength: number = this.data.length;
 

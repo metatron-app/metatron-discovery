@@ -81,6 +81,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   @Output() private onHeaderRowCellRendered = new EventEmitter();
 
+  public totalRowCnt: number = 0;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -125,12 +127,21 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
+   *  전체 row count
+   */
+  public setTotalRowCnt(totalRowCnt: number): void {
+    this.totalRowCnt = totalRowCnt;
+  }
+
+
+  /**
    * 그리드 생성
    * @param {header[]} headers
    * @param {ScrollLoadingGridModel} gridModel
    * @param {Option} option
    */
   public create(headers: header[], gridModel: ScrollLoadingGridModel, option: Option = null) {
+
 
     // 기존 그리드 삭제
     this.destroy();
@@ -175,6 +186,9 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
     // 그리드 모델 정의
     this._gridModel = gridModel;
+
+    // 최초 로딩시 데이터 전체 카운트
+    if(this._gridModel) {this._gridModel.setTotalRowCnt(this.totalRowCnt);}
 
     // 그리드 생성
     this._grid = this._generateGrid(headers, gridModel);

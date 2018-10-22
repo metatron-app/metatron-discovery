@@ -209,6 +209,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     return this.dataflowService.transformAction(this.dataSetId, method, params).then(data => {
       // 데이터 초기화
       {
+
         // Grid
         this._apiGridData = data['gridResponse'];
         this._$gridElm = null;
@@ -255,6 +256,12 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
       // 그리드 생성
       gridData.fields.forEach(field => field.isHover = false);
+
+      // 최초 로딩시 데이터 전체 카운트
+      if(this._gridComp) {
+        this._gridComp.setTotalRowCnt(data.totalRowCnt);
+      }
+
 
       // 히스토그램 정보 설정
       return this._getHistogramInfoByWidths(this.columnWidths, gridData.fields.length).then(() => {
