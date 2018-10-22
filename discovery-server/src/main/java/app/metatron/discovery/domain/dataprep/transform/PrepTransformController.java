@@ -102,7 +102,7 @@ public class PrepTransformController {
       subGrid.rows = gridResponse.rows;
     } else {
       int toIndex = offset + count;
-      if(subGrid.rows.size()<toIndex) {
+      if(gridResponse.rows.size()<toIndex) {
         toIndex = subGrid.rows.size();
       }
 
