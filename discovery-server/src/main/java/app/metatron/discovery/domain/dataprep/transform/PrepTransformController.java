@@ -31,7 +31,6 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -102,7 +101,12 @@ public class PrepTransformController {
     if (offset == 0 && count >= gridResponse.rows.size()) {
       subGrid.rows = gridResponse.rows;
     } else {
-      subGrid.rows = gridResponse.rows.subList(offset, offset + count);
+      int toIndex = offset + count;
+      if(subGrid.rows.size()<toIndex) {
+        toIndex = subGrid.rows.size();
+      }
+
+      subGrid.rows = gridResponse.rows.subList(offset, toIndex);
     }
 
     return subGrid;
