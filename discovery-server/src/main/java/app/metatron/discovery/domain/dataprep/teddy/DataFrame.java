@@ -449,29 +449,32 @@ public class DataFrame implements Serializable, Transformable {
     Util.showSep(widths);
   }
 
-  public DataFrame drop(List<String> targetColNames) {
-    DataFrame newDf = new DataFrame();
-
-    List<Integer> survivedColNos = new ArrayList<>();
-    for (int i = 0; i < getColCnt(); i++) {
-      if (targetColNames.contains(getColName(i))) {
-        continue;   // drop 대상 컬럼들은 새 df에서 누락
-      }
-      survivedColNos.add(i);
+  public void dropColumns(List<String> targetColNames) throws TeddyException{
+    for(String colName : targetColNames) {
+      colDescs.remove(getColnoByColName(colName));
     }
 
-    for (int colno : survivedColNos) {
-      newDf.addColumnWithDf(this, colno);
+    colNames.removeAll(targetColNames);
+
+    mapColno.clear();
+
+    int i = 0;
+    for(String colName : colNames) {
+      mapColno.put(colName, i);
+      i++;
     }
 
+    List<Row> newRows = new ArrayList<>();
     for (Row row : this.rows) {
       Row newRow = new Row();
-      for (int colno : survivedColNos) {
-        newRow.add(getColName(colno), row.get(colno));
+      for (String column : colNames) {
+        newRow.add(column, row.get(column));
       }
-      newDf.rows.add(newRow);
+      newRows.add(newRow);
     }
-    return newDf;
+
+    colCnt = colCnt - targetColNames.size();
+    rows = newRows;
   }
 
   //check if Args size are exactly matched with desirable size.
