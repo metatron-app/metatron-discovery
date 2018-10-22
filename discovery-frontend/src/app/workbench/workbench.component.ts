@@ -1060,6 +1060,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     if (this.isWaterfallProc) {
       this.isHiveQueryExecute = true;
     }
+    this.isRunningCancel = false;
     this.executeEditorId = this.selectedEditorId;
     this.isCancelQuery = false;
     this.selectedGridTabNum = 0;
