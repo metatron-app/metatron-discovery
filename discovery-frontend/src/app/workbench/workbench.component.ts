@@ -333,6 +333,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // hive query 실행 중
   public isHiveQueryExecute: boolean = false;
 
+  public isRunningCancel:boolean = false;    // 취소 작업 중인지...
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -2309,6 +2311,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * 쿼리 cancel - Not Hive
    */
   public cancelRunningQuery(useLog: boolean = false) {
+    this.isRunningCancel = true;
     if (useLog) {
       this.hiveLogCanceling = true;
       this.safelyDetectChanges();
@@ -2360,6 +2363,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     this.isCancelQuery = true;
     this.isHiveQueryExecute = false;
+    this.isRunningCancel = false;
 
     const runningResultTab: ResultTab = this._getResultTab(this.runningResultTabId);
 

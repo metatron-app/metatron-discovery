@@ -353,8 +353,8 @@
               <!-- tab -->
               <!-- 결과 -->
               <div class="ddp-view-result">
-                <div loading #loading [visible]="true" [cancel]="!isWaterfallProc"
-                     [canceling]="hiveLogCanceling" (cancel)="cancelRunningQuery()" class="ddp-loading-part"></div>
+                <div loading #loading [visible]="true" [cancel]="!isWaterfallProc && !isRunningCancel"
+                     [canceling]="isRunningCancel" (cancel)="cancelRunningQuery()" class="ddp-loading-part"></div>
 
                 <!-- Hive Log 표시 영역 -->
                 <div *ngIf="visibleResultTab.showLog" class="ddp-wrap-result" >
