@@ -8138,38 +8138,42 @@ em.ddp-icon-mapview3-w:before {background-position-x:0;}
 .ddp-list-datavalue > li span.ddp-data-value > em[class*="ddp-icon-dimension-"],
 .ddp-list-datavalue > li span.ddp-data-value >  em[class*="ddp-icon-measure"] {position:absolute; top:50%; left:0; margin-top:-5px;}
 .ddp-list-datavalue > li:hover .ddp-icon-listdelete {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-8px; width:15px; height:15px; background:url(../images/icon_delete.png) no-repeat; background-position:left -14px; cursor:pointer;}
-.ddp-list-datavalue li.ddp-add .ddp-box-layout4 {display:none; position:absolute; top:100%; left:0; right:0; padding:12px 0 0 0;max-height:334px; overflow:auto; }
+
+
 .ddp-list-datavalue li.ddp-add.ddp-selected .ddp-box-layout4 {display:block;}
 .ddp-list-datavalue li.ddp-add em.ddp-icon-plus {position:absolute; top:50%; left:8px; margin:-8px 0 0 0; width:15px; height:15px; background:url(../images/icon_plus.png) no-repeat; background-position:left -15px; content:'';}
 
 .ddp-list-datavalue li.ddp-add  span.ddp-data-value {color:#90969f;}
 
-.ddp-list-datavalue li.ddp-add:after {display:inline-block; position:absolute; top:50%; right:14px; width:7px; height:4px; margin-left:9px; background:url(../images/icon_select.png) no-repeat; transform:rotate(180deg); content:'';}
+.ddp-list-datavalue li.ddp-add:after {display:inline-block; position:absolute; top:50%; right:14px; width:7px; height:4px; margin-left:9px; margin-top:-2px; background:url(../images/icon_select.png) no-repeat; transform:rotate(180deg); content:'';}
 .ddp-list-datavalue li.ddp-add.ddp-selected:after {transform:rotate(0)}
-.ddp-list-datavalue .ddp-list-typebasic {padding:11px 0 ;}
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a {padding-left:38px; padding-right:16px;}
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em[class*="ddp-icon-dimension-"],
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em[class*="ddp-icon-measure-"] {left:18px;}
+.ddp-data-value {position:relative;}
+.ddp-data-value .ddp-box-layout4 {display:none; position:absolute; top:100%; left:0; right:0; padding:12px 0 0 0;width:auto; max-height:334px; overflow:auto; }
+.ddp-data-value .ddp-list-typebasic {padding:11px 0 ;}
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a {padding-left:38px; padding-right:16px;}
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em[class*="ddp-icon-dimension-"],
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em[class*="ddp-icon-measure-"] {left:18px;}
 
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-ab,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-maplink,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-ab,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-maplink,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-ab,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-maplink {margin-top:-5px;}
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-ab,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-maplink,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-ab,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-maplink,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-ab,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-maplink {margin-top:-5px;}
 
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-sharp,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-float,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-tf,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-int,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-sharp,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-float,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-tf,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-int,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-sharp,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-float,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-tf,
-.ddp-list-datavalue .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-int  {margin-top:-4px;}
+
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-sharp,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-float,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-tf,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-dimension-int,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-sharp,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-float,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-tf,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-measure-int,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-sharp,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-float,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-tf,
+.ddp-data-value .ddp-list-typebasic.ddp-list-popup li a em.ddp-icon-type-int  {margin-top:-4px;}
 
 .ddp-list-datavalue .ddp-list-typebasic li a {padding-left:16px; padding-right:16px;}
 .ddp-list-datavalue .ddp-list-typebasic li a em[class*="ddp-icon-dimension-"],
