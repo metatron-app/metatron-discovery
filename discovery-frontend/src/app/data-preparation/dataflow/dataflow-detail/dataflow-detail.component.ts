@@ -786,7 +786,11 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     const itemMinSize: number = 64;
     const hScrollbarWith: number = 30;
     let minHeightSize: number = 600;
-    if($('.ddp-wrap-flow2')!=null && $('.ddp-wrap-flow2')!=undefined){minHeightSize = $('.ddp-wrap-flow2').height()- parseInt($('.ddp-box-chart').css('top').toString());}
+    if($('.ddp-wrap-flow2')!=null && $('.ddp-wrap-flow2')!=undefined){
+      let topmargin: string = String($('.ddp-box-chart').css('top'));
+      if(topmargin === 'undefined') topmargin ='45';
+      minHeightSize = $('.ddp-wrap-flow2').height()- parseInt(topmargin);
+    }
     let fixHeight: number = minHeightSize;
     if(this.dataflow!=null && this.dataflow.hasOwnProperty('wrangledDsCount') && this.dataflow.hasOwnProperty('importedDsCount')){
       let imported: number = this.dataflow.importedDsCount;
