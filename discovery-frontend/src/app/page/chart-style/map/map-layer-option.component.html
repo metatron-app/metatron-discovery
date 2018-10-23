@@ -16,13 +16,11 @@
           <!-- //divide -->
           <!-- divide -->
           <div class="ddp-type-map-chart">
-            <div class="ddp-divide2 ">
+            <div *ngIf="'line' != type && 'polygon' != type" class="ddp-divide2 ">
                 <div class="ddp-list-label">
                   {{'msg.page.layer.map.type' | translate}}
                    :
                    <strong *ngIf="type === 'symbol'">{{'msg.page.layer.map.type.point' | translate}}</strong>
-                   <strong *ngIf="type === 'line'">{{'msg.page.layer.map.type.line' | translate}}</strong>
-                   <strong *ngIf="type === 'polygon'">{{'msg.page.layer.map.type.polygon' | translate}}</strong>
                    <strong *ngIf="type === 'heatmap'">{{'msg.page.layer.map.type.heatmap' | translate}}</strong>
                    <strong *ngIf="type === 'tile'">{{'msg.page.layer.map.type.tile' | translate}}</strong>
                  </div>
@@ -80,7 +78,7 @@
                                 <em class="ddp-icon-map-tile"></em>
                             </a>
                             <!-- tooltip -->
-                            <div class="ddp-ui-tooltip-info">
+                            <div class="ddp-ui-tooltip-info" style="width: 65px;">
                                 <em class="ddp-icon-view-top"></em>
                                 <span class="ddp-txt-tooltip">{{'msg.page.layer.map.type.tile' | translate}}</span>
                             </div>
@@ -146,8 +144,8 @@
                       <div class="ddp-divide2">
                         <!-- SELECTBOX -->
                         <component-select *ngIf="uiOption.layers[0].color.by.toString() === 'DIMENSION'"
-                          [array]="uiOption.fieldList"
-                          [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[0].color['column'])"
+                          [array]="fieldList"
+                          [defaultIndex]="fieldList && fieldList.indexOf(uiOption.layers[0].color['column'])"
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                         <!-- SELECTBOX -->
@@ -508,8 +506,8 @@
                       <div *ngIf="uiOption.layers[0].color.by.toString() === 'DIMENSION'" class="ddp-divide2">
                         <!-- SELECTBOX -->
                         <component-select
-                          [array]="uiOption.fieldList"
-                          [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[0].color['column'])"
+                          [array]="fieldList"
+                          [defaultIndex]="fieldList && fieldList.indexOf(uiOption.layers[0].color['column'])"
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
@@ -762,17 +760,19 @@
                               ></component-select>
                             </div>
                             <!-- //part -->
-
-                            <!-- divide -->
-                            <div class="ddp-divide2 ">
-                                <div class="ddp-list-label">
-                                  <!-- {{'msg.page.layer.map.name' | translate}} -->
-                                  굵기 최대값(px)
-                                </div>
-                                <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.layers[0].size['max']">
-                            </div>
-                            <!-- //divide -->
                         </div>
+                        <!-- divide -->
+                        <div class="ddp-divide2">
+                          <div class="ddp-wrap-option-multy ddp-clear">
+                            <div class="ddp-col-8">
+                              <span class="ddp-label-txt">{{'msg.page.layer.map.stroke.max.width' | translate}} (pt)</span>
+                            </div>
+                            <div class="ddp-col-4">
+                              <input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="" [(ngModel)]="uiOption.layers[0].size['max']">
+                            </div>
+                          </div>
+                        </div>
+                        <!-- //divide -->
                     </div>
                 </div>
                 <!-- //divide -->
@@ -822,8 +822,8 @@
                           <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'DIMENSION'">
                             <!-- SELECTBOX -->
                             <component-select
-                              [array]="uiOption.fieldList"
-                              [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[0].color['column'])"
+                              [array]="fieldList"
+                              [defaultIndex]="fieldList && fieldList.indexOf(uiOption.layers[0].color['column'])"
                               (onSelected)="changeColorColumn($event)"
                             ></component-select>
                           </div>
@@ -1433,8 +1433,8 @@
                           <div class="ddp-divide2" *ngIf="uiOption.layers[0].color.by.toString() === 'DIMENSION'">
                             <!-- SELECTBOX -->
                             <component-select
-                              [array]="uiOption.fieldList"
-                              [defaultIndex]="uiOption.fieldList && uiOption.fieldList.indexOf(uiOption.layers[0].color['column'])"
+                              [array]="fieldList"
+                              [defaultIndex]="fieldList && fieldList.indexOf(uiOption.layers[0].color['column'])"
                               (onSelected)="changeColorColumn($event)"
                             ></component-select>
                           </div>

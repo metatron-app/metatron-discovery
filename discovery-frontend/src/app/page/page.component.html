@@ -691,7 +691,9 @@
             (showPopup)="onShowPopup($event)">
           </map-page-pivot>
           <!-- //선반 -->
-          <div class="ddp-ui-chart-contents">
+          <div class="ddp-ui-chart-contents"
+            [ngClass]="{'ddp-map-chart' : 'map' == selectChart, 'ddp-shelf1' : 'map' == selectChart && 1 == getPivotComp()?.layerNum,
+            'ddp-shelf2' : 'map' == selectChart && 2 == getPivotComp()?.layerNum, 'ddp-shelf3' : 'map' == selectChart && 3 == getPivotComp()?.layerNum}">
             <div class="ddp-wrap-chart-layout">
               <!-- 차트 기본 선택 화면 -->
               <div class="ddp-ui-chart-basic" *ngIf="selectChart==''">

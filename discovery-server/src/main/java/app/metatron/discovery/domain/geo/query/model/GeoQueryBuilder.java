@@ -256,6 +256,9 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
 
       if (filter instanceof InclusionFilter) {
         List<String> values = ((InclusionFilter) filter).getValueList();
+        if(CollectionUtils.isEmpty(values)) {
+          continue;
+        }
 
         OrOperator orOperator = new OrOperator();
         for (String value : values) {

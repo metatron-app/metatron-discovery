@@ -97,11 +97,6 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
   // Destory
   public ngOnDestroy() {
 
-    // init top
-    if (document.getElementsByClassName("ddp-ui-chart-contents") && document.getElementsByClassName("ddp-ui-chart-contents").length > 0) {
-      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '';
-    }
-
     // Destory
     super.ngOnDestroy();
   }
@@ -201,14 +196,6 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      }
 
      this.layerNum = layerNum;
-
-     if(layerNum === 1) {
-       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
-     } else if(layerNum === 2) {
-       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '149px';
-     } else if(layerNum === 3) {
-       document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '194px';
-     }
 
      this.uiOption["layerCnt"] = layerNum;
 
