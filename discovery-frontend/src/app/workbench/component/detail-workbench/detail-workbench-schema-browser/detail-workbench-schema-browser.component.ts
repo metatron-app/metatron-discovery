@@ -99,6 +99,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   public schemaTableList: any[] = [];
   // 스키마 브라우저 컬럼 리스트
   public schemaTableColumnList: any[] = [];
+
   // 스키마 브라우져 메타 데이터 리스트
   public schemaTableMetadataList: any[] = [];
 
@@ -192,6 +193,16 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     this.selectedDatabaseName = this.workbench.dataConnection.database;
     // 선택된 테이블 초기화
     this.selectedSchemaTable = '';
+    // 초기 선택 탭 초기화
+    this.schemaSelectedTab = '';
+    // 데이터 초기화
+    this.databaseList = [];
+    this.schemaTableList = [];
+    this.schemaTableColumnList = [];
+    this.schemaTableMetadataList = [];
+    this.schemaTableDataList = [];
+    this.schemaTableDataDataList = [];
+
     // 데이터베이스 리스트 조회
     this._getDatabaseList();
   }
@@ -659,15 +670,17 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         this._getMetaDataReconnectCount = 0;
         // 로딩 hide
         this.loadingHide();
+
         // 메타데이터 초기화
         this.schemaTableMetadataList = [];
         for (const key in result) {
           const param = {
-            itemkey: key,
+            itemKey: key,
             item: result[key]
           };
           this.schemaTableMetadataList.push(param);
         }
+
       })
       .catch((error) => {
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getMetaDataReconnectCount <= 5) {

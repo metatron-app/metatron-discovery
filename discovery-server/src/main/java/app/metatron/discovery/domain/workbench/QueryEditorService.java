@@ -25,6 +25,7 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcQueryResultR
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.WebSocketUtils;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.Select;
@@ -94,13 +95,12 @@ public class QueryEditorService {
     if(dataSourceInfo == null){
       throw new ResourceNotFoundException("WorkbenchDataSource(webSocketId = " + webSocketId + ")");
     }
+    dataSourceInfo.setQueryList(queryList);
 
     int queryIndex = 0;
-    for(String substitutedQuery : queryList){
-      if(dataSourceInfo.getQueryStatus() == QueryStatus.CANCELLED){
-        LOGGER.debug("Query Canceled..");
-        break;
-      }
+    while(!queryList.isEmpty()){
+      String substitutedQuery = queryList.remove(0);
+
       boolean saveToTempTable = jdbcDataConnection instanceof HiveConnection;
       saveToTempTable = false;
 
@@ -134,7 +134,7 @@ public class QueryEditorService {
       LOGGER.debug("Audit Created : " + auditId);
 
       QueryResult queryResult = executeQuery(dataSourceInfo, substitutedQuery, workbench.getId(), webSocketId, jdbcDataConnection,
-              queryHistoryId, auditId, saveToTempTable, numRows, queryIndex);
+              queryHistoryId, auditId, saveToTempTable, numRows, queryIndex, queryEditor.getId());
       queryResults.add(queryResult);
 
       //increase query index
@@ -239,7 +239,7 @@ public class QueryEditorService {
 
   private QueryResult executeQuery(WorkbenchDataSource dataSourceInfo, String query, String workbenchId, String webSocketId,
                                    JdbcDataConnection jdbcDataConnection, long queryHistoryId, String auditId,
-                                   Boolean saveToTempTable, int numRows, int queryIndex){
+                                   Boolean saveToTempTable, int numRows, int queryIndex, String queryEditorId){
 
     ResultSet resultSet = null;
     QueryResult queryResult = null;
@@ -253,6 +253,7 @@ public class QueryEditorService {
       queryResult.setFinishDateTime(DateTime.now());
       queryResult.setAuditId(auditId);
       queryResult.setQueryHistoryId(queryHistoryId);
+      queryResult.setQueryEditorId(queryEditorId);
       return queryResult;
     }
 
@@ -262,7 +263,12 @@ public class QueryEditorService {
     //시작시간
     DateTime startDateTime = DateTime.now();
     try {
+      sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_CONNECTION, queryIndex,
+              queryEditorId, workbenchId, webSocketId);
       connection = singleConnectionDataSource.getConnection();
+
+      sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.CREATE_STATEMENT, queryIndex,
+              queryEditorId, workbenchId, webSocketId);
       stmt = connection.createStatement();
       stmt.setFetchSize(workbenchProperties.getMaxFetchSize());
 
@@ -296,7 +302,8 @@ public class QueryEditorService {
       } else {
 
         LOGGER.debug("jdbcDataConnection : {}", jdbcDataConnection.getClass().getName());
-
+        sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.EXECUTE_QUERY, queryIndex,
+                queryEditorId, workbenchId, webSocketId);
         if(stmt instanceof HiveStatement){
           //send set audit query id
           setAuditId(connection, auditId);
@@ -309,16 +316,17 @@ public class QueryEditorService {
 
           //create hive query log print thread
           logThread = new Thread(
-                  new HiveQueryLogThread((HiveStatement) stmt, workbenchId, webSocketId, queryIndex,
+                  new HiveQueryLogThread((HiveStatement) stmt, workbenchId, webSocketId, queryIndex, queryEditorId,
                           1000L, messagingTemplate)
           );
 
           logThread.start();
-
           boolean hasResult = ((HiveStatement) stmt).execute(query);
           logThread.interrupt();
 
           if(hasResult){
+            sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
+                    queryEditorId, workbenchId, webSocketId);
             resultSet = stmt.getResultSet();
             queryResult = getQueryResult(resultSet, query, null, jdbcDataConnection);
           } else {
@@ -326,6 +334,8 @@ public class QueryEditorService {
           }
         } else {
           if(stmt.execute(query)){
+            sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
+                    queryEditorId, workbenchId, webSocketId);
             resultSet = stmt.getResultSet();
             queryResult = getQueryResult(resultSet, query, null, jdbcDataConnection);
           } else {
@@ -343,17 +353,12 @@ public class QueryEditorService {
           logThread.interrupt();
         }
       }
-
-      JdbcUtils.closeConnection(connection);
-      JdbcUtils.closeStatement(stmt);
       JdbcUtils.closeResultSet(resultSet);
       JdbcUtils.closeStatement(stmt);
       JdbcUtils.closeConnection(connection);
 
       //Query 실행 상태 IDLE로 전환
-      if(dataSourceInfo.getQueryStatus() != QueryStatus.CANCELLED){
-        dataSourceInfo.setQueryStatus(QueryStatus.IDLE);
-      }
+      dataSourceInfo.setQueryStatus(QueryStatus.IDLE);
       dataSourceInfo.setCurrentStatement(null);
 
       //종료시간
@@ -364,6 +369,8 @@ public class QueryEditorService {
       queryResult.setFinishDateTime(finishDateTime);
       queryResult.setAuditId(auditId);
       queryResult.setQueryHistoryId(queryHistoryId);
+      queryResult.setQueryEditorId(queryEditorId);
+
     }
 
     return queryResult;
@@ -399,15 +406,24 @@ public class QueryEditorService {
   }
 
   public void cancelQuery(JdbcDataConnection jdbcDataConnection, String webSocketId){
-    WorkbenchDataSource dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
-    Statement stmt = dataSourceInfo.getCurrentStatement();
+    WorkbenchDataSource dataSourceInfo = null;
+    Statement stmt = null;
     try{
-      if(stmt != null)
-        stmt.cancel();
+      dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
+      if(dataSourceInfo != null){
+        //pending query list remove all
+        while(dataSourceInfo.getQueryList() != null && !dataSourceInfo.getQueryList().isEmpty()){
+          dataSourceInfo.getQueryList().remove(0);
+        }
+        LOGGER.debug("Removed remain query all");
+        stmt = dataSourceInfo.getCurrentStatement();
+        if(stmt != null)
+          stmt.cancel();
+        LOGGER.debug("Statement is canceled");
+      }
     } catch (SQLException sqle) {
-      JdbcUtils.closeStatement(stmt);
     } finally {
-      dataSourceInfo.setQueryStatus(QueryStatus.CANCELLED);
+      JdbcUtils.closeStatement(stmt);
     }
   }
   
@@ -546,5 +562,15 @@ public class QueryEditorService {
       isComment = (isComment && (lineTrimmed.startsWith("#") || lineTrimmed.startsWith("--")));
     }
     return isComment;
+  }
+
+  public void sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand command, int queryIndex,
+                                   String queryEditorId, String workbenchId, String webSocketId){
+    Map<String, Object> message = new HashMap<>();
+    message.put("command", command);
+    message.put("queryIndex", queryIndex);
+    message.put("queryEditorId", queryEditorId);
+
+    WebSocketUtils.sendMessage(messagingTemplate, webSocketId, "/queue/workbench/" + workbenchId, message);
   }
 }
