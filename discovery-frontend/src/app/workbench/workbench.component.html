@@ -327,6 +327,9 @@
             <div class="ddp-box-in">
               <!-- tab -->
               <div class="ddp-wrap-tabs-query" #editorResultListMax>
+                <!-- empty -->
+                <div *ngIf="visibleResultTabs.length == 0" class="ddp-ui-result-none">{{'msg.bench.ui.result.empty.description' | translate}}</div>
+                <!-- //empty -->
                 <!-- list 있을때 ddp-slide 추가 -->
                 <div class="ddp-ui-tabs"
                      #editorResultListTabs
@@ -346,6 +349,26 @@
                         {{item.name}}
                         <a *ngIf="!isHiveLog"  href="javascript:" class="ddp-btn-close-s" (click)="closeResultTab(item.id)"></a>
                       </div>
+                      <!-- popup -->
+                      <!-- 버튼 show : ddp-retry 추가 -->
+                      <div class="ddp-box-tabs-popup ddp-retry">
+                        <div class="ddp-txt-query">
+                        Full query sentences Full query sentencesssssss
+                        Full query sentences Full query sentencesssssss
+                        Full query sentences Full query sentencesssssss
+                        Full query sentences Full query sentencesssssss
+                        Full query sentences Full query sentencesssssss
+                        Full query sentences Full query sentencesssssss
+                        Full query sentences Full query sentencesssssss
+                        Full query sentences Full query sentencesssssss
+                        Full query sentences Full query sentencesssssss
+                        Full query sentences Full query sentencesssssss
+                        Full query sentences Full query sentencesssssss
+                        Full query sentences Full query sentencesssssss
+                        </div>
+                        <a *ngIf="!isHiveQueryExecute" href="javascript:" class="ddp-btn-log-status ddp-retry2">Retry</a>
+                      </div>
+                      <!-- //popup -->
                     </li>
                   </ul>
                 </div>
@@ -357,95 +380,113 @@
                      [canceling]="isRunningCancel" (cancel)="cancelRunningQuery()" class="ddp-loading-part"></div>
 
                 <!-- Hive Log 표시 영역 -->
-                <div *ngIf="visibleResultTab.showLog" class="ddp-wrap-result" >
+                <div *ngIf="visibleResultTab.showLog" class="ddp-wrap-log" [ngClass]="{'ddp-ing': isHiveQueryExecute && !visibleResultTab.data}">
 
-                  <div class="ddp-ui-setting">
-                    <div class="ddp-ui-buttons">
-
-                      <a *ngIf="!visibleResultTab.data" href="javascript:" class="ddp-btn-box" (click)="cancelRunningQuery(true)">
-                        <em class="ddp-icon-cancel"></em>
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
-                          {{'msg.bench.btn.log.cancel' | translate}}
-                        </div>
-                      </a>
-
-                      <a *ngIf="!!visibleResultTab.data" href="javascript:" class="ddp-btn-box" (click)="toggleHiveLog(false)">
-                        <em class="ddp-icon-result-grid"></em>
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
-                          {{'msg.bench.btn.view.result' | translate}}
-                        </div>
-                      </a>
-
-                    </div>
+                  <div id="workbenchHiveLogText" class="ddp-box-log ddp-ing"
+                       [innerHTML]="visibleResultTab.log.join('<br>')">
                   </div>
 
-                  <div class="ddp-box-grid">
-                    <div id="workbenchHiveLogText" class="ddp-text-result"
-                         [innerHTML]="visibleResultTab.log.join('<br>')"></div>
+                  <!-- box status -->
+                  <div *ngIf="isHiveQueryExecute && !visibleResultTab.data" class="ddp-box-status-button">
+
+                    <a href="javascript:" class="ddp-btn-log-status" (click)="cancelRunningQuery(true)">Cancel</a>
+                    <span class="ddp-txt-log-status">Getting connection ({{selectedGridTabNum+1}}/{{visibleResultTabs.length}})</span>
+
                   </div>
+                  <div *ngIf="!isHiveQueryExecute && visibleResultTab.output == 'text'" class="ddp-box-status-button">
+
+                    <a href="javascript:" class="ddp-btn-log-status ddp-retry">Retry</a>
+                    <span class="ddp-txt-log-status ddp-fail">Sorry, it’s failed while creating statement </span>
+
+                  </div>
+                  <!-- //box status -->
+
                 </div>
                 <!-- // Hive Log 표시 영역 -->
 
                 <div *ngIf="!visibleResultTab.showLog"
                      class="ddp-wrap-result"
                      [ngStyle]="{'visibility': visibleResultTabs.length !== 0 ? 'visible':'hidden'}">
-                  <div class="ddp-ui-setting">
-                    <!-- 검색 -->
-                    <div class="ddp-form-search" [hidden]="'' !== visibleResultTab.message" >
-                      <em class="ddp-icon-search"></em>
-                      <input type="text"
-                             placeholder="{{'msg.comm.search.col' | translate}}"
-                             #gridSearchInput
-                             [(ngModel)]="searchText"
-                             (keyup)="gridSearch($event)" [disabled]="visibleResultTabs.length === 0">
-                      <em class="ddp-btn-search-close" *ngIf="searchText" (click)="gridSearchClear()"></em>
+
+
+                  <div class="ddp-box-grid" #gridWrapElement
+                       [ngStyle]="{'display': visibleResultTab.output === 'grid' ? '':'none'}" style="padding:0px;">
+                    <div grid-component #main style="width:100%; height: 100%;"></div>
+                  </div>
+                  <div class="ddp-box-grid"
+                       [ngStyle]="{'display': visibleResultTab.output === 'text' ? '':'none'}">
+                    <div class="ddp-text-result" style="color:red; ">
+                      {{visibleResultTab.message}}
                     </div>
-                    <!-- //검색 -->
+                  </div>
 
-                    <!--<a href="javascript:" class="ddp-btn-allcheck" (click)="gridAllSelection()">{{'msg.bench.btn.data.sel.all'-->
-                    <!--| translate}}</a>-->
+                  <!-- button -->
+                  <div class="ddp-ui-buttons" *ngIf="visibleResultTab.data && visibleResultTab.data.fields">
+                    <div class="ddp-wrap-btn-link" [hidden]="'' !== visibleResultTab.message">
+                      <a href="javascrpt:" class="ddp-box-page">
+                        <em class="ddp-icon-prev"></em>PREV
+                      </a>
+                      <a href="javascrpt:" class="ddp-box-page ddp-next">
+                        NEXT<em class="ddp-icon-next"></em>
+                      </a>
+                    </div>
 
-                    <!-- button -->
-                    <div class="ddp-ui-buttons" >
+                    <div class="ddp-wrap-btn-link">
+
+                      <!-- search link -->
+                      <!-- 클릭시 ddp-selected 추가 -->
+                      <a href="javascript:" class="ddp-btn-link " [ngClass]="{'ddp-selected':isSearchLink, 'ddp-value': searchText.trim() != '' }"  [hidden]="'' !== visibleResultTab.message" >
+                        <em class="ddp-icon-query-search" (click)="searchLink()"></em>
+                        <div class="ddp-ui-tooltip-info ">
+                          <em class="ddp-icon-view-down"></em>
+                          search
+                        </div>
+                        <!-- box -->
+                        <div class="ddp-box-searching">
+                          <!-- search -->
+                          <div class="ddp-form-search">
+                            <em class="ddp-icon-search"></em>
+                            <input type="text"
+                                   placeholder="{{'msg.comm.search.col' | translate}}"
+                                   #gridSearchInput
+                                   [(ngModel)]="searchText"
+                                   (keyup)="gridSearch($event)" [disabled]="visibleResultTabs.length === 0">
+                            <em class="ddp-btn-search-close" *ngIf="searchText" (click)="gridSearchClear()"></em>
+                          </div>
+                          <!-- //search -->
+                        </div>
+                        <!-- //box -->
+                      </a>
+                      <!-- //search link -->
+
                       <a href="javascript:" class="ddp-btn-link" (click)="createDatasourceTemporary()" [hidden]="'' !== visibleResultTab.message">
                         <em class="ddp-icon-chart"></em>
                         <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
+                          <em class="ddp-icon-view-down"></em>
                           {{'msg.bench.btn.chart.preview' | translate}}
                         </div>
                       </a>
+
                       <a *ngIf="isDataManager" href="javascript:" class="ddp-btn-link" (click)="createDatasource()" [hidden]="'' !== visibleResultTab.message">
                         <em class="ddp-icon-save"></em>
                         <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
+                          <em class="ddp-icon-view-down"></em>
                           {{'msg.bench.btn.save.as.datasource' | translate}}
                         </div>
                       </a>
-                      <!-- 일괄 엑셀 다운로드 -->
-                      <!--<div class="ddp-ui-link">-->
-                      <!--<a href="javascript:" class="ddp-btn-link" (click)="setDownloadLocal()">-->
-                      <!--<em class="ddp-icon-export"></em>-->
-                      <!--<div class="ddp-ui-tooltip-info">-->
-                      <!--<em class="ddp-icon-view-top"></em>-->
-                      <!--{{'msg.bench.btn.export.file' | translate}}-->
-                      <!--</div>-->
-                      <!--</a>-->
-                      <!--</div>-->
-                      <!-- //일괄 엑셀 다운로드 -->
-                      <!-- 엑셀 다운로드 -->
-                      <div class="ddp-ui-link" [ngClass]="{'ddp-selected':csvDownloadLayer}" [hidden]="'' !== visibleResultTab.message">
+
+                      <!-- ddp-selected 추가 -->
+                      <div class="ddp-ui-link ddp-selected" [ngClass]="{'ddp-selected':csvDownloadLayer}" [hidden]="'' !== visibleResultTab.message">
                         <a href="javascript:" class="ddp-btn-link" (click)="downloadExcel()"
                            (clickOutside)="downloadExcelClose()">
                           <em class="ddp-icon-export"></em>
                           <div class="ddp-ui-tooltip-info">
-                            <em class="ddp-icon-view-top"></em>
+                            <em class="ddp-icon-view-down"></em>
                             {{'msg.bench.btn.export.file' | translate}}
                           </div>
-
                         </a>
-                        <div class="ddp-wrap-popup2" *ngIf="csvDownloadLayer === true">
+
+                        <div class="ddp-wrap-popup2" >
                           <ul class="ddp-list-popup">
                             <li>
                               <a href="javascript:" (click)="setDownloadLocal()">
@@ -461,38 +502,78 @@
                         </div>
                       </div>
 
-                      <!-- hive 관련 button -->
-                      <a *ngIf="isWaterfallProc" href="javascript:" class="ddp-btn-box" (click)="toggleHiveLog(true)">
-                        <em class="ddp-icon-result-list"></em>
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-top"></em>
-                          {{'msg.bench.btn.view.log' | translate}}
-                        </div>
-                      </a>
-                      <!-- //hive 관련 button -->
-                      <!-- //엑셀 다운로드 -->
+                      <!--<a href="javascript:" class="ddp-btn-link">-->
+                      <!--<em class="ddp-icon-online-excel"></em>-->
+                      <!--<div class="ddp-ui-tooltip-info" style="display:;">-->
+                      <!--<em class="ddp-icon-view-down"></em>-->
+                      <!--Online Excel-->
+                      <!--</div>-->
+                      <!--</a>-->
                     </div>
-                    <!-- //button -->
-                    <!--[ngStyle]="{'width':valid}"-->
+
                   </div>
-                  <div class="ddp-box-grid" #gridWrapElement
-                       [ngStyle]="{'visibility': visibleResultTab.output === 'grid' ? 'visible':'hidden'}">
-                    <div grid-component #main style="width:100%; height: 100%;"></div>
-                    <!-- [ngStyle]="{'visibility': datagridShow ? 'visible':'hidden'}" -->
-                  </div>
-                  <div class="ddp-box-grid"
-                       [ngStyle]="{'visibility': visibleResultTab.output === 'text' ? 'visible':'hidden'}">
-                    <div class="ddp-text-result" style="color:red">
-                      {{visibleResultTab.message}}
-                    </div>
-                  </div>
-                  <!--<span class="ddp-data-number">{{resultRow | numberCommas}} rows | {{resultTime}}</span>-->
-                  <span *ngIf="'grid' === visibleResultTab.output && visibleResultTab.data && -1 < visibleResultTab.data.numRows" class="ddp-data-number" >
-                    {{visibleResultTab.data.numRows}} {{'msg.comm.detail.rows'|translate}}
-                  </span>
+                  <!-- //button -->
+
                 </div>
               </div>
               <!-- //결과 -->
+
+
+              <!-- info bar -->
+              <div class="ddp-box-infobar" *ngIf="visibleResultTabs.length != 0">
+                <!-- tab -->
+                <div class="ddp-ui-bottom-tab">
+                  <ul class="ddp-list-bottom-tab">
+                    <li *ngIf="visibleResultTab.showLog" class="ddp-selected"><a href="javascript:" (click)="toggleHiveLog(false)">Result</a></li>
+                    <li *ngIf="isWaterfallProc && !visibleResultTab.showLog" class="ddp-selected"><a href="javascript:" (click)="toggleHiveLog(true)">Output</a></li>
+                  </ul>
+                </div>
+                <!-- //tab -->
+
+                <!-- fail 일때 ddp-fail 추가 -->
+                <div class="ddp-view-status " [ngClass]="{'ddp-fail': !isHiveQueryExecute && visibleResultTab.output == 'text' }" >
+                  <!-- 상태 메세지 (상태메세지, 상태 묶음) -->
+                  <div class="ddp-info-status" *ngIf="isHiveQueryExecute">
+                    {{'msg.bench.ui.query.running.message' | translate}}
+                  </div>
+                  <div *ngIf="!isHiveQueryExecute && !isCancelQuery && visibleResultTab.output == 'text'" class="ddp-info-status">
+                    {{'msg.bench.ui.query.fail.message' | translate}}
+                  </div>
+                  <div *ngIf="!isHiveQueryExecute && isCancelQuery" class="ddp-info-status">
+                    {{'msg.bench.ui.query.cancel.message' | translate}}
+                  </div>
+                  <!--//상태 메세지 -->
+                  <!-- 상태 -->
+                  <div *ngIf="!isHiveQueryExecute && !isCancelQuery && visibleResultTab.output == 'text'" class="ddp-info-status ddp-fail">
+                    Failed
+                  </div>
+                  <div *ngIf="!isHiveQueryExecute && isCancelQuery" class="ddp-info-status ddp-fail">
+                    Canceled
+                  </div>
+                  <!--//상태 -->
+                </div>
+
+                <!-- time -->
+                <div class="ddp-list-time" *ngIf="'grid' === visibleResultTab.output && visibleResultTab.data">
+                  <span class="ddp-data-time">
+                      <span class="ddp-data-label">실행시작</span>
+                      <span class="ddp-data-txt">2018-10-10 22:00:00</span>
+                  </span>
+                  <span class="ddp-data-time">
+                       <span class="ddp-data-label">소요시간</span>
+                      <span class="ddp-data-txt">3secs</span>
+                  </span>
+                  <span class="ddp-data-time" *ngIf="'grid' === visibleResultTab.output && visibleResultTab.data && -1 < visibleResultTab.data.numRows">
+                  <!--<span class="ddp-data-time" *ngIf="visibleResultTab.data.fields">-->
+                       <!--<span class="ddp-data-label">소요시간</span>-->
+                      <span class="ddp-data-txt"> {{visibleResultTab.data.numRows}} {{'msg.comm.detail.rows'|translate}}</span>
+                  </span>
+                </div>
+                <!-- //time -->
+
+              </div>
+              <!-- //info bar -->
+
             </div>
           </div>
           <!-- //query result -->

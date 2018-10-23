@@ -335,6 +335,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public isRunningCancel:boolean = false;    // 취소 작업 중인지...
 
+  // 그리드 검색 영역
+  public isSearchLink : boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1956,6 +1959,19 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   } // function - toggleHiveLog
 
   /**
+   * 그리드 결과 검색 버튼 클릭 시
+   */
+  public searchLink (){
+
+    if( this.isSearchLink ){
+      this.isSearchLink = false;
+    } else {
+      this.isSearchLink = true;
+    }
+
+  }
+
+  /**
    * 워크벤치 웹 소켓 생성
    * @param {Function} callback
    */
@@ -1991,6 +2007,17 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             if (resultTabInfo) {
               resultTabInfo.showLog = true;
               resultTabInfo.log = resultTabInfo.log.concat(data.log);
+              for (let index: number = 0; index < resultTabInfo.log.length; index = index + 1) {
+                if( resultTabInfo.log[index].indexOf("INFO") != -1 ){
+                  resultTabInfo.log[index] = '<span class="ddp-txt-info">' + resultTabInfo.log[index] + '</span>';
+                } else if ( resultTabInfo.log[index].indexOf("ERROR") != -1  ) {
+                  resultTabInfo.log[index] = '<span class="ddp-txt-error">' + resultTabInfo.log[index] + '</span>';
+                } else if ( resultTabInfo.log[index].indexOf("WARN") != -1  ) {
+                  resultTabInfo.log[index] = '<span class="ddp-txt-warn">' + resultTabInfo.log[index] + '</span>';
+                } else {
+                  resultTabInfo.log[index] = '<span>' + resultTabInfo.log[index] + '</span>';
+                }
+              }
             }
 
             resultTabInfo.name = 'Loading..';

@@ -1635,7 +1635,7 @@ table.ddp-table-form tbody tr td .ddp-txt-long em.ddp-tag-global {position:absol
 table.ddp-table-form tbody tr td span.ddp-data-num {display:inline-block; margin-right:17px; color:#4c515a; font-size:13px;}
 table.ddp-table-form tbody tr td span.ddp-txt-colortype {color:#b7b9c2;}
 table.ddp-table-form tbody tr td em.ddp-icon-by {margin:0 3px; color:#b7bac1; font-size:13px;}
-table.ddp-table-form tbody tr td.ddp-data-last {padding-right:36px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal;}
+table.ddp-table-form tbody tr td.ddp-data-last {padding-right:36px;}
 table.ddp-table-form tbody tr td a.ddp-btn-more {display:inline-block; position:absolute; top:50%; right:6px; width:12px; height:17px; margin-top:-9px;}
 table.ddp-table-form tbody tr td a.ddp-btn-more:before {display:inline-block; content:''; position:absolute; top:50%; left:50%; width:2px; height:9px; margin:-5px 0 0 -1px; background:url(../images/icon_more2.png) no-repeat;}
 table.ddp-table-form tbody tr td a.ddp-btn-more:hover,
