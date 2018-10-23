@@ -14,7 +14,6 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
-import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
 import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -47,9 +46,6 @@ public class PrepTransformController {
   @Autowired(required = false)
   PrepTransformService transformService;
 
-  @Autowired
-  PrepPreviewLineService previewLineService;
-
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform", method = RequestMethod.POST, produces = "application/json")
   public @ResponseBody ResponseEntity<?> create(
     @PathVariable("dsId") String importedDsId,
@@ -75,12 +71,7 @@ public class PrepTransformController {
           @PathVariable("newDsId") String newDsId) throws Throwable {
     try {
       List<String> affectedDsIds = transformService.swap(oldDsId, newDsId);
-      
-      for(String affectedDsId : affectedDsIds) {
-        PrepTransformResponse response = transformService.fetch(affectedDsId, null);
-        DataFrame dataFrame = response.getGridResponse();
-        this.previewLineService.putPreviewLines(affectedDsId, dataFrame);
-      }
+      transformService.after_swap(affectedDsIds);
     } catch (Exception e) {
       LOGGER.error("swap(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

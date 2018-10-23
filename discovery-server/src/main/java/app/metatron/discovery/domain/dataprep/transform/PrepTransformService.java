@@ -512,6 +512,15 @@ public class PrepTransformService {
     return targetDsIds;
   }
 
+  @Transactional(rollbackFor = Exception.class)
+  public void after_swap(List<String> affectedDsIds) throws Exception {
+    for(String affectedDsId : affectedDsIds) {
+      PrepTransformResponse response = this.fetch(affectedDsId, null);
+      DataFrame dataFrame = response.getGridResponse();
+      this.previewLineService.putPreviewLines(affectedDsId, dataFrame);
+    }
+  }
+
   private DataFrame load_internal(String dsId) throws Exception {
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     DataFrame gridResponse = null;
