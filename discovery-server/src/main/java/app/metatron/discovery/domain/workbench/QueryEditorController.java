@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.workbench;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.audit.Audit;
 import app.metatron.discovery.domain.audit.AuditRepository;
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcCSVWriter;
@@ -353,6 +354,81 @@ public class QueryEditorController {
       dataSourceInfo.setCurrentStatement(null);
     }
 
+  }
+
+  @RequestMapping(path = "/queryeditors/{id}/query/result", method = RequestMethod.POST)
+  @ResponseBody
+  public ResponseEntity<?> getResult(@PathVariable("id") String id,
+                                    @RequestBody QueryResultRequest requestBody) {
+
+    //Request Param 확인
+    String csvFilePath = StringUtils.defaultString(requestBody.getCsvFilePath());
+    List<Field> fieldList = requestBody.getFieldList();
+    int pageSize = requestBody.getPageSize();
+    int pageNumber = requestBody.getPageNumber();
+
+    LOGGER.debug("id : {}", id);
+    LOGGER.debug("csvFilePath : {}", csvFilePath);
+    LOGGER.debug("fieldList : {}", fieldList);
+    LOGGER.debug("pageSize : {}", pageSize);
+    LOGGER.debug("pageNumber : {}", pageNumber);
+
+    Assert.isTrue(!csvFilePath.isEmpty(), "Parameter 'csvFilePath' is empty.");
+    Assert.isTrue(!fieldList.isEmpty(), "Parameter 'fieldList' is empty.");
+    Assert.isTrue(pageSize > 0, "Parameter 'pageSize' is negative.");
+    Assert.isTrue(pageNumber >= 0, "Parameter 'pageNumber' is negative.");
+
+    String csvBaseDir = workbenchProperties.getTempCSVPath();
+    if(!csvBaseDir.endsWith(File.separator)){
+      csvBaseDir = csvBaseDir + File.separator;
+    }
+    String filePath = csvBaseDir + csvFilePath;
+
+    List dataList = queryEditorService.readCsv(filePath, fieldList, pageNumber * pageSize, pageSize);
+
+    return ResponseEntity.ok(dataList);
+  }
+
+  @RequestMapping(path = "/queryeditors/{id}/query/download/csv", method = RequestMethod.POST,
+          consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  public void downloadCSVForm(@PathVariable("id") String id,
+                              @RequestParam Map<String, Object> requestParam,
+                              HttpServletResponse response) throws IOException {
+    String csvFilePath = (String) requestParam.get("csvFilePath");
+    String fileName = (String) requestParam.get("fileName");
+
+    if(StringUtils.isEmpty(fileName)){
+      fileName = "noname";
+    }
+
+    String csvBaseDir = workbenchProperties.getTempCSVPath();
+    if(!csvBaseDir.endsWith(File.separator)){
+      csvBaseDir = csvBaseDir + File.separator;
+    }
+    String filePath = csvBaseDir + csvFilePath;
+
+    HttpUtils.downloadCSVFile(response, fileName, filePath, "text/csv");
+  }
+
+  @RequestMapping(path = "/queryeditors/{id}/query/download/csv", method = RequestMethod.POST,
+          consumes = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public void downloadCSVJson(@PathVariable("id") String id,
+                              @RequestBody Map<String, Object> requestBody,
+                              HttpServletResponse response) throws IOException {
+    String csvFilePath = (String) requestBody.get("csvFilePath");
+    String fileName = (String) requestBody.get("fileName");
+
+    if(StringUtils.isEmpty(fileName)){
+      fileName = "noname";
+    }
+
+    String csvBaseDir = workbenchProperties.getTempCSVPath();
+    if(!csvBaseDir.endsWith(File.separator)){
+      csvBaseDir = csvBaseDir + File.separator;
+    }
+    String filePath = csvBaseDir + csvFilePath;
+    HttpUtils.downloadCSVFile(response, fileName, filePath, "text/csv; charset=utf-8");
   }
 
 }

@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 
@@ -281,5 +280,18 @@ public class PrestoConnection extends HiveMetastoreConnection {
     this.catalog = catalog;
   }
 
+  @Override
+  public String getTableNameColumn() {
+    return "Table";
+  }
 
+  @Override
+  public void setUrl(String url) {
+    super.setUrl(url);
+
+    if(url != null){
+      String[] spliced = StringUtils.split( url,"/");
+      this.catalog = spliced[spliced.length - 1];
+    }
+  }
 }
