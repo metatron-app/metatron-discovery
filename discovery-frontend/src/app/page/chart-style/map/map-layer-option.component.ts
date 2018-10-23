@@ -6,7 +6,8 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
-  NgZone
+  NgZone,
+  SimpleChanges
 } from '@angular/core';
 import * as _ from 'lodash';
 import {
@@ -114,7 +115,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     column: '',
     schema: this.selectedDefaultColor,
     transparency: 100,
-    resolution: 8
+    resolution: 8,
+    blur: 10,
+    radius: 10
   };
 
   public size: Object = {
@@ -176,10 +179,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    @Input('resultData')
    public resultData: Object;
 
-   @ViewChild('rangeSlider')
-   private _rangeSlider: ElementRef;
+   @ViewChild('blurRangeSlider')
+   private _blurRangeSlider: ElementRef;
+   private _$blurRangeSlider: any;
 
-   private _$rangeSlider: any;
+   @ViewChild('radiusRangeSlider')
+   private _radiusRangeSlider: ElementRef;
+   private _$radiusRangeSlider: any;
+
+   @ViewChild('resolutionRangeSlider')
+   private _resolutionRangeSlider: ElementRef;
+   private _$resolutionRangeSlider: any;
 
    @Input('uiOption')
    public set setUiOption(uiOption: UIOption) {
@@ -198,12 +208,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      // if (typeof uiOption.toolTip.useDefaultFormat === 'undefined') uiOption.toolTip.useDefaultFormat = true;
 
      // Set
-     if(this.resultData['data'][0].valueRange) {
-       const minValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, this.resultData['data'][0].valueRange.minValue);
-
-       this.minValue = FormatOptionConverter.getDecimalValue(minValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
-       this.maxValue = FormatOptionConverter.getDecimalValue(this.resultData['data'][0].valueRange.maxValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
-     }
+     // if(this.resultData['data'][0].valueRange) {
+     //   const minValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, this.resultData['data'][0].valueRange.minValue);
+     //
+     //   this.minValue = FormatOptionConverter.getDecimalValue(minValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+     //   this.maxValue = FormatOptionConverter.getDecimalValue(this.resultData['data'][0].valueRange.maxValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+     // }
 
      this.uiOption = uiOption;
    }
@@ -216,7 +226,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      let geomType = this.uiOption.fielDimensionList[0].field.logicalType.toString();
 
      if(geomType === "GEO_POINT") {
-       if(layerType === "symbol" || layerType === "heatmap" || layerType === "heatmap" || layerType === "tile") {
+       if(layerType === "symbol" || layerType === "heatmap" || layerType === "tile") {
          console.log("point");
        } else {
          return;
@@ -243,6 +253,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      });
 
      this.update();
+
+     if(layerType === "heatmap") {
+       this.setRadiusSlider();
+     }
    }
 
    /**
@@ -610,7 +624,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    }
 
    public changeLayerOption() {
-
      this.layerOptions = [{
        type: this.type,
        name: this.name,
@@ -679,7 +692,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      let resultVal = '';
 
      if(type === 'heatmapBlur') {
-       if(val === 10) {
+       if(val === 5) {
+         resultVal = '0%';
+       } else if(val === 10) {
          resultVal = '20%';
        } else if(val === 15) {
          resultVal = '40%';
@@ -707,7 +722,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      }
 
      if(type === 'hexagonRadius') {
-       if(val === 9) {
+       if(val === 10) {
+         resultVal = '0%';
+       } else if(val === 9) {
          resultVal = '20%';
        } else if(val === 8) {
          resultVal = '40%';
@@ -1078,12 +1095,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
     // less than 0, set minValue
-    const minValue = data.valueRange.minValue >= 0 ? 0 : _.cloneDeep(data.valueRange.minValue);
+    const minValue = data.valueRange[uiOption.layers[0].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (data.valueRange.maxValue - minValue) / colorListLength;
+    const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / colorListLength;
 
-    let maxValue = _.cloneDeep(data.valueRange.maxValue);
+    let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].maxValue);
 
     let shape;
     // if ((<UIScatterChart>uiOption).pointShape) {
@@ -1096,9 +1113,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     });
 
     // decimal min value
-    let formatMinValue = formatValue(data.valueRange.minValue);
+    let formatMinValue = formatValue(data.valueRange[uiOption.layers[0].color.column].minValue);
     // decimal max value
-    let formatMaxValue = formatValue(data.valueRange.maxValue);
+    let formatMaxValue = formatValue(data.valueRange[uiOption.layers[0].color.column].maxValue);
 
     // set ranges
     for (let index = colorListLength; index >= 0; index--) {
@@ -1612,6 +1629,102 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // 새로운 범위 추가
     this.gradationComp.addNewRangeIndex(currentIndex);
   }
+
+  /**
+   * Input 값 변경 체크
+   * @param {SimpleChanges} changes
+   */
+  public ngOnChanges(changes: SimpleChanges) {
+    if(this.type === "heatmap") {
+      setTimeout(
+        () => {
+          this.setBlurSlider();
+          this.setRadiusSlider();
+        }
+      );
+    } else if(this.type === "tile") {
+      setTimeout(
+        () => {
+          this.setResolutionSlider();
+        }
+      );
+    }
+
+
+  } // function - ngOnChanges
+
+  public setRadiusSlider() {
+    const scope = this;
+    this._$radiusRangeSlider = $(this._radiusRangeSlider.nativeElement);
+    this._$radiusRangeSlider.ionRangeSlider(
+      {
+        hide_from_to: false,
+        hide_min_max: true,
+        keyboard: false,
+        min: 5,
+        max: 30,
+        from: 5,
+        to: scope.uiOption.layers[0].color.radius,
+        type: 'double',
+        step: 5,
+        onChange(data) {
+          scope.changeRadius(data.to);
+        }
+        // onFinish(data) {
+          // scope._updateBoundValue(data);
+          // scope.change.emit(scope.getData());
+        // }
+      })
+  }
+
+  public setResolutionSlider() {
+    const scope = this;
+    this._$resolutionRangeSlider = $(this._resolutionRangeSlider.nativeElement);
+    this._$resolutionRangeSlider.ionRangeSlider(
+      {
+        hide_from_to: false,
+        hide_min_max: true,
+        keyboard: false,
+        min: 5,
+        max: 10,
+        from: 5,
+        to: scope.uiOption.layers[0].color.resolution,
+        type: 'double',
+        step: 1,
+        onChange(data) {
+          scope.changeResolution(data.to);
+        }
+        // onFinish(data) {
+          // scope._updateBoundValue(data);
+          // scope.change.emit(scope.getData());
+        // }
+      })
+  }
+
+  public setBlurSlider() {
+    const scope = this;
+    this._$blurRangeSlider = $(this._blurRangeSlider.nativeElement);
+    this._$blurRangeSlider.ionRangeSlider(
+      {
+        hide_from_to: false,
+        hide_min_max: true,
+        keyboard: false,
+        min: 5,
+        max: 30,
+        from: 5,
+        to: scope.uiOption.layers[0].color.blur,
+        type: 'double',
+        step: 5,
+        onChange(data) {
+          scope.changeBlur(data.to);
+        }
+        // onFinish(data) {
+          // scope._updateBoundValue(data);
+          // scope.change.emit(scope.getData());
+        // }
+      })
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1632,42 +1745,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
     return 'rgb(' + rColor + ',' + gColor + ',' + bColor + ')';
   }
-
-  /**
-   * 슬라이더 설정
-   * @param {number} from
-   * @param {number} to
-   * @param {number} min
-   * @param {number} max
-   * @private
-   */
-  private _setSlider(from: number, to: number, min?: number, max?: number) {
-    if (this._$rangeSlider) {
-      const slider = this._$rangeSlider.data('ionRangeSlider');
-      slider.update({ from: from, to: to });
-      // this.change.emit(this.filter);
-    } else {
-      const scope = this;
-      this._$rangeSlider = $(this._rangeSlider.nativeElement);
-      this._$rangeSlider.ionRangeSlider(
-        {
-          min: min,
-          max: max,
-          from: from,
-          to: to,
-          type: 'double',
-          onChange(data) {
-            // scope._updateBoundValue(data);
-            // console.lof(data);
-          },
-          onFinish(data) {
-            // scope._updateBoundValue(data);
-            // scope.change.emit(scope.getData());
-          }
-        }
-      );
-    }
-  } // function - _setSlider
 
 
    /**

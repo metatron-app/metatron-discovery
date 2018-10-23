@@ -2661,11 +2661,10 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 .ddp-ui-slider .irs-to { left:50.7651% !important; right:0 !important;}
 .ddp-ui-slider-type.ddp-grid .irs {padding-top:0; margin-top:10px; margin-bottom:10px;}
 .ddp-ui-slider-type.ddp-grid:last-of-type .irs {margin-bottom:0;}
-.ddp-ui-slider-type .ddp-bar {display:inline-block; position:absolute; top:0; left:16.666666%; height:9px; border-left:1px solid #fff; z-index:10}
-.ddp-ui-slider-type .ddp-bar:nth-child(2) {left:33.333333%;}
-.ddp-ui-slider-type .ddp-bar:nth-child(3) {left:49.999999%;}
-.ddp-ui-slider-type .ddp-bar:nth-child(4) {left:66.666666%;}
-.ddp-ui-slider-type .ddp-bar:nth-child(5) {left:83.333333%;}
+.ddp-ui-slider-type .ddp-bar {display:inline-block; position:absolute; top:0; left:20%; height:9px; border-left:1px solid #fff; z-index:10}
+.ddp-ui-slider-type .ddp-bar:nth-child(2) {left:40%;}
+.ddp-ui-slider-type .ddp-bar:nth-child(3) {left:60%;}
+.ddp-ui-slider-type .ddp-bar:nth-child(4) {left:80%;}
 
 .irs-line {top:0; height:3px; cursor: pointer; overflo:inherit;}
 .irs-slider,

@@ -2002,7 +2002,7 @@ export namespace OptionGenerator {
       return {
         type: ChartType.MAP,
         showMapLayer: true,
-        map: "Positron",
+        map: "Light",
         licenseNotation: "© OpenStreetMap contributer",
         showDistrictLayer: true,
         districtUnit: "state",

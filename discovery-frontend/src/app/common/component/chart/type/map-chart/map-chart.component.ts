@@ -193,7 +193,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(this.uiOption.type);
     }
 
-    if(this.uiOption.map === 'Positron') {
+    if(this.uiOption.map === 'Light') {
       layer = this.cartoPositronLayer;
     } else if(this.uiOption.map === 'Dark') {
       layer = this.cartoDarkLayer;
@@ -228,6 +228,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
 
       document.getElementsByClassName("ddp-ui-chart-area")[0]["style"].padding = '0 0 0 0';
+
+      //attribution position change
+      document.getElementsByClassName('ol-attribution')[0]["style"].right = 'auto';
+      document.getElementsByClassName('ol-attribution')[0]["style"].left = '.5em';
     }
     this.olmap.updateSize();
 
@@ -287,12 +291,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       let featureSize = 5;
       if(styleOption.layers[layerNum].size.column && featureSizeType === 'MEASURE') {
-        featureSize = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange.maxValue / 30);
+        featureSize = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange[styleOption.layers[layerNum].color.column].maxValue / 30);
       }
 
       let lineThickness = 2;
       if(styleOption.layers[layerNum].size.column && featureSizeType === 'MEASURE') {
-        lineThickness = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange.maxValue / lineMaxVal);
+        lineThickness = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange[styleOption.layers[layerNum].color.column].maxValue / lineMaxVal);
       }
 
       if(styleOption.layers[layerNum].size.column && featureColorType === 'MEASURE') {
@@ -300,7 +304,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         if(styleData.valueRange) {
           let colorList = ChartColorList[featureColor];
 
-          let avgNum = styleData.valueRange.maxValue / colorList.length;
+          let avgNum = styleData.valueRange[styleOption.layers[layerNum].color.column].maxValue / colorList.length;
 
           for(let i=0;i<colorList.length;i++) {
             if(feature.getProperties()[styleOption.layers[layerNum].color.column] <= avgNum * (i+1) &&
@@ -537,7 +541,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       if(featureColorType === 'MEASURE') {
         let colorList = ChartColorList[featureColor];
-        let avgNum = styleData.valueRange.maxValue / colorList.length;
+        let avgNum = styleData.valueRange[styleOption.layers[layerNum].color.column].maxValue / colorList.length;
 
         for(let i=0;i<colorList.length;i++) {
           if(feature.getProperties()[styleOption.layers[layerNum].color.column] <= avgNum * (i+1) &&
@@ -565,7 +569,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           }
         } else if(styleOption.layers[layerNum].color['customMode'] === 'GRADIENT') {
           let colorList = ChartColorList[featureColor];
-          let avgNum = styleData.valueRange.maxValue / colorList.length;
+          let avgNum = styleData.valueRange[styleOption.layers[layerNum].color.column].maxValue / colorList.length;
 
           for(let i=0;i<colorList.length;i++) {
             if(feature.getProperties()[styleOption.layers[layerNum].color.column] <= avgNum * (i+1) &&
@@ -685,7 +689,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(styleData.valueRange) {
           let colorList = ChartColorList[featureColor];
-          let avgNum = styleData.valueRange.maxValue / colorList.length;
+          let avgNum = styleData.valueRange[styleOption.layers[layerNum].color.column].maxValue / colorList.length;
 
           let featurePropVal = 0;
 
@@ -959,7 +963,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(this.uiOption.fieldMeasureList.length > 0) {
           //히트맵 weight 설정
-          feature.set('weight', feature.getProperties()[this.uiOption.layers[0].color.column] / this.data[0].valueRange.maxValue);
+          feature.set('weight', feature.getProperties()[this.uiOption.layers[0].color.column] / this.data[0].valueRange[this.uiOption.layers[0].color.column].maxValue);
         }
       }
 
@@ -1117,12 +1121,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.cartoDarkLayer.setVisible(this.uiOption.showMapLayer);
 
       //choose basemap
-      if(this.uiOption.map === 'OpenStreetMap') {
-        this.olmap.getLayers().getArray()[0] = this.osmLayer;
-      } else if(this.uiOption.map === 'Positron') {
+      if(this.uiOption.map === 'Light') {
         this.olmap.getLayers().getArray()[0] = this.cartoPositronLayer;
       } else if(this.uiOption.map === 'Dark') {
         this.olmap.getLayers().getArray()[0] = this.cartoDarkLayer;
+      } else {
+        this.olmap.getLayers().getArray()[0] = this.osmLayer;
       }
 
       this.olmap.updateSize();
@@ -1166,17 +1170,18 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           element.style.top = '20px';
           element.style.right = '20px';
           element.style.bottom = '';
-        } else if(this.uiOption.legend.pos.toString() === "LEFT_BOTTOM") {
-          element.style.left = '20px';
-          element.style.top = '';
-          element.style.right = '';
-          element.style.bottom = '20px';
-        } else if(this.uiOption.legend.pos.toString() === "LEFT_TOP") {
-          element.style.left = '20px';
-          element.style.top = '20px';
-          element.style.right = '';
-          element.style.bottom = '';
         }
+        // else if(this.uiOption.legend.pos.toString() === "LEFT_BOTTOM") {
+        //   element.style.left = '20px';
+        //   element.style.top = '';
+        //   element.style.right = '';
+        //   element.style.bottom = '20px';
+        // } else if(this.uiOption.legend.pos.toString() === "LEFT_TOP") {
+        //   element.style.left = '20px';
+        //   element.style.top = '20px';
+        //   element.style.right = '';
+        //   element.style.bottom = '';
+        // }
 
         let legendHtml;
 
@@ -1199,8 +1204,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
               let colorList = ChartColorList[this.uiOption.layers[0].color["schema"]];
 
-              if(this.data[0].valueRange) {
-                let avgNum = this.data[0].valueRange.maxValue / colorList.length;
+              if(this.data[0].valueRange[this.uiOption.layers[0].color.column]) {
+                let avgNum = this.data[0].valueRange[this.uiOption.layers[0].color.column].maxValue / colorList.length;
 
                 for(let i=0;i<colorList.length;i++) {
                     let minVal = FormatOptionConverter.getFormatValue(avgNum * i, this.uiOption.valueFormat);
@@ -1443,7 +1448,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(this.uiOption.fieldMeasureList.length > 0) {
           //히트맵 weight 설정
-          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].alias] / this.data[1].valueRange.maxValue);
+          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].alias] / this.data[1].valueRange[this.uiOption.layers[1].color.column].maxValue);
         }
       }
 
@@ -1687,7 +1692,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(this.uiOption.fieldMeasureList.length > 0) {
           //히트맵 weight 설정
-          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].alias] / this.data[2].valueRange.maxValue);
+          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].alias] / this.data[2].valueRange[this.uiOption.layers[2].color.column].maxValue);
         }
       }
 

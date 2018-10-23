@@ -3588,6 +3588,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       }
 
+      //임시로 filters 조건 예외처리
+      cloneQuery.filters = [];
+
       // for(let layer of cloneQuery.shelf.layers[0]) {
       //   layer.ref = layer.dataSource;
       // }

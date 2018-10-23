@@ -1333,36 +1333,41 @@
             <div class="ddp-wrap-divide">
                 <!-- divide -->
                 <div class="ddp-divide2">
-                    <div class="ddp-list-label">{{'msg.page.layer.map.blur' | translate}}</div>
-                    <!-- SELECTBOX -->
-                    <div class="ddp-type-selectbox" (click)="blurFlag=!blurFlag;" (clickOutside)="blurFlag=false" [excludeBeforeClick]="true">
-                        <span class="ddp-txt-selectbox">{{ translateNumber('heatmapBlur', uiOption.layers[1].color.blur) }}</span>
-                        <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="blurFlag">
-                            <li (click)="changeBlur(30)"><a href="#">100%</a></li>
-                            <li (click)="changeBlur(25)"><a href="#">80%</a></li>
-                            <li (click)="changeBlur(20)"><a href="#">60%</a></li>
-                            <li (click)="changeBlur(15)"><a href="#">40%</a></li>
-                            <li (click)="changeBlur(10)"><a href="#">20%</a></li>
-                        </ul>
-                    </div>
-                    <!-- //SELECTBOX -->
+                  <div class="ddp-wrap-option-multy ddp-clear">
+                      <div class="ddp-col-8">
+                          <span class="ddp-label-txt">{{'msg.page.layer.map.blur' | translate}}</span>
+                      </div>
+                      <div class="ddp-col-4">
+                          <input type="text" class="ddp-input-typebasic " placeholder="" [value]="translateNumber('heatmapBlur', uiOption.layers[0].color.blur)">
+                      </div>
+                  </div>
+                  <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
+                        <em class="ddp-bar"></em>
+                        <em class="ddp-bar"></em>
+                        <em class="ddp-bar"></em>
+                        <em class="ddp-bar"></em>
+                        <input #blurRangeSlider2 type="text" id="rangetype" value="" name="range" />
+                  </div>
                 </div>
                 <!-- //divide -->
                 <!-- divide -->
                 <div class="ddp-divide2">
-                    <div class="ddp-list-label">{{'msg.page.layer.map.radius' | translate}}</div>
-                    <!-- SELECTBOX -->
-                    <div class="ddp-type-selectbox" (click)="radiusFlag=!radiusFlag;" (clickOutside)="radiusFlag=false" [excludeBeforeClick]="true">
-                        <span class="ddp-txt-selectbox">{{ translateNumber('heatmapRadius', uiOption.layers[1].color.radius) }}</span>
-                        <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="radiusFlag">
-                            <li (click)="changeRadius(30)"><a href="#">100%</a></li>
-                            <li (click)="changeRadius(25)"><a href="#">80%</a></li>
-                            <li (click)="changeRadius(20)"><a href="#">60%</a></li>
-                            <li (click)="changeRadius(15)"><a href="#">40%</a></li>
-                            <li (click)="changeRadius(10)"><a href="#">20%</a></li>
-                        </ul>
+                    <div class="ddp-wrap-option-multy ddp-clear">
+                        <div class="ddp-col-8">
+                            <span class="ddp-label-txt">{{'msg.page.layer.map.radius' | translate}}</span>
+                        </div>
+                        <div class="ddp-col-4">
+                            <input type="text" class="ddp-input-typebasic " placeholder="" [value]="translateNumber('heatmapRadius', uiOption.layers[0].color.radius)">
+                        </div>
                     </div>
-                    <!-- //SELECTBOX -->
+
+                    <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
+                        <em class="ddp-bar"></em>
+                        <em class="ddp-bar"></em>
+                        <em class="ddp-bar"></em>
+                        <em class="ddp-bar"></em>
+                        <input #radiusRangeSlider2 type="text" id="rangetype" value="" name="range" />
+                    </div>
                 </div>
                 <!-- //divide -->
             </div>
@@ -1635,19 +1640,22 @@
 
               <!-- divide -->
               <div class="ddp-divide2">
-                  <div class="ddp-list-label">{{'msg.page.layer.map.coverage' | translate}}</div>
-                  <!-- SELECTBOX -->
-                  <div class="ddp-type-selectbox" (click)="resolutionFlag=!resolutionFlag;" (clickOutside)="resolutionFlag=false" [excludeBeforeClick]="true">
-                      <span class="ddp-txt-selectbox">{{ translateNumber('hexagonRadius', uiOption.layers[1].color.resolution) }}</span>
-                      <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="resolutionFlag">
-                          <li (click)="changeResolution(5)"><a href="#">100%</a></li>
-                          <li (click)="changeResolution(6)"><a href="#">80%</a></li>
-                          <li (click)="changeResolution(7)"><a href="#">60%</a></li>
-                          <li (click)="changeResolution(8)"><a href="#">40%</a></li>
-                          <li (click)="changeResolution(9)"><a href="#">20%</a></li>
-                      </ul>
-                  </div>
-                  <!-- //SELECTBOX -->
+                <div class="ddp-wrap-option-multy ddp-clear">
+                    <div class="ddp-col-8">
+                        <span class="ddp-label-txt">{{'msg.page.layer.map.coverage' | translate}}</span>
+                    </div>
+                    <div class="ddp-col-4">
+                        <input type="text" class="ddp-input-typebasic " placeholder="" [value]="translateNumber('hexagonRadius', uiOption.layers[0].color.resolution)">
+                    </div>
+                </div>
+
+                <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
+                    <em class="ddp-bar"></em>
+                    <em class="ddp-bar"></em>
+                    <em class="ddp-bar"></em>
+                    <em class="ddp-bar"></em>
+                    <input #resolutionRangeSlider2 type="text" id="rangetype" value="" name="range" />
+                </div>
               </div>
               <!-- //divide -->
               </div>
