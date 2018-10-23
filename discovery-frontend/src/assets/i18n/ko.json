@@ -2358,7 +2358,7 @@
   "msg.page.layer.map.type.line": "라인",
   "msg.page.layer.map.type.polygon": "폴리곤",
   "msg.page.layer.map.type.heatmap": "히트맵",
-  "msg.page.layer.map.type.tile": "타일",
+  "msg.page.layer.map.type.tile": "헥사곤",
   "msg.page.layer.map.point": "포인트 유형",
   "msg.page.layer.map.point.circle": "원형",
   "msg.page.layer.map.point.square": "사각형",

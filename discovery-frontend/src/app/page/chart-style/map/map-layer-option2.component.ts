@@ -157,6 +157,9 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
   public clustering: boolean = false;
   public layerOptions: Object;
 
+  // 색상의 기준이 되는 행/열 필드 리스트
+  public fieldList: string[] = [];
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -201,6 +204,18 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
      }
 
      this.uiOption = uiOption;
+
+     // Set field list
+     this.fieldList = _.filter(this.uiOption.fieldList, (field) => {
+       let isNotGeoField: boolean = true;
+       _.each(this.pivot.columns, (dimension) => {
+         if( _.eq(field, dimension.name)
+           && _.eq(dimension.field.logicalType, "GEO_POINT") ) {
+           isNotGeoField = false;
+         }
+       });
+       return isNotGeoField;
+     });
    }
 
    /**

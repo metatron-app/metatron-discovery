@@ -2356,7 +2356,7 @@
   "msg.page.layer.map.type.line": "Line",
   "msg.page.layer.map.type.polygon": "Polygon",
   "msg.page.layer.map.type.heatmap": "Heatmap",
-  "msg.page.layer.map.type.tile": "Tile",
+  "msg.page.layer.map.type.tile": "Hexagon",
   "msg.page.layer.map.point": "Point Type",
   "msg.page.layer.map.point.circle": "Circle",
   "msg.page.layer.map.point.square": "Square",
