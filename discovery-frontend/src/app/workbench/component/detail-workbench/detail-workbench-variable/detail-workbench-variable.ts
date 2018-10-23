@@ -201,7 +201,7 @@ export class DetailWorkbenchVariable extends AbstractComponent implements OnInit
     this.editVariableInputName = globalVariable.globalNm;
     this.editVariableInputValue = globalVariable.globalVar;
     // TODO ExpressionChangedAfterItHasBeenCheckedError fix
-    this.changeDetect.detectChanges();
+    this.safelyDetectChanges();
   }
 
   /**
