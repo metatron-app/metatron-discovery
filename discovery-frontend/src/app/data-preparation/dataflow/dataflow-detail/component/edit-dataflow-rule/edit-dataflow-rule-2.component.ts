@@ -1883,7 +1883,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       {
         command: 'window',
         alias: 'Wn',
-        desc: this.translateService.instant('Window description'),
+        desc: this.translateService.instant('msg.dp.li.wd.description'),
         isHover: false,
         command_h: '쟈ㅜ앶'
       }

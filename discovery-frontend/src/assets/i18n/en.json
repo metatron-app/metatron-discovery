@@ -850,6 +850,7 @@
   "msg.dp.li.un.description" : "Extracts a specific element value from a Map or Array value",
   "msg.dp.li.up.description" : "Generate a row of values for a particular column",
   "msg.dp.li.sf.description" : "Convert values to specific timestamp format",
+  "msg.dp.li.wd.description" : "Group rows, compare group values, and add new results",
   "msg.dp.th.col.delimiter" : "Column delimiter",
   "msg.dp.th.col.delimiter.ph" : "Enter column delimiter",
   "msg.dp.th.command": "Command",

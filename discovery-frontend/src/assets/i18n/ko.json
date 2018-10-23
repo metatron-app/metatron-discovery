@@ -850,6 +850,7 @@
   "msg.dp.li.un.description" : "Map 또는 Array 값에서 특정 요소값을 추출합니다",
   "msg.dp.li.up.description" : "특정 열에 대한 값을 이용하여 행을 생성합니다",
   "msg.dp.li.sf.description" : "특정 타임스탬프 형식으로 전환합니다",
+  "msg.dp.li.wd.description" : "Row들을 Grouping 하고 Group 내의 값들과 비교한 결과를 새로운 필드로 추가합니다",
   "msg.dp.th.col.delimiter" : "컬럼 구분자",
   "msg.dp.th.col.delimiter.ph" : "컬럼 구분자를 입력해 주세",
   "msg.dp.th.command": "Command",
