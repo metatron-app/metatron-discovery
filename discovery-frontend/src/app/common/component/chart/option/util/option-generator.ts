@@ -2029,7 +2029,8 @@ export namespace OptionGenerator {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
-            clustering: false
+            clustering: false,
+            viewRawData: false
           },
           {
             type: "symbol",
@@ -2053,7 +2054,8 @@ export namespace OptionGenerator {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
-            clustering: false
+            clustering: false,
+            viewRawData: false
           },
           {
             type: "symbol",
@@ -2077,7 +2079,8 @@ export namespace OptionGenerator {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
-            clustering: false
+            clustering: false,
+            viewRawData: false
           }
         ],
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),

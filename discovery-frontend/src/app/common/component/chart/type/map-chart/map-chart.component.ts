@@ -211,28 +211,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     });
 
 
-    if(document.getElementsByClassName("ddp-ui-chart-contents").length > 0) {
-      let layerNum = 1;
-      for(let column of this.pivot.columns) {
-        if(column["layerNum"] > layerNum) {
-          layerNum = column["layerNum"];
-        }
-      }
+    //attribution position change
+    document.getElementsByClassName('ol-attribution')[0]["style"].right = 'auto';
+    document.getElementsByClassName('ol-attribution')[0]["style"].left = '.5em';
 
-      if(layerNum === 1) {
-        document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
-      } else if(layerNum === 2) {
-        document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '149px';
-      } else if(layerNum === 3) {
-        document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '194px';
-      }
-
-      document.getElementsByClassName("ddp-ui-chart-area")[0]["style"].padding = '0 0 0 0';
-
-      //attribution position change
-      document.getElementsByClassName('ol-attribution')[0]["style"].right = 'auto';
-      document.getElementsByClassName('ol-attribution')[0]["style"].left = '.5em';
-    }
     this.olmap.updateSize();
 
     const zoomslider = new ol.control.ZoomSlider();
@@ -963,7 +945,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(this.uiOption.fieldMeasureList.length > 0) {
           //히트맵 weight 설정
-          feature.set('weight', feature.getProperties()[this.uiOption.layers[0].color.column] / this.data[0].valueRange[this.uiOption.layers[0].color.column].maxValue);
+          if(this.data[0].valueRange[this.uiOption.layers[0].color.column]) {
+            feature.set('weight', feature.getProperties()[this.uiOption.layers[0].color.column] / this.data[0].valueRange[this.uiOption.layers[0].color.column].maxValue);
+          }
         }
       }
 
@@ -1448,7 +1432,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(this.uiOption.fieldMeasureList.length > 0) {
           //히트맵 weight 설정
-          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].alias] / this.data[1].valueRange[this.uiOption.layers[1].color.column].maxValue);
+          if(this.data[1].valueRange[this.uiOption.layers[1].color.column]) {
+            feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].alias] / this.data[1].valueRange[this.uiOption.layers[1].color.column].maxValue);
+          }
         }
       }
 
@@ -1692,7 +1678,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         if(this.uiOption.fieldMeasureList.length > 0) {
           //히트맵 weight 설정
-          feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].alias] / this.data[2].valueRange[this.uiOption.layers[2].color.column].maxValue);
+          if(this.data[2].valueRange[this.uiOption.layers[2].color.column]) {
+            feature.set('weight', feature.getProperties()[this.uiOption.fieldMeasureList[0].alias] / this.data[2].valueRange[this.uiOption.layers[2].color.column].maxValue);
+          }
         }
       }
 
@@ -1944,6 +1932,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                   precision: this.uiOption.layers[1].color["resolution"]
                 }
               }
+
+              if(this.uiOption.layers[1]["viewRawData"]) {
+                layer.format = {
+                  type : "geo"
+                }
+              }
             }
           }
 
@@ -1961,6 +1955,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                   type: "geo_hash",
                   method: "h3",
                   precision: this.uiOption.layers[2].color["resolution"]
+                }
+
+                if(this.uiOption.layers[2]["viewRawData"]) {
+                  layer.format = {
+                    type : "geo"
+                  }
                 }
               }
             }
@@ -2141,14 +2141,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       if(column["layerNum"] > layerNum) {
         layerNum = column["layerNum"];
       }
-    }
-
-    if(layerNum === 1) {
-      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '104px';
-    } else if(layerNum === 2) {
-      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '149px';
-    } else if(layerNum === 3) {
-      document.getElementsByClassName("ddp-ui-chart-contents")[0]["style"].top = '194px';
     }
 
     document.getElementsByClassName("ddp-ui-chart-area")[0]["style"].padding = '0 0 0 0';

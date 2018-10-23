@@ -463,7 +463,7 @@
               <div class="ddp-wrap-divide">
                   <div class="ddp-part-check-b ">
                       <label class="ddp-label-checkbox ddp-position">
-                          <input type="checkbox">
+                          <input type="checkbox" [checked]="uiOption.layers[0].viewRawData" (click)="changeViewRawDataFlag()">
                           <i class="ddp-icon-checkbox"></i>
                           <span class="ddp-txt-checkbox">원본보기</span>
                       </label>

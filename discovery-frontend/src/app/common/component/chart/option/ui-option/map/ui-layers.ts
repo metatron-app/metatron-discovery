@@ -21,6 +21,8 @@ export interface UILayers {
   clustering?: boolean;
 
   datasource?: string;
+
+  viewRawData?: boolean;
 }
 
 /**

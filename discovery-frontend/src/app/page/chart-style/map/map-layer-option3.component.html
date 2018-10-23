@@ -467,6 +467,16 @@
               <div class="ddp-wrap-divide">
                   <div class="ddp-part-check-b ">
                       <label class="ddp-label-checkbox ddp-position">
+                          <input type="checkbox" [checked]="uiOption.layers[2].viewRawData" (click)="changeViewRawDataFlag()">
+                          <i class="ddp-icon-checkbox"></i>
+                          <span class="ddp-txt-checkbox">원본보기</span>
+                      </label>
+                  </div>
+              </div>
+
+              <div class="ddp-wrap-divide">
+                  <div class="ddp-part-check-b ">
+                      <label class="ddp-label-checkbox ddp-position">
                           <input type="checkbox" [checked]="uiOption.layers[2].clustering" (click)="changeClusteringFlag()">
                           <i class="ddp-icon-checkbox"></i>
                           <span class="ddp-txt-checkbox">{{'msg.page.layer.map.clustering' | translate}}</span>

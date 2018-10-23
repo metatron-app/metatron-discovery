@@ -2828,6 +2828,8 @@ em.ddp-icon-cross.type-apply:before {background-position:-12px -20px;}
 
 .ddp-wrap-shelf {padding:5px 0; margin:0 30px; overflow:hidden; border-bottom:1px solid #d8d8dd;}
 .ddp-ui-shelf {position:relative; height:47px; padding-left:49px;}
+.ddp-ui-shelf.ddp-add-self {background-color:#f2f1f8;}
+.ddp-ui-shelf.ddp-add-self em[class*="ddp-icon-mapview"] {background-color:#f2f1f8;}
 
 .ddp-ui-shelf em.ddp-icon-columns,
 .ddp-ui-shelf em.ddp-icon-rows,

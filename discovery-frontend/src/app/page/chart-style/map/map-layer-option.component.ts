@@ -158,6 +158,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   public availableRangeValue: string;
 
   public clustering: boolean = false;
+  public viewRawData: boolean = false;
   public layerOptions: Object;
 
   // 색상의 기준이 되는 행/열 필드 리스트
@@ -596,6 +597,23 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    }
 
    /**
+    * view raw data on/off
+    */
+   public changeViewRawDataFlag() {
+
+     this.viewRawData = !this.viewRawData;
+
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     //query할때 원본보기 선택하기 위해..
+     this.pivot.columns[0]["viewRawData"] = this.viewRawData;
+
+     this.update({});
+   }
+
+   /**
     * feature single color
     */
    public selectSingleColor(event: any) {
@@ -646,7 +664,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        color: this.color,
        size: this.size,
        outline: this.outline,
-       clustering: this.clustering
+       clustering: this.clustering,
+       viewRawData: this.viewRawData
      },this.uiOption.layers[1],this.uiOption.layers[2]]
 
      this.measureList = [];
@@ -889,17 +908,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     this.outline = this.uiOption.layers[0].outline;
     this.clustering = this.uiOption.layers[0].clustering;
 
-
-    this.measureList = [];
-    for(let field of this.uiOption.fieldMeasureList) {
-      if(!field["layerNum"]) {
-        this.measureList.push(field.alias.toString());
-      }
-    }
-
     if(this.color['customMode']) {
       this.rangesViewList = this.uiOption.layers[0].color['ranges'];
     }
+
+    this.changeLayerOption();
 
     // Init
     super.ngOnInit();

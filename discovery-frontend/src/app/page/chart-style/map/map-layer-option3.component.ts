@@ -156,6 +156,7 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
   public availableRangeValue: string;
 
   public clustering: boolean = false;
+  public viewRawData: boolean = false;
   public layerOptions: Object;
 
   // 색상의 기준이 되는 행/열 필드 리스트
@@ -376,7 +377,7 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
      // 차트 타입이 MEASURE인경우
      if (this.uiOption.layers[2].color.by === 'MEASURE') {
 
-       this.uiOption.layers[2].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[color['colorNum']]);
+       this.uiOption.layers[2].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][2], ChartColorList[color['colorNum']]);
 
        // // 선택된 컬러를 변수에 설정
        // if( _.eq(this.uiOption.type, ChartType.GRID) ) {
@@ -464,9 +465,6 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
        layers: this.changeLayerOption()
      });
-
-     //query할때 precision 값 전달하기 위해..
-     this.pivot.columns[0]["precision"] = resolution
 
      this.update({});
    }
@@ -596,6 +594,20 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
    }
 
    /**
+    * view raw data on/off
+    */
+   public changeViewRawDataFlag() {
+
+     this.viewRawData = !this.viewRawData;
+
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     this.update({});
+   }
+
+   /**
     * feature single color
     */
    public selectSingleColor(event: any) {
@@ -633,7 +645,8 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
        color: this.color,
        size: this.size,
        outline: this.outline,
-       clustering: this.clustering
+       clustering: this.clustering,
+       viewRawData: this.viewRawData
      }]
 
      this.measureList = [];
@@ -909,7 +922,7 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
       // ranges 값이 없는경우 uiOption update
       if (!(<UIChartColorByValue>this.uiOption.layers[2].color).ranges) {
 
-        const ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[2].color['schema']]);
+        const ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][2], ChartColorList[this.uiOption.layers[2].color['schema']]);
 
         this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[2].color).schema;
         this.color['customMode'] = (<UIChartColorByValue>this.uiOption.layers[2].color).customMode;
@@ -921,7 +934,7 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
     } else {
 
       // color by measure기본 ranges값으로 초기화
-      let ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], <any>ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[2].color).schema]);
+      let ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][2], <any>ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[2].color).schema]);
 
       this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[2].color).schema;
       this.color['ranges'] = ranges;
@@ -965,7 +978,7 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
       delete this.uiOption.layers[2].color['ranges'];
       delete this.uiOption.layers[2].color['visualGradations'];
       // range initialize
-      this.uiOption.layers[2].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], <any>ChartColorList[this.uiOption.layers[2].color['schema']]);
+      this.uiOption.layers[2].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][2], <any>ChartColorList[this.uiOption.layers[2].color['schema']]);
       this.rangesViewList = this.uiOption.layers[2].color['ranges'];
     }
 
@@ -1058,7 +1071,7 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
     });
 
     // set color ranges
-    this.uiOption.layers[2].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], colorList, rangeList);
+    this.uiOption.layers[2].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][2], colorList, rangeList);
 
     // this.uiOption = <UIOption>_.extend({}, this.uiOption, { color : this.uiOption.layers[2].color });
 

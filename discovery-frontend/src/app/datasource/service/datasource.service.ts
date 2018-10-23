@@ -425,6 +425,7 @@ export class DatasourceService extends AbstractService {
           }
 
           let precision = column["precision"];
+          let viewRawData = column["viewRawData"];
 
           if(precision === undefined) {
             precision = 8;
@@ -446,6 +447,12 @@ export class DatasourceService extends AbstractService {
                 dataSource: query.pivot.columns[0].field.dataSource,
                 geoColumn: query.pivot.columns[0].field.name,
                 descColumn: query.pivot.columns[0].field.name
+              }
+            }
+
+            if(viewRawData) {
+              layer.format = {
+                type : "geo"
               }
             }
           } else if(column.field && column.field.logicalType && (column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE')) {
@@ -486,8 +493,6 @@ export class DatasourceService extends AbstractService {
         limit: 5000,
         sort: null
       }
-
-
 
     }
 
