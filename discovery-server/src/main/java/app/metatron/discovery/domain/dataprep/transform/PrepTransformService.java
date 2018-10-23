@@ -487,6 +487,22 @@ public class PrepTransformService {
     return response;
   }
 
+  @Transactional(rollbackFor = Exception.class)
+  public void swap(String oldDsId, String newDsId) throws Exception {
+    // Replace all occurrence of oldDsid in whole rule strings in the system.
+    for (PrepTransformRule rule : transformRuleRepository.findAll()) {
+      String ruleString = rule.getRuleString();
+      if (ruleString.contains(oldDsId)) {
+        String newRuleString = ruleString.replace(oldDsId, newDsId);
+        rule.setRuleString(newRuleString);
+        rule.setJsonRuleString(Util.parseRuleString(rule.getRuleString()));
+
+        // un-cache to be reloaded
+        teddyImpl.remove(rule.getDataset().getDsId());
+      }
+    }
+  }
+
   private DataFrame load_internal(String dsId) throws Exception {
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
     DataFrame gridResponse = null;
