@@ -1750,7 +1750,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       new ScrollLoadingGridModel(
         (ruleIdx:number, pageNum: number = 0, pageSize: number) => {
           if (this.isApiMode) {
-            return this.dataflowService.getSearchCountDataSets(this.dataSetId, ruleIndex, pageNum, pageSize);
+            return this.dataflowService.getSearchCountDataSets(this.dataSetId, ruleIdx, pageNum, pageSize);
           } else {
             return new Promise<any>((resolve) => {
               let startIdx = ((pageNum - 1) * pageSize);
