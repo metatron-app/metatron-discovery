@@ -83,7 +83,7 @@ export class SaveAsHiveTableComponent extends AbstractComponent implements OnIni
     } else {
       if(StringUtil.isAlphaNumericUnderscore(this.tableName) === false) {
         this.isInvalidTableName = true;
-        this.errMsgTableName = this.translateService.instant('msg.bench.alert.invalid-hive-table-name');
+        this.errMsgTableName = this.translateService.instant('msg.bench.alert.invalid-hive-name-rule', {value: 'Table'});
         return false;
       }
     }
@@ -97,7 +97,7 @@ export class SaveAsHiveTableComponent extends AbstractComponent implements OnIni
         type: 'csv',
         tableName: this.tableName.trim(),
         firstRowHeadColumnUsed: true,
-        uploadedFile: this.csvFilePath,
+        filePath: this.csvFilePath,
         loginUserId: CommonUtil.getLoginUserId(),
         webSocketId: this.webSocketId
       };

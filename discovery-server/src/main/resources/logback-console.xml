@@ -57,6 +57,8 @@
 
     <logger name="app.metatron.discovery" level="debug"/>
 
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod" level="debug"/>
+
     <root level="WARN">
         <appender-ref ref="CONSOLE"/>
     </root>

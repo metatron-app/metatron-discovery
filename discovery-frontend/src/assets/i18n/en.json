@@ -673,8 +673,9 @@
   "msg.bench.ui.save-as-hive-table.title": "Save As Hive Table",
   "msg.bench.ui.save-as-hive-table.table-name": "Table name",
   "msg.bench.ui.save-as-hive-table.table-name.ph": "Please enter save as table name",
-  "msg.bench.alert.invalid-hive-table-name": "Only numbers, alphabets, and underscores are allowed",
+  "msg.bench.alert.invalid-hive-name-rule": "{{value}} Only numbers, alphabets, and underscores are allowed",
   "msg.bench.alert.already-exists-table": "The table already exists.",
+  "msg.bench.ui.import-file.title": "Import file to personal database",
 
   "msg.nbook.alert.input.name": "Please enter notebook name",
   "msg.nbook.alert.input.description": "Please enter notebook description",

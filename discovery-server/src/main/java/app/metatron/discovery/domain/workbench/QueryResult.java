@@ -59,6 +59,8 @@ public class QueryResult implements Serializable {
 
   String csvFilePath;
 
+  String csvFileAbsolutePath;
+
   public enum QueryResultStatus {
     SUCCESS, FAIL, CANCELLED, RUNNING, ALL
   }
@@ -181,6 +183,14 @@ public class QueryResult implements Serializable {
 
   public void setDefaultNumRows(Long defaultNumRows) {
     this.defaultNumRows = defaultNumRows;
+  }
+
+  public String getCsvFileAbsolutePath() {
+    return csvFileAbsolutePath;
+  }
+
+  public void setCsvFileAbsolutePath(String csvFileAbsolutePath) {
+    this.csvFileAbsolutePath = csvFileAbsolutePath;
   }
 
   @Override

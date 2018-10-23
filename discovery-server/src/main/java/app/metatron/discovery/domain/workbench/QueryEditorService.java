@@ -479,6 +479,7 @@ public class QueryEditorService {
     queryResult.setNumRows(rowNumber <= 0 ? 0L : Long.valueOf(rowNumber - 1));
     queryResult.setQueryResultStatus(QueryResult.QueryResultStatus.SUCCESS);
     queryResult.setCsvFilePath(tempFileName);
+    queryResult.setCsvFileAbsolutePath(csvBaseDir + tempFileName);
     LOGGER.info("Query row count : {}", queryResult.getNumRows());
 
     return queryResult;

@@ -306,6 +306,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public hideResultButtons: boolean = false;
 
+  public importFile: boolean = false;
+
   constructor(private workspaceService: WorkspaceService,
               protected activatedRoute: ActivatedRoute,
               protected workbenchService: WorkbenchService,
@@ -1540,7 +1542,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               fields: queryResult.fields,
               filePath: queryResult.filePath,
               defaultNumRows: queryResult.defaultNumRows,
-              numRows: queryResult.numRows
+              numRows: queryResult.numRows,
+              fileAbsolutePath: queryResult.fileAbsolutePath
             }
           };
           queryResultPromises.push(promise);
@@ -1573,6 +1576,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             queryResult.fields = metadata.queryResult.fields;
             queryResult.data = result;
             queryResult.csvFilePath = metadata.queryResult.filePath;
+            queryResult.csvFileAbsolutePath = metadata.queryResult.fileAbsolutePath;
             queryResult.defaultNumRows = metadata.queryResult.defaultNumRows;
             queryResult.numRows = metadata.queryResult.numRows;
             tab.result = queryResult;
@@ -2225,6 +2229,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   }
 
+  public importFileSucceed() {
+    this.detailWorkbenchDatabase.getDatabase();
+  }
+
   public createDatasourceComplete() {
     this.useUnloadConfirm = false;
   }
@@ -2461,7 +2469,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public saveAsHiveTable() {
     const currentTab: ResultTab = this._getCurrentResultTab();
-    this.saveAsHiveTableComponent.init(this.workbenchId, currentTab.result.csvFilePath, this.websocketId);
+    this.saveAsHiveTableComponent.init(this.workbenchId, currentTab.result.csvFileAbsolutePath, this.websocketId);
+  }
+
+  public saveAsHiveTableSucceed() {
+    this.detailWorkbenchDatabase.getDatabase();
   }
 
   private _toggleHorizontalSlider() {
@@ -2705,6 +2717,7 @@ class ResultTab {
 
 class QueryResult {
   public csvFilePath: string;
+  public csvFileAbsolutePath: string;
   public data: any[];
   public fields: Field[];
   public numRows: number;

@@ -63,7 +63,7 @@ public class WorkbenchHiveServiceTest {
     // when
     ImportCsvFile importFile = new ImportCsvFile();
     importFile.setLoginUserId(metatronUserId);
-    importFile.setUploadedFile("product_sales.csv");
+    importFile.setFilePath("/tmp/product_sales.csv");
     importFile.setWebSocketId(webSocketId);
     importFile.setTableName("sales_2018");
     importFile.setFirstRowHeadColumnUsed(true);

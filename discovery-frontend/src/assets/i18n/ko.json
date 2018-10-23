@@ -673,8 +673,9 @@
   "msg.bench.ui.save-as-hive-table.title": "Hive 테이블로 저장",
   "msg.bench.ui.save-as-hive-table.table-name": "테이블 이름",
   "msg.bench.ui.save-as-hive-table.table-name.ph": "테이블 이름을 입력해 주세요",
-  "msg.bench.alert.invalid-hive-table-name": "숫자와 알파벳 그리고 언더 스코어(_)만 허용됩니다",
+  "msg.bench.alert.invalid-hive-name-rule": "{{value}}은 숫자와 알파벳 그리고 언더 스코어(_)만 허용됩니다",
   "msg.bench.alert.already-exists-table": "이미 테이블이 존재 합니다",
+  "msg.bench.ui.import-file.title": "개인 데이터베이스로 파일 불러오기",
 
   "msg.nbook.alert.input.name": "노트북 이름을 입력해 주세요",
   "msg.nbook.alert.input.description": "노트북 설명을 입력해 주세요",
