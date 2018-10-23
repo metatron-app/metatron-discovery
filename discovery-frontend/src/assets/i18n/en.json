@@ -645,6 +645,7 @@
 
   "msg.dp.alert.check.formula": "Check formula",
   "msg.dp.alert.enter.groupby" : "Please enter groupby columns",
+  "msg.dp.alert.enter.sortby" : "Please enter sortby columns",
   "msg.dp.alert.check.delimiter": "Check delimiter",
   "msg.dp.alert.invalid.timestamp.val": "Check timestamp value",
   "msg.dp.alert.check.condition": "Check condition",

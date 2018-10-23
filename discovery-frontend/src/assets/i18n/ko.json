@@ -645,6 +645,7 @@
 
   "msg.dp.alert.check.formula": "수식을 확인해 주세요",
   "msg.dp.alert.enter.groupby" : "Group by 컬럼을 선택해 주세요",
+  "msg.dp.alert.enter.sortby" : "Sort by 컬럼을 선택해 주세요",
   "msg.dp.alert.check.delimiter": "구분자 값을 확인해 주세요",
   "msg.dp.alert.invalid.timestamp.val": "Timestamp 값을 확인해 주세요",
   "msg.dp.alert.check.condition": "조건을 확인해 주세요",

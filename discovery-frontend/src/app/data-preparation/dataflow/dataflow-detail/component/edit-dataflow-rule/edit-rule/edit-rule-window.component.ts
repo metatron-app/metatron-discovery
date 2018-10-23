@@ -142,12 +142,14 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     const validFormulaList:string[] = [];
     const invalidFormula:boolean = this.formulaList.some( formula => {
       if( StringUtil.checkSingleQuote(formula, { isWrapQuote: false, isAllowBlank: false })[0] ) {
-        if( StringUtil.checkFormula( formula ) ) {
-          validFormulaList.push(formula );
-          return false;
-        } else {
-          return true;
-        }
+        // if( StringUtil.checkFormula( formula ) ) {
+        //   validFormulaList.push(formula );
+        //   return false;
+        // } else {
+        //   return true;
+        // }
+        validFormulaList.push(formula );
+        return false;
       } else {
         return true;
       }
