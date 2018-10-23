@@ -166,7 +166,7 @@ public class DfReplace extends DataFrame {
         Row newRow = new Row();
         for (int colno = 0; colno < getColCnt(); colno++) {
           String columnName = getColName(colno);
-          if (targetColNames.contains(columnName) && checkCondition(replacedConditionExprs.get(columnName), row)) {
+          if (targetColNames.contains(columnName) && row.get(colno)!=null && checkCondition(replacedConditionExprs.get(columnName), row)) {
             String targetStr = (String) row.get(colno);
             Matcher matcher = pattern.matcher(targetStr);
             if (matcher.find()) {
@@ -175,11 +175,12 @@ public class DfReplace extends DataFrame {
               } else {
                 newRow.add(columnName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()));
               }
+            } else {
+              newRow.add(columnName, row.get(colno));
             }
           } else {
-            newRow.add(getColName(colno), row.get(colno));
+            newRow.add(columnName, row.get(colno));
           }
-
         }
         this.rows.add(newRow);
       }
@@ -189,7 +190,7 @@ public class DfReplace extends DataFrame {
         Row newRow = new Row();
         for (int colno = 0; colno < getColCnt(); colno++) {
           String columnName = getColName(colno);
-          if (targetColNames.contains(columnName) && checkCondition(replacedConditionExprs.get(columnName), row)) {
+          if (targetColNames.contains(columnName) && row.get(colno)!=null && checkCondition(replacedConditionExprs.get(columnName), row)) {
             String targetStr = (String) row.get(colno);
             if (StringUtils.countMatches(targetStr, originalQuoteStr) % 2 == 0) {
               Matcher matcher = pattern.matcher(targetStr);
@@ -199,6 +200,8 @@ public class DfReplace extends DataFrame {
                 } else {
                   newRow.set(columnName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()));
                 }
+              } else {
+                newRow.add(columnName, row.get(colno));
               }
             } else {//quote가 홀수개일 때는 마지막 quote 이후의 문자열은 처리 하지 않는다.
               String targetStr2 = targetStr.substring(targetStr.lastIndexOf(originalQuoteStr));
@@ -212,9 +215,12 @@ public class DfReplace extends DataFrame {
                   newRow.add(columnName, matcher.replaceFirst(((Expr) withExpr).eval(row).stringValue()) + targetStr2);
                 }
               }
+              else {
+                newRow.add(columnName, row.get(colno));
+              }
             }
           } else {
-            newRow.add(getColName(colno), row.get(colno));
+            newRow.add(columnName, row.get(colno));
           }
         }
 
