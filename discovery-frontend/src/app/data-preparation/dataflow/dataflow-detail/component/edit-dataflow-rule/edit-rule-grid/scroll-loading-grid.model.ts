@@ -174,6 +174,7 @@ export class ScrollLoadingGridModel {
           if (result) {
             //
             this.totalRowCnt = data.totalRowCnt;
+            this.ruleIndex = data.ruleCurIdx;
 
             let currLength: number = this.data.length;
 

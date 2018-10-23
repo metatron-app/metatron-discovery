@@ -189,7 +189,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     // 최초 로딩시 데이터 전체 카운트
     if(this._gridModel) {
       this._gridModel.setTotalRowCnt(this.totalRowCnt);
-      this._gridModel.setTotalRowCnt(this.totalRowCnt);
+      this._gridModel.setRuleIndex(ruleIndex);
 
     }
 
