@@ -245,8 +245,26 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       this._gridData = gridData;
 
       // Column Width 설정
+      // (this.columnWidths) || (this.columnWidths = {});
+      // this.columnWidths = this._setColumnWidthInfo(this.columnWidths, this._apiGridData.colNames, gridData);
+
+      /******************************************************************/
+      const colTypes = [];
+      const colNameTypes = [];
+      this._apiGridData.colDescs.forEach( item =>{ colTypes.push(item.type);});
+      this._apiGridData.colNames.forEach((item, i)=>{
+        let obj = { colname :null, coltype : null};
+        obj.colname = item;
+        obj.coltype = colTypes[i];
+        colNameTypes.push(obj);
+        obj = { colname :null, coltype : null};
+      });
+      // Column Width 설정
       (this.columnWidths) || (this.columnWidths = {});
-      this.columnWidths = this._setColumnWidthInfo(this.columnWidths, this._apiGridData.colNames, gridData);
+      this.columnWidths = this._setColumnWidthInfo(this.columnWidths, colNameTypes, gridData);
+      /******************************************************************/
+
+
 
       // 클릭 시리즈 정보 초기화
       this._apiGridData.colNames.forEach((item, index) => {
@@ -283,6 +301,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     });
 
   } // function - init
+
+
+
+
 
   /**
    * 타입 목록 표시 변경
@@ -1596,12 +1618,11 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    * @returns {ColumnWidth}
    * @private
    */
-  private _setColumnWidthInfo(colWidths: ColumnWidth, colNames: string[], gridData: GridData): ColumnWidth {
+  private _setColumnWidthInfo(colWidths: ColumnWidth, colNameTypes: any, gridData: GridData): ColumnWidth {
     const maxDataLen: any = {};
     const maxLength = 500;
     const fields: Field[] = gridData.fields;
     let rows: any[] = gridData.data;
-
     // Row 생성 및 컬럼별 최대 길이 측정
     if (rows.length > 0) {
       rows.forEach((row: any, idx: number) => {
@@ -1609,7 +1630,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         fields.forEach((field: Field) => {
           let colWidth: number = 0;
           if (typeof row[field.name] === 'string') {
-            colWidth = Math.floor((row[field.name]).length * 12);
+            colWidth = Math.floor((row[field.name]).length * 12 + 40);
+          } else if (typeof row[field.name] === 'number') {
+            colWidth = Math.floor((row[field.name]).toString().length * 12 + 40);
           }
           if (!maxDataLen[field.name] || (maxDataLen[field.name] < colWidth)) {
             if (colWidth > 500) {
@@ -1619,26 +1642,25 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
             }
           }
         });
-
         // row id 설정
         (row.hasOwnProperty('id')) || (row.id = idx);
-
       });
     }
-
-    colNames.forEach((item) => {
-      let headerWidth: number = Math.floor(item.length * 12) + 62;
-
-      if (headerWidth > 500) {
-        headerWidth = 500;
-      }
-      if (!colWidths.hasOwnProperty(item)) {
-        colWidths[item] = maxDataLen[item] > headerWidth ? maxDataLen[item] : headerWidth
+    colNameTypes.forEach((item)=>{
+      let headerWidth: number = Math.floor(item.colname.length * 7) + 62;
+      if (headerWidth > 500) headerWidth = 500;
+      if(item.coltype == "TIMESTAMP"){
+        let maxDataLenth = 35*7;
+        if (!colWidths.hasOwnProperty(item)) {
+          colWidths[item.colname] = maxDataLenth > headerWidth ? maxDataLenth : headerWidth
+        }
+      } else {
+        if (!colWidths.hasOwnProperty(item)) {
+          colWidths[item.colname] = maxDataLen[item.colname] > headerWidth ? maxDataLen[item.colname] : headerWidth
+        }
       }
     });
-
     return colWidths;
-
   } // function - _setColumnWidthInfo
 
   // noinspection JSMethodCanBeStatic
@@ -1664,6 +1686,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   private _renderGrid(gridData: GridData, ruleIdx: number) {
 
     const ruleIndex: number = ruleIdx;
+
     const fields: Field[] = gridData.fields;
 
     const defaultStyle: string = 'line-height:30px;';
@@ -1770,7 +1793,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         .ExplicitInitialization(true)
         .NullCellStyleActivate(true)
         .EnableMultiSelectionWithCtrlAndShift(true)
-        .build()
+        .build(),
+      ruleIndex
     );
 
     // 그리드 실행

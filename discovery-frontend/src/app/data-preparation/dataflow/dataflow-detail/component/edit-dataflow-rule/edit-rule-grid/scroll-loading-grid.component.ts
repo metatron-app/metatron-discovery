@@ -140,8 +140,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    * @param {ScrollLoadingGridModel} gridModel
    * @param {Option} option
    */
-  public create(headers: header[], gridModel: ScrollLoadingGridModel, option: Option = null) {
-
+  public create(headers: header[], gridModel: ScrollLoadingGridModel, option: Option = null, ruleIndex:number) {
 
     // 기존 그리드 삭제
     this.destroy();
@@ -188,7 +187,11 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     this._gridModel = gridModel;
 
     // 최초 로딩시 데이터 전체 카운트
-    if(this._gridModel) {this._gridModel.setTotalRowCnt(this.totalRowCnt);}
+    if(this._gridModel) {
+      this._gridModel.setTotalRowCnt(this.totalRowCnt);
+      this._gridModel.setTotalRowCnt(this.totalRowCnt);
+
+    }
 
     // 그리드 생성
     this._grid = this._generateGrid(headers, gridModel);

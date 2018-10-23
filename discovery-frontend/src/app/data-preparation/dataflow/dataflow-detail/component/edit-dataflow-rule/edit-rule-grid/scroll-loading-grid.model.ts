@@ -67,13 +67,14 @@ export class ScrollLoadingGridModel {
 
   public totalRowCnt: number = 0;
 
+  public ruleIndex: number;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
   constructor(loadData: Function, loadSuccess: Function, data?: any[]) {
-    // console.info('loadData', data);
     this.loadData = loadData;
     this.loadSuccess = loadSuccess;
     if (data) {
@@ -101,6 +102,19 @@ export class ScrollLoadingGridModel {
   public setTotalRowCnt(totalRowCnt: number): void {
     this.totalRowCnt = totalRowCnt;
   }
+
+  /**
+   *  ruleIndex
+   */
+  public setRuleIndex(ruleIndex: number): void {
+    if(ruleIndex == null || ruleIndex == undefined){
+      this.ruleIndex = null;
+    }else{
+      this.ruleIndex = ruleIndex;
+    }
+
+  }
+
 
   /**
    * 검색
@@ -154,7 +168,7 @@ export class ScrollLoadingGridModel {
     if (this.data.length <= startIdx) {
       this._isLoadingData = true;
       // this.onDataLoading.notify({ from: from, to: to });
-      this.loadData(startIdx, this._pageSize)
+      this.loadData(this.ruleIndex, startIdx, this._pageSize)
         .then((data) => {
           const result = this.loadSuccess(data);
           if (result) {
