@@ -99,7 +99,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
     for (Field reqField : reqFields) {
 
       String fieldName = checkColumnName(reqField.getColunm());
-      if(!fieldName.equals(reqField.getColunm())) {
+      if (!fieldName.equals(reqField.getColunm())) {
         reqField.setRef(StringUtils.substringBeforeLast(fieldName, FIELD_NAMESPACE_SEP));
       }
 
@@ -112,7 +112,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
 
         // ValueAlias 처리, 기존 format 이나 Type 별 처리는 무시됨
-        if(MapUtils.isNotEmpty(dimensionField.getValuePair())) {
+        if (MapUtils.isNotEmpty(dimensionField.getValuePair())) {
           dimensions.add(new LookupDimension(fieldName,
                                              aliasName,
                                              new MapLookupExtractor(dimensionField.getValuePair())));
@@ -123,7 +123,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
           switch (datasourceField.getLogicalType()) {
             case STRING:
               dimensions.add(new ExtractionDimension(fieldName, aliasName,
-                  new ExpressionFunction(((DefaultFormat)format).getFormat(), fieldName)));
+                                                     new ExpressionFunction(((DefaultFormat) format).getFormat(), fieldName)));
               break;
             case TIMESTAMP: // TODO: 추후 별도의 Timestamp 처리 확인 해볼것
               TimeFieldFormat timeFormat = (TimeFieldFormat) format;
@@ -132,7 +132,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
               extractionDimension.setOutputName(aliasName);
 
               extractionDimension.setExtractionFn(
-                  new TimeParsingFunction(datasourceField.getFormat(),
+                  new TimeParsingFunction(datasourceField.getTimeFormat(),
                                           timeFormat.getFormat(),
                                           timeFormat.getLocale(),
                                           timeFormat.getTimeZone())
@@ -149,17 +149,17 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         }
 
       } else if (reqField instanceof MeasureField) {
-        if(UserDefinedField.REF_NAME.equals(reqField.getRef())) {
+        if (UserDefinedField.REF_NAME.equals(reqField.getRef())) {
           dimensions.add(new DefaultDimension(fieldName, aliasName));
         } else {
           metrics.add(fieldName);
         }
 
         // TODO: Alias 지원 필요시 아래 Virtual Column 형태로 구성 : String 형태로 전달되는 이슈 있음
-//        String vcName = "vc." + fieldName;
-//        ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(fieldName, vcName);
-//        virtualColumns.put(vcName, exprVirtualColumn);
-//        dimensions.add(new DefaultDimension(vcName, aliasName));
+        //        String vcName = "vc." + fieldName;
+        //        ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(fieldName, vcName);
+        //        virtualColumns.put(vcName, exprVirtualColumn);
+        //        dimensions.add(new DefaultDimension(vcName, aliasName));
 
       } else if (reqField instanceof TimestampField) {
         if (!this.metaFieldMap.containsKey(fieldName)) {
@@ -169,17 +169,17 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         TimestampField timestampField = (TimestampField) reqField;
         TimeFieldFormat timeFormat = (TimeFieldFormat) timestampField.getFormat();
         TimeFormatFunc timeFormatFunc = null;
-        if(timeFormat != null) {
+        if (timeFormat != null) {
           timeFormatFunc = new TimeFormatFunc(timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource),
-                                                             timeFormat.getFormat(),
-                                                             timeFormat.getTimeZone(),
-                                                             timeFormat.getLocale());
+                                              timeFormat.getFormat(),
+                                              timeFormat.getTimeZone(),
+                                              timeFormat.getLocale());
         } else {
           app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
 
           timeFormatFunc = new TimeFormatFunc(timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource),
-                                              datasourceField.getFormat() == null ?
-                                                  TimeFieldFormat.DEFAULT_DATETIME_FORMAT : datasourceField.getFormat(),
+                                              datasourceField.getTimeFormat() == null ?
+                                                  TimeFieldFormat.DEFAULT_DATETIME_FORMAT : datasourceField.getTimeFormat(),
                                               null,
                                               null);
         }
@@ -229,7 +229,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
     selectQuery.setDimensions(dimensions);
 
     // 빈 값을 넣을시 전체 metric 값 출력을 방지 위함
-    if(metrics.isEmpty()) {
+    if (metrics.isEmpty()) {
       metrics.add("__DUMMY");
     }
     selectQuery.setMetrics(metrics);
