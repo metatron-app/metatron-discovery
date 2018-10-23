@@ -710,8 +710,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'countpattern' :
         case 'aggregate' :
         case 'pivot' :
-        case 'window' :
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
+          break;
+        case 'window' :
+          this._editRuleComp.init(gridData.fields, [], JSON.parse(rule.jsonRuleString));
           break;
         case 'Union' :
           if (this.selectedDataSet.gridData.data.length > 1) {

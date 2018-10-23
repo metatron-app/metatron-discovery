@@ -17,6 +17,7 @@ import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import {StringUtil} from "../../../../../../common/util/string.util";
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'edit-rule-window',
@@ -112,7 +113,6 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
       return;
     }
     this.formulaList.splice( idx, 1 );
-    this.safelyDetectChanges();
   } // function - deleteFormula
 
 
@@ -213,36 +213,47 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
    * rule string 을 분석한다.
    * @param ruleString
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(ruleString:any) {
 
-    let groupsStr:string = this.getAttrValueInRuleString( 'group', ruleString );
-    if( '' !== groupsStr ) {
-      const groupFields:string[] = ( -1 < groupsStr.indexOf( ',' ) ) ? groupsStr.split(',') : [groupsStr];
+    // Group - can be null
+    if (!isNullOrUndefined(ruleString.group)) {
+      let groupFields:string[] = typeof ruleString.group.value === 'string' ? [ruleString.group.value] : ruleString.group.value;
       this.selectedFields = groupFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
-    let valueStr : string = ruleString.split('value: ')[1];
+    // Order
+    let orderFields: string[] = typeof ruleString.order.value === 'string' ? [ruleString.order.value] : ruleString.order.value;
+    this.selectedSortFields = orderFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
 
-    let val = 'group';
-    if (groupsStr === '') {
-      val = 'order'
+
+    // Formula
+    this.formulaList = [];
+    if (ruleString.value.hasOwnProperty('functions')) {
+      ruleString.value.functions.forEach((item) => {
+        this.formulaList.push(this.getJoinedExpression(item));
+      })
+    } else {
+      this.formulaList.push(this.getJoinedExpression(ruleString.value));
     }
 
-    valueStr = valueStr.split(' ' + val)[0];
-    if (valueStr.startsWith('[') && valueStr.endsWith(']')) {
-      valueStr = valueStr.substring(1, valueStr.length - 1);
-    }
-    if( '' !== valueStr) {
-      this.formulaList = valueStr.split(',').map(item => item.replace(/'/g, ''));
-    }
-
-    let sortStr:string = this.getAttrValueInRuleString( 'order', ruleString );
-    if( '' !== sortStr ) {
-      const sortFields:string[] = ( -1 < sortStr.indexOf( ',' ) ) ? sortStr.split(',') : [sortStr];
-      this.selectedSortFields = sortFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
-    }
   } // function - _parsingRuleString
 
+  /**
+   * Returns joined Expression
+   * @param value
+   * @returns {string}
+   */
+  public getJoinedExpression(value:any) : string {
+
+    let result = value.name;
+    if (value.args.length !== 0) {
+      let list = value.args.map((item) => item.value);
+      result += `(${list.join(',')})`;
+    } else {
+      result += '()';
+    }
+    return result;
+  }
 
   /**
    * Sort by 선택
