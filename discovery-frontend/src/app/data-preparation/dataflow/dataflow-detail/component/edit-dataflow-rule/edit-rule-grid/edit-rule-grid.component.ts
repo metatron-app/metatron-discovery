@@ -248,7 +248,6 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       // (this.columnWidths) || (this.columnWidths = {});
       // this.columnWidths = this._setColumnWidthInfo(this.columnWidths, this._apiGridData.colNames, gridData);
 
-      /******************************************************************/
       const colTypes = [];
       const colNameTypes = [];
       this._apiGridData.colDescs.forEach( item =>{ colTypes.push(item.type);});
@@ -262,10 +261,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       // Column Width 설정
       (this.columnWidths) || (this.columnWidths = {});
       this.columnWidths = this._setColumnWidthInfo(this.columnWidths, colNameTypes, gridData);
-      /******************************************************************/
-
-
-
+      
       // 클릭 시리즈 정보 초기화
       this._apiGridData.colNames.forEach((item, index) => {
         this._clickedSeries[index] = [];
