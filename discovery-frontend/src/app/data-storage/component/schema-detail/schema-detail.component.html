@@ -202,21 +202,21 @@
                   </div>
                   <!-- //popup -->
                 </div>
+                <label class="ddp-label-checkbox ddp-fright" (click)="onClickUnixCode(); $event.preventDefault()">
+                  <input type="checkbox" [checked]="column.unix" [disabled]="column.formatDefault">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">It’s Unix code</span>
+                </label>
               </label>
 
               <!-- edit format -->
               <div class="ddp-ui-option-in">
-                <div class="ddp-data-time ddp-apply ddp-clear">
-                  <div class="ddp-col-12 ddp-apply">
-                    <input type="text" class="ddp-input-typebasic" placeholder="yyyy-MM-dd HH:mm" id="calen2"
-                           [(ngModel)]="column.format"
-                           (ngModelChange)="timeFormatKeyup()">
-                    <a href="javascript:" class="ddp-btn-line-s" (click)="timeFormatClick()">{{'msg.storage.btn.apply' | translate}}</a>
-                    <div class="ddp-ui-error" *ngIf="column.errorFl">
-                      <em class="ddp-icon-error"></em>{{getTimeFormatErrorMsg()}}
-                    </div>
-                  </div>
-
+                <div class="ddp-input-apply">
+                  <input type="text" class="ddp-input-txt" placeholder="Enter time format" [readOnly]="column.formatDefault"
+                         [(ngModel)]="column.format" (ngModelChange)="initTimeFormatValid()">
+                </div>
+                <div class="ddp-ui-error ddp-italic" *ngIf="column.errorFl">
+                  <em class="ddp-icon-error"></em>{{column.formatMessage}}
                 </div>
               </div>
               <!-- //edit format -->
@@ -242,7 +242,7 @@
                       </label>
                       <input type="text" class="ddp-input-typebasic" placeholder="{{getDefaultValue(column.logicalType)}}"
                              [(ngModel)]="column['ingestionRule'].value"
-                             (keyup)="ingestionRuleValidation(column.logicalType)">
+                             (ngModelChange)="ingestionRuleValidation(column.logicalType)">
                     </div>
                     <!-- error -->
                     <div class="ddp-ui-error" *ngIf="column.ingestionRule.type === 'replace' && this.column.replaceFl === false">

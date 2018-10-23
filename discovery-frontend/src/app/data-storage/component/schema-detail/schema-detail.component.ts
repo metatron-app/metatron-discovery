@@ -154,24 +154,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   }
 
   /**
-   * Time Format 에러 메세지
-   * @returns {string}
-   */
-  public getTimeFormatErrorMsg(): string {
-    // 컬럼에 데이터가 없다면
-    if (this.columnData.length === 0) {
-      return this.translateService.instant('msg.storage.ui.schema.column.no.data');
-    }
-
-    // 타임포맷이 필요한 경우
-    if (!this.column.format || this.column.format.trim() === '') {
-      return this.translateService.instant('msg.storage.ui.schema.column.format.required');
-    }
-
-    return this.translateService.instant('msg.storage.ui.schema.column.format.null');
-  }
-
-  /**
    * 해당 컬럼의 role에 따라 보여줄 type 필터링
    * @returns {any[]}
    */
@@ -343,8 +325,8 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   /**
    * Time Format keyup 이벤트
    */
-  public timeFormatKeyup() {
-    this.column.errorFl = true;
+  public initTimeFormatValid(): void {
+    delete this.column.errorFl;
     this.column.replaceFl = true;
   }
 
@@ -354,6 +336,13 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   public timeFormatClick() {
     // check Time Format
     this.checkTimeFormat(this.columnData, this.column.format);
+  }
+
+  public onClickUnixCode(): void {
+    if (!this.column.formatDefault) {
+      this.column.unix = !this.column.unix;
+      delete this.column.errorFl;
+    }
   }
 
   /**
@@ -383,6 +372,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
       // timestamp 가 아닌 경우 format 삭제
       delete this.column.format;
       delete this.column.errorFl;
+      delete this.column.formatDefault;
     }
 
     // time stamp flag
@@ -621,7 +611,10 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
       .then((result) => {
         // pattern 이 있을경우
         if (result.hasOwnProperty('pattern')) {
+          // set format
           this.column.format = result.pattern;
+          // set default
+          this.column.formatDefault = true;
         }
 
         // valid가 있는경우
@@ -640,7 +633,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
         }
       })
       .catch((error) => {
-        this.column.errorFl = true;
       });
   }
 
@@ -700,7 +692,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
         this.column.replaceFl =  result.valid;
       })
       .catch((error) => {
-        this.column.replaceFl =  false;
       });
   }
 

@@ -21,6 +21,7 @@ import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { isUndefined } from 'util';
 import * as _ from 'lodash';
+import { StringUtil } from '../../../../../common/util/string.util';
 
 
 @Component({
@@ -151,6 +152,17 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * 다음화면으로 이동
    */
   public next() {
+    // time stamp 중 unix가 아니고 format이 빈 값인 경우
+    this.fields.filter((column) => {
+      return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column) && !column.unix;
+    }).forEach((column) => {
+      if (StringUtil.isEmpty(column.format)) {
+        // set error
+        column.errorFl = true;
+        // set message
+        column.formatMessage = this.translateService.instant('msg.common.ui.required');
+      }
+    });
     // validation
     if (this.getNextValidation()) {
       // 기존 스키마정보 삭제후 생성
@@ -629,12 +641,13 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
           // pattern 이 있을경우
           if (result.hasOwnProperty('pattern')) {
             column.format = result.pattern;
+            // set default
+            column.formatDefault = true;
           }
           resolve(result);
         })
         .catch((error) => {
           // Alert.error(error.details);
-          column.errorFl = true;
           reject(error);
         });
     }));
@@ -815,9 +828,9 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * @returns {boolean}
    */
   private timestampValidation(column): boolean {
-    // timestamp 컬럼이 format이 없거나 error가 있다면 false
+    // timestamp 컬럼이 error가 있다면 false
     if (column.logicalType === 'TIMESTAMP'
-      && (isUndefined(column.format) || column.format === '' || column.hasOwnProperty('errorFl'))) {
+      && column.errorFl) {
       return false;
     }
     return true;
@@ -849,6 +862,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
     // 변경된 타입이 타임일 경우
     if (this.isEqualType('TIMESTAMP', type)) {
       timestampPromise.push(column);
+      delete column.formatDefault;
     }
 
     // 컬럼이 타임스탬프로 지정되었던 경우
