@@ -22,8 +22,8 @@ public class QueryResultRequest {
 
   String csvFilePath;
   List<Field> fieldList;
-  int pageSize;
-  int pageNumber;
+  Integer pageSize;
+  Integer pageNumber;
 
   public String getCsvFilePath() {
     return csvFilePath;
@@ -33,19 +33,19 @@ public class QueryResultRequest {
     this.csvFilePath = csvFilePath;
   }
 
-  public int getPageSize() {
+  public Integer getPageSize() {
     return pageSize;
   }
 
-  public void setPageSize(int pageSize) {
+  public void setPageSize(Integer pageSize) {
     this.pageSize = pageSize;
   }
 
-  public int getPageNumber() {
+  public Integer getPageNumber() {
     return pageNumber;
   }
 
-  public void setPageNumber(int pageNumber) {
+  public void setPageNumber(Integer pageNumber) {
     this.pageNumber = pageNumber;
   }
 

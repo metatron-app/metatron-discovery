@@ -364,8 +364,8 @@ public class QueryEditorController {
     //Request Param 확인
     String csvFilePath = StringUtils.defaultString(requestBody.getCsvFilePath());
     List<Field> fieldList = requestBody.getFieldList();
-    int pageSize = requestBody.getPageSize();
-    int pageNumber = requestBody.getPageNumber();
+    Integer pageSize = requestBody.getPageSize();
+    Integer pageNumber = requestBody.getPageNumber();
 
     LOGGER.debug("id : {}", id);
     LOGGER.debug("csvFilePath : {}", csvFilePath);
@@ -373,10 +373,18 @@ public class QueryEditorController {
     LOGGER.debug("pageSize : {}", pageSize);
     LOGGER.debug("pageNumber : {}", pageNumber);
 
+    if(pageSize == null || pageSize <= 0){
+      pageSize = workbenchProperties.getDefaultResultSize();
+    }
+
+    if(pageNumber == null || pageNumber < 0){
+      pageNumber = 0;
+    }
+
     Assert.isTrue(!csvFilePath.isEmpty(), "Parameter 'csvFilePath' is empty.");
     Assert.isTrue(!fieldList.isEmpty(), "Parameter 'fieldList' is empty.");
-    Assert.isTrue(pageSize > 0, "Parameter 'pageSize' is negative.");
-    Assert.isTrue(pageNumber >= 0, "Parameter 'pageNumber' is negative.");
+    Assert.isTrue(pageSize != null && pageSize > 0, "Parameter 'pageSize' is required.");
+    Assert.isTrue(pageNumber != null && pageNumber >= 0, "Parameter 'pageNumber' is required.");
 
     String csvBaseDir = workbenchProperties.getTempCSVPath();
     if(!csvBaseDir.endsWith(File.separator)){

@@ -620,9 +620,9 @@ public class QueryEditorService {
         }
       }
     } catch (FileNotFoundException e){
-      throw new WorkbenchException(CSV_FILE_NOT_FOUND, "CSV File Not Founded : " + fileName, e);
+      throw new WorkbenchException(CSV_FILE_NOT_FOUND, "CSV File Not Founded.", e);
     } catch (IOException e){
-      throw new WorkbenchException(CSV_FILE_NOT_FOUND, "read CSV IOException : " + fileName, e);
+      throw new WorkbenchException(CSV_FILE_NOT_FOUND, "read CSV IOException.", e);
     } finally {
       try {
         if(mapReader != null)
