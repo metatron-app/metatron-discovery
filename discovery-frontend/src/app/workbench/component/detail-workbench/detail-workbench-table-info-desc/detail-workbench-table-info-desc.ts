@@ -150,7 +150,7 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
         // key-pair
         for (const key in data) {
           this.tables.push({
-            itemkey: key,
+            itemKey: key,
             item: data[key]
           });
         }
@@ -184,7 +184,7 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
       .then((result) => {
         // tables 최상단에 메타데이터 이름 push
         result.length > 0 && this.tables.unshift({
-          itemkey: this.translateService.instant('msg.bench.ui.table.metadata.name'),
+          itemKey: this.translateService.instant('msg.bench.ui.table.metadata.name'),
           item: result[0]['name']
         });
 
@@ -201,7 +201,7 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
             'data' : tempArr
           };
 
-          if( this.tables[key]['itemkey'].startsWith('#') ){
+          if( this.tables[key]['itemKey'].startsWith('#') ){
 
             if( key != '0' ){
               tempData.label = tempLabel.split('#')[1];
@@ -213,7 +213,7 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
             }
 
             // label
-            tempLabel = this.tables[key]['itemkey'];
+            tempLabel = this.tables[key]['itemKey'];
           } else {
             // data
             tempArr.push( this.tables[key] );
@@ -225,8 +225,6 @@ export class DetailWorkbenchTableInfoDesc extends AbstractWorkbenchComponent imp
             tempData.data = tempArr;
             this.resultData.push( tempData );
           }
-
-
 
         }
 
