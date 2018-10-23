@@ -14,28 +14,22 @@
 
 package app.metatron.discovery.util;
 
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultResponse;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultResponse;
 
 public class ExcelProcessor {
 
@@ -51,11 +45,20 @@ public class ExcelProcessor {
 
     extensionType = FilenameUtils.getExtension(targetFile.getName());
 
+    // old POI library
+    /*
     if ("xls".equals(extensionType)) {       // 97~2003
       workbook = new HSSFWorkbook(new FileInputStream(targetFile));
     } else {   // 2007 ~
       workbook = new XSSFWorkbook(new FileInputStream(targetFile));
     }
+    */
+
+    InputStream is = new FileInputStream(targetFile);
+    workbook = StreamingReader.builder()
+            .rowCacheSize(100)
+            .bufferSize(4096)
+            .open(is);
   }
 
   public List<String> getSheetNames() throws IOException {
