@@ -14,20 +14,25 @@
 
 package app.metatron.discovery.domain.workbench;
 
+import app.metatron.discovery.common.exception.GlobalErrorCodes;
+import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.audit.Audit;
 import app.metatron.discovery.domain.audit.AuditRepository;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcCSVWriter;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
+import app.metatron.discovery.domain.workbench.dto.SavingTable;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import app.metatron.discovery.util.HibernateUtils;
 import app.metatron.discovery.util.HttpUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.supercsv.prefs.CsvPreference;
@@ -44,10 +50,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RepositoryRestController
 public class QueryEditorController {
@@ -77,6 +80,12 @@ public class QueryEditorController {
 
   @Autowired
   EntityManager entityManager;
+
+  @Autowired
+  QueryResultRepository queryResultRepository;
+
+  @Autowired
+  HiveSqlScriptGenerator hiveSqlScriptGenerator;
 
   @RequestMapping(path = "/queryeditors/{id}/query/run", method = RequestMethod.POST)
   @ResponseBody
@@ -139,7 +148,16 @@ public class QueryEditorController {
       throw new WorkbenchException(WorkbenchErrorCodes.QUERY_STATUS_ERROR_CODE, "Query is Running");
     }
 
-
+    if(jdbcDataConnection instanceof HiveConnection && ((HiveConnection)jdbcDataConnection).isSupportSaveAsHive()) {
+      if(requestBody.getQueryIndex() == 0) {
+        // Query Editor 에서 쿼리가 여러개인 경우 최초 쿼리일 경우
+        try {
+          queryResultRepository.delete(jdbcDataConnection, requestBody.getLoginUserId(), queryEditor.getId());
+        } catch (Exception e) {
+          LOGGER.error("Failed delete query result", e);
+        }
+      }
+    }
     //3. 쿼리 실행 서비스 호출
     List<QueryResult> queryResults = queryEditorService.getQueryResult(queryEditor, jdbcDataConnection, workbench,
             query, webSocketId, database);
@@ -151,6 +169,18 @@ public class QueryEditorController {
       Audit.AuditStatus auditStatus;
       if(queryResult.getQueryResultStatus() == QueryResult.QueryResultStatus.SUCCESS){
         auditStatus = Audit.AuditStatus.SUCCESS;
+
+        if(jdbcDataConnection instanceof HiveConnection
+            && ((HiveConnection)jdbcDataConnection).isSupportSaveAsHive()
+            && CollectionUtils.isNotEmpty(queryResult.getData())) {
+          try {
+            queryResultRepository.save(jdbcDataConnection, requestBody.getLoginUserId(), queryEditor.getId(), queryResult);
+            queryResult.setResultStored(true);
+          } catch(Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            queryResult.setResultStored(false);
+          }
+        }
       } else {
         auditStatus = Audit.AuditStatus.FAIL;
       }
@@ -440,4 +470,52 @@ public class QueryEditorController {
     HttpUtils.downloadCSVFile(response, fileName, filePath, "text/csv; charset=utf-8");
   }
 
+  @RequestMapping(path = "/queryeditors/{id}/query/save-as-hive", method = RequestMethod.POST)
+  @ResponseBody
+  public ResponseEntity<?> saveQueryResultAsHiveTable(@PathVariable("id") String id,
+                                                      @RequestBody SavingTable savingTable) {
+    QueryEditor queryEditor = queryEditorRepository.findOne(id);
+    if(queryEditor == null){
+      throw new ResourceNotFoundException("QueryEditor(" + id + ")");
+    }
+
+    //Connection Entity 확인
+    Workbench workbench = queryEditor.getWorkbench();
+
+    if(workbench == null){
+      throw new ResourceNotFoundException("Workbench");
+    }
+
+    //Hibernate Proxy Initialize
+    DataConnection dataConnection = HibernateUtils.unproxy(workbench.getDataConnection());
+    if(dataConnection == null){
+      throw new ResourceNotFoundException("DataConnection");
+    }
+
+    if((dataConnection instanceof HiveConnection) == false ||
+        ((HiveConnection)dataConnection).isSupportSaveAsHive() == false) {
+      throw new MetatronException(GlobalErrorCodes.BAD_REQUEST_CODE, "Only Hive is allowed.");
+    }
+
+    WorkbenchDataSource dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(savingTable.getWebSocketId());
+    SingleConnectionDataSource secondaryDataSource = dataSourceInfo.getSecondarySingleConnectionDataSource();
+
+    savingTable.setQueryEditorId(id);
+    String saveAsTableScript = hiveSqlScriptGenerator.generateSaveAsTable((JdbcDataConnection)dataConnection, savingTable);
+
+    List<String> queryList = Arrays.asList(saveAsTableScript.split(";"));
+    for (String query : queryList) {
+      try {
+        jdbcConnectionService.ddlQuery((JdbcDataConnection)dataConnection, secondaryDataSource, query);
+      } catch(Exception e) {
+        LOGGER.error("Failed save as hive table", e);
+        if(e.getMessage().indexOf("AlreadyExistsException") > -1) {
+          throw new WorkbenchException(WorkbenchErrorCodes.TABLE_ALREADY_EXISTS, "Table already exists.");
+        }
+        throw new MetatronException(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, "Failed save as hive table.");
+      }
+    }
+
+    return ResponseEntity.noContent().build();
+  }
 }

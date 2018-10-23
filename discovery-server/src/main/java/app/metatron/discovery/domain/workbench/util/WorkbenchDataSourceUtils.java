@@ -109,9 +109,16 @@ public class WorkbenchDataSourceUtils {
         e.printStackTrace();
       }
     }
-    ds = new SingleConnectionDataSource(connUrl, username, password, true);
 
+    ds = new SingleConnectionDataSource(connUrl, username, password, true);
     WorkbenchDataSource dataSourceInfo = new WorkbenchDataSource(connection.getId(), webSocketId, ds);
+    if(connection instanceof HiveConnection && ((HiveConnection) connection).isSupportSecondaryConnection()) {
+      HiveConnection hiveConnection = (HiveConnection)connection;
+      dataSourceInfo.setSecondarySingleConnectionDataSource(
+          new SingleConnectionDataSource(connUrl, hiveConnection.getSecondaryUsername(), hiveConnection.getSecondaryPassword(), true)
+      );
+    }
+
     pooledDataSourceList.put(webSocketId, dataSourceInfo);
     LOGGER.debug("Created datasource : {}", connUrl);
     return dataSourceInfo;

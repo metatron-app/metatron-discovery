@@ -27,8 +27,10 @@ import app.metatron.discovery.domain.workbench.WorkbenchRepository;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import com.google.common.collect.Maps;
 import com.querydsl.core.types.Predicate;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.opensaml.xml.signature.P;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +45,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.sql.DataSource;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -307,6 +307,7 @@ public class DataConnectionController {
           @PathVariable("connectionId") String connectionId,
           @RequestParam(required = false) String databaseName,
           @RequestParam(required = false) String webSocketId,
+          @RequestParam(required = false) String loginUserId,
           Pageable pageable) {
 
     DataConnection connection = connectionRepository.findOne(connectionId);
@@ -319,7 +320,37 @@ public class DataConnectionController {
       SearchParamValidator.checkNull(webSocketId, "webSocketId");
     }
 
-    return ResponseEntity.ok(connectionService.findDatabases((JdbcDataConnection) connection, databaseName, webSocketId, pageable));
+    Map<String, Object> findDatabases = connectionService.findDatabases((JdbcDataConnection) connection, databaseName, webSocketId, pageable);
+
+    if(findDatabases.get("databases") != null
+        && StringUtils.isNotEmpty(loginUserId)
+        && connection instanceof HiveConnection
+        && ((HiveConnection)connection).isSupportSaveAsHive()) {
+      List<String> filteredDatabases = filterOtherPersonalDatabases((List<String>)findDatabases.get("databases"),
+          ((HiveConnection)connection).getPersonalDatabasePrefix(), loginUserId);
+
+      findDatabases.put("databases", filteredDatabases);
+    }
+
+    return ResponseEntity.ok(findDatabases);
+  }
+
+  private List<String> filterOtherPersonalDatabases(List<String> databases, String personalDatabasePrefix, String loginUserId) {
+    if(CollectionUtils.isNotEmpty(databases)) {
+      return databases.stream().filter(database -> {
+        if (database.startsWith(personalDatabasePrefix + "_")) {
+          if (database.endsWith(loginUserId)) {
+            return true;
+          } else {
+            return false;
+          }
+        } else {
+          return true;
+        }
+      }).collect(Collectors.toList());
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   @RequestMapping(value = "/connections/{connectionId}/databases/{databaseName}/tables", method = RequestMethod.GET,

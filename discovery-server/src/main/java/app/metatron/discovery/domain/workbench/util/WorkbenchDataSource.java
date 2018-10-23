@@ -27,7 +27,8 @@ public class WorkbenchDataSource {
   private String queryEditorId;
   private String webSocketId;
   private List<String> queryList;
-  private SingleConnectionDataSource singleConnectionDataSource;
+  private SingleConnectionDataSource primarySingleConnectionDataSource;
+  private SingleConnectionDataSource secondarySingleConnectionDataSource;
   private QueryStatus queryStatus = QueryStatus.IDLE;
   private String applicationId;
   private Statement currentStatement;
@@ -42,7 +43,7 @@ public class WorkbenchDataSource {
   public WorkbenchDataSource(String connectionId, String webSocketId, SingleConnectionDataSource singleConnectionDataSource){
     this.connectionId = connectionId;
     this.webSocketId = webSocketId;
-    this.singleConnectionDataSource = singleConnectionDataSource;
+    this.primarySingleConnectionDataSource = singleConnectionDataSource;
   }
 
   /**
@@ -87,7 +88,7 @@ public class WorkbenchDataSource {
    * @return the single connection data source
    */
   public SingleConnectionDataSource getSingleConnectionDataSource() {
-    return singleConnectionDataSource;
+    return primarySingleConnectionDataSource;
   }
 
   /**
@@ -96,7 +97,7 @@ public class WorkbenchDataSource {
    * @param singleConnectionDataSource the single connection data source
    */
   public void setSingleConnectionDataSource(SingleConnectionDataSource singleConnectionDataSource) {
-    this.singleConnectionDataSource = singleConnectionDataSource;
+    this.primarySingleConnectionDataSource = singleConnectionDataSource;
   }
 
   public String getQueryEditorId() {
@@ -139,14 +140,27 @@ public class WorkbenchDataSource {
     this.queryList = queryList;
   }
 
+  public SingleConnectionDataSource getSecondarySingleConnectionDataSource() {
+    return secondarySingleConnectionDataSource;
+  }
+
+  public void setSecondarySingleConnectionDataSource(SingleConnectionDataSource secondarySingleConnectionDataSource) {
+    this.secondarySingleConnectionDataSource = secondarySingleConnectionDataSource;
+  }
+
   /**
    * Destroy.
    */
   public void destroy(){
     //Statement Close
     JdbcUtils.closeStatement(this.getCurrentStatement());
-    this.singleConnectionDataSource.destroy();
-    this.singleConnectionDataSource = null;
+    this.primarySingleConnectionDataSource.destroy();
+    this.primarySingleConnectionDataSource = null;
+
+    if(this.secondarySingleConnectionDataSource != null) {
+      this.secondarySingleConnectionDataSource.destroy();
+    }
+
   }
 
   public String toString(){

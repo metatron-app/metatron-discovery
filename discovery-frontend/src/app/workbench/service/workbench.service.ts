@@ -154,12 +154,15 @@ export class WorkbenchService extends AbstractService {
    *****************************************/
 
   // 쿼리 실행
-  public runSingleQueryWithInvalidQuery(params: QueryEditor) {
+  public runSingleQueryWithInvalidQuery(params: QueryEditor, queryIndex: number) {
     const id = params.editorId;
     const param = {
       query: params.query,
-      webSocketId: params.webSocketId
+      webSocketId: params.webSocketId,
+      loginUserId: CommonUtil.getLoginUserId(),
+      queryIndex: queryIndex
     };
+
     return this.post(this.API_URL + `queryeditors/${id}/query/run`, param); // params => query  값만 사용.
   }
 
@@ -228,6 +231,10 @@ export class WorkbenchService extends AbstractService {
     params.query = table;
 
     return this.post(this.API_URL + 'connections/query/data', params);
+  }
+
+  public saveAsHiveTable(queryEditorId: string, params: any) {
+    return this.post(this.API_URL + `queryeditors/${queryEditorId}/query/save-as-hive`, params);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

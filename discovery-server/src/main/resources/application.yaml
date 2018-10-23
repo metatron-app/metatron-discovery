@@ -95,6 +95,12 @@ polaris:
       HIVE: ["ENGINE", "LIVE"]
       PRESTO: ["LIVE"]
       PHOENIX: ["LIVE"]
+  workbench:
+    query:
+      result:
+        store:
+          hdfs:
+            basepath: /tmp/metatron
   engine:
     api:
       query:

@@ -52,6 +52,7 @@ import { SYSTEM_PERMISSION } from '../common/permission/permission';
 import { PermissionChecker, Workspace } from '../domain/workspace/workspace';
 import { WorkspaceService } from '../workspace/service/workspace.service';
 import { CodemirrorComponent } from './component/editor-workbench/codemirror.component';
+import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
 
 declare let moment: any;
 
@@ -127,6 +128,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   @ViewChild('questionWrap')
   private _questionWrap: ElementRef;
+
+  @ViewChild(SaveAsHiveTableComponent)
+  private saveAsHiveTableComponent: SaveAsHiveTableComponent;
 
   // request reconnect count
   private _executeSqlReconnectCnt: number = 0;
@@ -257,6 +261,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 데이터 메니저 여부
   public isDataManager: boolean = false;
 
+  public saveAsLayer: boolean = false;
+
   @ViewChild('wbName')
   private wbName: ElementRef;
   @ViewChild('wbDesc')
@@ -307,6 +313,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public isCanceled: boolean = false;  // 취소되었는지 여부
 
   public isFocusResultTooltip: boolean = false;
+
+  public supportSaveAsHive: boolean = false;
+  public queryResultStored: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -887,8 +896,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             $('.myGrid').html('<div class="ddp-text-result ddp-nodata">' + this.translateService.instant('msg.storage.ui.no.data') + '</div>');
           }
         }
-        selectedTab = tabItem;
 
+        if(tabItem.result && tabItem.result.resultStored) {
+          this.queryResultStored = tabItem.result.resultStored;
+        } else {
+          this.queryResultStored = false;
+        }
+        selectedTab = tabItem;
       } else {
         // 선택되지 않은 탭이면
         tabItem.selected = false;
@@ -1064,6 +1078,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.isCanceled = false;
     this.executeEditorId = this.selectedEditorId;
     this.editorResultListObj = new EditorList();
+    this.queryResultStored = false;
     this._clearCurrentEditorResultTabs();
 
     // console.info('%c >>>>>> this.executeEditorId', 'color:#FF0000', this.executeEditorId);
@@ -1166,13 +1181,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @param {string} resultTabId
    */
   public runQueries(resultTabId: string) {
-
     const resultTab: ResultTab = this._getResultTab(resultTabId);
     resultTab.initialize();
     resultTab.executeTimer();
     this.runningResultTabId = resultTab.id;
 
-    this.workbenchService.runSingleQueryWithInvalidQuery(resultTab.queryEditor)
+    this.workbenchService.runSingleQueryWithInvalidQuery(resultTab.queryEditor, this.currentRunningIndex)
       .then((result) => {
         this.loadingBar.hide();
 
@@ -1703,6 +1717,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           connectWebSocket.call(this);
 
           this.isDataManager = CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_DATASOURCE);
+          if(data.dataConnection.supportSaveAsHive) {
+            this.supportSaveAsHive = data.dataConnection.supportSaveAsHive;
+          }
 
           this.setWorkbenchName();
           this.setWorkbenchDesc();
@@ -1856,7 +1873,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     if (this._isEqualRunningVisibleTab()) {
       this.drawGridData();
     }
-
   } // function - setResultContents
 
   // 선택된 탭의 텍스트 변경
@@ -2079,6 +2095,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // 처음 쿼리를 취소한 경우
     if (currentTabs.length == 0) {
       return false;
+    } else {
+      if(this.supportSaveAsHive && currentTabs[0].result && currentTabs[0].result.resultStored) {
+        this.queryResultStored = currentTabs[0].result.resultStored;
+      }
     }
 
     // finish
@@ -2091,6 +2111,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.currentRunningIndex = -1;
 
     this.safelyDetectChanges();
+
   } // function - _doneExecuteQueries
 
   /**
@@ -2442,6 +2463,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       });
 
   } // function - createDatasource
+
+  public saveAsHiveTable() {
+    const currentTab: ResultTab = this._getCurrentResultTab();
+    this.saveAsHiveTableComponent.init(currentTab.editorId, this.websocketId, currentTab.result.auditId);
+  }
 
   /**
    * 데이터 소스 생성 후 처리
@@ -2992,6 +3018,8 @@ class QueryResult {
   public tempTable: string;
   public defaultNumRows: number = 0;  // pageSize, 페이지당 호출 건 수
   public maxNumRows: number = 0;      // 최대 호출 가능 건 수
+  public resultStored: boolean;
+  public auditId: string;
 }
 
 enum DataConnectionType {

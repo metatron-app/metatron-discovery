@@ -99,6 +99,12 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   // published
   public published: boolean;
 
+  public enableSaveAsHiveTable: boolean = false;
+  public hiveAdminName: string = '';
+  public hiveAdminPassword: string = '';
+  public hivePersonalDatabasePrefix: string = '';
+  public hdfsConfigPath: string = '';
+
   // connection result flag
   public connectionResultFl: boolean = null;
   // clicked done button flag
@@ -114,6 +120,10 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   public isShowPasswordRequired: boolean;
   // connection name input validation
   public isShowConnectionNameRequired: boolean;
+  public isShowHiveAdminNameRequired: boolean;
+  public isShowHiveAdminPasswordRequired: boolean;
+  public isShowHivePersonalDatabasePrefixRequired: boolean;
+  public isShowHdfsConfigPathRequired: boolean;
   // connection valid message
   public nameErrorMsg: string;
 
@@ -357,6 +367,29 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
       this.isShowPasswordRequired = true;
       result = false;
     }
+
+    if(this.enableSaveAsHiveTable === true) {
+      if(StringUtil.isEmpty(this.hiveAdminName)) {
+        this.isShowHiveAdminNameRequired = true;
+        result = false;
+      }
+      if(StringUtil.isEmpty(this.hiveAdminPassword)) {
+        this.isShowHiveAdminPasswordRequired = true;
+        result = false;
+      }
+      if(StringUtil.isEmpty(this.hiveAdminName)) {
+        this.isShowHiveAdminNameRequired = true;
+        result = false;
+      }
+      if(StringUtil.isEmpty(this.hivePersonalDatabasePrefix)) {
+        this.isShowHivePersonalDatabasePrefixRequired = true;
+        result = false;
+      }
+      if(StringUtil.isEmpty(this.hdfsConfigPath)) {
+        this.isShowHdfsConfigPathRequired = true;
+        result = false;
+      }
+    }
     return result;
   }
 
@@ -390,6 +423,14 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
     this.isShowUrlRequired = null;
     this.isShowUsernameRequired = null;
     this.isShowPasswordRequired = null;
+    this.isShowHiveAdminNameRequired = null;
+    this.isShowHiveAdminPasswordRequired = null;
+    this.isShowHivePersonalDatabasePrefixRequired = null;
+    this.isShowHdfsConfigPathRequired = null;
+  }
+
+  public onChangeEnableSaveAsHiveTable(): void {
+    this.enableSaveAsHiveTable = !this.enableSaveAsHiveTable;
   }
 
   /**
@@ -633,6 +674,21 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
         params['username'] = this.username.trim();
       }
     }
+
+    if(this.selectedDbType.value === 'HIVE') {
+      if(this.enableSaveAsHiveTable) {
+        params['secondaryUsername'] = this.hiveAdminName.trim();
+        params['secondaryPassword'] = this.hiveAdminPassword.trim();
+        params['hdfsConfigurationPath'] = this.hdfsConfigPath.trim();
+        params['personalDatabasePrefix'] = this.hivePersonalDatabasePrefix.trim();
+      } else {
+        params['secondaryUsername'] = '';
+        params['secondaryPassword'] = '';
+        params['hdfsConfigurationPath'] = '';
+        params['personalDatabasePrefix'] = '';
+      }
+    }
+
     return params;
   }
 
@@ -705,6 +761,20 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
     // linked workspace number
     if (data.hasOwnProperty('linkedWorkspaces')) {
       this.linkedWorkspaces = data.linkedWorkspaces;
+    }
+
+    data.secondaryUsername && (this.hiveAdminName = data.secondaryUsername);
+    data.secondaryPassword && (this.hiveAdminPassword = data.secondaryPassword);
+    data.personalDatabasePrefix && (this.hivePersonalDatabasePrefix = data.personalDatabasePrefix);
+    data.hdfsConfigurationPath && (this.hdfsConfigPath = data.hdfsConfigurationPath);
+
+    if(StringUtil.isNotEmpty(data.secondaryUsername)
+      && StringUtil.isNotEmpty(data.secondaryPassword)
+      && StringUtil.isNotEmpty(data.personalDatabasePrefix)
+      && StringUtil.isNotEmpty(data.hdfsConfigurationPath)) {
+      this.enableSaveAsHiveTable = true;
+    } else {
+      this.enableSaveAsHiveTable = false;
     }
   }
 }

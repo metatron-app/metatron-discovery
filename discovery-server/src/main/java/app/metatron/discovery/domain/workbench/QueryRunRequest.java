@@ -20,6 +20,8 @@ public class QueryRunRequest {
   String webSocketId;
   String database;
   int numRows;
+  String loginUserId;
+  int queryIndex = 0;
 
   public String getQuery() {
     return query;
@@ -51,6 +53,22 @@ public class QueryRunRequest {
 
   public void setNumRows(int numRows) {
     this.numRows = numRows;
+  }
+
+  public String getLoginUserId() {
+    return loginUserId;
+  }
+
+  public void setLoginUserId(String loginUserId) {
+    this.loginUserId = loginUserId;
+  }
+
+  public int getQueryIndex() {
+    return queryIndex;
+  }
+
+  public void setQueryIndex(int queryIndex) {
+    this.queryIndex = queryIndex;
   }
 
   @Override

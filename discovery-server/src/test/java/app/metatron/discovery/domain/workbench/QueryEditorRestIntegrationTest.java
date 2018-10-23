@@ -14,31 +14,43 @@
 
 package app.metatron.discovery.domain.workbench;
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.response.Response;
-
-import org.apache.http.HttpStatus;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.jdbc.Sql;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-
 import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.TestLocalHdfs;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.core.oauth.OAuthRequest;
 import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import app.metatron.discovery.domain.workspace.folder.Folder;
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.response.Response;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.http.HttpStatus;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.jdbc.Sql;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Paths;
+import java.security.PrivilegedExceptionAction;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
+import static org.hamcrest.Matchers.is;
 
 /**
  * Created by kyungtaak on 2016. 11. 29..
@@ -184,7 +196,7 @@ public class QueryEditorRestIntegrationTest extends AbstractRestIntegrationTest 
     .then()
       .log().all()
       .statusCode(HttpStatus.SC_OK)
-      .body("name", Matchers.is(patchedName));
+      .body("name", is(patchedName));
     // @formatter:on
   }
 
@@ -224,7 +236,7 @@ public class QueryEditorRestIntegrationTest extends AbstractRestIntegrationTest 
     .when()
       .get("/api/queryeditors/{id}", queryEditorId)
     .then()
-      .body("id", Matchers.is(queryEditorId))
+      .body("id", is(queryEditorId))
       .statusCode(HttpStatus.SC_OK)
       .log().all();
     // @formatter:on
@@ -1035,4 +1047,171 @@ public class QueryEditorRestIntegrationTest extends AbstractRestIntegrationTest 
     System.out.println(result2);
   }
 
+  @Test
+  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
+  public void saveQueryResultAsHiveTable() throws IOException, InterruptedException {
+    // given
+    final String queryEditorId = "query-05";
+    final String metatronUserId = "polaris";
+    final String webSocketId = "test-ws";
+    final String saveAsTableName = "test_save_as_hive";
+    final String auditId = UUID.randomUUID().toString();
+
+    HiveConnection hiveConnection = new HiveConnection();
+    hiveConnection.setUsername("read_only");
+    hiveConnection.setPassword("1111");
+    hiveConnection.setSecondaryUsername("hive_admin");
+    hiveConnection.setSecondaryPassword("1111");
+    hiveConnection.setHostname("localhost");
+    hiveConnection.setPort(10000);
+    hiveConnection.setPersonalDatabasePrefix("private");
+    hiveConnection.setHdfsConfigurationPath(Paths.get("src/test/hdfs-conf").toAbsolutePath().toString());
+    WorkbenchDataSourceUtils.createDataSourceInfo(hiveConnection, webSocketId, hiveConnection.getUsername(), hiveConnection.getPassword(), false);
+
+    cleanUpHiveTestFixture(metatronUserId, saveAsTableName, hiveConnection.getPersonalDatabasePrefix());
+    setUpHdfsTestFixture(hiveConnection.getSecondaryUsername(), metatronUserId, queryEditorId, auditId);
+
+    // REST when, then
+    final String requestBody = "{" +
+        "\"tableName\": \"" + saveAsTableName + "\"," +
+        "\"loginUserId\": \"" + metatronUserId + "\"," +
+        "\"auditId\": \"" + auditId + "\"," +
+        "\"webSocketId\": \"" + webSocketId + "\"" +
+        "}";
+
+    given()
+        .auth().oauth2(oauth_token)
+        .contentType(ContentType.JSON)
+        .body(requestBody)
+    .when()
+        .post("/api/queryeditors/{id}/query/save-as-hive", queryEditorId)
+    .then()
+        .log().all()
+        .statusCode(HttpStatus.SC_NO_CONTENT);
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"PERM_WORKSPACE_WRITE_BOOK"})
+  public void saveQueryResultAsHiveTable_when_already_exist_hive_table() throws IOException, InterruptedException {
+    // given
+    final String queryEditorId = "query-05";
+    final String metatronUserId = "polaris";
+    final String webSocketId = "test-ws";
+    final String saveAsTableName = "dummy";
+    final String auditId = UUID.randomUUID().toString();
+
+    HiveConnection hiveConnection = new HiveConnection();
+    hiveConnection.setUsername("read_only");
+    hiveConnection.setPassword("1111");
+    hiveConnection.setSecondaryUsername("hive_admin");
+    hiveConnection.setSecondaryPassword("1111");
+    hiveConnection.setHostname("localhost");
+    hiveConnection.setPort(10000);
+    hiveConnection.setPersonalDatabasePrefix("private");
+    hiveConnection.setHdfsConfigurationPath(Paths.get("src/test/hdfs-conf").toAbsolutePath().toString());
+    WorkbenchDataSourceUtils.createDataSourceInfo(hiveConnection, webSocketId, hiveConnection.getUsername(), hiveConnection.getPassword(), false);
+
+    cleanUpHiveTestFixture(metatronUserId, saveAsTableName, hiveConnection.getPersonalDatabasePrefix());
+    setUpHdfsTestFixture(hiveConnection.getSecondaryUsername(), metatronUserId, queryEditorId, auditId);
+
+    // REST when, then
+    final String requestBody = "{" +
+        "\"tableName\": \"" + saveAsTableName + "\"," +
+        "\"loginUserId\": \"" + metatronUserId + "\"," +
+        "\"auditId\": \"" + auditId + "\"," +
+        "\"webSocketId\": \"" + webSocketId + "\"" +
+        "}";
+
+    // REST when, then
+    given()
+        .auth().oauth2(oauth_token)
+        .contentType(ContentType.JSON)
+        .body(requestBody)
+        .when()
+        .post("/api/queryeditors/{id}/query/save-as-hive", queryEditorId)
+        .then()
+        .log().all()
+        .statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+        .body("code", is("WB0003"));
+  }
+
+  private void setUpHdfsTestFixture(String hiveAdminUserId, String metatronUserId, String queryEditorId, String auditId) throws IOException, InterruptedException {
+    TestLocalHdfs testLocalHdfs = new TestLocalHdfs();
+
+    Path userHomePath = new Path(String.format("/tmp/metatron/%s", metatronUserId));
+    // 이전 Fixture 삭제
+    testLocalHdfs.delete(userHomePath);
+
+    testLocalHdfs.writeFile(hiveAdminUserId, new Path(userHomePath, queryEditorId), String.format("%s.json", auditId),
+        "[\"records.year\",\"records.temperature\",\"records.quality\"]");
+
+    testLocalHdfs.writeFile(hiveAdminUserId, new Path(userHomePath, queryEditorId), String.format("%s.dat", auditId),
+        "1990\00110\0010\n1991\00120\0011\n");
+//
+//    final Configuration conf = new Configuration();
+//    conf.addResource(new org.apache.hadoop.fs.Path(String.format("%s/core-site.xml", hdfsConfLocalPath)));
+//
+//    conf.addResource(new org.apache.hadoop.fs.Path(String.format("%s/hdfs-site.xml", hdfsConfLocalPath)));
+//
+//    FileSystem fs = null;
+//    try {
+//      UserGroupInformation ugi = UserGroupInformation.createRemoteUser(hiveAdminUserId);
+//      fs = ugi.doAs((PrivilegedExceptionAction<FileSystem>) () -> FileSystem.get(conf));
+//
+//      // 이전 Fixture 삭제
+//      org.apache.hadoop.fs.Path baseDir = new org.apache.hadoop.fs.Path(String.format("/tmp/metatron/%s", metatronUserId));
+//      if(fs.exists(baseDir)) {
+//        fs.delete(baseDir, true);
+//      }
+//
+//      // Fixture 생성
+//      fs.mkdirs(baseDir);
+//
+//      // header
+//      try(OutputStream out = fs.create(new org.apache.hadoop.fs.Path(baseDir, String.format("%s/%s.json",queryEditorId, auditId)))) {
+//        out.write("[\"records.year\",\"records.temperature\",\"records.quality\"]".getBytes());
+//      }
+//      // data
+//      try(OutputStream out = fs.create(new org.apache.hadoop.fs.Path(baseDir, String.format("%s/%s.dat",queryEditorId, auditId)))) {
+//        out.write("1990\00110\0010\n".getBytes());
+//        out.write("1991\00120\0011\n".getBytes());
+//        out.write("1992\00130\0012\n".getBytes());
+//        out.write("1993\00140\0013\n".getBytes());
+//        out.write("1994\00150\0014\n".getBytes());
+//        out.write("1995\00160\0015\n".getBytes());
+//        out.write("1996\00170\0016\n".getBytes());
+//        out.write("1997\00180\0017\n".getBytes());
+//        out.write("1998\00190\0018\n".getBytes());
+//      }
+//    } finally {
+//      if(fs != null) {
+//        try {
+//          fs.close();
+//        } catch (IOException e) {
+//          e.printStackTrace();
+//        }
+//      }
+//    }
+  }
+
+  private void cleanUpHiveTestFixture(String metatronUserId, String saveAsTableName, String personalDatabasePrefix) {
+    final String DRIVER = "org.apache.hive.jdbc.HiveDriver";
+    final String URL = "jdbc:hive2://localhost:10000";
+
+    Connection conn = null;
+    try{
+      Class.forName(DRIVER);
+      conn = DriverManager.getConnection(URL,"admin", "11");
+
+      StringBuffer script = new StringBuffer();
+      script.append(String.format("DROP TABLE %s_%s.%s;", personalDatabasePrefix, metatronUserId, saveAsTableName));
+      script.append(String.format("CREATE TABLE IF NOT EXISTS %s_%s.dummy(x STRING);", personalDatabasePrefix, metatronUserId));
+
+      ScriptUtils.executeSqlScript(conn, new InputStreamResource(new ByteArrayInputStream(script.toString().getBytes())));
+    } catch(Exception e){
+      e.printStackTrace();
+    } finally{
+      JdbcUtils.closeConnection(conn);
+    }
+  }
 }

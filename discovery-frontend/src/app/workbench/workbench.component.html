@@ -511,14 +511,29 @@
                       <!-- // Preview ( Chart ) -->
 
                       <!-- Create Datasource -->
-                      <a *ngIf="isDataManager" (click)="createDatasource()" [hidden]="visibleResultTab.message"
-                         href="javascript:" class="ddp-btn-link" >
-                        <em class="ddp-icon-save"></em>
-                        <div class="ddp-ui-tooltip-info">
-                          <em class="ddp-icon-view-down"></em>
-                          {{'msg.bench.btn.save.as.datasource' | translate}}
+                      <div *ngIf="isDataManager" class="ddp-ui-link" [ngClass]="{'ddp-selected':saveAsLayer}">
+                        <a href="javascript:" class="ddp-btn-link" (click)="saveAsLayer = true" (clickOutside)="saveAsLayer = false">
+                          <em class="ddp-icon-save"></em>
+                          <div class="ddp-ui-tooltip-info">
+                            <em class="ddp-icon-view-down"></em>
+                            {{'msg.bench.btn.save.as' | translate}}
+                          </div>
+                        </a>
+                        <div class="ddp-wrap-popup2" *ngIf="saveAsLayer === true">
+                          <ul class="ddp-list-popup">
+                            <li>
+                              <a href="javascript:" (click)="createDatasource()" [hidden]="visibleResultTab.message">
+                                {{'msg.bench.btn.save.as.datasource' | translate}}
+                              </a>
+                            </li>
+                            <li *ngIf="supportSaveAsHive" [ngClass]="{'ddp-disabled' : !queryResultStored}">
+                              <a href="javascript:" (click)="saveAsHiveTable()">
+                                {{'msg.bench.btn.save.as.hive-table' | translate}}
+                              </a>
+                            </li>
+                          </ul>
                         </div>
-                      </a>
+                      </div>
                       <!-- // Create Datasource -->
 
                       <!-- Download Data -->
@@ -655,6 +670,9 @@
                         [sourceData]="setDatasource"
                         (sourceCreateComplete)="createDatasourceComplete()">
 </app-create-data-source>
+
+<app-save-as-hive-table></app-save-as-hive-table>
+
 <!--<app-page #page *ngIf="isShowPage" [widget]="selectedPageWidget" (close)="isShowPage=false"></app-page>-->
 <app-page #page *ngIf="isShowPage" [widget]="selectedPageWidget" [dashboard]="false"
           (close)="mainViewShow = true; isShowPage=false"></app-page>

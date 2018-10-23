@@ -70,6 +70,21 @@ public class DataConnectionProjections {
     UserProfile getModifiedBy();
 
     DateTime getModifiedTime();
+
+    @Value("#{target instanceof T(app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection) ? target.secondaryUsername : null}")
+    String getSecondaryUsername();
+
+    @Value("#{target instanceof T(app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection) ? target.secondaryPassword : null}")
+    String getSecondaryPassword();
+
+    @Value("#{target instanceof T(app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection) ? target.hdfsConfigurationPath : null}")
+    String getHdfsConfigurationPath();
+
+    @Value("#{target instanceof T(app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection) ? target.personalDatabasePrefix : null}")
+    String getPersonalDatabasePrefix();
+
+    @Value("#{target instanceof T(app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection) ? target.supportSaveAsHive : null}")
+    Boolean isSupportSaveAsHive();
   }
 
   @Projection(name = "forSimpleListView", types = { DataConnection.class })

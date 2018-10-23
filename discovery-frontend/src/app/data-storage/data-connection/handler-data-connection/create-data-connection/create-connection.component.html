@@ -129,7 +129,7 @@
             <!-- //check -->
           </div>
           <!-- //URL (disable) -->
-          <div class="ddp-clear" *ngIf="!isConnectUserAccount()">
+          <div class="ddp-clear ddp-db-url" *ngIf="!isConnectUserAccount()">
             <!-- username -->
             <div class="ddp-wrap-edit2 ddp-col-6" [class.ddp-error]="isShowUsernameRequired">
               <label class="ddp-label-type">{{'msg.storage.th.user_name' | translate}} <span class="ddp-sub" *ngIf="isConnectWithIdAndPassword()">{{'msg.storage.ui.for.test' | translate}}</span></label>
@@ -152,6 +152,47 @@
               <!-- error -->
             </div>
             <!-- //Password -->
+
+            <div *ngIf="selectedDbType.value === 'HIVE'">
+              <div class="ddp-check ddp-col-12">
+                <label class="ddp-label-checkbox" (click)="onChangeEnableSaveAsHiveTable(); $event.defaultPrevented">
+                  <input type="checkbox" [checked]="enableSaveAsHiveTable">
+                  <i class="ddp-icon-checkbox"></i>
+                  <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable-save-as-hive-table' | translate}}</span>
+                </label>
+              </div>
+              <div *ngIf="enableSaveAsHiveTable">
+                <div class="ddp-wrap-edit2 ddp-col-4" style="margin-top:10px" [class.ddp-error]="isShowHiveAdminNameRequired">
+                  <label class="ddp-label-type">{{'msg.storage.th.hive-admin-name' | translate}}</label>
+                  <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.hive-admin-name.ph' | translate}}"
+                         [ngModel]="hiveAdminName"
+                         (ngModelChange)="hiveAdminName = $event; isShowHiveAdminNameRequired = null;">
+                  <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+                </div>
+                <div class="ddp-wrap-edit2 ddp-col-4" style="margin-top:10px" [class.ddp-error]="isShowHiveAdminPasswordRequired">
+                  <label class="ddp-label-type">{{'msg.storage.th.hive-admin-password' | translate}}</label>
+                  <input type="password" class="ddp-input-type" placeholder="{{'msg.storage.th.hive-admin-password.ph' | translate}}"
+                         [ngModel]="hiveAdminPassword"
+                         (ngModelChange)="hiveAdminPassword = $event; isShowHiveAdminPasswordRequired = null;">
+                  <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+                </div>
+                <div class="ddp-wrap-edit2 ddp-col-4" style="margin-top:10px" [class.ddp-error]="isShowHivePersonalDatabasePrefixRequired">
+                  <label class="ddp-label-type">{{'msg.storage.th.hive-personal-db-prefix' | translate}}</label>
+                  <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.hive-personal-db-prefix.ph' | translate}}"
+                         [ngModel]="hivePersonalDatabasePrefix"
+                         (ngModelChange)="hivePersonalDatabasePrefix = $event; isShowHivePersonalDatabasePrefixRequired = null;">
+                  <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+                </div>
+                <div class="ddp-wrap-edit2 ddp-col-12" style="margin-top:10px" [class.ddp-error]="isShowHdfsConfigPathRequired">
+                  <label class="ddp-label-type">{{'msg.storage.th.hdfs-config-path' | translate}}</label>
+                  <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.th.hdfs-config-path.ph' | translate}}"
+                         [ngModel]="hdfsConfigPath"
+                         (ngModelChange)="hdfsConfigPath = $event; isShowHdfsConfigPathRequired = null;">
+                  <span class="ddp-ui-error">{{'msg.storage.ui.required' | translate}}</span>
+                </div>
+              </div>
+            </div>
+
           </div>
           <!-- Security -->
           <div class="ddp-wrap-edit2 ">

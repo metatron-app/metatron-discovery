@@ -451,6 +451,14 @@ export class StringUtil {
     return regExpFormula.test(str);
   } // function - checkFormula
 
+  public static isAlphaNumericUnderscore(str: string): boolean {
+    if (str.match(/^[a-zA-Z0-9_]+$/) == null) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
 }
 
 
