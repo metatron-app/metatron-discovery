@@ -750,17 +750,19 @@
                               ></component-select>
                             </div>
                             <!-- //part -->
-
-                            <!-- divide -->
-                            <div class="ddp-divide2 ">
-                                <div class="ddp-list-label">
-                                  <!-- {{'msg.page.layer.map.name' | translate}} -->
-                                  굵기 최대값(px)
-                                </div>
-                                <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.layers[0].size['max']">
-                            </div>
-                            <!-- //divide -->
                         </div>
+                        <!-- divide -->
+                        <div class="ddp-divide2">
+                          <div class="ddp-wrap-option-multy ddp-clear">
+                            <div class="ddp-col-8">
+                              <span class="ddp-label-txt">{{'msg.page.layer.map.stroke.max.width' | translate}} (pt)</span>
+                            </div>
+                            <div class="ddp-col-4">
+                              <input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="" [(ngModel)]="uiOption.layers[0].size['max']">
+                            </div>
+                          </div>
+                        </div>
+                        <!-- //divide -->
                     </div>
                 </div>
                 <!-- //divide -->
