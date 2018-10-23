@@ -6494,7 +6494,7 @@ table.ddp-table-simple tr td .ddp-ui-action {height:30px; white-space:normal; ov
 	animation-timing-function: linear;}
 
 .ddp-ui-tabs ul.ddp-list-tabs li .ddp-data-loading .ddp-btn-close-s {display:inline-block; width:7px; height:7px; position:absolute; top:50%; right:10px; margin-top:-4px; background:url(../images/btn_sclose.png) no-repeat; background-position:left -69px; cursor: pointer;}
-.ddp-ui-tabs ul.ddp-list-tabs li .ddp-data-tab {display:block; position:relative; padding:9px 25px 10px 7px; min-width:110px; max-width:220px; height:32px; color:#444; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; box-sizing:border-box;}
+.ddp-ui-tabs ul.ddp-list-tabs li .ddp-data-tab {display:block; position:relative; padding:9px 25px 10px 7px; min-width:110px; max-width:220px; height:33px; color:#444; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; box-sizing:border-box;}
 .ddp-ui-tabs ul.ddp-list-tabs li .ddp-data-tab .ddp-btn-close-s {display:inline-block; width:7px; height:7px; position:absolute; top:50%; right:10px; margin-top:-4px; background:url(../images/btn_sclose.png) no-repeat; background-position:left -69px; cursor: pointer;}
 
 .ddp-ui-tabs ul.ddp-list-tabs li .ddp-wrap-morebutton {position:absolute; top:50%; right:5px; margin-top:-9px;}
