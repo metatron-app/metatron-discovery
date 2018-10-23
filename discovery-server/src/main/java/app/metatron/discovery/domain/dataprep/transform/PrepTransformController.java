@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.transform;
 
+import app.metatron.discovery.domain.dataprep.PrepPreviewLineService;
 import app.metatron.discovery.domain.dataprep.PrepSnapshotRequestPost;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
@@ -31,7 +32,6 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +46,9 @@ public class PrepTransformController {
 
   @Autowired(required = false)
   PrepTransformService transformService;
+
+  @Autowired
+  PrepPreviewLineService previewLineService;
 
   @RequestMapping(value = "/preparationdatasets/{dsId}/transform", method = RequestMethod.POST, produces = "application/json")
   public @ResponseBody ResponseEntity<?> create(
@@ -71,7 +74,13 @@ public class PrepTransformController {
           @PathVariable("oldDsId") String oldDsId,
           @PathVariable("newDsId") String newDsId) throws Throwable {
     try {
-      transformService.swap(oldDsId, newDsId);
+      List<String> affectedDsIds = transformService.swap(oldDsId, newDsId);
+      
+      for(String affectedDsId : affectedDsIds) {
+        PrepTransformResponse response = transformService.fetch(affectedDsId, null);
+        DataFrame dataFrame = response.getGridResponse();
+        this.previewLineService.putPreviewLines(affectedDsId, dataFrame);
+      }
     } catch (Exception e) {
       LOGGER.error("swap(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

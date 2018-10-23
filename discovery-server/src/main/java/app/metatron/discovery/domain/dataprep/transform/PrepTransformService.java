@@ -488,7 +488,9 @@ public class PrepTransformService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public void swap(String oldDsId, String newDsId) throws Exception {
+  public List<String> swap(String oldDsId, String newDsId) throws Exception {
+    List<String> targetDsIds = Lists.newArrayList();
+
     // Replace all occurrence of oldDsid in whole rule strings in the system.
     for (PrepTransformRule rule : transformRuleRepository.findAll()) {
       String ruleString = rule.getRuleString();
@@ -499,8 +501,15 @@ public class PrepTransformService {
 
         // un-cache to be reloaded
         teddyImpl.remove(rule.getDataset().getDsId());
+
+        if(false==targetDsIds.contains(rule.getDataset().getDsId())) {
+          // It must be wrangled dataset, but not chaining wrangled
+          targetDsIds.add(rule.getDataset().getDsId());
+        }
       }
     }
+
+    return targetDsIds;
   }
 
   private DataFrame load_internal(String dsId) throws Exception {
