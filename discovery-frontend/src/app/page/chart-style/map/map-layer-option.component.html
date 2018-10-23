@@ -16,13 +16,11 @@
           <!-- //divide -->
           <!-- divide -->
           <div class="ddp-type-map-chart">
-            <div class="ddp-divide2 ">
+            <div *ngIf="'line' != type && 'polygon' != type" class="ddp-divide2 ">
                 <div class="ddp-list-label">
                   {{'msg.page.layer.map.type' | translate}}
                    :
                    <strong *ngIf="type === 'symbol'">{{'msg.page.layer.map.type.point' | translate}}</strong>
-                   <strong *ngIf="type === 'line'">{{'msg.page.layer.map.type.line' | translate}}</strong>
-                   <strong *ngIf="type === 'polygon'">{{'msg.page.layer.map.type.polygon' | translate}}</strong>
                    <strong *ngIf="type === 'heatmap'">{{'msg.page.layer.map.type.heatmap' | translate}}</strong>
                    <strong *ngIf="type === 'tile'">{{'msg.page.layer.map.type.tile' | translate}}</strong>
                  </div>
