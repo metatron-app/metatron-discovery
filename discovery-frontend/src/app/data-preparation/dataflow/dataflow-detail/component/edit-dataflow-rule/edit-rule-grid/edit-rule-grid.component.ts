@@ -261,7 +261,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       // Column Width 설정
       (this.columnWidths) || (this.columnWidths = {});
       this.columnWidths = this._setColumnWidthInfo(this.columnWidths, colNameTypes, gridData);
-      
+
       // 클릭 시리즈 정보 초기화
       this._apiGridData.colNames.forEach((item, index) => {
         this._clickedSeries[index] = [];
@@ -1748,7 +1748,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     this._gridComp.create(
       headers,
       new ScrollLoadingGridModel(
-        (pageNum: number = 0, pageSize: number) => {
+        (ruleIdx:number, pageNum: number = 0, pageSize: number) => {
           if (this.isApiMode) {
             return this.dataflowService.getSearchCountDataSets(this.dataSetId, ruleIndex, pageNum, pageSize);
           } else {
