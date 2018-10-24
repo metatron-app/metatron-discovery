@@ -60,7 +60,9 @@
 
     <div class="ddp-databuttons ddp-clear" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString()=== 'IMPORTED'">
       <div class="ddp-col-5">
-        <a href="javascript:" class="ddp-btn-line ddp-full">Replace dataset</a>
+        <a href="javascript:" class="ddp-btn-line ddp-full" (click)="dataSwap('imported')">
+          Replace dataset
+        </a>
       </div>
       <div class="ddp-col-7">
         <a href="javascript:"
@@ -93,12 +95,12 @@
               {{'msg.dp.ui.create.ss' | translate }}
             </a>
           </li>
-          <li>
-            <a href="javascript:">
-              <em class="ddp-icon-drop-re"></em>
-              Change input dataset
-            </a>
-          </li>
+          <!--<li>-->
+            <!--<a href="javascript:" (click)="dataSwap('wrangled')">-->
+              <!--<em class="ddp-icon-drop-re"></em>-->
+              <!--Change input dataset-->
+            <!--</a>-->
+          <!--</li>-->
         </ul>
       </div>
       <!-- //popup -->
