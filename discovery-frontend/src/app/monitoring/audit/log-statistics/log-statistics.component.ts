@@ -25,6 +25,7 @@ import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
 import { Alert } from '../../../common/util/alert.util';
 import { PageResult } from '../../../domain/common/page';
 import { isUndefined } from 'util';
+import { CommonUtil } from '../../../common/util/common.util';
 
 declare let echarts: any;
 
@@ -168,25 +169,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * ms를 min과 sec로 변환
-   * @param {number} ms
-   * @returns {string}
-   */
-  public convertMilliseconds(ms: number) {
-    if (ms === undefined) {
-      return 0 + 'sec';
-    }
-
-    if (ms < 1000) {
-      return ms + 'ms'
-    }
-
-    const min = Math.floor((ms / 1000 / 60) << 0);
-    const sec = Math.floor((ms / 1000) % 60);
-    return min !== 0 ? (min + ' min ' + sec + ' sec') : (sec + ' sec');
-  }
+  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /**
    * audit 상세보기 오픈
