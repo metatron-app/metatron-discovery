@@ -355,7 +355,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   public setAffectedColumns(cols: any[], command: string) {
 
     const singleSelectionMap: string[] = ['derive'];
-    const multiSelectionMap: string[] = ['aggregate', 'unpivot', 'pivot', 'drop', 'rename', 'sort', 'nest',
+    const multiSelectionMap: string[] = ['aggregate', 'unpivot', 'pivot', 'drop', 'rename', 'sort', 'nest', 'window',
       'merge', 'split', 'unnest', 'extract', 'countpattern', 'replace', 'settype', 'flatten', 'set', 'move', 'join', 'setformat'];
 
     if (-1 < singleSelectionMap.indexOf(command)) {
