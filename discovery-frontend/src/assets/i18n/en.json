@@ -1868,6 +1868,7 @@
   "msg.storage.ui.conn.dialog.desc" : "Can not ingest by batch method.",
   "msg.storage.ui.max.row.error": "You can enter up to {{value}}.",
   "msg.storage.ui.user.input": "Direct input",
+  "msg.storage.ui.enable.unix": "It’s Unix timestamp",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",
