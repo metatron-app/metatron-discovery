@@ -14,19 +14,17 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
-import com.google.common.collect.Lists;
-
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.List;
-import java.util.Map;
-
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.Map;
 
 public class HiveTableInformation {
 
@@ -71,6 +69,10 @@ public class HiveTableInformation {
           return new OrcFileFormat();
         case TEXT_INPUT_FORMAT :
           String delimiter = (String) this.storageInformation.get(FIELD_DELIMITER_PROP);
+          //convert tab delimiter string to character
+          if("\\t".equals(delimiter)){
+            delimiter = "\t";
+          }
           CsvFileFormat csvFileFormat = new CsvFileFormat();
           csvFileFormat.setDelimeter(delimiter);
           return csvFileFormat;
