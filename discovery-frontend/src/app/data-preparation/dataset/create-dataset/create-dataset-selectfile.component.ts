@@ -21,6 +21,7 @@ import { CookieConstant } from '../../../common/constant/cookie.constant';
 import { DatasetFile } from '../../../domain/data-preparation/dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from 'util';
+import { DatasetService } from "../service/dataset.service";
 
 @Component({
   selector: 'app-create-dataset-selectfile',
@@ -58,6 +59,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
   // 생성자
   constructor(private popupService: PopupService,
+              private datasetService : DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -169,6 +171,12 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   }
 
   public close() {
+
+    // Check if came from dataflow
+    if (this.datasetService.dataflowId) {
+      this.datasetService.dataflowId = undefined;
+    }
+
     super.close();
 
     this.popupService.notiPopup({

@@ -127,7 +127,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void dataSourceList() {
     // @formatter:off
     Response createResponse =
@@ -144,7 +144,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void dataSourceDetail() {
     // @formatter:off
     Response createResponse =
@@ -261,7 +261,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_ADMIN", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_ADMIN", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithMapType() throws JsonProcessingException {
 
     Field field1 = new Field("id", DataType.STRING, DIMENSION, 1L);
@@ -316,7 +316,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_ADMIN", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_ADMIN", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceAndAddDeleteWorkspaceReference() throws JsonProcessingException {
 
     TestUtils.printTestTitle("1. Create Datasoucre!");
@@ -401,7 +401,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql({"/sql/test_datasource_list.sql"})
   public void findByMultipleIds() {
 
@@ -420,7 +420,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql({"/sql/test_datasource_list.sql", "/scripts/default_join_datasource.sql"})
   public void findDataSources() {
 
@@ -452,7 +452,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql({"/sql/test_datasource_list.sql"})
   public void findDetailDataSources() {
 
@@ -475,7 +475,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
 //  @Sql({"/scripts/default_datasource_ingestion_options.sql"})
   public void findDataSourceIngestionOptions() {
 
@@ -495,7 +495,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void getDataFromDataSources() {
 
     String datasourceId = "ds-37";
@@ -520,7 +520,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void findByDataSourceSearchInWorkspace() {
 
     // @formatter:off
@@ -539,7 +539,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void patchDataSource() throws JsonProcessingException {
 
 
@@ -570,7 +570,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void uploadLocalExcelFileAndQuerySheet() {
 
     String filePath = "./src/test/resources/ingestion/";
@@ -610,7 +610,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void uploadLocalCsvFileAndQuery() {
 
 //    String filePath = "./src/test/resources/ingestion/";
@@ -651,7 +651,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/sales_hive.sql")
   public void findDataSourceByDatabaseName() throws JsonProcessingException {
 
@@ -668,7 +668,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void searchDataSourceByKeyword() throws JsonProcessingException {
 
     DataSource dataSource1 = new DataSourceBuilder()
@@ -706,7 +706,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void searchDataSourceByQuery() throws JsonProcessingException {
 
     DataSource dataSource1 = new DataSourceBuilder()
@@ -766,7 +766,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithNoneIngestion() throws JsonProcessingException {
 
     DataSource dataSource = new DataSource();
@@ -808,7 +808,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithContext() throws JsonProcessingException {
 
     TestUtils.printTestTitle("1. 최초 DataSource 생성시 Context 지정");
@@ -925,7 +925,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithLinkType() throws JsonProcessingException {
 
     DataSource dataSource = new DataSource();
@@ -984,7 +984,61 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithLocalJsonFileIngestion() throws JsonProcessingException {
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion.json").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localJsonFileIngestion_" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
+    fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
+    fields.add(new Field("nd", DataType.STRING, DIMENSION, 3L));
+    fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 4L));
+    fields.add(new Field("m2", DataType.DOUBLE, MEASURE, 5L));
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+
+    List<JsonFileFormat.JsonFlatten> flattenRules = Lists.newArrayList();
+    flattenRules.add(new JsonFileFormat.JsonFlatten("nd", "$.nested.dim2"));
+    localFileIngestionInfo.setFormat(new JsonFileFormat(flattenRules));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithLocalCsvFileIngestion() throws JsonProcessingException {
 
     String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_space.csv").getPath();
@@ -1042,7 +1096,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void appendDataSourceWithLocalCsvFileIngestion() throws JsonProcessingException {
 
     // profile 을 h2-in-memory-db -> h2-default-db 로 변경, initial 삭제
@@ -1075,7 +1129,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithLocalExcelFileIngestion() throws JsonProcessingException {
 
     String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion.xlsx").getPath();
@@ -1126,7 +1180,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithRealTimeIngestion() throws JsonProcessingException {
 
     DataSource dataSource = new DataSource();
@@ -1178,7 +1232,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithHdfsFileIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
@@ -1300,7 +1354,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithHiveCsvNonPartitionTableIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
@@ -1469,7 +1523,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithOrcNonPartitionHiveTableIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
@@ -1632,7 +1686,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithHiveOrcPartitionTableIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
@@ -1694,7 +1748,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void appendDataSourceWithHiveOrcPartitionTableIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
@@ -1735,7 +1789,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithHiveTableIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
@@ -1809,7 +1863,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_dataconnection.sql")
   public void createDataSourceWithJdbcSingleIngestion() throws JsonProcessingException {
 
@@ -1867,7 +1921,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_dataconnection.sql")
   public void createDataSourceWithIngestionOption() throws JsonProcessingException {
 
@@ -1934,7 +1988,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_dataconnection.sql")
   public void createDataSourceWithJdbcBatchIngestion() throws JsonProcessingException, InterruptedException {
 
@@ -2024,7 +2078,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_dataconnection.sql")
   public void dataconnectionToDataSource() throws JsonProcessingException {
 
@@ -2046,7 +2100,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void importAvailableDataSourceNames() {
 
     // @formatter:off
@@ -2063,7 +2117,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void engineDatasourcePreview() {
 
     // @formatter:off
@@ -2082,7 +2136,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void engineDatasourceImport() {
 
     DataSource dataSource = new DataSource();
@@ -2111,7 +2165,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createTemporaryDatasourcesSync() throws JsonProcessingException {
 
     DataSource dataSource = new DataSource();
@@ -2181,7 +2235,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createTemporaryDatasourcesAsync() throws JsonProcessingException {
 
     StompHeaders stompHeaders = new StompHeaders();
@@ -2264,7 +2318,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_datasource_temporary.sql")
   public void createTemporaryDatasourceByIdSync() throws JsonProcessingException {
 
@@ -2335,7 +2389,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_datasource_temporary.sql")
   public void createTemporaryDatasourceByIdASync() throws JsonProcessingException {
 
@@ -2400,7 +2454,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void dataSourceFieldTimeFormatCheck() throws JsonProcessingException {
 
     TimeFormatCheckRequest request = new TimeFormatCheckRequest();
@@ -2428,7 +2482,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void dataSourceFieldFindTimeFormat() throws JsonProcessingException {
 
     TimeFormatCheckRequest request = new TimeFormatCheckRequest();
@@ -2456,7 +2510,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void dataSourceValidateCronExpression() throws JsonProcessingException {
 
     String cronExpr = "0 0 0/1 1/1 * ? *";

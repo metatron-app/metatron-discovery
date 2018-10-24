@@ -3351,7 +3351,7 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 **************************************************************/
 .gutter.gutter-vertical {position:relative; height:6px; background-color:#e7e7ea; cursor:row-resize;}
 .gutter.gutter-vertical:before {display:inline-block; content:''; position:absolute; top:50%; left:50%;  margin:-7px 0 0 -1px; width:2px; height:13px; background:url(../images/icon_bar.png) no-repeat; transform:rotate(90deg)}
-.gutter.gutter-horizontal {position:relative; float:left; width:6px !important;height:100%; background-color:#e7e7ea;  cursor:col-resize;}
+.gutter.gutter-horizontal {position:relative; float:left; width:10px !important;height:100%; background-color:#e7e7ea;  cursor:col-resize;}
 .gutter.gutter-horizontal:before {display:inline-block; content:''; position:absolute; top:50%; left:50%;  margin:-7px 0 0 -1px; width:2px; height:13px; background:url(../images/icon_bar.png) no-repeat;}
 
 
