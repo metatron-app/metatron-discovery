@@ -161,6 +161,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   public datasetPopupTitle : string = 'Add datasets';   // Swap dataset popup title
   public isSelectDatasetPopupOpen : boolean = false;    // Swap dataset popup open/close
   public isRadio : boolean = false;                     // If swapping -> true / if Adding -> false
+  public swapDatasetId : string;                        // Swapping 대상 imported 면 dataset id wrangled 면 upstreamId
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -943,6 +944,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    */
   public openAddDatasetPopup(data :any) {
 
+    this.swapDatasetId = data.dsId;
     if (data.type === 'imported') {
       this.datasetPopupTitle = 'Replace dataset';
       this.isRadio = true;

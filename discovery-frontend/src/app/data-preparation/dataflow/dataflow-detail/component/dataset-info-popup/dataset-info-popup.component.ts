@@ -465,8 +465,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       this.isBtnOptionOpen = false;
     }
 
-    if (type === 'wrangled') {
-
+    if (type === 'wrangled') { // wrangled 면 upstream dsId 를 찾아야함
 
       this.dataflowModelService.getUpstreamList().forEach((item) => {
         if (item.dsId === this.selectedDataSet.dsId) {
