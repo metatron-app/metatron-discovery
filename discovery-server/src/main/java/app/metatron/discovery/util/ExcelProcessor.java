@@ -21,6 +21,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
 
@@ -45,20 +46,18 @@ public class ExcelProcessor {
 
     extensionType = FilenameUtils.getExtension(targetFile.getName());
 
-    // old POI library
-    /*
     if ("xls".equals(extensionType)) {       // 97~2003
       workbook = new HSSFWorkbook(new FileInputStream(targetFile));
     } else {   // 2007 ~
-      workbook = new XSSFWorkbook(new FileInputStream(targetFile));
+      // old POI library
+      // workbook = new XSSFWorkbook(new FileInputStream(targetFile));
+      InputStream is = new FileInputStream(targetFile);
+      workbook = StreamingReader.builder()
+              .rowCacheSize(100)
+              .bufferSize(4096)
+              .open(is);
     }
-    */
 
-    InputStream is = new FileInputStream(targetFile);
-    workbook = StreamingReader.builder()
-            .rowCacheSize(100)
-            .bufferSize(4096)
-            .open(is);
   }
 
   public List<String> getSheetNames() throws IOException {
