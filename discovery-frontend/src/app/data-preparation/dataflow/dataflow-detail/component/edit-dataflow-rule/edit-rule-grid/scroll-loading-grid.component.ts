@@ -83,6 +83,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   public totalRowCnt: number = 0;
 
+  public ruleIndex: number;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -133,6 +135,17 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     this.totalRowCnt = totalRowCnt;
   }
 
+  /**
+   *  ruleIndex
+   */
+  public setRuleIndex(ruleIndex: number): void {
+    if(ruleIndex == null || ruleIndex == undefined){
+      this.ruleIndex = null;
+    }else{
+      this.ruleIndex = ruleIndex;
+    }
+
+  }
 
   /**
    * 그리드 생성
@@ -140,7 +153,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    * @param {ScrollLoadingGridModel} gridModel
    * @param {Option} option
    */
-  public create(headers: header[], gridModel: ScrollLoadingGridModel, option: Option = null, ruleIndex:number) {
+  public create(headers: header[], gridModel: ScrollLoadingGridModel, option: Option = null) {
 
     // 기존 그리드 삭제
     this.destroy();
@@ -186,10 +199,10 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
     // 그리드 모델 정의
     this._gridModel = gridModel;
 
-    // 최초 로딩시 데이터 전체 카운트
+    // 데이터 전체 카운트 & ruleIdx
     if(this._gridModel) {
       this._gridModel.setTotalRowCnt(this.totalRowCnt);
-      this._gridModel.setRuleIndex(ruleIndex);
+      this._gridModel.setRuleIndex(this.ruleIndex);
 
     }
 

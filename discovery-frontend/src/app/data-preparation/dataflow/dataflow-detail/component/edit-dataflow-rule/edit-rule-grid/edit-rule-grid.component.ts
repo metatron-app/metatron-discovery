@@ -271,9 +271,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       // 그리드 생성
       gridData.fields.forEach(field => field.isHover = false);
 
-      // 최초 로딩시 데이터 전체 카운트
+      // 데이터 전체 카운트 & ruleIdx
       if(this._gridComp) {
         this._gridComp.setTotalRowCnt(data.totalRowCnt);
+        this._gridComp.setRuleIndex(this.ruleIdx);
       }
 
 
@@ -1789,8 +1790,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         .ExplicitInitialization(true)
         .NullCellStyleActivate(true)
         .EnableMultiSelectionWithCtrlAndShift(true)
-        .build(),
-      ruleIndex
+        .build()
     );
 
     // 그리드 실행
