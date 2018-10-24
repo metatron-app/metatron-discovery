@@ -362,6 +362,10 @@ public class Field implements MetatronDomain<Long> {
   @JsonIgnore
   public String getTimeFormat() {
 
+    if (StringUtils.isEmpty(format)) {
+      return format;
+    }
+
     FieldFormat fieldFormat = getFormatObject();
 
     // If it is a simple string, it is recognized as datetime format

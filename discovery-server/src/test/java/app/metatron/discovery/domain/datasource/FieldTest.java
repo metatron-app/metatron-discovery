@@ -6,24 +6,35 @@ import org.junit.Test;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 
 import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class FieldTest {
 
   @Test
   public void getTimeFormat() {
-    Field timestampField1 = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
-    timestampField1.setFormat("yyyy-MM-dd");
+    Field timestampField_format_null = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    assertNull(timestampField_format_null.getTimeFormat());
 
-    Field timestampField2 = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
-    timestampField2.setFormat(GlobalObjectMapper.writeValueAsString(new UnixTimeFormat()));
+    Field timestampField_plan_text_format = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField_plan_text_format.setFormat("yyyy-MM-dd");
 
-    assertEquals("yyyy-MM-dd", timestampField1.getTimeFormat());
-    assertEquals(TimeFieldFormat.DEFAULT_DATETIME_FORMAT, timestampField2.getTimeFormat());
+    assertEquals("yyyy-MM-dd", timestampField_plan_text_format.getTimeFormat());
+
+    Field timestampField_format = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField_format.setFormat(GlobalObjectMapper.writeValueAsString(new CustomDateTimeFormat("yyyy-MM-dd")));
+
+    assertEquals("yyyy-MM-dd", timestampField_plan_text_format.getTimeFormat());
+
+    Field timestampField_unix = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField_unix.setFormat(GlobalObjectMapper.writeValueAsString(new UnixTimeFormat()));
+
+    assertEquals(TimeFieldFormat.DEFAULT_DATETIME_FORMAT, timestampField_unix.getTimeFormat());
   }
 
   @Test
