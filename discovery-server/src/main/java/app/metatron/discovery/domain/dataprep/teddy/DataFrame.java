@@ -449,19 +449,19 @@ public class DataFrame implements Serializable, Transformable {
     Util.showSep(widths);
   }
 
-  public void dropColumns(List<String> targetColNames) throws TeddyException{
-    for(String colName : targetColNames) {
-      colDescs.remove(getColnoByColName(colName));
-    }
+  public void dropColumn(String targetColName) throws TeddyException{
+    if(colNames.contains(targetColName)) {
+      colDescs.remove(getColnoByColName(targetColName));
+      colNames.remove(targetColName);
+      mapColno.clear();
 
-    colNames.removeAll(targetColNames);
+      int i = 0;
+      for (String colName : colNames) {
+        mapColno.put(colName, i);
+        i++;
+      }
 
-    mapColno.clear();
-
-    int i = 0;
-    for(String colName : colNames) {
-      mapColno.put(colName, i);
-      i++;
+      colCnt = colCnt -1;
     }
 
     List<Row> newRows = new ArrayList<>();
@@ -472,8 +472,6 @@ public class DataFrame implements Serializable, Transformable {
       }
       newRows.add(newRow);
     }
-
-    colCnt = colCnt - targetColNames.size();
     rows = newRows;
   }
 
