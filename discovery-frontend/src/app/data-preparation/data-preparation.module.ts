@@ -54,7 +54,7 @@ import { EditRuleGridComponent } from './dataflow/dataflow-detail/component/edit
 import { RuleSnapshotListComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-snapshot-list.component';
 import { CreateDataflowNameDescComponent } from './dataflow/create-dataflow-name-desc.component';
 import { AddDatasetComponent } from './dataflow/dataflow-detail/add-dataset.component';
-import { DatasetSummaryComponent } from './dataflow/dataflow-detail/dataset-summary.component';
+import { DatasetSummaryComponent } from './component/dataset-summary.component';
 import { EditRuleHeaderComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-header.component';
 import { EditRuleKeepComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-keep.component';
 import { EditRuleDeleteComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-delete.component';
