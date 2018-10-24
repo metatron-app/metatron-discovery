@@ -23,30 +23,35 @@ import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.util.EnumUtils;
 
 /**
- * Combine Chart 스타일 정의
+ * Combine Chart Specification
  */
 @JsonTypeName("combine")
 public class CombineChart extends Chart {
 
   /**
-   * Bar Chart 표시 방식
+   * for Bar Style
    */
   BarMarkType barMarkType;
 
   /**
-   * Line Chart 표시 방식
+   * for Line Style
    */
   LineMarkType lineMarkType;
 
   /**
-   * X 축 설정
+   * Properties of X axis
    */
   ChartAxis xAxis;
 
   /**
-   * Y 축 설정
+   * Properties of Y axis
    */
   ChartAxis yAxis;
+
+  /**
+   * Properties of secondary axis
+   */
+  ChartAxis secondaryAxis;
 
 
   public CombineChart() {
@@ -63,12 +68,14 @@ public class CombineChart extends Chart {
                       @JsonProperty("barMarkType") String barMarkType,
                       @JsonProperty("lineMarkType") String lineMarkType,
                       @JsonProperty("xAxis") ChartAxis xAxis,
-                      @JsonProperty("yAxis") ChartAxis yAxis) {
+                      @JsonProperty("yAxis") ChartAxis yAxis,
+                      @JsonProperty("secondaryAxis") ChartAxis secondaryAxis) {
     super(color, valueFormat, legend, chartZooms, fontSize, dataLabel, toolTip);
     this.barMarkType = EnumUtils.getUpperCaseEnum(BarMarkType.class, barMarkType, BarMarkType.MULTIPLE);
-    this.lineMarkType = EnumUtils.getUpperCaseEnum(LineMarkType.class, lineMarkType,LineMarkType.LINE);
+    this.lineMarkType = EnumUtils.getUpperCaseEnum(LineMarkType.class, lineMarkType, LineMarkType.LINE);
     this.xAxis = xAxis;
     this.yAxis = yAxis;
+    this.secondaryAxis = secondaryAxis;
   }
 
   public BarMarkType getBarMarkType() {
@@ -87,6 +94,10 @@ public class CombineChart extends Chart {
     return yAxis;
   }
 
+  public ChartAxis getSecondaryAxis() {
+    return secondaryAxis;
+  }
+
   @Override
   public String toString() {
     return "CombineChart{" +
@@ -96,12 +107,12 @@ public class CombineChart extends Chart {
   }
 
   public enum BarMarkType {
-    MULTIPLE, // 병렬
-    STACKED   // 중첩
+    MULTIPLE,
+    STACKED
   }
 
   public enum LineMarkType {
-    LINE,       // 라인 표시
-    AREA        // 면적 표시
+    LINE,
+    AREA
   }
 }
