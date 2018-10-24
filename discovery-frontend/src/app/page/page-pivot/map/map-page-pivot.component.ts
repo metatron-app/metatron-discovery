@@ -147,13 +147,19 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        if(!fieldAlias) fieldAlias = aggregation.name;
        if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
 
-       if(this.uiOption.layers[layerNum-1].color.by === 'NONE' || this.uiOption.layers[layerNum-1].color.by === 'DIMENSION') {
-         this.uiOption.layers[layerNum-1].color.by = 'MEASURE';
-         this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
-         this.uiOption.layers[layerNum-1].color.schema = 'VC1';
-       } else {
-         this.uiOption.layers[layerNum-1].size.by = 'MEASURE';
-         this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+       // only event type is changePivot, set color as measure color
+       if (EventType.CHANGE_PIVOT == eventType) {
+
+         if(this.uiOption.layers[layerNum-1].color.by === 'NONE' || this.uiOption.layers[layerNum-1].color.by === 'DIMENSION') {
+           this.uiOption.layers[layerNum-1].color.by = 'MEASURE';
+           this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+           this.uiOption.layers[layerNum-1].color.schema = 'VC1';
+
+         } else {
+           this.uiOption.layers[layerNum-1].size.by = 'MEASURE';
+           this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+         }
+
        }
      }
 
@@ -304,6 +310,19 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      return count < 1;
    }
 
+  /**
+   * TODO need to update css
+   * set animation in map
+   * @param {JQuery} element
+   */
+  // public onShelveAnimation(element: JQuery) {
+  //
+  //   let shelfElement: JQuery;
+  //
+  //   shelfElement = this.$element.find('#shelfColumn' + this.layerNum);
+  //
+  //   super.onShelveAnimation(shelfElement.find('.ddp-wrap-default'));
+  // }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
