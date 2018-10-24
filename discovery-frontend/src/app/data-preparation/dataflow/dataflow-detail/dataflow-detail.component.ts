@@ -653,6 +653,11 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         }
       }, 500)
     }
+
+
+    setTimeout( () => {
+      this.dataflowChartAreaResize();
+    }, 600);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -777,7 +782,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
   }
 
-
   /**
    * 데이터플로우 차트 Height Resize
    */
@@ -785,11 +789,10 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     if(resizeCall == undefined) resizeCall = false;
     const itemMinSize: number = 64;
     const hScrollbarWith: number = 30;
+    const topMargin: number = 50;
     let minHeightSize: number = 600;
     if($('.ddp-wrap-flow2')!=null && $('.ddp-wrap-flow2')!=undefined){
-      let topmargin: string = String($('.ddp-box-chart').css('top'));
-      if(topmargin === 'undefined') topmargin ='45';
-      minHeightSize = $('.ddp-wrap-flow2').height()- parseInt(topmargin);
+      minHeightSize = $('.ddp-wrap-flow2').height()- topMargin;
     }
     let fixHeight: number = minHeightSize;
     if(this.dataflow!=null && this.dataflow.hasOwnProperty('wrangledDsCount') && this.dataflow.hasOwnProperty('importedDsCount')){
@@ -801,8 +804,14 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
       const lWrangled: number = (wrangled * itemMinSize) + Math.floor(imported * itemMinSize/2);
       if(lImported > minHeightSize || lWrangled > minHeightSize) {if(lImported>lWrangled) {fixHeight = lImported;}else{fixHeight = lWrangled;}}
     }
+    let isRight: boolean = false;
+    if($('.sys-dataflow-right-panel').width() !== null) {isRight = true;}
     const minWidthSize: number = $('.ddp-wrap-flow2').width()- hScrollbarWith;
-    $('.ddp-box-chart').css('overflow-x', 'hidden');
+    if(isRight) {
+      $('.ddp-box-chart').css('overflow-x', 'auto');
+    }else{
+      $('.ddp-box-chart').css('overflow-x', 'hidden');
+    }
     $('#chartCanvas').css('height', fixHeight+'px').css('width', minWidthSize+'px').css('overflow', 'hidden');
     if($('#chartCanvas').children()!=null && $('#chartCanvas').children()!=undefined){
       $('#chartCanvas').children().css('height', fixHeight+'px').css('width', minWidthSize+'px');}
@@ -811,7 +820,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
     if (resizeCall == true && this.chart != null) {this.chart.resize();}
   }
-
 
 
   /**
@@ -1224,6 +1232,11 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         // 컴포넌트가 열려있는 상태에서 데이터를 설정해주기 위함
         this.datasetInfoPopup.setDataset(this.selectedDataSet);
       }
+
+      setTimeout( () => {
+        this.dataflowChartAreaResize();
+      }, 600);
+
     });
   } // function - chartClickEventListener
 
