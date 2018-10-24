@@ -473,7 +473,7 @@ export class LogStatisticsComponent extends AbstractComponent implements OnInit,
     if(name !== 'successRate') {
 
       // 한 페이지에 보여줄 개수 = 15 개씩 보여준다
-      params['size']=this.pageResult.size;
+      params['size']= ( this.pageResult.size ) ? this.pageResult.size : 5;
 
       // 몇번째 페이지 인지 처음은 0
       if (isUndefined(this.pageResult.number)){
