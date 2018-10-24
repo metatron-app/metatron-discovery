@@ -115,9 +115,9 @@
             <!-- //edit -->
 
             <!-- Time display format -->
-            <div class="ddp-wrap-edit3" *ngIf="column.logicalType === 'TIMESTAMP'">
+            <div class="ddp-wrap-edit3" *ngIf="column.logicalType.toString() === 'TIMESTAMP'">
 
-              <label class="ddp-ui-label-name">
+              <label class="ddp-ui-label-name ddp-mgb0">
                 {{'msg.storage.ui.time.display.format' | translate}}
                 <div class="ddp-wrap-hover-info" (mouseenter)="hoverEvent('time')">
                   <em class="ddp-icon-info3"></em>
@@ -202,21 +202,24 @@
                   </div>
                   <!-- //popup -->
                 </div>
-                <label class="ddp-label-checkbox ddp-fright" (click)="onClickUnixCode(); $event.preventDefault()">
-                  <input type="checkbox" [checked]="column.unix" [disabled]="column.formatDefault">
-                  <i class="ddp-icon-checkbox"></i>
-                  <span class="ddp-txt-checkbox">It’s Unix code</span>
-                </label>
+                <div class="ddp-type-format">
+                  <label class="ddp-label-checkbox" (click)="onClickUnixCode(); $event.preventDefault()">
+                    <input type="checkbox" [checked]="column.format?.type?.toString() === 'time_unix'" [disabled]="column.isDefaultFormat">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable.unix' | translate}}</span>
+                  </label>
+                </div>
               </label>
 
               <!-- edit format -->
               <div class="ddp-ui-option-in">
-                <div class="ddp-input-apply">
-                  <input type="text" class="ddp-input-txt" placeholder="Enter time format" [readOnly]="column.formatDefault"
-                         [(ngModel)]="column.format" (ngModelChange)="initTimeFormatValid()">
+                <div class="ddp-input-apply" *ngIf="!column.isDefaultFormat" [class.ddp-disabled]="column.format?.type?.toString() === 'time_unix'">
+                  <input type="text" class="ddp-input-txt" placeholder="{{'msg.storage.ph.time.format' | translate}}"
+                         [(ngModel)]="column.format.format" (ngModelChange)="initTimeFormatValid()">
                 </div>
-                <div class="ddp-ui-error ddp-italic" *ngIf="column.errorFl">
-                  <em class="ddp-icon-error"></em>{{column.formatMessage}}
+                <input *ngIf="column.isDefaultFormat" type="text" class="ddp-input-typebasic ddp-readonly" value="{{column.format.format}}" readonly="readonly" >
+                <div class="ddp-ui-error ddp-italic" *ngIf="column.isTimeError">
+                  <em class="ddp-icon-error"></em>{{'msg.common.ui.required' | translate}}
                 </div>
               </div>
               <!-- //edit format -->
@@ -242,10 +245,10 @@
                       </label>
                       <input type="text" class="ddp-input-typebasic" placeholder="{{getDefaultValue(column.logicalType)}}"
                              [(ngModel)]="column['ingestionRule'].value"
-                             (ngModelChange)="ingestionRuleValidation(column.logicalType)">
+                             (ngModelChange)="ingestionRuleValidation(column.logicalType.toString())">
                     </div>
                     <!-- error -->
-                    <div class="ddp-ui-error" *ngIf="column.ingestionRule.type === 'replace' && this.column.replaceFl === false">
+                    <div class="ddp-ui-error" *ngIf="column.ingestionRule.type === 'replace' && column.isReplaceError">
                       <em class="ddp-icon-error"></em>{{getValidationMsg(column.logicalType)}}
                     </div>
                     <!-- //error -->

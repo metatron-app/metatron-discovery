@@ -16,6 +16,7 @@ import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output } 
 import { isUndefined } from 'util';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
+import { Field, FieldFormat, FieldFormatType, FieldRole, LogicalType } from '../../../domain/datasource/datasource';
 
 declare let moment: any;
 
@@ -31,6 +32,8 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
 
   // 현재 선택된 타임스탬프 타입
   private timestampType: string;
+
+  private currentMilliseconds: number = moment().valueOf() / 1000;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -89,7 +92,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   public selectedTimestamp: any;
 
   // column data
-  public column: any;
+  public column: Field;
 
   // role Type
   public roleType: any[];
@@ -178,7 +181,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     } else {
       switch (itemType.toUpperCase()) {
         case 'TIMESTAMP':
-          result = this.columnData ? this.columnData[0] : '';
+          result = this.currentMilliseconds;
           break;
         case 'BOOLEAN':
           result = 'false';
@@ -290,11 +293,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
       result = this.translateService.instant('msg.storage.ui.schema.valid.string');
     } else {
       switch (itemType.toUpperCase()) {
-        case 'TIMESTAMP':
-          result = this.isUndefinedColumnFormat()
-            ? this.translateService.instant('msg.storage.ui.schema.valid.timestamp.null')
-            : this.translateService.instant('msg.storage.ui.schema.valid.timestamp');
-          break;
         case 'BOOLEAN':
           result = this.translateService.instant('msg.storage.ui.schema.valid.boolean');
           break;
@@ -305,11 +303,8 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
           result = this.translateService.instant('msg.storage.ui.schema.valid.integer');
           break;
         case 'DOUBLE':
-          result = this.translateService.instant('msg.storage.ui.schema.valid.decimal');
-          break;
+        case 'TIMESTAMP':
         case 'LNG':
-          result = this.translateService.instant('msg.storage.ui.schema.valid.decimal');
-          break;
         case 'LNT':
           result = this.translateService.instant('msg.storage.ui.schema.valid.decimal');
           break;
@@ -326,22 +321,19 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
    * Time Format keyup 이벤트
    */
   public initTimeFormatValid(): void {
-    delete this.column.errorFl;
-    this.column.replaceFl = true;
-  }
-
-  /**
-   * Time Format 체크버튼 클릭
-   */
-  public timeFormatClick() {
-    // check Time Format
-    this.checkTimeFormat(this.columnData, this.column.format);
+    delete this.column.isTimeError;
   }
 
   public onClickUnixCode(): void {
-    if (!this.column.formatDefault) {
-      this.column.unix = !this.column.unix;
-      delete this.column.errorFl;
+    if (!this.column.isDefaultFormat) {
+      delete this.column.isTimeError;
+      if (this.column.format.type === FieldFormatType.DATE_TIME) {
+        this.column.format.type = FieldFormatType.UNIX_TIME;
+        // UNIX인경우 기존 format 제거
+        delete this.column.format.format;
+      } else if (this.column.format.type === FieldFormatType.UNIX_TIME) {
+        this.column.format.type = FieldFormatType.DATE_TIME;
+      }
     }
   }
 
@@ -362,17 +354,16 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     // null 타입 변경
     this.column.ingestionRule.type = 'default';
     // 플래그 제거
-    delete this.column.replaceFl;
+    delete this.column.isReplaceError;
 
     // timestamp 인 경우
-    if (this.column.logicalType === 'TIMESTAMP') {
+    if (this.column.logicalType === LogicalType.TIMESTAMP) {
       // format 지정
       this.checkTimeFormat(this.columnData);
     } else {
       // timestamp 가 아닌 경우 format 삭제
-      delete this.column.format;
-      delete this.column.errorFl;
-      delete this.column.formatDefault;
+      delete this.column.isTimeError;
+      delete this.column.isDefaultFormat;
     }
 
     // time stamp flag
@@ -398,9 +389,8 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     // null 타입 변경
     this.column.ingestionRule.type = 'default';
     // time stamp flag
-    delete this.column.format;
-    delete this.column.errorFl;
-    delete this.column.replaceFl;
+    delete this.column.isTimeError;
+    delete this.column.isReplaceError;
 
     this.changeEvent.emit();
   }
@@ -420,7 +410,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
 
     // 변경된 처리가 replace인 경우 check
     if (type === 'replace') {
-      this.ingestionRuleValidation(this.column.logicalType);
+      this.ingestionRuleValidation(this.column.logicalType.toString());
     }
   }
 
@@ -493,38 +483,35 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     } else {
       // 타입으로 검사
       switch (itemType.toUpperCase()) {
-        case 'TIMESTAMP':
-          // time stamp 검사
-          this.replaceTimeValidation();
-          break;
         case 'BOOLEAN':
-          this.column.replaceFl = text.toLowerCase() === 'false' || text.toLowerCase() === 'true' || text.trim() === '';
+          this.column.isReplaceError = !(text.toLowerCase() === 'false' || text.toLowerCase() === 'true' || text.trim() === '');
           break;
         case 'TEXT':
         case 'DIMENSION':
         case 'STRING':
-          this.column.replaceFl = true;
+          this.column.isReplaceError = false;
           break;
         case 'INT':
         case 'INTEGER':
         case 'LONG':
+        case 'TIMESTAMP':
           reg = /^[0-9]*$/g;
-          this.column.replaceFl = reg.test(text) || text.trim() === '';
+          this.column.isReplaceError = !(reg.test(text) || text.trim() === '');
           break;
         case 'DOUBLE':
         case 'FLOAT':
           reg = /^[0-9]+([.][0-9]+)?$/g;
-          this.column.replaceFl = reg.test(text) || text.trim() === '';
+          this.column.isReplaceError = !(reg.test(text) || text.trim() === '');
           break;
         case 'LNT':
         case 'LATITUDE':
           reg = /^[0-9]+([.][0-9]+)$/g;
-          this.column.replaceFl = reg.test(text) || text.trim() === '';
+          this.column.isReplaceError = !(reg.test(text) || text.trim() === '');
           break;
         case 'LNG':
         case 'LONGITUDE':
           reg = /^[0-9]+([.][0-9]+)$/g;
-          this.column.replaceFl = reg.test(text) || text.trim() === '';
+          this.column.isReplaceError = !(reg.test(text) || text.trim() === '');
           break;
         default:
           console.error(this.translateService.instant('msg.common.ui.no.icon.type'), itemType);
@@ -591,8 +578,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
 
     // data 가 없다면 타임스탬프를 지정할수 없다.
     if (data.length === 0) {
-
-      this.column.errorFl = true;
       return;
     } else if (data.length > 20) {
       columnData = columnData.slice(0, 19);
@@ -607,32 +592,26 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
       param['format'] = format;
     }
 
-    this.timeValidation(param)
+    // 로딩 show
+    this.loadingShow();
+    // init field format
+    this.column.format = new FieldFormat();
+    this.column.format.type = FieldFormatType.DATE_TIME;
+    this.datasourceService.checkValidationDateTime(param)
       .then((result) => {
+        // 로딩 hide
+        this.loadingHide();
         // pattern 이 있을경우
         if (result.hasOwnProperty('pattern')) {
           // set format
-          this.column.format = result.pattern;
+          this.column.format.format = result.pattern;
           // set default
-          this.column.formatDefault = true;
-        }
-
-        // valid가 있는경우
-        if (result.hasOwnProperty('valid')) {
-          // valid fail
-          if (!result.valid) {
-            this.column.errorFl = true;
-          } else {
-            // valid success
-            delete this.column.errorFl;
-            // replace 로 선택된 경우
-            if (this.column.ingestionRule.type === 'replace' && data.length === 0) {
-              delete this.column.replaceFl;
-            }
-          }
+          this.column.isDefaultFormat = true;
         }
       })
       .catch((error) => {
+        // 로딩 hide
+        this.loadingHide();
       });
   }
 
@@ -646,75 +625,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
    */
   private getType(): any[] {
     if (this.column.hasOwnProperty('role')) {
-      return this.column.role === 'MEASURE' ? this.measureType : this.dimensionType;
+      return this.column.role === FieldRole.MEASURE ? this.measureType : this.dimensionType;
     }
-  }
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method - validation
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * column의 timeformat이 없는경우
-   * @returns {boolean}
-   */
-  private isUndefinedColumnFormat(): boolean {
-    if (this.column.hasOwnProperty('format') && this.column.format.trim() !== '') {
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * replace값이 timeformat에 적합한지 확인
-   */
-  private replaceTimeValidation() {
-
-    // format이 비어있을경우
-    if (!this.column.hasOwnProperty('format') || this.column.format.trim() === '') {
-      this.column.replaceFl =  false;
-      return;
-    }
-
-    // value가 비었을경우
-    if (!this.column.ingestionRule.hasOwnProperty('value') || this.column.ingestionRule.value.trim() === '') {
-      this.column.replaceFl =  true;
-      return;
-    }
-
-    const param = {
-      samples: [this.column.ingestionRule.value],
-      format: this.column.format
-    };
-
-    this.timeValidation(param)
-      .then((result) => {
-        this.column.replaceFl =  result.valid;
-      })
-      .catch((error) => {
-      });
-  }
-
-  /**
-   * time validation
-   * @param param
-   * @returns {Promise<any>}
-   */
-  private timeValidation(param): Promise<any> {
-    return new Promise((resolve, reject) => {
-      // 로딩 show
-      this.loadingShow();
-      this.datasourceService.checkValidationDateTime(param)
-        .then((result) => {
-          // 로딩 hide
-          this.loadingHide();
-          resolve(result);
-        })
-        .catch((error) => {
-          // 로딩 hide
-          this.loadingHide();
-          reject(error);
-        });
-    });
   }
 }

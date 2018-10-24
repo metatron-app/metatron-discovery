@@ -1869,6 +1869,7 @@
   "msg.storage.ui.max.row.error": "You can enter up to {{value}}.",
   "msg.storage.ui.user.input": "Direct input",
   "msg.storage.ui.enable.unix": "It’s Unix timestamp",
+  "msg.storage.ph.time.format": "Enter time format",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",
