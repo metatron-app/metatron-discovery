@@ -22,9 +22,11 @@ import app.metatron.discovery.domain.dataprep.transform.PrepTransformService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.http.HttpStatus;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RequestMapping(value = "/preparationdatasets")
 @RepositoryRestController
@@ -55,6 +58,9 @@ public class PrepDatasetController {
     @Autowired(required = false)
     private PrepHdfsService hdfsService;
 
+    @Autowired(required = false)
+    private PrepDatasetService datasetService;
+
     @Autowired
     private PrepDatasetRepository datasetRepository;
 
@@ -66,6 +72,29 @@ public class PrepDatasetController {
 
     @Autowired(required = false)
     PrepProperties prepProperties;
+
+    @Value("${spring.http.multipart.max-file-size}")
+    String maxFileSize;
+
+    Long limitSize;
+    public Long getLimitSize() {
+        if(null==limitSize) {
+            limitSize = 0L;
+            if (null != maxFileSize) {
+                maxFileSize = maxFileSize.toUpperCase();
+                if (true == maxFileSize.endsWith("KB")) {
+                    limitSize = Long.parseLong(maxFileSize.replace("KB", "").trim()) * 1024;
+                } else if (true == maxFileSize.endsWith("MB")) {
+                    limitSize = Long.parseLong(maxFileSize.replace("MB", "").trim()) * 1024 * 1024;
+                } else if (true == maxFileSize.endsWith("GB")) {
+                    limitSize = Long.parseLong(maxFileSize.replace("GB", "").trim()) * 1024 * 1024 * 1024;
+                } else if (true == maxFileSize.endsWith("TB")) {
+                    limitSize = Long.parseLong(maxFileSize.replace("TB", "").trim()) * 1024 * 1024 * 1024 * 1024;
+                }
+            }
+        }
+        return limitSize;
+    }
 
     @RequestMapping(value = "/{dsId}", method = RequestMethod.DELETE)
     @ResponseBody
@@ -403,5 +432,67 @@ public class PrepDatasetController {
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
         }
         return ResponseEntity.ok(response);
+    }
+
+    @RequestMapping(value = "/file_upload", method = RequestMethod.GET, produces = "application/json")
+    public @ResponseBody ResponseEntity<?> file_upload() {
+        Map<String, Object> response = null;
+        try {
+            response = Maps.newHashMap();
+
+            String fileKey = UUID.randomUUID().toString();
+            response.put("file_key", fileKey);
+
+            DateTime now = DateTime.now();
+            response.put("timestamp", now.getMillis());
+
+            response.put("limit_size", getLimitSize());
+
+            List<String> uploadLocations = Lists.newArrayList();
+            uploadLocations.add("LOCAL");
+            uploadLocations.add("HDFS");
+            uploadLocations.add("S3");
+            response.put("upload_location", uploadLocations);
+        } catch (Exception e) {
+            LOGGER.error("upload_async_poll(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+        }
+        return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
+    }
+
+    @RequestMapping(value = "/file_upload", method = RequestMethod.POST, produces = "application/json")
+    public @ResponseBody ResponseEntity<?> file_upload(
+            /*
+            @RequestBody String fileKey,
+            @RequestBody String uploadLocation,
+            @RequestBody Integer chunkIndex,
+            @RequestBody Integer totalChunk,
+            */
+            @RequestPart("resumableChunkNumber") Integer resumableChunkNumber,
+            @RequestPart("resumableChunkSize") Integer resumableChunkSize,
+            @RequestPart("resumableCurrentChunkSize") Integer resumableCurrentChunkSize,
+            @RequestPart("resumableTotalSize") Integer resumableTotalSize,
+            @RequestPart("resumableType") String resumableType,
+            @RequestPart("resumableIdentifier") String resumableIdentifier,
+            @RequestPart("resumableFilename") String resumableFilename,
+            @RequestPart("resumableRelativePath") String resumableRelativePath,
+            @RequestPart("resumableTotalChunks") Integer resumableTotalChunks,
+            @RequestPart("file") MultipartFile file
+    ) {
+        Map<String, Object> response = null;
+        String resumableResult = "partly_done";
+        try {
+            response = Maps.newHashMap();
+
+            response.put("status","success");
+
+            if(resumableChunkNumber==resumableTotalChunks) {
+                resumableResult = "done";
+            }
+        } catch (Exception e) {
+            LOGGER.error("upload_async(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+        }
+        return ResponseEntity.status(HttpStatus.SC_CREATED).body(resumableResult);
     }
 }

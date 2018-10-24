@@ -204,9 +204,9 @@ export class CommonUtil {
     (confirmData.description) && (description = description + confirmData.description);
     (confirmData.subDescription) && (description = description + '<br/>' + confirmData.subDescription);
     if (confirmData.isScroll) {
-      $scrollContentsBox.find('.ddp-txt-detail').text(description);
+      $scrollContentsBox.find('.ddp-txt-detail').html(description);
     } else {
-      $nonScrollContentsBox.text(description);
+      $nonScrollContentsBox.html(description);
     }
 
     // 버튼 설정

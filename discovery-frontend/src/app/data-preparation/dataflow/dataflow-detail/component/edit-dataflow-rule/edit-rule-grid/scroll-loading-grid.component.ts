@@ -81,6 +81,10 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   @Output() private onHeaderRowCellRendered = new EventEmitter();
 
+  public totalRowCnt: number = 0;
+
+  public ruleIndex: number;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -124,13 +128,31 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  // /**
+  //  *  전체 row count
+  //  */
+  // public setTotalRowCnt(totalRowCnt: number): void {
+  //   this.totalRowCnt = totalRowCnt;
+  // }
+  //
+  // /**
+  //  *  ruleIndex
+  //  */
+  // public setRuleIndex(ruleIndex: number): void {
+  //   if(ruleIndex == null || ruleIndex == undefined){
+  //     this.ruleIndex = null;
+  //   }else{
+  //     this.ruleIndex = ruleIndex;
+  //   }
+  // }
+
   /**
    * 그리드 생성
    * @param {header[]} headers
    * @param {ScrollLoadingGridModel} gridModel
    * @param {Option} option
    */
-  public create(headers: header[], gridModel: ScrollLoadingGridModel, option: Option = null) {
+  public create(headers: header[], gridModel: ScrollLoadingGridModel, option: Option = null, ruleIdx: number, totalRowCnt: number) {
 
     // 기존 그리드 삭제
     this.destroy();
@@ -175,6 +197,12 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
     // 그리드 모델 정의
     this._gridModel = gridModel;
+
+    // 데이터 전체 카운트 & ruleIdx
+    if(this._gridModel) {
+      this._gridModel.setTotalRowCnt(totalRowCnt);
+      this._gridModel.setRuleIndex(ruleIdx);
+    }
 
     // 그리드 생성
     this._grid = this._generateGrid(headers, gridModel);
@@ -227,6 +255,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   public search(searchText: string = '') {
     try {
       // 선택표시 전체 해제
+      this._grid.scrollRowIntoView(0);
       this._grid.setSelectedRows([]);
       this._gridModel.search(searchText);
     } catch (e) {
@@ -697,6 +726,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
         }
       }
     });
+
 
     // -----------------------------------------------------------------------------------------------------------------
     // 윈도우 리사이징에 대한 이벤트 처리

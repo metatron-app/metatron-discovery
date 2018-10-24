@@ -1952,7 +1952,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       if (command !== 'join' && command !== 'derive' && command !== 'aggregate' && command !== 'move') {
         // 저장된 위치로 이동
-        this._editRuleGridComp.moveToSavedPosition();
+        // this._editRuleGridComp.moveToSavedPosition();
       }
       // 계속 클릭하는거 방지
       if (isUndo && this.isUndoRunning) {

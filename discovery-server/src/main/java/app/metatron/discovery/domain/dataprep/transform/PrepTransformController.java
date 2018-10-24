@@ -116,7 +116,12 @@ public class PrepTransformController {
     if (offset == 0 && count >= gridResponse.rows.size()) {
       subGrid.rows = gridResponse.rows;
     } else {
-      subGrid.rows = gridResponse.rows.subList(offset, offset + count);
+      int toIndex = offset + count;
+      if(gridResponse.rows.size()<toIndex) {
+        toIndex = gridResponse.rows.size();
+      }
+
+      subGrid.rows = gridResponse.rows.subList(offset, toIndex);
     }
 
     return subGrid;
