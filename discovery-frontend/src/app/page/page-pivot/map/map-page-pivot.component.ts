@@ -69,7 +69,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
       }
     }
 
-    this.changePivot();
+    this.changePivot(EventType.CHANGE_PIVOT);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -110,7 +110,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
     */
    public changePivot(eventType?: EventType) {
 
-     let measureList = new Array(new Array(), new Array());
+     let measureList = new Array(new Array(), new Array(), new Array());
 
      for(let aggregation of this.pivot.aggregations) {
        let fieldAlias = aggregation.field["alias"];
@@ -198,10 +198,15 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
          }
        }
 
-       // this.removeField("event", )
+       this.layerNum = layerNum;
+     } else {
+      for(let column of this.pivot.columns) {
+        if(!column["layerNum"]) column["layerNum"] = 1;
+        if(column.field["logicalType"].toString().indexOf('GEO') > -1 && column["layerNum"] === this.layerNum) {
+          this.layerNum = layerNum;
+        }
+      }
      }
-
-     this.layerNum = layerNum;
 
      this.uiOption["layerCnt"] = layerNum;
 

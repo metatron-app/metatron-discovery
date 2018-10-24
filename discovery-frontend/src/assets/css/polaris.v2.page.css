@@ -2870,7 +2870,7 @@ em.ddp-icon-cross.type-apply:before {background-position:-12px -20px;}
 .ddp-ui-drag-slide.ddp-slide {padding:0 40px;}
 .ddp-ui-drag-slide.ddp-slide a.ddp-btn-prev,
 .ddp-ui-drag-slide.ddp-slide a.ddp-btn-next {display:block;}
-.ddp-ui-drag-slide .ddp-slide-control {position:absolute; top:6px; right:0; z-index:5;}
+.ddp-ui-drag-slide .ddp-slide-control {position:absolute; top:6px; right:29px; z-index:5;}
 .ddp-ui-drag-slide.ddp-slide .ddp-slide-control {position:absolute; top:6px; right:40px;}
 .ddp-ui-drag-slide .ddp-slide-control .ddp-btn-minus,
 .ddp-ui-drag-slide .ddp-slide-control .ddp-btn-plus {display:inline-block; float:left; width:27px; height:27px; margin-left:4px; background:url(../images/btn_minus_plus2.png) no-repeat;}

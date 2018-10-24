@@ -266,6 +266,11 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
        }
      }
 
+     if(layerType === "heatmap" && this.color["by"] === "DIMENSION") {
+       this.color["by"] = "NONE";
+       this.color["schema"] = "#602663";
+     }
+
      this.type = layerType;
 
      // 해당 레이어 타입으로 설정
@@ -893,6 +898,21 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
       this.rangesViewList = this.color['ranges'];
     }
 
+    if(this.type === "heatmap") {
+      setTimeout(
+        () => {
+          this.setBlurSlider();
+          this.setRadiusSlider();
+        }
+      );
+    } else if(this.type === "tile") {
+      setTimeout(
+        () => {
+          this.setResolutionSlider();
+        }
+      );
+    }
+
     // Init
     super.ngOnInit();
   }
@@ -1222,7 +1242,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     const rangeList = (<UIChartColorByValue>this.uiOption.layers[1].color).ranges;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.resultData['data'][0].minValue >= 0 ? 0 : Math.floor(Number(this.resultData['data'][0].minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
+    const uiMinValue = this.resultData['data'][0].valueRange[this.uiOption.layers[1].color.column].minValue >= 0 ? 0 : Math.floor(Number(this.resultData['data'][0].valueRange[this.uiOption.layers[1].color.column].minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
 
     // 최대값
     let maxValue = rangeList[index - 1].gt;
@@ -1435,6 +1455,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     rangeList[index] = range;
 
     this.color = this.uiOption.layers[1].color;
+    this.color['ranges'] = rangeList;
 
     // 해당 레이어 타입으로 설정
     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -1503,6 +1524,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     rangeList[index] = range;
 
     this.color = this.uiOption.layers[1].color;
+    this.color['ranges'] = rangeList;
 
     // 해당 레이어 타입으로 설정
     this.uiOption = <UIOption>_.extend({}, this.uiOption, {

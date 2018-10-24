@@ -273,12 +273,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       let featureSize = 5;
       if(styleOption.layers[layerNum].size.column && featureSizeType === 'MEASURE') {
-        featureSize = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange[styleOption.layers[layerNum].color.column].maxValue / 30);
+        featureSize = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange[styleOption.layers[layerNum].size.column].maxValue / 30);
       }
 
       let lineThickness = 2;
       if(styleOption.layers[layerNum].size.column && featureSizeType === 'MEASURE') {
-        lineThickness = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange[styleOption.layers[layerNum].color.column].maxValue / lineMaxVal);
+        lineThickness = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange[styleOption.layers[layerNum].size.column].maxValue / lineMaxVal);
       }
 
       if(styleOption.layers[layerNum].size.column && featureColorType === 'MEASURE') {
@@ -576,6 +576,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           color: featureColor
         })
       });
+
       return style;
     }
   }
@@ -902,9 +903,17 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let featureColor = this.uiOption.layers[0].color.schema;
     let colorList = ChartColorList[featureColor];
 
+    if(this.uiOption.layers[0].color["customMode"] === "SECTION") {
+      colorList = [];
+      for(let range of this.uiOption.layers[0].color["ranges"]) {
+        colorList.push(range.color);
+      }
+      colorList = colorList.reverse();
+    }
+
     let heatmapLayer = new ol.layer.Heatmap({
       source: source,
-      style: this.clusterStyleFunction(0, this.data),
+      // style: this.clusterStyleFunction(0, this.data),
       opacity: this.uiOption.layers[0].color.transparency / 100,
       blur: this.uiOption.layers[0].color.blur,
       radius: this.uiOption.layers[0].color.radius,
@@ -923,7 +932,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     });
 
     let features = [];
-    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(this.data[0]);;
+    let hexagonFeatures = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
     // let features = (new ol.format.GeoJSON()).readFeatures(this.data[0]);
 
     let field = this.pivot.columns[0];
@@ -950,9 +959,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           }
         }
       }
-
       feature.set('layerNum', 1);
       features[i] = feature;
+    }
+
+    for(let feature of hexagonFeatures) {
+      feature.set('layerNum', 1);
     }
 
     hexagonSource.addFeatures(hexagonFeatures);
@@ -1119,7 +1131,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.drawThirdLayer(this.data);
     }
 
+    //tooltip 생성
     this.tooltipRender();
+    //legend 생성
     this.legendRender();
 
     // 차트 반영
@@ -1166,75 +1180,84 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         //   element.style.right = '';
         //   element.style.bottom = '';
         // }
+        let legendHtmlAll = '';
+        let legendHtml = '';
 
-        let legendHtml;
+        if(!this.uiOption["layerCnt"]) this.uiOption["layerCnt"] = 1;
 
-        if(this.uiOption.layers[0].color["by"] === 'DIMENSION') {
-          legendHtml = '<div class="ddp-ui-layer">' +
-              '<span class="ddp-label">' + this.uiOption.layers[0].name + '</span>' +
-              '<span class="ddp-data">'+ this.uiOption.layers[0].type +'</span>' +
-              '<ul class="ddp-list-remark">';
+        for(let i=0;i<this.uiOption["layerCnt"];i++) {
+          if(this.data[i]) {
+            if(this.uiOption.layers[i].color["by"] === 'DIMENSION') {
+              legendHtml = '<div class="ddp-ui-layer">' +
+                  '<span class="ddp-label">' + this.uiOption.layers[i].name + '</span>' +
+                  '<span class="ddp-data">'+ this.uiOption.layers[i].type +'</span>' +
+                  '<ul class="ddp-list-remark">';
 
-          for(let field of this.uiOption.fieldList) {
-            legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:#602663"></em>' + field + '</li>';
-          }
+              for(let field of this.uiOption.fieldList) {
+                legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:#602663"></em>' + field + '</li>';
+              }
 
-          legendHtml = legendHtml + '</ul></div>';
-        } else if(this.uiOption.layers[0].color["by"] === 'MEASURE') {
-          legendHtml = '<div class="ddp-ui-layer">' +
-              '<span class="ddp-label">' + this.uiOption.layers[0].name + '</span>' +
-              '<span class="ddp-data">' + this.uiOption.layers[0].type + ' by ' + this.uiOption.layers[0].color.column + '</span>' +
-              '<ul class="ddp-list-remark">';
+              legendHtml = legendHtml + '</ul></div>';
+            } else if(this.uiOption.layers[i].color["by"] === 'MEASURE') {
+              legendHtml = '<div class="ddp-ui-layer">' +
+                  '<span class="ddp-label">' + this.uiOption.layers[i].name + '</span>' +
+                  '<span class="ddp-data">' + this.uiOption.layers[i].type + ' by ' + this.uiOption.layers[i].color.column + '</span>' +
+                  '<ul class="ddp-list-remark">';
 
-              let colorList = ChartColorList[this.uiOption.layers[0].color["schema"]];
+                  let colorList = ChartColorList[this.uiOption.layers[i].color["schema"]];
 
-              if(this.data[0].valueRange[this.uiOption.layers[0].color.column]) {
-                let avgNum = this.data[0].valueRange[this.uiOption.layers[0].color.column].maxValue / colorList.length;
+                  if(this.data[i].valueRange[this.uiOption.layers[i].color.column]) {
+                    let avgNum = this.data[i].valueRange[this.uiOption.layers[i].color.column].maxValue / colorList.length;
 
-                for(let i=0;i<colorList.length;i++) {
-                    let minVal = FormatOptionConverter.getFormatValue(avgNum * i, this.uiOption.valueFormat);
-                    let maxVal = FormatOptionConverter.getFormatValue(avgNum * (i+1), this.uiOption.valueFormat);
+                    for(let j=0;j<colorList.length;j++) {
+                        let minVal = FormatOptionConverter.getFormatValue(avgNum * j, this.uiOption.valueFormat);
+                        let maxVal = FormatOptionConverter.getFormatValue(avgNum * (j+1), this.uiOption.valueFormat);
 
-                    legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + colorList[i] + '"></em>' + minVal + ' ~ ' + maxVal + '</li>';
+                        legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + colorList[j] + '"></em>' + minVal + ' ~ ' + maxVal + '</li>';
+                    }
+                  }
+
+              if(this.uiOption.layers[i].color["customMode"]) {
+                legendHtml = '<div class="ddp-ui-layer">' +
+                    '<span class="ddp-label">' + this.uiOption.layers[i].name + '</span>' +
+                    '<span class="ddp-data">' + this.uiOption.layers[i].type + ' by ' + this.uiOption.layers[i].color.column + '</span>' +
+                    '<ul class="ddp-list-remark">';
+
+                if(this.uiOption.layers[i].color["customMode"] === 'SECTION') {
+                  for(let range of this.uiOption.layers[i].color["ranges"]) {
+
+                    let minVal = range.fixMin;
+                    let maxVal = range.fixMax;
+
+                    if(minVal === null) minVal = 0;
+                    if(maxVal === null) maxVal = minVal;
+
+                    legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
+                  }
                 }
               }
 
-          if(this.uiOption.layers[0].color["customMode"]) {
-            legendHtml = '<div class="ddp-ui-layer">' +
-                '<span class="ddp-label">' + this.uiOption.layers[0].name + '</span>' +
-                '<span class="ddp-data">' + this.uiOption.layers[0].type + ' by ' + this.uiOption.layers[0].color.column + '</span>' +
-                '<ul class="ddp-list-remark">';
+            } else if(this.uiOption.layers[i].color["by"] === 'NONE') {
+              legendHtml = '<div class="ddp-ui-layer">' +
+                  '<span class="ddp-label">' + this.uiOption.layers[i].name + '</span>' +
+                  '<span class="ddp-data">' + this.uiOption.layers[i].type + ' Color</span>' +
+                  '<ul class="ddp-list-remark">';
 
-            if(this.uiOption.layers[0].color["customMode"] === 'SECTION') {
-              for(let range of this.uiOption.layers[0].color["ranges"]) {
-
-                let minVal = range.fixMin;
-                let maxVal = range.fixMax;
-
-                if(minVal === null) minVal = 0;
-                if(maxVal === null) maxVal = minVal;
-
-                legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
+              for(let field of this.uiOption.fielDimensionList) {
+                if(field["layerNum"] === i+1) {
+                  legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + this.uiOption.layers[i].color["schema"] + '"></em>' + field["alias"] + '</li>';
+                }
               }
+
+              legendHtml = legendHtml + '</ul></div>';
             }
+
+            legendHtml = legendHtml + '</ul></div>';
+            legendHtmlAll = legendHtml + legendHtmlAll;
           }
-
-        } else if(this.uiOption.layers[0].color["by"] === 'NONE') {
-          legendHtml = '<div class="ddp-ui-layer">' +
-              '<span class="ddp-label">' + this.uiOption.layers[0].name + '</span>' +
-              '<span class="ddp-data">' + this.uiOption.layers[0].type + ' Color</span>' +
-              '<ul class="ddp-list-remark">';
-
-          for(let field of this.uiOption.fieldList) {
-            legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:#602663"></em>' + field + '</li>';
-          }
-
-          legendHtml = legendHtml + '</ul></div>';
         }
 
-        legendHtml = legendHtml + '</ul></div>';
-        // legendHtml = legendHtml + legendHtml;
-        element.innerHTML = legendHtml;
+        element.innerHTML = legendHtmlAll;
 
       }
     }
@@ -1380,6 +1403,14 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     let featureColor = this.uiOption.layers[1].color.schema;
     let colorList = ChartColorList[featureColor];
 
+    if(this.uiOption.layers[1].color["customMode"] === "SECTION") {
+      colorList = [];
+      for(let range of this.uiOption.layers[1].color["ranges"]) {
+        colorList.push(range.color);
+      }
+      colorList = colorList.reverse();
+    }
+
     let heatmapLayer = new ol.layer.Heatmap({
       source: source,
       style: this.clusterStyleFunction(1, this.data),
@@ -1442,6 +1473,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       features[i] = feature;
 
+    }
+
+    for(let feature of hexagonFeatures) {
+      feature.set('layerNum', 2);
     }
 
     hexagonSource.addFeatures(hexagonFeatures);
@@ -1585,6 +1620,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     // 차트 반영
     // this.apply();
 
+    //tooltip 생성
+    this.tooltipRender();
+    //legend 생성
+    this.legendRender();
+
     // 완료
     this.drawFinished.emit();
   }
@@ -1625,6 +1665,14 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let featureColor = this.uiOption.layers[2].color.schema;
     let colorList = ChartColorList[featureColor];
+
+    if(this.uiOption.layers[2].color["customMode"] === "SECTION") {
+      colorList = [];
+      for(let range of this.uiOption.layers[2].color["ranges"]) {
+        colorList.push(range.color);
+      }
+      colorList = colorList.reverse();
+    }
 
     let heatmapLayer = new ol.layer.Heatmap({
       source: source,
@@ -1688,6 +1736,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       features[i] = feature;
 
+    }
+
+    for(let feature of hexagonFeatures) {
+      feature.set('layerNum', 3);
     }
 
     hexagonSource.addFeatures(hexagonFeatures);
@@ -1830,6 +1882,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     // 차트 반영
     // this.apply();
+
+    //tooltip 생성
+    this.tooltipRender();
+    //legend 생성
+    this.legendRender();
 
     // 완료
     this.drawFinished.emit();
@@ -2066,7 +2123,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             // this.loadingHide();
           });
         } else {
-          this.drawSecondLayer(this.data);
+          this.drawThirdLayer(this.data);
         }
 
         this.thirdLayerQuery = thirdLayerQuery;
@@ -2094,8 +2151,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
        this.removeThirdLayer();
       }
     }
-
-
 
   }
 

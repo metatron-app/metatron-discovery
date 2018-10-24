@@ -260,16 +260,16 @@
                       </div>
                       <div *ngIf="uiOption.layers[0].color['customMode']" class="ddp-user-color">
 
-                        <div class="ddp-list-part">
+                        <!-- <div class="ddp-list-part"> -->
                           <!-- selectbox -->
-                          <component-select
+                          <!-- <component-select
                             [array]="colorRangeTypeList"
                             [defaultIndex]="!uiOption.layers[0].color['customMode'] || 'SECTION' == uiOption.layers[0].color['customMode'] ? 0 : 1"
                             [viewKey]="'name'"
                             (onSelected)="selectColorRangeType($event)">
-                          </component-select>
+                          </component-select> -->
                           <!-- //selectbox -->
-                        </div>
+                        <!-- </div> -->
                         <div *ngFor="let item of rangesViewList; let index = index" class="ddp-wrap-usercolor">
                           <!-- blank -->
                           <div *ngIf="0 !== index && 'SECTION' == uiOption.layers[0].color['customMode']" (click)="addNewRange(index)" class="ddp-list-blank">
@@ -313,40 +313,6 @@
                         </div>
                         <!-- //list usercolor -->
 
-                        <!-- gradation -->
-                        <div *ngIf="'GRADIENT' == uiOption.layers[0].color['customMode']" class="ddp-wrap-gradation2">
-
-                          <div class="ddp-ui-gradation">
-                            <gradation-generator (changeGradation)="changeGradations($event)"
-                            (clickOutside)="hideGradationColor()"></gradation-generator>
-
-                            <!-- user color -->
-                            <div class="ddp-gradx-usercolor">
-                              <!-- value num -->
-
-                              <!-- //value num -->
-                              <div *ngFor="let item of uiOption.layers[0].color['ranges']; let index = index" class="ddp-wrap-usercolor">
-                                <!-- blank -->
-                                <div *ngIf="separateValue > uiOption.layers[0].color['ranges']['length']" (click)="addGradientRange(index)" class="ddp-list-blank">
-                                  {{'msg.page.chart.color.measure.new.range.add.description' | translate}}
-                                </div>
-                                <!-- //blank -->
-                                <!-- list usercolor -->
-                                <div class="ddp-list-usercolor">
-                                  <div class="ddp-box-color" id="ddp-box-color-{{index}}">
-                                    <color-picker [showAlpha]="true" [color]="item.color" [showInitial]="true"
-                                                  [showInput]="true" [showUserColor]="true" #colorPicker (selected)="gradationColorSelected($event, item)"
-                                                  (showPicker)="showGradationColor(item, index)" (hidePicker)="hideGradationColor(index)"></color-picker>
-                                  </div>
-                                  <div class="ddp-data-range ddp-clear">{{item.value | number: '1.0-0'}}</div>
-                                  <em *ngIf="uiOption.layers[0].color['ranges'].length > 2" (click)="deleteGradientRange(item.index)" class="ddp-icon-listdelete"></em>
-                                </div>
-                                <!-- //list usercolor -->
-                              </div>
-                            </div>
-                            <!-- //user color -->
-                          </div>
-                        </div>
                       </div>
 
                         <div *ngIf="uiOption.layers[0].color['customMode']" class="ddp-data-sum">
@@ -470,7 +436,7 @@
                   </div>
               </div>
 
-              <div class="ddp-wrap-divide">
+              <!-- <div class="ddp-wrap-divide">
                   <div class="ddp-part-check-b ">
                       <label class="ddp-label-checkbox ddp-position">
                           <input type="checkbox" [checked]="uiOption.layers[0].clustering" (click)="changeClusteringFlag()">
@@ -478,7 +444,7 @@
                           <span class="ddp-txt-checkbox">{{'msg.page.layer.map.clustering' | translate}}</span>
                       </label>
                   </div>
-              </div>
+              </div> -->
           </div>
           <!-- //레이어 유형 : 기호 -->
 
@@ -611,16 +577,6 @@
                       </div>
                       <div *ngIf="uiOption.layers[0].color['customMode']" class="ddp-user-color">
 
-                        <div class="ddp-list-part">
-                          <!-- selectbox -->
-                          <component-select
-                            [array]="colorRangeTypeList"
-                            [defaultIndex]="!uiOption.layers[0].color['customMode'] || 'SECTION' == uiOption.layers[0].color['customMode'] ? 0 : 1"
-                            [viewKey]="'name'"
-                            (onSelected)="selectColorRangeType($event)">
-                          </component-select>
-                          <!-- //selectbox -->
-                        </div>
                         <div *ngFor="let item of rangesViewList; let index = index" class="ddp-wrap-usercolor">
                           <!-- blank -->
                           <div *ngIf="0 !== index && 'SECTION' == uiOption.layers[0].color['customMode']" (click)="addNewRange(index)" class="ddp-list-blank">
@@ -928,16 +884,6 @@
                         </div>
                         <div *ngIf="uiOption.layers[0].color['customMode']" class="ddp-user-color">
 
-                          <div class="ddp-list-part">
-                            <!-- selectbox -->
-                            <component-select
-                              [array]="colorRangeTypeList"
-                              [defaultIndex]="!uiOption.layers[0].color['customMode'] || 'SECTION' == uiOption.layers[0].color['customMode'] ? 0 : 1"
-                              [viewKey]="'name'"
-                              (onSelected)="selectColorRangeType($event)">
-                            </component-select>
-                            <!-- //selectbox -->
-                          </div>
                           <div *ngFor="let item of rangesViewList; let index = index" class="ddp-wrap-usercolor">
                             <!-- blank -->
                             <div *ngIf="0 !== index && 'SECTION' == uiOption.layers[0].color['customMode']" (click)="addNewRange(index)" class="ddp-list-blank">
@@ -1219,16 +1165,6 @@
                       </div>
                       <div *ngIf="uiOption.layers[0].color['customMode']" class="ddp-user-color">
 
-                        <div class="ddp-list-part">
-                          <!-- selectbox -->
-                          <component-select
-                            [array]="colorRangeTypeList"
-                            [defaultIndex]="!uiOption.layers[0].color['customMode'] || 'SECTION' == uiOption.layers[0].color['customMode'] ? 0 : 1"
-                            [viewKey]="'name'"
-                            (onSelected)="selectColorRangeType($event)">
-                          </component-select>
-                          <!-- //selectbox -->
-                        </div>
                         <div *ngFor="let item of rangesViewList; let index = index" class="ddp-wrap-usercolor">
                           <!-- blank -->
                           <div *ngIf="0 !== index && 'SECTION' == uiOption.layers[0].color['customMode']" (click)="addNewRange(index)" class="ddp-list-blank">
@@ -1346,9 +1282,9 @@
                       <div class="ddp-col-8">
                           <span class="ddp-label-txt">{{'msg.page.layer.map.blur' | translate}}</span>
                       </div>
-                      <div class="ddp-col-4">
+                      <!-- <div class="ddp-col-4">
                           <input type="text" class="ddp-input-typebasic " placeholder="" [value]="translateNumber('heatmapBlur', uiOption.layers[0].color.blur)">
-                      </div>
+                      </div> -->
                   </div>
                     <!-- SELECTBOX -->
                     <!-- <div class="ddp-type-selectbox" (click)="blurFlag=!blurFlag;" (clickOutside)="blurFlag=false" [excludeBeforeClick]="true">
@@ -1376,11 +1312,11 @@
                 <div class="ddp-divide2">
                   <div class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-8">
-                          <span class="ddp-label-txt">{{'msg.page.layer.map.radius' | translate}}</span>
+                          <span class="ddp-label-txt">{{'msg.page.layer.map.coverage' | translate}}</span>
                       </div>
-                      <div class="ddp-col-4">
+                      <!-- <div class="ddp-col-4">
                           <input type="text" class="ddp-input-typebasic " placeholder="" [value]="translateNumber('heatmapRadius', uiOption.layers[0].color.radius)">
-                      </div>
+                      </div> -->
                   </div>
 
                   <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
@@ -1540,16 +1476,6 @@
                           </div>
                           <div *ngIf="uiOption.layers[0].color['customMode']" class="ddp-user-color">
 
-                            <div class="ddp-list-part">
-                              <!-- selectbox -->
-                              <component-select
-                                [array]="colorRangeTypeList"
-                                [defaultIndex]="!uiOption.layers[0].color['customMode'] || 'SECTION' == uiOption.layers[0].color['customMode'] ? 0 : 1"
-                                [viewKey]="'name'"
-                                (onSelected)="selectColorRangeType($event)">
-                              </component-select>
-                              <!-- //selectbox -->
-                            </div>
                             <div *ngFor="let item of rangesViewList; let index = index" class="ddp-wrap-usercolor">
                               <!-- blank -->
                               <div *ngIf="0 !== index && 'SECTION' == uiOption.layers[0].color['customMode']" (click)="addNewRange(index)" class="ddp-list-blank">
@@ -1667,9 +1593,9 @@
                     <div class="ddp-col-8">
                         <span class="ddp-label-txt">{{'msg.page.layer.map.coverage' | translate}}</span>
                     </div>
-                    <div class="ddp-col-4">
+                    <!-- <div class="ddp-col-4">
                         <input type="text" class="ddp-input-typebasic " placeholder="" [value]="translateNumber('hexagonRadius', uiOption.layers[0].color.resolution)">
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">

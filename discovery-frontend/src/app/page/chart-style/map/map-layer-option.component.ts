@@ -261,6 +261,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        }
      }
 
+     if(layerType === "heatmap" && this.color["by"] === "DIMENSION") {
+       this.color["by"] = "NONE";
+       this.color["schema"] = "#602663";
+     }
+
      this.type = layerType;
 
      // 해당 레이어 타입으로 설정
@@ -269,10 +274,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      });
 
      this.update();
-
-     if(layerType === "heatmap") {
-       this.setRadiusSlider();
-     }
    }
 
    /**
@@ -459,6 +460,30 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     */
    public changeResolution(resolution: number) {
 
+     let precision = 5;
+     switch (resolution) {
+      case 10:
+        precision = 5;
+        break;
+      case 9:
+        precision = 6;
+        break;
+      case 8:
+        precision = 7;
+        break;
+      case 7:
+        precision = 8;
+        break;
+      case 6:
+        precision = 9;
+        break;
+      case 5:
+        precision = 10;
+        break;
+      default:
+        precision = 5;
+     }
+
      this.color['resolution'] = resolution;
 
      // 해당 레이어 타입으로 설정
@@ -467,7 +492,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      });
 
      //query할때 precision 값 전달하기 위해..
-     this.pivot.columns[0]["precision"] = resolution
+     this.pivot.columns[0]["precision"] = precision;
 
      this.update({});
    }
@@ -914,6 +939,21 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
     this.changeLayerOption();
 
+    if(this.type === "heatmap") {
+      setTimeout(
+        () => {
+          this.setBlurSlider();
+          this.setRadiusSlider();
+        }
+      );
+    } else if(this.type === "tile") {
+      setTimeout(
+        () => {
+          this.setResolutionSlider();
+        }
+      );
+    }
+
     // Init
     super.ngOnInit();
   }
@@ -1003,6 +1043,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
       this.rangesViewList = this.uiOption.layers[0].color['ranges'];
     }
 
+    this.minValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue;
+    this.maxValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue;
+
     // this.uiOption = <UIOption>_.extend({}, this.uiOption, {color : this.uiOption.layers[0].color});
 
     this.color = this.uiOption.layers[0].color;
@@ -1021,8 +1064,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
     let colorList = ChartColorList[this.uiOption.layers[0].color['schema']];
 
-    const minValue = parseInt(this.resultData['data'][0].valueRange.minValue.toFixed(0));
-    const maxValue = parseInt(this.resultData['data'][0].valueRange.maxValue.toFixed(0));
+    const minValue = parseInt(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue.toFixed(0));
+    const maxValue = parseInt(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue.toFixed(0));
 
     if (!gradations || gradations.length == 0) {
       gradations = [
@@ -1243,7 +1286,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     const rangeList = (<UIChartColorByValue>this.uiOption.layers[0].color).ranges;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.resultData['data'][0].minValue >= 0 ? 0 : Math.floor(Number(this.resultData['data'][0].minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
+    const uiMinValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue >= 0 ? 0 : Math.floor(Number(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
 
     // 최대값
     let maxValue = rangeList[index - 1].gt;
@@ -1456,6 +1499,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     rangeList[index] = range;
 
     this.color = this.uiOption.layers[0].color;
+    this.color['ranges'] = rangeList;
 
     // 해당 레이어 타입으로 설정
     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -1524,6 +1568,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     rangeList[index] = range;
 
     this.color = this.uiOption.layers[0].color;
+    this.color['ranges'] = rangeList;
 
     // 해당 레이어 타입으로 설정
     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -1677,8 +1722,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         }
       );
     }
-
-
   } // function - ngOnChanges
 
   public setRadiusSlider() {
