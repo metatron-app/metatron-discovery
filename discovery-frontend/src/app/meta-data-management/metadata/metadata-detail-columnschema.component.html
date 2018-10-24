@@ -443,7 +443,7 @@
         <!-- //logical type -->
         <!-- Format -->
         <td [class.ddp-padding-none]="!isSelectedDictionary(column)" [class.ddp-disabled]="isSelectedDictionary(column)">
-          <span *ngIf="isSelectedDictionary(column)">{{column.format}}</span>
+          <span *ngIf="isSelectedDictionary(column)">{{column.format ? column.format.format : ''}}</span>
           <div class="ddp-input-form" *ngIf="!isSelectedDictionary(column) && isTimeType(column)">
             <input type="text" class="ddp-txt-input"
                    [ngModel]="column.format"
