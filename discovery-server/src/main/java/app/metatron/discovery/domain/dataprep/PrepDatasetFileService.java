@@ -870,11 +870,12 @@ public class PrepDatasetFileService {
 
             int maxIdx = 0;
             for (Row r : sheet) {
+                int colIdx = 0;
                 for (Cell c : r) {
-                    int colIdx = c.getColumnIndex();
-                    if(maxIdx<colIdx) {
-                        maxIdx = colIdx;
-                    }
+                    colIdx++;
+                }
+                if(maxIdx<colIdx) {
+                    maxIdx = colIdx;
                 }
             }
             if(is!=null) {
