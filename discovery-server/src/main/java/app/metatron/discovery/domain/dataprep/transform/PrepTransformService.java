@@ -509,6 +509,23 @@ public class PrepTransformService {
       }
     }
 
+    PrepDataset oldDataset = datasetRepository.findOne(oldDsId);
+    PrepDataset newDataset = datasetRepository.findOne(newDsId);
+
+    List<PrepDataflow> dataflows = dataflowRepository.findAll();
+    for (PrepDataflow dataflow : dataflows) {
+      List<PrepDataset> datasets = dataflow.getDatasets();
+      for (PrepDataset dataset : datasets) {
+        if (dataset.getDsId().equals(oldDataset.getDsId())) {
+          datasets.remove(dataset);
+          datasets.add(newDataset);
+          dataflow.setDatasets(datasets);
+          dataflowRepository.save(dataflow);
+        }
+      }
+    }
+    dataflowRepository.flush();
+
     return targetDsIds;
   }
 
