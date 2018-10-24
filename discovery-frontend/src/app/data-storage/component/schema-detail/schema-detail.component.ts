@@ -329,8 +329,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
       delete this.column.isTimeError;
       if (this.column.format.type === FieldFormatType.DATE_TIME) {
         this.column.format.type = FieldFormatType.UNIX_TIME;
-        // UNIX인경우 기존 format 제거
-        delete this.column.format.format;
       } else if (this.column.format.type === FieldFormatType.UNIX_TIME) {
         this.column.format.type = FieldFormatType.DATE_TIME;
       }
@@ -610,6 +608,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
         }
       })
       .catch((error) => {
+        this.column.format.format = 'yyyy-MM-dd';
         // 로딩 hide
         this.loadingHide();
       });

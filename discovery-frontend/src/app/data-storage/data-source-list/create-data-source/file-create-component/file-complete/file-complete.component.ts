@@ -17,7 +17,7 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, FieldFormatType } from '../../../../../domain/datasource/datasource';
 import { Alert } from '../../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { CommonUtil } from '../../../../../common/util/common.util';
@@ -255,7 +255,10 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       name: 'current_datetime',
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
-      format: 'yyyy-MM-dd HH:mm:ss',
+      format: {
+        type: FieldFormatType.DATE_TIME,
+        format: 'yyyy-MM-dd HH:mm:ss'
+      }
     };
   }
 
@@ -270,6 +273,15 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     // if removed property is false, delete removed property
     if (column.removed === false) {
       delete column.removed;
+    }
+    // delete used UI
+    delete column.isDefaultFormat;
+    delete column.isTimeError;
+    delete column.isReplaceError;
+    if (column.logicalType !== 'TIMESTAMP' && column.format) {
+      delete column.format;
+    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
+      delete column.format.format;
     }
   }
 

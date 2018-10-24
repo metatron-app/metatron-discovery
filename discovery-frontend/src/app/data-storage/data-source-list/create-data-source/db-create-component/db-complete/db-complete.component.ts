@@ -23,7 +23,7 @@ import {
   Output, ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, FieldFormatType } from '../../../../../domain/datasource/datasource';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { DataconnectionService } from '../../../../../dataconnection/service/dataconnection.service';
 import { Alert } from '../../../../../common/util/alert.util';
@@ -319,7 +319,10 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       name: 'current_datetime',
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
-      format: 'yyyy-MM-dd HH:mm:ss',
+      format: {
+        type: FieldFormatType.DATE_TIME,
+        format: 'yyyy-MM-dd HH:mm:ss'
+      }
     };
   }
 
@@ -334,6 +337,15 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     // if removed property is false, delete removed property
     if (column.removed === false) {
       delete column.removed;
+    }
+    // delete used UI
+    delete column.isDefaultFormat;
+    delete column.isTimeError;
+    delete column.isReplaceError;
+    if (column.logicalType !== 'TIMESTAMP' && column.format) {
+      delete column.format;
+    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
+      delete column.format.format;
     }
   }
 

@@ -17,7 +17,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, FieldFormat, FieldFormatType } from '../../../../../domain/datasource/datasource';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { isUndefined } from 'util';
 import * as _ from 'lodash';
@@ -152,15 +152,13 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * 다음화면으로 이동
    */
   public next() {
-    // time stamp 중 unix가 아니고 format이 빈 값인 경우
+    // time stamp 중 unix이고 format이 빈 값인 경우
     this.fields.filter((column) => {
-      return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column) && !column.unix;
+      return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column) && column.format.type === FieldFormatType.UNIX_TIME;
     }).forEach((column) => {
-      if (StringUtil.isEmpty(column.format)) {
+      if (StringUtil.isEmpty(column.format.format)) {
         // set error
-        column.errorFl = true;
-        // set message
-        column.formatMessage = this.translateService.instant('msg.common.ui.required');
+        column.isTimeError = true;
       }
     });
     // validation
@@ -640,14 +638,14 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
         .then((result) => {
           // pattern 이 있을경우
           if (result.hasOwnProperty('pattern')) {
-            column.format = result.pattern;
+            column.format.format = result.pattern;
             // set default
-            column.formatDefault = true;
+            column.isDefaultFormat = true;
           }
           resolve(result);
         })
         .catch((error) => {
-          // Alert.error(error.details);
+          column.format.format = 'yyyy-MM-dd';
           reject(error);
         });
     }));
@@ -816,7 +814,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    */
   private ingestionRuleValidation(column): boolean {
     // ingestionRule type이  replace 인 경우 error가 있다면 false
-    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace' && column.replaceFl === false) {
+    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace' && column.isReplaceError) {
       return false;
     }
     return true;
@@ -830,7 +828,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
   private timestampValidation(column): boolean {
     // timestamp 컬럼이 error가 있다면 false
     if (column.logicalType === 'TIMESTAMP'
-      && column.errorFl) {
+      && column.isTimeError) {
       return false;
     }
     return true;
@@ -862,7 +860,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
     // 변경된 타입이 타임일 경우
     if (this.isEqualType('TIMESTAMP', type)) {
       timestampPromise.push(column);
-      delete column.formatDefault;
+      delete column.isDefaultFormat;
     }
 
     // 컬럼이 타임스탬프로 지정되었던 경우
@@ -894,12 +892,15 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
 
     const promise = [];
     columnList.forEach((column) => {
+      // init format
+      column.format = new FieldFormat();
+      column.format.type = FieldFormatType.DATE_TIME;
       // column DetailData
       let columnDetailData = this.getColumnDetailData(column);
 
       // data 가 없다면 타임스탬프를 지정할수 없다.
       if (columnDetailData.length === 0) {
-        column.errorFl = true;
+        column.isTimeError = true;
       } else {
         columnDetailData = columnDetailData.length > 20 ? columnDetailData.slice(0, 19) : columnDetailData;
         promise.push(this.getTimestampFormat(column, columnDetailData));
