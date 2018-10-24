@@ -925,14 +925,18 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    * @param {string} newDsId
    */
   public datasetSwap(oldDsId: string, newDsId : string) {
+    this.loadingShow();
     this.dataflowService.datasetSwap(oldDsId, newDsId).then((result) => {
       console.info('swapping >>>>>>>>>>>>', result);
+      Alert.success('Swap successful');
       // 초기화
       this.initSelectedDataSet();
       this.getDataflow();
 
     }).catch((error) => {
-      console.info(error)
+      Alert.fail('Swap failed');
+      console.info(error);
+      this.loadingHide();
     });
 
   }
