@@ -361,6 +361,8 @@ public class QueryEditorService {
           } else {
             queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
           }
+          sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE, queryIndex,
+                  queryEditorId, workbenchId, webSocketId);
         }
       }
     } catch(Exception e){
