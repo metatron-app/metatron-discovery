@@ -156,7 +156,9 @@ export class Field {
   ingestionRule: IngestionRule;
 
   // format
-  format: string;
+  // TODO 추후 FieldFormat으로 변환
+  // format: FieldFormat;
+  format: any;
 
   // description
   description: string;
@@ -174,6 +176,12 @@ export class Field {
   dsName?: string;          // 필드의 데이터소스 이름
   granularity?: GranularityType;     // granularity
   segGranularity?: GranularityType;  // segGranularity
+
+  // [UI] for Create Datasource
+  isDefaultFormat?: boolean;
+  isTimeError?: boolean;
+  isReplaceError?: boolean;
+  removed?: boolean;
 
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디
@@ -392,7 +400,15 @@ export enum TempDsStatus {
   DISABLE = <any>'DISABLE'
 }
 
+export class FieldFormat {
+  format: string;
+  type: FieldFormatType;
+}
 
+export enum FieldFormatType {
+  DATE_TIME = <any>'time_format',
+  UNIX_TIME = <any>'time_unix',
+}
 
 
 
