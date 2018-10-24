@@ -148,7 +148,7 @@ export class ScrollLoadingGridModel {
     if( this._isLoadingData ) {
       return;
     }
-
+    // console.info(from + ':this.totalRowCnt:'+ this.totalRowCnt);
     let lastPageNumber: number = Math.floor(this.totalRowCnt / this._pageSize);
     if(this.totalRowCnt % this._pageSize !== 0) lastPageNumber = lastPageNumber +1;
 
@@ -167,14 +167,14 @@ export class ScrollLoadingGridModel {
     const startIdx: number = nextPage * this._pageSize;
     if (this.data.length <= startIdx) {
       this._isLoadingData = true;
-      // this.onDataLoading.notify({ from: from, to: to });
+      this.onDataLoading.notify({ from: from, to: to });
       this.loadData(this.ruleIndex, startIdx, this._pageSize)
         .then((data) => {
           const result = this.loadSuccess(data);
           if (result) {
             //
             this.totalRowCnt = data.totalRowCnt;
-            this.ruleIndex = data.ruleCurIdx;
+            // this.ruleIndex = data.ruleCurIdx;
 
             let currLength: number = this.data.length;
 
