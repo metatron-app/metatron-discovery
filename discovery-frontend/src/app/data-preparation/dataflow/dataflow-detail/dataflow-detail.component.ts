@@ -787,7 +787,8 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    */
   private dataflowChartAreaResize(resizeCall?:boolean): void {
     if(resizeCall == undefined) resizeCall = false;
-    const itemMinSize: number = 64;
+    // const itemMinSize: number = 64;
+    const itemMinSize: number = 70;
     const hScrollbarWith: number = 30;
     const topMargin: number = 50;
     let minHeightSize: number = 600;
