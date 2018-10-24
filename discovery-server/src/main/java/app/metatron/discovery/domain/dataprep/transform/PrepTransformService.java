@@ -521,6 +521,7 @@ public class PrepTransformService {
           datasets.add(newDataset);
           dataflow.setDatasets(datasets);
           dataflowRepository.save(dataflow);
+          break;
         }
       }
     }
