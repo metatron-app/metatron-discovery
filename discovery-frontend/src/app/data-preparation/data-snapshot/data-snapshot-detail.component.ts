@@ -43,9 +43,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   @ViewChild(GridComponent)
   private gridComponent: GridComponent;
 
-  @ViewChild(DataSnapshotDetailComponent)
-  private dataSnapshotDetailComponent: DataSnapshotDetailComponent;
-
   private commandList: any[];
 
   private isFromDataflow : boolean = false;

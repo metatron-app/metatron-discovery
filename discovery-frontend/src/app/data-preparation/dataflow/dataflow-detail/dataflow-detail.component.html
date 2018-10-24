@@ -43,11 +43,11 @@
           </div>
           <!-- 편집 input -->
           <div class="ddp-wrap-input" >
-            <input #dfName type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.name' | translate}}"
+            <input #dfName class="ddp-input-navi"
+                   placeholder="{{'msg.comm.ui.create.name' | translate}}"
                    (keyup.enter)="isDataflowNameEditMode ? updateDataflow() : null;"
                    (clickOutside)="isDataflowNameEditMode ? setDataflowName(): null;"
-                   [(ngModel)]="dataflowName"
-                   maxlength="50">
+                   [(ngModel)]="dataflowName" maxlength="50">
             <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataflow();"></span>
           </div>
           <!-- //편집 input -->
@@ -64,9 +64,9 @@
           </div>
           <!-- 편집 input -->
           <div class="ddp-wrap-input" >
-            <input #dfDesc type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                   [(ngModel)]="dataflowDesc"
-                   maxlength="150"
+            <input #dfDesc class="ddp-input-navi"
+                   placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                   [(ngModel)]="dataflowDesc" maxlength="150"
                    (keyup.enter)="isDataflowDescEditMode ? updateDataflow() : null;"
                    (clickOutside)="isDataflowDescEditMode? setDataflowDesc() : null;">
             <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataflow();"></span>
@@ -137,10 +137,6 @@
 <app-delete-modal (deleteConfirm)="deleteDataflow()"></app-delete-modal>
 <!-- //데이터 플로우 삭제 -->
 
-<!-- 데이터 셋 추가하기 -->
-<app-add-dataset-modal (datasetComplete)="datasetComplete($event);" [dataflow]="dataflow" *ngIf="isDatasetModalShow"></app-add-dataset-modal>
-<!-- //데이터 셋 추가하기 -->
-
 <!-- 룰 편집 화면 -->
 <app-edit-dataflow-rule-2 *ngIf="step=='update-rules'"
                         [dataflow]="dataflow"
@@ -150,6 +146,7 @@
                         (closeEditRule)="closeEditRule()">
 </app-edit-dataflow-rule-2>
 <!-- //룰 편집 화면 -->
+
 <app-add-dataset *ngIf="isDatasetAddPopupOpen" (closeEvent)="closeAddDatasetPopup()" (doneEvent)="datasetComplete($event);" [dataflowId]="dataflow.dfId" [originalDatasetList]="dataSetList"></app-add-dataset>
 
 <create-snapshot-popup (snapshotCreateFinishEvent)="snapshotCreateFinish($event)"></create-snapshot-popup>

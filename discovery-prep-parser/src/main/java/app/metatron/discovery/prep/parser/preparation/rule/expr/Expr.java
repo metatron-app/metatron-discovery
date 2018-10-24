@@ -221,7 +221,7 @@ public interface Expr extends Expression {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.of(exprEval.stringValue().toUpperCase());
         } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("upper(): No such column name >> " + args.get(0).toString());
+          throw new FunctionColumnNotFoundException("ExprEval.eval() upper: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() upper: This function works only on string");
         } catch (Exception e) {
@@ -236,7 +236,7 @@ public interface Expr extends Expression {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.of(exprEval.stringValue().toLowerCase());
         } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("lower(): No such column name >> " + args.get(0).toString());
+          throw new FunctionColumnNotFoundException("ExprEval.eval() lower: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() lower: This function works only on string");
         } catch (Exception e) {
@@ -251,7 +251,7 @@ public interface Expr extends Expression {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprEval.stringValue().trim());
         } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("trim(): No such column name >> " + args.get(0).toString());
+          throw new FunctionColumnNotFoundException("ExprEval.eval() trim: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() trim: This function works only on string");
         } catch (Exception e) {
@@ -267,7 +267,7 @@ public interface Expr extends Expression {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprEval.stringValue().replaceFirst("^\\s+", ""));
         } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("ltrim(): No such column name >> " + args.get(0).toString());
+          throw new FunctionColumnNotFoundException("ExprEval.eval() ltrim: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() ltrim: This function works only on string");
         } catch (Exception e) {
@@ -283,7 +283,7 @@ public interface Expr extends Expression {
           ExprEval exprEval = args.get(0).eval(bindings);
           return (exprEval.value() == null) ? exprEval : ExprEval.bestEffortOf(exprEval.stringValue().replaceFirst("\\s+$", ""));
         } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("rtrim(): No such column name >> " + args.get(0).toString());
+          throw new FunctionColumnNotFoundException("ExprEval.eval() rtrim: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() rtrim: This function works only on string");
         } catch (Exception e) {
@@ -321,11 +321,37 @@ public interface Expr extends Expression {
         } catch (StringIndexOutOfBoundsException se) {
           throw new FunctionInvalidIndexNumberException("ExprEval.eval() substring: Wrong index param");
         } catch (NullPointerException ne){
-          throw new FunctionColumnNotFoundException("substring(): No such column name >> " + args.get(0).toString());
+          throw new FunctionColumnNotFoundException("ExprEval.eval() substring: No such column name >> " + args.get(0).toString());
         } catch (ClassCastException ce) {
           throw new FunctionWorksOnlyOnStringException("ExprEval.eval() substring: This function works only on string");
         } catch (Exception e) {
-          throw new FunctionUndefinedException("ExprEval.eval() trim: Unknown error occur");
+          throw new FunctionUndefinedException("ExprEval.eval() substring: Unknown error occur");
+        }
+
+      }
+      else if (function instanceof BuiltinFunctions.Str.ContainsFunc) {
+        // substring(expr)
+        assert (args.size() == 2) : args.size();
+
+        try{
+          ExprEval arg0 = args.get(0).eval(bindings);
+          String targetText = arg0.stringValue();
+
+          if(arg0.value() == null)
+            return arg0;
+
+          ExprEval arg1 = args.get(1).eval(bindings);
+          String searchWord = arg1.stringValue();
+
+          return ExprEval.bestEffortOf(targetText.contains(searchWord));
+        } catch (StringIndexOutOfBoundsException se) {
+          throw new FunctionInvalidIndexNumberException("ExprEval.eval() contains: Wrong index param");
+        } catch (NullPointerException ne){
+          throw new FunctionColumnNotFoundException("ExprEval.eval() contains: No such column name >> " + args.get(0).toString());
+        } catch (ClassCastException ce) {
+          throw new FunctionWorksOnlyOnStringException("ExprEval.eval() contains: This function works only on string");
+        } catch (Exception e) {
+          throw new FunctionUndefinedException("ExprEval.eval() contains: Unknown error occur");
         }
 
       }

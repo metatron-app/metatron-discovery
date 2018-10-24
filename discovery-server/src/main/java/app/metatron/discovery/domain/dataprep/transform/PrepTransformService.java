@@ -86,6 +86,7 @@ public class PrepTransformService {
   @Autowired DataConnectionRepository connectionRepository;
   @Autowired PrepHdfsService hdfsService;
   @Autowired PrepSnapshotService snapshotService;
+  @Autowired DataFrameService dataFrameService;
 
   @Autowired(required = false)
   TeddyImpl teddyImpl;
@@ -426,11 +427,13 @@ public class PrepTransformService {
     //Then add Header rule and change column name.
     if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
             Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt) {
-      setTypeRules.add("header rownum: 1");
+      String ruleString = "header rownum: 1";
+
+      setTypeRules.add(ruleString);
       columnNames.clear();
 
       Header header = new Header(1L);
-      DataFrame newDf = df.doHeader(header);
+      DataFrame newDf = dataFrameService.applyRule(df, ruleString, new ArrayList<>());
 
       columnNames.addAll(newDf.colNames);
     }
@@ -1560,10 +1563,6 @@ public class PrepTransformService {
         Window window = (Window) rule;
         Expression order = window.getOrder();
         Expression value = window.getValue();
-        if (null == order) {
-          LOGGER.error("confirmRuleStringForException(): aggregate group is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_GROUP);
-        }
         if (null == value) {
           LOGGER.error("confirmRuleStringForException(): aggregate value is null");
           throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_VALUE);

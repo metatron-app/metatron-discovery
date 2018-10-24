@@ -130,6 +130,7 @@
         <!-- //name -->
         <!-- data base name-->
         <detail-workbench-database [params]="databaseParam"
+                                   [disable]="isHiveQueryExecute"
                                    (selectedDatabaseEvent)="setChangeDatabase($event)"
                                    (schemaBrowserEvent)="setSchemaBrowser()"
                                    (initDatabaseEvent)="setInitDatabase($event)"></detail-workbench-database>
@@ -139,6 +140,7 @@
       <!--  테이블 리스트 -->
       <detail-workbench-table [inputParams]="tableParam"
                               [setClose]="closeEvent"
+                              [disable]="isHiveQueryExecute"
                               (sqlIntoEditorEvent)="sqlIntoEditorEvent($event)"
                               (tableDataEvent)="setTableDataEvent($event)"></detail-workbench-table>
       <!--  //테이블 리스트 -->
@@ -208,17 +210,17 @@
                       <!-- more -->
                       <div class="ddp-wrap-morebutton">
                         <em class="ddp-icon-more" id="tabLayer{{findIndexInList(textList, item)}}"
-                            (click)="setTabLayer($event, findIndexInList(textList, item)); tabChangeHandler(findIndexInList(textList, item), false)"></em>
+                            (click)="setTabLayer($event, findIndexInList(textList, item));tabChangeHandler(findIndexInList(textList, item), false);">
+                        </em>
                       </div>
                       <!-- //more -->
                     </div>
                     <input type="text" class="ddp-input-edit" value="{{item['name']}}"
                            (keyup.Enter)="tabLayerEnter($event)" (blur)="tabLayerBlur(item, $event)" maxlength="50"/>
-
                   </li>
                 </ul>
 
-                <a href="javascript:" class="ddp-btn-plus" (click)="tabCreateHandler('', true, true)"><em
+                <a href="javascript:" class="ddp-btn-plus" (click)="createNewEditor('', true, true)"><em
                   class="ddp-icon-plus"></em></a>
               </div>
             </div>
@@ -275,7 +277,7 @@
                       </tr>
                       <tr>
                         <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
-                        <td>Ct기-D (Windows), Cmd-D (MacOS)</td>
+                        <td>Ctrl-D (Windows), Cmd-D (MacOS)</td>
                       </tr>
                       <tr>
                         <th>{{'msg.bench.ui.editor.shortcut.all.delete' | translate}}</th>
@@ -303,7 +305,7 @@
                       </tr>
                       <tr>
                         <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
-                        <td>Ctrl+Spacebar (Windows)<br/>Cmd+Shift+Spacebar (MacOS)<br/>Cmd+Spacebar (MacOS)</td>
+                        <td>Ctrl+Spacebar (Windows)<br/>Ctrl+Shift+Spacebar (MacOS)</td>
                       </tr>
                       </tbody>
                     </table>
@@ -328,7 +330,7 @@
                 <!-- list 있을때 ddp-slide 추가 -->
                 <div class="ddp-ui-tabs"
                      #editorResultListTabs
-                     [class.ddp-slide]="datagridCurList.length > 0 && editorResultListObj.showBtnFl">
+                     [class.ddp-slide]="visibleResultTabs.length > 0 && editorResultListObj.showBtnFl">
                   <div class="ddp-btn-listslider">
                     <a href="javascript:" class="ddp-btn-sliderprev" (click)="onClickPrevSlideBtn(editorResultListObj)"></a>
                     <a href="javascript:" class="ddp-btn-slidernext" (click)="onClickNextSlideBtn(editorResultListObj)"></a>
@@ -336,13 +338,13 @@
                   <!-- li 클릭시 ddp-selected 추가 -->
                   <ul class="ddp-list-tabs">
                     <!-- ddp-selected -->
-                    <li *ngFor="let item of getFilteringList(datagridCurList, editorResultListObj)"
-                        [ngClass]="{'ddp-selected': item['selected']}" (click)="tabGridChangeHandler(findIndexInList(datagridCurList, item))">
+                    <li *ngFor="let item of getFilteringList(visibleResultTabs, editorResultListObj)"
+                        [ngClass]="{'ddp-selected': item.selected}" (click)="changeResultTabHandler(item.id)">
                       <div class="ddp-data-tab ddp-data-loading" [ngStyle]="{'color': item.output === 'text' ? 'red' : 'black'}">
                         <em *ngIf="item.name.startsWith('Loading')" class="ddp-icon-tabloading"></em>
                         <!--Loading<em class="ddp-icon-dot">...</em>-->
                         {{item.name}}
-                        <a *ngIf="!isHiveLog"  href="javascript:" class="ddp-btn-close-s" (click)="tabGridCloseHandler(findIndexInList(datagridCurList, item))"></a>
+                        <a *ngIf="!isHiveLog"  href="javascript:" class="ddp-btn-close-s" (click)="closeResultTab(item.id)"></a>
                       </div>
                     </li>
                   </ul>
@@ -351,15 +353,16 @@
               <!-- tab -->
               <!-- 결과 -->
               <div class="ddp-view-result">
-                <div loading #loading [visible]="isLoadingBarShow" [cancel]="mimeType != 'HIVE'"  [canceling]="hiveLogCanceling" (cancel)="setQueryCancel()" class="ddp-loading-part"></div>
+                <div loading #loading [visible]="true" [cancel]="!isWaterfallProc && !isRunningCancel"
+                     [canceling]="isRunningCancel" (cancel)="cancelRunningQuery()" class="ddp-loading-part"></div>
 
                 <!-- Hive Log 표시 영역 -->
-                <div *ngIf="hiveLogs[selectedGridTabNum] && hiveLogs[selectedGridTabNum].isShow" class="ddp-wrap-result" >
+                <div *ngIf="visibleResultTab.showLog" class="ddp-wrap-result" >
 
                   <div class="ddp-ui-setting">
                     <div class="ddp-ui-buttons">
 
-                      <a *ngIf="isHiveLogCancel" href="javascript:" class="ddp-btn-box" (click)="logCancel(selectedGridTabNum)">
+                      <a *ngIf="!visibleResultTab.data" href="javascript:" class="ddp-btn-box" (click)="cancelRunningQuery(true)">
                         <em class="ddp-icon-cancel"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>
@@ -367,7 +370,7 @@
                         </div>
                       </a>
 
-                      <a *ngIf="!isHiveLogCancel" href="javascript:" class="ddp-btn-box" (click)="hiveLogToggleClick(selectedGridTabNum, 'log')">
+                      <a *ngIf="!!visibleResultTab.data" href="javascript:" class="ddp-btn-box" (click)="toggleHiveLog(false)">
                         <em class="ddp-icon-result-grid"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>
@@ -380,23 +383,23 @@
 
                   <div class="ddp-box-grid">
                     <div id="workbenchHiveLogText" class="ddp-text-result"
-                         [innerHTML]="hiveLogs[selectedGridTabNum].log.join('<br>')"></div>
+                         [innerHTML]="visibleResultTab.log.join('<br>')"></div>
                   </div>
                 </div>
                 <!-- // Hive Log 표시 영역 -->
 
-                <div *ngIf="!hiveLogs[selectedGridTabNum] || !hiveLogs[selectedGridTabNum].isShow"
+                <div *ngIf="!visibleResultTab.showLog"
                      class="ddp-wrap-result"
-                     [ngStyle]="{'visibility': datagridCurList.length !== 0 ? 'visible':'hidden'}">
+                     [ngStyle]="{'visibility': visibleResultTabs.length !== 0 ? 'visible':'hidden'}">
                   <div class="ddp-ui-setting">
                     <!-- 검색 -->
-                    <div class="ddp-form-search" [hidden]="isGridResultNoData">
+                    <div class="ddp-form-search" [hidden]="'' !== visibleResultTab.message" >
                       <em class="ddp-icon-search"></em>
                       <input type="text"
                              placeholder="{{'msg.comm.search.col' | translate}}"
                              #gridSearchInput
                              [(ngModel)]="searchText"
-                             (keyup)="gridSearch($event)" [disabled]="datagridCurList.length === 0">
+                             (keyup)="gridSearch($event)" [disabled]="visibleResultTabs.length === 0">
                       <em class="ddp-btn-search-close" *ngIf="searchText" (click)="gridSearchClear()"></em>
                     </div>
                     <!-- //검색 -->
@@ -405,15 +408,15 @@
                     <!--| translate}}</a>-->
 
                     <!-- button -->
-                    <div class="ddp-ui-buttons" [hidden]="isGridResultNoData">
-                      <a href="javascript:" class="ddp-btn-link" (click)="createDatasourceTemporary()">
+                    <div class="ddp-ui-buttons" >
+                      <a href="javascript:" class="ddp-btn-link" (click)="createDatasourceTemporary()" [hidden]="'' !== visibleResultTab.message">
                         <em class="ddp-icon-chart"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>
                           {{'msg.bench.btn.chart.preview' | translate}}
                         </div>
                       </a>
-                      <a *ngIf="isDataManager" href="javascript:" class="ddp-btn-link" (click)="createDatasource()">
+                      <a *ngIf="isDataManager" href="javascript:" class="ddp-btn-link" (click)="createDatasource()" [hidden]="'' !== visibleResultTab.message">
                         <em class="ddp-icon-save"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>
@@ -432,7 +435,7 @@
                       <!--</div>-->
                       <!-- //일괄 엑셀 다운로드 -->
                       <!-- 엑셀 다운로드 -->
-                      <div class="ddp-ui-link" [ngClass]="{'ddp-selected':csvDownloadLayer}">
+                      <div class="ddp-ui-link" [ngClass]="{'ddp-selected':csvDownloadLayer}" [hidden]="'' !== visibleResultTab.message">
                         <a href="javascript:" class="ddp-btn-link" (click)="downloadExcel()"
                            (clickOutside)="downloadExcelClose()">
                           <em class="ddp-icon-export"></em>
@@ -459,7 +462,7 @@
                       </div>
 
                       <!-- hive 관련 button -->
-                      <a *ngIf="hiveLogs[selectedGridTabNum]" href="javascript:" class="ddp-btn-box" (click)="hiveLogToggleClick(selectedGridTabNum, 'data')">
+                      <a *ngIf="isWaterfallProc" href="javascript:" class="ddp-btn-box" (click)="toggleHiveLog(true)">
                         <em class="ddp-icon-result-list"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-top"></em>
@@ -473,18 +476,20 @@
                     <!--[ngStyle]="{'width':valid}"-->
                   </div>
                   <div class="ddp-box-grid" #gridWrapElement
-                       [ngStyle]="{'visibility': resultMode === 'grid' &&  datagridCurList.length !== 0 ? 'visible':'hidden'}">
+                       [ngStyle]="{'visibility': visibleResultTab.output === 'grid' ? 'visible':'hidden'}">
                     <div grid-component #main style="width:100%; height: 100%;"></div>
                     <!-- [ngStyle]="{'visibility': datagridShow ? 'visible':'hidden'}" -->
                   </div>
                   <div class="ddp-box-grid"
-                       [ngStyle]="{'visibility': resultMode === 'text' &&  datagridCurList.length !== 0 ? 'visible':'hidden'}">
+                       [ngStyle]="{'visibility': visibleResultTab.output === 'text' ? 'visible':'hidden'}">
                     <div class="ddp-text-result" style="color:red">
-                      {{resultTextOutput}}
+                      {{visibleResultTab.message}}
                     </div>
                   </div>
                   <!--<span class="ddp-data-number">{{resultRow | numberCommas}} rows | {{resultTime}}</span>-->
-                  <span class="ddp-data-number" [hidden]="isGridResultNoData">{{resultRow}} {{'msg.comm.detail.rows'|translate}}</span>
+                  <span *ngIf="'grid' === visibleResultTab.output && visibleResultTab.data && -1 < visibleResultTab.data.numRows" class="ddp-data-number" >
+                    {{visibleResultTab.data.numRows}} {{'msg.comm.detail.rows'|translate}}
+                  </span>
                 </div>
               </div>
               <!-- //결과 -->

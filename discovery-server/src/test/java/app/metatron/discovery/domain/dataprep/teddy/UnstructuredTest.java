@@ -32,67 +32,18 @@ import java.util.Map;
 
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 
-public class UnstructuredTest {
-
-  static String getResourcePath(String relPath, boolean fromHdfs) {
-    if (fromHdfs) {
-      throw new IllegalArgumentException("HDFS not supported yet");
-    }
-    URL url = UnstructuredTest.class.getClassLoader().getResource(relPath);
-    return (new File(url.getFile())).getAbsolutePath();
-  }
-
-  public static String getResourcePath(String relPath) {
-    return getResourcePath(relPath, false);
-  }
-
-  private static Map<String, List<String[]>> grids = new HashMap<>();
-
-  static int limitRowCnt = 10000;
-
-  static private List<String[]> loadGridCsv(String alias, String path) throws MalformedURLException {
-    List<String[]> grid = new ArrayList<>();
-
-    BufferedReader br = null;
-    String line;
-    String cvsSplitBy = ",";
-
-    try {
-      br = new BufferedReader(new InputStreamReader(new FileInputStream(getResourcePath(path))));
-      while ((line = br.readLine()) != null) {
-        String[] strCols = line.split(cvsSplitBy);
-        grid.add(strCols);
-        if (grid.size() == limitRowCnt)
-          break;
-      }
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (br != null) {
-        try {
-          br.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    }
-
-    grids.put(alias, grid);
-    return grid;
-  }
+public class UnstructuredTest extends  TeddyTest{
 
   @BeforeClass
   public static void setUp() throws Exception {
     loadGridCsv("unstructured", "teddy/unstructured.csv");
   }
 
-  static DataFrame prepare_unstructured(DataFrame unstructured) throws TeddyException {
+  static private DataFrame prepare_unstructured(DataFrame unstructured) throws TeddyException {
     List<String> ruleStrings = new ArrayList<>();
     ruleStrings.add("header rownum: 1");
     ruleStrings.add("settype col: GM_본사와_한국_정부 type: string");
-    return DataFrameTest.apply_rule(unstructured, ruleStrings);
+    return apply_rules(unstructured, ruleStrings);
   }
 
   @Test

@@ -135,7 +135,7 @@ public class DfUnnest extends DataFrame {
       }
 
       // 나머지 추가
-      for (colno = targetColno; colno < prevDf.getColCnt(); colno++) {
+      for (colno = targetColno+1; colno < prevDf.getColCnt(); colno++) {
         newRow.add(prevDf.getColName(colno), row.get(colno));
       }
 

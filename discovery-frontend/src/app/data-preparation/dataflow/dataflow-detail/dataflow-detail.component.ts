@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import { DomSanitizer } from '@angular/platform-browser';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import {
   ChangeDetectorRef, Component, ElementRef, Injector, Input, OnInit,
@@ -24,9 +23,7 @@ import { GridComponent } from '../../../common/component/grid/grid.component';
 import { Dataflow } from '../../../domain/data-preparation/dataflow';
 import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
 import { Dataset, DsType, ImportType, Rule } from '../../../domain/data-preparation/dataset';
-import { PopupService } from '../../../common/service/popup.service';
 import { DataflowService } from '../service/dataflow.service';
-import { DatasetService } from '../../dataset/service/dataset.service';
 import { StringUtil } from '../../../common/util/string.util';
 import { PreparationAlert } from '../../util/preparation-alert.util';
 import { Alert } from '../../../common/util/alert.util';
@@ -52,9 +49,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  @ViewChild(GridComponent)
-  private gridComponent: GridComponent;
-
   @ViewChild(DatasetInfoPopupComponent)
   public datasetInfoPopup: DatasetInfoPopupComponent;
 
@@ -169,14 +163,12 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private popupService: PopupService,
-              private dataflowService: DataflowService,
-              private datasetService: DatasetService,
-              private commonLocation: Location,
-              protected elementRef: ElementRef,
-              private activatedRoute: ActivatedRoute,
-              protected injector: Injector,
-              public sanitizer: DomSanitizer) {
+  constructor(
+    private dataflowService: DataflowService,
+    private commonLocation: Location,
+    private activatedRoute: ActivatedRoute,
+    protected elementRef: ElementRef,
+    protected injector: Injector) {
 
     super(elementRef, injector);
   }
@@ -260,6 +252,9 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
   public addDatasets() {
     this.isDatasetAddPopupOpen = true;
+    if (this.datasetInfoPopup) {
+      this.datasetInfoPopup.clearExistingInterval();
+    }
   }
 
   public closeAddDatasetPopup() {
@@ -361,12 +356,12 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     this.dataflow = new Dataflow();
     this.selectedDataSet = new Dataset();
 
-    // Router에서 파라미터 전달 받기
+    // Get param from url
     this.activatedRoute.params.subscribe((params) => {
       if (params['id']) {
         this.dataflow.dfId = params['id'];
       }
-      if (this.cookieService.get('SELECTED_DATASET_ID')) { // 데이터셋 상세 화면에서 이동한 경우
+      if (this.cookieService.get('SELECTED_DATASET_ID')) { // From dataset detail
 
         this.selectedDataSet.dsId = this.cookieService.get('SELECTED_DATASET_ID');
         let type;
@@ -382,10 +377,12 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         this.cookieService.delete('SELECTED_DATASET_ID');
         this.cookieService.delete('SELECTED_DATASET_TYPE');
         this.closeEditRule();
-      } else if (sessionStorage.getItem('DATASET_ID')) {
-        this.addDatasets();
       } else {
         this.getDataflow();
+        if (sessionStorage.getItem('DATASET_ID')) { // From dataflow detail
+          this.addDatasets();
+        }
+
       }
     });
   }
@@ -490,7 +487,6 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   public datasetEventHandler(data?: string) {
     if (data) {
       this.step = data;
-      // this.datasetInfoPopup.gridComponent.destroy();
     } else {
       this.createWrangledDataset();
     }

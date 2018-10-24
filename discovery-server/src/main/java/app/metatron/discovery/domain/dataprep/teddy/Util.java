@@ -236,7 +236,7 @@ public class Util {
 
     System.out.print("|");
     for (int i = 0; i < widths.size(); i++) {
-      System.out.print(String.format("%" + widths.get(i) + "s", colDescs.get(i).getTimestampStyle()));
+      System.out.print(String.format("%" + widths.get(i) + "s", colDescs.get(i).getType()));
       System.out.print("|");
     }
     System.out.println("");

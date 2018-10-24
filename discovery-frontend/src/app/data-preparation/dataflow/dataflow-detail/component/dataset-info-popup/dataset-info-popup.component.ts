@@ -15,13 +15,16 @@
 import * as $ from "jquery";
 import * as pixelWidth from 'string-pixel-width';
 import {isNull, isNullOrUndefined, isUndefined} from 'util';
+declare const moment: any;
+declare let Split;
+
 import {
   ChangeDetectorRef,
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
-import { Dataset, ImportType, RsType, Rule } from '../../../../../domain/data-preparation/dataset';
+import { Dataset, DsType, ImportType, RsType, Rule } from '../../../../../domain/data-preparation/dataset';
 import { DeleteModalComponent } from '../../../../../common/component/modal/delete/delete.component';
 import { Dataflow } from '../../../../../domain/data-preparation/dataflow';
 import { Alert } from '../../../../../common/util/alert.util';
@@ -31,14 +34,10 @@ import { DataflowService } from '../../../service/dataflow.service';
 import { Field } from '../../../../../domain/workbook/configurations/field/field';
 import { header, SlickGridHeader } from '../../../../../common/component/grid/grid.header';
 import { GridComponent } from '../../../../../common/component/grid/grid.component';
-import { DomSanitizer } from '@angular/platform-browser';
 import { GridOption } from 'app/common/component/grid/grid.option';
 import { DatasetService } from '../../../../dataset/service/dataset.service';
 import { StringUtil } from '../../../../../common/util/string.util';
-import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
-declare const moment: any;
-
-declare let Split;
+import { PreparationCommonUtil } from "../../../../util/preparation-common.util";
 
 @Component({
   selector: 'app-dataset-info-popup',
@@ -47,20 +46,21 @@ declare let Split;
 export class DatasetInfoPopupComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  | Private Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private _split:any;
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private interval : any;
+
+  @ViewChild('dsName')
+  private dsName: ElementRef;
+
+  @ViewChild('dsDesc')
+  private dsDesc: ElementRef;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Public Variables
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-
+  | Public Variables (INPUT)
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Input() // Dataflow information
   public dataflow: Dataflow;
 
@@ -68,6 +68,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   @Input('selectedDataSet')
   public selectedDataSet : Dataset;
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Variables (OUTPUT)
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @Output()
   public createSnapshotEvent = new EventEmitter();
 
@@ -89,6 +92,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   @Output() // clone
   public cloneEventHandler = new EventEmitter();
 
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  | Public Variables
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild(DeleteModalComponent) // To delete data set (modal popup)
   public deleteModalComponent: DeleteModalComponent;
 
@@ -105,10 +111,8 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   public commandList: any[];
   public ruleVO: Rule = new Rule;
 
-
   // 사용된 dataflow layer show/hide
   public isDataflowsShow: boolean = false;
-
 
   public isDatasetNameEdit : boolean = false;
   public isDatasetDescEdit: boolean = false;
@@ -116,21 +120,16 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   public datasetName : string;
   public datasetDesc : string;
 
-  @ViewChild('dsName')
-  private dsName: ElementRef;
-  @ViewChild('dsDesc')
-  private dsDesc: ElementRef;
-
   public changeDetect: ChangeDetectorRef;
 
   public isBtnOptionOpen : boolean = false;
+
+  public clearGrid : boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   constructor(public dataflowService: DataflowService,
               public datasetService: DatasetService,
-              public sanitizer: DomSanitizer,
               protected elementRef: ElementRef,
               protected injector: Injector) {
     super(elementRef, injector);
@@ -143,6 +142,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     // Init
     super.ngOnInit();
 
+    this.clearGrid = false;
     this.isBtnOptionOpen = false;
     this.commandList = [
       { command: 'header', alias: 'He'},
@@ -187,8 +187,11 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
   public ngOnDestroy() {
     super.ngOnDestroy();
-    this._split.destroy();
-    this._split = undefined;
+    if (this._split) {
+      this._split.destroy();
+      this._split = undefined;
+    }
+    this.clearExistingInterval();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -328,6 +331,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
         rows = '(counting)';
       } else {
         rows = new Intl.NumberFormat().format(this.selectedDataSet.totalLines);
+        this.clearExistingInterval();
       }
     }
     return rows;
@@ -378,9 +382,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
   /**
-   * 데이터셋 정보 설정
+   * Set dataset information
+   * @param data {Dataset}
    */
-  public setDataset(data?) {
+  public setDataset(data?: Dataset) {
     this.loadingShow();
     if(data) {
       this.selectedDataSet = data;
@@ -389,11 +394,34 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.isDataflowsShow = false; // close popup
     this.isBtnOptionOpen = false;
 
-    this.dataflowService.getDataset(this.selectedDataSet.dsId).then((dataset: Dataset) => {
+    this.getDatasetInfo(this.selectedDataSet);
+    this.clearExistingInterval();
+    this.interval = setInterval(() => {
+      this.getDatasetInfo(this.selectedDataSet);
+    },2000);
+  } // function - setDataset
+
+
+  /**
+   * Close by clicking X button
+   */
+  public closeInfo() {
+    this.closePopup.emit(this.selectedDataSet);
+    this.selectedDataSet.dsId = '';
+    this.isDataflowsShow = false;
+    this.clearExistingInterval();
+  }
+
+  /**
+   * Fetch dataset info from server
+   * @param {Dataset} selectedDatset
+   */
+  public getDatasetInfo(selectedDatset : Dataset) {
+    this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: Dataset) => {
       this.loadingHide();
 
       //this.previewData = dataset; //  preview 를 위한 데이터 저장
-      this.selectedDataSet = $.extend(this.selectedDataSet, dataset);
+      this.selectedDataSet = $.extend(selectedDatset, dataset);
 
       this.setDatasetName();
       this.setDatasetDescription();
@@ -403,21 +431,27 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
           this.setRuleList(this.selectedDataSet.ruleStringInfos);
         }
         if(this.selectedDataSet.gridResponse) {
+          this.clearGrid = false;
           this.setGridData(this.selectedDataSet.gridResponse);
+        } else {
+          this.clearGrid = true;
         }
       },0);
 
     }).catch((error) => {
-      this.loadingHide();
+      this.clearGrid = true;
       let prep_error = this.dataprepExceptionHandler(error);
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
-  } // function - setDataset
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  /** 룰 리스트로 셋 하는 과정 */
+  /**
+   * Set rules
+   * @param rules
+   */
   private setRuleList(rules: any) {
 
     this.ruleList = [];
@@ -467,6 +501,12 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     });
   }
 
+  /**
+   * Simplify complex written rules
+   * @param {any} rule
+   * @param {string} ruleString
+   * @returns {string}
+   */
   public simplifyRule(rule : any , ruleString? : string) {
 
     let result : string;
@@ -657,142 +697,19 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     return result
   }
 
-  private getGridDataFromGridResponse(gridResponse: any) {
-    let colCnt = gridResponse.colCnt;
-    let colNames = gridResponse.colNames;
-    let colTypes = gridResponse.colDescs;
-
-    const gridData = {
-      data: [],
-      fields: []
-    };
-
-    for(let idx = 0;idx < colCnt; idx++ ) {
-      gridData.fields.push({
-        name: colNames[idx],
-        type: colTypes[idx].type,
-        seq: idx
-      });
-    }
-
-    gridResponse.rows.forEach((row) => {
-      const obj = {};
-      for ( let idx = 0; idx < colCnt; idx++ ) {
-        obj[ colNames[idx] ] = row.objCols[idx];
-      }
-      gridData.data.push(obj);
-    });
-
-    return gridData;
-  } // function - getGridDataFromGridResponse
-
-  /** 그리드 데이터 가공 */
-  private setGridData(data: any) {
-    this.selectedDataSet.gridData = this.getGridDataFromGridResponse(data);
-    this.updateGrid(this.selectedDataSet.gridData);
-  }
-
-  /** 데이터 미리보기 */
-  private updateGrid(data: any) {
-
-    const maxDataLen: any = {};
-    let fields: Field[] = data.fields;
-    let rows: any[] = data.data.splice(0,50); // preview는 50 rows 까지만
-    const maxLength = 500;
-    if (rows.length > 0) {
-      rows.forEach((row: any, idx: number) => {
-        // 컬럼 길이 측정
-        fields.forEach((field: Field) => {
-          let colWidth: number = 0;
-          if (typeof row[field.name] === 'string') {
-            colWidth = Math.floor((row[field.name]).length * 12);
-          }
-          if (!maxDataLen[field.name] || (maxDataLen[field.name] < colWidth)) {
-            if (colWidth > 500) {
-              maxDataLen[field.name] = maxLength;
-            } else {
-              maxDataLen[field.name] = colWidth;
-            }
-          }
-        });
-        // row id 설정
-        (row.hasOwnProperty('id')) || (row.id = idx);
-
-      });
-    }
-
-    // 헤더정보 생성
-    const headers: header[] = fields.map((field: Field) => {
-
-      /* 72 는 CSS 상의 padding 수치의 합산임 */
-      const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 72;
-
-      return new SlickGridHeader()
-        .Id(field.name)
-        .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type) + '"></em>' + field.name + '</span>')
-        .Field(field.name)
-        .Behavior('select')
-        .Selectable(false)
-        .CssClass('cell-selection')
-        .Width(headerWidth > maxDataLen[field.name] ? headerWidth : isUndefined(maxDataLen[field.name]) ? headerWidth : maxDataLen[field.name])
-        .MinWidth(100)
-        .CannotTriggerInsert(true)
-        .Resizable(true)
-        .Unselectable(true)
-        .Sortable(false)
-        .ColumnType(field.type)
-        .Formatter((row, cell, value, columnDef) => {
-          const colDescs = (this.selectedDataSet.gridResponse && this.selectedDataSet.gridResponse.colDescs) ? this.selectedDataSet.gridResponse.colDescs[cell] : {};
-          value = PreparationCommonUtil.setFieldFormatter(value, columnDef.columnType, colDescs);
-
-          if (isNull(value)) {
-            return '<div style=\'position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px; font-style: italic ; color:#b8bac2;\'>' + '(null)' + '</div>';
-          } else {
-            return value;
-          }
-        }).build();
-    });
-
-    // 헤더 필수
-    // 로우 데이터 필수
-    // 그리드 옵션은 선택
-    this.gridComponent.create(headers, rows, new GridOption()
-      .EnableHeaderClick(false)
-      .SyncColumnCellResize(true)
-      .NullCellStyleActivate(true)
-      .RowHeight(32)
-      .EnableColumnReorder(false)
-      .NullCellStyleActivate(true)
-      .build()
-    );
-
-
-    this.loadingHide();
-  }
-
-
-  /**
-   * get format of bytes
-   */
-  private formatBytes(a,b) { // a=크기 , b=소숫점자릿
-    if(0==a) return "0 Bytes";
-    let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
-    return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
-  }
-
   /**
    * get names of sheet
    */
-  public get getSheetName() {
-    let customJson = JSON.parse(this.selectedDataSet.custom);
-    let fileType = customJson.fileType;
-    if( fileType==="EXCEL" ) {
-      return customJson.sheet;
-    } else {
-      return "N/A"
-    }
-  }
+  public getSheetName() : string {
 
+    let result = "N/A";
+    if (this.selectedDataSet.custom) {
+      let customJson = JSON.parse(this.selectedDataSet.custom);
+      result = customJson.sheet ? customJson.sheet : "N/A";
+    }
+    return result;
+
+  }
 
   /**
    * Dataflow 이름 수정
@@ -914,9 +831,144 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     }
   }
 
+
+  /**
+   * Clear interval
+   */
+  public clearExistingInterval() {
+    clearInterval(this.interval);
+    this.interval = undefined;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  | Private Method
+  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  private getGridDataFromGridResponse(gridResponse: any) {
+    let colCnt = gridResponse.colCnt;
+    let colNames = gridResponse.colNames;
+    let colTypes = gridResponse.colDescs;
+
+    const gridData = {
+      data: [],
+      fields: []
+    };
+
+    for(let idx = 0;idx < colCnt; idx++ ) {
+      gridData.fields.push({
+        name: colNames[idx],
+        type: colTypes[idx].type,
+        seq: idx
+      });
+    }
+
+    gridResponse.rows.forEach((row) => {
+      const obj = {};
+      for ( let idx = 0; idx < colCnt; idx++ ) {
+        obj[ colNames[idx] ] = row.objCols[idx];
+      }
+      gridData.data.push(obj);
+    });
+
+    return gridData;
+  } // function - getGridDataFromGridResponse
+
+  /** 그리드 데이터 가공 */
+  private setGridData(data: any) {
+    this.selectedDataSet.gridData = this.getGridDataFromGridResponse(data);
+
+    if (this.selectedDataSet.gridData) {
+      this.updateGrid(this.selectedDataSet.gridData);
+    }
+  }
+
+  /** 데이터 미리보기 */
+  private updateGrid(data: any) {
+
+    const maxDataLen: any = {};
+    let fields: Field[] = data.fields;
+    let rows: any[] = data.data.splice(0,50); // preview는 50 rows 까지만
+    const maxLength = 500;
+    if (rows.length > 0) {
+      rows.forEach((row: any, idx: number) => {
+        // 컬럼 길이 측정
+        fields.forEach((field: Field) => {
+          let colWidth: number = 0;
+          if (typeof row[field.name] === 'string') {
+            colWidth = Math.floor((row[field.name]).length * 12);
+          }
+          if (!maxDataLen[field.name] || (maxDataLen[field.name] < colWidth)) {
+            if (colWidth > 500) {
+              maxDataLen[field.name] = maxLength;
+            } else {
+              maxDataLen[field.name] = colWidth;
+            }
+          }
+        });
+        // row id 설정
+        (row.hasOwnProperty('id')) || (row.id = idx);
+
+      });
+    }
+
+    // 헤더정보 생성
+    const headers: header[] = fields.map((field: Field) => {
+
+      /* 72 는 CSS 상의 padding 수치의 합산임 */
+      const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 72;
+
+      return new SlickGridHeader()
+        .Id(field.name)
+        .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type) + '"></em>' + field.name + '</span>')
+        .Field(field.name)
+        .Behavior('select')
+        .Selectable(false)
+        .CssClass('cell-selection')
+        .Width(headerWidth > maxDataLen[field.name] ? headerWidth : isUndefined(maxDataLen[field.name]) ? headerWidth : maxDataLen[field.name])
+        .MinWidth(100)
+        .CannotTriggerInsert(true)
+        .Resizable(true)
+        .Unselectable(true)
+        .Sortable(false)
+        .ColumnType(field.type)
+        .Formatter((row, cell, value, columnDef) => {
+          const colDescs = (this.selectedDataSet.gridResponse && this.selectedDataSet.gridResponse.colDescs) ? this.selectedDataSet.gridResponse.colDescs[cell] : {};
+          value = PreparationCommonUtil.setFieldFormatter(value, columnDef.columnType, colDescs);
+
+          if (isNull(value)) {
+            return '<div style=\'position:absolute; top:0; left:0; right:0; bottom:0; line-height:30px; padding:0 10px; font-style: italic ; color:#b8bac2;\'>' + '(null)' + '</div>';
+          } else {
+            return value;
+          }
+        }).build();
+    });
+
+    // 헤더 필수
+    // 로우 데이터 필수
+    // 그리드 옵션은 선택
+    if (!isNullOrUndefined(this.gridComponent)) {
+      this.gridComponent.create(headers, rows, new GridOption()
+        .EnableHeaderClick(false)
+        .SyncColumnCellResize(true)
+        .NullCellStyleActivate(true)
+        .RowHeight(32)
+        .EnableColumnReorder(false)
+        .NullCellStyleActivate(true)
+        .build()
+      );
+    }
+
+    this.loadingHide();
+  }
+
+
+  /**
+   * get format of bytes
+   */
+  private formatBytes(a,b) { // a=크기 , b=소숫점자릿
+    if(0==a) return "0 Bytes";
+    let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
+    return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
+  }
 
 
 }
