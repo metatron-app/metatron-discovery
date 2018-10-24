@@ -232,16 +232,16 @@
 
             <div class="ddp-wrap-edit-foot">
               <!-- row 수 -->
-              <div class="ddp-data-rows">
-                <em class="ddp-icon-row"></em>
-                <div class="ddp-data-input">
-                  <input type="number" input-mask="number"
-                         [(ngModel)]="queryResultNumber"
-                         (keyup.esc)="queryResultNumber = 1000; setExecuteSql('ALL')"
-                         (keyup.enter)="setExecuteSql('ALL')">
-                  <a href="javascript:" class="ddp-btn-check2" (click)="setExecuteSql('ALL')"></a>
-                </div>
-              </div>
+              <!--<div class="ddp-data-rows">-->
+                <!--<em class="ddp-icon-row"></em>-->
+                <!--<div class="ddp-data-input">-->
+                  <!--<input type="number" input-mask="number"-->
+                         <!--[(ngModel)]="queryResultNumber"-->
+                         <!--(keyup.esc)="queryResultNumber = 1000; setExecuteSql('ALL')"-->
+                         <!--(keyup.enter)="setExecuteSql('ALL')">-->
+                  <!--<a href="javascript:" class="ddp-btn-check2" (click)="setExecuteSql('ALL')"></a>-->
+                <!--</div>-->
+              <!--</div>-->
               <!-- //row 수 -->
               <!-- SQL BEAUTIFIER -->
               <a href="javascript:" class="ddp-btn-beautifier" (click)="setSqlFormatter()" title="SQL BEAUTIFIER"></a>
@@ -341,7 +341,7 @@
                   <!-- li 클릭시 ddp-selected 추가 -->
                   <ul class="ddp-list-tabs">
                     <!-- ddp-selected -->
-                    <li *ngFor="let item of getFilteringList(visibleResultTabs, editorResultListObj)"
+                    <li *ngFor="let item of getFilteringList(visibleResultTabs, editorResultListObj); let index = index"
                         [ngClass]="{'ddp-selected': item.selected}" (click)="changeResultTabHandler(item.id)">
                       <div [ngStyle]="{'color': ( 'FAIL' === item.resultStatus || 'CANCEL' === item.resultStatus ) ? 'red' : 'black' }"
                            class="ddp-data-tab ddp-data-loading" >
@@ -354,7 +354,7 @@
                       <!-- 버튼 show : ddp-retry 추가 -->
                       <div class="ddp-box-tabs-popup ddp-retry">
                         <div class="ddp-txt-query"> {{item.sql}} </div>
-                        <a *ngIf="!isHiveQueryExecute" href="javascript:" class="ddp-btn-log-status ddp-retry2">Retry</a>
+                        <a *ngIf="!isHiveQueryExecute" href="javascript:" class="ddp-btn-log-status ddp-retry2" (click)="runRetry(index)">Retry</a>
                       </div>
                       <!-- //popup -->
                     </li>
@@ -389,7 +389,7 @@
 
                   </div>
                   <div *ngIf="!isHiveQueryExecute && 'NONE' !== visibleResultTab.resultStatus" class="ddp-box-status-button">
-                    <a href="javascript:" class="ddp-btn-log-status ddp-retry">Retry</a>
+                    <a href="javascript:" class="ddp-btn-log-status ddp-retry" (click)="runRetry(selectedGridTabNum)">Retry</a>
                     <span *ngIf="'FAIL' === visibleResultTab.resultStatus" class="ddp-txt-log-status ddp-fail">
                       Sorry, it’s failed while creating statement
                     </span>
@@ -417,10 +417,10 @@
                   <!-- button -->
                   <div class="ddp-ui-buttons" *ngIf="visibleResultTab.result && visibleResultTab.result.fields">
                     <div class="ddp-wrap-btn-link" [hidden]="'' !== visibleResultTab.message">
-                      <a href="javascrpt:" class="ddp-box-page">
+                      <a href="javascript:" class="ddp-box-page" *ngIf="visibleResultTab.pageNum != 0"  (click)="runQueryResult('prev')">
                         <em class="ddp-icon-prev"></em>PREV
                       </a>
-                      <a href="javascrpt:" class="ddp-box-page ddp-next">
+                      <a href="javascript:" class="ddp-box-page ddp-next" *ngIf="setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber)) != setNumberFormat(visibleResultTab.result.numRows-1)" (click)="runQueryResult('next')">
                         NEXT<em class="ddp-icon-next"></em>
                       </a>
                     </div>
@@ -471,8 +471,7 @@
 
                       <!-- ddp-selected 추가 -->
                       <div class="ddp-ui-link ddp-selected" [ngClass]="{'ddp-selected':csvDownloadLayer}" [hidden]="'' !== visibleResultTab.message">
-                        <a href="javascript:" class="ddp-btn-link" (click)="downloadExcel()"
-                           (clickOutside)="downloadExcelClose()">
+                        <a href="javascript:" class="ddp-btn-link" (click)="downloadExcel()">
                           <em class="ddp-icon-export"></em>
                           <div class="ddp-ui-tooltip-info">
                             <em class="ddp-icon-view-down"></em>
@@ -480,20 +479,20 @@
                           </div>
                         </a>
 
-                        <div class="ddp-wrap-popup2" >
-                          <ul class="ddp-list-popup">
-                            <li>
-                              <a href="javascript:" (click)="setDownloadLocal()">
-                                {{'msg.bench.btn.download.rows' | translate}}
-                              </a>
-                            </li>
-                            <li>
-                              <a href="javascript:" (click)="downloadServerExcel()">
-                                {{'msg.bench.btn.all.data' | translate}}
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
+                        <!--<div class="ddp-wrap-popup2" >-->
+                          <!--<ul class="ddp-list-popup">-->
+                            <!--<li>-->
+                              <!--<a href="javascript:" (click)="setDownloadLocal()">-->
+                                <!--{{'msg.bench.btn.download.rows' | translate}}-->
+                              <!--</a>-->
+                            <!--</li>-->
+                            <!--<li>-->
+                              <!--<a href="javascript:" (click)="downloadServerExcel()">-->
+                                <!--{{'msg.bench.btn.all.data' | translate}}-->
+                              <!--</a>-->
+                            <!--</li>-->
+                          <!--</ul>-->
+                        <!--</div>-->
                       </div>
 
                       <!--<a href="javascript:" class="ddp-btn-link">-->
@@ -552,7 +551,7 @@
                     <span class="ddp-data-txt">{{ setNumberFormat( visibleResultTab.executeTime, 2 ) }} Secs.</span>
                   </span>
                   <span class="ddp-data-time" *ngIf="'SUCCESS' === visibleResultTab.resultStatus && visibleResultTab.result && -1 < visibleResultTab.result.numRows">
-                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.numRows)}} {{'msg.comm.detail.rows'|translate}}</span>
+                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber) )}} / {{setNumberFormat(visibleResultTab.result.numRows -1)}} {{'msg.comm.detail.rows'|translate}}</span>
                   </span>
                 </div>
                 <!-- //time -->
@@ -649,12 +648,8 @@
 <form enctype="application/x-www-form-urlencoded" id="downloadCsvForm" name="downloadCsvForm" method="post"
       target="downloadCsvIframe">
   <input type="hidden" name="access_token" value=""/>
-  <input type="hidden" name="webSocketId" value=""/>
+  <input type="hidden" name="csvFilePath" value=""/>
   <input type="hidden" name="fileName" value=""/>
-  <input type="hidden" name="query" value=""/>
-  <input type="hidden" name="connectionId" value=""/>
-  <input type="hidden" name="workbenchId" value=""/>
-  <input type="hidden" name="tempTable" value=""/>
 </form>
 <!-- schema browser -->
 <detail-workbench-schema-browser></detail-workbench-schema-browser>

@@ -260,8 +260,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public mainViewShow: boolean = true;
 
-  public csvDownloadLayer: boolean = false;
-
   // 데이터 메니저 여부
   public isDataManager: boolean = false;
 
@@ -1228,6 +1226,110 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       });
   } // function - runQueries
 
+
+  /**
+   * running info setting
+   * @param visibleTab
+   * @param index
+   */
+  private setRunningInfo(visibleTab: ResultTab, index : number) {
+
+    this.runningInfoList = [];
+
+    const queryEditor: QueryEditor = new QueryEditor();
+    queryEditor.editorId = visibleTab.editorId;
+    queryEditor.name = visibleTab.name;
+    queryEditor.workbench = CommonConstant.API_CONSTANT.API_URL + 'workbenchs/' + this.workbenchId;
+    queryEditor.webSocketId = this.websocketId;
+    queryEditor.order = visibleTab.pageNum;
+    queryEditor.numRows = this.queryResultNumber;
+    queryEditor.query = visibleTab.sql;
+
+    // running info 생성
+    this.runningInfoList.push({
+      name        : queryEditor.name,
+      errName     : this._genResultTabName('Editor ' + this.selectedGridTabNum, 'ERROR', index + 1),
+      tabId       : visibleTab.id,
+      queryEditor : queryEditor
+    });
+
+  }
+
+  /**
+   * query 재실행
+   * @param index
+   */
+  public runRetry( index : number ) {
+
+    // page number 초기화
+    const visibleTab: ResultTab = this._getCurrentResultTab();
+    visibleTab.pageNum = 0;
+
+    this.setRunningInfo(visibleTab, index);
+
+
+    this.currentRunningIndex = 0;
+    this.executeEditorId = this.selectedEditorId;
+    // 쿼리 조회
+    this.runQueries(this.runningInfoList[0]);
+
+  }
+
+  /**
+   * query 결과 페이징 API 호출
+   * @param pageTarget
+   */
+  public runQueryResult( pageTarget : string ) {
+
+    const visibleTab: ResultTab = this._getCurrentResultTab();
+
+    let editorId = visibleTab.editorId;
+    let csvFilePath = visibleTab.result.csvFilePath;
+    let fieldList = visibleTab.result.fields;
+
+    if( pageTarget == 'prev'){
+      visibleTab.pageNum--;
+    } else {
+      visibleTab.pageNum++;
+    }
+
+    this.workbenchService.runQueryResult(editorId, csvFilePath, this.queryResultNumber, visibleTab.pageNum, fieldList)
+      .then((result) => {
+        this.loadingBar.hide();
+
+        try {
+
+          // 쿼리 결과 값으로 교체
+          visibleTab.result.data = result;
+
+          this.setRunningInfo(visibleTab, this.selectedTabNum);
+
+          // 결과 값 교체
+          this.setHiveQueryResult(visibleTab.result, this.runningInfoList[0]);
+
+        } catch (err) {
+          console.error(err);
+        }
+      })
+      .catch(error => {
+        if (this.hiveLogCanceling) {
+          Alert.error(this.translateService.instant('msg.bench.alert.log.cancel.error'));
+          this.loadingBar.hide();
+          this.afterCancelQuery(false);
+        } else {
+          this.loadingBar.hide();
+
+          if (!isUndefined(error.details)) {
+            Alert.error(error.details);
+          } else {
+            Alert.error(error);
+          }
+        }
+      });
+
+
+  }
+
   /**
    * 에디터 풀 사이즈처리
    */
@@ -1433,17 +1535,44 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.tabLayer = false;
   }
 
-  // form 으로 다운로드
+  /**
+   * 엑셀 다운로드 form 방식
+   */
   public downloadExcel(): void {
-    this.csvDownloadLayer = true;
+
+    const dataGrid: ResultTab = this._getCurrentResultTab();
+
+    // data grid 결과가 없을때 return
+    if (isUndefined(dataGrid) || 'SUCCESS' !== dataGrid.resultStatus) {
+      Alert.info(this.translateService.instant('msg.bench.alert.no.result'));
+      return;
+    }
+    try {
+      const that = this;
+
+      const form = document.getElementsByTagName('form');
+      const inputs = form[0].getElementsByTagName('input');
+      inputs[0].value = this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN);
+      inputs[1].value = dataGrid.result.csvFilePath;
+      inputs[2].value = 'result_' + Date.now().toString() + '.csv';
+      // this.loadingShow();
+      this.loadingBar.show();
+      const downloadCsvForm = $('#downloadCsvForm');
+      downloadCsvForm.attr('action', CommonConstant.API_CONSTANT.API_URL + `queryeditors/${this.selectedEditorId}/query/download/csv`);
+      downloadCsvForm.submit();
+      this.intervalDownload = setInterval(() => that.checkQueryStatus(), 1000);
+    } catch (e) {
+      // 재현이 되지 않음.
+      console.info('다운로드 에러' + e);
+    }
+
+
   }
 
-  public downloadExcelClose(): void {
-    this.csvDownloadLayer = false;
-  }
-
+  /**
+   * 기존 사용 local downlaod
+   */
   public setDownloadLocal() {
-    this.csvDownloadLayer = false;
     if (typeof this.gridComponent !== 'undefined'
       && typeof this.gridComponent.dataView !== 'undefined'
       && this.gridComponent.getRows().length > 0) {
@@ -1458,7 +1587,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   /**
-   * download excel
+   * 기존 사용 server download
    */
   public downloadServerExcel() {
     // selected dataGrid
@@ -2950,6 +3079,7 @@ class ResultTab {
   public executeStatus: ('GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE');
   public resultStatus: ('NONE' | 'SUCCESS' | 'FAIL' | 'CANCEL');
   public result?: QueryResult;           // Result
+  public pageNum : number = 0;
 
   private _timer;
 
