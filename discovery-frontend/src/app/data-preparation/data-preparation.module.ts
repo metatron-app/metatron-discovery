@@ -84,6 +84,9 @@ import { EditRuleSettypeComponent } from './dataflow/dataflow-detail/component/e
 import { PrepSelectBoxComponent } from './util/prep-select-box.component';
 import { DataflowModelService } from "./dataflow/service/dataflow.model.service";
 import {EditRuleWindowComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-window.component";
+import {CheckboxSelectDatasetComponent} from "./component/checkbox-select-dataset.component";
+import {LongUpdatePopupComponent} from "./component/long-update-popup.component";
+import {RadioSelectDatasetComponent} from "./component/radio-select-dataset.component";
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -163,7 +166,10 @@ const dataPreparationRoutes: Routes = [
     CreateSnapshotPopup,
     SnapshotLoadingComponent,
     RuleConditionInputComponent,
-    PrepSelectBoxComponent
+    PrepSelectBoxComponent,
+    RadioSelectDatasetComponent,
+    CheckboxSelectDatasetComponent,
+    LongUpdatePopupComponent
   ],
   providers: [
     DataPreparationService,
