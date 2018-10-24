@@ -24,6 +24,7 @@ import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Util;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.util.ExcelProcessor;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -345,7 +346,9 @@ public class PrepDatasetFileService {
                             if(c==null) {
                                 result.put(f.getName(), null);
                             } else {
-                                result.put(f.getName(), c.getStringCellValue());
+                                Object cellValue = ExcelProcessor.getCellValue(c);
+                                String strCellValue = String.valueOf(cellValue);
+                                result.put(f.getName(), strCellValue);
                             }
                         }
                         resultSet.add( result );
@@ -904,7 +907,8 @@ public class PrepDatasetFileService {
                         continue;
                     }
 
-                    String value = c.getStringCellValue();
+                    Object cellValue = ExcelProcessor.getCellValue(c);
+                    String value = String.valueOf(cellValue);
                     if (value.contains("\"")) {
                         value = value.replace("\"", "\"\"");
                     }
