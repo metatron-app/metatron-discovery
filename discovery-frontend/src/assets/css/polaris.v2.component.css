@@ -2043,7 +2043,9 @@ a.ddp-icon-more:hover:before {background-position:0 -4px;}
 .ddp-icon-drop-sort,
 .ddp-icon-drop-move,
 .ddp-icon-drop-generate,
-.ddp-icon-drop-detail {display:inline-block; position:absolute; top:50%; left:13px; margin-top:-7px; width:13px; height:12px; background:url(../images/icon_drop.png) no-repeat;}
+.ddp-icon-drop-detail,
+.ddp-icon-drop-re {display:inline-block; position:absolute; top:50%; left:13px; margin-top:-7px; width:13px; height:12px; background:url(../images/icon_drop.png) no-repeat;}
+.ddp-icon-drop-re {width:13px; height:12px; background-position:-205px top;}
 .ddp-icon-drop-monitoring {width:13px; height:12px;}
 .ddp-icon-drop-editmodify {width:12px; height:12px; background-position:-14px top;}
 .ddp-icon-drop-editdel3 {width:11px; height:12px; margin-top:-6px; background-position:-27px top;}
@@ -2098,7 +2100,9 @@ em.ddp-icon-control-user.ddp-type,
 em.ddp-icon-control-parameter.ddp-type,
 em.ddp-icon-control-calculat.ddp-type,
 em.ddp-icon-control-filter.ddp-type,
-em.ddp-icon-control-link {display:inline-block; padding:3px; cursor:pointer; vertical-align: middle;}
+em.ddp-icon-control-link,
+em.ddp-icon-control-insert,
+em.ddp-icon-control-more2 {display:inline-block; padding:3px; cursor:pointer; vertical-align: middle;}
 em.ddp-icon-control-copy:before,
 em.ddp-icon-control-copy-s:before,
 em.ddp-icon-control-cut:before,
@@ -2119,7 +2123,9 @@ em.ddp-icon-control-user.ddp-type:before,
 em.ddp-icon-control-parameter.ddp-type:before,
 em.ddp-icon-control-calculat.ddp-type:before,
 em.ddp-icon-control-filter.ddp-type:before,
-em.ddp-icon-control-link:before{display:inline-block; content:''; background:url(../images/icon_control.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-control-link:before,
+em.ddp-icon-control-insert:before,
+em.ddp-icon-control-more2:before {display:inline-block; content:''; background:url(../images/icon_control.png) no-repeat; vertical-align: middle;}
 em.ddp-icon-control-link {padding-top:4px;}
 em.ddp-icon-control-link:before {width:14px; height:8px; background-position:left -257px; opacity:0.6}
 em.ddp-icon-control-link:hover:before {opacity:1;}
@@ -2139,16 +2145,19 @@ em.ddp-icon-control-plus:hover:before {background-position:-12px -218px;}
 em.ddp-icon-control-fav.ddp-selected:before {background-position:-26px -42px;}
 em.ddp-icon-control-user:before {width:9px; height:9px; background-position:left -55px;}
 em.ddp-icon-control-filter:before {width:12px; height:9px; background-position:left -65px;}
-
 em.ddp-icon-control-parameter:before {width:11px; height:9px; background-position:left -87px;}
 em.ddp-icon-control-calculat:before {width:11px; height:11px; background-position:left -75px;}
 em.ddp-icon-control-dimension:before {width:12px; height:12px; background-position:left -98px;}
 em.ddp-icon-control-more:before {display:inline-block; width:2px; height:9px; background-position:left -164px;}
-
 em.ddp-icon-control-close:before {display:inline-block; width:8px; height:8px; background-position:left -174px;}
-
 em.ddp-icon-control-copy-s:before {width:10px; height:10px; background-position:left -183px;}
 em.ddp-icon-control-cut-s:before {width:10px; height:10px; background-position:left -194px;}
+em.ddp-icon-control-insert:before {width:10px; height:11px; background-position:left -266px;}
+em.ddp-icon-control-insert:hover:before {background-position-x:-11px;}
+
+em.ddp-icon-control-more2 {width:16px; height:17px; box-sizing:border-box;}
+em.ddp-icon-control-more2:before {position:absolute; top:50%; left:50%; width:2px; height:10px; margin:-5px 0 0 -1px; background-position:left -278px;}
+em.ddp-icon-control-more2:hover:before {background-position-x:-3px;}
 
 em.ddp-icon-control-copy-s:hover:before {background-position:-11px -183px;}
 em.ddp-icon-control-cut-s:hover:before  {background-position:-11px -194px;}
@@ -2363,7 +2372,9 @@ em.ddp-icon-widget-downsize:before,
 em.ddp-icon-widget-copy:before,
 em.ddp-icon-widget-chart:before,
 em.ddp-icon-widget-store:before,
-em.ddp-icon-widget-info:before {display:inline-block;content:''; background:url(../images/icon_widget.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-widget-info:before ,
+em.ddp-icon-widget-dataview:before,
+em.ddp-icon-widget-synch:before {display:inline-block;content:''; background:url(../images/icon_widget.png) no-repeat; vertical-align: middle;}
 
 em.ddp-icon-widget-info:before {width:15px; height:15px; background-position:left -145px;}
 em.ddp-icon-widget-edit:before {width:13px; height:13px; background-position:left -131px;}
@@ -2376,6 +2387,9 @@ em.ddp-icon-widget-downsize:before {width:14px; height:14px;background-position:
 em.ddp-icon-widget-copy:before {width:13px; height:13px; background-position:-14px -92px;}
 em.ddp-icon-widget-chart:before {position:relative; top:2px; width:13px; height:11px; background-position:-14px -106px;}
 em.ddp-icon-widget-gridsave:before {display:inline-block; width:12px; height:13px; background-position:-39px -40px; content:'';}
+em.ddp-icon-widget-dataview:before {display:inline-block; width:13px; height:13px; background-position:left -188px;}
+em.ddp-icon-widget-synch:before {display:inline-block; width:18px; height:13px; background-position:left -202px;}
+em.ddp-icon-widget-synch.ddp-on:before {width:16px; background-position-y:-216px;}
 
 em.ddp-icon-widget-loading:before {margin:-6px 0 0 -6px; width:12px; height:12px; background:url(../images/icon_tabloading.png) no-repeat; vertical-align: middle; animation-name: spin;animation-duration: 1s;
     animation-iteration-count: infinite;
