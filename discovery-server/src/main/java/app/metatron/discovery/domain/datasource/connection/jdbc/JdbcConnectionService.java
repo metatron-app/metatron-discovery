@@ -1288,7 +1288,6 @@ public class JdbcConnectionService {
       field.setRole(field.getType().toRole());
       fields.add(field);
     }
-
     List<Map<String, Object>> data = Lists.newArrayList();
     while (rs.next()) {
       Map<String, Object> rowMap = Maps.newLinkedHashMap();
@@ -1308,7 +1307,6 @@ public class JdbcConnectionService {
       }
       data.add(rowMap);
     }
-
     return new JdbcQueryResultResponse(fields, data);
   }
 

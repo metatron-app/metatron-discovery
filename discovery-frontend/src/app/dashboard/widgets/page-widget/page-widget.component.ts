@@ -1095,26 +1095,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     {
       let externalFilters = selectionFilters ? globalFilters.concat(selectionFilters) : globalFilters;
       externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName, externalFilters);
-
-      uiCloneQuery.filters.forEach(item1 => {
-        const idx: number = externalFilters.findIndex(item2 => {
-          return item1.field === item2.field && item1.ref === item2.ref;
-        });
-        if (-1 < idx) {
-          const selection = externalFilters.splice(idx, 1)[0];
-          if ('include' === item1.type || FilterUtil.isTimeListFilter(item1)) {
-            item1['valueList'] = item1['valueList'] ? _.uniq(item1['valueList'].concat(selection['valueList'])) : selection['valueList'];
-          } else if (FilterUtil.isTimeFilter(item1)) {
-            const timeFilter = <TimeFilter>item1;
-            const timeSelection: TimeListFilter = FilterUtil.getTimeListFilter(
-              timeFilter.clzField, timeFilter.discontinuous,
-              timeFilter.timeUnit, timeFilter.byTimeUnit, timeFilter.ui.importanceType
-            );
-            timeSelection.valueList = selection['valueList'];
-            item1 = timeSelection;
-          }
-        }
-      });
       uiCloneQuery.filters = externalFilters.concat(uiCloneQuery.filters);
     }
 

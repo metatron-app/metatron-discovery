@@ -24,16 +24,14 @@ import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Util;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.input.BOMInputStream;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -274,6 +272,7 @@ public class PrepDatasetFileService {
 
                 Sheet sheet = null;
                 if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
+                    /*
                     Workbook wb = null;
 
                     if ("xlsx".equals(extensionType)) {
@@ -281,11 +280,69 @@ public class PrepDatasetFileService {
                     } else if("xls".equals(extensionType)) {
                         wb = new HSSFWorkbook(new FileInputStream(theFile));
                     }
-
                     if (sheetname != null)
                         findSheetIndex = wb.getSheetIndex(sheetname);
 
                     sheet = wb.getSheetAt(findSheetIndex);
+                    */
+
+                    InputStream is = new FileInputStream(theFile);
+                    Workbook workbook = StreamingReader.builder()
+                            .rowCacheSize(100)
+                            .bufferSize(4096)
+                            .open(is);
+
+                    sheet = workbook.getSheet(sheetname);
+                    totalRows = sheet.getLastRowNum()+1;
+
+                    //int numCols = sheet.getRow(sheet.getFirstRowNum()).getLastCellNum()+1;
+                    /*
+                    int numCols = 0;
+                    for (Row r : sheet) {
+                        if (r == null) {
+                            continue;
+                        }
+                        for (Cell c : r) {
+                            numCols++;
+                        }
+                        break;
+                    }
+                    String[] csv_fields = new String[numCols];
+                    for(int i=0;i<numCols;i++) {
+                        csv_fields[i] = prefixColumnName + String.valueOf(i + 1);
+                        fields.add(makeFieldFromCSV(i, csv_fields[i], "STRING"));
+                    }
+                    */
+
+                    for (Row r : sheet) {
+                        if(r==null) {
+                            resultSet.add(Maps.newHashMap());
+                            continue;
+                        }
+                        if(limitSize<=r.getRowNum()) { break; }
+
+                        Map<String,String> result = Maps.newHashMap();
+                        for (Cell c : r) {
+                            int cellIdx = c.getColumnIndex();
+                            Field f = null;
+                            if(cellIdx<fields.size()) {
+                                f = fields.get(cellIdx);
+                            }
+                            if(f==null) {
+                                f = makeFieldFromCSV(cellIdx, prefixColumnName + String.valueOf(cellIdx+1), "STRING");
+                                fields.add(cellIdx, f);
+                            }
+
+                            if(c==null) {
+                                result.put(f.getName(), null);
+                            } else {
+                                result.put(f.getName(), c.getStringCellValue());
+                            }
+                        }
+                        resultSet.add( result );
+                    }
+
+                    /*
                     createHeaderRow(sheet);
                     totalRows = sheet.getPhysicalNumberOfRows()-1;
 
@@ -308,6 +365,7 @@ public class PrepDatasetFileService {
                             }
                         }
                     }
+                    */
                 } else if ( "csv".equals(extensionType) ) {
                     BufferedReader br = null;
                     String line;
@@ -408,7 +466,8 @@ public class PrepDatasetFileService {
         } catch (Exception e) {
             LOGGER.error("Failed to upload file : {}", e.getMessage());
             responseMap.put("success", false);
-            responseMap.put("message", e.getMessage());
+            responseMap.put("message", e.getClass().getName());
+            //responseMap.put("message", e.getMessage());
         }
 
         return responseMap;
@@ -710,12 +769,25 @@ public class PrepDatasetFileService {
                 responseMap.put("sheets", sheets);
 
                 if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
+                    /*
                     Workbook wb = null;
                     wb = WorkbookFactory.create(new File(tempFilePath));
                     if (null != wb) {
                         int sheetsCount = wb.getNumberOfSheets();
                         for (int j = 0; j < sheetsCount; j++) {
                             sheets.add(wb.getSheetAt(j).getSheetName());
+                        }
+                    }
+                    */
+                    InputStream is = new FileInputStream(new File(tempFilePath));
+                    Workbook workbook = StreamingReader.builder()
+                            .rowCacheSize(100)
+                            .bufferSize(4096)
+                            .open(is);
+                    if (null != workbook) {
+                        int sheetsCount = workbook.getNumberOfSheets();
+                        for (Sheet sheet : workbook) {
+                            sheets.add(sheet.getSheetName());
                         }
                     }
                 }
@@ -751,6 +823,7 @@ public class PrepDatasetFileService {
             String excelFileName = this.getPathLocal_new(fileKey);
             csvFileName = this.getPathLocal_new(newFileKey);
 
+            /*
             File theFile = new File(excelFileName);
             Workbook wb = null;
             if ("xlsx".equals(extensionType)) {
@@ -758,9 +831,66 @@ public class PrepDatasetFileService {
             } else if ("xls".equals(extensionType)) {
                 wb = new HSSFWorkbook(new FileInputStream(theFile));
             }
-
             int findSheetIndex = wb.getSheetIndex(sheetName);
             Sheet sheet = wb.getSheetAt(findSheetIndex);
+            */
+            InputStream is = new FileInputStream(new File(excelFileName));
+            Workbook wb = StreamingReader.builder()
+                    .rowCacheSize(100)
+                    .bufferSize(4096)
+                    .open(is);
+
+            Sheet sheet = wb.getSheet(sheetName);
+
+            int maxIdx = 0;
+            for (Row r : sheet) {
+                for (Cell c : r) {
+                    int colIdx = c.getColumnIndex();
+                    if(maxIdx<colIdx) {
+                        maxIdx = colIdx;
+                    }
+                }
+            }
+            is.close();
+
+            is = new FileInputStream(new File(excelFileName));
+            wb = StreamingReader.builder()
+                    .rowCacheSize(100)
+                    .bufferSize(4096)
+                    .open(is);
+            sheet = wb.getSheet(sheetName);
+            String separator = delimiter;
+            FileWriter writer = new FileWriter(csvFileName);
+            for (Row r : sheet) {
+                StringBuilder sb = new StringBuilder();
+                boolean first = true;
+                for (int i = 0; i < maxIdx; i++) {
+                    if (i!=0) {
+                        sb.append(separator);
+                    }
+
+                    Cell c = r.getCell(i);
+                    if(c==null) {
+                        continue;
+                    }
+
+                    String value = c.getStringCellValue();
+                    if (value.contains("\"")) {
+                        value = value.replace("\"", "\"\"");
+                    }
+                    if (value.contains(",")) {
+                        value = "\"" + value + "\"";
+                    }
+                    sb.append(value);
+                }
+                sb.append("\n");
+                writer.append(sb.toString());
+            }
+            writer.flush();
+            writer.close();
+
+            /*
+            Sheet sheet = wb.getSheet(sheetName);
             List<Map<String, String>> resultSet = Lists.newArrayList();
             if(createHeaderRow(sheet)){
                 //getResultSetFromSheet()에서 0번째 row가 제거되기 때문에  원본에 Header가 있던 sheet의 경우 0번 row를 더미로 채운다.
@@ -830,6 +960,7 @@ public class PrepDatasetFileService {
             }
             writer.flush();
             writer.close();
+            */
         } catch (Exception e) {
             LOGGER.error("Failed to copy localFile : {}", e.getMessage());
         }

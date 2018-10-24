@@ -16,11 +16,20 @@ package app.metatron.discovery.spec.druid.ingestion.parser;
 
 import com.google.common.collect.Lists;
 
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.List;
+
+import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
+
 /**
- * Created by kyungtaak on 2016. 6. 17..
+ * Druid: JsonParseSpec
  */
 public class JsonParseSpec extends TimeAndDimsParseSpec implements ParseSpec {
 
+  /**
+   * allows nested JSON fields to be flattened during ingestion time
+   */
   JsonFlattenSpec flattenSpec;
 
   public JsonParseSpec() {
@@ -28,6 +37,21 @@ public class JsonParseSpec extends TimeAndDimsParseSpec implements ParseSpec {
 
   public JsonParseSpec(DimensionsSpec dimensionSpec, TimestampSpec timestampSpec) {
     super(dimensionSpec, timestampSpec);
+  }
+
+  public void setFlattenSpec(List<JsonFileFormat.JsonFlatten> flattenRules) {
+
+    if (CollectionUtils.isEmpty(flattenRules)) {
+      return;
+    }
+
+    List<JsonFlattenField> fields = Lists.newArrayList();
+
+    for (JsonFileFormat.JsonFlatten flattenRule : flattenRules) {
+      fields.add(new JsonFlattenField.PathFlattenField(flattenRule.getName(), flattenRule.getExpr()));
+    }
+
+    flattenSpec = new JsonFlattenSpec(fields);
   }
 
   public JsonParseSpec(String timestamp, String format, String... dimensions) {
