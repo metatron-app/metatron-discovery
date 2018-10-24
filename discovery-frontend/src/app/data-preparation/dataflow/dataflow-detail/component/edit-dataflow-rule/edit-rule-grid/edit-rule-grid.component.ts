@@ -206,6 +206,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       method = 'put';
     }
 
+    // if(this._gridComp!=null){try{this._gridComp.getGridCore().scrollRowIntoView(0);}catch (error){}}
     return this.dataflowService.transformAction(this.dataSetId, method, params).then(data => {
       // 데이터 초기화
       {
@@ -216,6 +217,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         this._gridData = null;
         this._selectedRows = [];
         this._selectedColumns = [];
+
+
 
         // Histogram
         this._charts = [];
@@ -244,6 +247,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       const gridData: GridData = this._getGridDataFromGridResponse(this._apiGridData);
       this._gridData = gridData;
 
+
       // Column Width 설정
       // (this.columnWidths) || (this.columnWidths = {});
       // this.columnWidths = this._setColumnWidthInfo(this.columnWidths, this._apiGridData.colNames, gridData);
@@ -271,16 +275,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       // 그리드 생성
       gridData.fields.forEach(field => field.isHover = false);
 
-      // 데이터 전체 카운트 & ruleIdx
-      if(this._gridComp) {
-        this._gridComp.setTotalRowCnt(data.totalRowCnt);
-        this._gridComp.setRuleIndex(this.ruleIdx);
-      }
-
-
       // 히스토그램 정보 설정
       return this._getHistogramInfoByWidths(this.columnWidths, gridData.fields.length).then(() => {
-        this._renderGrid(gridData, params.ruleIdx);
+        this._renderGrid(gridData, this.ruleIdx, data.totalRowCnt);
         // 그리드 요약 정보 설정
         this._summaryGridInfo(gridData);
         this.totalRowCnt = data.totalRowCnt;
@@ -1680,9 +1677,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    * @param {number} ruleIdx
    * @private
    */
-  private _renderGrid(gridData: GridData, ruleIdx: number) {
-
-    const ruleIndex: number = ruleIdx;
+  private _renderGrid(gridData: GridData, ruleIdx: number, totalRowCnt: number) {
+    // const ruleIndex: number = ruleIdx;
 
     const fields: Field[] = gridData.fields;
 
@@ -1790,7 +1786,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         .ExplicitInitialization(true)
         .NullCellStyleActivate(true)
         .EnableMultiSelectionWithCtrlAndShift(true)
-        .build()
+        .build(),
+      ruleIdx,
+      totalRowCnt
     );
 
     // 그리드 실행
