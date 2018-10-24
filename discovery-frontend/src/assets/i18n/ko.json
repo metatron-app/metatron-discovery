@@ -551,6 +551,8 @@
   "msg.bench.ui.wb.del" : "워크벤치 삭제",
   "msg.bench.ui.wb.del.description" : "해당 워크벤치를 삭제하시겠습니까?",
   "msg.bench.ui.result.empty.description" : "쿼리 결과가 없습니다. 쿼리를 실행해 주세요.",
+  "msg.bench.ui.query.start.date" : "실행 시작",
+  "msg.bench.ui.query.running.time" : "소요 시간",
   "msg.bench.ui.query.running.message" : "쿼리 실행중..",
   "msg.bench.ui.query.fail.message" : "쿼리 실행 실패..",
   "msg.bench.ui.query.cancel.message" : "쿼리 실행 취소..",

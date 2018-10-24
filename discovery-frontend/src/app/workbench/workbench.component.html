@@ -543,11 +543,11 @@
                 <!-- time -->
                 <div class="ddp-list-time" *ngIf="'NONE' === visibleResultTab.resultStatus || 'SUCCESS' === visibleResultTab.resultStatus">
                   <span class="ddp-data-time">
-                    <span class="ddp-data-label">실행시작</span>
+                    <span class="ddp-data-label">{{'msg.bench.ui.query.start.date' | translate}}</span>
                     <span class="ddp-data-txt">{{visibleResultTab.startDate}}</span>
                   </span>
                   <span class="ddp-data-time">
-                    <span class="ddp-data-label">소요시간</span>
+                    <span class="ddp-data-label">{{'msg.bench.ui.query.running.time' | translate}}</span>
                     <span class="ddp-data-txt">{{ setNumberFormat( visibleResultTab.executeTime, 2 ) }} Secs.</span>
                   </span>
                   <span class="ddp-data-time" *ngIf="'SUCCESS' === visibleResultTab.resultStatus && visibleResultTab.result && -1 < visibleResultTab.result.numRows">
