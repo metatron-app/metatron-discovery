@@ -208,14 +208,14 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
      //
      // // useDefaultFormat이 없는경우
      // if (typeof uiOption.toolTip.useDefaultFormat === 'undefined') uiOption.toolTip.useDefaultFormat = true;
+     
+     //Set
+     if(this.resultData['data'][2].valueRange[uiOption.layers[2].color.column]) {
+       const minValue = this.checkMinZero(this.resultData['data'][2].valueRange[uiOption.layers[2].color.column].minValue, this.resultData['data'][2].valueRange[uiOption.layers[2].color.column].minValue);
 
-     // Set
-     // if(this.resultData['data'][0].valueRange) {
-     //   const minValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, this.resultData['data'][0].valueRange.minValue);
-     //
-     //   this.minValue = FormatOptionConverter.getDecimalValue(minValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
-     //   this.maxValue = FormatOptionConverter.getDecimalValue(this.resultData['data'][0].valueRange.maxValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
-     // }
+       this.minValue = FormatOptionConverter.getDecimalValue(minValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+       this.maxValue = FormatOptionConverter.getDecimalValue(this.resultData['data'][2].valueRange[uiOption.layers[2].color.column].maxValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
+     }
 
      this.uiOption = uiOption;
 
