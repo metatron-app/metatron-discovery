@@ -116,6 +116,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   // page layout animation 종료여부
   public finishAnimation: boolean;
 
+  // map chart layer 갯수
+  public layerNum: number = 1;
+
   // 확인팝업 띄우기
   @Output()
   public showPopup: EventEmitter<Modal> = new EventEmitter();
@@ -512,6 +515,11 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       //field.pivot = pivot;
       field.expr = targetField.expr;
       field.field = targetField;
+
+      if(this.chartType === 'map') {
+        field.layerNum = this.layerNum;
+      }
+
       if (targetField.name !== targetField.alias
         && ( !targetField.nameAlias || targetField.nameAlias.nameAlias !== targetField.alias )) {
         field.alias = targetField.alias;
@@ -1264,8 +1272,10 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    */
   public onShelveAnimation(element: JQuery) {
 
-    // 선반의 아이템들이 나오게 설정
-    this.changeDetect.detectChanges();
+    if (!this.changeDetect['destroyed']) {
+      // 선반의 아이템들이 나오게 설정
+      this.changeDetect.detectChanges();
+    }
 
     let scope = this;
 

@@ -14,6 +14,40 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.FieldBridge;
+import org.hibernate.search.annotations.Fields;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.IndexedEmbedded;
+import org.hibernate.search.annotations.SortableField;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.bridge.builtin.BooleanBridge;
+import org.hibernate.search.bridge.builtin.EnumBridge;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.data.rest.core.annotation.RestResource;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import app.metatron.discovery.common.CustomCollectors;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.KeepAsJsonDeserialzier;
@@ -22,7 +56,12 @@ import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.context.ContextEntity;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.ingestion.*;
+import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
@@ -33,32 +72,12 @@ import app.metatron.discovery.domain.workbook.configurations.field.TimestampFiel
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRawValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.search.annotations.*;
-import org.hibernate.search.bridge.builtin.BooleanBridge;
-import org.hibernate.search.bridge.builtin.EnumBridge;
-import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.data.rest.core.annotation.RestResource;
 
-import javax.persistence.*;
-import javax.persistence.Index;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HDFS;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HIVE;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.REALTIME;
 import static app.metatron.discovery.domain.workbook.configurations.field.Field.FIELD_NAMESPACE_SEP;
 import static org.hibernate.search.annotations.Index.NO;
 
@@ -425,6 +444,19 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
     }
 
     return Lists.newArrayList(builder.toString());
+  }
+
+  public Boolean rollup() {
+    if(StringUtils.isEmpty(ingestion)) {
+      return false;
+    }
+
+    IngestionInfo ingestionInfo = getIngestionInfo();
+    if(ingestionInfo == null) {
+      return false;
+    }
+
+    return BooleanUtils.isTrue(ingestionInfo.getRollup());
   }
 
   @JsonIgnore

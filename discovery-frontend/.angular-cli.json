@@ -41,7 +41,8 @@
         "./styles.css",
         "./assets/css/golden-layout/goldenlayout-base.css",
         "./assets/css/golden-layout/goldenlayout-light-theme.css",
-        "../node_modules/air-datepicker/dist/css/datepicker.css"
+        "../node_modules/air-datepicker/dist/css/datepicker.css",
+        "../node_modules/openlayers/css/ol.css"
       ],
       "scripts": [
         "../node_modules/codemirror/lib/codemirror.js",

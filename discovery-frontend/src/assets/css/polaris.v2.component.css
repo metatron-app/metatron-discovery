@@ -183,7 +183,8 @@ input.ddp-input-typebasic.ddp-focus:focus {color:#4b515b;}
 input.ddp-input-typebasic.ddp-error {color:#eb5f58;}
 input.ddp-input-typebasic.ddp-font-size {padding-top:10px; font-size:12px;}
 input.ddp-input-typebasic.ddp-timeout {width:289px;}
-
+input.ddp-input-typebasic.ddp-readonly,
+input.ddp-input-typebasic.ddp-readonly:focus {padding-left:0px; border:1px solid transparent; background:none;}
 .ddp-wrap-chart .ddp-wrap-chart-lnb input.ddp-input-typebasic.ddp-disabled,
 .ddp-wrap-chart .ddp-wrap-chart-lnb input.ddp-input-typebasic[disabled="disabled"] {background-color:#9a9c9f; border:1px solid #9a9c9f; opacity:1;}
 input.ddp-input-type {display:block; width:100%; padding-bottom:10px; font-size:16px; border:none; border-bottom:1px solid #e7e7ea;}
@@ -988,6 +989,9 @@ ul.ddp-list-popup li.ddp-selected > a em.ddp-icon-type-image {background-positio
 ul.ddp-list-popup li.ddp-selected > a em.ddp-icon-type-binary {background-position-x:-10px;}
 ul.ddp-list-popup li.ddp-selected > a em.ddp-icon-type-spatial {background-position-x:-12px;}
 ul.ddp-list-popup li.ddp-selected > a em.ddp-icon-type-etc {background-position-x:-15px;}
+ul.ddp-list-popup li.ddp-selected > a em.ddp-icon-type-point {background-position-x:-10px;}
+ul.ddp-list-popup li.ddp-selected > a em.ddp-icon-type-line {background-position-x:-11px;}
+ul.ddp-list-popup li.ddp-selected > a em.ddp-icon-type-polygon {background-position-x:-14px;}
 
 .ddp-types ul.ddp-list-popup.ddp-list-checkpopup li a {padding-left:0;}
 ul.ddp-list-popup.ddp-list-checkpopup li a em[class*="ddp-icon-type-"] {left:0;}
@@ -1010,7 +1014,7 @@ ul.ddp-list-popup li a span.ddp-column-type [class*="ddp-icon"],
 .ddp-types ul.ddp-list-popup li a span.ddp-data-name {color:#b7b9c2;}
 .ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-type-"] {display:inline-block;}
 .ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-measure-"],
-.ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-dimension-"] {position:absolute; top:50%; left:10px; margin-top:-5px;}
+.ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-dimension-"] {position:absolute; top:50%; left:10px; margin-top:-6px;}
 .ddp-types ul.ddp-list-popup li a em.ddp-icon-time5 {position:absolute; left:10px; top:50%; margin-top:-7px;}
 .ddp-types ul.ddp-list-popup li.ddp-selected a em.ddp-icon-time5 {background-position:-14px -16px;}
 .ddp-types ul.ddp-list-popup li a .ddp-label-checkbox i.ddp-icon-checkbox,
@@ -1060,7 +1064,10 @@ em.ddp-icon-type-private,
 em.ddp-icon-type-image,
 em.ddp-icon-type-binary,
 em.ddp-icon-type-spatial,
-em.ddp-icon-type-etc{display:inline-block; position:absolute; top:50%; left:10px; width:13px; height:9px; margin-top:-5px; background:url(../images/icon_valuetype.png) no-repeat; vertical-align:middle;}
+em.ddp-icon-type-etc,
+em.ddp-icon-type-point,
+em.ddp-icon-type-line,
+em.ddp-icon-type-polygon{display:inline-block; position:absolute; top:50%; left:10px; width:13px; height:9px; margin-top:-5px; background:url(../images/icon_valuetype.png) no-repeat; vertical-align:middle;}
 em.ddp-icon-type-local {width:9px; height:12px; margin-top:-6px; background-position:left -10px;}
 em.ddp-icon-type-sharp {width:15px; height:8px; margin-top:-4px; background-position:left -23px;}
 em.ddp-icon-type-account {width:11px; height:12px; margin-top:-6px; background-position:left -32px;}
@@ -1086,6 +1093,10 @@ em.ddp-icon-type-image {width:11px; height:10px; background-position:left -224px
 em.ddp-icon-type-binary {width:9px; height:11px; background-position:left -235px;}
 em.ddp-icon-type-spatial {width:11px; height:12px; background-position:left -247px;}
 em.ddp-icon-type-etc {width:14px; height:7px; background-position:left -260px;}
+
+em.ddp-icon-type-point {width:9px; height:12px; background-position:left -268px;}
+em.ddp-icon-type-line {width:10px; height:12px; background-position:left -281px;}
+em.ddp-icon-type-polygon {width:13px; height:13px; background-position:left -294px;}
 
 em.ddp-icon-basic-calen,
 em.ddp-icon-basic-ab,
@@ -1215,6 +1226,20 @@ ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-longitude {background-pos
 ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-array,
 ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-array,
 ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-array {background-position-x:-9px;}
+
+em.ddp-icon-map-view {display:inline-block; position:absolute; top:5px; left:0; background:url(../images/icon_valuetype_map.png) no-repeat; }
+em.ddp-icon-dimension-polygon {width:13px; height:13px;}
+em.ddp-icon-dimension-line {width:10px; height:12px; background-position:left -14px;}
+em.ddp-icon-dimension-point {width:9px; height:12px; background-position:left -27px;}
+
+em.ddp-icon-measure-polygon {width:13px; height:13px; background-position:-14px top;}
+em.ddp-icon-measure-line {width:10px; height:12px; background-position:-11px -14px;}
+em.ddp-icon-measure-point {width:9px; height:12px; background-position:-10px -27px;}
+em.ddp-icon-map-view-w  {display:inline-block; position:relative;  top:1px; margin-right:5px;background:url(../images/icon_valuetype_map.png) no-repeat; vertical-align:top;}
+
+em.ddp-icon-polygon-w {width:13px; height:13px; background-position:-28px top;}
+em.ddp-icon-line-w {width:10px; height:12px; background-position:-22px -14px;}
+em.ddp-icon-point-w {width:10px; height:12px; background-position:-20px -27px;}
 
 em.ddp-icon-filterSc {display:inline-block; width:9px; height:10px; background:url(../images/icon_filterSc.png) no-repeat;}
 
@@ -2662,11 +2687,10 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 .ddp-ui-slider .irs-to { left:50.7651% !important; right:0 !important;}
 .ddp-ui-slider-type.ddp-grid .irs {padding-top:0; margin-top:10px; margin-bottom:10px;}
 .ddp-ui-slider-type.ddp-grid:last-of-type .irs {margin-bottom:0;}
-.ddp-ui-slider-type .ddp-bar {display:inline-block; position:absolute; top:0; left:16.666666%; height:9px; border-left:1px solid #fff; z-index:10}
-.ddp-ui-slider-type .ddp-bar:nth-child(2) {left:33.333333%;}
-.ddp-ui-slider-type .ddp-bar:nth-child(3) {left:49.999999%;}
-.ddp-ui-slider-type .ddp-bar:nth-child(4) {left:66.666666%;}
-.ddp-ui-slider-type .ddp-bar:nth-child(5) {left:83.333333%;}
+.ddp-ui-slider-type .ddp-bar {display:inline-block; position:absolute; top:0; left:20%; height:9px; border-left:1px solid #fff; z-index:10}
+.ddp-ui-slider-type .ddp-bar:nth-child(2) {left:40%;}
+.ddp-ui-slider-type .ddp-bar:nth-child(3) {left:60%;}
+.ddp-ui-slider-type .ddp-bar:nth-child(4) {left:80%;}
 
 .irs-line {top:0; height:3px; cursor: pointer; overflo:inherit;}
 .irs-slider,
