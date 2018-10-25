@@ -139,6 +139,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   private _resizeTimer: any;
 
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -835,9 +836,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   } // function - tabChangeHandler
 
   /**
-   * result tab mouseover
+   * mouseover on result tab
    */
-  public resultTabMouseover(index:number) {
+  public resultTabMouseOver(index:number) {
 
     const resultTab = $('.ddp-list-tabs li:eq('+ (index+1) + ')');
     if(resultTab.offset().left > $(window).outerWidth() / 2){
@@ -847,7 +848,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       });
     }
 
-  } // function - resultTabMouseover
+  } // function - resultTabMouseOver
 
   /**
    * Change result tab
@@ -1181,13 +1182,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.loadingBar.hide();
           this.afterCancelQuery(false);
         } else {
-          this.loadingBar.hide();
-
-          if (!isUndefined(error.details)) {
-            Alert.error(error.details);
-          } else {
-            Alert.error(error);
-          }
+          resultTab.resultStatus = "FAIL";
+          resultTab.name = this._genResultTabName(resultTab.queryEditor.name, 'ERROR', resultTab.order);
+          resultTab.message = error.message + ' ' + error.details;
+          this._calculateEditorResultSlideBtn();
+          this._doneOrNextExecute();
         }
 
       });
@@ -1239,6 +1238,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public changeResultPage( targetTab:ResultTab, direction : 'PREV' | 'NEXT' ) {
 
+    this.loadingBar.show();
+    this.safelyDetectChanges();
+
     let editorId = targetTab.editorId;
     let csvFilePath = targetTab.result.csvFilePath;
     let fieldList = targetTab.result.fields;
@@ -1249,8 +1251,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       targetTab.pageNum++;
     }
 
-    this.loadingBar.show();
-
     this.workbenchService.runQueryResult(editorId, csvFilePath, this.queryResultNumber, targetTab.pageNum, fieldList)
       .then((result) => {
         try {
@@ -1258,25 +1258,17 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           targetTab.result.data = result;
           // 그리드 표시
           this.drawGridData();
-          this.loadingBar.hide();
         } catch (err) {
-          this.loadingBar.hide();
           console.error(err);
         }
+        setTimeout( () => this.loadingBar.hide(), 500 );
       })
       .catch(error => {
-        if (this.isCanceling) {
-          Alert.error(this.translateService.instant('msg.bench.alert.log.cancel.error'));
-          this.loadingBar.hide();
-          this.afterCancelQuery(false);
+        this.loadingBar.hide();
+        if (!isUndefined(error.details)) {
+          Alert.error(error.details);
         } else {
-          this.loadingBar.hide();
-
-          if (!isUndefined(error.details)) {
-            Alert.error(error.details);
-          } else {
-            Alert.error(error);
-          }
+          Alert.error(error);
         }
       });
   } // function - changeResultPage
@@ -1516,63 +1508,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       // 재현이 되지 않음.
       console.info('다운로드 에러' + e);
     }
-  }
+  } // function - downloadExcel
 
-  /**
-   * 기존 사용 local downlaod
-   */
-  public setDownloadLocal() {
-    if (typeof this.gridComponent !== 'undefined'
-      && typeof this.gridComponent.dataView !== 'undefined'
-      && this.gridComponent.getRows().length > 0) {
-      this.loadingBar.show();
-      this.gridComponent.csvDownload('result_' + Date.now().toString());
-      this.loadingBar.hide();
-    } else {
-      this.loadingBar.hide();
-      Alert.info(this.translateService.instant('msg.bench.alert.no.result'));
-      return;
-    }
-  }
-
-  /**
-   * 기존 사용 server download
-   */
-  public downloadServerExcel() {
-    // selected dataGrid
-    const dataGrid: ResultTab = this._getCurrentResultTab();
-    // data grid 결과가 없을때 return
-    if (isUndefined(dataGrid) || 'SUCCESS' !== dataGrid.resultStatus) {
-      Alert.info(this.translateService.instant('msg.bench.alert.no.result'));
-      return;
-    }
-    try {
-      let tempTableInfo = '';
-      const that = this;
-
-      if (!isUndefined(dataGrid.result.tempTable)) {
-        tempTableInfo = dataGrid.result.tempTable;
-      }
-      const form = document.getElementsByTagName('form');
-      const inputs = form[0].getElementsByTagName('input');
-      inputs[0].value = this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN);
-      inputs[1].value = this.websocketId;
-      inputs[2].value = 'result_' + Date.now().toString() + '.csv';
-      inputs[3].value = dataGrid.result.runQuery;
-      inputs[4].value = this.workbench.dataConnection.id;
-      inputs[5].value = this.workbenchId;
-      inputs[6].value = tempTableInfo;
-      // this.loadingShow();
-      this.loadingBar.show();
-      const downloadCsvForm = $('#downloadCsvForm');
-      downloadCsvForm.attr('action', CommonConstant.API_CONSTANT.API_URL + `queryeditors/${this.selectedEditorId}/query/download`);
-      downloadCsvForm.submit();
-      this.intervalDownload = setInterval(() => that.checkQueryStatus(), 1000);
-    } catch (e) {
-      // 재현이 되지 않음.
-      console.info('다운로드 에러' + e);
-    }
-  } // function - downloadServerExcel
 
   /**
    * checkQueryStatus
@@ -1774,16 +1711,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     });
   } // function - _loadInitData
 
-
-  /**
-   * 커넥션이 URL 타입인지
-   * @returns {boolean}
-   * @private
-   */
-  private _isUrlType(): boolean {
-    return !StringUtil.isEmpty(this.workbench.dataConnection.url);
-  }
-
   /**
    * 에디터 슬라이드 버튼 계산
    * @param {boolean} indexInit
@@ -1899,20 +1826,19 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     if (data.queryResultStatus === 'FAIL') {
       resultTab.name = this._genResultTabName(resultTab.queryEditor.name, 'ERROR', resultTab.order);
       resultTab.message = data.message;
-
-      if (this.isCanceling) {
-        Alert.success(this.translateService.instant('msg.bench.alert.log.cancel.success'));
-        this.loadingBar.hide();
-        this.afterCancelQuery(true);
-        return;
-      }
     } else {
       resultTab.name = this._genResultTabName(resultTab.queryEditor.name, 'RESULT', resultTab.order);
-      resultTab.message = isNullOrUndefined(data.message) ? '' : data.message;
     }
 
     // 에디터 결과 슬라이드 버튼 계산
     this._calculateEditorResultSlideBtn();
+
+    if (this.isCanceling) {
+      Alert.success(this.translateService.instant('msg.bench.alert.log.cancel.success'));
+      this.loadingBar.hide();
+      this.afterCancelQuery(true);
+      return;
+    }
 
     // 그리드 표시
     if (this._isEqualRunningVisibleTab()) {
@@ -2051,11 +1977,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
                 console.info('>>>>>> %s - clear timer', this.runningResultTabId);
                 clearInterval(timer);
                 this._doneOrNextExecute();
-                resultTabInfo.setExecuteStatus(data.command);
               }
             }, 500);
 
-          } else if ('LOG' !== data.command) {
+          } else if ('LOG' !== data.command && 'GET_CONNECTION' !== data.command ) {
             resultTabInfo.setExecuteStatus(data.command);
           } // end if - command log, done
 
@@ -2101,12 +2026,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   private _doneOrNextExecute() {
 
+    const resultTab: ResultTab = this._getResultTab(this.runningResultTabId);
+
     if (this.isCanceled) {
       this._doneExecuteQueries();
       return false;
     }
 
-    const resultTab: ResultTab = this._getResultTab(this.runningResultTabId);
     resultTab.doneTimer();
 
     // 선택된 탭이 로그가 그려지고 있을경우 그리드 전환
@@ -2119,10 +2045,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.currentRunningIndex++;
 
     // 마지막 쿼리가 아닐경우 다음 쿼리 호출
-    if (this.executeTabIds.length > this.currentRunningIndex) {
+    if ( this.executeTabIds.length > this.currentRunningIndex) {
+      resultTab.setExecuteStatus('DONE');
       this.runQueries(this.executeTabIds[this.currentRunningIndex]);
     } else {
-      // finish
+      resultTab.setExecuteStatus('DONE');
       this._doneExecuteQueries();
     }
 
@@ -2359,9 +2286,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     runningResultTab.showLog = true;
     runningResultTab.resultStatus = 'CANCEL';
     if (isSuccess) {
+      if( isNullOrUndefined( runningResultTab.message ) ) {
+        runningResultTab.message = this.translateService.instant('msg.bench.alert.log.cancel.success');
+      }
       runningResultTab.appendLog(this.translateService.instant('msg.bench.alert.log.cancel.success'));
       (isNullOrUndefined(runningResultTab.result)) && (runningResultTab.result = new QueryResult());
     } else {
+      if( isNullOrUndefined( runningResultTab.message ) ) {
+        runningResultTab.message = this.translateService.instant('msg.bench.alert.log.cancel.error');
+      }
       runningResultTab.appendLog(this.translateService.instant('msg.bench.alert.log.cancel.error'));
     }
 
@@ -2927,8 +2860,30 @@ class ResultTab {
 
   public setExecuteStatus(status: ('GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE')) {
     this.executeStatus = status;
-    this.appendLog(status);
+    this.appendLog(this.getExecuteStatusMsg());
   } // function - setExecuteStatus
+
+  public getExecuteStatusMsg():string {
+    let msg:string = '';
+    switch( this.executeStatus ) {
+      case 'GET_CONNECTION' :
+        msg = 'Getting connection';
+        break;
+      case 'CREATE_STATEMENT' :
+        msg = 'Creating statement';
+        break;
+      case 'EXECUTE_QUERY' :
+        msg = 'Executing query';
+        break;
+      case 'GET_RESULTSET' :
+        msg = 'Getting resultset';
+        break;
+      case 'DONE' :
+        msg = 'Done!';
+        break;
+    }
+    return msg;
+  } // function - getExecuteStatusMsg
 
   public appendLog(strLog: string) {
     if (-1 < strLog.indexOf('INFO')) {

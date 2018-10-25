@@ -12,10 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
-  ViewChild
-} from '@angular/core';
+import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Page } from '../../../../domain/common/page';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
 import { Alert } from '../../../../common/util/alert.util';
@@ -744,19 +741,19 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       .then((result) => {
         // 호출 횟수 초기화
         this._getSingleQueryReconnectCount = 0;
-        // 로딩 hide
-        this.loadingHide();
 
         if (result.data.length > 0) {
-            this.schemaTableDataList = result;
-            this.schemaTableDataDataList = result.data;
-            // 테이블 상세데이터 그리드 그리기
-            this._drawGridTableDetailData();
+          this.schemaTableDataList = result;
+          this.schemaTableDataDataList = result.data;
+          // 테이블 상세데이터 그리드 그리기
+          this._drawGridTableDetailData();
         } else {
           this.schemaTableDataList = [];
           this.schemaTableDataDataList = [];
           // Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
         }
+        // 로딩 hide
+        this.loadingHide();
 
       })
       .catch((error) => {
