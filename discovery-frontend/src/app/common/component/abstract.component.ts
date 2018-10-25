@@ -287,6 +287,15 @@ export class AbstractComponent implements OnInit, AfterViewInit, OnDestroy, CanC
         case 'DONG':
           result = 'ddp-icon-type-local';
           break;
+        case 'GEO_POINT':
+          result = 'ddp-icon-type-point';
+          break;
+        case 'GEO_LINE':
+          result = 'ddp-icon-type-line';
+          break;
+        case 'GEO_POLYGON':
+          result = 'ddp-icon-type-polygon';
+          break;
       }
     }
     return result;

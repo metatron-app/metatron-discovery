@@ -205,6 +205,12 @@ export class Field {
       return 'ddp-icon-dimension-sharp';
     } else if ('BOOLEAN' === logicalType) {
       return 'ddp-icon-dimension-tf';
+    } else if ('GEO_POINT' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-point';
+    } else if ('GEO_LINE' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-line';
+    } else if ('GEO_POLYGON' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-polygon';
     }
   } // function - getDimensionTypeIconClass
 
@@ -228,6 +234,12 @@ export class Field {
       return 'ddp-icon-measure-sharp';
     } else if ('BOOLEAN' === logicalType) {
       return 'ddp-icon-measure-tf';
+    } else if ('GEO_POINT' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-point';
+    } else if ('GEO_LINE' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-line';
+    } else if ('GEO_POLYGON' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-polygon';
     }
   } // function - getMeasureTypeIconClass
 }

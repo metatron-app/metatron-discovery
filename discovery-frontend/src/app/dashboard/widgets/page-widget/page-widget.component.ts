@@ -35,41 +35,38 @@ import {
   LegendConvertType,
   SPEC_VERSION
 } from '../../../common/component/chart/option/define/common';
-import {saveAs} from 'file-saver';
-import {AbstractWidgetComponent} from '../abstract-widget.component';
-import {PageWidget, PageWidgetConfiguration} from '../../../domain/dashboard/widget/page-widget';
+import { saveAs } from 'file-saver';
+import { AbstractWidgetComponent } from '../abstract-widget.component';
+import { PageWidget, PageWidgetConfiguration } from '../../../domain/dashboard/widget/page-widget';
 import {BaseChart, ChartSelectInfo} from '../../../common/component/chart/base-chart';
-import {UIOption} from '../../../common/component/chart/option/ui-option';
-import {Alert} from '../../../common/util/alert.util';
-import {DatasourceService} from '../../../datasource/service/datasource.service';
-import {SearchQueryRequest} from '../../../domain/datasource/data/search-query-request';
-import {Filter} from '../../../domain/workbook/configurations/filter/filter';
-import {ImageService} from '../../../common/service/image.service';
-import {WidgetService} from '../../service/widget.service';
-import {AnalysisPredictionService} from '../../../page/component/analysis/service/analysis.prediction.service';
-import {Widget} from '../../../domain/dashboard/widget/widget';
-import {EventBroadcaster} from '../../../common/event/event.broadcaster';
-import {FilterUtil} from '../../util/filter.util';
-import {NetworkChartComponent} from '../../../common/component/chart/type/network-chart/network-chart.component';
-import {DashboardPageRelation} from '../../../domain/dashboard/widget/page-widget.relation';
-import {BoardConfiguration, LayoutMode} from '../../../domain/dashboard/dashboard';
-import {GridChartComponent} from '../../../common/component/chart/type/grid-chart/grid-chart.component';
-import {BarChartComponent} from '../../../common/component/chart/type/bar-chart/bar-chart.component';
-import {LineChartComponent} from '../../../common/component/chart/type/line-chart/line-chart.component';
-import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
+import { UIOption } from '../../../common/component/chart/option/ui-option';
+import { Alert } from '../../../common/util/alert.util';
+import { DatasourceService } from '../../../datasource/service/datasource.service';
+import { SearchQueryRequest } from '../../../domain/datasource/data/search-query-request';
+import { Filter } from '../../../domain/workbook/configurations/filter/filter';
+import { ImageService } from '../../../common/service/image.service';
+import { WidgetService } from '../../service/widget.service';
+import { AnalysisPredictionService } from '../../../page/component/analysis/service/analysis.prediction.service';
+import { Widget } from '../../../domain/dashboard/widget/widget';
+import { EventBroadcaster } from '../../../common/event/event.broadcaster';
+import { FilterUtil } from '../../util/filter.util';
+import { NetworkChartComponent } from '../../../common/component/chart/type/network-chart/network-chart.component';
+import { DashboardPageRelation } from '../../../domain/dashboard/widget/page-widget.relation';
+import { BoardConfiguration, LayoutMode } from '../../../domain/dashboard/dashboard';
+import { GridChartComponent } from '../../../common/component/chart/type/grid-chart/grid-chart.component';
+import { BarChartComponent } from '../../../common/component/chart/type/bar-chart/bar-chart.component';
+import { LineChartComponent } from '../../../common/component/chart/type/line-chart/line-chart.component';
+import { OptionGenerator } from '../../../common/component/chart/option/util/option-generator';
 import {
-  BoardSyncOptions,
-  BoardWidgetOptions,
+  BoardSyncOptions, BoardWidgetOptions,
   WidgetShowType
 } from '../../../domain/dashboard/dashboard.globalOptions';
-import {DataDownloadComponent} from '../../../common/component/data-download/data.download.component';
-import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
-import {DashboardUtil} from '../../util/dashboard.util';
-import {isNullOrUndefined} from 'util';
-import {TimeListFilter} from '../../../domain/workbook/configurations/filter/time-list-filter';
-import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-filter';
-import {Datasource, Field} from '../../../domain/datasource/datasource';
-import {CommonUtil} from '../../../common/util/common.util';
+import { DataDownloadComponent } from '../../../common/component/data-download/data.download.component';
+import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
+import { DashboardUtil } from '../../util/dashboard.util';
+import { isNullOrUndefined } from 'util';
+import { Datasource, Field } from '../../../domain/datasource/datasource';
+import { CommonUtil } from '../../../common/util/common.util';
 
 declare let $;
 
