@@ -369,7 +369,7 @@
 
                 <!-- Hive Log 표시 영역 -->
                 <div *ngIf="visibleResultTab && visibleResultTab.showLog"
-                     [ngClass]="{'ddp-ing': isExecutingQuery && !visibleResultTab.result}" class="ddp-wrap-log" >
+                     [ngClass]="{'ddp-ing': (isExecutingQuery && !visibleResultTab.result) || ('FAIL' === visibleResultTab.resultStatus)}" class="ddp-wrap-log" >
 
                   <div id="workbenchLogText" class="ddp-box-log ddp-ing"
                        [innerHTML]="visibleResultTab.log.join('<br>')">
@@ -633,7 +633,7 @@
   <ul class="ddp-list-popup">
     <li>
       <a href="javascript:" (click)="tabLayerModify()">
-        <em class="ddp-icon-drop-dashboard"></em>
+        <em class="ddp-icon-drop-editmodify"></em>
         {{'msg.comm.ui.edit.name'| translate}}
       </a>
     </li>

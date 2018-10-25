@@ -6461,7 +6461,7 @@ table.ddp-table-simple tr td .ddp-ui-action {height:30px; white-space:normal; ov
 .ddp-ui-tabs a.ddp-btn-plus:hover {background-color:#f9f9f9;}
 .ddp-ui-tabs a.ddp-btn-plus em {position:absolute; top:50%; left:50%; display:inline-block; width:9px; height:9px; margin:-4px 0 0 -4px; background:url(../images/btn_minus_plus.png) no-repeat; background-position:-20px -2px;}
 .ddp-ui-tabs ul.ddp-list-tabs {height:32px; white-space:nowrap;}
-.ddp-ui-tabs ul.ddp-list-tabs li {display:inline-block; float:left; position:relative; box-sizing:border-box;border-right:1px solid #ddd; cursor: pointer; vertical-align: top;}
+.ddp-ui-tabs ul.ddp-list-tabs li {display:inline-block; float:left; position:relative; height:32px; margin-bottom:2px; box-sizing:border-box;border-right:1px solid #ddd; cursor: pointer; vertical-align: top;}
 .ddp-ui-tabs ul.ddp-list-tabs li:hover {background-color:#f9f9f9;}
 
 .ddp-ui-tabs ul.ddp-list-tabs li.ddp-selected:before {display:inline-block; position:absolute; top:0; left:0; right:0; border-top:2px solid #4b515b; content:''; z-index:1;}
@@ -6573,6 +6573,9 @@ table.ddp-table-simple tr td .ddp-ui-action {height:30px; white-space:normal; ov
 .ddp-box-query-result .ddp-wrap-log {position:relative; padding-bottom:28px; height:100%; background-color:#35393f; box-sizing:border-box;}
 .ddp-box-query-result .ddp-wrap-log.ddp-ing {padding-bottom:95px;}
 .ddp-box-query-result .ddp-box-log {position:relative; padding:15px 16px; height:100%; color:#b6b9c2; font-size:12px; line-height:18px; overflow:auto; box-sizing:border-box;}
+
+.ddp-box-query-result .ddp-box-log::-webkit-scrollbar-track{background:#3f4349;}
+.ddp-box-query-result .ddp-box-log::-webkit-scrollbar-thumb{border:4px solid #3f4349; background-color:#6d7179}
 .ddp-box-query-result .ddp-wrap-log span.ddp-txt-info {font-size:12px; line-height:18px;color:#26c9ff;}
 .ddp-box-query-result .ddp-wrap-log span.ddp-txt-error {font-size:12px; line-height:18px; color:#ff3b3b;}
 .ddp-box-query-result .ddp-wrap-log span.ddp-txt-warn {font-size:12px; line-height:18px; color:#fff726;}
