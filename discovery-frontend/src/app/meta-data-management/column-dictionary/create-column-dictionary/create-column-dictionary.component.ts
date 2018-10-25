@@ -366,7 +366,9 @@ export class CreateColumnDictionaryComponent extends AbstractPopupComponent impl
       dataType: 'STRING'
     };
     // 타입이 시간인경우 format 추가
-    (this.selectedType === 'TIMESTAMP') && (params['format'] = this.timeFormat);
+    if (this.selectedType === 'TIMESTAMP') {
+      params['format'] = {format: this.timeFormat};
+    }
 
     // 선택한 코드 테이블이 있다면
     this.selectedCodeTable && (params['codeTable'] = `api/codetables/${this.selectedCodeTable.id}`);

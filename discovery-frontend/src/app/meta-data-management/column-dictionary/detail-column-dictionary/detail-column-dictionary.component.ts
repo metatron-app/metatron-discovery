@@ -252,7 +252,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    */
   public onChangeTimeFormatMode(): void {
     this.timeFormatEditFl = true;
-    this.reTimeFormat = this.columnDictionary.format;
+    this.reTimeFormat = (this.columnDictionary.format && this.columnDictionary.format.hasOwnProperty('format')) ? this.columnDictionary.format.format : this.columnDictionary.format;
   }
 
   /**
@@ -402,7 +402,9 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // blur
     // this.descElement.nativeElement.blur();
     // 컬럼 사전 업데이트
-    this._updateColumnDictionary({format: this.reTimeFormat.trim()});
+    this._updateColumnDictionary({format: {
+      format: this.reTimeFormat.trim()
+    }});
   }
 
   /**
