@@ -159,6 +159,10 @@ public class EngineLoadService {
     Integer expired = null;
     if(info instanceof LocalFileIngestionInfo){
       LocalFileIngestionInfo localFileIngestionInfo = (LocalFileIngestionInfo) info;
+
+      //set expired 600 sec
+      expired = 600;
+
       tempFile = localFileIngestionInfo.getPath();
       LOGGER.debug("CSV File is already existed : {}", tempFile);
 
