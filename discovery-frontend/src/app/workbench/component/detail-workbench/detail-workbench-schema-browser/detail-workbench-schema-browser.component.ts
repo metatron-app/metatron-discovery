@@ -740,28 +740,24 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   private _getSingleQueryForServer(queryEditor: QueryEditor): void {
     // 호출 횟수 증가
     this._getSingleQueryReconnectCount++;
-    this.workbenchService.runSingleQueryWithInvalidQuery(queryEditor)
+    this.workbenchService.getSchemaInfoTableData(this.selectedSchemaTable, this.workbench.dataConnection)
       .then((result) => {
         // 호출 횟수 초기화
         this._getSingleQueryReconnectCount = 0;
         // 로딩 hide
         this.loadingHide();
-        if (result.length > 0) {
-          if (result[0].queryResultStatus !== 'FAIL') {
+
+        if (result.data.length > 0) {
             this.schemaTableDataList = result;
-            this.schemaTableDataDataList = result[0].data;
+            this.schemaTableDataDataList = result.data;
             // 테이블 상세데이터 그리드 그리기
             this._drawGridTableDetailData();
-          } else {
-            this.schemaTableDataList = [];
-            this.schemaTableDataDataList = [];
-            Alert.error(result[0].message);
-          }
         } else {
           this.schemaTableDataList = [];
           this.schemaTableDataDataList = [];
-          Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
+          // Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
         }
+
       })
       .catch((error) => {
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getSingleQueryReconnectCount <= 5) {
@@ -960,7 +956,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    */
   private _drawGridTableDetailData(): void {
     // data
-    const data: any = this.schemaTableDataList[0];
+    const data: any = this.schemaTableDataList;
     // headers
     const headers: header[] = [];
     for (let index: number = 0; index < data.fields.length; index = index + 1) {
