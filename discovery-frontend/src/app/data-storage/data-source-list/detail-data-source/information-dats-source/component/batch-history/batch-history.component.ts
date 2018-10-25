@@ -18,6 +18,7 @@ import { AbstractPopupComponent } from '../../../../../../common/component/abstr
 import { DatasourceService } from '../../../../../../datasource/service/datasource.service';
 import { IngestionHistory, IngestionStatus } from '../../../../../../domain/datasource/datasource';
 import { MomentDatePipe } from '../../../../../../common/pipe/moment.date.pipe';
+import { CommonUtil } from '../../../../../../common/util/common.util';
 
 @Component({
   selector: 'batch-history',
@@ -79,6 +80,7 @@ export class BatchHistoryComponent extends AbstractPopupComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /**
    * Init
@@ -178,25 +180,6 @@ export class BatchHistoryComponent extends AbstractPopupComponent implements OnI
   private initView() {
     this.pageResult.number = 0;
     this.pageResult.size = 20;
-  }
-
-  /**
-   * ms를 min과 sec로 변환
-   * @param {number} ms
-   * @returns {string}
-   */
-  public convertMilliseconds(ms: number) {
-    // 값이 없다면 0 ms
-    if (ms === undefined) {
-      return 0 + 'ms';
-    }
-    // 1000미만이면 milliseconds
-    if (ms < 1000) {
-      return ms + 'ms'
-    }
-    const min = Math.floor((ms / 1000 / 60) << 0);
-    const sec = Math.floor((ms / 1000) % 60);
-    return min !== 0 ? (min + ' min ' + sec + ' sec') : (sec + ' sec');
   }
 
   /**

@@ -192,7 +192,7 @@
                 </li>
               </ul>
             </li>
-            <li *ngIf="false && permission.managementDatasource" [ngClass]="{'ddp-selected': lnbManager.management.dataMonitoring.fold == false}">
+            <li *ngIf="permission.managementDatasource" [ngClass]="{'ddp-selected': lnbManager.management.dataMonitoring.fold == false}">
               <a href="javascript:" (click)="mgmtMenuClickListener('DATAMONITORING')">
                 <em class="ddp-icon-dot"></em>
                 {{'msg.comm.menu.manage.monitoring' | translate}}
@@ -203,9 +203,6 @@
                 </li>
                 <li>
                   <a href="javascript:" (click)="move('management/monitoring/audit')">{{'msg.comm.menu.manage.monitoring.audit' | translate}}</a>
-                </li>
-                <li>
-                  <a href="javascript:" (click)="move('management/monitoring/lineage')">{{'msg.comm.menu.manage.monitoring.data-lineage' | translate}}</a>
                 </li>
               </ul>
             </li>
