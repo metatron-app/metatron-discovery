@@ -835,6 +835,21 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   } // function - tabChangeHandler
 
   /**
+   * result tab mouseover
+   */
+  public resultTabMouseover(index:number) {
+
+    const resultTab = $('.ddp-list-tabs li:eq('+ (index+1) + ')');
+    if(resultTab.offset().left > $(window).outerWidth() / 2){
+      resultTab.find('.ddp-box-tabs-popup').css({
+        'right' :'-10px',
+        'left' : 'inherit'
+      });
+    }
+
+  } // function - resultTabMouseover
+
+  /**
    * Change result tab
    * @param {string} selectedTabId
    */
@@ -1234,15 +1249,18 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       targetTab.pageNum++;
     }
 
+    this.loadingBar.show();
+
     this.workbenchService.runQueryResult(editorId, csvFilePath, this.queryResultNumber, targetTab.pageNum, fieldList)
       .then((result) => {
-        this.loadingBar.hide();
         try {
           // 쿼리 결과 값으로 교체
           targetTab.result.data = result;
           // 그리드 표시
           this.drawGridData();
+          this.loadingBar.hide();
         } catch (err) {
+          this.loadingBar.hide();
           console.error(err);
         }
       })

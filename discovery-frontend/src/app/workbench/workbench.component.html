@@ -323,7 +323,7 @@
       <div class="split-pane-content-secondary" style="height:100%;">
         <div class="lower" style="height:100%;">
           <!-- query result -->
-          <div class="ddp-box-query-result" style="position:relative;top:0; left:0; right:0; bottom:0; height:100%;">
+          <div [hidden]="isQueryEditorFull" class="ddp-box-query-result" style="position:relative;top:0; left:0; right:0; bottom:0; height:100%;">
             <div class="ddp-box-in">
               <!-- tab -->
               <div class="ddp-wrap-tabs-query" #editorResultListMax>
@@ -342,7 +342,7 @@
                   <ul class="ddp-list-tabs">
                     <!-- ddp-selected -->
                     <li *ngFor="let item of getFilteringList(visibleResultTabs, editorResultListObj); let index = index"
-                        [ngClass]="{'ddp-selected': item.selected}" (click)="changeResultTabHandler(item.id)">
+                        [ngClass]="{'ddp-selected': item.selected}" (click)="changeResultTabHandler(item.id)" (mouseover)="resultTabMouseover(index)" >
                       <div [ngStyle]="{'color': ( 'FAIL' === item.resultStatus || 'CANCEL' === item.resultStatus ) ? 'red' : 'black' }"
                            class="ddp-data-tab ddp-data-loading" >
                         <em *ngIf="item.name.startsWith('Loading')" class="ddp-icon-tabloading"></em>
@@ -422,7 +422,7 @@
                       <a href="javascript:" class="ddp-box-page" *ngIf="0 !== visibleResultTab.pageNum"  (click)="changeResultPage( visibleResultTab, 'PREV' )">
                         <em class="ddp-icon-prev"></em>PREV
                       </a>
-                      <a *ngIf="(visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber)) != (visibleResultTab.result.numRows - 1)"
+                      <a *ngIf="((visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber)) != (visibleResultTab.result.numRows - 1) && !(100000 == (visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber))) )"
                          (click)="changeResultPage( visibleResultTab, 'NEXT' )"
                          href="javascript:" class="ddp-box-page ddp-next" >
                         NEXT<em class="ddp-icon-next"></em>
@@ -554,7 +554,7 @@
                     <span class="ddp-data-txt">{{ setNumberFormat( visibleResultTab.executeTime, 2 ) }} Secs.</span>
                   </span>
                   <span class="ddp-data-time" *ngIf="'SUCCESS' === visibleResultTab.resultStatus && visibleResultTab.result && -1 < visibleResultTab.result.numRows">
-                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber) )}} / {{setNumberFormat(visibleResultTab.result.numRows -1)}} {{'msg.comm.detail.rows'|translate}}</span>
+                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber) )}} / {{ (visibleResultTab.result.numRows -1 > 100000) ? '100,000+' : setNumberFormat(visibleResultTab.result.numRows -1) }} {{'msg.comm.detail.rows'|translate}}</span>
                   </span>
                 </div>
                 <!-- //time -->

@@ -4206,6 +4206,11 @@ ul.ddp-list-selectbox.ddp-color-select li a:hover {background-color:#f6f6f7;}
 .ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-btn-info2:hover:before {background-position:-14px -30px;}
 
 .ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-box-layout4 {display:none;position:absolute; top:100%; left:-16px; margin-top:5px;}
+.ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-box-layout4.ddp-scheme {width:max-content; max-width:520px;}
+
+.ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info .ddp-box-layout4.ddp-scheme table.ddp-table-info {table-layout:inherit;}
+
+
 .ddp-wrap-list .ddp-ui-dataname .ddp-wrap-info.ddp-selected .ddp-box-layout4 {display:block;}
 .ddp-wrap-list .ddp-data-namesub {position:relative;}
 .ddp-wrap-list .ddp-data-namesub .ddp-data-in {position:relative; padding:10px 25px 10px 10px; height:35px; background-color:#f6f6f7; cursor:pointer; box-sizing:border-box;}
@@ -6636,7 +6641,7 @@ table.ddp-table-simple tr td .ddp-ui-action {height:30px; white-space:normal; ov
 .ddp-box-query-result .ddp-wrap-result .ddp-ui-buttons a.ddp-btn-link.ddp-value:after {display:Inline-block; width:5px; height:5px;  position:absolute; top:5px; right:5px;background:#707cc4; border-radius:50%; content:'';}
 
 .ddp-box-query-result .ddp-wrap-result .ddp-ui-buttons a.ddp-btn-link.ddp-selected .ddp-box-searching {display:block;}
-.ddp-box-query-result .ddp-wrap-result .ddp-ui-buttons a.ddp-btn-link .ddp-box-searching {display:none; position:absolute; bottom:100%; margin-bottom:7px; padding:12px  17px; right:-120px; border-radius:4px; background-color:#fff;
+.ddp-box-query-result .ddp-wrap-result .ddp-ui-buttons a.ddp-btn-link .ddp-box-searching {display:none; position:absolute; bottom:100%; margin-bottom:7px; padding:12px  17px; right:-20px; border-radius:4px; background-color:#fff;
   -moz-box-shadow: 0 1px 3px rgba(84,97,104,.7); /* drop shadow */
   -webkit-box-shadow: 0 1px 3px rgba(84,97,104,.7); /* drop shadow */
   box-shadow: 0 1px 3px rgba(84,97,104,.7); /* drop shadow */}
