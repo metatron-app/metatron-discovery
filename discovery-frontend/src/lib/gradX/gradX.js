@@ -795,6 +795,9 @@ var gradX = function(id, _options) {
 
             this.me.html(html);
 
+            this.me.find('.gradx').width(Math.abs(gradx.positionMin) + Math.abs(gradx.positionMax));
+            this.me.find('.gradx_panel').width(Math.abs(gradx.positionMin) + Math.abs(gradx.positionMax));
+
             // gradx_panel에 separateValue개수만큼 div ddp-hover를 생성 (호버시 아이콘 표시)
             var num = 0;
             // var ddpHover = "<div class='ddp-hover'><em></em></div>";
@@ -1148,7 +1151,7 @@ var gradX = function(id, _options) {
         var pos = (gradx.diffpositionValue * Math.round(position / gradx.diffpositionValue)) + gradx.positionMin;
 
         // max 값 설정
-        if (gradx.positionMax - pos < gradx.diffpositionValue) {
+        if ((gradx.positionMax + Math.abs(gradx.positionMin)) - pos < gradx.diffpositionValue) {
           position = gradx.positionMax;
           value = gradx.max;
 

@@ -265,7 +265,7 @@ public class DfPivot extends DataFrame {
       for (int i = 0; i < aggrTargetColNames.size(); i++) {
         String aggrTargetColName = aggrTargetColNames.get(i);
         newRow.set(buildPivotNewColName(aggrTypes.get(i), aggrTargetColName, pivotColNames, groupByColNames, row), row.get(aggregatedDataPointer+i));
-      } //이름 당연히 있으니까 중복되지...ㅜ
+      }
     }
     rows.add(newRow); // add the last retained row
 

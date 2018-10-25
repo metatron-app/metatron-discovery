@@ -27,6 +27,8 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.monitorjbl.xlsx.StreamingReader;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -196,14 +198,21 @@ public class PolarisUtils {
     //첫 행에 스키마 정보가 있는다는 전제로 시작
     // Excel 2007 ~
     if ("xlsx".equals(extensionType)) {
-      XSSFWorkbook wb = null;
+      //XSSFWorkbook wb = null;
+      Workbook wb = null;
       try {
-        wb = new XSSFWorkbook(new FileInputStream(file));
+        // wb = new XSSFWorkbook(new FileInputStream(file));
+        InputStream is = new FileInputStream(file);
+        wb = StreamingReader.builder()
+                .rowCacheSize(100)
+                .bufferSize(4096)
+                .open(is);
       } catch (IOException e) {
         throw new RuntimeException("Data file load error. - " + file.getAbsolutePath());
       }
       // 첫 시트 내용만 처리
-      XSSFSheet sheet = wb.getSheetAt(0);
+      //XSSFSheet sheet = wb.getSheetAt(0);
+      Sheet sheet = wb.getSheetAt(0);
       resultSet = getResultSetFromSheet(sheet);
     }
     //엑셀 97~2003

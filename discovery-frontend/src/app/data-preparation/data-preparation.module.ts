@@ -54,7 +54,7 @@ import { EditRuleGridComponent } from './dataflow/dataflow-detail/component/edit
 import { RuleSnapshotListComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-snapshot-list.component';
 import { CreateDataflowNameDescComponent } from './dataflow/create-dataflow-name-desc.component';
 import { AddDatasetComponent } from './dataflow/dataflow-detail/add-dataset.component';
-import { DatasetSummaryComponent } from './dataflow/dataflow-detail/dataset-summary.component';
+import { DatasetSummaryComponent } from './component/dataset-summary.component';
 import { EditRuleHeaderComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-header.component';
 import { EditRuleKeepComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-keep.component';
 import { EditRuleDeleteComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-delete.component';
@@ -82,6 +82,11 @@ import { EditRuleAggregateComponent } from './dataflow/dataflow-detail/component
 import { EditRulePivotComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-pivot.component';
 import { EditRuleSettypeComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-settype.component';
 import { PrepSelectBoxComponent } from './util/prep-select-box.component';
+import { DataflowModelService } from "./dataflow/service/dataflow.model.service";
+import {EditRuleWindowComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-window.component";
+import {CheckboxSelectDatasetComponent} from "./component/checkbox-select-dataset.component";
+import {LongUpdatePopupComponent} from "./component/long-update-popup.component";
+import {RadioSelectDatasetComponent} from "./component/radio-select-dataset.component";
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -153,6 +158,7 @@ const dataPreparationRoutes: Routes = [
     EditRuleUnnestComponent,
     EditRulePivotComponent,
     EditRuleSettypeComponent,
+    EditRuleWindowComponent,
     RuleSnapshotListComponent,
     AddDatasetComponent,
     CreateDataflowNameDescComponent,
@@ -160,14 +166,18 @@ const dataPreparationRoutes: Routes = [
     CreateSnapshotPopup,
     SnapshotLoadingComponent,
     RuleConditionInputComponent,
-    PrepSelectBoxComponent
+    PrepSelectBoxComponent,
+    RadioSelectDatasetComponent,
+    CheckboxSelectDatasetComponent,
+    LongUpdatePopupComponent
   ],
   providers: [
     DataPreparationService,
     DataflowService,
     DatasetService,
     DataSnapshotService,
-    DataPreparationGuard
+    DataPreparationGuard,
+    DataflowModelService
   ],
   exports: [
   ]

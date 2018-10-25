@@ -13,6 +13,14 @@
   -->
 
 <div class="ddp-ui-tab-contents">
+  <div class="ddp-box-synch" *ngIf="datasource.fieldsMatched === false">
+    <em class="ddp-icon-info"></em>
+    {{'msg.storage.ui.dsource.synchronization.info' | translate}}
+    <a href="javascript:" class="ddp-btn-blue" (click)="synchronizeFieldsModalOpen()">
+      <em class="ddp-icon-btn-sync"></em>{{'msg.storage.ui.dsource.synchronization.btn' | translate}}
+    </a>
+  </div>
+
   <!-- datadetail -->
   <div class="ddp-ui-datadetail ddp-border-none">
     <label class="ddp-label-detail">{{'msg.storage.ui.data.info' | translate}}</label>
@@ -525,5 +533,7 @@
 <query-detail></query-detail>
 <!-- 배치 히스토리 -->
 <batch-history id="batch-history-modal"></batch-history>
+
+<app-confirm-modal (confirm)="confirmSynchronizeFields()"></app-confirm-modal>
 
 

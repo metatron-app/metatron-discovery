@@ -27,7 +27,7 @@ export interface UIChartLegend {
   convertType?: LegendConvertType;
 
   // 뢍성화 여부
-  auto: boolean;
+  auto?: boolean;
 
   // 페이지당 범례 항목 개수
   count?: number;
