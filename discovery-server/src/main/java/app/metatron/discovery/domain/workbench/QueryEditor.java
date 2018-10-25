@@ -15,18 +15,15 @@
 package app.metatron.discovery.domain.workbench;
 
 
+import app.metatron.discovery.domain.AbstractHistoryEntity;
+import app.metatron.discovery.domain.MetatronDomain;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.rest.core.annotation.RestResource;
 
-import java.util.Set;
-
 import javax.persistence.*;
-
-import app.metatron.discovery.domain.AbstractHistoryEntity;
-import app.metatron.discovery.domain.MetatronDomain;
+import java.util.Set;
 
 
 @Entity
@@ -49,6 +46,9 @@ public class QueryEditor extends AbstractHistoryEntity implements MetatronDomain
 	@Lob
 	@Column(name="qe_query")
 	String query;
+
+	@Column(name="qe_index")
+	Integer index;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	@JoinColumn(name = "book_id", referencedColumnName = "id")
@@ -108,12 +108,37 @@ public class QueryEditor extends AbstractHistoryEntity implements MetatronDomain
 		this.queryHistories = queryHistories;
 	}
 
-	@Override
+  public Integer getIndex() {
+    return index;
+  }
+
+  public void setIndex(Integer index) {
+    this.index = index;
+  }
+
+  @Override
 	public String toString() {
-		return "QueryEditor [id=" + id
-				+ ", name=" + name
-				+ ", order=" + order
-				+ ", query=" + query
-				+ "]";
+		return "QueryEditor{" +
+						"id='" + id + '\'' +
+						", name='" + name + '\'' +
+						", order=" + order +
+						", query='" + query + '\'' +
+						", index=" + index +
+						'}';
+	}
+
+	@PrePersist
+	public void prePersist(){
+		super.prePersist();
+
+		Set<QueryEditor> queryEditorList = this.getWorkbench().getQueryEditors();
+		int maxIndex = queryEditorList.size();
+		for(QueryEditor queryEditor : queryEditorList){
+		  if(queryEditor.getIndex() != null){
+        maxIndex = Math.max(queryEditor.getIndex(), maxIndex);
+      }
+		}
+
+    this.setIndex(maxIndex + 1);
 	}
 }

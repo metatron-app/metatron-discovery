@@ -5,7 +5,9 @@ import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -96,12 +98,18 @@ public class PrepDatasetFileUploadService {
                 }
                 */
 
+                Workbook workbook;
                 File origFile = new File(filePath);
-                InputStream is = new FileInputStream(origFile);
-                Workbook workbook = StreamingReader.builder()
-                        .rowCacheSize(100)
-                        .bufferSize(4096)
-                        .open(is);
+                if ("xls".equals(extensionType)) {       // 97~2003
+                    workbook = new HSSFWorkbook(new FileInputStream(origFile));
+                } else {   // 2007 ~
+                    InputStream is = new FileInputStream(origFile);
+                    workbook = StreamingReader.builder()
+                            .rowCacheSize(100)
+                            .bufferSize(4096)
+                            .open(is);
+                }
+
                 for (Sheet sheet : workbook) {
                     sheets.add(sheet.getSheetName());
                     /*

@@ -30,6 +30,7 @@ import { TimeAllFilter } from '../../domain/workbook/configurations/filter/time-
 import { TimeListFilter } from '../../domain/workbook/configurations/filter/time-list-filter';
 import { isNullOrUndefined, isUndefined } from 'util';
 import { DashboardUtil } from '../util/dashboard.util';
+import { Alert } from '../../common/util/alert.util';
 
 @Component({
   selector: 'app-config-filter-select',
@@ -315,6 +316,13 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
    * @param {Field | CustomField} field
    */
   public editFilter(field: Field | CustomField) {
+
+    if( this.widget
+      && ( 'recommended' === field['importanceType'] || 'timestamp' === field['importanceType'] ) ) {
+      Alert.warning( this.translateService.instant('msg.board.filter.alert.change.chart.warning-recommend') );
+      return;
+    }
+
     if (field['someChartFilter']) {
       // 차트 필터를 글로벌 필터로 변경
       this._openConfirmToBoardFilter(field['someChartFilter']);
@@ -336,10 +344,16 @@ export class ConfigureFiltersSelectComponent extends AbstractFilterPopupComponen
    */
   public editTimestampFilter(field: Field | CustomField, unit?: TimeUnit, byUnit?: ByTimeUnit) {
 
+    if( this.widget
+      && ( 'recommended' === field['importanceType'] || 'timestamp' === field['importanceType'] ) ) {
+      Alert.warning( this.translateService.instant('msg.board.filter.alert.change.chart.warning-recommend') );
+      return;
+    }
+
     // 필터 설정
     const isToBoardFilter: boolean = (field.hasOwnProperty('someChartFilter'));
     const timeFilter: TimeFilter = (isToBoardFilter) ? field['someChartFilter'] : field['filter'];
-    if (isNullOrUndefined(unit)) {
+    if (isNullOrUndefined(unit) || TimeUnit.NONE === unit ) {
       timeFilter.type = 'time_all';
     } else {
       timeFilter.type = 'time_list';

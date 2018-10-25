@@ -28,7 +28,7 @@ public class Window implements Rule, Rule.Factory {
    */
   Expression order;
 
-  Expression partition;
+  Expression group;
 
   Expression rowsBetween;
 
@@ -36,10 +36,10 @@ public class Window implements Rule, Rule.Factory {
   public Window() {
   }
 
-  public Window(Expression value, Expression order, Expression partition, Expression rowsBetween) {
+  public Window(Expression value, Expression order, Expression group, Expression rowsBetween) {
     this.value = value;
     this.order = order;
-    this.partition = partition;
+    this.group = group;
     this.rowsBetween = rowsBetween;
   }
 
@@ -59,12 +59,12 @@ public class Window implements Rule, Rule.Factory {
     this.order = order;
   }
 
-  public Expression getPartition() {
-    return partition;
+  public Expression getGroup() {
+    return group;
   }
 
-  public void setPartition(Expression partition) {
-    this.partition = partition;
+  public void setGroup(Expression group) {
+    this.group = group;
   }
 
   public Expression getRowsBetween() {
@@ -90,7 +90,7 @@ public class Window implements Rule, Rule.Factory {
     return "Window{" +
         "value=" + value +
         ", order=" + order +
-        ", partition=" + partition +
+        ", group=" + group +
         ", rowsBetween=" + rowsBetween +
         '}';
   }

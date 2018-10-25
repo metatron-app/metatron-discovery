@@ -35,7 +35,7 @@
 
     <ul class="ddp-list-column">
       <li *ngFor="let column of filteredColumns" (click)="setColumn(column.columnName)">
-        <a href="javascript:">
+        <a href="javascript:" title="{{column.columnName}}">
           <div class="ddp-data-char">
             {{column.columnType}} ({{column.columnSize}})
           </div>

@@ -206,15 +206,19 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       method = 'put';
     }
 
+    // if(this._gridComp!=null){try{this._gridComp.getGridCore().scrollRowIntoView(0);}catch (error){}}
     return this.dataflowService.transformAction(this.dataSetId, method, params).then(data => {
       // 데이터 초기화
       {
+
         // Grid
         this._apiGridData = data['gridResponse'];
         this._$gridElm = null;
         this._gridData = null;
         this._selectedRows = [];
         this._selectedColumns = [];
+
+
 
         // Histogram
         this._charts = [];
@@ -243,9 +247,24 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       const gridData: GridData = this._getGridDataFromGridResponse(this._apiGridData);
       this._gridData = gridData;
 
+
+      // Column Width 설정
+      // (this.columnWidths) || (this.columnWidths = {});
+      // this.columnWidths = this._setColumnWidthInfo(this.columnWidths, this._apiGridData.colNames, gridData);
+
+      const colTypes = [];
+      const colNameTypes = [];
+      this._apiGridData.colDescs.forEach( item =>{ colTypes.push(item.type);});
+      this._apiGridData.colNames.forEach((item, i)=>{
+        let obj = { colname :null, coltype : null};
+        obj.colname = item;
+        obj.coltype = colTypes[i];
+        colNameTypes.push(obj);
+        obj = { colname :null, coltype : null};
+      });
       // Column Width 설정
       (this.columnWidths) || (this.columnWidths = {});
-      this.columnWidths = this._setColumnWidthInfo(this.columnWidths, this._apiGridData.colNames, gridData);
+      this.columnWidths = this._setColumnWidthInfo(this.columnWidths, colNameTypes, gridData);
 
       // 클릭 시리즈 정보 초기화
       this._apiGridData.colNames.forEach((item, index) => {
@@ -258,7 +277,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
 
       // 히스토그램 정보 설정
       return this._getHistogramInfoByWidths(this.columnWidths, gridData.fields.length).then(() => {
-        this._renderGrid(gridData, params.ruleIdx);
+        this._renderGrid(gridData, this.ruleIdx, data.totalRowCnt);
         // 그리드 요약 정보 설정
         this._summaryGridInfo(gridData);
         this.totalRowCnt = data.totalRowCnt;
@@ -276,6 +295,10 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     });
 
   } // function - init
+
+
+
+
 
   /**
    * 타입 목록 표시 변경
@@ -355,7 +378,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   public setAffectedColumns(cols: any[], command: string) {
 
     const singleSelectionMap: string[] = ['derive'];
-    const multiSelectionMap: string[] = ['aggregate', 'unpivot', 'pivot', 'drop', 'rename', 'sort', 'nest',
+    const multiSelectionMap: string[] = ['aggregate', 'unpivot', 'pivot', 'drop', 'rename', 'sort', 'nest', 'window',
       'merge', 'split', 'unnest', 'extract', 'countpattern', 'replace', 'settype', 'flatten', 'set', 'move', 'join', 'setformat'];
 
     if (-1 < singleSelectionMap.indexOf(command)) {
@@ -602,7 +625,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     Object.keys(this._barClickedSeries).forEach((key, index) => {
       if (this._barClickedSeries[key].length >= 1 && index === data.index) {
         param['clickable']= true;
-        param['values'] = this._clickedSeries[key];
+        param['values'] = this._barClickedSeries[key];
         param['isColumnSelect'] = true;
       }
     });
@@ -713,7 +736,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       const multiSelectionMap: string[] = ['merge', 'replace', 'set', 'nest', 'settype', 'setformat', 'move', 'countpattern'];
 
       if (-1 < singleSelectionMap.indexOf(data.more.command)) {
-        this._gridComp.selectColumn(data.more.col[0], true);
+        this._gridComp.selectColumn(typeof data.more.col === 'string' ? data.more.col : data.more.col[0], true);
       } else if (-1 < multiSelectionMap.indexOf(data.more.command)) {
         this._selectedColumns = data.more.col;
         // let originalSelectedDatasets = _.cloneDeep(this._selectedColumns);
@@ -1589,12 +1612,11 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    * @returns {ColumnWidth}
    * @private
    */
-  private _setColumnWidthInfo(colWidths: ColumnWidth, colNames: string[], gridData: GridData): ColumnWidth {
+  private _setColumnWidthInfo(colWidths: ColumnWidth, colNameTypes: any, gridData: GridData): ColumnWidth {
     const maxDataLen: any = {};
     const maxLength = 500;
     const fields: Field[] = gridData.fields;
     let rows: any[] = gridData.data;
-
     // Row 생성 및 컬럼별 최대 길이 측정
     if (rows.length > 0) {
       rows.forEach((row: any, idx: number) => {
@@ -1602,7 +1624,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         fields.forEach((field: Field) => {
           let colWidth: number = 0;
           if (typeof row[field.name] === 'string') {
-            colWidth = Math.floor((row[field.name]).length * 12);
+            colWidth = Math.floor((row[field.name]).length * 12 + 40);
+          } else if (typeof row[field.name] === 'number') {
+            colWidth = Math.floor((row[field.name]).toString().length * 12 + 40);
           }
           if (!maxDataLen[field.name] || (maxDataLen[field.name] < colWidth)) {
             if (colWidth > 500) {
@@ -1612,26 +1636,25 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
             }
           }
         });
-
         // row id 설정
         (row.hasOwnProperty('id')) || (row.id = idx);
-
       });
     }
-
-    colNames.forEach((item) => {
-      let headerWidth: number = Math.floor(item.length * 12) + 62;
-
-      if (headerWidth > 500) {
-        headerWidth = 500;
-      }
-      if (!colWidths.hasOwnProperty(item)) {
-        colWidths[item] = maxDataLen[item] > headerWidth ? maxDataLen[item] : headerWidth
+    colNameTypes.forEach((item)=>{
+      let headerWidth: number = Math.floor(item.colname.length * 7) + 62;
+      if (headerWidth > 500) headerWidth = 500;
+      if(item.coltype == "TIMESTAMP"){
+        let maxDataLenth = 35*7;
+        if (!colWidths.hasOwnProperty(item)) {
+          colWidths[item.colname] = maxDataLenth > headerWidth ? maxDataLenth : headerWidth
+        }
+      } else {
+        if (!colWidths.hasOwnProperty(item)) {
+          colWidths[item.colname] = maxDataLen[item.colname] > headerWidth ? maxDataLen[item.colname] : headerWidth
+        }
       }
     });
-
     return colWidths;
-
   } // function - _setColumnWidthInfo
 
   // noinspection JSMethodCanBeStatic
@@ -1654,9 +1677,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    * @param {number} ruleIdx
    * @private
    */
-  private _renderGrid(gridData: GridData, ruleIdx: number) {
+  private _renderGrid(gridData: GridData, ruleIdx: number, totalRowCnt: number) {
+    // const ruleIndex: number = ruleIdx;
 
-    const ruleIndex: number = ruleIdx;
     const fields: Field[] = gridData.fields;
 
     const defaultStyle: string = 'line-height:30px;';
@@ -1722,9 +1745,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     this._gridComp.create(
       headers,
       new ScrollLoadingGridModel(
-        (pageNum: number = 0, pageSize: number) => {
+        (ruleIdx:number, pageNum: number = 0, pageSize: number) => {
           if (this.isApiMode) {
-            return this.dataflowService.getSearchCountDataSets(this.dataSetId, ruleIndex, pageNum, pageSize);
+            return this.dataflowService.getSearchCountDataSets(this.dataSetId, ruleIdx, pageNum, pageSize);
           } else {
             return new Promise<any>((resolve) => {
               let startIdx = ((pageNum - 1) * pageSize);
@@ -1763,7 +1786,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         .ExplicitInitialization(true)
         .NullCellStyleActivate(true)
         .EnableMultiSelectionWithCtrlAndShift(true)
-        .build()
+        .build(),
+      ruleIdx,
+      totalRowCnt
     );
 
     // 그리드 실행

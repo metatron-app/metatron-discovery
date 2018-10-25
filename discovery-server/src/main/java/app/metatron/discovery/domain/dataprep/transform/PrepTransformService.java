@@ -1563,10 +1563,6 @@ public class PrepTransformService {
         Window window = (Window) rule;
         Expression order = window.getOrder();
         Expression value = window.getValue();
-        if (null == order) {
-          LOGGER.error("confirmRuleStringForException(): aggregate group is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_GROUP);
-        }
         if (null == value) {
           LOGGER.error("confirmRuleStringForException(): aggregate value is null");
           throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_VALUE);

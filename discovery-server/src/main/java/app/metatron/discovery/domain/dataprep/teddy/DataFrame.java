@@ -449,29 +449,30 @@ public class DataFrame implements Serializable, Transformable {
     Util.showSep(widths);
   }
 
-  public DataFrame drop(List<String> targetColNames) {
-    DataFrame newDf = new DataFrame();
+  public void dropColumn(String targetColName) throws TeddyException{
+    if(colNames.contains(targetColName)) {
+      colDescs.remove(getColnoByColName(targetColName));
+      colNames.remove(targetColName);
+      mapColno.clear();
 
-    List<Integer> survivedColNos = new ArrayList<>();
-    for (int i = 0; i < getColCnt(); i++) {
-      if (targetColNames.contains(getColName(i))) {
-        continue;   // drop 대상 컬럼들은 새 df에서 누락
+      int i = 0;
+      for (String colName : colNames) {
+        mapColno.put(colName, i);
+        i++;
       }
-      survivedColNos.add(i);
+
+      colCnt = colCnt -1;
     }
 
-    for (int colno : survivedColNos) {
-      newDf.addColumnWithDf(this, colno);
-    }
-
+    List<Row> newRows = new ArrayList<>();
     for (Row row : this.rows) {
       Row newRow = new Row();
-      for (int colno : survivedColNos) {
-        newRow.add(getColName(colno), row.get(colno));
+      for (String column : colNames) {
+        newRow.add(column, row.get(column));
       }
-      newDf.rows.add(newRow);
+      newRows.add(newRow);
     }
-    return newDf;
+    rows = newRows;
   }
 
   //check if Args size are exactly matched with desirable size.
@@ -1331,6 +1332,18 @@ public class DataFrame implements Serializable, Transformable {
     for (String colName : colNames) {
       checkAlphaNumerical(colName);
     }
+  }
+
+  public void lowerColNames() throws IllegalColumnNameForHiveException {
+    List<String> lowerColNames = new ArrayList();
+    for (String colName : colNames) {
+      String lowerColName = colName.toLowerCase();
+      if (lowerColNames.contains(lowerColName)) {
+        throw new IllegalColumnNameForHiveException("Column names become duplicated while saving into a Hive table: " + colName);
+      }
+      lowerColNames.add(lowerColName);
+    }
+    colNames = lowerColNames;
   }
 
   protected String makeParsable(String colName) {
