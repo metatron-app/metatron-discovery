@@ -127,7 +127,8 @@
         (cloneEventHandler)="datasetClone($event)"
         (changeDataflow)="selectDataflow($event)"
         (createSnapshotEvent)="openSnapshotPopup()"
-        (updateDataflow)="getDataflow(); changeChartClickStatus(this.selectedDataSet,true); datasetInfoPopup.setDataset(this.selectedDataSet)">
+        (updateDataflow)="getDataflow(); changeChartClickStatus(this.selectedDataSet,true); datasetInfoPopup.setDataset(this.selectedDataSet)"
+        (datasetSelectPopupOpen)="openAddDatasetPopup($event)">
       </app-dataset-info-popup>
     </div>
     <!-- //그리드 아이콘 클릭시 데이터셋 상세 팝업 -->
@@ -152,6 +153,15 @@
 <!-- //룰 편집 화면 -->
 
 <app-add-dataset *ngIf="isDatasetAddPopupOpen" (closeEvent)="closeAddDatasetPopup()" (doneEvent)="datasetComplete($event);" [dataflowId]="dataflow.dfId" [originalDatasetList]="dataSetList"></app-add-dataset>
+
+<long-update-popup
+  *ngIf="isSelectDatasetPopupOpen"
+  [title]="datasetPopupTitle"
+  [selectedDatasetId]="swapDatasetId"
+  (closeEvent)="isSelectDatasetPopupOpen = false"
+  (doneEvent)="datasetPopupFinishEvent($event)"
+  [isRadio]="isRadio">
+</long-update-popup>
 
 <create-snapshot-popup (snapshotCreateFinishEvent)="snapshotCreateFinish($event)"></create-snapshot-popup>
 <snapshot-loading></snapshot-loading>

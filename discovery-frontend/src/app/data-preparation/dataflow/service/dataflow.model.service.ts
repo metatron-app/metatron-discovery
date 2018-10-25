@@ -7,6 +7,7 @@ export class DataflowModelService extends AbstractService {
 
   private datasetsFromDataflow: Dataset[] = [];
 
+  private upstreamList = [];
 
   /**
    * Returns list of original Dataset list
@@ -23,5 +24,13 @@ export class DataflowModelService extends AbstractService {
    */
   public setDatasetsFromDataflow (datasets : Dataset[]) {
     this.datasetsFromDataflow = datasets;
+  }
+
+  public setUpstreamList(upstream) {
+    this.upstreamList = upstream;
+  }
+
+  public getUpstreamList() {
+    return this.upstreamList;
   }
 }

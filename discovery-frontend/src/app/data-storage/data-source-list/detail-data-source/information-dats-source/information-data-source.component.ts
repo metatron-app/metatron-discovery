@@ -41,6 +41,9 @@ import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
 import * as _ from 'lodash';
 import { GranularityType } from '../../../../domain/workbook/configurations/field/timestamp-field';
 import { StringUtil } from '../../../../common/util/string.util';
+import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/confirm.component";
+import {Modal} from "../../../../common/domain/modal";
+import {Alert} from "../../../../common/util/alert.util";
 
 declare let echarts: any;
 
@@ -69,6 +72,12 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   @ViewChild('histogram')
   private histogram: ElementRef;
+
+  @ViewChild(ConfirmModalComponent)
+  private confirmModal: ConfirmModalComponent;
+
+  @Output()
+  public changeDatasource: EventEmitter<any> = new EventEmitter();
 
   // scope types
   private ingestionScopeTypeList: any[];
@@ -519,6 +528,28 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    */
   public isDefaultType(): boolean {
     return StringUtil.isEmpty(this.getConnection.url);
+  }
+
+  public synchronizeFieldsModalOpen() {
+    const modal = new Modal();
+    modal.name = this.translateService.instant('msg.storage.ui.dsource.synchronization.modal.name');
+    modal.description = this.translateService.instant('msg.storage.ui.dsource.synchronization.modal.description');
+    modal.isShowCancel = true;
+    modal.btnName = this.translateService.instant('msg.storage.ui.dsource.synchronization.modal.btn');
+
+    this.confirmModal.init(modal);
+  }
+
+  public confirmSynchronizeFields() {
+    this.loadingShow();
+
+    this.datasourceService.synchronizeDatasourceFields(this.datasource.id)
+      .then((result) => {
+        this.loadingHide();
+        Alert.success(this.translateService.instant('msg.storage.ui.dsource.synchronization.success'));
+        this.changeDatasource.emit('information');
+      })
+      .catch((error) => this.commonExceptionHandler(error));
   }
 
   /**

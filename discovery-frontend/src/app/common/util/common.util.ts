@@ -315,4 +315,23 @@ export class CommonUtil {
       .substring(1);
   }
 
+  /**
+   * ms를 min과 sec로 변환
+   * @param {number} ms
+   * @returns {string}
+   */
+  public static convertMilliseconds(ms: number) {
+    if (ms === undefined) {
+      return 0 + 'ms';
+    }
+
+    if (ms < 1000) {
+      return ms + 'ms'
+    }
+
+    const min = Math.floor((ms / 1000 / 60) << 0);
+    const sec = Math.floor((ms / 1000) % 60);
+    return min !== 0 ? (min + ' min ' + sec + ' sec') : (sec + ' sec');
+  } // function - convertMilliseconds
+
 }

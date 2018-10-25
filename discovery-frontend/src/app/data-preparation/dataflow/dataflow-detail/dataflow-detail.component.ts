@@ -12,6 +12,11 @@
  * limitations under the License.
  */
 
+import { isUndefined } from 'util';
+import * as $ from 'jquery';
+import * as _ from 'lodash';
+declare let echarts: any;
+
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import {
   ChangeDetectorRef, Component, ElementRef, Injector, Input, OnInit,
@@ -19,7 +24,6 @@ import {
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { Observable } from 'rxjs/Observable';
-import { GridComponent } from '../../../common/component/grid/grid.component';
 import { Dataflow } from '../../../domain/data-preparation/dataflow';
 import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
 import { Dataset, DsType, ImportType, Rule } from '../../../domain/data-preparation/dataset';
@@ -27,17 +31,12 @@ import { DataflowService } from '../service/dataflow.service';
 import { StringUtil } from '../../../common/util/string.util';
 import { PreparationAlert   } from '../../util/preparation-alert.util';
 import { Alert } from '../../../common/util/alert.util';
-import { isUndefined } from 'util';
-import * as $ from 'jquery';
-import * as _ from 'lodash';
 import { Modal } from '../../../common/domain/modal';
 import { ActivatedRoute } from '@angular/router';
 import { DatasetInfoPopupComponent } from './component/dataset-info-popup/dataset-info-popup.component';
 import { SnapshotLoadingComponent } from '../../component/snapshot-loading.component';
 import { CreateSnapshotPopup } from '../../component/create-snapshot-popup.component';
-
-
-declare let echarts: any;
+import {DataflowModelService} from "../service/dataflow.model.service";
 
 @Component({
   selector: 'app-dataflow-detail',
@@ -158,6 +157,11 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   public isDatasetAddPopupOpen: boolean = false;
 
   public step: string;
+
+  public datasetPopupTitle : string = 'Add datasets';   // Swap dataset popup title
+  public isSelectDatasetPopupOpen : boolean = false;    // Swap dataset popup open/close
+  public isRadio : boolean = false;                     // If swapping -> true / if Adding -> false
+  public swapDatasetId : string;                        // Swapping 대상 imported 면 dataset id wrangled 면 upstreamId
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -165,6 +169,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   // 생성자
   constructor(
     private dataflowService: DataflowService,
+    private dataflowModelService : DataflowModelService,
     private commonLocation: Location,
     private activatedRoute: ActivatedRoute,
     protected elementRef: ElementRef,
@@ -878,6 +883,9 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
           this.dataflowService.getUpstreams(this.dataflow.dfId)
             .then((upstreams) => {
 
+            // 선택된 wrangled dataset의 imported dataset id를 몰라서 넘겨야한다 ;
+              this.dataflowModelService.setUpstreamList(upstreams);
+
               let dfId = this.dataflow.dfId;
               let upstreamList = upstreams.filter((upstream) => {
                 if (upstream.dfId === dfId) {
@@ -944,6 +952,64 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
     this.getDataflow(true);
 
   }
+
+
+
+  /**
+   * When done btn is pressed from Dataset swapping popup
+   * @param data
+   */
+  public datasetPopupFinishEvent (data) {
+
+    this.isSelectDatasetPopupOpen = false;
+    let newDsId = data.new;
+    let oldDsId = data.old;
+    this.datasetSwap(oldDsId, newDsId);
+
+  }
+
+  /**
+   * Swap dataset API
+   * @param {string} oldDsId
+   * @param {string} newDsId
+   */
+  public datasetSwap(oldDsId: string, newDsId : string) {
+    this.loadingShow();
+    this.dataflowService.datasetSwap(oldDsId, newDsId).then((result) => {
+      console.info('swapping >>>>>>>>>>>>', result);
+      Alert.success('Swap successful');
+      // 초기화
+      this.initSelectedDataSet();
+      this.getDataflow();
+
+    }).catch((error) => {
+      Alert.fail('Swap failed');
+      console.info(error);
+      this.loadingHide();
+    });
+
+  }
+
+
+  /**
+   * Open swap dataset popup
+   * @param data
+   */
+  public openAddDatasetPopup(data :any) {
+
+    this.swapDatasetId = data.dsId;
+    if (data.type === 'imported') {
+      this.datasetPopupTitle = 'Replace dataset';
+      this.isRadio = true;
+    } else if (data.type === 'wrangled') {
+      this.datasetPopupTitle = 'Change input dataset';
+      this.isRadio = true;
+    } else {
+      this.datasetPopupTitle = 'Add datasets';
+    }
+    this.isSelectDatasetPopupOpen = true;
+  }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method - Chart
