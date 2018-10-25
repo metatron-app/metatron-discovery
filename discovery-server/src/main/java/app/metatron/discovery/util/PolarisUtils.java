@@ -14,10 +14,8 @@
 
 package app.metatron.discovery.util;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.exception.MetatronException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
@@ -26,7 +24,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -34,13 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -55,9 +49,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.exception.MetatronException;
 
 /**
  * Created by kyungtaak on 2016. 2. 25..
@@ -1151,8 +1142,11 @@ public class PolarisUtils {
     CsvListReader reader = null;
     CsvListWriter writer = null;
     try {
-      reader = new CsvListReader(new FileReader(inputFile), CsvPreference.STANDARD_PREFERENCE);
-      writer = new CsvListWriter(new FileWriter(outputFile), CsvPreference.STANDARD_PREFERENCE);
+      CsvPreference csvPreference = new CsvPreference.Builder('"', ',', "\r\n")
+              .ignoreEmptyLines(false)
+              .build();
+      reader = new CsvListReader(new FileReader(inputFile), csvPreference);
+      writer = new CsvListWriter(new FileWriter(outputFile), csvPreference);
 
       List<String> columns;
       while ((columns = reader.read()) != null) {
