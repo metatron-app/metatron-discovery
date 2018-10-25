@@ -24,6 +24,7 @@ import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.dataprep.teddy.Util;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.util.ExcelProcessor;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -31,6 +32,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.input.BOMInputStream;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -43,7 +45,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Future;
 
 @Service
@@ -286,11 +291,16 @@ public class PrepDatasetFileService {
                     sheet = wb.getSheetAt(findSheetIndex);
                     */
 
-                    InputStream is = new FileInputStream(theFile);
-                    Workbook workbook = StreamingReader.builder()
-                            .rowCacheSize(100)
-                            .bufferSize(4096)
-                            .open(is);
+                    Workbook workbook;
+                    if ("xls".equals(extensionType)) {       // 97~2003
+                        workbook = new HSSFWorkbook(new FileInputStream(theFile));
+                    } else {   // 2007 ~
+                        InputStream is = new FileInputStream(theFile);
+                        workbook = StreamingReader.builder()
+                                .rowCacheSize(100)
+                                .bufferSize(4096)
+                                .open(is);
+                    }
 
                     sheet = workbook.getSheet(sheetname);
                     totalRows = sheet.getLastRowNum()+1;
@@ -336,7 +346,9 @@ public class PrepDatasetFileService {
                             if(c==null) {
                                 result.put(f.getName(), null);
                             } else {
-                                result.put(f.getName(), c.getStringCellValue());
+                                Object cellValue = ExcelProcessor.getCellValue(c);
+                                String strCellValue = String.valueOf(cellValue);
+                                result.put(f.getName(), strCellValue);
                             }
                         }
                         resultSet.add( result );
@@ -779,11 +791,18 @@ public class PrepDatasetFileService {
                         }
                     }
                     */
-                    InputStream is = new FileInputStream(new File(tempFilePath));
-                    Workbook workbook = StreamingReader.builder()
-                            .rowCacheSize(100)
-                            .bufferSize(4096)
-                            .open(is);
+
+                    Workbook workbook;
+                    if ("xls".equals(extensionType)) {       // 97~2003
+                        workbook = new HSSFWorkbook(new FileInputStream(new File(tempFilePath)));
+                    } else {   // 2007 ~
+                        InputStream is = new FileInputStream(new File(tempFilePath));
+                        workbook = StreamingReader.builder()
+                                .rowCacheSize(100)
+                                .bufferSize(4096)
+                                .open(is);
+                    }
+
                     if (null != workbook) {
                         int sheetsCount = workbook.getNumberOfSheets();
                         for (Sheet sheet : workbook) {
@@ -834,30 +853,45 @@ public class PrepDatasetFileService {
             int findSheetIndex = wb.getSheetIndex(sheetName);
             Sheet sheet = wb.getSheetAt(findSheetIndex);
             */
-            InputStream is = new FileInputStream(new File(excelFileName));
-            Workbook wb = StreamingReader.builder()
-                    .rowCacheSize(100)
-                    .bufferSize(4096)
-                    .open(is);
+
+            Workbook wb;
+            InputStream is=null;
+            if ("xls".equals(extensionType)) {       // 97~2003
+                wb = new HSSFWorkbook(new FileInputStream(new File(excelFileName)));
+            } else {   // 2007 ~
+                is = new FileInputStream(new File(excelFileName));
+                wb = StreamingReader.builder()
+                        .rowCacheSize(100)
+                        .bufferSize(4096)
+                        .open(is);
+            }
 
             Sheet sheet = wb.getSheet(sheetName);
 
             int maxIdx = 0;
             for (Row r : sheet) {
+                int colIdx = 0;
                 for (Cell c : r) {
-                    int colIdx = c.getColumnIndex();
-                    if(maxIdx<colIdx) {
-                        maxIdx = colIdx;
-                    }
+                    colIdx++;
+                }
+                if(maxIdx<colIdx) {
+                    maxIdx = colIdx;
                 }
             }
-            is.close();
+            if(is!=null) {
+                is.close();
+            }
 
-            is = new FileInputStream(new File(excelFileName));
-            wb = StreamingReader.builder()
-                    .rowCacheSize(100)
-                    .bufferSize(4096)
-                    .open(is);
+            if ("xls".equals(extensionType)) {       // 97~2003
+                wb = new HSSFWorkbook(new FileInputStream(new File(excelFileName)));
+            } else {   // 2007 ~
+                is = new FileInputStream(new File(excelFileName));
+                wb = StreamingReader.builder()
+                        .rowCacheSize(100)
+                        .bufferSize(4096)
+                        .open(is);
+            }
+
             sheet = wb.getSheet(sheetName);
             String separator = delimiter;
             FileWriter writer = new FileWriter(csvFileName);
@@ -874,7 +908,8 @@ public class PrepDatasetFileService {
                         continue;
                     }
 
-                    String value = c.getStringCellValue();
+                    Object cellValue = ExcelProcessor.getCellValue(c);
+                    String value = String.valueOf(cellValue);
                     if (value.contains("\"")) {
                         value = value.replace("\"", "\"\"");
                     }

@@ -14,6 +14,10 @@
 
 package app.metatron.discovery.domain.scheduling.engine;
 
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceRepository;
+import app.metatron.discovery.domain.datasource.DataSourceSummary;
+import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -38,15 +42,9 @@ import org.springframework.web.client.ResponseErrorHandler;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceRepository;
-import app.metatron.discovery.domain.datasource.DataSourceSummary;
-import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
-
-import static app.metatron.discovery.domain.datasource.DataSource.Status.DISABLED;
-import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
-import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.*;
 
 
 /**
@@ -137,6 +135,10 @@ public class DataSourceCheckJob extends QuartzJobBean {
     LOGGER.debug("Mark datasource({}) status : {} -> {}", dataSource.getEngineName(), dataSource.getStatus(), ENABLED);
     dataSource.setStatus(ENABLED);
 
+    List<String> matchingFields = filterMatchingFields(result);
+    boolean matched = dataSource.isFieldMatchedByNames(matchingFields);
+    dataSource.setFieldsMatched(matched);
+
     DataSourceSummary summary = dataSource.getSummary();
     if(summary == null) {
       summary = new DataSourceSummary();
@@ -169,6 +171,15 @@ public class DataSourceCheckJob extends QuartzJobBean {
     }
 
     dataSourceRepository.save(dataSource);
+  }
+
+  private List<String> filterMatchingFields(Map<String, Object> result) {
+    final Map<String, Object> columns = (Map<String, Object>)result.get("columns");
+
+    return columns.entrySet().stream()
+        .filter(entry -> ((entry.getKey().equals("__time") || entry.getKey().equals("count")) == false))
+        .map(entry -> entry.getKey())
+        .collect(Collectors.toList());
   }
 
   private class EngineResponseErrorHandler implements ResponseErrorHandler {

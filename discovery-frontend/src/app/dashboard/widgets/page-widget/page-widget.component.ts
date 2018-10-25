@@ -670,6 +670,19 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
       this.processEnd();
       this._isDuringProcess = false;
+
+      switch( this.mouseMode ) {
+        case 'SINGLE' :
+          this.changeMouseSelectMode('single', 'single');
+          break;
+        case 'MULTI_RECT' :
+          this.changeMouseSelectMode('multi', 'rect');
+          break;
+        case 'MULTI_POLY' :
+          this.changeMouseSelectMode('multi', 'polygon');
+          break;
+      }
+
     }
   } // function - updateComplete
 
@@ -900,6 +913,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
    * 위젯 설정
    * @param {PageWidget} widget
@@ -1143,7 +1157,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         uiOption: this.uiOption,
         params: {
           widgetId: this.widget.id,
-          externalFilters: (selectionFilters !== undefined),
+          externalFilters: (selectionFilters !== undefined && 0 < selectionFilters.length ),
           // 현재 차트가 선택한 필터목록
           selectFilterListList: this._selectFilterList
         }
@@ -1176,6 +1190,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
       // 변경 적용
       this.safelyDetectChanges();
+
     }).catch((error) => {
       console.error(error);
       // 프로세스 종료 등록 및 No Data 표시

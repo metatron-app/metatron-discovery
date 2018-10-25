@@ -1334,6 +1334,18 @@ public class DataFrame implements Serializable, Transformable {
     }
   }
 
+  public void lowerColNames() throws IllegalColumnNameForHiveException {
+    List<String> lowerColNames = new ArrayList();
+    for (String colName : colNames) {
+      String lowerColName = colName.toLowerCase();
+      if (lowerColNames.contains(lowerColName)) {
+        throw new IllegalColumnNameForHiveException("Column names become duplicated while saving into a Hive table: " + colName);
+      }
+      lowerColNames.add(lowerColName);
+    }
+    colNames = lowerColNames;
+  }
+
   protected String makeParsable(String colName) {
     if(colName.matches("^\'.+\'"))
         colName = colName.substring(1, colName.length()-1);

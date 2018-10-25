@@ -14,6 +14,8 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -52,13 +54,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.entity.SearchParamValidator;
@@ -89,7 +89,10 @@ import app.metatron.discovery.util.CsvProcessor;
 import app.metatron.discovery.util.ExcelProcessor;
 import app.metatron.discovery.util.PolarisUtils;
 import app.metatron.discovery.util.ProjectionUtils;
+import scala.annotation.meta.field;
 
+import static app.metatron.discovery.domain.datasource.DataSource.Status.DISABLED;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PREFIX;
 import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.FAILED;
 
@@ -142,6 +145,9 @@ public class DataSourceController {
 
   @Autowired
   DateTimeFormatChecker dateTimeFormatChecker;
+
+  @Autowired
+  DruidEngineMetaRepository metaRepository;
 
   DataSourceProjections dataSourceProjections = new DataSourceProjections();
 
@@ -536,6 +542,48 @@ public class DataSourceController {
     dataSourceRepository.save(dataSource);
 
     return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Engine Datasource에는 존재하지만 Metatron Datasource 필드에 존재하지 않는 값을 동기화 하여 추가합니다.
+   * @param id
+   * @return
+   */
+  @RequestMapping(path = "/datasources/{id}/fields/sync", method = RequestMethod.PATCH)
+  public ResponseEntity<?> synchronizeFieldsInDataSource(@PathVariable("id") final String id) {
+    final DataSource dataSource = dataSourceRepository.findOne(id);
+    if (dataSource == null) {
+      throw new ResourceNotFoundException(id);
+    }
+
+    List<Field> candidateFields = getCandidateFieldsFromEngine(dataSource.getEngineName());
+    dataSource.synchronizeFields(candidateFields);
+    dataSourceRepository.save(dataSource);
+
+    return ResponseEntity.noContent().build();
+  }
+
+  private List<Field> getCandidateFieldsFromEngine(String engineName) {
+    SegmentMetaData segmentMetaData = engineQueryService.segmentMetadata(engineName);
+
+    if(segmentMetaData == null || segmentMetaData.getColumns() == null) {
+      return new ArrayList<>();
+    } else {
+      return segmentMetaData.getColumns().entrySet().stream()
+          .filter(entry -> ((entry.getKey().equals("__time") || entry.getKey().equals("count")) == false))
+          .map(entry -> {
+            SegmentMetaData.ColumnInfo value = entry.getValue();
+
+            Field field = new Field();
+            field.setName(entry.getKey());
+            field.setAlias(entry.getKey());
+            field.setType(value.getType().startsWith("dimension.") ? DataType.STRING : DataType.INTEGER);
+            field.setRole(value.getType().startsWith("dimension.") ? Field.FieldRole.DIMENSION : Field.FieldRole.MEASURE);
+
+            return field;
+          })
+          .collect(Collectors.toList());
+    }
   }
 
   /**
