@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.Set;
 
+import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
@@ -38,7 +39,6 @@ import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.Dimension;
-import app.metatron.discovery.query.druid.Granularity;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
 import app.metatron.discovery.query.druid.dimensions.ExtractionDimension;
 import app.metatron.discovery.query.druid.dimensions.LookupDimension;
@@ -53,7 +53,7 @@ import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
 import static app.metatron.discovery.domain.workbook.configurations.field.Field.FIELD_NAMESPACE_SEP;
 
 /**
- * Created by kyungtaak on 2016. 7. 2..
+ * Builder for select query specification
  */
 public class SelectQueryBuilder extends AbstractQueryBuilder {
 
@@ -62,8 +62,6 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
   private List<Dimension> dimensions = Lists.newArrayList();
 
   private Set<String> metrics = Sets.newLinkedHashSet();
-
-  private Granularity granularity;
 
   private PagingSpec pagingSpec = new PagingSpec(100);
 
@@ -99,7 +97,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
     for (Field reqField : reqFields) {
 
       String fieldName = checkColumnName(reqField.getColunm());
-      if(!fieldName.equals(reqField.getColunm())) {
+      if (!fieldName.equals(reqField.getColunm())) {
         reqField.setRef(StringUtils.substringBeforeLast(fieldName, FIELD_NAMESPACE_SEP));
       }
 
@@ -111,8 +109,16 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         FieldFormat format = dimensionField.getFormat();
         app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
 
-        // ValueAlias 처리, 기존 format 이나 Type 별 처리는 무시됨
-        if(MapUtils.isNotEmpty(dimensionField.getValuePair())) {
+        // In case of GEO Type, druid engine recognizes it as metric
+        if (datasourceField.getLogicalType() == LogicalType.GEO_POINT
+            || datasourceField.getLogicalType() == LogicalType.GEO_POLYGON
+            || datasourceField.getLogicalType() == LogicalType.GEO_LINE) {
+          metrics.add(fieldName);
+          continue;
+        }
+
+        // ValueAlias Part, Processing by existing format or type is ignored
+        if (MapUtils.isNotEmpty(dimensionField.getValuePair())) {
           dimensions.add(new LookupDimension(fieldName,
                                              aliasName,
                                              new MapLookupExtractor(dimensionField.getValuePair())));
@@ -123,7 +129,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
           switch (datasourceField.getLogicalType()) {
             case STRING:
               dimensions.add(new ExtractionDimension(fieldName, aliasName,
-                  new ExpressionFunction(((DefaultFormat)format).getFormat(), fieldName)));
+                                                     new ExpressionFunction(((DefaultFormat) format).getFormat(), fieldName)));
               break;
             case TIMESTAMP: // TODO: 추후 별도의 Timestamp 처리 확인 해볼것
               TimeFieldFormat timeFormat = (TimeFieldFormat) format;
@@ -149,17 +155,17 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         }
 
       } else if (reqField instanceof MeasureField) {
-        if(UserDefinedField.REF_NAME.equals(reqField.getRef())) {
+        if (UserDefinedField.REF_NAME.equals(reqField.getRef())) {
           dimensions.add(new DefaultDimension(fieldName, aliasName));
         } else {
           metrics.add(fieldName);
         }
 
         // TODO: Alias 지원 필요시 아래 Virtual Column 형태로 구성 : String 형태로 전달되는 이슈 있음
-//        String vcName = "vc." + fieldName;
-//        ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(fieldName, vcName);
-//        virtualColumns.put(vcName, exprVirtualColumn);
-//        dimensions.add(new DefaultDimension(vcName, aliasName));
+        //        String vcName = "vc." + fieldName;
+        //        ExprVirtualColumn exprVirtualColumn = new ExprVirtualColumn(fieldName, vcName);
+        //        virtualColumns.put(vcName, exprVirtualColumn);
+        //        dimensions.add(new DefaultDimension(vcName, aliasName));
 
       } else if (reqField instanceof TimestampField) {
         if (!this.metaFieldMap.containsKey(fieldName)) {
@@ -169,11 +175,11 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         TimestampField timestampField = (TimestampField) reqField;
         TimeFieldFormat timeFormat = (TimeFieldFormat) timestampField.getFormat();
         TimeFormatFunc timeFormatFunc = null;
-        if(timeFormat != null) {
+        if (timeFormat != null) {
           timeFormatFunc = new TimeFormatFunc(timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource),
-                                                             timeFormat.getFormat(),
-                                                             timeFormat.getTimeZone(),
-                                                             timeFormat.getLocale());
+                                              timeFormat.getFormat(),
+                                              timeFormat.getTimeZone(),
+                                              timeFormat.getLocale());
         } else {
           app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
 
@@ -229,7 +235,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
     selectQuery.setDimensions(dimensions);
 
     // 빈 값을 넣을시 전체 metric 값 출력을 방지 위함
-    if(metrics.isEmpty()) {
+    if (metrics.isEmpty()) {
       metrics.add("__DUMMY");
     }
     selectQuery.setMetrics(metrics);
