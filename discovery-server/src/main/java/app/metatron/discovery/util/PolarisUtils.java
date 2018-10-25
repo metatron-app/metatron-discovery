@@ -14,10 +14,8 @@
 
 package app.metatron.discovery.util;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.exception.MetatronException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
@@ -26,7 +24,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -34,15 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -55,9 +48,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.exception.MetatronException;
 
 /**
  * Created by kyungtaak on 2016. 2. 25..
@@ -205,14 +195,21 @@ public class PolarisUtils {
     //첫 행에 스키마 정보가 있는다는 전제로 시작
     // Excel 2007 ~
     if ("xlsx".equals(extensionType)) {
-      XSSFWorkbook wb = null;
+      //XSSFWorkbook wb = null;
+      Workbook wb = null;
       try {
-        wb = new XSSFWorkbook(new FileInputStream(file));
+        // wb = new XSSFWorkbook(new FileInputStream(file));
+        InputStream is = new FileInputStream(file);
+        wb = StreamingReader.builder()
+                .rowCacheSize(100)
+                .bufferSize(4096)
+                .open(is);
       } catch (IOException e) {
         throw new RuntimeException("Data file load error. - " + file.getAbsolutePath());
       }
       // 첫 시트 내용만 처리
-      XSSFSheet sheet = wb.getSheetAt(0);
+      //XSSFSheet sheet = wb.getSheetAt(0);
+      Sheet sheet = wb.getSheetAt(0);
       resultSet = getResultSetFromSheet(sheet);
     }
     //엑셀 97~2003

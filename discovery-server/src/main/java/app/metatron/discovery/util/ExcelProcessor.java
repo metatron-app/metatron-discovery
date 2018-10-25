@@ -14,28 +14,23 @@
 
 package app.metatron.discovery.util;
 
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultResponse;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultResponse;
 
 public class ExcelProcessor {
 
@@ -54,8 +49,15 @@ public class ExcelProcessor {
     if ("xls".equals(extensionType)) {       // 97~2003
       workbook = new HSSFWorkbook(new FileInputStream(targetFile));
     } else {   // 2007 ~
-      workbook = new XSSFWorkbook(new FileInputStream(targetFile));
+      // old POI library
+      // workbook = new XSSFWorkbook(new FileInputStream(targetFile));
+      InputStream is = new FileInputStream(targetFile);
+      workbook = StreamingReader.builder()
+              .rowCacheSize(100)
+              .bufferSize(4096)
+              .open(is);
     }
+
   }
 
   public List<String> getSheetNames() throws IOException {
@@ -74,6 +76,8 @@ public class ExcelProcessor {
     int sheetIndex = workbook.getSheetIndex(sheetName);
 
     Sheet sheet = workbook.getSheetAt(sheetIndex);
+    // shiftRows() and getPhysicalNumberOfRows() is unsupported method of StreamingSheet
+    /*
     int totalRows = sheet.getPhysicalNumberOfRows();
     if (firstHeaderRow) {
       // 헤더를 제외한 데이터 수
@@ -81,8 +85,10 @@ public class ExcelProcessor {
     } else {
       createHeaderRow(sheet);
     }
-    IngestionDataResultResponse resultResponse = getResultSetFromSheet(sheet, limit);
-    resultResponse.setTotalRows(totalRows);
+    */
+    IngestionDataResultResponse resultResponse = getResultSetFromSheet(sheet, limit, firstHeaderRow);
+
+    //resultResponse.setTotalRows(totalRows);
 
     return resultResponse;
   }
@@ -97,23 +103,37 @@ public class ExcelProcessor {
     }
   }
 
-  public IngestionDataResultResponse getResultSetFromSheet(Sheet sheet, int limit) {
+  public IngestionDataResultResponse getResultSetFromSheet(Sheet sheet, int limit, boolean firstHeaderRow) {
 
     List<Map<String, Object>> resultSet = Lists.newArrayList();
     List<Field> fields = Lists.newArrayList();
     // 병합의 이슈로 컬럼 정보는 Column Index
     Map<Integer, String> columnMap = Maps.newTreeMap();
 
-    int rowCnt = 0;
+    long rowCnt = 0;
     for (Row row : sheet) {
+
+      if (limit > 0 && rowCnt > limit) {
+        rowCnt++;
+        continue;
+      }
+
       Map<String, Object> rowMap = Maps.newTreeMap();
       for (Cell cell : row) { // 열구분
         int columnIndex = cell.getColumnIndex();
         if (rowCnt == 0) {
-          String value = PolarisUtils.objectToString(getCellValue(cell),
-                                                     "col" + columnIndex);
-          columnMap.put(columnIndex, value);
-          fields.add(makeField(columnIndex, value, cell));
+          String value;
+          if(firstHeaderRow) {
+            value = PolarisUtils.objectToString(getCellValue(cell), "col" + columnIndex);
+            columnMap.put(columnIndex, value);
+            fields.add(makeField(columnIndex, value, cell));
+          } else {
+            value = "field_" + (columnIndex+1);
+            columnMap.put(columnIndex, value);
+            fields.add(makeField(columnIndex, value, cell));
+
+            rowMap.put(columnMap.get(columnIndex), getCellValue(cell));
+          }
         } else {
           if (columnMap.containsKey(columnIndex)) {
             rowMap.put(columnMap.get(columnIndex), getCellValue(cell));
@@ -121,18 +141,19 @@ public class ExcelProcessor {
         }
       }
 
-      if (rowCnt > 0) {
+      if (rowCnt > 0 || false==firstHeaderRow) {
         resultSet.add(rowMap);
       }
-      rowCnt++;
 
-      if (limit > 0 && rowCnt > limit) {
-        break;
-      }
+      rowCnt++;
 
     }
 
-    return new IngestionDataResultResponse(fields, resultSet, 0L);
+    if (firstHeaderRow && 0<rowCnt) {
+      rowCnt = rowCnt - 1;
+    }
+
+    return new IngestionDataResultResponse(fields, resultSet, rowCnt);
   }
 
   private Field makeField(int idx, String fieldName, Cell dataCell) {
