@@ -213,7 +213,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
       case ChartType.PIE :
         iconClass = 'ddp-chart-pie';
         break;
-      case ChartType.MAPVIEW :
+      case ChartType.MAP :
         iconClass = 'ddp-chart-map';
         break;
       case ChartType.CONTROL :

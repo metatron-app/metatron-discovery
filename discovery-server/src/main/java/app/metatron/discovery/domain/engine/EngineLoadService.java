@@ -187,7 +187,7 @@ public class EngineLoadService {
 
       //add current date time data
       String dateStr = DateTime.now().toString();
-      tempFile = PolarisUtils.addTimestampColumnFromCsv(dateStr, tempFile, tempFile + "_ts");
+      tempFile = PolarisUtils.addTimestampColumnFromCsv(dateStr, tempFile, tempFile.replace(".csv", "") + "_ts.csv");
     } else if(info instanceof LinkIngestionInfo){
 
       // JDBC 로 부터 File 을 Import 함

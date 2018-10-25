@@ -21,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.validation.constraints.NotNull;
 
 /**
  * Created by kyungtaak on 2016. 10. 5..
@@ -35,8 +34,8 @@ public class PrestoConnection extends HiveMetastoreConnection {
   private static final String PRESTO_DEFAULT_OPTIONS = "";
   private static final String[] DESCRIBE_PROP = {};
 
+//  @NotNull
   @Column(name = "dc_catalog")
-  @NotNull
   String catalog;
 
   @Override

@@ -21,6 +21,7 @@ import { CookieConstant } from '../../../common/constant/cookie.constant';
 import { DatasetFile } from '../../../domain/data-preparation/dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from 'util';
+import { DatasetService } from "../service/dataset.service";
 
 @Component({
   selector: 'app-create-dataset-selectfile',
@@ -31,7 +32,10 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild('fileUpload')
+  private fileUpload: ElementRef;
 
+  private interval : any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -39,7 +43,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   @Input()
   public datasetFile: DatasetFile;
 
@@ -49,15 +52,13 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   // 파일 업로드 결과
   public uploadResult;
 
-  @ViewChild('fileUpload')
-  private fileUpload: ElementRef;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private popupService: PopupService,
+  constructor(private datasetService: DatasetService,
+              private popupService: PopupService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -65,14 +66,14 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
     this.uploader = new FileUploader(
       {
-        url: CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload',
+        url: CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload_async',
       }
     );
 
     // 옵션 설정
     this.uploader.setOptions({
       url: CommonConstant.API_CONSTANT.API_URL
-      + 'preparationdatasets/upload',
+      + 'preparationdatasets/upload_async',
       headers: [
         { name: 'Accept', value: 'application/json, text/plain, */*' },
         {
@@ -109,6 +110,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     this.uploader.onSuccessItem = (item, response, status, headers) => {
       const success = true;
       this.uploadResult = { success, item, response, status, headers };
+      this.checkIfUploaded(response);
     };
 
     // 업로드 하고 에러났을때
@@ -117,17 +119,17 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
       this.loadingHide();
     };
 
-    // 마지막
-    this.uploader.onCompleteAll = () => {
-      this.loadingHide();
-      let res = JSON.parse(this.uploadResult.response);
-      if (res.success !== false) {
-        this.getDataFile();
-      } else {
-        Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
-        return;
-      }
-    };
+    // // 마지막
+    // this.uploader.onCompleteAll = () => {
+    //   this.loadingHide();
+    //   let res = JSON.parse(this.uploadResult.response);
+    //   if (res.success !== false) {
+    //     this.getDataFile();
+    //   } else {
+    //     Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
+    //     return;
+    //   }
+    // };
 
   }
 
@@ -169,6 +171,12 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   }
 
   public close() {
+
+    // Check if came from dataflow
+    if (this.datasetService.dataflowId) {
+      this.datasetService.dataflowId = undefined;
+    }
+
     super.close();
 
     this.popupService.notiPopup({
@@ -186,7 +194,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
       return;
     }
 
-    const response: any = JSON.parse(this.uploadResult.response);
+    const response: any = this.uploadResult.response;
     this.datasetFile.filename = response.filename;
     this.datasetFile.filepath = response.filepath;
     this.datasetFile.sheets = response.sheets;
@@ -202,6 +210,39 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
       });
 
     }
+  }
+
+  /**
+   * Check if uploaded
+   * @param response
+   */
+  public checkIfUploaded(response: any) {
+    let res = JSON.parse(response);
+    this.fetchUploadStatus(res.filekey);
+    this.interval = setInterval(() => {
+      this.fetchUploadStatus(res.filekey);
+    }, 1000)
+  }
+
+  /**
+   * Polling
+   * @param {string} fileKey
+   */
+  public fetchUploadStatus(fileKey: string) {
+    this.datasetService.checkFileUploadStatus(fileKey).then((result) => {
+      this.loadingHide();
+      if (result.state === 'done' && result.success) { // Upload finished
+        clearInterval(this.interval);
+        this.interval = undefined;
+        this.uploadResult.response = result;
+        this.getDataFile();
+      } else if (result.success === false) { // upload failed
+        Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
+        clearInterval(this.interval);
+        this.interval = undefined;
+        return;
+      }
+    });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

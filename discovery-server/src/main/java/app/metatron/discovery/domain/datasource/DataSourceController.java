@@ -26,6 +26,7 @@ import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
 import app.metatron.discovery.domain.datasource.format.DateTimeFormatChecker;
 import app.metatron.discovery.domain.datasource.ingestion.*;
+import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.engine.EngineLoadService;
 import app.metatron.discovery.domain.engine.EngineQueryService;
@@ -530,6 +531,48 @@ public class DataSourceController {
     dataSourceRepository.save(dataSource);
 
     return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Engine Datasource에는 존재하지만 Metatron Datasource 필드에 존재하지 않는 값을 동기화 하여 추가합니다.
+   * @param id
+   * @return
+   */
+  @RequestMapping(path = "/datasources/{id}/fields/sync", method = RequestMethod.PATCH)
+  public ResponseEntity<?> synchronizeFieldsInDataSource(@PathVariable("id") final String id) {
+    final DataSource dataSource = dataSourceRepository.findOne(id);
+    if (dataSource == null) {
+      throw new ResourceNotFoundException(id);
+    }
+
+    List<Field> candidateFields = getCandidateFieldsFromEngine(dataSource.getEngineName());
+    dataSource.synchronizeFields(candidateFields);
+    dataSourceRepository.save(dataSource);
+
+    return ResponseEntity.noContent().build();
+  }
+
+  private List<Field> getCandidateFieldsFromEngine(String engineName) {
+    SegmentMetaData segmentMetaData = engineQueryService.segmentMetadata(engineName);
+
+    if(segmentMetaData == null || segmentMetaData.getColumns() == null) {
+      return new ArrayList<>();
+    } else {
+      return segmentMetaData.getColumns().entrySet().stream()
+          .filter(entry -> ((entry.getKey().equals("__time") || entry.getKey().equals("count")) == false))
+          .map(entry -> {
+            SegmentMetaData.ColumnInfo value = entry.getValue();
+
+            Field field = new Field();
+            field.setName(entry.getKey());
+            field.setAlias(entry.getKey());
+            field.setType(value.getType().startsWith("dimension.") ? DataType.STRING : DataType.INTEGER);
+            field.setRole(value.getType().startsWith("dimension.") ? Field.FieldRole.DIMENSION : Field.FieldRole.MEASURE);
+
+            return field;
+          })
+          .collect(Collectors.toList());
+    }
   }
 
   /**

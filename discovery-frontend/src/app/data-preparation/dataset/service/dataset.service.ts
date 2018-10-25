@@ -317,4 +317,12 @@ export class DatasetService extends AbstractService {
     const path = '/preparationdatasets/check_hdfs';
     return this.get(this.API_URL + path);
   } // function - checkHdfs
+
+  /**
+   * Check asynchronously if file is uploaded
+   * @param {string} fileKey
+   */
+  public checkFileUploadStatus(fileKey: string) {
+    return this.post(this.API_URL + 'preparationdatasets/upload_async_poll', fileKey);
+  }
 }

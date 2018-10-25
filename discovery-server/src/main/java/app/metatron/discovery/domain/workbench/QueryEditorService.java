@@ -610,7 +610,10 @@ public class QueryEditorService {
     ICsvMapReader mapReader = null;
     List<Map<String, Object>> returnList = new ArrayList<>();
     try {
-      mapReader = new CsvMapReader(new FileReader(fileName), CsvPreference.STANDARD_PREFERENCE);
+      mapReader = new CsvMapReader(new FileReader(fileName)
+              , new CsvPreference.Builder('"', ',', "\r\n")
+              .ignoreEmptyLines(false)
+              .build());
 
       // the header columns are used as the keys to the Map
       final String[] header = mapReader.getHeader(true);

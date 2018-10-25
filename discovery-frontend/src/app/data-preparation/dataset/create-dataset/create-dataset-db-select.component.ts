@@ -21,6 +21,7 @@ import { DataconnectionService } from '../../../dataconnection/service/dataconne
 import { Alert } from '../../../common/util/alert.util';
 import { ConnectionRequest } from '../../../domain/dataconnection/connectionrequest';
 import { isUndefined } from 'util';
+import {DatasetService} from "../service/dataset.service";
 
 @Component({
   selector: 'app-create-dataset-db-select',
@@ -92,7 +93,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
 
   // 생성자
   constructor(private popupService: PopupService,
-              //protected datasetService: DatasetService,
+              private datasetService : DatasetService,
               protected connectionService: DataconnectionService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -194,6 +195,11 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
 
   public close() {
     super.close();
+
+    // Check if came from dataflow
+    if (this.datasetService.dataflowId) {
+      this.datasetService.dataflowId = undefined;
+    }
 
     this.popupService.notiPopup({
       name: 'close-create',

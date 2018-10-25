@@ -14,30 +14,41 @@
 
 package app.metatron.discovery.common.datasource;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 /**
- * Created by kyungtaak on 2017. 6. 11..
+ * Common Logical Type
  */
 public enum LogicalType {
   STRING,
   BOOLEAN,
-  NUMBER,       // 정수/실수 혼합
-  INTEGER,      // 정수형 대표
-  DOUBLE,       // 실수형 대표
+  NUMBER,       // Integer or Double
+  INTEGER,
+  DOUBLE,
   TIMESTAMP,
   LNG,
   LNT,
+  GEO_POINT,          // [lat(latitude),lon(longitude),addr(address)] structure for GEO
+  GEO_LINE,           // [lat(latitude),lon(longitude),addr(address)] structure for GEO
+  GEO_POLYGON,        // [lat(latitude),lon(longitude),addr(address)] structure for GEO
   ARRAY,
   STRUCT,
   MAP_KEY,
   MAP_VALUE,
   IP_V4,         // IPv4 Address
-  DISTRICT,      // 지역명
+  DISTRICT,      // District
   EMAIL,
   SEX,
-  CREDIT_CARD,   // 신용카드
-  NIN,           // National Indentification Number 주민번호 (eq. SSN)
+  CREDIT_CARD,   // Credit card
+  NIN,           // National Indentification Number (eq. SSN)
   POSTAL_CODE,
-  PHONE_NUMBER,  // 전화번호
+  PHONE_NUMBER,  // Phone Number
   URL,
-  HTTP_CODE
+  HTTP_CODE;
+
+  public List<String> getGeoPointKeys() {
+    return Lists.newArrayList("lat", "lon", "addr", "coord");
+  }
 }
