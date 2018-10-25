@@ -14,7 +14,10 @@
 
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
-import { Field, FieldFormat, FieldRole, LogicalType } from '../../../../../domain/datasource/datasource';
+import {
+  Field, FieldFormat, FieldFormatType, FieldRole,
+  LogicalType
+} from '../../../../../domain/datasource/datasource';
 
 import * as _ from 'lodash';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
@@ -152,6 +155,7 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
     // 만약 변경될 타입이 logicalType이라면 format init
     if (logicalType.value === 'TIMESTAMP' && !field.format) {
       field.format = new FieldFormat();
+      field.format.type = FieldFormatType.DATE_TIME;
     }
     // logical type 변경
     field.logicalType = logicalType.value;

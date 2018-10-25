@@ -19,6 +19,7 @@ import { Alert } from '../../../common/util/alert.util';
 import { CommonUtil } from '../../../common/util/common.util';
 import { ChooseCodeTableComponent } from '../../component/choose-code-table/choose-code-table.component';
 import { CodeTable } from '../../../domain/meta-data-management/code-table';
+import { FieldFormat, FieldFormatType } from '../../../domain/datasource/datasource';
 
 @Component({
   selector: 'app-create-column-dictionary',
@@ -367,7 +368,9 @@ export class CreateColumnDictionaryComponent extends AbstractPopupComponent impl
     };
     // 타입이 시간인경우 format 추가
     if (this.selectedType === 'TIMESTAMP') {
-      params['format'] = {format: this.timeFormat};
+      params['format'] = new FieldFormat();
+      params['format'].format = this.timeFormat;
+      params['format'].type = FieldFormatType.DATE_TIME;
     }
 
     // 선택한 코드 테이블이 있다면

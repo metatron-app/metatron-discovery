@@ -17,7 +17,7 @@ import {
   ViewChildren
 } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
-import { FieldFormat, FieldRole, LogicalType } from '../../domain/datasource/datasource';
+import { FieldFormat, FieldFormatType, FieldRole, LogicalType } from '../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { ChooseCodeTableComponent } from '../component/choose-code-table/choose-code-table.component';
 import { ChooseColumnDictionaryComponent } from '../component/choose-column-dictionary/choose-column-dictionary.component';
@@ -293,6 +293,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
     // 만약 변경될 타입이 logicalType이라면 format init
     if (logicalType === 'TIMESTAMP') {
       column.format = new FieldFormat();
+      column.format.type = FieldFormatType.DATE_TIME;
     }
     // logical type 변경
     column.type = logicalType;

@@ -23,7 +23,7 @@ import { CommonUtil } from '../../../common/util/common.util';
 import { ColumnDictionary } from '../../../domain/meta-data-management/column-dictionary';
 import { ChooseCodeTableComponent } from '../../component/choose-code-table/choose-code-table.component';
 import { CodeTable } from '../../../domain/meta-data-management/code-table';
-import { LogicalType } from '../../../domain/datasource/datasource';
+import { FieldFormatType, LogicalType } from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { LinkedMetadataComponent } from '../../component/linked-metadata-columns/linked-metadata.component';
 import { LinkedMetaDataColumn } from '../../../domain/meta-data-management/metadata-column';
@@ -403,7 +403,8 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // this.descElement.nativeElement.blur();
     // 컬럼 사전 업데이트
     this._updateColumnDictionary({format: {
-      format: this.reTimeFormat.trim()
+      format: this.reTimeFormat.trim(),
+      type: FieldFormatType.DATE_TIME
     }});
   }
 
