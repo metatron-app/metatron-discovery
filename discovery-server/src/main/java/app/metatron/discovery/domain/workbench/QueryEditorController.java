@@ -159,6 +159,7 @@ public class QueryEditorController {
       audit.setElapsedTime(queryResult.getFinishDateTime().toDate().getTime() - queryResult.getStartDateTime().toDate().getTime());
       audit.setFinishTime(queryResult.getFinishDateTime());
       audit.setNumRows(queryResult.getNumRows());
+      audit.setJobLog(queryResult.getMessage());
       auditRepository.saveAndFlush(audit);
     }
 
