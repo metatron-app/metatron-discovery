@@ -21,6 +21,7 @@ import app.metatron.discovery.domain.dataprep.PrepSnapshot.FORMAT;
 import app.metatron.discovery.domain.dataprep.PrepSnapshotService;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.jdbc.JdbcDataPrepService;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcTypeNotSupportedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
@@ -698,7 +699,7 @@ public class TeddyExecutor {
   }
 
   public String writeToHdfs(String ssId, String dsId, String extHdfsDir, String dbName, String tblName,
-                            FORMAT format, COMPRESSION compression) throws IOException {
+                            FORMAT format, COMPRESSION compression) throws IOException, IllegalColumnNameForHiveException {
     Integer[] rowCnt = new Integer[2];
     FileSystem fs = FileSystem.get(conf);
 
@@ -721,6 +722,7 @@ public class TeddyExecutor {
         rowCnt[0] = writeCsv(ssId, df, br, null);
         break;
       case ORC:
+        df.lowerColNames();
         file = new Path(dir.toString() + File.separator + "part-00000-" + dsId + ".orc");
         TeddyOrcWriter orcWriter = new TeddyOrcWriter();
         rowCnt = orcWriter.writeOrc(df, conf, file, compression);
