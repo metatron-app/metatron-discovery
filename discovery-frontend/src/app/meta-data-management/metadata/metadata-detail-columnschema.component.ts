@@ -523,7 +523,7 @@ export class MetadataDetailColumnschemaComponent extends AbstractComponent imple
         item.description = item.description.substr(0, 999);
       }
       // format이 있고 255자가 넘어간다면
-      if (item.type === 'TIMESTAMP' && item.format.format.length > 255) {
+      if (item.type === 'TIMESTAMP' && item.format && item.format.format && item.format.format.length > 255) {
         item.format = {
           format : item.format.format.substr(0, 254)
         }
