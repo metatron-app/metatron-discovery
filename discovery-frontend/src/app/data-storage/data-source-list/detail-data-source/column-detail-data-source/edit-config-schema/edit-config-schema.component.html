@@ -115,17 +115,16 @@
               </div>
               <!-- //select -->
             </td>
+            <!-- format -->
             <td>
               <div class="ddp-input-form">
-                <input type="text" class="ddp-txt-input" *ngIf="!column.format"
-                       (ngModelChange)="onChangeValue(column)"
-                       [(ngModel)]="column.format">
-                <input type="text" class="ddp-txt-input" *ngIf="column.format"
+                <input type="text" class="ddp-txt-input" *ngIf="column.logicalType.toString() === 'TIMESTAMP'"
                        (ngModelChange)="onChangeValue(column)"
                        [(ngModel)]="column.format.format">
                 <em class="ddp-bg-select"></em>
               </div>
             </td>
+            <!-- //format -->
             <!--<td class=" ddp-selected">-->
             <!--<div class="ddp-input-form">-->
               <!--<input type="text" class="ddp-txt-input"-->
