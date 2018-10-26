@@ -280,6 +280,11 @@ public class PrestoConnection extends HiveMetastoreConnection {
   }
 
   @Override
+  public String getTableNameColumn() {
+    return "Table";
+  }
+
+  @Override
   public void setUrl(String url) {
     super.setUrl(url);
 

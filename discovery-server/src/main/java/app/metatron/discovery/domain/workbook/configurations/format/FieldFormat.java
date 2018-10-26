@@ -25,6 +25,10 @@ import java.io.Serializable;
     defaultImpl = DefaultFormat.class)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = DefaultFormat.class, name = "default"),
+    @JsonSubTypes.Type(value = GeoFormat.class, name = "geo"),
+    @JsonSubTypes.Type(value = GeoHashFormat.class, name = "geo_hash"),
+    @JsonSubTypes.Type(value = GeoBoundaryFormat.class, name = "geo_boundary"),
+    @JsonSubTypes.Type(value = GeoJoinFormat.class, name = "geo_join"),
     @JsonSubTypes.Type(value = NumberFieldFormat.class, name = "number"),
     @JsonSubTypes.Type(value = ExponentOfTenFormat.class, name = "exponent10"),
     @JsonSubTypes.Type(value = CurrencyFormat.class, name = "currency"),

@@ -12,34 +12,35 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
-import { Page } from '../../domain/common/page';
-import { CommonUtil } from '../../common/util/common.util';
-import { SearchQueryRequest } from '../../domain/datasource/data/search-query-request';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '../../common/service/abstract.service';
+import {Page} from '../../domain/common/page';
+import {CommonUtil} from '../../common/util/common.util';
+import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
 
 import * as _ from 'lodash';
-import { PageWidgetConfiguration } from '../../domain/dashboard/widget/page-widget';
+import {PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
 import {
   ChartType, ShelveFieldType, GridViewType, LineMode
 } from '../../common/component/chart/option/define/common';
-import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { UILineChart } from '../../common/component/chart/option/ui-option/ui-line-chart';
-import { UIGridChart } from '../../common/component/chart/option/ui-option/ui-grid-chart';
-import { FilterUtil } from '../../dashboard/util/filter.util';
-import { InclusionFilter } from '../../domain/workbook/configurations/filter/inclusion-filter';
-import { Dashboard } from '../../domain/dashboard/dashboard';
-import { Field } from '../../domain/datasource/datasource';
-import { MeasureInequalityFilter } from '../../domain/workbook/configurations/filter/measure-inequality-filter';
-import { AdvancedFilter } from '../../domain/workbook/configurations/filter/advanced-filter';
-import { MeasurePositionFilter } from '../../domain/workbook/configurations/filter/measure-position-filter';
-import { WildCardFilter } from '../../domain/workbook/configurations/filter/wild-card-filter';
-import { CustomField } from '../../domain/workbook/configurations/field/custom-field';
-import { TimeFilter } from '../../domain/workbook/configurations/filter/time-filter';
-import { FilteringType } from '../../domain/workbook/configurations/field/timestamp-field';
-import { TimeCompareRequest } from '../../domain/datasource/data/time-compare-request';
-import { isNullOrUndefined } from 'util';
-import { DashboardUtil } from '../../dashboard/util/dashboard.util';
+import {Filter} from '../../domain/workbook/configurations/filter/filter';
+import {Shelf, Layer} from '../../domain/workbook/configurations/shelf/shelf';
+import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
+import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
+import {FilterUtil} from '../../dashboard/util/filter.util';
+import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
+import {Dashboard} from '../../domain/dashboard/dashboard';
+import {Field} from '../../domain/datasource/datasource';
+import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
+import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
+import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
+import {WildCardFilter} from '../../domain/workbook/configurations/filter/wild-card-filter';
+import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
+import {TimeFilter} from '../../domain/workbook/configurations/filter/time-filter';
+import {FilteringType} from '../../domain/workbook/configurations/field/timestamp-field';
+import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
+import {isNullOrUndefined} from 'util';
+import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -275,6 +276,7 @@ export class DatasourceService extends AbstractService {
     query.dataSource.name = query.dataSource.engineName;
     query.filters = _.cloneDeep(pageConf.filters);
     query.pivot = _.cloneDeep(pageConf.pivot);
+    // query.shelf = _.cloneDeep(pageConf.shelf);
 
     // 파라미터 치환
     const allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
@@ -384,6 +386,114 @@ export class DatasourceService extends AbstractService {
         useLinkCount: true,
         mergeNode: true
       };
+    }
+
+    // map 차트일때 shelf
+    if (_.eq(pageConf.chart.type, 'map')) {
+      // query.pivot = undefined;
+
+      let geoFieldCnt = 0;
+      let layers = [];
+
+      for(let column of query.pivot.columns) {
+        if(column && column.field && column.field.logicalType &&
+          (column.field.logicalType.toString() === 'GEO_POINT' || column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') && (column["layerNum"] === undefined || column["layerNum"] === 1) ) {
+          geoFieldCnt = geoFieldCnt +1;
+        }
+      }
+
+      for(let column of query.pivot.columns) {
+        if(column["layerNum"] === undefined || column["layerNum"] === 1) {
+          let layer = {
+            type: column.type,
+            name: column.name,
+            alias: column.alias,
+            ref: null,
+            format: null,
+            dataSource: column.field.dataSource
+          }
+
+          //dataSource가 여러개일 경우 첫번째 dataSource만 가져와서 column의 dataSource Name으로 변경
+          query.dataSource.engineName = column.field.dataSource;
+          query.dataSource.name = column.field.dataSource;
+          query.dataSource.id = column.field.dsId;
+
+          if(column.field && column.field.logicalType && column.field.logicalType.toString().indexOf('GEO') > -1) {
+            layer.format = {
+              type : "geo"
+            }
+          }
+
+          let precision = column["precision"];
+          let viewRawData = column["viewRawData"];
+
+          if(precision === undefined) {
+            precision = 8;
+          }
+
+          if(column.field && column.field.logicalType && column.field.logicalType.toString() === 'GEO_POINT') {
+
+            if(query.pivot.aggregations.length > 0) {
+              layer.format = {
+                type: "geo_hash",
+                method: "h3",
+                precision: precision       // Precision 적용 (1~12)
+              }
+            }
+
+            if(geoFieldCnt > 1) {
+              layer.format = {
+                type: "geo_boundary",
+                dataSource: query.pivot.columns[0].field.dataSource,
+                geoColumn: query.pivot.columns[0].field.name,
+                descColumn: query.pivot.columns[0].field.name
+              }
+            }
+
+            if(viewRawData) {
+              layer.format = {
+                type : "geo"
+              }
+            }
+          } else if(column.field && column.field.logicalType && (column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE')) {
+            if(geoFieldCnt > 1) {
+              layer.format = {
+                type: "geo_join"
+              }
+            }
+          }
+
+          layers.push(layer);
+        }
+      }
+
+      for(let aggregation of query.pivot.aggregations) {
+        if(aggregation["layerNum"] === undefined || aggregation["layerNum"] === 1) {
+          let layer = {
+            type: aggregation.type,
+            name: aggregation.name,
+            alias: aggregation.alias,
+            ref: null,
+            aggregationType: aggregation.aggregationType,
+            dataSource: aggregation.field.dataSource
+          }
+
+          layers.push(layer);
+        }
+      }
+
+
+      query.shelf = {
+        type: 'geo',
+        layers: [layers]
+      };
+
+      //map 은 limit 5000개 제한
+      query.limits = {
+        limit: 5000,
+        sort: null
+      }
+
     }
 
     if (!_.isEmpty(resultFormatOptions)) {
@@ -671,6 +781,10 @@ export class DatasourceService extends AbstractService {
     return this.get(this.API_URL + `datasources/ingestion/options?ingestionType=${ingestionType}`);
   }
 
+  public synchronizeDatasourceFields(datasourceId: string): Promise<any> {
+    return this.patch(this.API_URL + `datasources/${datasourceId}/fields/sync`, null);
+  }
+  
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

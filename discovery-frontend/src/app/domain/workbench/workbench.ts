@@ -36,6 +36,7 @@ export class Workbench extends Book{
 export class QueryEditor  {
   public name: string;
   public order: number;
+  public numRows: number;
   public query: string;
   public workbenchId: string;
   public webSocketId: string;

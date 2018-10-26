@@ -101,6 +101,8 @@ public class DfWindow extends DataFrame {
             orderColNames.add(((Identifier.IdentifierExpr) orderExpr).getValue());
         } else if (orderExpr instanceof Identifier.IdentifierArrayExpr) {
             orderColNames.addAll(((Identifier.IdentifierArrayExpr) orderExpr).getValue());
+        } else if (orderExpr == null) {
+            orderColNames.clear();
         } else {
             throw new InvalidColumnExpressionTypeException("doPivot(): invalid pivot column expression type: " + orderExpr.toString());
         }
@@ -115,9 +117,10 @@ public class DfWindow extends DataFrame {
     public List<Row> gather(DataFrame prevDf, List<Object> preparedArgs, int offset, int length, int limit) throws InterruptedException, TeddyException {
         List<Expr.FunctionExpr> functionExprList = (List<Expr.FunctionExpr>) preparedArgs.get(0);
         List<Expr.FunctionExpr> aggrFunctions = new ArrayList<>();
-        List<String> newColNames = new ArrayList<>();
+        HashMap<String, Expr.FunctionExpr> newColNameAndFunctions = new HashMap<>();
         List<String> groupByColNames = (List<String>) preparedArgs.get(1);
         List<String> orderColNames = (List<String>) preparedArgs.get(2);
+        List<Row> newRows = new ArrayList<>();
 
         LOGGER.trace("DfWindow.gather(): start: offset={} length={}", offset, length);
 
@@ -125,7 +128,12 @@ public class DfWindow extends DataFrame {
         List<String> sortColNames = new ArrayList<>();
         sortColNames.addAll(groupByColNames);
         sortColNames.addAll(orderColNames);
-        this.sorted(prevDf, sortColNames, SortType.ASCENDING);
+        if(sortColNames.size() > 0) {
+            this.sorted(prevDf, sortColNames, SortType.ASCENDING);
+        } else {
+            addColumnWithDfAll(prevDf);
+            this.rows.addAll(prevDf.rows);
+        }
 
         //Partition Column이 없다면 가상의 column을 만들어준다.
         Boolean hasDummyPartition = groupByColNames.isEmpty();
@@ -158,11 +166,14 @@ public class DfWindow extends DataFrame {
         //새로운 column들을 추가한다.
         for (Expr.FunctionExpr func : functionExprList) {
             int i = functionExprList.indexOf(func)+1;
+            int newColPosition = 0;
 
             //column name
             String newColName = "window" + i + "_" + func.getName();
             if(!func.getArgs().isEmpty()) {
-                newColName = newColName + "_" + func.getArgs().get(0).toString();
+                String refColName = func.getArgs().get(0).toString();
+                newColName = newColName + "_" + refColName;
+                newColPosition = getColnoByColName(refColName) + 1;
             }
 
             //column type
@@ -204,8 +215,8 @@ public class DfWindow extends DataFrame {
                     throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Unsupported window function: " + func.getName());
             }
 
-            newColName = addColumn(newColName, newColType);
-            newColNames.add(newColName);
+            newColName = addColumnWithTimestampStyle(newColPosition, newColName, newColType, null);
+            newColNameAndFunctions.put(newColName, func);
             interestedColNames.add(newColName);
         }
 
@@ -228,6 +239,7 @@ public class DfWindow extends DataFrame {
 
         for (int i = 0; i<rows.size(); i++) {
             Row row = rows.get(i);
+            Row newRow = new Row();
             //partition 변화여부 체크. 변화 했다면 partitionSet을 새로 생성하고 AggregatedValue도 새로 얻어 옴.
             if(partitionIndex != partitionNumber.get(i)) {
                 partitionIndex = partitionNumber.get(i);
@@ -237,127 +249,134 @@ public class DfWindow extends DataFrame {
             }
 
             //새로 추가해야 하는 컬럼들의 값을 채워 줌.
-            for(int j = 0; j<functionExprList.size(); j++) {
-                Expr.FunctionExpr func = functionExprList.get(j);
-                String targetColName;
-                int start;
-                int end;
-
-                //Aggregate Function 인경우의 처리. 미리 구해놓은 값을 넣어준다.
-                if(aggrFunctions.contains(func)) {
-                    Object value = aggregatedValues.get(aggrFunctions.indexOf(func));
-                    row.add(newColNames.get(j), value);
+            for(int j = 0; j< getColCnt(); j++) {
+                if(!newColNameAndFunctions.containsKey(getColName(j))) {
+                    newRow.add(getColName(j), row.get(getColName(j)));
                 }
-                else {//Window Function인 경우의 처리.
-                    switch (func.getName()) {
-                        case "row_number":
-                            row.add(newColNames.get(j), (long) count++);
-                            break;
-                        case "rolling_sum":
-                            targetColName = func.getArgs().get(0).toString();
-                            start = i - func.getArgs().get(1).eval(row).asInt();
-                            end = i + func.getArgs().get(2).eval(row).asInt()+1;
+                else {
+                    Expr.FunctionExpr func = newColNameAndFunctions.get(getColName(j));
+                    String targetColName;
+                    int start;
+                    int end;
 
-                            if (this.getColTypeByColName(targetColName) ==ColumnType.LONG) {
-                                long value = 0L;
-                                for(int k = start; k <end; k++) {
-                                    if(k>=0 && k<rows.size() && partitionNumber.get(k)==partitionIndex) {
-                                        value = value + (long) rows.get(k).get(targetColName);
-                                    }
-                                }
-                                row.add(newColNames.get(j), value);
-                            } else {
-                                double value = 0D;
-                                for(int k = start; k <end; k++) {
-                                    if(k>=0 && k<rows.size() && partitionNumber.get(k)==partitionIndex) {
-                                        value = value + (double) rows.get(k).get(targetColName);
-                                    }
-                                }
-                                row.add(newColNames.get(j), value);
-                            }
-                            break;
-                        case "rolling_avg":
-                            targetColName = func.getArgs().get(0).toString();
-                            start = i - func.getArgs().get(1).eval(row).asInt();
-                            end = i + func.getArgs().get(2).eval(row).asInt()+1;
-                            int avg_count=0;
+                    //Aggregate Function 인경우의 처리. 미리 구해놓은 값을 넣어준다.
+                    if (aggrFunctions.contains(func)) {
+                        Object value = aggregatedValues.get(aggrFunctions.indexOf(func));
+                        newRow.add(getColName(j), value);
+                    } else {//Window Function인 경우의 처리.
+                        switch (func.getName()) {
+                            case "row_number":
+                                newRow.add(getColName(j), (long) count++);
+                                break;
+                            case "rolling_sum":
+                                targetColName = func.getArgs().get(0).toString();
+                                start = i - func.getArgs().get(1).eval(row).asInt();
+                                end = i + func.getArgs().get(2).eval(row).asInt() + 1;
 
-                            if (this.getColTypeByColName(targetColName) ==ColumnType.LONG) {
-                                long value = 0L;
-                                for(int k = start; k <end; k++) {
-                                    if(k>=0 && k<rows.size() && partitionNumber.get(k)==partitionIndex) {
-                                        avg_count++;
-                                        value = value + (long) rows.get(k).get(targetColName);
+                                if (this.getColTypeByColName(targetColName) == ColumnType.LONG) {
+                                    long value = 0L;
+                                    for (int k = start; k < end; k++) {
+                                        if (k >= 0 && k < rows.size() && partitionNumber.get(k) == partitionIndex) {
+                                            value = value + (long) rows.get(k).get(targetColName);
+                                        }
                                     }
-                                }
-                                row.add(newColNames.get(j), (double) (value/avg_count));
-                            } else {
-                                double value = 0D;
-                                for(int k = start; k <end; k++) {
-                                    if(k>=0 && k<rows.size() && partitionNumber.get(k)==partitionIndex) {
-                                        avg_count++;
-                                        value = value + (double) rows.get(k).get(targetColName);
+                                    newRow.add(getColName(j), value);
+                                } else {
+                                    double value = 0D;
+                                    for (int k = start; k < end; k++) {
+                                        if (k >= 0 && k < rows.size() && partitionNumber.get(k) == partitionIndex) {
+                                            value = value + (double) rows.get(k).get(targetColName);
+                                        }
                                     }
+                                    newRow.add(getColName(j), value);
                                 }
-                                value=value/avg_count;
-                                row.add(newColNames.get(j), value);
-                            }
-                            break;
-                        case "lag":
-                            targetColName = func.getArgs().get(0).toString();
-                            start = i - func.getArgs().get(1).eval(row).asInt();
+                                break;
+                            case "rolling_avg":
+                                targetColName = func.getArgs().get(0).toString();
+                                start = i - func.getArgs().get(1).eval(row).asInt();
+                                end = i + func.getArgs().get(2).eval(row).asInt() + 1;
+                                int avg_count = 0;
 
-                            if (this.getColTypeByColName(targetColName) ==ColumnType.LONG) {
-                                Long value = 0L;
-                                if(start>=0 && partitionNumber.get(start)==partitionIndex) {
+                                if (this.getColTypeByColName(targetColName) == ColumnType.LONG) {
+                                    long value = 0L;
+                                    for (int k = start; k < end; k++) {
+                                        if (k >= 0 && k < rows.size() && partitionNumber.get(k) == partitionIndex) {
+                                            avg_count++;
+                                            value = value + (long) rows.get(k).get(targetColName);
+                                        }
+                                    }
+                                    newRow.add(getColName(j), (double) (value / avg_count));
+                                } else {
+                                    double value = 0D;
+                                    for (int k = start; k < end; k++) {
+                                        if (k >= 0 && k < rows.size() && partitionNumber.get(k) == partitionIndex) {
+                                            avg_count++;
+                                            value = value + (double) rows.get(k).get(targetColName);
+                                        }
+                                    }
+                                    value = value / avg_count;
+                                    newRow.add(getColName(j), value);
+                                }
+                                break;
+                            case "lag":
+                                targetColName = func.getArgs().get(0).toString();
+                                start = i - func.getArgs().get(1).eval(row).asInt();
+
+                                if (this.getColTypeByColName(targetColName) == ColumnType.LONG) {
+                                    Long value = 0L;
+                                    if (start >= 0 && partitionNumber.get(start) == partitionIndex) {
                                         value = (long) rows.get(start).get(targetColName);
+                                    } else {
+                                        value = null;
+                                    }
+                                    newRow.add(getColName(j), value);
                                 } else {
-                                    value = null;
-                                }
-                                row.add(newColNames.get(j), value);
-                            } else {
-                                Double value = 0D;
-                                if(start>=0 && partitionNumber.get(start)==partitionIndex) {
+                                    Double value = 0D;
+                                    if (start >= 0 && partitionNumber.get(start) == partitionIndex) {
                                         value = value + (double) rows.get(start).get(targetColName);
-                                } else {
-                                    value = null;
+                                    } else {
+                                        value = null;
+                                    }
+                                    newRow.add(getColName(j), value);
                                 }
-                                row.add(newColNames.get(j), value);
-                            }
-                            break;
-                        case "lead":
-                            targetColName = func.getArgs().get(0).toString();
-                            start = i + func.getArgs().get(1).eval(row).asInt();
+                                break;
+                            case "lead":
+                                targetColName = func.getArgs().get(0).toString();
+                                start = i + func.getArgs().get(1).eval(row).asInt();
 
-                            if (this.getColTypeByColName(targetColName) ==ColumnType.LONG) {
-                                Long value = 0L;
-                                if(start>=0 && start<rows.size() && partitionNumber.get(start)==partitionIndex) {
-                                    value = (long) rows.get(start).get(targetColName);
+                                if (this.getColTypeByColName(targetColName) == ColumnType.LONG) {
+                                    Long value = 0L;
+                                    if (start >= 0 && start < rows.size() && partitionNumber.get(start) == partitionIndex) {
+                                        value = (long) rows.get(start).get(targetColName);
+                                    } else {
+                                        value = null;
+                                    }
+                                    newRow.add(getColName(j), value);
                                 } else {
-                                    value = null;
+                                    Double value = 0D;
+                                    if (start >= 0 && start < rows.size() && partitionNumber.get(start) == partitionIndex) {
+                                        value = value + (double) rows.get(start).get(targetColName);
+                                    } else {
+                                        value = null;
+                                    }
+                                    newRow.add(getColName(j), value);
                                 }
-                                row.add(newColNames.get(j), value);
-                            } else {
-                                Double value = 0D;
-                                if(start>=0 && start<rows.size() && partitionNumber.get(start)==partitionIndex) {
-                                    value = value + (double) rows.get(start).get(targetColName);
-                                } else {
-                                    value = null;
-                                }
-                                row.add(newColNames.get(j), value);
-                            }
-                            break;
-                        default:
-                            throw new WrongWindowFunctionExpressionException("There is no window function like " + func.getName());
+                                break;
+                            default:
+                                throw new WrongWindowFunctionExpressionException("There is no window function like " + func.getName());
+                        }
                     }
                 }
             }
+            newRows.add(newRow);
         }
+
+        this.rows = newRows;
 
         //Dummy 컬럼을 제거해준다.
         if(hasDummyPartition) {
-            List<String> dropColumns = Collections.singletonList(dummyColName);
-            this.dropColumns(dropColumns);
+            this.dropColumn(dummyColName);
+            prevDf.dropColumn(dummyColName);
         }
 
         LOGGER.trace("DfPivot.gather(): end: offset={} length={}", offset, length);

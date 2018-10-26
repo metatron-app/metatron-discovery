@@ -25,6 +25,7 @@ import * as _ from 'lodash';
 import { Log } from '../../../../common/domain/modal';
 import { DatePipe } from '@angular/common';
 import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
+import { CommonUtil } from '../../../../common/util/common.util';
 
 declare let echarts;
 
@@ -129,7 +130,7 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
+  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /**
    * 더 조회할 리스트가 있는지 여부
@@ -256,26 +257,6 @@ export class MonitoringDataSourceComponent extends AbstractPopupComponent implem
 
     // log 모달 오픈
     this.logEvent.emit(log);
-  }
-
-  /**
-   * ms를 min과 sec로 변환
-   * @param {number} ms
-   * @returns {string}
-   */
-  public convertMilliseconds(ms: number) {
-    // 값이 없다면 0 ms
-    if (ms === undefined) {
-      return 0 + 'ms';
-    }
-    // 1000미만이면 milliseconds
-    if (ms < 1000) {
-      return ms + 'ms'
-    }
-
-    const min = Math.floor((ms / 1000 / 60) << 0);
-    const sec = Math.floor((ms / 1000) % 60);
-    return min !== 0 ? (min + ' min ' + sec + ' sec') : (sec + ' sec');
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

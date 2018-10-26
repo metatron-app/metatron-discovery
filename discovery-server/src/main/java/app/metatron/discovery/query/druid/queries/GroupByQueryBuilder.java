@@ -69,15 +69,7 @@ import app.metatron.discovery.query.druid.Having;
 import app.metatron.discovery.query.druid.PostAggregation;
 import app.metatron.discovery.query.druid.PostProcessor;
 import app.metatron.discovery.query.druid.Query;
-import app.metatron.discovery.query.druid.aggregations.AreaAggregation;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
-import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
-import app.metatron.discovery.query.druid.aggregations.HyperUniqueAggregation;
-import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
-import app.metatron.discovery.query.druid.aggregations.SketchAggregation;
-import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
 import app.metatron.discovery.query.druid.dimensions.ExtractionDimension;
 import app.metatron.discovery.query.druid.dimensions.LookupDimension;
@@ -99,11 +91,7 @@ import app.metatron.discovery.query.druid.limits.PivotWindowingSpec;
 import app.metatron.discovery.query.druid.limits.WindowingSpec;
 import app.metatron.discovery.query.druid.lookup.MapLookupExtractor;
 import app.metatron.discovery.query.druid.model.HoltWintersPostProcessor;
-import app.metatron.discovery.query.druid.postaggregations.ArithmeticPostAggregation;
-import app.metatron.discovery.query.druid.postaggregations.FieldAccessorPostAggregator;
 import app.metatron.discovery.query.druid.postaggregations.MathPostAggregator;
-import app.metatron.discovery.query.druid.postaggregations.SketchQuantilePostAggregator;
-import app.metatron.discovery.query.druid.postaggregations.StddevPostAggregator;
 import app.metatron.discovery.query.druid.postprocessor.PostAggregationProcessor;
 import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
 import app.metatron.discovery.query.polaris.ComputationalField;
@@ -119,7 +107,7 @@ import static app.metatron.discovery.domain.workbook.configurations.filter.WildC
 import static app.metatron.discovery.query.druid.Query.RESERVED_WORD_COUNT;
 
 /**
- * Created by hsp on 2016. 7. 5..
+ *
  */
 public class GroupByQueryBuilder extends AbstractQueryBuilder {
 
@@ -132,10 +120,6 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
   private GroupingSet groupingSet;
 
   private Set<String> outputColumns = Sets.newLinkedHashSet();
-
-  private List<Aggregation> aggregations = Lists.newArrayList();
-
-  private List<PostAggregation> postAggregations = Lists.newArrayList();
 
   private List<WindowingSpec> windowingSpecs = Lists.newArrayList();
 
@@ -378,92 +362,6 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
     // 추후 dimension 체크 진행
     groupingSet = new GroupingSet.Names(names);
     return this;
-  }
-
-  private void addAggregationFunction(MeasureField measureField) {
-
-    String fieldName = measureField.getColunm();
-    String aliasName = measureField.getAlias();
-    String paramName = null;
-    String dataType = "double";
-
-    switch (measureField.getAggregationType()) {
-      case NONE:
-        break;
-      case MIN:
-        aggregations.add(new GenericMinAggregation(aliasName, fieldName, dataType));
-        break;
-      case MAX:
-        aggregations.add(new GenericMaxAggregation(aliasName, fieldName, dataType));
-        break;
-      case COUNT:
-        aggregations.add(new CountAggregation(aliasName));
-        break;
-      case COUNTD:
-        aggregations.add(new HyperUniqueAggregation(aliasName, fieldName));
-        break;
-      case SUM:
-        aggregations.add(new GenericSumAggregation(aliasName, fieldName, dataType));
-        break;
-
-      case AVG:
-        String countField = measureField.getRef() == null ? "count" : measureField.getRef() + "." + "count";
-        aggregations.add(new GenericSumAggregation(fieldName + "_sum", fieldName, dataType));
-        aggregations.add(new GenericSumAggregation("count", countField, dataType));
-
-        ArithmeticPostAggregation postAggregation = new ArithmeticPostAggregation();
-        postAggregation.setName(aliasName);
-        postAggregation.setFn(ArithmeticPostAggregation.AggregationFunction.DIVISION);
-
-        List<PostAggregation> postAggregationFields = new ArrayList<PostAggregation>();
-
-        postAggregationFields.add(new FieldAccessorPostAggregator(fieldName + "_sum", fieldName + "_sum"));
-        postAggregationFields.add(new FieldAccessorPostAggregator("count", "count"));
-
-        postAggregation.setFields(postAggregationFields);
-
-        postAggregations.add(postAggregation);
-        break;
-      case STDDEV:
-        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
-        aggregations.add(new VarianceAggregation(paramName, fieldName));
-
-        StddevPostAggregator stddevPostAggregator = new StddevPostAggregator(aliasName, paramName);
-        postAggregations.add(stddevPostAggregator);
-        break;
-      case MEDIAN:
-        // TODO: Field 메타 정보를 뒤져 approxHistogram 으로 preaggregation 되었는지 확인후 타입 결정
-        // 현재는 preaggregation 고려하지 않음
-        // http://druid.io/docs/latest/development/extensions-core/approximate-histograms.html
-        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
-        aggregations.add(new SketchAggregation(paramName, fieldName, SketchAggregation.SKETCH_OP_QUANTILE));
-
-        SketchQuantilePostAggregator medianPostAggregator = new SketchQuantilePostAggregator(aliasName, paramName, 0.5);
-        postAggregations.add(medianPostAggregator);
-        break;
-      case AREA:
-        aggregations.add(new AreaAggregation(aliasName, fieldName));
-        break;
-      case RANGE:
-        aggregations.add(new RangeAggregation(aliasName, fieldName));
-        break;
-      case PERCENTILE:
-        paramName = "aggregationfunc" + String.format("_%03d", aggregations.size());
-        aggregations.add(new SketchAggregation(paramName, fieldName, SketchAggregation.SKETCH_OP_QUANTILE));
-
-        SketchQuantilePostAggregator quantilePostAggregator = new SketchQuantilePostAggregator(aliasName, paramName, measureField.getParamValue("value"));
-        postAggregations.add(quantilePostAggregator);
-        break;
-      case VARIATION:
-        aggregations.add(new VarianceAggregation(aliasName, fieldName));
-        break;
-      case APPROX:
-        break;
-      case COMPLEX:
-        break;
-    }
-
-    return;
   }
 
   private void addUserDefinedAggregationFunction(MeasureField field) {

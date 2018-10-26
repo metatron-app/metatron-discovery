@@ -96,6 +96,9 @@ import { UIChartDataLabel } from '../ui-option/ui-datalabel';
 import { UICombineChart } from '../ui-option/ui-combine-chart';
 import { UIPieChart } from '../ui-option/ui-pie-chart';
 import { UIRadarChart } from '../ui-option/ui-radar-chart';
+
+import { UILayers } from '../ui-option/map/ui-layers';
+
 import { CustomSymbol } from '../../../../../domain/workbook/configurations/format';
 import { UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue } from '../ui-option/ui-axis';
 
@@ -103,6 +106,7 @@ export namespace OptionGenerator {
 
 
   export function initUiOption(uiOption: UIOption): UIOption {
+
     // 각 차트마다 스타일 초기화
     const type: ChartType = uiOption.type;
     switch (type) {
@@ -156,6 +160,9 @@ export namespace OptionGenerator {
         break;
       case ChartType.SANKEY :
         uiOption = OptionGenerator.SankeyChart.defaultSankeyChartUIOption();
+        break;
+      case ChartType.MAP :
+        uiOption = OptionGenerator.MapViewChart.defaultMapViewChartUIOption();
         break;
       default:
         console.info('스타일 초기화 실패 => ', type);
@@ -226,7 +233,7 @@ export namespace OptionGenerator {
       // bottom 은 미니맵 여부에 따라 수치 적용
       // top, right 는 라벨이 잘릴수 있기 때문에 기본적으로 여백을 둠
       // right 는 보조축이 없는 경우에 여백을 둠
-      return grid(withLegend ? 40 : top, withDataZoom ? bottom + 40 : bottom, left + 10, withSubAxis ? 0 : right);
+      return grid(withLegend ? 40 : top, withDataZoom ? bottom + 50 : bottom, left + 10, withSubAxis ? 0 : right);
     }
 
     /**
@@ -251,7 +258,7 @@ export namespace OptionGenerator {
      */
     export function bothMode(top: number, bottom: number, left: number, right: number, withLegend: boolean, withDataZoom: boolean): Grid {
       // bottom, right 은 미니맵 여부에 따라 수치 적용
-      return grid(withLegend ? 40 : top, withDataZoom ? bottom + 40 : bottom, withDataZoom ? left + 40 : left, right);
+      return grid(withLegend ? 40 : top, withDataZoom ? bottom + 50 : bottom, withDataZoom ? left + 50 : left, right);
     }
 
   }
@@ -1967,5 +1974,122 @@ export namespace OptionGenerator {
       };
     }
   }
-}
 
+  /**
+   * MapView Chart
+   */
+  export namespace MapViewChart {
+
+    /**
+     * 기본 MapView 차트 옵션 생성
+     *
+     * @returns {BaseOption}
+     */
+    export function defaultMapViewChartOption(): BaseOption {
+      return {
+        type: ChartType.MAP,
+        tooltip: Tooltip.itemTooltip(),
+        series: []
+      };
+    }
+
+    /**
+     * 화면 UI와 연동되는 기본 MapView 차트 옵션 생성
+     *
+     * @returns {UIOption}
+     */
+    export function defaultMapViewChartUIOption(): UIOption {
+      return {
+        type: ChartType.MAP,
+        showMapLayer: true,
+        map: "Light",
+        licenseNotation: "© OpenStreetMap contributer",
+        showDistrictLayer: true,
+        districtUnit: "state",
+        layers: [
+          {
+            type: "symbol",
+            name: "Layer1",
+            symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
+            color: {
+              by: "NONE",            // NONE, MEASURE, DIMENSION
+              column: "NONE",
+              schema: "#602663",
+              transparency: 80,
+              blur: 10,
+              radius: 10,
+              resolution: 8
+            },
+            size: {
+              "by": "NONE",
+              "column": "NONE",
+              "max": 10
+            },
+            outline: {
+              "color": "#000000",
+              "thickness": "NONE"              // THIN, NORMAL, THICK
+            },
+            clustering: false,
+            viewRawData: false
+          },
+          {
+            type: "symbol",
+            name: "Layer2",
+            symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
+            color: {
+              by: "NONE",            // NONE, MEASURE, DIMENSION
+              column: "NONE",
+              schema: "#888fb4",
+              transparency: 80,
+              blur: 10,
+              radius: 10,
+              resolution: 8
+            },
+            size: {
+              "by": "NONE",
+              "column": "NONE",
+              "max": 10
+            },
+            outline: {
+              "color": "#000000",
+              "thickness": "NONE"              // THIN, NORMAL, THICK
+            },
+            clustering: false,
+            viewRawData: false
+          },
+          {
+            type: "symbol",
+            name: "Layer3",
+            symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
+            color: {
+              by: "NONE",            // NONE, MEASURE, DIMENSION
+              column: "NONE",
+              schema: "#bccada",
+              transparency: 80,
+              blur: 10,
+              radius: 10,
+              resolution: 8
+            },
+            size: {
+              "by": "NONE",
+              "column": "NONE",
+              "max": 10
+            },
+            outline: {
+              "color": "#000000",
+              "thickness": "NONE"              // THIN, NORMAL, THICK
+            },
+            clustering: false,
+            viewRawData: false
+          }
+        ],
+        valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),
+        legend: {
+          pos: UIPosition.RIGHT_BOTTOM,
+          showName: true,
+          auto: true
+        }
+      };
+    }
+  }
+}

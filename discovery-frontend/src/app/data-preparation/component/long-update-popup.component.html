@@ -1,0 +1,75 @@
+<div class="ddp-layout-popuptype ddp-type-dataset">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">
+        {{title}}
+      </span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" (click)="done()">{{'msg.comm.btn.done2' | translate}}</a>
+      </div>
+      <!-- det -->
+    </div>
+    <!-- //title -->
+    <!-- contents in  -->
+    <div class="ddp-ui-popup-contents">
+      <div class="ddp-popup-dashboard">
+        <!-- 옵션 -->
+        <div class="ddp-type-top-option ddp-clear">
+          <!-- 검색 -->
+          <div class="ddp-form-search ddp-fleft">
+            <em class="ddp-icon-search"></em>
+            <input #inputSearch placeholder="{{'msg.dp.ui.ds.search.description' | translate}}"
+                   [ngModel]="searchText"
+                   (keypress)="searchEventPressKey($event)"
+                   (keyup.esc)="resetSearchText(false)"
+                   (clickOutside)="resetSearchText(false)">
+            <em class="ddp-btn-search-close" *ngIf="searchText" (click)="resetSearchText(true);searchEvent();"></em>
+          </div>
+          <!-- //검색 -->
+        </div>
+        <!-- //옵션 -->
+        <div class="ddp-wrap-variable">
+          <!-- 그리드 영역 -->
+          <!-- 설명 나올때 ddp-selected 추가 -->
+
+          <checkbox-select-dataset *ngIf="!isRadio">
+
+          </checkbox-select-dataset>
+
+
+          <radio-select-dataset *ngIf="isRadio"
+                                [selectedDatasetId]="selectedDatasetId"
+                                [importedDatasets]="datasets"
+                                [page]="page"
+                                [pageResult]="pageResult"
+                                (sortEvent)="sortEvent($event)"
+                                (getMoreDatasetEvent)="getDatasets()"
+                                (datasetSelectEvent)="selectedDatasetId = $event">
+          </radio-select-dataset>
+          <!-- //그리드 영역 -->
+        </div>
+        <!-- 설명 -->
+        <app-dataset-summary *ngIf="selectedDatasetId !== ''" (close)="onCloseSummary()" [datasetId]="selectedDatasetId"></app-dataset-summary>
+        <!-- //설명 -->
+        <!-- bottom option -->
+        <!--<div class="ddp-ui-bottomoption ddp-clear" *ngIf="!isRadio">-->
+          <!--<span class="ddp-data-type ddp-fleft">{{'msg.dp.ui.sel.count' | translate: { value : countSelected } }}</span>-->
+
+          <!--<a href="javascript:"-->
+             <!--class="ddp-type-link3 ddp-fright"-->
+             <!--(click)="createDataset()">-->
+            <!--<em class="ddp-icon-linkplus"></em> {{'msg.dp.btn.create-ds' | translate }}-->
+          <!--</a>-->
+        <!--</div>-->
+        <!-- //bottom option -->
+      </div>
+
+
+    </div>
+    <!-- //contents in  -->
+  </div>
+
+</div>

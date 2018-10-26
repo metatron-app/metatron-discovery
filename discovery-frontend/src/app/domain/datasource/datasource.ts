@@ -40,6 +40,7 @@ export class Datasource extends AbstractHistoryEntity {
   // dashBoards
   connection: Dataconnection;
   summary: DataSourceSummary;
+  fieldsMatched: boolean;
 
   implementor: string;
   owner: any[];
@@ -199,6 +200,7 @@ export class Field {
    * @return {string}
    */
   public static getDimensionTypeIconClass(field: Field): string {
+    //debugger
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType || 'user_expr' === field.type) {
       return 'ddp-icon-dimension-ab';
@@ -212,6 +214,12 @@ export class Field {
       return 'ddp-icon-dimension-sharp';
     } else if ('BOOLEAN' === logicalType) {
       return 'ddp-icon-dimension-tf';
+    } else if ('GEO_POINT' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-point';
+    } else if ('GEO_LINE' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-line';
+    } else if ('GEO_POLYGON' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-polygon';
     }
   } // function - getDimensionTypeIconClass
 
@@ -221,6 +229,7 @@ export class Field {
    * @return {string}
    */
   public static getMeasureTypeIconClass(field: Field): string {
+    //debugger
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType) {
       return 'ddp-icon-measure-ab';
@@ -234,6 +243,12 @@ export class Field {
       return 'ddp-icon-measure-sharp';
     } else if ('BOOLEAN' === logicalType) {
       return 'ddp-icon-measure-tf';
+    } else if ('GEO_POINT' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-point';
+    } else if ('GEO_LINE' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-line';
+    } else if ('GEO_POLYGON' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-polygon';
     }
   } // function - getMeasureTypeIconClass
 }
@@ -409,6 +424,3 @@ export enum FieldFormatType {
   DATE_TIME = <any>'time_format',
   UNIX_TIME = <any>'time_unix',
 }
-
-
-
