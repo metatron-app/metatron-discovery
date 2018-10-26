@@ -189,6 +189,18 @@ export class WorkbenchService extends AbstractService {
     return this.post(this.API_URL + `queryeditors/${queryEditorId}/status`, param);
   }
 
+  // 쿼리 결과 조회 (페이징 사용)
+  public runQueryResult(editorId: String, csvFilePath : string, pageSize : number, pageNumber : number, fieldList : any) {
+    const id = editorId;
+    const param = {
+      csvFilePath : csvFilePath,
+      pageSize    : pageSize,
+      pageNumber  : pageNumber,
+      fieldList   : fieldList
+    };
+    return this.post(this.API_URL + `queryeditors/${id}/query/result`, param);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

@@ -28,6 +28,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.monitorjbl.xlsx.StreamingReader;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -36,6 +37,8 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -1148,8 +1151,11 @@ public class PolarisUtils {
     CsvListReader reader = null;
     CsvListWriter writer = null;
     try {
-      reader = new CsvListReader(new FileReader(inputFile), CsvPreference.STANDARD_PREFERENCE);
-      writer = new CsvListWriter(new FileWriter(outputFile), CsvPreference.STANDARD_PREFERENCE);
+      CsvPreference csvPreference = new CsvPreference.Builder('"', ',', "\r\n")
+              .ignoreEmptyLines(false)
+              .build();
+      reader = new CsvListReader(new FileReader(inputFile), csvPreference);
+      writer = new CsvListWriter(new FileWriter(outputFile), csvPreference);
 
       List<String> columns;
       while ((columns = reader.read()) != null) {

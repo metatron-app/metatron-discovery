@@ -14,14 +14,12 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
-
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -94,6 +92,11 @@ public abstract class JdbcDataConnection extends DataConnection {
 
   @JsonIgnore
   public abstract String getTableName(String schema, String table);
+
+  @JsonIgnore
+  public String getTableNameColumn(){
+    return null;
+  }
 
   @JsonIgnore
   public abstract String getQuotatedFieldName(String fieldName);

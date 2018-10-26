@@ -56,6 +56,7 @@ import app.metatron.discovery.domain.workbook.configurations.datasource.DataSour
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.JoinMapping;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
+import app.metatron.discovery.domain.workbook.configurations.datasource.MultiDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
@@ -64,8 +65,10 @@ import app.metatron.discovery.domain.workbook.configurations.field.TimestampFiel
 import app.metatron.discovery.domain.workbook.configurations.field.UserDefinedField;
 import app.metatron.discovery.domain.workbook.configurations.filter.*;
 import app.metatron.discovery.domain.workbook.configurations.format.ContinuousTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoBoundaryFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.GeoHashFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoJoinFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
