@@ -1,7 +1,16 @@
 {
-  "type": "index_hadoop",
+  "type": "index",
   "spec": {
     "dataSchema": {
+      "dataSource": "sales_geo",
+      "evaluations": [
+        {
+          "outputName": "location",
+          "expressions": [
+            "struct(latitude,longitude)"
+          ]
+        }
+      ],
       "metricsSpec": [
         {
           "type": "count",
@@ -9,51 +18,55 @@
         },
         {
           "fieldName": "Discount",
-          "type": "sum",
-          "inputType": "double",
-          "name": "Discount"
+          "type": "relay",
+          "name": "Discount",
+          "typeName": "double"
         },
         {
           "fieldName": "Profit",
-          "type": "sum",
-          "inputType": "double",
-          "name": "Profit"
+          "type": "relay",
+          "name": "Profit",
+          "typeName": "double"
         },
         {
           "fieldName": "Sales",
-          "type": "sum",
-          "inputType": "double",
-          "name": "Sales"
+          "type": "relay",
+          "name": "Sales",
+          "typeName": "double"
         },
         {
           "fieldName": "DaystoShipActual",
-          "type": "sum",
-          "inputType": "double",
-          "name": "DaystoShipActual"
+          "type": "relay",
+          "name": "DaystoShipActual",
+          "typeName": "double"
         },
         {
           "fieldName": "SalesForecast",
-          "type": "sum",
-          "inputType": "double",
-          "name": "SalesForecast"
+          "type": "relay",
+          "name": "SalesForecast",
+          "typeName": "double"
         },
         {
           "fieldName": "DaystoShipScheduled",
-          "type": "sum",
-          "inputType": "double",
-          "name": "DaystoShipScheduled"
+          "type": "relay",
+          "name": "DaystoShipScheduled",
+          "typeName": "double"
         },
         {
           "fieldName": "SalesperCustomer",
-          "type": "sum",
-          "inputType": "double",
-          "name": "SalesperCustomer"
+          "type": "relay",
+          "name": "SalesperCustomer",
+          "typeName": "double"
         },
         {
-          "fieldName": "ProfitRatio",
-          "type": "sum",
-          "inputType": "double",
-          "name": "ProfitRatio"
+          "type": "relay",
+          "name": "ProfitRatio",
+          "typeName": "double"
+        },
+        {
+          "type": "relay",
+          "name": "location",
+          "typeName": "struct(lat:double,lon:double)"
         }
       ],
       "granularitySpec": {
@@ -62,7 +75,8 @@
         "type": "uniform",
         "intervals": [
           "1970-01-01/2050-01-01"
-        ]
+        ],
+        "rollup": false
       },
       "parser": {
         "parseSpec": {
@@ -128,53 +142,39 @@
           "delimiter":"\t",
           "format": "tsv"
         },
-        "type": "hadoopyString"
-      },
-      "dataSource": "sales"
+        "type": "string"
+      }
     },
     "tuningConfig": {
-      "type" : "hadoop",
-      "partitionsSpec" : {
-        "type" : "hashed",
-        "targetPartitionSize" : 10000000,
-        "maxPartitionSize" : 15000000,
-        "assumeGrouped" : false,
-        "numShards" : -1,
-        "partitionDimensions" : [ ]
-      },
-      "maxRowsInMemory" : 75000,
-      "maxOccupationInMemory" : -1,
-      "maxShardLength" : -2147483648,
-      "leaveIntermediate" : false,
-      "cleanupOnFailure" : true,
-      "overwriteFiles" : false,
-      "ignoreInvalidRows" : false,
-      "assumeTimeSorted" : false,
-      "jobProperties" : {
-        "mapreduce.task.files.preserve.filepattern" : ".*",
-        "keep.task.files.pattern" : ".*",
-        "mapreduce.map.java.opts" : "-server -Xmx8192m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps",
-        "mapreduce.reduce.java.opts" : "-server -Xmx10240m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps",
-        "mapreduce.reduce.memory.mb" : "12000",
-        "mapreduce.map.memory.mb" : "10000"
-      },
-      "ingestionMode" : "MAPRED",
-      "combineText" : false,
-      "useCombiner" : false,
-      "buildV9Directly" : true,
-      "numBackgroundPersistThreads" : 0
+      "type": "index",
+      "maxRowsInMemory": 75000,
+      "ignoreInvalidRows": true,
+      "buildV9Directly": true,
+      "indexSpec": {
+        "bitmap": {
+          "type": "roaring"
+        },
+        "secondaryIndexing": {
+          "location": {
+            "type": "lucene",
+            "strategies": [
+              {
+                "type": "latlon",
+                "fieldName": "coord",
+                "latitude": "lat",
+                "longitude": "lon"
+              }
+            ]
+          }
+        }
+      }
     },
     "ioConfig": {
-      "type" : "hadoop",
-      "inputSpec" : {
-        "type" : "hadoop",
-        "findRecursive" : true,
-        "extractPartition" : true,
-        "inputFormat" : "org.apache.hadoop.mapreduce.lib.input.TextInputFormat",
-        "basePath" : "/home/hadoop",
-        "elements" : [ {
-          "paths" : "sales_tab_delimeter.csv"
-        } ]
+      "type": "index",
+      "firehose": {
+        "type": "local",
+        "filter": "sales_tab_delimeter.csv",
+        "baseDir": "/tmp"
       }
     }
   }

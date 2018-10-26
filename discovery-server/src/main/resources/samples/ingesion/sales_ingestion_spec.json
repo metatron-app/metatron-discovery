@@ -1,7 +1,8 @@
 {
-  "type": "index_realtime",
+  "type": "index",
   "spec": {
     "dataSchema": {
+      "dataSource": "sales",
       "metricsSpec": [
         {
           "type": "count",
@@ -129,25 +130,21 @@
           "format": "tsv"
         },
         "type": "string"
-      },
-      "dataSource": "sales"
+      }
     },
     "tuningConfig": {
-      "rowFlushBoundary": 0,
-      "rejectionPolicy": {
-        "type": "none"
-      },
-      "type": "realtime",
-      "maxRowsInMemory": 5000,
-      "targetPartitionSize": 0
+      "type": "index",
+      "maxRowsInMemory": 75000,
+      "ignoreInvalidRows": true,
+      "buildV9Directly": true
     },
     "ioConfig": {
+      "type": "index",
       "firehose": {
+        "type": "local",
         "filter": "sales_tab_delimeter.csv",
-        "baseDir": "/home/hadoop",
-        "type": "local"
-      },
-      "type": "realtime"
+        "baseDir": "/tmp"
+      }
     }
   }
 }
