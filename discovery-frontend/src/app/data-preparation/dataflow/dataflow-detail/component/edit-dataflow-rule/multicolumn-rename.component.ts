@@ -63,7 +63,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
   public gridRows : any;
   public ruleCurIdx : number;
 
-  public errorMsg : string = 'Already in use';
+  public errorMsg : string = this.translateService.instant('msg.dp.ui.already.inuse');
 
   // Change Detect
   public changeDetect: ChangeDetectorRef;
@@ -167,12 +167,12 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
    * @param col
    * @param idx
    */
-  public editRename(event,col,idx) {
+  public editRename(col,idx) {
 
     this.colNames.forEach((item,index) => {
       if(item.renamed.trim() === ''){
         this.showError(item,index);
-        this.errorMsg = 'Col name must not be empty';
+        this.errorMsg = this.translateService.instant('msp.dp.alert.col.empty');
         return;
       }
     });
@@ -184,7 +184,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
     let list = [];
     this.colNames.forEach((item,index) => {
       if(item.renamed === col.renamed && index !== idx){
-       list.push(index);
+        list.push(index);
       }
     });
     if (list.length === 0 ){
@@ -204,55 +204,49 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
 
   /**
    * Click outside 시.. 선택 되어있는 input을 disable한다
-   * @param event
    * @param col
    * @param i
    */
-  public disableInput(event, col,i) {
-    const renameReg = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+  public disableInput( col,i) {
+    const renameReg = /^[a-zA-Z\s][a-zA-Z0-9_ \s]*$/;
     if (col.selected) {
       if (col.renamed.trim() === '') {
         this.showError(col,i);
-        this.errorMsg = 'Col name must not be empty';
+        this.errorMsg = this.translateService.instant('msp.dp.alert.col.empty');
         return;
       }
-        col.selected = false;
-        let flag = false;
-        // this.selectedColIndex = -999;
-        this.colNames.forEach((item,index) => {
-          if (item.renamed === col.renamed && index !== i) {
-            this.showError(col,i);
-            this.errorMsg = 'Already in use';
-            this.selectedColIndex = i;
-            return;
-          } else if(!renameReg.test(col.renamed)) {
-            if(col.renamed.indexOf(' ') > -1) {
-              col.renamed = col.renamed.replace(' ', '_');
-              return;
-            } else {
-              this.showError(col,i);
-              this.errorMsg = 'Special characters are not allowed';
-              this.selectedColIndex = i;
-              return;
-            }
-          }
-          this.gridRows.forEach((row,idx) => {
-            if (!this.gridRows[idx].hasOwnProperty(item.renamed)) {
-              flag = true;
-              this.gridFields[index].name = item.renamed;
-              let original = item.original;
-              let newName = item.renamed;
-              this.gridRows[idx][newName] = this.gridRows[idx][original];
-            }
-          })
-        });
-        if (flag) {
-          this.selectedColIndex = -999;
-          this.error= false;
-          this.updateGrid();
-          flag = false;
+      col.selected = false;
+      let flag = false;
+      // this.selectedColIndex = -999;
+      this.colNames.forEach((item,index) => {
+        if (item.renamed === col.renamed && index !== i) {
+          this.showError(col,i);
+          this.errorMsg = this.translateService.instant('msg.dp.ui.already.inuse');
+          this.selectedColIndex = i;
+          return;
+        } else if(!renameReg.test(col.renamed)) {
+          this.showError(col,i);
+          this.errorMsg = this.translateService.instant('msg.dp.alert.rename.rule');
+          this.selectedColIndex = i;
+          return;
         }
+        this.gridRows.forEach((row,idx) => {
+          if (!this.gridRows[idx].hasOwnProperty(item.renamed)) {
+            flag = true;
+            this.gridFields[index].name = item.renamed;
+            let original = item.original;
+            let newName = item.renamed;
+            this.gridRows[idx][newName] = this.gridRows[idx][original];
+          }
+        })
+      });
+      if (flag) {
+        this.selectedColIndex = -999;
+        this.error= false;
+        this.updateGrid();
+        flag = false;
       }
+    }
   } // function - disableInput
 
   /**
@@ -352,9 +346,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
     // 헤더정보 생성
     const headers: header[] = fields.map((field: Field) => {
 
-      /* 72 는 CSS 상의 padding 수치의 합산임 */
       const headerWidth: number = Math.floor(pixelWidth(field.name, { size: 12 })) + 72;
-
       return new SlickGridHeader()
         .Id(field.name)
         .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type) + '"></em>' + field.name + '</span>')
@@ -371,15 +363,11 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
         .build();
     });
 
-
-    // 헤더 필수
-    // 로우 데이터 필수
-    // 그리드 옵션은 선택
-      this.gridComponent.create(headers, rows, new GridOption()
-        .SyncColumnCellResize(true)
-        .RowHeight(32)
-        .NullCellStyleActivate(true)
-        .build())
+    this.gridComponent.create(headers, rows, new GridOption()
+      .SyncColumnCellResize(true)
+      .RowHeight(32)
+      .NullCellStyleActivate(true)
+      .build())
 
   } // function - updateGrid
 
