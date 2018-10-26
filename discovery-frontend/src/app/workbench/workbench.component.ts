@@ -1208,7 +1208,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.loadingBar.hide();
           this.afterCancelQuery(false);
         } else {
-          resultTab.resultStatus = 'FAIL';
+          resultTab.setResultStatus( 'FAIL' );
           resultTab.name = this._genResultTabName(resultTab.queryEditor.name, 'ERROR', resultTab.order);
           resultTab.message = error.message + ' ' + error.details;
           this._calculateEditorResultSlideBtn();
@@ -1847,7 +1847,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   private setResultContents(data: any, resultTab: ResultTab) {
 
     resultTab.result = data;
-    resultTab.resultStatus = data.queryResultStatus;
+    resultTab.setResultStatus( data.queryResultStatus );
 
     if (data.queryResultStatus === 'FAIL') {
       resultTab.name = this._genResultTabName(resultTab.queryEditor.name, 'ERROR', resultTab.order);
@@ -2310,7 +2310,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     const runningResultTab: ResultTab = this._getResultTab(this.runningResultTabId);
     runningResultTab.showLog = true;
-    runningResultTab.resultStatus = 'CANCEL';
+    runningResultTab.setResultStatus( 'CANCEL' );
     if (isSuccess) {
       if (isNullOrUndefined(runningResultTab.message)) {
         runningResultTab.message = this.translateService.instant('msg.bench.alert.log.cancel.success');
@@ -2842,6 +2842,7 @@ class ResultTab {
   public executeTime: number;
   public executeStatus: ('GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE');
   public resultStatus: ('NONE' | 'SUCCESS' | 'FAIL' | 'CANCEL');
+  public errorStatus: ( 'GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE' );
   public result?: QueryResult;           // Result
   public pageNum: number = 0;
 
@@ -2884,14 +2885,22 @@ class ResultTab {
     clearInterval(this._timer);
   } // function - doneTimer
 
+  public setResultStatus(status: ('NONE' | 'SUCCESS' | 'FAIL' | 'CANCEL') ) {
+    this.resultStatus = status;
+    if( 'FAIL' === status ) {
+      this.errorStatus = this.executeStatus;
+      console.info( '%c >>>>>> error status', 'color:#ff0000', this.errorStatus);
+    }
+  } // function - setResultStatus
+
   public setExecuteStatus(status: ('GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE')) {
     this.executeStatus = status;
     this.appendLog(this.getExecuteStatusMsg());
   } // function - setExecuteStatus
 
-  public getExecuteStatusMsg(): string {
+  public getExecuteStatusMsg(status?:('GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE')): string {
     let msg: string = '';
-    switch (this.executeStatus) {
+    switch (status ? status : this.executeStatus) {
       case 'GET_CONNECTION' :
         msg = 'Getting connection';
         break;

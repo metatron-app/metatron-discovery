@@ -392,7 +392,10 @@
                        class="ddp-box-status-button">
                     <a href="javascript:" class="ddp-btn-log-status ddp-retry" (click)="retryQuery(visibleResultTab)">Retry</a>
                     <span *ngIf="'FAIL' === visibleResultTab.resultStatus" class="ddp-txt-log-status ddp-fail">
-                      Sorry, it’s failed while creating statement
+                      Sorry, it’s failed while {{ visibleResultTab.getExecuteStatusMsg( visibleResultTab.errorStatus ) }}
+                    </span>
+                    <span *ngIf="'CANCEL' === visibleResultTab.resultStatus" class="ddp-txt-log-status ddp-fail">
+                      {{ 'msg.bench.ui.query.cancel.message' | translate }}
                     </span>
                   </div>
                   <!-- //box status -->
