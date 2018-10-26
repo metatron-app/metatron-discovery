@@ -30,9 +30,9 @@ public enum LogicalType {
   TIMESTAMP,
   LNG,
   LNT,
-  GEO_POINT,          // [lat(latitude),lon(longitude),addr(address)] structure for GEO
-  GEO_LINE,           // [lat(latitude),lon(longitude),addr(address)] structure for GEO
-  GEO_POLYGON,        // [lat(latitude),lon(longitude),addr(address)] structure for GEO
+  GEO_POINT,          // [lat(latitude),lon(longitude)] structure for GEO
+  GEO_LINE,
+  GEO_POLYGON,
   ARRAY,
   STRUCT,
   MAP_KEY,
@@ -49,6 +49,6 @@ public enum LogicalType {
   HTTP_CODE;
 
   public List<String> getGeoPointKeys() {
-    return Lists.newArrayList("lat", "lon", "addr", "coord");
+    return Lists.newArrayList("lat", "lon", "coord");
   }
 }
