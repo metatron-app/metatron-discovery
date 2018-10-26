@@ -70,7 +70,7 @@ public class HiveQueryLogThread implements Runnable {
       LOGGER.debug("Log Thread Interrupted..", e);
     } finally {
       showRemainingLogsIfAny(stmt);
-      sendDoneMessage();
+//      sendDoneMessage();
     }
   }
 

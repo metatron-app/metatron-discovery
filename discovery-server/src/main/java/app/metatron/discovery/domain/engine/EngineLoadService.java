@@ -166,13 +166,6 @@ public class EngineLoadService {
       tempFile = localFileIngestionInfo.getPath();
       LOGGER.debug("CSV File is already existed : {}", tempFile);
 
-      //remove csv header row
-      boolean removeFirstRow = localFileIngestionInfo.getRemoveFirstRow();
-      if (localFileIngestionInfo.getFormat() instanceof CsvFileFormat) {
-        if (removeFirstRow) {
-          PolarisUtils.removeCSVHeaderRow(tempFile);
-        }
-      }
       List<Field> fields = dataSource.getFields();
 
       //convert timestamp field to dimension
@@ -188,6 +181,15 @@ public class EngineLoadService {
       //add current date time data
       String dateStr = DateTime.now().toString();
       tempFile = PolarisUtils.addTimestampColumnFromCsv(dateStr, tempFile, tempFile.replace(".csv", "") + "_ts.csv");
+
+      //remove csv header row
+      boolean removeFirstRow = localFileIngestionInfo.getRemoveFirstRow();
+      if (localFileIngestionInfo.getFormat() instanceof CsvFileFormat) {
+        if (removeFirstRow) {
+          PolarisUtils.removeCSVHeaderRow(tempFile);
+        }
+      }
+
     } else if(info instanceof LinkIngestionInfo){
 
       // JDBC 로 부터 File 을 Import 함
