@@ -1984,7 +1984,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
         // console.info('>>>>>> socket data', data);
 
-        console.info('>>>>>> %s - command : %s', this.runningResultTabId, data.command);
+        // console.info('>>>>>> %s - command : %s', this.runningResultTabId, data.command);
 
         if (!isNullOrUndefined(data.queryIndex)) {
 
@@ -2000,7 +2000,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             const timer = setInterval(() => {
               const runningTab: ResultTab = this._getResultTab(this.runningResultTabId);
               if (runningTab && runningTab.resultStatus) {
-                console.info('>>>>>> %s - clear timer', this.runningResultTabId);
+                // console.info('>>>>>> %s - clear timer', this.runningResultTabId);
                 clearInterval(timer);
                 this._doneOrNextExecute();
               }
@@ -2298,7 +2298,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public afterCancelQuery(isSuccess: boolean) {
 
-    console.info('>>>>>> %s - afterCancel', this.runningResultTabId);
+    // console.info('>>>>>> %s - afterCancel', this.runningResultTabId);
 
     for (let idx = this.currentRunningIndex + 1; idx < this.executeTabIds.length; idx++) {
       this._removeResultTab(this.executeTabIds[idx]);
@@ -2889,7 +2889,7 @@ class ResultTab {
     this.resultStatus = status;
     if( 'FAIL' === status ) {
       this.errorStatus = this.executeStatus;
-      console.info( '%c >>>>>> error status', 'color:#ff0000', this.errorStatus);
+      // console.info( '%c >>>>>> error status', 'color:#ff0000', this.errorStatus);
     }
   } // function - setResultStatus
 
