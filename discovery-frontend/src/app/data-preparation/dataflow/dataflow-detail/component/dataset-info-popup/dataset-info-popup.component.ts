@@ -997,7 +997,13 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * get format of bytes
    */
   private formatBytes(a,b) { // a=크기 , b=소숫점자릿
-    if(0==a) return "0 Bytes";
+
+    if (a === -1) {
+      return 'N/A';
+    } else if (a === 0) {
+      return "0 Bytes";
+    }
+
     let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
     return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
   }

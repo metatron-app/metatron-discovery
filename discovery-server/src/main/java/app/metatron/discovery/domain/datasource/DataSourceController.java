@@ -15,6 +15,7 @@
 package app.metatron.discovery.domain.datasource;
 
 import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.BadRequestException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
@@ -71,6 +72,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -78,6 +80,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PREFIX;
 import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.FAILED;
