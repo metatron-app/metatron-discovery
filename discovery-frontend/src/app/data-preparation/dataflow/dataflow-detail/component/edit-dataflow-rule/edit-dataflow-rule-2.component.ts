@@ -788,10 +788,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   }
 
   /**
-   * Init edit more - When edit mode, select box is disabled
+   * Init edit mode
    */
   public refreshEditMode() {
     this.opString = 'APPEND';
+    this.inputRuleCmd = '';
+    this.editorUseFlag = false;
   }
 
   /**
@@ -1508,7 +1510,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public jumpToCurrentIndex() {
 
-    this.inputRuleCmd = ''; // Empty builder rule string
+    if (this.inputRuleCmd !== '') {
+      this.inputRuleCmd = ''; // Empty builder rule string
+    } else {
+      return;
+    }
 
     if (!this.editorUseFlag) {
       // If no command is selected nothing happens
