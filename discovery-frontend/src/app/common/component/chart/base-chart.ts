@@ -1193,7 +1193,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
     // 숫자 포맷 옵션 적용
     ////////////////////////////////////////////////////////
 
-    this.chartOption = FormatOptionConverter.convertFormatTooltip(this.chartOption, this.uiOption, this.fieldOriginInfo, this.pivot);
+    this.chartOption = FormatOptionConverter.convertFormatTooltip(this.chartOption, this.uiOption, this.fieldInfo, this.pivot);
 
     ////////////////////////////////////////////////////////
     // 차트별 추가사항

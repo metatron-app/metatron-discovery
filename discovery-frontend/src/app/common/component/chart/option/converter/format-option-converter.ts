@@ -611,7 +611,10 @@ export class FormatOptionConverter {
 
           let seriesValue = '';
 
-          let defaultAlias = targetPivot.aggregationType + '(' + targetPivot.name + ')';
+          // priority of fiedAlias is higher, set fieldAlias
+          let targetPivotName = targetPivot.fieldAlias ? targetPivot.fieldAlias : targetPivot.name;
+
+          let defaultAlias = targetPivot.aggregationType + '(' + targetPivotName + ')';
 
           // when alias is not changed
           if (defaultAlias === targetPivot.alias) {
@@ -625,7 +628,7 @@ export class FormatOptionConverter {
               if ('Avg' == aggregationType) aggregationType = 'Average';
             }
 
-            seriesValue = (aggregationType ? aggregationType+ ' of ' : '') + targetPivot.name;
+            seriesValue = (aggregationType ? aggregationType+ ' of ' : '') + targetPivotName;
             // when alias is changed, set tooltip name as alias
           } else {
 
@@ -665,7 +668,10 @@ export class FormatOptionConverter {
     // 해당 value값으로 찾을 수 없는경우 seriesName으로 찾기
     if (!aggValue && seriesName) aggValue = _.find(aggregations, {alias : seriesName});
 
-    let defaultAlias = aggValue.aggregationType + '(' + aggValue.name + ')';
+    // priority of fiedAlias is higher, set fieldAlias
+    let aggValueName = aggValue.fieldAlias ? aggValue.fieldAlias : aggValue.name;
+
+    let defaultAlias = aggValue.aggregationType + '(' + aggValueName + ')';
     // when alias is not changed
     if (defaultAlias === aggValue.alias) {
       let aggregationType = "";
@@ -677,7 +683,7 @@ export class FormatOptionConverter {
         aggregationType += ' of ';
       }
 
-      seriesValue = aggregationType + aggValue.name + ' : ' + this.getFormatValue(value, format);
+      seriesValue = aggregationType + aggValueName + ' : ' + this.getFormatValue(value, format);
 
     // when alias is changed, set tooltip name as alias
     } else {
