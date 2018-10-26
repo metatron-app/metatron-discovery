@@ -342,19 +342,21 @@
                   <ul class="ddp-list-tabs">
                     <!-- ddp-selected -->
                     <li *ngFor="let item of getFilteringList(visibleResultTabs, editorResultListObj); let index = index"
-                        [ngClass]="{'ddp-selected': item.selected}" (click)="changeResultTabHandler(item.id)" (mouseover)="resultTabMouseOver(index)" >
+                        [ngClass]="{'ddp-selected': item.selected}" (click)="changeResultTabHandler(item.id)"
+                        (mouseover)="showResultTabTooltip($event, index)" (mouseout)="hideResultTabTooltip($event)">
                       <div [ngStyle]="{'color': ( 'FAIL' === item.resultStatus || 'CANCEL' === item.resultStatus ) ? 'red' : 'black' }"
                            class="ddp-data-tab ddp-data-loading" >
                         <em *ngIf="item.name.startsWith('Loading')" class="ddp-icon-tabloading"></em>
                         <!--Loading<em class="ddp-icon-dot">...</em>-->
                         {{item.name}}
-                        <a *ngIf="!isExecutingQuery"  href="javascript:" class="ddp-btn-close-s" (click)="closeResultTab(item.id)"></a>
+                        <a *ngIf="!isExecutingQuery"  href="javascript:" class="ddp-btn-close-s"
+                           (mouseover)="hideResultTabTooltip($event)"
+                           (click)="closeResultTab(item.id)"></a>
                       </div>
                       <!-- popup -->
-                      <!-- 버튼 show : ddp-retry 추가 -->
-                      <div class="ddp-box-tabs-popup ddp-retry">
+                      <div [class.ddp-retry]="!isExecutingQuery" class="ddp-box-tabs-popup" >
                         <div class="ddp-txt-query"> {{item.sql}} </div>
-                        <a *ngIf="!isExecutingQuery" href="javascript:" class="ddp-btn-log-status ddp-retry2" (click)="retryQuery(item)">Retry</a>
+                        <a href="javascript:" class="ddp-btn-log-status ddp-retry2" (click)="retryQuery(item)">Retry</a>
                       </div>
                       <!-- //popup -->
                     </li>

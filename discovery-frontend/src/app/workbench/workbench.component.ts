@@ -138,7 +138,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   private _subscription: any;
 
   private _resizeTimer: any;
-
+  private _tooltipTimer: any; // Result Tab SQL Tooltip timer
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -836,19 +836,44 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   } // function - tabChangeHandler
 
   /**
-   * mouseover on result tab
+   * show result tab tooltip
+   * @param {MouseEvent} event
+   * @param {number} idx
    */
-  public resultTabMouseOver(index:number) {
+  public showResultTabTooltip(event:MouseEvent, idx: number) {
+    event.stopPropagation();
 
-    const resultTab = $('.ddp-list-tabs li:eq('+ (index+1) + ')');
-    if(resultTab.offset().left > $(window).outerWidth() / 2){
-      resultTab.find('.ddp-box-tabs-popup').css({
-        'right' :'-10px',
-        'left' : 'inherit'
-      });
+    const resultTab = 'LI' === event.target['tagName'] ? $( event.target ) : $( event.target ).closest( 'li' );
+    ( this._tooltipTimer ) && ( clearTimeout( this._tooltipTimer ) );
+    if (resultTab.offset().left > $(window).outerWidth() / 2) {
+      this._tooltipTimer = setTimeout( () => {
+        console.info( '%c >>>> showtooltip', 'color:#FF0000' );
+        resultTab.find('.ddp-box-tabs-popup').show().css({
+          'right': '-10px',
+          'left': 'inherit'
+        });
+      }, 1500 );
+    } else {
+      this._tooltipTimer = setTimeout( () => {
+        console.info( '%c >>>> showtooltip', 'color:#FF0000' );
+        resultTab.find('.ddp-box-tabs-popup').show();
+      }, 1500 );
     }
 
-  } // function - resultTabMouseOver
+  } // function - showResultTooltip
+
+  /**
+   * hideResultTabTooltip
+   */
+  public hideResultTabTooltip(event:MouseEvent) {
+    event.stopPropagation();
+    if( this._tooltipTimer ) {
+      console.info( '%c >>>> hidetooltip - clear timer', 'color:#0000FF' );
+      clearTimeout( this._tooltipTimer );
+      this._tooltipTimer = null;
+    }
+    $( '.ddp-box-tabs-popup:visible' ).hide();
+  } // function - hideResultTabTooltip
 
   /**
    * Change result tab
@@ -1126,10 +1151,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               this.currentRunningIndex = 0;
               queryStrArr.forEach((sqlStr: string, idx: number) => {
                 queryEditor.query = sqlStr;
-                const executeTab = new ResultTab(this.executeEditorId, _.cloneDeep(queryEditor), sqlStr, idx + 1 );
+                const executeTab = new ResultTab(this.executeEditorId, _.cloneDeep(queryEditor), sqlStr, idx + 1);
                 executeTab.selected = (0 === idx);
                 this._appendResultTab(executeTab);
-                this.executeTabIds.push( executeTab.id );
+                this.executeTabIds.push(executeTab.id);
               });
 
               this.safelyDetectChanges();
@@ -1182,7 +1207,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.loadingBar.hide();
           this.afterCancelQuery(false);
         } else {
-          resultTab.resultStatus = "FAIL";
+          resultTab.resultStatus = 'FAIL';
           resultTab.name = this._genResultTabName(resultTab.queryEditor.name, 'ERROR', resultTab.order);
           resultTab.message = error.message + ' ' + error.details;
           this._calculateEditorResultSlideBtn();
@@ -1196,7 +1221,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * query 재실행
    * @param {ResultTab} item
    */
-  public retryQuery( item : ResultTab ) {
+  public retryQuery(item: ResultTab) {
 
     this.isExecutingQuery = true;
     this.isCanceling = false;
@@ -1218,13 +1243,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           this.currentRunningIndex = 0;
           this.safelyDetectChanges();
 
-          this.executeTabIds = [ item.id ];
-          this.runQueries( item.id );
+          this.executeTabIds = [item.id];
+          this.runQueries(item.id);
         }
       })
       .catch((error) => {
         if (!isUndefined(error.details) && this._executeSqlReconnectCnt <= 5) {
-          this.webSocketCheck(() => this.retryQuery(item) );
+          this.webSocketCheck(() => this.retryQuery(item));
         } else {
           Alert.error(error);
         }
@@ -1236,7 +1261,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @param {ResultTab} targetTab
    * @param {"PREV" | "NEXT"} direction
    */
-  public changeResultPage( targetTab:ResultTab, direction : 'PREV' | 'NEXT' ) {
+  public changeResultPage(targetTab: ResultTab, direction: 'PREV' | 'NEXT') {
 
     this.loadingBar.show();
     this.safelyDetectChanges();
@@ -1245,7 +1270,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     let csvFilePath = targetTab.result.csvFilePath;
     let fieldList = targetTab.result.fields;
 
-    if( direction == 'PREV'){
+    if (direction == 'PREV') {
       targetTab.pageNum--;
     } else {
       targetTab.pageNum++;
@@ -1261,7 +1286,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         } catch (err) {
           console.error(err);
         }
-        setTimeout( () => this.loadingBar.hide(), 500 );
+        setTimeout(() => this.loadingBar.hide(), 500);
       })
       .catch(error => {
         this.loadingBar.hide();
@@ -1573,16 +1598,16 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - 슬라이드 아이콘 관련
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public get visibleResultTabs():ResultTab[] {
+  public get visibleResultTabs(): ResultTab[] {
     const resultTabs: ResultTab[] = this._getCurrentEditorResultTabs();
     return resultTabs ? resultTabs : [];
   } // function - visibleResultTabs
 
-  public get visibleResultTab():ResultTab {
+  public get visibleResultTab(): ResultTab {
     return this._getCurrentResultTab();
   } // function - visibleResultTab
 
-  public get currentRunningTab():ResultTab {
+  public get currentRunningTab(): ResultTab {
     return this._getResultTab(this.runningResultTabId);
   } // function - currentRunningTab
 
@@ -1980,7 +2005,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
               }
             }, 500);
 
-          } else if ('LOG' !== data.command && 'GET_CONNECTION' !== data.command ) {
+          } else if ('LOG' !== data.command && 'GET_CONNECTION' !== data.command) {
             resultTabInfo.setExecuteStatus(data.command);
           } // end if - command log, done
 
@@ -2045,7 +2070,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.currentRunningIndex++;
 
     // 마지막 쿼리가 아닐경우 다음 쿼리 호출
-    if ( this.executeTabIds.length > this.currentRunningIndex) {
+    if (this.executeTabIds.length > this.currentRunningIndex) {
       resultTab.setExecuteStatus('DONE');
       this.runQueries(this.executeTabIds[this.currentRunningIndex]);
     } else {
@@ -2175,7 +2200,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     const rows: any[] = [];
-    const startRowIdx = ( currentTab.pageNum * this.queryResultNumber );
+    const startRowIdx = (currentTab.pageNum * this.queryResultNumber);
     for (let idx1: number = 0; idx1 < data.data.length; idx1 = idx1 + 1) {
       const row = {};
       for (let idx2: number = 0; idx2 < data.fields.length; idx2 = idx2 + 1) {
@@ -2286,13 +2311,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     runningResultTab.showLog = true;
     runningResultTab.resultStatus = 'CANCEL';
     if (isSuccess) {
-      if( isNullOrUndefined( runningResultTab.message ) ) {
+      if (isNullOrUndefined(runningResultTab.message)) {
         runningResultTab.message = this.translateService.instant('msg.bench.alert.log.cancel.success');
       }
       runningResultTab.appendLog(this.translateService.instant('msg.bench.alert.log.cancel.success'));
       (isNullOrUndefined(runningResultTab.result)) && (runningResultTab.result = new QueryResult());
     } else {
-      if( isNullOrUndefined( runningResultTab.message ) ) {
+      if (isNullOrUndefined(runningResultTab.message)) {
         runningResultTab.message = this.translateService.instant('msg.bench.alert.log.cancel.error');
       }
       runningResultTab.appendLog(this.translateService.instant('msg.bench.alert.log.cancel.error'));
@@ -2506,7 +2531,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       },
       removeFirstRow: true,
       path: currentResultTab.result.csvFilePath,
-      rollup:true
+      rollup: true
     };
 
     this.loadingShow();
@@ -2805,7 +2830,7 @@ class EditorList {
 class ResultTab {
   public editorId: string;      // target editor id
   public id: string;            // tag id
-  public order:number;
+  public order: number;
   public name: string;
   public message: string;
   public selected: boolean;
@@ -2817,13 +2842,13 @@ class ResultTab {
   public executeStatus: ('GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE');
   public resultStatus: ('NONE' | 'SUCCESS' | 'FAIL' | 'CANCEL');
   public result?: QueryResult;           // Result
-  public pageNum : number = 0;
+  public pageNum: number = 0;
 
   public queryEditor: QueryEditor;
 
   private _timer;
 
-  constructor(editorId: string, queryEditor:QueryEditor, sql: string, order:number) {
+  constructor(editorId: string, queryEditor: QueryEditor, sql: string, order: number) {
     this.id = CommonUtil.getUUID();
     this.editorId = editorId;
     this.queryEditor = queryEditor;
@@ -2863,9 +2888,9 @@ class ResultTab {
     this.appendLog(this.getExecuteStatusMsg());
   } // function - setExecuteStatus
 
-  public getExecuteStatusMsg():string {
-    let msg:string = '';
-    switch( this.executeStatus ) {
+  public getExecuteStatusMsg(): string {
+    let msg: string = '';
+    switch (this.executeStatus) {
       case 'GET_CONNECTION' :
         msg = 'Getting connection';
         break;
