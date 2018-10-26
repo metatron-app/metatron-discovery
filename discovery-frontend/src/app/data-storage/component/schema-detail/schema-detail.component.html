@@ -117,7 +117,7 @@
             <!-- Time display format -->
             <div class="ddp-wrap-edit3" *ngIf="column.logicalType.toString() === 'TIMESTAMP'">
 
-              <label class="ddp-ui-label-name ddp-mgb0">
+              <label class="ddp-ui-label-name">
                 {{'msg.storage.ui.time.display.format' | translate}}
                 <div class="ddp-wrap-hover-info" (mouseenter)="hoverEvent('time')">
                   <em class="ddp-icon-info3"></em>
@@ -202,7 +202,7 @@
                   </div>
                   <!-- //popup -->
                 </div>
-                <div class="ddp-type-format">
+                <div class="ddp-type-format ddp-fright">
                   <label class="ddp-label-checkbox" (click)="onClickUnixCode(); $event.preventDefault()">
                     <input type="checkbox" [checked]="column.format?.type?.toString() === 'time_unix'" [disabled]="column.isDefaultFormat">
                     <i class="ddp-icon-checkbox"></i>
@@ -213,7 +213,7 @@
 
               <!-- edit format -->
               <div class="ddp-ui-option-in">
-                <div class="ddp-input-apply" *ngIf="!column.isDefaultFormat" [class.ddp-disabled]="column.format?.type?.toString() === 'time_unix'">
+                <div class="ddp-input-apply" *ngIf="!column.isDefaultFormat && column.format?.type?.toString() === 'time_format'">
                   <input type="text" class="ddp-input-txt" placeholder="{{'msg.storage.ph.time.format' | translate}}"
                          [(ngModel)]="column.format.format" (ngModelChange)="initTimeFormatValid()">
                 </div>

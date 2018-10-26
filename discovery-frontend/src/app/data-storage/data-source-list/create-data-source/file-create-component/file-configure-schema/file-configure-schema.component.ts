@@ -154,7 +154,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
   public next() {
     // time stamp 중 unix이고 format이 빈 값인 경우
     this.fields.filter((column) => {
-      return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column) && column.format.type === FieldFormatType.UNIX_TIME;
+      return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column) && column.format.type === FieldFormatType.DATE_TIME;
     }).forEach((column) => {
       if (StringUtil.isEmpty(column.format.format)) {
         // set error
@@ -991,7 +991,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER' },
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE' },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
       { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
     ];

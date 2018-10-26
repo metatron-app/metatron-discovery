@@ -1652,7 +1652,8 @@
   "msg.storage.ui.list.boolean" : "Boolean",
   "msg.storage.ui.list.integer" : "Integer",
   "msg.storage.ui.list.double" : "Decimal",
-  "msg.storage.ui.list.timestamp" : "Date/Time",
+  "msg.storage.ui.list.timestamp" : "Timestamp",
+  "msg.storage.ui.list.date" : "Date/Time",
   "msg.storage.ui.list.lnt" : "Latitude",
   "msg.storage.ui.list.lng" : "Longitude",
   "msg.storage.ui.list.email" : "Email",
@@ -1882,7 +1883,7 @@
   "msg.storage.ui.conn.dialog.desc" : "Can not ingest by batch method.",
   "msg.storage.ui.max.row.error": "You can enter up to {{value}}.",
   "msg.storage.ui.user.input": "Direct input",
-  "msg.storage.ui.enable.unix": "It’s Unix timestamp",
+  "msg.storage.ui.enable.unix": "Unix time",
   "msg.storage.ph.time.format": "Enter time format",
 
   "msg.log.th.status": "Status",

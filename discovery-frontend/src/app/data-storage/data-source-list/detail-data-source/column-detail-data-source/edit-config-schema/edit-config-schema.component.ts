@@ -100,6 +100,13 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
     this._sourceId = datasourceId;
     // 필드 리스트 복사
     this.fields = _.cloneDeep(fields);
+    this.fields.forEach((column) => {
+      // 타임스탬프인데 format이 없는경우 init
+      if (column.logicalType === LogicalType.TIMESTAMP && !column.format) {
+        column.format = new FieldFormat();
+        column.format.type = FieldFormatType.DATE_TIME;
+      }
+    });
     // flag
     this.isShowFl = true;
   }
@@ -208,7 +215,7 @@ export class EditConfigSchemaComponent extends AbstractPopupComponent implements
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true },
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
       { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
     ];

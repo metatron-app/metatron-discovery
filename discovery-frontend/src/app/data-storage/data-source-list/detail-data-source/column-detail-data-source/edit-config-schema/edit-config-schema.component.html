@@ -92,11 +92,11 @@
               <div class="ddp-ui-selected-option"
                    (clickOutside)="column.typeListFl = false"
                    (click)="onShowLogicalTypeList(column)"
-                   [class.ddp-selected]="column.typeListFl">
+                   [class.ddp-selected]="column.role.toString() !== 'TIMESTAMP' && column['typeListFl']">
                 <span class="ddp-link-text ddp-txt-icon">
                   <em class="{{getFieldTypeIconClass(column.logicalType)}}"></em>
-                  {{getSelectedLogicalTypeLabel(column)}}
-                  <span class="ddp-wrap-icons"></span>
+                  {{column.role.toString() === 'TIMESTAMP' ? ('msg.storage.ui.list.timestamp' | translate) : getSelectedLogicalTypeLabel(column)}}
+                  <span class="ddp-wrap-icons" *ngIf="column.role.toString() !== 'TIMESTAMP'"></span>
                 </span>
                 <!-- popup -->
                 <div class="ddp-wrap-popup2 ddp-types">

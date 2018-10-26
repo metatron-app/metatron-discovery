@@ -1003,7 +1003,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER' },
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE' },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
       { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
     ];

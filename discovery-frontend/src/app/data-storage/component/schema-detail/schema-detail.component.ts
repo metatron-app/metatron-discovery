@@ -33,7 +33,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   // 현재 선택된 타임스탬프 타입
   private timestampType: string;
 
-  private currentMilliseconds: number = moment().valueOf() / 1000;
+  private currentMilliseconds: number = Math.floor(moment().valueOf() / 1000);
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -303,9 +303,11 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
           result = this.translateService.instant('msg.storage.ui.schema.valid.integer');
           break;
         case 'DOUBLE':
-        case 'TIMESTAMP':
         case 'LNG':
         case 'LNT':
+          result = this.translateService.instant('msg.storage.ui.schema.valid.decimal');
+          break;
+        case 'TIMESTAMP':
           result = this.translateService.instant('msg.storage.ui.schema.valid.decimal');
           break;
       }
@@ -489,10 +491,13 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
         case 'STRING':
           this.column.isReplaceError = false;
           break;
+        case 'TIMESTAMP':
+          reg = /^[0-9]*$/g;
+          this.column.isReplaceError = !(reg.test(text) || text.trim() === '');
+          break;
         case 'INT':
         case 'INTEGER':
         case 'LONG':
-        case 'TIMESTAMP':
           reg = /^[0-9]*$/g;
           this.column.isReplaceError = !(reg.test(text) || text.trim() === '');
           break;
@@ -541,7 +546,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), icon: 'ddp-icon-type-tf', value: 'BOOLEAN', role: 'DIMENSION' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), icon: 'ddp-icon-type-int', value: 'INTEGER', role: 'DIMENSION' },
       { label: this.translateService.instant('msg.storage.ui.list.double'), icon: 'ddp-icon-type-float', value: 'DOUBLE', role: 'DIMENSION' },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), icon: 'ddp-icon-type-calen', value: 'TIMESTAMP', role: 'DIMENSION' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), icon: 'ddp-icon-type-calen', value: 'TIMESTAMP', role: 'DIMENSION' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), icon: 'ddp-icon-type-latitude', value: 'LNG', role: 'DIMENSION' },
       { label: this.translateService.instant('msg.storage.ui.list.lng'), icon: 'ddp-icon-type-longitude', value: 'LNT', role: 'DIMENSION' }
     ];

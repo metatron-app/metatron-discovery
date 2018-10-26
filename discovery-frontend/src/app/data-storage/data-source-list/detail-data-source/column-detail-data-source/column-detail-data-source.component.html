@@ -212,7 +212,7 @@
                   {{'msg.metadata.th.physical.type' | translate}}
                 </th>
                 <td>
-                  <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP'"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em> {{getColumnTypeLabel(selectedField.logicalType, physicalTypeList)}}</span>
+                  <span class="ddp-icon-type-txt" *ngIf="selectedField.role === 'TIMESTAMP'"> <em class="{{getFieldTypeIconClass(selectedField.logicalType)}}"></em>{{'msg.storage.ui.list.timestamp' | translate}}</span>
                   <!-- 클릭시 ddp-selected 추가 -->
                   <div class="ddp-hover-selectbox" [class.ddp-selected]="isShowPhysicalTypeFl"
                        *ngIf="selectedField.role !== 'TIMESTAMP'"
