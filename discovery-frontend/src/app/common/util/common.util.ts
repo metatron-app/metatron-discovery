@@ -204,9 +204,9 @@ export class CommonUtil {
     (confirmData.description) && (description = description + confirmData.description);
     (confirmData.subDescription) && (description = description + '<br/>' + confirmData.subDescription);
     if (confirmData.isScroll) {
-      $scrollContentsBox.find('.ddp-txt-detail').text(description);
+      $scrollContentsBox.find('.ddp-txt-detail').html(description);
     } else {
-      $nonScrollContentsBox.text(description);
+      $nonScrollContentsBox.html(description);
     }
 
     // 버튼 설정
@@ -314,5 +314,24 @@ export class CommonUtil {
       .toString(16)
       .substring(1);
   }
+
+  /**
+   * ms를 min과 sec로 변환
+   * @param {number} ms
+   * @returns {string}
+   */
+  public static convertMilliseconds(ms: number) {
+    if (ms === undefined) {
+      return 0 + 'ms';
+    }
+
+    if (ms < 1000) {
+      return ms + 'ms'
+    }
+
+    const min = Math.floor((ms / 1000 / 60) << 0);
+    const sec = Math.floor((ms / 1000) % 60);
+    return min !== 0 ? (min + ' min ' + sec + ' sec') : (sec + ' sec');
+  } // function - convertMilliseconds
 
 }

@@ -108,6 +108,7 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
 
   /**
    * 더 조회할 리스트가 있는지 여부
@@ -244,26 +245,6 @@ export class JobLogComponent extends AbstractComponent implements OnInit, OnDest
     this.pageResult.number = 0;
     // 재조회
     this.getAuditList();
-  }
-
-
-  /**
-   * ms를 min과 sec로 변환
-   * @param {number} ms
-   * @returns {string}
-   */
-  public convertMilliseconds(ms: number) {
-    if (ms === undefined) {
-      return 0 + 'ms';
-    }
-
-    if (ms < 1000) {
-      return ms + 'ms'
-    }
-
-    const min = Math.floor((ms / 1000 / 60) << 0);
-    const sec = Math.floor((ms / 1000) % 60);
-    return min !== 0 ? (min + ' min ' + sec + ' sec') : (sec + ' sec');
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

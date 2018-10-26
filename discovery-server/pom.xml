@@ -18,7 +18,7 @@
     <parent>
         <artifactId>metatron-discovery</artifactId>
         <groupId>app.metatron.discovery</groupId>
-        <version>3.0.4</version>
+        <version>3.0.5</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -760,7 +760,7 @@
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
             <version>${hive.version}</version>
-            <classifier>standalone</classifier>
+            <!--<classifier>standalone</classifier>-->
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>

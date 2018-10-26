@@ -15,14 +15,12 @@
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.validation.constraints.NotNull;
 
 /**
  * Created by kyungtaak on 2016. 10. 5..
@@ -36,8 +34,8 @@ public class PrestoConnection extends HiveMetastoreConnection {
   private static final String PRESTO_DEFAULT_OPTIONS = "";
   private static final String[] DESCRIBE_PROP = {};
 
+//  @NotNull
   @Column(name = "dc_catalog")
-  @NotNull
   String catalog;
 
   @Override
@@ -281,5 +279,18 @@ public class PrestoConnection extends HiveMetastoreConnection {
     this.catalog = catalog;
   }
 
+  @Override
+  public String getTableNameColumn() {
+    return "Table";
+  }
 
+  @Override
+  public void setUrl(String url) {
+    super.setUrl(url);
+
+    if(url != null){
+      String[] spliced = StringUtils.split( url,"/");
+      this.catalog = spliced[spliced.length - 1];
+    }
+  }
 }

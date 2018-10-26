@@ -197,9 +197,12 @@ public class AbstractSpecBuilder {
         parser.setParseSpec(parseSpec);
       }
     } else if (fileFormat instanceof JsonFileFormat) {
+      JsonFileFormat jsonFileFormat = (JsonFileFormat) fileFormat;
+
       JsonParseSpec parseSpec = new JsonParseSpec();
       parseSpec.setTimestampSpec(timestampSpec);
       parseSpec.setDimensionsSpec(dimensionsSpec);
+      parseSpec.setFlattenSpec(jsonFileFormat.getFlattenRules());
 
       parser.setType(type);
       parser.setParseSpec(parseSpec);

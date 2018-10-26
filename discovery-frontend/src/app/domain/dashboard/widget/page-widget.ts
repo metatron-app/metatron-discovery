@@ -14,6 +14,7 @@
 
 import { Widget, WidgetConfiguration } from './widget';
 import { Pivot } from '../../workbook/configurations/pivot';
+import { Shelf } from '../../workbook/configurations/shelf/shelf';
 import { CustomField } from '../../workbook/configurations/field/custom-field';
 import { UIOption } from '../../../common/component/chart/option/ui-option';
 import { Limit } from '../../workbook/configurations/limit';
@@ -77,5 +78,8 @@ export class PageWidgetConfiguration extends WidgetConfiguration {
    * WorkBook 내 DataSource 정보 (Optional, DashBoard DataSource 정보가 없는 경우 함께 포함)
    */
   dataSource: BoardDataSource;
+
+  // 선반 정보
+  shelf: Shelf;
 
 } // Class - PageWidgetConfiguration

@@ -171,9 +171,9 @@
         "findRecursive" : true,
         "extractPartition" : true,
         "inputFormat" : "org.apache.hadoop.mapreduce.lib.input.TextInputFormat",
-        "xbasePath" : "/edw/warehouse/dw/db=d_cem/period=1h/ver=v11/tb=imsi_area_1h",
+        "basePath" : "/home/hadoop",
         "elements" : [ {
-          "paths" : "/Users/kyungtaak/sales_tab_delimeter.csv"
+          "paths" : "sales_tab_delimeter.csv"
         } ]
       }
     }
