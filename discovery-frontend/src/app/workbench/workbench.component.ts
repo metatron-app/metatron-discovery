@@ -309,6 +309,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public isCanceling: boolean = false; // 취소중인지 여부
   public isCanceled: boolean = false;  // 취소되었는지 여부
 
+  public isFocusResultTooltip: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -847,7 +849,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     ( this._tooltipTimer ) && ( clearTimeout( this._tooltipTimer ) );
     if (resultTab.offset().left > $(window).outerWidth() / 2) {
       this._tooltipTimer = setTimeout( () => {
-        console.info( '%c >>>> showtooltip', 'color:#FF0000' );
         resultTab.find('.ddp-box-tabs-popup').show().css({
           'right': '-10px',
           'left': 'inherit'
@@ -855,7 +856,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       }, 1500 );
     } else {
       this._tooltipTimer = setTimeout( () => {
-        console.info( '%c >>>> showtooltip', 'color:#FF0000' );
         resultTab.find('.ddp-box-tabs-popup').show();
       }, 1500 );
     }
@@ -868,11 +868,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public hideResultTabTooltip(event:MouseEvent) {
     event.stopPropagation();
     if( this._tooltipTimer ) {
-      console.info( '%c >>>> hidetooltip - clear timer', 'color:#0000FF' );
       clearTimeout( this._tooltipTimer );
       this._tooltipTimer = null;
     }
-    $( '.ddp-box-tabs-popup:visible' ).hide();
+    setTimeout( () => {
+      ( this.isFocusResultTooltip ) || ( $( '.ddp-box-tabs-popup:visible' ).hide() );
+    }, 500 );
   } // function - hideResultTabTooltip
 
   /**

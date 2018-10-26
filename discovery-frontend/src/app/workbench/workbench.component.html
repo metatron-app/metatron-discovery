@@ -354,9 +354,10 @@
                            (click)="closeResultTab(item.id)"></a>
                       </div>
                       <!-- popup -->
-                      <div [class.ddp-retry]="!isExecutingQuery" class="ddp-box-tabs-popup" >
+                      <div (mouseover)="isFocusResultTooltip = true" (mouseout)="isFocusResultTooltip = false"
+                           class="ddp-box-tabs-popup ddp-retry" >
                         <div class="ddp-txt-query"> {{item.sql}} </div>
-                        <a href="javascript:" class="ddp-btn-log-status ddp-retry2" (click)="retryQuery(item)">Retry</a>
+                        <a *ngIf="!isExecutingQuery" href="javascript:" class="ddp-btn-log-status ddp-retry2" (click)="retryQuery(item)">Retry</a>
                       </div>
                       <!-- //popup -->
                     </li>
@@ -416,7 +417,7 @@
 
                   <!-- button -->
                   <div class="ddp-ui-buttons" *ngIf="visibleResultTab.result && visibleResultTab.result.fields">
-                    <div class="ddp-wrap-btn-link" [hidden]="'' !== visibleResultTab.message">
+                    <div class="ddp-wrap-btn-link" [hidden]="visibleResultTab.message">
                       <a href="javascript:" class="ddp-box-page" *ngIf="0 !== visibleResultTab.pageNum"  (click)="changeResultPage( visibleResultTab, 'PREV' )">
                         <em class="ddp-icon-prev"></em>PREV
                       </a>
@@ -431,7 +432,7 @@
 
                       <!-- search link -->
                       <!-- 클릭시 ddp-selected 추가 -->
-                      <a href="javascript:" class="ddp-btn-link " [ngClass]="{'ddp-selected':isSearchLink, 'ddp-value': searchText.trim() != '' }"  [hidden]="'' !== visibleResultTab.message" >
+                      <a href="javascript:" class="ddp-btn-link " [ngClass]="{'ddp-selected':isSearchLink, 'ddp-value': searchText.trim() != '' }"  [hidden]="visibleResultTab.message" >
                         <em class="ddp-icon-query-search" (click)="this.isSearchLink = !this.isSearchLink"></em>
                         <div class="ddp-ui-tooltip-info ">
                           <em class="ddp-icon-view-down"></em>
@@ -455,7 +456,7 @@
                       </a>
                       <!-- //search link -->
 
-                      <a href="javascript:" class="ddp-btn-link" (click)="resultPreview()" [hidden]="'' !== visibleResultTab.message">
+                      <a href="javascript:" class="ddp-btn-link" (click)="resultPreview()" [hidden]="visibleResultTab.message">
                         <em class="ddp-icon-chart"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-down"></em>
@@ -463,7 +464,7 @@
                         </div>
                       </a>
 
-                      <a *ngIf="isDataManager" href="javascript:" class="ddp-btn-link" (click)="createDatasource()" [hidden]="'' !== visibleResultTab.message">
+                      <a *ngIf="isDataManager" href="javascript:" class="ddp-btn-link" (click)="createDatasource()" [hidden]="visibleResultTab.message">
                         <em class="ddp-icon-save"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-down"></em>
@@ -472,7 +473,7 @@
                       </a>
 
                       <!-- ddp-selected 추가 -->
-                      <div class="ddp-ui-link ddp-selected" [ngClass]="{'ddp-selected':csvDownloadLayer}" [hidden]="'' !== visibleResultTab.message">
+                      <div class="ddp-ui-link ddp-selected" [ngClass]="{'ddp-selected':csvDownloadLayer}" [hidden]="visibleResultTab.message">
                         <a href="javascript:" class="ddp-btn-link" (click)="downloadExcel()">
                           <em class="ddp-icon-export"></em>
                           <div class="ddp-ui-tooltip-info">
@@ -553,7 +554,7 @@
                     <span class="ddp-data-txt">{{ setNumberFormat( visibleResultTab.executeTime, 2 ) }} Secs.</span>
                   </span>
                   <span class="ddp-data-time" *ngIf="'SUCCESS' === visibleResultTab.resultStatus && visibleResultTab.result && -1 < visibleResultTab.result.numRows">
-                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber) )}} / {{ (visibleResultTab.result.numRows -1 > 100000) ? '100,000+' : setNumberFormat(visibleResultTab.result.numRows -1) }} {{'msg.comm.detail.rows'|translate}}</span>
+                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber) )}} / {{ (visibleResultTab.result.numRows == 100001) ? '100,000+' : setNumberFormat(visibleResultTab.result.numRows -1) }} {{'msg.comm.detail.rows'|translate}}</span>
                   </span>
                 </div>
                 <!-- //time -->
