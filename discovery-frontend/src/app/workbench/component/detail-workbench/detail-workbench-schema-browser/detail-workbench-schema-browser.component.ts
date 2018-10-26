@@ -12,10 +12,7 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
-  ViewChild
-} from '@angular/core';
+import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Page } from '../../../../domain/common/page';
 import { DataconnectionService } from '../../../../dataconnection/service/dataconnection.service';
 import { Alert } from '../../../../common/util/alert.util';
@@ -99,6 +96,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   public schemaTableList: any[] = [];
   // 스키마 브라우저 컬럼 리스트
   public schemaTableColumnList: any[] = [];
+
   // 스키마 브라우져 메타 데이터 리스트
   public schemaTableMetadataList: any[] = [];
 
@@ -192,6 +190,16 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     this.selectedDatabaseName = this.workbench.dataConnection.database;
     // 선택된 테이블 초기화
     this.selectedSchemaTable = '';
+    // 초기 선택 탭 초기화
+    this.schemaSelectedTab = '';
+    // 데이터 초기화
+    this.databaseList = [];
+    this.schemaTableList = [];
+    this.schemaTableColumnList = [];
+    this.schemaTableMetadataList = [];
+    this.schemaTableDataList = [];
+    this.schemaTableDataDataList = [];
+
     // 데이터베이스 리스트 조회
     this._getDatabaseList();
   }
@@ -659,15 +667,17 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         this._getMetaDataReconnectCount = 0;
         // 로딩 hide
         this.loadingHide();
+
         // 메타데이터 초기화
         this.schemaTableMetadataList = [];
         for (const key in result) {
           const param = {
-            itemkey: key,
+            itemKey: key,
             item: result[key]
           };
           this.schemaTableMetadataList.push(param);
         }
+
       })
       .catch((error) => {
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getMetaDataReconnectCount <= 5) {
@@ -727,28 +737,24 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   private _getSingleQueryForServer(queryEditor: QueryEditor): void {
     // 호출 횟수 증가
     this._getSingleQueryReconnectCount++;
-    this.workbenchService.runSingleQueryWithInvalidQuery(queryEditor)
+    this.workbenchService.getSchemaInfoTableData(this.selectedSchemaTable, this.workbench.dataConnection)
       .then((result) => {
         // 호출 횟수 초기화
         this._getSingleQueryReconnectCount = 0;
-        // 로딩 hide
-        this.loadingHide();
-        if (result.length > 0) {
-          if (result[0].queryResultStatus !== 'FAIL') {
-            this.schemaTableDataList = result;
-            this.schemaTableDataDataList = result[0].data;
-            // 테이블 상세데이터 그리드 그리기
-            this._drawGridTableDetailData();
-          } else {
-            this.schemaTableDataList = [];
-            this.schemaTableDataDataList = [];
-            Alert.error(result[0].message);
-          }
+
+        if (result.data.length > 0) {
+          this.schemaTableDataList = result;
+          this.schemaTableDataDataList = result.data;
+          // 테이블 상세데이터 그리드 그리기
+          this._drawGridTableDetailData();
         } else {
           this.schemaTableDataList = [];
           this.schemaTableDataDataList = [];
-          Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
+          // Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
         }
+        // 로딩 hide
+        this.loadingHide();
+
       })
       .catch((error) => {
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getSingleQueryReconnectCount <= 5) {
@@ -947,7 +953,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    */
   private _drawGridTableDetailData(): void {
     // data
-    const data: any = this.schemaTableDataList[0];
+    const data: any = this.schemaTableDataList;
     // headers
     const headers: header[] = [];
     for (let index: number = 0; index < data.fields.length; index = index + 1) {

@@ -24,7 +24,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../../../common/component/abstract.component';
-import { Dataset, ImportType, RsType, Rule } from '../../../../../domain/data-preparation/dataset';
+import { Dataset, DsType, ImportType, RsType, Rule } from '../../../../../domain/data-preparation/dataset';
 import { DeleteModalComponent } from '../../../../../common/component/modal/delete/delete.component';
 import { Dataflow } from '../../../../../domain/data-preparation/dataflow';
 import { Alert } from '../../../../../common/util/alert.util';
@@ -38,6 +38,7 @@ import { GridOption } from 'app/common/component/grid/grid.option';
 import { DatasetService } from '../../../../dataset/service/dataset.service';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { PreparationCommonUtil } from "../../../../util/preparation-common.util";
+import {DataflowModelService} from "../../../service/dataflow.model.service";
 
 @Component({
   selector: 'app-dataset-info-popup',
@@ -92,6 +93,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   @Output() // clone
   public cloneEventHandler = new EventEmitter();
 
+  @Output()
+  public datasetSelectPopupOpen = new EventEmitter();
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -124,10 +128,14 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
   public isBtnOptionOpen : boolean = false;
 
+  public clearGrid : boolean = false;
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(public dataflowService: DataflowService,
+              public dataflowModelService: DataflowModelService,
               public datasetService: DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -141,6 +149,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     // Init
     super.ngOnInit();
 
+    this.clearGrid = false;
     this.isBtnOptionOpen = false;
     this.commandList = [
       { command: 'header', alias: 'He'},
@@ -429,15 +438,43 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
           this.setRuleList(this.selectedDataSet.ruleStringInfos);
         }
         if(this.selectedDataSet.gridResponse) {
+          this.clearGrid = false;
           this.setGridData(this.selectedDataSet.gridResponse);
+        } else {
+          this.clearGrid = true;
         }
       },0);
 
     }).catch((error) => {
-      this.loadingHide();
+      this.clearGrid = true;
       let prep_error = this.dataprepExceptionHandler(error);
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
+  }
+
+
+  /**
+   * Dataset swap button click
+   * @param {string} type
+   */
+  public dataSwap(type: string) {
+
+    let importedDsId = this.selectedDataSet.dsId;
+
+    if (this.isBtnOptionOpen) {
+      this.isBtnOptionOpen = false;
+    }
+
+    if (type === 'wrangled') { // wrangled 면 upstream dsId 를 찾아야함
+
+      this.dataflowModelService.getUpstreamList().forEach((item) => {
+        if (item.dsId === this.selectedDataSet.dsId) {
+          importedDsId = item.upstreamDsId;
+        }
+      });
+    }
+
+    this.datasetSelectPopupOpen.emit({type: type, dsId : importedDsId });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -695,14 +732,15 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   /**
    * get names of sheet
    */
-  public get getSheetName() {
-    let customJson = JSON.parse(this.selectedDataSet.custom);
-    let fileType = customJson.fileType;
-    if( fileType==="EXCEL" ) {
-      return customJson.sheet;
-    } else {
-      return "N/A"
+  public getSheetName() : string {
+
+    let result = "N/A";
+    if (this.selectedDataSet.custom) {
+      let customJson = JSON.parse(this.selectedDataSet.custom);
+      result = customJson.sheet ? customJson.sheet : "N/A";
     }
+    return result;
+
   }
 
   /**
@@ -959,7 +997,13 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * get format of bytes
    */
   private formatBytes(a,b) { // a=크기 , b=소숫점자릿
-    if(0==a) return "0 Bytes";
+
+    if (a === -1) {
+      return 'N/A';
+    } else if (a === 0) {
+      return "0 Bytes";
+    }
+
     let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
     return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
   }

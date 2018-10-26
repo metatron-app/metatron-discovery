@@ -18,13 +18,14 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.audit.Audit;
 import app.metatron.discovery.domain.audit.AuditRepository;
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcQueryResultResponse;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
 import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.WebSocketUtils;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.Select;
@@ -39,7 +40,19 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
+import org.supercsv.cellprocessor.Optional;
+import org.supercsv.cellprocessor.*;
+import org.supercsv.cellprocessor.ift.CellProcessor;
+import org.supercsv.io.CsvMapReader;
+import org.supercsv.io.ICsvMapReader;
+import org.supercsv.prefs.CsvPreference;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,6 +60,8 @@ import java.sql.Statement;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static app.metatron.discovery.domain.workbench.WorkbenchErrorCodes.CSV_FILE_NOT_FOUND;
 
 @Service
 public class QueryEditorService {
@@ -94,13 +109,12 @@ public class QueryEditorService {
     if(dataSourceInfo == null){
       throw new ResourceNotFoundException("WorkbenchDataSource(webSocketId = " + webSocketId + ")");
     }
+    dataSourceInfo.setQueryList(queryList);
 
     int queryIndex = 0;
-    for(String substitutedQuery : queryList){
-      if(dataSourceInfo.getQueryStatus() == QueryStatus.CANCELLED){
-        LOGGER.debug("Query Canceled..");
-        break;
-      }
+    while(!queryList.isEmpty()){
+      String substitutedQuery = queryList.remove(0);
+
       boolean saveToTempTable = jdbcDataConnection instanceof HiveConnection;
       saveToTempTable = false;
 
@@ -134,7 +148,7 @@ public class QueryEditorService {
       LOGGER.debug("Audit Created : " + auditId);
 
       QueryResult queryResult = executeQuery(dataSourceInfo, substitutedQuery, workbench.getId(), webSocketId, jdbcDataConnection,
-              queryHistoryId, auditId, saveToTempTable, numRows, queryIndex);
+              queryHistoryId, auditId, saveToTempTable, numRows, queryIndex, queryEditor.getId());
       queryResults.add(queryResult);
 
       //increase query index
@@ -239,7 +253,7 @@ public class QueryEditorService {
 
   private QueryResult executeQuery(WorkbenchDataSource dataSourceInfo, String query, String workbenchId, String webSocketId,
                                    JdbcDataConnection jdbcDataConnection, long queryHistoryId, String auditId,
-                                   Boolean saveToTempTable, int numRows, int queryIndex){
+                                   Boolean saveToTempTable, int numRows, int queryIndex, String queryEditorId){
 
     ResultSet resultSet = null;
     QueryResult queryResult = null;
@@ -253,6 +267,7 @@ public class QueryEditorService {
       queryResult.setFinishDateTime(DateTime.now());
       queryResult.setAuditId(auditId);
       queryResult.setQueryHistoryId(queryHistoryId);
+      queryResult.setQueryEditorId(queryEditorId);
       return queryResult;
     }
 
@@ -262,7 +277,12 @@ public class QueryEditorService {
     //시작시간
     DateTime startDateTime = DateTime.now();
     try {
+      sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_CONNECTION, queryIndex,
+              queryEditorId, workbenchId, webSocketId);
       connection = singleConnectionDataSource.getConnection();
+
+      sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.CREATE_STATEMENT, queryIndex,
+              queryEditorId, workbenchId, webSocketId);
       stmt = connection.createStatement();
       stmt.setFetchSize(workbenchProperties.getMaxFetchSize());
 
@@ -270,17 +290,23 @@ public class QueryEditorService {
       dataSourceInfo.setQueryStatus(QueryStatus.RUNNING);
       dataSourceInfo.setCurrentStatement(stmt);
 
-      int maxRows = 0;
-      int defaultResultSize = workbenchProperties.getDefaultResultSize();
+      boolean usingCSV = true;
       int maxResultSize = workbenchProperties.getMaxResultSize();
-      if(numRows <= 0){
-        maxRows = workbenchProperties.getDefaultResultSize();
-      } else if(numRows <= workbenchProperties.getMaxResultSize()){
-        maxRows = numRows;
+      int defaultResultSize = workbenchProperties.getDefaultResultSize();
+
+      if(usingCSV){
+        stmt.setMaxRows(maxResultSize);
       } else {
-        maxRows = workbenchProperties.getMaxResultSize();
+        int maxRows = 0;
+        if(numRows <= 0){
+          maxRows = defaultResultSize;
+        } else if(numRows <= maxResultSize){
+          maxRows = numRows;
+        } else {
+          maxRows = maxResultSize;
+        }
+        stmt.setMaxRows(maxRows);
       }
-      stmt.setMaxRows(maxRows);
 
       if(saveToTempTable && isSelectQuery(query) && !isTempTable(query)){
         String tempTableName = createTempTable(stmt, query, webSocketId);
@@ -289,14 +315,15 @@ public class QueryEditorService {
 
         if(stmt.execute(selectQuery)){
           resultSet = stmt.getResultSet();
-          queryResult = getQueryResult(resultSet, query, tempTableName, jdbcDataConnection);
+          queryResult = getQueryResult(resultSet, query, tempTableName, numRows, queryEditorId, queryIndex);
         } else {
           queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
         }
       } else {
 
         LOGGER.debug("jdbcDataConnection : {}", jdbcDataConnection.getClass().getName());
-
+        sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.EXECUTE_QUERY, queryIndex,
+                queryEditorId, workbenchId, webSocketId);
         if(stmt instanceof HiveStatement){
           //send set audit query id
           setAuditId(connection, auditId);
@@ -309,25 +336,28 @@ public class QueryEditorService {
 
           //create hive query log print thread
           logThread = new Thread(
-                  new HiveQueryLogThread((HiveStatement) stmt, workbenchId, webSocketId, queryIndex,
+                  new HiveQueryLogThread((HiveStatement) stmt, workbenchId, webSocketId, queryIndex, queryEditorId,
                           1000L, messagingTemplate)
           );
 
           logThread.start();
-
           boolean hasResult = ((HiveStatement) stmt).execute(query);
           logThread.interrupt();
 
           if(hasResult){
+            sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
+                    queryEditorId, workbenchId, webSocketId);
             resultSet = stmt.getResultSet();
-            queryResult = getQueryResult(resultSet, query, null, jdbcDataConnection);
+            queryResult = getQueryResult(resultSet, query, null, numRows, queryEditorId, queryIndex);
           } else {
             queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
           }
         } else {
           if(stmt.execute(query)){
+            sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
+                    queryEditorId, workbenchId, webSocketId);
             resultSet = stmt.getResultSet();
-            queryResult = getQueryResult(resultSet, query, null, jdbcDataConnection);
+            queryResult = getQueryResult(resultSet, query, null, numRows, queryEditorId, queryIndex);
           } else {
             queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
           }
@@ -338,22 +368,21 @@ public class QueryEditorService {
       LOGGER.error("Query Execute Error : {}", e.getMessage());
       queryResult = createMessageResult(e.getMessage(), query, QueryResult.QueryResultStatus.FAIL);
     } finally {
+      if(!(stmt instanceof HiveStatement)){
+        sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE, queryIndex,
+                queryEditorId, workbenchId, webSocketId);
+      }
       if (logThread != null) {
         if (!logThread.isInterrupted()) {
           logThread.interrupt();
         }
       }
-
-      JdbcUtils.closeConnection(connection);
-      JdbcUtils.closeStatement(stmt);
       JdbcUtils.closeResultSet(resultSet);
       JdbcUtils.closeStatement(stmt);
       JdbcUtils.closeConnection(connection);
 
       //Query 실행 상태 IDLE로 전환
-      if(dataSourceInfo.getQueryStatus() != QueryStatus.CANCELLED){
-        dataSourceInfo.setQueryStatus(QueryStatus.IDLE);
-      }
+      dataSourceInfo.setQueryStatus(QueryStatus.IDLE);
       dataSourceInfo.setCurrentStatement(null);
 
       //종료시간
@@ -364,28 +393,40 @@ public class QueryEditorService {
       queryResult.setFinishDateTime(finishDateTime);
       queryResult.setAuditId(auditId);
       queryResult.setQueryHistoryId(queryHistoryId);
+      queryResult.setQueryEditorId(queryEditorId);
     }
 
     return queryResult;
   }
   
-  private QueryResult getQueryResult(ResultSet resultSet, String query, String tempTable, JdbcDataConnection jdbcDataConnection) throws SQLException{
-    //1. ResultSet 변환
-    JdbcQueryResultResponse jdbcQueryResultResponse = jdbcConnectionService.getResult(resultSet);
+  private QueryResult getQueryResult(ResultSet resultSet, String query, String tempTable, int pageSize, String queryEditorId, int queryIndex) throws SQLException{
+    //1. create CSV File with header
+    String csvBaseDir = workbenchProperties.getTempCSVPath();
+    if(!csvBaseDir.endsWith(File.separator)){
+      csvBaseDir = csvBaseDir + File.separator;
+    }
 
-    //2. Query Result 생성
+    String tempFileName = generateTempCSVFileName(csvBaseDir, queryEditorId, queryIndex);
+    LOGGER.debug("writeResultSetToCSV csvBaseDir : {}", csvBaseDir);
+    LOGGER.debug("writeResultSetToCSV tempFileName : {}", tempFileName);
+    int rowNumber = jdbcConnectionService.writeResultSetToCSV(resultSet, csvBaseDir + tempFileName);
+
+    //2. get field info from resultset
+    List<Field> fieldList = jdbcConnectionService.getFieldList(resultSet, false);
+
+    //3. get data list from csv file
+    List<Map<String, Object>> dataList = readCsv(csvBaseDir + tempFileName, fieldList, 0, pageSize);
+
+    //4. generate Query Result
     QueryResult queryResult = new QueryResult();
-    queryResult.setFields(jdbcQueryResultResponse.getFields());
-    queryResult.setData(jdbcQueryResultResponse.getData());
-    queryResult.setTempTable(tempTable);
-    queryResult.setNumRows(Long.valueOf(jdbcQueryResultResponse.getData().size()));
-    LOGGER.info("Query row count : {}", queryResult.getNumRows());
-
-    //3. query
     queryResult.setRunQuery(query);
-
-    //4. status
+    queryResult.setFields(fieldList);
+    queryResult.setData(dataList);
+    queryResult.setTempTable(tempTable);
+    queryResult.setNumRows(Long.valueOf(rowNumber));
     queryResult.setQueryResultStatus(QueryResult.QueryResultStatus.SUCCESS);
+    queryResult.setCsvFilePath(tempFileName);
+    LOGGER.info("Query row count : {}", queryResult.getNumRows());
 
     return queryResult;
   }
@@ -399,15 +440,24 @@ public class QueryEditorService {
   }
 
   public void cancelQuery(JdbcDataConnection jdbcDataConnection, String webSocketId){
-    WorkbenchDataSource dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
-    Statement stmt = dataSourceInfo.getCurrentStatement();
+    WorkbenchDataSource dataSourceInfo = null;
+    Statement stmt = null;
     try{
-      if(stmt != null)
-        stmt.cancel();
+      dataSourceInfo = WorkbenchDataSourceUtils.findDataSourceInfo(webSocketId);
+      if(dataSourceInfo != null){
+        //pending query list remove all
+        while(dataSourceInfo.getQueryList() != null && !dataSourceInfo.getQueryList().isEmpty()){
+          dataSourceInfo.getQueryList().remove(0);
+        }
+        LOGGER.debug("Removed remain query all");
+        stmt = dataSourceInfo.getCurrentStatement();
+        if(stmt != null)
+          stmt.cancel();
+        LOGGER.debug("Statement is canceled");
+      }
     } catch (SQLException sqle) {
-      JdbcUtils.closeStatement(stmt);
     } finally {
-      dataSourceInfo.setQueryStatus(QueryStatus.CANCELLED);
+      JdbcUtils.closeStatement(stmt);
     }
   }
   
@@ -546,5 +596,85 @@ public class QueryEditorService {
       isComment = (isComment && (lineTrimmed.startsWith("#") || lineTrimmed.startsWith("--")));
     }
     return isComment;
+  }
+
+  public void sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand command, int queryIndex,
+                                   String queryEditorId, String workbenchId, String webSocketId){
+    Map<String, Object> message = new HashMap<>();
+    message.put("command", command);
+    message.put("queryIndex", queryIndex);
+    message.put("queryEditorId", queryEditorId);
+
+    WebSocketUtils.sendMessage(messagingTemplate, webSocketId, "/queue/workbench/" + workbenchId, message);
+  }
+
+  public List<Map<String, Object>> readCsv(String fileName, List<Field> fieldList, int index, int length) {
+    ICsvMapReader mapReader = null;
+    List<Map<String, Object>> returnList = new ArrayList<>();
+    try {
+      mapReader = new CsvMapReader(new FileReader(fileName)
+              , new CsvPreference.Builder('"', ',', "\r\n")
+              .ignoreEmptyLines(false)
+              .build());
+
+      // the header columns are used as the keys to the Map
+      final String[] header = mapReader.getHeader(true);
+
+      Map<String, Object> rowMap;
+      while( (rowMap = mapReader.read(header, getProcessors(fieldList))) != null && mapReader.getRowNumber() - 1 < index + length + 1) {
+        if(mapReader.getRowNumber() - 1 > index){
+          returnList.add(rowMap);
+        }
+      }
+    } catch (FileNotFoundException e){
+      throw new WorkbenchException(CSV_FILE_NOT_FOUND, "CSV File Not Founded.", e);
+    } catch (IOException e){
+      throw new WorkbenchException(CSV_FILE_NOT_FOUND, "read CSV IOException.", e);
+    } finally {
+      try {
+        if(mapReader != null)
+          mapReader.close();
+      } catch (Exception e){}
+    }
+    return returnList;
+  }
+
+  private CellProcessor[] getProcessors(List<Field> fieldList) {
+    List<CellProcessor> cellProcessorList = new ArrayList<>();
+    for(Field field : fieldList){
+      switch (field.getType()){
+        case INTEGER:
+          cellProcessorList.add(new org.supercsv.cellprocessor.Optional(new ParseInt()));
+          break;
+        case DECIMAL:
+          cellProcessorList.add(new org.supercsv.cellprocessor.Optional(new ParseBigDecimal()));
+          break;
+        case DOUBLE: case FLOAT:
+          cellProcessorList.add(new org.supercsv.cellprocessor.Optional(new ParseDouble()));
+          break;
+        case LONG: case NUMBER:
+          cellProcessorList.add(new org.supercsv.cellprocessor.Optional(new ParseLong()));
+          break;
+        case BOOLEAN:
+          cellProcessorList.add(new org.supercsv.cellprocessor.Optional(new ParseBool()));
+          break;
+        default:
+          cellProcessorList.add(new Optional());
+          break;
+      }
+    }
+    return cellProcessorList.toArray(new CellProcessor[]{});
+  }
+
+  private String generateTempCSVFileName(String baseDir, String queryEditorId, int queryIndex){
+    String tempFileName = DateTime.now().toString("yyyyMMddhhmmss") + "_" + queryEditorId.substring(0, 8) + "_" + queryIndex;
+    String suffixStr = "_(1)";
+    String filePathString = baseDir + File.separator + tempFileName + ".csv";
+    while(Files.exists(Paths.get(filePathString))){
+      tempFileName = tempFileName + suffixStr;
+      filePathString = baseDir + File.separator + tempFileName + ".csv";
+    }
+
+    return tempFileName + ".csv";
   }
 }

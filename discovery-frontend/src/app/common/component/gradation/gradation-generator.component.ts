@@ -108,6 +108,8 @@ export class GradationGeneratorComponent extends AbstractComponent {
       sliders: Object.assign([], this.sliderList),
       min: data.min,
       max: data.max,
+      positionMin: data.positionMin,
+      positionMax: data.positionMax,
       separateValue: data.separateValue,
       type: 'linear',
       code_shown: false,

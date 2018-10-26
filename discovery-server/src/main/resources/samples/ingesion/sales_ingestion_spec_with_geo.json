@@ -1,0 +1,181 @@
+{
+  "type": "index",
+  "spec": {
+    "dataSchema": {
+      "dataSource": "sales_geo",
+      "evaluations": [
+        {
+          "outputName": "location",
+          "expressions": [
+            "struct(latitude,longitude)"
+          ]
+        }
+      ],
+      "metricsSpec": [
+        {
+          "type": "count",
+          "name": "count"
+        },
+        {
+          "fieldName": "Discount",
+          "type": "relay",
+          "name": "Discount",
+          "typeName": "double"
+        },
+        {
+          "fieldName": "Profit",
+          "type": "relay",
+          "name": "Profit",
+          "typeName": "double"
+        },
+        {
+          "fieldName": "Sales",
+          "type": "relay",
+          "name": "Sales",
+          "typeName": "double"
+        },
+        {
+          "fieldName": "DaystoShipActual",
+          "type": "relay",
+          "name": "DaystoShipActual",
+          "typeName": "double"
+        },
+        {
+          "fieldName": "SalesForecast",
+          "type": "relay",
+          "name": "SalesForecast",
+          "typeName": "double"
+        },
+        {
+          "fieldName": "DaystoShipScheduled",
+          "type": "relay",
+          "name": "DaystoShipScheduled",
+          "typeName": "double"
+        },
+        {
+          "fieldName": "SalesperCustomer",
+          "type": "relay",
+          "name": "SalesperCustomer",
+          "typeName": "double"
+        },
+        {
+          "type": "relay",
+          "name": "ProfitRatio",
+          "typeName": "double"
+        },
+        {
+          "type": "relay",
+          "name": "location",
+          "typeName": "struct(lat:double,lon:double)"
+        }
+      ],
+      "granularitySpec": {
+        "queryGranularity": "DAY",
+        "segmentGranularity": "MONTH",
+        "type": "uniform",
+        "intervals": [
+          "1970-01-01/2050-01-01"
+        ],
+        "rollup": false
+      },
+      "parser": {
+        "parseSpec": {
+          "dimensionsSpec": {
+            "dimensionExclusions": [],
+            "dimensions": [
+              "Category",
+              "City",
+              "Country",
+              "CustomerName",
+              "OrderID",
+              "PostalCode",
+              "ProductName",
+              "Quantity",
+              "Region",
+              "Segment",
+              "ShipDate",
+              "ShipMode",
+              "State",
+              "Sub-Category",
+              "ShipStatus",
+              "orderprofitable",
+              "SalesAboveTarget",
+              "latitude",
+              "longitude"
+            ],
+            "spatialDimensions": []
+          },
+          "timestampSpec": {
+            "column": "OrderDate",
+            "format": "yyyy-MM-dd HH:mm:ss"
+          },
+          "columns": [
+            "OrderDate",
+            "Category",
+            "City",
+            "Country",
+            "CustomerName",
+            "OrderID",
+            "PostalCode",
+            "ProductName",
+            "Quantity",
+            "Region",
+            "Segment",
+            "ShipDate",
+            "ShipMode",
+            "State",
+            "Sub-Category",
+            "ShipStatus",
+            "orderprofitable",
+            "SalesAboveTarget",
+            "latitude",
+            "longitude",
+            "Discount",
+            "Profit",
+            "Sales",
+            "DaystoShipActual",
+            "SalesForecast",
+            "DaystoShipScheduled",
+            "SalesperCustomer",
+            "ProfitRatio"
+          ],
+          "delimiter":"\t",
+          "format": "tsv"
+        },
+        "type": "string"
+      }
+    },
+    "tuningConfig": {
+      "type": "index",
+      "maxRowsInMemory": 75000,
+      "ignoreInvalidRows": true,
+      "buildV9Directly": true,
+      "indexSpec": {
+        "bitmap": {
+          "type": "roaring"
+        },
+        "secondaryIndexing": {
+          "location": {
+            "type": "lucene",
+            "strategies": [
+              {
+                "type": "latlon",
+                "fieldName": "coord",
+                "latitude": "lat",
+                "longitude": "lon"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "ioConfig": {
+      "type": "index",
+      "firehose": {
+        "type": "local",
+        "filter": "sales_tab_delimeter.csv",
+        "baseDir": "/tmp"
+      }
+    }
+  }
+}

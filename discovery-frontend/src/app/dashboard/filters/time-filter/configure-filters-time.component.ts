@@ -110,8 +110,8 @@ export class ConfigureFiltersTimeComponent extends AbstractFilterPopupComponent 
     ( this.targetFilter.timeUnit ) || ( this.targetFilter.timeUnit = TimeUnit.NONE );
 
     this.isShow = true;
-    this.safelyDetectChanges();
     this._setStatus();
+    this.safelyDetectChanges();
 
   } // function - showComponent
 

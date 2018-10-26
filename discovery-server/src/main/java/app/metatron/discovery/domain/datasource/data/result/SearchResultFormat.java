@@ -40,7 +40,7 @@ import app.metatron.discovery.domain.engine.EngineQueryProperties;
 import app.metatron.discovery.util.SshUtils;
 
 /**
- * Created by kyungtaak on 2016. 6. 13..
+ *
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
 @JsonSubTypes({
@@ -48,6 +48,7 @@ import app.metatron.discovery.util.SshUtils;
         @JsonSubTypes.Type(value = ChartResultFormat.class, name = "chart"),
         @JsonSubTypes.Type(value = GraphResultFormat.class, name = "graph"),
         @JsonSubTypes.Type(value = FileResultFormat.class, name = "file"),
+        @JsonSubTypes.Type(value = RawResultFormat.class, name = "raw"),
         @JsonSubTypes.Type(value = PivotResultFormat.class, name = "dpivot")
 })
 public abstract class SearchResultFormat implements Serializable {

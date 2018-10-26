@@ -624,8 +624,10 @@ public class JdbcConnectionService {
       return searchTablesWithQueryPageable(connection, dataSource, schema, tableNamePattern, pageable);
     } else if (connection instanceof HiveMetastoreConnection && ((HiveMetastoreConnection) connection).includeMetastoreInfo()) {
       return searchTablesWithHiveMetastore(connection, dataSource, schema, tableNamePattern, pageable);
+    } else if (connection instanceof HiveConnection || connection instanceof PrestoConnection){
+      return searchTablesWithQuery(connection, dataSource, schema, tableNamePattern);
     } else {
-      return searchTablesWithMetadata(connection, dataSource, schema, tableNamePattern, pageable);
+      return searchTablesWithMetadata(connection, dataSource, schema, tableNamePattern);
     }
   }
 
@@ -662,6 +664,44 @@ public class JdbcConnectionService {
     return databaseMap;
   }
 
+  public Map<String, Object> searchTablesWithQuery(JdbcDataConnection connection, DataSource dataSource,
+                                                           String schema, String tableNamePattern) {
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+    String tableListQuery = connection.getShowTableQuery(schema);
+
+    LOGGER.debug("Execute Table List query : {}", tableListQuery);
+
+    List<Map<String, Object>> tableNames = null;
+    try {
+      tableNames = jdbcTemplate.queryForList(tableListQuery);
+    } catch (Exception e) {
+      LOGGER.error("Fail to get list of table : {}", e.getMessage());
+      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
+              "Fail to get list of database : " + e.getMessage());
+    }
+
+    tableNames.stream()
+            .forEach(tableMap -> {
+              tableMap.put("name", tableMap.get(connection.getTableNameColumn()));
+              tableMap.remove(connection.getTableNameColumn());
+            });
+
+    Map<String, Object> databaseMap = new LinkedHashMap<>();
+    if(StringUtils.isEmpty(tableNamePattern)){
+      databaseMap.put("tables", tableNames);
+      databaseMap.put("page", createPageInfoMap(tableNames.size(), tableNames.size(), 0));
+    } else {
+      List filteredList = tableNames.stream()
+              .filter(tableMap -> tableMap.get("name").toString().contains(tableNamePattern))
+              .collect(Collectors.toList());
+      databaseMap.put("tables", filteredList);
+      databaseMap.put("page", createPageInfoMap(filteredList.size(), filteredList.size(), 0));
+    }
+
+    return databaseMap;
+  }
+
   public Map<String, Object> searchTablesWithHiveMetastore(JdbcDataConnection connection, DataSource dataSource,
                                                            String schema, String tableNamePattern, Pageable pageable) {
 
@@ -680,7 +720,7 @@ public class JdbcConnectionService {
     } catch (JdbcDataConnectionException jdbce) {
       if (jdbce.getCode() == JdbcDataConnectionErrorCodes.HIVE_METASTORE_ERROR_CODE) {
         LOGGER.debug("Fail to Connect To Hive MetaStore Directly : {}", jdbce.getMessage());
-        return searchTablesWithMetadata(connection, dataSource, schema, tableNamePattern, pageable);
+        return searchTablesWithMetadata(connection, dataSource, schema, tableNamePattern);
       } else {
         LOGGER.error("Fail to get list of table : {}", jdbce.getMessage());
         throw jdbce;
@@ -704,7 +744,7 @@ public class JdbcConnectionService {
   }
 
   public Map<String, Object> searchTablesWithMetadata(JdbcDataConnection connection, DataSource dataSource,
-                                                      String schema, String tableName, Pageable pageable) {
+                                                      String schema, String tableName) {
 
     String tableNamePattern = null;
     if (!StringUtils.isEmpty(tableName)) {
@@ -797,7 +837,7 @@ public class JdbcConnectionService {
 
       rs = stmt.executeQuery(query);
 
-      queryResultSet = getResult(rs, extractColumnName);
+      queryResultSet = getJdbcQueryResult(rs, extractColumnName);
       // queryResultSet.setTotalRows(totalRows);
     } catch (Exception e) {
       LOGGER.error("Fail to query for select :  {}", e.getMessage());
@@ -1263,52 +1303,13 @@ public class JdbcConnectionService {
     return countOfSelectQuery(connection, getDataSource(connection, true), jdbcInfo);
   }
 
-  public JdbcQueryResultResponse getResult(ResultSet rs) throws SQLException {
-    return getResult(rs, false);
+  public JdbcQueryResultResponse getJdbcQueryResult(ResultSet rs) throws SQLException {
+    return getJdbcQueryResult(rs, false);
   }
 
-  public JdbcQueryResultResponse getResult(ResultSet rs, boolean extractColumnName) throws SQLException {
-    ResultSetMetaData metaData = rs.getMetaData();
-
-    int colNum = metaData.getColumnCount();
-
-    List<Field> fields = Lists.newArrayList();
-    for (int i = 1; i <= colNum; i++) {
-      final String fieldName;
-      if(extractColumnName){
-        fieldName = extractColumnName(metaData.getColumnLabel(i));
-      } else {
-        fieldName = removeDummyPrefixColumnName(metaData.getColumnLabel(i));
-      }
-      String uniqueFieldName = generateUniqueColumnName(fieldName, fields);
-
-      Field field = new Field();
-      field.setName(uniqueFieldName);
-      field.setType(DataType.jdbcToFieldType((metaData.getColumnType(i))));
-      field.setRole(field.getType().toRole());
-      fields.add(field);
-    }
-
-    List<Map<String, Object>> data = Lists.newArrayList();
-    while (rs.next()) {
-      Map<String, Object> rowMap = Maps.newLinkedHashMap();
-      for (int i = 1; i <= colNum; i++) {
-        //@TODO require Oracle JDBC configuartion
-//        if (rs.getObject(i) instanceof TIMESTAMP) { // Oracle Timestamp Case
-//          TIMESTAMP timestamp = (TIMESTAMP) rs.getObject(i);
-//          rowMap.put(fields.get(i - 1).getName(), timestamp.timestampValue().toString());
-//        } else
-          if (rs.getObject(i) instanceof Timestamp) {
-          rowMap.put(fields.get(i - 1).getName(), rs.getObject(i).toString());
-        } else if (rs.getObject(i) instanceof PrestoArray) {
-          rowMap.put(fields.get(i - 1).getName(), ((PrestoArray) rs.getObject(i)).getArray());
-        } else {
-          rowMap.put(fields.get(i - 1).getName(), rs.getObject(i));
-        }
-      }
-      data.add(rowMap);
-    }
-
+  public JdbcQueryResultResponse getJdbcQueryResult(ResultSet rs, boolean extractColumnName) throws SQLException {
+    List<Field> fields = getFieldList(rs, extractColumnName);
+    List<Map<String, Object>> data = getDataList(rs, fields);
     return new JdbcQueryResultResponse(fields, data);
   }
 
@@ -1446,8 +1447,9 @@ public class JdbcConnectionService {
 
   public Map<String, Object> searchDatabases(JdbcDataConnection connection, DataSource dataSource,
                                              String databaseNamePattern, Pageable pageable) {
-    if (connection instanceof MySQLConnection
-        || connection instanceof MssqlConnection) {
+    if (
+            connection instanceof MySQLConnection ||
+            connection instanceof MssqlConnection) {
       return searchDatabasesWithQueryPageable(connection, dataSource, databaseNamePattern, pageable);
     } else if (connection instanceof PostgresqlConnection) {
       return searchDatabasesWithQueryPageable(connection, dataSource, databaseNamePattern, pageable);
@@ -1650,5 +1652,76 @@ public class JdbcConnectionService {
     JdbcUtils.closeResultSet(rs);
     JdbcUtils.closeStatement(stmt);
     JdbcUtils.closeConnection(connection);
+  }
+
+  public int writeResultSetToCSV(ResultSet resultSet, String tempCsvFilePath){
+    JdbcCSVWriter jdbcCSVWriter = null;
+    int rowNumber = 0;
+    try {
+      jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempCsvFilePath), CsvPreference.STANDARD_PREFERENCE);
+      jdbcCSVWriter.write(resultSet);
+      rowNumber = jdbcCSVWriter.getRowNumber();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      try{
+        if(jdbcCSVWriter != null)
+          jdbcCSVWriter.close();
+      }catch (IOException e){}
+    }
+    return rowNumber;
+  }
+
+  public List<Field> getFieldList(ResultSet rs, boolean extractColumnName) throws SQLException {
+    ResultSetMetaData metaData = rs.getMetaData();
+
+    int colNum = metaData.getColumnCount();
+
+    List<Field> fields = Lists.newArrayList();
+    for (int i = 1; i <= colNum; i++) {
+      final String fieldName;
+      if(extractColumnName){
+        fieldName = extractColumnName(metaData.getColumnLabel(i));
+      } else {
+        fieldName = removeDummyPrefixColumnName(metaData.getColumnLabel(i));
+      }
+      String uniqueFieldName = generateUniqueColumnName(fieldName, fields);
+
+      Field field = new Field();
+      field.setName(uniqueFieldName);
+      field.setType(DataType.jdbcToFieldType((metaData.getColumnType(i))));
+      field.setRole(field.getType().toRole());
+      fields.add(field);
+    }
+    return fields;
+  }
+
+  public List<Map<String, Object>> getDataList(ResultSet rs, List<Field> fields) throws SQLException {
+    ResultSetMetaData metaData = rs.getMetaData();
+    int colNum = metaData.getColumnCount();
+
+    List<Map<String, Object>> dataList = Lists.newArrayList();
+    while (rs.next()) {
+      Map<String, Object> rowMap = Maps.newLinkedHashMap();
+      for (int i = 1; i <= colNum; i++) {
+        String fieldName = fields.get(i - 1).getName();
+        //@TODO require Oracle JDBC configuartion
+//        if (rs.getObject(i) instanceof TIMESTAMP) { // Oracle Timestamp Case
+//          TIMESTAMP timestamp = (TIMESTAMP) rs.getObject(i);
+//          rowMap.put(fieldName, timestamp.timestampValue().toString());
+//        } else
+        if (rs.getObject(i) instanceof Timestamp) {
+          rowMap.put(fieldName, rs.getObject(i).toString());
+        } else if (rs.getObject(i) instanceof PrestoArray) {
+          rowMap.put(fieldName, ((PrestoArray) rs.getObject(i)).getArray());
+        } else {
+          rowMap.put(fieldName, rs.getObject(i));
+        }
+      }
+      dataList.add(rowMap);
+    }
+    return dataList;
   }
 }

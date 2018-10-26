@@ -31,7 +31,6 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -64,6 +63,21 @@ public class PrepTransformController {
 
     LOGGER.trace("create(): end");
     return ResponseEntity.ok(response);
+  }
+
+  @RequestMapping(value = "/preparationdatasets/{oldDsId}/swap/{newDsId}", method = RequestMethod.POST, produces = "application/json")
+  public @ResponseBody ResponseEntity<?> swap(
+          @PathVariable("oldDsId") String oldDsId,
+          @PathVariable("newDsId") String newDsId) throws Throwable {
+    try {
+      List<String> affectedDsIds = transformService.swap(oldDsId, newDsId);
+      transformService.after_swap(affectedDsIds);
+    } catch (Exception e) {
+      LOGGER.error("swap(): caught an exception: ", e);
+      throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+    }
+
+    return ResponseEntity.ok(new PrepTransformResponse());
   }
 
   // 대상 wrangled dataset과 똑같은 dataset을 생성 (rule도 모두 적용)
@@ -102,7 +116,12 @@ public class PrepTransformController {
     if (offset == 0 && count >= gridResponse.rows.size()) {
       subGrid.rows = gridResponse.rows;
     } else {
-      subGrid.rows = gridResponse.rows.subList(offset, offset + count);
+      int toIndex = offset + count;
+      if(gridResponse.rows.size()<toIndex) {
+        toIndex = gridResponse.rows.size();
+      }
+
+      subGrid.rows = gridResponse.rows.subList(offset, toIndex);
     }
 
     return subGrid;

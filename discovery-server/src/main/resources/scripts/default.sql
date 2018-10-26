@@ -121,40 +121,36 @@ INSERT INTO role_set_workspace(RS_ID, WS_ID) VALUES
 
 -- DataSource
 INSERT INTO datasource(id, ds_name, ds_engine_name, ds_owner_id, ds_desc, ds_type, ds_src_type,ds_conn_type, ds_granularity, ds_status, ds_published, version, created_time, created_by, modified_time, modified_by) values
-('ds-37', 'sales', 'sales', 'polaris', 'sales data (2011~2014)', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris');
+('ds-37', 'sales', 'sales', 'polaris', 'Sales data (2011~2014)', 'MASTER', 'IMPORT', 'ENGINE', 'DAY', 'ENABLED', true, 1.0, NOW(), 'polaris',  NOW(), 'polaris');
 
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037028, 'ds-37', 0, 'OrderDate', 'TIMESTAMP', null, 'TIMESTAMP' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037001, 'ds-37', 1, 'Category', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037002, 'ds-37', 2, 'City', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037003, 'ds-37', 3, 'Country', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037004, 'ds-37', 4, 'CustomerName', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037005, 'ds-37', 5, 'Discount', 'DOUBLE', null, 'MEASURE' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037006, 'ds-37', 6, 'OrderID', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037007, 'ds-37', 7, 'PostalCode', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037008, 'ds-37', 8, 'ProductName', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037009, 'ds-37', 9, 'Profit', 'DOUBLE', null, 'MEASURE' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037010, 'ds-37', 10, 'Quantity', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037011, 'ds-37', 11, 'Region', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037012, 'ds-37', 12, 'Sales', 'DOUBLE', null, 'MEASURE' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037013, 'ds-37', 13, 'Segment', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role, field_format ) values(10037014, 'ds-37', 14, 'ShipDate', 'STRING', 'TIMESTAMP', 'DIMENSION',  'yyyy. MM. dd.');
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037015, 'ds-37', 15, 'ShipMode', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037016, 'ds-37', 16, 'State', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037017, 'ds-37', 17, 'Sub-Category', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037018, 'ds-37', 18, 'DaystoShipActual', 'DOUBLE', null, 'MEASURE' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037019, 'ds-37', 19, 'SalesForecast', 'DOUBLE', null, 'MEASURE' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037020, 'ds-37', 20, 'ShipStatus', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037021, 'ds-37', 21, 'DaystoShipScheduled', 'DOUBLE', null, 'MEASURE' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037022, 'ds-37', 22, 'OrderProfitable', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037023, 'ds-37', 23, 'SalesperCustomer', 'DOUBLE', null, 'MEASURE' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037024, 'ds-37', 24, 'ProfitRatio', 'DOUBLE', null, 'MEASURE' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037025, 'ds-37', 25, 'SalesaboveTarget', 'STRING', null, 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037026, 'ds-37', 26, 'latitude', 'STRING', 'LNT', 'DIMENSION' );
-INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role) values(10037027, 'ds-37', 27, 'longitude', 'STRING', 'LNG', 'DIMENSION' );
-
-INSERT INTO notebook_connector(type, id, created_by, created_time, modified_by, modified_time, version, nc_name, nc_desc, nc_hostname, nc_port) VALUES
-('jupyter', 'notebook-jupyter-01', 'polaris', NOW(), 'polaris', NOW(), 0, 'jupyter-default', NULL, 'jupyter.mcloud.sktelecom.com', 80);
-INSERT INTO notebook_connector(type, id, created_by, created_time, modified_by, modified_time, version, nc_name, nc_desc, nc_hostname, nc_port) VALUES
-('zeppelin', 'notebook-zeppelin-01', 'polaris', NOW(), 'polaris', NOW(), 0, 'zeppelin-default', NULL, 'zeppelin.mcloud.sktelecom.com', 80);
+INSERT INTO field(id, ds_id, seq, field_name, field_type, field_logical_type, field_role, field_format) values
+(10037028, 'ds-37', 0, 'OrderDate', 'TIMESTAMP', 'TIMESTAMP', 'TIMESTAMP', null),
+(10037001, 'ds-37', 1, 'Category', 'STRING', 'STRING', 'DIMENSION', null),
+(10037002, 'ds-37', 2, 'City', 'STRING', null, 'DIMENSION', null),
+(10037003, 'ds-37', 3, 'Country', 'STRING', null, 'DIMENSION', null),
+(10037004, 'ds-37', 4, 'CustomerName', 'STRING', null, 'DIMENSION', null),
+(10037005, 'ds-37', 5, 'Discount', 'DOUBLE', null, 'MEASURE', null),
+(10037006, 'ds-37', 6, 'OrderID', 'STRING', null, 'DIMENSION', null),
+(10037007, 'ds-37', 7, 'PostalCode', 'STRING', null, 'DIMENSION', null),
+(10037008, 'ds-37', 8, 'ProductName', 'STRING', null, 'DIMENSION', null),
+(10037009, 'ds-37', 9, 'Profit', 'DOUBLE', null, 'MEASURE', null),
+(10037010, 'ds-37', 10, 'Quantity', 'STRING', null, 'DIMENSION', null),
+(10037011, 'ds-37', 11, 'Region', 'STRING', null, 'DIMENSION', null),
+(10037012, 'ds-37', 12, 'Sales', 'DOUBLE', null, 'MEASURE', null),
+(10037013, 'ds-37', 13, 'Segment', 'STRING', null, 'DIMENSION', null),
+(10037014, 'ds-37', 14, 'ShipDate', 'STRING', 'TIMESTAMP', 'DIMENSION',  'yyyy. MM. dd.'),
+(10037015, 'ds-37', 15, 'ShipMode', 'STRING', null, 'DIMENSION', null),
+(10037016, 'ds-37', 16, 'State', 'STRING', null, 'DIMENSION', null),
+(10037017, 'ds-37', 17, 'Sub-Category', 'STRING', null, 'DIMENSION', null),
+(10037018, 'ds-37', 18, 'DaystoShipActual', 'DOUBLE', null, 'MEASURE', null),
+(10037019, 'ds-37', 19, 'SalesForecast', 'DOUBLE', null, 'MEASURE', null),
+(10037020, 'ds-37', 20, 'ShipStatus', 'STRING', null, 'DIMENSION', null),
+(10037021, 'ds-37', 21, 'DaystoShipScheduled', 'DOUBLE', null, 'MEASURE', null),
+(10037022, 'ds-37', 22, 'OrderProfitable', 'STRING', null, 'DIMENSION', null),
+(10037023, 'ds-37', 23, 'SalesperCustomer', 'DOUBLE', null, 'MEASURE', null),
+(10037024, 'ds-37', 24, 'ProfitRatio', 'DOUBLE', null, 'MEASURE', null),
+(10037025, 'ds-37', 25, 'SalesaboveTarget', 'STRING', null, 'DIMENSION', null),
+(10037026, 'ds-37', 26, 'latitude', 'STRING', 'LNT', 'DIMENSION', null),
+(10037027, 'ds-37', 27, 'longitude', 'STRING', 'LNG', 'DIMENSION', null);
 
 COMMIT;

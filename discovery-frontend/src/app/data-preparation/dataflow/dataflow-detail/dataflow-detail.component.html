@@ -43,11 +43,11 @@
           </div>
           <!-- 편집 input -->
           <div class="ddp-wrap-input" >
-            <input #dfName type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.name' | translate}}"
+            <input #dfName class="ddp-input-navi"
+                   placeholder="{{'msg.comm.ui.create.name' | translate}}"
                    (keyup.enter)="isDataflowNameEditMode ? updateDataflow() : null;"
                    (clickOutside)="isDataflowNameEditMode ? setDataflowName(): null;"
-                   [(ngModel)]="dataflowName"
-                   maxlength="50">
+                   [(ngModel)]="dataflowName" maxlength="50">
             <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataflow();"></span>
           </div>
           <!-- //편집 input -->
@@ -64,9 +64,9 @@
           </div>
           <!-- 편집 input -->
           <div class="ddp-wrap-input" >
-            <input #dfDesc type="text" class="ddp-input-navi" placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                   [(ngModel)]="dataflowDesc"
-                   maxlength="150"
+            <input #dfDesc class="ddp-input-navi"
+                   placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                   [(ngModel)]="dataflowDesc" maxlength="150"
                    (keyup.enter)="isDataflowDescEditMode ? updateDataflow() : null;"
                    (clickOutside)="isDataflowDescEditMode? setDataflowDesc() : null;">
             <span class="ddp-btn-check" (click)="$event.stopPropagation(); updateDataflow();"></span>
@@ -94,7 +94,7 @@
 
 
   <div class="ddp-wrap-flow2 ddp-type" *ngIf="(dataflow && 0 !== dataflow.importedDsCount) ||  (dataflow && 0 !== dataflow.wrangledDsCount)">
-    <div class="sys-dataflow-left-panel ddp-split-chart" >
+    <div class="sys-dataflow-left-panel ddp-split-chart">
       <!-- 데이터 -->
       <div class="ddp-ui-number">
         <a href="javascript:" class="ddp-link-set" (click)="addDatasets()"><em class="ddp-icon-add"></em>{{'msg.dp.btn.add.new.ds' | translate}}</a>
@@ -107,7 +107,11 @@
       </div>
       <!-- //데이터 -->
       <!-- chart 부분 -->
-      <div id="chartCanvas" class="ddp-box-chart" [ngClass]="{'ddp-selected' : selectedDataSet.dsId && selectedDataSet.dsId !== null && selectedDataSet.dsType}"></div>
+      <!-- chart height resize 적용을 위해 하위 div 처리 -->
+      <div class="ddp-box-chart" [ngClass]="{'ddp-selected' : selectedDataSet.dsId && selectedDataSet.dsId !== null && selectedDataSet.dsType}">
+        <div id="chartCanvas" style="width:100%;height:100%;"></div>
+      </div>
+      <!-- //chart height resize 적용을 위해 하위 div 처리 -->
       <!-- //chart 부분 -->
     </div>
 
@@ -123,7 +127,8 @@
         (cloneEventHandler)="datasetClone($event)"
         (changeDataflow)="selectDataflow($event)"
         (createSnapshotEvent)="openSnapshotPopup()"
-        (updateDataflow)="getDataflow(); changeChartClickStatus(this.selectedDataSet,true); datasetInfoPopup.setDataset(this.selectedDataSet)">
+        (updateDataflow)="getDataflow(); changeChartClickStatus(this.selectedDataSet,true); datasetInfoPopup.setDataset(this.selectedDataSet)"
+        (datasetSelectPopupOpen)="openAddDatasetPopup($event)">
       </app-dataset-info-popup>
     </div>
     <!-- //그리드 아이콘 클릭시 데이터셋 상세 팝업 -->
@@ -137,10 +142,6 @@
 <app-delete-modal (deleteConfirm)="deleteDataflow()"></app-delete-modal>
 <!-- //데이터 플로우 삭제 -->
 
-<!-- 데이터 셋 추가하기 -->
-<app-add-dataset-modal (datasetComplete)="datasetComplete($event);" [dataflow]="dataflow" *ngIf="isDatasetModalShow"></app-add-dataset-modal>
-<!-- //데이터 셋 추가하기 -->
-
 <!-- 룰 편집 화면 -->
 <app-edit-dataflow-rule-2 *ngIf="step=='update-rules'"
                         [dataflow]="dataflow"
@@ -150,7 +151,17 @@
                         (closeEditRule)="closeEditRule()">
 </app-edit-dataflow-rule-2>
 <!-- //룰 편집 화면 -->
+
 <app-add-dataset *ngIf="isDatasetAddPopupOpen" (closeEvent)="closeAddDatasetPopup()" (doneEvent)="datasetComplete($event);" [dataflowId]="dataflow.dfId" [originalDatasetList]="dataSetList"></app-add-dataset>
+
+<long-update-popup
+  *ngIf="isSelectDatasetPopupOpen"
+  [title]="datasetPopupTitle"
+  [selectedDatasetId]="swapDatasetId"
+  (closeEvent)="isSelectDatasetPopupOpen = false"
+  (doneEvent)="datasetPopupFinishEvent($event)"
+  [isRadio]="isRadio">
+</long-update-popup>
 
 <create-snapshot-popup (snapshotCreateFinishEvent)="snapshotCreateFinish($event)"></create-snapshot-popup>
 <snapshot-loading></snapshot-loading>
