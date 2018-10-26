@@ -361,8 +361,6 @@ public class QueryEditorService {
           } else {
             queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
           }
-          sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE, queryIndex,
-                  queryEditorId, workbenchId, webSocketId);
         }
       }
     } catch(Exception e){
@@ -370,6 +368,8 @@ public class QueryEditorService {
       LOGGER.error("Query Execute Error : {}", e.getMessage());
       queryResult = createMessageResult(e.getMessage(), query, QueryResult.QueryResultStatus.FAIL);
     } finally {
+      sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE, queryIndex,
+              queryEditorId, workbenchId, webSocketId);
       if (logThread != null) {
         if (!logThread.isInterrupted()) {
           logThread.interrupt();
