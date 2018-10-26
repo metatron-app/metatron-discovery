@@ -11,7 +11,7 @@ const PROXY_CONFIG = [
     context: [
       "/stomp"
     ],
-    target: "http:/localhost:8180",
+    target: "http://localhost:8180",
     secure: false
   }
 ];

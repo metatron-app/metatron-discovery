@@ -201,6 +201,25 @@ export class WorkbenchService extends AbstractService {
     return this.post(this.API_URL + `queryeditors/${id}/query/result`, param);
   }
 
+  // 스키마 정보 데이터 조회
+  public getSchemaInfoTableData(table:string, connection:any) {
+    const params:any = {};
+
+    let connInfo: any = {};
+    connInfo.implementor = connection.implementor;
+    connInfo.hostname = connection.hostname;
+    connInfo.port = connection.port;
+    connInfo.username = connection.username;
+    connInfo.password = connection.password;
+
+    params.connection = connInfo;
+    params.schema = connection.database;
+    params.type = 'QUERY';
+    params.query = 'select * from ' + connection.database + '.' + table;
+
+    return this.post(this.API_URL + 'connections/query/data', params);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

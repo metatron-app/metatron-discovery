@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.Set;
 
+import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
@@ -38,7 +39,6 @@ import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 import app.metatron.discovery.query.druid.AbstractQueryBuilder;
 import app.metatron.discovery.query.druid.Dimension;
-import app.metatron.discovery.query.druid.Granularity;
 import app.metatron.discovery.query.druid.dimensions.DefaultDimension;
 import app.metatron.discovery.query.druid.dimensions.ExtractionDimension;
 import app.metatron.discovery.query.druid.dimensions.LookupDimension;
@@ -53,7 +53,7 @@ import app.metatron.discovery.query.druid.virtualcolumns.ExprVirtualColumn;
 import static app.metatron.discovery.domain.workbook.configurations.field.Field.FIELD_NAMESPACE_SEP;
 
 /**
- * Created by kyungtaak on 2016. 7. 2..
+ * Builder for select query specification
  */
 public class SelectQueryBuilder extends AbstractQueryBuilder {
 
@@ -62,8 +62,6 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
   private List<Dimension> dimensions = Lists.newArrayList();
 
   private Set<String> metrics = Sets.newLinkedHashSet();
-
-  private Granularity granularity;
 
   private PagingSpec pagingSpec = new PagingSpec(100);
 
@@ -111,7 +109,15 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
         FieldFormat format = dimensionField.getFormat();
         app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
 
-        // ValueAlias 처리, 기존 format 이나 Type 별 처리는 무시됨
+        // In case of GEO Type, druid engine recognizes it as metric
+        if (datasourceField.getLogicalType() == LogicalType.GEO_POINT
+            || datasourceField.getLogicalType() == LogicalType.GEO_POLYGON
+            || datasourceField.getLogicalType() == LogicalType.GEO_LINE) {
+          metrics.add(fieldName);
+          continue;
+        }
+
+        // ValueAlias Part, Processing by existing format or type is ignored
         if (MapUtils.isNotEmpty(dimensionField.getValuePair())) {
           dimensions.add(new LookupDimension(fieldName,
                                              aliasName,
@@ -132,7 +138,7 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
               extractionDimension.setOutputName(aliasName);
 
               extractionDimension.setExtractionFn(
-                  new TimeParsingFunction(datasourceField.getTimeFormat(),
+                  new TimeParsingFunction(datasourceField.getFormat(),
                                           timeFormat.getFormat(),
                                           timeFormat.getLocale(),
                                           timeFormat.getTimeZone())
@@ -178,8 +184,8 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
           app.metatron.discovery.domain.datasource.Field datasourceField = metaFieldMap.get(fieldName);
 
           timeFormatFunc = new TimeFormatFunc(timestampField.getPredefinedColumn(dataSource instanceof MappingDataSource),
-                                              datasourceField.getTimeFormat() == null ?
-                                                  TimeFieldFormat.DEFAULT_DATETIME_FORMAT : datasourceField.getTimeFormat(),
+                                              datasourceField.getFormat() == null ?
+                                                  TimeFieldFormat.DEFAULT_DATETIME_FORMAT : datasourceField.getFormat(),
                                               null,
                                               null);
         }
