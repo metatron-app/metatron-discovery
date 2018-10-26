@@ -159,7 +159,7 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
     let fieldsStr:string = this.getAttrValueInRuleString( 'order', ruleString );
     if( '' !== fieldsStr ) {
       const arrFields:string[] = ( -1 < fieldsStr.indexOf( ',' ) ) ? fieldsStr.split(',') : [fieldsStr];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
     }
 
     this.sortBy = this.getAttrValueInRuleString( 'type', ruleString );
