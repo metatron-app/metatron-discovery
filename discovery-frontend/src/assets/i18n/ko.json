@@ -1694,6 +1694,7 @@
   "msg.storage.ui.schema.column.format.null" : "Please enter in the same format as the data value",
   "msg.storage.ui.schema.valid.timestamp" : "Type in time format or leave it blank",
   "msg.storage.ui.schema.valid.timestamp.null" : "Please enter the time display format set above",
+  "msg.storage.ui.schema.valid.timestamp.pre.valid" : "Please check the time display format above",
   "msg.storage.ui.schema.valid.boolean" : "Type true, false or leave it blank",
   "msg.storage.ui.schema.valid.string" : "Type in String or leave it blank",
   "msg.storage.ui.schema.valid.integer" : "Type in integer or leave it blank",

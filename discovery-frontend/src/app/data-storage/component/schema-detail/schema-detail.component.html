@@ -204,7 +204,7 @@
                 </div>
                 <div class="ddp-type-format ddp-fright">
                   <label class="ddp-label-checkbox" (click)="onClickUnixCode(); $event.preventDefault()">
-                    <input type="checkbox" [checked]="column.format?.type?.toString() === 'time_unix'" [disabled]="column.isDefaultFormat">
+                    <input type="checkbox" [checked]="column.format?.type?.toString() === 'time_unix'">
                     <i class="ddp-icon-checkbox"></i>
                     <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable.unix' | translate}}</span>
                   </label>
@@ -213,13 +213,14 @@
 
               <!-- edit format -->
               <div class="ddp-ui-option-in">
-                <div class="ddp-input-apply" *ngIf="!column.isDefaultFormat && column.format?.type?.toString() === 'time_format'">
+                <div class="ddp-input-apply" *ngIf="column.format?.type?.toString() === 'time_format'">
                   <input type="text" class="ddp-input-txt" placeholder="{{'msg.storage.ph.time.format' | translate}}"
-                         [(ngModel)]="column.format.format" (ngModelChange)="initTimeFormatValid()">
+                         [(ngModel)]="column.format.format"
+                         (ngModelChange)="initTimeFormatValid(column)">
+                  <em class="ddp-icon-apply" (click)="onClickTimeFormatValidation(column)"></em>
                 </div>
-                <input *ngIf="column.isDefaultFormat" type="text" class="ddp-input-typebasic ddp-readonly" value="{{column.format.format}}" readonly="readonly" >
-                <div class="ddp-ui-error ddp-italic" *ngIf="column.isTimeError">
-                  <em class="ddp-icon-error"></em>{{'msg.common.ui.required' | translate}}
+                <div class="ddp-ui-error ddp-italic" *ngIf="column.isValidTimeFormat === false">
+                  <em class="ddp-icon-error"></em>{{column.timeFormatValidMessage}}
                 </div>
               </div>
               <!-- //edit format -->
@@ -244,12 +245,14 @@
                         <span class="ddp-txt-radio">{{'msg.storage.ui.replace.with' | translate}}</span>
                       </label>
                       <input type="text" class="ddp-input-typebasic" placeholder="{{getDefaultValue(column.logicalType)}}"
+                             [readOnly]="column.ingestionRule.type !== 'replace'"
                              [(ngModel)]="column['ingestionRule'].value"
-                             (ngModelChange)="ingestionRuleValidation(column.logicalType.toString())">
+                             (ngModelChange)="initReplaceValid(column)"
+                             (keyup)="onKeyupEnterReplaceValidation(column, $event)">
                     </div>
                     <!-- error -->
-                    <div class="ddp-ui-error" *ngIf="column.ingestionRule.type === 'replace' && column.isReplaceError">
-                      <em class="ddp-icon-error"></em>{{getValidationMsg(column.logicalType)}}
+                    <div class="ddp-ui-error" *ngIf="column.ingestionRule.type === 'replace' && column.isValidReplaceValue === false">
+                      <em class="ddp-icon-error"></em>{{column.replaceValidMessage}}
                     </div>
                     <!-- //error -->
                   </li>

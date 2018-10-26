@@ -22,6 +22,7 @@ import { isUndefined } from 'util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
+import { Alert } from '../../../../../common/util/alert.util';
 
 @Component({
   selector: 'db-configure-schema',
@@ -651,7 +652,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
           if (result.hasOwnProperty('pattern')) {
             column.format.format = result.pattern;
             // set default
-            column.isDefaultFormat = true;
+            column.isValidTimeFormat = true;
           }
           resolve(result);
         })
@@ -825,10 +826,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private ingestionRuleValidation(column): boolean {
     // ingestionRule type이  replace 인 경우 error가 있다면 false
-    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace' && column.isReplaceError) {
-      return false;
-    }
-    return true;
+    return column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace' && column.isValidReplaceValue === false ? false : true;
   }
 
   /**
@@ -838,11 +836,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private timestampValidation(column): boolean {
     // timestamp 컬럼이 error가 있다면 false
-    if (column.logicalType === 'TIMESTAMP'
-      && column.isTimeError) {
-      return false;
-    }
-    return true;
+    return column.logicalType === 'TIMESTAMP' && column.isValidTimeFormat === false ? false : true;
   }
 
   /**
@@ -851,10 +845,12 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @returns {boolean}
    */
   private columnsErrorValidation(columnList: any[]): boolean {
-    const result = columnList.filter((column) => {
-      return this.isErrorColumn(column);
-    });
-    return result.length !== 0;
+    if (_.some(columnList, column => this.isErrorColumn(column))) {
+      Alert.warning("에러를 확인하세요");
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -871,7 +867,8 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
     // 변경된 타입이 타임일 경우
     if (this.isEqualType('TIMESTAMP', type)) {
       timestampPromise.push(column);
-      delete column.isDefaultFormat;
+      delete column.isValidTimeFormat;
+      delete column.isValidReplaceValue;
     }
 
     // 컬럼이 타임스탬프로 지정되었던 경우

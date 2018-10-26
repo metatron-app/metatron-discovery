@@ -182,6 +182,10 @@ export class Field {
   isDefaultFormat?: boolean;
   isTimeError?: boolean;
   isReplaceError?: boolean;
+  isValidTimeFormat?: boolean;
+  isValidReplaceValue?: boolean;
+  replaceValidMessage?: string;
+  timeFormatValidMessage?: string;
   removed?: boolean;
 
   // [UI] for Alias

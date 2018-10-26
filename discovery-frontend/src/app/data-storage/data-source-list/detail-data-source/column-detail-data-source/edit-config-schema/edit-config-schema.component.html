@@ -117,8 +117,9 @@
             </td>
             <!-- format -->
             <td>
-              <div class="ddp-input-form">
-                <input type="text" class="ddp-txt-input" *ngIf="column.logicalType.toString() === 'TIMESTAMP'"
+              <div class="ddp-input-form" *ngIf="column.logicalType.toString() === 'TIMESTAMP'">
+                <input type="text" class="ddp-txt-input"
+                       [readOnly]="column.role.toString() === 'TIMESTAMP'"
                        (ngModelChange)="onChangeValue(column)"
                        [(ngModel)]="column.format.format">
                 <em class="ddp-bg-select"></em>
