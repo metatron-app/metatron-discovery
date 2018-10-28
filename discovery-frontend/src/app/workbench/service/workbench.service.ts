@@ -189,6 +189,37 @@ export class WorkbenchService extends AbstractService {
     return this.post(this.API_URL + `queryeditors/${queryEditorId}/status`, param);
   }
 
+  // 쿼리 결과 조회 (페이징 사용)
+  public runQueryResult(editorId: String, csvFilePath : string, pageSize : number, pageNumber : number, fieldList : any) {
+    const id = editorId;
+    const param = {
+      csvFilePath : csvFilePath,
+      pageSize    : pageSize,
+      pageNumber  : pageNumber,
+      fieldList   : fieldList
+    };
+    return this.post(this.API_URL + `queryeditors/${id}/query/result`, param);
+  }
+
+  // 스키마 정보 데이터 조회
+  public getSchemaInfoTableData(table:string, connection:any) {
+    const params:any = {};
+
+    let connInfo: any = {};
+    connInfo.implementor = connection.implementor;
+    connInfo.hostname = connection.hostname;
+    connInfo.port = connection.port;
+    connInfo.username = connection.username;
+    connInfo.password = connection.password;
+
+    params.connection = connInfo;
+    params.schema = connection.database;
+    params.type = 'QUERY';
+    params.query = 'select * from ' + connection.database + '.' + table;
+
+    return this.post(this.API_URL + 'connections/query/data', params);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

@@ -45,6 +45,8 @@ import {SecondaryIndicatorComponent} from "./chart-style/secondary-indicator.com
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
 import {MapPagePivotComponent} from "./page-pivot/map/map-page-pivot.component";
 import {MapLayerOptionComponent} from "./chart-style/map/map-layer-option.component";
+import {MapLayerOptionComponent2} from "./chart-style/map/map-layer-option2.component";
+import {MapLayerOptionComponent3} from "./chart-style/map/map-layer-option3.component";
 import {MapLegendOptionComponent} from "./chart-style/map/map-legend-option.component";
 import {MapFormatOptionComponent} from "./chart-style/map/map-format-option.component";
 import {MapTooltipOptionComponent} from "./chart-style/map/map-tooltip-option.component";
@@ -82,6 +84,8 @@ import {MapCommonOptionComponent} from "./chart-style/map/map-common-option.comp
     MapPagePivotComponent,
     MapCommonOptionComponent,
     MapLayerOptionComponent,
+    MapLayerOptionComponent2,
+    MapLayerOptionComponent3,
     MapLegendOptionComponent,
     MapFormatOptionComponent,
     MapTooltipOptionComponent

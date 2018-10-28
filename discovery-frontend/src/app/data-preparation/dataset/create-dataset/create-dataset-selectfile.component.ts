@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { FileLikeObject, FileUploader } from 'ng2-file-upload';
@@ -21,7 +21,7 @@ import { CookieConstant } from '../../../common/constant/cookie.constant';
 import { DatasetFile } from '../../../domain/data-preparation/dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { isUndefined } from 'util';
-import { DatasetService } from '../service/dataset.service';
+import { DatasetService } from "../service/dataset.service";
 
 @Component({
   selector: 'app-create-dataset-selectfile',
@@ -32,7 +32,10 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @ViewChild('fileUpload')
+  private fileUpload: ElementRef;
 
+  private interval : any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -40,7 +43,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   @Input()
   public datasetFile: DatasetFile;
 
@@ -50,17 +52,13 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   // 파일 업로드 결과
   public uploadResult;
 
-  public allowFileType: string[] = ['text/csv'];
-
-  @ViewChild('fileUpload')
-  private fileUpload: ElementRef;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   // 생성자
-  constructor(private popupService: PopupService,
+  constructor(private datasetService: DatasetService,
+              private popupService: PopupService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -68,15 +66,14 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
 
     this.uploader = new FileUploader(
       {
-        url: CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload',
-        // allowedFileType: this.allowFileType
+        url: CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload_async',
       }
     );
 
     // 옵션 설정
     this.uploader.setOptions({
       url: CommonConstant.API_CONSTANT.API_URL
-      + 'preparationdatasets/upload',
+      + 'preparationdatasets/upload_async',
       headers: [
         { name: 'Accept', value: 'application/json, text/plain, */*' },
         {
@@ -89,8 +86,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     // add 가 처음
     this.uploader.onAfterAddingFile = (item) => {
       this.loadingShow();
-      let ext = item.file.name.split('.')[1];
-      if( ext !== 'csv' && false==ext.startsWith('xls') ) { // 윈도우에서 타입으로 파일 체크 불가 그래서 이름으로 ..
+      if(!new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).test( item.file.name )) { // check file extension
         this.uploader.clearQueue();
         this.fileUpload.nativeElement.value = ''; // 같은 파일은 연속으로 올리면 잡지 못해서 초기화
         Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
@@ -114,6 +110,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     this.uploader.onSuccessItem = (item, response, status, headers) => {
       const success = true;
       this.uploadResult = { success, item, response, status, headers };
+      this.checkIfUploaded(response);
     };
 
     // 업로드 하고 에러났을때
@@ -122,25 +119,17 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
       this.loadingHide();
     };
 
-    // 마지막
-    this.uploader.onCompleteAll = () => {
-      const that: any = this;
-      if (this.uploadResult && this.uploadResult.success) { // file upload 성공
-        let _success = false;
-        if (this.uploadResult.response) {
-          let resp = JSON.parse(this.uploadResult.response);
-          if(resp && true==resp.success) {
-            _success = true;
-          }
-        }
-        if(true==_success) {
-          this.getDataFile();
-        } else {
-          Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-        }
-      }
-      this.loadingHide();
-    };
+    // // 마지막
+    // this.uploader.onCompleteAll = () => {
+    //   this.loadingHide();
+    //   let res = JSON.parse(this.uploadResult.response);
+    //   if (res.success !== false) {
+    //     this.getDataFile();
+    //   } else {
+    //     Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
+    //     return;
+    //   }
+    // };
 
   }
 
@@ -148,24 +137,13 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
    | Override Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  // Init
   public ngOnInit() {
-
-    // Init
     super.ngOnInit();
   }
 
-  // change 이벤트 처리
-  public ngOnChanges(changes: SimpleChanges) {
 
-  }
-
-  // Destory
   public ngOnDestroy() {
-    // Destory
     super.ngOnDestroy();
-
-    // 이벤트도 해제 되겠지?
     this.uploader = null;
   }
 
@@ -193,6 +171,12 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
   }
 
   public close() {
+
+    // Check if came from dataflow
+    if (this.datasetService.dataflowId) {
+      this.datasetService.dataflowId = undefined;
+    }
+
     super.close();
 
     this.popupService.notiPopup({
@@ -201,13 +185,16 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     });
   }
 
-// 업로드 한 파일 조회
+
+  /**
+   * Get grid information of file
+   */
   public getDataFile() {
     if (isUndefined(this.datasetFile)) {
       return;
     }
 
-    const response: any = JSON.parse(this.uploadResult.response);
+    const response: any = this.uploadResult.response;
     this.datasetFile.filename = response.filename;
     this.datasetFile.filepath = response.filepath;
     this.datasetFile.sheets = response.sheets;
@@ -215,61 +202,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
       this.datasetFile.sheetname = response.sheets[0];
     }
     this.datasetFile.filekey = response.filekey;
-    /*
-    this.loadingShow();
-    if (isUndefined(this.datasetFile.sheets)) {
-      // csv
-      this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
-        this.datasetFile.totalLines = result.totalRows;
-        this.datasetFile.totalBytes = result.totalBytes;
-        this.loadingHide();
-        if (result.success === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-          return;
-        }
-      })
-        .catch((error) => {
-                this.loadingHide();
-                let prep_error = this.dataprepExceptionHandler(error);
-                PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-    } else if (this.datasetFile.sheets.length === 0) {
-      // csv
-      this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
-        this.datasetFile.totalLines = result.totalRows;
-        this.datasetFile.totalBytes = result.totalBytes;
-        this.loadingHide();
-        if (result.success === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-          return;
-        }
-      })
-        .catch((error) => {
-                this.loadingHide();
-                let prep_error = this.dataprepExceptionHandler(error);
-                PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-    } else {
-      // excel
-      this.datasetService.getDatasetExcelFile(this.datasetFile).then((result) => {
-        this.datasetFile.totalLines = result.totalRows;
-        this.datasetFile.totalBytes = result.totalBytes;
-        this.loadingHide();
-        if (result.success === false) {
-          Alert.warning(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-          this.datasetFile = null;
-          this.datasetFile = new DatasetFile();
-          return;
-        }
-
-      })
-        .catch((error) => {
-                this.loadingHide();
-                let prep_error = this.dataprepExceptionHandler(error);
-                PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-    }
-    */
 
     if (!isUndefined(this.datasetFile.filename)) {
       this.popupService.notiPopup({
@@ -278,6 +210,39 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
       });
 
     }
+  }
+
+  /**
+   * Check if uploaded
+   * @param response
+   */
+  public checkIfUploaded(response: any) {
+    let res = JSON.parse(response);
+    this.fetchUploadStatus(res.filekey);
+    this.interval = setInterval(() => {
+      this.fetchUploadStatus(res.filekey);
+    }, 1000)
+  }
+
+  /**
+   * Polling
+   * @param {string} fileKey
+   */
+  public fetchUploadStatus(fileKey: string) {
+    this.datasetService.checkFileUploadStatus(fileKey).then((result) => {
+      this.loadingHide();
+      if (result.state === 'done' && result.success) { // Upload finished
+        clearInterval(this.interval);
+        this.interval = undefined;
+        this.uploadResult.response = result;
+        this.getDataFile();
+      } else if (result.success === false) { // upload failed
+        Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
+        clearInterval(this.interval);
+        this.interval = undefined;
+        return;
+      }
+    });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

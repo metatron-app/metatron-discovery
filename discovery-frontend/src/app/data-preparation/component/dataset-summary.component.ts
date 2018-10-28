@@ -16,14 +16,14 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnInit, Output, SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { GridComponent } from '../../../common/component/grid/grid.component';
-import { DatasetService } from '../../dataset/service/dataset.service';
-import { Dataset, Field } from '../../../domain/data-preparation/dataset';
-import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
+import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
+import { AbstractComponent } from '../../common/component/abstract.component';
+import { GridComponent } from '../../common/component/grid/grid.component';
+import { DatasetService } from '../dataset/service/dataset.service';
+import { Dataset, Field } from '../../domain/data-preparation/dataset';
+import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
 import { isNull, isUndefined } from 'util';
-import { GridOption } from '../../../common/component/grid/grid.option';
+import { GridOption } from '../../common/component/grid/grid.option';
 import * as pixelWidth from 'string-pixel-width';
 declare let moment : any;
 

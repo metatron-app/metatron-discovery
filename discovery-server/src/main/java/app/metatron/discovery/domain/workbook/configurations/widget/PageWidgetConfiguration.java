@@ -35,53 +35,56 @@ import app.metatron.discovery.domain.workbook.configurations.widget.shelf.PivotS
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
 /**
- * Created by kyungtaak on 2016. 5. 20..
+ * Page widget specification
  */
 @JsonTypeName("page")
 public class PageWidgetConfiguration extends WidgetConfiguration {
 
   /**
-   * DataSource 정보
+   * DataSource using page widget
    */
   DataSource dataSource;
 
   /**
-   * Page 내 정의 할 수 있는 Filter
+   * Filter in page
    *
    */
   List<Filter> filters;
 
   /**
-   * 선반내 필드 배치 정보
+   * Shelf for pivot, need to move shelf property
    *
    */
   Pivot pivot;
 
+  /**
+   * Shelf Info. ex. pivot/geo/graph
+   */
   Shelf shelf;
 
   /**
-   * Custom 필드 정보
+   * User-Defined Field info. (Not used)
    *
    */
   List<UserDefinedField> fields;
 
   /**
-   * Page 내 차트 설정 정보
+   * Chart Specification
    */
   Chart chart;
 
   /**
-   * Fetch 최대 Row Count 지정 및 Sorting 관련 정보
+   * Limit info. (Count limitation, Sort)
    */
   Limit limit;
 
   /**
-   * Embedded Analysis 관련 설정
+   * Embedded Analysis Specification
    */
   Analysis analysis;
 
   /**
-   * 차트내 공통 포맷 지정
+   * Common Format Specification (Not used)
    *
    */
   FieldFormat format;
@@ -109,7 +112,7 @@ public class PageWidgetConfiguration extends WidgetConfiguration {
     this.analysis = analysis;
     this.format = format;
 
-    // 하위 호환을 위한 로직 추가
+    // For backward compatibility
     if(shelf == null) {
       if(this.chart instanceof NetworkChart) {
         this.shelf = pivot.toGraghShelf();
@@ -120,6 +123,10 @@ public class PageWidgetConfiguration extends WidgetConfiguration {
       this.shelf = shelf;
     }
   }
+
+  /*
+   * Getter / Setter
+   */
 
   public List<Filter> getFilters() {
     return filters;
@@ -138,7 +145,7 @@ public class PageWidgetConfiguration extends WidgetConfiguration {
   }
 
   public Pivot getPivot() {
-    // 하위호환을 위한 로직 추가
+    // For backward compatibility
     if(pivot == null && !(chart instanceof MapChart)) {
       PivotShelf pivotShelf = (PivotShelf) shelf;
       return new Pivot(pivotShelf.getColumns(), pivotShelf.getRows(), pivotShelf.getAggregations());

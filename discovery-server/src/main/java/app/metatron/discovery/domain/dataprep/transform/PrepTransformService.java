@@ -86,6 +86,7 @@ public class PrepTransformService {
   @Autowired DataConnectionRepository connectionRepository;
   @Autowired PrepHdfsService hdfsService;
   @Autowired PrepSnapshotService snapshotService;
+  @Autowired DataFrameService dataFrameService;
 
   @Autowired(required = false)
   TeddyImpl teddyImpl;
@@ -426,11 +427,13 @@ public class PrepTransformService {
     //Then add Header rule and change column name.
     if(Collections.frequency(columnTypesRow0, ColumnType.STRING) == df.colCnt &&
             Collections.frequency(columnTypes, ColumnType.STRING) != df.colCnt) {
-      setTypeRules.add("header rownum: 1");
+      String ruleString = "header rownum: 1";
+
+      setTypeRules.add(ruleString);
       columnNames.clear();
 
       Header header = new Header(1L);
-      DataFrame newDf = df.doHeader(header);
+      DataFrame newDf = dataFrameService.applyRule(df, ruleString, new ArrayList<>());
 
       columnNames.addAll(newDf.colNames);
     }
@@ -482,6 +485,58 @@ public class PrepTransformService {
       response = transform(cloneDsId, OP_TYPE.APPEND, i - 1, ruleString);
     }
     return response;
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public List<String> swap(String oldDsId, String newDsId) throws Exception {
+    List<String> targetDsIds = Lists.newArrayList();
+
+    // Replace all occurrence of oldDsid in whole rule strings in the system.
+    for (PrepTransformRule rule : transformRuleRepository.findAll()) {
+      String ruleString = rule.getRuleString();
+      if (ruleString.contains(oldDsId)) {
+        String newRuleString = ruleString.replace(oldDsId, newDsId);
+        rule.setRuleString(newRuleString);
+        rule.setJsonRuleString(Util.parseRuleString(rule.getRuleString()));
+
+        // un-cache to be reloaded
+        teddyImpl.remove(rule.getDataset().getDsId());
+
+        if(false==targetDsIds.contains(rule.getDataset().getDsId())) {
+          // It must be wrangled dataset, but not chaining wrangled
+          targetDsIds.add(rule.getDataset().getDsId());
+        }
+      }
+    }
+
+    PrepDataset oldDataset = datasetRepository.findOne(oldDsId);
+    PrepDataset newDataset = datasetRepository.findOne(newDsId);
+
+    List<PrepDataflow> dataflows = dataflowRepository.findAll();
+    for (PrepDataflow dataflow : dataflows) {
+      List<PrepDataset> datasets = dataflow.getDatasets();
+      for (PrepDataset dataset : datasets) {
+        if (dataset.getDsId().equals(oldDataset.getDsId())) {
+          datasets.remove(dataset);
+          datasets.add(newDataset);
+          dataflow.setDatasets(datasets);
+          dataflowRepository.save(dataflow);
+          break;
+        }
+      }
+    }
+    dataflowRepository.flush();
+
+    return targetDsIds;
+  }
+
+  @Transactional(rollbackFor = Exception.class)
+  public void after_swap(List<String> affectedDsIds) throws Exception {
+    for(String affectedDsId : affectedDsIds) {
+      PrepTransformResponse response = this.fetch(affectedDsId, null);
+      DataFrame dataFrame = response.getGridResponse();
+      this.previewLineService.putPreviewLines(affectedDsId, dataFrame);
+    }
   }
 
   private DataFrame load_internal(String dsId) throws Exception {
@@ -1560,10 +1615,6 @@ public class PrepTransformService {
         Window window = (Window) rule;
         Expression order = window.getOrder();
         Expression value = window.getValue();
-        if (null == order) {
-          LOGGER.error("confirmRuleStringForException(): aggregate group is null");
-          throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_GROUP);
-        }
         if (null == value) {
           LOGGER.error("confirmRuleStringForException(): aggregate value is null");
           throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_AGGREGATE_VALUE);

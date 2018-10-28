@@ -797,7 +797,7 @@ export class ColorOptionComponent extends BaseOptionComponent implements OnInit,
       ];
     }
 
-    let data : Object= {min: minValue, max: maxValue, separateValue: this.separateValue};
+    let data : Object= {min: minValue, max: maxValue, separateValue: this.separateValue, positionMin: -4, positionMax : 215};
 
     this.changeDetect.detectChanges();
 

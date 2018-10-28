@@ -903,6 +903,10 @@ export class FormatOptionConverter {
       case ChartType.RADAR:
         displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
         displayTypes[8] = UIChartDataLabelDisplayType.VALUE;
+      case ChartType.MAP:
+        displayTypes[17] = UIChartDataLabelDisplayType.LAYER_NAME;
+        displayTypes[18] = UIChartDataLabelDisplayType.LOCATION_INFO;
+        displayTypes[19] = UIChartDataLabelDisplayType.DATA_VALUE;
     }
 
     return displayTypes;

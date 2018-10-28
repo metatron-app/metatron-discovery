@@ -238,14 +238,10 @@ export class FormatOptionComponent extends BaseOptionComponent implements OnInit
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
   /**
    * UI Option 반영
    */
-  private apply(): void {
+  protected apply(): void {
 
     // UI Option Format 변경
     const uiFormat: UIChartFormat = {
@@ -262,4 +258,10 @@ export class FormatOptionComponent extends BaseOptionComponent implements OnInit
     // 이벤트 발생
     this.update();
   }
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+
 }
