@@ -212,9 +212,22 @@ export class WorkbenchService extends AbstractService {
     connInfo.username = connection.username;
     connInfo.password = connection.password;
 
+    connInfo.authenticationType = connection.authenticationType;
+    connInfo.database = connection.database;
+    connInfo.id = connection.id;
+    connInfo.implementor = connection.implementor;
+    connInfo.name = connection.name;
+    connInfo.published = connection.published;
+    connInfo.type = connection.type;
+    connInfo.catalog = connection.catalog;
+    connInfo.table = table;
+    connInfo.linkedWorkspaces = connection.linkedWorkspaces;
+    connInfo.url = connection.url;
+
     params.connection = connInfo;
     params.schema = connection.database;
-    params.type = 'QUERY';
+    params.type = 'TABLE';
+    // params.type = 'QUERY';
     params.query = 'select * from ' + connection.database + '.' + table;
 
     return this.post(this.API_URL + 'connections/query/data', params);
