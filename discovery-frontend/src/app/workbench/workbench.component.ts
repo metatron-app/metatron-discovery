@@ -2010,6 +2010,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             resultTabInfo.setExecuteStatus(data.command);
           } // end if - command log, done
 
+          this.safelyDetectChanges();
+
           // log data 가 있을경우 scroll 이동
           const $logContainer = $('#workbenchLogText');
           if (this._isEqualRunningVisibleTab() && '' !== $logContainer.text()) {
@@ -2018,9 +2020,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             let offsetTop = textAreaHeight * (Math.ceil(lineBreakLength / 8));
             $logContainer.scrollTop(offsetTop);
           }
-
-          this.safelyDetectChanges();
-
         }
 
         if (data['connected'] === true) {
@@ -2839,6 +2838,7 @@ class ResultTab {
   public log: string[];
   public sql: string;
   public startDate: string;
+  public finishDate: string;
   public executeTime: number;
   public executeStatus: ('GET_CONNECTION' | 'CREATE_STATEMENT' | 'EXECUTE_QUERY' | 'LOG' | 'GET_RESULTSET' | 'DONE');
   public resultStatus: ('NONE' | 'SUCCESS' | 'FAIL' | 'CANCEL');
@@ -2879,10 +2879,12 @@ class ResultTab {
 
   public doneTimer() {
     // if (this.data) {
-    //   this.startTime = moment(this.data.startDateTime).format('YYYY-MM-DD HH:mm:ss');
+    //   this.startDate = moment(this.data.startDateTime).format('YYYY-MM-DD HH:mm:ss');
+    //   this.finishDate = moment(this.data.finishDateTime).format('YYYY-MM-DD HH:mm:ss');
     //   this.runningTime = moment(this.data.finishDateTime).diff(this.data.startDateTime, 'seconds');
     // }
     clearInterval(this._timer);
+    this.finishDate = moment().format('YYYY-MM-DD HH:mm:ss');
   } // function - doneTimer
 
   public setResultStatus(status: ('NONE' | 'SUCCESS' | 'FAIL' | 'CANCEL') ) {
@@ -2938,12 +2940,12 @@ class QueryResult {
   public csvFilePath: string;
   public data: any[];
   public fields: Field[];
-  public finishDateTime: string;
   public numRows: number;
   public queryEditorId: string;
   public queryHistoryId: number;
   public queryResultStatus: 'SUCCESS' | 'FAIL';
   public runQuery: string;
   public startDateTime: string;
+  public finishDateTime: string;
   public tempTable: string;
 }
