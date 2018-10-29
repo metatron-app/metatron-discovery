@@ -16,7 +16,10 @@ import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output } 
 import { isUndefined } from 'util';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { Field, FieldFormat, FieldFormatType, FieldRole, LogicalType } from '../../../domain/datasource/datasource';
+import {
+  Field, FieldFormat, FieldFormatType, FieldFormatUnit, FieldRole,
+  LogicalType
+} from '../../../domain/datasource/datasource';
 import { StringUtil } from '../../../common/util/string.util';
 
 declare let moment: any;
@@ -34,7 +37,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   // 현재 선택된 타임스탬프 타입
   private timestampType: string;
 
-  private currentMilliseconds: number = Math.floor(moment().valueOf() / 1000);
+  private currentMilliseconds: number = moment().valueOf();
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -109,6 +112,11 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
   // replace flag
   public replaceFl: boolean = true;
 
+  // unit list
+  public formatUnitList = [
+    {label: this.translateService.instant('msg.storage.ui.format.unit.milli-second'), value: FieldFormatUnit.MILLISECOND},
+    {label: this.translateService.instant('msg.storage.ui.format.unit.second'), value: FieldFormatUnit.SECOND},
+  ];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -182,7 +190,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     } else {
       switch (itemType.toUpperCase()) {
         case 'TIMESTAMP':
-          result = this.currentMilliseconds;
+          result = this.column.format.type === FieldFormatType.DATE_TIME ? this.columnData[0] : this.currentMilliseconds;
           break;
         case 'BOOLEAN':
           result = 'false';
@@ -424,17 +432,18 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     }
   }
 
-
-
   /**
-   * Replace validation keyup event
-   * @param {Field} column
-   * @param {KeyboardEvent} event
+   * format unit change event
+   * @param unit
    */
-  public onKeyupEnterReplaceValidation(column: Field, event: KeyboardEvent): void {
-    // 엔터만 통과
-    if (event.keyCode === 13) {
-      this.ingestionRuleValidation(column);
+  public onChangeFormatUnit(unit: any): void {
+    if (unit.value !== this.column.format.unit) {
+      // change unit
+      this.column.format.unit = unit.value;
+      // change time placeholder
+      this.currentMilliseconds = unit.value === FieldFormatUnit.MILLISECOND ? moment().valueOf() : Math.floor(moment().valueOf()/1000);
+      // init replace value
+      delete this.column.isValidReplaceValue;
     }
   }
 
@@ -518,11 +527,17 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
             column.isValidReplaceValue = false;
             return;
           }
-          // check validation
-          this._formatValidation({
+          // params
+          const params = {
             format: column.format.type === FieldFormatType.UNIX_TIME ? 'time_unix' : column.format.format,
             samples: column.ingestionRule.value
-          })
+          };
+          // if format type is UNIX, add format unit
+          if (column.format.type === FieldFormatType.UNIX_TIME) {
+            params['unit'] = column.format.unit;
+          }
+          // check validation
+          this._formatValidation(params)
             .then((result) => {
               if (result.valid) {
                 column.isValidReplaceValue = true;
@@ -655,7 +670,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     this.loadingShow();
     // init field format
     this.column.format = new FieldFormat();
-    this.column.format.type = FieldFormatType.DATE_TIME;
     this.datasourceService.checkValidationDateTime(param)
       .then((result) => {
         // 로딩 hide

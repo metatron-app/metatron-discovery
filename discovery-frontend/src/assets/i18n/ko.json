@@ -1891,6 +1891,8 @@
   "msg.storage.ui.user.input": "직접입력",
   "msg.storage.ui.enable.unix": "Unix time 사용",
   "msg.storage.ph.time.format": "포맷을 입력하세요",
+  "msg.storage.ui.format.unit.milli-second": "밀리세컨드(ms)",
+  "msg.storage.ui.format.unit.second": "세컨드(s)",
 
   "msg.log.th.status": "상태",
   "msg.log.ui.search.description" : "잡 이름 또는 어플리케이션 ID로 검색해 주세요",
