@@ -38,7 +38,7 @@ import {
 import { saveAs } from 'file-saver';
 import { AbstractWidgetComponent } from '../abstract-widget.component';
 import { PageWidget, PageWidgetConfiguration } from '../../../domain/dashboard/widget/page-widget';
-import {BaseChart, ChartSelectInfo} from '../../../common/component/chart/base-chart';
+import { BaseChart, ChartSelectInfo } from '../../../common/component/chart/base-chart';
 import { UIOption } from '../../../common/component/chart/option/ui-option';
 import { Alert } from '../../../common/util/alert.util';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
@@ -671,18 +671,21 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       this.processEnd();
       this._isDuringProcess = false;
 
-      switch( this.mouseMode ) {
-        case 'SINGLE' :
-          this.changeMouseSelectMode('single', 'single');
-          break;
-        case 'MULTI_RECT' :
-          this.changeMouseSelectMode('multi', 'rect');
-          break;
-        case 'MULTI_POLY' :
-          this.changeMouseSelectMode('multi', 'polygon');
-          break;
+      if (!this.isGridType()
+        && this.chartFuncValidator.checkUseSelectionByTypeString(this.chartType)
+        && this.chartFuncValidator.checkUseMultiSelectionByTypeString(this.chartType)) {
+        switch (this.mouseMode) {
+          case 'SINGLE' :
+            this.changeMouseSelectMode('single', 'single');
+            break;
+          case 'MULTI_RECT' :
+            this.changeMouseSelectMode('multi', 'rect');
+            break;
+          case 'MULTI_POLY' :
+            this.changeMouseSelectMode('multi', 'polygon');
+            break;
+        }
       }
-
     }
   } // function - updateComplete
 
@@ -1120,19 +1123,19 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     const cloneQuery = this._makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
 
     // Map Chart 의 Multi Datasource 를 적용하기 위한 코드 - S
-    if ( ChartType.MAP === this.widget.configuration.chart.type ) {
+    if (ChartType.MAP === this.widget.configuration.chart.type) {
 
       let geoFieldCnt = 0;
-      for(let column of this.widget.configuration.pivot.columns) {
-        if(column.field.logicalType.toString().substring(0,3) === 'GEO' && column["layerNum"] === 1) {
+      for (let column of this.widget.configuration.pivot.columns) {
+        if (column.field.logicalType.toString().substring(0, 3) === 'GEO' && column['layerNum'] === 1) {
           geoFieldCnt = geoFieldCnt + 1;
         }
       }
 
-      if( geoFieldCnt > 1 ) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
-        cloneQuery.dataSource = _.cloneDeep( this.widget.dashBoard.configuration.dataSource );
+      if (geoFieldCnt > 1) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
+        cloneQuery.dataSource = _.cloneDeep(this.widget.dashBoard.configuration.dataSource);
 
-        for(let layer of cloneQuery.shelf.layers[0]) {
+        for (let layer of cloneQuery.shelf.layers[0]) {
           layer.ref = layer.dataSource;
         }
 
@@ -1157,7 +1160,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         uiOption: this.uiOption,
         params: {
           widgetId: this.widget.id,
-          externalFilters: (selectionFilters !== undefined && 0 < selectionFilters.length ),
+          externalFilters: (selectionFilters !== undefined && 0 < selectionFilters.length),
           // 현재 차트가 선택한 필터목록
           selectFilterListList: this._selectFilterList
         }
@@ -1176,7 +1179,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         delete this.resultData.params;
       }
 
-      setTimeout( () => {
+      setTimeout(() => {
         // line차트이면서 columns 데이터가 있는경우
         if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
           // 고급분석 예측선 API 호출
@@ -1184,7 +1187,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         } else {
           this.chart.resultData = this.resultData;
         }
-      }, 1000 );
+      }, 1000);
 
       this.isValidWidget = true;
 
