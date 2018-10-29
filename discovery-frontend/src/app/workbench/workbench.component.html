@@ -440,10 +440,12 @@
                   <!-- button -->
                   <div class="ddp-ui-buttons" *ngIf="visibleResultTab.result && visibleResultTab.result.fields">
                     <div class="ddp-wrap-btn-link" [hidden]="visibleResultTab.message">
-                      <a href="javascript:" class="ddp-box-page" *ngIf="0 !== visibleResultTab.pageNum"  (click)="changeResultPage( visibleResultTab, 'PREV' )">
+                      <a *ngIf="visibleResultTab.isShowPrevBtn()"
+                         (click)="changeResultPage( visibleResultTab, 'PREV' )"
+                         href="javascript:" class="ddp-box-page" >
                         <em class="ddp-icon-prev"></em>PREV
                       </a>
-                      <a *ngIf="((visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber)) != (visibleResultTab.result.numRows - 1) && !(100000 == (visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber))) )"
+                      <a *ngIf="visibleResultTab.isShowNextBtn( queryResultNumber )"
                          (click)="changeResultPage( visibleResultTab, 'NEXT' )"
                          href="javascript:" class="ddp-box-page ddp-next" >
                         NEXT<em class="ddp-icon-next"></em>
@@ -580,7 +582,7 @@
                     <span class="ddp-data-txt">{{ setNumberFormat( visibleResultTab.executeTime, 2 ) }} Secs.</span>
                   </span>
                   <span class="ddp-data-time" *ngIf="'SUCCESS' === visibleResultTab.resultStatus && visibleResultTab.result && -1 < visibleResultTab.result.numRows">
-                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber) )}} / {{ (visibleResultTab.result.numRows == 100001) ? '100,000+' : setNumberFormat(visibleResultTab.result.numRows -1) }} {{'msg.comm.detail.rows'|translate}}</span>
+                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber) )}} / {{ (visibleResultTab.result.numRows == 100000) ? '100,000+' : setNumberFormat(visibleResultTab.result.numRows) }} {{'msg.comm.detail.rows'|translate}}</span>
                   </span>
                 </div>
                 <!-- //time -->
