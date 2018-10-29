@@ -15,16 +15,19 @@
 package app.metatron.discovery.domain.workbook.configurations.format;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public class DefaultFormat implements FieldFormat {
 
   String format;
 
   @JsonCreator
-  public DefaultFormat(String format) {
+  public DefaultFormat(@JsonProperty("format") String format) {
     this.format = format;
   }
 
+  @JsonValue
   public String getFormat() {
     return format;
   }

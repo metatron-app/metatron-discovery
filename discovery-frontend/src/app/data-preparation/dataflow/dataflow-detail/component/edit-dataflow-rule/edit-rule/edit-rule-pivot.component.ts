@@ -200,7 +200,7 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
     let fieldsStr:string = this.getAttrValueInRuleString( 'col', ruleString );
     if( '' !== fieldsStr ) {
       const arrFields:string[] = ( -1 < fieldsStr.indexOf( ',' ) ) ? fieldsStr.split(',') : [fieldsStr];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
     }
 
     let strFormulaList:string = this.getAttrValueInRuleString( 'value', ruleString );

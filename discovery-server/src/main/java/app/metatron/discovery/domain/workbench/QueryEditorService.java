@@ -368,10 +368,6 @@ public class QueryEditorService {
       LOGGER.error("Query Execute Error : {}", e.getMessage());
       queryResult = createMessageResult(e.getMessage(), query, QueryResult.QueryResultStatus.FAIL);
     } finally {
-      if(!(stmt instanceof HiveStatement)){
-        sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE, queryIndex,
-                queryEditorId, workbenchId, webSocketId);
-      }
       if (logThread != null) {
         if (!logThread.isInterrupted()) {
           logThread.interrupt();
@@ -394,6 +390,9 @@ public class QueryEditorService {
       queryResult.setAuditId(auditId);
       queryResult.setQueryHistoryId(queryHistoryId);
       queryResult.setQueryEditorId(queryEditorId);
+
+      sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE, queryIndex, queryEditorId,
+              workbenchId, webSocketId);
     }
 
     return queryResult;
@@ -423,7 +422,7 @@ public class QueryEditorService {
     queryResult.setFields(fieldList);
     queryResult.setData(dataList);
     queryResult.setTempTable(tempTable);
-    queryResult.setNumRows(Long.valueOf(rowNumber));
+    queryResult.setNumRows(rowNumber <= 0 ? 0L : Long.valueOf(rowNumber - 1));
     queryResult.setQueryResultStatus(QueryResult.QueryResultStatus.SUCCESS);
     queryResult.setCsvFilePath(tempFileName);
     LOGGER.info("Query row count : {}", queryResult.getNumRows());

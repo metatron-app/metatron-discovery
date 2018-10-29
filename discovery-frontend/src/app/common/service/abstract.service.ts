@@ -435,7 +435,11 @@ export class AbstractService {
 
     let errorMessage: any;
     if (error.status && error.status !== 404) {
-      errorMessage = error ? error.json() : 'Server error';
+      try {
+        errorMessage = error ? error.json() : 'Server error';
+      } catch (e) {
+        errorMessage = 'Server error';
+      }
     } else {
       error.name === 'TimeoutError' ? errorMessage = 'Timeout' : errorMessage = 'Server error';
     }

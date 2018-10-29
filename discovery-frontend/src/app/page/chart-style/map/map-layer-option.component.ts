@@ -355,6 +355,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        }
      } else if(colorType === 'MEASURE') {
        this.color['schema'] = 'VC1';
+       this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.color['schema']]);
        // init column
        if (this.uiOption.layers[0]) {
          if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
@@ -549,6 +550,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    public changeColorColumn(colorCol: string) {
 
      this.color['column'] = colorCol;
+     this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -693,13 +695,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        viewRawData: this.viewRawData
      },this.uiOption.layers[1],this.uiOption.layers[2]]
 
-     this.measureList = [];
-     for(let field of this.uiOption.fieldMeasureList) {
-       if(!field["layerNum"] || field["layerNum"] === 1) {
-         this.measureList.push(field.alias.toString());
-       }
-     }
-
      // when color column is none or empty, set default column
      if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
          'NONE' == this.uiOption.layers[0].color['column'] || !this.uiOption.layers[0].color['column']) {
@@ -782,17 +777,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
      if(type === 'hexagonRadius') {
        if(val === 10) {
-         resultVal = '0%';
-       } else if(val === 9) {
-         resultVal = '20%';
-       } else if(val === 8) {
-         resultVal = '40%';
-       } else if(val === 7) {
-         resultVal = '60%';
-       } else if(val === 6) {
-         resultVal = '80%';
-       } else if(val === 5) {
          resultVal = '100%';
+       } else if(val === 9) {
+         resultVal = '80%';
+       } else if(val === 8) {
+         resultVal = '60%';
+       } else if(val === 7) {
+         resultVal = '40%';
+       } else if(val === 6) {
+         resultVal = '20%';
+       } else if(val === 5) {
+         resultVal = '0%';
        }
      }
 
@@ -937,8 +932,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
       this.rangesViewList = this.uiOption.layers[0].color['ranges'];
     }
 
-    this.changeLayerOption();
 
+    this.changeLayerOption();
     if(this.type === "heatmap") {
       setTimeout(
         () => {
@@ -994,8 +989,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // color range hide일때
     } else {
 
+    let ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], <any>ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[0].color).schema]);
       // color by measure기본 ranges값으로 초기화
-      let ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], <any>ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[0].color).schema]);
 
       this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[0].color).schema;
       this.color['ranges'] = ranges;
@@ -1013,6 +1008,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
     this.update();
   }
+
 
   /**
    * 사용자 색상설정 타입 선택시
@@ -1194,11 +1190,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
       let color = colorList[index];
 
       // set the biggest value in min(gt)
-      if (colorListLength == index) {
-
-        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, shape));
-
-      } else {
+      // if (colorListLength == index) {
+      //
+      //   rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, shape));
+      //
+      // } else {
         // if it's the last value, set null in min(gt)
         let min = 0 == index ? null : formatValue(maxValue - addValue);
 
@@ -1208,7 +1204,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
           rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
 
         maxValue = min;
-      }
+      // }
     }
 
     return rangeList;
@@ -1734,12 +1730,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         keyboard: false,
         min: 5,
         max: 30,
-        from: 5,
-        to: scope.uiOption.layers[0].color.radius,
-        type: 'double',
+        from: scope.uiOption.layers[0].color.radius,
+        type: 'single',
         step: 5,
         onChange(data) {
-          scope.changeRadius(data.to);
+          scope.changeRadius(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);
@@ -1758,12 +1753,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         keyboard: false,
         min: 5,
         max: 10,
-        from: 5,
-        to: scope.uiOption.layers[0].color.resolution,
-        type: 'double',
+        from: scope.uiOption.layers[0].color.resolution,
+        type: 'single',
         step: 1,
         onChange(data) {
-          scope.changeResolution(data.to);
+          scope.changeResolution(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);
@@ -1782,12 +1776,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         keyboard: false,
         min: 5,
         max: 30,
-        from: 5,
-        to: scope.uiOption.layers[0].color.blur,
-        type: 'double',
+        from: scope.uiOption.layers[0].color.blur,
+        type: 'single',
         step: 5,
         onChange(data) {
-          scope.changeBlur(data.to);
+          scope.changeBlur(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);

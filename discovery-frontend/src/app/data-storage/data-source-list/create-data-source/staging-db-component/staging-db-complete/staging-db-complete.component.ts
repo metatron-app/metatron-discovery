@@ -21,7 +21,7 @@ import { DatePipe } from '@angular/common';
 import { CommonUtil } from '../../../../../common/util/common.util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, FieldFormatType } from '../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
@@ -266,7 +266,10 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       name: 'current_datetime',
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
-      format: 'yyyy-MM-dd HH:mm:ss',
+      format: {
+        type: FieldFormatType.DATE_TIME,
+        format: 'yyyy-MM-dd HH:mm:ss'
+      }
     };
   }
 
@@ -282,6 +285,17 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
     if (column.removed === false) {
       delete column.removed;
     }
+    // delete used UI
+    delete column.isValidTimeFormat;
+    delete column.isValidReplaceValue;
+    if (column.logicalType !== 'TIMESTAMP' && column.format) {
+      delete column.format;
+    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
+      delete column.format.format;
+    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
+      delete column.format.unit;
+    }
+
   }
 
   /**

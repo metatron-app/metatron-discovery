@@ -17,12 +17,12 @@ package app.metatron.discovery.domain.workbook.configurations.format;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CustomTimeFormat extends TimeFieldFormat implements FieldFormat {
+public class CustomDateTimeFormat extends TimeFieldFormat implements FieldFormat {
 
   String format;
 
   @JsonCreator
-  public CustomTimeFormat(
+  public CustomDateTimeFormat(
       @JsonProperty("format") String format,
       @JsonProperty("timeZone") String timeZone,
       @JsonProperty("locale") String locale,
@@ -31,7 +31,7 @@ public class CustomTimeFormat extends TimeFieldFormat implements FieldFormat {
     this.format = format;
   }
 
-  public CustomTimeFormat(String format) {
+  public CustomDateTimeFormat(String format) {
     this(format, null, null, null);
   }
 

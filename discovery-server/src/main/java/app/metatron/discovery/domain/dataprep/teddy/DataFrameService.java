@@ -125,17 +125,17 @@ public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slav
         }
       }
       catch (ExecutionException e) {
-        String msg = "loadContentsByRule(): transform execution failed";
+        String msg = "applyRule(): transform execution failed";
         LOGGER.error(msg, e);
         throw new TransformExecutionFailedException(msg);
       }
       catch (InterruptedException e) {
-        String msg = "loadContentsByRule(): transform execution interrupted";
+        String msg = "applyRule(): transform execution interrupted";
         LOGGER.error(msg, e);
         throw new TransformExecutionInterrupteddException(msg);
       }
       catch (TimeoutException e) {
-        String msg = String.format("loadContentsByRule(): transform timeout: timeout=%ds", timeout);
+        String msg = String.format("applyRule(): transform timeout: timeout=%ds", timeout);
         LOGGER.error(msg, e);
         throw new TransformTimeoutException(msg);
       }
