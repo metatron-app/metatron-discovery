@@ -2700,8 +2700,23 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * 스키마 브라우져 창 열기
    */
   public setSchemaBrowser(): void {
+
+    let connInfo: any = {};
+    connInfo = this.workbench;
+
+    const selectedSecurityType = [
+        { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+        { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+        { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+      ].find(type => type.value === this.workbench.dataConnection.authenticationType) || {
+        label: this.translateService.instant('msg.storage.li.connect.always'),
+        value: 'MANUAL'
+      };
+    connInfo.dataConnection.username = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginId : connInfo.dataConnection.username;
+    connInfo.dataConnection.password = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginPw : connInfo.dataConnection.password;
+
     const param = {
-      workbench: this.workbench,
+      workbench: connInfo,
       workbenchId: this.workbenchId,
       websocketId: this.websocketId,
       textList: this.textList
