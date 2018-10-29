@@ -75,7 +75,6 @@ public class DataFrame implements Serializable, Transformable {
     interestedColNames = df.interestedColNames;
     dsName             = df.dsName;
     slaveDsNameMap     = df.slaveDsNameMap;
-    newColPos          = df.newColPos;
     ruleString         = df.ruleString;
     ruleColumns        = df.ruleColumns;
     valid              = df.valid;
