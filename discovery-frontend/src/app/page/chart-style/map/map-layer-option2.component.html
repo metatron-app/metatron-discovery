@@ -769,7 +769,7 @@
                     <div class="ddp-list-label">{{'msg.page.layer.map.line.type' | translate}}</div>
                     <!-- SELECTBOX -->
                     <div class="ddp-type-selectbox" (click)="lineDashTypeFlag=!lineDashTypeFlag;" (clickOutside)="lineDashTypeFlag=false" [excludeBeforeClick]="true">
-                        <span class="ddp-txt-selectbox">{{ uiOption.layers[1].outline.lineDash === 'SOLID' ? translateService.instant('msg.page.layer.map.line.type.solid') : translateService.instant('msg.page.layer.map.line.type.dotted') }}</span>
+                        <span class="ddp-txt-selectbox">{{ uiOption.layers[1].outline.lineDash === 'DOT' ? translateService.instant('msg.page.layer.map.line.type.dotted') : translateService.instant('msg.page.layer.map.line.type.solid') }}</span>
                         <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="lineDashTypeFlag">
                             <li (click)="lineDashType('SOLID')"><a href="#">{{'msg.page.layer.map.line.type.solid' | translate}}</a></li>
                             <li (click)="lineDashType('DOT')"><a href="#">{{'msg.page.layer.map.line.type.dotted' | translate}}</a></li>
