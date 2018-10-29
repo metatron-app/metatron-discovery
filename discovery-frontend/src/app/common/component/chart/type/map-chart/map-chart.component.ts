@@ -16,14 +16,18 @@ import {PageWidget} from "../../../../../domain/dashboard/widget/page-widget";
 import {FormatOptionConverter} from '../../../../../common/component/chart/option/converter/format-option-converter';
 
 import * as _ from 'lodash';
-import { UIOption } from '../../option/ui-option';
-
+import { UIOption, ColorRange } from '../../option/ui-option';
 import {
-  ChartColorList
+  ChartColorList,
+  ColorRangeType
 } from '../../option/define/common';
 // import * as ol from '../../../../../../../node_modules/ol';
 import * as ol from 'openlayers';
 import * as h3 from 'h3-js';
+
+import { OptionGenerator } from '../../../../../common/component/chart/option/util/option-generator';
+import UI = OptionGenerator.UI;
+
 
 export class Map {
   public show: boolean;
@@ -93,6 +97,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   // Init
   public ngOnInit() {
 
+
     // Init
     super.ngOnInit();
   }
@@ -121,7 +126,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     // Area
     this.$area = $(this.area.nativeElement);
   }
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
@@ -246,6 +250,68 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
     }
 
+    function setColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
+
+      // return value
+      let rangeList = [];
+
+      let rowsListLength = data.features.length;
+
+      let gridRowsListLength = data.features.length;
+
+
+      // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
+      let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
+
+      // less than 0, set minValue
+      const minValue = data.valueRange[uiOption.layers[0].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
+
+      // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
+      const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / colorListLength;
+
+      let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].maxValue);
+
+      let shape;
+      // if ((<UIScatterChart>uiOption).pointShape) {
+      //   shape = (<UIScatterChart>uiOption).pointShape.toString().toLowerCase();
+      // }
+
+      // set decimal value
+      const formatValue = ((value) => {
+        return parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal));
+      });
+
+      // decimal min value
+      let formatMinValue = formatValue(data.valueRange[uiOption.layers[0].color.column].minValue);
+      // decimal max value
+      let formatMaxValue = formatValue(data.valueRange[uiOption.layers[0].color.column].maxValue);
+
+      // set ranges
+      for (let index = colorListLength; index >= 0; index--) {
+
+        let color = colorList[index];
+
+        // set the biggest value in min(gt)
+        // if (index === 0) {
+        //
+        //   rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, shape));
+        //
+        // } else {
+          // if it's the last value, set null in min(gt)
+          let min = 0 == index ? null : formatValue(maxValue - addValue);
+
+          // if value if lower than minValue, set it as minValue
+          if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
+
+            rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
+
+          maxValue = min;
+        // }
+      }
+
+      return rangeList;
+    }
+
     return function(feature, resolution) {
 
       let layerType = styleOption.layers[layerNum].type;
@@ -275,29 +341,21 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let featureSize = 5;
       if(styleOption.layers[layerNum].size.column && featureSizeType === 'MEASURE') {
         featureSize = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange[styleOption.layers[layerNum].size.column].maxValue / 30);
+        if(featureSize < 2) {
+          featureSize = 2;
+        }
       }
 
       let lineThickness = 2;
       if(styleOption.layers[layerNum].size.column && featureSizeType === 'MEASURE') {
         lineThickness = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange[styleOption.layers[layerNum].size.column].maxValue / lineMaxVal);
+        if(lineThickness < 1) {
+          lineThickness = 1;
+        }
       }
 
       if(styleOption.layers[layerNum].size.column && featureColorType === 'MEASURE') {
-
-        if(styleData.valueRange) {
-          let colorList = ChartColorList[featureColor];
-
-          let avgNum = styleData.valueRange[styleOption.layers[layerNum].color.column].maxValue / colorList.length;
-
-          for(let i=0;i<colorList.length;i++) {
-            if(feature.getProperties()[styleOption.layers[layerNum].color.column] <= avgNum * (i+1) &&
-              feature.getProperties()[styleOption.layers[layerNum].color.column] >= avgNum * (i)) {
-              featureColor = colorList[i];
-            }
-          }
-        }
-
-        if(styleOption.layers[layerNum].color['customMode'] === 'SECTION') {
+        if(styleOption.layers[layerNum].color['ranges']) {
           for(let range of styleOption.layers[layerNum].color['ranges']) {
             let rangeMax = range.fixMax;
             let rangeMin = range.fixMin;
@@ -305,15 +363,33 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             if(rangeMax === null) {
               rangeMax = rangeMin + 1;
             } else if(rangeMin === null) {
-              rangeMin = 0;
+              rangeMin = rangeMax;
             }
 
             if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&  feature.getProperties()[styleOption.layers[layerNum].color.column] < rangeMax) {
               featureColor = range.color;
             }
+          }
+        } else {
+          const ranges = setColorRange(styleOption, styleData, ChartColorList[styleOption.layers[layerNum].color['schema']]);
 
+          for(let range of ranges) {
+            let rangeMax = range.fixMax;
+            let rangeMin = range.fixMin;
+
+            if(rangeMax === null) {
+              rangeMax = rangeMin + 1;
+            } else if(rangeMin === null) {
+              rangeMin = rangeMax;
+            }
+
+            if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&
+            feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
+              featureColor = range.color;
+            }
           }
         }
+
 
       } else if(featureColorType === 'DIMENSION') {
         let colorList = ChartColorList[featureColor];
@@ -515,6 +591,68 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
     }
 
+    function setColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
+
+      // return value
+      let rangeList = [];
+
+      let rowsListLength = data.features.length;
+
+      let gridRowsListLength = data.features.length;
+
+
+      // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
+      let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
+
+      // less than 0, set minValue
+      const minValue = data.valueRange[uiOption.layers[0].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
+
+      // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
+      const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / colorListLength;
+
+      let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].maxValue);
+
+      let shape;
+      // if ((<UIScatterChart>uiOption).pointShape) {
+      //   shape = (<UIScatterChart>uiOption).pointShape.toString().toLowerCase();
+      // }
+
+      // set decimal value
+      const formatValue = ((value) => {
+        return parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal));
+      });
+
+      // decimal min value
+      let formatMinValue = formatValue(data.valueRange[uiOption.layers[0].color.column].minValue);
+      // decimal max value
+      let formatMaxValue = formatValue(data.valueRange[uiOption.layers[0].color.column].maxValue);
+
+      // set ranges
+      for (let index = colorListLength; index >= 0; index--) {
+
+        let color = colorList[index];
+
+        // set the biggest value in min(gt)
+        // if (index === 0) {
+        //
+        //   rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, shape));
+        //
+        // } else {
+          // if it's the last value, set null in min(gt)
+          let min = 0 == index ? null : formatValue(maxValue - addValue);
+
+          // if value if lower than minValue, set it as minValue
+          if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
+
+            rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
+
+          maxValue = min;
+        // }
+      }
+
+      return rangeList;
+    }
+
     return function(feature, resolution) {
 
       let outlineType = styleOption.layers[layerNum].outline.thickness;
@@ -524,44 +662,40 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let featureSizeType = styleOption.layers[layerNum].size.by;
 
       if(featureColorType === 'MEASURE') {
-        let colorList = ChartColorList[featureColor];
-        let avgNum = styleData.valueRange[styleOption.layers[layerNum].color.column].maxValue / colorList.length;
+          if(styleOption.layers[layerNum].color['ranges']) {
+            for(let range of styleOption.layers[layerNum].color['ranges']) {
+              let rangeMax = range.fixMax;
+              let rangeMin = range.fixMin;
 
-        for(let i=0;i<colorList.length;i++) {
-          if(feature.getProperties()[styleOption.layers[layerNum].color.column] <= avgNum * (i+1) &&
-            feature.getProperties()[styleOption.layers[layerNum].color.column] >= avgNum * (i)) {
-            featureColor = colorList[i];
-          }
-        }
+              if(rangeMax === null) {
+                rangeMax = rangeMin + 1;
+              } else if(rangeMin === null) {
+                rangeMin = rangeMax;
+              }
 
-        // featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
-        if(styleOption.layers[layerNum].color['customMode'] === 'SECTION') {
-          for(let range of styleOption.layers[layerNum].color['ranges']) {
-            let rangeMax = range.fixMax;
-            let rangeMin = range.fixMin;
-
-            if(rangeMax === null) {
-              rangeMax = rangeMin + 1;
-            } else if(rangeMin === null) {
-              rangeMin = 0;
+              if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&  feature.getProperties()[styleOption.layers[layerNum].color.column] < rangeMax) {
+                featureColor = range.color;
+              }
             }
+          } else {
+            const ranges = setColorRange(styleOption, styleData, ChartColorList[styleOption.layers[layerNum].color['schema']]);
 
-            if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&  feature.getProperties()[styleOption.layers[layerNum].color.column] < rangeMax) {
-              featureColor = range.color;
-            }
+            for(let range of ranges) {
+              let rangeMax = range.fixMax;
+              let rangeMin = range.fixMin;
 
-          }
-        } else if(styleOption.layers[layerNum].color['customMode'] === 'GRADIENT') {
-          let colorList = ChartColorList[featureColor];
-          let avgNum = styleData.valueRange[styleOption.layers[layerNum].color.column].maxValue / colorList.length;
+              if(rangeMax === null) {
+                rangeMax = rangeMin + 1;
+              } else if(rangeMin === null) {
+                rangeMin = rangeMax;
+              }
 
-          for(let i=0;i<colorList.length;i++) {
-            if(feature.getProperties()[styleOption.layers[layerNum].color.column] <= avgNum * (i+1) &&
-              feature.getProperties()[styleOption.layers[layerNum].color.column] >= avgNum * (i)) {
-              featureColor = colorList[i];
+              if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&
+              feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
+                featureColor = range.color;
+              }
             }
           }
-        }
       } else if(featureColorType === 'DIMENSION') {
         let colorList = ChartColorList[featureColor];
         featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
@@ -679,10 +813,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
           let featurePropVal = 0;
 
-          for(let clusterFeature of feature.getProperties()["features"]) {
-            featurePropVal = featurePropVal + clusterFeature.getProperties()[styleOption.layers[layerNum].color.column];
+          if(feature.getProperties()["features"]) {
+            for(let clusterFeature of feature.getProperties()["features"]) {
+              featurePropVal = featurePropVal + clusterFeature.getProperties()[styleOption.layers[layerNum].color.column];
+            }
+            featurePropVal = featurePropVal / feature.getProperties()["features"].length;
           }
-          featurePropVal = featurePropVal / feature.getProperties()["features"].length;
 
           for(let i=0;i<colorList.length;i++) {
             if(featurePropVal <= avgNum * (i+1) &&
@@ -846,6 +982,73 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     var X = Extent[0] + (Extent[2]-Extent[0])/2;
     var Y = Extent[1] + (Extent[3]-Extent[1])/2;
     return [X, Y];
+  }
+
+
+  /**
+   * return ranges of color by measure
+   * @returns {any}
+   */
+  public setColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
+
+    // return value
+    let rangeList = [];
+
+    let rowsListLength = data.features.length;
+
+    let gridRowsListLength = data.features.length;
+
+
+    // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
+    let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
+
+    // less than 0, set minValue
+    const minValue = data.valueRange[uiOption.layers[0].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
+
+    // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
+    const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / colorListLength;
+
+    let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].maxValue);
+
+    let shape;
+    // if ((<UIScatterChart>uiOption).pointShape) {
+    //   shape = (<UIScatterChart>uiOption).pointShape.toString().toLowerCase();
+    // }
+
+    // set decimal value
+    const formatValue = ((value) => {
+      return parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal));
+    });
+
+    // decimal min value
+    let formatMinValue = formatValue(data.valueRange[uiOption.layers[0].color.column].minValue);
+    // decimal max value
+    let formatMaxValue = formatValue(data.valueRange[uiOption.layers[0].color.column].maxValue);
+
+    // set ranges
+    for (let index = colorListLength; index >= 0; index--) {
+
+      let color = colorList[index];
+
+      // set the biggest value in min(gt)
+      // if (index == 0) {
+      //
+      //   rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, shape));
+      //
+      // } else {
+        // if it's the last value, set null in min(gt)
+        let min = 0 == index ? null : formatValue(maxValue - addValue);
+
+        // if value if lower than minValue, set it as minValue
+        if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
+
+          rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
+
+        maxValue = min;
+      // }
+    }
+
+    return rangeList;
   }
 
   /**
@@ -1207,16 +1410,29 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                   '<span class="ddp-data">' + this.uiOption.layers[i].type + ' by ' + this.uiOption.layers[i].color.column + '</span>' +
                   '<ul class="ddp-list-remark">';
 
-                  let colorList = ChartColorList[this.uiOption.layers[i].color["schema"]];
+                  if(this.uiOption.layers[i].color["ranges"]) {
+                    for(let range of this.uiOption.layers[i].color["ranges"]) {
 
-                  if(this.data[i].valueRange[this.uiOption.layers[i].color.column]) {
-                    let avgNum = this.data[i].valueRange[this.uiOption.layers[i].color.column].maxValue / colorList.length;
+                      let minVal = range.fixMin;
+                      let maxVal = range.fixMax;
 
-                    for(let j=0;j<colorList.length;j++) {
-                        let minVal = FormatOptionConverter.getFormatValue(avgNum * j, this.uiOption.valueFormat);
-                        let maxVal = FormatOptionConverter.getFormatValue(avgNum * (j+1), this.uiOption.valueFormat);
+                      if(minVal === null) minVal = maxVal;
+                      if(maxVal === null) maxVal = minVal;
 
-                        legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + colorList[j] + '"></em>' + minVal + ' ~ ' + maxVal + '</li>';
+                      legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
+                    }
+                  } else {
+                    const ranges = this.setColorRange(this.uiOption, this.data[i], ChartColorList[this.uiOption.layers[i].color['schema']]);
+
+                    for(let range of ranges) {
+
+                      let minVal = range.fixMin;
+                      let maxVal = range.fixMax;
+
+                      if(minVal === null) minVal = maxVal;
+                      if(maxVal === null) maxVal = minVal;
+
+                      legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
                     }
                   }
 

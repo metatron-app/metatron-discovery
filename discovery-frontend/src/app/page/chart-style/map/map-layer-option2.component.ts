@@ -736,16 +736,18 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
      }
 
      if(type === 'hexagonRadius') {
-       if(val === 9) {
-         resultVal = '20%';
-       } else if(val === 8) {
-         resultVal = '40%';
-       } else if(val === 7) {
-         resultVal = '60%';
-       } else if(val === 6) {
-         resultVal = '80%';
-       } else if(val === 5) {
+       if(val === 10) {
          resultVal = '100%';
+       } else if(val === 9) {
+         resultVal = '80%';
+       } else if(val === 8) {
+         resultVal = '60%';
+       } else if(val === 7) {
+         resultVal = '40%';
+       } else if(val === 6) {
+         resultVal = '20%';
+       } else if(val === 5) {
+         resultVal = '0%';
        }
      }
 
@@ -1708,12 +1710,11 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
         keyboard: false,
         min: 5,
         max: 30,
-        from: 5,
-        to: scope.uiOption.layers[0].color.radius,
-        type: 'double',
+        from: scope.uiOption.layers[0].color.radius,
+        type: 'single',
         step: 5,
         onChange(data) {
-          scope.changeRadius(data.to);
+          scope.changeRadius(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);
@@ -1732,12 +1733,11 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
         keyboard: false,
         min: 5,
         max: 10,
-        from: 5,
-        to: scope.uiOption.layers[0].color.resolution,
-        type: 'double',
+        from: scope.uiOption.layers[0].color.resolution,
+        type: 'single',
         step: 1,
         onChange(data) {
-          scope.changeResolution(data.to);
+          scope.changeResolution(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);
@@ -1757,11 +1757,10 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
         min: 5,
         max: 30,
         from: 5,
-        to: scope.uiOption.layers[0].color.blur,
-        type: 'double',
+        type: 'single',
         step: 5,
         onChange(data) {
-          scope.changeBlur(data.to);
+          scope.changeBlur(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);
