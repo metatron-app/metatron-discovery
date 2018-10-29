@@ -29,12 +29,16 @@ import * as Clipboard from 'clipboard';
 import {
   BrushType,
   ChartMouseMode,
-  LegendConvertType, ChartType, FunctionValidator, SPEC_VERSION, ChartSelectMode
+  ChartSelectMode,
+  ChartType,
+  FunctionValidator,
+  LegendConvertType,
+  SPEC_VERSION
 } from '../../../common/component/chart/option/define/common';
 import { saveAs } from 'file-saver';
 import { AbstractWidgetComponent } from '../abstract-widget.component';
 import { PageWidget, PageWidgetConfiguration } from '../../../domain/dashboard/widget/page-widget';
-import { ChartSelectInfo } from '../../../common/component/chart/base-chart';
+import {BaseChart, ChartSelectInfo} from '../../../common/component/chart/base-chart';
 import { UIOption } from '../../../common/component/chart/option/ui-option';
 import { Alert } from '../../../common/util/alert.util';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
@@ -47,7 +51,6 @@ import { Widget } from '../../../domain/dashboard/widget/widget';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
 import { FilterUtil } from '../../util/filter.util';
 import { NetworkChartComponent } from '../../../common/component/chart/type/network-chart/network-chart.component';
-import { BaseChart } from '../../../common/component/chart/base-chart';
 import { DashboardPageRelation } from '../../../domain/dashboard/widget/page-widget.relation';
 import { BoardConfiguration, LayoutMode } from '../../../domain/dashboard/dashboard';
 import { GridChartComponent } from '../../../common/component/chart/type/grid-chart/grid-chart.component';
@@ -62,8 +65,6 @@ import { DataDownloadComponent } from '../../../common/component/data-download/d
 import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
 import { DashboardUtil } from '../../util/dashboard.util';
 import { isNullOrUndefined } from 'util';
-import { TimeListFilter } from '../../../domain/workbook/configurations/filter/time-list-filter';
-import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
 import { Datasource, Field } from '../../../domain/datasource/datasource';
 import { CommonUtil } from '../../../common/util/common.util';
 
@@ -401,7 +402,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             const lineChart: LineChartComponent = this.chart['lineChart'];
             barChart.chart.resize();
             lineChart.chart.resize();
-          } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAPVIEW) {
+          } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAP) {
 
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
             (<NetworkChartComponent>this.chart).draw();
@@ -669,6 +670,19 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
       this.processEnd();
       this._isDuringProcess = false;
+
+      switch( this.mouseMode ) {
+        case 'SINGLE' :
+          this.changeMouseSelectMode('single', 'single');
+          break;
+        case 'MULTI_RECT' :
+          this.changeMouseSelectMode('multi', 'rect');
+          break;
+        case 'MULTI_POLY' :
+          this.changeMouseSelectMode('multi', 'polygon');
+          break;
+      }
+
     }
   } // function - updateComplete
 
@@ -899,6 +913,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   /**
    * 위젯 설정
    * @param {PageWidget} widget
@@ -1095,26 +1110,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     {
       let externalFilters = selectionFilters ? globalFilters.concat(selectionFilters) : globalFilters;
       externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName, externalFilters);
-
-      uiCloneQuery.filters.forEach(item1 => {
-        const idx: number = externalFilters.findIndex(item2 => {
-          return item1.field === item2.field && item1.ref === item2.ref;
-        });
-        if (-1 < idx) {
-          const selection = externalFilters.splice(idx, 1)[0];
-          if ('include' === item1.type || FilterUtil.isTimeListFilter(item1)) {
-            item1['valueList'] = item1['valueList'] ? _.uniq(item1['valueList'].concat(selection['valueList'])) : selection['valueList'];
-          } else if (FilterUtil.isTimeFilter(item1)) {
-            const timeFilter = <TimeFilter>item1;
-            const timeSelection: TimeListFilter = FilterUtil.getTimeListFilter(
-              timeFilter.clzField, timeFilter.discontinuous,
-              timeFilter.timeUnit, timeFilter.byTimeUnit, timeFilter.ui.importanceType
-            );
-            timeSelection.valueList = selection['valueList'];
-            item1 = timeSelection;
-          }
-        }
-      });
       uiCloneQuery.filters = externalFilters.concat(uiCloneQuery.filters);
     }
 
@@ -1123,6 +1118,31 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 서버 조회용 파라미터 (서버 조회시 필요없는 파라미터 제거)
     const cloneQuery = this._makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
+
+    // Map Chart 의 Multi Datasource 를 적용하기 위한 코드 - S
+    if ( ChartType.MAP === this.widget.configuration.chart.type ) {
+
+      let geoFieldCnt = 0;
+      for(let column of this.widget.configuration.pivot.columns) {
+        if(column.field.logicalType.toString().substring(0,3) === 'GEO' && column["layerNum"] === 1) {
+          geoFieldCnt = geoFieldCnt + 1;
+        }
+      }
+
+      if( geoFieldCnt > 1 ) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
+        cloneQuery.dataSource = _.cloneDeep( this.widget.dashBoard.configuration.dataSource );
+
+        for(let layer of cloneQuery.shelf.layers[0]) {
+          layer.ref = layer.dataSource;
+        }
+
+      }
+
+      // for(let layer of cloneQuery.shelf.layers[0]) {
+      //   layer.ref = layer.dataSource;
+      // }
+    }
+    // Map Chart 의 Multi Datasource 를 적용하기 위한 코드 - E
 
     this.query = cloneQuery;
     if (this.chartType === 'label') {
@@ -1137,7 +1157,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         uiOption: this.uiOption,
         params: {
           widgetId: this.widget.id,
-          externalFilters: (selectionFilters !== undefined),
+          externalFilters: (selectionFilters !== undefined && 0 < selectionFilters.length ),
           // 현재 차트가 선택한 필터목록
           selectFilterListList: this._selectFilterList
         }
@@ -1170,6 +1190,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
       // 변경 적용
       this.safelyDetectChanges();
+
     }).catch((error) => {
       console.error(error);
       // 프로세스 종료 등록 및 No Data 표시

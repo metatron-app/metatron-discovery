@@ -20,7 +20,9 @@
         <a href="javascript:">{{'msg.dp.btn.tab.rule' | translate }} ({{ruleList.length}})</a>
       </li>
       <li [ngClass]="{ 'ddp-selected': tabNumber === 1 }" (click)="changeTab(1)">
-        <a href="javascript:">{{'msg.dp.btn.tab.snapshot' | translate }} ({{snapshotList && snapshotList.length || 0}})</a>
+        <a href="javascript:">{{'msg.dp.btn.tab.snapshot' | translate }} ({{snapshotList && snapshotList.length || 0}})
+          <em class="ddp-icon-selected" *ngIf="checkIfIntervalExists()"></em>
+        </a>
       </li>
     </ul>
     <div class="ddp-ui-buttons" *ngIf="0 === tabNumber">

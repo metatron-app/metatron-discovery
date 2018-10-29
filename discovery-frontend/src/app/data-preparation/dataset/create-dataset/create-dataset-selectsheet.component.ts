@@ -14,15 +14,13 @@
 
 import {
   ChangeDetectorRef,
-  Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnInit, Output, SimpleChanges,
+  Component, ElementRef, EventEmitter, HostListener, Injector, Input, OnDestroy, OnInit, Output, SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
 import { DatasetFile } from '../../../domain/data-preparation/dataset';
 import { Alert } from '../../../common/util/alert.util';
-import { PreparationAlert } from '../../util/preparation-alert.util';
-import { isUndefined } from 'util';
 import { DatasetService } from '../service/dataset.service';
 import { FileLikeObject, FileUploader } from 'ng2-file-upload';
 import { CookieConstant } from '../../../common/constant/cookie.constant';
@@ -31,14 +29,16 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { GridComponent } from '../../../common/component/grid/grid.component';
 import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
 import { Field } from '../../../domain/datasource/datasource';
-import * as pixelWidth from 'string-pixel-width';
 import { GridOption } from '../../../common/component/grid/grid.option';
+
+import { isNullOrUndefined, isUndefined } from 'util';
+import * as pixelWidth from 'string-pixel-width';
 
 @Component({
   selector: 'app-create-dataset-selectsheet',
   templateUrl: './create-dataset-selectsheet.component.html',
 })
-export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent implements OnInit {
+export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -50,8 +50,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   @ViewChild('fileUploadChange')
   private fileUploadChange: ElementRef;
 
-  @Output()
-  public typeEmitter = new EventEmitter<string>();
+  private interval : any;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -60,11 +59,11 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  @Output()
+  public typeEmitter = new EventEmitter<string>();
 
   @Input()
   public datasetFile: DatasetFile;
-
-  public rowData: string = '';
 
   public isCSV: boolean = false;
 
@@ -77,12 +76,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   // 파일 업로드 결과
   public uploadResult;
 
-  public allowFileType: string[] = ['text/csv'];
-
   public isChanged : boolean = false; // tell if uploaded file is changed
 
   // grid hide
-  public clearGrid = true;
+  public clearGrid : boolean = false;
 
   // Change Detect
   public changeDetect: ChangeDetectorRef;
@@ -101,15 +98,14 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     this.uploader = new FileUploader(
       {
-        url: CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload',
-        // allowedFileType: this.allowFileType
+        url: CommonConstant.API_CONSTANT.API_URL + 'preparationdatasets/upload_async',
       }
     );
 
     // 옵션 설정
     this.uploader.setOptions({
       url: CommonConstant.API_CONSTANT.API_URL
-      + 'preparationdatasets/upload',
+      + 'preparationdatasets/upload_async',
       headers: [
         { name: 'Accept', value: 'application/json, text/plain, */*' },
         {
@@ -122,8 +118,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     // add 가 처음
     this.uploader.onAfterAddingFile = (item) => {
       this.loadingShow();
-      let ext = item.file.name.split('.')[1];
-      if( ext !== 'csv' && false==ext.startsWith('xls') ) { // 윈도우에서 타입으로 파일 체크 불가 그래서 이름으로 ..
+
+      if(!new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).test( item.file.name )) { // check file extension
         this.uploader.clearQueue();
         this.fileUploadChange.nativeElement.value = ''; // 같은 파일은 연속으로 올리면 잡지 못해서 초기화
         Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
@@ -146,7 +142,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     // 업로드 성공
     this.uploader.onSuccessItem = (item, response, status, headers) => {
       const success = true;
+      this.isChanged = true;
+      this.columnDelimiter = ',';
       this.uploadResult = { success, item, response, status, headers };
+      this.checkIfUploaded(response);
     };
 
     // 업로드 하고 에러났을때
@@ -156,15 +155,21 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     };
 
     // 마지막
-    this.uploader.onCompleteAll = () => {
-      const that: any = this;
-      if (this.uploadResult && this.uploadResult.success) {
-        // 업로드 완료 후
-        console.info('Complete', this.uploadResult);
-        this.isChanged = true;
-        this.getDataFile();
-      }
-    };
+    // this.uploader.onCompleteAll = () => {
+    //   let res = JSON.parse(this.uploadResult.response);
+    //   if (res.success !== false) {
+    //     this.columnDelimiter = ',';
+    //     this.isChanged = true;
+    //     this.getDataFile();
+    //   } else {
+    //     Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
+    //     this.loadingHide();
+    //     this.popupService.notiPopup({
+    //       name: 'select-file',
+    //       data: null
+    //     });
+    //   }
+    // };
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -174,10 +179,12 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   // Init
   public ngOnInit() {
 
-    // Init
     super.ngOnInit();
 
-    if (this.datasetFile.sheets && this.datasetFile.sheets.length === 0) {
+    let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filename )[1];
+
+
+    if (fileType === 'csv' || fileType === 'txt') {
       this.isCSV = true;
       this.getDataFile();
 
@@ -196,13 +203,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   }
 
-  public ngOnChanges(changes: SimpleChanges) {
 
-  }
-
-  // Destory
   public ngOnDestroy() {
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -235,17 +237,17 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     this.getDataFile();
   }
 
-  // 다음
+  /**
+   * Move to next step
+   */
   public next() {
 
-    // 입력 받은 delimiter를 보낸다
-    this.datasetFile.delimiter = this.columnDelimiter.trim();
+    this.datasetFile.delimiter = this.columnDelimiter;
 
-    if(isUndefined(this.datasetFile.delimiter) || this.datasetFile.delimiter.length ===0 ){
+    if(isUndefined(this.datasetFile.delimiter) || this.datasetFile.delimiter === '' ){
       this.columnDelimiter = '';
       Alert.warning(this.translateService.instant('msg.dp.alert.col.delim.required'));
       return;
-
     }
 
     this.typeEmitter.emit('FILE');
@@ -254,35 +256,28 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       data: null
     });
 
-    // //sheet 가 없는 파일이거나 sheet가 있어도 한장일때
-    // if (isUndefined(this.datasetFile.sheets) || 1 === this.datasetFile.sheets.length || 0 === this.datasetFile.sheets.length) {
-    //   this.popupService.notiPopup({
-    //     name: 'create-name',
-    //     data: null
-    //   });
-    // }
-    // //sheet 가 여러개 있을 때
-    // else {
-    //   const num = this.datasetFile.selectedSheets.filter((item) => {
-    //     if (item.selected === true) {
-    //       return item;
-    //     }
-    //   }).length;
-    //
-    //   // 선택된 sheet 가 없다
-    //   if(0 === num) {
-    //     Alert.warning(this.translateService.instant('msg.dp.alert.sel.sheet'));
-    //     return;
-    //   } else {
-    //     this.popupService.notiPopup({
-    //       name: 'create-name',
-    //       data: null
-    //     });
-    //   }
-    // }
   }
 
-  // 이전
+  /**
+   * When delimiter is changed
+   */
+  public changeDelimiter() {
+
+    // No change in grid when delimiter is empty
+    if (isNullOrUndefined(this.columnDelimiter) || '' === this.columnDelimiter) {
+      return;
+    }
+
+    this.isChanged = true;
+    this.loadingShow();
+    this.getGridInformation(this.getParamForGrid());
+
+  }
+
+
+  /**
+   * Previous step
+   */
   public prev() {
     super.close();
     this.popupService.notiPopup({
@@ -291,9 +286,16 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     });
   }
 
-  // 닫기 버튼
+  /**
+   * Close
+   */
   public close() {
     super.close();
+
+    // Check if came from dataflow
+    if (this.datasetService.dataflowId) {
+      this.datasetService.dataflowId = undefined;
+    }
 
     this.popupService.notiPopup({
       name: 'close-create',
@@ -301,149 +303,83 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     });
   }
 
-  // 업로드 한 파일 조회
+
+  /**
+   * Get grid information of file
+   * getGridInformation 이랑 중복 함수 .. 리팩토링 필요 ! DRY !
+   */
   public getDataFile() {
     if (isUndefined(this.datasetFile)) {
       return;
     }
-    // regex for line separator
-    const regEx = /\n/g;
 
     if(this.isChanged) { // when uploaded file is changed
-      const response: any = JSON.parse(this.uploadResult.response);
+      const response: any = this.uploadResult.response;
       this.datasetFile.filename = response.filename;
       this.datasetFile.filepath = response.filepath;
       this.datasetFile.sheets = response.sheets;
       if (response.sheets && response.sheets.length > 0) {
         this.datasetFile.sheetname = response.sheets[0];
         this.convertSheet();
+      } else {
+        this.datasetFile.sheetname = '';
       }
       this.datasetFile.filekey = response.filekey;
     }
 
     this.loadingShow();
-    if (isUndefined(this.datasetFile.sheets) || 0==this.datasetFile.sheets.length) {
-      // csv
-      this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
-        const temp: any = {};
 
-        console.info('result' , result);
-        temp.header = result.headers;
-        temp.data = result.data;
-        this.loadingHide();
+    this.getGridInformation(this.getParamForGrid());
+  }
 
-        this.clearGrid = false;
-        this.updateGrid(result.data , result.fields)
-        if (result.success === false) {
-          this.loadingHide();
-          Alert.warning(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-          this.datasetFile = null;
-          this.datasetFile = new DatasetFile();
-          return;
-        }
-      })
-        .catch((error) => {
-          this.loadingHide();
-          let prep_error = this.dataprepExceptionHandler(error);
-          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        });
-      /*
-      if (isUndefined(this.datasetFile.sheets)) {
-        // csv
-        this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
-          this.loadingHide();
-          const temp: any = {};
-          temp.header = result.headers;
-          temp.data = result.data;
-          this.clearGrid = true;
-          this.datasetFile.sheetname = '';
-          this.rowData = temp.data['0'][0]; // index 0,0에 파일 앞 250 바이트 들어있음
-          this.rowData = this.rowData.replace(regEx,'<br>');
-          // this.rowData = JSON.stringify(temp);
-        })
-          .catch((error) => {
-                  this.loadingHide();
-                  let prep_error = this.dataprepExceptionHandler(error);
-                  PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-          });
-      } else if (this.datasetFile.sheets.length === 0) {
-        // csv
-        this.datasetService.getDatasetCSVFile(this.datasetFile).then((result) => {
-          this.loadingHide();
-          const temp: any = {};
-          this.clearGrid = true;
-          this.datasetFile.sheetname = '';
-          temp.header = result.headers;
-          temp.data = result.data;
-          this.rowData = temp.data['0'][0]; // index 0,0에 파일 앞 250 바이트 들어있음
-          this.rowData = this.rowData.replace(regEx,'<br>');
-          // this.rowData = JSON.stringify(temp);
-        })
-          .catch((error) => {
-                  this.loadingHide();
-                  let prep_error = this.dataprepExceptionHandler(error);
-                  PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-          });
-      */
-    } else {
-      // excel
-      this.datasetService.getDatasetExcelFile(this.datasetFile).then((result) => {
-        const temp: any = {};
 
-        console.info('result' , result);
-        temp.header = result.headers;
-        temp.data = result.data;
-        this.loadingHide();
-
-        this.clearGrid = false;
-        this.updateGrid(result.data , result.fields)
-        // this.rowData = JSON.stringify(result.data);
-        // json -> csv 스타일로 출력. grid로 출력하게 될지도 모름.
-        // this.rowData = "";
-        // if( 0<result.data.length ) {
-        //   var keys = [];
-        //   for(var k in result.fields) {
-        //     keys.push(k['name']);
-        //   }
-        //   for(var d of result.data) {
-        //     var vals = [];
-        //     for(var v in d) {
-        //       vals.push(d[v]);
-        //     }
-        //     if(this.rowData==="") {
-        //         this.rowData = vals.join();
-        //     } else {
-        //         this.rowData = this.rowData + "<br>" + vals.join();
-        //     }
-        //   }
-        // }
-        if (result.success === false) {
-          this.loadingHide();
-          Alert.warning(this.translateService.instant('msg.dp.alert.file.format.wrong'));
-          this.datasetFile = null;
-          this.datasetFile = new DatasetFile();
-          return;
-        }
-      }).catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
+  public getGridStyle() {
+    if( this.datasetFile.sheetname && ''!==this.datasetFile.sheetname) {
+      return null;
     }
+    return {'top':'0px'};
   }
 
   /**
-   * Go to next stage with enter key
-   * @param event Event
+   * Check if uploaded
+   * @param response
    */
-  @HostListener('document:keydown.enter', ['$event'])
-  public onEnterKeydownHandler(event: KeyboardEvent) {
-    if(event.keyCode === 13 ) {
-      this.next();
-    }
-
+  public checkIfUploaded(response: any) {
+    let res = JSON.parse(response);
+    this.fetchUploadStatus(res.filekey);
+    this.interval = setInterval(() => {
+      this.fetchUploadStatus(res.filekey);
+    }, 1000)
   }
 
+  /**
+   * Polling
+   * @param {string} fileKey
+   */
+  public fetchUploadStatus(fileKey: string) {
+    this.datasetService.checkFileUploadStatus(fileKey).then((result) => {
+
+      if (result.state === 'done'  && result.success) {
+        clearInterval(this.interval);
+        this.interval = undefined;
+        this.isChanged = true;
+        this.uploadResult.response = result;
+        this.getDataFile();
+      }  else if (result.success === false) { // upload failed
+
+        this.loadingHide();
+        Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
+        clearInterval(this.interval);
+        this.interval = undefined;
+        return;
+      }
+    });
+  }
+
+
+  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   | Private Method
+   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
    * 헤더정보 얻기
    * @param {Field[]} fields
@@ -488,23 +424,23 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   }
 
   /**
-   * 그리드 출력
+   * Draw grid
    * @param {any[]} headers
    * @param {any[]} rows
    */
   private drawGrid(headers: any[], rows: any[]) {
     this.changeDetect.detectChanges();
-    // 그리드 옵션은 선택
     this.gridComponent.create(headers, rows, new GridOption()
       .SyncColumnCellResize(true)
       .MultiColumnSort(true)
       .RowHeight(32)
       .build()
     );
+    this.loadingHide();
   }
 
   /**
-   * rows 얻기
+   * Find number of rows
    * @param data
    * @returns {any[]}
    */
@@ -519,21 +455,50 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     return rows;
   }
 
-  public getGridStyle(div?: any) {
-    if( this.datasetFile.sheetname && ''!==this.datasetFile.sheetname) {
-      return null;
-    }
-    return {'top':'0px'};
+
+  /**
+   * Get grid information
+   */
+  private getGridInformation(param) {
+
+    this.datasetService.getFileGridInfo(param).then((result) => {
+      if (result.data && result.data.length > 0 && result.fields && result.fields.length > 0) {
+        this.clearGrid = false;
+        this.updateGrid(result.data , result.fields);
+      } else {
+        this.clearGrid = true;
+        this.loadingHide();
+      }
+    }).catch((error) => {
+      this.clearGrid = true;
+      this.loadingHide();
+    });
   }
 
+  private getParamForGrid() {
+    return {
+      fileKey : this.datasetFile.filekey,
+      sheetname : this.datasetFile.sheetname,
+      delimiter : this.columnDelimiter,
+      fileType : new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filename )[1]
+    };
+  }
+
+
+  /**
+   * Go to next stage with enter key
+   * @param event Event
+   */
+  @HostListener('document:keydown.enter', ['$event'])
+  private onEnterKeydownHandler(event: KeyboardEvent) {
+    if(event.keyCode === 13 ) {
+      this.next();
+    }
+  }
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
-   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
 

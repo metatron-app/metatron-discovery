@@ -13,7 +13,10 @@
  */
 
 import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
+  ViewChild
+} from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
@@ -39,6 +42,9 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public selectedFields: Field[] = [];
+
+  @Output()
+  public advancedEditorClickEvent = new EventEmitter();
 
   // T/F
   public isFocus:boolean = false;         // Input Focus t/f
@@ -168,6 +174,14 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
     this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { isShow : isShow } );
     this.isFocus = isShow;
   } // function - showHidePatternLayer
+
+  /**
+   * open advanced formula popup
+   */
+  public openPopupFormulaInput() {
+    this.advancedEditorClickEvent.emit();
+  } // function - openPopupFormulaInput
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method

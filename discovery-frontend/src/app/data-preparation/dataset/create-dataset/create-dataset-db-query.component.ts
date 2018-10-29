@@ -176,9 +176,15 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   }
 
   public close() {
+
+    // Check if came from dataflow
+    if (this.datasetService.dataflowId) {
+      this.datasetService.dataflowId = undefined;
+    }
+
     super.close();
     this.popupService.notiPopup({
-      name: 'create-db-select',
+      name: 'close-create',
       data: null
     });
   } // function - close

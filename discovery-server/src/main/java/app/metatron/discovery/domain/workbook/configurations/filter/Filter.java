@@ -35,6 +35,7 @@ import static app.metatron.discovery.domain.workbook.configurations.field.Field.
     @JsonSubTypes.Type(value = TimeListFilter.class, name = "time_list"),
     @JsonSubTypes.Type(value = TimeRelativeFilter.class, name = "time_relative"),
     @JsonSubTypes.Type(value = TimeRangeFilter.class, name = "time_range"),
+    @JsonSubTypes.Type(value = SpatialBboxFilter.class, name = "spatial_bbox"),
     @JsonSubTypes.Type(value = RegExprFilter.class, name = "regexpr"),
     @JsonSubTypes.Type(value = ExpressionFilter.class, name = "expr"),
     @JsonSubTypes.Type(value = LikeFilter.class, name = "like"),

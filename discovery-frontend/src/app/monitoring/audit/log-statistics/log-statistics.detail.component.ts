@@ -128,6 +128,8 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  public convertMilliseconds:Function = CommonUtil.convertMilliseconds;
+
   /**
    * Job log detail로 이동
    * @param data
@@ -298,25 +300,6 @@ export class LogStatisticsDetailComponent extends AbstractComponent implements O
       return;
     }
 
-  }
-
-  /**
-   * ms를 min과 sec로 변환
-   * @param {number} ms
-   * @returns {string}
-   */
-  public convertMilliseconds(ms: number) {
-    if (ms === undefined) {
-      return 0 + 'sec';
-    }
-
-    if (ms < 1000) {
-      return ms + 'ms'
-    }
-
-    const min = Math.floor((ms / 1000 / 60) << 0);
-    const sec = Math.floor((ms / 1000) % 60);
-    return min !== 0 ? (min + ' min ' + sec + ' sec') : (sec + ' sec');
   }
 
   /**
