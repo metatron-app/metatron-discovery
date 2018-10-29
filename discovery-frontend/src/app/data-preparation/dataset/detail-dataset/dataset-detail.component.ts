@@ -426,20 +426,49 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.wrangledDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` }
       ]
     }  else if (dataset.importType === ImportType.FILE) {
-      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.importType },
+      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} ${this.getDatasetType(dataset.importType, dataset.filename)}`},
         {name : this.translateService.instant('msg.dp.th.file'), value : `${dataset.filename}` },
         {name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() },
         {name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
         {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')}`}
       ]
-    } else if (dataset.importType !== ImportType.FILE) {
+    } else if (dataset.importType === 'HIVE') {
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType}` },
+        { name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'StagingDB' : 'DB'}` },
         { name : this.translateService.instant('msg.dp.th.table'), value : `${this.getTableOrSql}` },
         { name : this.translateService.instant('msg.comm.detail.size') , value : this.getTotalBytes },
         { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.importedDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` }
-      ]
+      ];
+    } else {
+      this.datasetInformationList = [
+        { name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'StagingDB' : 'DB'}` },
+        { name : this.translateService.instant('Database'), value : this.getDatabaseName() },
+        { name : this.translateService.instant('msg.dp.th.table'), value : `${this.getTableOrSql}` },
+        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.importedDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` }
+      ];
     }
+  }
+
+  public getDatasetType(type: ImportType, fileName : string) : string {
+
+    let result = '';
+    if (type === ImportType.FILE) {
+      let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
+      if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
+        result =  '(excel)'
+      } else if (extension.toUpperCase() === 'CSV') {
+        result =  '(csv)'
+      }
+    } else {
+
+    }
+
+    return result;
+  }
+
+  public getDatabaseName() {
+    let custom = JSON.parse(this.dataset.custom);
+    return custom.databaseName;
   }
 
   /**
