@@ -157,7 +157,9 @@ export class Field {
   ingestionRule: IngestionRule;
 
   // format
-  format: string;
+  // TODO 추후 FieldFormat으로 변환
+  // format: FieldFormat;
+  format: any;
 
   // description
   description: string;
@@ -175,6 +177,13 @@ export class Field {
   dsName?: string;          // 필드의 데이터소스 이름
   granularity?: GranularityType;     // granularity
   segGranularity?: GranularityType;  // segGranularity
+
+  // [UI] for Create Datasource
+  isValidTimeFormat?: boolean;
+  isValidReplaceValue?: boolean;
+  replaceValidMessage?: string;
+  timeFormatValidMessage?: string;
+  removed?: boolean;
 
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디
@@ -405,4 +414,26 @@ export enum TempDsStatus {
   ENABLE = <any>'ENABLE',
   PREPARING = <any>'PREPARING',
   DISABLE = <any>'DISABLE'
+}
+
+export class FieldFormat {
+  format: string;
+  // default FieldFormatType.DATE_TIME
+  type: FieldFormatType;
+  // default FieldFormatUnit.MILLISECOND
+  unit: FieldFormatUnit;
+  constructor() {
+    this.unit = FieldFormatUnit.MILLISECOND;
+    this.type = FieldFormatType.DATE_TIME;
+  }
+}
+
+export enum FieldFormatType {
+  DATE_TIME = <any>'time_format',
+  UNIX_TIME = <any>'time_unix',
+}
+
+export enum FieldFormatUnit {
+  SECOND = <any>'second',
+  MILLISECOND = <any>'millisecond'
 }

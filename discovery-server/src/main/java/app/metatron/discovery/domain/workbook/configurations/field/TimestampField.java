@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.apache.commons.lang3.StringUtils;
 
 import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.domain.workbook.configurations.format.CustomTimeFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.CustomDateTimeFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
 import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFormat;
 
@@ -45,8 +45,8 @@ public class TimestampField extends Field {
       @JsonProperty("format") FieldFormat format) {
 
     super(name, alias, ref);
-    if(format != null) {
-      if(format instanceof TimeFieldFormat) {
+    if (format != null) {
+      if (format instanceof TimeFieldFormat) {
         this.format = format;
       } else {
         throw new BadRequestException("Required time format");
@@ -59,7 +59,7 @@ public class TimestampField extends Field {
   }
 
   public TimestampField(String name, String ref) {
-    this(name, null, ref, new CustomTimeFormat("yyyy-MM-dd HH:mm:ss"));
+    this(name, null, ref, new CustomDateTimeFormat("yyyy-MM-dd HH:mm:ss"));
   }
 
   public TimestampField(String name, String ref, FieldFormat format) {
@@ -78,12 +78,12 @@ public class TimestampField extends Field {
   @JsonIgnore
   public String getPredefinedColumn(boolean useQueryDatasource) {
 
-    if(!useQueryDatasource) {
+    if (!useQueryDatasource) {
       return "__time";
     }
 
     StringBuilder builder = new StringBuilder();
-    if(StringUtils.isNotEmpty(ref)) {
+    if (StringUtils.isNotEmpty(ref)) {
       builder.append(ref).append(FIELD_NAMESPACE_SEP);
     }
     builder.append("timestamp");

@@ -6008,7 +6008,7 @@ ul.ddp-list-dbtype li .ddp-label-dbtype.type-tibero:before{width:19px; height:22
 .ddp-ui-import-option .ddp-ui-edit-db .ddp-form-input-dropdown .ddp-form-dropdown-white .ddp-ui-drop-wrap {overflow:hidden; position:absolute; top:0; left:10px; padding:7px 0;}
 .ddp-ui-import-option .ddp-ui-edit-db .ddp-label-type {display:block; padding-bottom:15px;}
 .ddp-ui-import-option .ddp-ui-option-select {width:100%;}
-.ddp-ui-import-option .ddp-ui-option-select .ddp-ui-search-db {position:relative; margin-bottom:10px; z-index:5; white-space:nowrap;}
+.ddp-ui-import-option .ddp-ui-option-select .ddp-ui-search-db {position:relative; margin-bottom:10px; white-space:nowrap;}
 .ddp-ui-import-option .ddp-ui-option-select .ddp-ui-search-db .ddp-type-selectbox {display:inline-block; width:270px; margin-right:10px; box-sizing:border-box;}
 .ddp-ui-import-option .ddp-ui-option-select .ddp-ui-search-db .ddp-txt-error {display:inline-block; position:relative; top:-3px;}
 
@@ -6527,7 +6527,7 @@ table.ddp-table-simple tr td .ddp-ui-action {height:30px; white-space:normal; ov
 .ddp-box-editer a.ddp-btn-beautifier {position:relative; float:left; width:32px; height:32px;  background:rgba(75,81,91,0.05); margin-right:2px;}
 .ddp-box-editer a.ddp-btn-beautifier:hover .ddp-ui-tooltip-info {display:block;}
 .ddp-box-editer a.ddp-btn-beautifier:before {display:inline-block; content:''; position:absolute; top:50%; left:50%; width:21px; height:18px; margin:-10px 0 0 -9px; background:url(../images/icon_query.png) no-repeat; background-position:left -70px;}
-.ddp-box-editer a.ddp-btn-beautifier:hover:before {background-position:right -70px;}
+.ddp-box-editer a.ddp-btn-beautifier:hover:before {background-position:-22px -70px;}
 
 .ddp-box-editer .ddp-wrap-question {position:relative;float:left;}
 .ddp-box-editer .ddp-wrap-question a.ddp-btn-question {position:relative; float:left; width:32px; height:32px; margin-left:3px;  background:rgba(75,81,91,0.05); margin-right:2px;}
@@ -6885,6 +6885,7 @@ ul.ddp-list-value li.ddp-total {color:#b7b9c2;}
 .ddp-wrap-value-setting .ddp-ui-setting .ddp-wrap-edit3:first-of-type {margin-top:0;}
 .ddp-wrap-value-setting .ddp-ui-setting .ddp-wrap-edit3 .ddp-ui-label-name {margin-bottom:5px; color:#4a515c; font-weight:bold;}
 .ddp-wrap-value-setting .ddp-ui-setting .ddp-wrap-edit3 .ddp-ui-label-name .ddp-icon-recommend {display:inline-block; margin-left:5px;  position:relative; vertical-align: middle;}
+
 .ddp-wrap-value-setting .ddp-ui-setting .ddp-wrap-edit3 .ddp-ui-error {display:block; margin-top:5px; margin-left:0px; color:#eb5f58; font-size:12px; white-space:normal;}
 .ddp-wrap-value-setting .ddp-ui-setting .ddp-wrap-edit3 .ddp-ui-error.ddp-italic {font-style:italic;}
 
