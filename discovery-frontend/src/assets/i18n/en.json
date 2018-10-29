@@ -1699,6 +1699,8 @@
   "msg.storage.ui.schema.valid.string" : "Type in String or leave it blank",
   "msg.storage.ui.schema.valid.integer" : "Type in integer or leave it blank",
   "msg.storage.ui.schema.valid.decimal" : "Type in decimal or leave it blank",
+  "msg.storage.ui.schema.valid.desc" : "Please check valid",
+  "msg.storage.ui.schema.error.desc" : "Please check error",
   "msg.storage.ui.conn.search.description" : "Search by name of data connection",
   "msg.storage.btn.create.conn" : "Create new Data Connection",
   "msg.storage.ui.conn.create.all.workspace" : "All workspaces",

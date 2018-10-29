@@ -18,9 +18,13 @@ import {
 } from '@angular/core';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { isUndefined } from 'util';
-import { DatasourceInfo, FieldFormat, FieldFormatType } from '../../../../../domain/datasource/datasource';
+import {
+  DatasourceInfo, Field, FieldFormat, FieldFormatType,
+  LogicalType
+} from '../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
+import { Alert } from '../../../../../common/util/alert.util';
 
 @Component({
   selector: 'staging-db-configure-schema',
@@ -153,15 +157,6 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * 다음화면으로 이동
    */
   public next() {
-    // time stamp 중 unix이고 format이 빈 값인 경우
-    this.fields.filter((column) => {
-      return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column) && column.format.type === FieldFormatType.DATE_TIME;
-    }).forEach((column) => {
-      if (StringUtil.isEmpty(column.format.format)) {
-        // set error
-        column.isTimeError = true;
-      }
-    });
     // validation
     if (this.getNextValidation()) {
       // 기존 스키마정보 삭제후 생성
@@ -643,8 +638,8 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
           // pattern 이 있을경우
           if (result.hasOwnProperty('pattern')) {
             column.format.format = result.pattern;
-            // set default
-            column.isDefaultFormat = true;
+            // set valid
+            column.isValidTimeFormat = true;
           }
           resolve(result);
         })
@@ -797,42 +792,37 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * @returns {boolean}
    */
   private isErrorColumn(column): boolean {
-    // ingestion rule
-    if (!this.ingestionRuleValidation(column)) {
+    if (this._isErrorTimestamp(column)) {
       return true;
     }
-    // error
-    if (!this.timestampValidation(column)) {
+    if (this._isErrorIngestionRule(column)) {
       return true;
     }
     return false;
   }
 
   /**
-   * ingestionRule validation
-   * @param column
+   * Is ingestion rule error
+   * @param {Field} column
    * @returns {boolean}
+   * @private
    */
-  private ingestionRuleValidation(column): boolean {
-    // ingestionRule type이  replace 인 경우 error가 있다면 false
-    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace' && column.isReplaceError) {
-      return false;
-    }
-    return true;
+  private _isErrorIngestionRule(column: Field): boolean {
+    return column.ingestionRule
+      && column.ingestionRule.type === 'replace'
+      && column.isValidReplaceValue === false;
   }
 
   /**
-   * timestamp validation
-   * @param column
+   * Is timestamp error
+   * @param {Field} column
    * @returns {boolean}
+   * @private
    */
-  private timestampValidation(column): boolean {
-    // timestamp 컬럼이 error가 있다면 false
-    if (column.logicalType === 'TIMESTAMP'
-      && column.isTimeError) {
-      return false;
-    }
-    return true;
+  private _isErrorTimestamp(column: Field): boolean {
+    return column.logicalType === LogicalType.TIMESTAMP
+      && column.format.type === FieldFormatType.DATE_TIME
+      && column.isValidTimeFormat === false;
   }
 
   /**
@@ -841,10 +831,22 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * @returns {boolean}
    */
   private columnsErrorValidation(columnList: any[]): boolean {
-    const result = columnList.filter((column) => {
-      return this.isErrorColumn(column);
+    // check error
+    columnList.forEach((column: Field) => {
+      if (column.logicalType === LogicalType.TIMESTAMP && column.format.type === FieldFormatType.DATE_TIME && isUndefined(column.isValidTimeFormat)) {
+        column.isValidTimeFormat = false;
+      }
+      if (column.ingestionRule && column.ingestionRule.type === 'replace' && isUndefined(column.isValidReplaceValue)) {
+        column.isValidReplaceValue = false;
+        column.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
+      }
     });
-    return result.length !== 0;
+    if (_.some(columnList, column => this.isErrorColumn(column))) {
+      Alert.warning(this.translateService.instant('msg.storage.ui.schema.error.desc'));
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -861,7 +863,8 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     // 변경된 타입이 타임일 경우
     if (this.isEqualType('TIMESTAMP', type)) {
       timestampPromise.push(column);
-      delete column.isDefaultFormat;
+      delete column.isValidTimeFormat;
+      delete column.isValidReplaceValue;
     }
 
     // 컬럼이 타임스탬프로 지정되었던 경우
@@ -901,7 +904,8 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
 
       // data 가 없다면 타임스탬프를 지정할수 없다.
       if (columnDetailData.length === 0) {
-        column.isTimeError = true;
+        column.isValidTimeFormat = false;
+        column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.no.data');
       } else {
         columnDetailData = columnDetailData.length > 20 ? columnDetailData.slice(0, 19) : columnDetailData;
         promise.push(this.getTimestampFormat(column, columnDetailData));

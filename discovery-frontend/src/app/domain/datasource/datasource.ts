@@ -179,9 +179,6 @@ export class Field {
   segGranularity?: GranularityType;  // segGranularity
 
   // [UI] for Create Datasource
-  isDefaultFormat?: boolean;
-  isTimeError?: boolean;
-  isReplaceError?: boolean;
   isValidTimeFormat?: boolean;
   isValidReplaceValue?: boolean;
   replaceValidMessage?: string;

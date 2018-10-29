@@ -17,7 +17,10 @@ import {
   Output
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo, FieldFormat, FieldFormatType } from '../../../../../domain/datasource/datasource';
+import {
+  DatasourceInfo, Field, FieldFormat, FieldFormatType,
+  LogicalType
+} from '../../../../../domain/datasource/datasource';
 import { isUndefined } from 'util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import * as _ from 'lodash';
@@ -155,15 +158,6 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * 다음화면으로 이동
    */
   public next() {
-    // time stamp 중 unix이고 format이 빈 값인 경우
-    this.fields.filter((column) => {
-      return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column) && column.format.type === FieldFormatType.DATE_TIME;
-    }).forEach((column) => {
-      if (StringUtil.isEmpty(column.format.format)) {
-        // set error
-        column.isTimeError = true;
-      }
-    });
     // validation
     if (this.getNextValidation()) {
       // 기존 스키마정보 삭제후 생성
@@ -651,7 +645,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
           // pattern 이 있을경우
           if (result.hasOwnProperty('pattern')) {
             column.format.format = result.pattern;
-            // set default
+            // set valid
             column.isValidTimeFormat = true;
           }
           resolve(result);
@@ -808,35 +802,37 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @returns {boolean}
    */
   private isErrorColumn(column): boolean {
-    // ingestion rule
-    if (!this.ingestionRuleValidation(column)) {
+    if (this._isErrorTimestamp(column)) {
       return true;
     }
-    // error
-    if (!this.timestampValidation(column)) {
+    if (this._isErrorIngestionRule(column)) {
       return true;
     }
     return false;
   }
 
   /**
-   * ingestionRule validation
-   * @param column
+   * Is ingestion rule error
+   * @param {Field} column
    * @returns {boolean}
+   * @private
    */
-  private ingestionRuleValidation(column): boolean {
-    // ingestionRule type이  replace 인 경우 error가 있다면 false
-    return column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace' && column.isValidReplaceValue === false ? false : true;
+  private _isErrorIngestionRule(column: Field): boolean {
+    return column.ingestionRule
+    && column.ingestionRule.type === 'replace'
+    && column.isValidReplaceValue === false;
   }
 
   /**
-   * timestamp validation
-   * @param column
+   * Is timestamp error
+   * @param {Field} column
    * @returns {boolean}
+   * @private
    */
-  private timestampValidation(column): boolean {
-    // timestamp 컬럼이 error가 있다면 false
-    return column.logicalType === 'TIMESTAMP' && column.isValidTimeFormat === false ? false : true;
+  private _isErrorTimestamp(column: Field): boolean {
+    return column.logicalType === LogicalType.TIMESTAMP
+      && column.format.type === FieldFormatType.DATE_TIME
+      && column.isValidTimeFormat === false;
   }
 
   /**
@@ -845,8 +841,18 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @returns {boolean}
    */
   private columnsErrorValidation(columnList: any[]): boolean {
+    // check error
+    columnList.forEach((column: Field) => {
+      if (column.logicalType === LogicalType.TIMESTAMP && column.format.type === FieldFormatType.DATE_TIME && isUndefined(column.isValidTimeFormat)) {
+        column.isValidTimeFormat = false;
+      }
+      if (column.ingestionRule && column.ingestionRule.type === 'replace' && isUndefined(column.isValidReplaceValue)) {
+        column.isValidReplaceValue = false;
+        column.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
+      }
+    });
     if (_.some(columnList, column => this.isErrorColumn(column))) {
-      Alert.warning("에러를 확인하세요");
+      Alert.warning(this.translateService.instant('msg.storage.ui.schema.error.desc'));
       return true;
     } else {
       return false;
@@ -908,7 +914,8 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
 
       // data 가 없다면 타임스탬프를 지정할수 없다.
       if (columnDetailData.length === 0) {
-        column.isTimeError = true;
+        column.isValidTimeFormat = false;
+        column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.no.data');
       } else {
         columnDetailData = columnDetailData.length > 20 ? columnDetailData.slice(0, 19) : columnDetailData;
         promise.push(this.getTimestampFormat(column, columnDetailData));

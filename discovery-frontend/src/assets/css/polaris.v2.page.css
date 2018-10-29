@@ -6008,7 +6008,7 @@ ul.ddp-list-dbtype li .ddp-label-dbtype.type-tibero:before{width:19px; height:22
 .ddp-ui-import-option .ddp-ui-edit-db .ddp-form-input-dropdown .ddp-form-dropdown-white .ddp-ui-drop-wrap {overflow:hidden; position:absolute; top:0; left:10px; padding:7px 0;}
 .ddp-ui-import-option .ddp-ui-edit-db .ddp-label-type {display:block; padding-bottom:15px;}
 .ddp-ui-import-option .ddp-ui-option-select {width:100%;}
-.ddp-ui-import-option .ddp-ui-option-select .ddp-ui-search-db {position:relative; margin-bottom:10px; z-index:5; white-space:nowrap;}
+.ddp-ui-import-option .ddp-ui-option-select .ddp-ui-search-db {position:relative; margin-bottom:10px; white-space:nowrap;}
 .ddp-ui-import-option .ddp-ui-option-select .ddp-ui-search-db .ddp-type-selectbox {display:inline-block; width:270px; margin-right:10px; box-sizing:border-box;}
 .ddp-ui-import-option .ddp-ui-option-select .ddp-ui-search-db .ddp-txt-error {display:inline-block; position:relative; top:-3px;}
 

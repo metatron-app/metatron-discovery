@@ -275,9 +275,8 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       delete column.removed;
     }
     // delete used UI
-    delete column.isDefaultFormat;
-    delete column.isTimeError;
-    delete column.isReplaceError;
+    delete column.isValidTimeFormat;
+    delete column.isValidReplaceValue;
     if (column.logicalType !== 'TIMESTAMP' && column.format) {
       delete column.format;
     } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {

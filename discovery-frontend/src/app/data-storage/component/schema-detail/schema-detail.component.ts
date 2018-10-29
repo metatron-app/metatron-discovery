@@ -669,6 +669,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
       })
       .catch((error) => {
         this.column.format.format = 'yyyy-MM-dd';
+        this.column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.format.null');
         // 로딩 hide
         this.loadingHide();
       });

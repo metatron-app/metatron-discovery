@@ -244,11 +244,17 @@
                         <i class="ddp-icon-radio"></i>
                         <span class="ddp-txt-radio">{{'msg.storage.ui.replace.with' | translate}}</span>
                       </label>
-                      <input type="text" class="ddp-input-typebasic" placeholder="{{getDefaultValue(column.logicalType)}}"
-                             [readOnly]="column.ingestionRule.type !== 'replace'"
-                             [(ngModel)]="column['ingestionRule'].value"
-                             (ngModelChange)="initReplaceValid(column)"
-                             (keyup)="onKeyupEnterReplaceValidation(column, $event)">
+                      <!-- input type -->
+                      <div class="ddp-type-input">
+                        <div class="ddp-input-apply" [class.ddp-disabled]="column.ingestionRule.type !== 'replace'">
+                          <input type="text" class="ddp-input-txt" placeholder="{{getDefaultValue(column.logicalType)}}"
+                                 [(ngModel)]="column['ingestionRule'].value"
+                                 (ngModelChange)="initReplaceValid(column)">
+                          <em class="ddp-icon-apply"
+                              (click)="ingestionRuleValidation(column)"></em>
+                        </div>
+                      </div>
+                      <!-- //input type -->
                     </div>
                     <!-- error -->
                     <div class="ddp-ui-error" *ngIf="column.ingestionRule.type === 'replace' && column.isValidReplaceValue === false">
