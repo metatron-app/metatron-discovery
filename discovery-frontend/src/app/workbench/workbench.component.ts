@@ -1210,7 +1210,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         } else {
           resultTab.setResultStatus( 'FAIL' );
           resultTab.name = this._genResultTabName(resultTab.queryEditor.name, 'ERROR', resultTab.order);
-          resultTab.message = error.message + ' ' + error.details;
+          if( error.message && error.details ) {
+            resultTab.message = error.message + ' - ' + error.details;
+          } else {
+            resultTab.message = 'Workbench Error - Query is Fail';
+          }
           this._calculateEditorResultSlideBtn();
           this._doneOrNextExecute();
         }
@@ -2287,7 +2291,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       }
     }
     const params = { query: '', webSocketId: this.websocketId };
-    this.workbenchService.setQueryRunCancel(this.selectedEditorId, params).then();
+    this.workbenchService.setQueryRunCancel(this.selectedEditorId, params)
+      .then()
+      .catch(() => {
+        Alert.error(this.translateService.instant('msg.bench.alert.log.cancel.error'));
+        this.loadingBar.hide();
+        this.afterCancelQuery(false);
+      });
 
   } // function - cancelRunningQuery
 
@@ -2297,38 +2307,42 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public afterCancelQuery(isSuccess: boolean) {
 
-    // console.info('>>>>>> %s - afterCancel', this.runningResultTabId);
+    if( ! this.isCanceled ) {
+      // console.info('>>>>>> %s - afterCancel', this.runningResultTabId);
 
-    for (let idx = this.currentRunningIndex + 1; idx < this.executeTabIds.length; idx++) {
-      this._removeResultTab(this.executeTabIds[idx]);
-    }
-
-    this.isCanceled = true;
-    this.isExecutingQuery = false;
-    this.isCanceling = false;
-
-    const runningResultTab: ResultTab = this._getResultTab(this.runningResultTabId);
-    runningResultTab.showLog = true;
-    runningResultTab.setResultStatus( 'CANCEL' );
-    if (isSuccess) {
-      if (isNullOrUndefined(runningResultTab.message)) {
-        runningResultTab.message = this.translateService.instant('msg.bench.alert.log.cancel.success');
+      for (let idx = this.currentRunningIndex + 1; idx < this.executeTabIds.length; idx++) {
+        this._removeResultTab(this.executeTabIds[idx]);
       }
-      runningResultTab.appendLog(this.translateService.instant('msg.bench.alert.log.cancel.success'));
-      (isNullOrUndefined(runningResultTab.result)) && (runningResultTab.result = new QueryResult());
-    } else {
-      if (isNullOrUndefined(runningResultTab.message)) {
-        runningResultTab.message = this.translateService.instant('msg.bench.alert.log.cancel.error');
+
+      this.isCanceled = true;
+      this.isExecutingQuery = false;
+      this.isCanceling = false;
+
+      const runningResultTab: ResultTab = this._getResultTab(this.runningResultTabId);
+      runningResultTab.showLog = true;
+      runningResultTab.setResultStatus( 'CANCEL' );
+      if (isSuccess) {
+        runningResultTab.name = this._genResultTabName(runningResultTab.queryEditor.name, 'RESULT', runningResultTab.order);
+        if (isNullOrUndefined(runningResultTab.message)) {
+          runningResultTab.message = this.translateService.instant('msg.bench.alert.log.cancel.success');
+        }
+        runningResultTab.appendLog(this.translateService.instant('msg.bench.alert.log.cancel.success'));
+        (isNullOrUndefined(runningResultTab.result)) && (runningResultTab.result = new QueryResult());
+      } else {
+        runningResultTab.name = this._genResultTabName(runningResultTab.queryEditor.name, 'ERROR', runningResultTab.order);
+        if (isNullOrUndefined(runningResultTab.message)) {
+          runningResultTab.message = this.translateService.instant('msg.bench.alert.log.cancel.error');
+        }
+        runningResultTab.appendLog(this.translateService.instant('msg.bench.alert.log.cancel.error'));
       }
-      runningResultTab.appendLog(this.translateService.instant('msg.bench.alert.log.cancel.error'));
-    }
 
-    if (this.selectedEditorId === runningResultTab.editorId
-      && false === this._getCurrentEditorResultTabs().some(item => item.selected)) {
-      runningResultTab.selected = true;
-    }
+      if (this.selectedEditorId === runningResultTab.editorId
+        && false === this._getCurrentEditorResultTabs().some(item => item.selected)) {
+        runningResultTab.selected = true;
+      }
 
-    this.safelyDetectChanges();
+      this.safelyDetectChanges();
+    }
 
   } // function - afterCancelQuery
 

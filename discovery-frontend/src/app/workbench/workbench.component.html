@@ -244,14 +244,33 @@
               <!--</div>-->
               <!-- //row 수 -->
               <!-- SQL BEAUTIFIER -->
-              <a href="javascript:" class="ddp-btn-beautifier" (click)="setSqlFormatter()" title="SQL BEAUTIFIER"></a>
+              <a href="javascript:" class="ddp-btn-beautifier" (click)="setSqlFormatter()">
+                <div class="ddp-ui-tooltip-info">
+                  <em class="ddp-icon-view-down"></em>
+                  SQL BEAUTIFIER
+                </div>
+              </a>
               <!-- //SQL BEAUTIFIER -->
               <!-- foot button -->
               <div class="ddp-ui-edit-foot">
-                <a href="javascript:" class="ddp-btn-play" (click)="setExecuteSql('ALL')" title="ALL SQL EXECUTE"></a>
-                <a href="javascript:" class="ddp-btn-stop" (click)="setExecuteSql('SELECTED')"
-                   title="SELECTED  SQL EXECUTE"></a>
-                <a href="javascript:" class="ddp-btn-delete" (click)="clearSql()" title="CLEAR SQL"></a>
+                <a href="javascript:" class="ddp-btn-play" (click)="setExecuteSql('ALL')" >
+                  <div class="ddp-ui-tooltip-info">
+                    <em class="ddp-icon-view-down"></em>
+                    ALL SQL EXECUTE
+                  </div>
+                </a>
+                <a href="javascript:" class="ddp-btn-stop" (click)="setExecuteSql('SELECTED')" >
+                  <div class="ddp-ui-tooltip-info">
+                    <em class="ddp-icon-view-down"></em>
+                    SELECTED  SQL EXECUTE
+                  </div>
+                </a>
+                <a href="javascript:" class="ddp-btn-delete" (click)="clearSql()" title="">
+                  <div class="ddp-ui-tooltip-info">
+                    <em class="ddp-icon-view-down"></em>
+                    CLEAR SQL
+                  </div>
+                </a>
               </div>
               <!-- //foot button -->
               <!-- 클릭시 ddp-selected 추가 -->
@@ -552,7 +571,7 @@
                     <span class="ddp-data-label">{{'msg.bench.ui.query.start.date' | translate}}</span>
                     <span class="ddp-data-txt">{{visibleResultTab.startDate}}</span>
                   </span>
-                  <span class="ddp-data-time">
+                  <span *ngIf="visibleResultTab.finishDate" class="ddp-data-time">
                     <span class="ddp-data-label">{{'msg.bench.ui.query.finish.date' | translate}}</span>
                     <span class="ddp-data-txt">{{visibleResultTab.finishDate}}</span>
                   </span>
