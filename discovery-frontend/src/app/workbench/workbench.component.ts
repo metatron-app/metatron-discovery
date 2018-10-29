@@ -2699,8 +2699,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         label: this.translateService.instant('msg.storage.li.connect.always'),
         value: 'MANUAL'
       };
-    connInfo.username = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginId : connInfo.dataConnection.username;
-    connInfo.password = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginPw : connInfo.dataConnection.password;
+    connInfo.dataConnection.username = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginId : connInfo.dataConnection.username;
+    connInfo.dataConnection.password = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginPw : connInfo.dataConnection.password;
 
     const param = {
       workbench: connInfo,

@@ -209,9 +209,11 @@ export class WorkbenchService extends AbstractService {
     connInfo.implementor = connection.implementor;
     connInfo.hostname = connection.hostname;
     connInfo.port = connection.port;
-    connInfo.username = connection.username;
-    connInfo.password = connection.password;
-
+    // connection 정보가 USERINFO 일 경우 제외
+    if( connInfo.authenticationType != 'USERINFO' ) {
+      connInfo.username = connection.username;
+      connInfo.password = connection.password;
+    }
     connInfo.authenticationType = connection.authenticationType;
     connInfo.database = connection.database;
     connInfo.id = connection.id;
