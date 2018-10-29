@@ -205,30 +205,13 @@ export class WorkbenchService extends AbstractService {
   public getSchemaInfoTableData(table:string, connection:any) {
     const params:any = {};
 
-    let connInfo: any = {};
-    connInfo.implementor = connection.implementor;
-    connInfo.hostname = connection.hostname;
-    connInfo.port = connection.port;
-    connInfo.username = connection.username;
-    connInfo.password = connection.password;
+    connection.createdBy = '';
+    connection.modifiedBy = '';
 
-    connInfo.authenticationType = connection.authenticationType;
-    connInfo.database = connection.database;
-    connInfo.id = connection.id;
-    connInfo.implementor = connection.implementor;
-    connInfo.name = connection.name;
-    connInfo.published = connection.published;
-    connInfo.type = connection.type;
-    connInfo.catalog = connection.catalog;
-    connInfo.table = table;
-    connInfo.linkedWorkspaces = connection.linkedWorkspaces;
-    connInfo.url = connection.url;
-
-    params.connection = connInfo;
+    params.connection = connection;
     params.schema = connection.database;
     params.type = 'TABLE';
-    // params.type = 'QUERY';
-    params.query = 'select * from ' + connection.database + '.' + table;
+    params.query = table;
 
     return this.post(this.API_URL + 'connections/query/data', params);
   }
