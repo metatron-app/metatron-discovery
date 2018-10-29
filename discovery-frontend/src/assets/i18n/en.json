@@ -935,7 +935,7 @@
   "msg.dp.th.tbl-name": "Table name",
   "msg.dp.th.tbl-name.ph": "Enter table name",
   "msg.dp.th.val" : "Value",
-  "msg.dp.ui.add.rule.title": "Add Rule",
+  "msg.dp.ui.add.rule.title": "{{mode}} Rule",
   "msg.dp.ui.after": "After",
   "msg.dp.ui.before": "Before",
   "msg.dp.ui.column.search.description": "Search by column name",

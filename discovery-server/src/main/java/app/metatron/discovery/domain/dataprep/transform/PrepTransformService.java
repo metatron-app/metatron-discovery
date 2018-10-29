@@ -1271,9 +1271,9 @@ public class PrepTransformService {
       if(prepProperties.isFileSnapshotEnabled()) {
         Map<String,Object> fileUri = Maps.newHashMap();
 
-        String wasDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
-        wasDir = this.snapshotService.escapeSsNameOfUri(wasDir);
-        fileUri.put("was", wasDir);
+        String localDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
+        localDir = this.snapshotService.escapeSsNameOfUri(localDir);
+        fileUri.put("local", localDir);
 
         try {
           String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);

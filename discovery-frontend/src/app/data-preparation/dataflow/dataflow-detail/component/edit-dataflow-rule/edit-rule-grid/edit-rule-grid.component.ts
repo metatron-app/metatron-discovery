@@ -1430,7 +1430,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           },
           formatter: (params) => {
             let labels = this._apiGridData.colHists[index].labels;
-            let sum = this._apiGridData.rows.length;
+            let sum = this.totalRowCnt;
             let data = ` ${params[0].data} `;
             let percentage = '<span style="color:#b4b9c4">' + ((params[0].value / sum) * 100).toFixed(2) + '%' + '</span>';
             switch (this._apiGridData.colDescs[index].type) {
