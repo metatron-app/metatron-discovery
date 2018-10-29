@@ -156,6 +156,15 @@ export class DatasourceSummaryComponent extends AbstractComponent implements OnI
       case 'LONGITUDE':
         result = 'ddp-icon-type-longitude';
         break;
+      case 'GEO_POINT':
+        result = 'ddp-icon-type-point';
+        break;
+      case 'GEO_LINE':
+        result = 'ddp-icon-type-line';
+        break;
+      case 'GEO_POLYGON':
+        result = 'ddp-icon-type-polygon';
+        break;
       default:
         console.error('정의되지 않은 아이콘 타입입니다.', itemType);
         break;

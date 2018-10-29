@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
@@ -72,24 +73,24 @@ public class PivotShelf implements Shelf {
     return false;
   }
 
-  @JsonIgnore
-  public List<Field> getAllFields() {
+  @Override
+  public List<Field> getFields() {
 
-    List<Field> fields = Lists.newArrayList();
+    List<Field> collectedFields = Collections.emptyList();
 
     if(CollectionUtils.isNotEmpty(columns)) {
-      fields.addAll(columns);
+      collectedFields.addAll(columns);
     }
 
     if(CollectionUtils.isNotEmpty(rows)) {
-      fields.addAll(rows);
+      collectedFields.addAll(rows);
     }
 
     if(CollectionUtils.isNotEmpty(aggregations)) {
-      fields.addAll(aggregations);
+      collectedFields.addAll(aggregations);
     }
 
-    return fields;
+    return collectedFields;
   }
 
   @JsonIgnore

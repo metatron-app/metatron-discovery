@@ -17,6 +17,9 @@ package app.metatron.discovery.domain.workbook.configurations.widget.shelf;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.Collections;
 import java.util.List;
 
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
@@ -49,6 +52,22 @@ public class GraphShelf implements Shelf {
     this.sources = sources;
     this.targets = targets;
     this.link = link;
+  }
+
+  @Override
+  public List<Field> getFields() {
+    List<Field> collectedFields = Collections.emptyList();
+    if(CollectionUtils.isNotEmpty(sources)) {
+      collectedFields.addAll(sources);
+    }
+
+    if(CollectionUtils.isNotEmpty(targets)) {
+      collectedFields.addAll(targets);
+    }
+
+    collectedFields.add(link);
+
+    return collectedFields;
   }
 
   public List<Field> getSources() {

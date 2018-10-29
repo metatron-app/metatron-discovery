@@ -58,12 +58,13 @@ public class SelectQueryBuilder {
 
     StringBuilder builder = new StringBuilder();
     builder.append("WHERE ");
-    if(field.getLogicalType() == LogicalType.STRING) {
+    if (field.getLogicalType() == LogicalType.STRING) {
       // 어떻게 할지 확인할것!
       // Text 일경우 구현이 괭장히 어려움
-    } if(field.getLogicalType() == LogicalType.TIMESTAMP) {
-      if(jdbcDataConnection instanceof HiveConnection) {
-        builder.append("unix_timestamp(").append(field.getName()).append(", '").append(field.getFormat()).append("')");
+    }
+    if (field.getLogicalType() == LogicalType.TIMESTAMP) {
+      if (jdbcDataConnection instanceof HiveConnection) {
+        builder.append("unix_timestamp(").append(field.getName()).append(", '").append(field.getTimeFormat()).append("')");
       } else {
         builder.append(field.getName()).append(" ");
       }
@@ -156,16 +157,16 @@ public class SelectQueryBuilder {
     StringBuilder limitClause = new StringBuilder();
 
     if (jdbcDataConnection instanceof OracleConnection || jdbcDataConnection instanceof TiberoConnection) {
-      if(StringUtils.isEmpty(incremental)) {
+      if (StringUtils.isEmpty(incremental)) {
         limitClause.append("WHERE ");
       } else {
         limitClause.append("AND ");
       }
       limitClause.append("ROWNUM >= ").append(initial)
-              .append(" AND ROWNUM <= ").append(initial + limit);
+                 .append(" AND ROWNUM <= ").append(initial + limit);
     } else if (jdbcDataConnection instanceof PrestoConnection
-            || jdbcDataConnection instanceof StageDataConnection
-            || jdbcDataConnection instanceof HiveConnection) {  // limit 만 지원하는 Connection 타입
+        || jdbcDataConnection instanceof StageDataConnection
+        || jdbcDataConnection instanceof HiveConnection) {  // limit 만 지원하는 Connection 타입
       limitClause.append("LIMIT ").append(limit);
     } else if (jdbcDataConnection instanceof MssqlConnection) {
       limitClause.append("TOP " + limit);
@@ -194,7 +195,7 @@ public class SelectQueryBuilder {
       selectQuery.append(" ) AS ").append(TEMP_TABLE_NAME).append(" ");
     }
 
-    if(StringUtils.isNotEmpty(incremental)) {
+    if (StringUtils.isNotEmpty(incremental)) {
       selectQuery.append(incremental).append(" ");
     }
 

@@ -15,16 +15,14 @@
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Entity
 @DiscriminatorValue("HIVE")
@@ -74,7 +72,7 @@ public class HiveConnection extends HiveMetastoreConnection {
     if(StringUtils.isEmpty(schema)){
       return "SHOW TABLES";
     } else {
-      return "USE " + schema + "; SHOW TABLES";
+      return "SHOW TABLES IN " + schema;
     }
   }
 
@@ -263,5 +261,10 @@ public class HiveConnection extends HiveMetastoreConnection {
       }
     }
     return null;
+  }
+
+  @Override
+  public String getTableNameColumn() {
+    return "tab_name";
   }
 }

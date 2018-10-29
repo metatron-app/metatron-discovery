@@ -1,4 +1,3 @@
-
 <!--
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -111,6 +110,15 @@
                         <em class="ddp-icon-dimension-tf"
                             *ngIf="field.logicalType?.toString() === 'BOOLEAN'"></em>
                         <!-- //boolean -->
+                        <!-- 지오-포인트 -->
+                        <em class="ddp-icon-dimension-point ddp-icon-map-view" *ngIf="field.logicalType?.toString() === 'GEO_POINT'"></em>
+                        <!-- //지오-포인트 -->
+                        <!-- 지오-라인 -->
+                        <em class="ddp-icon-dimension-line ddp-icon-map-view" *ngIf="field.logicalType?.toString() === 'GEO_LINE'"></em>
+                        <!-- //지오-라인 -->
+                        <!-- 지오-폴리곤 -->
+                        <em class="ddp-icon-dimension-polygon ddp-icon-map-view" *ngIf="field.logicalType?.toString() === 'GEO_POLYGON'"></em>
+                        <!-- //지오-폴리곤 -->
                         <!-- icons -->
                         <div class="ddp-wrap-icons">
                           <!-- 사용자 정보 미리보기 -->
@@ -312,7 +320,7 @@
                         <em class="ddp-s-graph-pie"></em>
                       </a>
                     </li>
-                    <li *ngIf="isChartTest" [class.ddp-recommend]="recommendCharts.indexOf('mapview') > -1" [class.ddp-selected]="selectChart == 'mapview'" (click)="selectChart = 'mapview'" (mouseenter)="showInfoChart='mapview'" (mouseleave)="showInfoChart=''">
+                    <li [class.ddp-recommend]="recommendCharts.indexOf('map') > -1" [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'" (mouseenter)="showInfoChart='map'" (mouseleave)="showInfoChart=''">
                       <a href="javascript:">
                         <em class="ddp-s-graph-map"></em>
                       </a>
@@ -434,7 +442,7 @@
                   <!-- //차트 정보 -->
                   <!-- 차트 정보 -->
                   <!--
-                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('mapview')">
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('map')">
                     <span class="ddp-ui-name">맵뷰</span>
                     <div class="ddp-data-det">
                       교차 : 차원값 위도 1개, 경도 1개<br />
@@ -625,7 +633,13 @@
               <div class="ddp-box-btnselect">
                 <!-- 선택시 ddp-selected 추가 -->
                 <!-- TODO GAUGE -->
-                <a href="javascript:" class="ddp-btn-selected" *ngIf="uiOption.legend && (uiOption['type'] && (uiOption['type'].toString() != 'gauge' || (uiOption['type'].toString() == 'gauge' && 'measure' == uiOption?.color?.type.toString())) && uiOption['type'].toString() != 'sankey')" [ngClass]="{'ddp-selected': uiOption.legend.auto}" (click)="showLegend(!uiOption.legend.auto)">
+                <a href="javascript:" class="ddp-btn-selected"
+                   *ngIf="uiOption.legend
+                   && (uiOption['type']
+                   && (uiOption['type'].toString() != 'gauge' || (uiOption['type'].toString() == 'gauge'
+                   && 'measure' == uiOption?.color?.type.toString()))
+                   && uiOption['type'].toString() != 'sankey')"
+                   [ngClass]="{'ddp-selected': uiOption.legend.auto}" (click)="showLegend(!uiOption.legend.auto)">
                   <em class="ddp-icon-tool-legend"></em>
                   {{'msg.page.ui.legend' | translate}}
                 </a>
@@ -644,7 +658,7 @@
           <!-- 선반 -->
           <page-pivot
             #pagePivot
-            *ngIf="pivot && selectChart != 'mapview'"
+            *ngIf="pivot && selectChart != 'map'"
             [(pivot)]="pivot"
             [(uiOption)]="uiOption"
             [widget]="widget"
@@ -661,7 +675,7 @@
           </page-pivot>
           <map-page-pivot
             #mapPivot
-            *ngIf="pivot && selectChart == 'mapview'"
+            *ngIf="pivot && selectChart == 'map'"
             [(pivot)]="pivot"
             [(uiOption)]="uiOption"
             [widget]="widget"
@@ -677,7 +691,9 @@
             (showPopup)="onShowPopup($event)">
           </map-page-pivot>
           <!-- //선반 -->
-          <div class="ddp-ui-chart-contents">
+          <div class="ddp-ui-chart-contents"
+            [ngClass]="{'ddp-map-chart' : 'map' == selectChart, 'ddp-shelf1' : 'map' == selectChart && 1 == getPivotComp()?.layerNum,
+            'ddp-shelf2' : 'map' == selectChart && 2 == getPivotComp()?.layerNum, 'ddp-shelf3' : 'map' == selectChart && 3 == getPivotComp()?.layerNum}">
             <div class="ddp-wrap-chart-layout">
               <!-- 차트 기본 선택 화면 -->
               <div class="ddp-ui-chart-basic" *ngIf="selectChart==''">
@@ -723,10 +739,10 @@
                       <span class="ddp-txt-name">{{'msg.page.ui.pie' | translate}}</span>
                     </a>
                   </li>
-                  <li *ngIf="isChartTest"  [class.ddp-recommend]="recommendCharts.indexOf('mapview') > -1" [class.ddp-selected]="selectChart == 'mapview'" (click)="selectChart = 'mapview'">
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('map') > -1" [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-map"></em>
-                      <span class="ddp-txt-name">맵뷰</span>
+                      <span class="ddp-txt-name">{{'msg.page.ui.map' | translate}}</span>
                     </a>
                   </li>
                   <!-- 컨트롤차트 지원중단 -->
@@ -804,6 +820,29 @@
               <!-- 차트 가이드 -->
               <div *ngIf="selectChart!='' && !isChartShow" style="width: 100%; height: 100%">
 
+                <!-- layout 6 -->
+                <div class="ddp-ui-cahrt-layout ddp-box-layout2" *ngIf="isShowGuide && this.guideLayout['layout6'].indexOf(selectChart) > -1">
+
+                  <div class="ddp-ui-layout-center" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'aggregation-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore ddp-ui-condition">
+                      <em class="ddp-icon-cross2"></em>
+                      <span class="ddp-txt-measure">{{'msg.page.pivot.layout.condition.measure.over.desc' | translate: { value : '1' } }}</span>
+                    </div>
+
+                  </div>
+                  <div class="ddp-ui-layout-bottom" [dragula]="'dragbag'" [dragulaModel]="[]" [attr.data-container]="'row-guide'">
+                    <!-- 조건 -->
+                    <div class="dragIgnore dragIgnore ddp-ui-condition">
+                      <em class="ddp-icon-columns2"></em>
+                      <span class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }}</span>
+                    </div>
+                    <!-- //조건 -->
+
+                  </div>
+                </div>
+                <!-- //layout 5 -->
+
                 <!-- layout 5 -->
                 <div class="ddp-ui-cahrt-layout ddp-box-layout2" *ngIf="isShowGuide && this.guideLayout['layout5'].indexOf(selectChart) > -1">
 
@@ -821,7 +860,7 @@
                     <!-- 조건 -->
                     <div class="dragIgnore dragIgnore ddp-ui-condition">
                       <em class="ddp-icon-columns2"></em>
-                      <span class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }}</span>
+                      <span class="ddp-txt-dimension">{{'msg.page.pivot.layout.condition.dimension.desc' | translate: { value : '1' } }}</span>
                     </div>
                     <!-- //조건 -->
 
@@ -863,7 +902,7 @@
                     <em class="ddp-bg-chart-kpi" *ngIf="selectChart == 'label'"></em>
                     <em class="ddp-bg-chart-line" *ngIf="selectChart == 'line'"></em>
                     <!--
-                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'mapview'"></em>
+                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'map'"></em>
                     -->
                     <em class="ddp-bg-chart-network" *ngIf="selectChart == 'network'"></em>
                     <em class="ddp-bg-chart-pie" *ngIf="selectChart == 'pie'"></em>
@@ -913,7 +952,7 @@
                     <em class="ddp-bg-chart-kpi" *ngIf="selectChart == 'label'"></em>
                     <em class="ddp-bg-chart-line" *ngIf="selectChart == 'line'"></em>
                     <!--
-                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'mapview'"></em>
+                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'map'"></em>
                     -->
                     <em class="ddp-bg-chart-network" *ngIf="selectChart == 'network'"></em>
                     <em class="ddp-bg-chart-pie" *ngIf="selectChart == 'pie'"></em>
@@ -962,7 +1001,7 @@
                     <em class="ddp-bg-chart-kpi" *ngIf="selectChart == 'label'"></em>
                     <em class="ddp-bg-chart-line" *ngIf="selectChart == 'line'"></em>
                     <!--
-                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'mapview'"></em>
+                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'map'"></em>
                     -->
                     <em class="ddp-bg-chart-network" *ngIf="selectChart == 'network'"></em>
                     <em class="ddp-bg-chart-pie" *ngIf="selectChart == 'pie'"></em>
@@ -1015,7 +1054,7 @@
                     <em class="ddp-bg-chart-kpi" *ngIf="selectChart == 'label'"></em>
                     <em class="ddp-bg-chart-line" *ngIf="selectChart == 'line'"></em>
                     <!--
-                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'mapview'"></em>
+                    <em class="ddp-bg-chart-map" *ngIf="selectChart == 'map'"></em>
                     -->
                     <em class="ddp-bg-chart-network" *ngIf="selectChart == 'network'"></em>
                     <em class="ddp-bg-chart-pie" *ngIf="selectChart == 'pie'"></em>
@@ -1367,11 +1406,12 @@
                     </gauge-chart>
                     <map-chart #chart
                                  [isPage]="true"
-                                 *ngIf="selectChart == 'mapview'"
+                                 *ngIf="selectChart == 'map'"
                                  [uiOption]="uiOption"
                                  (uiOptionUpdated)="updateUIOption($event)"
-                                 (noData)="onNoData()"
-                                 (chartSelectInfo)="chartSelectInfo($event)"
+                                 (drawChartParam)="onSetDrawChartParam($event)"
+                                 [query]="query"
+                                 [widget]="widget"
                                  [resizeDelay]="500">
                     </map-chart>
 
@@ -1421,10 +1461,14 @@
             <calrow-option #calculateOption *ngIf="isChartShow && possibleChartCheck('calculatedRow', selectChart) && 'calculatedRow' === rnbMenu" [(uiOption)]="uiOption"></calrow-option>
             <!-- MapView -->
             <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu" [(uiOption)]="uiOption"></map-common-option>
-            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer' === rnbMenu" [(uiOption)]="uiOption"></map-layer-option>
-            <map-legend-option #mapLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption"></map-legend-option>
-            <map-format-option #mapFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu" [(uiOption)]="uiOption"></map-format-option>
-            <map-tooltip-option #mapTooltipOption *ngIf="isChartShow && 'mapTooltip' === rnbMenu" [(uiOption)]="uiOption"></map-tooltip-option>
+            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer1' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot" [(resultData)]="resultData"></map-layer-option>
+            <map-layer-option2 #mapLayerOption *ngIf="isChartShow && 'mapLayer2' === rnbMenu && uiOption['layerCnt'] > 1" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot" [(resultData)]="resultData"></map-layer-option2>
+            <map-layer-option3 #mapLayerOption *ngIf="isChartShow && 'mapLayer3' === rnbMenu && uiOption['layerCnt'] > 2" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot" [(resultData)]="resultData"></map-layer-option3>
+            <map-legend-option #mapLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)"></map-legend-option>
+            <map-format-option #mapFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu" (changeCommon)="onFormatCommonChange($event)" (changeEach)="onFormatEachChange($event)" (drawChartParam)="onSetDrawChartParam($event)"
+                               [(pivot)]="pivot" [(uiOption)]="uiOption">
+            </map-format-option>
+            <map-tooltip-option #mapTooltipOption *ngIf="isChartShow && 'mapTooltip' === rnbMenu" [(uiOption)]="uiOption" [pivot]="pivot" (drawChartParam)="onSetDrawChartParam($event)"></map-tooltip-option>
             <!-- //MapView -->
         </div>
 
@@ -1554,7 +1598,7 @@
             </a>
             <!-- //보조지표 패널 -->
             <!-- 맵뷰: 공통 설정 -->
-              <a *ngIf="selectChart == 'mapview'" href="javascript:" (click)="toggleRnb('mapCommon')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapCommon'">
+              <a *ngIf="selectChart == 'map'" href="javascript:" (click)="toggleRnb('mapCommon')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapCommon'">
                 <em class="ddp-icon-menu-general"></em>
                 <!-- 툴팁 -->
                 <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
@@ -1565,8 +1609,30 @@
               </a>
             <!-- //맵뷰: 공통 설정 -->
             <!-- 맵뷰: 레이어 설정 -->
-              <a *ngIf="selectChart == 'mapview'" href="javascript:" (click)="toggleRnb('mapLayer')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer'">
-                <em class="ddp-icon-menu-color"></em>
+              <a *ngIf="selectChart == 'map'" href="javascript:" (click)="toggleRnb('mapLayer1')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer1'">
+                <em class="ddp-icon-menu-mapview1"></em>
+                <!-- 툴팁 -->
+                <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                    <em class="ddp-icon-view-right"></em>
+                    {{'msg.page.first.draw.chart' | translate}}
+                </div>
+                <!-- //툴팁 -->
+              </a>
+            <!-- //맵뷰: 레이어 설정 -->
+            <!-- 맵뷰: 레이어 설정 -->
+              <a *ngIf="selectChart == 'map' && uiOption['layerCnt'] > 1" href="javascript:" (click)="toggleRnb('mapLayer2')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer2'">
+                <em class="ddp-icon-menu-mapview2"></em>
+                <!-- 툴팁 -->
+                <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
+                    <em class="ddp-icon-view-right"></em>
+                    {{'msg.page.first.draw.chart' | translate}}
+                </div>
+                <!-- //툴팁 -->
+              </a>
+            <!-- //맵뷰: 레이어 설정 -->
+            <!-- 맵뷰: 레이어 설정 -->
+              <a *ngIf="selectChart == 'map' && uiOption['layerCnt'] > 2" href="javascript:" (click)="toggleRnb('mapLayer3')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLayer3'">
+                <em class="ddp-icon-menu-mapview3"></em>
                 <!-- 툴팁 -->
                 <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
                     <em class="ddp-icon-view-right"></em>
@@ -1576,7 +1642,7 @@
               </a>
             <!-- //맵뷰: 레이어 설정 -->
             <!-- 맵뷰: 범례 설정 -->
-              <a *ngIf="selectChart == 'mapview'" href="javascript:" (click)="toggleRnb('mapLegend')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLegend'">
+              <a *ngIf="selectChart == 'map'" href="javascript:" (click)="toggleRnb('mapLegend')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapLegend'">
                 <em class="ddp-icon-menu-legend"></em>
                 <!-- 툴팁 -->
                 <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
@@ -1587,7 +1653,7 @@
               </a>
             <!-- //맵뷰: 범례 설정 -->
             <!-- 맵뷰: 숫자 포멧 -->
-              <a *ngIf="selectChart == 'mapview'" href="javascript:" (click)="toggleRnb('mapFormat')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapFormat'">
+              <a *ngIf="selectChart == 'map'" href="javascript:" (click)="toggleRnb('mapFormat')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapFormat'">
                 <em class="ddp-icon-menu-num"></em>
                 <!-- 툴팁 -->
                 <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">
@@ -1598,7 +1664,7 @@
               </a>
             <!-- //맵뷰: 숫자 포멧 -->
             <!-- 맵뷰: 툴팁 설정 -->
-              <a *ngIf="selectChart == 'mapview'" href="javascript:" (click)="toggleRnb('mapTooltip')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapTooltip'">
+              <a *ngIf="selectChart == 'map'" href="javascript:" (click)="toggleRnb('mapTooltip')" [ngClass]="{'ddp-disabled': !isChartShow}" [class.ddp-selected]="isChartShow && rnbMenu=='mapTooltip'">
                 <em class="ddp-icon-menu-tooltip"></em>
                 <!-- 툴팁 -->
                 <div *ngIf="!isChartShow" class="ddp-ui-tooltip-info">

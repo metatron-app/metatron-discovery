@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { LogicalType } from '../datasource/datasource';
+import { FieldFormat, LogicalType } from '../datasource/datasource';
 import { DataType } from '../dataconnection/connectionrequest';
 import { CodeTable } from './code-table';
 import { AbstractHistoryEntity } from '../common/abstract-history-entity';
@@ -34,6 +34,8 @@ export class ColumnDictionary extends AbstractHistoryEntity {
   // 논리 데이터 타입
   public logicalType: LogicalType;
   // 데이터 포맷
+  // TODO 추후 FieldFormat으로 변경
+  // public format: FieldFormat;
   public format: any;
   // 연결된 코드 테이블 정보
   public codeTable: CodeTable;

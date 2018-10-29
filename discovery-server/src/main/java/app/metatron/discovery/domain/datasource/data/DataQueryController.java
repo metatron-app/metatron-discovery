@@ -49,8 +49,10 @@ import javax.validation.constraints.NotNull;
 import app.metatron.discovery.common.RawJsonString;
 import app.metatron.discovery.domain.datasource.SimilarityQueryRequest;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
+import app.metatron.discovery.domain.geo.GeoService;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.ExpressionField;
@@ -80,6 +82,9 @@ public class DataQueryController {
   EngineQueryService engineQueryService;
 
   @Autowired
+  GeoService geoService;
+
+  @Autowired
   DruidEngineMetaRepository engineMetaRepository;
 
   @Autowired
@@ -104,6 +109,14 @@ public class DataQueryController {
 
     //TODO: need to validation check about datasource granularity and query granularity
     dataSourceValidator.validateQuery(queryRequest);
+
+    if(queryRequest.getResultFormat() instanceof ChartResultFormat
+        && "map".equals(((ChartResultFormat) queryRequest.getResultFormat()).getMode())) {
+
+      String result = geoService.search(queryRequest);
+
+      return ResponseEntity.ok(new RawJsonString(result));
+    }
 
     return ResponseEntity.ok(engineQueryService.search(queryRequest));
   }

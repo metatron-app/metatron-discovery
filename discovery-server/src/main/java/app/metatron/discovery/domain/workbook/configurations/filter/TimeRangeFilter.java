@@ -133,7 +133,7 @@ public class TimeRangeFilter extends TimeFilter {
         field = "__time";
       } else {
         DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(columnName,
-                                                               datasourceField.getFormat(),
+                                                               datasourceField.getTimeFormat(),
                                                                null, null);
         field = millisFunc.toExpression();
       }

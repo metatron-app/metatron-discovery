@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import app.metatron.discovery.query.druid.postaggregations.ArithmeticPostAggregation;
 import app.metatron.discovery.query.druid.postaggregations.ConstantPostAggregator;
+import app.metatron.discovery.query.druid.postaggregations.ExprPostAggregator;
 import app.metatron.discovery.query.druid.postaggregations.FieldAccessorPostAggregator;
 import app.metatron.discovery.query.druid.postaggregations.HyperUniqueCardinalityPostAggregator;
 import app.metatron.discovery.query.druid.postaggregations.JavaScriptPostAggregator;
@@ -32,6 +33,7 @@ import app.metatron.discovery.query.druid.postaggregations.SketchQuantilePostAgg
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.EXTERNAL_PROPERTY, property="type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ArithmeticPostAggregation.class, name = "arithmetic"),
+        @JsonSubTypes.Type(value = ExprPostAggregator.class, name = "expr"),
         @JsonSubTypes.Type(value = ConstantPostAggregator.class, name = "constant"),
         @JsonSubTypes.Type(value = FieldAccessorPostAggregator.class, name = "fieldAccess"),
         @JsonSubTypes.Type(value = HyperUniqueCardinalityPostAggregator.class, name = "hyperUniqueCardinality"),
@@ -41,6 +43,5 @@ import app.metatron.discovery.query.druid.postaggregations.SketchQuantilePostAgg
         @JsonSubTypes.Type(value = MedianPostAggregator.class, name = "median")
 })
 public interface PostAggregation {
-
     String getName();
 }
