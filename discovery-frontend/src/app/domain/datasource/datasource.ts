@@ -418,10 +418,22 @@ export enum TempDsStatus {
 
 export class FieldFormat {
   format: string;
+  // default FieldFormatType.DATE_TIME
   type: FieldFormatType;
+  // default FieldFormatUnit.MILLISECOND
+  unit: FieldFormatUnit;
+  constructor() {
+    this.unit = FieldFormatUnit.MILLISECOND;
+    this.type = FieldFormatType.DATE_TIME;
+  }
 }
 
 export enum FieldFormatType {
   DATE_TIME = <any>'time_format',
   UNIX_TIME = <any>'time_unix',
+}
+
+export enum FieldFormatUnit {
+  SECOND = <any>'second',
+  MILLISECOND = <any>'millisecond'
 }

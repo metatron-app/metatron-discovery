@@ -14,35 +14,15 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import app.metatron.discovery.AbstractRestIntegrationTest;
-import app.metatron.discovery.TestEngineIngestion;
-import app.metatron.discovery.TestUtils;
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.core.oauth.OAuthRequest;
-import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
-import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
-import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.*;
-import app.metatron.discovery.domain.datasource.ingestion.file.*;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
-import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJobIntegrationTest;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
-import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
-import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
-import app.metatron.discovery.util.JsonPatch;
-import app.metatron.discovery.util.PolarisUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
+
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,6 +49,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.TestEngineIngestion;
 import app.metatron.discovery.TestUtils;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.datasource.DataType;
@@ -93,6 +74,7 @@ import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInf
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJobIntegrationTest;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
@@ -103,10 +85,19 @@ import app.metatron.discovery.util.PolarisUtils;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK;
 import static app.metatron.discovery.domain.datasource.DataSource.DataSourceType.MASTER;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.*;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.DAY;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.HOUR;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.MONTH;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.SECOND;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HDFS;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HIVE;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.*;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.REALTIME;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.DIMENSION;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.MEASURE;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -1115,7 +1106,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithLocalCsvFileIngestion_UnixTimestamp() throws JsonProcessingException {
 
-    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_unix_timestamp.csv").getPath();
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_unix_timestamp_millis.csv").getPath();
 
     DataSource dataSource = new DataSource();
     dataSource.setName("localFileIngestion_unix_" + PolarisUtils.randomString(5));
@@ -1134,13 +1125,11 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
 
     Field field1 = new Field("sd", DataType.STRING, DIMENSION, 2L);
-    field1.setRemoved(true);
     fields.add(field1);
 
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
 
     Field field2 = new Field("m2", DataType.DOUBLE, MEASURE, 4L);
-    field2.setRemoved(true);
     fields.add(field2);
 
     dataSource.setFields(fields);
@@ -2679,9 +2668,9 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     given()
         .auth().oauth2(oauth_token)
         .contentType(ContentType.JSON)
-    .when()
+        .when()
         .patch("/api/datasources/{id}/fields/sync", testDataSourceId)
-    .then()
+        .then()
         .statusCode(HttpStatus.SC_NO_CONTENT)
         .log().all();
   }

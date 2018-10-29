@@ -70,6 +70,7 @@ import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
 import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
 import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
 import app.metatron.discovery.spec.druid.ingestion.parser.TimestampSpec;
+import app.metatron.discovery.util.TimeUnits;
 
 import static app.metatron.discovery.domain.workbook.configurations.field.MeasureField.AggregationType.NONE;
 
@@ -406,7 +407,12 @@ public class Field implements MetatronDomain<Long> {
     if (fieldFormat instanceof CustomDateTimeFormat) {
       timestampSpec.setFormat(timeFieldFormat.getFormat());
     } else if (fieldFormat instanceof UnixTimeFormat) {
-      timestampSpec.setFormat("posix");
+      TimeUnits unit = ((UnixTimeFormat) fieldFormat).getUnit();
+      if (unit != null && unit == TimeUnits.SECOND) {
+        timestampSpec.setFormat("posix");
+      } else {
+        timestampSpec.setFormat("millis");
+      }
     } else if (fieldFormat instanceof ContinuousTimeFormat) {
       timestampSpec.setFormat(timeFieldFormat.getFormat());
     }

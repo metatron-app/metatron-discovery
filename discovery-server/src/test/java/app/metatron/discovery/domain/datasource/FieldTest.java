@@ -43,7 +43,7 @@ public class FieldTest {
     timestampField1.setFormat("yyyy-MM-dd");
 
     Field timestampField2 = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
-    timestampField2.setFormat(GlobalObjectMapper.writeValueAsString(new UnixTimeFormat()));
+    timestampField2.setFormat(GlobalObjectMapper.writeValueAsString(new UnixTimeFormat(null, null, null, null)));
 
     String fieldStr1 = GlobalObjectMapper.writeValueAsString(timestampField1);
     String fieldStr2 = GlobalObjectMapper.writeValueAsString(timestampField2);
@@ -53,6 +53,8 @@ public class FieldTest {
 
     Field serializedField2 = GlobalObjectMapper.readValue(fieldStr2, Field.class);
     Assert.equals(timestampField2.getFormat(), serializedField2.getFormat());
+
+    System.out.println(fieldStr2);
   }
 
 }

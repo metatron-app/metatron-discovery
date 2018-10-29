@@ -222,6 +222,15 @@
                 <div class="ddp-ui-error ddp-italic" *ngIf="column.isValidTimeFormat === false">
                   <em class="ddp-icon-error"></em>{{column.timeFormatValidMessage}}
                 </div>
+                <ul class="ddp-list-checktype" *ngIf="column.format?.type?.toString() === 'time_unix'">
+                  <li *ngFor="let unit of formatUnitList">
+                    <label class="ddp-label-radio" (change)="onChangeFormatUnit(unit)">
+                      <input type="radio" [checked]="column.format.unit === unit.value">
+                      <i class="ddp-icon-radio"></i>
+                      <span class="ddp-txt-radio">{{unit.label}}</span>
+                    </label>
+                  </li>
+                </ul>
               </div>
               <!-- //edit format -->
             </div>

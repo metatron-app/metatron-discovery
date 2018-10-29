@@ -897,7 +897,6 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
     columnList.forEach((column) => {
       // init format
       column.format = new FieldFormat();
-      column.format.type = FieldFormatType.DATE_TIME;
       // column DetailData
       let columnDetailData = this.getColumnDetailData(column);
 
