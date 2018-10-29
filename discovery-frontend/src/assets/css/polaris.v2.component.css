@@ -516,6 +516,12 @@ input.ddp-input-type:disabled {color:rgba(75, 81, 91,0.3)}
     적용 input
 **************************************************************/
 .ddp-input-apply {position:relative; }
+.ddp-input-apply.ddp-disabled:before {display:inline-block;position:absolute; top:0; left:0; right:0; bottom:0; content:''; z-index:3}
+.ddp-input-apply.ddp-disabled {opacity:0.5;background-color:rgba(240,240,240,0.3); cursor:no-drop;}
+.ddp-input-apply.ddp-disabled input.ddp-input-txt {background:rgba(240,240,240,0.3)}
+.ddp-input-apply.ddp-disabled:hover input.ddp-input-txt, .ddp-input-apply.ddp-disabledinput.ddp-input-txt:focus {border:1px solid #d0d1d8; }
+.ddp-input-apply.ddp-disabled .ddp-icon-apply {display:block;}
+
 .ddp-input-apply input.ddp-input-txt {display:block; width:100%; padding:6px 28px 6px 10px; color:#4b515b; font-size:13px; text-align:left; border:1px solid #d0d1d8; border-radius:2px; background-color:#fff; box-sizing:border-box;}
 .ddp-input-apply input.ddp-input-txt:focus + .ddp-icon-apply {background-color:#9ca2cc;}
 .ddp-input-apply .ddp-icon-apply {display:none; position:absolute; top:50%; right:3px; width:24px; height:24px; margin-top:-12px;background-color:#d0d1d8;}

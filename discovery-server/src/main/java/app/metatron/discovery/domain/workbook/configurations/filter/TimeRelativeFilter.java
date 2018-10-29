@@ -63,7 +63,7 @@ public class TimeRelativeFilter extends TimeFilter {
     this.tense = EnumUtils.getUpperCaseEnum(Tense.class, tense, Tense.CURRENT);
     this.value = (value == null || value < 1) ? 1 : value;
 
-    if(StringUtils.isEmpty(timezone)) {
+    if (StringUtils.isEmpty(timezone)) {
       this.timezone = "UTC";
     } else {
       this.timezone = DateTimeZone.forID(timezone).getID();
@@ -87,7 +87,7 @@ public class TimeRelativeFilter extends TimeFilter {
       return false;
     }
 
-    if(tense == compareFilter.getTense()
+    if (tense == compareFilter.getTense()
         && value == compareFilter.getValue()
         && timeUnit == compareFilter.getTimeUnit()
         && relTimeUnit == compareFilter.getTimeUnit()) {
@@ -113,11 +113,11 @@ public class TimeRelativeFilter extends TimeFilter {
     List<DateTime> rangeDateTimes = rangeDateTimes();
 
     String field = null;
-    if(datasourceField.getRole() == TIMESTAMP) {
+    if (datasourceField.getRole() == TIMESTAMP) {
       field = "__time";
     } else {
       DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(columnName,
-                                                             datasourceField.getFormat(),
+                                                             datasourceField.getTimeFormat(),
                                                              null, null);
       field = millisFunc.toExpression();
     }
@@ -146,11 +146,11 @@ public class TimeRelativeFilter extends TimeFilter {
   }
 
   private TimeFieldFormat.TimeUnit realTimeUnit() {
-    if(relTimeUnit == null && timeUnit == null) {
+    if (relTimeUnit == null && timeUnit == null) {
       return TimeFieldFormat.TimeUnit.SECOND;
     }
 
-    if(relTimeUnit == null) {
+    if (relTimeUnit == null) {
       return timeUnit;
     }
 

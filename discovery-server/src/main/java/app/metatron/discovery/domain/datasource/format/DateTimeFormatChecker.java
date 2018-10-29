@@ -18,6 +18,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -90,6 +91,10 @@ public class DateTimeFormatChecker {
 
   public boolean checkTimeFormat(TimeFormatCheckRequest request) {
 
+    if("time_unix".equals(request.getFormat())) {
+      return checkUnixTimeFormat(request.getSamples());
+    }
+
     DateTimeFormatter formatter = null;
     try {
       formatter = DateTimeFormat.forPattern(request.getFormat());
@@ -98,6 +103,22 @@ public class DateTimeFormatChecker {
     }
 
     return checkTimeFormat(formatter, request.getSamples());
+  }
+
+  public boolean checkUnixTimeFormat(List<String> samples) {
+
+    int count = 0;
+    for (String timeStr : samples) {
+      if(StringUtils.isNumeric(timeStr)) {
+        count++;
+      }
+    }
+
+    if (count >= samples.size() * 0.5) {
+      return true;
+    }
+
+    return false;
   }
 
 

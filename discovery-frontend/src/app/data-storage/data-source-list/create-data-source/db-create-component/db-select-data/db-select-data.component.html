@@ -74,7 +74,7 @@
                </div>
             </div>
             <!-- button -->
-            <div class="ddp-ui-buttons" *ngIf="isSelectedTypeQuery()">
+            <div class="ddp-ui-buttons" *ngIf="isSelectedTypeQuery()" style="z-index: 10">
               <div class="ddp-ui-message" *ngIf="queryResultFl !== null">
                 <span class="ddp-data-error" *ngIf="queryResultFl === false"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.query' | translate}}</span>
                 <span class="ddp-data-ok" *ngIf="queryResultFl === true"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.query' | translate}}</span>

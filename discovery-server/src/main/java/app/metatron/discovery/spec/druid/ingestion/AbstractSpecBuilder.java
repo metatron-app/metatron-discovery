@@ -15,7 +15,6 @@
 package app.metatron.discovery.spec.druid.ingestion;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -60,7 +59,7 @@ public class AbstractSpecBuilder {
 
     // Set Interval Options
     List<String> intervals = null;
-    if(dataSource.getIngestionInfo() instanceof HiveIngestionInfo){
+    if (dataSource.getIngestionInfo() instanceof HiveIngestionInfo) {
       intervals = ((HiveIngestionInfo) dataSource.getIngestionInfo()).getIntervals();
     }
 
@@ -81,9 +80,9 @@ public class AbstractSpecBuilder {
 
     // 2. set measure from datasource
     List<Field> measureFields = dataSource.getFieldByRole(Field.FieldRole.MEASURE);
-    for(Field field : measureFields) {
+    for (Field field : measureFields) {
       // 삭제된 필드는 추가 하지 않음
-      if(BooleanUtils.isTrue(field.getRemoved())) {
+      if (BooleanUtils.isTrue(field.getRemoved())) {
         continue;
       }
       dataSchema.addMetrics(field.getAggregation());
@@ -92,17 +91,17 @@ public class AbstractSpecBuilder {
     dataSchema.setParser(makeParser(dataSource));
 
     for (Field field : dataSource.getFields()) {
-      if(field.getIngestionRule() == null) {
+      if (field.getIngestionRule() == null) {
         continue;
       }
 
       IngestionRule rule = field.getIngestionRuleObject();
 
-      if(rule instanceof DiscardRule) {
+      if (rule instanceof DiscardRule) {
         dataSchema.addValidation(Validation.discardNullValidation(field.getName()));
-      } else if(rule instanceof ReplaceRule) {
+      } else if (rule instanceof ReplaceRule) {
         ReplaceRule replaceRule = (ReplaceRule) rule;
-        if(replaceRule.getValue() == null) {
+        if (replaceRule.getValue() == null) {
           continue;
         }
         dataSchema.addEvaluation(Evaluation.nullToDefaultValueEvaluation(field.getName(), replaceRule.getValue()));
@@ -116,42 +115,37 @@ public class AbstractSpecBuilder {
 
     // Set timestamp field
     List<Field> timeFields = dataSource.getFieldByRole(Field.FieldRole.TIMESTAMP);
-    if(timeFields.size() != 1) {
-      throw new DataSourceIngetionException("Timestamp field must be one.");
+    if (timeFields.size() != 1) {
+      throw new DataSourceIngetionException("[Building Spec] : Timestamp field must be one.");
     }
 
     Field timeField = timeFields.get(0);
 
-    TimestampSpec timestampSpec = new TimestampSpec();
-    if(ingestionInfo instanceof HiveIngestionInfo) {
+    TimestampSpec timestampSpec = timeField.createTimestampSpec();
+
+    if (ingestionInfo instanceof HiveIngestionInfo) {
       timestampSpec.setType("hadoop");
     }
-    timestampSpec.setColumn(timeField.getName());
-    if(StringUtils.isEmpty(timeField.getFormat())) {
-      timestampSpec.setFormat("auto");
-    } else {
-      timestampSpec.setFormat(timeField.getFormat());
-    }
 
-    if(timeField.getIngestionRule() != null) {
+    if (timeField.getIngestionRule() != null) {
       IngestionRule rule = timeField.getIngestionRuleObject();
 
-      if(rule instanceof ReplaceRule) {
+      if (rule instanceof ReplaceRule) {
         ReplaceRule replaceRule = (ReplaceRule) rule;
         try {
-          DateTime dateTime = DateTimeFormat.forPattern(timeField.getFormat()).parseDateTime((String) replaceRule.getValue());
+          DateTime dateTime = DateTimeFormat.forPattern(timeField.getTimeFormat()).parseDateTime((String) replaceRule.getValue());
           timestampSpec.setMissingValue(dateTime);
           timestampSpec.setInvalidValue(dateTime);
           timestampSpec.setReplaceWrongColumn(true);
         } catch (Exception e) {
-          // Log!!
+          throw new DataSourceIngetionException("[Building Spec] : The datetime format does not match the value to be replaced.", e);
         }
 
       }
     }
 
     // Set dimnesion field
-    List<Field> dimensionfields  = dataSource.getFieldByRole(Field.FieldRole.DIMENSION);
+    List<Field> dimensionfields = dataSource.getFieldByRole(Field.FieldRole.DIMENSION);
     List<String> dimenstionNames = dimensionfields.stream()
                                                   // 삭제된 필드는 추가 하지 않음
                                                   .filter(field -> BooleanUtils.isNotTrue(field.getRemoved()))
@@ -161,7 +155,7 @@ public class AbstractSpecBuilder {
 
 
     this.fileFormat = ingestionInfo.getFormat() == null ? new CsvFileFormat() : ingestionInfo.getFormat();
-    if(fileFormat == null) {
+    if (fileFormat == null) {
       throw new IllegalArgumentException("Required file format.");
     }
 
@@ -170,14 +164,14 @@ public class AbstractSpecBuilder {
 
     Parser parser = new Parser();
 
-    if(fileFormat instanceof CsvFileFormat) {
+    if (fileFormat instanceof CsvFileFormat) {
       // get Columns
       List<String> columns = dataSource.getFields().stream()
                                        .map((field) -> field.getName())
                                        .collect(Collectors.toList());
 
       CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
-      if(csvFormat.isDefaultCsvMode()) {
+      if (csvFormat.isDefaultCsvMode()) {
         CsvParseSpec parseSpec = new CsvParseSpec();
         parseSpec.setTimestampSpec(timestampSpec);
         parseSpec.setDimensionsSpec(dimensionsSpec);
@@ -228,7 +222,7 @@ public class AbstractSpecBuilder {
 
       parser.setType("orc");
       parser.setParseSpec(parseSpec);
-      if(ingestionInfo instanceof HiveIngestionInfo) {
+      if (ingestionInfo instanceof HiveIngestionInfo) {
         parser.setTypeString(((HiveIngestionInfo) ingestionInfo).getTypeString());
       }
     } else if (fileFormat instanceof ParquetFileFormat) {
