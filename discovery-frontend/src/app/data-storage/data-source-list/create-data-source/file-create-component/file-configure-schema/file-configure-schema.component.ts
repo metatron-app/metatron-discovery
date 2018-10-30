@@ -834,6 +834,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
     columnList.forEach((column: Field) => {
       if (column.logicalType === LogicalType.TIMESTAMP && column.format.type === FieldFormatType.DATE_TIME && isUndefined(column.isValidTimeFormat)) {
         column.isValidTimeFormat = false;
+        column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
       if (column.ingestionRule && column.ingestionRule.type === 'replace' && isUndefined(column.isValidReplaceValue)) {
         column.isValidReplaceValue = false;
