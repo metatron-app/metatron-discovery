@@ -105,6 +105,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // Current Selection Filters
   private _currentSelectionFilters: Filter[] = [];
 
+  // child widget id list
+  private _childWidgetIds:string[] = [];
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -981,6 +984,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             this.parentWidget = widget.dashBoard.widgets.find(item => item.id === parentWidgetId);
             this.isShowHierarchyView = true;
           }
+
+          this._childWidgetIds = this._findChildWidgetIds( this.widget.id, relations );
         }
 
         // RealTime 데이터갱신 설정
@@ -1026,6 +1031,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   private _search(globalFilters?: Filter[], selectionFilters?: Filter[]) {
 
+    if( selectionFilters && selectionFilters.some( item => -1 < this._childWidgetIds.indexOf( item['selectedWidgetId'] ) ) ) {
+      return;
+    }
+
     // 프로세스 실행 등록
     this.processStart();
     this._isDuringProcess = true;
@@ -1042,12 +1051,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     // 현재 위젯에서 발생시킨 필터정보 제외처리
-    this._currentSelectionFilters = this.changeExternalFilterList(selectionFilters);
+    const currentSelectionFilters:Filter[] = this.changeExternalFilterList(selectionFilters);
 
     // Hierarchy View 설정
     if (this.parentWidget) {
-      if (selectionFilters) {
-        const idx = selectionFilters.findIndex(item => this.parentWidget.id === item['selectedWidgetId']);
+      if (currentSelectionFilters) {
+        const idx = currentSelectionFilters.findIndex(item => this.parentWidget.id === item['selectedWidgetId']);
         if (-1 < idx) {
           this.isShowHierarchyView = false;
         } else {
@@ -1111,7 +1120,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 외부 필터 ( 글로벌 필터 + Selection Filter )
     {
-      let externalFilters = selectionFilters ? globalFilters.concat(selectionFilters) : globalFilters;
+      let externalFilters = currentSelectionFilters ? globalFilters.concat(currentSelectionFilters) : globalFilters;
       externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName, externalFilters);
       uiCloneQuery.filters = externalFilters.concat(uiCloneQuery.filters);
     }
@@ -1152,6 +1161,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       this.chart['setQuery'] = this.query;
     }
 
+    // 유효한 선택 필터 정보 저장
+    this._currentSelectionFilters = currentSelectionFilters;
+
     this.datasourceService.searchQuery(cloneQuery).then((data) => {
 
       this.resultData = {
@@ -1160,7 +1172,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         uiOption: this.uiOption,
         params: {
           widgetId: this.widget.id,
-          externalFilters: (selectionFilters !== undefined && 0 < selectionFilters.length),
+          externalFilters: (currentSelectionFilters !== undefined && 0 < currentSelectionFilters.length),
           // 현재 차트가 선택한 필터목록
           selectFilterListList: this._selectFilterList
         }
@@ -1278,6 +1290,30 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     return parentId;
   } // function - _findParentWidgetId
+
+  /**
+   * 자식 위젯 아이디 탐색
+   * @param {string} widgetId
+   * @param {DashboardPageRelation[]} relations
+   * @return {string}
+   * @private
+   */
+  private _findChildWidgetIds(widgetId: string, relations: DashboardPageRelation[], isCollect:boolean = false): string[] {
+    let childIds:string[] = [];
+
+    relations.forEach(item => {
+      if (item.children ) {
+        if(item.ref === widgetId || isCollect ) {
+          childIds = item.children.map( child => child.ref );
+          childIds = childIds.concat( this._findChildWidgetIds( widgetId, item.children, true ) );
+        } else {
+          childIds = childIds.concat( this._findChildWidgetIds( widgetId, item.children, false ) );
+        }
+      }
+    });
+
+    return childIds;
+  } // function - _findChildWidgetIds
 
   // ----------------------------------------------------
   // 고급분석 예측선 관련
