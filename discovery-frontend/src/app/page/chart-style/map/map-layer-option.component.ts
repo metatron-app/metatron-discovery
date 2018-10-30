@@ -226,12 +226,28 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        let isNotGeoField: boolean = true;
        _.each(this.pivot.columns, (dimension) => {
          if( _.eq(field, dimension.name)
-            && _.eq(dimension.field.logicalType, "GEO_POINT") ) {
+            && (_.eq(dimension.field.logicalType, "GEO_POINT") || _.eq(dimension.field.logicalType, "GEO_LINE") || _.eq(dimension.field.logicalType, "GEO_POLYGON")) ) {
            isNotGeoField = false;
          }
        });
        return isNotGeoField;
      });
+     console.log('fieldList ------------------');
+          console.log(this.fieldList);
+
+   }
+
+   public measureFieldList = () => {
+     let measureFieldList = [];
+     _.each(this.pivot.aggregations, (aggregation) => {
+       let fieldAlias = aggregation.field["alias"];
+       if(!fieldAlias) fieldAlias = aggregation.name;
+       if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
+
+       measureFieldList.push(aggregation.aggregationType + '(' + fieldAlias + ')');
+     });
+
+     return measureFieldList;
    }
 
    /**
@@ -683,6 +699,21 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      this.update();
    }
 
+   /**
+    * line max width
+    */
+   public changeStrokeMaxWidth() {
+     this.size = this.uiOption.layers[0].size;
+
+     // 해당 레이어명으로 설정
+     this.uiOption = <UIOption>_.extend({}, this.uiOption, {
+       layers: this.changeLayerOption()
+     });
+
+     // update
+     this.update();
+   }
+
    public changeLayerOption() {
      this.layerOptions = [{
        type: this.type,
@@ -931,7 +962,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     if(this.color['customMode']) {
       this.rangesViewList = this.uiOption.layers[0].color['ranges'];
     }
-
 
     this.changeLayerOption();
     if(this.type === "heatmap") {

@@ -203,6 +203,14 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       layer = this.cartoDarkLayer;
     }
 
+    let drawFinished = this.drawFinished;
+    // layer.getSource().on('tileloadend', function(event) {
+    //   drawFinished.emit();
+    // });
+    // layer.on('render', function(event) {
+    //   drawFinished.emit();
+    // });
+
     this.olmap = new ol.Map({
       view: new ol.View({
         center: [126, 37],
@@ -214,10 +222,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       target: this.$area[0]
     });
 
-
-    //attribution position change
-    document.getElementsByClassName('ol-attribution')[0]["style"].right = 'auto';
-    document.getElementsByClassName('ol-attribution')[0]["style"].left = '.5em';
+    for(let i=0;i<document.getElementsByClassName('ol-attribution').length;i++) {
+      let element = document.getElementsByClassName('ol-attribution')[i] as HTMLElement;
+      element.style.right = "auto";
+      element.style.left = ".5em";
+    }
 
     this.olmap.updateSize();
 
@@ -264,12 +273,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
       // less than 0, set minValue
-      const minValue = data.valueRange[uiOption.layers[0].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
+      const minValue = data.valueRange[uiOption.layers[layerNum].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
 
       // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-      const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / colorListLength;
+      const addValue = (data.valueRange[uiOption.layers[layerNum].color.column].maxValue - minValue) / colorListLength;
 
-      let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].maxValue);
+      let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[layerNum].color.column].maxValue);
 
       let shape;
       // if ((<UIScatterChart>uiOption).pointShape) {
@@ -282,9 +291,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       });
 
       // decimal min value
-      let formatMinValue = formatValue(data.valueRange[uiOption.layers[0].color.column].minValue);
+      let formatMinValue = formatValue(data.valueRange[uiOption.layers[layerNum].color.column].minValue);
       // decimal max value
-      let formatMaxValue = formatValue(data.valueRange[uiOption.layers[0].color.column].maxValue);
+      let formatMaxValue = formatValue(data.valueRange[uiOption.layers[layerNum].color.column].maxValue);
 
       // set ranges
       for (let index = colorListLength; index >= 0; index--) {
@@ -335,7 +344,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       let lineDash = [1];
       if(lineDashType === 'DOT') {
-        lineDash = [4,4];
+        lineDash = [3,3];
+      } else if(lineDashType === 'DASH') {
+        lineDash = [4,8];
       }
 
       let featureSize = 5;
@@ -366,7 +377,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
               rangeMin = rangeMax;
             }
 
-            if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&  feature.getProperties()[styleOption.layers[layerNum].color.column] < rangeMax) {
+            if(rangeMax === rangeMin) {
+              rangeMin = rangeMax - 1;
+            }
+
+            if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&
+            feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
               featureColor = range.color;
             }
           }
@@ -383,6 +399,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
               rangeMin = rangeMax;
             }
 
+            if(rangeMax === rangeMin) {
+              rangeMin = rangeMax - 1;
+            }
+
             if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&
             feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
               featureColor = range.color;
@@ -393,7 +413,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       } else if(featureColorType === 'DIMENSION') {
         let colorList = ChartColorList[featureColor];
-        featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+        featureColor = colorList[(parseInt(feature.getId().substring(26)) % colorList.length) - 1];
       } else if(featureColorType === 'NONE') {
         featureColor = styleOption.layers[layerNum].color.schema;
       }
@@ -408,8 +428,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             })
         }),
         stroke: new ol.style.Stroke({
-          color: 'black',
-          width: 2
+          color: featureColor,
+          width: lineThickness
         }),
         fill: new ol.style.Fill({
           color: featureColor
@@ -574,8 +594,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
    */
   public hexagonStyleFunction = (layerNum, data) => {
 
-    let styleOption = this.uiOption;
     let styleData = data[layerNum];
+    let styleOption = this.uiOption;
 
     function hexToRgbA(hex, alpha): string{
       var c;
@@ -605,12 +625,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
       // less than 0, set minValue
-      const minValue = data.valueRange[uiOption.layers[0].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
+      const minValue = data.valueRange[uiOption.layers[layerNum].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[layerNum].color.column].minValue);
 
       // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-      const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / colorListLength;
+      const addValue = (data.valueRange[uiOption.layers[layerNum].color.column].maxValue - minValue) / colorListLength;
 
-      let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].maxValue);
+      let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[layerNum].color.column].maxValue);
 
       let shape;
       // if ((<UIScatterChart>uiOption).pointShape) {
@@ -623,9 +643,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       });
 
       // decimal min value
-      let formatMinValue = formatValue(data.valueRange[uiOption.layers[0].color.column].minValue);
+      let formatMinValue = formatValue(data.valueRange[uiOption.layers[layerNum].color.column].minValue);
       // decimal max value
-      let formatMaxValue = formatValue(data.valueRange[uiOption.layers[0].color.column].maxValue);
+      let formatMaxValue = formatValue(data.valueRange[uiOption.layers[layerNum].color.column].maxValue);
 
       // set ranges
       for (let index = colorListLength; index >= 0; index--) {
@@ -673,7 +693,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 rangeMin = rangeMax;
               }
 
-              if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&  feature.getProperties()[styleOption.layers[layerNum].color.column] < rangeMax) {
+              if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&  feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
                 featureColor = range.color;
               }
             }
@@ -989,7 +1009,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
    * return ranges of color by measure
    * @returns {any}
    */
-  public setColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
+  public setColorRange(uiOption, data, colorList: any, layerIndex: number, colorAlterList = []): ColorRange[] {
 
     // return value
     let rangeList = [];
@@ -998,17 +1018,16 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     let gridRowsListLength = data.features.length;
 
-
     // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
     let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
     // less than 0, set minValue
-    const minValue = data.valueRange[uiOption.layers[0].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
+    const minValue = data.valueRange[uiOption.layers[layerIndex].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[layerIndex].color.column].minValue);
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / colorListLength;
+    const addValue = (data.valueRange[uiOption.layers[layerIndex].color.column].maxValue - minValue) / colorListLength;
 
-    let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].maxValue);
+    let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[layerIndex].color.column].maxValue);
 
     let shape;
     // if ((<UIScatterChart>uiOption).pointShape) {
@@ -1021,9 +1040,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     });
 
     // decimal min value
-    let formatMinValue = formatValue(data.valueRange[uiOption.layers[0].color.column].minValue);
+    let formatMinValue = formatValue(data.valueRange[uiOption.layers[layerIndex].color.column].minValue);
     // decimal max value
-    let formatMaxValue = formatValue(data.valueRange[uiOption.layers[0].color.column].maxValue);
+    let formatMaxValue = formatValue(data.valueRange[uiOption.layers[layerIndex].color.column].maxValue);
 
     // set ranges
     for (let index = colorListLength; index >= 0; index--) {
@@ -1247,11 +1266,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(true);
         textLayer.setVisible(false);
-      } else if(this.uiOption.layers[0].type === "polygon") {
+      } else if(this.uiOption.layers[0].type === "polygon" || this.uiOption.layers[0].type === "line") {
         symbolLayer.setVisible(true);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
-        hexagonLayer.setVisible(false );
+        hexagonLayer.setVisible(false);
         textLayer.setVisible(false);
       }
 
@@ -1309,7 +1328,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(true);
         textLayer.setVisible(false);
-      } else if(this.uiOption.layers[0].type === "polygon") {
+      } else if(this.uiOption.layers[0].type === "polygon" || this.uiOption.layers[0].type === "line") {
         symbolLayer.setVisible(true);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
@@ -1407,7 +1426,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             } else if(this.uiOption.layers[i].color["by"] === 'MEASURE') {
               legendHtml = '<div class="ddp-ui-layer">' +
                   '<span class="ddp-label">' + this.uiOption.layers[i].name + '</span>' +
-                  '<span class="ddp-data">' + this.uiOption.layers[i].type + ' by ' + this.uiOption.layers[i].color.column + '</span>' +
+                  '<span class="ddp-data">' + this.uiOption.layers[i].type.charAt(0).toUpperCase() + this.uiOption.layers[i].type.slice(1) + ' Color</span>' +
+                  '<span class="ddp-data">' + 'By ' + this.uiOption.layers[i].color.column + '</span>' +
                   '<ul class="ddp-list-remark">';
 
                   if(this.uiOption.layers[i].color["ranges"]) {
@@ -1422,7 +1442,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                       legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
                     }
                   } else {
-                    const ranges = this.setColorRange(this.uiOption, this.data[i], ChartColorList[this.uiOption.layers[i].color['schema']]);
+                    const ranges = this.setColorRange(this.uiOption, this.data[i], ChartColorList[this.uiOption.layers[i].color['schema']], i, []);
 
                     for(let range of ranges) {
 
@@ -1510,15 +1530,19 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         let pointerX = coords[0].toFixed(4);
         let pointerY = coords[1].toFixed(4);
 
-        if(geomType === 'Point') {
+        if(geomType === 'Point' || geomType === 'LineString') {
           coords = feature.getGeometry().getCoordinates();
         } else {
           let extent = feature.getGeometry().getExtent();
           coords = ol.extent.getCenter(extent);
         }
 
-        pointerX = coords[0].toFixed(4);
-        pointerY = coords[1].toFixed(4);
+        let geoInfo;
+        if(geomType === 'LineString') {
+          geoInfo = '<tr><th>Geo info</th><td>'+ coords[0] + '</td></tr>' + '<tr><th></th><td>'+ coords[coords.length-1] +'</td></tr>';
+        } else {
+          geoInfo = '<tr><th>Geo info</th><td>'+ coords[0].toFixed(4) + ', ' +coords[1].toFixed(4) + '</td></tr>';
+        }
 
         let tooltipHtml = '<div class="ddp-ui-tooltip-info ddp-map-tooltip" style="display:block; position:absolute; top:0; left:0; z-index:99999;">' +
         '<span class="ddp-txt-tooltip">';
@@ -1539,7 +1563,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         //Coordinates info (LOCATION_INFO)
         if(tooltipOption.toolTip["displayTypes"] != undefined && tooltipOption.toolTip.displayTypes[18] !== null) {
-          tooltipHtml = tooltipHtml + '<tr><th>Geo info</th><td>'+ pointerX + ', ' + pointerY + '</td></tr>';
+          tooltipHtml = tooltipHtml + geoInfo;
         }
 
         //Properties (DATA_VALUE)
@@ -1577,7 +1601,14 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         tooltipHtml = tooltipHtml + '</tbody></table></span></div>';
 
         content.innerHTML = tooltipHtml;
-        popup.setPosition(coords);
+
+        if(geomType === 'LineString') {
+          let extent = feature.getGeometry().getExtent();
+          coords = ol.extent.getCenter(extent);
+          popup.setPosition(coords);
+        } else {
+          popup.setPosition(coords);
+        }
 
       } else {
         popup.setPosition(undefined);
@@ -1766,7 +1797,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(true);
         textLayer.setVisible(false);
-      } else if(this.uiOption.layers[1].type === "polygon") {
+      } else if(this.uiOption.layers[1].type === "polygon" || this.uiOption.layers[1].type === "line") {
         symbolLayer.setVisible(true);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
@@ -1823,7 +1854,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(true);
         textLayer.setVisible(false);
-      } else if(this.uiOption.layers[1].type === "polygon") {
+      } else if(this.uiOption.layers[1].type === "polygon" || this.uiOption.layers[1].type === "line") {
         symbolLayer.setVisible(true);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
@@ -1845,7 +1876,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     this.legendRender();
 
     // 완료
-    this.drawFinished.emit();
+    // this.drawFinished.emit();
   }
 
   /**
@@ -2029,7 +2060,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(true);
         textLayer.setVisible(false);
-      } else if(this.uiOption.layers[2].type === "polygon") {
+      } else if(this.uiOption.layers[2].type === "polygon" || this.uiOption.layers[2].type === "line") {
         symbolLayer.setVisible(true);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
@@ -2086,7 +2117,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         heatmapLayer.setVisible(false);
         hexagonLayer.setVisible(true);
         textLayer.setVisible(false);
-      } else if(this.uiOption.layers[2].type === "polygon") {
+      } else if(this.uiOption.layers[2].type === "polygon" || this.uiOption.layers[2].type === "line") {
         symbolLayer.setVisible(true);
         clusterLayer.setVisible(false);
         heatmapLayer.setVisible(false);
@@ -2108,7 +2139,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     this.legendRender();
 
     // 완료
-    this.drawFinished.emit();
+    // this.drawFinished.emit();
   }
 
   /**
@@ -2129,7 +2160,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
 
     // 완료
-    this.drawFinished.emit();
+    // this.drawFinished.emit();
   }
 
   /**
@@ -2150,7 +2181,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     }
 
     // 완료
-    this.drawFinished.emit();
+    // this.drawFinished.emit();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

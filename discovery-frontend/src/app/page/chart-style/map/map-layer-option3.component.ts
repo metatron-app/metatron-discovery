@@ -224,7 +224,7 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
        let isNotGeoField: boolean = true;
        _.each(this.pivot.columns, (dimension) => {
          if( _.eq(field, dimension.name)
-           && _.eq(dimension.field.logicalType, "GEO_POINT") ) {
+           && (_.eq(dimension.field.logicalType, "GEO_POINT") || _.eq(dimension.field.logicalType, "GEO_LINE") || _.eq(dimension.field.logicalType, "GEO_POLYGON")) ) {
            isNotGeoField = false;
          }
        });

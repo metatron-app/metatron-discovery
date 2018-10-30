@@ -96,7 +96,7 @@
   <!-- //shelf -->
 
   <!-- shelf2 -->
-  <div id="shelfColumn2" class="ddp-ui-shelf"  [ngClass]="{'ddp-add-self' : layerNum === 2}" *ngIf="layerNum > 1">
+  <div id="shelfColumn2" class="ddp-ui-shelf"  [ngClass]="{'ddp-add-self' : uiOption['layerCnt'] === 2}" *ngIf="uiOption['layerCnt'] > 1">
     <em *ngIf="'network' !== chartType" class="ddp-icon-mapview2"></em>
     <em *ngIf="'network' == chartType" class="ddp-icon-network ddp-source"></em>
     <!-- drag slide -->
@@ -193,7 +193,7 @@
   <!-- //shelf2 -->
 
   <!-- shelf3 -->
-  <div id="shelfColumn3" class="ddp-ui-shelf"  [ngClass]="{'ddp-add-self' : layerNum === 3}" *ngIf="layerNum > 2">
+  <div id="shelfColumn3" class="ddp-ui-shelf"  [ngClass]="{'ddp-add-self' : uiOption['layerCnt'] === 3}" *ngIf="uiOption['layerCnt'] > 2">
     <em *ngIf="'network' !== chartType" class="ddp-icon-mapview3"></em>
     <em *ngIf="'network' == chartType" class="ddp-icon-network ddp-source"></em>
     <!-- drag slide -->
