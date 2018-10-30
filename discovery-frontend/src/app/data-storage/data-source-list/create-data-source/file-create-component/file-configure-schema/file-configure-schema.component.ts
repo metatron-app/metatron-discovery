@@ -17,10 +17,15 @@ import {
   ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
+import {
+  DatasourceInfo, Field, FieldFormat, FieldFormatType,
+  LogicalType
+} from '../../../../../domain/datasource/datasource';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { isUndefined } from 'util';
 import * as _ from 'lodash';
+import { StringUtil } from '../../../../../common/util/string.util';
+import { Alert } from '../../../../../common/util/alert.util';
 
 
 @Component({
@@ -628,13 +633,14 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
         .then((result) => {
           // pattern 이 있을경우
           if (result.hasOwnProperty('pattern')) {
-            column.format = result.pattern;
+            column.format.format = result.pattern;
+            //  set valid
+            column.isValidTimeFormat = true;
           }
           resolve(result);
         })
         .catch((error) => {
-          // Alert.error(error.details);
-          column.errorFl = true;
+          column.format.format = 'yyyy-MM-dd';
           reject(error);
         });
     }));
@@ -785,42 +791,37 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * @returns {boolean}
    */
   private isErrorColumn(column): boolean {
-    // ingestion rule
-    if (!this.ingestionRuleValidation(column)) {
+    if (this._isErrorTimestamp(column)) {
       return true;
     }
-    // error
-    if (!this.timestampValidation(column)) {
+    if (this._isErrorIngestionRule(column)) {
       return true;
     }
     return false;
   }
 
   /**
-   * ingestionRule validation
-   * @param column
+   * Is ingestion rule error
+   * @param {Field} column
    * @returns {boolean}
+   * @private
    */
-  private ingestionRuleValidation(column): boolean {
-    // ingestionRule type이  replace 인 경우 error가 있다면 false
-    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace' && column.replaceFl === false) {
-      return false;
-    }
-    return true;
+  private _isErrorIngestionRule(column: Field): boolean {
+    return column.ingestionRule
+      && column.ingestionRule.type === 'replace'
+      && column.isValidReplaceValue === false;
   }
 
   /**
-   * timestamp validation
-   * @param column
+   * Is timestamp error
+   * @param {Field} column
    * @returns {boolean}
+   * @private
    */
-  private timestampValidation(column): boolean {
-    // timestamp 컬럼이 format이 없거나 error가 있다면 false
-    if (column.logicalType === 'TIMESTAMP'
-      && (isUndefined(column.format) || column.format === '' || column.hasOwnProperty('errorFl'))) {
-      return false;
-    }
-    return true;
+  private _isErrorTimestamp(column: Field): boolean {
+    return column.logicalType === LogicalType.TIMESTAMP
+      && column.format.type === FieldFormatType.DATE_TIME
+      && column.isValidTimeFormat === false;
   }
 
   /**
@@ -829,10 +830,22 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * @returns {boolean}
    */
   private columnsErrorValidation(columnList: any[]): boolean {
-    const result = columnList.filter((column) => {
-      return this.isErrorColumn(column);
+    // check error
+    columnList.forEach((column: Field) => {
+      if (column.logicalType === LogicalType.TIMESTAMP && column.format.type === FieldFormatType.DATE_TIME && isUndefined(column.isValidTimeFormat)) {
+        column.isValidTimeFormat = false;
+      }
+      if (column.ingestionRule && column.ingestionRule.type === 'replace' && isUndefined(column.isValidReplaceValue)) {
+        column.isValidReplaceValue = false;
+        column.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
+      }
     });
-    return result.length !== 0;
+    if (_.some(columnList, column => this.isErrorColumn(column))) {
+      Alert.warning(this.translateService.instant('msg.storage.ui.schema.error.desc'));
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -849,6 +862,8 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
     // 변경된 타입이 타임일 경우
     if (this.isEqualType('TIMESTAMP', type)) {
       timestampPromise.push(column);
+      delete column.isValidTimeFormat;
+      delete column.isValidReplaceValue;
     }
 
     // 컬럼이 타임스탬프로 지정되었던 경우
@@ -880,12 +895,16 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
 
     const promise = [];
     columnList.forEach((column) => {
+      // init format
+      column.format = new FieldFormat();
+      column.format.type = FieldFormatType.DATE_TIME;
       // column DetailData
       let columnDetailData = this.getColumnDetailData(column);
 
       // data 가 없다면 타임스탬프를 지정할수 없다.
       if (columnDetailData.length === 0) {
-        column.errorFl = true;
+        column.isValidTimeFormat = false;
+        column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.no.data');
       } else {
         columnDetailData = columnDetailData.length > 20 ? columnDetailData.slice(0, 19) : columnDetailData;
         promise.push(this.getTimestampFormat(column, columnDetailData));
@@ -976,7 +995,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER' },
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE' },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
       { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
     ];

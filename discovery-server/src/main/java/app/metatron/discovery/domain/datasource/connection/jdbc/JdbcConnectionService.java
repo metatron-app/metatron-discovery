@@ -14,29 +14,12 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.*;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
-import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.*;
-import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.user.CachedUserService;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
-import app.metatron.discovery.util.AuthUtils;
-import com.facebook.presto.jdbc.PrestoArray;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import com.facebook.presto.jdbc.PrestoArray;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -52,13 +35,54 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
 import org.supercsv.prefs.CsvPreference;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
+
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeBetweenExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeCurrentDatetimeExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDateFormatExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDisjunctionExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeEqExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeOrderExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeProjection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
+import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
+import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
+import app.metatron.discovery.util.AuthUtils;
 
 import static app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection.CURRENT_DATE_FORMAT;
 import static java.util.stream.Collectors.toList;
@@ -549,8 +573,8 @@ public class JdbcConnectionService {
           || connection instanceof HiveConnection) {
         schema = schema == null ? connection.getDatabase() : schema;
         resultSet = conn.getMetaData().getTables(schema,
-                                                                       schema, null, RESULTSET_TABLE_TYPES);
-      } else if(connection instanceof PrestoConnection){
+                                                 schema, null, RESULTSET_TABLE_TYPES);
+      } else if (connection instanceof PrestoConnection) {
         resultSet = conn.getMetaData().getTables(connection.getDatabase(), schema, null, RESULTSET_TABLE_TYPES_PRESTO);
       } else {
         resultSet = conn.getMetaData().getTables(connection.getDatabase(), schema, null, RESULTSET_TABLE_TYPES);
@@ -624,8 +648,10 @@ public class JdbcConnectionService {
       return searchTablesWithQueryPageable(connection, dataSource, schema, tableNamePattern, pageable);
     } else if (connection instanceof HiveMetastoreConnection && ((HiveMetastoreConnection) connection).includeMetastoreInfo()) {
       return searchTablesWithHiveMetastore(connection, dataSource, schema, tableNamePattern, pageable);
+    } else if (connection instanceof HiveConnection || connection instanceof PrestoConnection){
+      return searchTablesWithQuery(connection, dataSource, schema, tableNamePattern);
     } else {
-      return searchTablesWithMetadata(connection, dataSource, schema, tableNamePattern, pageable);
+      return searchTablesWithMetadata(connection, dataSource, schema, tableNamePattern);
     }
   }
 
@@ -662,6 +688,44 @@ public class JdbcConnectionService {
     return databaseMap;
   }
 
+  public Map<String, Object> searchTablesWithQuery(JdbcDataConnection connection, DataSource dataSource,
+                                                           String schema, String tableNamePattern) {
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+    String tableListQuery = connection.getShowTableQuery(schema);
+
+    LOGGER.debug("Execute Table List query : {}", tableListQuery);
+
+    List<Map<String, Object>> tableNames = null;
+    try {
+      tableNames = jdbcTemplate.queryForList(tableListQuery);
+    } catch (Exception e) {
+      LOGGER.error("Fail to get list of table : {}", e.getMessage());
+      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
+              "Fail to get list of database : " + e.getMessage());
+    }
+
+    tableNames.stream()
+            .forEach(tableMap -> {
+              tableMap.put("name", tableMap.get(connection.getTableNameColumn()));
+              tableMap.remove(connection.getTableNameColumn());
+            });
+
+    Map<String, Object> databaseMap = new LinkedHashMap<>();
+    if(StringUtils.isEmpty(tableNamePattern)){
+      databaseMap.put("tables", tableNames);
+      databaseMap.put("page", createPageInfoMap(tableNames.size(), tableNames.size(), 0));
+    } else {
+      List filteredList = tableNames.stream()
+              .filter(tableMap -> tableMap.get("name").toString().contains(tableNamePattern))
+              .collect(Collectors.toList());
+      databaseMap.put("tables", filteredList);
+      databaseMap.put("page", createPageInfoMap(filteredList.size(), filteredList.size(), 0));
+    }
+
+    return databaseMap;
+  }
+
   public Map<String, Object> searchTablesWithHiveMetastore(JdbcDataConnection connection, DataSource dataSource,
                                                            String schema, String tableNamePattern, Pageable pageable) {
 
@@ -680,7 +744,7 @@ public class JdbcConnectionService {
     } catch (JdbcDataConnectionException jdbce) {
       if (jdbce.getCode() == JdbcDataConnectionErrorCodes.HIVE_METASTORE_ERROR_CODE) {
         LOGGER.debug("Fail to Connect To Hive MetaStore Directly : {}", jdbce.getMessage());
-        return searchTablesWithMetadata(connection, dataSource, schema, tableNamePattern, pageable);
+        return searchTablesWithMetadata(connection, dataSource, schema, tableNamePattern);
       } else {
         LOGGER.error("Fail to get list of table : {}", jdbce.getMessage());
         throw jdbce;
@@ -704,7 +768,7 @@ public class JdbcConnectionService {
   }
 
   public Map<String, Object> searchTablesWithMetadata(JdbcDataConnection connection, DataSource dataSource,
-                                                      String schema, String tableName, Pageable pageable) {
+                                                      String schema, String tableName) {
 
     String tableNamePattern = null;
     if (!StringUtils.isEmpty(tableName)) {
@@ -797,7 +861,7 @@ public class JdbcConnectionService {
 
       rs = stmt.executeQuery(query);
 
-      queryResultSet = getResult(rs, extractColumnName);
+      queryResultSet = getJdbcQueryResult(rs, extractColumnName);
       // queryResultSet.setTotalRows(totalRows);
     } catch (Exception e) {
       LOGGER.error("Fail to query for select :  {}", e.getMessage());
@@ -861,7 +925,7 @@ public class JdbcConnectionService {
                                                          int limit,
                                                          boolean extractColumnName) {
     return selectQueryForIngestion(connection, getDataSource(connection, true),
-            schema, type, query, limit, extractColumnName);
+                                   schema, type, query, limit, extractColumnName);
   }
 
   public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
@@ -992,7 +1056,7 @@ public class JdbcConnectionService {
 
         if (Field.COLUMN_NAME_CURRENT_DATETIME.equals(field.getName()) && field.getRole() == Field.FieldRole.TIMESTAMP) {
           nativeProjection.addProjection(new NativeCurrentDatetimeExp(fieldName));
-        } else if (StringUtils.isEmpty(field.getFormat()) &&
+        } else if (StringUtils.isEmpty(field.getTimeFormat()) &&
             (field.getRole() == Field.FieldRole.TIMESTAMP ||
                 (field.getRole() == Field.FieldRole.DIMENSION && field.getType() == DataType.TIMESTAMP))) {
           nativeProjection.addProjection(new NativeDateFormatExp(fieldName, null));
@@ -1164,7 +1228,7 @@ public class JdbcConnectionService {
   }
 
   private String getTempFileName(String baseDir, String fileName) {
-    if(StringUtils.isEmpty(baseDir)) {
+    if (StringUtils.isEmpty(baseDir)) {
       baseDir = engineProperties.getIngestion().getLocalBaseDir();
     }
 
@@ -1263,50 +1327,13 @@ public class JdbcConnectionService {
     return countOfSelectQuery(connection, getDataSource(connection, true), jdbcInfo);
   }
 
-  public JdbcQueryResultResponse getResult(ResultSet rs) throws SQLException {
-    return getResult(rs, false);
+  public JdbcQueryResultResponse getJdbcQueryResult(ResultSet rs) throws SQLException {
+    return getJdbcQueryResult(rs, false);
   }
 
-  public JdbcQueryResultResponse getResult(ResultSet rs, boolean extractColumnName) throws SQLException {
-    ResultSetMetaData metaData = rs.getMetaData();
-
-    int colNum = metaData.getColumnCount();
-
-    List<Field> fields = Lists.newArrayList();
-    for (int i = 1; i <= colNum; i++) {
-      final String fieldName;
-      if(extractColumnName){
-        fieldName = extractColumnName(metaData.getColumnLabel(i));
-      } else {
-        fieldName = removeDummyPrefixColumnName(metaData.getColumnLabel(i));
-      }
-      String uniqueFieldName = generateUniqueColumnName(fieldName, fields);
-
-      Field field = new Field();
-      field.setName(uniqueFieldName);
-      field.setType(DataType.jdbcToFieldType((metaData.getColumnType(i))));
-      field.setRole(field.getType().toRole());
-      fields.add(field);
-    }
-    List<Map<String, Object>> data = Lists.newArrayList();
-    while (rs.next()) {
-      Map<String, Object> rowMap = Maps.newLinkedHashMap();
-      for (int i = 1; i <= colNum; i++) {
-        //@TODO require Oracle JDBC configuartion
-//        if (rs.getObject(i) instanceof TIMESTAMP) { // Oracle Timestamp Case
-//          TIMESTAMP timestamp = (TIMESTAMP) rs.getObject(i);
-//          rowMap.put(fields.get(i - 1).getName(), timestamp.timestampValue().toString());
-//        } else
-          if (rs.getObject(i) instanceof Timestamp) {
-          rowMap.put(fields.get(i - 1).getName(), rs.getObject(i).toString());
-        } else if (rs.getObject(i) instanceof PrestoArray) {
-          rowMap.put(fields.get(i - 1).getName(), ((PrestoArray) rs.getObject(i)).getArray());
-        } else {
-          rowMap.put(fields.get(i - 1).getName(), rs.getObject(i));
-        }
-      }
-      data.add(rowMap);
-    }
+  public JdbcQueryResultResponse getJdbcQueryResult(ResultSet rs, boolean extractColumnName) throws SQLException {
+    List<Field> fields = getFieldList(rs, extractColumnName);
+    List<Map<String, Object>> data = getDataList(rs, fields);
     return new JdbcQueryResultResponse(fields, data);
   }
 
@@ -1321,7 +1348,7 @@ public class JdbcConnectionService {
    * Remove table name
    */
   private String extractColumnName(String name) {
-    if(StringUtils.contains(name, ".")){
+    if (StringUtils.contains(name, ".")) {
       return StringUtils.substring(name, StringUtils.lastIndexOf(name, ".") + 1, name.length());
     }
     return name;
@@ -1444,8 +1471,9 @@ public class JdbcConnectionService {
 
   public Map<String, Object> searchDatabases(JdbcDataConnection connection, DataSource dataSource,
                                              String databaseNamePattern, Pageable pageable) {
-    if (connection instanceof MySQLConnection
-        || connection instanceof MssqlConnection) {
+    if (
+            connection instanceof MySQLConnection ||
+            connection instanceof MssqlConnection) {
       return searchDatabasesWithQueryPageable(connection, dataSource, databaseNamePattern, pageable);
     } else if (connection instanceof PostgresqlConnection) {
       return searchDatabasesWithQueryPageable(connection, dataSource, databaseNamePattern, pageable);
@@ -1603,8 +1631,8 @@ public class JdbcConnectionService {
     String password;
     if (connection.getAuthenticationType() == DataConnection.AuthenticationType.USERINFO) {
       username = StringUtils.isEmpty(connection.getUsername())
-              ? AuthUtils.getAuthUserName()
-              : connection.getUsername();
+          ? AuthUtils.getAuthUserName()
+          : connection.getUsername();
 
       User user = cachedUserService.findUser(username);
       if (user == null) {
@@ -1648,5 +1676,76 @@ public class JdbcConnectionService {
     JdbcUtils.closeResultSet(rs);
     JdbcUtils.closeStatement(stmt);
     JdbcUtils.closeConnection(connection);
+  }
+
+  public int writeResultSetToCSV(ResultSet resultSet, String tempCsvFilePath){
+    JdbcCSVWriter jdbcCSVWriter = null;
+    int rowNumber = 0;
+    try {
+      jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempCsvFilePath), CsvPreference.STANDARD_PREFERENCE);
+      jdbcCSVWriter.write(resultSet);
+      rowNumber = jdbcCSVWriter.getRowNumber();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      try{
+        if(jdbcCSVWriter != null)
+          jdbcCSVWriter.close();
+      }catch (IOException e){}
+    }
+    return rowNumber;
+  }
+
+  public List<Field> getFieldList(ResultSet rs, boolean extractColumnName) throws SQLException {
+    ResultSetMetaData metaData = rs.getMetaData();
+
+    int colNum = metaData.getColumnCount();
+
+    List<Field> fields = Lists.newArrayList();
+    for (int i = 1; i <= colNum; i++) {
+      final String fieldName;
+      if(extractColumnName){
+        fieldName = extractColumnName(metaData.getColumnLabel(i));
+      } else {
+        fieldName = removeDummyPrefixColumnName(metaData.getColumnLabel(i));
+      }
+      String uniqueFieldName = generateUniqueColumnName(fieldName, fields);
+
+      Field field = new Field();
+      field.setName(uniqueFieldName);
+      field.setType(DataType.jdbcToFieldType((metaData.getColumnType(i))));
+      field.setRole(field.getType().toRole());
+      fields.add(field);
+    }
+    return fields;
+  }
+
+  public List<Map<String, Object>> getDataList(ResultSet rs, List<Field> fields) throws SQLException {
+    ResultSetMetaData metaData = rs.getMetaData();
+    int colNum = metaData.getColumnCount();
+
+    List<Map<String, Object>> dataList = Lists.newArrayList();
+    while (rs.next()) {
+      Map<String, Object> rowMap = Maps.newLinkedHashMap();
+      for (int i = 1; i <= colNum; i++) {
+        String fieldName = fields.get(i - 1).getName();
+        //@TODO require Oracle JDBC configuartion
+//        if (rs.getObject(i) instanceof TIMESTAMP) { // Oracle Timestamp Case
+//          TIMESTAMP timestamp = (TIMESTAMP) rs.getObject(i);
+//          rowMap.put(fieldName, timestamp.timestampValue().toString());
+//        } else
+        if (rs.getObject(i) instanceof Timestamp) {
+          rowMap.put(fieldName, rs.getObject(i).toString());
+        } else if (rs.getObject(i) instanceof PrestoArray) {
+          rowMap.put(fieldName, ((PrestoArray) rs.getObject(i)).getArray());
+        } else {
+          rowMap.put(fieldName, rs.getObject(i));
+        }
+      }
+      dataList.add(rowMap);
+    }
+    return dataList;
   }
 }

@@ -14,15 +14,35 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.AbstractRestIntegrationTest;
+import app.metatron.discovery.TestEngineIngestion;
+import app.metatron.discovery.TestUtils;
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.core.oauth.OAuthRequest;
+import app.metatron.discovery.core.oauth.OAuthTestExecutionListener;
+import app.metatron.discovery.domain.datasource.connection.jdbc.MySQLConnection;
+import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
+import app.metatron.discovery.domain.datasource.ingestion.*;
+import app.metatron.discovery.domain.datasource.ingestion.file.*;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
+import app.metatron.discovery.domain.scheduling.engine.DataSourceCheckJobIntegrationTest;
+import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
+import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.util.JsonPatch;
+import app.metatron.discovery.util.PolarisUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
-
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,25 +96,17 @@ import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionIn
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
+import app.metatron.discovery.domain.workbook.configurations.format.UnixTimeFormat;
 import app.metatron.discovery.util.JsonPatch;
 import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK;
 import static app.metatron.discovery.domain.datasource.DataSource.DataSourceType.MASTER;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.DAY;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.HOUR;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.MONTH;
-import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.SECOND;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.FILE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HDFS;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.HIVE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
+import static app.metatron.discovery.domain.datasource.DataSource.GranularityType.*;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.REALTIME;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.DIMENSION;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.MEASURE;
-import static app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP;
+import static app.metatron.discovery.domain.datasource.Field.FieldRole.*;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -127,7 +139,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void dataSourceList() {
     // @formatter:off
     Response createResponse =
@@ -144,7 +156,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void dataSourceDetail() {
     // @formatter:off
     Response createResponse =
@@ -180,10 +192,10 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
 
     DataSource dataSource = new DataSourceBuilder()
-            .name("DataSource")
-            .type(MASTER)
-            .ownerId("polaris")
-            .fields(f1, f2, f3).build();
+        .name("DataSource")
+        .type(MASTER)
+        .ownerId("polaris")
+        .fields(f1, f2, f3).build();
 
     dataSource.setConnType(ENGINE);
     dataSource.setSrcType(NONE);
@@ -261,7 +273,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_ADMIN", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_ADMIN", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithMapType() throws JsonProcessingException {
 
     Field field1 = new Field("id", DataType.STRING, DIMENSION, 1L);
@@ -275,11 +287,11 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     field2.setMappedField(Sets.newHashSet(field3, field4));
 
     DataSource dataSource1 = new DataSourceBuilder()
-            .name("datasource1")
-            .fields(
-              field1, field2
-            )
-            .build();
+        .name("datasource1")
+        .fields(
+            field1, field2
+        )
+        .build();
 
     System.out.println("################\n" + GlobalObjectMapper.writeValueAsString(dataSource1));
 
@@ -316,7 +328,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_ADMIN", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_ADMIN", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceAndAddDeleteWorkspaceReference() throws JsonProcessingException {
 
     TestUtils.printTestTitle("1. Create Datasoucre!");
@@ -401,7 +413,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql({"/sql/test_datasource_list.sql"})
   public void findByMultipleIds() {
 
@@ -420,7 +432,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql({"/sql/test_datasource_list.sql", "/scripts/default_join_datasource.sql"})
   public void findDataSources() {
 
@@ -452,7 +464,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql({"/sql/test_datasource_list.sql"})
   public void findDetailDataSources() {
 
@@ -475,8 +487,8 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
-//  @Sql({"/scripts/default_datasource_ingestion_options.sql"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
+  //  @Sql({"/scripts/default_datasource_ingestion_options.sql"})
   public void findDataSourceIngestionOptions() {
 
     // @formatter:off
@@ -495,14 +507,14 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void getDataFromDataSources() {
 
     String datasourceId = "ds-37";
 
-//    SearchQueryRequest request = new SearchQueryRequest();
-//    request.setFilters(Lists.newArrayList(new InclusionFilter("Category", Lists.newArrayList("Office Supplies"))));
-//    request.setLimits(new Limit(100));
+    //    SearchQueryRequest request = new SearchQueryRequest();
+    //    request.setFilters(Lists.newArrayList(new InclusionFilter("Category", Lists.newArrayList("Office Supplies"))));
+    //    request.setLimits(new Limit(100));
 
     // @formatter:off
     given()
@@ -520,7 +532,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void findByDataSourceSearchInWorkspace() {
 
     // @formatter:off
@@ -539,7 +551,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void patchDataSource() throws JsonProcessingException {
 
 
@@ -570,12 +582,12 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void uploadLocalExcelFileAndQuerySheet() {
 
     String filePath = "./src/test/resources/ingestion/";
     File file = new File(filePath + "sample_ingestion.xlsx");
-//    File file = new File(filePath + "export.xlsx");
+    //    File file = new File(filePath + "export.xlsx");
 
     // 파일업로드
     // @formatter:off
@@ -610,12 +622,12 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void uploadLocalCsvFileAndQuery() {
 
-//    String filePath = "./src/test/resources/ingestion/";
-//    File file = new File(filePath + "sample_ingestion.csv");
-        File file = new File("/Users/kyungtaak/Downloads/citycsv.csv");
+    //    String filePath = "./src/test/resources/ingestion/";
+    //    File file = new File(filePath + "sample_ingestion.csv");
+    File file = new File("/Users/kyungtaak/Downloads/citycsv.csv");
 
     // 파일업로드
     // @formatter:off
@@ -651,7 +663,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/sales_hive.sql")
   public void findDataSourceByDatabaseName() throws JsonProcessingException {
 
@@ -668,7 +680,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void searchDataSourceByKeyword() throws JsonProcessingException {
 
     DataSource dataSource1 = new DataSourceBuilder()
@@ -706,7 +718,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void searchDataSourceByQuery() throws JsonProcessingException {
 
     DataSource dataSource1 = new DataSourceBuilder()
@@ -766,7 +778,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithNoneIngestion() throws JsonProcessingException {
 
     DataSource dataSource = new DataSource();
@@ -779,7 +791,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(NONE);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -808,7 +820,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithContext() throws JsonProcessingException {
 
     TestUtils.printTestTitle("1. 최초 DataSource 생성시 Context 지정");
@@ -822,7 +834,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(NONE);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -925,7 +937,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithLinkType() throws JsonProcessingException {
 
     DataSource dataSource = new DataSource();
@@ -938,7 +950,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(JDBC);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -984,7 +996,61 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithLocalJsonFileIngestion() throws JsonProcessingException {
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion.json").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localJsonFileIngestion_" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
+    fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
+    fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
+    fields.add(new Field("nd", DataType.STRING, DIMENSION, 3L));
+    fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 4L));
+    fields.add(new Field("m2", DataType.DOUBLE, MEASURE, 5L));
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+
+    List<JsonFileFormat.JsonFlatten> flattenRules = Lists.newArrayList();
+    flattenRules.add(new JsonFileFormat.JsonFlatten("nd", "$.nested.dim2"));
+    localFileIngestionInfo.setFormat(new JsonFileFormat(flattenRules));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithLocalCsvFileIngestion() throws JsonProcessingException {
 
     String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_space.csv").getPath();
@@ -998,7 +1064,11 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(FILE);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+
+    Field timestampField = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField.setFormat("yyyy-MM-dd");
+    fields.add(timestampField);
+
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
 
     Field field1 = new Field("sd", DataType.STRING, DIMENSION, 2L);
@@ -1042,7 +1112,69 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  public void createDataSourceWithLocalCsvFileIngestion_UnixTimestamp() throws JsonProcessingException {
+
+    String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion_unix_timestamp.csv").getPath();
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localFileIngestion_unix_" + PolarisUtils.randomString(5));
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(FILE);
+
+    List<Field> fields = Lists.newArrayList();
+
+    Field timestampField = new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L);
+    timestampField.setFormat(GlobalObjectMapper.writeValueAsString(new UnixTimeFormat()));
+
+    fields.add(timestampField);
+    fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
+
+    Field field1 = new Field("sd", DataType.STRING, DIMENSION, 2L);
+    field1.setRemoved(true);
+    fields.add(field1);
+
+    fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
+
+    Field field2 = new Field("m2", DataType.DOUBLE, MEASURE, 4L);
+    field2.setRemoved(true);
+    fields.add(field2);
+
+    dataSource.setFields(fields);
+
+    LocalFileIngestionInfo localFileIngestionInfo = new LocalFileIngestionInfo();
+    localFileIngestionInfo.setPath(targetFile);
+    localFileIngestionInfo.setRemoveFirstRow(false);
+    localFileIngestionInfo.setFormat(new CsvFileFormat(",", "\n"));
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(localFileIngestionInfo));
+
+    String reqBody = GlobalObjectMapper.getDefaultMapper().writeValueAsString(dataSource);
+
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void appendDataSourceWithLocalCsvFileIngestion() throws JsonProcessingException {
 
     // profile 을 h2-in-memory-db -> h2-default-db 로 변경, initial 삭제
@@ -1075,7 +1207,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithLocalExcelFileIngestion() throws JsonProcessingException {
 
     String targetFile = getClass().getClassLoader().getResource("ingestion/sample_ingestion.xlsx").getPath();
@@ -1089,7 +1221,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(FILE);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.TEXT, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -1126,7 +1258,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithRealTimeIngestion() throws JsonProcessingException {
 
     DataSource dataSource = new DataSource();
@@ -1138,7 +1270,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(REALTIME);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("event_time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("event_time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d1", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("d2", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -1178,7 +1310,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithHdfsFileIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
@@ -1193,7 +1325,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(HDFS);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -1254,7 +1386,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(HDFS);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -1300,7 +1432,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithHiveCsvNonPartitionTableIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
@@ -1315,7 +1447,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(HIVE);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -1325,7 +1457,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     dataSource.setFields(fields);
 
-    Map<String,Object> context = Maps.newHashMap();
+    Map<String, Object> context = Maps.newHashMap();
 
     HiveIngestionInfo hiveIngestionInfo = new HiveIngestionInfo(
         new CsvFileFormat(),
@@ -1469,7 +1601,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithOrcNonPartitionHiveTableIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
@@ -1484,7 +1616,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(HIVE);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -1494,17 +1626,17 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     dataSource.setFields(fields);
 
-    Map<String,Object> context = Maps.newHashMap();
-//    context.put(HiveIngestionInfo.KEY_ORC_SCHEMA, "struct<time:date,d:string,sd:string,m1:double,m2:double>");
+    Map<String, Object> context = Maps.newHashMap();
+    //    context.put(HiveIngestionInfo.KEY_ORC_SCHEMA, "struct<time:date,d:string,sd:string,m1:double,m2:double>");
 
     HiveIngestionInfo hiveIngestionInfo = new HiveIngestionInfo(
-            new OrcFileFormat(), //new CsvFileFormat(),
-            sourceTable,
-            null,
-            null,
-            null,
-            null,
-            context);
+        new OrcFileFormat(), //new CsvFileFormat(),
+        sourceTable,
+        null,
+        null,
+        null,
+        null,
+        context);
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(hiveIngestionInfo));
 
     String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
@@ -1632,7 +1764,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithHiveOrcPartitionTableIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
@@ -1647,28 +1779,28 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(HIVE);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
     fields.add(new Field("m2", DataType.DOUBLE, MEASURE, 4L));
     dataSource.setFields(fields);
 
-    Map<String,Object> context = Maps.newHashMap();
+    Map<String, Object> context = Maps.newHashMap();
 
     List<String> intervals = Lists.newArrayList("2017-01-01/2017-12-01");
 
-    List<Map<String,Object>> partitions = Lists.newArrayList();
+    List<Map<String, Object>> partitions = Lists.newArrayList();
     partitions.add(TestUtils.makeMap("ym", "201704"));
 
     HiveIngestionInfo hiveIngestionInfo = new HiveIngestionInfo(
-            new OrcFileFormat(), //new CsvFileFormat(),
-            sourceTable,
-            partitions,
-            null,
-            null,
-            intervals,
-            context);
+        new OrcFileFormat(), //new CsvFileFormat(),
+        sourceTable,
+        partitions,
+        null,
+        null,
+        intervals,
+        context);
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(hiveIngestionInfo));
 
@@ -1694,7 +1826,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void appendDataSourceWithHiveOrcPartitionTableIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
@@ -1703,7 +1835,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     List<String> intervals = Lists.newArrayList("2016-04-01/2017-12-01");
 
-    List<Map<String,Object>> partitions = Lists.newArrayList();
+    List<Map<String, Object>> partitions = Lists.newArrayList();
     partitions.add(TestUtils.makeMap("ym", "201705"));
 
     HiveIngestionInfo hiveIngestionInfo = new HiveIngestionInfo(
@@ -1735,13 +1867,13 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithHiveTableIngestion() throws JsonProcessingException {
 
     // 사전에 HDFS 경로에 파일 위치
     String sourceTable = "default.sample_ingestion_orc";
-//    String metastoreUri = "thrift://localhost:9083";
-//    String typeString = "struct<time:date,d:string,sd:string,m1:double,m2:double>";
+    //    String metastoreUri = "thrift://localhost:9083";
+    //    String typeString = "struct<time:date,d:string,sd:string,m1:double,m2:double>";
 
     DataSource dataSource = new DataSource();
     dataSource.setName("Hive File Ingestion orc " + PolarisUtils.randomString(5));
@@ -1752,7 +1884,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(HIVE);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -1768,22 +1900,22 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     //    jobProp.put("mapreduce.map.memory.mb", "1024");
     //    jobProp.put("mapreduce.map.cpu.vcores", "1");
 
-    Map<String,Object> context = Maps.newHashMap();
-//    context.put(HiveIngestionInfo.KEY_HIVE_METASTORE, metastoreUri);
-//    context.put(HiveIngestionInfo.KEY_ORC_SCHEMA, typeString);
+    Map<String, Object> context = Maps.newHashMap();
+    //    context.put(HiveIngestionInfo.KEY_HIVE_METASTORE, metastoreUri);
+    //    context.put(HiveIngestionInfo.KEY_ORC_SCHEMA, typeString);
 
-    List<Map<String,Object>> partitions = Lists.newArrayList();
+    List<Map<String, Object>> partitions = Lists.newArrayList();
     partitions.add(TestUtils.makeMap("ym", "201704", "dd", "21"));
     partitions.add(TestUtils.makeMap("ym", "201705"));
 
     HiveIngestionInfo hiveIngestionInfo = new HiveIngestionInfo(
-            new OrcFileFormat(), //new CsvFileFormat(),
-            sourceTable,
-            partitions,
-            null,
-            null,
-            null,
-            context);
+        new OrcFileFormat(), //new CsvFileFormat(),
+        sourceTable,
+        partitions,
+        null,
+        null,
+        null,
+        context);
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(hiveIngestionInfo));
 
@@ -1809,7 +1941,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_dataconnection.sql")
   public void createDataSourceWithJdbcSingleIngestion() throws JsonProcessingException {
 
@@ -1824,7 +1956,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(JDBC);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -1867,7 +1999,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_dataconnection.sql")
   public void createDataSourceWithIngestionOption() throws JsonProcessingException {
 
@@ -1890,7 +2022,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
         GlobalObjectMapper.writeValueAsString(new DiscardRule()));
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(dimReplaceField);
     fields.add(dimDiscardField);
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -1932,9 +2064,8 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
 
-
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_dataconnection.sql")
   public void createDataSourceWithJdbcBatchIngestion() throws JsonProcessingException, InterruptedException {
 
@@ -1949,7 +2080,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(JDBC);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
@@ -1962,8 +2093,8 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     batchJdbcInfo.setDataType(JdbcIngestionInfo.DataType.TABLE);
     batchJdbcInfo.setDatabase("polaris_datasources");
     batchJdbcInfo.setQuery("sample_ingestion");
-//    batchJdbcInfo.setPeriod(new BatchPeriod("MINUTELY", 1, null, null));
-//    batchJdbcInfo.setPeriod(new BatchPeriod("WEEKLY", null, "03:20", Lists.newArrayList("MON", "SUN")));
+    //    batchJdbcInfo.setPeriod(new BatchPeriod("MINUTELY", 1, null, null));
+    //    batchJdbcInfo.setPeriod(new BatchPeriod("WEEKLY", null, "03:20", Lists.newArrayList("MON", "SUN")));
     batchJdbcInfo.setPeriod(new BatchPeriod("EXPR", "0 0/1 * 1/1 * ? *", null, null));
     batchJdbcInfo.setSize(100);
 
@@ -1979,10 +2110,10 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(batchJdbcInfo));
 
-//    Map reqMap = GlobalObjectMapper.getDefaultMapper().convertValue(dataSource, Map.class);
-//    // 추가 정보
-//    reqMap.put("connection", "/api/connections/" + connectionId);
-//    String reqBody = GlobalObjectMapper.writeValueAsString(reqMap);
+    //    Map reqMap = GlobalObjectMapper.getDefaultMapper().convertValue(dataSource, Map.class);
+    //    // 추가 정보
+    //    reqMap.put("connection", "/api/connections/" + connectionId);
+    //    String reqBody = GlobalObjectMapper.writeValueAsString(reqMap);
 
     String reqBody = GlobalObjectMapper.writeValueAsString(dataSource);
 
@@ -2019,12 +2150,12 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     // @formatter:on
 
 
-    Thread.sleep(5*60*1000L);
+    Thread.sleep(5 * 60 * 1000L);
   }
 
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_dataconnection.sql")
   public void dataconnectionToDataSource() throws JsonProcessingException {
 
@@ -2046,7 +2177,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void importAvailableDataSourceNames() {
 
     // @formatter:off
@@ -2063,7 +2194,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void engineDatasourcePreview() {
 
     // @formatter:off
@@ -2082,7 +2213,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void engineDatasourceImport() {
 
     DataSource dataSource = new DataSource();
@@ -2111,7 +2242,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createTemporaryDatasourcesSync() throws JsonProcessingException {
 
     DataSource dataSource = new DataSource();
@@ -2145,7 +2276,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     ingestionInfo.setDataType(JdbcIngestionInfo.DataType.TABLE);
     ingestionInfo.setDatabase("sample");
     ingestionInfo.setQuery("sales");
-//    ingestionInfo.setFormat(new CsvFileFormat());
+    //    ingestionInfo.setFormat(new CsvFileFormat());
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(ingestionInfo));
 
@@ -2181,7 +2312,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createTemporaryDatasourcesAsync() throws JsonProcessingException {
 
     StompHeaders stompHeaders = new StompHeaders();
@@ -2264,7 +2395,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_datasource_temporary.sql")
   public void createTemporaryDatasourceByIdSync() throws JsonProcessingException {
 
@@ -2335,7 +2466,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_datasource_temporary.sql")
   public void createTemporaryDatasourceByIdASync() throws JsonProcessingException {
 
@@ -2400,7 +2531,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void dataSourceFieldTimeFormatCheck() throws JsonProcessingException {
 
     TimeFormatCheckRequest request = new TimeFormatCheckRequest();
@@ -2428,7 +2559,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void dataSourceFieldFindTimeFormat() throws JsonProcessingException {
 
     TimeFormatCheckRequest request = new TimeFormatCheckRequest();
@@ -2456,7 +2587,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   @Test
-  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_WRITE_DATASOURCE"})
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void dataSourceValidateCronExpression() throws JsonProcessingException {
 
     String cronExpr = "0 0 0/1 1/1 * ? *";
@@ -2493,7 +2624,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     dataSource.setSrcType(JDBC);
 
     List<Field> fields = Lists.newArrayList();
-    fields.add(new Field("orderdate", DataType.TIMESTAMP, TIMESTAMP,0L));
+    fields.add(new Field("orderdate", DataType.TIMESTAMP, TIMESTAMP, 0L));
     fields.add(new Field("category", DataType.STRING, DIMENSION, 1L));
     fields.add(new Field("sales", DataType.DOUBLE, MEASURE, 2L));
 
@@ -2531,6 +2662,127 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
             .statusCode(HttpStatus.SC_CREATED)
             .log().all();
     // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  @Sql({"/sql/test_datasource_field.sql"})
+  public void synchronizeFieldsInDataSource() throws InterruptedException {
+    // given
+    final String engineDataSourceName = "testsampleds";
+    final String testDataSourceId = "7b8005ae-eca0-4a56-9072-c3811138c7a6";
+
+    setUpTestFixtureSchemaNotMatchedEngineDataSource(engineDataSourceName);
+
+    // REST
+    // when, then
+    given()
+        .auth().oauth2(oauth_token)
+        .contentType(ContentType.JSON)
+    .when()
+        .patch("/api/datasources/{id}/fields/sync", testDataSourceId)
+    .then()
+        .statusCode(HttpStatus.SC_NO_CONTENT)
+        .log().all();
+  }
+
+  private void setUpTestFixtureSchemaNotMatchedEngineDataSource(String engineDataSourceName) throws InterruptedException {
+    final TestEngineIngestion testEngineIngestion = new TestEngineIngestion();
+
+    final String workerHost = testEngineIngestion.getEngineWorkerHost();
+    final String baseDir = DataSourceCheckJobIntegrationTest.class.getResource("/ingestion/").getPath();
+    final String filter = "sample_ingestion_extends.csv";
+
+    final String ingestionSpec = "{\n" +
+        "  \"context\": {\n" +
+        "    \"druid.task.runner.dedicated.host\": \"" + workerHost + "\"\n" +
+        "  },\n" +
+        "  \"spec\": {\n" +
+        "    \"dataSchema\": {\n" +
+        "      \"dataSource\": \"" + engineDataSourceName + "\",\n" +
+        "      \"granularitySpec\": {\n" +
+        "        \"intervals\": [\n" +
+        "          \"1970-01-01/2050-01-01\"\n" +
+        "        ],\n" +
+        "        \"queryGranularity\": \"DAY\",\n" +
+        "        \"rollup\": true,\n" +
+        "        \"segmentGranularity\": \"MONTH\",\n" +
+        "        \"type\": \"uniform\"\n" +
+        "      },\n" +
+        "      \"metricsSpec\": [\n" +
+        "        {\n" +
+        "          \"name\": \"count\",\n" +
+        "          \"type\": \"count\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"fieldName\": \"m1\",\n" +
+        "          \"inputType\": \"double\",\n" +
+        "          \"name\": \"m1\",\n" +
+        "          \"type\": \"sum\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"fieldName\": \"m2\",\n" +
+        "          \"inputType\": \"double\",\n" +
+        "          \"name\": \"m2\",\n" +
+        "          \"type\": \"sum\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"fieldName\": \"m3\",\n" +
+        "          \"inputType\": \"double\",\n" +
+        "          \"name\": \"m3\",\n" +
+        "          \"type\": \"sum\"\n" +
+        "        }\n" +
+        "      ],\n" +
+        "      \"parser\": {\n" +
+        "        \"parseSpec\": {\n" +
+        "          \"columns\": [\n" +
+        "            \"time\",\n" +
+        "            \"d\",\n" +
+        "            \"sd\",\n" +
+        "            \"m1\",\n" +
+        "            \"m2\",\n" +
+        "            \"m3\",\n" +
+        "            \"p\"\n" +
+        "          ],\n" +
+        "          \"dimensionsSpec\": {\n" +
+        "            \"dimensionExclusions\": [],\n" +
+        "            \"dimensions\": [\n" +
+        "              \"d\",\n" +
+        "              \"sd\",\n" +
+        "              \"p\"\n" +
+        "            ],\n" +
+        "            \"spatialDimensions\": []\n" +
+        "          },\n" +
+        "          \"format\": \"csv\",\n" +
+        "          \"timestampSpec\": {\n" +
+        "            \"column\": \"time\",\n" +
+        "            \"format\": \"yyyy-MM-dd\",\n" +
+        "            \"replaceWrongColumn\": false\n" +
+        "          }\n" +
+        "        },\n" +
+        "        \"type\": \"string\"\n" +
+        "      }\n" +
+        "    },\n" +
+        "    \"ioConfig\": {\n" +
+        "      \"firehose\": {\n" +
+        "        \"baseDir\": \"" + baseDir + "\",\n" +
+        "        \"filter\": \"" + filter + "\",\n" +
+        "        \"type\": \"local\"\n" +
+        "      },\n" +
+        "      \"type\": \"index\"\n" +
+        "    },\n" +
+        "    \"tuningConfig\": {\n" +
+        "      \"buildV9Directly\": true,\n" +
+        "      \"ignoreInvalidRows\": true,\n" +
+        "      \"maxRowsInMemory\": 75000,\n" +
+        "      \"type\": \"index\"\n" +
+        "    }\n" +
+        "  },\n" +
+        "  \"type\": \"index\"\n" +
+        "}";
+
+    testEngineIngestion.ingestionLocalFile(engineDataSourceName, ingestionSpec);
+
   }
 
 }

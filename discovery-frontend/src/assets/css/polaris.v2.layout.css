@@ -452,7 +452,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-layout-popuptype .ddp-ui-popup .ddp-ui-popup-title span.ddp-txt-title-name .ddp-txt-det {position:relative; padding:0 0 0 14px; margin-left:12px; color:#b7b9c2; font-size:14px;}
 .ddp-layout-popuptype .ddp-ui-popup .ddp-ui-popup-title span.ddp-txt-title-name .ddp-txt-det:before {display:inline-block; position:absolute; top:50%; left:0; margin-top:-7px; content:''; height:14px; border-left:2px solid #dbdce0;}
 .ddp-layout-popuptype .ddp-ui-popup .ddp-ui-popup-title span.ddp-txt-title-name .ddp-txt-det2 {position:absolute; top:100%; left:0; margin-top:7px; color:#b7b9c2; font-size:14px; white-space:nowrap;}
-.ddp-layout-popuptype .ddp-ui-popup .ddp-ui-popup-title .ddp-ui-pop-buttons {position:absolute; top:49px; right:47px;}
+.ddp-layout-popuptype .ddp-ui-popup .ddp-ui-popup-title .ddp-ui-pop-buttons {position:absolute; top:49px; right:47px; z-index:3;}
 
 .ddp-layout-popuptype .ddp-ui-info-det {position:absolute; bottom:20px; left:0; right:0; padding:0 50px;color:#e70000; font-size:14px;}
 .ddp-layout-popuptype .ddp-ui-info-det em.ddp-icon-error-info {display:inline-block; margin-right:5px; position:relative; top:-1px; width:15px; height:15px; background:url(../images/icon_info.png) no-repeat;}
@@ -710,7 +710,7 @@ ul.ddp-list-folder-nav li a:hover {background-color:#e7e7ea}
 .ddp-ui-naviarea .ddp-wrap-naviname span.ddp-data-naviname .ddp-icon-edit2 {display:none;}
 .ddp-ui-naviarea .ddp-wrap-naviname:hover span.ddp-data-naviname .ddp-icon-edit2 {display:block; position:absolute; top:50%; right:4px; margin-top:-6px; background-position:-11px top;}
 .ddp-ui-naviarea .ddp-wrap-naviname:hover span.ddp-data-naviname.ddp-readonly .ddp-icon-edit2 {display:none;}
-.ddp-ui-naviarea .ddp-box-navidet {float:left; position:relative; top:4px; max-width:39%; box-sizing:border-box;}
+.ddp-ui-naviarea .ddp-box-navidet {float:left; position:relative; top:7px; max-width:39%; box-sizing:border-box;}
 .ddp-ui-naviarea .ddp-wrap-navidet {display:inline-block;position:relative;float:left;max-width:100%; white-space: nowrap;box-sizing:border-box;overflow:hidden;}
 .ddp-ui-naviarea .ddp-wrap-navidet span.ddp-data-navidet {display:inline-block;float:left;width:100%;padding:5px;color:#90969f;font-size:12px;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;word-wrap:normal;box-sizing:border-box; font-family:sans-serif; letter-spacing:0.4px;}
 

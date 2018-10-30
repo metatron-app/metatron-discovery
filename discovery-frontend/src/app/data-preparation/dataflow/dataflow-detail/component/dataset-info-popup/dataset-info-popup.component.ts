@@ -38,6 +38,7 @@ import { GridOption } from 'app/common/component/grid/grid.option';
 import { DatasetService } from '../../../../dataset/service/dataset.service';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { PreparationCommonUtil } from "../../../../util/preparation-common.util";
+import {DataflowModelService} from "../../../service/dataflow.model.service";
 
 @Component({
   selector: 'app-dataset-info-popup',
@@ -92,6 +93,9 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   @Output() // clone
   public cloneEventHandler = new EventEmitter();
 
+  @Output()
+  public datasetSelectPopupOpen = new EventEmitter();
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -125,10 +129,13 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   public isBtnOptionOpen : boolean = false;
 
   public clearGrid : boolean = false;
+
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   constructor(public dataflowService: DataflowService,
+              public dataflowModelService: DataflowModelService,
               public datasetService: DatasetService,
               protected elementRef: ElementRef,
               protected injector: Injector) {
@@ -443,6 +450,31 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       let prep_error = this.dataprepExceptionHandler(error);
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     });
+  }
+
+
+  /**
+   * Dataset swap button click
+   * @param {string} type
+   */
+  public dataSwap(type: string) {
+
+    let importedDsId = this.selectedDataSet.dsId;
+
+    if (this.isBtnOptionOpen) {
+      this.isBtnOptionOpen = false;
+    }
+
+    if (type === 'wrangled') { // wrangled 면 upstream dsId 를 찾아야함
+
+      this.dataflowModelService.getUpstreamList().forEach((item) => {
+        if (item.dsId === this.selectedDataSet.dsId) {
+          importedDsId = item.upstreamDsId;
+        }
+      });
+    }
+
+    this.datasetSelectPopupOpen.emit({type: type, dsId : importedDsId });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -965,7 +997,13 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * get format of bytes
    */
   private formatBytes(a,b) { // a=크기 , b=소숫점자릿
-    if(0==a) return "0 Bytes";
+
+    if (a === -1) {
+      return 'N/A';
+    } else if (a === 0) {
+      return "0 Bytes";
+    }
+
     let c=1024,d=b||2,e=["Bytes","KB","MB","GB","TB","PB","EB","ZB","YB"],f=Math.floor(Math.log(a)/Math.log(c));
     return parseFloat((a/Math.pow(c,f)).toFixed(d))+" "+e[f]
   }

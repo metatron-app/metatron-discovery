@@ -159,9 +159,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   // APPEND (룰 등록) / UPDATE (룰 수정) / JUMP / PREPARE_UPDATE (룰 수정하기 위해 jump) / DELETE
   public opString: string = 'APPEND';
 
-  // 그리드 헤더 클릭 이벤트 제거 ( 임시 )
-  public isDisableGridHeaderClickEvent: boolean = false;
-
   public isEnterKeyPressedFromOuter: boolean = false;
 
 
@@ -254,7 +251,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this._split = [];
     this._split.push(Split(['.rule-left', '.rule-right'], {
         sizes: [80, 20],
-        minSize: 300,
+      minSize: [700, 300],
         onDragEnd: (() => {
           this._editRuleGridComp.resizeGrid();
         })
@@ -262,8 +259,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     );
     this._split.push(Split(['.rule-top', '.rule-bottom'], {
       direction: 'vertical',
-      sizes: [70, 30],
-      minSize: 280,
+      sizes: [75, 25],
+      minSize: [400, 110],
       onDragEnd: (() => {
         this._editRuleGridComp.resizeGrid();
       })
@@ -643,8 +640,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.ruleVO = rule['ruleVO'];
       ('' === this.ruleVO.command) && (this.ruleVO.command = this.ruleVO['name']);
 
-      this.isDisableGridHeaderClickEvent = true;
-
       this.safelyDetectChanges();
 
       switch (this.ruleVO.command) {
@@ -717,6 +712,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'pivot' :
           this._editRuleComp.init(gridData.fields, [], rule.ruleString);
           break;
+        case 'window' :
+          this._editRuleComp.init(gridData.fields, [], JSON.parse(rule.jsonRuleString));
+          break;
         case 'Union' :
           if (this.selectedDataSet.gridData.data.length > 1) {
             this.editJoinOrUnionRuleStr = rule['jsonRuleString'];
@@ -739,8 +737,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         default:
           break;
       }
-
-      this.isDisableGridHeaderClickEvent = false;
 
       // TODO : for editor
       // this.inputRuleCmd = PreparationCommonUtil.makeRuleResult(this.ruleVO);
@@ -1338,6 +1334,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       case 'drop':
         result = `Drop ${column}`;
         break;
+      default:
+        result = '';
+        break;
 
     }
     return result
@@ -1373,10 +1372,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * @param {{id:string, isSelect:boolean, column: any, field: any}} data
    */
   public setRuleInfoFromGridHeader(data: { id: string, isSelect: boolean, columns: any, fields: any }) {
-
-    if (this.isDisableGridHeaderClickEvent) {
-      return;
-    }
 
     this.selectedColumns = data.columns;
 
@@ -1886,6 +1881,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         desc: this.translateService.instant('msg.dp.li.sf.description'),
         isHover: false,
         command_h: 'ㄴㄷㅅ래금ㅅ'
+      },
+      {
+        command: 'window',
+        alias: 'Wn',
+        desc: this.translateService.instant('msg.dp.li.wd.description'),
+        isHover: false,
+        command_h: '쟈ㅜ앶'
       }
     ];
 
@@ -1920,14 +1922,14 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     // this.selectedRows = [];
     // this.editColumnList = [];
 
-    // TODO : need to refresh selected column after applying rule
-    this._editRuleGridComp.unSelectionAll('COL');
-
     this.isJumped = false;
     (command === 'multipleRename') && (this.multicolumnRenameComponent.showFlag = false);
 
 
     this.opString = rule['op'];
+
+    // TODO : need to refresh selected column after applying rule
+    this._editRuleGridComp.unSelectionAll('COL');
 
     this._setEditRuleInfo({op: this.opString, ruleIdx : this.serverSyncIndex, count: 100, ruleString : rule['ruleString'] }).then((data: { apiData: any, gridData: any }) => {
 
@@ -1950,7 +1952,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       if (command !== 'join' && command !== 'derive' && command !== 'aggregate' && command !== 'move') {
         // 저장된 위치로 이동
-        this._editRuleGridComp.moveToSavedPosition();
+        // this._editRuleGridComp.moveToSavedPosition();
       }
       // 계속 클릭하는거 방지
       if (isUndo && this.isUndoRunning) {

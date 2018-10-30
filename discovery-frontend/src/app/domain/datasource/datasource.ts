@@ -40,6 +40,7 @@ export class Datasource extends AbstractHistoryEntity {
   // dashBoards
   connection: Dataconnection;
   summary: DataSourceSummary;
+  fieldsMatched: boolean;
 
   implementor: string;
   owner: any[];
@@ -156,7 +157,9 @@ export class Field {
   ingestionRule: IngestionRule;
 
   // format
-  format: string;
+  // TODO 추후 FieldFormat으로 변환
+  // format: FieldFormat;
+  format: any;
 
   // description
   description: string;
@@ -175,6 +178,13 @@ export class Field {
   granularity?: GranularityType;     // granularity
   segGranularity?: GranularityType;  // segGranularity
 
+  // [UI] for Create Datasource
+  isValidTimeFormat?: boolean;
+  isValidReplaceValue?: boolean;
+  replaceValidMessage?: string;
+  timeFormatValidMessage?: string;
+  removed?: boolean;
+
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디
   dataSource?: string;            // 데이터소스 engine Name
@@ -191,6 +201,7 @@ export class Field {
    * @return {string}
    */
   public static getDimensionTypeIconClass(field: Field): string {
+    //debugger
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType || 'user_expr' === field.type) {
       return 'ddp-icon-dimension-ab';
@@ -204,6 +215,12 @@ export class Field {
       return 'ddp-icon-dimension-sharp';
     } else if ('BOOLEAN' === logicalType) {
       return 'ddp-icon-dimension-tf';
+    } else if ('GEO_POINT' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-point';
+    } else if ('GEO_LINE' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-line';
+    } else if ('GEO_POLYGON' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-dimension-polygon';
     }
   } // function - getDimensionTypeIconClass
 
@@ -213,6 +230,7 @@ export class Field {
    * @return {string}
    */
   public static getMeasureTypeIconClass(field: Field): string {
+    //debugger
     const logicalType: string = (field.logicalType) ? field.logicalType.toString() : '';
     if ('STRING' === logicalType) {
       return 'ddp-icon-measure-ab';
@@ -226,6 +244,12 @@ export class Field {
       return 'ddp-icon-measure-sharp';
     } else if ('BOOLEAN' === logicalType) {
       return 'ddp-icon-measure-tf';
+    } else if ('GEO_POINT' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-point';
+    } else if ('GEO_LINE' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-line';
+    } else if ('GEO_POLYGON' === logicalType) {
+      return 'ddp-icon-map-view ddp-icon-measure-polygon';
     }
   } // function - getMeasureTypeIconClass
 }
@@ -392,7 +416,12 @@ export enum TempDsStatus {
   DISABLE = <any>'DISABLE'
 }
 
+export class FieldFormat {
+  format: string;
+  type: FieldFormatType;
+}
 
-
-
-
+export enum FieldFormatType {
+  DATE_TIME = <any>'time_format',
+  UNIX_TIME = <any>'time_unix',
+}

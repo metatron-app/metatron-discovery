@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { LogicalType } from '../datasource/datasource';
+import { FieldFormat, LogicalType } from '../datasource/datasource';
 import { ColumnDictionary } from './column-dictionary';
 import { CodeTable } from './code-table';
 import { MetadataSource } from './metadata-source';
@@ -33,7 +33,7 @@ export class MetadataColumn {
   // 연결된 컬럼 사전
   public dictionary: ColumnDictionary;
   // 컬럼 포맷
-  public format: string;
+  public format: FieldFormat;
   // 연결된 코드 테이블
   public codeTable: CodeTable;
   // 인기도

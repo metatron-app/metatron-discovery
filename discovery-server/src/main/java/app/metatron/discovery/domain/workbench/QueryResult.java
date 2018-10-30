@@ -50,6 +50,8 @@ public class QueryResult implements Serializable {
 
   String queryEditorId;
 
+  String csvFilePath;
+
   public enum QueryResultStatus {
     SUCCESS, FAIL, ALL
   }
@@ -150,6 +152,14 @@ public class QueryResult implements Serializable {
     this.queryEditorId = queryEditorId;
   }
 
+  public String getCsvFilePath() {
+    return csvFilePath;
+  }
+
+  public void setCsvFilePath(String csvFilePath) {
+    this.csvFilePath = csvFilePath;
+  }
+
   @Override
   public String toString() {
     return "QueryResult{" +
@@ -165,6 +175,7 @@ public class QueryResult implements Serializable {
             ", auditId='" + auditId + '\'' +
             ", queryHistoryId=" + queryHistoryId +
             ", queryEditorId='" + queryEditorId + '\'' +
+            ", csvFilePath='" + csvFilePath + '\'' +
             '}';
   }
 }

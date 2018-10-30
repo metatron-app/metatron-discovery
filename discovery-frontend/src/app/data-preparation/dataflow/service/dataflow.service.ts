@@ -373,4 +373,17 @@ export class DataflowService extends AbstractService {
     let url = this.API_URL + `preparationdatasets/function_list`;
     return this.get(url);
   }
+
+
+  /**
+   * Dataset swap
+   * @param {String} oldId
+   * @param {string} newId
+   * @returns {Promise<any>}
+   */
+  public datasetSwap(oldId: String, newId: string) : Promise<any> {
+    let url = this.API_URL + `preparationdatasets/${oldId}/swap/${newId}`;
+    return this.post(url,{});
+  }
+
 }

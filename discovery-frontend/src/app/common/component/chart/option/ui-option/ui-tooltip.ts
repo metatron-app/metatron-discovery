@@ -30,6 +30,9 @@ export interface UIChartTooltip {
   // 기본 ValueFormat 사용 여부
   useDefaultFormat?: boolean;
 
+  // columns in tooltip (using in mapview)
+  displayColumns?: string[];
+
   ////////////////////////////////////////////
   // UI 스펙
   ////////////////////////////////////////////
