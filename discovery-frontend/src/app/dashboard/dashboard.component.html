@@ -36,10 +36,7 @@
 <div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length > 0">
 
   <!-- filter -->
-  <selection-filter
-    [showBtnWidget]="isManagementUser"
-    (changed)="changedSelectionFilter($event)">
-  </selection-filter>
+  <selection-filter [showBtnWidget]="isManagementUser" ></selection-filter>
   <!-- //filter -->
 
   <!-- dashboard -->
