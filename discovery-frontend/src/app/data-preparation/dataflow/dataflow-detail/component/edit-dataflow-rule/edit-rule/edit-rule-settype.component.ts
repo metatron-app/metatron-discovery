@@ -371,20 +371,17 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * parse rule string (When editing)
    * @param ruleString
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(ruleString:any) {
 
     // COLUMN
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-    }
+    let arrFields:string[] = typeof ruleString.col.value === 'string' ? [ruleString.col.value] : ruleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // TYPE
-    this.selectedType = this.getAttrValueInRuleString( 'type', ruleString ).toLowerCase();
+    this.selectedType = ruleString.type.toLowerCase();
     this.defaultIndex = this.typeList.indexOf(this.selectedType);
 
-    // format
+    // FORMAT
     if ('timestamp' === this.selectedType || 'string' === this.selectedType) {
       if ('string' === this.selectedType ) { // 선택된 모든 컬럼이 스트링일 떄는 타임스탬프 패턴 지정을 보여줄 필요 없다
         if (-1 === this._checkIfAtLeastOneColumnIsSelType(this.selectedFields, 'timestamp')){
@@ -392,19 +389,8 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
           return;
         }
       }
-      this.getTimestampFromRuleString(ruleString);
-    }
-  }
-
-  /**
-   * Set format and type from rule string
-   * @param {string} ruleString
-   */
-  protected getTimestampFromRuleString(ruleString : string ) {
-    let str = ruleString.split('format: ')[1];
-    if (!isNullOrUndefined(str)) { // 편집시 ruleString 에 timestamp format 이 있다면
       this.isTimestamp = true;
-      this.selectedTimestamp = str.substring(1,str.length-1);
+      this.selectedTimestamp = ruleString.format;
       this.hasEditTimestamp = true; // 편집 여부
     }
   }

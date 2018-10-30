@@ -452,8 +452,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
           return item.type === 'TIMESTAMP'
         });
-        this._editRuleComp.init(setformatList, selectedsetformatList, `dsId: ${this.selectedDataSet.dsId}`);
+        this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
         this._editRuleComp.setValue('colTypes', colDescs);
+        this._editRuleComp.init(setformatList, selectedsetformatList);
         break;
       case 'settype':
         this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
@@ -646,7 +647,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'settype':
           this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
           this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
-          this._editRuleComp.init(gridData.fields, [], `${rule.ruleString}`);
+          this._editRuleComp.init(gridData.fields, [], JSON.parse(rule.jsonRuleString));
           break;
         case 'setformat' :
           let setformatList = gridData.fields.filter((item) => {
@@ -655,8 +656,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
             return item.type === 'TIMESTAMP'
           });
-          this._editRuleComp.init(setformatList, [], `${rule.ruleString} dsId: ${this.selectedDataSet.dsId}`);
+          this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
           this._editRuleComp.setValue('colTypes', colDescs);
+          this._editRuleComp.init(setformatList, [],  JSON.parse(rule.jsonRuleString));
           break;
         case 'flatten' :
           let flattenList = gridData.fields.filter((item) => {
@@ -1470,8 +1472,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
             return item.type === 'TIMESTAMP'
           });
-          this._editRuleComp.init(setformatList, setformatSel, `dsId: ${this.selectedDataSet.dsId}`);
+          this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
           this._editRuleComp.setValue('colTypes', colDescs);
+          this._editRuleComp.init(setformatList, setformatSel);
           break;
         case 'move':
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ), data.more.move);

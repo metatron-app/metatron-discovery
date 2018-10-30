@@ -249,34 +249,21 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
    * Rule string parse
    * @param ruleString
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(ruleString: any) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-    }
+    // COLUMN
+    let arrFields:string[] = typeof ruleString.col.value === 'string' ? [ruleString.col.value] : ruleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-    // to request timestamp formats
-    this.dsId = ruleString.split('dsId: ')[1];
 
-    if (!isNullOrUndefined(ruleString.split('dsId: ')[0])) {
-      this.getTimestampFromRuleString(ruleString);
+    // FORMAT
+    if (!isNullOrUndefined(ruleString.format)) {
+      this.selectedTimestamp = ruleString.format;
+      this.getTimestampFormats();
     }
 
   } // function - _parsingRuleString
 
-  /**
-   * Sets timestamp format to this.selectedTimestamp from rule string
-   * @param {string} ruleString
-   */
-  protected getTimestampFromRuleString(ruleString : string ) {
-    let str = ruleString.split('format: ')[1];
-    if (!isNullOrUndefined(str)) {
-      this.selectedTimestamp = str.split(' dsId')[0].substring(1,str.split(' dsId')[0].length-1);
-      this.getTimestampFormats();
-    }
-  }
 
   /**
    * Get field name array
