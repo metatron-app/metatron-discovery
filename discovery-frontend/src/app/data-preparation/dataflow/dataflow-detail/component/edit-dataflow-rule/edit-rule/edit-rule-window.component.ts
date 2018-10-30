@@ -163,10 +163,13 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     // 그룹
     let groupStr: string = '';
     if (this.selectedFields.length !== 0) {
-      groupStr = this.selectedFields.map( item => item.name ).join(', ');
+      groupStr = this.selectedFields.map((item) => {
+        if (-1 !== item.name.indexOf(' ')) {
+          item.name = '`' + item.name + '`';
+        }
+        return item.name
+      }).join(', ');
     }
-
-
 
     // sort
     if (this.selectedSortFields.length === 0) {
@@ -211,29 +214,29 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
 
   /**
    * rule string 을 분석한다.
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:any) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
     // Group - can be null
-    if (!isNullOrUndefined(ruleString.group)) {
-      let groupFields:string[] = typeof ruleString.group.value === 'string' ? [ruleString.group.value] : ruleString.group.value;
+    if (!isNullOrUndefined(data.jsonRuleString.group)) {
+      let groupFields:string[] = typeof data.jsonRuleString.group.value === 'string' ? [data.jsonRuleString.group.value] : data.jsonRuleString.group.value;
       this.selectedFields = groupFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
     }
 
     // Order
-    let orderFields: string[] = typeof ruleString.order.value === 'string' ? [ruleString.order.value] : ruleString.order.value;
+    let orderFields: string[] = typeof data.jsonRuleString.order.value === 'string' ? [data.jsonRuleString.order.value] : data.jsonRuleString.order.value;
     this.selectedSortFields = orderFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
 
 
     // Formula
     this.formulaList = [];
-    if (ruleString.value.hasOwnProperty('functions')) {
-      ruleString.value.functions.forEach((item) => {
+    if (data.jsonRuleString.value.hasOwnProperty('functions')) {
+      data.jsonRuleString.value.functions.forEach((item) => {
         this.formulaList.push(this.getJoinedExpression(item));
       })
     } else {
-      this.formulaList.push(this.getJoinedExpression(ruleString.value));
+      this.formulaList.push(this.getJoinedExpression(data.jsonRuleString.value));
     }
 
   } // function - _parsingRuleString

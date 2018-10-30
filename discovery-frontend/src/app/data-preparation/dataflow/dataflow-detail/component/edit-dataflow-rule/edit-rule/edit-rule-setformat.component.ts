@@ -179,7 +179,14 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
       return undefined;
     }
 
-    let ruleString = 'setformat col: ' + this.selectedFields.map( item => item.name ).join(', ') + ' format: ';
+    const columnsStr: string = this.selectedFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
+
+    let ruleString = 'setformat col: ' + columnsStr + ' format: ';
     let val = this.selectedTimestamp === 'Custom format' ?  this.customTimestamp : this.selectedTimestamp;
     let check = StringUtil.checkSingleQuote(val, { isPairQuote: false, isWrapQuote: true });
     if (check[0] === false) {
@@ -247,18 +254,18 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
 
   /**
    * Rule string parse
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString: any) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
     // COLUMN
-    let arrFields:string[] = typeof ruleString.col.value === 'string' ? [ruleString.col.value] : ruleString.col.value;
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
 
     // FORMAT
-    if (!isNullOrUndefined(ruleString.format)) {
-      this.selectedTimestamp = ruleString.format;
+    if (!isNullOrUndefined(data.jsonRuleString.format)) {
+      this.selectedTimestamp = data.jsonRuleString.format;
       this.getTimestampFormats();
     }
 

@@ -156,17 +156,17 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   } // function - afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse rule string
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    // value
-    // this.deriveVal = this.getAttrValueInRuleString( 'value', ruleString );
-    this.deriveVal = ruleString.split('value: ')[1];
-    this.deriveVal = this.deriveVal.split(' as: ')[0];
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    // as
-    this.deriveAs = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'as', ruleString ));
+    // EXPRESSION
+    this.deriveVal = data.jsonRuleString.value.value;
+
+    // NEW COLUMN NAME
+    this.deriveAs = data.jsonRuleString.as;
+
   } // function - parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

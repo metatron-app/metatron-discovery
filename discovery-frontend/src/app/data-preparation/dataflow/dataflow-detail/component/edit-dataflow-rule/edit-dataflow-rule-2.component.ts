@@ -647,7 +647,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'settype':
           this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
           this._editRuleComp.setValue('colTypes', this.selectedDataSet.gridResponse.colDescs);
-          this._editRuleComp.init(gridData.fields, [], JSON.parse(rule.jsonRuleString));
+          this._editRuleComp.init(gridData.fields, [], {ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
           break;
         case 'setformat' :
           let setformatList = gridData.fields.filter((item) => {
@@ -658,19 +658,19 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           });
           this._editRuleComp.setValue('dsId', this.selectedDataSet.dsId);
           this._editRuleComp.setValue('colTypes', colDescs);
-          this._editRuleComp.init(setformatList, [],  JSON.parse(rule.jsonRuleString));
+          this._editRuleComp.init(setformatList, [],{ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
           break;
         case 'flatten' :
           let flattenList = gridData.fields.filter((item) => {
             return item.type === 'ARRAY'
           });
-          this._editRuleComp.init(flattenList, [], rule.ruleString);
+          this._editRuleComp.init(flattenList, [], {ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
           break;
         case 'unnest' :
           let unnest = gridData.fields.filter((item) => {
             return item.type === 'ARRAY' || item.type === 'MAP'
           });
-          this._editRuleComp.init(unnest, [], rule.ruleString);
+          this._editRuleComp.init(unnest, [], {ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
           break;
         case 'rename' :
           if (!(this.ruleVO.col['value'] && 'string' === typeof this.ruleVO.col['value'])) {
@@ -693,7 +693,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
             this.ruleVO.to = '';
           }
           this.safelyDetectChanges();
-          this._editRuleComp.init(gridData.fields, [], rule.ruleString);
+          this._editRuleComp.init(gridData.fields, [], {ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
           break;
         case 'delete' :
         case 'keep' :
@@ -712,10 +712,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'countpattern' :
         case 'aggregate' :
         case 'pivot' :
-          this._editRuleComp.init(gridData.fields, [], rule.ruleString);
-          break;
         case 'window' :
-          this._editRuleComp.init(gridData.fields, [], JSON.parse(rule.jsonRuleString));
+          this._editRuleComp.init(gridData.fields, [], {ruleString : rule.ruleString, jsonRuleString : JSON.parse(rule.jsonRuleString)});
           break;
         case 'Union' :
           if (this.selectedDataSet.gridData.data.length > 1) {
@@ -1451,13 +1449,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'split':
         case 'extract':
         case 'rename':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ));
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ));
           break;
         case 'unnest':
           let unnestList = this.selectedDataSet.gridData.fields.filter((item) => {
             return item.type === 'ARRAY' || item.type === 'MAP'
           });
-          let selectedUnnestList =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ).filter((item) => {
+          let selectedUnnestList =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ).filter((item) => {
             return item.type === 'ARRAY' || item.type === 'MAP'
           });
           this._editRuleComp.init(unnestList, selectedUnnestList);
@@ -1466,7 +1464,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           let setformatList = this.selectedDataSet.gridData.fields.filter((item) => {
             return item.type === 'TIMESTAMP'
           });
-          let setformatSel =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ).filter((item) => {
+          let setformatSel =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ).filter((item) => {
             return item.type === 'TIMESTAMP'
           });
           let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
@@ -1477,10 +1475,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._editRuleComp.init(setformatList, setformatSel);
           break;
         case 'move':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ), data.more.move);
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ), {ruleString : '', jsonRuleString : data.more});
           break;
         case 'set':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ));
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ));
           break;
         case 'derive':
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);
@@ -1493,7 +1491,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
             return item.type === data.more.type.toUpperCase();
           });
           this._editRuleComp.setValue('defaultIndex', idx);
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.indexOf( item.name ) ));
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ));
           break;
       }
     } else {

@@ -18,8 +18,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, View
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { isNullOrUndefined, isUndefined } from 'util';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
+import {isNullOrUndefined, isUndefined} from 'util';
 
 @Component({
   selector: 'edit-rule-rename',
@@ -110,12 +109,12 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       Alert.warning('Special characters are not allowed');
       return undefined
     } else {
-      const renameReg = /^[a-zA-Z][a-zA-Z0-9_]*$/;
-      if (!renameReg.test(check[1])) {
-        if (check[1].indexOf(' ') > -1) {
-          check[1] = check[1].replace(' ', '_');
-        }
-      }
+      // const renameReg = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+      // if (!renameReg.test(check[1])) {
+      //   if (check[1].indexOf(' ') > -1) {
+      //     check[1] = check[1].replace(' ', '_');
+      //   }
+      // }
       clonedNewFieldName = check[1];
     }
 
@@ -163,7 +162,7 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
-    if (this.selectedFields.length === 1 && this.newFieldName === '') {
+    if (this.selectedFields.length === 1 && isNullOrUndefined(this.newFieldName)) {
       this.newFieldName = this.selectedFields[0].name + '_1';
     }
     setTimeout(() => {
@@ -172,21 +171,21 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-    }
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    this.newFieldName = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'to', ruleString ));
-    if (-1  !== this.newFieldName.indexOf( ',' )) {
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+    // NEW COLUMN NAME
+    if (data.jsonRuleString.to.escapedValue) {
+      this.newFieldName = data.jsonRuleString.to.escapedValue;
+    } else {
       this.newFieldName = '';
     }
-
 
   } // function - _parsingRuleString
 

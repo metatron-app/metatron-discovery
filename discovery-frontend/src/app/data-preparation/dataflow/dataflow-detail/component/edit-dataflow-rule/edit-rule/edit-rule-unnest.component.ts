@@ -105,7 +105,14 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
       clonedSelVal = check[1];
     }
 
-    let ruleString = 'unnest col: ' + this.selectedFields.map( item => item.name ).join(', ');
+    const columnsStr: string = this.selectedFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
+
+    let ruleString = 'unnest col: ' + columnsStr;
     ruleString += ` into: ${this.selectedFields[0].type} idx: ${clonedSelVal}`;
 
     return{
@@ -159,16 +166,15 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
 
   /**
    * rule string 을 분석한다.
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-    }
-    this.selVal = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'idx', ruleString ));
+    // COLUMN
+    let arrFields:string[] = [data.jsonRuleString.col];
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+    this.selVal = data.jsonRuleString.idx.escapedValue;
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

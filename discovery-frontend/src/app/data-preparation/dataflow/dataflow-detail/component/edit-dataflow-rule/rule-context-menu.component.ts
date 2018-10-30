@@ -137,11 +137,11 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               {label : 'Boolean', value : 'Boolean', command : 'settype'},
               {label : 'Timestamp', value : 'Timestamp', command : 'settype', disabled : this.originalSelectedCols.length === 1? this.selectedColumnType === 'TIMESTAMP' : isAllTimestampTypes },
               {label : 'String', value : 'String', command : 'settype'}
-              ]
+            ]
           },
           {label : 'Set format', value : 'setformat', command: 'setformat', disabled : this.originalSelectedCols.length === 1? this.selectedColumnType !== 'TIMESTAMP' : isSetformatDisable },
           {label : 'Column name', value : 'rename', command: 'rename' }
-          ]
+        ]
       },
       {label : 'Edit', value: 'edit', iconClass: 'ddp-icon-drop-editmodify' , command: 'edit',
         children : [
@@ -170,7 +170,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
         children : [
           {label : 'Ascending', value : 'asc', command: 'sort'},
           {label : 'Descending', value : 'desc', command: 'sort'}
-          ]
+        ]
       },
       {label : 'Move', value: 'move', iconClass: 'ddp-icon-drop-move' , command: 'move',
         children : [
@@ -178,7 +178,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
           {label : 'Last', value : 'last', command : 'move'},
           {label : 'Before ..', value : 'before', command : 'move'},
           {label : 'After ..', value : 'after', command : 'move'}
-          ]
+        ]
       }
     ];
     this.isShow = true;
@@ -187,35 +187,45 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
   public _selectCommand(command) {
 
     if (!(command.children && 0 < command.children.length)) { // 하위 메뉴가 있으면 클릭 불가
+
+      const columnsStr: string = this.originalSelectedCols.map((item) => {
+        if (-1 !== item.indexOf(' ')) {
+          item = '`' + item + '`';
+        }
+        return item
+      }).join(', ');
+
+      const selCol = -1 !== this.selectedColumnName.indexOf(' ') ?  '`' + this.selectedColumnName + '`' : this.selectedColumnName;
+
       let rule = {};
       switch(command.command) {
         case 'rename':
-          rule['more'] = { command : 'rename', col : this.selectedColumnName};
+          rule['more'] = { command : 'rename', col : {value : this.selectedColumnName}};
           break;
         case 'drop':
           if (this.selectedGridResponse.colNames.length === 1) { // at least one column must exist
             Alert.warning('Cannot delete all columns');
             return;
           }
-          rule['ruleString'] = command.value + ' col: ' + this.originalSelectedCols.join(',');
+          rule['ruleString'] = command.value + ' col: ' + columnsStr;
           break;
         case 'settype':
           switch(command.value) {
             case 'Long':
             case 'Double':
             case 'Boolean':
-              rule['ruleString'] = 'settype col: ' + this.originalSelectedCols.join(',') + ' type: ' + command.value;
+              rule['ruleString'] = 'settype col: ' + columnsStr + ' type: ' + command.value;
               break;
             case 'String':
               if(this.selectedColumnType.toUpperCase() === 'TIMESTAMP') {
                 // timestamp 타입일 때 string으로 바꾼다면 .
-                rule['more'] = { command : 'settype', col : this.originalSelectedCols, type : command.value};
+                rule['more'] = { command : 'settype', col :  {value : this.originalSelectedCols}, type : command.value};
               } else {
-                rule['ruleString'] = 'settype col: ' + this.originalSelectedCols.join(',') + ' type: ' + command.value;
+                rule['ruleString'] = 'settype col: ' + columnsStr + ' type: ' + command.value;
               }
               break;
             case 'Timestamp':
-              rule['more'] = { command : 'settype', col : this.originalSelectedCols, type : command.value};
+              rule['more'] = { command : 'settype', col :  {value : this.originalSelectedCols}, type : command.value};
               break;
           }
           break;
@@ -223,47 +233,49 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
           rule['more'] = { command : 'setformat', col : this.originalSelectedCols, type : command.value};
           break;
         case 'sort':
-          rule['ruleString'] = 'sort order: ' + this.originalSelectedCols.join(',');
+          rule['ruleString'] = 'sort order: ' + columnsStr;
           if (command.value === 'desc') {
             rule['ruleString'] += ' type:\'desc\'';
           }
           break;
         case 'move':
           if (command.value === 'first') {
-            let first = this.selectedGridResponse.colNames[0];
-            rule['ruleString'] = `move col: ${this.originalSelectedCols.join(',')} before: ${first}`;
+            let first = -1 !== this.selectedGridResponse.colNames[0].indexOf(' ') ?  '`' + this.selectedGridResponse.colNames[0] + '`' : this.selectedGridResponse.colNames[0];
+            rule['ruleString'] = `move col: ${columnsStr} before: ${first}`;
           } else if (command.value === 'last') {
             let last = this.selectedGridResponse.colNames[this.selectedGridResponse.colNames.length-1];
-            rule['ruleString'] = `move col: ${this.originalSelectedCols.join(',')} after: ${last}`;
+            last = -1 !== last.indexOf(' ') ? '`' + last + '`' : last;
+            rule['ruleString'] = `move col: ${columnsStr} after: ${last}`;
           } else if (command.value === 'before' || command.value === 'after') {
-            rule['more'] = { command : 'move', col : this.originalSelectedCols, move : command.value};
+            rule['more'] = {command : 'move', col : {value : this.originalSelectedCols}};
+            rule['more'][command.value] = '';
           }
           break;
         case 'edit':
           if (command.value === 'replace' || command.value === 'set') {
-            rule['more'] = { command : command.value, col : this.originalSelectedCols};
+            rule['more'] = { command : command.value, col : {value :  this.originalSelectedCols}};
           } else if (command.value === 'keep' || command.value === 'delete') {
             let result = '';
             if (this.isColumnSelect) {
               let list = [];
               this.histogramData.forEach((item) => {
                 if ('matched' === item) {
-                  list.push(`!ismismatched(${this.selectedColumnName},'${this.selectedColumnType}')`)
+                  list.push(`!ismismatched(${selCol},'${this.selectedColumnType}')`)
                 } else if ('missing' === item) {
-                  list.push( `ismissing(${this.selectedColumnName})`)
+                  list.push( `ismissing(${selCol})`)
                 } else if ('mismatched' === item) {
-                  list.push(`ismismatched(${this.selectedColumnName},'${this.selectedColumnType}')`)
+                  list.push(`ismismatched(${selCol},'${this.selectedColumnType}')`)
                 }
               });
               result = list.join(' && ');
             } else if (this.selectedColumnType === 'DOUBLE' || this.selectedColumnType === 'LONG') {
               this.histogramData.forEach((item,index) => {
                 let idx = this.labelsForNumbers.indexOf(item);
-                result += this.histogramData.length-1 !== index ? `${this.selectedColumnName} >= ${item} && ${this.selectedColumnName} < ${this.labelsForNumbers[idx+1]} || ` : `${this.selectedColumnName} >= ${item} && ${this.selectedColumnName} < ${this.labelsForNumbers[idx+1]}`;
+                result += this.histogramData.length-1 !== index ? `${selCol} >= ${item} && ${this.selectedColumnName} < ${this.labelsForNumbers[idx+1]} || ` : `${selCol} >= ${item} && ${selCol} < ${this.labelsForNumbers[idx+1]}`;
               })
             } else {
               this.histogramData.forEach((item,index) => {
-                result += this.histogramData.length-1 !== index ? this.selectedColumnName + ' == ' +'\''+ item +'\''+ ' || ' : this.selectedColumnName + ' == ' +'\''+ item +'\'';
+                result += this.histogramData.length-1 !== index ? selCol + ' == ' +'\''+ item +'\''+ ' || ' : selCol + ' == ' +'\''+ item +'\'';
               })
             }
             rule['ruleString'] = `${command.value} row: ${result}`;
@@ -275,7 +287,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               rule['more'] = { command : 'derive'};
               break;
             case 'duplicate':
-              rule['ruleString'] = `derive value: ${this.selectedColumnName} as: ${this.selectedColumnName}_1`;
+              rule['ruleString'] = `derive value: ${selCol} as: ${this.selectedColumnName}_1`;
               break;
             case 'split':
             case 'countpattern':
@@ -283,10 +295,10 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
             case 'merge':
             case 'nest':
             case 'unnest':
-              rule['more'] = { command : command.value, col : this.originalSelectedCols};
+              rule['more'] = { command : command.value, col : { value : this.originalSelectedCols}};
               break;
             case 'flatten':
-              rule['ruleString'] = 'flatten col: ' + this.selectedColumnName;
+              rule['ruleString'] = 'flatten col: ' + selCol;
               break;
           }
           break;

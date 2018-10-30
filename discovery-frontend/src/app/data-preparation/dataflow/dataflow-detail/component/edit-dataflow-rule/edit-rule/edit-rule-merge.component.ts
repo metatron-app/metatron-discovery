@@ -107,7 +107,14 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
       clonedDelimiter = check[1];
     }
 
-    let ruleString = 'merge col: ' + this.selectedFields.map( item => item.name ).join(', ')
+    const columnsStr: string = this.selectedFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
+
+    let ruleString = 'merge col: ' + columnsStr
       + ' with: ' + clonedDelimiter + ' as: ' + newVal;
 
     return { command : 'merge', ruleString: ruleString };
@@ -156,19 +163,19 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
 
   /**
    * Parse rule string
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-    }
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-    this.newValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'as', ruleString ));
+    // NEW COLUMN NAME
+    this.newValue = data.jsonRuleString.as;
 
-    this.delimiter = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'with', ruleString ));
+    // DELIMITER
+    this.delimiter = data.jsonRuleString.with;
 
   } // function - _parsingRuleString
 

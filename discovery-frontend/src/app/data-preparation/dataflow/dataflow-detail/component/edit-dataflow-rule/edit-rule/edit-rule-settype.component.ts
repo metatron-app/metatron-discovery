@@ -229,7 +229,14 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       return undefined;
     }
 
-    let ruleString = 'settype col: ' + this.selectedFields.map( item => item.name ).join(', ') + ` type: ${this.selectedType}`;
+    const columnsStr: string = this.selectedFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
+
+    let ruleString = 'settype col: ' + columnsStr + ` type: ${this.selectedType}`;
 
     // Timestamp
     if (this.isTimestamp && '' !== this.selectedTimestamp) {
@@ -369,16 +376,16 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
   /**
    * parse rule string (When editing)
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:any) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
     // COLUMN
-    let arrFields:string[] = typeof ruleString.col.value === 'string' ? [ruleString.col.value] : ruleString.col.value;
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
     // TYPE
-    this.selectedType = ruleString.type.toLowerCase();
+    this.selectedType = data.jsonRuleString.type.toLowerCase();
     this.defaultIndex = this.typeList.indexOf(this.selectedType);
 
     // FORMAT
@@ -390,7 +397,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
         }
       }
       this.isTimestamp = true;
-      this.selectedTimestamp = ruleString.format;
+      this.selectedTimestamp = data.jsonRuleString.format;
       this.hasEditTimestamp = true; // 편집 여부
     }
   }
