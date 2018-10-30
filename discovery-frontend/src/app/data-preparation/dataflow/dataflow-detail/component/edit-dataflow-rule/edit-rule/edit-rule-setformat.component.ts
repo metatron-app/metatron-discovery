@@ -254,7 +254,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
     const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
     if( '' !== strCol ) {
       const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
     }
 
     // to request timestamp formats

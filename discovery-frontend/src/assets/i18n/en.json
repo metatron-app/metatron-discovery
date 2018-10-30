@@ -1897,6 +1897,8 @@
   "msg.storage.ui.user.input": "Direct input",
   "msg.storage.ui.enable.unix": "Unix time",
   "msg.storage.ph.time.format": "Enter time format",
+  "msg.storage.ui.format.unit.milli-second": "Milli-Second(ms)",
+  "msg.storage.ui.format.unit.second": "Second(s)",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",

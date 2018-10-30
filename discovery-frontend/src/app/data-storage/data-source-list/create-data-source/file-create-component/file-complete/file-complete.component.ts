@@ -281,7 +281,10 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       delete column.format;
     } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
       delete column.format.format;
+    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
+      delete column.format.unit;
     }
+
   }
 
   /**

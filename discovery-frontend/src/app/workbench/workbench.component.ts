@@ -2962,6 +2962,15 @@ class ResultTab {
       this.log.push('<span>' + strLog + '</span>');
     }
   } // function - pushLog
+
+  public isShowPrevBtn():boolean {
+    return 0 !== this.pageNum;
+  } // function - isShowPrevBtn
+
+  public isShowNextBtn( pageSize:number ):boolean {
+    const currDataRows = this.result.data.length + (this.pageNum * pageSize);
+    return currDataRows < this.result.numRows;
+  } // function - isShowNextBtn
 }
 
 class QueryResult {

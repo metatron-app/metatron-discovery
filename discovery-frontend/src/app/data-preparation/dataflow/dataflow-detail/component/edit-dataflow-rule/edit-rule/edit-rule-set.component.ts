@@ -170,7 +170,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
     const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
     if( '' !== strCol ) {
       const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
     }
     let inputVal = ruleString.split('value: ')[1];
     this.inputValue = inputVal.split('row: ')[0];
