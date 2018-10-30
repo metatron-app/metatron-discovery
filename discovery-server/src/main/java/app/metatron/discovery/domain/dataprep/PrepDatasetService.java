@@ -15,11 +15,14 @@
 package app.metatron.discovery.domain.dataprep;
 
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.util.Map;
 
 
 @Service
@@ -39,6 +42,9 @@ public class PrepDatasetService {
 
     @Autowired
     private PrepDatasetJdbcService datasetJdbcPreviewService;
+
+    @Autowired
+    private DataConnectionRepository dataConnectionRepository;
 
     // not using
     /*
@@ -82,6 +88,21 @@ public class PrepDatasetService {
     private String hivePreviewSize = "50";
     private String jdbcPreviewSize = "50";
 
+    public DataFrame getImportedPreview(PrepDataset dataset) throws Exception {
+        DataFrame dataFrame = null;
+
+        PrepDataset.IMPORT_TYPE importType = dataset.getImportTypeEnum();
+        if(importType == PrepDataset.IMPORT_TYPE.FILE) {
+            dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, dataset.getFilekey(), "0", this.filePreviewSize);
+        } else if(importType == PrepDataset.IMPORT_TYPE.HIVE) {
+            dataFrame = this.datasetSparkHivePreviewService.getPreviewLinesFromStagedbForDataFrame(dataset, this.hivePreviewSize);
+        } else if(importType == PrepDataset.IMPORT_TYPE.DB) {
+            dataFrame = this.datasetJdbcPreviewService.getPreviewLinesFromJdbcForDataFrame(dataset, this.jdbcPreviewSize);
+        }
+
+        return dataFrame;
+    }
+
     public void savePreview(PrepDataset dataset, String oAuthToken) throws Exception {
         DataFrame dataFrame = null;
 
@@ -121,7 +142,7 @@ public class PrepDatasetService {
             dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, filekey, "0", this.filePreviewSize);
 
             dataset.setFileType(PrepDataset.FILE_TYPE.LOCAL);
-            if( false==dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://") ) { // always
+            if( false==dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://") ) {
                 String localFilePath = dataset.getCustomValue("filePath");
                 String hdfsFilePath = this.hdfsService.moveLocalToHdfs(localFilePath, filekey);
                 if (null!=hdfsFilePath) {
@@ -132,5 +153,23 @@ public class PrepDatasetService {
         }
 
         return dataFrame;
+    }
+
+    public Map<String,Object> getConnectionInfo(String dcId) {
+        Map<String,Object> connectionInfo = null;
+        if(null!=dcId) {
+            DataConnection dataConnection = this.dataConnectionRepository.getOne(dcId);
+            if(null!=dataConnection) {
+                connectionInfo.put("implementor", dataConnection.getImplementor());
+                connectionInfo.put("name", dataConnection.getName());
+                connectionInfo.put("description", dataConnection.getDescription());
+                connectionInfo.put("url", dataConnection.getUrl());
+                connectionInfo.put("database", dataConnection.getDatabase());
+                connectionInfo.put("hostname", dataConnection.getHostname());
+                connectionInfo.put("username", dataConnection.getUsername());
+                connectionInfo.put("port", dataConnection.getPort());
+            }
+        }
+        return connectionInfo;
     }
 }

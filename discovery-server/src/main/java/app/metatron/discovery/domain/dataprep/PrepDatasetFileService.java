@@ -32,6 +32,10 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.input.BOMInputStream;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.ContentSummary;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
@@ -63,6 +67,9 @@ public class PrepDatasetFileService {
 
     @Autowired
     PrepDatasetFileUploadService fileUploadService;
+
+    @Autowired
+    PrepHdfsService hdfsService;
 
     Map<String, Future<Map<String,Object>>> futures = null;
 
@@ -485,7 +492,7 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    DataFrame getPreviewLinesFromFileForDataFrame( PrepDataset dataset, String fileKey, String sheetindex, String size) {
+    DataFrame getPreviewLinesFromFileForDataFrame( PrepDataset dataset, String fileKey, String sheetindex, String size) throws IOException {
         DataFrame dataFrame = new DataFrame();
 
         try {
@@ -493,23 +500,43 @@ public class PrepDatasetFileService {
                 throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
             }
 
-            String filePath = fileKey;
+            long totalBytes = 0L;
+            InputStreamReader inputStreamReader = null;
+            String filePath = dataset.getCustomValue("filePath");
             PrepDataset.FILE_TYPE fileType = dataset.getFileTypeEnum();
-            if(fileType == PrepDataset.FILE_TYPE.LOCAL || fileType==PrepDataset.FILE_TYPE.HDFS) {
-                filePath = getPathLocal_new( fileKey );
+            if(fileType == PrepDataset.FILE_TYPE.LOCAL ) {
+                if(null==filePath) {
+                    filePath = getPathLocal_new(fileKey);
+                }
+
+                File theFile = new File(filePath);
+                if(false==theFile.exists()) {
+                    throw new IllegalArgumentException("Invalid filekey.");
+                }
+                totalBytes = theFile.length();
+                inputStreamReader = new InputStreamReader(new FileInputStream(theFile));
+            } else if(fileType==PrepDataset.FILE_TYPE.HDFS) {
+                Configuration conf = this.hdfsService.getConf();
+                FileSystem fs = FileSystem.get(conf);
+                Path thePath = new Path(filePath);
+
+                if( false==fs.exists(thePath) ) {
+                    throw new IllegalArgumentException("Invalid filekey.");
+                }
+                ContentSummary cSummary = fs.getContentSummary(thePath);
+                totalBytes = cSummary.getLength();
+                inputStreamReader = new InputStreamReader(fs.open(thePath));
             }
+
             String extensionType = FilenameUtils.getExtension(fileKey);
             int findSheetIndex = Integer.parseInt(sheetindex);
             int limitSize = Integer.parseInt(size);
-            long totalBytes = 0L;
             int totalRows = 0;
             int dataFrameRows = 0;
 
-            File theFile = new File(filePath);
-            if(false==theFile.exists()) {
-                throw new IllegalArgumentException("Invalid filekey.");
+            if(null==inputStreamReader) {
+                throw new IllegalArgumentException("failed to open file stream: ["+fileKey+"]");
             } else {
-                totalBytes = theFile.length();
 
                 List<Map<String, String>> resultSet = Lists.newArrayList();
 
@@ -521,8 +548,11 @@ public class PrepDatasetFileService {
                     int maxColLength=0;
                     String delimiterCol = dataset.getDelimiter();
                     try {
-                        br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+                        //br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+                        br = new BufferedReader(inputStreamReader);
 
+                        /*
+                        // hasFields 사용안함
                         hasFields=true;
                         line = br.readLine();
                         csv_fields = Util.csvLineSplitter(line, delimiterCol, "\"");
@@ -556,6 +586,7 @@ public class PrepDatasetFileService {
                         } else {
                             br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
                         }
+                        */
 
                         while ((line = br.readLine()) != null) {
                             if(limitSize <= totalRows) {
@@ -564,7 +595,8 @@ public class PrepDatasetFileService {
                             }
                             String[] cols = Util.csvLineSplitter(line, delimiterCol, "\"");
 
-                            if(!hasFields && maxColLength<cols.length) {
+                            //if(!hasFields && maxColLength<cols.length) {
+                            if(maxColLength<cols.length) {
                                 maxColLength = cols.length;
                                 csv_fields = new String[cols.length];
                                 for(int i=0; i<cols.length; i++){

@@ -118,7 +118,7 @@ export class DatasetService extends AbstractService {
   }
 
   public getDataPreview(dsId: string) {
-    return this.get(this.API_URL + 'preparationdatasets/' + dsId);
+    return this.get(this.API_URL + 'preparationdatasets/' + dsId +'?projection=detail');
   }
 
   /*
