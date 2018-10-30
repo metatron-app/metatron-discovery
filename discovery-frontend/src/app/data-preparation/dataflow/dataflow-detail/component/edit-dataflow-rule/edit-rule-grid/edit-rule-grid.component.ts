@@ -1520,9 +1520,15 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       return;
     }
 
-    let selectedRows = this._gridComp.getSelectedRows().map((item) => {
-      return item[ScrollLoadingGridComponent.ID_PROPERTY] - 1
-    });
+    let selectedRows = null;
+
+    try {
+      selectedRows = this._gridComp.getSelectedRows().map((item) => {
+        return item[ScrollLoadingGridComponent.ID_PROPERTY] - 1
+      });
+    }catch (error){
+      return;
+    }
 
     let baseColumn = selectedRows[selectedRows.length - 2];
     let selectedIdx = row[ScrollLoadingGridComponent.ID_PROPERTY] - 1;
