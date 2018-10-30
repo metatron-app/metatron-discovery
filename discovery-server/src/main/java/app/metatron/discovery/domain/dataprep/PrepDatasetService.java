@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.dataprep;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -159,7 +160,22 @@ public class PrepDatasetService {
         Map<String,Object> connectionInfo = null;
         if(null!=dcId) {
             DataConnection dataConnection = this.dataConnectionRepository.getOne(dcId);
+
+            // hibernate lazy problem
+            /*
+            DataConnection lazyDataConnection = this.dataConnectionRepository.getOne(dcId);
+            Hibernate.initialize(lazyDataConnection);
+            if (lazyDataConnection instanceof HibernateProxy) {
+                dataConnection = (DataConnection) ((HibernateProxy) lazyDataConnection).getHibernateLazyInitializer().getImplementation();
+            }
+            if( dataConnection == null ) {
+                dataConnection = lazyDataConnection;
+            }
+            */
+
             if(null!=dataConnection) {
+                connectionInfo = Maps.newHashMap();
+
                 connectionInfo.put("implementor", dataConnection.getImplementor());
                 connectionInfo.put("name", dataConnection.getName());
                 connectionInfo.put("description", dataConnection.getDescription());
