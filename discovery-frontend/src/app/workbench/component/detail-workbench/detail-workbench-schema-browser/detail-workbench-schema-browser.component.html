@@ -14,7 +14,7 @@
 
 <!-- 미리보기 팝업 -->
 <!-- 스키마정보팝업 ddp-type-scheme 추가 -->
-<div class="ddp-pop-preview ddp-column-detail ddp-type-scheme" [class.ddp-full]="isFull" *ngIf="isShow">
+<div class="ddp-pop-preview ddp-column-detail ddp-type-scheme popup-workbench" [class.ddp-full]="isFull" *ngIf="isShow">
   <!-- top -->
   <div class="ddp-ui-top">
     <div class="ddp-data-name">
@@ -31,7 +31,21 @@
     <div class="ddp-wrap-list">
       <!-- top -->
       <div class="ddp-ui-dataname">
-        <div class="ddp-top-title">
+        <div class="ddp-top-title ddp-dbtype">
+
+          <!-- icons -->
+          <div class="ddp-db-icons">
+            <em class="ddp-icon-data-tibero" style="display:none;"></em>
+            <em class="ddp-icon-data-oracle" style="display:none;"></em>
+            <em class="ddp-icon-data-db" style="display:none;"></em>
+            <em class="ddp-icon-data-phoenix" style="display:none;"></em>
+            <em [ngStyle]="{'display': dataConnection.implementor == getConnectionType('MYSQL') ? '':'none'}" class="ddp-icon-data-sql"></em>
+            <em [ngStyle]="{'display': dataConnection.implementor == getConnectionType('POSTGRESQL') ? '':'none'}" class="ddp-icon-data-post"></em>
+            <em [ngStyle]="{'display': dataConnection.implementor == getConnectionType('HIVE') ? '':'none'}" class="ddp-icon-data-hive"></em>
+            <em [ngStyle]="{'display': dataConnection.implementor == getConnectionType('PRESTO') ? '':'none'}" class="ddp-icon-data-presto"></em>
+          </div>
+          <!-- icons -->
+
           <span class="ddp-txt-name">{{dataConnection.name}}</span>
           <!-- 클릭시 ddp-selected 추가 -->
           <div class="ddp-wrap-info"
@@ -149,7 +163,7 @@
         <!-- //search -->
       </div>
       <!-- //title -->
-      <div class="ddp-pop-wrapList" grid-component #schemaMain (selectedEvent)="onSelectedTable($event)">
+      <div class="ddp-pop-wrapList" style="top: 183px;" grid-component #schemaMain (selectedEvent)="onSelectedTable($event)">
       </div>
     </div>
     <!-- //data list -->
