@@ -2841,6 +2841,16 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     return visibleTab && runningTab && runningTab.id === visibleTab.id;
   } // function - _isEqualRunningVisibleTab
 
+
+  /**
+   * DataConnection Type icon
+   * @param connType
+   * @returns {any}
+   */
+  public getConnectionType(connType: string) {
+    return DataConnectionType[connType];
+  }
+
 }
 
 // 리스트 슬라이드아이콘 관리용 객체
@@ -2986,4 +2996,11 @@ class QueryResult {
   public startDateTime: string;
   public finishDateTime: string;
   public tempTable: string;
+}
+
+enum DataConnectionType {
+  MYSQL = <any>'MYSQL',
+  HIVE = <any>'HIVE',
+  POSTGRESQL = <any>'POSTGRESQL',
+  PRESTO = <any>'PRESTO'
 }
