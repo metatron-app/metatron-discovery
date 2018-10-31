@@ -19,7 +19,6 @@ import {
 import { DatasetService } from '../service/dataset.service';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-import { Page } from '../../../domain/common/page';
 import { PreparationAlert } from '../../util/preparation-alert.util';
 import { DatasetJdbc, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/dataset';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
@@ -170,7 +169,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
   public prev() {
     this.popupService.notiPopup({
-      name: 'select-datatype',
+      name: 'create-db-select',
       data: null
     });
   }
@@ -196,8 +195,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    */
   public onChangeDatabase(event,database) {
     this.isDatabaseListShow = false;
+    this.gridComponent.destroy();
+
     event.stopPropagation();
-    // this.selectedDatabase = database.name;
     this.datasetJdbc.databaseName = database.name;
     this.clickable = false;
     this.getTables(database.name);
@@ -216,9 +216,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
     this.loadingShow();
     this.datasetJdbc.queryStmt = 'SELECT * FROM ' + this.datasetJdbc.databaseName + '.' + data.name;
-    // this.datasetJdbc.tableName = this.selectedDatabase + '.' + event.name;
     this.datasetJdbc.tableName = data.name;
-    this.datasetService.getJdbcTableData(this.datasetJdbc.dcId, this.datasetJdbc.databaseName, data.name)
+    let params = {connection : this.datasetJdbc.dataconnection.connection, database : this.datasetJdbc.databaseName, query : this.datasetJdbc.tableName, type : 'TABLE'};
+    this.connectionService.getTableDetailWitoutId(params)
       .then((result) => {
         this.loadingHide();
 
@@ -606,40 +606,27 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   private getDatabases() {
     this.loadingShow();
 
-    let page: Page = new Page();
-    this.connectionService.getDatabases(this.datasetJdbc.dcId, page)
+    if (!this.datasetJdbc.dataconnection.connection) {
+      this.datasetJdbc.dcId = this.datasetJdbc.dataconnection.id;
+      this.datasetJdbc.dataconnection = {connection : {
+        hostname: this.datasetJdbc.dataconnection.hostname,
+        implementor: this.datasetJdbc.dataconnection.implementor,
+        password: this.datasetJdbc.dataconnection.password,
+        port: this.datasetJdbc.dataconnection.port,
+        username: this.datasetJdbc.dataconnection.username}};
+    }
+
+
+    this.loadingShow();
+    this.connectionService.getDatabasesWithoutId(this.datasetJdbc.dataconnection)
       .then((data) => {
         this.loadingHide();
-
-        this.databaseList = [];
-        this.datasetJdbc.databaseName = '';
-        if(page.size<data.page.totalElements) {
-          page.size = data.page.totalElements;
-
-          this.loadingShow();
-          this.connectionService.getDatabases(this.datasetJdbc.dcId, page)
-            .then((data) => {
-              this.loadingHide();
-              if (data && data.databases) {
-                for (let idx = 0, nMax = data.databases.length; idx < nMax; idx = idx + 1) {
-                  this.databaseList.push({ idx : idx, name : data.databases[idx], selected : false });
-                }
-              }
-              this.showDatabaseList();
-            })
-            .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-            });
-        } else {
-          if (data && data.databases) {
-            for (let idx = 0, nMax = data.databases.length; idx < nMax; idx = idx + 1) {
-              this.databaseList.push({ idx : idx, name : data.databases[idx], selected : false });
-            }
+        if (data && data.databases) {
+          for (let idx = 0, nMax = data.databases.length; idx < nMax; idx = idx + 1) {
+            this.databaseList.push({ idx : idx, name : data.databases[idx], selected : false });
           }
-          this.showDatabaseList();
         }
+        this.showDatabaseList();
       })
       .catch((error) => {
         this.loadingHide();
@@ -647,39 +634,6 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
 
-    /*
-    this.datasetService.getStagingConnectionInfo()
-      .then((data) => {
-        if (data.errorMsg) {
-          Alert.error(data.errorMsg);
-          this.loadingHide();
-        } else {
-          this.datasetService.setConnInfo(data);
-
-          this.datasetService.getStagingSchemas()
-            .then((data) => {
-              this.loadingHide();
-              this.databaseList = [];
-              this.datasetJdbc.databaseName = '';
-              if (data) {
-                for (let idx = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
-                  this.databaseList.push({ idx : idx, name : data[idx], selected : false });
-                }
-              }
-            })
-            .catch((error) => {
-                    this.loadingHide();
-                    let prep_error = this.dataprepExceptionHandler(error);
-                    PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-            });
-        }
-      })
-      .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
-    */
 
   } // function - getDatabases
 
@@ -690,61 +644,26 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   private getTables(schema:string) {
     this.loadingShow();
 
-    let page: Page = new Page();
-    this.connectionService.getTables(this.datasetJdbc.dcId, schema, page)
+    this.schemaList = [];
+    this.datasetJdbc.tableName = '';
+
+    this.connectionService.getTablesWitoutId({connection : this.datasetJdbc.dataconnection.connection, database : schema})
       .then((data) => {
         this.loadingHide();
-
-        this.schemaList = [];
-        if(page.size<data.page.totalElements) {
-          page.size = data.page.totalElements;
-
-          this.loadingShow();
-          this.connectionService.getTables(this.datasetJdbc.dcId, schema, page)
-            .then((data) => {
-              this.loadingHide();
-              if (data && data.tables) {
-                for (let idx = 0, nMax = data.tables.length; idx < nMax; idx = idx + 1) {
-                  this.schemaList.push({ idx : idx, name : data.tables[idx].name, selected : false });
-                }
-              }
-            })
-            .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-            });
+        if (data && data.tables) {
+          data.tables.forEach((item, index) => {
+            this.schemaList.push({idx : index, name : item, selected : false});
+          });
         } else {
-          if (data && data.tables) {
-            for (let idx = 0, nMax = data.tables.length; idx < nMax; idx = idx + 1) {
-              this.schemaList.push({ idx : idx, name : data.tables[idx].name, selected : false });
-            }
-          }
+          this.schemaList = [];
         }
       })
       .catch((error) => {
+        this.schemaList = [];
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
-
-    /*
-    this.datasetService.getStagingTables(schema)
-      .then((data) => {
-        this.loadingHide();
-        this.schemaList = [];
-        if (data) {
-          for (let idx = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
-            this.schemaList.push({ idx : idx, name : data[idx], selected : false });
-          }
-        }
-      })
-      .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
-    */
 
   } // function - getTables
 

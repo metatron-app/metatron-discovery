@@ -147,50 +147,18 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   }
 
 
-  /**
-   * 커넥션 생성
-   */
-  private createConnection(): void {
-    this.loadingShow();
-    this.connectionService.createConnection(this.dataconnection)
-      .then((result) => {
-        Alert.success(`'${result.name}' ` + this.translateService.instant('msg.storage.alert.dconn.create.success'));
-        this.loadingHide();
-        this.datasetJdbc.dcId = result.id;
-        this.goNext();
-      })
-      .catch((error) => {
-        Alert.error(error);
-        this.loadingHide();
-      });
-  }
-
   public next() {
     if (this.connectionResult !== 'valid') {
-      Alert.warning('검증 확인 후 다음으로 넘어 갈 수 있습니다.');
-      return;
-    }
-
-    if(this.dataconnection.id && this.dataconnection.id!='') {
-      this.datasetJdbc.dcId = this.dataconnection.id;
-      this.goNext();
-    } else if(!this.dataconnection.name || this.dataconnection.name.trim()=='') {
-      Alert.warning('dataconnection 이름이 필요합니다.');
       return;
     } else {
-      this.dataconnection.type = 'JDBC';
-      this.dataconnection.name = this.dataconnection.name.trim();
-      this.createConnection();
+      this.datasetJdbc.dcId = this.dataconnection.id;
+      this.datasetJdbc.dataconnection = this.dataconnection;
+      this.popupService.notiPopup({
+        name: 'create-db-query',
+        data: null
+      });
     }
 
-  }
-
-  public goNext() {
-    this.datasetJdbc.dataconnection = this.dataconnection;
-    this.popupService.notiPopup({
-      name: 'create-db-query',
-      data: null
-    });
   }
 
   public close() {
@@ -213,7 +181,8 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     for (let key in this.dataconnection) { if (this.dataconnection.hasOwnProperty(key)) delete this.dataconnection[key]; }
     const keyList = ['id','name','implementor','hostname','port','username','password','sid','database','catalog','url'];
     for(let key of keyList) {
-      if(true===$event.hasOwnProperty(key)) {
+      if($event.hasOwnProperty(key)) {
+
         this.dataconnection[key] = $event[key];
       }
     }
@@ -263,6 +232,9 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
     // 프리셋 데이터 초기화
     this.selectedConnectionPreset = null;
     // connection init flag
+
+    this.isUrl = false;
+
     this.initConnectionFlag();
   }
 
@@ -406,6 +378,11 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
   // 선택한 db type
   // protected -> public
   public setDatabase(db) {
+
+    if (this.dataconnection.id || this.connectionList.length === 0) {
+      return;
+    }
+
     this.connectionResult = '';
     this.selectedDatabase = db;
     this.defaultSelectedIndex = -1;
@@ -425,7 +402,16 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
       .then((data) => {
         if (data.hasOwnProperty('_embedded') && data['_embedded'].hasOwnProperty('connections')) {
           this.connectionList = data['_embedded']['connections'];
-          if(0<this.connectionList.length) {
+
+          let idx = this.connectionList.findIndex((item) =>{
+            return item.name === 'Direct input';
+          });
+
+          if (idx !== -1) {
+            this.connectionList.splice(idx,1);
+          }
+
+          if (this.connectionList.length !== 0) {
             this.onChangeType(this.connectionList[0]);
           }
         }
