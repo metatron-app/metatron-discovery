@@ -661,7 +661,7 @@ public class QueryEditorService {
     StringBuilder sb = new StringBuilder();
 
     //add prefix
-    sb.append("temp_wb_");
+    sb.append(WorkbenchProperties.TEMP_CSV_PREFIX);
 
     //add datetime
     sb.append(DateTime.now().toString("yyyyMMddhhmmssSSS") + "_");

@@ -1108,7 +1108,8 @@ public class JdbcConnectionService {
     LOGGER.info("Generated SQL Query: {}", queryString);
 
     // 쿼리 결과 저장
-    String tempFileName = getTempFileName(baseDir, dataSourceName + "_" + System.currentTimeMillis());
+    String tempFileName = getTempFileName(baseDir, EngineProperties.TEMP_CSV_PREFIX + "_"
+            + dataSourceName + "_" + System.currentTimeMillis());
     JdbcCSVWriter jdbcCSVWriter = null;
     try {
       jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempFileName), CsvPreference.STANDARD_PREFERENCE);

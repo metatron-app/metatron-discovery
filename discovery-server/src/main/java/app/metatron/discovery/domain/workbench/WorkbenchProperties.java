@@ -28,6 +28,7 @@ public class WorkbenchProperties {
 
   public static String TEMP_SCHEMA_PREFIX = "temp_";
   public static String TEMP_TABLE_PREFIX = "wb_";
+  public static String TEMP_CSV_PREFIX = "temp_wb_";
 
   public Integer getMaxResultSize() {
     return maxResultSize;
