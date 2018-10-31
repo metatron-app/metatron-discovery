@@ -257,9 +257,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 데이터 메니저 여부
   public isDataManager: boolean = false;
 
-  // 쿼리조회후 가져올 갯 수
-  public queryResultNumber: number = 1000;
-
   @ViewChild('wbName')
   private wbName: ElementRef;
   @ViewChild('wbDesc')
@@ -1093,13 +1090,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       queryEditor.webSocketId = this.websocketId;
       queryEditor.editorId = this.textList[this.selectedTabNum]['editorId'];
 
-      if (this.queryResultNumber && this.queryResultNumber !== 0) {
-        queryEditor['numRows'] = this.queryResultNumber;
-      } else {
-        this.queryResultNumber = 1000;
-        queryEditor['numRows'] = this.queryResultNumber;
-      }
-
       // 실행 쿼리 찾기
       if (param === 'ALL') {
         runningQuery = this.getSelectedTabText();
@@ -1281,7 +1271,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       targetTab.pageNum++;
     }
 
-    this.workbenchService.runQueryResult(editorId, csvFilePath, this.queryResultNumber, targetTab.pageNum, fieldList)
+    this.workbenchService.runQueryResult(editorId, csvFilePath, targetTab.result.defaultNumRows, targetTab.pageNum, fieldList)
       .then((result) => {
         try {
           // 쿼리 결과 값으로 교체
@@ -2204,7 +2194,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     const rows: any[] = [];
-    const startRowIdx = (currentTab.pageNum * this.queryResultNumber);
+    const startRowIdx = (currentTab.pageNum * currentTab.result.defaultNumRows);
     for (let idx1: number = 0; idx1 < data.data.length; idx1 = idx1 + 1) {
       const row = {};
       for (let idx2: number = 0; idx2 < data.fields.length; idx2 = idx2 + 1) {
@@ -2986,4 +2976,6 @@ class QueryResult {
   public startDateTime: string;
   public finishDateTime: string;
   public tempTable: string;
+  public defaultNumRows: number = 0;  // pageSize, 페이지당 호출 건 수
+  public maxNumRows: number = 0;      // 최대 호출 가능 건 수
 }

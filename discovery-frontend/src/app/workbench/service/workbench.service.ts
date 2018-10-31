@@ -160,10 +160,6 @@ export class WorkbenchService extends AbstractService {
       query: params.query,
       webSocketId: params.webSocketId
     };
-    // num 있다면
-    if (params.hasOwnProperty('numRows')) {
-      param['numRows'] = params['numRows'];
-    }
     return this.post(this.API_URL + `queryeditors/${id}/query/run`, param); // params => query  값만 사용.
   }
 
