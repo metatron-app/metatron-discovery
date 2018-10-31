@@ -17,7 +17,6 @@ package app.metatron.discovery.domain.dataprep.transform;
 import app.metatron.discovery.domain.dataprep.PrepDataset;
 
 import javax.persistence.*;
-import javax.validation.constraints.Size;
 
 @Entity
 @IdClass(PrepTransformRuleId.class)
@@ -32,7 +31,7 @@ public class PrepTransformRule {
     @JoinColumn(name = "ds_id")
     private PrepDataset dataset;
 
-    @Size(max = 4000)
+    @Lob
     @Column(name = "rule_string", nullable = false)
     private String ruleString;
 
