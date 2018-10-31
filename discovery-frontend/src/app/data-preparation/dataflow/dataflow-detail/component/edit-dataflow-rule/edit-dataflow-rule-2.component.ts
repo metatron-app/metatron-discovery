@@ -1929,9 +1929,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.opString = rule['op'];
 
-    // TODO : need to refresh selected column after applying rule
-    this._editRuleGridComp.unSelectionAll('COL');
-
     this._setEditRuleInfo({op: this.opString, ruleIdx : this.serverSyncIndex, count: 100, ruleString : rule['ruleString'] }).then((data: { apiData: any, gridData: any }) => {
 
       if (data['error']) {
@@ -1939,6 +1936,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
         return;
       }
+
+      // TODO : need to refresh selected column after applying rule
+      this._editRuleGridComp.unSelectionAll();
 
       this.serverSyncIndex = data.apiData.ruleCurIdx;
       if (data.apiData.ruleStringInfos.length > 0) {

@@ -295,12 +295,20 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
         this.close();
         return ;
       }
+
+      const columnsStr: string = cols.map((item) => {
+        if (-1 !== item.indexOf(' ')) {
+          item = '`' + item + '`';
+        }
+        return item
+      }).join(', ');
+
       let rule = {
         op: this.op,
         command : 'multipleRename',
-        ruleString: 'rename col: ' + cols.toString() + ' to: ' + tos.toString()
+        ruleString: 'rename col: ' + columnsStr + ' to: ' + tos.toString()
       };
-
+ 
       if (this.op === 'UPDATE') {
         rule['ruleCurIdx'] = this.ruleCurIdx;
         rule['ruleIdx'] = this.ruleCurIdx;

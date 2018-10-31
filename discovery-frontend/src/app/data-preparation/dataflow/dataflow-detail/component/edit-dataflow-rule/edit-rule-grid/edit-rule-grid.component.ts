@@ -488,15 +488,29 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       return this.escapedName(item.name);
     });
 
-    let selectedDiv = this.$element.find('.slick-header-columns').children()[list.indexOf(data.id) + 1];
-    if (data.isSelect) {
-      selectedDiv.setAttribute('style', 'background-color : #d6d9f1; width : ' + selectedDiv.style.width);
+    // Only use data.id when data.id exists in this_gridData.fields
+    const idx: number = this._gridData.fields.findIndex(orgItem => orgItem.name === data.id);
+    if (-1 === idx) {
+      return;
     } else {
-      selectedDiv.setAttribute('style', 'background-color : ; width : ' + selectedDiv.style.width);
+      let selectedDiv = this.$element.find('.slick-header-columns').children()[list.indexOf(data.id) + 1];
+
+      if (data.isSelect) {
+        selectedDiv.setAttribute('style', 'background-color : #d6d9f1; width : ' + selectedDiv.style.width);
+      } else {
+        selectedDiv.setAttribute('style', 'background-color : ; width : ' + selectedDiv.style.width);
+      }
     }
 
-    // 선택된 컬럼들
-    this._selectedColumns = data.selectColumnIds;
+    // selected columns
+    this._selectedColumns = [];
+    // use only data.selectedColumnIds that exists in this_gridData.fields
+    data.selectColumnIds.forEach((item) => {
+      const idx: number = this._gridData.fields.findIndex(orgItem => orgItem.name === item);
+      if (-1 !== idx) {
+        this._selectedColumns.push(item);
+      }
+    });
 
     // 이벤트 전파
     this.selectHeaderEvent.emit(

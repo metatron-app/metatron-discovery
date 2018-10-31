@@ -118,7 +118,10 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
       clonedNewFieldName = check[1];
     }
 
-    const selectedFieldName:string = this.selectedFields[0].name;
+    let selectedFieldName:string = this.selectedFields[0].name;
+    if (-1 !== this.selectedFields[0].name.indexOf(' ')) {
+      selectedFieldName = '`' + selectedFieldName + '`';
+    }
 
     return {
       command: 'rename',
