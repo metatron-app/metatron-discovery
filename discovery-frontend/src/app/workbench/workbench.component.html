@@ -99,7 +99,7 @@
   </div>
 </div>
 <em class="ddp-bg-back"></em>
-<div class="ddp-layout-contents2 ddp-wrap-workbench">
+<div class="ddp-layout-contents2 ddp-wrap-workbench page-workbench">
   <!-- lnb --->
   <!-- 닫힐때 ddp-close 추가 -->
   <div class="ddp-ui-benchlnb" [ngClass]="{'ddp-close':!isLeftMenuOpen || isQueryEditorFull===true}">
@@ -110,6 +110,20 @@
         <!-- name -->
         <div class="ddp-data-name">
           <div class="ddp-txt-dataname">
+
+            <!-- icons -->
+            <div class="ddp-db-icons">
+              <em class="ddp-icon-data-tibero" style="display:none;"></em>
+              <em class="ddp-icon-data-oracle" style="display:none;"></em>
+              <em class="ddp-icon-data-db" style="display:none;"></em>
+              <em class="ddp-icon-data-phoenix" style="display:none;"></em>
+              <em [ngStyle]="{'display': workbench.dataConnection.implementor == getConnectionType('MYSQL') ? '':'none'}" class="ddp-icon-data-sql"></em>
+              <em [ngStyle]="{'display': workbench.dataConnection.implementor == getConnectionType('POSTGRESQL') ? '':'none'}" class="ddp-icon-data-post"></em>
+              <em [ngStyle]="{'display': workbench.dataConnection.implementor == getConnectionType('HIVE') ? '':'none'}" class="ddp-icon-data-hive"></em>
+              <em [ngStyle]="{'display': workbench.dataConnection.implementor == getConnectionType('PRESTO') ? '':'none'}" class="ddp-icon-data-presto"></em>
+            </div>
+            <!-- icons -->
+
             <span class="ddp-txt-in" title="{{workbench.dataConnection.name}}">{{workbench.dataConnection.name}}</span>
             <!-- info 버튼 클릭시 ddp-selected 추가 -->
             <div class="ddp-wrap-info" [ngClass]="{'ddp-selected':isDataConnectionInfoShow}">
@@ -283,7 +297,7 @@
                   <div class="ddp-data-title">
                     {{'msg.bench.ui.editor.shortcut.title' | translate}}
                   </div>
-                  <div class="ddp-wrap-data-detail">
+                  <div class="ddp-wrap-data-detail ddp-padt0">
                     <table class="ddp-table-pop">
                       <colgroup>
                         <col width="136px">
