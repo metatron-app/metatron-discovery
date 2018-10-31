@@ -88,7 +88,7 @@
       <!-- //add panel -->
       <!-- variable list -->
       <div class="ddp-list-form-plus">
-        <div class="ddp-wrap-link-list" *ngFor="let variable of variableList">
+        <div class="ddp-wrap-link-list" *ngFor="let variable of variableList" [class.ddp-edit]="variable.editMode">
           <!-- form -->
           <div class="ddp-form-multy2 ddp-type ddp-clear" [class.ddp-padr0]="variable.editMode">
             <em class="{{getGlobalVariableIcon(variable.globalType)}}"></em>

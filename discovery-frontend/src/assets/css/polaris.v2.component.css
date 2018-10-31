@@ -187,6 +187,11 @@ input.ddp-input-typebasic.ddp-readonly,
 input.ddp-input-typebasic.ddp-readonly:focus {padding-left:0px; border:1px solid transparent; background:none;}
 .ddp-wrap-chart .ddp-wrap-chart-lnb input.ddp-input-typebasic.ddp-disabled,
 .ddp-wrap-chart .ddp-wrap-chart-lnb input.ddp-input-typebasic[disabled="disabled"] {background-color:#9a9c9f; border:1px solid #9a9c9f; opacity:1;}
+
+.ddp-form-calen {position:relative;}
+.ddp-form-calen input.ddp-input-typebasic {position:relative; padding-right:30px;}
+.ddp-form-calen:after {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-6px; width:11px; height:11px; background:url(../images/icon_type.png) no-repeat; content:'';}
+
 input.ddp-input-type {display:block; width:100%; padding-bottom:10px; font-size:16px; border:none; border-bottom:1px solid #e7e7ea;}
 input.ddp-input-type::-webkit-input-placeholder {color:#d7d7dc;}
 input.ddp-input-type:-ms-input-placeholder {color:#d7d7dc;}

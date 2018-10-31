@@ -6402,6 +6402,9 @@ em.ddp-icon-navimenu {margin:-8px 0 0 -8px; width:16px; height:16px; background-
 .ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-box-typebasic {width:55%; float:left;}
 .ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-box-typebasic.ddp-value {width:43%; float:right;}
 .ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-box-typebasic input.ddp-input-typebasic {width:100%; cursor:pointer;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-box-typebasic .ddp-form-calen {float:left; width:100%;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list input {cursor:text !important;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list input[type="text"].ddp-readonly {cursor:pointer !important;}
 .ddp-ui-var-plus .ddp-list-form-plus .ddp-link-buttons {clear:both; padding:6px 0 3px 0;text-align:right;}
 
 .ddp-ui-var-plus .ddp-list-blank {clear:both; position:relative; color:#b7b9c2; font-size:13px; letter-spacing:-1px;}
@@ -8564,6 +8567,19 @@ ul.ddp-list-tab-type2 li a:hover + .ddp-ui-tooltip-info {display:block; width:50
 .ddp-workflow-detail .ddp-wrap-result.ddp-full .ddp-wrap-tab2 .ddp-btn-size-full  {width:17px; height:17px; background-position:left -44px;}
 .ddp-workflow-detail .ddp-wrap-result.ddp-full .ddp-wrap-tab2 .ddp-btn-size-full:hover {background-position-x:-18px;}
 
+/**************************************************************
+  Page : 워크벤치 상세 (rnb)
+**************************************************************/
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview {margin-top:-16px;}
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-title {margin-left:0px; padding-left:15px;}
+
+/**************************************************************
+  Page : 워크벤치 상세 (rnb) Global variable
+**************************************************************/
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-title span.ddp-data-num {margin-left:3px}
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview .ddp-box-addview {margin-bottom:2px;}
+.page-workbench .ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list.ddp-edit {background-color:#e7e7ea;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-link-buttons .ddp-btn-pop {min-width:inherit; padding:6px 12px;}
 
 ul.ddp-ui-tab.ddp-type3 li a {border-left:1px solid #eee;  border-top:1px solid #eee; border-bottom:none; color:#4b515b; font-size:12px; font-weight:normal;}
 ul.ddp-ui-tab.ddp-type3 li.ddp-selected a {border-right:none; font-weight:bold;}

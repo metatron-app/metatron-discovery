@@ -112,6 +112,17 @@ export class DateComponent extends AbstractComponent implements OnInit {
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /**
+   * calendar icon
+   * @param {MouseEvent} event
+   */
+  public onClickCalendarIcon(event:MouseEvent) {
+    event.stopPropagation();
+    if( event.target['tagName'] !== 'INPUT' ) {
+      ( this._datePicker ) && ( this._datePicker.show() );
+    }
+  }
+
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
