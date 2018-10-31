@@ -92,12 +92,12 @@ public class QueryEditorService {
           QueryEditor queryEditor, JdbcDataConnection jdbcDataConnection,
           Workbench workbench, String query, String webSocketId) {
 
-    return getQueryResult(queryEditor, jdbcDataConnection, workbench, query, webSocketId, null, 0);
+    return getQueryResult(queryEditor, jdbcDataConnection, workbench, query, webSocketId, null);
   }
 
   public List<QueryResult> getQueryResult(
           QueryEditor queryEditor, JdbcDataConnection jdbcDataConnection,
-          Workbench workbench, String query, String webSocketId, String databaseName, int numRows) {
+          Workbench workbench, String query, String webSocketId, String databaseName) {
     List<QueryResult> queryResults = new ArrayList<>();
 
     //1. 쿼리 목록으로 변환
@@ -148,7 +148,7 @@ public class QueryEditorService {
       LOGGER.debug("Audit Created : " + auditId);
 
       QueryResult queryResult = executeQuery(dataSourceInfo, substitutedQuery, workbench.getId(), webSocketId, jdbcDataConnection,
-              queryHistoryId, auditId, saveToTempTable, numRows, queryIndex, queryEditor.getId());
+              queryHistoryId, auditId, saveToTempTable, queryIndex, queryEditor.getId());
       queryResults.add(queryResult);
 
       //increase query index
@@ -253,7 +253,7 @@ public class QueryEditorService {
 
   private QueryResult executeQuery(WorkbenchDataSource dataSourceInfo, String query, String workbenchId, String webSocketId,
                                    JdbcDataConnection jdbcDataConnection, long queryHistoryId, String auditId,
-                                   Boolean saveToTempTable, int numRows, int queryIndex, String queryEditorId){
+                                   Boolean saveToTempTable, int queryIndex, String queryEditorId){
 
     ResultSet resultSet = null;
     QueryResult queryResult = null;
