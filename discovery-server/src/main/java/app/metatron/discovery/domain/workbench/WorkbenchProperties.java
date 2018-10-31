@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "polaris.workbench")
 public class WorkbenchProperties {
-  private Integer maxResultSize = 100000;
+  private Integer maxResultSize = 1000000;
   private Integer defaultResultSize = 1000;
   private Integer maxFetchSize = 10000;
   private String tempHdfsPath = "/tmp/hive";

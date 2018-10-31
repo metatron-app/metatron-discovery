@@ -276,6 +276,9 @@ public class QueryEditorService {
 
     //시작시간
     DateTime startDateTime = DateTime.now();
+    Integer maxResultSize = workbenchProperties.getMaxResultSize();
+    Integer defaultResultSize = workbenchProperties.getDefaultResultSize();
+
     try {
       sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_CONNECTION, queryIndex,
               queryEditorId, workbenchId, webSocketId);
@@ -290,23 +293,7 @@ public class QueryEditorService {
       dataSourceInfo.setQueryStatus(QueryStatus.RUNNING);
       dataSourceInfo.setCurrentStatement(stmt);
 
-      boolean usingCSV = true;
-      int maxResultSize = workbenchProperties.getMaxResultSize();
-      int defaultResultSize = workbenchProperties.getDefaultResultSize();
-
-      if(usingCSV){
-        stmt.setMaxRows(maxResultSize);
-      } else {
-        int maxRows = 0;
-        if(numRows <= 0){
-          maxRows = defaultResultSize;
-        } else if(numRows <= maxResultSize){
-          maxRows = numRows;
-        } else {
-          maxRows = maxResultSize;
-        }
-        stmt.setMaxRows(maxRows);
-      }
+      stmt.setMaxRows(maxResultSize);
 
       if(saveToTempTable && isSelectQuery(query) && !isTempTable(query)){
         String tempTableName = createTempTable(stmt, query, webSocketId);
@@ -315,7 +302,7 @@ public class QueryEditorService {
 
         if(stmt.execute(selectQuery)){
           resultSet = stmt.getResultSet();
-          queryResult = getQueryResult(resultSet, query, tempTableName, numRows, queryEditorId, queryIndex);
+          queryResult = getQueryResult(resultSet, query, tempTableName, defaultResultSize, queryEditorId, queryIndex);
         } else {
           queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
         }
@@ -348,7 +335,7 @@ public class QueryEditorService {
             sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
                     queryEditorId, workbenchId, webSocketId);
             resultSet = stmt.getResultSet();
-            queryResult = getQueryResult(resultSet, query, null, numRows, queryEditorId, queryIndex);
+            queryResult = getQueryResult(resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
           } else {
             queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
           }
@@ -357,15 +344,14 @@ public class QueryEditorService {
             sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.GET_RESULTSET, queryIndex,
                     queryEditorId, workbenchId, webSocketId);
             resultSet = stmt.getResultSet();
-            queryResult = getQueryResult(resultSet, query, null, numRows, queryEditorId, queryIndex);
+            queryResult = getQueryResult(resultSet, query, null, defaultResultSize, queryEditorId, queryIndex);
           } else {
             queryResult = createMessageResult("OK", query, QueryResult.QueryResultStatus.SUCCESS);
           }
         }
       }
     } catch(Exception e){
-      e.printStackTrace();
-      LOGGER.error("Query Execute Error : {}", e.getMessage());
+      LOGGER.error("Query Execute Error : {}", e);
       queryResult = createMessageResult(e.getMessage(), query, QueryResult.QueryResultStatus.FAIL);
     } finally {
       if (logThread != null) {
@@ -373,8 +359,12 @@ public class QueryEditorService {
           logThread.interrupt();
         }
       }
+
+      LOGGER.debug("resultset close");
       JdbcUtils.closeResultSet(resultSet);
+      LOGGER.debug("statement close");
       JdbcUtils.closeStatement(stmt);
+      LOGGER.debug("connection close");
       JdbcUtils.closeConnection(connection);
 
       //Query 실행 상태 IDLE로 전환
@@ -390,6 +380,7 @@ public class QueryEditorService {
       queryResult.setAuditId(auditId);
       queryResult.setQueryHistoryId(queryHistoryId);
       queryResult.setQueryEditorId(queryEditorId);
+      queryResult.setMaxNumRows(Long.valueOf(maxResultSize));
 
       sendWebSocketMessage(WorkbenchWebSocketController.WorkbenchWebSocketCommand.DONE, queryIndex, queryEditorId,
               workbenchId, webSocketId);
@@ -422,6 +413,7 @@ public class QueryEditorService {
     queryResult.setFields(fieldList);
     queryResult.setData(dataList);
     queryResult.setTempTable(tempTable);
+    queryResult.setDefaultNumRows(pageSize <= 0 ? 0L : Long.valueOf(pageSize));
     queryResult.setNumRows(rowNumber <= 0 ? 0L : Long.valueOf(rowNumber - 1));
     queryResult.setQueryResultStatus(QueryResult.QueryResultStatus.SUCCESS);
     queryResult.setCsvFilePath(tempFileName);
@@ -666,14 +658,31 @@ public class QueryEditorService {
   }
 
   private String generateTempCSVFileName(String baseDir, String queryEditorId, int queryIndex){
-    String tempFileName = DateTime.now().toString("yyyyMMddhhmmss") + "_" + queryEditorId.substring(0, 8) + "_" + queryIndex;
-    String suffixStr = "_(1)";
-    String filePathString = baseDir + File.separator + tempFileName + ".csv";
-    while(Files.exists(Paths.get(filePathString))){
-      tempFileName = tempFileName + suffixStr;
-      filePathString = baseDir + File.separator + tempFileName + ".csv";
+    StringBuilder sb = new StringBuilder();
+
+    //add prefix
+    sb.append("temp_wb_");
+
+    //add datetime
+    sb.append(DateTime.now().toString("yyyyMMddhhmmssSSS") + "_");
+
+    //add queryEditorId
+    sb.append(queryEditorId.substring(0, 8) + "_");
+
+    //add queryIndex
+    sb.append(queryIndex);
+
+    //add suffix for duplicate filename
+    String suffixStr = "_1";
+    while(Files.exists(Paths.get(baseDir + File.separator + sb.toString() + ".csv"))){
+      sb.append(suffixStr);
     }
 
-    return tempFileName + ".csv";
+    //add extension
+    sb.append(".csv");
+
+    //temporary_wb_20180101000000_abcdefgh_0.csv
+
+    return sb.toString();
   }
 }
