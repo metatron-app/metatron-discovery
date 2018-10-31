@@ -1662,7 +1662,7 @@ public class PrepTransformService {
               return "THIS_SNAPSHOT_IS_ALREADY_CANCELED";
           case SUCCEEDED:
           case FAILED:
-              return "THIS_SNAPSHOT_IS_ALREADY_CREATED_OR_FAILED";
+              return "OK";
           case NOT_AVAILABLE:
           default:
               return "UNKNOWN_ERROR";
