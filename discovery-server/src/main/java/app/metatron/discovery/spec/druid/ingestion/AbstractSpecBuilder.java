@@ -169,17 +169,20 @@ public class AbstractSpecBuilder {
                                        .map((field) -> field.getName())
                                        .collect(Collectors.toList());
 
-      LocalFileIngestionInfo localFileIngestionInfo = dataSource.getIngestionInfoByType();
-      boolean skipHeaderRow = localFileIngestionInfo.getRemoveFirstRow();
 
       CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
       CsvStreamParser csvStreamParser = new CsvStreamParser();
+
+      if(dataSource.getIngestionInfoByType().equals("local")){
+        LocalFileIngestionInfo localFileIngestionInfo = dataSource.getIngestionInfoByType();
+        boolean skipHeaderRow = localFileIngestionInfo.getRemoveFirstRow();
+        csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
+      }
 
       if (csvFormat.isDefaultCsvMode()) {
         csvStreamParser.setTimestampSpec(timestampSpec);
         csvStreamParser.setDimensionsSpec(dimensionsSpec);
         csvStreamParser.setColumns(columns);
-        csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
 
         return csvStreamParser;
       } else {
@@ -188,7 +191,6 @@ public class AbstractSpecBuilder {
         csvStreamParser.setDimensionsSpec(dimensionsSpec);
         csvStreamParser.setColumns(columns);
         csvStreamParser.setDelimiter(csvFormat.getDelimeter());
-        csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
 
         return csvStreamParser;
 
