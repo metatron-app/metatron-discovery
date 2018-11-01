@@ -1596,41 +1596,45 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         tooltipHtml = tooltipHtml + '<table class="ddp-table-info"><colgroup><col width="70px"><col width="*"></colgroup><tbody>';
 
-        //Coordinates info (LOCATION_INFO)
-        if(tooltipOption.toolTip["displayTypes"] != undefined && tooltipOption.toolTip.displayTypes[18] !== null) {
-          tooltipHtml = tooltipHtml + geoInfo;
-        }
-
         //Properties (DATA_VALUE)
         if(tooltipOption.toolTip["displayTypes"] != undefined && tooltipOption.toolTip.displayTypes[19] !== null) {
+          let aggregationKeys: any[] = [];
           for(var key in feature.getProperties()) {
 
             // Show check
-            let isAggregation: boolean = false;
+            // let isAggregation: boolean = false;
             //_.each(pivot.aggregations, (field) => {
-            _.each(tooltipOption.toolTip["displayColumns"], (field) => {
+            _.each(tooltipOption.toolTip["displayColumns"], (field, idx) => {
               if( _.eq(field, key) ) {
-                isAggregation = true;
+                // isAggregation = true;
+                aggregationKeys.push({ idx: idx, key: key });
                 return false;
               }
             });
-            if( !isAggregation ) {
-              continue;
-            }
+            // if( !isAggregation ) {
+              // continue;
+            // }
+          }
 
-            let tooltipVal = feature.get(key);
+          _.each(_.orderBy(aggregationKeys, ['idx']), (aggregationKey) => {
+            let tooltipVal = feature.get(aggregationKey.key);
 
-            if (key !== 'geometry' && key !== 'weight' && key !== 'layerNum') {
-              if (key === 'features') {
-                tooltipHtml = tooltipHtml + '<tr><th>' + key + '</th><td>' + feature.get(key).length + '</td></tr>';
+            if (aggregationKey.key !== 'geometry' && aggregationKey.key !== 'weight' && aggregationKey.key !== 'layerNum') {
+              if (aggregationKey.key === 'features') {
+                tooltipHtml = tooltipHtml + '<tr><th>' + aggregationKey.key + '</th><td>' + feature.get(aggregationKey.key).length + '</td></tr>';
               } else {
                 if(typeof(tooltipVal) === "number") {
                   tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, tooltipOption.valueFormat);
                 }
-                tooltipHtml = tooltipHtml + '<tr><th>' + key + '</th><td>' + tooltipVal + '</td></tr>';
+                tooltipHtml = tooltipHtml + '<tr><th>' + aggregationKey.key + '</th><td>' + tooltipVal + '</td></tr>';
               }
             }
-          }
+          });
+        }
+
+        //Coordinates info (LOCATION_INFO)
+        if(tooltipOption.toolTip["displayTypes"] != undefined && tooltipOption.toolTip.displayTypes[18] !== null) {
+          tooltipHtml = tooltipHtml + geoInfo;
         }
 
         tooltipHtml = tooltipHtml + '</tbody></table></span></div>';

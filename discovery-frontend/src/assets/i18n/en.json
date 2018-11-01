@@ -2587,7 +2587,7 @@
   "msg.page.chart.datalabel.text.align.right": "Right",
   "msg.page.chart.datalabel.use.axis.scale.format": "Use Axis Scale Format",
   "msg.page.chart.datalabel.map.layer.name": "Layer Name",
-  "msg.page.chart.datalabel.map.geo.info": "Label Info",
+  "msg.page.chart.datalabel.map.geo.info": "Geo Info",
   "msg.page.chart.datalabel.map.data.value": "Data Value",
   "msg.page.chart.datalabel.map.add.column": "Add Column",
   "msg.page.chart.grid.chart.nodata.origin.description": "If columns include aggregation function",
