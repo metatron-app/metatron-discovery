@@ -460,7 +460,7 @@
                          href="javascript:" class="ddp-box-page" >
                         <em class="ddp-icon-prev"></em>PREV
                       </a>
-                      <a *ngIf="visibleResultTab.isShowNextBtn( queryResultNumber )"
+                      <a *ngIf="visibleResultTab.isShowNextBtn( visibleResultTab.result.defaultNumRows )"
                          (click)="changeResultPage( visibleResultTab, 'NEXT' )"
                          href="javascript:" class="ddp-box-page ddp-next" >
                         NEXT<em class="ddp-icon-next"></em>
@@ -597,7 +597,7 @@
                     <span class="ddp-data-txt">{{ setNumberFormat( visibleResultTab.executeTime, 2 ) }} Secs.</span>
                   </span>
                   <span class="ddp-data-time" *ngIf="'SUCCESS' === visibleResultTab.resultStatus && visibleResultTab.result && -1 < visibleResultTab.result.numRows">
-                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber) )}} / {{ (visibleResultTab.result.numRows == 100000) ? '100,000+' : setNumberFormat(visibleResultTab.result.numRows) }} {{'msg.comm.detail.rows'|translate}}</span>
+                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * visibleResultTab.result.defaultNumRows) )}} / {{ (visibleResultTab.result.numRows == visibleResultTab.result.maxNumRows) ? setNumberFormat(visibleResultTab.result.maxNumRows) + '+' : setNumberFormat(visibleResultTab.result.numRows) }} {{'msg.comm.detail.rows'|translate}}</span>
                   </span>
                 </div>
                 <!-- //time -->
