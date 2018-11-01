@@ -459,7 +459,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
    /**
     * 반경 변경시
-    * @param blur 흐림
+    * @param radius 반경
     */
    public changeRadius(radius: number) {
 
@@ -1799,12 +1799,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         hide_min_max: true,
         keyboard: false,
         min: 5,
-        max: 30,
-        from: scope.uiOption.layers[0].radius,
+        max: 10,
+        from: scope.uiOption.layers[0].coverage,
         type: 'single',
-        step: 5,
+        step: 1,
         onChange(data) {
-          scope.changeRadius(data.from);
+          scope.changeResolution(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);
@@ -1823,7 +1823,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         keyboard: false,
         min: 5,
         max: 10,
-        from: scope.uiOption.layers[0].color.resolution,
+        from: scope.uiOption.layers[0].coverage,
         type: 'single',
         step: 1,
         onChange(data) {

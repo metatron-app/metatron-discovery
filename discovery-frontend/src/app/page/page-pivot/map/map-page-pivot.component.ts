@@ -167,6 +167,9 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
          } else {
            this.uiOption.layers[layerNum-1].size.by = 'MEASURE';
            this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+
+           this.uiOption.layers[layerNum-1].thickness.by = 'MEASURE';
+           this.uiOption.layers[layerNum-1].thickness.column = aggregation.aggregationType + '(' + fieldAlias + ')';
          }
 
        }
@@ -182,6 +185,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
        this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
        this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+       this.uiOption.layers[layerNum-1].thickness.column = aggregation.aggregationType + '(' + fieldAlias + ')';
      }
 
      this.aggregationsCnt = this.pivot.aggregations.length;
@@ -253,6 +257,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
          this.uiOption.layers[layerNum]["color"].schema = "#bccada";
        }
        this.uiOption.layers[layerNum]["size"].by = "NONE";
+       this.uiOption.layers[layerNum]["thickness"].by = "NONE";
        this.uiOption.layers[layerNum]["color"]["customMode"] = undefined;
      } else {
 

@@ -341,6 +341,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let outlineColor = styleOption.layers[layerNum].outline.color; // 외곽선 색상
       let featureColorType = styleOption.layers[layerNum].color.by; // 색상 기준 : None, Dimension, Measure
       let featureSizeType = styleOption.layers[layerNum].size.by; // 크기 기준 :  None, Dimension, Measure
+      let featureThicknessType = styleOption.layers[layerNum].thickness.by; // 선 굵기 기준 :  None, Dimension, Measure
 
       //최소값 지정하여 선이 없는 것 처럼 보이게 하려고..
       let outlineWidth = 0.00000001;
@@ -360,7 +361,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
 
       let featureSize = 5;
-      if(styleOption.layers[layerNum].size.column && featureSizeType === 'MEASURE') { // Measure 기준 크기 계산 min 2, max 30
+      if(styleOption.layers[layerNum].size.column != 'NONE' && featureSizeType === 'MEASURE') { // Measure 기준 크기 계산 min 2, max 30
         featureSize = parseInt(feature.get(styleOption.layers[layerNum].size.column)) / (styleData.valueRange[styleOption.layers[layerNum].size.column].maxValue / 30);
         if(featureSize < 2) {
           featureSize = 2;
@@ -368,7 +369,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       }
 
       let lineThickness = 2;
-      if(styleOption.layers[layerNum].thickness.column != 'NONE' && featureSizeType === 'MEASURE') { // Measure 기준 굵기 계산 min 1, max lineMaxVal
+      if(styleOption.layers[layerNum].thickness.column != 'NONE' && featureThicknessType === 'MEASURE') { // Measure 기준 굵기 계산 min 1, max lineMaxVal
         lineThickness = parseInt(feature.get(styleOption.layers[layerNum].thickness.column)) / (styleData.valueRange[styleOption.layers[layerNum].thickness.column].maxValue / lineMaxVal);
         if(lineThickness < 1) {
           lineThickness = 1;

@@ -1053,18 +1053,7 @@
                   <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
                   <div class="ddp-list-sub2">
                     <div [ngClass]="{'ddp-wrap-disabled' : 'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}">
-                      <div class="ddp-divide2">
-                        <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
-                        <div class="ddp-type-selectbox"
-                             (click)="colorTypeFlag=!colorTypeFlag;colorListFlag=false;" (clickOutside)="colorTypeFlag=false" [excludeBeforeClick]="true">
-                          <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[0].color.by.toString() === 'NONE' ? translateService.instant('msg.space.ui.none') : uiOption.layers[0].color.by) }}</span>
-                          <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
-                            <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
-                            <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.measureList[0].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
-                          </ul>
-                        </div>
-                      </div>
-                      <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[0] && uiOption.layers[0].color.by.toString() === 'MEASURE'">
+                      <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[0]">
                         <!-- SELECTBOX -->
                         <component-select
                           [array]="uiOption.measureList[0]"
@@ -1076,16 +1065,7 @@
                         <div class="ddp-ui-colorby">
 
                           <!-- colorby button -->
-                          <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' !== uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
-                            <em class="ddp-icon-colorby"></em>
-                            <!-- series, dimension 색일때 -->
-                            <button class="ddp-btn-color-series{{checkDefaultSelectedColor()}} ddp-type"></button>
-                            <!-- //series, dimension 색일때 -->
-                          </div>
-                          <!-- //colorby button -->
-
-                          <!-- colorby button -->
-                          <div *ngIf="'NONE' !== uiOption.layers[0].color.by.toString() && 'MEASURE' === uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
+                          <div *ngIf="'MEASURE' === uiOption.layers[0].color.by.toString() || 'NONE' === uiOption.layers[0].color.by.toString()" (click)="toggleColorList()" (clickOutside)="colorListFlag=false" class="ddp-wrap-colorby-button">
                             <em class="ddp-icon-colorby"></em>
                             <!-- measure 색일때 -->
                             <button class="ddp-btn-color-type{{checkMeasureSelectedColor()}} ddp-type"></button>
@@ -1101,19 +1081,10 @@
                               <a href="javascript:" class="ddp-btn-close" (click)="colorListFlag=false"></a>
                             </div>
                             <!-- //top -->
-                            <!-- contents -->
-                            <div *ngIf="'MEASURE' !== uiOption.layers[0].color.by.toString()" class="ddp-pop-side-contents">
-                              <ul class="ddp-list-series">
-                                <li *ngFor="let item of defaultColorList" (click)="changeColor(item)">
-                                  <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series{{item['index']}} ddp-type" [ngClass]="{'ddp-selected': item['colorNum'] == uiOption.layers[0].color['schema']}"></button>
-                                </li>
-                              </ul>
-                            </div>
-                            <!-- //contents -->
+
                             <!--uiOption.type.toString() == 'grid' ? gridMeasureColorList : measureColorList-->
                             <!-- contents -->
-                            <div *ngIf="'MEASURE' === uiOption.layers[0].color.by.toString()"  class="ddp-pop-side-contents">
+                            <div *ngIf="'MEASURE' === uiOption.layers[0].color.by.toString() || 'NONE' === uiOption.layers[0].color.by.toString()"  class="ddp-pop-side-contents">
                               <span class="ddp-pop-sub-title">{{'msg.page.th.seq.display' | translate}}</span>
                               <ul class="ddp-list-series">
                                 <li *ngFor="let item of measureColorList; let num = index" (click)="changeColor(item, measureColorList[num])">
@@ -1302,7 +1273,7 @@
                           <span class="ddp-label-txt">{{'msg.page.layer.map.coverage' | translate}}</span>
                       </div>
                       <div class="ddp-col-4">
-                          <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly" placeholder="" [value]="translateNumber('heatmapRadius', uiOption.layers[0].radius)">
+                          <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly" placeholder="" [value]="translateNumber('hexagonRadius', uiOption.layers[0].coverage)">
                       </div>
                   </div>
 
