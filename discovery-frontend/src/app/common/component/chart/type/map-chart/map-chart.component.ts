@@ -2270,7 +2270,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 layer.format = {
                   type: "geo_hash",
                   method: "h3",
-                  precision: this.uiOption.layers[1].color["resolution"]
+                  precision: this.uiOption.layers[1].coverage
                 }
               }
 
@@ -2296,7 +2296,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 layer.format = {
                   type: "geo_hash",
                   method: "h3",
-                  precision: this.uiOption.layers[2].color["resolution"]
+                  precision: this.uiOption.layers[2].coverage
                 }
 
                 if(this.uiOption.layers[2]["viewRawData"]) {

@@ -1,6 +1,6 @@
 import { UIOption } from '../../ui-option';
 /**
- * 바차트 화면 UI에 필요한 옵션
+ * 맵차트 화면 UI에 필요한 옵션
  * Version 2.0
  */
 export interface UILayers {
@@ -50,16 +50,12 @@ interface SymbolColor {
 
   transparency?: number;
 
-  blur?: number;
-
-  radius?: number;
-
   resolution?: number;
 
 }
 
 /**
- * Symbol Color
+ * Symbol Size
  */
 interface SymbolSize {
 
