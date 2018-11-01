@@ -23,6 +23,18 @@ export interface UILayers {
   datasource?: string;
 
   viewRawData?: boolean;
+
+  blur?: number;
+
+  radius?: number;
+
+  thickness?: Thickness;
+
+  pathType?: string;
+
+  shape?: string;
+
+  coverage?: number;
 }
 
 /**
@@ -55,7 +67,18 @@ interface SymbolSize {
 
   column?: string;
 
-  max?: number;
+}
+
+/**
+ * Thickness
+ */
+interface Thickness {
+
+  by?: string;
+
+  column?: string;
+
+  maxValue?: number;
 
 }
 

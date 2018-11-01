@@ -725,22 +725,22 @@
                         <div class="ddp-divide2">
                             <div class="ddp-list-label">{{'msg.page.layer.map.stroke.by' | translate}}</div>
                             <!-- SELECTBOX -->
-                            <div class="ddp-type-selectbox" (click)="sizeTypeFlag=!sizeTypeFlag;" (clickOutside)="sizeTypeFlag=false" [excludeBeforeClick]="true">
-                                <span class="ddp-txt-selectbox">{{ uiOption.layers[2].size.by.toString() === 'NONE' ? translateService.instant('msg.space.ui.none') : uiOption.layers[2].size.by }}</span>
-                                <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
-                                    <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.stroke.none' | translate}}</a></li>
-                                    <li (click)="changeSizeType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[2] && uiOption.measureList[2].length > 0"><a href="#">{{'msg.page.layer.map.stroke.measure' | translate}}</a></li>
+                            <div class="ddp-type-selectbox" (click)="thicknessTypeFlag=!thicknessTypeFlag;" (clickOutside)="thicknessTypeFlag=false" [excludeBeforeClick]="true">
+                                <span class="ddp-txt-selectbox">{{ uiOption.layers[2].thickness.by.toString() === 'NONE' ? translateService.instant('msg.space.ui.none') : uiOption.layers[2].thickness.by }}</span>
+                                <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="thicknessTypeFlag">
+                                    <li (click)="changeThicknessType('NONE')"><a href="#">{{'msg.page.layer.map.stroke.none' | translate}}</a></li>
+                                    <li (click)="changeThicknessType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[2] && uiOption.measureList[2].length > 0"><a href="#">{{'msg.page.layer.map.stroke.measure' | translate}}</a></li>
                                 </ul>
                             </div>
                             <!-- //SELECTBOX -->
                         </div>
                         <!-- part -->
-                        <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[2] && uiOption.layers[2].size.by.toString() === 'MEASURE'">
+                        <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[2] && uiOption.layers[2].thickness.by.toString() === 'MEASURE'">
                           <!-- SELECTBOX -->
                           <component-select
                             [array]="uiOption.measureList[2]"
-                            [defaultIndex]="uiOption.measureList[2] && uiOption.measureList[2].indexOf(uiOption.layers[2].size['column'])"
-                            (onSelected)="changeSizeColumn($event)"
+                            [defaultIndex]="uiOption.measureList[2] && uiOption.measureList[2].indexOf(uiOption.layers[2].thickness['column'])"
+                            (onSelected)="changeThicknessColumn($event)"
                           ></component-select>
                         </div>
                         <!-- //part -->
@@ -751,7 +751,7 @@
                               <span class="ddp-label-txt">{{'msg.page.layer.map.stroke.max.width' | translate}} (pt)</span>
                             </div>
                             <div class="ddp-col-4">
-                              <input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="" [(ngModel)]="uiOption.layers[0].size['max']" (keyup.enter)="changeStrokeMaxWidth()" (focusout)="changeStrokeMaxWidth()">
+                              <input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="" [(ngModel)]="uiOption.layers[0].thickness['maxValue']" (keyup.enter)="changeStrokeMaxWidth()" (focusout)="changeStrokeMaxWidth()">
                             </div>
                         </div>
                         <!-- //divide -->
@@ -771,9 +771,9 @@
                       </div>
                       <div class="ddp-col-6 ddp-txt-right">
                           <ul class="ddp-list-express ddp-tab3 ddp-type">
-                              <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.lineDash === 'SOLID'}" (click)="lineDashType('SOLID');"><em class="ddp-line-bold1"></em></li>
-                              <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.lineDash === 'DOT'}" (click)="lineDashType('DOT');"><em class="ddp-line-dotted"></em></li>
-                              <li [ngClass]="{'ddp-selected': uiOption.layers[0].outline.lineDash === 'DASH'}" (click)="lineDashType('DASH');"><em class="ddp-line-dashed"></em></li>
+                              <li [ngClass]="{'ddp-selected': uiOption.layers[0].pathType === 'SOLID'}" (click)="lineDashType('SOLID');"><em class="ddp-line-bold1"></em></li>
+                              <li [ngClass]="{'ddp-selected': uiOption.layers[0].pathType === 'DOT'}" (click)="lineDashType('DOT');"><em class="ddp-line-dotted"></em></li>
+                              <li [ngClass]="{'ddp-selected': uiOption.layers[0].pathType === 'DASH'}" (click)="lineDashType('DASH');"><em class="ddp-line-dashed"></em></li>
                           </ul>
                       </div>
                   </div>
@@ -1299,7 +1299,7 @@
                           <span class="ddp-label-txt">{{'msg.page.layer.map.blur' | translate}}</span>
                       </div>
                       <div class="ddp-col-4">
-                          <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly" placeholder="" [value]="translateNumber('heatmapBlur', uiOption.layers[0].color.blur)">
+                          <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly" placeholder="" [value]="translateNumber('heatmapBlur', uiOption.layers[0].blur)">
                       </div>
 
                   </div>
@@ -1319,7 +1319,7 @@
                           <span class="ddp-label-txt">{{'msg.page.layer.map.coverage' | translate}}</span>
                       </div>
                       <div class="ddp-col-4">
-                          <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly" placeholder="" [value]="translateNumber('heatmapRadius', uiOption.layers[0].color.radius)">
+                          <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly" placeholder="" [value]="translateNumber('heatmapRadius', uiOption.layers[0].radius)">
                       </div>
                   </div>
 
@@ -1589,7 +1589,7 @@
                           <span class="ddp-label-txt">{{'msg.page.layer.map.coverage' | translate}}</span>
                       </div>
                       <div class="ddp-col-4">
-                          <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly" placeholder="" [value]="translateNumber('hexagonRadius', uiOption.layers[0].color.resolution)">
+                          <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly" placeholder="" [value]="translateNumber('hexagonRadius', uiOption.layers[2].coverage)">
                       </div>
                   </div>
 
