@@ -335,6 +335,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public ngOnInit() {
     super.ngOnInit();
+    this.useUnloadConfirm = true;
 
     if (this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) === '') {
       this.router.navigate(['/user/login']).then();
@@ -447,7 +448,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @param {string} editorId
    */
   public saveLocalStorage(value: string, editorId: string): void {
-    this.useUnloadConfirm = true;
     localStorage.setItem('workbench' + this.workbenchId + editorId, value);
   }
 
@@ -456,7 +456,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @param {string} editorId
    */
   public removeLocalStorage(editorId: string): void {
-    this.useUnloadConfirm = false;
     localStorage.removeItem('workbench' + this.workbenchId + editorId);
   }
 
@@ -2349,7 +2348,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 뒤로 돌아가기
   public goBack() {
     // unload false
-    this.useUnloadConfirm = false;
     const cookieWs = this.cookieService.get(CookieConstant.KEY.CURRENT_WORKSPACE);
     let cookieWorkspace = null;
     if (cookieWs) {
