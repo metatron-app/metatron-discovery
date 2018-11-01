@@ -201,9 +201,32 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     return data.toFixed(2) + ' ' + sizes[i];
   };
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Public Method - getter
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Get master data information
+   * @param {SourceType} type
+   * @returns {string}
+   */
+  public getMasterDataInfo(type: SourceType): string {
+    switch (type) {
+      case SourceType.IMPORT:
+        return this.translateService.instant('msg.storage.ui.list.import');
+      case SourceType.FILE:
+        return this.translateService.instant('msg.storage.ui.list.file');
+      case SourceType.JDBC:
+        return this.translateService.instant('msg.storage.ui.list.jdbc') + `(${this.getConnectionTypeLabel(this.getConnection.implementor)})`;
+      case SourceType.HIVE:
+        return this.translateService.instant('msg.storage.ui.list.hive');
+    }
+  }
+
+  /**
+   * Get connection type label
+   * @param {string} implementor
+   * @returns {string}
+   */
+  public getConnectionTypeLabel(implementor: string): string {
+    return (this.getEnabledConnectionTypes().find((type) => type.value === implementor) || {label: implementor}).label;
+  }
 
   /**
    * 커넥션 타입
@@ -286,11 +309,11 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   /**
-   * ingestion connection
+   * get connection
    * @returns {any}
    */
   public get getConnection(): any {
-    return this.getIngestion.connection;
+    return this.datasource.connection || this.datasource.ingestion.connection;
   }
 
   /**
