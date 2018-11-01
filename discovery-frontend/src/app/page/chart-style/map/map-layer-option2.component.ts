@@ -215,27 +215,6 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
    @Input('uiOption')
    public set setUiOption(uiOption: UIOption) {
 
-     // if( !uiOption.toolTip ) {
-     //   uiOption.toolTip = {};
-     // }
-     // // displayTypes가 없는경우 차트에 따라서 기본 displayTypes설정
-     // if (!uiOption.toolTip.displayTypes) {
-     //   uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
-     // }
-     //
-     // uiOption.toolTip.previewList = this.setPreviewList(uiOption);
-     //
-     // // useDefaultFormat이 없는경우
-     // if (typeof uiOption.toolTip.useDefaultFormat === 'undefined') uiOption.toolTip.useDefaultFormat = true;
-
-     //Set
-     if(this.resultData['data'][1].valueRange[uiOption.layers[1].color.column]) {
-       const minValue = this.checkMinZero(this.resultData['data'][1].valueRange[uiOption.layers[1].color.column].minValue, this.resultData['data'][1].valueRange[uiOption.layers[1].color.column].minValue);
-
-       this.minValue = FormatOptionConverter.getDecimalValue(minValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
-       this.maxValue = FormatOptionConverter.getDecimalValue(this.resultData['data'][1].valueRange[uiOption.layers[1].color.column].maxValue, uiOption.valueFormat.decimal, uiOption.valueFormat.useThousandsSep);
-     }
-
      this.uiOption = uiOption;
 
      // Set field list
@@ -258,9 +237,9 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
    public mapLayerType(layerType: string): void {
      let geomType = this.uiOption.fielDimensionList[0].field.logicalType.toString();
 
-     for(let field of this.uiOption.fielDimensionList) {
-       if(field["layerNum"] && field["layerNum"] === 2) {
-         geomType = field.field.logicalType.toString();
+     for(let dimension of this.uiOption.fielDimensionList) {
+       if(dimension.field.logicalType.toString().indexOf('GEO') > -1 && dimension["layerNum"] && dimension["layerNum"] === 2) {
+         geomType = dimension.field.logicalType.toString();
          break;
        }
      }

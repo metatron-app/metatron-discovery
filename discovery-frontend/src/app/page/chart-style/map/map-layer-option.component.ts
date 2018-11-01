@@ -104,7 +104,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   public layerNum: number = 0;
 
   // 레이어 타입 : symbol, line, polygon, tile, heatmap
-  public type: string = 'symbol';
+  public layerType: string = 'symbol';
 
   // 레이어명
   public name: string = 'Layer1';
@@ -254,7 +254,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     * @param layerType
     */
    public mapLayerType(layerType: string): void {
-     let geomType = this.uiOption.fielDimensionList[0].field.logicalType.toString();
+     let geomType = "GEO_POINT";
+
+     for(let dimension of this.uiOption.fielDimensionList) {
+       if(dimension.field.logicalType.toString().indexOf('GEO') > -1 && dimension["layerNum"] && dimension["layerNum"] === 1) {
+         geomType = dimension.field.logicalType.toString();
+         break;
+       }
+     }
 
      if(geomType === "GEO_POINT") {
        if(layerType === "symbol" || layerType === "heatmap" || layerType === "tile") {
@@ -281,7 +288,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        this.color["schema"] = "#602663";
      }
 
-     this.type = layerType;
+     this.layerType = layerType;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -750,7 +757,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
    public changeLayerOption() {
      this.layerOptions = [{
-       type: this.type,
+       type: this.layerType,
        name: this.name,
        symbol: this.symbol,
        color: this.color,
@@ -990,7 +997,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   // Init
   public ngOnInit() {
 
-    this.type = this.uiOption.layers[0].type;
+    this.layerType = this.uiOption.layers[0].type;
     this.name = this.uiOption.layers[0].name;
     this.symbol = this.uiOption.layers[0].symbol;
     this.color = this.uiOption.layers[0].color;
@@ -1002,16 +1009,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
       this.rangesViewList = this.uiOption.layers[0].color['ranges'];
     }
 
-    //timeout 없으면 가끔 slider가 textbox로 생성됨
     this.changeLayerOption();
-    if(this.type === "heatmap") {
+
+    //timeout 없으면 가끔 slider가 textbox로 생성됨
+    if(this.layerType === "heatmap") {
       setTimeout(
         () => {
           this.setBlurSlider();
           this.setRadiusSlider();
         }
       );
-    } else if(this.type === "tile") {
+    } else if(this.layerType === "tile") {
       setTimeout(
         () => {
           this.setResolutionSlider();
@@ -1774,14 +1782,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    * @param {SimpleChanges} changes
    */
   public ngOnChanges(changes: SimpleChanges) {
-    if(this.type === "heatmap") {
+    if(this.layerType === "heatmap") {
       setTimeout(
         () => {
           this.setBlurSlider();
           this.setRadiusSlider();
         }
       );
-    } else if(this.type === "tile") {
+    } else if(this.layerType === "tile") {
       setTimeout(
         () => {
           this.setResolutionSlider();
