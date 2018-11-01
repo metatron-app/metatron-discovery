@@ -23,7 +23,7 @@
     <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchTableTextInit()"></em>
   </div>
   <!-- //search -->
-  <div class="ddp-ui-tablelist">
+  <div class="ddp-ui-tablelist" style="top: 145px;">
     <ul class="ddp-list-table">
       <li *ngFor="let item of tables; let index = index" (click)="setTableSql(item.name)" [class.ddp-info-selected]="selectedTableInfoLayer && index == selectedNum" >
         <em class="ddp-icon-table"></em>

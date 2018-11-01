@@ -30,10 +30,11 @@ import {AnalysisPredictionService} from "../page/component/analysis/service/anal
 import { DetailWorkbenchSchemaBrowserComponent } from './component/detail-workbench/detail-workbench-schema-browser/detail-workbench-schema-browser.component';
 import { CodemirrorComponent } from '../workbench/component/editor-workbench/codemirror.component';
 import { MetadataService } from '../meta-data-management/metadata/service/metadata.service';
+import { CanDeactivateGuard } from '../common/gaurd/can.deactivate.guard';
 
 // 라우트
 const workbenchRoutes: Routes = [
-  { path: ':id', component: WorkbenchComponent },
+  { path: ':id', component: WorkbenchComponent, canDeactivate:[CanDeactivateGuard] },
   { path: ':id/schemabrowser', component: DetailWorkbenchSchemaBrowserComponent}
 ];
 
