@@ -6351,9 +6351,10 @@ em.ddp-icon-navimenu {margin:-8px 0 0 -8px; width:16px; height:16px; background-
 .ddp-ui-rnb-contents.ddp-type {width:316px;}
 .ddp-ui-rnb-contents:before {display:inline-block; content:''; position:absolute; left:-5px; top:0; bottom:0; width:5px; background:url(../images/bg_shadow2.png) repeat-y;}
 
-.ddp-ui-rnb-contents .ddp-ui-title {padding:17px 0 15px 0; margin-left:15px; font-size:16px; color:#555d66; font-weight:bold; border-bottom:1px solid #e5e6e8;}
-.ddp-ui-rnb-contents .ddp-ui-title span.ddp-data-num {margin-left:10px; color:#666db7;}
+.ddp-ui-rnb-contents .ddp-ui-title {position:relative; padding:17px 0 15px 0; margin-left:15px; font-size:16px; color:#555d66; font-weight:bold; border-bottom:1px solid #e5e6e8;}
+.ddp-ui-rnb-contents .ddp-ui-title span.ddp-data-num {margin-left:10px; color:#b7b9c2;}
 .ddp-ui-rnb-contents .ddp-ui-title span.ddp-data-num2 {color:#b7b9c2; font-size:16px; font-weight:bold;}
+
 .ddp-ui-rnb-contents .ddp-ui-option {position:relative;}
 .ddp-ui-rnb-contents .ddp-wrap-selectbox {position:absolute; top:10px; right:17px;}
 .ddp-ui-rnb-contents .ddp-ui-option .ddp-form-search  {margin:6px 20px 9px 20px; width:200px;}
@@ -6365,14 +6366,56 @@ em.ddp-icon-navimenu {margin:-8px 0 0 -8px; width:16px; height:16px; background-
 .ddp-ui-rnb-contents .ddp-wrap-table-simple .ddp-table-tbody {position:absolute; top:23px; left:0; right:0; bottom:0; overflow-y:scroll;}
 .ddp-ui-rnb-contents .ddp-wrap-table-simple .ddp-table-tbody::-webkit-scrollbar-track {background:#f7f7f8;}
 .ddp-ui-rnb-contents .ddp-wrap-table-simple .ddp-table-tbody::-webkit-scrollbar-thumb  {border-color:#f7f7f8;}
+.ddp-ui-rnb-contents .ddp-ui-var-plus {position:absolute; top:53px; left:0; right:0; bottom:0; padding:15px 15px 0 15px;}
+.ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview {position:relative; margin-top:-15px;}
+.ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-wrap-addview .ddp-btn-add {display:inline-block; position:absolute; top:-33px; right:16px; width:12px; height:12px; background:url(../images/icon_add2.png) no-repeat; background-position:-55px top;}
 
-.ddp-ui-rnb-contents .ddp-ui-var-plus {padding:20px 0 0 15px;}
-.ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-type-selectbox {float:left; width:130px; box-sizing:border-box;}
+@keyframes plusspin {
+  from {transform:rotate(0deg);}
+  to {transform:rotate(45deg);}
+}
+
+.ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-wrap-addview.ddp-selected .ddp-btn-add {animation-name: plusspin;animation-duration: 0.3s;transform:rotate(45deg);}
+
+.ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-wrap-addview .ddp-ui-addview {display:none;}
+.ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-wrap-addview.ddp-selected .ddp-ui-addview {display:block;}
+
+.ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview .ddp-box-addview {width:316px; padding:15px; margin-left:-15px; margin-bottom:13px; background-color:#e7e7ea; box-sizing:border-box; font-weight:normal; z-index:10;}
+.ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview .ddp-box-addview:before {display:inline-block; position:absolute; bottom:100%; right:0; width:18px; height:11px; background:url(../images/icon_addview.png) no-repeat; content:'';}
+.ddp-ui-var-plus .ddp-ui-addview .ddp-list-addview tr th {padding:8px 0; color:#90969f; font-size:13px; font-weight:normal; text-align:left; vertical-align:top;}
+.ddp-ui-var-plus .ddp-ui-addview .ddp-list-addview tr td {padding:2px 0;}
+.ddp-ui-var-plus .ddp-ui-addview .ddp-list-addview tr td .ddp-type-selectbox.ddp-txt-type {width:120px;}
+.ddp-ui-var-plus .ddp-data-error {color:#e70000; font-size:12px; font-style:italic;}
+.ddp-ui-var-plus .ddp-data-error:before {display:inline-block; width:13px; height:13px; background:url(../images/icon_info.png) no-repeat; vertical-align:middle; background-position:-28px top; content:'';}
+
+.ddp-ui-var-plus .ddp-ui-addview .ddp-box-buttons {padding:2px 0 0 46px;}
+.ddp-ui-var-plus .ddp-list-form-plus {color:#b7b9c2; font-size:13px;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-input-typebasic.ddp-readonly {border-color:transparent; background:none; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-input-typebasic.ddp-readonly.ddp-value {color:#90969f;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list {float:left; margin:0 -15px; padding:2px 12px 2px 15px; cursor:pointer;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list:hover {background-color:#e7e7ea;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-form-multy2 {margin-bottom:0px;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-form-multy2.ddp-type em.ddp-icon-type-calen3,
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-form-multy2.ddp-type em.ddp-icon-type-text {margin-top:0; top:9px;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-form-multy2 .ddp-ui-buttons {margin-top:0; top:5px;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-form-multy2 .ddp-ui-buttons .ddp-icon-control-insert {position:relative; top:2px;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-box-typebasic {width:55%; float:left;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-box-typebasic.ddp-value {width:43%; float:right;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-box-typebasic input.ddp-input-typebasic {width:100%; cursor:pointer;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list .ddp-box-typebasic .ddp-form-calen {float:left; width:100%;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list input {cursor:text !important;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list input[type="text"].ddp-readonly {cursor:pointer !important;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-link-buttons {clear:both; padding:6px 0 3px 0;text-align:right;}
+
+.ddp-ui-var-plus .ddp-list-blank {clear:both; position:relative; color:#b7b9c2; font-size:13px; letter-spacing:-1px;}
+
+.ddp-ui-var-plus .ddp-list-blank .ddp-icon-blank-plus {display:inline-block; position:relative; top:-2px;width:9px; height:10px; margin-right:6px; background:url(../images/icon_blank.png) no-repeat; vertical-align:middle;}
+.ddp-ui-var-plus .ddp-list-blank .ddp-icon-blank-point {display:inline-block; position:absolute; top:0; right:2px; width:10px; height:14px; margin-left:5px; background:url(../images/icon_blank.png) no-repeat; background-position:left -11px; vertical-align:middle;}
 .ddp-ui-var-plus a.ddp-link-var-add {display:inline-block; float:right; position:relative; top:6px; padding-left:13px; padding-right:15px; color:#90969f; font-size:12px; overflow:hidden;}
 .ddp-ui-var-plus a.ddp-link-var-add.ddp-disabled {opacity:0.5; cursor: no-drop;}
 .ddp-ui-var-plus a.ddp-link-var-add em.ddp-box-plus {display:inline-block;  position:relative; width:14px; height:14px; margin-right:7px; text-align:center; border:1px solid #dededf; vertical-align: middle;}
 .ddp-ui-var-plus a.ddp-link-var-add em.ddp-box-plus:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-5px 0 0 -5px; width:9px; height:9px; background:url(../images/btn_minus_plus.png) no-repeat; background-position:left -2px; content:'';}
-.ddp-ui-rnb-contents .ddp-ui-form-list {position:absolute; top:119px; left:0; right:0; bottom:0; padding:0 15px; overflow:auto;}
+.ddp-ui-rnb-contents .ddp-ui-form-list {}
 .ddp-form-multy2 {position:relative; padding-right:40px; margin-bottom:6px;}
 .ddp-form-multy2.ddp-type {padding-left:20px;}
 .ddp-form-multy2.ddp-type em.ddp-icon-type-calen3,
@@ -6381,6 +6424,7 @@ em.ddp-icon-navimenu {margin:-8px 0 0 -8px; width:16px; height:16px; background-
 .ddp-form-multy2 .ddp-input-typebasic.ddp-value {float:right; width:43%;}
 .ddp-form-multy2 .ddp-ui-buttons {position:absolute; top:50%; right:0; margin-top:-11px;}
 .ddp-form-multy2 .ddp-ui-buttons .ddp-btn-control {position:relative; float:left; margin-left:3px;}
+
 .ddp-form-multy2 .ddp-ui-buttons .ddp-btn-control .ddp-ui-tooltip-info {display:none; top:22px; left:inherit; right:-10px;}
 .ddp-form-multy2 .ddp-ui-buttons .ddp-btn-control:hover .ddp-ui-tooltip-info {display:block;}
 .ddp-form-multy2 .ddp-ui-buttons .ddp-btn-control .ddp-ui-tooltip-info em.ddp-icon-view-top {left:inherit; right:17px}
@@ -6388,6 +6432,10 @@ em.ddp-icon-navimenu {margin:-8px 0 0 -8px; width:16px; height:16px; background-
 .ddp-form-multy2 .ddp-ui-buttons .ddp-btn-control.ddp-disabled {opacity:0.3;}
 .ddp-form-multy2 .ddp-ui-buttons .ddp-btn-control.ddp-disabled:after {display:inline-block; content:'';position:absolute; top:-3px; left:-3px; right:-3px; bottom:-3px; cursor: no-drop;}
 .ddp-form-multy2 .ddp-ui-buttons .ddp-btn-control.ddp-disabled .ddp-ui-tooltip-info {display:none;}
+
+.ddp-form-multy2 .ddp-ui-buttons .ddp-btn-control .ddp-wrap-popup2 {display:none; position:absolute; top:100%; right:0; margin-top:3px;}
+.ddp-form-multy2 .ddp-ui-buttons .ddp-btn-control.ddp-selected .ddp-wrap-popup2 {display:block;}
+.ddp-form-multy2 .ddp-ui-buttons .ddp-btn-control.ddp-selected .ddp-icon-control-more2:before {background-position-x:-3px;}
 
 .ddp-form-multy2 .ddp-ui-calen {position:relative; float:right; width:43%; background-color:#fff;}
 
@@ -8519,6 +8567,19 @@ ul.ddp-list-tab-type2 li a:hover + .ddp-ui-tooltip-info {display:block; width:50
 .ddp-workflow-detail .ddp-wrap-result.ddp-full .ddp-wrap-tab2 .ddp-btn-size-full  {width:17px; height:17px; background-position:left -44px;}
 .ddp-workflow-detail .ddp-wrap-result.ddp-full .ddp-wrap-tab2 .ddp-btn-size-full:hover {background-position-x:-18px;}
 
+/**************************************************************
+  Page : 워크벤치 상세 (rnb)
+**************************************************************/
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview {margin-top:-16px;}
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-title {margin-left:0px; padding-left:15px;}
+
+/**************************************************************
+  Page : 워크벤치 상세 (rnb) Global variable
+**************************************************************/
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-title span.ddp-data-num {margin-left:3px}
+.page-workbench .ddp-ui-rnb-contents .ddp-ui-var-plus .ddp-ui-addview .ddp-box-addview {margin-bottom:2px;}
+.page-workbench .ddp-ui-var-plus .ddp-list-form-plus .ddp-wrap-link-list.ddp-edit {background-color:#e7e7ea;}
+.ddp-ui-var-plus .ddp-list-form-plus .ddp-link-buttons .ddp-btn-pop {min-width:inherit; padding:6px 12px;}
 
 ul.ddp-ui-tab.ddp-type3 li a {border-left:1px solid #eee;  border-top:1px solid #eee; border-bottom:none; color:#4b515b; font-size:12px; font-weight:normal;}
 ul.ddp-ui-tab.ddp-type3 li.ddp-selected a {border-right:none; font-weight:bold;}
