@@ -314,8 +314,11 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
 
   /**
    * Click unix time checkbox
+   * @param {MouseEvent} event
    */
-  public onClickUnixCode(): void {
+  public onClickUnixCode(event: MouseEvent): void {
+    // stop double event
+    event.preventDefault();
     delete this.column.isValidReplaceValue;
     if (this.column.format.type === FieldFormatType.DATE_TIME) {
       this.column.format.type = FieldFormatType.UNIX_TIME;

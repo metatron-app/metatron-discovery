@@ -290,37 +290,26 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   private _setDefaultDatasetName(type : string) : void {
 
     if ('FILE' === type) {
-      //this.name = this.datasetFile.filename.split('.')[0];
-      let splited = this.datasetFile.filename.split('.');
-      let ds_name = splited[0]
-      if(1<splited.length) {
-          let extension = splited[1].toUpperCase();
-          if(extension.startsWith('XLS')) {
-            this.name = ds_name +' (EXCEL)';
-          } else if(extension=='CSV') {
-            this.name = ds_name +' (CSV)';
-          } else {
-            this.name = ds_name;
-          }
-      } else {
-          this.name = ds_name;
+      let file = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(this.datasetFile.filename);
+      let extension = file[1];
+      let fileName = file[0].split('.' + extension)[0];
+
+      if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
+        this.name = `${fileName} - ${this.datasetFile.sheetname} (EXCEL)`;
+      } else if(extension.toUpperCase() === 'CSV') {
+        this.name = `${fileName} (CSV)`;
       }
     } else if ('DB' === type) {
-      //this.name = this.datasetJdbc.tableName;
-      let ds_name = this.datasetJdbc.tableName;
       if( !isUndefined(this.datasetJdbc.dataconnection.implementor) ) {
-          this.name = ds_name +' ('+this.datasetJdbc.dataconnection.implementor+')';
+        this.name = this.datasetJdbc.tableName +' ('+this.datasetJdbc.dataconnection.implementor+')';
       } else {
-          this.name = ds_name;
+        this.name = this.datasetJdbc.tableName;
       }
     } else if ('STAGING' === type) {
-      //this.name = this.datasetHive.tableName;
-      let ds_name = this.datasetHive.tableName;
-      this.name = ds_name +' (STAGING)';
+      this.name = `${this.datasetHive.tableName} (STAGING)`;
     }
 
     setTimeout(() => { this.nameElement.nativeElement.select(); });
-
   } // function - _setDefaultDatasetName
 
 }
