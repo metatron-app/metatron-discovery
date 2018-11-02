@@ -3000,10 +3000,3 @@ enum DataConnectionType {
   POSTGRESQL = <any>'POSTGRESQL',
   PRESTO = <any>'PRESTO'
 }
-
-enum DataConnectionType {
-  MYSQL = <any>'MYSQL',
-  HIVE = <any>'HIVE',
-  POSTGRESQL = <any>'POSTGRESQL',
-  PRESTO = <any>'PRESTO'
-}
