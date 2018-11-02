@@ -130,10 +130,11 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     // type list
     this.dataTypes = [
       { name: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
-      { name: this.translateService.instant('msg.storage.ui.list.import'), value: 'IMPORT' },
-      { name: this.translateService.instant('msg.storage.ui.list.file'), value: 'FILE' },
-      { name: this.translateService.instant('msg.storage.ui.list.jdbc'), value: 'JDBC' },
-      { name: this.translateService.instant('msg.storage.ui.list.hive'), value: 'HIVE' },
+      { name: this.translateService.instant('msg.storage.li.druid'), value: 'IMPORT' },
+      { name: this.translateService.instant('msg.storage.li.file'), value: 'FILE' },
+      { name: this.translateService.instant('msg.storage.li.db'), value: 'JDBC' },
+      { name: this.translateService.instant('msg.storage.li.hive'), value: 'HIVE' },
+      { name: this.translateService.instant('msg.storage.li.stream'), value: 'REALTIME' }
     ];
 
     this.ingestionTypes = [
@@ -414,25 +415,21 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
   /**
    * 데이터 타입 변경 값
    * @param {SourceType} type
-   * @returns {any}
+   * @returns {string}
    */
-  public getDataTypeChange(type: SourceType): any {
-    let result;
+  public getDataTypeChange(type: SourceType): string {
     switch (type) {
       case SourceType.IMPORT:
-        result = this.translateService.instant('msg.storage.ui.list.import');
-        break;
+        return this.translateService.instant('msg.storage.li.druid');
       case SourceType.FILE:
-        result = this.translateService.instant('msg.storage.ui.list.file');
-        break;
+        return this.translateService.instant('msg.storage.li.file');
       case SourceType.JDBC:
-        result = this.translateService.instant('msg.storage.ui.list.jdbc');
-        break;
+        return this.translateService.instant('msg.storage.li.db');
       case SourceType.HIVE:
-        result = this.translateService.instant('msg.storage.ui.list.hive');
-        break;
+        return this.translateService.instant('msg.storage.li.hive');
+      case SourceType.REALTIME:
+        return this.translateService.instant('msg.storage.li.stream');
     }
-    return result;
   }
 
   /**
@@ -496,10 +493,11 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
 
     this.dataTypes = [
       { name: this.translateService.instant('msg.storage.ui.list.all'), value: 'all' },
-      { name: this.translateService.instant('msg.storage.ui.list.import'), value: 'IMPORT' },
-      { name: this.translateService.instant('msg.storage.ui.list.file'), value: 'FILE' },
-      { name: this.translateService.instant('msg.storage.ui.list.jdbc'), value: 'JDBC' },
-      { name: this.translateService.instant('msg.storage.ui.list.hive'), value: 'HIVE' },
+      { name: this.translateService.instant('msg.storage.li.druid'), value: 'IMPORT' },
+      { name: this.translateService.instant('msg.storage.li.file'), value: 'FILE' },
+      { name: this.translateService.instant('msg.storage.li.db'), value: 'JDBC' },
+      { name: this.translateService.instant('msg.storage.li.hive'), value: 'HIVE' },
+      { name: this.translateService.instant('msg.storage.li.stream'), value: 'REALTIME' },
     ];
 
     this.ingestionTypes = [
