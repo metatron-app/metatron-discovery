@@ -190,7 +190,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     } else {
       switch (itemType.toUpperCase()) {
         case 'TIMESTAMP':
-          result = this.column.format.type === FieldFormatType.DATE_TIME ? this.columnData[0] : this.currentMilliseconds;
+          result = (this.column.format && this.column.format.type === FieldFormatType.DATE_TIME) ? this.columnData[0] : this.currentMilliseconds;
           break;
         case 'BOOLEAN':
           result = 'false';
@@ -334,23 +334,20 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
    * @param type
    */
   public onChangeType(type) {
-
     // 타입이 다를때만 작동
     if (this.column.logicalType !== type.value) {
-      // 타입 변경
-      this.column.logicalType = type.value;
-
       // null 타입 변경
       this.column.ingestionRule.type = 'default';
       // 플래그 제거
       delete this.column.isValidReplaceValue;
       delete this.column.isValidTimeFormat;
-
       // timestamp 인 경우
-      if (this.column.logicalType === LogicalType.TIMESTAMP) {
+      if (type.value === LogicalType.TIMESTAMP) {
         // format 지정
         this.checkTimeFormat(this.columnData);
       }
+      // 타입 변경
+      this.column.logicalType = type.value;
       // time stamp flag
       this.changeEvent.emit();
     }
@@ -649,12 +646,14 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
    * @param {string} format
    */
   private checkTimeFormat(data: any, format?: string) {
-
+    // init field format
+    this.column.format = new FieldFormat();
     // column data
     let columnData = data;
-
     // data 가 없다면 타임스탬프를 지정할수 없다.
     if (data.length === 0) {
+      this.column.isValidTimeFormat = false;
+      this.column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.no.data');
       return;
     } else if (data.length > 20) {
       columnData = columnData.slice(0, 19);
@@ -671,8 +670,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
 
     // 로딩 show
     this.loadingShow();
-    // init field format
-    this.column.format = new FieldFormat();
+
     this.datasourceService.checkValidationDateTime(param)
       .then((result) => {
         // 로딩 hide
