@@ -305,6 +305,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public isFocusResultTooltip: boolean = false;
 
+  // 접속한 사용자 OS 여부 (MAC, WINDOW)
+  public isAgentUserMacOs : boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -341,6 +344,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.activatedRoute.params.subscribe((params) => {
       this.workbenchId = params['id'];
     });
+
+
+    // 사용자 운영체제 확인
+    ( navigator.userAgent.replace(/ /g,'').toUpperCase().indexOf("MAC") == -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true );
 
   }
 
