@@ -209,13 +209,15 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   public getMasterDataInfo(type: SourceType): string {
     switch (type) {
       case SourceType.IMPORT:
-        return this.translateService.instant('msg.storage.ui.list.import');
+        return this.translateService.instant('msg.storage.li.druid');
       case SourceType.FILE:
-        return this.translateService.instant('msg.storage.ui.list.file');
+        return this.translateService.instant('msg.storage.li.file');
       case SourceType.JDBC:
-        return this.translateService.instant('msg.storage.ui.list.jdbc') + `(${this.getConnectionTypeLabel(this.getConnection.implementor)})`;
+        return this.translateService.instant('msg.storage.li.db') + `(${this.getConnectionTypeLabel(this.getConnection.implementor)})`;
       case SourceType.HIVE:
-        return this.translateService.instant('msg.storage.ui.list.hive');
+        return this.translateService.instant('msg.storage.li.hive');
+      case SourceType.REALTIME:
+        return this.translateService.instant('msg.storage.li.stream');
     }
   }
 
