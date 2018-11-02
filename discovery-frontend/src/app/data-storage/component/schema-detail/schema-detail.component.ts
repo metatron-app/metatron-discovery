@@ -452,6 +452,12 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
    * @param {Field} column
    */
   public onClickTimeFormatValidation(column: Field): void {
+    // 컬럼의 데이터가 0이라면
+    if (this.columnData.length === 0) {
+      column.isValidTimeFormat = false;
+      column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.column.no.data');
+      return;
+    }
     // format이 빈값이라면
     if (StringUtil.isEmpty(column.format.format)) {
       column.isValidTimeFormat = false;
