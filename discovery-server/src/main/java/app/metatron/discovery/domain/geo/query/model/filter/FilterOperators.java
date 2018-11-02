@@ -42,6 +42,11 @@ public abstract class FilterOperators {
         propertyIsBetweens = Lists.newArrayList();
       }
       propertyIsBetweens.add((PropertyIsBetween) filterProperties);
+    } else if(filterProperties instanceof BBox) {
+      if(bbox == null) {
+        bbox = Lists.newArrayList();
+      }
+      bbox.add((BBox) filterProperties);
     }
 
   }
