@@ -1459,6 +1459,7 @@
   "msg.storage.li.ss": "Data Snapshot",
   "msg.storage.li.druid": "Metatron Engine",
   "msg.storage.li.stream": "Stream",
+  "msg.storage.li.hive": "Staging DB",
   "msg.storage.create-dsource.db.sub.title": "Please set data connection",
   "msg.storage.ui.load.dconn": "Load data connection",
   "msg.storage.th.db_type": "DB Type",
