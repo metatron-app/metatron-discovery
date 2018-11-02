@@ -1326,7 +1326,7 @@ public class DataFrame implements Serializable, Transformable {
 
     for (int rowno = offset; rowno < offset + length; rowno++) {
       try {
-        if (((Expr) condExpr).eval(prevDf.rows.get(rowno)).longValue() == ((keep) ? 1 : 0)) {
+        if (((Expr) condExpr).eval(prevDf.rows.get(rowno)).asLong() == ((keep) ? 1 : 0)) {
           rows.add(prevDf.rows.get(rowno));
         }
       } catch (Exception e) {
