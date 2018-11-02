@@ -89,9 +89,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   @ViewChild(LoadingComponent)
   private loadingBar: LoadingComponent;
 
-  // 탭 번호
-  private tabNum: number = 0;
-
   // 선택된 탭 번호
   private selectedTabNum: number = 0;
 
@@ -254,11 +251,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public mainViewShow: boolean = true;
 
+  // 검색바 표시 여부
+  public isSearchLink:boolean = false;
+
   // 데이터 메니저 여부
   public isDataManager: boolean = false;
-
-  // 쿼리조회후 가져올 갯 수
-  public queryResultNumber: number = 1000;
 
   @ViewChild('wbName')
   private wbName: ElementRef;
@@ -335,6 +332,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public ngOnInit() {
     super.ngOnInit();
+    this.useUnloadConfirm = true;
 
     if (this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) === '') {
       this.router.navigate(['/user/login']).then();
@@ -447,7 +445,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @param {string} editorId
    */
   public saveLocalStorage(value: string, editorId: string): void {
-    this.useUnloadConfirm = true;
     localStorage.setItem('workbench' + this.workbenchId + editorId, value);
   }
 
@@ -456,7 +453,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * @param {string} editorId
    */
   public removeLocalStorage(editorId: string): void {
-    this.useUnloadConfirm = false;
     localStorage.removeItem('workbench' + this.workbenchId + editorId);
   }
 
@@ -539,28 +535,19 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * 새로운 에디터 만들기
    * @param {string} text
    * @param {boolean} selectedParam
-   * @param {boolean} increase
    */
-  public createNewEditor(text: string = '', selectedParam: boolean = true, increase: boolean = false) {
-    // 탭번호 증가
-    if (increase === true) {
-      this.tabNum = Number(this.textList.length);
-    }
+  public createNewEditor(text: string = '', selectedParam: boolean = true) {
 
-    const tabPrefix: string = this.translateService.instant('msg.bench.ui.tab-prefix');
-    const prefixReg: RegExp = new RegExp(tabPrefix);
-    const numRegExp: RegExp = /^[0-9]+$/;
-    const numList: number[]
-      = this.textList
-      .map(item => item.name.replace(prefixReg, '').trim())
-      .filter(item => numRegExp.test(item))
-      .map(item => Number(item));
-    const lastTabNum: number = (numList && 0 < numList.length) ? _.max(numList) : 0;
+    const cntEditorTabs: number = this.textList.length;
+    const currMaxIndex =
+      this.textList.reduce( ( acc:number, curr:any ) => {
+        return _.max( [acc, isNullOrUndefined( curr.index ) ? 0 : curr.index ] );
+      }, cntEditorTabs );
 
     const queryEditor: QueryEditor = new QueryEditor();
-    queryEditor.name = tabPrefix + ' ' + (lastTabNum + 1);
+    queryEditor.name = this.translateService.instant('msg.bench.ui.tab-prefix') + ' ' + (currMaxIndex + 1);
     queryEditor.workbench = CommonConstant.API_CONSTANT.API_URL + 'workbenchs/' + this.workbenchId;
-    queryEditor.order = this.tabNum;
+    queryEditor.order = currMaxIndex;
     queryEditor.query = '';
 
     this.loadingShow();
@@ -573,6 +560,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
           name: queryEditor.name,
           query: text === '' ? '' : text,
           editorId: data.id,
+          index: data.index,
           editorMode: false
         });
         // 슬라이드 아이콘 show hide
@@ -1093,13 +1081,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       queryEditor.webSocketId = this.websocketId;
       queryEditor.editorId = this.textList[this.selectedTabNum]['editorId'];
 
-      if (this.queryResultNumber && this.queryResultNumber !== 0) {
-        queryEditor['numRows'] = this.queryResultNumber;
-      } else {
-        this.queryResultNumber = 1000;
-        queryEditor['numRows'] = this.queryResultNumber;
-      }
-
       // 실행 쿼리 찾기
       if (param === 'ALL') {
         runningQuery = this.getSelectedTabText();
@@ -1281,7 +1262,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       targetTab.pageNum++;
     }
 
-    this.workbenchService.runQueryResult(editorId, csvFilePath, this.queryResultNumber, targetTab.pageNum, fieldList)
+    this.workbenchService.runQueryResult(editorId, csvFilePath, targetTab.result.defaultNumRows, targetTab.pageNum, fieldList)
       .then((result) => {
         try {
           // 쿼리 결과 값으로 교체
@@ -1569,6 +1550,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       });
   } // function - checkQueryStatus
 
+  // noinspection JSMethodCanBeStatic
   /**
    * set number format
    * @param {number} num
@@ -1912,7 +1894,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   private readQuery(queryEditors: any[]) {
     if (queryEditors.length === 0) {
-      this.createNewEditor('', true, false);
+      this.createNewEditor('', true);
     } else {
       const editors = queryEditors.sort((a, b) => {
         return a.order - b.order;
@@ -2204,7 +2186,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     const rows: any[] = [];
-    const startRowIdx = (currentTab.pageNum * this.queryResultNumber);
+    const startRowIdx = (currentTab.pageNum * currentTab.result.defaultNumRows);
     for (let idx1: number = 0; idx1 < data.data.length; idx1 = idx1 + 1) {
       const row = {};
       for (let idx2: number = 0; idx2 < data.fields.length; idx2 = idx2 + 1) {
@@ -2349,7 +2331,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 뒤로 돌아가기
   public goBack() {
     // unload false
-    this.useUnloadConfirm = false;
     const cookieWs = this.cookieService.get(CookieConstant.KEY.CURRENT_WORKSPACE);
     let cookieWorkspace = null;
     if (cookieWs) {
@@ -2469,6 +2450,20 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.mainViewShow = true;
     this.mode = '';
   } // function - createDatasourceComplete
+
+  /**
+   * 결과 검색 레이어를 On/Off 한다.
+   * @param {MouseEvent} event
+   */
+  public toggleResultSearchLayer(event:MouseEvent) {
+    event.stopPropagation();
+    const $evtTarget = $( event.target );
+    if( $evtTarget.hasClass( 'ddp-box-searching' ) || 0 < $evtTarget.closest( '.ddp-box-searching' ).length ) {
+      return;
+    }
+    this.isSearchLink = !this.isSearchLink;
+    this.safelyDetectChanges();
+  } // function - toggleSearchLayer
 
   /**
    * 결과 미리보기
@@ -2701,8 +2696,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public setSchemaBrowser(): void {
 
-    let connInfo: any = {};
-    connInfo = this.workbench;
+    let connInfo: any = this.workbench;
 
     const selectedSecurityType = [
         { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
@@ -2984,18 +2978,27 @@ class ResultTab {
 }
 
 class QueryResult {
-  public auditId: string;
+  // public auditId: string;
   public csvFilePath: string;
   public data: any[];
   public fields: Field[];
   public numRows: number;
   public queryEditorId: string;
-  public queryHistoryId: number;
+  // public queryHistoryId: number;
   public queryResultStatus: 'SUCCESS' | 'FAIL';
   public runQuery: string;
   public startDateTime: string;
   public finishDateTime: string;
   public tempTable: string;
+  public defaultNumRows: number = 0;  // pageSize, 페이지당 호출 건 수
+  public maxNumRows: number = 0;      // 최대 호출 가능 건 수
+}
+
+enum DataConnectionType {
+  MYSQL = <any>'MYSQL',
+  HIVE = <any>'HIVE',
+  POSTGRESQL = <any>'POSTGRESQL',
+  PRESTO = <any>'PRESTO'
 }
 
 enum DataConnectionType {

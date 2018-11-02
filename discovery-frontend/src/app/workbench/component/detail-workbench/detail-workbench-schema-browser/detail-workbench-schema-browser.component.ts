@@ -23,7 +23,7 @@ import { GridOption } from '../../../../common/component/grid/grid.option';
 import { CommonConstant } from '../../../../common/constant/common.constant';
 import { WorkbenchService } from '../../../service/workbench.service';
 import { ActivatedRoute } from '@angular/router';
-import {ConnectionType, Dataconnection} from '../../../../domain/dataconnection/dataconnection';
+import { ConnectionType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
 import { MetadataService } from '../../../../meta-data-management/metadata/service/metadata.service';
 import * as _ from 'lodash';
 import { isUndefined } from 'util';

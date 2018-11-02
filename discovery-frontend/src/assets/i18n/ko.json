@@ -276,6 +276,7 @@
   "msg.comm.ui.workspace.type" : "워크스페이스 타입",
   "msg.comm.alert.error": "에러 항목을 확인해 주세요",
   "msg.comm.alert.modify.success": "변경 사항이 저장되었습니다",
+  "msg.comm.btn.edit": "편집",
 
   "msg.lnb.btn.Manual" : "메뉴얼",
   "msg.lnb.btn.workspace-list" : "워크스페이스 목록 >>",
@@ -536,6 +537,7 @@
   "msg.bench.ui.input.date": "날짜 입력",
   "msg.bench.alert.input.variable.name": "변수명을 입력해 주세요",
   "msg.bench.alert.input.variable.val": "변수값을 입력해 주세요",
+  "msg.bench.alert.input.variable.name.duplicated": "같은 이름의 변수명이 존재합니다",
   "msg.bench.alert.id.description": "접속할 아이디를 입력해 주세요",
   "msg.bench.alert.passwd.description": "접속할 패스워드를 입력해 주세요",
   "msg.bench.ui.wb.login.msg": "워크벤치용 계정 정보를 입력해주세요<br>이 계정 정보는 저장되지 않으며,매번 입력하여야 합니다",
@@ -587,6 +589,12 @@
   "msg.bench.ui.editor.shortcut.cancl" : "작업 취소",
   "msg.bench.ui.editor.shortcut.auto.completion" : "쿼리문 자동추천",
   "msg.bench.ui.table.metadata.name" : "메타데이터 명",
+  "msg.bench.ui.global.variable.add.desc" : "버튼을 눌러서 글로벌 변수를 추가할 수 있습니다",
+  "msg.bench.ui.type" : "타입",
+  "msg.bench.ui.name" : "이름",
+  "msg.bench.ui.value" : "값",
+  "msg.bench.alert.global.variable.delete" : "글로벌 변수를 삭제하시겠습니까?",
+  "msg.bench.ui.global.variable.duplicated" : "중복",
 
   "msg.nbook.alert.input.name": "노트북 이름을 입력해 주세요",
   "msg.nbook.alert.input.description": "노트북 설명을 입력해 주세요",

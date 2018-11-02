@@ -28,6 +28,8 @@ public class BulkLoadSpec implements Serializable {
 
   Map<String, Object> tuningConfig;
 
+  Map<String, Object> properties;
+
   public BulkLoadSpec() {
   }
 
@@ -68,5 +70,13 @@ public class BulkLoadSpec implements Serializable {
 
   public void setTuningConfig(Map<String, Object> tuningConfig) {
     this.tuningConfig = tuningConfig;
+  }
+
+  public Map<String, Object> getProperties() {
+    return properties;
+  }
+
+  public void setProperties(Map<String, Object> properties) {
+    this.properties = properties;
   }
 }

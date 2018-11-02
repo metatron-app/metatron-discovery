@@ -89,13 +89,13 @@ public class QueryEditorController {
     String query = StringUtils.defaultString(requestBody.getQuery());
     String webSocketId = StringUtils.defaultString(requestBody.getWebSocketId());
     String database = StringUtils.defaultString(requestBody.getDatabase());
-    int numRows = requestBody.getNumRows();
+//    int numRows = requestBody.getNumRows();
 
     LOGGER.debug("id : {}", id);
     LOGGER.debug("query : {}", query);
     LOGGER.debug("webSocketId : {}", webSocketId);
     LOGGER.debug("database : {}", database);
-    LOGGER.debug("numRows : {}", numRows);
+//    LOGGER.debug("numRows : {}", numRows);
 
     Assert.isTrue(!query.isEmpty(), "Parameter 'query' is empty.");
     Assert.isTrue(!webSocketId.isEmpty(), "Parameter 'webSocketId' is empty.");
@@ -142,7 +142,7 @@ public class QueryEditorController {
 
     //3. 쿼리 실행 서비스 호출
     List<QueryResult> queryResults = queryEditorService.getQueryResult(queryEditor, jdbcDataConnection, workbench,
-            query, webSocketId, database, numRows);
+            query, webSocketId, database);
 
     //4. Audit에 쿼리 결과 저장 (Hive Audit Hook와 충돌 방지 하기 위해 Controller 레벨에서 수행함)
     //Hive Hook에서 Update할때 버전이 안맞아 업데이트 에러방지
