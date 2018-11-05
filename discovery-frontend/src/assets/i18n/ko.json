@@ -1459,6 +1459,7 @@
   "msg.storage.li.ss": "데이터스냅샷",
   "msg.storage.li.druid": "메타트론 엔진",
   "msg.storage.li.stream": "실시간",
+  "msg.storage.li.hive": "Staging DB",
   "msg.storage.create-dsource.db.sub.title": "데이터커넥션 정보를 입력해 주세요",
   "msg.storage.ui.load.dconn": "데이터커넥션 로드",
   "msg.storage.th.db_type": "DB 타입",
