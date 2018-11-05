@@ -2830,6 +2830,14 @@ em.ddp-icon-cross.type-apply:before {background-position:-12px -20px;}
 
 .ddp-wrap-shelf {padding:5px 0; overflow:hidden; border-bottom:1px solid #d8d8dd;}
 .ddp-ui-shelf {position:relative; height:47px; padding-left:49px;}
+.ddp-ui-shelf.ddp-disabled {}
+.ddp-wrap-shelf.ddp-mapview .ddp-ui-shelf.ddp-disabled  .ddp-ui-drag-slide-in {opacity: 0.3;}
+.ddp-wrap-shelf.ddp-mapview .ddp-ui-shelf.ddp-disabled  .ddp-ui-drag-slide-in:before {position:absolute; top:0; left:0; right:0; bottom:0; z-index:1; content:'';}
+
+.ddp-ui-shelf.ddp-disabled em.ddp-icon-mapview1,
+.ddp-ui-shelf.ddp-disabled em.ddp-icon-mapview2,
+.ddp-ui-shelf.ddp-disabled em.ddp-icon-mapview3 {opacity:0.3;}
+
 .ddp-ui-shelf.ddp-add-self {background-color:#f2f1f8;}
 .ddp-ui-shelf.ddp-add-self em[class*="ddp-icon-mapview"] {background-color:#f2f1f8;}
 
@@ -3760,6 +3768,17 @@ em.ddp-icon-line-curve,.ddp-list-express em.ddp-icon-cross
 .ddp-list-express [class*="ddp-line-bold"] {display:inline-block; position:absolute; top:50%; left:50%; margin-left:-8px; width:16px; height:1px; background-color: #4b515b;}
 .ddp-list-express em.ddp-line-bold2 {height:2px; margin-top:-1px;}
 .ddp-list-express em.ddp-line-bold3 {height:3px; margin-top:-2px;}
+
+.ddp-list-express em.ddp-line-dotted,
+.ddp-list-express em.ddp-line-dashed {display:inline-block; position:absolute; top:50%; left:50%; background:url(../images/icon_presentation2_map.png) no-repeat;}
+.ddp-list-express em.ddp-line-dotted {width:14px; height:2px; margin:-1px 0 0 -7px;}
+.ddp-list-express em.ddp-line-dashed {width:16px; height:3px; margin:-1px 0 0 -8px; background-position:left -3px;}
+.ddp-list-express li.ddp-selected em.ddp-line-dotted {background-position-x:-15px;}
+.ddp-list-express li.ddp-selected em.ddp-line-dashed {background-position-x:-17px;}
+
+
+
+
 
 .ddp-list-express li.ddp-selected [class*="ddp-line-bold"] {background-color:#fff;}
 .ddp-list-express li.ddp-selected em.ddp-icon-font-bold {background-position:0px -179px !important;}
@@ -8276,8 +8295,8 @@ em.ddp-icon-mapview3-w:before {background-position-x:0;}
 .ddp-table-info tr td {color:#fff; font-size:13px; }
 .ddp-table-info tr + tr th,
 .ddp-table-info tr + tr td {padding-top:6px;}
-
-.ddp-layout-remark {width:200px; background-color:#fff; border:1px solid #e7e7ea; border-radius:2px;}
+.ddp-wrap-remark {position:absolute; top:20px; right:0; bottom:20px; box-sizing:border-box;}
+.ddp-layout-remark {width:200px; max-height:100%; background-color:#fff; border:1px solid #e7e7ea; border-radius:2px; overflow:auto; box-sizing:border-box;}
 .ddp-layout-remark .ddp-ui-layer {padding:24px 20px;}
 .ddp-layout-remark .ddp-ui-layer + .ddp-ui-layer {border-top:1px solid #ededee;}
 .ddp-layout-remark .ddp-ui-layer .ddp-label {display:block; padding-bottom:16px; color:#4a515c; font-size:14px; font-weight:bold;}
@@ -8738,3 +8757,15 @@ table tr td .ddp-status-button .ddp-btn-status-status {width:11px; height:11px; 
 .popup-workbench table.ddp-table-detail2 tr td .ddp-link-url {color:#69a2f8; font-size:13px;}
 .popup-workbench.ddp-column-detail .ddp-ui-detail {border-top:none;}
 .popup-workbench .ddp-ui-preview-contents .ddp-ui-detail + .ddp-ui-detail .ddp-ui-title {padding-top:0px;}
+
+
+/**************************************************************
+  Page : 맵뷰
+**************************************************************/
+.ddp-page-mapview .ddp-btn-color-heatmap1 {background:url(../images/img_color_heatmap_type1.png) no-repeat; }
+.ddp-page-mapview .ddp-btn-color-heatmap2 {background:url(../images/img_color_heatmap_type2.png) no-repeat;}
+.ddp-page-mapview .ddp-btn-color-heatmap3 {background:url(../images/img_color_heatmap_type3.png) no-repeat;}
+.ddp-page-mapview .ddp-btn-color-heatmap4 {background:url(../images/img_color_heatmap_type4.png) no-repeat;}
+.ddp-page-mapview .ddp-btn-color-heatmap5 {background:url(../images/img_color_heatmap_type5.png) no-repeat;}
+.ddp-page-mapview .ddp-btn-color-heatmap6 {background:url(../images/img_color_heatmap_type6.png) no-repeat;}
+.ddp-page-mapview .ddp-btn-color-heatmap7 {background:url(../images/img_color_heatmap_type7.png) no-repeat;}

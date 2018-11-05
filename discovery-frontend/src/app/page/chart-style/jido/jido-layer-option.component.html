@@ -24,18 +24,16 @@
       <div class="ddp-box-down">
 
         <div class="ddp-wrap-divide">
-
           <!-- divide -->
           <div class="ddp-divide2 ">
             <div class="ddp-list-label">{{'msg.page.layer.map.name' | translate}}</div>
             <input type="text" class="ddp-input-typebasic" placeholder="">
           </div>
           <!-- //divide -->
-          <!-- [point] -->
+          <!-- [point, heatmap, hexagon, line, polygon] -->
           <div class="ddp-type-map-chart">
             <!-- divide -->
             <div class="ddp-divide2 ">
-
               <div class="ddp-list-label">{{'msg.page.layer.map.type' | translate}}</div>
               <div class="ddp-wrap-tab-type2">
                 <ul class="ddp-list-tab-type2 ddp-clear">
@@ -49,7 +47,6 @@
                       <span class="ddp-txt-tooltip">기호</span>
                     </div>
                     <!-- //tooltip -->
-
                   </li>
 
                   <li class="ddp-disabled">
@@ -70,23 +67,20 @@
                     <!-- tooltip -->
                     <div class="ddp-ui-tooltip-info">
                       <em class="ddp-icon-view-top"></em>
-                      <span class="ddp-txt-tooltip">타일</span>
+                      <span class="ddp-txt-tooltip">헥사곤</span>
                     </div>
                     <!-- //tooltip -->
-
                   </li>
                 </ul>
               </div>
-
             </div>
             <!-- //divide -->
 
             <!-- 레이어 유형 contents -->
-            <div class="ddp-ui-layer-type" style="display:;">
-              <!-- 레이어 유형 : 기호  -->
-              <div class="ddp-ui-type-contents" style="display:;" >
+            <div class="ddp-ui-layer-type">
+              <div class="ddp-ui-type-contents">
                 <div class="ddp-wrap-divide">
-                  <!-- divide -->
+                  <!-- point type -->
                   <div class="ddp-divide2 ">
                     <div class="ddp-list-label">기호 유형</div>
                     <ul class="ddp-list-express ddp-tab6 ddp-type2">
@@ -111,9 +105,9 @@
                     </ul>
 
                   </div>
-                  <!-- //divide -->
+                  <!-- //point type -->
 
-                  <!-- divide -->
+                  <!-- point, hexagon, line, polygon : color, transparency -->
                   <div class="ddp-divide2 ">
                     <div class="ddp-list-label">색상</div>
                     <div class="ddp-list-sub2">
@@ -123,16 +117,6 @@
                         <div class="ddp-type-selectbox">
                           <span class="ddp-txt-selectbox">Color by Dimension</span>
                           <ul class="ddp-list-selectbox ddp-selectdown">
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
                             <li>
                               <a href="#">
                                 Series
@@ -288,9 +272,113 @@
                       </div>
                     </div>
                   </div>
-                  <!-- //divide -->
+                  <!-- //point, hexagon, line, polygon : color, transparency -->
+
+                  <!-- heatmap : color, transparency -->
+                  <div class="ddp-wrap-divide">
+                    <!-- divide -->
+                    <div class="ddp-divide2">
+                      <div class="ddp-list-label">색상 </div>
+                      <div class="ddp-ui-colorby">
+                        <!-- colorby button -->
+                        <div class="ddp-wrap-colorby-button">
+                          <em class="ddp-icon-colorby"></em>
+                          <!-- 클릭시 ddp-selected 추가 -->
+                          <button class="ddp-btn-color-heatmap1"></button>
+                        </div>
+                        <!-- //colorby button -->
+                        <!-- popup -->
+                        <div class="ddp-popup-side" style="display:none;">
+                          <!-- top -->
+                          <div class="ddp-pop-side-top">
+                            Color Template
+
+                            <a href="#" class="ddp-btn-close"></a>
+
+                          </div>
+                          <!-- //top -->
+                          <!-- contents -->
+                          <div class="ddp-pop-side-contents">
+                            <ul class="ddp-list-series">
+                              <li>
+                                <!-- 선택시 ddp-selected 추가 -->
+                                <button class="ddp-btn-color-heatmap1 ddp-selected"></button>
+                              </li>
+                              <li>
+                                <!-- 선택시 ddp-selected 추가 -->
+                                <button class="ddp-btn-color-heatmap2 "></button>
+                              </li>
+                              <li>
+                                <!-- 선택시 ddp-selected 추가 -->
+                                <button class="ddp-btn-color-heatmap3 "></button>
+                              </li>
+                              <li>
+                                <!-- 선택시 ddp-selected 추가 -->
+                                <button class="ddp-btn-color-heatmap4 "></button>
+                              </li>
+
+                              <li>
+                                <!-- 선택시 ddp-selected 추가 -->
+                                <button class="ddp-btn-color-heatmap5 "></button>
+                              </li>
+                              <li>
+                                <!-- 선택시 ddp-selected 추가 -->
+                                <button class="ddp-btn-color-heatmap6 "></button>
+                              </li>
+                              <li>
+                                <!-- 선택시 ddp-selected 추가 -->
+                                <button class="ddp-btn-color-heatmap7 "></button>
+                              </li>
+
+                            </ul>
+
+                          </div>
+                          <!-- //contents -->
+
+                        </div>
+                        <!-- //popup -->
+                      </div>
+                    </div>
+                    <!-- //divide -->
+                    <div class="ddp-wrap-option-slider">
+                      <span class="ddp-label-slider">사용자 색상 설정</span>
+                      <!-- Slide THREE -->
+                      <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                        <input type="checkbox" value="None" id="check2" name="check">
+                        <label for="check2"><span class="ddp-slide"></span></label>
+                      </div>
+                      <!-- //Slide THREE -->
+                    </div>
+                    <div class="ddp-divide2">
+                      <div class="ddp-list-label">투명도</div>
+                      <!-- SELECTBOX -->
+                      <div class="ddp-type-selectbox">
+                        <span class="ddp-txt-selectbox">투명도</span>
+                        <ul class="ddp-list-selectbox ddp-selectdown">
+                          <li>
+                            <a href="#">
+                              Series
+                            </a>
+                          </li>
+                          <li>
+                            <a href="#">
+                              Series
+                            </a>
+                          </li>
+                          <li>
+                            <a href="#">
+                              Series
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                      <!-- //SELECTBOX -->
+                    </div>
+                  </div>
+                  <!-- //heatmap : color, transparency -->
                 </div>
 
+                <!-- point : size -->
                 <div class="ddp-wrap-divide">
                   <!-- divide -->
                   <div class="ddp-divide2 ">
@@ -350,7 +438,9 @@
                   </div>
                   <!-- //divide -->
                 </div>
+                <!-- point : size -->
 
+                <!-- point, polygon : outline -->
                 <div class="ddp-wrap-divide">
                   <!-- divide -->
                   <div class="ddp-divide2 ">
@@ -406,18 +496,21 @@
                     <!-- //multy -->
                   </div>
                 </div>
+                <!-- //point, polygon : outline -->
 
+                <!-- point : view original data -->
                 <div class="ddp-wrap-divide">
                   <div class="ddp-part-check-b ">
                     <label class="ddp-label-checkbox ddp-position">
                       <input type="checkbox">
                       <i class="ddp-icon-checkbox"></i>
-                      <span class="ddp-txt-checkbox">원본보기
-            </span>
+                      <span class="ddp-txt-checkbox">원본보기</span>
                     </label>
                   </div>
                 </div>
+                <!-- //point : view original data -->
 
+                <!-- point : link -->
                 <div class="ddp-wrap-divide">
                   <!-- divide -->
                   <div class="ddp-divide2 ">
@@ -584,120 +677,12 @@
                     </div>
                   </div>
                   <!-- //divide -->
-
-
                 </div>
-              </div>
-              <!-- //레이어 유형 : 기호 -->
-            </div>
-            <!-- //레이어 유형 contents -->
+                <!-- //point : link -->
 
-            <!-- 레이어 유형 contents -->
-            <div class="ddp-ui-layer-type">
-              <!-- 레이어 유형 : 히트맵 -->
-              <div class="ddp-ui-type-contents" style="display:;">
+                <!-- heatmap : blur, coverage -->
                 <div class="ddp-wrap-divide">
-                  <!-- divide -->
-                  <div class="ddp-divide2">
-                    <div class="ddp-list-label">색상 </div>
-                    <div class="ddp-ui-colorby">
-                      <!-- colorby button -->
-                      <div class="ddp-wrap-colorby-button">
-                        <em class="ddp-icon-colorby"></em>
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <button class="ddp-btn-color-heatmap1"></button>
-                      </div>
-                      <!-- //colorby button -->
-                      <!-- popup -->
-                      <div class="ddp-popup-side" style="display:none;">
-                        <!-- top -->
-                        <div class="ddp-pop-side-top">
-                          Color Template
-
-                          <a href="#" class="ddp-btn-close"></a>
-
-                        </div>
-                        <!-- //top -->
-                        <!-- contents -->
-                        <div class="ddp-pop-side-contents">
-                          <ul class="ddp-list-series">
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap1 ddp-selected"></button>
-                            </li>
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap2 "></button>
-                            </li>
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap3 "></button>
-                            </li>
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap4 "></button>
-                            </li>
-
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap5 "></button>
-                            </li>
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap6 "></button>
-                            </li>
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap7 "></button>
-                            </li>
-
-                          </ul>
-
-                        </div>
-                        <!-- //contents -->
-
-                      </div>
-                      <!-- //popup -->
-                    </div>
-                  </div>
-                  <!-- //divide -->
-                  <div class="ddp-wrap-option-slider">
-                    <span class="ddp-label-slider">사용자 색상 설정</span>
-                    <!-- Slide THREE -->
-                    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                      <input type="checkbox" value="None" id="check2" name="check">
-                      <label for="check2"><span class="ddp-slide"></span></label>
-                    </div>
-                    <!-- //Slide THREE -->
-                  </div>
-                  <div class="ddp-divide2">
-                    <div class="ddp-list-label">투명도</div>
-                    <!-- SELECTBOX -->
-                    <div class="ddp-type-selectbox">
-                      <span class="ddp-txt-selectbox">투명도</span>
-                      <ul class="ddp-list-selectbox ddp-selectdown">
-                        <li>
-                          <a href="#">
-                            Series
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#">
-                            Series
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#">
-                            Series
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                    <!-- //SELECTBOX -->
-                  </div>
-                </div>
-                <div class="ddp-wrap-divide">
-                  <!-- divide -->
+                  <!-- heatmap : blur -->
                   <div class="ddp-divide2">
                     <div class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-8">
@@ -733,8 +718,8 @@
                       });
                     </script>
                   </div>
-                  <!-- //divide -->
-                  <!-- divide -->
+                  <!-- //heatmap : blur -->
+                  <!-- heatmap : coverage -->
                   <div class="ddp-divide2">
                     <div class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-8">
@@ -770,212 +755,12 @@
                       });
                     </script>
                   </div>
-                  <!-- //divide -->
+                  <!-- //heatmap : coverage -->
                 </div>
-              </div>
-              <!-- 레이어 유형 : //히트맵 -->
-            </div>
-            <!-- //레이어 유형 contents -->
-            <!-- 레이어 유형 contents -->
-            <div class="ddp-ui-layer-type">
-              <!-- 레이어 유형 : 타일 -->
-              <div class="ddp-ui-type-contents">
+                <!-- heatmap : blur, coverage -->
+
+                <!-- hexagon : coverage -->
                 <div class="ddp-wrap-divide">
-                  <!-- divide -->
-                  <div class="ddp-divide2">
-                    <div class="ddp-list-label">타일 유형</div>
-                    <ul class="ddp-list-express  ddp-type2">
-                      <li>
-                        <em class="ddp-icon-hexagon"></em> 육각형
-                      </li>
-                      <li>
-                        <em class="ddp-icon-square"></em> 사각형
-                      </li>
-
-                    </ul>
-
-                  </div>
-                  <!-- //divide -->
-                  <!-- divide -->
-                  <div class="ddp-divide2 ">
-                    <div class="ddp-list-label">색상</div>
-                    <div class="ddp-list-sub2">
-                      <div class="ddp-divide2">
-                        <div class="ddp-list-label">색상 기준</div>
-                        <!-- SELECTBOX -->
-                        <div class="ddp-type-selectbox">
-                          <span class="ddp-txt-selectbox">Color by Dimension</span>
-                          <ul class="ddp-list-selectbox ddp-selectdown">
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //SELECTBOX -->
-                      </div>
-
-                      <div class="ddp-divide2">
-                        <!-- SELECTBOX -->
-                        <div class="ddp-type-selectbox">
-                          <span class="ddp-txt-selectbox">Color by Dimension</span>
-                          <ul class="ddp-list-selectbox ddp-selectdown">
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //SELECTBOX -->
-                      </div>
-                      <div class="ddp-divide2">
-                        <script>
-                          $(function(){
-                            $('.ddp-wrap-colorby-button').click(function(){
-                              var $colorbyBtnTop = $(this).offset().top;
-                              $(this).parent().find('.ddp-popup-side').show();
-                              $(this).parent().find('.ddp-popup-side').css('top',$colorbyBtnTop-200);
-                            });
-                            $('.ddp-popup-side .ddp-btn-close').click(function(){
-                              $('.ddp-popup-side').hide();
-                            });
-
-                          });
-                        </script>
-                        <div class="ddp-ui-colorby">
-                          <!-- colorby button -->
-                          <div class="ddp-wrap-colorby-button">
-                            <em class="ddp-icon-colorby"></em>
-                            <!-- 클릭시 ddp-selected 추가 -->
-                            <button class="ddp-btn-color-series1  ddp-type"></button>
-                          </div>
-                          <!-- //colorby button -->
-                          <!-- popup -->
-                          <div class="ddp-popup-side" style="display:none;">
-                            <!-- top -->
-                            <div class="ddp-pop-side-top">
-                              Color Template
-
-                              <a href="#" class="ddp-btn-close"></a>
-
-                            </div>
-                            <!-- //top -->
-                            <!-- contents -->
-                            <div class="ddp-pop-side-contents">
-                              <ul class="ddp-list-series">
-                                <li>
-                                  <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series1 ddp-type ddp-selected"></button>
-                                </li>
-                                <li>
-                                  <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series2 ddp-type"></button>
-                                </li>
-                                <li>
-                                  <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series3 ddp-type"></button>
-                                </li>
-                                <li>
-                                  <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series4 ddp-type"></button>
-                                </li>
-
-                                <li>
-                                  <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series5 ddp-type"></button>
-                                </li>
-                                <li>
-                                  <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series6 ddp-type"></button>
-                                </li>
-                                <li>
-                                  <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series7 ddp-type"></button>
-                                </li>
-                                <li>
-                                  <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series8 ddp-type"></button>
-                                </li><li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series9 ddp-type"></button>
-                              </li>
-
-                              </ul>
-
-                            </div>
-                            <!-- //contents -->
-
-                          </div>
-                          <!-- //popup -->
-                        </div>
-                      </div>
-
-
-                      <div class="ddp-wrap-option-slider">
-                        <span class="ddp-label-slider">사용자 색상 설정</span>
-                        <!-- Slide THREE -->
-                        <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                          <input type="checkbox" value="None" id="check2" name="check">
-                          <label for="check2"><span class="ddp-slide"></span></label>
-                        </div>
-                        <!-- //Slide THREE -->
-
-                      </div>
-                      <div class="ddp-divide2">
-                        <div class="ddp-list-label">투명도</div>
-                        <!-- SELECTBOX -->
-                        <div class="ddp-type-selectbox">
-                          <span class="ddp-txt-selectbox">사용하지 않음</span>
-                          <ul class="ddp-list-selectbox ddp-selectdown">
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <!-- //SELECTBOX -->
-                      </div>
-                    </div>
-                  </div>
-                  <!-- //divide -->
-                </div>
-
-
-                <div class="ddp-wrap-divide">
-                  <!-- divide -->
                   <div class="ddp-divide2">
                     <div class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-8">
@@ -1011,406 +796,87 @@
                       });
                     </script>
                   </div>
+                </div>
+                <!-- hexagon : coverage -->
+
+                <!-- line : stroke -->
+                <div class="ddp-wrap-divide">
+                  <div class="ddp-divide2">
+                    <div class="ddp-list-label">굵기</div>
+                    <div class="ddp-list-sub2">
+                      <div class="ddp-divide2">
+                        <div class="ddp-list-label">굵기 기준</div>
+                        <!-- SELECTBOX -->
+                        <div class="ddp-type-selectbox">
+                          <span class="ddp-txt-selectbox">없음</span>
+                          <ul class="ddp-list-selectbox ddp-selectdown">
+                            <li>
+                              <a href="#">
+                                Series
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#">
+                                Series
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#">
+                                Series
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                        <!-- //SELECTBOX -->
+                      </div>
+                      <div class="ddp-divide2">
+                        <div class="ddp-wrap-option-multy ddp-clear">
+                          <div class="ddp-col-8">
+                            <span class="ddp-label-txt">굵기 최대값(pt)</span>
+                          </div>
+                          <div class="ddp-col-4">
+                            <input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- //line : stroke -->
+
+                <!-- line : line type -->
+                <div class="ddp-wrap-divide">
+                  <!-- divide -->
+                  <div class="ddp-divide2 ">
+                    <div class="ddp-wrap-option-multy ddp-clear">
+                      <div class="ddp-col-6">
+
+                        <span class="ddp-label-txt">선 유형</span>
+                      </div>
+                      <div class="ddp-col-6 ddp-txt-right">
+                        <ul class="ddp-list-express ddp-tab3 ddp-type">
+                          <li>
+                            <em class="ddp-line-bold1"></em>
+                          </li>
+                          <li>
+                            <em class="ddp-line-dotted "></em>
+                          </li>
+                          <li class="ddp-selected">
+                            <em class="ddp-line-dashed "></em>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                   <!-- //divide -->
                 </div>
+                <!-- //line : line type -->
               </div>
-              <!-- //레이어 유형 : 타일 -->
-
             </div>
             <!-- //레이어 유형 contents -->
           </div>
-          <!-- //[point] -->
-          <!-- [Polygon] -->
-          <div class="ddp-type-map-chart">
-
-            <!-- 레이어 유형 : 폴리곤 -->
-            <div class="ddp-ui-type-contents">
-              <div class="ddp-wrap-divide">
-
-                <!-- divide -->
-                <div class="ddp-divide2 ">
-                  <div class="ddp-list-label">색상</div>
-                  <div class="ddp-list-sub2">
-                    <div class="ddp-divide2">
-                      <div class="ddp-list-label">색상 기준</div>
-                      <!-- SELECTBOX -->
-                      <div class="ddp-type-selectbox">
-                        <span class="ddp-txt-selectbox">Color by Dimension</span>
-                        <ul class="ddp-list-selectbox ddp-selectdown">
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                      <!-- //SELECTBOX -->
-                    </div>
-
-                    <div class="ddp-divide2">
-                      <script>
-                        $(function(){
-                          $('.ddp-wrap-colorby-button').click(function(){
-                            var $colorbyBtnTop = $(this).offset().top;
-                            $(this).parent().find('.ddp-popup-side').show();
-                            $(this).parent().find('.ddp-popup-side').css('top',$colorbyBtnTop-200);
-                          });
-                          $('.ddp-popup-side .ddp-btn-close').click(function(){
-                            $('.ddp-popup-side').hide();
-                          });
-
-                        });
-                      </script>
-                      <div class="ddp-ui-colorby">
-                        <!-- colorby button -->
-                        <div class="ddp-wrap-colorby-button">
-                          <em class="ddp-icon-colorby"></em>
-                          <!-- 클릭시 ddp-selected 추가 -->
-                          <button class="ddp-btn-color-series1  ddp-type"></button>
-                        </div>
-                        <!-- //colorby button -->
-                        <!-- popup -->
-                        <div class="ddp-popup-side" style="display:none;">
-                          <!-- top -->
-                          <div class="ddp-pop-side-top">
-                            Color Template
-
-                            <a href="#" class="ddp-btn-close"></a>
-
-                          </div>
-                          <!-- //top -->
-                          <!-- contents -->
-                          <div class="ddp-pop-side-contents">
-                            <ul class="ddp-list-series">
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series1 ddp-type ddp-selected"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series2 ddp-type"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series3 ddp-type"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series4 ddp-type"></button>
-                              </li>
-
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series5 ddp-type"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series6 ddp-type"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series7 ddp-type"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series8 ddp-type"></button>
-                              </li><li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-series9 ddp-type"></button>
-                            </li>
-
-                            </ul>
-
-                          </div>
-                          <!-- //contents -->
-
-                        </div>
-                        <!-- //popup -->
-                      </div>
-                    </div>
-
-                    <div class="ddp-divide2">
-                      <div class="ddp-list-label">투명도</div>
-                      <!-- SELECTBOX -->
-                      <div class="ddp-type-selectbox">
-                        <span class="ddp-txt-selectbox">사용하지 않음</span>
-                        <ul class="ddp-list-selectbox ddp-selectdown">
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                      <!-- //SELECTBOX -->
-                    </div>
-                  </div>
-                </div>
-                <!-- //divide -->
-              </div>
-              <div class="ddp-wrap-divide">
-                <div class="ddp-wrap-option-slider">
-                  <span class="ddp-label-slider">아웃라인</span>
-                  <!-- Slide THREE -->
-                  <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                    <input type="checkbox" value="None" id="check2" name="check">
-                    <label for="check2"><span class="ddp-slide"></span></label>
-                  </div>
-                  <!-- //Slide THREE -->
-                </div>
-              </div>
-            </div>
-            <!-- //레이어 유형 : 폴리곤 -->
-          </div>
-          <!-- //[Polygon] -->
-
-          <!-- [Line] -->
-          <div class="ddp-type-map-chart">
-
-            <!-- 레이어 유형 : Line -->
-            <div class="ddp-ui-type-contents">
-              <div class="ddp-wrap-divide">
-
-                <!-- divide -->
-                <div class="ddp-divide2 ">
-                  <div class="ddp-list-label">색상</div>
-                  <div class="ddp-list-sub2">
-                    <div class="ddp-divide2">
-                      <div class="ddp-list-label">색상 기준</div>
-                      <!-- SELECTBOX -->
-                      <div class="ddp-type-selectbox">
-                        <span class="ddp-txt-selectbox">Color by Dimension</span>
-                        <ul class="ddp-list-selectbox ddp-selectdown">
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                      <!-- //SELECTBOX -->
-                    </div>
-
-                    <div class="ddp-divide2">
-                      <script>
-                        $(function(){
-                          $('.ddp-wrap-colorby-button').click(function(){
-                            var $colorbyBtnTop = $(this).offset().top;
-                            $(this).parent().find('.ddp-popup-side').show();
-                            $(this).parent().find('.ddp-popup-side').css('top',$colorbyBtnTop-200);
-                          });
-                          $('.ddp-popup-side .ddp-btn-close').click(function(){
-                            $('.ddp-popup-side').hide();
-                          });
-
-                        });
-                      </script>
-                      <div class="ddp-ui-colorby">
-                        <!-- colorby button -->
-                        <div class="ddp-wrap-colorby-button">
-                          <em class="ddp-icon-colorby"></em>
-                          <!-- 클릭시 ddp-selected 추가 -->
-                          <button class="ddp-btn-color-series1  ddp-type"></button>
-                        </div>
-                        <!-- //colorby button -->
-                        <!-- popup -->
-                        <div class="ddp-popup-side" style="display:none;">
-                          <!-- top -->
-                          <div class="ddp-pop-side-top">
-                            Color Template
-
-                            <a href="#" class="ddp-btn-close"></a>
-
-                          </div>
-                          <!-- //top -->
-                          <!-- contents -->
-                          <div class="ddp-pop-side-contents">
-                            <ul class="ddp-list-series">
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series1 ddp-type ddp-selected"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series2 ddp-type"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series3 ddp-type"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series4 ddp-type"></button>
-                              </li>
-
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series5 ddp-type"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series6 ddp-type"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series7 ddp-type"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-series8 ddp-type"></button>
-                              </li><li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-series9 ddp-type"></button>
-                            </li>
-
-                            </ul>
-
-                          </div>
-                          <!-- //contents -->
-
-                        </div>
-                        <!-- //popup -->
-                      </div>
-                    </div>
-
-                    <div class="ddp-divide2">
-                      <div class="ddp-list-label">투명도</div>
-                      <!-- SELECTBOX -->
-                      <div class="ddp-type-selectbox">
-                        <span class="ddp-txt-selectbox">사용하지 않음</span>
-                        <ul class="ddp-list-selectbox ddp-selectdown">
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                      <!-- //SELECTBOX -->
-                    </div>
-                  </div>
-                </div>
-                <!-- //divide -->
-
-                <!-- divide -->
-                <div class="ddp-divide2">
-                  <div class="ddp-list-label">굵기</div>
-                  <div class="ddp-list-sub2">
-                    <div class="ddp-divide2">
-                      <div class="ddp-list-label">굵기 기준</div>
-                      <!-- SELECTBOX -->
-                      <div class="ddp-type-selectbox">
-                        <span class="ddp-txt-selectbox">없음</span>
-                        <ul class="ddp-list-selectbox ddp-selectdown">
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                      <!-- //SELECTBOX -->
-                    </div>
-                    <div class="ddp-divide2">
-                      <div class="ddp-wrap-option-multy ddp-clear">
-                        <div class="ddp-col-8">
-                          <span class="ddp-label-txt">굵기 최대값(pt)</span>
-                        </div>
-                        <div class="ddp-col-4">
-                          <input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="">
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- //divide -->
-              </div>
-              <div class="ddp-wrap-divide">
-                <!-- divide -->
-                <div class="ddp-divide2 ">
-                  <div class="ddp-wrap-option-multy ddp-clear">
-                    <div class="ddp-col-6">
-
-                      <span class="ddp-label-txt">선 유형</span>
-                    </div>
-                    <div class="ddp-col-6 ddp-txt-right">
-                      <ul class="ddp-list-express ddp-tab3 ddp-type">
-                        <li>
-                          <em class="ddp-line-bold1"></em>
-                        </li>
-                        <li>
-                          <em class="ddp-line-dotted "></em>
-                        </li>
-                        <li class="ddp-selected">
-                          <em class="ddp-line-dashed "></em>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                <!-- //divide -->
-              </div>
-
-
-            </div>
-            <!-- //레이어 유형 : Line -->
-          </div>
-          <!-- //[Line] -->
-
+          <!-- //[point, heatmap, hexagon, line, polygon] -->
         </div>
-
-
-
       </div>
     </div>
   </div>
