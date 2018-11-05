@@ -18,6 +18,7 @@ import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.ConnectionRequest;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
 import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.*;
@@ -33,6 +34,7 @@ import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
 import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.PolarisUtils;
 import com.facebook.presto.jdbc.PrestoArray;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -1722,5 +1724,58 @@ public class JdbcConnectionService {
       dataList.add(rowMap);
     }
     return dataList;
+  }
+
+  public List<Map<String, Object>> getPartitionList(HiveMetastoreConnection connection, ConnectionRequest connectionRequest){
+    HiveMetaStoreJdbcClient hiveMetaStoreJdbcClient = new HiveMetaStoreJdbcClient(
+            connection.getMetastoreURL(),
+            connection.getMetastoreUserName(),
+            connection.getMetastorePassword(),
+            connection.getMetastoreDriverName());
+
+    List partitionInfoList = hiveMetaStoreJdbcClient.getPartitionList(connectionRequest.getDatabase(), connectionRequest.getQuery(), null);
+    return partitionInfoList;
+  }
+
+  public List<Map<String, Object>> validatePartition(HiveMetastoreConnection connection, ConnectionRequest connectionRequest){
+    HiveMetaStoreJdbcClient hiveMetaStoreJdbcClient = new HiveMetaStoreJdbcClient(
+            connection.getMetastoreURL(),
+            connection.getMetastoreUserName(),
+            connection.getMetastorePassword(),
+            connection.getMetastoreDriverName());
+
+    List<String> partitionNameList = new ArrayList<>();
+    for(Map<String, String> partitionNameMap : connectionRequest.getPartitions()){
+      partitionNameList.addAll(PolarisUtils.mapWithRangeExpressionToList(partitionNameMap));
+    }
+    //1. partition info 가져오기
+    List<Map<String, Object>> partitionInfoList = hiveMetaStoreJdbcClient.getPartitionList(connectionRequest.getDatabase(), connectionRequest.getQuery(), partitionNameList);
+
+    //2. partition parameter가 모두 존재하는지 여부
+    for(String partitionNameParam : partitionNameList){
+      //must exist partition exclude asterisk
+      boolean isPartitionExist = false;
+      if(partitionNameParam.contains("{*}")){
+        isPartitionExist = true;
+      } else {
+        for(Map<String, Object> existPartition : partitionInfoList){
+          String existPartName = existPartition.get("PART_NAME").toString();
+          if(partitionNameParam.equals(existPartName)){
+            isPartitionExist = true;
+            break;
+          }
+        }
+      }
+
+      if(!isPartitionExist)
+        throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PARTITION_NOT_EXISTED,
+                "partition (" + partitionNameParam + ") is not exists in " + connectionRequest.getQuery() + ".");
+    }
+
+    if(partitionInfoList.isEmpty())
+      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PARTITION_NOT_EXISTED,
+              "partition is not exists in " + connectionRequest.getQuery() + ".");
+
+    return partitionInfoList;
   }
 }

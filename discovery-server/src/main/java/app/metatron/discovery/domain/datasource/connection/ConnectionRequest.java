@@ -14,10 +14,12 @@
 
 package app.metatron.discovery.domain.datasource.connection;
 
-import javax.validation.constraints.NotNull;
-
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by kyungtaak on 2016. 6. 20..
@@ -34,6 +36,8 @@ public class ConnectionRequest {
   JdbcIngestionInfo.DataType type;
 
   String query;
+
+  List<Map<String, String>> partitions;
 
   public JdbcDataConnection getConnection() {
     return connection;
@@ -73,5 +77,13 @@ public class ConnectionRequest {
 
   public void setQuery(String query) {
     this.query = query;
+  }
+
+  public List<Map<String, String>> getPartitions() {
+    return partitions;
+  }
+
+  public void setPartitions(List<Map<String, String>> partitions) {
+    this.partitions = partitions;
   }
 }

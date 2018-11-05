@@ -22,10 +22,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.util.Assert;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
-
-import javax.sql.DataSource;
 
 
 public class HiveMetaStoreJdbcClient {
@@ -188,6 +187,66 @@ public class HiveMetaStoreJdbcClient {
     return jdbcTemplate.queryForList(builder.toString());
   }
 
+  public List<Map<String, Object>> getPartitionList(String databaseName, String tableName, List<String> partitionNameList){
+    StringBuilder builder = new StringBuilder();
+
+    builder.append(" SELECT A.PART_ID, B.PART_NAME, A.NUM_ROWS, A.TOTAL_SIZE, B.CREATE_TIME ");
+    builder.append(" FROM ");
+    builder.append("   (SELECT PART_ID, ");
+    builder.append("           (SELECT PARAM_VALUE FROM PARTITION_PARAMS WHERE PARAM_KEY = 'numRows' AND PART_ID = T1.PART_ID) AS NUM_ROWS, ");
+    builder.append("           (SELECT PARAM_VALUE FROM PARTITION_PARAMS WHERE PARAM_KEY = 'totalSize' AND PART_ID = T1.PART_ID) AS TOTAL_SIZE ");
+    builder.append("    FROM PARTITION_PARAMS AS T1 ");
+    builder.append("    WHERE T1.PART_ID IN ");
+    builder.append("      (SELECT PART_ID ");
+    builder.append("       FROM PARTITIONS ");
+    builder.append("       WHERE TBL_ID = ");
+    builder.append("         (SELECT A.TBL_ID ");
+    builder.append("          FROM TBLS AS A, DBS AS B ");
+    builder.append("          WHERE A.DB_ID = B.DB_ID ");
+    builder.append("          AND B.NAME = '" + databaseName + "' ");
+    builder.append("          AND A.TBL_NAME = '" + tableName + "' ");
+    builder.append("          ) ");
+    builder.append("       ) ");
+    builder.append("    GROUP BY PART_ID ) AS A, ");
+    if(partitionNameList != null && !partitionNameList.isEmpty()){
+      builder.append("   (  ");
+      builder.append("     SELECT *  ");
+      builder.append("     FROM PARTITIONS ");
+      builder.append("     WHERE ");
+      for(int i = 0; i < partitionNameList.size(); ++i){
+        String partitionName = partitionNameList.get(i);
+
+        if(i > 0)
+          builder.append("   OR ");
+
+        //like statement for blank partition
+        if(partitionName.contains("{*}")){
+          builder.append("   PART_NAME LIKE '" + StringUtils.substring(partitionName, 0, partitionName.indexOf("{*}")) + "%'");
+        } else {
+          builder.append("   PART_NAME = '" + partitionName + "'");
+        }
+      }
+      builder.append("   ) AS B ");
+    } else {
+      builder.append("   PARTITIONS AS B ");
+    }
+    builder.append(" WHERE A.PART_ID = B.PART_ID ");
+    builder.append(" ORDER BY B.PART_NAME DESC ");
+
+//    SELECT
+//            PART_ID,
+//            PART_NAME,
+//    SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(PART_NAME, '/', 1), '/', -1), '=', -1) AS YM,
+//    SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(PART_NAME, '/', 2), '/', -1), '=', -1) AS DD
+//    FROM PARTITIONS
+//    WHERE TBL_ID = '3';
+
+    System.out.println("builder.toString() = " + builder.toString());
+    JdbcTemplate jdbcTemplate = new JdbcTemplate(getDataSource());
+    List<Map<String, Object>> partitionInfoList = jdbcTemplate.queryForList(builder.toString());
+    return partitionInfoList;
+  }
+
   @Override
   public String toString(){
     return "HiveMetaStoreConnection{\n"
@@ -197,14 +256,4 @@ public class HiveMetaStoreJdbcClient {
             + ", connectionPassword = '" + connectionPassword + "'\n"
             + "}";
   }
-
-//  public List<String> getDatabase(String databasePattern){
-//
-//    return null;
-//  }
-
-//  public ResultSet execute(String query){
-//
-//    return null;
-//  }
 }

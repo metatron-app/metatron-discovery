@@ -15,21 +15,20 @@
 package app.metatron.discovery.util;
 
 import com.google.common.collect.Lists;
-
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by kyungtaak on 2016. 2. 25..
@@ -311,5 +310,132 @@ public class PolarisUtilsTest {
 
   }
 
+  @Test
+  public void generateList() {
+    System.out.println(PolarisUtils.generateList("01", "04"));
+    System.out.println(PolarisUtils.generateList("01", "14"));
+    System.out.println(PolarisUtils.generateList("00", "19"));
+    System.out.println(PolarisUtils.generateList("aaa", "aba"));
+    System.out.println(PolarisUtils.generateList("02", "01"));
+    System.out.println(PolarisUtils.generateList("01", "01"));
+
+  }
+
+  @Test
+  public void rangeExprToListTest() {
+
+    String expr1 = "20181101";
+    String expr2 = "20181101, 20181102";
+    String expr3 = "2018[01-03]01";
+    String expr4 = "1[2-3]4[5-6]";
+    String expr5 = "1[2-3]4[5-6]7";
+
+    System.out.println("partitions1 = " + PolarisUtils.rangeExpressionToList(expr1));
+    System.out.println("partitions2 = " + PolarisUtils.rangeExpressionToList(expr2));
+    System.out.println("partitions3 = " + PolarisUtils.rangeExpressionToList(expr3));
+    System.out.println("partitions4 = " + PolarisUtils.rangeExpressionToList(expr4));
+    System.out.println("partitions5 = " + PolarisUtils.rangeExpressionToList(expr5));
+
+  }
+  @Test
+  public void nextAlphabet() {
+
+    String text1 = "abc";
+    String text2 = "abz";
+    String text3 = "zzz";
+    String text4 = "a";
+    String text5 = "z";
+    String text6 = "";
+
+    System.out.println(PolarisUtils.nextLowerAlphabet(text1));
+    System.out.println(PolarisUtils.nextLowerAlphabet(text2));
+    System.out.println(PolarisUtils.nextLowerAlphabet(text3));
+    System.out.println(PolarisUtils.nextLowerAlphabet(text4));
+    System.out.println(PolarisUtils.nextLowerAlphabet(text5));
+    System.out.println(PolarisUtils.nextLowerAlphabet(text6));
+
+  }
+
+  @Test
+  public void nextUpperAlphabet() {
+
+    String text1 = "ABC";
+    String text2 = "ABZ";
+    String text3 = "ZZZ";
+    String text4 = "A";
+    String text5 = "Z";
+    String text6 = "";
+
+    System.out.println(PolarisUtils.nextUpperAlphabet(text1));
+    System.out.println(PolarisUtils.nextUpperAlphabet(text2));
+    System.out.println(PolarisUtils.nextUpperAlphabet(text3));
+    System.out.println(PolarisUtils.nextUpperAlphabet(text4));
+    System.out.println(PolarisUtils.nextUpperAlphabet(text5));
+    System.out.println(PolarisUtils.nextUpperAlphabet(text6));
+
+  }
+
+  @Test
+  public void nextNumeric() {
+
+    String text1 = "0";
+    String text2 = "00";
+    String text3 = "999";
+    String text4 = "1999";
+    String text5 = "001";
+    String text6 = "123";
+
+    System.out.println(PolarisUtils.nextNumeric(text1));
+    System.out.println(PolarisUtils.nextNumeric(text2));
+    System.out.println(PolarisUtils.nextNumeric(text3));
+    System.out.println(PolarisUtils.nextNumeric(text4));
+    System.out.println(PolarisUtils.nextNumeric(text5));
+    System.out.println(PolarisUtils.nextNumeric(text6));
+
+  }
+
+  @Test
+  public void rangeExprToListTest2() {
+
+//    Map<String, String> part1 = new LinkedHashMap<>();
+//    part1.put("yyyymmdd", "20181101");
+//    part1.put("hh", "16");
+//
+//    List<String> partitions1 = PolarisUtils.mapWithRangeExpressionToList(part1);
+//    System.out.println("partitions1 = " + partitions1);
+//
+//    Map<String, String> part2 = new LinkedHashMap<>();
+//    part2.put("yyyymmdd", "20181101, 20181102");
+//    part2.put("hh", "16, 17");
+//
+//    List<String> partitions2 = PolarisUtils.mapWithRangeExpressionToList(part2);
+//    System.out.println("partitions2 = " + partitions2);
+//
+//    Map<String, String> part3 = new LinkedHashMap<>();
+//    part3.put("yyyymmdd", "2018[01-03]01");
+//    part3.put("hh", "[01-03]");
+//
+//    List<String> partitions3 = PolarisUtils.mapWithRangeExpressionToList(part3);
+//    System.out.println(partitions3);
+//
+//    Map<String, String> part4 = new LinkedHashMap<>();
+//    part4.put("yyyymmdd", "1[02-03]4, 5[06-07]8");
+//    part4.put("hh", "a[b-c]d, e[f-g]h");
+//
+//    List<String> partitions4 = PolarisUtils.mapWithRangeExpressionToList(part4);
+//    System.out.println(partitions4);
+
+
+    Map<String, String> part5 = new LinkedHashMap<>();
+    part5.put("yyyymm", "2018[10-11]");
+    part5.put("dd", "");
+    part5.put("hh", "");
+
+    List<String> partitions5 = PolarisUtils.mapWithRangeExpressionToList(part5);
+    System.out.println(partitions5);
+
+    String partitionName = "yyyymm=201810/dd={*}/hh={*}";
+    System.out.println(StringUtils.substring(partitionName, 0, partitionName.indexOf("{*}")));
+  }
 
 }

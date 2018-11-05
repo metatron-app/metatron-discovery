@@ -22,10 +22,10 @@ import org.apache.thrift.TException;
 import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
 
+import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.sql.DataSource;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -212,5 +212,28 @@ public class HiveMetaStoreConnectionTest {
     hiveConf.setVar(HiveConf.ConfVars.METASTOREURIS, "thrift://" + host + ":" + port);
     HiveMetaStoreClient hiveMetaStoreClient = new HiveMetaStoreClient(hiveConf);
     return hiveMetaStoreClient;
+  }
+
+  @Test
+  public void getPartitionsInfoList() throws TException{
+    String metastoreURL = "jdbc:mysql://localhost:3306/metastore2";
+    String metastoreDriver = "com.mysql.jdbc.Driver";
+    String metastoreUser = "hiveuser";
+    String metastorePassword = "password";
+    HiveMetaStoreJdbcClient metaStoreJdbcClient = new HiveMetaStoreJdbcClient(metastoreURL, metastoreUser, metastorePassword, metastoreDriver);
+
+    String dbName = "default";
+    String tableName = "part1";
+
+    List partList = new ArrayList();
+    partList.add("ymd=20110115");
+    partList.add("ymd=20110116");
+    partList.add("ymd=20110117");
+    partList.add("ymd=20110118");
+
+    List<Map<String, Object>> partitionInfo = metaStoreJdbcClient.getPartitionList(dbName, tableName, partList);
+    for(Map<String, Object> partMap : partitionInfo){
+      System.out.println(partMap.get("PART_NAME") + ", " + partMap.get("NUM_ROWS"));
+    }
   }
 }

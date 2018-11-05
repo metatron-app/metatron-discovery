@@ -18,7 +18,8 @@ import app.metatron.discovery.common.exception.ErrorCodes;
 
 public enum DataConnectionErrorCodes implements ErrorCodes {
 
-  GENERAL_ERROR_CODE("DC0001");
+  GENERAL_ERROR_CODE("DC0001"),
+  NOT_SUPPORTED_API("DC0002");
 
   String errorCode;
 
