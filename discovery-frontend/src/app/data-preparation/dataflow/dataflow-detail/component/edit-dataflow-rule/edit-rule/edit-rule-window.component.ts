@@ -176,7 +176,16 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
       Alert.warning(this.translateService.instant('msg.dp.alert.enter.sortby'));
       return undefined;
     }
-    const sortStr: string = this.selectedSortFields.map( item => item.name ).join(', ');
+    let sortStr: string = '';
+    if (this.selectedFields.length !== 0) {
+      groupStr = this.selectedSortFields.map((item) => {
+        if (-1 !== item.name.indexOf(' ')) {
+          item.name = '`' + item.name + '`';
+        }
+        return item.name
+      }).join(', ');
+    }
+
 
     let resultRuleString : string = `window value: [${validFormulaList}]`;
     if (groupStr) {

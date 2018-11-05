@@ -126,7 +126,7 @@ export class EditRuleMoveComponent extends EditRuleComponent implements OnInit, 
     return {
       command: 'move',
       col: columnsStr,
-      ruleString: `move col: ${columnsStr} ${this.beforeOrAfter}: ${this.selectedStandardField}`
+      ruleString: `move col: ${columnsStr} ${this.beforeOrAfter}: ${this.selectedStandardField.indexOf(' ') === -1 ? this.selectedStandardField : '`' + this.selectedStandardField + '`'}`
     };
 
   } // function - getRuleData

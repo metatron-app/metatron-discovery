@@ -1547,6 +1547,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       .then((data: { apiData: any, gridData: any }) => {
 
         if (isNullOrUndefined(data.apiData)) {
+
+          // remove ` from field name when error
+          this.selectedDataSet.gridData.fields.filter((item) => {
+            return item.name =  item.name.replace(/`/g, '');
+          });
+
           return {
             error : data['error']
           }
@@ -1584,15 +1590,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
         return data;
       })
-      .catch((error) => {
-        this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-        return {
-          error : error
-        };
-      });
-
   } // function - _setEditRuleInfo
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

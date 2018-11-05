@@ -287,7 +287,12 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               rule['more'] = { command : 'derive'};
               break;
             case 'duplicate':
-              rule['ruleString'] = `derive value: ${selCol} as: ${this.selectedColumnName}_1`;
+              let newCol = `${this.selectedColumnName}_1`;
+              if (this.selectedColumnName.indexOf(' ') !== -1) {
+                newCol = '`'+ newCol + '`';
+              }
+
+              rule['ruleString'] = `derive value: ${selCol} as: ${newCol}`;
               break;
             case 'split':
             case 'countpattern':

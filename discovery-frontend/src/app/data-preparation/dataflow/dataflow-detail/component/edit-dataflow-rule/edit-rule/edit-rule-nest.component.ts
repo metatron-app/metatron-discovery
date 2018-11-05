@@ -110,6 +110,9 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
       return undefined;
     }
+    if (inputVal.indexOf(' ') !== -1) {
+      inputVal = '`' + inputVal + '`';
+    }
 
     const columnsStr: string = this.selectedFields.map((item) => {
       if (-1 !== item.name.indexOf(' ')) {

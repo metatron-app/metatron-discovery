@@ -116,9 +116,17 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
         Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
         return undefined
       }
+
+      let deriveAs : string  = '';
+      if (this.deriveAs.indexOf(' ') === -1) {
+        deriveAs = `'${this.deriveAs}'`;
+      } else {
+        deriveAs = '`' +this.deriveAs + '`';
+      }
+
       return {
         command: 'derive',
-        ruleString: 'derive value: ' + val + ' as: ' + '\'' + this.deriveAs + '\''
+        ruleString: 'derive value: ' + val + ' as: ' + deriveAs
       }
     } else {
       return undefined;
