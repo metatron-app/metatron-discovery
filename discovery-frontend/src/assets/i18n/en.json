@@ -1536,7 +1536,7 @@
   "msg.storage.ui.data.info" : "Data Information",
   "msg.storage.th.duration" : "Duration",
   "msg.storage.ui.data.preview": "Data preview",
-  "msg.storage.ui.permission": "Permission",
+  "msg.storage.ui.permission": "Publish",
   "msg.storage.ui.permission.choice" : "Allow all workspaces to use this datasource",
   "msg.storage.btn.edit" : "Edit",
   "msg.storage.ui.ingestion.info" : "Ingestion information",
@@ -1900,6 +1900,7 @@
   "msg.storage.ph.time.format": "Enter time format",
   "msg.storage.ui.format.unit.milli-second": "Milli-Second(ms)",
   "msg.storage.ui.format.unit.second": "Second(s)",
+  "msg.storage.ui.engine.name": "Engine name",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",
