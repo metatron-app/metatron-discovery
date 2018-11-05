@@ -1566,6 +1566,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                 }
               }
 
+              }
             } else if(this.uiOption.layers[i].color["by"] === 'NONE') {
               legendHtml = '<div class="ddp-ui-layer">' +
                   '<span class="ddp-label">' + this.uiOption.layers[i].name + '</span>' +
