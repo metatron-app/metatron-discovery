@@ -310,6 +310,20 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      return count < 1;
    }
 
+    /**
+    * TODO need to update css
+    * set animation in map
+    * @param {JQuery} element
+    */
+    public onShelveAnimation(element: JQuery) {
+
+      let shelfElement: JQuery;
+
+      shelfElement = this.$element.find('#shelfColumn' + this.layerNum);
+
+      super.onShelveAnimation(shelfElement.find('.ddp-wrap-default'));
+    }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
