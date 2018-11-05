@@ -14,36 +14,11 @@
 
 package app.metatron.discovery.domain.datasource;
 
-import app.metatron.discovery.common.CommonLocalVariable;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.entity.SearchParamValidator;
-import app.metatron.discovery.common.exception.BadRequestException;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.CollectionPatch;
-import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
-import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
-import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
-import app.metatron.discovery.domain.datasource.format.DateTimeFormatChecker;
-import app.metatron.discovery.domain.datasource.ingestion.*;
-import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
-import app.metatron.discovery.domain.engine.EngineIngestionService;
-import app.metatron.discovery.domain.engine.EngineLoadService;
-import app.metatron.discovery.domain.engine.EngineQueryService;
-import app.metatron.discovery.domain.engine.model.SegmentMetaData;
-import app.metatron.discovery.domain.workbench.WorkbenchProperties;
-import app.metatron.discovery.domain.workbook.configurations.Limit;
-import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.util.CsvProcessor;
-import app.metatron.discovery.util.ExcelProcessor;
-import app.metatron.discovery.util.PolarisUtils;
-import app.metatron.discovery.util.ProjectionUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -65,7 +40,12 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -81,6 +61,39 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
+
+import app.metatron.discovery.common.CommonLocalVariable;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.entity.SearchParamValidator;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.CollectionPatch;
+import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.data.DataSourceValidator;
+import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
+import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
+import app.metatron.discovery.domain.datasource.format.DateTimeFormatChecker;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionDataResultResponse;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionProjections;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService;
+import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
+import app.metatron.discovery.domain.engine.EngineIngestionService;
+import app.metatron.discovery.domain.engine.EngineLoadService;
+import app.metatron.discovery.domain.engine.EngineQueryService;
+import app.metatron.discovery.domain.engine.model.SegmentMetaData;
+import app.metatron.discovery.domain.workbench.WorkbenchProperties;
+import app.metatron.discovery.domain.workbook.configurations.Limit;
+import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.util.CsvProcessor;
+import app.metatron.discovery.util.ExcelProcessor;
+import app.metatron.discovery.util.PolarisUtils;
+import app.metatron.discovery.util.ProjectionUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PREFIX;
 import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.FAILED;
@@ -272,7 +285,7 @@ public class DataSourceController {
           .build();
 
       // FIXME: 전용 Thread Pool 로 변경하는 것을 검토해보자!
-      ExecutorService service = Executors.newSingleThreadExecutor(factory);
+      ExecutorService service = Executors .newSingleThreadExecutor(factory);
       service.submit(() ->
                          engineLoadService.load(dataSource, filters, async, tempTargetId)
       );
@@ -477,7 +490,7 @@ public class DataSourceController {
 
     // 적재 실패시 예외 처리
     if (!ingestionHistroy.isPresent() || ingestionHistroy.get().getStatus() == FAILED) {
-      throw new DataSourceIngetionException("Fail to ingest engine. (TASK ID:" + ingestionHistroy.get().getIngestionId() + ")");
+      throw new DataSourceIngestionException("Fail to ingest engine. (TASK ID:" + ingestionHistroy.get().getIngestionId() + ")");
     }
 
     // 적재 정보 저장
@@ -790,7 +803,7 @@ public class DataSourceController {
       }
     } catch (IOException e) {
       LOGGER.error("Failed to upload file : {}", e.getMessage());
-      throw new DataSourceIngetionException("Fail to upload file.", e.getCause());
+      throw new DataSourceIngestionException("Fail to upload file.", e.getCause());
     }
 
     return ResponseEntity.ok(responseMap);
@@ -831,7 +844,7 @@ public class DataSourceController {
 
     } catch (Exception e) {
       LOGGER.error("Failed to parse file ({}) : {}", fileKey, e.getMessage());
-      throw new DataSourceIngetionException("Fail to parse file.", e.getCause());
+      throw new DataSourceIngestionException("Fail to parse file.", e.getCause());
     }
 
     return ResponseEntity.ok(resultResponse);

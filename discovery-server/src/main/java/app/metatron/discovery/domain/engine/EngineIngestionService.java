@@ -44,7 +44,7 @@ import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.fileloader.FileLoaderFactory;
 import app.metatron.discovery.common.fileloader.FileLoaderProperties;
 import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceIngetionException;
+import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.HiveConnection;
@@ -389,13 +389,13 @@ public class EngineIngestionService {
         dataSource.getFields());
 
     if (CollectionUtils.isEmpty(csvFiles)) {
-      throw new DataSourceIngetionException("Empty result of query.");
+      throw new DataSourceIngestionException("Empty result of query.");
     }
 
     // 파일이 존재하는지 여부 확인 필요
     File tempFile = new File(csvFiles.get(0));
     if (!tempFile.canRead()) {
-      throw new DataSourceIngetionException("Temporary file for ingestion are not available.");
+      throw new DataSourceIngestionException("Temporary file for ingestion are not available.");
     }
 
     // Middle Manager에 파일 복사
@@ -485,10 +485,10 @@ public class EngineIngestionService {
     Map<String, Object> result = null;
     try {
       result = engineRepository.ingestion(ingestionSpec, Map.class)
-                               .orElseThrow(() -> new DataSourceIngetionException("Result empty"));
+                               .orElseThrow(() -> new DataSourceIngestionException("Result empty"));
     } catch (Exception e) {
       LOGGER.error("Server error during ingestion : {}", e.getMessage());
-      throw new DataSourceIngetionException("Server error during ingestion : " + e.getMessage());
+      throw new DataSourceIngestionException("Server error during ingestion : " + e.getMessage());
     }
 
     LOGGER.info("Ingestion Result: " + result);
@@ -505,12 +505,12 @@ public class EngineIngestionService {
 
       IngestionStatusResponse checkResponse = doCheckResult(ingestionId);
       if (checkResponse.getStatus() == FAILED) {
-        throw new DataSourceIngetionException("Fail to ingest datasource. please, Check engine.");
+        throw new DataSourceIngestionException("Fail to ingest datasource. please, Check engine.");
       } else {
         ingestionHistory.addResponse(checkResponse);
       }
     } else {
-      throw new DataSourceIngetionException("Invalid result of ingestion : " + result);
+      throw new DataSourceIngestionException("Invalid result of ingestion : " + result);
     }
 
     return Optional.ofNullable(ingestionHistory);
@@ -527,7 +527,7 @@ public class EngineIngestionService {
 
     LOGGER.info("Ingestion Spec: " + ingestionSpec);
     Map<String, Object> result = engineRepository.supervisorIngestion(ingestionSpec, Map.class)
-                                                 .orElseThrow(() -> new DataSourceIngetionException("Result empty"));
+                                                 .orElseThrow(() -> new DataSourceIngestionException("Result empty"));
 
     LOGGER.info("Ingestion Result: " + result);
     IngestionHistory ingestionHistory = new IngestionHistory(dataSourceId);
@@ -545,12 +545,12 @@ public class EngineIngestionService {
 
       Optional<String> checkStatus = doSupervisorCheckResult(ingestionId);
       if (!checkStatus.isPresent() || checkStatus.get().equals("FAILED")) {
-        throw new DataSourceIngetionException("Fail to ingest datasource. please, Check engine.");
+        throw new DataSourceIngestionException("Fail to ingest datasource. please, Check engine.");
       } else {
         ingestionHistory.setStatus(checkStatus.get());
       }
     } else {
-      throw new DataSourceIngetionException("Invalid result of ingestion : " + result);
+      throw new DataSourceIngestionException("Invalid result of ingestion : " + result);
     }
 
     return Optional.ofNullable(ingestionHistory);

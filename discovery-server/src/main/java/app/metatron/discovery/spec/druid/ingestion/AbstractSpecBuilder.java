@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceIngetionException;
+import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.ingestion.DiscardRule;
 import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
@@ -83,7 +83,7 @@ public class AbstractSpecBuilder {
     List<Field> measureFields = dataSource.getFieldByRole(Field.FieldRole.MEASURE);
     for (Field field : measureFields) {
       // 삭제된 필드는 추가 하지 않음
-      if (BooleanUtils.isTrue(field.getRemoved())) {
+      if (BooleanUtils.isTrue(field.getUnloaded())) {
         continue;
       }
       dataSchema.addMetrics(field.getAggregation());
@@ -117,7 +117,7 @@ public class AbstractSpecBuilder {
     // Set timestamp field
     List<Field> timeFields = dataSource.getFieldByRole(Field.FieldRole.TIMESTAMP);
     if (timeFields.size() != 1) {
-      throw new DataSourceIngetionException("[Building Spec] : Timestamp field must be one.");
+      throw new DataSourceIngestionException("[Building Spec] : Timestamp field must be one.");
     }
 
     Field timeField = timeFields.get(0);
@@ -139,7 +139,7 @@ public class AbstractSpecBuilder {
           timestampSpec.setInvalidValue(dateTime);
           timestampSpec.setReplaceWrongColumn(true);
         } catch (Exception e) {
-          throw new DataSourceIngetionException("[Building Spec] : The datetime format does not match the value to be replaced.", e);
+          throw new DataSourceIngestionException("[Building Spec] : The datetime format does not match the value to be replaced.", e);
         }
 
       }
@@ -149,7 +149,7 @@ public class AbstractSpecBuilder {
     List<Field> dimensionfields = dataSource.getFieldByRole(Field.FieldRole.DIMENSION);
     List<String> dimenstionNames = dimensionfields.stream()
                                                   // 삭제된 필드는 추가 하지 않음
-                                                  .filter(field -> BooleanUtils.isNotTrue(field.getRemoved()))
+                                                  .filter(field -> BooleanUtils.isNotTrue(field.getUnloaded()))
                                                   .map((field) -> field.getName())
                                                   .collect(Collectors.toList());
     DimensionsSpec dimensionsSpec = new DimensionsSpec(dimenstionNames);

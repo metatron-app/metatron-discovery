@@ -14,39 +14,63 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.JobDataMap;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
+import org.quartz.impl.triggers.CronTriggerImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.core.annotation.HandleAfterCreate;
+import org.springframework.data.rest.core.annotation.HandleAfterDelete;
+import org.springframework.data.rest.core.annotation.HandleAfterSave;
+import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
+import org.springframework.data.rest.core.annotation.HandleBeforeDelete;
+import org.springframework.data.rest.core.annotation.HandleBeforeLinkDelete;
+import org.springframework.data.rest.core.annotation.HandleBeforeLinkSave;
+import org.springframework.data.rest.core.annotation.HandleBeforeSave;
+import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
+import org.springframework.security.access.prepost.PreAuthorize;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+
 import app.metatron.discovery.domain.context.ContextService;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
-import com.google.common.base.Preconditions;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.quartz.*;
-import org.quartz.impl.triggers.CronTriggerImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK;
-import static app.metatron.discovery.domain.datasource.DataSource.SourceType.*;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.IMPORT;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
+import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.FAILED;
 
@@ -75,6 +99,9 @@ public class DataSourceEventHandler {
 
   @Autowired
   EngineIngestionService engineIngestionService;
+
+  @Autowired
+  IngestionJobRunner jobRunner;
 
   @Autowired
   ContextService contextService;
@@ -129,13 +156,21 @@ public class DataSourceEventHandler {
       } else {
         // 엔진내 datasource 네임 충돌을 방지하기 위하여 추가로 생성
         dataSource.setEngineName(dataSourceService.convertName(dataSource.getName()));
-        initEngineIngestion(dataSource);
-      }
 
-      // removed field remove
-      dataSource.setFields(dataSource.getFields().stream()
-                                     .filter(field -> BooleanUtils.isNotTrue(field.getRemoved()))
-                                     .collect(Collectors.toList()));
+        if(dataSource.getIngestionInfo() instanceof LocalFileIngestionInfo) {
+          dataSource.setStatus(PREPARING);
+          dataSourceRepository.saveAndFlush(dataSource);
+
+          ThreadFactory factory = new ThreadFactoryBuilder()
+              .setNameFormat("ingestion-" + dataSource.getId() + "-%s")
+              .setDaemon(true)
+              .build();
+          ExecutorService service = Executors.newSingleThreadExecutor(factory);
+          service.submit(() -> jobRunner.ingestion(dataSource));
+        } else {
+          initEngineIngestion(dataSource);
+        }
+      }
 
     } else if (dataSource.getConnType() == LINK) {
 
@@ -360,7 +395,7 @@ public class DataSourceEventHandler {
 
     // 적재 실패시 예외 처리 및 히스토리 저장
     if (!status.isPresent() || status.get().getStatus() == FAILED) {
-      throw new DataSourceIngetionException("Fail to ingest engine. (TASK ID:" + status.get().getIngestionId() + ")");
+      throw new DataSourceIngestionException("Fail to ingest engine. (TASK ID:" + status.get().getIngestionId() + ")");
     }
 
     // 트랜잭션 밖에서 처리하기 위해 데이터 소스내 객체에 저장

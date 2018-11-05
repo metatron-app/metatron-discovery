@@ -26,6 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import app.metatron.discovery.domain.MetatronDomain;
+import app.metatron.discovery.domain.engine.model.SegmentMetaData;
 
 /**
  * Created by kyungtaak on 2017. 7. 23..
@@ -60,6 +61,12 @@ public class DataSourceSummary implements MetatronDomain<Long> {
   Long count;
 
   public DataSourceSummary() {
+  }
+
+  public DataSourceSummary(SegmentMetaData segmentMetaData) {
+    this.count = segmentMetaData.getIngestedNumRows();
+    this.size = segmentMetaData.getSerializedSize();
+    // TODO: !!
   }
 
   public Long getId() {

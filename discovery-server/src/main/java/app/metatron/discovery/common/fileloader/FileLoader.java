@@ -20,5 +20,7 @@ public interface FileLoader {
 
   List<String> put(FileLoaderProperties properties, String... paths);
 
+  List<String> put(FileLoaderProperties properties, List<String> sourcePaths, List<String> targetNames, boolean checkSrcFile);
+
   List<String> get(FileLoaderProperties properties, String... paths);
 }
