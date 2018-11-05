@@ -285,7 +285,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       const minValue = data.valueRange[uiOption.layers[layerNum].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
 
       // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-      const addValue = (data.valueRange[uiOption.layers[layerNum].color.column].maxValue - minValue) / colorListLength;
+      const addValue = (data.valueRange[uiOption.layers[layerNum].color.column].maxValue - minValue) / (colorListLength + 1);
 
       let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[layerNum].color.column].maxValue);
 
@@ -384,16 +384,18 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
             if(rangeMax === null) {
               rangeMax = rangeMin + 1;
-            } else if(rangeMin === null) {
-              rangeMin = rangeMax;
-            }
+            } // else if(rangeMin === null) {
+              // rangeMin = rangeMax;
+            // }
 
-            if(rangeMax === rangeMin) {
-              rangeMin = rangeMax - 1;
-            }
+            // if(rangeMax === rangeMin) {
+              // rangeMin = rangeMax - 1;
+            // }
 
             if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&
             feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
+              featureColor = range.color;
+            } else if (rangeMin === null && feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
               featureColor = range.color;
             }
           }
@@ -406,16 +408,18 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
             if(rangeMax === null) {
               rangeMax = rangeMin + 1;
-            } else if(rangeMin === null) {
-              rangeMin = rangeMax;
-            }
+            } // else if(rangeMin === null) {
+              // rangeMin = rangeMax;
+            // }
 
-            if(rangeMax === rangeMin) {
-              rangeMin = rangeMax - 1;
-            }
+            // if(rangeMax === rangeMin) {
+              // rangeMin = rangeMax - 1;
+            // }
 
             if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&
             feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
+              featureColor = range.color;
+            } else if (rangeMin === null && feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
               featureColor = range.color;
             }
           }
@@ -639,7 +643,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       const minValue = data.valueRange[uiOption.layers[layerNum].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[layerNum].color.column].minValue);
 
       // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-      const addValue = (data.valueRange[uiOption.layers[layerNum].color.column].maxValue - minValue) / colorListLength;
+      const addValue = (data.valueRange[uiOption.layers[layerNum].color.column].maxValue - minValue) / (colorListLength + 1);
 
       let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[layerNum].color.column].maxValue);
 
@@ -700,11 +704,13 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
               if(rangeMax === null) {
                 rangeMax = rangeMin + 1;
-              } else if(rangeMin === null) {
-                rangeMin = rangeMax;
-              }
+              } // else if(rangeMin === null) {
+                // rangeMin = rangeMax;
+              // }
 
               if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&  feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
+                featureColor = range.color;
+              } else if (rangeMin === null && feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
                 featureColor = range.color;
               }
             }
@@ -717,12 +723,14 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
               if(rangeMax === null) {
                 rangeMax = rangeMin + 1;
-              } else if(rangeMin === null) {
-                rangeMin = rangeMax;
-              }
+              } // else if(rangeMin === null) {
+                // rangeMin = rangeMax;
+              // }
 
               if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&
               feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
+                featureColor = range.color;
+              } else if (rangeMin === null && feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
                 featureColor = range.color;
               }
             }
@@ -866,9 +874,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
             if(rangeMax === null) {
               rangeMax = rangeMin + 1;
-            } else if(rangeMin === null) {
-              rangeMin = 0;
-            }
+            } // else if(rangeMin === null) {
+              // rangeMin = 0;
+            // }
 
             let featurePropVal = 0;
 
@@ -879,8 +887,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
             if( featurePropVal > rangeMin &&  featurePropVal < rangeMax) {
               featureColor = range.color;
+            } else if (rangeMin === null && featurePropVal < rangeMax) {
+              featureColor = range.color;
             }
-
           }
         }
       }
@@ -1041,7 +1050,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
     const minValue = data.valueRange[uiOption.layers[layerIndex].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[layerIndex].color.column].minValue);
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (data.valueRange[uiOption.layers[layerIndex].color.column].maxValue - minValue) / colorListLength;
+    const addValue = (data.valueRange[uiOption.layers[layerIndex].color.column].maxValue - minValue) / (colorListLength + 1);
 
     let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[layerIndex].color.column].maxValue);
 
@@ -1462,6 +1471,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                   '<ul class="ddp-list-remark">';
 
                   if(this.uiOption.layers[i].color["ranges"]) {
+                    let rangesLength = this.uiOption.layers[i].color["ranges"].length;
+                    this.uiOption.layers[i].color["ranges"][0]["isMax"] = true;
+                    this.uiOption.layers[i].color["ranges"][rangesLength-1]["isMin"] = true;
+
                     for(let range of this.uiOption.layers[i].color["ranges"]) {
 
                       let minVal = range.fixMin;
@@ -1470,10 +1483,22 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                       if(minVal === null) minVal = maxVal;
                       if(maxVal === null) maxVal = minVal;
 
-                      legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
+                      legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>';
+                      if (range["isMax"]) {
+                        legendHtml = legendHtml + ' ＞ ' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat);
+                      } else if (range["isMin"]) {
+                        legendHtml = legendHtml + ' ≤ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
+                      } else {
+                        legendHtml = legendHtml + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
+                      }
+                      legendHtml = legendHtml + '</li>';
                     }
                   } else {
                     const ranges = this.setColorRange(this.uiOption, this.data[i], ChartColorList[this.uiOption.layers[i].color['schema']], i, []);
+
+                    let rangesLength = ranges.length;
+                    ranges[0]["isMax"] = true;
+                    ranges[rangesLength-1]["isMin"] = true;
 
                     for(let range of ranges) {
 
@@ -1483,7 +1508,15 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                       if(minVal === null) minVal = maxVal;
                       if(maxVal === null) maxVal = minVal;
 
-                      legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
+                      legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>';
+                      if (range["isMax"]) {
+                        legendHtml = legendHtml + ' ＞ ' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat);
+                      } else if (range["isMin"]) {
+                        legendHtml = legendHtml + ' ≤ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
+                      } else {
+                        legendHtml = legendHtml + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
+                      }
+                      legendHtml = legendHtml + '</li>';
                     }
                   }
 
@@ -1494,6 +1527,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                     '<ul class="ddp-list-remark">';
 
                 if(this.uiOption.layers[i].color["customMode"] === 'SECTION') {
+                  let rangesLength = this.uiOption.layers[i].color["ranges"].length;
+                  this.uiOption.layers[i].color["ranges"][0]["isMax"] = true;
+                  this.uiOption.layers[i].color["ranges"][rangesLength-1]["isMin"] = true;
+
                   for(let range of this.uiOption.layers[i].color["ranges"]) {
 
                     let minVal = range.fixMin;
@@ -1502,7 +1539,15 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                     if(minVal === null) minVal = 0;
                     if(maxVal === null) maxVal = minVal;
 
-                    legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
+                    legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>';
+                    if (range["isMax"]) {
+                      legendHtml = legendHtml + ' ＞ ' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat);
+                    } else if (range["isMin"]) {
+                      legendHtml = legendHtml + ' ≤ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
+                    } else {
+                      legendHtml = legendHtml + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
+                    }
+                    legendHtml = legendHtml + '</li>';
                   }
                 }
               }
