@@ -1655,10 +1655,28 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * 워크벤치 에디터 단축키 보기 클릭 이벤트
    */
   public onClickShowShortcutsBtn(): void {
+
     this.shortcutsFl = true;
-    this._questionLayout.nativeElement.style.top
-      = this._questionWrap.nativeElement.getBoundingClientRect().top
-      + window.pageYOffset - document.documentElement.clientTop - 282 + 'px';
+
+    let editorLayoutHeight = $('.CodeMirror.cm-s-default').height();
+    let editorFootLayoutHeight = $('.ddp-wrap-edit-foot').height();
+    let popupLayoutHeight = $('.ddp-box-layout4').height();
+
+    // editor 영역에 따른 위치 변경
+    if( editorLayoutHeight < (popupLayoutHeight + editorFootLayoutHeight + 19 ) ) {
+
+      this._questionLayout.nativeElement.style.top
+        = this._questionWrap.nativeElement.getBoundingClientRect().top
+        + window.pageYOffset - document.documentElement.clientTop + 42 + 'px';
+
+    } else {
+
+      this._questionLayout.nativeElement.style.top
+        = this._questionWrap.nativeElement.getBoundingClientRect().top
+        + window.pageYOffset - document.documentElement.clientTop - 265 + 'px';
+    }
+
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -8684,7 +8684,7 @@ table tr td .ddp-status-button .ddp-btn-status-status {width:11px; height:11px; 
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts {display:block; position:absolute; top:8px; right:8px; bottom:46px; width:auto; overflow:auto; background-color:#fff; z-index:10;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts * { font-family:'SpoqaHanSans',sans-serif}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts .ddp-table-pop {white-space:nowrap; width:auto;}
-.page-workbench .ddp-box-editer .ddp-wrap-edit-foot {bottom:6px;}
+.page-workbench .ddp-box-editer .ddp-wrap-edit-foot {bottom:6px; z-index:30;}
 .page-workbench .ddp-ui-tabs ul.ddp-list-tabs li .ddp-wrap-retry {position:absolute; bottom:100%; padding-bottom:5px; }
 .page-workbench .ddp-ui-tabs ul.ddp-list-tabs li .ddp-wrap-retry .ddp-box-tabs-popup {position:relative;}
 /**************************************************************

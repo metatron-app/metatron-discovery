@@ -290,11 +290,10 @@
               <!-- //foot button -->
               <!-- 클릭시 ddp-selected 추가 -->
               <div class="ddp-wrap-question" [class.ddp-selected]="shortcutsFl" #questionWrap>
-                <a href="javascript:" class="ddp-btn-question" (click)="onClickShowShortcutsBtn()">
+                <a href="javascript:" class="ddp-btn-question" (mouseover)="onClickShowShortcutsBtn()" (mouseout)="shortcutsFl = false" >
                 </a>
                 <!-- popup -->
                 <div class="ddp-box-layout4" #questionLayout>
-                  <a href="javascript:" class="ddp-btn-close" (click)="shortcutsFl = false"></a>
                   <div class="ddp-data-title">
                     {{'msg.bench.ui.editor.shortcut.title' | translate}}
                   </div>
