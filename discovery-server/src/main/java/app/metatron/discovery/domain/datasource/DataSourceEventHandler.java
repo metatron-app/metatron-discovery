@@ -157,7 +157,8 @@ public class DataSourceEventHandler {
         // 엔진내 datasource 네임 충돌을 방지하기 위하여 추가로 생성
         dataSource.setEngineName(dataSourceService.convertName(dataSource.getName()));
 
-        if(dataSource.getIngestionInfo() instanceof LocalFileIngestionInfo) {
+        if(dataSource.getIngestionInfo() instanceof LocalFileIngestionInfo
+            || dataSource.getIngestionInfo() instanceof JdbcIngestionInfo) {
           dataSource.setStatus(PREPARING);
           dataSourceRepository.saveAndFlush(dataSource);
 

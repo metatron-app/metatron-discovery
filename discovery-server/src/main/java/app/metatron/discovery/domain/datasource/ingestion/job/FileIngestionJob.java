@@ -33,7 +33,7 @@ public class FileIngestionJob extends AbstractIngestionJob implements IngestionJ
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileIngestionJob.class);
 
-  private LocalFileIngestionInfo localFileInfo;
+  private LocalFileIngestionInfo ingestionInfo;
 
   private String srcFilePath;
 
@@ -43,30 +43,30 @@ public class FileIngestionJob extends AbstractIngestionJob implements IngestionJ
 
   public FileIngestionJob(DataSource dataSource, IngestionHistory ingestionHistory) {
     super(dataSource, ingestionHistory);
-    localFileInfo = dataSource.getIngestionInfoByType();
+    ingestionInfo = dataSource.getIngestionInfoByType();
   }
 
   @Override
   public void preparation() {
 
-    EngineProperties.IngestionInfo ingestionInfo = engineProperties.getIngestion();
+    EngineProperties.IngestionInfo ingestionProperties = engineProperties.getIngestion();
 
-    if (StringUtils.isNotEmpty(localFileInfo.getOriginalFileName())) {
-      srcFilePath = System.getProperty("java.io.tmpdir") + File.separator + localFileInfo.getPath();
+    if (StringUtils.isNotEmpty(this.ingestionInfo.getOriginalFileName())) {
+      srcFilePath = System.getProperty("java.io.tmpdir") + File.separator + this.ingestionInfo.getPath();
     } else {
-      srcFilePath = localFileInfo.getPath();
-      localFileInfo.setOriginalFileName(FilenameUtils.getName(srcFilePath));
+      srcFilePath = this.ingestionInfo.getPath();
+      this.ingestionInfo.setOriginalFileName(FilenameUtils.getName(srcFilePath));
     }
 
-    loadFileName = createDestFileName(dataSource.getEngineName(), localFileInfo.getFormat());
-    Path destFilePath = Paths.get(ingestionInfo.getBaseDir(), loadFileName);
+    loadFileName = createDestFileName(dataSource.getEngineName(), this.ingestionInfo.getFormat());
+    Path destFilePath = Paths.get(ingestionProperties.getBaseDir(), loadFileName);
 
-    if(localFileInfo.getFormat() instanceof ExcelFileFormat) {
+    if(this.ingestionInfo.getFormat() instanceof ExcelFileFormat) {
 
-      if (localFileInfo.getFormat() instanceof ExcelFileFormat) {
-        boolean removeFirstRow = localFileInfo.getRemoveFirstRow();
+      if (this.ingestionInfo.getFormat() instanceof ExcelFileFormat) {
+        boolean removeFirstRow = this.ingestionInfo.getRemoveFirstRow();
 
-        ExcelFileFormat excelFileFormat = (ExcelFileFormat) localFileInfo.getFormat();
+        ExcelFileFormat excelFileFormat = (ExcelFileFormat) this.ingestionInfo.getFormat();
         try {
           PolarisUtils.convertExcelToCSV(excelFileFormat.getSheetIndex(), removeFirstRow, srcFilePath, destFilePath.toString());
         } catch (Exception e) {
@@ -88,7 +88,7 @@ public class FileIngestionJob extends AbstractIngestionJob implements IngestionJ
     IngestionSpec spec = new IngestionSpecBuilder()
         .dataSchema(dataSource)
         .batchTuningConfig(ingestionOptionService.findTuningOptionMap(IngestionOption.IngestionType.BATCH,
-                                                                      localFileInfo.getTuningOptions()))
+                                                                      ingestionInfo.getTuningOptions()))
         .localIoConfig(engineProperties.getIngestion().getBaseDir(), loadFileName)
         .build();
 

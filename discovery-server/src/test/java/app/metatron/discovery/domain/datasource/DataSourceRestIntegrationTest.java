@@ -2075,6 +2075,90 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
   }
 
+  @Test
+  @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
+  @Sql("/sql/test_dataconnection.sql")
+  public void createDataSourceWithJdbcSingleIngestionByAsync() throws JsonProcessingException {
+
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    String connectionId = "mysql-connection";
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName("localJDBCIngestion");
+    dataSource.setDsType(MASTER);
+    dataSource.setConnType(ENGINE);
+    dataSource.setGranularity(DAY);
+    dataSource.setSegGranularity(MONTH);
+    dataSource.setSrcType(JDBC);
+
+    List<Field> fields = Lists.newArrayList();
+    fields.add(new Field("time", DataType.TIMESTAMP, TIMESTAMP, 0L));
+    fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
+    fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
+    fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
+    fields.add(new Field("m2", DataType.DOUBLE, MEASURE, 4L));
+
+    dataSource.setFields(fields);
+
+    SingleIngestionInfo singleJdbcInfo = new SingleIngestionInfo();
+
+    singleJdbcInfo.setDataType(JdbcIngestionInfo.DataType.TABLE);
+    singleJdbcInfo.setDatabase("polaris_datasources");
+    singleJdbcInfo.setQuery("sample_ingestion");
+
+    dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(singleJdbcInfo));
+
+    Map reqMap = GlobalObjectMapper.getDefaultMapper().convertValue(dataSource, Map.class);
+
+    // 추가 정보
+    reqMap.put("connection", "/api/connections/" + connectionId);
+
+    String reqBody = GlobalObjectMapper.writeValueAsString(reqMap);
+    System.out.println(reqBody);
+
+    // @formatter:off
+    Response dsRes =
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+      .body(reqBody)
+      .log().all()
+    .when()
+      .post("/api/datasources");
+
+    dsRes.then()
+      .statusCode(HttpStatus.SC_CREATED)
+    .log().all();
+    // @formatter:on
+
+    String id = from(dsRes.asString()).get("id");
+
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
+
+    try {
+      System.out.println("Sleep!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+  }
+
 
   @Test
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})

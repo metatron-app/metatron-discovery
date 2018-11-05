@@ -28,6 +28,8 @@ public enum DataSourceErrorCodes implements ErrorCodes {
   INGESTION_COMMON_ERROR("error.datasource.ingestion.common"),
   INGESTION_FILE_LOAD_ERROR("error.datasource.ingestion.file.load"), // Failed to load the file into the engine to load the data source. Please contact your system administrator.
   INGESTION_FILE_EXCEL_CONVERSION_ERROR("error.datasource.ingestion.file.excel.conversion"), // Failed to convert Excel file. Please check if the format is supported by metatron.
+  INGESTION_JDBC_QUERY_EXECUTION_ERROR("error.datasource.ingestion.jdbc.query.execution"), // An error occurred while querying the data. Please check the query syntax or constraints in the DB Server.
+  INGESTION_JDBC_FETCH_RESULT_ERROR("error.datasource.ingestion.jdbc.fetch.result"), // An error occurred in processing the result.
   INGESTION_ENGINE_ACCESS_ERROR("error.datasource.ingestion.engine.access"), // Failed to access to the engine. Please contact your system administrator.
   INGESTION_ENGINE_TASK_CREATION_ERROR("error.datasource.ingestion.engine.creation.task"), // No ingestion task was created on the engine for an unknown reason.
   INGESTION_ENGINE_TASK_ERROR("error.datasource.ingestion.engine.run.task"), // An error occurred while loading the data source. Please check the engine log.

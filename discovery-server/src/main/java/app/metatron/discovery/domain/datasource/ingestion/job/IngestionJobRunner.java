@@ -16,6 +16,7 @@ import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.DataSourceService;
 import app.metatron.discovery.domain.datasource.DataSourceSummary;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
@@ -61,6 +62,9 @@ public class IngestionJobRunner {
 
   @Autowired
   private DataSourceService dataSourceService;
+
+  @Autowired
+  private JdbcConnectionService jdbcConnectionService;
 
   @Autowired
   private IngestionHistoryRepository historyRepository;
@@ -179,7 +183,15 @@ public class IngestionJobRunner {
       return ingestionJob;
 
     } else if(ingestionInfo instanceof JdbcIngestionInfo) {
-
+      JdbcIngestionJob ingestionJob = new JdbcIngestionJob(dataSource, ingestionHistory);
+      ingestionJob.setEngineProperties(engineProperties);
+      ingestionJob.setEngineMetaRepository(engineMetaRepository);
+      ingestionJob.setEngineRepository(engineRepository);
+      ingestionJob.setFileLoaderFactory(fileLoaderFactory);
+      ingestionJob.setHistoryRepository(historyRepository);
+      ingestionJob.setIngestionOptionService(ingestionOptionService);
+      ingestionJob.setJdbcConnectionService(jdbcConnectionService);
+      return ingestionJob;
     }
 
     return null;
