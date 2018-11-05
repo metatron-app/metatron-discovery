@@ -51,6 +51,7 @@ import { Alert } from '../common/util/alert.util';
 import { WidgetService } from './service/widget.service';
 import { DashboardUtil } from './util/dashboard.util';
 import { EventBroadcaster } from '../common/event/event.broadcaster';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'app-dashboard',
@@ -199,65 +200,6 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-
-  /**
-   * 필터 내용이 변경됨
-   * @param {SelectionFilter[]} data
-   */
-  public changedSelectionFilter(data: any) {
-
-    // 셀렉션필터에 의한 변경
-    if (_.isArray(data)) {
-      const selectionFilters: SelectionFilter[] = <SelectionFilter[]>data;
-      // console.info('셀렉션필터에 의한 변경', selectionFilters);
-      // console.info('모든 차트에 필터 추가');
-
-      this.broadCaster.broadcast( 'SET_SELECTION_FILTER', { filters: selectionFilters } );
-
-    } else {
-      // 차트에 의한 변경
-      // console.info('위젯에 의한 변경', data, data.chartSelectInfo.mode);
-      // console.info('위젯 해당 필터들 추가해서 다시 draw 요청');
-
-      const externalFilterData: any = {};
-
-      let widgetId: string = '';
-
-      // 1. widgets에서 본인차트 제외
-      if (data.chartSelectInfo.params && data.chartSelectInfo.params.hasOwnProperty('widgetId')) {
-        widgetId = data.chartSelectInfo.params.widgetId;
-        externalFilterData.excludeWidgetId = widgetId;
-      }
-
-      // 2. 선택 필터 데이터 변환
-      let selectionFilters: SelectionFilter[] = data.filters.map((filter: SelectionFilter) => {
-        filter.valueList = _.uniq(_.flattenDeep(filter.valueList));
-        (widgetId) && (filter.selectedWidgetId = widgetId); // detail 차트를 위해 필터 선택을 한 위젯의 아이디를 저장해준다.
-        return filter;
-      });
-
-      // 3. 선택필터와 보드필터 병합 ( 같은 필드 )
-/*
-      let cloneBoardFilters: Filter[] = DashboardUtil.getBoardFilters(this.dashboard, true);
-      cloneBoardFilters.forEach(item1 => {
-        const idx: number = selectionFilters.findIndex(item2 => item1.field === item2.field && item1.ref === item2.ref);
-        if (-1 < idx) {
-          if ('include' === item1.type) {
-            const selection: SelectionFilter = selectionFilters.splice(idx, 1)[0];
-            (selection.selectedWidgetId) && (item1['sourceWidgetId'] = selection.selectedWidgetId);
-            item1['valueList'] = item1['valueList'] ? _.uniq(item1['valueList'].concat(selection.valueList)) : selection.valueList;
-          }
-        }
-      });
-      externalFilterData.filters = cloneBoardFilters.concat(selectionFilters);
-*/
-
-      externalFilterData.filters = selectionFilters;
-
-      this.broadCaster.broadcast('SET_SELECTION_FILTER', externalFilterData);
-
-    }
-  } // function - changedSelectionFilter
 
   /**
    * 대시보드 열람화면 ( Workbook 화면 ) 에서 좌측 메뉴 접힘/펼침 시 실행하는 함수

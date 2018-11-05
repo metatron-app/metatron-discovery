@@ -99,7 +99,7 @@
   </div>
 </div>
 <em class="ddp-bg-back"></em>
-<div class="ddp-layout-contents2 ddp-wrap-workbench">
+<div class="ddp-layout-contents2 ddp-wrap-workbench page-workbench">
   <!-- lnb --->
   <!-- 닫힐때 ddp-close 추가 -->
   <div class="ddp-ui-benchlnb" [ngClass]="{'ddp-close':!isLeftMenuOpen || isQueryEditorFull===true}">
@@ -110,6 +110,20 @@
         <!-- name -->
         <div class="ddp-data-name">
           <div class="ddp-txt-dataname">
+
+            <!-- icons -->
+            <div class="ddp-db-icons">
+              <em class="ddp-icon-data-tibero" style="display:none;"></em>
+              <em class="ddp-icon-data-oracle" style="display:none;"></em>
+              <em class="ddp-icon-data-db" style="display:none;"></em>
+              <em class="ddp-icon-data-phoenix" style="display:none;"></em>
+              <em [ngStyle]="{'display': workbench.dataConnection.implementor == getConnectionType('MYSQL') ? '':'none'}" class="ddp-icon-data-sql"></em>
+              <em [ngStyle]="{'display': workbench.dataConnection.implementor == getConnectionType('POSTGRESQL') ? '':'none'}" class="ddp-icon-data-post"></em>
+              <em [ngStyle]="{'display': workbench.dataConnection.implementor == getConnectionType('HIVE') ? '':'none'}" class="ddp-icon-data-hive"></em>
+              <em [ngStyle]="{'display': workbench.dataConnection.implementor == getConnectionType('PRESTO') ? '':'none'}" class="ddp-icon-data-presto"></em>
+            </div>
+            <!-- icons -->
+
             <span class="ddp-txt-in" title="{{workbench.dataConnection.name}}">{{workbench.dataConnection.name}}</span>
             <!-- info 버튼 클릭시 ddp-selected 추가 -->
             <div class="ddp-wrap-info" [ngClass]="{'ddp-selected':isDataConnectionInfoShow}">
@@ -220,8 +234,9 @@
                   </li>
                 </ul>
 
-                <a href="javascript:" class="ddp-btn-plus" (click)="createNewEditor('', true, true)"><em
-                  class="ddp-icon-plus"></em></a>
+                <a href="javascript:" class="ddp-btn-plus" (click)="createNewEditor('', true)">
+                  <em class="ddp-icon-plus"></em>
+                </a>
               </div>
             </div>
             <!-- //tab -->
@@ -283,7 +298,7 @@
                   <div class="ddp-data-title">
                     {{'msg.bench.ui.editor.shortcut.title' | translate}}
                   </div>
-                  <div class="ddp-wrap-data-detail">
+                  <div class="ddp-wrap-data-detail ddp-padt0">
                     <table class="ddp-table-pop">
                       <colgroup>
                         <col width="136px">
@@ -437,27 +452,31 @@
                     </div>
                   </div>
 
-                  <!-- button -->
+                  <!-- buttons -->
                   <div class="ddp-ui-buttons" *ngIf="visibleResultTab.result && visibleResultTab.result.fields">
+                    <!-- Paging -->
                     <div class="ddp-wrap-btn-link" [hidden]="visibleResultTab.message">
                       <a *ngIf="visibleResultTab.isShowPrevBtn()"
                          (click)="changeResultPage( visibleResultTab, 'PREV' )"
                          href="javascript:" class="ddp-box-page" >
                         <em class="ddp-icon-prev"></em>PREV
                       </a>
-                      <a *ngIf="visibleResultTab.isShowNextBtn( queryResultNumber )"
+                      <a *ngIf="visibleResultTab.isShowNextBtn( visibleResultTab.result.defaultNumRows )"
                          (click)="changeResultPage( visibleResultTab, 'NEXT' )"
                          href="javascript:" class="ddp-box-page ddp-next" >
                         NEXT<em class="ddp-icon-next"></em>
                       </a>
                     </div>
+                    <!-- // Paging -->
 
+                    <!-- Result Search -->
                     <div class="ddp-wrap-btn-link">
-
                       <!-- search link -->
-                      <!-- 클릭시 ddp-selected 추가 -->
-                      <a href="javascript:" class="ddp-btn-link " [ngClass]="{'ddp-selected':isSearchLink, 'ddp-value': searchText.trim() != '' }"  [hidden]="visibleResultTab.message" >
-                        <em class="ddp-icon-query-search" (click)="this.isSearchLink = !this.isSearchLink"></em>
+                      <a (click)="toggleResultSearchLayer($event)"
+                         [ngClass]="{'ddp-selected':isSearchLink, 'ddp-value': searchText.trim() != '' }"
+                         [hidden]="visibleResultTab.message"
+                         href="javascript:" class="ddp-btn-link " >
+                        <em class="ddp-icon-query-search" ></em>
                         <div class="ddp-ui-tooltip-info ">
                           <em class="ddp-icon-view-down"></em>
                           search
@@ -478,61 +497,46 @@
                         </div>
                         <!-- //box -->
                       </a>
-                      <!-- //search link -->
+                      <!-- // Result Search -->
 
-                      <a href="javascript:" class="ddp-btn-link" (click)="resultPreview()" [hidden]="visibleResultTab.message">
+                      <!-- Preview ( Chart ) -->
+                      <a (click)="resultPreview()" [hidden]="visibleResultTab.message"
+                         href="javascript:" class="ddp-btn-link" >
                         <em class="ddp-icon-chart"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-down"></em>
                           {{'msg.bench.btn.chart.preview' | translate}}
                         </div>
                       </a>
+                      <!-- // Preview ( Chart ) -->
 
-                      <a *ngIf="isDataManager" href="javascript:" class="ddp-btn-link" (click)="createDatasource()" [hidden]="visibleResultTab.message">
+                      <!-- Create Datasource -->
+                      <a *ngIf="isDataManager" (click)="createDatasource()" [hidden]="visibleResultTab.message"
+                         href="javascript:" class="ddp-btn-link" >
                         <em class="ddp-icon-save"></em>
                         <div class="ddp-ui-tooltip-info">
                           <em class="ddp-icon-view-down"></em>
                           {{'msg.bench.btn.save.as.datasource' | translate}}
                         </div>
                       </a>
+                      <!-- // Create Datasource -->
 
-                      <!-- ddp-selected 추가 -->
-                      <div class="ddp-ui-link ddp-selected" [ngClass]="{'ddp-selected':csvDownloadLayer}" [hidden]="visibleResultTab.message">
-                        <a href="javascript:" class="ddp-btn-link" (click)="downloadExcel()">
+                      <!-- Download Data -->
+                      <div [hidden]="visibleResultTab.message" class="ddp-ui-link" >
+                        <a (click)="downloadExcel()" href="javascript:" class="ddp-btn-link" >
                           <em class="ddp-icon-export"></em>
                           <div class="ddp-ui-tooltip-info">
                             <em class="ddp-icon-view-down"></em>
                             {{'msg.bench.btn.export.file' | translate}}
                           </div>
                         </a>
-
-                        <!--<div class="ddp-wrap-popup2" >-->
-                          <!--<ul class="ddp-list-popup">-->
-                            <!--<li>-->
-                              <!--<a href="javascript:" (click)="setDownloadLocal()">-->
-                                <!--{{'msg.bench.btn.download.rows' | translate}}-->
-                              <!--</a>-->
-                            <!--</li>-->
-                            <!--<li>-->
-                              <!--<a href="javascript:" (click)="downloadServerExcel()">-->
-                                <!--{{'msg.bench.btn.all.data' | translate}}-->
-                              <!--</a>-->
-                            <!--</li>-->
-                          <!--</ul>-->
-                        <!--</div>-->
                       </div>
+                      <!-- // Download Data -->
 
-                      <!--<a href="javascript:" class="ddp-btn-link">-->
-                      <!--<em class="ddp-icon-online-excel"></em>-->
-                      <!--<div class="ddp-ui-tooltip-info" style="display:;">-->
-                      <!--<em class="ddp-icon-view-down"></em>-->
-                      <!--Online Excel-->
-                      <!--</div>-->
-                      <!--</a>-->
                     </div>
 
                   </div>
-                  <!-- //button -->
+                  <!-- // buttons -->
 
                 </div>
               </div>
@@ -582,7 +586,7 @@
                     <span class="ddp-data-txt">{{ setNumberFormat( visibleResultTab.executeTime, 2 ) }} Secs.</span>
                   </span>
                   <span class="ddp-data-time" *ngIf="'SUCCESS' === visibleResultTab.resultStatus && visibleResultTab.result && -1 < visibleResultTab.result.numRows">
-                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * queryResultNumber) )}} / {{ (visibleResultTab.result.numRows == 100000) ? '100,000+' : setNumberFormat(visibleResultTab.result.numRows) }} {{'msg.comm.detail.rows'|translate}}</span>
+                    <span class="ddp-data-txt"> {{setNumberFormat(visibleResultTab.result.data.length + (visibleResultTab.pageNum * visibleResultTab.result.defaultNumRows) )}} / {{ (visibleResultTab.result.numRows == visibleResultTab.result.maxNumRows) ? setNumberFormat(visibleResultTab.result.maxNumRows) + '+' : setNumberFormat(visibleResultTab.result.numRows) }} {{'msg.comm.detail.rows'|translate}}</span>
                   </span>
                 </div>
                 <!-- //time -->

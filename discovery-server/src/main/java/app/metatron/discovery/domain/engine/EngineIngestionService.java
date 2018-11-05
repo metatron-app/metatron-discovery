@@ -339,7 +339,7 @@ public class EngineIngestionService {
       Field lastField = dataSource.getFields().get(fieldSize - 1);
       if (lastField.getType() == DataType.TIMESTAMP && "current_datetime".equals(lastField.getName())) {
         Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat(lastField.getFormat());//yyyy-MM-dd HH:mm:ss
+        SimpleDateFormat sdf = new SimpleDateFormat(lastField.getTimeFormat());//yyyy-MM-dd HH:mm:ss
         String timestampValue = sdf.format(date);
         PolarisUtils.addTimestampColumn(timestampValue, destFilePath.toString());
       }

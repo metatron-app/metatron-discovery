@@ -14,7 +14,6 @@
 
 import { Component, ElementRef, EventEmitter, Injector, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { AbstractComponent } from '../abstract.component';
-import { PeriodType } from '../period/period.component';
 import { PickerSettings } from '../../../domain/common/datepicker.settings';
 
 declare let moment: any;
@@ -41,8 +40,12 @@ export class DateComponent extends AbstractComponent implements OnInit {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
   @ViewChild('date')
   public dateInput: ElementRef;
+
+  @Input('isReadOnly')
+  public isReadOnly: boolean = false;
 
   @Output()
   public onDateChange = new EventEmitter();
@@ -52,6 +55,10 @@ export class DateComponent extends AbstractComponent implements OnInit {
 
   @Input()
   public placeholder: string;
+
+  // return time format (default : YYYY-MM-DD)
+  @Input('timeFormat')
+  public timeFormat: string = 'YYYY-MM-DD';
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -84,7 +91,8 @@ export class DateComponent extends AbstractComponent implements OnInit {
       = new PickerSettings(
       'ddp-input-typebasic',
       (fdate: string, date: Date) => {
-        this.onDateChange.emit(date);
+        // has changed, return time
+        this.onDateChange.emit(moment(date).format(this.timeFormat));
       },
       () => {}
     );
@@ -103,6 +111,17 @@ export class DateComponent extends AbstractComponent implements OnInit {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * calendar icon
+   * @param {MouseEvent} event
+   */
+  public onClickCalendarIcon(event:MouseEvent) {
+    event.stopPropagation();
+    if( event.target['tagName'] !== 'INPUT' ) {
+      ( this._datePicker ) && ( this._datePicker.show() );
+    }
+  }
 
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

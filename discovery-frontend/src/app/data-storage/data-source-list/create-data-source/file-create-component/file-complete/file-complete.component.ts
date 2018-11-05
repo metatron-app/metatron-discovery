@@ -25,6 +25,7 @@ import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../../../common/domain/modal';
+import { CookieConstant } from '../../../../../common/constant/cookie.constant';
 
 /**
  * Creating datasource with File - complete step
@@ -219,13 +220,26 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     // create datasource
     this.datasourceService.createDatasource(this._getCreateDatasourceParams())
       .then((result) => {
-        // loading hide
-        this.loadingHide();
         // complete alert
         Alert.success(`'${this.datasourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
-        // close
-        this.step = '';
-        this.fileComplete.emit(this.step);
+        // 개인 워크스페이스
+        const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+        // 워크스페이스 매핑
+        this.datasourceService.addDatasourceWorkspaces(result.id, [workspace['id']])
+          .then(() => {
+            // loading hide
+            this.loadingHide();
+            // close
+            this.step = '';
+            this.fileComplete.emit(this.step);
+          })
+          .catch(() => {
+            // loading hide
+            this.loadingHide();
+            // close
+            this.step = '';
+            this.fileComplete.emit(this.step);
+          });
       })
       .catch((error) => {
         // loading hide
