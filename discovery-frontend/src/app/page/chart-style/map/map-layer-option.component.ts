@@ -607,7 +607,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    public changeColorColumn(colorCol: string) {
 
      this.color['column'] = colorCol;
-     this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
+
+     if(this.color['by'] === "MEASURE") {
+       this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
+     }
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {

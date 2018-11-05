@@ -98,7 +98,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   // Init
   public ngOnInit() {
 
-
     // Init
     super.ngOnInit();
   }
@@ -1108,7 +1107,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.noData.emit();
       return;
     } else {
+      if(!this.uiOption["data"]) {
+        this.uiOption["data"] = [];
+      }
       this.mapData[0] = this.data[0];
+      this.uiOption["data"][0] = this.data[0];
     }
 
     ////////////////////////////////////////////////////////
@@ -1483,17 +1486,19 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                       legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
                     }
                   } else {
-                    const ranges = this.setColorRange(this.uiOption, this.mapData[i], ChartColorList[this.uiOption.layers[i].color['schema']], i, []);
+                    if(this.mapData[i].valueRange && this.mapData[i].valueRange[this.uiOption.layers[i].color.column]) {
+                      const ranges = this.setColorRange(this.uiOption, this.mapData[i], ChartColorList[this.uiOption.layers[i].color['schema']], i, []);
 
-                    for(let range of ranges) {
+                      for(let range of ranges) {
 
-                      let minVal = range.fixMin;
-                      let maxVal = range.fixMax;
+                        let minVal = range.fixMin;
+                        let maxVal = range.fixMax;
 
-                      if(minVal === null) minVal = maxVal;
-                      if(maxVal === null) maxVal = minVal;
+                        if(minVal === null) minVal = maxVal;
+                        if(maxVal === null) maxVal = minVal;
 
-                      legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
+                        legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat) + '</li>';
+                      }
                     }
                   }
 
@@ -1908,18 +1913,11 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.olmap.updateSize();
     }
 
-    // this.tooltipRender();
-
-    // 차트 반영
-    // this.apply();
-
     //tooltip 생성
     this.tooltipRender();
     //legend 생성
     this.legendRender();
 
-    // 완료
-    // this.drawFinished.emit();
   }
 
   /**
@@ -2378,17 +2376,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       if(this.mapData[1] === undefined && secondLayerVaild) {
         this.datasourceService.searchQuery(secondLayerQuery).then(
           (data) => {
-
             this.mapData[1] = data[0];
+            this.uiOption["data"][1] = data[0];
             this.drawSecondLayer(this.mapData);
           }
         ).catch((reason) => {
           console.error('Search Query Error =>', reason);
-          // this.isChartShow = false;
-
-          // 변경사항 반영
-          // this.changeDetect.detectChanges();
-          // this.loadingHide();
         });
 
         this.secondLayerQuery = secondLayerQuery;
@@ -2396,18 +2389,15 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       //서버에서 데이터를 가지고와 3번째 레이어 생성
       if(this.mapData[2] === undefined && thirdLayerVaild) {
-        // if(thirdLayerQuery["pivot"] !== this.thirdLayerQuery["pivot"]) {
-          this.datasourceService.searchQuery(thirdLayerQuery).then(
-            (data) => {
-              this.mapData[2] = data[0];
-              this.drawThirdLayer(this.mapData);
-            }
-          ).catch((reason) => {
-            console.error('Search Query Error =>', reason);
-          });
-        // } else {
-        //   this.drawThirdLayer(this.data);
-        // }
+        this.datasourceService.searchQuery(thirdLayerQuery).then(
+          (data) => {
+            this.mapData[2] = data[0];
+            this.uiOption["data"][2] = data[0];
+            this.drawThirdLayer(this.mapData);
+          }
+        ).catch((reason) => {
+          console.error('Search Query Error =>', reason);
+        });
 
         this.thirdLayerQuery = thirdLayerQuery;
       }

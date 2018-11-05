@@ -384,7 +384,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
      // 차트 타입이 MEASURE인경우
      if (this.uiOption.layers[1].color.by === 'MEASURE') {
 
-       this.uiOption.layers[1].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][1], ChartColorList[color['colorNum']]);
+       this.uiOption.layers[1].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.uiOption['data'][1], ChartColorList[color['colorNum']]);
 
        // // 선택된 컬러를 변수에 설정
        // if( _.eq(this.uiOption.type, ChartType.GRID) ) {
@@ -587,6 +587,10 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
    public changeColorColumn(colorCol: string) {
 
      this.color['column'] = colorCol;
+
+     if(this.color['by'] === "MEASURE") {
+       this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.uiOption['data'][1], ChartColorList[this.uiOption.layers[1].color['schema']]);
+     }
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -1023,7 +1027,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
       // ranges 값이 없는경우 uiOption update
       if (!(<UIChartColorByValue>this.uiOption.layers[1].color).ranges) {
 
-        const ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][1], ChartColorList[this.uiOption.layers[1].color['schema']]);
+        const ranges = this.setMeasureColorRange(this.uiOption, this.uiOption['data'][1], ChartColorList[this.uiOption.layers[1].color['schema']]);
 
         this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[1].color).schema;
         this.color['customMode'] = (<UIChartColorByValue>this.uiOption.layers[1].color).customMode;
@@ -1035,7 +1039,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     } else {
 
       // color by measure기본 ranges값으로 초기화
-      let ranges = this.setMeasureColorRange(this.uiOption, this.resultData['data'][1], <any>ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[1].color).schema]);
+      let ranges = this.setMeasureColorRange(this.uiOption, this.uiOption['data'][1], <any>ChartColorList[(<UIChartColorBySeries>this.uiOption.layers[1].color).schema]);
 
       this.color['schema'] = (<UIChartColorBySeries>this.uiOption.layers[1].color).schema;
       this.color['ranges'] = ranges;
@@ -1079,7 +1083,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
       delete this.uiOption.layers[1].color['ranges'];
       delete this.uiOption.layers[1].color['visualGradations'];
       // range initialize
-      this.uiOption.layers[1].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][1], <any>ChartColorList[this.uiOption.layers[1].color['schema']]);
+      this.uiOption.layers[1].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.uiOption['data'][1], <any>ChartColorList[this.uiOption.layers[1].color['schema']]);
       this.rangesViewList = this.uiOption.layers[1].color['ranges'];
     }
 
@@ -1101,8 +1105,8 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
 
     let colorList = ChartColorList[this.uiOption.layers[1].color['schema']];
 
-    const minValue = parseInt(this.resultData['data'][0].valueRange.minValue.toFixed(0));
-    const maxValue = parseInt(this.resultData['data'][0].valueRange.maxValue.toFixed(0));
+    const minValue = parseInt(this.uiOption['data'][0].valueRange.minValue.toFixed(0));
+    const maxValue = parseInt(this.uiOption['data'][0].valueRange.maxValue.toFixed(0));
 
     if (!gradations || gradations.length == 0) {
       gradations = [
@@ -1172,7 +1176,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     });
 
     // set color ranges
-    this.uiOption.layers[1].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][1], colorList, rangeList);
+    this.uiOption.layers[1].color['ranges'] = this.setMeasureColorRange(this.uiOption, this.uiOption['data'][1], colorList, rangeList);
 
     // this.uiOption = <UIOption>_.extend({}, this.uiOption, { color : this.uiOption.layers[1].color });
 
@@ -1323,7 +1327,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     const rangeList = (<UIChartColorByValue>this.uiOption.layers[1].color).ranges;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.resultData['data'][0].valueRange[this.uiOption.layers[1].color.column].minValue >= 0 ? 0 : Math.floor(Number(this.resultData['data'][0].valueRange[this.uiOption.layers[1].color.column].minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
+    const uiMinValue = this.uiOption['data'][0].valueRange[this.uiOption.layers[1].color.column].minValue >= 0 ? 0 : Math.floor(Number(this.uiOption['data'][0].valueRange[this.uiOption.layers[1].color.column].minValue) * (Math.pow(10, this.uiOption.valueFormat.decimal))) / Math.pow(10, this.uiOption.valueFormat.decimal);
 
     // 최대값
     let maxValue = rangeList[index - 1].gt;
@@ -1490,7 +1494,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, this.resultData['data'][0].valueRange.minValue);
+    const uiMinValue = this.checkMinZero(this.uiOption['data'][0].valueRange.minValue, this.uiOption['data'][0].valueRange.minValue);
 
     // 하위 fixMin값
     const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
@@ -1565,10 +1569,10 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     // parse string to value
     range = this.parseStrFloat(range);
 
-    let decimalValue = this.resultData['data'][0].valueRange.minValue;
+    let decimalValue = this.uiOption['data'][0].valueRange.minValue;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, decimalValue);
+    const uiMinValue = this.checkMinZero(this.uiOption['data'][0].valueRange.minValue, decimalValue);
 
     // 입력가능 최소 / 최대범위 구하기
     let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
@@ -1579,7 +1583,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
     if (!rangeList[index - 1]) {
 
       // 최대값보다 큰거나 하위의 최대값보다 값이 작은경우
-      if (this.resultData['data'][0].valueRange.maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
+      if (this.uiOption['data'][0].valueRange.maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
         range.gt = range.fixMin;
       } else {
         range.fixMin = range.gt;
