@@ -251,37 +251,44 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
    /**
     * Chart - 맵차트 레이어 타입
-    * @param layerType
+    * @param type
     */
-   public mapLayerType(layerType: string): void {
-     let geomType = this.uiOption.fielDimensionList[0].field.logicalType.toString();
+   public mapLayerType(type: string): void {
+     let geomType = "GEO_POINT";
+
+     for(let dimension of this.uiOption.fielDimensionList) {
+       if(dimension.field.logicalType.toString().indexOf('GEO') > -1 && dimension["layerNum"] && dimension["layerNum"] === 1) {
+         geomType = dimension.field.logicalType.toString();
+         break;
+       }
+     }
 
      if(geomType === "GEO_POINT") {
-       if(layerType === "symbol" || layerType === "heatmap" || layerType === "tile") {
+       if(type === "symbol" || type === "heatmap" || type === "tile") {
          console.log("point");
        } else {
          return;
        }
      } else if(geomType === "GEO_LINE") {
-       if(layerType === "line") {
+       if(type === "line") {
          console.log("line");
        } else {
          return;
        }
      } else if(geomType === "GEO_POLYGON") {
-       if(layerType === "polygon") {
+       if(type === "polygon") {
          console.log("polygon");
        } else {
          return;
        }
      }
 
-     if(layerType === "heatmap" && this.color["by"] === "DIMENSION") {
+     if(type === "heatmap" && this.color["by"] === "DIMENSION") {
        this.color["by"] = "NONE";
        this.color["schema"] = "#602663";
      }
 
-     this.type = layerType;
+     this.type = type;
 
      // 해당 레이어 타입으로 설정
      this.uiOption = <UIOption>_.extend({}, this.uiOption, {
@@ -459,7 +466,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
    /**
     * 반경 변경시
-    * @param blur 흐림
+    * @param radius 반경
     */
    public changeRadius(radius: number) {
 
@@ -1002,8 +1009,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
       this.rangesViewList = this.uiOption.layers[0].color['ranges'];
     }
 
-    //timeout 없으면 가끔 slider가 textbox로 생성됨
     this.changeLayerOption();
+
+    //timeout 없으면 가끔 slider가 textbox로 생성됨
     if(this.type === "heatmap") {
       setTimeout(
         () => {
@@ -1799,12 +1807,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         hide_min_max: true,
         keyboard: false,
         min: 5,
-        max: 30,
-        from: scope.uiOption.layers[0].radius,
+        max: 10,
+        from: scope.uiOption.layers[0].coverage,
         type: 'single',
-        step: 5,
+        step: 1,
         onChange(data) {
-          scope.changeRadius(data.from);
+          scope.changeResolution(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);
@@ -1823,7 +1831,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         keyboard: false,
         min: 5,
         max: 10,
-        from: scope.uiOption.layers[0].color.resolution,
+        from: scope.uiOption.layers[0].coverage,
         type: 'single',
         step: 1,
         onChange(data) {
