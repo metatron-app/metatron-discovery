@@ -101,6 +101,9 @@ import { UILayers } from '../ui-option/map/ui-layers';
 
 import { CustomSymbol } from '../../../../../domain/workbook/configurations/format';
 import { UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue } from '../ui-option/ui-axis';
+import { UIMapViewChart } from '../ui-option/map/ui-mapview-chart';
+import { UIJidoOption } from '../ui-option/jido/ui-jido-chart';
+import { MapType } from '../define/jido/jido-common';
 
 export namespace OptionGenerator {
 
@@ -1999,11 +2002,12 @@ export namespace OptionGenerator {
      * @returns {UIOption}
      */
     export function defaultMapViewChartUIOption(): UIOption {
-      return {
+      return <any>{
         type: ChartType.MAP,
         showMapLayer: true,
-        map: "Light",
-        licenseNotation: "© OpenStreetMap contributer",
+        map: MapType.OSM,
+        style: 'Light',
+        licenseNotation: "© OpenStreetMap contributors",
         showDistrictLayer: true,
         districtUnit: "state",
         layers: [

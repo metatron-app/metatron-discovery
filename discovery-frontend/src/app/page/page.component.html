@@ -1460,6 +1460,7 @@
             </page-filter-panel>
             <calrow-option #calculateOption *ngIf="isChartShow && possibleChartCheck('calculatedRow', selectChart) && 'calculatedRow' === rnbMenu" [(uiOption)]="uiOption"></calrow-option>
             <!-- MapView -->
+
             <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu" [(uiOption)]="uiOption"></map-common-option>
             <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer1' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot" [(resultData)]="resultData"></map-layer-option>
             <map-layer-option2 #mapLayerOption *ngIf="isChartShow && 'mapLayer2' === rnbMenu && uiOption['layerCnt'] > 1" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot" [(resultData)]="resultData"></map-layer-option2>
@@ -1469,6 +1470,15 @@
                                [(pivot)]="pivot" [(uiOption)]="uiOption">
             </map-format-option>
             <map-tooltip-option #mapTooltipOption *ngIf="isChartShow && 'mapTooltip' === rnbMenu" [(uiOption)]="uiOption" [pivot]="pivot" (drawChartParam)="onSetDrawChartParam($event)"></map-tooltip-option>
+
+
+            <!--<jido-common-option #jidoCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu" [(uiOption)]="uiOption"></jido-common-option>-->
+            <!--<jido-layer-option #jidoLayerOption *ngIf="isChartShow && 'mapLayer1' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [(pivot)]="pivot"></jido-layer-option>-->
+            <!--<jido-legend-option #jidoLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)"></jido-legend-option>-->
+            <!--<jido-format-option #jidoFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu" (changeCommon)="onFormatCommonChange($event)" (changeEach)="onFormatEachChange($event)" (drawChartParam)="onSetDrawChartParam($event)"-->
+                               <!--[(pivot)]="pivot" [(uiOption)]="uiOption">-->
+            <!--</jido-format-option>-->
+            <!--<jido-tooltip-option #mapTooltipOption *ngIf="isChartShow && 'mapTooltip' === rnbMenu" [(uiOption)]="uiOption" [pivot]="pivot" (drawChartParam)="onSetDrawChartParam($event)"></jido-tooltip-option>-->
             <!-- //MapView -->
         </div>
 

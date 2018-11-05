@@ -3,35 +3,39 @@ import { UILayers } from './ui-layers';
 import { MapType } from '../../define/jido/jido-common';
 
 /**
- * map view spec
+ * map chart uioption
  * Version 2.0
  */
-export interface UIMapViewChart extends UIOption {
+export interface UIJidoOption extends UIOption {
 
   ////////////////////////////////////////////
-  // 서버 스펙
+  // Server Spec
   ////////////////////////////////////////////
 
-  // 맵 보이기 여부
+  // map on / off
   showMapLayer?: boolean;
 
-  // 기본지도 종류
+  // map service type
   map?: MapType;
 
-  // 라이선스 표기
+  // service license
   licenseNotation?: string;
 
-  // 지역레이어 표시 여부
+  // province layer on / off
   showDistrictLayer?: boolean;
 
-  // 지역 단위
+  // province unit
   districtUnit?: string;
 
-  // 레이어 속성
+  // layer list
   layers?: UILayers[];
 
+  // TODO specs which don't exist in server spec
+  // map style (light, dark, colored)
+  style?: string;
+
   ////////////////////////////////////////////
-  // UI 스펙
+  // UI Spec
   ////////////////////////////////////////////
 
 }

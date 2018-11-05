@@ -51,6 +51,11 @@ import {MapLegendOptionComponent} from "./chart-style/map/map-legend-option.comp
 import {MapFormatOptionComponent} from "./chart-style/map/map-format-option.component";
 import {MapTooltipOptionComponent} from "./chart-style/map/map-tooltip-option.component";
 import {MapCommonOptionComponent} from "./chart-style/map/map-common-option.component";
+import { JidoCommonOptionComponent } from './chart-style/jido/jido-common-option.component';
+import { JidoLayerOptionComponent } from './chart-style/jido/jido-layer-option.component';
+import { JidoLegendOptionComponent } from './chart-style/jido/jido-legend-option.component';
+import { JidoTooltipOptionComponent } from './chart-style/jido/jido-tooltip-option.component';
+import { JidoFormatOptionComponent } from './chart-style/jido/jido-format-option.component';
 
 @NgModule({
   imports: [
@@ -88,7 +93,13 @@ import {MapCommonOptionComponent} from "./chart-style/map/map-common-option.comp
     MapLayerOptionComponent3,
     MapLegendOptionComponent,
     MapFormatOptionComponent,
-    MapTooltipOptionComponent
+    MapTooltipOptionComponent,
+    // jido
+    JidoCommonOptionComponent,
+    JidoLayerOptionComponent,
+    JidoLegendOptionComponent,
+    JidoTooltipOptionComponent,
+    JidoFormatOptionComponent
   ],
   providers: [
     DatasourceService,

@@ -197,9 +197,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(this.uiOption.type);
     }
 
-    if(this.uiOption.map === 'Light') {
+    if(this.uiOption.map.toString() === 'Light') {
       layer = this.cartoPositronLayer;
-    } else if(this.uiOption.map === 'Dark') {
+    } else if(this.uiOption.map.toString() === 'Dark') {
       layer = this.cartoDarkLayer;
     }
 
@@ -1323,9 +1323,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.cartoDarkLayer.setVisible(this.uiOption.showMapLayer);
 
       //choose basemap
-      if(this.uiOption.map === 'Light') {
+      if(this.uiOption.map.toString() === 'Light') {
         this.olmap.getLayers().getArray()[0] = this.cartoPositronLayer;
-      } else if(this.uiOption.map === 'Dark') {
+      } else if(this.uiOption.map.toString() === 'Dark') {
         this.olmap.getLayers().getArray()[0] = this.cartoDarkLayer;
       } else {
         this.olmap.getLayers().getArray()[0] = this.osmLayer;
