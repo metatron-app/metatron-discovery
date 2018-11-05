@@ -1235,7 +1235,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     const minValue = data.valueRange[uiOption.layers[0].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
 
     // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-    const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / (colorListLength + 1);
+    const addValue = (data.valueRange[uiOption.layers[0].color.column].maxValue - minValue) / colorListLength;
 
     let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].maxValue);
 
@@ -1519,7 +1519,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     range = this.parseStrFloat(range);
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue, this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue);
+    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, this.resultData['data'][0].valueRange.minValue);
 
     // 하위 fixMin값
     const lowerfixMin = rangeList[index + 1] ?(rangeList[index + 1].fixMin) ? rangeList[index + 1].fixMin : rangeList[index + 1].fixMax : null;
@@ -1594,10 +1594,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // parse string to value
     range = this.parseStrFloat(range);
 
-    let decimalValue = this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue;
+    let decimalValue = this.resultData['data'][0].valueRange.minValue;
 
     // uiOption minValue의 range에 설정할값 양수일때에는 0, 음수일때에는 minValue로 설정
-    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue, decimalValue);
+    const uiMinValue = this.checkMinZero(this.resultData['data'][0].valueRange.minValue, decimalValue);
 
     // 입력가능 최소 / 최대범위 구하기
     let minValue = rangeList[index + 1] ? rangeList[index + 1].gt ? rangeList[index + 1].gt : uiMinValue :
@@ -1608,7 +1608,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     if (!rangeList[index - 1]) {
 
       // 최대값보다 큰거나 하위의 최대값보다 값이 작은경우
-      if (this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
+      if (this.resultData['data'][0].valueRange.maxValue < range.gt || rangeList[index + 1].fixMax > range.gt) {
         range.gt = range.fixMin;
       } else {
         range.fixMin = range.gt;
@@ -1657,12 +1657,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     // case max value
     if (0 == index) {
 
-      returnString += ': ' + currentRnage.fixMin + ' ~ ' + this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].maxValue;
+      returnString += ': ' + currentRnage.fixMin;
 
     // case min value
     } else if (rangeList.length - 1 == index) {
 
-      returnString += ': ' + this.resultData['data'][0].valueRange[this.uiOption.layers[0].color.column].minValue + ' ~ ' + currentRnage.fixMax;
+      returnString += ': ' + currentRnage.fixMax;
     }
     else {
 

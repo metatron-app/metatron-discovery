@@ -278,7 +278,7 @@
                             </div>
                             <div class="ddp-data-range ddp-clear">
                               <div class="ddp-input-range">
-                                <input [ngStyle]="{'visibility' : item.isMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
+                                <input [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
                                        (keyup.enter)="changeRangeMinInput(item, index)" (focus)="availableRange(item, index)">
                                 <!-- tooltip -->
                                 <div class="ddp-ui-tooltip-info">
@@ -291,7 +291,7 @@
                                 ~
                               </div>
                               <div class="ddp-input-range">
-                                <input [ngStyle]="{'visibility' : item.isMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
+                                <input [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
                                        (keyup.enter)="changeRangeMaxInput(item, index)" (focus)="availableRange(item, index)">
                                 <!-- tooltip -->
                                 <div class="ddp-ui-tooltip-info">
@@ -619,7 +619,7 @@
                               </div>
                               <div class="ddp-data-range ddp-clear">
                                 <div class="ddp-input-range">
-                                  <input [ngStyle]="{'visibility' : item.isMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
+                                  <input [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
                                          (keyup.enter)="changeRangeMinInput(item, index)" (focus)="availableRange(item, index)">
                                   <!-- tooltip -->
                                   <div class="ddp-ui-tooltip-info">
@@ -632,7 +632,7 @@
                                   ~
                                 </div>
                                 <div class="ddp-input-range">
-                                  <input [ngStyle]="{'visibility' : item.isMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
+                                  <input [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
                                          (keyup.enter)="changeRangeMaxInput(item, index)" (focus)="availableRange(item, index)">
                                   <!-- tooltip -->
                                   <div class="ddp-ui-tooltip-info">
@@ -928,7 +928,7 @@
                               </div>
                               <div class="ddp-data-range ddp-clear">
                                 <div class="ddp-input-range">
-                                  <input [ngStyle]="{'visibility' : item.isMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
+                                  <input [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
                                          (keyup.enter)="changeRangeMinInput(item, index)" (focus)="availableRange(item, index)">
                                   <!-- tooltip -->
                                   <div class="ddp-ui-tooltip-info">
@@ -941,7 +941,7 @@
                                   ~
                                 </div>
                                 <div class="ddp-input-range">
-                                  <input [ngStyle]="{'visibility' : item.isMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
+                                  <input [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
                                          (keyup.enter)="changeRangeMaxInput(item, index)" (focus)="availableRange(item, index)">
                                   <!-- tooltip -->
                                   <div class="ddp-ui-tooltip-info">
@@ -1195,7 +1195,7 @@
                             </div>
                             <div class="ddp-data-range ddp-clear">
                               <div class="ddp-input-range">
-                                <input [ngStyle]="{'visibility' : item.isMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
+                                <input [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
                                        (keyup.enter)="changeRangeMinInput(item, index)" (focus)="availableRange(item, index)">
                                 <!-- tooltip -->
                                 <div class="ddp-ui-tooltip-info">
@@ -1208,7 +1208,7 @@
                                 ~
                               </div>
                               <div class="ddp-input-range">
-                                <input [ngStyle]="{'visibility' : item.isMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
+                                <input [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
                                        (keyup.enter)="changeRangeMaxInput(item, index)" (focus)="availableRange(item, index)">
                                 <!-- tooltip -->
                                 <div class="ddp-ui-tooltip-info">
@@ -1484,7 +1484,7 @@
                                 </div>
                                 <div class="ddp-data-range ddp-clear">
                                   <div class="ddp-input-range">
-                                    <input [ngStyle]="{'visibility' : item.isMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
+                                    <input [ngStyle]="{'visibility' : null == item.fixMin ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.gt"
                                            (keyup.enter)="changeRangeMinInput(item, index)" (focus)="availableRange(item, index)">
                                     <!-- tooltip -->
                                     <div class="ddp-ui-tooltip-info">
@@ -1497,7 +1497,7 @@
                                     ~
                                   </div>
                                   <div class="ddp-input-range">
-                                    <input [ngStyle]="{'visibility' : item.isMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
+                                    <input [ngStyle]="{'visibility' : null == item.fixMax ? 'hidden' : 'visible'}" type="text" input-mask="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="item.lte"
                                            (keyup.enter)="changeRangeMaxInput(item, index)" (focus)="availableRange(item, index)">
                                     <!-- tooltip -->
                                     <div class="ddp-ui-tooltip-info">
