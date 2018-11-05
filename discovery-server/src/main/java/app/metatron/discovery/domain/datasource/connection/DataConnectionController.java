@@ -561,6 +561,15 @@ public class DataConnectionController {
     return filteredTableNameList;
   }
 
+  @RequestMapping(value = "/connections/query/hive/strict", method = RequestMethod.GET)
+  public @ResponseBody ResponseEntity<?> strictModeForHiveIngestion() {
+    EngineProperties.HiveConnection hivePropertyConnection = engineProperties.getIngestion().getHive();
+    if(hivePropertyConnection == null){
+      throw new ResourceNotFoundException("EngineProperties.HiveConnection");
+    }
+    return ResponseEntity.ok(hivePropertyConnection.isStrictMode());
+  }
+
   @RequestMapping(value = "/connections/query/hive/partitions", method = RequestMethod.POST)
   public @ResponseBody ResponseEntity<?> partitionInforForHiveIngestion(@RequestBody ConnectionRequest checkRequest) {
 
@@ -583,6 +592,10 @@ public class DataConnectionController {
       hiveConnection.setMetastoreSchema(hivePropertyConnection.getMetastoreSchema());
       hiveConnection.setMetastoreUserName(hivePropertyConnection.getMetastoreUserName());
       hiveConnection.setMetastorePassword(hivePropertyConnection.getMetastorePassword());
+
+      if(!hiveConnection.includeMetastoreInfo()){
+        throw new ResourceNotFoundException("EngineProperties.HiveConnection's MetaStoreInfo");
+      }
 
       List<Map<String, Object>> partitionList = connectionService.getPartitionList(hiveConnection, checkRequest);
       return ResponseEntity.ok(partitionList);
