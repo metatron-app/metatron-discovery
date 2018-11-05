@@ -306,6 +306,13 @@ export class DatasetService extends AbstractService {
     return this.get(this.API_URL + path);
   } // function - getResultWithJdbcQuery
 
+  // 테이블 상세조회
+  public getTableDetailWitoutId(param: any, extractColumnName: boolean = false): Promise<any>  {
+    return this.post(this.API_URL + 'connections/query/data?extractColumnName=' + extractColumnName, param);
+  }
+
+
+
   /*
   public checkStagingConnection() {
     const path = '/preparationdatasets/checkStagingConnection';
