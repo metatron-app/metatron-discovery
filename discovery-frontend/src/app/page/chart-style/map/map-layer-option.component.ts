@@ -373,6 +373,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        this.color['schema'] = '#602663';
      } else if(colorType === 'DIMENSION') {
        this.color['schema'] = 'SC1';
+       this.color['ranges'] = this.setDimensionColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.color['schema']]);
        // init column
        if (this.uiOption.layers[0]) {
          if (!this.uiOption.layers[0].color) this.uiOption.layers[0].color = {};
@@ -411,6 +412,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        //   this.selectedMeasureColor = color;
        //   color = gridColor;
        // }
+     }
+     // 차트 타입이 DIMENSION인경우
+     else if (this.uiOption.layers[0].color.by === 'DIMENSION') {
+       this.uiOption.layers[0].color['ranges'] = this.setDimensionColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[color['colorNum']]);
      } else {
        // 선택된 컬러를 변수에 설정
        this.selectedDefaultColor = color;
@@ -610,6 +615,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
      if(this.color['by'] === "MEASURE") {
        this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
+     } else if(this.color['by'] === "DIMENSION") {
+       this.color['ranges'] = this.setDimensionColorRange(this.uiOption, this.resultData['data'][0], ChartColorList[this.uiOption.layers[0].color['schema']]);
      }
 
      // 해당 레이어 타입으로 설정
@@ -1286,6 +1293,37 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
 
         maxValue = min;
       // }
+    }
+
+    return rangeList;
+  }
+
+  /**
+   * return ranges of color by dimension
+   * @returns {any}
+   */
+  public setDimensionColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
+
+    // return value
+    let rangeList = [];
+
+    let rowsListLength = data.features.length;
+
+    let gridRowsListLength = data.features.length;
+
+    let featureList = [];
+    for(var i=0;i<uiOption.data[0].features.length;i++) {
+      featureList.push(uiOption.data[0].features[i].properties)
+    }
+
+    let featuresGroup = _.groupBy(featureList, uiOption.layers[0].color.column);
+
+    for(var i=0;i<Object.keys(featuresGroup).length;i++) {
+
+      let col = Object.keys(featuresGroup)[i];
+      let color = colorList[featuresGroup[Object.keys(featuresGroup)[i]].length % colorList.length];
+
+      rangeList.push({column:col, color:color});
     }
 
     return rangeList;

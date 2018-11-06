@@ -330,6 +330,33 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       return rangeList;
     }
 
+    function setDimensionColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
+
+      // return value
+      let rangeList = [];
+
+      let rowsListLength = data.features.length;
+
+      let gridRowsListLength = data.features.length;
+
+      let featureList = [];
+      for(var i=0;i<uiOption.data[0].features.length;i++) {
+        featureList.push(uiOption.data[0].features[i].properties)
+      }
+
+      let featuresGroup = _.groupBy(featureList, uiOption.layers[0].color.column);
+
+      for(var i=0;i<Object.keys(featuresGroup).length;i++) {
+
+        let col = Object.keys(featuresGroup)[i];
+        let color = colorList[featuresGroup[Object.keys(featuresGroup)[i]].length % colorList.length];
+
+        rangeList.push({column:col, color:color});
+      }
+
+      return rangeList;
+    }
+
     return function(feature, resolution) {
 
       let layerType = styleOption.layers[layerNum].type;  // Type : symbol, line, polygon
@@ -429,6 +456,22 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       } else if(featureColorType === 'DIMENSION') {
         let colorList = ChartColorList[featureColor];
         featureColor = colorList[(parseInt(feature.getId().substring(26)) % colorList.length) - 1];
+
+        if(styleOption.layers[layerNum].color['ranges']) {
+          for(let range of styleOption.layers[layerNum].color['ranges']) {
+            if(range["column"] === feature.getProperties()[styleOption.layers[layerNum].color.column]) {
+              featureColor = range["color"];
+            }
+          }
+        } else {
+          const ranges = setDimensionColorRange(styleOption, styleData, ChartColorList[styleOption.layers[layerNum].color['schema']]);
+          for(let range of ranges) {
+            if(range["column"] === feature.getProperties()[styleOption.layers[layerNum].color.column]) {
+              featureColor = range["color"];
+            }
+          }
+        }
+
       } else if(featureColorType === 'NONE') {
         featureColor = styleOption.layers[layerNum].color.schema;
       }
@@ -689,6 +732,33 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       return rangeList;
     }
 
+    function setDimensionColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
+
+      // return value
+      let rangeList = [];
+
+      let rowsListLength = data.features.length;
+
+      let gridRowsListLength = data.features.length;
+
+      let featureList = [];
+      for(var i=0;i<uiOption.data[0].features.length;i++) {
+        featureList.push(uiOption.data[0].features[i].properties)
+      }
+
+      let featuresGroup = _.groupBy(featureList, uiOption.layers[0].color.column);
+
+      for(var i=0;i<Object.keys(featuresGroup).length;i++) {
+
+        let col = Object.keys(featuresGroup)[i];
+        let color = colorList[featuresGroup[Object.keys(featuresGroup)[i]].length % colorList.length];
+
+        rangeList.push({column:col, color:color});
+      }
+
+      return rangeList;
+    }
+
     return function(feature, resolution) {
 
       let outlineType = styleOption.layers[layerNum].outline.thickness;
@@ -738,7 +808,23 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           }
       } else if(featureColorType === 'DIMENSION') {
         let colorList = ChartColorList[featureColor];
-        featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+        featureColor = colorList[(parseInt(feature.getId().substring(26)) % colorList.length) - 1];
+
+        if(styleOption.layers[layerNum].color['ranges']) {
+          for(let range of styleOption.layers[layerNum].color['ranges']) {
+            if(range["column"] === feature.getProperties()[styleOption.layers[layerNum].color.column]) {
+              featureColor = range["color"];
+            }
+          }
+        } else {
+          const ranges = setDimensionColorRange(styleOption, styleData, ChartColorList[styleOption.layers[layerNum].color['schema']]);
+          for(let range of ranges) {
+            if(range["column"] === feature.getProperties()[styleOption.layers[layerNum].color.column]) {
+              featureColor = range["color"];
+            }
+          }
+        }
+
       }
 
       featureColor = hexToRgbA(featureColor, styleOption.layers[layerNum].color.transparency * 0.01);
@@ -1471,8 +1557,14 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                   '<span class="ddp-data">'+ this.uiOption.layers[i].type +'</span>' +
                   '<ul class="ddp-list-remark">';
 
-              for(let field of this.uiOption.fieldList) {
-                legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:#602663"></em>' + field + '</li>';
+              if(this.uiOption.layers[i].color["ranges"]) {
+                for(let range of this.uiOption.layers[i].color["ranges"]) {
+                  legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range["color"] + '"></em>' + range["column"] + '</li>';
+                }
+              } else {
+                for(let field of this.uiOption.fieldList) {
+                  legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:#602663"></em>' + field + '</li>';
+                }
               }
 
               legendHtml = legendHtml + '</ul></div>';
@@ -1508,65 +1600,64 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                     }
                   } else {
                     if(this.mapData[i].valueRange && this.mapData[i].valueRange[this.uiOption.layers[i].color.column]) {
-                      const ranges = this.setColorRange(this.uiOption, this.mapData[i], ChartColorList[this.uiOption.layers[i].color['schema']], i, []);
+                        const ranges = this.setColorRange(this.uiOption, this.mapData[i], ChartColorList[this.uiOption.layers[i].color['schema']], i, []);
 
-                    let rangesLength = ranges.length;
-                    ranges[0]["isMax"] = true;
-                    ranges[rangesLength-1]["isMin"] = true;
+                      let rangesLength = ranges.length;
+                      ranges[0]["isMax"] = true;
+                      ranges[rangesLength-1]["isMin"] = true;
 
-                    for(let range of ranges) {
+                      for(let range of ranges) {
 
-                        let minVal = range.fixMin;
-                        let maxVal = range.fixMax;
+                          let minVal = range.fixMin;
+                          let maxVal = range.fixMax;
 
-                        if(minVal === null) minVal = maxVal;
-                        if(maxVal === null) maxVal = minVal;
+                          if(minVal === null) minVal = maxVal;
+                          if(maxVal === null) maxVal = minVal;
 
-                      legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>';
-                      if (range["isMax"]) {
-                        legendHtml = legendHtml + ' ＞ ' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat);
-                      } else if (range["isMin"]) {
-                        legendHtml = legendHtml + ' ≤ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
-                      } else {
-                        legendHtml = legendHtml + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
+                        legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>';
+                        if (range["isMax"]) {
+                          legendHtml = legendHtml + ' ＞ ' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat);
+                        } else if (range["isMin"]) {
+                          legendHtml = legendHtml + ' ≤ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
+                        } else {
+                          legendHtml = legendHtml + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
+                        }
+                        legendHtml = legendHtml + '</li>';
                       }
-                      legendHtml = legendHtml + '</li>';
+                    }
+
+                    if(this.uiOption.layers[i].color["customMode"]) {
+                      legendHtml = '<div class="ddp-ui-layer">' +
+                          '<span class="ddp-label">' + this.uiOption.layers[i].name + '</span>' +
+                          '<span class="ddp-data">' + this.uiOption.layers[i].type + ' by ' + this.uiOption.layers[i].color.column + '</span>' +
+                          '<ul class="ddp-list-remark">';
+
+                      if(this.uiOption.layers[i].color["customMode"] === 'SECTION') {
+                        let rangesLength = this.uiOption.layers[i].color["ranges"].length;
+                        this.uiOption.layers[i].color["ranges"][0]["isMax"] = true;
+                        this.uiOption.layers[i].color["ranges"][rangesLength-1]["isMin"] = true;
+
+                        for(let range of this.uiOption.layers[i].color["ranges"]) {
+
+                          let minVal = range.fixMin;
+                          let maxVal = range.fixMax;
+
+                          if(minVal === null) minVal = 0;
+                          if(maxVal === null) maxVal = minVal;
+
+                          legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>';
+                          if (range["isMax"]) {
+                            legendHtml = legendHtml + ' ＞ ' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat);
+                          } else if (range["isMin"]) {
+                            legendHtml = legendHtml + ' ≤ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
+                          } else {
+                            legendHtml = legendHtml + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
+                          }
+                          legendHtml = legendHtml + '</li>';
+                        }
+                      }
                     }
                   }
-
-              if(this.uiOption.layers[i].color["customMode"]) {
-                legendHtml = '<div class="ddp-ui-layer">' +
-                    '<span class="ddp-label">' + this.uiOption.layers[i].name + '</span>' +
-                    '<span class="ddp-data">' + this.uiOption.layers[i].type + ' by ' + this.uiOption.layers[i].color.column + '</span>' +
-                    '<ul class="ddp-list-remark">';
-
-                if(this.uiOption.layers[i].color["customMode"] === 'SECTION') {
-                  let rangesLength = this.uiOption.layers[i].color["ranges"].length;
-                  this.uiOption.layers[i].color["ranges"][0]["isMax"] = true;
-                  this.uiOption.layers[i].color["ranges"][rangesLength-1]["isMin"] = true;
-
-                  for(let range of this.uiOption.layers[i].color["ranges"]) {
-
-                    let minVal = range.fixMin;
-                    let maxVal = range.fixMax;
-
-                    if(minVal === null) minVal = 0;
-                    if(maxVal === null) maxVal = minVal;
-
-                    legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range.color + '"></em>';
-                    if (range["isMax"]) {
-                      legendHtml = legendHtml + ' ＞ ' + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat);
-                    } else if (range["isMin"]) {
-                      legendHtml = legendHtml + ' ≤ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
-                    } else {
-                      legendHtml = legendHtml + FormatOptionConverter.getFormatValue(minVal, this.uiOption.valueFormat) + ' ~ ' + FormatOptionConverter.getFormatValue(maxVal, this.uiOption.valueFormat);
-                    }
-                    legendHtml = legendHtml + '</li>';
-                  }
-                }
-              }
-
-              }
             } else if(this.uiOption.layers[i].color["by"] === 'NONE') {
               legendHtml = '<div class="ddp-ui-layer">' +
                   '<span class="ddp-label">' + this.uiOption.layers[i].name + '</span>' +
@@ -1639,7 +1730,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
           geoInfo = '<tr><th>Geo info</th><td>'+ coords[0].toFixed(4) + ', ' +coords[1].toFixed(4) + '</td></tr>';
         }
 
-        let tooltipHtml = '<div class="ddp-ui-tooltip-info ddp-map-tooltip" style="display:block; position:absolute; top:0; left:0; z-index:99999;">' +
+        let tooltipHtml = '<div class="ddp-ui-tooltip-info ddp-map-tooltip">' +
         '<span class="ddp-txt-tooltip">';
 
         //Layer Name (LAYER_NAME)
@@ -1681,12 +1772,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
             if (aggregationKey.key !== 'geometry' && aggregationKey.key !== 'weight' && aggregationKey.key !== 'layerNum') {
               if (aggregationKey.key === 'features') {
-                tooltipHtml = tooltipHtml + '<tr><th>' + aggregationKey.key + '</th><td>' + feature.get(aggregationKey.key).length + '</td></tr>';
+                tooltipHtml = tooltipHtml + '<tr><th style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + aggregationKey.key + '</th><td style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + feature.get(aggregationKey.key).length + '</td></tr>';
               } else {
                 if(typeof(tooltipVal) === "number") {
                   tooltipVal = FormatOptionConverter.getFormatValue(tooltipVal, tooltipOption.valueFormat);
                 }
-                tooltipHtml = tooltipHtml + '<tr><th>' + aggregationKey.key + '</th><td>' + tooltipVal + '</td></tr>';
+                tooltipHtml = tooltipHtml + '<tr><th style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + aggregationKey.key + '</th><td style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">' + tooltipVal + '</td></tr>';
               }
             }
           });

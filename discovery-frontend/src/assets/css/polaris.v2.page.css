@@ -8223,8 +8223,8 @@ em.ddp-icon-mapview3-w:before {background-position-x:0;}
 .ddp-ui-shelf em.ddp-icon-mapview2:before,
 .ddp-ui-shelf em.ddp-icon-mapview3:before {position:absolute; top:50%; left:50%; margin:-8px 0 0 -9px;}
 
-.ddp-map-tooltip  {max-width:257px; padding:9px; box-sizing:border-box;}
-/* .ddp-map-tooltip .ddp-table-info {table-layout:fixed; } */
+.ddp-map-tooltip  {max-width:257px; padding:9px; box-sizing:border-box; display:block; position:absolute; top:0; left:0; z-index:10;}
+.ddp-map-tooltip .ddp-table-info {table-layout:fixed; }
 .ddp-map-tooltip .ddp-table-info tr td {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
 .ddp-map-tooltip .ddp-label {display:block; padding-bottom:6px; color:#fff; font-size:16px; font-weight:bold; vertical-align:Middle;}
 .ddp-map-tooltip .ddp-label [class*="ddp-icon-mapview"] {margin-right:5px;}

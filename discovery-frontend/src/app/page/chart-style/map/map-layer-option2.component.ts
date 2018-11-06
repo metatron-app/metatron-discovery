@@ -354,6 +354,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
        this.color['schema'] = '#602663';
      } else if(colorType === 'DIMENSION') {
        this.color['schema'] = 'SC1';
+       this.color['ranges'] = this.setDimensionColorRange(this.uiOption, this.uiOption['data'][1], ChartColorList[this.color['schema']]);
        // init column
        if (this.uiOption.layers[1]) {
          if (!this.uiOption.layers[1].color) this.uiOption.layers[1].color = {};
@@ -361,6 +362,7 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
        }
      } else if(colorType === 'MEASURE') {
        this.color['schema'] = 'VC1';
+       this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.uiOption['data'][1], ChartColorList[this.color['schema']]);
        // init column
        if (this.uiOption.layers[1]) {
          if (!this.uiOption.layers[1].color) this.uiOption.layers[1].color = {};
@@ -391,6 +393,9 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
        //   this.selectedMeasureColor = color;
        //   color = gridColor;
        // }
+     }  // 차트 타입이 DIMENSION인경우
+     else if (this.uiOption.layers[1].color.by === 'DIMENSION') {
+       this.uiOption.layers[1].color['ranges'] = this.setDimensionColorRange(this.uiOption, this.uiOption['data'][1], ChartColorList[color['colorNum']]);
      } else {
        // 선택된 컬러를 변수에 설정
        this.selectedDefaultColor = color;
@@ -590,6 +595,8 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
 
      if(this.color['by'] === "MEASURE") {
        this.color['ranges'] = this.setMeasureColorRange(this.uiOption, this.uiOption['data'][1], ChartColorList[this.uiOption.layers[1].color['schema']]);
+     } else if(this.color['by'] === "DIMENSION") {
+       this.color['ranges'] = this.setDimensionColorRange(this.uiOption, this.uiOption['data'][1], ChartColorList[this.uiOption.layers[1].color['schema']]);
      }
 
      // 해당 레이어 타입으로 설정
@@ -1250,6 +1257,37 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
 
         maxValue = min;
       }
+    }
+
+    return rangeList;
+  }
+
+  /**
+   * return ranges of color by dimension
+   * @returns {any}
+   */
+  public setDimensionColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
+
+    // return value
+    let rangeList = [];
+
+    let rowsListLength = data.features.length;
+
+    let gridRowsListLength = data.features.length;
+
+    let featureList = [];
+    for(var i=0;i<uiOption.data[1].features.length;i++) {
+      featureList.push(uiOption.data[1].features[i].properties)
+    }
+
+    let featuresGroup = _.groupBy(featureList, uiOption.layers[1].color.column);
+
+    for(var i=0;i<Object.keys(featuresGroup).length;i++) {
+
+      let col = Object.keys(featuresGroup)[i];
+      let color = colorList[featuresGroup[Object.keys(featuresGroup)[i]].length % colorList.length];
+
+      rangeList.push({column:col, color:color});
     }
 
     return rangeList;
