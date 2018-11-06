@@ -157,9 +157,14 @@ export class IngestionSettingComponent extends AbstractComponent {
   // is show partition validation button (only stagingDB)
   public isStrictMode: boolean = false;
   // partition validation result (only stagingDB)
-  public partitionValidationResult: boolean;
-  // partition validation message (only stagingDB)
-  public partitionValidationMessage: string;
+  public partitionValidationResult: boolean = null;
+  // partition validation result data
+  public partitionValidationResultData: any;
+  // partition result modal show flag
+  public isShowPartitionValidResult: boolean = false;
+
+  // clicked next button flag
+  public isClickedNext: boolean;
 
   // step change
   @Output()
@@ -203,30 +208,12 @@ export class IngestionSettingComponent extends AbstractComponent {
       this._loadIngestionData(this._sourceData.ingestionData);
     } else { // init
       this._setDefaultIngestionOption();
-      // TODO test
-      this._sourceData.databaseData.selectedTableDetail.partitionFields = [
-        {
-          "name": "ym",
-          "alias": "ym",
-          "type": "STRING",
-          "logicalType": "STRING",
-          "role": "DIMENSION",
-          "aggrType": "NONE",
-          "biType": "DIMENSION"
-        },
-        {
-          "name": "dd",
-          "alias": "dd",
-          "type": "STRING",
-          "logicalType": "STRING",
-          "role": "DIMENSION",
-          "aggrType": "NONE",
-          "biType": "DIMENSION"
-        }
-      ];
       // if staging type, set partition key list
       if (this.createType === 'STAGING' && this._sourceData.databaseData.selectedTableDetail.partitionFields.length > 0) {
+        // set key list
         this.partitionKeyList.push(_.cloneDeep(this._sourceData.databaseData.selectedTableDetail.partitionFields));
+        // set enable partition
+        this.selectedPartitionType = this.partitionTypeList[1];
       }
     }
   }
@@ -256,7 +243,8 @@ export class IngestionSettingComponent extends AbstractComponent {
         this.loadingHide();
       })
       .catch((error) => {
-        this.commonExceptionHandler(error);
+        // loading hide
+        this.loadingHide();
         // result fail
         this.cronValidationResult = false;
       });
@@ -286,6 +274,8 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Next button click event
    */
   public onClickNext(): void {
+    // click next button flag
+    this.isClickedNext = true;
     // if enable next
     if (this._isEnableNext()) {
       // if exist ingestionData, delete IngestionData
@@ -306,16 +296,6 @@ export class IngestionSettingComponent extends AbstractComponent {
     // loading show
     this.loadingShow();
     // partition keys valid
-    /**
-     {
-        "partitions" : [
-          {
-            "ym" : "201704",
-            "dd" : "01"
-          }
-        ]
-      }
-     */
     this._dataConnectionService.partitionValidationForStagingDB({
       database: this._sourceData.databaseData.selectedDatabase,
       query: this._sourceData.databaseData.selectedTable,
@@ -325,8 +305,34 @@ export class IngestionSettingComponent extends AbstractComponent {
       .then((result) => {
         // loading hide
         this.loadingHide();
+        // set result
+        this.partitionValidationResult = true;
+        // set data
+        this.partitionValidationResultData = result;
       })
-      .catch(error => this.commonExceptionHandler(error));
+      .catch(error => {
+        // set result
+        this.partitionValidationResult = false;
+        // error
+        this.commonExceptionHandler(error);
+      });
+  }
+
+  /**
+   * Partition validation result click event
+   */
+  public onClickPartitionKeyValidResult(): void {
+    this.isShowPartitionValidResult = true;
+  }
+
+  /**
+   * partition value change event
+   */
+  public onChangedPartitionValue(): void {
+    // init partitionValidationResult flag
+    this.partitionValidationResult = null;
+    // init isClickedNext flag
+    this.isClickedNext = false;
   }
 
   /**
