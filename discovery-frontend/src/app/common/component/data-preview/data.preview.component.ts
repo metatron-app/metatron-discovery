@@ -620,10 +620,10 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     if (stats.hasOwnProperty('iqr')) {
       const length = stats.iqr.length;
       switch (type) {
-        case 'UPPER':
+        case 'LOWER':
           result = stats.iqr[0];
           break;
-        case 'LOWER':
+        case 'UPPER':
           result = stats.iqr[length - 1];
           break;
       }
