@@ -23,7 +23,7 @@ import { GridOption } from '../../../../common/component/grid/grid.option';
 import { CommonConstant } from '../../../../common/constant/common.constant';
 import { WorkbenchService } from '../../../service/workbench.service';
 import { ActivatedRoute } from '@angular/router';
-import { Dataconnection } from '../../../../domain/dataconnection/dataconnection';
+import { ConnectionType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
 import { MetadataService } from '../../../../meta-data-management/metadata/service/metadata.service';
 import * as _ from 'lodash';
 import { isUndefined } from 'util';
@@ -710,7 +710,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
           // 현재 선택한 컬럼
           this.schemaSelectedTab = 'data';
           // 쿼리조회 요청
-          this._getSingleQueryForServer(this._getQueryEditor());
+          this._getSingleQueryForServer();
         } else {
           // 로딩 hide
           this.loadingHide();
@@ -730,11 +730,14 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   }
 
   /**
-   * 싱글 쿼리 조회 요청
-   * @param {QueryEditor} queryEditor
+   * 샘플 쿼리 조회 요청
    * @private
    */
-  private _getSingleQueryForServer(queryEditor: QueryEditor): void {
+  private _getSingleQueryForServer(): void {
+
+    // 스키마 브라우저에서 사용하는 데이터베이스 변경 - init 시점에서 넣어준 부분을 재반환
+    this.workbench.dataConnection.database = this.selectedDatabaseName;
+
     // 호출 횟수 증가
     this._getSingleQueryReconnectCount++;
     this.workbenchService.getSchemaInfoTableData(this.selectedSchemaTable, this.workbench.dataConnection)
@@ -760,7 +763,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getSingleQueryReconnectCount <= 5) {
           this.webSocketCheck(() => {
             this._websocketId = WorkbenchService.websocketId;
-            this._getSingleQueryForServer(this._getQueryEditor());
+            this._getSingleQueryForServer();
           });
         } else {
           this.commonExceptionHandler(error);
@@ -1115,6 +1118,15 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       params['tableName'] = tableName.trim();
     }
     return params;
+  }
+
+  /**
+   * DataConnection Type icon
+   * @param connType
+   * @returns {any}
+   */
+  public getConnectionType(connType: string) {
+    return ConnectionType[connType];
   }
 
 }

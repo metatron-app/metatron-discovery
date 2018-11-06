@@ -187,6 +187,11 @@ input.ddp-input-typebasic.ddp-readonly,
 input.ddp-input-typebasic.ddp-readonly:focus {padding-left:0px; border:1px solid transparent; background:none;}
 .ddp-wrap-chart .ddp-wrap-chart-lnb input.ddp-input-typebasic.ddp-disabled,
 .ddp-wrap-chart .ddp-wrap-chart-lnb input.ddp-input-typebasic[disabled="disabled"] {background-color:#9a9c9f; border:1px solid #9a9c9f; opacity:1;}
+
+.ddp-form-calen {position:relative;}
+.ddp-form-calen input.ddp-input-typebasic {position:relative; padding-right:30px;}
+.ddp-form-calen:after {display:inline-block; position:absolute; top:50%; right:10px; margin-top:-6px; width:11px; height:11px; background:url(../images/icon_type.png) no-repeat; content:'';}
+
 input.ddp-input-type {display:block; width:100%; padding-bottom:10px; font-size:16px; border:none; border-bottom:1px solid #e7e7ea;}
 input.ddp-input-type::-webkit-input-placeholder {color:#d7d7dc;}
 input.ddp-input-type:-ms-input-placeholder {color:#d7d7dc;}
@@ -1528,7 +1533,7 @@ a.ddp-btn-buttons4.ddp-bg-black {background-color:#4b515b; border:1px solid #4b5
 a.ddp-btn-buttons4.ddp-bg-black:hover {background-color:#35393f; border:1px solid #35393f;}
 a.ddp-btn-buttons4 .ddp-icon-add {display:inline-block; width:13px; height:13px; margin-right:5px;  background:url(../images/icon_add.png) no-repeat; background-position:-42px -22px;}
 a.ddp-btn-buttons4 .ddp-icon-edit {display:inline-block; width:13px; height:13px; margin-right:5px;background:url(../images/icon_widget.png) no-repeat; background-position:-41px -131px;}
-.ddp-btn-pop {display:inline-block; min-width:85px; padding:6px 9px; border-radius:2px; border:1px solid #d0d1d8; font-weight:300; text-align:center; color:#90969f; font-size:13px; box-sizing:border-box;}
+.ddp-btn-pop {display:inline-block; min-width:85px; padding:6px 9px; border-radius:2px; border:1px solid #d0d1d8; text-align:center; color:#90969f; font-size:13px; box-sizing:border-box;}
 .ddp-btn-pop em.ddp-btn-reset {display:inline-block; position:relative; top:-1px; width:15px; height:13px; margin-right:5px;  background:url(../images/icon_reset.png) no-repeat; background-position:-16px -20px;vertical-align: middle;}
 .ddp-btn-pop:hover {border:1px solid #b7b9c2; color:#4b515b;}
 .ddp-btn-pop.ddp-disabled {border:1px solid #e7e7ea; color:#d0d1d8; cursor: no-drop;}

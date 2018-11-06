@@ -234,7 +234,7 @@ polaris:
     baseUrl: http://localhost:8180
   workbench:
     defaultResultSize: 1000
-    maxResultSize: 100000
+    maxResultSize: 1000000
     maxFetchSize: 10000
     tempHdfsPath: /tmp/hive
     tempCSVPath: /tmp

@@ -258,10 +258,15 @@ public class EngineLoadService {
     paramMap.put("async", async);
     paramMap.put("temporary", false);
 
+    Map<String, Object> properties = Maps.newHashMap();
+    properties.put("assertLoaded", true);
+    properties.put("waitTimeout", 10000);
+
     BulkLoadSpec spec = new BulkLoadSpecBuilder(dataSource)
         .name(engineName)
         .path(Lists.newArrayList(remoteFile))
         .tuningConfig(info.getTuningOptions())
+        .properties(properties)
         .build();
 
     String specStr = GlobalObjectMapper.writeValueAsString(spec);

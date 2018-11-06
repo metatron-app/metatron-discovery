@@ -1726,6 +1726,18 @@ public class PrepTransformService {
                     , "isnan(1000/ratio)", "FALSE")
     );
     functionList.add(
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "contains", "msg.dp.ui.expression.functiondesc.logical.contains"
+                    , "startswith(‘hello world’, 'wor')", "true")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "startswith", "msg.dp.ui.expression.functiondesc.logical.startswith"
+                    , "startswith(‘hello world’, 'hell')", "true")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.LOGICAL, "endswith", "msg.dp.ui.expression.functiondesc.logical.endswith"
+                    , "endswith(‘hello world’, 'world')", "true")
+    );
+    functionList.add(
             new ExprFunction(ExprFunctionCategory.TIMESTAMP, "year", "msg.dp.ui.expression.functiondesc.timestamp.year"
                     , "year(birthday)", " 1987")
     );

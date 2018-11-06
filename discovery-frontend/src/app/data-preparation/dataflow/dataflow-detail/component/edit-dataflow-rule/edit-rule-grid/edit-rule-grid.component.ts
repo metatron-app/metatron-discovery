@@ -73,6 +73,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   private _barClickedSeries = {};
 
   private _hoverHistogramData: string;  // Hover 했을 때 보여지는 데이타
+  private _hoverHistogramIndo: any = {}; // Hover 했을 때 해당 Chart data 할당
+
   private readonly _HISTOGRAM_DEFAULT_COLOR: string = '#c1cef1';
   private readonly _HISTOGRAM_HOVER_COLOR: string = '#9aa5c1';
   private readonly _HISTOGRAM_CLICK_COLOR: string = '#666eb2';
@@ -226,6 +228,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         this._defaultChartOption = null;
         this._clickedSeries = {};
         this._hoverHistogramData = '';  // Hover 했을 때 보여지는 데이타
+        this._hoverHistogramIndo = {};  // Hover 했을 때 해당 Chart data 할당
 
         this.searchText = '';
 
@@ -1031,6 +1034,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       chart.on('mouseout', () => {
         if (histogramInfo !== '') {
           this._hoverHistogramData = histogramInfo.counts.length;
+          this._hoverHistogramIndo = {};
           $('#' + divId).empty().append(value);
         }
       });
@@ -1050,7 +1054,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     chart.off('click');
     chart.on('click', (params) => {
       // param이 null 이라면 선택된 bar 초기화 한다.
-      if (isNull(params)) {
+      if (isNull(params) && this._hoverHistogramIndo.hasOwnProperty('name') === false) {
         if (this._clickedSeries[index].length > 0) {
           this._clickedSeries[index] = [];
           this.unSelectionAll('ROW');
@@ -1058,6 +1062,15 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           this._applyChart(chart, options)
         }
       } else {
+
+        const useParam: any = {};
+        if (isNull(params)){
+          useParam.name = this._hoverHistogramIndo.name;
+          useParam.dataIndex = this._hoverHistogramIndo.dataIndex;
+        }else{
+          useParam.name = params.name;
+          useParam.dataIndex = params.dataIndex;
+        }
 
         // 현재 선택되어있는 column/row refresh
         if (this._selectedColumns.length > 0) {
@@ -1090,13 +1103,13 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
             }
           }
         });
-        let idx = this._clickedSeries[index].indexOf(params.name);
+        let idx = this._clickedSeries[index].indexOf(useParam.name);
         if (idx === -1) {
-          this._selectedRows = _.union(this._selectedRows, this._getHistogramInfo(index).rownos[params.dataIndex]);
+          this._selectedRows = _.union(this._selectedRows, this._getHistogramInfo(index).rownos[useParam.dataIndex]);
           this._rowClickHandler(this._selectedRows);
-          this._clickedSeries[index].push(params.name);
+          this._clickedSeries[index].push(useParam.name);
         } else {
-          this._getHistogramInfo(index).rownos[params.dataIndex].forEach((item) => {
+          this._getHistogramInfo(index).rownos[useParam.dataIndex].forEach((item) => {
             this._selectedRows.forEach((data, idx) => {
               if (data === item) {
                 this._selectedRows.splice(idx, 1);
@@ -1433,6 +1446,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
             let sum = this.totalRowCnt;
             let data = ` ${params[0].data} `;
             let percentage = '<span style="color:#b4b9c4">' + ((params[0].value / sum) * 100).toFixed(2) + '%' + '</span>';
+            this._hoverHistogramIndo ={'index':index, 'name':params[0].name, 'dataIndex': params[0].dataIndex};
             switch (this._apiGridData.colDescs[index].type) {
               case 'TIMESTAMP':
                 this._hoverHistogramData = `${labels[params[0].dataIndex]} ~ ${labels[params[0].dataIndex + 1]}${data}${percentage}`;
@@ -1506,9 +1520,15 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       return;
     }
 
-    let selectedRows = this._gridComp.getSelectedRows().map((item) => {
-      return item[ScrollLoadingGridComponent.ID_PROPERTY] - 1
-    });
+    let selectedRows = null;
+
+    try {
+      selectedRows = this._gridComp.getSelectedRows().map((item) => {
+        return item[ScrollLoadingGridComponent.ID_PROPERTY] - 1
+      });
+    }catch (error){
+      return;
+    }
 
     let baseColumn = selectedRows[selectedRows.length - 2];
     let selectedIdx = row[ScrollLoadingGridComponent.ID_PROPERTY] - 1;
