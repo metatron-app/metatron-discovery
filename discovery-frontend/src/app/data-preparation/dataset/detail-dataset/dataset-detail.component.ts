@@ -489,8 +489,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       this.setDatasetName();
       this.setDatasetDescription();
 
-      if (this.dataset['_embedded'] && this.dataset['_embedded']['dataflows']) {
-        this.dataset.dataflows = this.dataset['_embedded']['dataflows'];
+      if (this.dataset['dataflows'] && this.dataset['dataflows']) {
+       this.dataset.dataflows = this.dataset['dataflows'];
       } else {
         this.dataset.dataflows = [];
       }

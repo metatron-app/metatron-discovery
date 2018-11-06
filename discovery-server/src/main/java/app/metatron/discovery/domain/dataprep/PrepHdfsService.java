@@ -39,7 +39,7 @@ public class PrepHdfsService {
 
     private Configuration hadoopConf = null;
 
-    private String getUploadPath() {
+    public String getUploadPath() {
         if(null==uploadHdfsPath && null!=prepProperties.getStagingBaseDir(true)) {
             String stagingBaseDir = prepProperties.getStagingBaseDir(true);
             uploadHdfsPath = stagingBaseDir + File.separator + PrepProperties.dirUpload;
