@@ -14,29 +14,12 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.*;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
-import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.*;
-import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.user.CachedUserService;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
-import app.metatron.discovery.util.AuthUtils;
-import com.facebook.presto.jdbc.PrestoArray;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import com.facebook.presto.jdbc.PrestoArray;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -52,13 +35,53 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
 import org.supercsv.prefs.CsvPreference;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.sql.DataSource;
+
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeBetweenExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeCurrentDatetimeExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDateFormatExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDisjunctionExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeEqExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeOrderExp;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeProjection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
+import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
+import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
+import app.metatron.discovery.util.AuthUtils;
 
 import static app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection.CURRENT_DATE_FORMAT;
 import static java.util.stream.Collectors.toList;
@@ -963,7 +986,7 @@ public class JdbcConnectionService {
                                        JdbcIngestionInfo ingestionInfo,
                                        String dataSourceName,
                                        List<Field> fields, Integer limit) {
-    return selectQueryToCsv(connection, ingestionInfo, dataSourceName, fields, null, null);
+    return selectQueryToCsv(connection, ingestionInfo, dataSourceName, fields, null, limit);
   }
 
   public List<String> selectQueryToCsv(JdbcDataConnection connection,
@@ -984,11 +1007,8 @@ public class JdbcConnectionService {
                                        List<Filter> filters,
                                        Integer limit) {
 
-    int fetchSize = 0;
-    if (ingestionInfo instanceof SingleIngestionInfo) {
-      SingleIngestionInfo singleIngestionInfo = (SingleIngestionInfo) ingestionInfo;
-      fetchSize = singleIngestionInfo.getSize() == null ? 0 : singleIngestionInfo.getSize();
-    }
+    int fetchSize = ingestionInfo.getFetchSize();
+    int maxLimit = limit == null ? ingestionInfo.getMaxLimit() : limit;
 
     // Get JDBC Connection and set database
     JdbcDataConnection realConnection = connection == null ? ingestionInfo.getConnection() : connection;
@@ -1085,7 +1105,7 @@ public class JdbcConnectionService {
     }
 
     if (limit != null) {
-      nativeCriteria.setLimit(limit);
+      nativeCriteria.setLimit(maxLimit);
     }
 
     queryString = nativeCriteria.toSQL();
@@ -1221,6 +1241,9 @@ public class JdbcConnectionService {
     Preconditions.checkArgument(ingestionInfo instanceof BatchIngestionInfo,
                                 "Required Batch type Jdbc ingestion information.");
 
+    int fetchSize = ingestionInfo.getFetchSize();
+    int maxLimit = ingestionInfo.getMaxLimit();
+
     Field timestampField = fields.stream()
                                  .filter(field -> field.getRole() == Field.FieldRole.TIMESTAMP)
                                  .findFirst().orElseThrow(() -> new RuntimeException("Timestamp field required."));
@@ -1238,14 +1261,11 @@ public class JdbcConnectionService {
     List<String> tempCsvFiles = Lists.newArrayList();
 
     // 증분 Query 작성
-    int fechSize = (batchIngestionInfo.getSize() == null || batchIngestionInfo.getSize() == 0) ?
-        MAX_FETCH_SIZE : batchIngestionInfo.getSize();
-
     String queryString = new SelectQueryBuilder(realConnection)
         .projection(fields)
         .query(batchIngestionInfo)
         .incremental(timestampField, incrementalTime.toString(CURRENT_DATE_FORMAT))
-        .limit(0, fechSize)
+        .limit(0, maxLimit)
         .build();
 
     LOGGER.debug("Generated incremental query : {} ", queryString);
@@ -1258,6 +1278,7 @@ public class JdbcConnectionService {
       jdbcCSVWriter.setConnection(realConnection);
       jdbcCSVWriter.setDataSource(dataSource);
       jdbcCSVWriter.setQuery(queryString);
+      jdbcCSVWriter.setFetchSize(fetchSize);
       jdbcCSVWriter.setFileName(tempFileName);
       jdbcCSVWriter.setWithHeader(false);
     } catch (IOException e) {

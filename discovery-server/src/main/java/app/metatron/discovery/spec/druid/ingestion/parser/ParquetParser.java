@@ -16,23 +16,13 @@
 
 package app.metatron.discovery.spec.druid.ingestion.parser;
 
-public class StringParser implements Parser {
+public class ParquetParser extends StringParser implements Parser {
 
-  ParseSpec parseSpec;
-
-  public StringParser() {
+  public ParquetParser() {
   }
 
-  public StringParser(ParseSpec parseSpec) {
-    this.parseSpec = parseSpec;
-  }
-
-  public ParseSpec getParseSpec() {
-    return parseSpec;
-  }
-
-  public void setParseSpec(ParseSpec parseSpec) {
-    this.parseSpec = parseSpec;
+  public ParquetParser(ParseSpec parseSpec) {
+    super(parseSpec);
   }
 
 }

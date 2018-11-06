@@ -588,6 +588,12 @@
             <version>${infinispan.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.evanlennick</groupId>
+            <artifactId>retry4j</artifactId>
+            <version>0.15.0</version>
+        </dependency>
+
         <!-- Spec 관련 Library -->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -1009,22 +1015,6 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-            <version>6.1.0.jre8</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jersey-json</artifactId>
-                    <groupId>com.sun.jersey</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jersey-client</artifactId>
-                    <groupId>com.sun.jersey</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- https://github.com/JSQLParser/JSqlParser -->

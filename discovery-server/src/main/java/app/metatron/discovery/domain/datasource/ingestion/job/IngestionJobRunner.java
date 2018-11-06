@@ -17,6 +17,8 @@ import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.DataSourceService;
 import app.metatron.discovery.domain.datasource.DataSourceSummary;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
@@ -92,19 +94,22 @@ public class IngestionJobRunner {
   @Transactional
   public void ingestion(DataSource dataSource) {
 
+    String sendTopicUri = String.format(TOPIC_INGESTION_PROGRESS, dataSource.getId());
+
     IngestionHistory history = new IngestionHistory(dataSource.getId());
     history.setIngestionInfo(dataSource.getIngestionInfo());
     history.setStatus(IngestionHistory.IngestionStatus.RUNNING);
     history.setProgress(START_INGESTION_JOB);
     history.setHostname(PolarisUtils.getLocalHostname());
-    historyRepository.saveAndFlush(history);
-
-    IngestionJob ingestionJob = getJob(dataSource, history);
-
-    String sendTopicUri = String.format(TOPIC_INGESTION_PROGRESS, dataSource.getId());
-    sendTopic(sendTopicUri, new ProgressResponse(0, START_INGESTION_JOB));
 
     try {
+
+      sendTopic(sendTopicUri, new ProgressResponse(0, START_INGESTION_JOB));
+
+      historyRepository.saveAndFlush(history);
+
+      IngestionJob ingestionJob = getJob(dataSource, history);
+
       sendTopic(sendTopicUri, new ProgressResponse(20, PREPARATION_HANDLE_LOCAL_FILE));
       history.setProgress(PREPARATION_HANDLE_LOCAL_FILE);
       historyRepository.saveAndFlush(history);
@@ -129,7 +134,7 @@ public class IngestionJobRunner {
 
       // Check ingestion Task.
       IngestionStatusResponse statusResponse = checkIngestion(taskId);
-      if(statusResponse.getStatus() == FAILED) {
+      if (statusResponse.getStatus() == FAILED) {
         throw new DataSourceIngestionException(INGESTION_ENGINE_TASK_ERROR, "An error occurred while loading the data source : " + statusResponse.getCause());
       }
 
@@ -139,7 +144,7 @@ public class IngestionJobRunner {
       historyRepository.saveAndFlush(history);
 
       SegmentMetaData segmentMetaData = checkDataSource(dataSource.getEngineName());
-      if(segmentMetaData == null) {
+      if (segmentMetaData == null) {
         throw new DataSourceIngestionException(INGESTION_ENGINE_REGISTRATION_ERROR, "An error occurred while registering the data source");
       }
 
@@ -172,7 +177,7 @@ public class IngestionJobRunner {
   public IngestionJob getJob(DataSource dataSource, IngestionHistory ingestionHistory) {
     IngestionInfo ingestionInfo = dataSource.getIngestionInfo();
 
-    if(ingestionInfo instanceof LocalFileIngestionInfo) {
+    if (ingestionInfo instanceof LocalFileIngestionInfo) {
       FileIngestionJob ingestionJob = new FileIngestionJob(dataSource, ingestionHistory);
       ingestionJob.setEngineProperties(engineProperties);
       ingestionJob.setEngineMetaRepository(engineMetaRepository);
@@ -182,7 +187,7 @@ public class IngestionJobRunner {
       ingestionJob.setIngestionOptionService(ingestionOptionService);
       return ingestionJob;
 
-    } else if(ingestionInfo instanceof JdbcIngestionInfo) {
+    } else if (ingestionInfo instanceof JdbcIngestionInfo) {
       JdbcIngestionJob ingestionJob = new JdbcIngestionJob(dataSource, ingestionHistory);
       ingestionJob.setEngineProperties(engineProperties);
       ingestionJob.setEngineMetaRepository(engineMetaRepository);
@@ -192,9 +197,30 @@ public class IngestionJobRunner {
       ingestionJob.setIngestionOptionService(ingestionOptionService);
       ingestionJob.setJdbcConnectionService(jdbcConnectionService);
       return ingestionJob;
-    }
 
-    return null;
+    } else if (ingestionInfo instanceof HdfsIngestionInfo) {
+      HdfsIngestionJob ingestionJob = new HdfsIngestionJob(dataSource, ingestionHistory);
+      ingestionJob.setEngineProperties(engineProperties);
+      ingestionJob.setEngineMetaRepository(engineMetaRepository);
+      ingestionJob.setEngineRepository(engineRepository);
+      ingestionJob.setFileLoaderFactory(fileLoaderFactory);
+      ingestionJob.setHistoryRepository(historyRepository);
+      ingestionJob.setIngestionOptionService(ingestionOptionService);
+      return ingestionJob;
+
+    } else if (ingestionInfo instanceof HiveIngestionInfo) {
+      HiveIngestionJob ingestionJob = new HiveIngestionJob(dataSource, ingestionHistory);
+      ingestionJob.setEngineProperties(engineProperties);
+      ingestionJob.setEngineMetaRepository(engineMetaRepository);
+      ingestionJob.setEngineRepository(engineRepository);
+      ingestionJob.setFileLoaderFactory(fileLoaderFactory);
+      ingestionJob.setHistoryRepository(historyRepository);
+      ingestionJob.setIngestionOptionService(ingestionOptionService);
+      ingestionJob.setJdbcConnectionService(jdbcConnectionService);
+      return ingestionJob;
+    } else {
+      throw new IllegalArgumentException("Not supported ingestion information.");
+    }
 
   }
 
@@ -215,13 +241,14 @@ public class IngestionJobRunner {
     int checkCount = 0;
 
     do {
-      if(checkCount == 20) {
+      if (checkCount == 20) {
         break;
       }
 
       try {
         Thread.sleep(interval);
-      } catch (InterruptedException e) {}
+      } catch (InterruptedException e) {
+      }
 
       try {
         segmentMetaData = queryService.segmentMetadata(engineName);
@@ -244,7 +271,8 @@ public class IngestionJobRunner {
     do {
       try {
         Thread.sleep(interval);
-      } catch (InterruptedException e) {}
+      } catch (InterruptedException e) {
+      }
 
       try {
         statusResponse = ingestionService.doCheckResult(taskId);
@@ -253,13 +281,13 @@ public class IngestionJobRunner {
         statusResponse = IngestionStatusResponse.unknownResponse(taskId, e);
       }
 
-      if(statusResponse.getStatus() == SUCCESS
+      if (statusResponse.getStatus() == SUCCESS
           || statusResponse.getStatus() == FAILED) {
         break;
-      } else if(statusResponse.getStatus() == UNKNOWN) {
+      } else if (statusResponse.getStatus() == UNKNOWN) {
         // If an unrecognized server error occurs consistently, the failure is handled.
         unknownCount++;
-        if(unknownCount == 10) {
+        if (unknownCount == 10) {
           statusResponse.setStatus(FAILED);
           break;
         }

@@ -12,6 +12,7 @@ import java.util.List;
 
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
+import app.metatron.discovery.domain.datasource.DataSourceSummary;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
@@ -20,6 +21,7 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnecti
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
 import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.spec.druid.ingestion.BatchIndex;
 import app.metatron.discovery.spec.druid.ingestion.Index;
@@ -28,7 +30,9 @@ import app.metatron.discovery.spec.druid.ingestion.IngestionSpecBuilder;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_COMMON_ERROR;
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_JDBC_FETCH_RESULT_ERROR;
+import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_JDBC_INCREMENTAL_TIME_ERROR;
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_JDBC_QUERY_EXECUTION_ERROR;
+import static app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo.IngestionScope.INCREMENTAL;
 
 public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJob {
 
@@ -59,17 +63,39 @@ public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJ
 
     DataConnection connection = Preconditions.checkNotNull(dataSource.getJdbcConnectionForIngestion(), "Required connection info.");
 
+
     // Select 문을 가지고 CSV 파일로 변환
     List<String> csvFiles = null;
     try {
-      csvFiles = jdbcConnectionService.selectQueryToCsv((JdbcDataConnection) connection,
-                                                       ingestionInfo,
-                                                       dataSource.getEngineName(),
-                                                       dataSource.getFields());
+      BatchIngestionInfo.IngestionScope ingestionScope = ((BatchIngestionInfo) ingestionInfo).getRange();
+
+      if (ingestionInfo instanceof BatchIngestionInfo
+          || ((BatchIngestionInfo) ingestionInfo).getRange() == INCREMENTAL) {
+
+        DataSourceSummary summary = dataSource.getSummary();
+        if(summary == null || summary.getIngestionMaxTime() == null) {
+          throw new DataSourceIngestionException(INGESTION_JDBC_INCREMENTAL_TIME_ERROR, "No time information to use for incremental ingestion job in dataSource.summary");
+        }
+
+        csvFiles = jdbcConnectionService.selectIncrementalQueryToCsv(
+            (JdbcDataConnection) connection,
+            ingestionInfo,
+            dataSource.getEngineName(),
+            dataSource.getSummary() == null ? null : dataSource.getSummary().getIngestionMaxTime(),
+            dataSource.getFields()
+        );
+      } else {
+        csvFiles = jdbcConnectionService.selectQueryToCsv(
+            (JdbcDataConnection) connection,
+            ingestionInfo,
+            dataSource.getEngineName(),
+            dataSource.getFields()
+        );
+      }
     } catch (JdbcDataConnectionException ce) {
-      if(ce.getCode() == JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE) {
+      if (ce.getCode() == JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE) {
         throw new DataSourceIngestionException(INGESTION_JDBC_QUERY_EXECUTION_ERROR, ce);
-      } else if(ce.getCode() == JdbcDataConnectionErrorCodes.CSV_IO_ERROR_CODE) {
+      } else if (ce.getCode() == JdbcDataConnectionErrorCodes.CSV_IO_ERROR_CODE) {
         throw new DataSourceIngestionException(INGESTION_JDBC_FETCH_RESULT_ERROR, ce);
       } else {
         throw new DataSourceIngestionException(INGESTION_COMMON_ERROR, ce);

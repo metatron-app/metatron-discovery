@@ -44,7 +44,6 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -55,7 +54,6 @@ import app.metatron.discovery.domain.datasource.connection.DataConnectionReposit
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
@@ -72,7 +70,6 @@ import static app.metatron.discovery.domain.datasource.DataSource.SourceType.IMP
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
-import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.FAILED;
 
 /**
  * Created by kyungtaak on 2016. 4. 1..
@@ -121,26 +118,26 @@ public class DataSourceEventHandler {
     }
 
     IngestionInfo ingestionInfo = dataSource.getIngestionInfo();
-    if(ingestionInfo instanceof JdbcIngestionInfo){
+    if (ingestionInfo instanceof JdbcIngestionInfo) {
       DataConnection jdbcConnection = Preconditions.checkNotNull(dataSource.getConnection() == null ?
-              ((JdbcIngestionInfo) ingestionInfo).getConnection() : dataSource.getConnection());
+                                                                     ((JdbcIngestionInfo) ingestionInfo).getConnection() : dataSource.getConnection());
 
       //Batch Ingestion not allow Dialog type connection
-      if(ingestionInfo instanceof BatchIngestionInfo){
+      if (ingestionInfo instanceof BatchIngestionInfo) {
         Preconditions.checkArgument(
-                jdbcConnection.getAuthenticationType() != DataConnection.AuthenticationType.DIALOG,
-                "BatchIngestion not allowed DIALOG Authentication.");
+            jdbcConnection.getAuthenticationType() != DataConnection.AuthenticationType.DIALOG,
+            "BatchIngestion not allowed DIALOG Authentication.");
       }
 
       //Dialog Authentication require connectionUsername, connectionPassword
-      if(ingestionInfo instanceof JdbcIngestionInfo
-              && jdbcConnection.getAuthenticationType() == DataConnection.AuthenticationType.DIALOG){
+      if (ingestionInfo instanceof JdbcIngestionInfo
+          && jdbcConnection.getAuthenticationType() == DataConnection.AuthenticationType.DIALOG) {
 
         Preconditions.checkNotNull(((JdbcIngestionInfo) ingestionInfo).getConnectionUsername(),
-                "Dialog Authentication require connectionUsername.");
+                                   "Dialog Authentication require connectionUsername.");
 
         Preconditions.checkNotNull(((JdbcIngestionInfo) ingestionInfo).getConnectionPassword(),
-                "Dialog Authentication require connectionPassword.");
+                                   "Dialog Authentication require connectionPassword.");
       }
     }
 
@@ -156,20 +153,18 @@ public class DataSourceEventHandler {
       } else {
         // 엔진내 datasource 네임 충돌을 방지하기 위하여 추가로 생성
         dataSource.setEngineName(dataSourceService.convertName(dataSource.getName()));
+        dataSource.setStatus(PREPARING);
+        dataSourceRepository.saveAndFlush(dataSource);
 
-        if(dataSource.getIngestionInfo() instanceof LocalFileIngestionInfo
-            || dataSource.getIngestionInfo() instanceof JdbcIngestionInfo) {
-          dataSource.setStatus(PREPARING);
-          dataSourceRepository.saveAndFlush(dataSource);
-
+        if (dataSource.getIngestionInfo() instanceof RealtimeIngestionInfo) {
+          engineIngestionService.realtimeIngestion(dataSource);
+        } else {
           ThreadFactory factory = new ThreadFactoryBuilder()
               .setNameFormat("ingestion-" + dataSource.getId() + "-%s")
               .setDaemon(true)
               .build();
           ExecutorService service = Executors.newSingleThreadExecutor(factory);
           service.submit(() -> jobRunner.ingestion(dataSource));
-        } else {
-          initEngineIngestion(dataSource);
         }
       }
 
@@ -318,17 +313,17 @@ public class DataSourceEventHandler {
         }
       } else if (ingestionInfo instanceof RealtimeIngestionInfo) {
         // 기존 동작하고 있는 적재 task 가 존재하는지 확인 (재정의 필요)
-//        List<IngestionHistory> ingestionHistories = ingestionHistoryRepository
-//            .findByDataSourceIdAndStatus(dataSource.getId(), IngestionHistory.IngestionStatus.RUNNING);
-//
-//        if (CollectionUtils.isNotEmpty(ingestionHistories)) {
-//          // TODO: Excetpion 정의
-//          throw new RuntimeException("Ingestion task already exist.");
-//        }
-//
-//        engineIngestionService.realtimeIngestion(dataSource).ifPresent(
-//            ingestionHistroy -> ingestionHistoryRepository.save(ingestionHistroy)
-//        );
+        //        List<IngestionHistory> ingestionHistories = ingestionHistoryRepository
+        //            .findByDataSourceIdAndStatus(dataSource.getId(), IngestionHistory.IngestionStatus.RUNNING);
+        //
+        //        if (CollectionUtils.isNotEmpty(ingestionHistories)) {
+        //          // TODO: Excetpion 정의
+        //          throw new RuntimeException("Ingestion task already exist.");
+        //        }
+        //
+        //        engineIngestionService.realtimeIngestion(dataSource).ifPresent(
+        //            ingestionHistroy -> ingestionHistoryRepository.save(ingestionHistroy)
+        //        );
       }
     }
   }
@@ -390,21 +385,4 @@ public class DataSourceEventHandler {
 
   }
 
-  private void initEngineIngestion(DataSource dataSource) {
-
-    Optional<IngestionHistory> status = engineIngestionService.doIngestion(dataSource);
-
-    // 적재 실패시 예외 처리 및 히스토리 저장
-    if (!status.isPresent() || status.get().getStatus() == FAILED) {
-      throw new DataSourceIngestionException("Fail to ingest engine. (TASK ID:" + status.get().getIngestionId() + ")");
-    }
-
-    // 트랜잭션 밖에서 처리하기 위해 데이터 소스내 객체에 저장
-    dataSource.setHistory(status.get());
-
-    // 데이터 소스 관련 상태 지정 (Preparing)
-    dataSource.setStatus(PREPARING);
-
-    LOGGER.info("Completed ingestion : {}", dataSource.getName());
-  }
 }

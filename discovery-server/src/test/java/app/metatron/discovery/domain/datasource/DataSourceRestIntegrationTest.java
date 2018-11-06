@@ -1391,8 +1391,20 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithHdfsFileIngestion() throws JsonProcessingException {
 
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
     // 사전에 HDFS 경로에 파일 위치
-    String targetFile = "/Users/kyungtaak/sample_ingestion.csv";
+    String targetFile = "/test/sample_ingestion.csv";
 
     DataSource dataSource = new DataSource();
     dataSource.setName("HdfsFileIngestion");
@@ -1442,9 +1454,24 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
       .post("/api/datasources");
 
     dsRes.then()
-//      .statusCode(HttpStatus.SC_CREATED)
+      .statusCode(HttpStatus.SC_CREATED)
     .log().all();
     // @formatter:on
+
+    String id = from(dsRes.asString()).get("id");
+
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
+
+    try {
+      System.out.println("Sleep!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
 
   }
 
@@ -1513,8 +1540,20 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   @OAuthRequest(username = "polaris", value = {"SYSTEM_USER", "PERM_SYSTEM_MANAGE_DATASOURCE"})
   public void createDataSourceWithHiveCsvNonPartitionTableIngestion() throws JsonProcessingException {
 
+    StompHeaders stompHeaders = new StompHeaders();
+    stompHeaders.set("X-AUTH-TOKEN", oauth_token);
+
+    StompSession session = null;
+    try {
+      session = stompClient
+          .connect("ws://localhost:{port}/stomp", webSocketHttpHeaders, stompHeaders, new StompSessionHandlerAdapter() {}, serverPort)
+          .get(3, SECONDS);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
     // 사전에 HDFS 경로에 파일 위치
-    String sourceTable = "default.sample_ingestion_types";
+    String sourceTable = "default.sample_ingestion";
 
     DataSource dataSource = new DataSource();
     dataSource.setName("Hive Ingestion CSV None Partition " + PolarisUtils.randomString(5));
@@ -1530,8 +1569,6 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     fields.add(new Field("sd", DataType.STRING, DIMENSION, 2L));
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
     fields.add(new Field("m2", DataType.DOUBLE, MEASURE, 4L));
-    fields.add(new Field("m3", DataType.DOUBLE, MEASURE, 5L));
-    fields.add(new Field("d1", DataType.STRING, DIMENSION, 6L));
 
     dataSource.setFields(fields);
 
@@ -1567,114 +1604,20 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     .log().all();
     // @formatter:on
 
-    //Spec
-    /*
+    String id = from(dsRes.asString()).get("id");
 
-    {
-   "type":"index_hadoop",
-   "spec":{
-      "dataSchema":{
-         "dataSource":"hive_ingestion_csv_none_partition_ijmha",
-         "parser":{
-            "type":"string",
-            "parseSpec":{
-               "format":"csv",
-               "dimensionsSpec":{
-                  "dimensions":[
-                     "d",
-                     "sd"
-                  ],
-                  "dimensionExclusions":[
+    StompHeaders stompSubscribeHeaders = new StompHeaders();
+    stompSubscribeHeaders.setDestination("/topic/datasources/" + id + "/progress");
+    stompSubscribeHeaders.set("X-AUTH-TOKEN", oauth_token);
 
-                  ],
-                  "spatialDimensions":[
+    session.subscribe(stompSubscribeHeaders, new DefaultStompFrameHandler());
 
-                  ]
-               },
-               "timestampSpec":{
-                  "column":"time",
-                  "format":"auto",
-                  "replaceWrongColumn":false
-               },
-               "columns":[
-                  "time",
-                  "d",
-                  "sd",
-                  "m1",
-                  "m2",
-                  "m3"
-               ]
-            }
-         },
-         "metricsSpec":[
-            {
-               "type":"count",
-               "name":"count"
-            },
-            {
-               "type":"sum",
-               "name":"m1",
-               "fieldName":"m1",
-               "inputType":"double"
-            },
-            {
-               "type":"sum",
-               "name":"m2",
-               "fieldName":"m2",
-               "inputType":"double"
-            },
-            {
-               "type":"sum",
-               "name":"m3",
-               "fieldName":"m3",
-               "inputType":"double"
-            }
-         ],
-         "granularitySpec":{
-            "type":"uniform",
-            "segmentGranularity":"MONTH",
-            "queryGranularity":"DAY",
-            "intervals":[
-               "1970-01-01/2050-01-01"
-            ]
-         }
-      },
-      "ioConfig":{
-         "type":"hadoop",
-         "inputSpec":{
-            "type":"hive",
-            "source":"default.sample_ingestion_types",
-            "metastoreUri":"thrift://localhost:9083"
-         }
-      },
-      "tuningConfig":{
-         "type":"hadoop",
-         "ingestionMode":"REDUCE_MERGE",
-         "useCombiner":false,
-         "jobProperties":{
-            "mapreduce.map.memory.mb":"4096",
-            "mapreduce.task.files.preserve.filepattern":".*",
-            "mapreduce.reduce.memory.mb":"4096",
-            "keep.task.files.pattern":".*",
-            "mapreduce.map.java.opts":"-server -Xmx4096m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps",
-            "mapreduce.reduce.java.opts":"-server -Xmx4096m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"
-         },
-         "buildV9Directly":true,
-         "maxRowsInMemory":3000000,
-         "maxOccupationInMemory":1024000000,
-         "maxShardLength":256000000,
-         "partitionsSpec":{
-            "type":"sized",
-            "targetPartitionSize":0
-         }
-      }
-   },
-   "context":{
-
-   }
-}
-
-  */
+    try {
+      System.out.println("Sleep!!");
+      Thread.sleep(1000000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
 
   }
 
@@ -2258,7 +2201,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     //    batchJdbcInfo.setPeriod(new BatchPeriod("MINUTELY", 1, null, null));
     //    batchJdbcInfo.setPeriod(new BatchPeriod("WEEKLY", null, "03:20", Lists.newArrayList("MON", "SUN")));
     batchJdbcInfo.setPeriod(new BatchPeriod("EXPR", "0 0/1 * 1/1 * ? *", null, null));
-    batchJdbcInfo.setSize(100);
+    batchJdbcInfo.setMaxLimit(100);
 
     // Add Connection Info
     MySQLConnection dataConnection = new MySQLConnection();

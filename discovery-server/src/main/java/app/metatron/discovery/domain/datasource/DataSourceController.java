@@ -55,7 +55,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -82,6 +81,7 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionOption;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionProjections;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService;
 import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.engine.EngineLoadService;
 import app.metatron.discovery.domain.engine.EngineQueryService;
@@ -96,7 +96,6 @@ import app.metatron.discovery.util.PolarisUtils;
 import app.metatron.discovery.util.ProjectionUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PREFIX;
-import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.FAILED;
 
 /**
  *
@@ -135,6 +134,9 @@ public class DataSourceController {
 
   @Autowired
   EngineLoadService engineLoadService;
+
+  @Autowired
+  IngestionJobRunner jobRunner;
 
   @Autowired
   IngestionOptionService ingestionOptionService;
@@ -485,16 +487,12 @@ public class DataSourceController {
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
     }
 
-    // 적재 수행
-    Optional<IngestionHistory> ingestionHistroy = engineIngestionService.doIngestion(dataSource);
-
-    // 적재 실패시 예외 처리
-    if (!ingestionHistroy.isPresent() || ingestionHistroy.get().getStatus() == FAILED) {
-      throw new DataSourceIngestionException("Fail to ingest engine. (TASK ID:" + ingestionHistroy.get().getIngestionId() + ")");
-    }
-
-    // 적재 정보 저장
-    ingestionHistoryRepository.save(ingestionHistroy.get());
+    ThreadFactory factory = new ThreadFactoryBuilder()
+        .setNameFormat("ingestion-append-" + dataSource.getId() + "-%s")
+        .setDaemon(true)
+        .build();
+    ExecutorService service = Executors.newSingleThreadExecutor(factory);
+    service.submit(() -> jobRunner.ingestion(dataSource));
 
     return ResponseEntity.noContent().build();
 

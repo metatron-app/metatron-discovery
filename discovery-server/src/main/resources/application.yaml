@@ -222,6 +222,7 @@ polaris:
         port: 10000
         username: hive
         password: hive
+        metastoreUri: thrift://localhost:9083
     query:
       loader:
         remoteType: LOCAL

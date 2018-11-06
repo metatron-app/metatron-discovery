@@ -16,23 +16,28 @@
 
 package app.metatron.discovery.spec.druid.ingestion.parser;
 
-public class StringParser implements Parser {
+public class OrcParser extends StringParser implements Parser {
 
-  ParseSpec parseSpec;
+  String typeString;
 
-  public StringParser() {
+  public OrcParser() {
   }
 
-  public StringParser(ParseSpec parseSpec) {
-    this.parseSpec = parseSpec;
+  public OrcParser(ParseSpec parseSpec) {
+    this(parseSpec, null);
   }
 
-  public ParseSpec getParseSpec() {
-    return parseSpec;
+  public OrcParser(ParseSpec parseSpec, String typeString) {
+    super(parseSpec);
+    this.typeString = typeString;
   }
 
-  public void setParseSpec(ParseSpec parseSpec) {
-    this.parseSpec = parseSpec;
+  public String getTypeString() {
+    return typeString;
+  }
+
+  public void setTypeString(String typeString) {
+    this.typeString = typeString;
   }
 
 }

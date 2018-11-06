@@ -39,13 +39,7 @@ import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
 import app.metatron.discovery.spec.druid.ingestion.granularity.UniformGranularitySpec;
-import app.metatron.discovery.spec.druid.ingestion.parser.CsvStreamParser;
-import app.metatron.discovery.spec.druid.ingestion.parser.DimensionsSpec;
-import app.metatron.discovery.spec.druid.ingestion.parser.JsonParseSpec;
-import app.metatron.discovery.spec.druid.ingestion.parser.Parser;
-import app.metatron.discovery.spec.druid.ingestion.parser.StringParser;
-import app.metatron.discovery.spec.druid.ingestion.parser.TimeAndDimsParseSpec;
-import app.metatron.discovery.spec.druid.ingestion.parser.TimestampSpec;
+import app.metatron.discovery.spec.druid.ingestion.parser.*;
 
 public class AbstractSpecBuilder {
 
@@ -163,6 +157,8 @@ public class AbstractSpecBuilder {
     boolean hadoopIngestion = ingestionInfo instanceof HdfsIngestionInfo;
     String type = hadoopIngestion ? "hadoopyString" : "string";
 
+    Parser parser = null;
+
     if (fileFormat instanceof CsvFileFormat) {
       // get Columns
       List<String> columns = dataSource.getFields().stream()
@@ -171,29 +167,54 @@ public class AbstractSpecBuilder {
 
 
       CsvFileFormat csvFormat = (CsvFileFormat) fileFormat;
-      CsvStreamParser csvStreamParser = new CsvStreamParser();
 
-      if(dataSource.getIngestionInfoByType().equals("local")){
-        LocalFileIngestionInfo localFileIngestionInfo = dataSource.getIngestionInfoByType();
-        boolean skipHeaderRow = localFileIngestionInfo.getRemoveFirstRow();
-        csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
-      }
+      if (hadoopIngestion) {
 
-      if (csvFormat.isDefaultCsvMode()) {
-        csvStreamParser.setTimestampSpec(timestampSpec);
-        csvStreamParser.setDimensionsSpec(dimensionsSpec);
-        csvStreamParser.setColumns(columns);
+        if (csvFormat.isDefaultCsvMode()) {
+          CsvParseSpec parseSpec = new CsvParseSpec();
+          parseSpec.setTimestampSpec(timestampSpec);
+          parseSpec.setDimensionsSpec(dimensionsSpec);
+          parseSpec.setColumns(columns);
 
-        return csvStreamParser;
+          parser = new StringParser(parseSpec);
+        } else {
+          TsvParseSpec parseSpec = new TsvParseSpec();
+          parseSpec.setTimestampSpec(timestampSpec);
+          parseSpec.setDimensionsSpec(dimensionsSpec);
+          parseSpec.setColumns(columns);
+          parseSpec.setDelimiter(csvFormat.getDelimeter());
+          parseSpec.setListDelimiter(csvFormat.getLineSeparator());
+
+          parser = new StringParser(parseSpec);
+        }
+
       } else {
 
-        csvStreamParser.setTimestampSpec(timestampSpec);
-        csvStreamParser.setDimensionsSpec(dimensionsSpec);
-        csvStreamParser.setColumns(columns);
-        csvStreamParser.setDelimiter(csvFormat.getDelimeter());
+        CsvStreamParser csvStreamParser = new CsvStreamParser();
 
-        return csvStreamParser;
+        if (dataSource.getIngestionInfoByType().equals("local")) {
+          LocalFileIngestionInfo localFileIngestionInfo = dataSource.getIngestionInfoByType();
+          boolean skipHeaderRow = localFileIngestionInfo.getRemoveFirstRow();
+          csvStreamParser.setSkipHeaderRecord(skipHeaderRow);
+        }
 
+        if (csvFormat.isDefaultCsvMode()) {
+          csvStreamParser.setTimestampSpec(timestampSpec);
+          csvStreamParser.setDimensionsSpec(dimensionsSpec);
+          csvStreamParser.setColumns(columns);
+
+          parser = csvStreamParser;
+
+        } else {
+
+          csvStreamParser.setTimestampSpec(timestampSpec);
+          csvStreamParser.setDimensionsSpec(dimensionsSpec);
+          csvStreamParser.setColumns(columns);
+          csvStreamParser.setDelimiter(csvFormat.getDelimeter());
+
+          parser = csvStreamParser;
+
+        }
       }
     } else if (fileFormat instanceof JsonFileFormat) {
       JsonFileFormat jsonFileFormat = (JsonFileFormat) fileFormat;
@@ -203,10 +224,7 @@ public class AbstractSpecBuilder {
       parseSpec.setDimensionsSpec(dimensionsSpec);
       parseSpec.setFlattenSpec(jsonFileFormat.getFlattenRules());
 
-      StringParser parser = new StringParser();
-      parser.setParseSpec(parseSpec);
-
-      return parser;
+      parser = new StringParser(parseSpec);
 
     } else if (fileFormat instanceof ExcelFileFormat) {
       // Csv 타입 지정으로 처리
@@ -219,37 +237,31 @@ public class AbstractSpecBuilder {
       csvStreamParser.setDimensionsSpec(dimensionsSpec);
       csvStreamParser.setColumns(columns);
 
-      return csvStreamParser;
+      parser = csvStreamParser;
 
     } else if (fileFormat instanceof OrcFileFormat) {
       TimeAndDimsParseSpec parseSpec = new TimeAndDimsParseSpec();
       parseSpec.setTimestampSpec(timestampSpec);
       parseSpec.setDimensionsSpec(dimensionsSpec);
 
-      StringParser parser = new StringParser();
+      OrcParser orcParser = new OrcParser(parseSpec);
 
-      parser.setType("orc");
-      parser.setParseSpec(parseSpec);
       if (ingestionInfo instanceof HiveIngestionInfo) {
-        parser.setTypeString(((HiveIngestionInfo) ingestionInfo).getTypeString());
+        orcParser.setTypeString(((HiveIngestionInfo) ingestionInfo).getTypeString());
       }
-      return parser;
+      parser = orcParser;
+
     } else if (fileFormat instanceof ParquetFileFormat) {
       TimeAndDimsParseSpec parseSpec = new TimeAndDimsParseSpec();
       parseSpec.setTimestampSpec(timestampSpec);
       parseSpec.setDimensionsSpec(dimensionsSpec);
 
-      StringParser parser = new StringParser();
-
-      parser.setType("parquet");
-      parser.setParseSpec(parseSpec);
-
-      return parser;
+      parser = new ParquetParser(parseSpec);
 
     } else {
       throw new IllegalArgumentException("Not supported format.");
     }
 
-//    return parser;
+    return parser;
   }
 }
