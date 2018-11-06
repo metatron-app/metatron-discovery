@@ -203,7 +203,7 @@
         </label>
         <div class="ddp-ui-edit-option">
           <label class="ddp-label-radio" (change)="onChangePartitionType(partitionTypeList[0])">
-            <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[0].value" [disabled]="isStrictMode">
+            <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[0].value" [disabled]="partitionKeyList.length !== 0 && isStrictMode">
             <i class="ddp-icon-radio"></i>
             <span class="ddp-txt-radio">{{partitionTypeList[0].label}}</span>
           </label>
@@ -376,13 +376,13 @@
                 <a href="javascript:" class="ddp-btn-delete" (click)="deletePartitionKeys()" *ngIf="partitionKeyList.length > 1"></a>
               </div>
               <!-- buttons -->
-              <div class="ddp-ui-buttons ddp-inline">
+              <div class="ddp-ui-buttons ddp-inline" *ngIf="isStrictMode">
                 <a href="javascript:" class="ddp-btn-pop ddp-bg-gray" (click)="onClickPartitionKeysValidation()">{{'msg.storage.btn.test' | translate}}</a>
                 <!-- message -->
                 <div class="ddp-ui-message">
                   <span class="ddp-data-error2" *ngIf="isClickedNext && partitionValidationResult === null">{{'msg.storage.ui.required' | translate}}</span>
-                  <span class="ddp-data-ok" *ngIf="partitionValidationResult"> <em class="ddp-icon-ok"></em>{{'msg.storage.ui.partition.valid.success' | translate}}</span>
-                  <span class="ddp-data-error" *ngIf="partitionValidationResult === false"> <em class="ddp-icon-error"></em>{{'msg.storage.ui.partition.valid.fail' | translate}}</span>
+                  <span class="ddp-data-ok" *ngIf="partitionValidationResult"> <em class="ddp-icon-ok"></em>{{partitionValidationResultMessage}}</span>
+                  <span class="ddp-data-error" *ngIf="partitionValidationResult === false"> <em class="ddp-icon-error"></em>{{partitionValidationResultMessage}}</span>
                 </div>
                 <!-- //message -->
                 <!-- 결과 -->

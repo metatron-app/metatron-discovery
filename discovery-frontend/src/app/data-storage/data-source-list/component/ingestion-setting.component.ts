@@ -158,6 +158,8 @@ export class IngestionSettingComponent extends AbstractComponent {
   public isStrictMode: boolean = false;
   // partition validation result (only stagingDB)
   public partitionValidationResult: boolean = null;
+  // partition validation message
+  public partitionValidationResultMessage: string;
   // partition validation result data
   public partitionValidationResultData: any;
   // partition result modal show flag
@@ -243,8 +245,7 @@ export class IngestionSettingComponent extends AbstractComponent {
         this.loadingHide();
       })
       .catch((error) => {
-        // loading hide
-        this.loadingHide();
+        this.commonExceptionHandler(error);
         // result fail
         this.cronValidationResult = false;
       });
@@ -293,6 +294,15 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Partition validation click events
    */
   public onClickPartitionKeysValidation(): void {
+    const partitionParams = this._getPartitionParams(this.partitionKeyList);
+    // if not exist params
+    if (partitionParams.length === 0) {
+      // set result
+      this.partitionValidationResult = false;
+      // set result message
+      this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.no.key');
+      return;
+    }
     // loading show
     this.loadingShow();
     // partition keys valid
@@ -309,12 +319,16 @@ export class IngestionSettingComponent extends AbstractComponent {
         this.partitionValidationResult = true;
         // set data
         this.partitionValidationResultData = result;
+        // set result message
+        this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.success');
       })
       .catch(error => {
         // set result
         this.partitionValidationResult = false;
-        // error
-        this.commonExceptionHandler(error);
+        // set result message
+        this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.fail');
+        // loading hide
+        this.loadingHide();
       });
   }
 
@@ -634,7 +648,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       return false;
     }
     // If create type is StagingDB and strict mode
-    if (this.createType === 'STAGING' && this.isStrictMode && !this.partitionValidationResult) {
+    if (this.createType === 'STAGING' && this.isStrictMode && this.partitionKeyList.length !== 0 && !this.partitionValidationResult) {
       return false;
     }
     // value is empty in tuningConfig's default option
@@ -721,10 +735,10 @@ export class IngestionSettingComponent extends AbstractComponent {
   /**
    * Get partition parameter
    * @param partitionKeyList
-   * @returns {Object}
+   * @returns {any}
    * @private
    */
-  private _getPartitionParams(partitionKeyList: any): object {
+  private _getPartitionParams(partitionKeyList: any): any {
     // result
     const result = [];
     // partition fields
@@ -812,6 +826,18 @@ export class IngestionSettingComponent extends AbstractComponent {
       this.endDateTime = ingestionData.endDateTime;
       // partition key list
       this.partitionKeyList = ingestionData.partitionKeyList;
+      // is show partition validation button (only stagingDB)
+      this.isStrictMode = ingestionData.isStrictMode;
+      // partition validation result (only stagingDB)
+      this.partitionValidationResult = ingestionData.partitionValidationResult;
+      // partition validation message
+      this.partitionValidationResultMessage = ingestionData.partitionValidationResultMessage;
+      // partition validation result data
+      this.partitionValidationResultData = ingestionData.partitionValidationResultData;
+      // partition result modal show flag
+      this.isShowPartitionValidResult = ingestionData.isShowPartitionValidResult;
+      // clicked next button flag
+      this.isClickedNext = ingestionData.isClickedNext;
     }
   }
 
@@ -871,6 +897,18 @@ export class IngestionSettingComponent extends AbstractComponent {
       sourceData['ingestionData'].endDateTime = this.endDateTime;
       // partition key list
       sourceData['ingestionData'].partitionKeyList = this.partitionKeyList;
+      // is show partition validation button (only stagingDB)
+      sourceData['ingestionData'].isStrictMode = this.isStrictMode;
+      // partition validation result (only stagingDB)
+      sourceData['ingestionData'].partitionValidationResult = this.partitionValidationResult;
+      // partition validation message
+      sourceData['ingestionData'].partitionValidationResultMessage = this.partitionValidationResultMessage;
+      // partition validation result data
+      sourceData['ingestionData'].partitionValidationResultData = this.partitionValidationResultData;
+      // partition result modal show flag
+      sourceData['ingestionData'].isShowPartitionValidResult = this.isShowPartitionValidResult;
+      // clicked next button flag
+      sourceData['ingestionData'].isClickedNext = this.isClickedNext;
     }
   }
 }

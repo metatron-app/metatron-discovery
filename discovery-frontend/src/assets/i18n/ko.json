@@ -1912,6 +1912,7 @@
   "msg.storage.ui.partition.info.desc.step-4.blank": "(공백)",
   "msg.storage.ui.partition.valid.success": "유효한 표현식",
   "msg.storage.ui.partition.valid.fail": "잘못된 표현식",
+  "msg.storage.ui.partition.valid.no.key": "파티션 키는 필수값입니다",
 
   "msg.log.th.status": "상태",
   "msg.log.ui.search.description" : "잡 이름 또는 어플리케이션 ID로 검색해 주세요",
