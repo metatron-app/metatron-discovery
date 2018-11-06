@@ -19,6 +19,7 @@ import * as _ from 'lodash';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
+import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
 
 declare let moment: any;
 /**
@@ -153,6 +154,13 @@ export class IngestionSettingComponent extends AbstractComponent {
   // isShowAdvancedSetting
   public isShowAdvancedSetting: boolean = false;
 
+  // is show partition validation button (only stagingDB)
+  public isStrictMode: boolean = false;
+  // partition validation result (only stagingDB)
+  public partitionValidationResult: boolean;
+  // partition validation message (only stagingDB)
+  public partitionValidationMessage: string;
+
   // step change
   @Output()
   public prevStep: EventEmitter<any> = new EventEmitter();
@@ -161,6 +169,7 @@ export class IngestionSettingComponent extends AbstractComponent {
 
   // constructor
   constructor(private _dataSourceService: DatasourceService,
+              private _dataConnectionService: DataconnectionService,
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
@@ -192,8 +201,29 @@ export class IngestionSettingComponent extends AbstractComponent {
     // if exist ingestionData
     if (this._sourceData.hasOwnProperty("ingestionData")) {
       this._loadIngestionData(this._sourceData.ingestionData);
-    } else {
+    } else { // init
       this._setDefaultIngestionOption();
+      // TODO test
+      this._sourceData.databaseData.selectedTableDetail.partitionFields = [
+        {
+          "name": "ym",
+          "alias": "ym",
+          "type": "STRING",
+          "logicalType": "STRING",
+          "role": "DIMENSION",
+          "aggrType": "NONE",
+          "biType": "DIMENSION"
+        },
+        {
+          "name": "dd",
+          "alias": "dd",
+          "type": "STRING",
+          "logicalType": "STRING",
+          "role": "DIMENSION",
+          "aggrType": "NONE",
+          "biType": "DIMENSION"
+        }
+      ];
       // if staging type, set partition key list
       if (this.createType === 'STAGING' && this._sourceData.databaseData.selectedTableDetail.partitionFields.length > 0) {
         this.partitionKeyList.push(_.cloneDeep(this._sourceData.databaseData.selectedTableDetail.partitionFields));
@@ -267,6 +297,36 @@ export class IngestionSettingComponent extends AbstractComponent {
     } else {
       Alert.error(this.translateService.instant('msg.comm.alert.error'));
     }
+  }
+
+  /**
+   * Partition validation click events
+   */
+  public onClickPartitionKeysValidation(): void {
+    // loading show
+    this.loadingShow();
+    // partition keys valid
+    /**
+     {
+        "partitions" : [
+          {
+            "ym" : "201704",
+            "dd" : "01"
+          }
+        ]
+      }
+     */
+    this._dataConnectionService.partitionValidationForStagingDB({
+      database: this._sourceData.databaseData.selectedDatabase,
+      query: this._sourceData.databaseData.selectedTable,
+      type: 'TABLE',
+      partitions: this._getPartitionParams(this.partitionKeyList)
+    })
+      .then((result) => {
+        // loading hide
+        this.loadingHide();
+      })
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -447,7 +507,6 @@ export class IngestionSettingComponent extends AbstractComponent {
 
   /**
    * add partition in partition list
-   * TODO f#35
    */
   public addPartitionKeys(): void {
     this.partitionKeyList.push(_.cloneDeep(this._sourceData.databaseData.selectedTableDetail.partitionFields));
@@ -455,7 +514,6 @@ export class IngestionSettingComponent extends AbstractComponent {
 
   /**
    * delete partition in partition list
-   * TODO f#35
    */
   public deletePartitionKeys(): void {
     this.partitionKeyList = this.partitionKeyList.slice(0, this.partitionKeyList.length - 1);
@@ -569,10 +627,10 @@ export class IngestionSettingComponent extends AbstractComponent {
       )) {
       return false;
     }
-    // If create type is StagingDB and value is empty in jobProperties's default option
-    // if (this.createType === 'STAGING' && this.jobProperties.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
-    //   return false;
-    // }
+    // If create type is StagingDB and strict mode
+    if (this.createType === 'STAGING' && this.isStrictMode && !this.partitionValidationResult) {
+      return false;
+    }
     // value is empty in tuningConfig's default option
     // if (this.tuningConfig.some(item => item.defaultOpt && StringUtil.isEmpty(item.value))) {
     //   return false;
@@ -589,8 +647,6 @@ export class IngestionSettingComponent extends AbstractComponent {
     this.loadingShow();
     this._dataSourceService.getDefaultIngestionOptions(this.createType === 'STAGING' ? 'hadoop' : 'batch')
       .then((result) => {
-        // loading hide
-        this.loadingHide();
         // result
         this.tuningConfig = result.filter(item => item.type === 'TUNING').map((item) => {
           return {key: item.name, value: '', ph: item.defaultValue, defaultOpt: true};
@@ -598,6 +654,30 @@ export class IngestionSettingComponent extends AbstractComponent {
         this.jobProperties = result.filter(item => item.type === 'JOB').map((item) => {
           return {key: item.name, value: '', ph: item.defaultValue,  defaultOpt: true};
         });
+        // in stagingDB
+        if (this.createType === 'STAGING') {
+          // set strict mode flag
+          this._setStrictModeFlag();
+        } else {
+          // loading hide
+          this.loadingHide();
+        }
+      })
+      .catch(error => this.commonExceptionHandler(error));
+  }
+
+  /**
+   * Set strict mode flag
+   * @private
+   */
+  private _setStrictModeFlag(): void {
+    // is check strict mode
+    this._dataConnectionService.isStrictModeForStagingDB()
+      .then((result) => {
+        // set validation
+        this.isStrictMode = result;
+        // loading hide
+        this.loadingHide();
       })
       .catch(error => this.commonExceptionHandler(error));
   }
@@ -630,6 +710,38 @@ export class IngestionSettingComponent extends AbstractComponent {
   private _getCurrentTime(): string {
     const date = new Date();
     return ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+  }
+
+  /**
+   * Get partition parameter
+   * @param partitionKeyList
+   * @returns {Object}
+   * @private
+   */
+  private _getPartitionParams(partitionKeyList: any): object {
+    // result
+    const result = [];
+    // partition fields
+    for (let i = 0; i < partitionKeyList.length; i++) {
+      // partition keys
+      const partitionKeys = partitionKeyList[i];
+      // partition
+      const partition = {};
+      // loop
+      for (let j = 0; j < partitionKeys.length; j++) {
+        // is value empty break for loop
+        if (StringUtil.isEmpty(partitionKeys[j].value)) {
+          break;
+        }
+        // add partition
+        partition[partitionKeys[j].name] = partitionKeys[j].value;
+      }
+      // if exist partition, add in result
+      if (Object.keys(partition).length) {
+        result.push(partition);
+      }
+    }
+    return result;
   }
 
   /**
