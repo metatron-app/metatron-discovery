@@ -18,10 +18,17 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
+import app.metatron.discovery.prep.parser.preparation.rule.Header;
+import app.metatron.discovery.prep.parser.preparation.rule.Keep;
+import app.metatron.discovery.prep.parser.preparation.rule.Rename;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
+import com.google.common.collect.ObjectArrays;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -37,40 +44,6 @@ import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_
 
 public class Util {
   private  static RuleVisitorParser ruleVisitorParser = null;
-
-  // old method. not using except tests
-  public static List<String[]> loadGridLocalCsv(String targetUrl, String delimiter, int limitRowCnt) {
-
-    List<String[]> grid = new ArrayList<>();
-
-    BufferedReader br = null;
-    String line;
-    String quoteSymbol="\"";
-    try {
-      File theFile = new File(targetUrl);
-      br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-      while ((line = br.readLine()) != null) {
-        String[] strCols = csvLineSplitter(line, delimiter, quoteSymbol);
-        grid.add(strCols);
-        if (grid.size() == limitRowCnt) {
-          break;
-        }
-      }
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (br != null) {
-        try {
-          br.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    }
-    return grid;
-  }
 
   public static List<String[]> loadGridLocalCsv(String targetUrl, String delimiter, int limitRowCnt, Configuration conf, List<String> colNames) {
 
@@ -252,27 +225,281 @@ public class Util {
     System.out.println("");
   }
 
-  public static String getJsonRuleString(Rule rule) {
-    String jsonRuleString = null;
+  public static String getJsonRuleString(String ruleString) throws CannotSerializeIntoJsonException {
+    String jsonRuleString;
 
-    try {
-      jsonRuleString = GlobalObjectMapper.getDefaultMapper().writeValueAsString(rule);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-    }
-
-      return jsonRuleString;
-    }
-
-  public static String parseRuleString(String ruleString) {
     if (ruleString.startsWith(CREATE_RULE_PREFIX)) {
-      return getCreateJsonRuleString(ruleString);
+      return Util.getCreateJsonRuleString(ruleString);
     }
 
     if (ruleVisitorParser == null) {
       ruleVisitorParser = new RuleVisitorParser();
     }
-    return getJsonRuleString(ruleVisitorParser.parse(ruleString));
+
+    Rule rule = ruleVisitorParser.parse(ruleString);
+
+    try {
+      jsonRuleString = GlobalObjectMapper.getDefaultMapper().writeValueAsString(rule);
+    } catch (JsonProcessingException e) {
+      throw new CannotSerializeIntoJsonException(e.getMessage());
+    }
+
+    return jsonRuleString;
+  }
+
+//  public static String argsToString(List<Object> args) {
+//    String result = "";
+//
+//    for (Object arg : args) {
+//      result += nodeToString((Map) arg) + ", ";
+//    }
+//
+//    if (result.length() < 2) {
+//      return result;
+//    }
+//
+//    return result.substring(0, result.length() - 2);
+//  }
+
+  public static String nodeToString(Object node) {
+    if (node instanceof Map) {
+      Map map = (Map) node;
+      Object op = map.get("op");
+      if (op != null) {
+        return String.format("%s %s %s", nodeToString(map.get("left")), op, nodeToString(map.get("right")));
+      }
+
+      Object name = map.get("name");
+      if (name != null) {
+        assert map.containsKey("args");
+//        List<Object> args = (List<Object>) map.get("args");
+        return String.format("%s(%s)", name, nodeToString(map.get("args")));
+      }
+
+      return map.get("value").toString();
+    }
+
+    if (node instanceof List) {
+      List list = (List) node;
+      String result = "";
+
+      for (Object elem : list) {
+        result += nodeToString(elem) + ", ";
+      }
+
+      return result.length() < 2 ? result : result.substring(0, result.length() - 2);
+    }
+
+    return node.toString();
+  }
+
+  private static String shortenColumnList(Object node) {
+    if (node instanceof List) {
+      List<Object> cols = (List<Object>) node;
+      if (cols.size() >= 3) {
+        return cols.size() + " columns";
+      }
+    }
+
+    return nodeToString(node);
+  }
+
+  public static String getShortRuleString(String jsonRuleString) {
+    Map<String, Object> mapRule = null;
+
+    try {
+      mapRule = (Map<String, Object>) GlobalObjectMapper.getDefaultMapper().readValue(jsonRuleString, Map.class);
+    } catch (IOException e) {
+      e.printStackTrace();
+      // suppressed. this is impossible because the input is just from a JSON writer.
+    }
+
+    String ruleCommand = (String) mapRule.get("name");
+    String shortRuleString;
+
+    switch (ruleCommand) {
+      case "create":
+        shortRuleString = CREATE_RULE_PREFIX + mapRule.get("with");
+        break;
+      case "header":
+        shortRuleString = String.format("Convert row %d to header", mapRule.get("rownum"));
+        break;
+      case "keep":
+        shortRuleString = "Keep rows where " + nodeToString(mapRule.get("row"));
+        break;
+      case "rename":
+        Object col = ((Map) mapRule.get("col")).get("value");
+        Object to = ((Map) mapRule.get("to")).get("value");
+        if (col instanceof List && ((List<Object>) col).size() >= 3) {
+          shortRuleString = String.format("Rename %s", shortenColumnList(col));
+        } else {
+          shortRuleString = String.format("Rename %s to %s", nodeToString(col), nodeToString(to));
+        }
+        break;
+      case "nest":
+        col = ((Map) mapRule.get("col")).get("value");
+        shortRuleString = String.format("Convert %s into %s", nodeToString(col), mapRule.get("into"));
+        break;
+      case "unnest":
+        shortRuleString = "Create new columns from " + mapRule.get("col");
+        break;
+      case "setformat":
+        col = ((Map) mapRule.get("col")).get("value");
+        shortRuleString = String.format("Set %s format to %s", shortenColumnList(col), mapRule.get("format"));
+        break;
+      case "derive":
+        shortRuleString = String.format("Create %s from %s", mapRule.get("as"), nodeToString(mapRule.get("value")));
+        break;
+      default:
+        shortRuleString = ruleCommand + " unknown";
+    }
+
+    return shortRuleString;
+
+//      case "setformat":
+//        let fomatStr: string;
+//        if ("string" === typeof rule.col.value) {
+//        fomatStr = "${column} type"
+//      } else if (rule.col.value.length === 2) {
+//        fomatStr = "${column} types";
+//      } else {
+//        fomatStr = column;
+//      }
+//      shortRuleString = "Set ${fomatStr} format to ${ rule.format }";
+//      break;
+//      case "settype":
+//
+//        let columnStr: string;
+//        if ("string" === typeof rule.col.value) {
+//        columnStr = "${column} type"
+//      } else if (rule.col.value.length === 2) {
+//        columnStr = "${column} types";
+//      } else {
+//        columnStr = column;
+//      }
+//
+//      shortRuleString = "Change ${columnStr} to ${ rule.type }";
+//
+//      break;
+//      case "delete":
+//        const deleteCondition = ruleString.split("row: ");
+//        shortRuleString = "Delete rows where ${deleteCondition[1]}";
+//      break;
+//      case "set":
+//        let rowString = ruleString.split("value: ");
+//        shortRuleString = "Set ${column} to ${rowString[1]}";
+//      break;
+//      case "split":
+//        shortRuleString = "Split ${rule.col} into ${rule.limit + 1 > 1 ? rule.limit + 1 + " columns" : rule.limit + 1 + " column"} on ${rule.on.value}";
+//      break;
+//      case "extract":
+//        shortRuleString = "Extract ${rule.on.value} ${rule.limit > 1 ? rule.limit + " times" : rule.limit + " time"} from ${rule.col}";
+//      break;
+//      case "flatten":
+//        shortRuleString = "Convert arrays in ${rule.col} to rows";
+//      break;
+//      case "countpattern":
+//        shortRuleString = "Count occurrences of ${rule.on.value} in ${column}";
+//      break;
+//      case "sort":
+//        if ("string" === typeof rule.order.value) {
+//        shortRuleString = "Sort row by ${rule.type && rule.type["escapedValue"] === "desc" ? "-" + rule.order.value : rule.order.value}";
+//        break;
+//      } else {
+//        shortRuleString = "Sort rows by ${rule.type && rule.type["escapedValue"] === "desc" ? "-" + rule.order.value.toString() : rule.order.value.toString()}";
+//        break;
+//      }
+//      case "replace":
+//        shortRuleString = "Replace ${rule.on.value} from ";
+//      if ("string" === typeof rule.col.value) {
+//        shortRuleString += "${rule.col.value} with ${rule.with["value"]}";
+//      } else if (rule.col.value.length === 2) {
+//        shortRuleString += "${rule.col.value.join(", ")} with ${rule.with["value"]}";
+//      } else {
+//        shortRuleString += column;
+//      }
+//      break;
+//      case "merge":
+//        shortRuleString = "Concatenate ${column} separated by ${rule.with}";
+//      break;
+//      case "aggregate":
+//        shortRuleString = "Aggregate with ${rule.value.escapedValue ? rule.value.escapedValue : rule.value.value.length + " functions"} grouped by ";
+//      if ("string" === typeof rule.group.value) {
+//        shortRuleString += "${rule.group.value}"
+//      } else if (rule.group.value.length === 2) {
+//        shortRuleString += "${rule.group.value.join(", ")}"
+//      } else {
+//        shortRuleString += "${rule.group.value.length} columns"
+//      }
+//      break;
+//      case "move":
+//        shortRuleString = "Move ${column}";
+//      shortRuleString += "${rule.before ? " before " + rule.before : " after " + rule.after }";
+//      break;
+//      case "Union":
+//      case "Join":
+//        shortRuleString = "${rule.command} with ";
+//
+//      let datasetIds = [];
+//      if (rule.dataset2.escapedValue) {
+//        datasetIds = [rule.dataset2.escapedValue]
+//      } else {
+//        rule.dataset2.value.forEach((item) => {
+//                datasetIds.push(item.substring(1, item.length - 1))
+//        })
+//      }
+//
+//      if (datasetIds.length === 1) {
+//        shortRuleString += "${this.selectedDataSet.gridResponse.slaveDsNameMap[datasetIds[0]]}";
+//      } else if (datasetIds.length === 2) {
+//        shortRuleString += "${this.selectedDataSet.gridResponse.slaveDsNameMap[datasetIds[0]]}, ${this.selectedDataSet.gridResponse.slaveDsNameMap[datasetIds[1]]}";
+//      } else {
+//        shortRuleString += "${datasetIds.length} datasets";
+//      }
+//
+//      break;
+//      case "derive":
+//        let deriveCondition = ruleString.split("value: ");
+//        deriveCondition = deriveCondition[1].split(" as: ");
+//        shortRuleString = "Create ${rule.as} from ${deriveCondition[0]}";
+//      break;
+//      case "pivot":
+//        let formula = "";
+//        if (rule.value.escapedValue) {
+//          formula = rule.value.escapedValue
+//        } else {
+//          let list = [];
+//          rule.value.value.forEach((item) => {
+//                  list.push(item.substring(1, item.length - 1));
+//          });
+//          formula = list.toString();
+//        }
+//        shortRuleString = "Pivot ${column} and compute ${formula} grouped by";
+//
+//      if ("string" === typeof rule.group.value || rule.group.value.length === 2) {
+//        shortRuleString += " ${rule.group.value}";
+//      } else {
+//        shortRuleString += " ${rule.group.value.length} columns";
+//      }
+//      break;
+//      case "unpivot":
+//        shortRuleString = "Convert ";
+//        if ("string" === typeof rule.col.value) {
+//        shortRuleString += "${rule.col.value} into row";
+//      } else if (rule.col.value.length > 1) {
+//        shortRuleString += "${column} into rows";
+//      }
+//      break;
+//      case "drop":
+//        shortRuleString = "Drop ${column}";
+//      break;
+//      default:
+//        shortRuleString = "";
+//        break;
+//
+//    }
+//
+//    return jsonRuleString;
   }
 
   private static final String CREATE_RULE_PREFIX = "create with: ";

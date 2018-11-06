@@ -18,6 +18,7 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformRule;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformRuleStringinfo;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransition;
@@ -488,7 +489,7 @@ public class PrepDataset extends AbstractHistoryEntity {
         return dataflowCount;
     }
 
-    public List<PrepTransformRuleStringinfo> getRuleStringInfos() {
+    public List<PrepTransformRuleStringinfo> getRuleStringInfos() throws CannotSerializeIntoJsonException {
         List<PrepTransformRuleStringinfo> ruleStringinfos = Lists.newArrayList();
         if(this.transformRules!=null && 0<this.transformRules.size()) {
             for (PrepTransformRule transformRule : this.transformRules) {
@@ -497,6 +498,7 @@ public class PrepDataset extends AbstractHistoryEntity {
                 ruleStringinfo.setValid(transformRule.isValid());
                 ruleStringinfo.setRuleNo(transformRule.getRuleNo());
                 ruleStringinfo.setJsonRuleString(transformRule.getJsonRuleString());
+                ruleStringinfo.setShortRuleString(transformRule.getShortRuleString());
                 ruleStringinfos.add(ruleStringinfo.getRuleNo(),ruleStringinfo);
                 //ruleStringinfos.add(ruleStringinfo);
             }

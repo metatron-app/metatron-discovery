@@ -23,6 +23,7 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.rule.ExprFunction;
 import app.metatron.discovery.domain.dataprep.rule.ExprFunctionCategory;
 import app.metatron.discovery.domain.dataprep.teddy.*;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
@@ -224,7 +225,7 @@ public class PrepTransformService {
   }
 
   // skips the last rule for UPDATE purpose
-  public List<String> getUpstreamDsIds(String dsId, boolean forUpdate) throws IOException {
+  public List<String> getUpstreamDsIds(String dsId, boolean forUpdate) throws IOException, CannotSerializeIntoJsonException {
     List<String> upstreamDsIds = new ArrayList<>();
 
     String firstUpstreamDsId = getFirstUpstreamDsId(dsId);
@@ -247,7 +248,7 @@ public class PrepTransformService {
     return upstreamDsIds;
   }
 
-  public List<String> getUpstreamDsIds(String dsId) throws IOException {
+  public List<String> getUpstreamDsIds(String dsId) throws IOException, CannotSerializeIntoJsonException {
     return getUpstreamDsIds(dsId, false);
   }
 
@@ -502,7 +503,7 @@ public class PrepTransformService {
       if (ruleString.contains(oldDsId)) {
         String newRuleString = ruleString.replace(oldDsId, newDsId);
         rule.setRuleString(newRuleString);
-        rule.setJsonRuleString(Util.parseRuleString(rule.getRuleString()));
+        rule.setJsonRuleString(Util.getJsonRuleString(rule.getRuleString()));
 
         // un-cache to be reloaded
         teddyImpl.remove(rule.getDataset().getDsId());
@@ -577,7 +578,7 @@ public class PrepTransformService {
       ruleStrings.add(ruleString);
 
       // gather slave datasets (load and apply, too)
-      List<String> targetDsIds = getTargetDsIds(Util.parseRuleString(ruleString));
+      List<String> targetDsIds = getTargetDsIds(Util.getJsonRuleString(ruleString));
 
       for (String targetDsId : targetDsIds) {
         load_internal(targetDsId);
@@ -672,7 +673,7 @@ public class PrepTransformService {
 
     // join이나 union의 경우, 대상 dataset들도 loading
     if (ruleString != null) {
-      for (String targetDsId : getTargetDsIds(Util.parseRuleString(ruleString))) {
+      for (String targetDsId : getTargetDsIds(Util.getJsonRuleString(ruleString))) {
         if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
           load_internal(targetDsId);
         }
@@ -749,7 +750,7 @@ public class PrepTransformService {
     return response;
   }
 
-  private void updateTransformRules(String dsId) {
+  private void updateTransformRules(String dsId) throws CannotSerializeIntoJsonException {
     for (PrepTransformRule rule : getRulesInOrder(dsId)) {
       transformRuleRepository.delete(rule);
     }
@@ -870,7 +871,7 @@ public class PrepTransformService {
   }
 
   // this includes IMPORTED datasets
-  private Map<String, Object> buildDatasetInfoRecursive(String wrangledDsId) throws IOException {
+  private Map<String, Object> buildDatasetInfoRecursive(String wrangledDsId) throws IOException, CannotSerializeIntoJsonException {
     // {"origTeddyDsId": "MASTER-TEDDY-DSID",
     //  "importType": "HIVE",
     //  "sourceQuery": "select * from t",
@@ -950,7 +951,7 @@ public class PrepTransformService {
     return datasetInfo;
   }
 
-  private String getJsonDatasetInfo(String wrangledDsId) throws IOException {
+  private String getJsonDatasetInfo(String wrangledDsId) throws IOException, CannotSerializeIntoJsonException {
     Map<String, Object> datasetInfo = buildDatasetInfoRecursive(wrangledDsId);
     return GlobalObjectMapper.getDefaultMapper().writeValueAsString(datasetInfo);
   }
@@ -1002,7 +1003,7 @@ public class PrepTransformService {
     return "RUNNING";
   }
 
-  private void checkHiveNamingRule(String dsId) throws IOException {
+  private void checkHiveNamingRule(String dsId) throws IOException, CannotSerializeIntoJsonException {
     try {
       teddyImpl.checkNonAlphaNumericalColNames(dsId);
     } catch (IllegalColumnNameForHiveException e) {
@@ -1169,7 +1170,6 @@ public class PrepTransformService {
 
     for (PrepTransformRule rule : transformRuleRepository.findAllByOrderByRuleNoAsc()) {
       if (rule.getDataset().getDsId().equals(dsId)) {
-        rule.setJsonRuleString(Util.parseRuleString(rule.getRuleString()));
         rules.add(rule);
       }
     }
@@ -1187,7 +1187,7 @@ public class PrepTransformService {
     return null;
   }
 
-  private boolean onlyAppend(String dsId) {
+  private boolean onlyAppend(String dsId) throws JsonProcessingException {
     List<PrepTransformRule> transformRules = getRulesInOrder(dsId);
     teddyImpl.reset(dsId);
 
