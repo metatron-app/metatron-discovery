@@ -1053,14 +1053,6 @@
                   <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
                   <div class="ddp-list-sub2">
                     <div [ngClass]="{'ddp-wrap-disabled' : 'MEASURE' == uiOption.layers[0].color.by.toString() && uiOption.layers[0].color['customMode']}">
-                      <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[0]">
-                        <!-- SELECTBOX -->
-                        <component-select
-                          [array]="uiOption.measureList[0]"
-                          [defaultIndex]="uiOption.measureList[0] && uiOption.measureList[0].indexOf(uiOption.layers[0].color['column'])"
-                          (onSelected)="changeColorColumn($event)"
-                        ></component-select>
-                      </div>
                       <div class="ddp-divide2">
                         <div class="ddp-ui-colorby">
 
