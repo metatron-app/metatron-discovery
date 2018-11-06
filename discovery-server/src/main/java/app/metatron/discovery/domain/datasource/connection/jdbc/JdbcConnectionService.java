@@ -549,8 +549,8 @@ public class JdbcConnectionService {
           || connection instanceof HiveConnection) {
         schema = schema == null ? connection.getDatabase() : schema;
         resultSet = conn.getMetaData().getTables(schema,
-                                                                       schema, null, RESULTSET_TABLE_TYPES);
-      } else if(connection instanceof PrestoConnection){
+                                                 schema, null, RESULTSET_TABLE_TYPES);
+      } else if (connection instanceof PrestoConnection) {
         resultSet = conn.getMetaData().getTables(connection.getDatabase(), schema, null, RESULTSET_TABLE_TYPES_PRESTO);
       } else {
         resultSet = conn.getMetaData().getTables(connection.getDatabase(), schema, null, RESULTSET_TABLE_TYPES);
@@ -901,7 +901,7 @@ public class JdbcConnectionService {
                                                          int limit,
                                                          boolean extractColumnName) {
     return selectQueryForIngestion(connection, getDataSource(connection, true),
-            schema, type, query, limit, extractColumnName);
+                                   schema, type, query, limit, extractColumnName);
   }
 
   public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
@@ -1032,7 +1032,7 @@ public class JdbcConnectionService {
 
         if (Field.COLUMN_NAME_CURRENT_DATETIME.equals(field.getName()) && field.getRole() == Field.FieldRole.TIMESTAMP) {
           nativeProjection.addProjection(new NativeCurrentDatetimeExp(fieldName));
-        } else if (StringUtils.isEmpty(field.getFormat()) &&
+        } else if (StringUtils.isEmpty(field.getTimeFormat()) &&
             (field.getRole() == Field.FieldRole.TIMESTAMP ||
                 (field.getRole() == Field.FieldRole.DIMENSION && field.getType() == DataType.TIMESTAMP))) {
           nativeProjection.addProjection(new NativeDateFormatExp(fieldName, null));
@@ -1108,7 +1108,8 @@ public class JdbcConnectionService {
     LOGGER.info("Generated SQL Query: {}", queryString);
 
     // 쿼리 결과 저장
-    String tempFileName = getTempFileName(baseDir, dataSourceName + "_" + System.currentTimeMillis());
+    String tempFileName = getTempFileName(baseDir, EngineProperties.TEMP_CSV_PREFIX + "_"
+            + dataSourceName + "_" + System.currentTimeMillis());
     JdbcCSVWriter jdbcCSVWriter = null;
     try {
       jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempFileName), CsvPreference.STANDARD_PREFERENCE);
@@ -1204,7 +1205,7 @@ public class JdbcConnectionService {
   }
 
   private String getTempFileName(String baseDir, String fileName) {
-    if(StringUtils.isEmpty(baseDir)) {
+    if (StringUtils.isEmpty(baseDir)) {
       baseDir = engineProperties.getIngestion().getLocalBaseDir();
     }
 
@@ -1324,7 +1325,7 @@ public class JdbcConnectionService {
    * Remove table name
    */
   private String extractColumnName(String name) {
-    if(StringUtils.contains(name, ".")){
+    if (StringUtils.contains(name, ".")) {
       return StringUtils.substring(name, StringUtils.lastIndexOf(name, ".") + 1, name.length());
     }
     return name;
@@ -1607,8 +1608,8 @@ public class JdbcConnectionService {
     String password;
     if (connection.getAuthenticationType() == DataConnection.AuthenticationType.USERINFO) {
       username = StringUtils.isEmpty(connection.getUsername())
-              ? AuthUtils.getAuthUserName()
-              : connection.getUsername();
+          ? AuthUtils.getAuthUserName()
+          : connection.getUsername();
 
       User user = cachedUserService.findUser(username);
       if (user == null) {
@@ -1654,17 +1655,15 @@ public class JdbcConnectionService {
     JdbcUtils.closeConnection(connection);
   }
 
-  public int writeResultSetToCSV(ResultSet resultSet, String tempCsvFilePath){
+  public int writeResultSetToCSV(ResultSet resultSet, String tempCsvFilePath) throws SQLException{
     JdbcCSVWriter jdbcCSVWriter = null;
     int rowNumber = 0;
     try {
       jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempCsvFilePath), CsvPreference.STANDARD_PREFERENCE);
-      jdbcCSVWriter.write(resultSet);
+      jdbcCSVWriter.write(resultSet, false);
       rowNumber = jdbcCSVWriter.getRowNumber();
-    } catch (SQLException e) {
-      e.printStackTrace();
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("writeResultSetToCSV error", e);
     } finally {
       try{
         if(jdbcCSVWriter != null)

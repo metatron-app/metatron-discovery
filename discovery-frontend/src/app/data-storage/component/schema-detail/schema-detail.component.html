@@ -115,9 +115,8 @@
             <!-- //edit -->
 
             <!-- Time display format -->
-            <div class="ddp-wrap-edit3" *ngIf="column.logicalType === 'TIMESTAMP'">
-
-              <label class="ddp-ui-label-name">
+            <div class="ddp-wrap-edit3"  *ngIf="column.logicalType.toString() === 'TIMESTAMP'">
+              <div class="ddp-ui-label-name">
                 {{'msg.storage.ui.time.display.format' | translate}}
                 <div class="ddp-wrap-hover-info" (mouseenter)="hoverEvent('time')">
                   <em class="ddp-icon-info3"></em>
@@ -154,7 +153,7 @@
                       </dl>
                       <dl class="ddp-dl-det">
                         <dt>
-                          hh
+                          HH
                         </dt>
                         <dd>
                           <em>=</em> {{'msg.storage.ui.th.four-digit-hour' | translate}}<br />
@@ -181,7 +180,7 @@
                       </dl>
                       <dl class="ddp-dl-det">
                         <dt>
-                          s
+                          S
                         </dt>
                         <dd>
                           <em>=</em> {{'msg.storage.ui.th.one-more-digit' | translate}} <br />
@@ -202,22 +201,35 @@
                   </div>
                   <!-- //popup -->
                 </div>
-              </label>
+                <div class="ddp-type-format ddp-fright" (click)="onClickUnixCode($event)">
+                  <label class="ddp-label-checkbox">
+                    <input type="checkbox" [checked]="column.format?.type?.toString() === 'time_unix'">
+                    <i class="ddp-icon-checkbox"></i>
+                    <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable.unix' | translate}}</span>
+                  </label>
+                </div>
+              </div>
 
               <!-- edit format -->
               <div class="ddp-ui-option-in">
-                <div class="ddp-data-time ddp-apply ddp-clear">
-                  <div class="ddp-col-12 ddp-apply">
-                    <input type="text" class="ddp-input-typebasic" placeholder="yyyy-MM-dd HH:mm" id="calen2"
-                           [(ngModel)]="column.format"
-                           (ngModelChange)="timeFormatKeyup()">
-                    <a href="javascript:" class="ddp-btn-line-s" (click)="timeFormatClick()">{{'msg.storage.btn.apply' | translate}}</a>
-                    <div class="ddp-ui-error" *ngIf="column.errorFl">
-                      <em class="ddp-icon-error"></em>{{getTimeFormatErrorMsg()}}
-                    </div>
-                  </div>
-
+                <div class="ddp-input-apply" *ngIf="column.format?.type?.toString() === 'time_format'">
+                  <input type="text" class="ddp-input-txt" placeholder="{{'msg.storage.ph.time.format' | translate}}"
+                         [(ngModel)]="column.format.format"
+                         (ngModelChange)="initTimeFormatValid(column)">
+                  <em class="ddp-icon-apply" (click)="onClickTimeFormatValidation(column)"></em>
                 </div>
+                <div class="ddp-ui-error ddp-italic" *ngIf="column.isValidTimeFormat === false">
+                  <em class="ddp-icon-error"></em>{{column.timeFormatValidMessage}}
+                </div>
+                <ul class="ddp-list-checktype" *ngIf="column.format?.type?.toString() === 'time_unix'">
+                  <li *ngFor="let unit of formatUnitList">
+                    <label class="ddp-label-radio" (change)="onChangeFormatUnit(unit)">
+                      <input type="radio" [checked]="column.format.unit === unit.value">
+                      <i class="ddp-icon-radio"></i>
+                      <span class="ddp-txt-radio">{{unit.label}}</span>
+                    </label>
+                  </li>
+                </ul>
               </div>
               <!-- //edit format -->
             </div>
@@ -240,13 +252,21 @@
                         <i class="ddp-icon-radio"></i>
                         <span class="ddp-txt-radio">{{'msg.storage.ui.replace.with' | translate}}</span>
                       </label>
-                      <input type="text" class="ddp-input-typebasic" placeholder="{{getDefaultValue(column.logicalType)}}"
-                             [(ngModel)]="column['ingestionRule'].value"
-                             (keyup)="ingestionRuleValidation(column.logicalType)">
+                      <!-- input type -->
+                      <div class="ddp-type-input">
+                        <div class="ddp-input-apply" [class.ddp-disabled]="column.ingestionRule.type !== 'replace'">
+                          <input type="text" class="ddp-input-txt" placeholder="{{getDefaultValue(column.logicalType)}}"
+                                 [(ngModel)]="column['ingestionRule'].value"
+                                 (ngModelChange)="initReplaceValid(column)">
+                          <em class="ddp-icon-apply"
+                              (click)="ingestionRuleValidation(column)"></em>
+                        </div>
+                      </div>
+                      <!-- //input type -->
                     </div>
                     <!-- error -->
-                    <div class="ddp-ui-error" *ngIf="column.ingestionRule.type === 'replace' && this.column.replaceFl === false">
-                      <em class="ddp-icon-error"></em>{{getValidationMsg(column.logicalType)}}
+                    <div class="ddp-ui-error" *ngIf="column.ingestionRule.type === 'replace' && column.isValidReplaceValue === false">
+                      <em class="ddp-icon-error"></em>{{column.replaceValidMessage}}
                     </div>
                     <!-- //error -->
                   </li>

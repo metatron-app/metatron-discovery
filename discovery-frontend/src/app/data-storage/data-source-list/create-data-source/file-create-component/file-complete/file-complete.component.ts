@@ -17,7 +17,7 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, FieldFormatType } from '../../../../../domain/datasource/datasource';
 import { Alert } from '../../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { CommonUtil } from '../../../../../common/util/common.util';
@@ -25,6 +25,7 @@ import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../../../common/domain/modal';
+import { CookieConstant } from '../../../../../common/constant/cookie.constant';
 
 /**
  * Creating datasource with File - complete step
@@ -219,13 +220,26 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     // create datasource
     this.datasourceService.createDatasource(this._getCreateDatasourceParams())
       .then((result) => {
-        // loading hide
-        this.loadingHide();
         // complete alert
         Alert.success(`'${this.datasourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
-        // close
-        this.step = '';
-        this.fileComplete.emit(this.step);
+        // 개인 워크스페이스
+        const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+        // 워크스페이스 매핑
+        this.datasourceService.addDatasourceWorkspaces(result.id, [workspace['id']])
+          .then(() => {
+            // loading hide
+            this.loadingHide();
+            // close
+            this.step = '';
+            this.fileComplete.emit(this.step);
+          })
+          .catch(() => {
+            // loading hide
+            this.loadingHide();
+            // close
+            this.step = '';
+            this.fileComplete.emit(this.step);
+          });
       })
       .catch((error) => {
         // loading hide
@@ -255,7 +269,10 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       name: 'current_datetime',
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
-      format: 'yyyy-MM-dd HH:mm:ss',
+      format: {
+        type: FieldFormatType.DATE_TIME,
+        format: 'yyyy-MM-dd HH:mm:ss'
+      }
     };
   }
 
@@ -271,6 +288,17 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
     if (column.removed === false) {
       delete column.removed;
     }
+    // delete used UI
+    delete column.isValidTimeFormat;
+    delete column.isValidReplaceValue;
+    if (column.logicalType !== 'TIMESTAMP' && column.format) {
+      delete column.format;
+    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
+      delete column.format.format;
+    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
+      delete column.format.unit;
+    }
+
   }
 
   /**

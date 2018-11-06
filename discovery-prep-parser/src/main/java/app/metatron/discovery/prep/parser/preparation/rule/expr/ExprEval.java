@@ -172,7 +172,12 @@ public class ExprEval extends Pair<Object, ExprType>
   }
 
   public long asLong() {
-    return isNull() ? 0L : lhs instanceof Number ? ((Number) lhs).longValue() : Long.valueOf(asString());
+    if(isNull())
+      return 0L;
+    if(lhs instanceof Boolean)
+      return ((Boolean) lhs) ? 1L : 0L;
+
+    return lhs instanceof Number ? ((Number) lhs).longValue() : Long.valueOf(asString());
   }
 
   public int asInt() {

@@ -61,6 +61,24 @@ public class DataFrame implements Serializable, Transformable {
   @JsonIgnore
   public List<String> ruleColumns;
 
+  public boolean valid;
+
+  // copy the references to all members (to avoid deep copy, but make a non-identical object)
+  public DataFrame(DataFrame df) {
+    colCnt             = df.colCnt;
+    colNames           = df.colNames;
+    colDescs           = df.colDescs;
+    colHists           = df.colHists;
+    rows               = df.rows;
+    mapColno           = df.mapColno;
+    newColNames        = df.newColNames;
+    interestedColNames = df.interestedColNames;
+    dsName             = df.dsName;
+    slaveDsNameMap     = df.slaveDsNameMap;
+    ruleString         = df.ruleString;
+    ruleColumns        = df.ruleColumns;
+    valid              = df.valid;
+  }
 
   // Constructor
   public DataFrame() {
@@ -80,6 +98,7 @@ public class DataFrame implements Serializable, Transformable {
     ruleString = "ORIGINAL";
 
     ruleColumns = new ArrayList<>();
+    valid = true;
   }
 
   public DataFrame(String dsName) {
@@ -98,6 +117,14 @@ public class DataFrame implements Serializable, Transformable {
 
   public String getRuleString() {
     return ruleString;
+  }
+
+  public boolean isValid() {
+    return valid;
+  }
+
+  public void setValid(boolean valid) {
+    this.valid = valid;
   }
 
   public static DataFrame getNewDf(Rule rule, String dsName, String ruleString) {
@@ -667,6 +694,14 @@ public class DataFrame implements Serializable, Transformable {
           assertArgsBw(2, 3, args, func);
           break;
         case "contains":
+          resultType = ColumnType.BOOLEAN;
+          assertArgsEq(2, args, func);
+          break;
+        case "startswith":
+          resultType = ColumnType.BOOLEAN;
+          assertArgsEq(2, args, func);
+          break;
+        case "endswith":
           resultType = ColumnType.BOOLEAN;
           assertArgsEq(2, args, func);
           break;
@@ -1299,7 +1334,7 @@ public class DataFrame implements Serializable, Transformable {
 
     for (int rowno = offset; rowno < offset + length; rowno++) {
       try {
-        if (((Expr) condExpr).eval(prevDf.rows.get(rowno)).longValue() == ((keep) ? 1 : 0)) {
+        if (((Expr) condExpr).eval(prevDf.rows.get(rowno)).asLong() == ((keep) ? 1 : 0)) {
           rows.add(prevDf.rows.get(rowno));
         }
       } catch (Exception e) {

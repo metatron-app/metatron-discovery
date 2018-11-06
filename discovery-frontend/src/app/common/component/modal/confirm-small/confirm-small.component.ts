@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractComponent } from '../../abstract.component';
 import { Modal } from '../../../domain/modal';
 
@@ -38,6 +38,9 @@ export class ConfirmSmallComponent extends AbstractComponent implements OnInit, 
 
   // 변경 이벤트
   @Output() public confirm =  new EventEmitter();
+
+  @Input()
+  public useCancelBtn: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -82,7 +85,7 @@ export class ConfirmSmallComponent extends AbstractComponent implements OnInit, 
   // 확인
   public done() {
     this.isShow = false;
-    this.confirm.emit(this.modal);
+    this.confirm.emit(this.modal.data);
   }
 
   // close

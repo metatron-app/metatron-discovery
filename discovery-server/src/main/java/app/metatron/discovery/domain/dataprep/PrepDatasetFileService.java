@@ -25,6 +25,7 @@ import app.metatron.discovery.domain.dataprep.teddy.Util;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.util.ExcelProcessor;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.monitorjbl.xlsx.StreamingReader;
@@ -32,6 +33,10 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.input.BOMInputStream;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.ContentSummary;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
@@ -45,10 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Future;
 
 @Service
@@ -63,6 +65,9 @@ public class PrepDatasetFileService {
 
     @Autowired
     PrepDatasetFileUploadService fileUploadService;
+
+    @Autowired
+    PrepHdfsService hdfsService;
 
     Map<String, Future<Map<String,Object>>> futures = null;
 
@@ -225,11 +230,11 @@ public class PrepDatasetFileService {
         return ColumnType.STRING;
     }
 
-    private Field makeFieldFromCSV(int idx, String fieldKey, String str){
+    private Field makeFieldFromCSV(int idx, String fieldKey, ColumnType columnType){
         DataType fieldType;
         Field.FieldRole fieldBIType;
 
-        switch (getTypeFormString(str)) {
+        switch (columnType) {
             case BOOLEAN:
                 fieldType = DataType.BOOLEAN;
                 fieldBIType = Field.FieldRole.DIMENSION;
@@ -339,7 +344,7 @@ public class PrepDatasetFileService {
                                 f = fields.get(cellIdx);
                             }
                             if(f==null) {
-                                f = makeFieldFromCSV(cellIdx, prefixColumnName + String.valueOf(cellIdx+1), "STRING");
+                                f = makeFieldFromCSV(cellIdx, prefixColumnName + String.valueOf(cellIdx+1), ColumnType.STRING);
                                 fields.add(cellIdx, f);
                             }
 
@@ -381,42 +386,89 @@ public class PrepDatasetFileService {
                 } else if ( "csv".equals(extensionType) ) {
                     BufferedReader br = null;
                     String line;
-                    String[] csv_fields;
+                    String[] csvFields;
+                    List<ColumnType> fieldsTypes = new ArrayList<>();
+                    List<List<ColumnType>> gussedTypesByRows = Lists.newArrayList();
                     int maxColLength = 0;
+
                     try {
                         br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
 
-                        //0번 라인의 Type 검사. String이 아닌 컬럼이 1개라도 있으면 header로 인정하지 않음.
+                        //Check types of row number 0. If all column types are string, it might be filed name.
                         hasFields=true;
                         line = br.readLine();
-                        csv_fields = Util.csvLineSplitter(line, delimiterCol, "\"");
-                        for(String str : csv_fields) {
+                        csvFields = Util.csvLineSplitter(line, delimiterCol, "\"");
+                        for(String str : csvFields) {
                             if(!getTypeFormString(str).equals(ColumnType.STRING)) {
                                 hasFields = false;
                                 break;
                             }
                         }
+                        //Check type of row number 1 to 100.
+                        int rowNo = 0;
+                        while((line = br.readLine())!=null && rowNo <100) {
+                            List<ColumnType> guessedTypes = new ArrayList<>();
+                            String[] csvColumns = Util.csvLineSplitter(line, delimiterCol, "\"");
+                            maxColLength = maxColLength < csvColumns.length ? csvColumns.length : maxColLength;
 
+                            for (String str : csvColumns) {
+                                guessedTypes.add(getTypeFormString(str));
+                            }
+
+                            gussedTypesByRows.add(guessedTypes);
+                            rowNo++;
+                        }
+
+                        ColumnType[] columnTypes = {ColumnType.BOOLEAN, ColumnType.LONG, ColumnType.DOUBLE, ColumnType.TIMESTAMP, ColumnType.STRING};
+
+                        for(int i = 0; i < maxColLength; i++) {
+                            int[] typeCount = new int[5];
+
+                            for(List<ColumnType> types : gussedTypesByRows) {
+                                ColumnType type = types.get(i) != null ? types.get(i) : ColumnType.STRING;
+                                switch (type) {
+                                    case BOOLEAN:
+                                        typeCount[0]++;
+                                        break;
+                                    case LONG:
+                                        typeCount[1]++;
+                                        break;
+                                    case DOUBLE:
+                                        typeCount[2]++;
+                                        break;
+                                    case TIMESTAMP:
+                                        typeCount[3]++;
+                                        break;
+                                    default:
+                                        typeCount[4]++;
+                                }
+                            }
+
+                            int j = 1;
+                            int index=0;
+                            while(j < 5) {
+                                index = typeCount[index] > typeCount[j] ? index : j;
+                                j++;
+                            }
+
+                            fieldsTypes.add(columnTypes[index]);
+                        }
+
+                        maxColLength =0;
                         if(hasFields) {
-                            //1번 라인의 type검사. String이 아닌 컬럼이 1개라도 있어야 0번 라인은 header로 인정.
-                            hasFields =false;
-                            line = br.readLine();
-                            String[] csv_fields2 = Util.csvLineSplitter(line, delimiterCol, "\"");
-                            for(String str : csv_fields2) {
-                                if(!getTypeFormString(str).equals(ColumnType.STRING)) {
-                                    hasFields = true;
+                            //포인터를 1번 라인에 맞춰줌.
+                            br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+
+                            hasFields = false;
+                            for(ColumnType columnType : fieldsTypes) {
+                                if(columnType != ColumnType.STRING) {
+                                    br.readLine();
+                                    maxColLength = csvFields.length;
+                                    hasFields=true;
                                     break;
                                 }
                             }
 
-                            if(hasFields) {
-                                //포인터를 1번 라인에 맞춰줌.
-                                br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                                br.readLine();
-                                maxColLength = csv_fields.length;
-                            } else {
-                                br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-                            }
                         } else {
                             br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
                         }
@@ -429,14 +481,14 @@ public class PrepDatasetFileService {
 
                             if(!hasFields && maxColLength<cols.length) {
                                 maxColLength = cols.length;
-                                csv_fields = new String[cols.length];
+                                csvFields = new String[cols.length];
                                 for(int i=0; i<cols.length; i++){
-                                    csv_fields[i]=prefixColumnName+String.valueOf(i+1);
+                                    csvFields[i]=prefixColumnName+String.valueOf(i+1);
                                 }
                             }
                             Map<String,String> result = Maps.newTreeMap();
                             for(int colIdx=0;colIdx<cols.length;colIdx++) {
-                                result.put(csv_fields[colIdx],cols[colIdx]);
+                                result.put(csvFields[colIdx],cols[colIdx]);
                             }
                             resultSet.add(result);
 
@@ -444,8 +496,7 @@ public class PrepDatasetFileService {
                         }
 
                         for (int colIdx = 0; colIdx < maxColLength; colIdx++) {
-                            String field = csv_fields[colIdx];
-                            fields.add(makeFieldFromCSV(colIdx, field, resultSet.get(0).get(field)));
+                            fields.add(makeFieldFromCSV(colIdx, csvFields[colIdx], fieldsTypes.get(colIdx)));
                         }
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -485,7 +536,7 @@ public class PrepDatasetFileService {
         return responseMap;
     }
 
-    DataFrame getPreviewLinesFromFileForDataFrame( PrepDataset dataset, String fileKey, String sheetindex, String size) {
+    DataFrame getPreviewLinesFromFileForDataFrame( PrepDataset dataset, String fileKey, String sheetindex, String size) throws IOException {
         DataFrame dataFrame = new DataFrame();
 
         try {
@@ -493,23 +544,43 @@ public class PrepDatasetFileService {
                 throw PrepException.create(PrepErrorCodes.PREP_DATAFLOW_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET);
             }
 
-            String filePath = fileKey;
+            long totalBytes = 0L;
+            InputStreamReader inputStreamReader = null;
+            String filePath = dataset.getCustomValue("filePath");
             PrepDataset.FILE_TYPE fileType = dataset.getFileTypeEnum();
-            if(fileType == PrepDataset.FILE_TYPE.LOCAL || fileType==PrepDataset.FILE_TYPE.HDFS) {
-                filePath = getPathLocal_new( fileKey );
+            if(fileType == PrepDataset.FILE_TYPE.LOCAL ) {
+                if(null==filePath) {
+                    filePath = getPathLocal_new(fileKey);
+                }
+
+                File theFile = new File(filePath);
+                if(false==theFile.exists()) {
+                    throw new IllegalArgumentException("Invalid filekey.");
+                }
+                totalBytes = theFile.length();
+                inputStreamReader = new InputStreamReader(new FileInputStream(theFile));
+            } else if(fileType==PrepDataset.FILE_TYPE.HDFS) {
+                Configuration conf = this.hdfsService.getConf();
+                FileSystem fs = FileSystem.get(conf);
+                Path thePath = new Path(filePath);
+
+                if( false==fs.exists(thePath) ) {
+                    throw new IllegalArgumentException("Invalid filekey.");
+                }
+                ContentSummary cSummary = fs.getContentSummary(thePath);
+                totalBytes = cSummary.getLength();
+                inputStreamReader = new InputStreamReader(fs.open(thePath));
             }
+
             String extensionType = FilenameUtils.getExtension(fileKey);
             int findSheetIndex = Integer.parseInt(sheetindex);
             int limitSize = Integer.parseInt(size);
-            long totalBytes = 0L;
             int totalRows = 0;
             int dataFrameRows = 0;
 
-            File theFile = new File(filePath);
-            if(false==theFile.exists()) {
-                throw new IllegalArgumentException("Invalid filekey.");
+            if(null==inputStreamReader) {
+                throw new IllegalArgumentException("failed to open file stream: ["+fileKey+"]");
             } else {
-                totalBytes = theFile.length();
 
                 List<Map<String, String>> resultSet = Lists.newArrayList();
 
@@ -521,8 +592,11 @@ public class PrepDatasetFileService {
                     int maxColLength=0;
                     String delimiterCol = dataset.getDelimiter();
                     try {
-                        br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+                        //br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
+                        br = new BufferedReader(inputStreamReader);
 
+                        /*
+                        // hasFields 사용안함
                         hasFields=true;
                         line = br.readLine();
                         csv_fields = Util.csvLineSplitter(line, delimiterCol, "\"");
@@ -556,6 +630,7 @@ public class PrepDatasetFileService {
                         } else {
                             br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
                         }
+                        */
 
                         while ((line = br.readLine()) != null) {
                             if(limitSize <= totalRows) {
@@ -564,7 +639,8 @@ public class PrepDatasetFileService {
                             }
                             String[] cols = Util.csvLineSplitter(line, delimiterCol, "\"");
 
-                            if(!hasFields && maxColLength<cols.length) {
+                            //if(!hasFields && maxColLength<cols.length) {
+                            if(maxColLength<cols.length) {
                                 maxColLength = cols.length;
                                 csv_fields = new String[cols.length];
                                 for(int i=0; i<cols.length; i++){

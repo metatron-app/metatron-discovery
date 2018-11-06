@@ -59,7 +59,7 @@ export class EditFilterDataSourceComponent extends AbstractComponent implements 
     { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
     { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true },
     { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
-    { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
+    { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
     { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
     { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
   ];

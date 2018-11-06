@@ -91,16 +91,16 @@ public class TimeListFilter extends TimeFilter {
 
   @Override
   public String getExpression(String columnName, Field datasourceField) {
-    if(CollectionUtils.isEmpty(valueList)) {
+    if (CollectionUtils.isEmpty(valueList)) {
       return null;
     }
 
     String field = null;
-    if(datasourceField.getRole() == TIMESTAMP) {
+    if (datasourceField.getRole() == TIMESTAMP) {
       field = "__time";
     } else {
       DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(columnName,
-                                                             datasourceField.getFormat(),
+                                                             datasourceField.getTimeFormat(),
                                                              null, null);
       field = millisFunc.toExpression();
     }

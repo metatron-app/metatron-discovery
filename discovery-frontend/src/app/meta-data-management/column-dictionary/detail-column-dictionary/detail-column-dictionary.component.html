@@ -485,7 +485,7 @@
                  (clickOutside)="timeFormatEditFl = false">
               <!-- data -->
               <span class="ddp-data-name" (click)="onChangeTimeFormatMode()">
-              {{columnDictionary.format}}
+              {{(columnDictionary.format && columnDictionary.format.hasOwnProperty('format')) ? columnDictionary.format.format : columnDictionary.format}}
               <em class="ddp-icon-edit2"></em>
             </span>
               <!-- //data -->

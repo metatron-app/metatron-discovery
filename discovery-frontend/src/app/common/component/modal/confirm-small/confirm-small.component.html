@@ -24,9 +24,13 @@
         {{modal.description}} <br *ngIf="modal.description" /> {{modal.subDescription}}
       </div>
       <!-- buttons -->
-      <div class="ddp-ui-buttons2">
+      <div class="ddp-ui-buttons2" *ngIf="!useCancelBtn">
         <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black"
            (click)="done()">{{'msg.comm.btn.close' | translate}}</a>
+      </div>
+      <div class="ddp-ui-buttons2" *ngIf="useCancelBtn">
+        <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{modal.btnCancel || ('msg.comm.btn.cancl' | translate)}}</a>
+        <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="done()">{{modal.btnName || ('msg.comm.btn.done' | translate)}}</a>
       </div>
       <!-- //buttons -->
     </div>
