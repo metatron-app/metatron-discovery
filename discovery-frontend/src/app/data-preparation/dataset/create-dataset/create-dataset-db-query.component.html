@@ -82,7 +82,7 @@
                    tabindex="1"
                    (click)="showDatabaseList($event)"
                    (keydown)="navigateWithKeyboardShortList($event,filteredDbList,'db')">
-                <input type="text" class="ddp-input-selectbox db-search" placeholder="search by database name" [(ngModel)]="dbSearchText">
+                <input class="ddp-input-selectbox db-search" placeholder="search by database name" [(ngModel)]="dbSearchText">
                 <span class="ddp-txt-selectbox">{{datasetJdbc.databaseName === '' ? ('msg.dp.ui.sel.db' | translate) :datasetJdbc.databaseName }}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
                     (clickOutside)="isDatabaseListShow = false; initSelectedCommand(filteredDbList)">
@@ -108,7 +108,7 @@
                    tabindex="2"
                    (keydown)="navigateWithKeyboardShortList($event,filteredSchemaList,'schema')"
                    *ngIf="this.datasetJdbc.databaseName !== ''">
-                <input type="text" class="ddp-input-selectbox schema-search" placeholder="search by schema name" [(ngModel)]="schemaSearchText">
+                <input class="ddp-input-selectbox schema-search" placeholder="search by schema name" [(ngModel)]="schemaSearchText">
                 <span class="ddp-txt-selectbox">{{datasetJdbc.tableName === ''? ('msg.dp.ui.sel.schema' | translate) : datasetJdbc.tableName}}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown"
                     (clickOutside)="isSchemaListShow = false; initSelectedCommand(filteredSchemaList)">
@@ -158,7 +158,7 @@
   <!-- //import -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
-    <a href="javascript:" class="ddp-btn-type-popup" (click)="close()">{{'msg.comm.btn.previous' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
     <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="next();" [ngClass]="{'ddp-disabled':!clickable}">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->

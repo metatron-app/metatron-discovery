@@ -697,6 +697,14 @@ public class DataFrame implements Serializable, Transformable {
           resultType = ColumnType.BOOLEAN;
           assertArgsEq(2, args, func);
           break;
+        case "startswith":
+          resultType = ColumnType.BOOLEAN;
+          assertArgsEq(2, args, func);
+          break;
+        case "endswith":
+          resultType = ColumnType.BOOLEAN;
+          assertArgsEq(2, args, func);
+          break;
         case "timestamptostring":
           resultType = ColumnType.STRING;
           assertArgsEq(2, args, func);
