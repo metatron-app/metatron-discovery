@@ -14,52 +14,17 @@
 
 package app.metatron.discovery.spec.druid.ingestion.parser;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * Created by kyungtaak on 2016. 6. 17..
  */
-public class Parser {
 
-  String type;
-
-  ParseSpec parseSpec;
-
-  String typeString; // FIXME: 추후 ORC 타입으로 분리할것
-
-  public Parser() {
-  }
-
-  public Parser(String type, ParseSpec parseSpec) {
-    this.type = type;
-    this.parseSpec = parseSpec;
-  }
-
-  public Parser(String type, ParseSpec parseSpec, String typeString) {
-    this.type = type;
-    this.parseSpec = parseSpec;
-    this.typeString = typeString;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public ParseSpec getParseSpec() {
-    return parseSpec;
-  }
-
-  public void setParseSpec(ParseSpec parseSpec) {
-    this.parseSpec = parseSpec;
-  }
-
-  public String getTypeString() {
-    return typeString;
-  }
-
-  public void setTypeString(String typeString) {
-    this.typeString = typeString;
-  }
+@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.EXTERNAL_PROPERTY, property="type")
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = CsvStreamParser.class, name = "csv.stream"),
+    @JsonSubTypes.Type(value = StringParser.class, name = "string")
+})
+public interface Parser {
 }

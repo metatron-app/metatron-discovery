@@ -771,7 +771,23 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   private _rowClickWithCtrlShiftOption(scope: any, row: any, result: { event: any; row: any; selected: any; error: boolean }, rowIndex: number): void {
 
     const idProperty: string = ScrollLoadingGridComponent.ID_PROPERTY;
-    result.selected = !(scope.getSelectedRows().some(selectedRow => selectedRow[idProperty] === row[idProperty]));
+    const selectedList: any[] = scope.getSelectedRows();
+    let currentSelected: boolean = false;
+    if(selectedList==null || selectedList.length === 0) {
+        result.selected = true;
+    }else{
+      if(row.hasOwnProperty(idProperty)) {
+        for(let i: number = 0; i < selectedList.length; i = i + 1) {
+          if(selectedList[i] === undefined) continue;
+          if(selectedList[i].hasOwnProperty(idProperty) === false) continue;
+          if(selectedList[i][idProperty] === row[idProperty]) {
+              currentSelected = true;
+              break;
+          }
+        }
+      }
+      result.selected = !currentSelected;
+    }
 
     const isDisableOptionKey: boolean = (
       result.event.metaKey === false && result.event.ctrlKey === false && result.event.shiftKey === false

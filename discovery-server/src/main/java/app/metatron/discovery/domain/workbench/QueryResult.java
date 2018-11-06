@@ -34,6 +34,10 @@ public class QueryResult implements Serializable {
   
   Long numRows;
 
+  Long maxNumRows;
+
+  Long defaultNumRows;
+
   QueryResultStatus queryResultStatus;
 
   DateTime startDateTime;
@@ -158,6 +162,22 @@ public class QueryResult implements Serializable {
 
   public void setCsvFilePath(String csvFilePath) {
     this.csvFilePath = csvFilePath;
+  }
+
+  public Long getMaxNumRows() {
+    return maxNumRows;
+  }
+
+  public void setMaxNumRows(Long maxNumRows) {
+    this.maxNumRows = maxNumRows;
+  }
+
+  public Long getDefaultNumRows() {
+    return defaultNumRows;
+  }
+
+  public void setDefaultNumRows(Long defaultNumRows) {
+    this.defaultNumRows = defaultNumRows;
   }
 
   @Override
