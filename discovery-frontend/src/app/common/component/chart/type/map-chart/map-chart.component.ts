@@ -277,7 +277,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       let gridRowsListLength = data.features.length;
 
-
       // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
       let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
@@ -334,10 +333,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       // return value
       let rangeList = [];
-
-      let rowsListLength = data.features.length;
-
-      let gridRowsListLength = data.features.length;
 
       let featureList = [];
       for(var i=0;i<uiOption.data[0].features.length;i++) {
@@ -679,7 +674,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       let gridRowsListLength = data.features.length;
 
-
       // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
       let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
@@ -736,10 +730,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       // return value
       let rangeList = [];
-
-      let rowsListLength = data.features.length;
-
-      let gridRowsListLength = data.features.length;
 
       let featureList = [];
       for(var i=0;i<uiOption.data[0].features.length;i++) {
@@ -1183,6 +1173,33 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   }
 
   /**
+   * return ranges of color by dimension
+   * @returns {any}
+   */
+  public setDimensionColorRange(uiOption, data, colorList: any, layerIndex: number, colorAlterList = []): ColorRange[] {
+    // return value
+
+    let rangeList = [];
+
+    let featureList = [];
+    for(var i=0;i<data.features.length;i++) {
+      featureList.push(data.features[i].properties)
+    }
+
+    let featuresGroup = _.groupBy(featureList, uiOption.layers[layerIndex].color.column);
+
+    for(var i=0;i<Object.keys(featuresGroup).length;i++) {
+
+      let col = Object.keys(featuresGroup)[i];
+      let color = colorList[featuresGroup[Object.keys(featuresGroup)[i]].length % colorList.length];
+
+      rangeList.push({column:col, color:color});
+    }
+
+    return rangeList;
+  }
+
+  /**
    * 차트에 설정된 옵션으로 차트를 그린다.
    * - 각 차트에서 ride
    * @param isKeepRange: 현재 스크롤 위치를 기억해야 할 경우
@@ -1562,8 +1579,16 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                   legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range["color"] + '"></em>' + range["column"] + '</li>';
                 }
               } else {
-                for(let field of this.uiOption.fieldList) {
-                  legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:#602663"></em>' + field + '</li>';
+                if(this.uiOption.layers[i].color["column"] !== 'NONE') {
+                  const ranges = this.setDimensionColorRange(this.uiOption, this.mapData[i], ChartColorList[this.uiOption.layers[i].color['schema']], i, []);
+
+                  for(let range of ranges) {
+                    legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:' + range["color"] + '"></em>' + range["column"] + '</li>';
+                  }
+                } else {
+                  for(let field of this.uiOption.fieldList) {
+                    legendHtml = legendHtml + '<li><em class="ddp-bg-remark-r" style="background-color:#602663"></em>' + field + '</li>';
+                  }
                 }
               }
 
@@ -1600,7 +1625,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
                     }
                   } else {
                     if(this.mapData[i].valueRange && this.mapData[i].valueRange[this.uiOption.layers[i].color.column]) {
-                        const ranges = this.setColorRange(this.uiOption, this.mapData[i], ChartColorList[this.uiOption.layers[i].color['schema']], i, []);
+                      const ranges = this.setColorRange(this.uiOption, this.mapData[i], ChartColorList[this.uiOption.layers[i].color['schema']], i, []);
 
                       let rangesLength = ranges.length;
                       ranges[0]["isMax"] = true;

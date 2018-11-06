@@ -1209,7 +1209,6 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
 
     let gridRowsListLength = data.features.length;
 
-
     // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
     let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
 
@@ -1270,10 +1269,6 @@ export class MapLayerOptionComponent2 extends BaseOptionComponent implements OnI
 
     // return value
     let rangeList = [];
-
-    let rowsListLength = data.features.length;
-
-    let gridRowsListLength = data.features.length;
 
     let featureList = [];
     for(var i=0;i<uiOption.data[1].features.length;i++) {
