@@ -8391,7 +8391,7 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 .ddp-list-tab-type2 li.ddp-disabled a:before,
 .ddp-list-tab-type2 li.ddp-disabled a:hover:before{position:absolute; top:0; left:0; right:0; bottom:0; cursor:no-drop; background:none; border:none; content:''; z-index:1;}
 .ddp-list-tab-type2 li.ddp-disabled a em[class*="ddp-icon-map"] {opacity:0.5;}
-ul.ddp-list-tab-type2 li a:hover + .ddp-ui-tooltip-info {display:block; width:50px; left:50%; top:100%; margin-top:5px; margin-left:-25px; text-align:center; box-sizing:border-box;}
+.ddp-type-map-chart ul.ddp-list-tab-type2 li a:hover + .ddp-ui-tooltip-info {display:block; width:60px; left:50%; top:100%; margin-top:5px; margin-left:-30px; text-align:center; box-sizing:border-box;}
 
 /**************************************************************
   Integrator

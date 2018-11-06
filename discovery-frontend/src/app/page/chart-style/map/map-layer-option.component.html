@@ -37,37 +37,19 @@
               <div class="ddp-list-label">{{'msg.page.layer.map.type' | translate}}</div>
               <div class="ddp-wrap-tab-type2">
                 <ul class="ddp-list-tab-type2 ddp-clear">
-                  <li class="ddp-selected">
+                  <li *ngFor="let item of symbolLayerTypes" [ngClass]="{'ddp-selected' : item.value == uiOption.layers[index].type}"
+                      (click)="changeSymbolLayerType(item.value)">
                     <a href="javascript:">
-                      <em class="ddp-icon-map-sign"></em>
+                      <em [ngClass]="{'ddp-icon-map-sign' : 'symbol' === item.value.toString(),
+                                      'ddp-icon-map-heatmap': 'heatmap' === item.value.toString(),
+                                      'ddp-icon-map-tile': 'tile' === item.value.toString()}"></em>
                     </a>
                     <!-- tooltip -->
                     <div class="ddp-ui-tooltip-info">
                       <em class="ddp-icon-view-top"></em>
-                      <span class="ddp-txt-tooltip">기호</span>
-                    </div>
-                    <!-- //tooltip -->
-                  </li>
-
-                  <li class="ddp-disabled">
-                    <a href="javascript:">
-                      <em class="ddp-icon-map-heatmap"></em>
-                    </a>
-                    <!-- tooltip -->
-                    <div class="ddp-ui-tooltip-info">
-                      <em class="ddp-icon-view-top"></em>
-                      <span class="ddp-txt-tooltip">히트맵</span>
-                    </div>
-                    <!-- //tooltip -->
-                  </li>
-                  <li class="ddp-selected">
-                    <a href="javascript:">
-                      <em class="ddp-icon-map-tile"></em>
-                    </a>
-                    <!-- tooltip -->
-                    <div class="ddp-ui-tooltip-info">
-                      <em class="ddp-icon-view-top"></em>
-                      <span class="ddp-txt-tooltip">헥사곤</span>
+                      <span *ngIf="'symbol' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.point' | translate}}</span>
+                      <span *ngIf="'heatmap' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.heatmap' | translate}}</span>
+                      <span *ngIf="'tile' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.tile' | translate}}</span>
                     </div>
                     <!-- //tooltip -->
                   </li>
@@ -84,23 +66,12 @@
                   <div class="ddp-divide2 ">
                     <div class="ddp-list-label">기호 유형</div>
                     <ul class="ddp-list-express ddp-tab6 ddp-type2">
-                      <li>
-                        <em class="ddp-icon-circle"></em> 원형
-                      </li>
-                      <li>
-                        <em class="ddp-icon-square"></em> 사각형
-                      </li>
-                      <li>
-                        <em class="ddp-icon-triangle"></em> 삼각형
-                      </li>
-                      <li>
-                        <em class="ddp-icon-pin"></em> 핀
-                      </li>
-                      <li>
-                        <em class="ddp-icon-fly"></em> 비행기
-                      </li>
-                      <li>
-                        <em class="ddp-icon-user"></em> 사용자
+                      <li *ngFor="let item of symbolLayerSymbols" (click)="changeSymbolType(item.value)">
+                        <em [ngClass]="{'ddp-icon-circle' : 'CIRCLE' === item.value.toString(),
+                                        'ddp-icon-triangle' : 'TRIANGLE' === item.value.toString(),
+                                        'ddp-icon-pin' : 'PIN' === item.value.toString(),
+                                        'ddp-icon-fly' : 'PLAIN' === item.value.toString(),
+                                        'ddp-icon-user' : 'USER' === item.value.toString()}"></em> {{item.name}}
                       </li>
                     </ul>
 

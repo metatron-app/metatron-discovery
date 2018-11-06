@@ -37,17 +37,17 @@
             <!-- //slider -->
             <div *ngIf="uiOption.showMapLayer" class="ddp-list-sub2">
               <!-- divide -->
-              <div class="ddp-divide2">
-                <div class="ddp-list-label">{{'msg.page.common.map.layer.service' | translate}}</div>
-                <!-- SELECTBOX -->
-                <component-select
-                  [array]="mapServiceList"
-                  [defaultIndex]="findServiceDefaultIndex()"
-                  [viewKey]="'name'"
-                  (onSelected)="setMapService($event)"
-                ></component-select>
-                <!-- //SELECTBOX -->
-              </div>
+              <!--<div class="ddp-divide2">-->
+                <!--<div class="ddp-list-label">{{'msg.page.common.map.layer.service' | translate}}</div>-->
+                <!--&lt;!&ndash; SELECTBOX &ndash;&gt;-->
+                <!--<component-select-->
+                  <!--[array]="mapServiceList"-->
+                  <!--[defaultIndex]="findServiceDefaultIndex()"-->
+                  <!--[viewKey]="'name'"-->
+                  <!--(onSelected)="setMapService($event)"-->
+                <!--&gt;</component-select>-->
+                <!--&lt;!&ndash; //SELECTBOX &ndash;&gt;-->
+              <!--</div>-->
               <!-- //divide -->
 
               <!-- divide -->
@@ -66,7 +66,7 @@
               <!-- divide -->
               <div class="ddp-divide2">
                 <div class="ddp-list-label">{{'msg.page.common.map.layer.license' | translate}}</div>
-                <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation" (key.enter)="setLicense()">
+                <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation" (keyup.enter)="setLicense()">
               </div>
               <!-- //divide -->
             </div>
