@@ -1186,9 +1186,14 @@ public class JdbcConnectionService {
     NativeCriteria nativeCriteria = new NativeCriteria(DataConnection.Implementor.getImplementor(jdbcDataConnection));
     NativeProjection nativeProjection = new NativeProjection();
 
+    String targetFieldName = targetField.getName();
+    if(StringUtils.contains(targetFieldName, ".")){
+      targetFieldName = StringUtils.split(targetFieldName, ".")[1];
+    }
+
     if (metaField.getLogicalType() == LogicalType.TIMESTAMP) {
-      nativeProjection.addAggregateProjection(targetField.getName(), "minTime", NativeProjection.AggregateProjection.MIN);
-      nativeProjection.addAggregateProjection(targetField.getName(), "maxTime", NativeProjection.AggregateProjection.MAX);
+      nativeProjection.addAggregateProjection(targetFieldName, "minTime", NativeProjection.AggregateProjection.MIN);
+      nativeProjection.addAggregateProjection(targetFieldName, "maxTime", NativeProjection.AggregateProjection.MAX);
       nativeCriteria.setProjection(nativeProjection);
       if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
         nativeCriteria.addTable(ingestionInfo.getQuery(), ingestionInfo.getQuery());
@@ -1196,8 +1201,8 @@ public class JdbcConnectionService {
         nativeCriteria.addSubQuery(ingestionInfo.getQuery());
       }
     } else {
-      nativeProjection.addProjection(targetField.getName(), "field");
-      nativeProjection.addAggregateProjection(targetField.getName(), "count", NativeProjection.AggregateProjection.COUNT);
+      nativeProjection.addProjection(targetFieldName, "field");
+      nativeProjection.addAggregateProjection(targetFieldName, "count", NativeProjection.AggregateProjection.COUNT);
       nativeCriteria.setProjection(nativeProjection);
       if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
         nativeCriteria.addTable(ingestionInfo.getQuery(), ingestionInfo.getQuery());
@@ -1206,6 +1211,7 @@ public class JdbcConnectionService {
       }
       nativeCriteria.setOrder((new NativeOrderExp()).add("count", NativeOrderExp.OrderType.DESC));
     }
+    nativeCriteria.setLimit(10000);
 
     String query = nativeCriteria.toSQL();
 

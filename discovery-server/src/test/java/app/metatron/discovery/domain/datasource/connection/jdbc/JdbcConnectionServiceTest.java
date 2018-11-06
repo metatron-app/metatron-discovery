@@ -192,6 +192,7 @@ public class JdbcConnectionServiceTest {
     metaDataSource.setConnection(connection);
     metaDataSource.setFields(Lists.newArrayList(metaDimensionField, metaTimestampField));
     metaDataSource.setIngestionInfo(ingestionInfo);
+    metaDataSource.setSrcType(app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC);
 
     DataSource dataSource = new DefaultDataSource();
     //dataSource.setConnType(app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK);
@@ -207,7 +208,7 @@ public class JdbcConnectionServiceTest {
   }
 
   @Test
-  public void selectCandidateQueryHive() {
+  public void selectCandidateTableTimestampHive() {
     HiveConnection connection = new HiveConnection();
     connection.setHostname("localhost");
     connection.setDatabase("default");
@@ -221,22 +222,23 @@ public class JdbcConnectionServiceTest {
     ingestionInfo.setQuery("sales");
 
     Field metaDimensionField = new Field();
-    metaDimensionField.setName("Category");
-    metaDimensionField.setAlias("Category");
+    metaDimensionField.setName("sales.Category");
+    metaDimensionField.setAlias("sales.Category");
     metaDimensionField.setLogicalType(LogicalType.STRING);
 
     Field metaTimestampField = new Field();
-    metaTimestampField.setName("OrderDate");
-    metaTimestampField.setAlias("OrderDate");
+    metaTimestampField.setName("sales.OrderDate");
+    metaTimestampField.setAlias("sales.OrderDate");
     metaTimestampField.setLogicalType(LogicalType.TIMESTAMP);
 
-    app.metatron.discovery.domain.workbook.configurations.field.Field dimensionField = new DimensionField("Category", "Category");
-    app.metatron.discovery.domain.workbook.configurations.field.Field timestampField = new TimestampField("OrderDate", "OrderDate");
+    app.metatron.discovery.domain.workbook.configurations.field.Field dimensionField = new DimensionField("sales.Category", "sales.Category");
+    app.metatron.discovery.domain.workbook.configurations.field.Field timestampField = new TimestampField("sales.OrderDate", "sales.OrderDate");
 
     app.metatron.discovery.domain.datasource.DataSource metaDataSource = new app.metatron.discovery.domain.datasource.DataSource();
     metaDataSource.setConnection(connection);
     metaDataSource.setFields(Lists.newArrayList(metaDimensionField, metaTimestampField));
     metaDataSource.setIngestionInfo(ingestionInfo);
+    metaDataSource.setSrcType(app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC);
 
     DataSource dataSource = new DefaultDataSource();
     //dataSource.setConnType(app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK);
@@ -246,6 +248,144 @@ public class JdbcConnectionServiceTest {
     CandidateQueryRequest queryRequest = new CandidateQueryRequest();
 //    queryRequest.setTargetField(dimensionField);
     queryRequest.setTargetField(timestampField);
+    queryRequest.setDataSource(dataSource);
+
+    System.out.println(new JdbcConnectionService().selectCandidateQuery(queryRequest));
+  }
+
+  @Test
+  public void selectCandidateTableDimensionHive() {
+    HiveConnection connection = new HiveConnection();
+    connection.setHostname("localhost");
+    connection.setDatabase("default");
+    connection.setUsername("sohncw");
+    connection.setPassword("hive");
+    connection.setPort(10000);
+    connection.setImplementor("HIVE");
+
+    LinkIngestionInfo ingestionInfo = new LinkIngestionInfo();
+    ingestionInfo.setDataType(TABLE);
+    ingestionInfo.setQuery("sales");
+
+    Field metaDimensionField = new Field();
+    metaDimensionField.setName("sales.Category");
+    metaDimensionField.setAlias("sales.Category");
+    metaDimensionField.setLogicalType(LogicalType.STRING);
+
+    Field metaTimestampField = new Field();
+    metaTimestampField.setName("sales.OrderDate");
+    metaTimestampField.setAlias("sales.OrderDate");
+    metaTimestampField.setLogicalType(LogicalType.TIMESTAMP);
+
+    app.metatron.discovery.domain.workbook.configurations.field.Field dimensionField = new DimensionField("sales.Category", "sales.Category");
+    app.metatron.discovery.domain.workbook.configurations.field.Field timestampField = new TimestampField("sales.OrderDate", "sales.OrderDate");
+
+    app.metatron.discovery.domain.datasource.DataSource metaDataSource = new app.metatron.discovery.domain.datasource.DataSource();
+    metaDataSource.setConnection(connection);
+    metaDataSource.setFields(Lists.newArrayList(metaDimensionField, metaTimestampField));
+    metaDataSource.setIngestionInfo(ingestionInfo);
+    metaDataSource.setSrcType(app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC);
+
+    DataSource dataSource = new DefaultDataSource();
+    //dataSource.setConnType(app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK);
+    dataSource.setName("sales");
+    dataSource.setMetaDataSource(metaDataSource);
+
+    CandidateQueryRequest queryRequest = new CandidateQueryRequest();
+    queryRequest.setTargetField(dimensionField);
+//    queryRequest.setTargetField(timestampField);
+    queryRequest.setDataSource(dataSource);
+
+    System.out.println(new JdbcConnectionService().selectCandidateQuery(queryRequest));
+  }
+
+  @Test
+  public void selectCandidateQueryTimestampHive() {
+    HiveConnection connection = new HiveConnection();
+    connection.setHostname("localhost");
+    connection.setDatabase("default");
+    connection.setUsername("sohncw");
+    connection.setPassword("hive");
+    connection.setPort(10000);
+    connection.setImplementor("HIVE");
+
+    LinkIngestionInfo ingestionInfo = new LinkIngestionInfo();
+    ingestionInfo.setDataType(JdbcIngestionInfo.DataType.QUERY);
+    ingestionInfo.setQuery("SELECT * FROM default.sales_part2 where city = 'Alexandria'");
+
+    Field metaDimensionField = new Field();
+    metaDimensionField.setName("sales_part2.ymd");
+    metaDimensionField.setAlias("sales_part2.ymd");
+    metaDimensionField.setLogicalType(LogicalType.STRING);
+
+    Field metaTimestampField = new Field();
+    metaTimestampField.setName("sales_part2.OrderDate");
+    metaTimestampField.setAlias("sales_part2.OrderDate");
+    metaTimestampField.setLogicalType(LogicalType.TIMESTAMP);
+
+    app.metatron.discovery.domain.workbook.configurations.field.Field dimensionField = new DimensionField("sales_part2.ymd", "sales_part2.ymd");
+    app.metatron.discovery.domain.workbook.configurations.field.Field timestampField = new TimestampField("sales_part2.OrderDate", "sales_part2.OrderDate");
+
+    app.metatron.discovery.domain.datasource.DataSource metaDataSource = new app.metatron.discovery.domain.datasource.DataSource();
+    metaDataSource.setConnection(connection);
+    metaDataSource.setFields(Lists.newArrayList(metaDimensionField, metaTimestampField));
+    metaDataSource.setIngestionInfo(ingestionInfo);
+    metaDataSource.setSrcType(app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC);
+
+    DataSource dataSource = new DefaultDataSource();
+    //dataSource.setConnType(app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK);
+    dataSource.setName("sales");
+    dataSource.setMetaDataSource(metaDataSource);
+
+    CandidateQueryRequest queryRequest = new CandidateQueryRequest();
+//    queryRequest.setTargetField(dimensionField);
+    queryRequest.setTargetField(timestampField);
+    queryRequest.setDataSource(dataSource);
+
+    System.out.println(new JdbcConnectionService().selectCandidateQuery(queryRequest));
+  }
+
+  @Test
+  public void selectCandidateQueryDimensionHive() {
+    HiveConnection connection = new HiveConnection();
+    connection.setHostname("localhost");
+    connection.setDatabase("default");
+    connection.setUsername("sohncw");
+    connection.setPassword("hive");
+    connection.setPort(10000);
+    connection.setImplementor("HIVE");
+
+    LinkIngestionInfo ingestionInfo = new LinkIngestionInfo();
+    ingestionInfo.setDataType(JdbcIngestionInfo.DataType.QUERY);
+    ingestionInfo.setQuery("SELECT * FROM default.sales_part2 where city = 'Alexandria'");
+
+    Field metaDimensionField = new Field();
+    metaDimensionField.setName("sales_part2.ymd");
+    metaDimensionField.setAlias("sales_part2.ymd");
+    metaDimensionField.setLogicalType(LogicalType.STRING);
+
+    Field metaTimestampField = new Field();
+    metaTimestampField.setName("OrderDate");
+    metaTimestampField.setAlias("OrderDate");
+    metaTimestampField.setLogicalType(LogicalType.TIMESTAMP);
+
+    app.metatron.discovery.domain.workbook.configurations.field.Field dimensionField = new DimensionField("sales_part2.ymd", "sales_part2.ymd");
+    app.metatron.discovery.domain.workbook.configurations.field.Field timestampField = new TimestampField("OrderDate", "OrderDate");
+
+    app.metatron.discovery.domain.datasource.DataSource metaDataSource = new app.metatron.discovery.domain.datasource.DataSource();
+    metaDataSource.setConnection(connection);
+    metaDataSource.setFields(Lists.newArrayList(metaDimensionField, metaTimestampField));
+    metaDataSource.setIngestionInfo(ingestionInfo);
+    metaDataSource.setSrcType(app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC);
+
+    DataSource dataSource = new DefaultDataSource();
+    //dataSource.setConnType(app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK);
+    dataSource.setName("sales");
+    dataSource.setMetaDataSource(metaDataSource);
+
+    CandidateQueryRequest queryRequest = new CandidateQueryRequest();
+    queryRequest.setTargetField(dimensionField);
+//    queryRequest.setTargetField(timestampField);
     queryRequest.setDataSource(dataSource);
 
     System.out.println(new JdbcConnectionService().selectCandidateQuery(queryRequest));
