@@ -80,7 +80,7 @@ public class JdbcConnectionServiceTest {
     connection.setPort(3306);
 
     System.out.println(new JdbcConnectionService().selectQueryForIngestion(connection, null,
-            TABLE, "sales", 10));
+            TABLE, "sales", 10, true));
   }
 
   @Test

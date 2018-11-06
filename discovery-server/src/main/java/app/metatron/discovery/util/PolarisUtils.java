@@ -1174,13 +1174,13 @@ public class PolarisUtils {
     return outputFile.getAbsolutePath();
   }
 
-  public static List<String> mapWithRangeExpressionToList(Map<String, String> rangeMap){
+  public static List<String> mapWithRangeExpressionToList(Map<String, Object> rangeMap){
 
     List<String> strList = new ArrayList<>();
     Map<String, List> convertListMap = new LinkedHashMap<>();
 
     for(String keyStr : rangeMap.keySet()){
-      String partitionStr = rangeMap.get(keyStr);
+      String partitionStr = rangeMap.get(keyStr).toString();
 
       List<String> convertedRangeList = new ArrayList<>();
 
@@ -1408,5 +1408,18 @@ public class PolarisUtils {
     }
 
     return unionList;
+  }
+
+  public static Map<String, Object> partitionStringToMap(String partition){
+    Map<String, Object> partitionMap = new LinkedHashMap<>();
+
+    for(String separatedPart : partition.split("/")){
+      String[] separatedPartition = separatedPart.split("=");
+      if(separatedPartition.length > 1){
+        partitionMap.put(separatedPartition[0], separatedPartition[1]);
+      }
+    }
+
+    return partitionMap;
   }
 }

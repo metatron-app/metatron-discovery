@@ -37,7 +37,7 @@ public class ConnectionRequest {
 
   String query;
 
-  List<Map<String, String>> partitions;
+  List<Map<String, Object>> partitions;
 
   public JdbcDataConnection getConnection() {
     return connection;
@@ -79,11 +79,11 @@ public class ConnectionRequest {
     this.query = query;
   }
 
-  public List<Map<String, String>> getPartitions() {
+  public List<Map<String, Object>> getPartitions() {
     return partitions;
   }
 
-  public void setPartitions(List<Map<String, String>> partitions) {
+  public void setPartitions(List<Map<String, Object>> partitions) {
     this.partitions = partitions;
   }
 }

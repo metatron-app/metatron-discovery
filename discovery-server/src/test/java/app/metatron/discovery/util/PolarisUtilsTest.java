@@ -397,36 +397,35 @@ public class PolarisUtilsTest {
   @Test
   public void rangeExprToListTest2() {
 
-//    Map<String, String> part1 = new LinkedHashMap<>();
-//    part1.put("yyyymmdd", "20181101");
-//    part1.put("hh", "16");
-//
-//    List<String> partitions1 = PolarisUtils.mapWithRangeExpressionToList(part1);
-//    System.out.println("partitions1 = " + partitions1);
-//
-//    Map<String, String> part2 = new LinkedHashMap<>();
-//    part2.put("yyyymmdd", "20181101, 20181102");
-//    part2.put("hh", "16, 17");
-//
-//    List<String> partitions2 = PolarisUtils.mapWithRangeExpressionToList(part2);
-//    System.out.println("partitions2 = " + partitions2);
-//
-//    Map<String, String> part3 = new LinkedHashMap<>();
-//    part3.put("yyyymmdd", "2018[01-03]01");
-//    part3.put("hh", "[01-03]");
-//
-//    List<String> partitions3 = PolarisUtils.mapWithRangeExpressionToList(part3);
-//    System.out.println(partitions3);
-//
-//    Map<String, String> part4 = new LinkedHashMap<>();
-//    part4.put("yyyymmdd", "1[02-03]4, 5[06-07]8");
-//    part4.put("hh", "a[b-c]d, e[f-g]h");
-//
-//    List<String> partitions4 = PolarisUtils.mapWithRangeExpressionToList(part4);
-//    System.out.println(partitions4);
+    Map<String, Object> part1 = new LinkedHashMap<>();
+    part1.put("yyyymmdd", "20181101");
+    part1.put("hh", "16");
 
+    List<String> partitions1 = PolarisUtils.mapWithRangeExpressionToList(part1);
+    System.out.println("partitions1 = " + partitions1);
 
-    Map<String, String> part5 = new LinkedHashMap<>();
+    Map<String, Object> part2 = new LinkedHashMap<>();
+    part2.put("yyyymmdd", "20181101, 20181102");
+    part2.put("hh", "16, 17");
+
+    List<String> partitions2 = PolarisUtils.mapWithRangeExpressionToList(part2);
+    System.out.println("partitions2 = " + partitions2);
+
+    Map<String, Object> part3 = new LinkedHashMap<>();
+    part3.put("yyyymmdd", "2018[01-03]01");
+    part3.put("hh", "[01-03]");
+
+    List<String> partitions3 = PolarisUtils.mapWithRangeExpressionToList(part3);
+    System.out.println(partitions3);
+
+    Map<String, Object> part4 = new LinkedHashMap<>();
+    part4.put("yyyymmdd", "1[02-03]4, 5[06-07]8");
+    part4.put("hh", "a[b-c]d, e[f-g]h");
+
+    List<String> partitions4 = PolarisUtils.mapWithRangeExpressionToList(part4);
+    System.out.println(partitions4);
+
+    Map<String, Object> part5 = new LinkedHashMap<>();
     part5.put("yyyymm", "2018[10-11]");
     part5.put("dd", "");
     part5.put("hh", "");

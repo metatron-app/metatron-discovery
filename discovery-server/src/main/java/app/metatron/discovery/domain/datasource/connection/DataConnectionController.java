@@ -17,7 +17,9 @@ package app.metatron.discovery.domain.datasource.connection;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.datasource.DataSourceProperties;
+import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.jdbc.*;
+import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.mdm.source.MetadataSource;
@@ -25,6 +27,8 @@ import app.metatron.discovery.domain.mdm.source.MetadataSourceRepository;
 import app.metatron.discovery.domain.workbench.Workbench;
 import app.metatron.discovery.domain.workbench.WorkbenchRepository;
 import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.util.PolarisUtils;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.querydsl.core.types.Predicate;
 import org.apache.commons.lang3.StringUtils;
@@ -255,7 +259,6 @@ public class DataConnectionController {
       throw new ResourceNotFoundException("EngineProperties.HiveConnection");
     }
 
-
     HiveConnection hiveConnection = new HiveConnection();
     hiveConnection.setUrl(hivePropertyConnection.getUrl());
     hiveConnection.setHostname(hivePropertyConnection.getHostname());
@@ -263,36 +266,55 @@ public class DataConnectionController {
     hiveConnection.setUsername(hivePropertyConnection.getUsername());
     hiveConnection.setPassword(hivePropertyConnection.getPassword());
 
-    //when strict mode, requires hive metastore connection info
-    if(hivePropertyConnection.isStrictMode()){
-      hiveConnection.setMetastoreHost(hivePropertyConnection.getMetastoreHost());
-      hiveConnection.setMetastorePort(hivePropertyConnection.getMetastorePort());
-      hiveConnection.setMetastoreSchema(hivePropertyConnection.getMetastoreSchema());
-      hiveConnection.setMetastoreUserName(hivePropertyConnection.getMetastoreUserName());
-      hiveConnection.setMetastorePassword(hivePropertyConnection.getMetastorePassword());
-    }
-
-
     if(checkRequest.getDatabase() != null && checkRequest.getType() == JdbcIngestionInfo.DataType.QUERY) {
       hiveConnection.setDatabase(checkRequest.getDatabase());
     }
 
-    JdbcQueryResultResponse resultSet =
-            connectionService.selectQueryForIngestion(hiveConnection, checkRequest.getDatabase(),
-                    checkRequest.getType(), checkRequest.getQuery(), limit, extractColumnName);
-
+    List<Field> partitionFielsList = null;
+    FileFormat fileFormat = null;
     //Partition 정보 ..
     if(checkRequest.getType() == JdbcIngestionInfo.DataType.TABLE){
       HiveTableInformation hiveTableInformation = connectionService.showHiveTableDescription(hiveConnection,
               checkRequest.getDatabase(), checkRequest.getQuery(), false);
 
       //Partition Field
-      resultSet.setPartitionFields(hiveTableInformation.getPartitionFields());
+      partitionFielsList = hiveTableInformation.getPartitionFields();
 
       //File Format
-      resultSet.setFileFormat(hiveTableInformation.getFileFormat());
+      fileFormat = hiveTableInformation.getFileFormat();
 
+      //when strict mode, requires hive metastore connection info
+      if(hivePropertyConnection.isStrictMode() && !partitionFielsList.isEmpty()){
+        hiveConnection.setMetastoreHost(hivePropertyConnection.getMetastoreHost());
+        hiveConnection.setMetastorePort(hivePropertyConnection.getMetastorePort());
+        hiveConnection.setMetastoreSchema(hivePropertyConnection.getMetastoreSchema());
+        hiveConnection.setMetastoreUserName(hivePropertyConnection.getMetastoreUserName());
+        hiveConnection.setMetastorePassword(hivePropertyConnection.getMetastorePassword());
 
+        //getting recent partition
+        List<Map<String, Object>> partitionList = connectionService.getPartitionList(hiveConnection, checkRequest);
+        if(partitionList == null || partitionList.isEmpty()){
+          throw new ResourceNotFoundException("There is no partitions in table(" + checkRequest.getQuery() + ").");
+        }
+
+        Map<String, Object> recentPartition
+                = PolarisUtils.partitionStringToMap(partitionList.get(0).get("PART_NAME").toString());
+        checkRequest.setPartitions(Lists.newArrayList(recentPartition));
+      }
+    }
+
+    JdbcQueryResultResponse resultSet =
+            connectionService.selectQueryForIngestion(hiveConnection, checkRequest.getDatabase(),
+                    checkRequest.getType(), checkRequest.getQuery(), checkRequest.getPartitions(), limit, extractColumnName);
+
+    //Partition 정보 ..
+    if(checkRequest.getType() == JdbcIngestionInfo.DataType.TABLE){
+
+      //Partition Field
+      resultSet.setPartitionFields(partitionFielsList);
+
+      //File Format
+      resultSet.setFileFormat(fileFormat);
     }
 
     return ResponseEntity.ok(resultSet);
