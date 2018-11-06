@@ -1194,8 +1194,42 @@ public interface BuiltinFunctions extends Function.Library {
 
       @Override
       public boolean validate(List<Expr> args) {
-        if (args.size() > 3 || args.size() < 2) {
+        if (args.size() !=2 ) {
           LOGGER.warn("function 'substring' allows 2 or 3 arguments");
+          return false;
+        }
+
+        return true;
+      }
+    }
+
+    class StartsWithFunc implements Function {
+      @Override
+      public String name() {
+        return "startswith";
+      }
+
+      @Override
+      public boolean validate(List<Expr> args) {
+        if (args.size() !=2 ) {
+          LOGGER.warn("function 'startswith' allows 2 or 3 arguments");
+          return false;
+        }
+
+        return true;
+      }
+    }
+
+    class EndsWithFunc implements Function {
+      @Override
+      public String name() {
+        return "endswith";
+      }
+
+      @Override
+      public boolean validate(List<Expr> args) {
+        if (args.size() !=2 ) {
+          LOGGER.warn("function 'endswith' allows 2 or 3 arguments");
           return false;
         }
 

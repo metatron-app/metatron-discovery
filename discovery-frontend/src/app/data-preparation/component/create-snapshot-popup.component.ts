@@ -234,6 +234,13 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   } // function - complete
 
   /**
+   * When snapshot Name change, modfiy file type uris
+   * */
+  public chnageSSUri(){
+    if(this.snapshot.uri && this.snapshot.uri.lastIndexOf("/") > 0) this.snapshot.uri = this.snapshot.uri.substring(0,this.snapshot.uri.lastIndexOf("/")+1)  +  this.snapshot.ssName;
+  }
+
+  /**
    * When item is selected from the list
    * @param event
    * @param type
@@ -248,6 +255,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         if( event.value==this.fileLocations[idx].value ) {
           this.snapshot.location = this.fileLocations[idx].value;
           this.snapshot.uri = this.fileUris[idx];
+          this.chnageSSUri();
           break;
         }
       }
