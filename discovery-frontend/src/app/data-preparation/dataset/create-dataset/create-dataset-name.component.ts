@@ -300,8 +300,10 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
         this.name = `${fileName} (CSV)`;
       }
     } else if ('DB' === type) {
-      if( !isUndefined(this.datasetJdbc.dataconnection.implementor) ) {
-        this.name = this.datasetJdbc.tableName +' ('+this.datasetJdbc.dataconnection.implementor+')';
+      if( !isUndefined(this.datasetJdbc.dataconnection.connection) ) {
+        if (this.datasetJdbc.tableName){
+          this.name = this.datasetJdbc.tableName +' ('+this.datasetJdbc.dataconnection.connection.implementor+')';
+        }
       } else {
         this.name = this.datasetJdbc.tableName;
       }
