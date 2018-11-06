@@ -224,13 +224,13 @@
       <dt>
         {{'msg.comm.th.used' | translate}}
       </dt>
-      <dd *ngIf="selectedDataSet['_embedded'] && selectedDataSet['_embedded'].dataflows">
-        <span class="ddp-data-num" (click)="showDataflows($event);">{{selectedDataSet['_embedded'].dataflows.length}}</span> {{'msg.dp.ui.flows' | translate}}
+      <dd *ngIf="selectedDataSet.dataflows">
+        <span class="ddp-data-num" (click)="showDataflows($event);">{{selectedDataSet.dataflows.length}}</span> {{'msg.dp.ui.flows' | translate}}
         <!-- popup -->
 
         <div class="ddp-wrap-popup2 ddp-types2" *ngIf="isDataflowsShow" (clickOutside)="isDataflowsShow = false;">
           <ul class="ddp-list-popup">
-            <li *ngFor="let dataflow of selectedDataSet['_embedded'].dataflows" (click)="changeDataflow.emit(dataflow.dfId);isDataflowsShow=false;">
+            <li *ngFor="let dataflow of selectedDataSet.dataflows" (click)="changeDataflow.emit(dataflow.dfId);isDataflowsShow=false;">
               <a href="javascript:">
                 <em class="ddp-icon-flow"></em>
                 {{dataflow.dfName}}

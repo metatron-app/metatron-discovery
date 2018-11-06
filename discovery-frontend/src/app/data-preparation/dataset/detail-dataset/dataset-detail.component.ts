@@ -88,8 +88,8 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   public datasetId : string ='';
 
-  public datasetInformationList : DatasetInformation[] ;
-
+  //public datasetInformationList : DatasetInformation[] ;
+  public datasetInformationList : object[] ;
   public interval : any;
 
   @ViewChild('dsName')
@@ -348,14 +348,16 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   public get getHost() {
     if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB ) {
-      return 'host from '+this.dataset['dcId'];
+      //return 'host from '+this.dataset['dcId'];
+      return this.dataset.connectionInfo['hostname'];
     }
     return null;
   }
 
   public get getPort() {
     if( this.dataset['importType'] && this.dataset['importType']===ImportType.DB ) {
-      return 'port from '+this.dataset['dcId'];
+      //return 'port from '+this.dataset['dcId'];
+      return this.dataset.connectionInfo['port'];
     }
     return null;
   }
@@ -420,7 +422,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
    * @param dataset
    */
   public getDatasetInformationList(dataset) {
-
+    this.datasetInformationList = [];
     if (dataset.dsType === DsType.WRANGLED) {
       this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
         {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.wrangledDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` }
@@ -440,12 +442,13 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.importedDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` }
       ];
     } else {
-      this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'StagingDB' : 'DB'}` },
-        { name : this.translateService.instant('Database'), value : this.getDatabaseName() },
-        { name : this.translateService.instant('msg.dp.th.table'), value : `${this.getTableOrSql}` },
-        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.importedDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` }
-      ];
+      this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'StagingDB' : 'DB'}` });
+      if(this.getHost) this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.host'), value : this.getHost });
+      if(this.getPort) this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.port'), value : this.getPort });
+      if(this.getDatabase) this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.database'), value : this.getDatabase });
+      this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.table')+'/'+this.translateService.instant('msg.lineage.ui.list.search.sql'), value : `${dataset['rsType']===RsType.TABLE ? dataset.tableName : dataset.queryStmt}` });
+      this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.importedDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` });
+
     }
   }
 
@@ -464,11 +467,6 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     }
 
     return result;
-  }
-
-  public getDatabaseName() {
-    let custom = JSON.parse(this.dataset.custom);
-    return custom.databaseName;
   }
 
   /**
@@ -519,7 +517,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       this.setDatasetDescription();
 
       if (this.dataset['dataflows'] && this.dataset['dataflows']) {
-       this.dataset.dataflows = this.dataset['dataflows'];
+        this.dataset.dataflows = this.dataset['dataflows'];
       } else {
         this.dataset.dataflows = [];
       }
@@ -703,4 +701,3 @@ class DatasetInformation {
   name: string;
   value: any;
 }
-
