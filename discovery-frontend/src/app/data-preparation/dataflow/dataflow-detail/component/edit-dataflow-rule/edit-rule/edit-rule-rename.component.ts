@@ -12,12 +12,13 @@
  * limitations under the License.
  */
 
-import * as _ from 'lodash';
 import { EditRuleComponent } from './edit-rule.component';
-import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit, Component, ElementRef, EventEmitter, Injector, OnDestroy, OnInit, Output,
+  ViewChild
+} from '@angular/core';
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { StringUtil } from '../../../../../../common/util/string.util';
 import {isNullOrUndefined, isUndefined} from 'util';
 
 @Component({
@@ -29,6 +30,8 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  @Output()
+  private changeExecAddRuleStatusEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -104,19 +107,15 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
     }
 
     let clonedNewFieldName : string = this.newFieldName;
-    let check = StringUtil.checkSingleQuote(clonedNewFieldName, { isAllowBlank: false, isWrapQuote: true });
-    if (check[0] === false) {
-      Alert.warning('Special characters are not allowed');
-      return undefined
+    const renameReg = /^[a-zA-Z가-힣\s][가-힣a-zA-Z0-9_ \s]*$/;
+    if (!renameReg.test(clonedNewFieldName)) {
+      Alert.warning('There is a special character or Hangul is not completed');
+      this.changeExecAddRuleStatusEvent.emit(false);
+      return;
     } else {
-      // const renameReg = /^[a-zA-Z][a-zA-Z0-9_]*$/;
-      // if (!renameReg.test(check[1])) {
-      //   if (check[1].indexOf(' ') > -1) {
-      //     check[1] = check[1].replace(' ', '_');
-      //   }
-      // }
-      clonedNewFieldName = check[1];
+      clonedNewFieldName = "'" + clonedNewFieldName + "'";
     }
+
 
     let selectedFieldName:string = this.selectedFields[0].name;
     if (-1 !== this.selectedFields[0].name.indexOf(' ')) {

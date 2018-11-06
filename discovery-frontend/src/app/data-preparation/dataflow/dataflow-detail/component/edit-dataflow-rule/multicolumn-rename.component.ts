@@ -208,7 +208,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
    * @param i
    */
   public disableInput( col,i) {
-    const renameReg = /^[a-zA-Z\s][a-zA-Z0-9_ \s]*$/;
+    const renameReg = /^[a-zA-Z가-힣\s][가-힣a-zA-Z0-9_ \s]*$/;
     if (col.selected) {
       if (col.renamed.trim() === '') {
         this.showError(col,i);
@@ -226,7 +226,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
           return;
         } else if(!renameReg.test(col.renamed)) {
           this.showError(col,i);
-          this.errorMsg = this.translateService.instant('msg.dp.alert.rename.rule');
+          this.errorMsg = this.translateService.instant('There is a special character or Hangul is not completed');
           this.selectedColIndex = i;
           return;
         }
@@ -308,7 +308,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
         command : 'multipleRename',
         ruleString: 'rename col: ' + columnsStr + ' to: ' + tos.toString()
       };
- 
+
       if (this.op === 'UPDATE') {
         rule['ruleCurIdx'] = this.ruleCurIdx;
         rule['ruleIdx'] = this.ruleCurIdx;

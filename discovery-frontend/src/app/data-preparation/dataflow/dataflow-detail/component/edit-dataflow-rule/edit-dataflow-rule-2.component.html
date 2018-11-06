@@ -174,7 +174,7 @@
 
                 <!-- startRename -->
                 <edit-rule-rename #editRule *ngIf="'rename' === ruleVO.command"
-                                  (onEvent)="onMultiColumnRenameClick()" ></edit-rule-rename>
+                                  (onEvent)="onMultiColumnRenameClick()" (changeExecAddRuleStatusEvent)="changeIsExecuteAddRuleStatus($event)"></edit-rule-rename>
                 <!-- // endRename -->
 
                 <!--startSet-->

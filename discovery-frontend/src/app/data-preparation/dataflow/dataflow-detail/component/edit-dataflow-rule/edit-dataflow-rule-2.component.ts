@@ -69,6 +69,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   private dataSnapshotDetailComponent : DataSnapshotDetailComponent;
 
   private _split: any;
+
+  private _isExecAddRule:boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -578,6 +580,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    * Apply rule. (When Add button is clicked)
    */
   public addRule() {
+
+    if( this._isExecAddRule ) {
+      return;
+    }
+
+    this._isExecAddRule = true;
 
     // When no command is selected
     if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
@@ -1364,6 +1372,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     }
   }
 
+  public changeIsExecuteAddRuleStatus(status : boolean) {
+    this._isExecAddRule = status;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - for EditRuleGrid
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1876,6 +1888,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.opString = rule['op'];
 
     this._setEditRuleInfo({op: this.opString, ruleIdx : this.serverSyncIndex, count: 100, ruleString : rule['ruleString'] }).then((data: { apiData: any, gridData: any }) => {
+
+      this._isExecAddRule = false;
 
       if (data['error']) {
         let prep_error = this.dataprepExceptionHandler(data['error']);
