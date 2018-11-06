@@ -68,6 +68,8 @@ export class Dataset extends AbstractHistoryEntity {
   public joinButtonText: string;
   public ruleNo: string;
 
+  // add api modify
+  public connectionInfo: any;
 }
 
 export class Datasets {

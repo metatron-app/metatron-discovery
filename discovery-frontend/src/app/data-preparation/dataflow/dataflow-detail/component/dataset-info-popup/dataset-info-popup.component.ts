@@ -177,7 +177,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'Union', alias: 'Ui'},
       { command: 'setformat', alias: 'Sf'}
     ];
-
     if (!isNullOrUndefined(this.selectedDataSet)) {
       this.setDataset(this.selectedDataSet);
     }
@@ -346,16 +345,20 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
   public get getHost() {
     if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB ) {
-      return 'host from '+this.selectedDataSet['dcId'];
+      //return 'host from '+this.selectedDataSet['dcId'];
+      return this.selectedDataSet.connectionInfo['hostname'];
+    } else {
+      return null;
     }
-    return null;
   }
 
   public get getPort() {
     if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB ) {
-      return 'port from '+this.selectedDataSet['dcId'];
+      //return 'port from '+this.selectedDataSet['dcId'];
+      return this.selectedDataSet.connectionInfo['port'];
+    } else {
+      return null;
     }
-    return null;
   }
 
   public get getDatabase() {
@@ -424,7 +427,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * @param {Dataset} selectedDatset
    */
   public getDatasetInfo(selectedDatset : Dataset) {
-    this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: Dataset) => {
+    this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: any) => {
       this.loadingHide();
 
       //this.previewData = dataset; //  preview 를 위한 데이터 저장
@@ -1010,4 +1013,3 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
 
 }
-
