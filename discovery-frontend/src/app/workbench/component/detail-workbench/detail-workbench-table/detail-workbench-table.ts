@@ -83,6 +83,9 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   public selectedTable: string = '';
 
+  // total table length
+  public totalTableElements : number = 0;
+
   public schemaParams: {};
   public tableParams: {};
 
@@ -97,7 +100,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   // totalPage가 1 MEMORY 아닐 경우 PAGE
   public pageMode: string = 'PAGE';
 
-  public localPageSize: number = this.page.size;
+  public localPageSize: number = 30;
 
   public localPagepage: number = 0;
 
@@ -108,6 +111,9 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   // 선택된 row number
   public selectedNum: number = 0;
+
+  // sort type (DEFAULT, ASC, DESC)
+  public tableSortType : string = 'DEFAULT';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -183,9 +189,34 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     this.sqlIntoEditorEvent.emit($event + ',');
   }
 
+
+  /**
+   * table 정렬 변경 시
+   * @param sort
+   */
+  public tableListSorting( sort: 'ASC' | 'DESC' ) {
+
+    const tables = this.tables;
+
+    let column = "name";
+    tables.sort(function (first, second) {
+      if (sort === "ASC") return first[column].localeCompare(second[column]);
+      else if (sort === "DESC") return second[column].localeCompare(first[column]);
+    });
+
+    ( sort === "ASC" ?  this.tableSortType = 'DESC' : this.tableSortType = 'ASC' );
+
+  }
+
   // 데이터 베이스 리스트 가져오기
   public getTables() {
-    this.page.size = 5000;
+
+    // sort 초기화
+    this.tableSortType = 'DEFAULT';
+    // 테이블 갯수 초기화
+    this.totalTableElements = 0;
+
+    this.localPageSize = 5000;
     if (isUndefined(this.inputParams.dataconnection.id)) {
       return;
     }
@@ -202,6 +233,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
       .then((data) => {
         // 호출 횟수 초기화
         this._getTableListReconnectCount = 0;
+        this.localPageSize = 30;
 
         this.loadingHide();
         if (data['page']['totalPages'] === 1) {
@@ -215,6 +247,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
           this.pageResult = data['page'];
           this.tables = this.tables.concat(data['tables']);
         }
+        this.totalTableElements = data.page.totalElements;
         this.tableDataEvent.emit(data['tables']);
         this.safelyDetectChanges();
       })
@@ -255,6 +288,10 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   }
 
   public setPage(param: string) {
+
+    // sorting init
+    this.tableSortType = 'DEFAULT';
+
     if (isUndefined(this.inputParams.dataconnection.id)) {
       return;
     }
@@ -306,6 +343,10 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   }
 
   public setPageMemory(param: string) {
+
+    // sorting init
+    this.tableSortType = 'DEFAULT';
+
     if (param === 'next') {
       if (this.localPagepage * this.localPageSize + this.localPageSize > this.pageResult.totalElements)
         return;
@@ -424,7 +465,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     if (page) {
       params['sort'] = page.sort;
       params['page'] = page.page;
-      params['size'] = page.size;
+      params['size'] = this.localPageSize;
     }
     if (StringUtil.isNotEmpty(tableName)) {
       params['tableName'] = tableName.trim();

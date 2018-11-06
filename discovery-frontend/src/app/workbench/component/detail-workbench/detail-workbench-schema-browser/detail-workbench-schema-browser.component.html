@@ -146,23 +146,24 @@
           <div class="ddp-view-option">
             <span class="ddp-txt-tbNum">{{schemaTableList.length}}</span>
             <span class="ddp-txt-table">{{'msg.bench.ui.tables' | translate}}</span>
-            <em class="ddp-icon-refresh3" (click)="getTableList()"></em>
           </div>
 
           <!-- //view option -->
         </div>
 
         <!-- search -->
-        <div class="ddp-form-search">
-          <em class="ddp-icon-search"></em>
-          <input type="text" placeholder="{{'msg.bench.ui.search.table.ph' | translate}}" [ngModel]="searchTableText"
-                 (keyup.enter)="onSearchTable($event)" (keyup.esc)="onSearchTableInit()">
-          <em class="ddp-btn-search-close" (click)="onSearchTableInit()"></em>
+        <div class="ddp-wrap-list-search">
+          <a href="javascript:" class="ddp-btn-refresh" (click)="getTableList()"></a>
+          <div class="ddp-ui-list-search">
+            <input type="text" placeholder="{{'msg.bench.ui.search.table.ph' | translate}}" [ngModel]="searchTableText"
+                   (keyup.enter)="onSearchTable($event)" (keyup.esc)="onSearchTableInit()">
+            <em class="ddp-btn-search-close" (click)="onSearchTableInit()"></em>
+          </div>
         </div>
         <!-- //search -->
       </div>
       <!-- //title -->
-      <div style="top: 183px;" class="ddp-pop-wrapList" grid-component #schemaMain (selectedEvent)="onSelectedTable($event)">
+      <div style="top: 184px;" class="ddp-pop-wrapList" grid-component #schemaMain (selectedEvent)="onSelectedTable($event)">
       </div>
     </div>
     <!-- //data list -->
