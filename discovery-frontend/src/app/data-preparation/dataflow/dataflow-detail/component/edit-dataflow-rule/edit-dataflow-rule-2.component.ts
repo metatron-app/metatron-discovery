@@ -414,11 +414,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public selectCommand(event, command) {
     event.stopImmediatePropagation();
 
-    // TODO : no need to call this function any more as when editing - changing command doesn't change the status of op anymore
-    // this.initRule();
-
-    this.ruleVO.ignoreCase = false;
-
     // TODO : Added getting selected columns from grid because didn't show selected columns when command is changed on edit
     this.selectedColumns = this._editRuleGridComp.getSelectedColumns();
     this.ruleVO.cols = this.selectedColumns;
@@ -438,7 +433,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     let selectedFields:Field[] = [];
     if( this.selectedColumns ) {
-      selectedFields = this.selectedColumns.map( col => this.selectedDataSet.gridData.fields.find( field => field.name === col ) );
+      selectedFields = this.selectedColumns.map( col => this.selectedDataSet.gridData.fields.find( field => field.uuid === col ) );
     }
 
     switch (this.ruleVO.command) {
@@ -881,7 +876,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       // set affected columns
       data.apiData.gridResponse.interestedColNames.forEach(col => {
-        this._editRuleGridComp.selectColumn(col, true);
+
+        if ('' !== this._editRuleGridComp.getColumnUUIDByColumnName(col)) {
+          this._editRuleGridComp.selectColumn(this._editRuleGridComp.getColumnUUIDByColumnName(col), true);
+        }
+
       });
       this.loadingHide();
       this.serverSyncIndex = data.apiData.ruleCurIdx;
@@ -932,7 +931,9 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
       // set affected columns
       data.apiData.gridResponse.interestedColNames.forEach(col => {
-        this._editRuleGridComp.selectColumn(col, true);
+        if ('' !== this._editRuleGridComp.getColumnUUIDByColumnName(col)) {
+          this._editRuleGridComp.selectColumn(this._editRuleGridComp.getColumnUUIDByColumnName(col), true);
+        }
       });
       this.loadingHide();
       this.serverSyncIndex = data.apiData.ruleCurIdx;
@@ -1375,62 +1376,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this.selectedColumns = data.columns;
 
-    // 선택된 컬럼 중 첫번째를 셀렉트박스 인풋에 보여준다.
-    this.ruleVO.col = data.columns[0];
-
-    // 셀렉트박스에서 컬럼 클릭 시
-    if (this.selectboxFlag) {
-      this.selectedDataSet.gridData.fields.forEach((item) => {
-        if (item.name === data.id) {
-          item.selected = data.isSelect;
-          item.seq = 1;
-          this.setColSeq(item);
-          this.selectboxFlag = false;
-        }
-      });
-      this._editRuleGridComp.moveScrollHorizontally(this.ruleVO.col);
-    } else { // 그리드에서 헤더 클릭시
-      this.selectedDataSet.gridData.fields.forEach((item) => {
-        if (item.name === data.id) {
-          item.selected = data.isSelect;
-          this.setColSeq(item);
-        }
-      })
-    }
-
   } // function - setRuleInfoFromGridHeader
 
 
-  /***
-   * edit rule grid 에서 Header menu 선택시
-   * @param args
-   */
-  public applyRuleFromGridHeaderMenu(args) {
 
-    let rule = {
-      ruleCurIdx : this.opString === 'UPDATE' ? this.serverSyncIndex-1 : this.serverSyncIndex,
-      op: this.opString === 'UPDATE' ? 'UPDATE' : 'APPEND',
-    };
-
-    if (args.command === 'sort' || args.command === 'drop') {
-
-      let val = ' col: ';
-      if (args.command !== 'drop') {
-        val = ' order: ';
-      }
-      rule['command'] = args.command;
-      rule['ruleString'] = `${args.command} ${val} ${args.column.id}`
-
-    } else if (args.command === 'sort_desc') {
-
-      let val = ' order: ';
-      this.ruleVO.type = 'desc';
-      rule['command'] = 'sort';
-      rule['ruleString'] = 'sort' + val + args.column.id + ' type:\'desc\'';
-
-    }
-    this.applyRule(rule);
-  } // function - applyRuleFromGridHeaderMenu
 
   /**
    * Context Menu Rule 적용 이벤트
@@ -1449,13 +1398,13 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         case 'split':
         case 'extract':
         case 'rename':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ));
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
           break;
         case 'unnest':
           let unnestList = this.selectedDataSet.gridData.fields.filter((item) => {
             return item.type === 'ARRAY' || item.type === 'MAP'
           });
-          let selectedUnnestList =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ).filter((item) => {
+          let selectedUnnestList =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ).filter((item) => {
             return item.type === 'ARRAY' || item.type === 'MAP'
           });
           this._editRuleComp.init(unnestList, selectedUnnestList);
@@ -1464,7 +1413,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           let setformatList = this.selectedDataSet.gridData.fields.filter((item) => {
             return item.type === 'TIMESTAMP'
           });
-          let setformatSel =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ).filter((item) => {
+          let setformatSel =  this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ).filter((item) => {
             return item.type === 'TIMESTAMP'
           });
           let colDescs = this.selectedDataSet.gridResponse.colDescs.filter((item) => {
@@ -1475,10 +1424,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           this._editRuleComp.init(setformatList, setformatSel);
           break;
         case 'move':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ), {ruleString : '', jsonRuleString : data.more});
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ), {ruleString : '', jsonRuleString : data.more});
           break;
         case 'set':
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ));
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
           break;
         case 'derive':
           this._editRuleComp.init(this.selectedDataSet.gridData.fields, []);
@@ -1491,7 +1440,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
             return item.type === data.more.type.toUpperCase();
           });
           this._editRuleComp.setValue('defaultIndex', idx);
-          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.name ) ));
+          this._editRuleComp.init(this.selectedDataSet.gridData.fields, this.selectedDataSet.gridData.fields.filter( item => -1 < data.more.col.value.indexOf( item.uuid ) ));
           break;
       }
     } else {

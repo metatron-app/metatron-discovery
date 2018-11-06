@@ -179,10 +179,13 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
 
 
     this.inputValue = data.jsonRuleString.value.escapedValue;
-
+    this.inputValue = data.ruleString.split('value: ')[1];
 
     if (data.jsonRuleString.row) {
-      this.condition = data.ruleString.split('row: ')[1];
+      let row = data.ruleString.split('row: ');
+      this.condition = row[1];
+
+      this.inputValue = row[0].split('value: ')[1];
     }
 
   } // function - _parsingRuleString
