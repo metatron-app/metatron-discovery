@@ -187,6 +187,10 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
       }
     }
 
+    if (this.dataconnection.url) {
+      this.isUrl = true;
+    }
+
     for(let datadaseType of this.databaseTypeList) {
       if(datadaseType.value === this.dataconnection.implementor) {
         this.selectedDatabase = datadaseType;
@@ -253,7 +257,7 @@ export class CreateDatasetDbSelectComponent extends AbstractPopupComponent imple
    * @returns {string}
    */
   public get getValidationMessage(): string {
-    if(this.isDefaultType()) {
+    if(!this.isUrl) {
       // hostname
       if (!this.dataconnection.hostname || this.dataconnection.hostname.trim() === '') {
         return this.translateService.instant('msg.storage.alert.host.required');
