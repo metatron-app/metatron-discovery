@@ -603,6 +603,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       // get rule string from individual components
       rule = this._editRuleComp.getRuleData();
       if (isUndefined(rule)) {
+        this._isExecAddRule = false;
         return;
       }
 
@@ -1370,10 +1371,6 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         datasetName: this.selectedDataSet.dsName
       });
     }
-  }
-
-  public changeIsExecuteAddRuleStatus(status : boolean) {
-    this._isExecAddRule = status;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

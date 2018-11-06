@@ -30,8 +30,6 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @Output()
-  private changeExecAddRuleStatusEvent = new EventEmitter();
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -110,12 +108,10 @@ export class EditRuleRenameComponent extends EditRuleComponent implements OnInit
     const renameReg = /^[a-zA-Z가-힣\s][가-힣a-zA-Z0-9_ \s]*$/;
     if (!renameReg.test(clonedNewFieldName)) {
       Alert.warning('There is a special character or Hangul is not completed');
-      this.changeExecAddRuleStatusEvent.emit(false);
-      return;
+      return undefined;
     } else {
       clonedNewFieldName = "'" + clonedNewFieldName + "'";
     }
-
 
     let selectedFieldName:string = this.selectedFields[0].name;
     if (-1 !== this.selectedFields[0].name.indexOf(' ')) {

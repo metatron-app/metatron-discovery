@@ -93,19 +93,19 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
     // col
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
+      return undefined;
     }
 
     // pattern
     let clonedPattern = this.pattern;
     if (isUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
-      return;
+      return undefined;
     }
     const patternResult:[boolean, string] = StringUtil.checkSingleQuote(clonedPattern, { isWrapQuote: !StringUtil.checkRegExp(clonedPattern) });
     if (!patternResult[0]) {
       Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
-      return;
+      return undefined;
     }
     clonedPattern = patternResult[1];
 
@@ -115,7 +115,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       let withVal = StringUtil.checkSingleQuote(clonedNewValue, { isPairQuote: true, isWrapQuote: true });
       if (withVal[0] === false) {
         Alert.warning(this.translateService.instant('mgs.dp.alert.check.new.val'));
-        return
+        return undefined;
       } else {
         clonedNewValue = withVal[1];
       }
@@ -137,7 +137,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
       if (checkIgnore[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.check.ignore.char'));
-        return
+        return undefined;
       } else {
         ruleString += ' quote: ' + checkIgnore[1];
       }
@@ -149,7 +149,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       let check = StringUtil.checkSingleQuote(clonedCondition, { isPairQuote: true });
       if (check[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.check.condition'));
-        return;
+        return undefined;
       } else {
         ruleString += ' row: ' + check[1];
       }

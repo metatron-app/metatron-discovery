@@ -92,7 +92,7 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
 
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
+      return undefined;
     }
 
     // surround idx with single quotation
