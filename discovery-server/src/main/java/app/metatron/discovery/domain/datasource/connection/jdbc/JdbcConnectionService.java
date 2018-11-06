@@ -857,6 +857,7 @@ public class JdbcConnectionService {
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
+                                                         List<Map<String, Object>> partitionList,
                                                          int limit,
                                                          boolean extractColumnName) {
     if (connection instanceof MySQLConnection
@@ -867,14 +868,6 @@ public class JdbcConnectionService {
       }
     }
 
-    //    String queryString = new SelectQueryBuilder(connection)
-    //        .allProjection()
-    //        .query(schema, type, query)
-    //        .limit(0, limit)
-    //        .build();
-    //
-    //    LOGGER.debug("Query : {} ", queryString);
-
     JdbcQueryResultResponse queryResultSet = null;
 
     if (type == JdbcIngestionInfo.DataType.TABLE) {
@@ -883,6 +876,16 @@ public class JdbcConnectionService {
       String table = query;
       String tableName = (!table.contains(".") && database != null) ? database + "." + table : table;
       nativeCriteria.addTable(tableName, table);
+
+      //add projection for partition
+      if(partitionList != null && !partitionList.isEmpty()){
+
+        for(Map<String, Object> partitionMap : partitionList){
+          for(String keyStr : partitionMap.keySet()){
+            nativeCriteria.add(new NativeEqExp(keyStr, partitionMap.get(keyStr)));
+          }
+        }
+      }
 
       String queryString = nativeCriteria.toSQL();
       LOGGER.debug("selectQueryForIngestion SQL : {} ", queryString);
@@ -900,20 +903,31 @@ public class JdbcConnectionService {
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
+                                                         List<Map<String, Object>> partitionList,
                                                          int limit,
                                                          boolean extractColumnName) {
     return selectQueryForIngestion(connection, getDataSource(connection, true),
-                                   schema, type, query, limit, extractColumnName);
+            schema, type, query, partitionList, limit, extractColumnName);
   }
 
   public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
-                                                         int limit) {
+                                                         int limit,
+                                                         boolean extractColumnName) {
     return selectQueryForIngestion(connection, getDataSource(connection, true),
-                                   schema, type, query, limit, false);
+                                   schema, type, query, null, limit, extractColumnName);
   }
+
+//  public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
+//                                                         String schema,
+//                                                         JdbcIngestionInfo.DataType type,
+//                                                         String query,
+//                                                         int limit) {
+//    return selectQueryForIngestion(connection, getDataSource(connection, true),
+//                                   schema, type, query, null, limit, false);
+//  }
 
   public JdbcQueryResultResponse ddlQuery(JdbcDataConnection connection,
                                           DataSource dataSource,
@@ -1745,7 +1759,7 @@ public class JdbcConnectionService {
             connection.getMetastoreDriverName());
 
     List<String> partitionNameList = new ArrayList<>();
-    for(Map<String, String> partitionNameMap : connectionRequest.getPartitions()){
+    for(Map<String, Object> partitionNameMap : connectionRequest.getPartitions()){
       partitionNameList.addAll(PolarisUtils.mapWithRangeExpressionToList(partitionNameMap));
     }
     //1. partition info 가져오기

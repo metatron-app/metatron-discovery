@@ -231,7 +231,7 @@ public class HiveMetaStoreJdbcClient {
       builder.append("   PARTITIONS AS B ");
     }
     builder.append(" WHERE A.PART_ID = B.PART_ID ");
-    builder.append(" ORDER BY B.PART_NAME DESC ");
+    builder.append(" ORDER BY B.CREATE_TIME DESC ");
 
 //    SELECT
 //            PART_ID,

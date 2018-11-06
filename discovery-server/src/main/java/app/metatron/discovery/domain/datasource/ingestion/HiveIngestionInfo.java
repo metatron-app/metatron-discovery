@@ -14,14 +14,13 @@
 
 package app.metatron.discovery.domain.datasource.ingestion;
 
+import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 import java.util.Map;
-
-import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 
 /**
  * Hive 적재 정보
@@ -121,6 +120,10 @@ public class HiveIngestionInfo implements IngestionInfo {
 
   public List<Map<String, Object>> getPartitions() {
     return partitions;
+  }
+
+  public void setPartitions(List<Map<String, Object>> partitions) {
+    this.partitions = partitions;
   }
 
   public Map<String, Object> getJobProperties() {
