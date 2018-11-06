@@ -170,7 +170,10 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
     // EXPRESSION
-    this.deriveVal = data.jsonRuleString.value.value;
+    let val = data.ruleString.split('value: ')[1];
+    this.deriveVal = val.split(' as: ')[0];
+    // this.deriveVal = data.jsonRuleString.value.value;
+
 
     // NEW COLUMN NAME
     this.deriveAs = data.jsonRuleString.as;

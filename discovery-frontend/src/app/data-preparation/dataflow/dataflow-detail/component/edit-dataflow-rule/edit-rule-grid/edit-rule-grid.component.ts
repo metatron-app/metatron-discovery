@@ -1608,10 +1608,12 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         // 컬럼 길이 측정
         fields.forEach((field: Field) => {
           let colWidth: number = 0;
-          if (typeof row[field.name] === 'string') {
-            colWidth = Math.floor((row[field.name]).length * 12 + 40);
+          if (typeof row[field.name] == 'string') {
+            colWidth = Math.floor((row[field.name]).length * 12 );
           } else if (typeof row[field.name] === 'number') {
-            colWidth = Math.floor((row[field.name]).toString().length * 12 + 40);
+            colWidth = Math.floor((row[field.name]).toString().length * 12);
+          } else if (typeof row[field.name] === 'object') {
+            colWidth = Math.floor(JSON.stringify(row[field.name]).length * 12 );
           }
           if (!maxDataLen[field.name] || (maxDataLen[field.name] < colWidth)) {
             if (colWidth > 500) {
