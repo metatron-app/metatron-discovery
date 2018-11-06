@@ -261,7 +261,7 @@ public class Util {
 //    return result.substring(0, result.length() - 2);
 //  }
 
-  public static String nodeToString(Object node) {
+  private static String nodeToString(Object node) {
     if (node instanceof Map) {
       Map map = (Map) node;
       Object op = map.get("op");
@@ -272,7 +272,6 @@ public class Util {
       Object name = map.get("name");
       if (name != null) {
         assert map.containsKey("args");
-//        List<Object> args = (List<Object>) map.get("args");
         return String.format("%s(%s)", name, nodeToString(map.get("args")));
       }
 
@@ -304,6 +303,17 @@ public class Util {
     return nodeToString(node);
   }
 
+  static final String FMTSTR_CREATE       = "create with: %s";                // with
+  static final String FMTSTR_HEADER       = "Convert row %d to header";       // rownum
+  static final String FMTSTR_KEEP         = "Keep rows where %s";             // row
+  static final String FMTSTR_RENAME       = "Rename %s";                      // col
+  static final String FMTSTR_RENAME_TO    = "Rename %s to %s";                // col, to
+  static final String FMTSTR_NEST         = "Convert %s into %s";             // col, into
+  static final String FMTSTR_UNNEST       = "Create a new column from %s";    // col
+  static final String FMTSTR_SETFORMAT    = "Reformat %s to %s";              // col, format
+  static final String FMTSTR_DERIVE       = "Create %s from %s";              // as, value
+  static final String FMTSTR_COUNTPATTERN = "Count occurrences of %s in %s";  // value, col
+
   public static String getShortRuleString(String jsonRuleString) {
     Map<String, Object> mapRule = null;
 
@@ -319,36 +329,40 @@ public class Util {
 
     switch (ruleCommand) {
       case "create":
-        shortRuleString = CREATE_RULE_PREFIX + mapRule.get("with");
+        shortRuleString = String.format(FMTSTR_CREATE, mapRule.get("with"));
         break;
       case "header":
-        shortRuleString = String.format("Convert row %d to header", mapRule.get("rownum"));
+        shortRuleString = String.format(FMTSTR_HEADER, mapRule.get("rownum"));
         break;
       case "keep":
-        shortRuleString = "Keep rows where " + nodeToString(mapRule.get("row"));
+        shortRuleString = String.format(FMTSTR_KEEP, nodeToString(mapRule.get("row")));
         break;
       case "rename":
         Object col = ((Map) mapRule.get("col")).get("value");
         Object to = ((Map) mapRule.get("to")).get("value");
         if (col instanceof List && ((List<Object>) col).size() >= 3) {
-          shortRuleString = String.format("Rename %s", shortenColumnList(col));
+          shortRuleString = String.format(FMTSTR_RENAME, shortenColumnList(col));
         } else {
-          shortRuleString = String.format("Rename %s to %s", nodeToString(col), nodeToString(to));
+          shortRuleString = String.format(FMTSTR_RENAME_TO, nodeToString(col), nodeToString(to));
         }
         break;
       case "nest":
         col = ((Map) mapRule.get("col")).get("value");
-        shortRuleString = String.format("Convert %s into %s", nodeToString(col), mapRule.get("into"));
+        shortRuleString = String.format(FMTSTR_NEST, nodeToString(col), mapRule.get("into"));
         break;
       case "unnest":
-        shortRuleString = "Create new columns from " + mapRule.get("col");
+        shortRuleString = String.format(FMTSTR_UNNEST, mapRule.get("col"));
         break;
       case "setformat":
         col = ((Map) mapRule.get("col")).get("value");
-        shortRuleString = String.format("Set %s format to %s", shortenColumnList(col), mapRule.get("format"));
+        shortRuleString = String.format(FMTSTR_SETFORMAT, shortenColumnList(col), mapRule.get("format"));
         break;
       case "derive":
-        shortRuleString = String.format("Create %s from %s", mapRule.get("as"), nodeToString(mapRule.get("value")));
+        shortRuleString = String.format(FMTSTR_DERIVE, mapRule.get("as"), nodeToString(mapRule.get("value")));
+        break;
+      case "countpattern":
+        col = ((Map) mapRule.get("col")).get("value");
+        shortRuleString = String.format(FMTSTR_COUNTPATTERN, nodeToString(mapRule.get("value")), shortenColumnList(col));
         break;
       default:
         shortRuleString = ruleCommand + " unknown";
