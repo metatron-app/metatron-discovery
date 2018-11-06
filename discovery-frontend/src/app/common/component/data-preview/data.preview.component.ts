@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 import { BoardDataSource, Dashboard, JoinMapping, QueryParam } from '../../../domain/dashboard/dashboard';
 import { DatasourceService } from 'app/datasource/service/datasource.service';
-import { Datasource, DataSourceSummary, Field } from '../../../domain/datasource/datasource';
+import { Datasource, DataSourceSummary, Field, FieldRole } from '../../../domain/datasource/datasource';
 import { SlickGridHeader } from 'app/common/component/grid/grid.header';
 import { header } from '../grid/grid.header';
 import { GridComponent } from '../grid/grid.component';
@@ -197,8 +197,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     }
     // 데이터소스 array에 메타데이터가 존재하는경우 merge
     this.datasources.forEach((source) => {
-      source.fields.forEach((field) => {
+      source.fields.forEach((field, index, object) => {
+        // set meta data information
         this._setMetaDataField(field, source);
+        //  if current time in fields, hide
+        if (field.role === FieldRole.TIMESTAMP && field.name === 'current_datetime') {
+          object.splice(index, 1);
+        }
       });
     });
     this.selectDataSource(this.datasources[0]);

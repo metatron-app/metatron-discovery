@@ -133,6 +133,7 @@
       <information-data-source *ngIf="mode === 'information'"
                                (changeDatasource)="changedDatasourceData($event)"
                                [datasource]="datasource"
+                               [timestampColumn]="timestampColumn"
                                [(mode)]="mode"
                                (confirm)="confirmModalOpen($event)"
       ></information-data-source>

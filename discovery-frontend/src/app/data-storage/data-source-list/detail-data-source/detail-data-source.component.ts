@@ -17,7 +17,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Datasource, Status } from '../../../domain/datasource/datasource';
+import { Datasource, FieldRole, Status } from '../../../domain/datasource/datasource';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import { Alert } from '../../../common/util/alert.util';
 import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
@@ -91,6 +91,9 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
 
   // more flag
   public moreFl: boolean = false;
+
+  // timestamp column
+  public timestampColumn: any;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -238,7 +241,6 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   public deleteDatasource(): void {
     // 로딩 show
     this.loadingShow();
-
     this.datasourceService.deleteDatasource(this.datasourceId)
       .then((result) => {
         // alert
@@ -376,6 +378,18 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
       .then((datasource) => {
         // 데이터소스
         this.datasource = datasource;
+        // fields loop
+        this.datasource.fields.forEach((field, index, list) => {
+          // if field TIMESTAMP
+          if (field.role === FieldRole.TIMESTAMP) {
+            // set timestamp column
+            this.timestampColumn = field;
+            // if column is current time, hide
+            if (field.name === 'current_datetime') {
+              list.splice(index, 1);
+            }
+          }
+        });
         this.mode = mode;
         // 메타데이터 정보 조회
         this._getMetaData(datasource);

@@ -109,6 +109,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @Output()
   public confirm = new EventEmitter;
 
+  @Input()
+  public timestampColumn: any;
+
   // 리스트 flag
   public detailFl: boolean = false;
   // advanced setting show flag
@@ -136,7 +139,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     // ui init
     this.initView();
     // Linked 소스가 아니고 enabled 일때 timestamp 필드가 있는 경우에만 stats 조회하기
-    !this.isLinkedSource() && this.isEnabled() && this._getFindIndexTimestampField() !== -1 && this._getFieldStats(this.getFields[this._getFindIndexTimestampField()].name, this.datasource.engineName);
+    if (!this.isLinkedSource() && this.isEnabled() && this.timestampColumn) {
+      this._getFieldStats(this.timestampColumn.name, this.datasource.engineName);
+    }
   }
 
   // Destory
