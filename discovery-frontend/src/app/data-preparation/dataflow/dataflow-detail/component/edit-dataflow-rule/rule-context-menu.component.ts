@@ -238,7 +238,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
           }
           break;
         case 'setformat':
-          rule['more'] = { command : 'setformat', col : this.originalSelectedColIds, type : command.value};
+          rule['more'] = { command : 'setformat', col : {value : this.originalSelectedColIds}, type : command.value};
           break;
         case 'sort':
           rule['ruleString'] = 'sort order: ' + columnsStr;

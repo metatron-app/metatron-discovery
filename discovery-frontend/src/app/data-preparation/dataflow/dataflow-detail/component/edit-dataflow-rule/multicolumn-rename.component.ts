@@ -22,7 +22,6 @@ import { header, SlickGridHeader } from '../../../../../common/component/grid/gr
 import { GridOption } from '../../../../../common/component/grid/grid.option';
 import { Field } from '../../../../../domain/data-preparation/dataset';
 import * as pixelWidth from 'string-pixel-width';
-import * as _ from 'lodash';
 import { Alert } from '../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../common/util/string.util';
 
@@ -338,7 +337,11 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
         // 컬럼 길이 측정
         fields.forEach((field: Field) => {
           if(field.type === 'ARRAY' ||field.type === 'MAP') {
-            row[field.name] = JSON.stringify(row[field.name])
+
+            if (typeof row[field.name] !== 'string') {
+              row[field.name] = JSON.stringify(row[field.name])
+            }
+
           }
           const colWidth: number = pixelWidth(row[field.name], { size: 12 });
           if (!maxDataLen[field.name] || ( maxDataLen[field.name] < colWidth )) {
@@ -375,6 +378,7 @@ export class MulticolumnRenameComponent extends AbstractComponent implements OnI
       .SyncColumnCellResize(true)
       .RowHeight(32)
       .NullCellStyleActivate(true)
+      .EnableColumnReorder(false)
       .build())
 
   } // function - updateGrid
