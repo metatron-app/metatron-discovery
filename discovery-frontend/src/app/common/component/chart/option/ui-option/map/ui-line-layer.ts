@@ -12,18 +12,38 @@
  * limitations under the License.
  */
 
-import { FormatOptionComponent } from '../format-option.component';
-import { Component, ElementRef, Injector, OnDestroy, OnInit } from '@angular/core';
+import { MapBy, MapLinePathType } from '../../define/map/map-common';
+import { UILayers } from './ui-layers';
 
-@Component({
-  selector: 'jido-format-option',
-  templateUrl: './jido-format-option.component.html'
-})
-export class JidoFormatOptionComponent extends FormatOptionComponent {
+/**
+ * symbol layer
+ */
+export interface UILineLayer extends UILayers {
 
-  constructor(protected elementRef: ElementRef,
-              protected injector: Injector) {
+  // Type of Line
+  pathType?: MapLinePathType;
 
-    super(elementRef, injector);
-  }
+  // Source column Name
+  source?: string;
+
+  // Target column Name
+  target?: string;
+
+  // Thickness of line
+  thickness?: UIThickness;
+}
+
+/**
+ * Thickness of line
+ */
+interface UIThickness {
+
+  // Color specification criteria
+  by?: MapBy;
+
+  // Column Name
+  column?: string;
+
+  // Max value of thickness
+  maxValue?: number;
 }

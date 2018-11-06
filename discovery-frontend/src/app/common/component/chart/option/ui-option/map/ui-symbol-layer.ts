@@ -17,11 +17,10 @@
  */
 
 import { MapOutline } from './ui-outline';
-import { MapSymbolType } from '../../define/jido/jido-common';
+import { MapSymbolType } from '../../define/map/map-common';
+import { UILayers } from './ui-layers';
 
-// TODO add extends UILayers later
-// export interface UISymbolLayer extends UILayers {
-export interface UISymbolLayer {
+export interface UISymbolLayer extends UILayers {
 
   // Type of symbol
   symbol?: MapSymbolType;
@@ -34,12 +33,6 @@ export interface UISymbolLayer {
 
   // enable clustering, if true. (default false or null)
   clustering?: boolean;
-
-  //////////////////////
-  ////// only used in ui
-  //////////////////////
-
-  type?: string;
 }
 
 /**

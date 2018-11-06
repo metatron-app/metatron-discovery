@@ -1,24 +1,34 @@
-import { UIOption } from '../../ui-option';
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { MapLayerType } from '../../define/map/map-common';
+
 /**
- * 바차트 화면 UI에 필요한 옵션
- * Version 2.0
+ * map chart layer
  */
 export interface UILayers {
 
   // layer type
-  type?: string;
+  type?: MapLayerType;
 
   name?: string;
 
-  symbol?: string;
-
   color?: SymbolColor;
 
-  size?: SymbolSize;
-
-  outline?: SymbolOutline;
-
-  clustering?: boolean;
+  ////////////////////////
+  ///// UI Spec
+  ////////////////////////
 
   datasource?: string;
 
@@ -30,44 +40,27 @@ export interface UILayers {
  */
 interface SymbolColor {
 
+  // Color specification criteria
   by?: string;
 
+  // Column Name
   column?: string;
 
+  // Color code or schema code
   schema?: string;
 
+  // Transparency (0~100)
   transparency?: number;
 
-  blur?: number;
+  // Source color, if line layer case
+  source?: string;
 
-  radius?: number;
+  // Target color, if line layer case
+  target?: string;
+
+  /////////////////////
+  //// UI Spec
+  /////////////////////
 
   resolution?: number;
-
-}
-
-/**
- * Symbol Color
- */
-interface SymbolSize {
-
-  by?: string;
-
-  column?: string;
-
-  max?: number;
-
-}
-
-/**
- * Symbol Outline
- */
-interface SymbolOutline {
-
-  color?: string;
-
-  thickness?: string;
-
-  lineDash?: string;
-
 }

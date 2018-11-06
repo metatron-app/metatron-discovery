@@ -12,23 +12,16 @@
  * limitations under the License.
  */
 
-import {Component, ElementRef, Injector, Input, OnDestroy, OnInit} from '@angular/core';
-import {PagePivotComponent} from "../page-pivot.component";
-import {Pivot} from "../../../domain/workbook/configurations/pivot";
+import { Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
+import { PagePivotComponent } from '../page-pivot.component';
+import { Pivot } from '../../../domain/workbook/configurations/pivot';
 import { Field as AbstractField } from '../../../domain/workbook/configurations/field/field';
-import { BIType, Field, FieldPivot, FieldRole, LogicalType } from '../../../domain/datasource/datasource';
-import { DimensionField } from '../../../domain/workbook/configurations/field/dimension-field';
-import { AggregationType, MeasureField } from '../../../domain/workbook/configurations/field/measure-field';
-import {
-  GranularityType, TimestampField, TimeUnit,
-  ByTimeUnit
-} from '../../../domain/workbook/configurations/field/timestamp-field';
-import {
-  ChartType, SeriesType, ShelveFieldType,
-  UIFormatType, ShelveType, EventType, BarMarkType, UIFormatCurrencyType, UIFormatNumericAliasType
-} from '../../../common/component/chart/option/define/common';
+import { FieldPivot } from '../../../domain/datasource/datasource';
+import { EventType, ShelveFieldType, ShelveType } from '../../../common/component/chart/option/define/common';
 
 import * as _ from 'lodash';
+import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+import { UISymbolLayer } from '../../../common/component/chart/option/ui-option/map/ui-symbol-layer';
 
 @Component({
   selector: 'map-page-pivot',
@@ -132,10 +125,10 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        let column = this.pivot.columns[this.pivot.columns.length-1];
        let layerNum = column["layerNum"];
        if(!layerNum) layerNum = 1;
-       if(this.uiOption.layers[layerNum-1].color.by === 'NONE' && column.field.logicalType && column.field.logicalType.toString().indexOf('GEO') !== 0) {
-         this.uiOption.layers[layerNum-1].color.by = 'DIMENSION';
-         this.uiOption.layers[layerNum-1].color.column = column.name;
-         this.uiOption.layers[layerNum-1].color.schema = 'SC1';
+       if((<UIMapOption>this.uiOption).layers[layerNum-1].color.by === 'NONE' && column.field.logicalType && column.field.logicalType.toString().indexOf('GEO') !== 0) {
+         (<UIMapOption>this.uiOption).layers[layerNum-1].color.by = 'DIMENSION';
+         (<UIMapOption>this.uiOption).layers[layerNum-1].color.column = column.name;
+         (<UIMapOption>this.uiOption).layers[layerNum-1].color.schema = 'SC1';
        }
      }
 
@@ -150,14 +143,14 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        // only event type is changePivot, set color as measure color
        if (EventType.CHANGE_PIVOT == eventType) {
 
-         if(this.uiOption.layers[layerNum-1].color.by === 'NONE' || this.uiOption.layers[layerNum-1].color.by === 'DIMENSION') {
-           this.uiOption.layers[layerNum-1].color.by = 'MEASURE';
-           this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
-           this.uiOption.layers[layerNum-1].color.schema = 'VC1';
+         if((<UIMapOption>this.uiOption).layers[layerNum-1].color.by === 'NONE' || (<UIMapOption>this.uiOption).layers[layerNum-1].color.by === 'DIMENSION') {
+           (<UIMapOption>this.uiOption).layers[layerNum-1].color.by = 'MEASURE';
+           (<UIMapOption>this.uiOption).layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+           (<UIMapOption>this.uiOption).layers[layerNum-1].color.schema = 'VC1';
 
          } else {
-           this.uiOption.layers[layerNum-1].size.by = 'MEASURE';
-           this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+           (<UISymbolLayer>(<UIMapOption>this.uiOption).layers[layerNum-1]).size.by = 'MEASURE';
+           (<UISymbolLayer>(<UIMapOption>this.uiOption).layers[layerNum-1]).size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
          }
 
        }
@@ -170,8 +163,8 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        let fieldAlias = aggregation.field["alias"];
        if(!fieldAlias) fieldAlias = aggregation.name;
        if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
-       this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
-       this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+       (<UIMapOption>this.uiOption).layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+       (<UISymbolLayer>(<UIMapOption>this.uiOption).layers[layerNum-1]).size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
      }
 
      this.aggregationsCnt = this.pivot.aggregations.length;
@@ -254,16 +247,16 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      }
 
      if(field.field.pivot.length === 0) {
-       this.uiOption.layers[layerNum]["color"].by = "NONE";
+       (<UIMapOption>this.uiOption).layers[layerNum]["color"].by = "NONE";
        if(layerNum === 0) {
-         this.uiOption.layers[layerNum]["color"].schema = "#602663";
+         (<UIMapOption>this.uiOption).layers[layerNum]["color"].schema = "#602663";
        } else if(layerNum === 1) {
-         this.uiOption.layers[layerNum]["color"].schema = "#888fb4";
+         (<UIMapOption>this.uiOption).layers[layerNum]["color"].schema = "#888fb4";
        } else if(layerNum === 2) {
-         this.uiOption.layers[layerNum]["color"].schema = "#bccada";
+         (<UIMapOption>this.uiOption).layers[layerNum]["color"].schema = "#bccada";
        }
-       this.uiOption.layers[layerNum]["size"].by = "NONE";
-       this.uiOption.layers[layerNum]["color"]["customMode"] = undefined;
+       (<UIMapOption>this.uiOption).layers[layerNum]["size"].by = "NONE";
+       (<UIMapOption>this.uiOption).layers[layerNum]["color"]["customMode"] = undefined;
      } else {
 
      }

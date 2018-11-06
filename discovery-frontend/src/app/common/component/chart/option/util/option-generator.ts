@@ -97,13 +97,9 @@ import { UICombineChart } from '../ui-option/ui-combine-chart';
 import { UIPieChart } from '../ui-option/ui-pie-chart';
 import { UIRadarChart } from '../ui-option/ui-radar-chart';
 
-import { UILayers } from '../ui-option/map/ui-layers';
-
 import { CustomSymbol } from '../../../../../domain/workbook/configurations/format';
 import { UIChartAxisLabel, UIChartAxisLabelCategory, UIChartAxisLabelValue } from '../ui-option/ui-axis';
-import { UIMapViewChart } from '../ui-option/map/ui-mapview-chart';
-import { UIJidoOption } from '../ui-option/jido/ui-jido-chart';
-import { MapType } from '../define/jido/jido-common';
+import { MapType } from '../define/map/map-common';
 
 export namespace OptionGenerator {
 

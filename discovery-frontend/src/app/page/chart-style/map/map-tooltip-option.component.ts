@@ -1,13 +1,26 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { TooltipOptionComponent } from '../tooltip-option.component';
-import { UIOption } from '../../../common/component/chart/option/ui-option';
-import { FormatOptionConverter } from '../../../common/component/chart/option/converter/format-option-converter';
+import { Pivot } from '../../../domain/workbook/configurations/pivot';
 import { UIChartDataLabelDisplayType } from '../../../common/component/chart/option/define/common';
 import * as _ from 'lodash';
-import { Pivot } from '../../../domain/workbook/configurations/pivot';
+import { FormatOptionConverter } from '../../../common/component/chart/option/converter/format-option-converter';
+import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
 import { Field } from '../../../domain/workbook/configurations/field/field';
-import { Field as AbstractField } from '../../../domain/datasource/datasource';
-import {ChartUtil} from '../../../common/component/chart/option/util/chart-util';
+import { TooltipOptionComponent } from '../tooltip-option.component';
+import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 
 @Component({
   selector: 'map-tooltip-option',
@@ -30,8 +43,10 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
   // add column show / hide
   public addColumnShowFl: boolean = false;
 
+  public uiOption: UIMapOption;
+
   @Input('uiOption')
-  public set setUiOption(uiOption: UIOption) {
+  public set setUiOption(uiOption: UIMapOption) {
 
     if( !uiOption.toolTip ) {
       uiOption.toolTip = {};
@@ -76,7 +91,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     if (!this.uiOption.toolTip.displayColumns || 0 == this.uiOption.toolTip.displayColumns.length) {
 
       this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedColumns);
-    // when displayColumns are not empty, set columns by displayColumns
+      // when displayColumns are not empty, set columns by displayColumns
     } else {
 
       let originSelectedColumns = _.cloneDeep(this.selectedColumns);
@@ -287,7 +302,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
   public returnMapTooltip(tooltipType: string): boolean {
 
     if (this.uiOption.toolTip.displayTypes &&
-        -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType[tooltipType])) {
+      -1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType[tooltipType])) {
 
       return true;
     }

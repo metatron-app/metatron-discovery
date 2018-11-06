@@ -12,18 +12,19 @@
  * limitations under the License.
  */
 
-/**
- * heatmap layer
- */
+
+
+import { MapTileShape } from '../../define/map/map-common';
 import { UILayers } from './ui-layers';
 
-// TODO add extends UILayers later
-// export interface UIHeatmapLayer {
-export interface UIHeatmapLayer extends UILayers {
+/**
+ * tile layer
+ */
+export interface UITileLayer extends UILayers {
 
-  // Blur value (0~100), default 20
-  blur?: number;
+  // Shape of tile
+  shape?: MapTileShape;
 
-  // Radius value (0~100), default 20
-  radius?: number;
+  // Coverage of tile(0~100), default 80
+  coverage?: number;
 }

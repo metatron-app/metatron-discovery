@@ -12,20 +12,16 @@
  * limitations under the License.
  */
 
-
-
-import { MapTileShape } from '../../define/jido/jido-common';
-
 /**
- * tile layer
+ * heatmap layer
  */
-// TODO add extends UILayers later
-export interface UITileLayer {
-// export interface UITileLayer extends UILayers {
+import { UILayers } from './ui-layers';
 
-  // Shape of tile
-  shape?: MapTileShape;
+export interface UIHeatmapLayer extends UILayers {
 
-  // Coverage of tile(0~100), default 80
-  coverage?: number;
+  // Blur value (0~100), default 20
+  blur?: number;
+
+  // Radius value (0~100), default 20
+  radius?: number;
 }

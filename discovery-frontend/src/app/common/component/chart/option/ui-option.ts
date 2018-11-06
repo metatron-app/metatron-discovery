@@ -14,7 +14,7 @@ import {UIChartFormat} from "./ui-option/ui-format";
 import {UIChartDataLabel} from "./ui-option/ui-datalabel";
 import { UIChartTooltip } from './ui-option/ui-tooltip';
 import { UILayers } from './ui-option/map/ui-layers';
-import { MapType } from './define/jido/jido-common';
+import { MapType } from './define/map/map-common';
 
 /**
  * Export
@@ -105,22 +105,6 @@ export interface UIOption {
 
   // TODO: 임시용 Split
   split?: UISplit;
-
-
-  // TODO remove after setting jido
-  layers?: UILayers[];
-
-  map?: MapType;
-
-  licenseNotation?: string;
-
-  showDistrictLayer?: boolean;
-
-  districtUnit?: string;
-
-  showMapLayer?: boolean;
-
-
 }
 
 export interface UISplit {

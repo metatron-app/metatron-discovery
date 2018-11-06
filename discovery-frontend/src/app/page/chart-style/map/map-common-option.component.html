@@ -12,52 +12,68 @@
   ~ limitations under the License.
   -->
 
+<!-- 공통 설정 -->
 <div class="ddp-ui-chart-side ddp-show">
-  <div class="ddp-ui-side-title">
-    {{'msg.page.ui.common' | translate}}
-  </div>
-  <div class="ddp-wrap-downmenu">
-    <div class="ddp-box-down">
-      <div class="ddp-wrap-divide">
-        <div class="ddp-divide2">
-          <!-- slider -->
-          <div class="ddp-wrap-option-slider">
-            <span class="ddp-label-slider">{{'msg.page.common.map.layer' | translate}}</span>
-            <!-- Slide THREE -->
-            <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-              <input type="checkbox" id="check3" [ngModel]="uiOption.showMapLayer"
-              (click)="toggleBaseMap()">
-              <label for="check3"><span class="ddp-slide"></span></label>
-            </div>
-            <!-- //Slide THREE -->
-          </div>
-          <!-- //slider -->
-          <div class="ddp-list-sub2" *ngIf="uiOption.showMapLayer">
-            <!-- divide -->
-            <div class="ddp-divide2">
-              <div class="ddp-list-label">{{'msg.page.common.map.layer.service' | translate}}</div>
-              <!-- SELECTBOX -->
-              <div class="ddp-type-selectbox" (click)="mapTypeFlag=!mapTypeFlag;" (clickOutside)="mapTypeFlag=false" [excludeBeforeClick]="true">
-                <span class="ddp-txt-selectbox">{{ uiOption.map.toString() === 'NONE' ? 'none' : uiOption.map }}</span>
-                <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="mapTypeFlag">
-                  <!-- <li (click)="changeMapType('NONE')"><a href="#">{{'msg.page.common.map.layer.service.none' | translate}}</a></li> -->
-                  <li (click)="changeMapType('Colored')"><a href="#">Colord</a></li>
-                  <li (click)="changeMapType('Light')"><a href="#">Light</a></li>
-                  <li (click)="changeMapType('Dark')"><a href="#">Dark</a></li>
-                </ul>
+  <div class="ddp-filter">
+    <!-- title -->
+    <div class="ddp-ui-side-title">
+      {{'msg.page.ui.common' | translate}}
+    </div>
+    <!-- //title -->
+    <div class="ddp-wrap-downmenu">
+      <div class="ddp-box-down">
+        <div class="ddp-wrap-divide">
+          <div class="ddp-divide2">
+            <!-- slider -->
+            <div class="ddp-wrap-option-slider">
+              <span class="ddp-label-slider">{{'msg.page.common.map.layer' | translate}}</span>
+              <!-- Slide THREE -->
+              <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                <input type="checkbox" [ngModel]="uiOption.showMapLayer" (click)="toggleShowMapLayer(!uiOption.showMapLayer)" name="check">
+                <label><span class="ddp-slide"></span></label>
               </div>
-              <!-- //SELECTBOX -->
+              <!-- //Slide THREE -->
             </div>
-            <!-- //divide -->
-            <!-- divide -->
-            <div class="ddp-divide2">
-              <div class="ddp-list-label">{{'msg.page.common.map.layer.license' | translate}}</div>
-              <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation" (keyup.enter)="changeLicenseNotation()" (focusout)="changeLicenseNotation()">
+            <!-- //slider -->
+            <div *ngIf="uiOption.showMapLayer" class="ddp-list-sub2">
+              <!-- divide -->
+              <div class="ddp-divide2">
+                <div class="ddp-list-label">{{'msg.page.common.map.layer.service' | translate}}</div>
+                <!-- SELECTBOX -->
+                <component-select
+                  [array]="mapServiceList"
+                  [defaultIndex]="findServiceDefaultIndex()"
+                  [viewKey]="'name'"
+                  (onSelected)="setMapService($event)"
+                ></component-select>
+                <!-- //SELECTBOX -->
+              </div>
+              <!-- //divide -->
+
+              <!-- divide -->
+              <div class="ddp-divide2">
+                <div class="ddp-list-label">{{'msg.page.common.map.layer.map.style' | translate}}</div>
+                <!-- SELECTBOX -->
+                <component-select
+                  [array]="mapStyleList"
+                  [defaultIndex]="findStyleDefaultIndex()"
+                  [viewKey]="'name'"
+                  (onSelected)="setMapStyle($event)"
+                ></component-select>
+                <!-- //SELECTBOX -->
+              </div>
+              <!-- //divide -->
+              <!-- divide -->
+              <div class="ddp-divide2">
+                <div class="ddp-list-label">{{'msg.page.common.map.layer.license' | translate}}</div>
+                <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.licenseNotation" (key.enter)="setLicense()">
+              </div>
+              <!-- //divide -->
             </div>
-            <!-- //divide -->
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+<!-- //공통 설정 -->

@@ -18,9 +18,7 @@ import { MapOutline } from './ui-outline';
 /**
  * polygon layer
  */
-// TODO add extends UILayers later
-export interface UIPolygonLayer {
-// export interface UIPolygonLayer extends UILayers {
+export interface UIPolygonLayer extends UILayers {
 
   outline?: MapOutline;
 }
