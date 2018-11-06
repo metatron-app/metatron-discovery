@@ -635,7 +635,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         implementor: this.datasetJdbc.dataconnection.implementor,
         password: this.datasetJdbc.dataconnection.password,
         port: this.datasetJdbc.dataconnection.port,
-        username: this.datasetJdbc.dataconnection.username}};
+        url: this.datasetJdbc.dataconnection.url,
+        username: this.datasetJdbc.dataconnection.username}
+      };
     }
 
 
