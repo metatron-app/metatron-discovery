@@ -2434,6 +2434,7 @@
   "msg.page.layer.map.coverage": "Coverage",
   "msg.page.layer.map.clustering": "Clustering",
   "msg.page.layer.map.stroke.max.width": "Max Stroke Width",
+  "msg.page.layer.map.view": "View Original Data",
   "msg.page.format.format.title": "Format",
   "msg.page.format.xaxis.rotation": "{{value}} degree",
   "msg.page.format.custom.symbol": "Custom Symbol",

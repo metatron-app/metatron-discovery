@@ -22,6 +22,7 @@ import { EventType, ShelveFieldType, ShelveType } from '../../../common/componen
 import * as _ from 'lodash';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 import { UISymbolLayer } from '../../../common/component/chart/option/ui-option/map/ui-symbol-layer';
+import { MapBy } from '../../../common/component/chart/option/define/map/map-common';
 
 @Component({
   selector: 'map-page-pivot',
@@ -125,8 +126,8 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        let column = this.pivot.columns[this.pivot.columns.length-1];
        let layerNum = column["layerNum"];
        if(!layerNum) layerNum = 1;
-       if((<UIMapOption>this.uiOption).layers[layerNum-1].color.by === 'NONE' && column.field.logicalType && column.field.logicalType.toString().indexOf('GEO') !== 0) {
-         (<UIMapOption>this.uiOption).layers[layerNum-1].color.by = 'DIMENSION';
+       if((<UIMapOption>this.uiOption).layers[layerNum-1].color.by === MapBy.NONE && column.field.logicalType && column.field.logicalType.toString().indexOf('GEO') !== 0) {
+         (<UIMapOption>this.uiOption).layers[layerNum-1].color.by = MapBy.DIMENSION;
          (<UIMapOption>this.uiOption).layers[layerNum-1].color.column = column.name;
          (<UIMapOption>this.uiOption).layers[layerNum-1].color.schema = 'SC1';
        }
@@ -143,13 +144,13 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        // only event type is changePivot, set color as measure color
        if (EventType.CHANGE_PIVOT == eventType) {
 
-         if((<UIMapOption>this.uiOption).layers[layerNum-1].color.by === 'NONE' || (<UIMapOption>this.uiOption).layers[layerNum-1].color.by === 'DIMENSION') {
-           (<UIMapOption>this.uiOption).layers[layerNum-1].color.by = 'MEASURE';
+         if((<UIMapOption>this.uiOption).layers[layerNum-1].color.by === MapBy.NONE || (<UIMapOption>this.uiOption).layers[layerNum-1].color.by === MapBy.DIMENSION) {
+           (<UIMapOption>this.uiOption).layers[layerNum-1].color.by = MapBy.MEASURE;
            (<UIMapOption>this.uiOption).layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
            (<UIMapOption>this.uiOption).layers[layerNum-1].color.schema = 'VC1';
 
          } else {
-           (<UISymbolLayer>(<UIMapOption>this.uiOption).layers[layerNum-1]).size.by = 'MEASURE';
+           (<UISymbolLayer>(<UIMapOption>this.uiOption).layers[layerNum-1]).size.by = MapBy.MEASURE;
            (<UISymbolLayer>(<UIMapOption>this.uiOption).layers[layerNum-1]).size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
          }
 
@@ -247,7 +248,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      }
 
      if(field.field.pivot.length === 0) {
-       (<UIMapOption>this.uiOption).layers[layerNum]["color"].by = "NONE";
+       (<UIMapOption>this.uiOption).layers[layerNum]["color"].by = MapBy.NONE;
        if(layerNum === 0) {
          (<UIMapOption>this.uiOption).layers[layerNum]["color"].schema = "#602663";
        } else if(layerNum === 1) {

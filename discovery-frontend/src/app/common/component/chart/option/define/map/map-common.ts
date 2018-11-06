@@ -34,7 +34,6 @@ export enum MapLayerType {
  * symbol layer - symbol type
  */
 export enum MapSymbolType {
-
   CIRCLE = <any>'CIRCLE',
   SQUARE = <any>'SQUARE',
   TRIANGLE = <any>'TRIANGLE',
@@ -47,7 +46,6 @@ export enum MapSymbolType {
  * line layer - line path type
  */
 export enum MapLinePathType {
-
   STRAIGHT = <any>'STRAIGHT',
   ARCH = <any>'ARCH'
 }
@@ -56,7 +54,6 @@ export enum MapLinePathType {
  * Color specification criteria
  */
 export enum MapBy {
-
   NONE = <any>'NONE',
   MEASURE = <any>'MEASURE',
   DIMENSION = <any>'DIMENSION'
@@ -66,7 +63,15 @@ export enum MapBy {
  * tile layer - Shape of tile
  */
 export enum MapTileShape {
-
   HEXAGON = <any>'HEXAGON',
   SQUARE = <any>'SQUARE'
+}
+
+/**
+ * outline - Thickness outline
+ */
+export enum MapThickness {
+  THIN = <any>'THIN',
+  NORMAL = <any>'NORMAL',
+  THICK = <any>'THICK'
 }

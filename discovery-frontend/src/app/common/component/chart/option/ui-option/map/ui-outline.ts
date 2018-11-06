@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+import { MapThickness } from '../../define/map/map-common';
+
 /**
  * Outline of layer, outline 속성이 null 이거나 없는 경우 off 처리
  */
@@ -21,7 +23,7 @@ export interface MapOutline {
   color?: string;
 
   // Thickness outline
-  thickness?: string;
+  thickness?: MapThickness;
 
   /////////////////
   // only used in ui

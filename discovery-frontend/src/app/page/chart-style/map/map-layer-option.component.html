@@ -27,7 +27,7 @@
           <!-- divide -->
           <div class="ddp-divide2 ">
             <div class="ddp-list-label">{{'msg.page.layer.map.name' | translate}}</div>
-            <input type="text" class="ddp-input-typebasic" placeholder="">
+            <input type="text" class="ddp-input-typebasic" placeholder="" [(ngModel)]="uiOption.layers[index].name" (keyup.enter)="changeLayerName(uiOption.layers[index].name)">
           </div>
           <!-- //divide -->
           <!-- [point, heatmap, hexagon, line, polygon] -->
@@ -61,13 +61,14 @@
             <!-- 레이어 유형 contents -->
             <div class="ddp-ui-layer-type">
               <div class="ddp-ui-type-contents">
-                <div class="ddp-wrap-divide">
-                  <!-- point type -->
-                  <div class="ddp-divide2 ">
-                    <div class="ddp-list-label">기호 유형</div>
+                <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
+                  <!-- symbol layer : point type -->
+                  <div *ngIf="'symbol' === uiOption.layers[index].type.toString()" class="ddp-divide2 ">
+                    <div class="ddp-list-label">{{'msg.page.layer.map.point' | translate}}</div>
                     <ul class="ddp-list-express ddp-tab6 ddp-type2">
-                      <li *ngFor="let item of symbolLayerSymbols" (click)="changeSymbolType(item.value)">
+                      <li *ngFor="let item of symbolLayerSymbols" [ngClass]="{'ddp-selected' : uiOption.layers[index].symbol === item.value}" (click)="changeSymbolType(item.value)">
                         <em [ngClass]="{'ddp-icon-circle' : 'CIRCLE' === item.value.toString(),
+                                        'ddp-icon-square' : 'SQUARE' === item.value.toString(),
                                         'ddp-icon-triangle' : 'TRIANGLE' === item.value.toString(),
                                         'ddp-icon-pin' : 'PIN' === item.value.toString(),
                                         'ddp-icon-fly' : 'PLAIN' === item.value.toString(),
@@ -76,25 +77,21 @@
                     </ul>
 
                   </div>
-                  <!-- //point type -->
+                  <!-- //symbol layer : point type -->
 
-                  <!-- point, hexagon, line, polygon : color, transparency -->
+                  <!-- symbol, hexagon, line, polygon : color, transparency -->
                   <div class="ddp-divide2 ">
-                    <div class="ddp-list-label">색상</div>
+                    <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
                     <div class="ddp-list-sub2">
                       <div class="ddp-divide2">
-                        <div class="ddp-list-label">색상 기준</div>
+                        <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                         <!-- SELECTBOX -->
-                        <div class="ddp-type-selectbox">
-                          <span class="ddp-txt-selectbox">Color by Dimension</span>
-                          <ul class="ddp-list-selectbox ddp-selectdown">
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
+                        <component-select
+                          [array]="colorByList"
+                          [defaultIndex]="findColorByIndex()"
+                          [viewKey]="'name'"
+                          (onSelected)="changeColorBy($event)"
+                        ></component-select>
                         <!-- //SELECTBOX -->
                       </div>
                       <div class="ddp-wrap-disabled">
@@ -103,16 +100,6 @@
                           <div class="ddp-type-selectbox">
                             <span class="ddp-txt-selectbox">Color by Dimension</span>
                             <ul class="ddp-list-selectbox ddp-selectdown">
-                              <li>
-                                <a href="#">
-                                  Series
-                                </a>
-                              </li>
-                              <li>
-                                <a href="#">
-                                  Series
-                                </a>
-                              </li>
                               <li>
                                 <a href="#">
                                   Series
@@ -207,177 +194,149 @@
 
 
                       <div class="ddp-wrap-option-slider">
-                        <span class="ddp-label-slider">사용자 색상 설정</span>
+                        <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
                         <!-- Slide THREE -->
                         <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                          <input type="checkbox" value="None" id="check2" name="check">
-                          <label for="check2"><span class="ddp-slide"></span></label>
+                          <input type="checkbox" name="check">
+                          <label><span class="ddp-slide"></span></label>
                         </div>
                         <!-- //Slide THREE -->
 
                       </div>
                       <div class="ddp-divide2">
-                        <div class="ddp-list-label">투명도</div>
+                        <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                         <!-- SELECTBOX -->
-                        <div class="ddp-type-selectbox">
-                          <span class="ddp-txt-selectbox">사용하지 않음</span>
-                          <ul class="ddp-list-selectbox ddp-selectdown">
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
+                        <component-select
+                          [array]="transparencyList"
+                          [defaultIndex]="findTransparencyIndex()"
+                          [viewKey]="'name'"
+                          (onSelected)="changeTransparency($event)"
+                        ></component-select>
                         <!-- //SELECTBOX -->
                       </div>
                     </div>
                   </div>
                   <!-- //point, hexagon, line, polygon : color, transparency -->
-
-                  <!-- heatmap : color, transparency -->
-                  <div class="ddp-wrap-divide">
-                    <!-- divide -->
-                    <div class="ddp-divide2">
-                      <div class="ddp-list-label">색상 </div>
-                      <div class="ddp-ui-colorby">
-                        <!-- colorby button -->
-                        <div class="ddp-wrap-colorby-button">
-                          <em class="ddp-icon-colorby"></em>
-                          <!-- 클릭시 ddp-selected 추가 -->
-                          <button class="ddp-btn-color-heatmap1"></button>
-                        </div>
-                        <!-- //colorby button -->
-                        <!-- popup -->
-                        <div class="ddp-popup-side" style="display:none;">
-                          <!-- top -->
-                          <div class="ddp-pop-side-top">
-                            Color Template
-
-                            <a href="#" class="ddp-btn-close"></a>
-
-                          </div>
-                          <!-- //top -->
-                          <!-- contents -->
-                          <div class="ddp-pop-side-contents">
-                            <ul class="ddp-list-series">
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-heatmap1 ddp-selected"></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-heatmap2 "></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-heatmap3 "></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-heatmap4 "></button>
-                              </li>
-
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-heatmap5 "></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-heatmap6 "></button>
-                              </li>
-                              <li>
-                                <!-- 선택시 ddp-selected 추가 -->
-                                <button class="ddp-btn-color-heatmap7 "></button>
-                              </li>
-
-                            </ul>
-
-                          </div>
-                          <!-- //contents -->
-
-                        </div>
-                        <!-- //popup -->
-                      </div>
-                    </div>
-                    <!-- //divide -->
-                    <div class="ddp-wrap-option-slider">
-                      <span class="ddp-label-slider">사용자 색상 설정</span>
-                      <!-- Slide THREE -->
-                      <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                        <input type="checkbox" value="None" id="check2" name="check">
-                        <label for="check2"><span class="ddp-slide"></span></label>
-                      </div>
-                      <!-- //Slide THREE -->
-                    </div>
-                    <div class="ddp-divide2">
-                      <div class="ddp-list-label">투명도</div>
-                      <!-- SELECTBOX -->
-                      <div class="ddp-type-selectbox">
-                        <span class="ddp-txt-selectbox">투명도</span>
-                        <ul class="ddp-list-selectbox ddp-selectdown">
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                          <li>
-                            <a href="#">
-                              Series
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                      <!-- //SELECTBOX -->
-                    </div>
-                  </div>
-                  <!-- //heatmap : color, transparency -->
                 </div>
 
-                <!-- point : size -->
-                <div class="ddp-wrap-divide">
+                <!-- heatmap : color, transparency -->
+                <div *ngIf="'heatmap' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
+                  <!-- divide -->
+                  <div class="ddp-divide2">
+                    <div class="ddp-list-label">색상 </div>
+                    <div class="ddp-ui-colorby">
+                      <!-- colorby button -->
+                      <div class="ddp-wrap-colorby-button">
+                        <em class="ddp-icon-colorby"></em>
+                        <!-- 클릭시 ddp-selected 추가 -->
+                        <button class="ddp-btn-color-heatmap1"></button>
+                      </div>
+                      <!-- //colorby button -->
+                      <!-- popup -->
+                      <div class="ddp-popup-side" style="display:none;">
+                        <!-- top -->
+                        <div class="ddp-pop-side-top">
+                          Color Template
+
+                          <a href="#" class="ddp-btn-close"></a>
+
+                        </div>
+                        <!-- //top -->
+                        <!-- contents -->
+                        <div class="ddp-pop-side-contents">
+                          <ul class="ddp-list-series">
+                            <li>
+                              <!-- 선택시 ddp-selected 추가 -->
+                              <button class="ddp-btn-color-heatmap1 ddp-selected"></button>
+                            </li>
+                            <li>
+                              <!-- 선택시 ddp-selected 추가 -->
+                              <button class="ddp-btn-color-heatmap2 "></button>
+                            </li>
+                            <li>
+                              <!-- 선택시 ddp-selected 추가 -->
+                              <button class="ddp-btn-color-heatmap3 "></button>
+                            </li>
+                            <li>
+                              <!-- 선택시 ddp-selected 추가 -->
+                              <button class="ddp-btn-color-heatmap4 "></button>
+                            </li>
+
+                            <li>
+                              <!-- 선택시 ddp-selected 추가 -->
+                              <button class="ddp-btn-color-heatmap5 "></button>
+                            </li>
+                            <li>
+                              <!-- 선택시 ddp-selected 추가 -->
+                              <button class="ddp-btn-color-heatmap6 "></button>
+                            </li>
+                            <li>
+                              <!-- 선택시 ddp-selected 추가 -->
+                              <button class="ddp-btn-color-heatmap7 "></button>
+                            </li>
+
+                          </ul>
+
+                        </div>
+                        <!-- //contents -->
+
+                      </div>
+                      <!-- //popup -->
+                    </div>
+                  </div>
+                  <!-- //divide -->
+                  <div class="ddp-wrap-option-slider">
+                    <span class="ddp-label-slider">사용자 색상 설정</span>
+                    <!-- Slide THREE -->
+                    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                      <input type="checkbox" value="None" id="check2" name="check">
+                      <label for="check2"><span class="ddp-slide"></span></label>
+                    </div>
+                    <!-- //Slide THREE -->
+                  </div>
+                  <div class="ddp-divide2">
+                    <div class="ddp-list-label">투명도</div>
+                    <!-- SELECTBOX -->
+                    <div class="ddp-type-selectbox">
+                      <span class="ddp-txt-selectbox">투명도</span>
+                      <ul class="ddp-list-selectbox ddp-selectdown">
+                        <li>
+                          <a href="#">
+                            Series
+                          </a>
+                        </li>
+                        <li>
+                          <a href="#">
+                            Series
+                          </a>
+                        </li>
+                        <li>
+                          <a href="#">
+                            Series
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                    <!-- //SELECTBOX -->
+                  </div>
+                </div>
+                <!-- //heatmap : color, transparency -->
+
+                <!-- symbol : size -->
+                <div *ngIf="'symbol' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
                   <!-- divide -->
                   <div class="ddp-divide2 ">
-                    <div class="ddp-list-label">크기</div>
+                    <div class="ddp-list-label">{{'msg.page.layer.map.size' | translate}}</div>
                     <div class="ddp-list-sub2">
                       <div class="ddp-divide2">
-                        <div class="ddp-list-label">크기 기준</div>
+                        <div class="ddp-list-label">{{'msg.page.layer.map.size.by' | translate}}</div>
                         <!-- SELECTBOX -->
-                        <div class="ddp-type-selectbox">
-                          <span class="ddp-txt-selectbox">측정값</span>
-                          <ul class="ddp-list-selectbox ddp-selectdown">
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
+                        <component-select
+                          [array]="byList"
+                          [defaultIndex]="findSymbolSizeByIndex()"
+                          [viewKey]="'name'"
+                          (onSelected)="changeSizeBy($event)"
+                        ></component-select>
                         <!-- //SELECTBOX -->
                       </div>
 
@@ -387,17 +346,7 @@
                           <span class="ddp-txt-selectbox">Column Name</span>
                           <ul class="ddp-list-selectbox ddp-selectdown">
                             <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
+                              <a href="javascript:">
                                 Series
                               </a>
                             </li>
@@ -409,24 +358,24 @@
                   </div>
                   <!-- //divide -->
                 </div>
-                <!-- point : size -->
+                <!-- symbol : size -->
 
-                <!-- point, polygon : outline -->
-                <div class="ddp-wrap-divide">
+                <!-- symbol, polygon : outline -->
+                <div *ngIf="'symbol' === uiOption.layers[index].type.toString() || 'polygon' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
                   <!-- divide -->
                   <div class="ddp-divide2 ">
                     <div class="ddp-wrap-option-slider">
-                      <span class="ddp-label-slider">아웃라인</span>
+                      <span class="ddp-label-slider">{{'msg.page.layer.map.outline' | translate}}</span>
                       <!-- Slide THREE -->
                       <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                        <input type="checkbox" value="None" id="check2" name="check">
-                        <label for="check2"><span class="ddp-slide"></span></label>
+                        <input type="checkbox" name="check" [ngModel]="uiOption.layers[index].outline" (click)="toggleOutline(uiOption.layers[index].outline)">
+                        <label><span class="ddp-slide"></span></label>
                       </div>
                       <!-- //Slide THREE -->
 
                     </div>
 
-                    <div class="ddp-wrap-option-multy ddp-clear">
+                    <div *ngIf="uiOption.layers[index].outline" class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-7">
                         <span class="ddp-label-txt">색상</span>
                       </div>
@@ -443,23 +392,17 @@
                     </div>
 
                     <!-- multy -->
-                    <div class="ddp-wrap-option-multy ddp-clear">
+                    <div *ngIf="uiOption.layers[index].outline" class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-6">
-
-                        <span class="ddp-label-txt">굵기</span>
-
-
+                        <span class="ddp-label-txt">{{'msg.page.layer.map.outline.thickness' | translate}}</span>
                       </div>
                       <div class="ddp-col-6 ddp-txt-right">
                         <ul class="ddp-list-express ddp-tab3 ddp-type">
-                          <li>
-                            <em class="ddp-line-bold1"></em>
-                          </li>
-                          <li>
-                            <em class="ddp-line-bold2"></em>
-                          </li>
-                          <li class="ddp-selected">
-                            <em class="ddp-line-bold3"></em>
+                          <li *ngFor="let item of thicknessList" [ngClass]="{'ddp-selected' : uiOption.layers[index].outline.thickness === item.value}"
+                              (click)="changeThick(item.value)">
+                            <em [ngClass]="{'ddp-line-bold1' : 'THIN' === item.value.toString(),
+                                            'ddp-line-bold2' : 'NORMAL' === item.value.toString(),
+                                            'ddp-line-bold3' : 'THICK' === item.value.toString()}"></em>
                           </li>
                         </ul>
                       </div>
@@ -467,192 +410,192 @@
                     <!-- //multy -->
                   </div>
                 </div>
-                <!-- //point, polygon : outline -->
+                <!-- //symbol, polygon : outline -->
 
-                <!-- point : view original data -->
-                <div class="ddp-wrap-divide">
+                <!-- symbol : view original data -->
+                <div *ngIf="'symbol' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
                   <div class="ddp-part-check-b ">
                     <label class="ddp-label-checkbox ddp-position">
-                      <input type="checkbox">
+                      <input type="checkbox" [ngModel]="uiOption.layers[index].viewRawData" (click)="toggleViewRawData(!uiOption.layers[index].viewRawData)">
                       <i class="ddp-icon-checkbox"></i>
-                      <span class="ddp-txt-checkbox">원본보기</span>
+                      <span class="ddp-txt-checkbox">{{'msg.page.layer.map.view' | translate}}</span>
                     </label>
                   </div>
                 </div>
-                <!-- //point : view original data -->
+                <!-- //symbol : view original data -->
 
-                <!-- point : link -->
-                <div class="ddp-wrap-divide">
-                  <!-- divide -->
-                  <div class="ddp-divide2 ">
-                    <div class="ddp-wrap-option-slider">
-                      <span class="ddp-label-slider">포인트 연결</span>
-                      <!-- Slide THREE -->
-                      <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                        <input type="checkbox" value="None" id="check2" name="check">
-                        <label for="check2"><span class="ddp-slide"></span></label>
-                      </div>
-                      <!-- //Slide THREE -->
+                <!-- symbol : link -->
+                <!--<div *ngIf="'symbol' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">-->
+                  <!--&lt;!&ndash; divide &ndash;&gt;-->
+                  <!--<div class="ddp-divide2 ">-->
+                    <!--<div class="ddp-wrap-option-slider">-->
+                      <!--<span class="ddp-label-slider">포인트 연결</span>-->
+                      <!--&lt;!&ndash; Slide THREE &ndash;&gt;-->
+                      <!--<div class="ddp-checkbox-slide ddp-checkbox-automatic2">-->
+                        <!--<input type="checkbox" value="None" id="check2" name="check">-->
+                        <!--<label for="check2"><span class="ddp-slide"></span></label>-->
+                      <!--</div>-->
+                      <!--&lt;!&ndash; //Slide THREE &ndash;&gt;-->
 
-                    </div>
-                    <div class="ddp-list-sub2">
-                      <!-- divide -->
-                      <div class="ddp-divide2">
-                        <!-- 위치 -->
-                        <div class="ddp-ui-point">
+                    <!--</div>-->
+                    <!--<div class="ddp-list-sub2">-->
+                      <!--&lt;!&ndash; divide &ndash;&gt;-->
+                      <!--<div class="ddp-divide2">-->
+                        <!--&lt;!&ndash; 위치 &ndash;&gt;-->
+                        <!--<div class="ddp-ui-point">-->
 
-                          <div class="ddp-point-local ddp-clear">
-                            <span class="ddp-label-point ddp-col-4">출발 위치</span>
-                            <span class="ddp-box-data ddp-col-8">
-                                                                                <em class="ddp-icon-dimension-ab"></em> CityCityCityCityCityCityCityCityCityCityCityCity
-                                                                            </span>
-                          </div>
-                          <div class="ddp-point-local ddp-clear">
-                            <span class="ddp-label-point ddp-col-4">도착 위치</span>
-                            <span class="ddp-box-data ddp-col-8">
-                                                                                <em class="ddp-icon-dimension-ab"></em> Region
-                                                                            </span>
-                          </div>
-                          <a href="javascript:" class="ddp-btn-column-add"> </a>
-                        </div>
-                        <!-- //위치 -->
-                      </div>
-                      <!-- //divide -->
-                      <!-- divide -->
-                      <div class="ddp-divide2">
-                        <div class="ddp-list-label">색상</div>
-                        <div class="ddp-list-sub2">
-                          <div class="ddp-divide2">
-                            <div class="ddp-list-label">색상 기준</div>
-                            <!-- SELECTBOX -->
-                            <div class="ddp-type-selectbox">
-                              <span class="ddp-txt-selectbox">없음</span>
-                              <ul class="ddp-list-selectbox ddp-selectdown">
-                                <li>
-                                  <a href="#">
-                                    Series
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href="#">
-                                    Series
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href="#">
-                                    Series
-                                  </a>
-                                </li>
-                              </ul>
-                            </div>
-                            <!-- //SELECTBOX -->
-                          </div>
-                          <div class="ddp-divide2">
-                            <!-- color select --->
-                            <div class="ddp-ui-color-select">
-                              <div class="ddp-txt-label">
-                                <!-- 사용자가 바꾼 color : ddp-user 추가 -->
-                                <div class="ddp-box-color ">
+                          <!--<div class="ddp-point-local ddp-clear">-->
+                            <!--<span class="ddp-label-point ddp-col-4">출발 위치</span>-->
+                            <!--<span class="ddp-box-data ddp-col-8">-->
+                                                                                <!--<em class="ddp-icon-dimension-ab"></em> CityCityCityCityCityCityCityCityCityCityCityCity-->
+                                                                            <!--</span>-->
+                          <!--</div>-->
+                          <!--<div class="ddp-point-local ddp-clear">-->
+                            <!--<span class="ddp-label-point ddp-col-4">도착 위치</span>-->
+                            <!--<span class="ddp-box-data ddp-col-8">-->
+                                                                                <!--<em class="ddp-icon-dimension-ab"></em> Region-->
+                                                                            <!--</span>-->
+                          <!--</div>-->
+                          <!--<a href="javascript:" class="ddp-btn-column-add"> </a>-->
+                        <!--</div>-->
+                        <!--&lt;!&ndash; //위치 &ndash;&gt;-->
+                      <!--</div>-->
+                      <!--&lt;!&ndash; //divide &ndash;&gt;-->
+                      <!--&lt;!&ndash; divide &ndash;&gt;-->
+                      <!--<div class="ddp-divide2">-->
+                        <!--<div class="ddp-list-label">색상</div>-->
+                        <!--<div class="ddp-list-sub2">-->
+                          <!--<div class="ddp-divide2">-->
+                            <!--<div class="ddp-list-label">색상 기준</div>-->
+                            <!--&lt;!&ndash; SELECTBOX &ndash;&gt;-->
+                            <!--<div class="ddp-type-selectbox">-->
+                              <!--<span class="ddp-txt-selectbox">없음</span>-->
+                              <!--<ul class="ddp-list-selectbox ddp-selectdown">-->
+                                <!--<li>-->
+                                  <!--<a href="#">-->
+                                    <!--Series-->
+                                  <!--</a>-->
+                                <!--</li>-->
+                                <!--<li>-->
+                                  <!--<a href="#">-->
+                                    <!--Series-->
+                                  <!--</a>-->
+                                <!--</li>-->
+                                <!--<li>-->
+                                  <!--<a href="#">-->
+                                    <!--Series-->
+                                  <!--</a>-->
+                                <!--</li>-->
+                              <!--</ul>-->
+                            <!--</div>-->
+                            <!--&lt;!&ndash; //SELECTBOX &ndash;&gt;-->
+                          <!--</div>-->
+                          <!--<div class="ddp-divide2">-->
+                            <!--&lt;!&ndash; color select -&ndash;&gt;-->
+                            <!--<div class="ddp-ui-color-select">-->
+                              <!--<div class="ddp-txt-label">-->
+                                <!--&lt;!&ndash; 사용자가 바꾼 color : ddp-user 추가 &ndash;&gt;-->
+                                <!--<div class="ddp-box-color ">-->
 
-                                  <input type='text' id="custom2" class="ddp-user"/>
-                                </div>
-                                출발
+                                  <!--<input type='text' id="custom2" class="ddp-user"/>-->
+                                <!--</div>-->
+                                <!--출발-->
 
-                              </div>
-                            </div>
-                            <!-- //color select --->
-                            <!-- color select --->
-                            <div class="ddp-ui-color-select">
-                              <div class="ddp-txt-label">
-                                <!-- 사용자가 바꾼 color : ddp-user 추가 -->
-                                <div class="ddp-box-color ">
+                              <!--</div>-->
+                            <!--</div>-->
+                            <!--&lt;!&ndash; //color select -&ndash;&gt;-->
+                            <!--&lt;!&ndash; color select -&ndash;&gt;-->
+                            <!--<div class="ddp-ui-color-select">-->
+                              <!--<div class="ddp-txt-label">-->
+                                <!--&lt;!&ndash; 사용자가 바꾼 color : ddp-user 추가 &ndash;&gt;-->
+                                <!--<div class="ddp-box-color ">-->
 
-                                  <input type='text' id="custom2" class="ddp-user"/>
-                                </div>
-                                도착
+                                  <!--<input type='text' id="custom2" class="ddp-user"/>-->
+                                <!--</div>-->
+                                <!--도착-->
 
-                              </div>
-                            </div>
-                            <!-- //color select --->
-                          </div>
-                          <div class="ddp-divide2">
-                            <div class="ddp-list-label">투명도</div>
-                            <!-- SELECTBOX -->
-                            <div class="ddp-type-selectbox">
-                              <span class="ddp-txt-selectbox">사용하지 않음</span>
-                              <ul class="ddp-list-selectbox ddp-selectdown">
-                                <li>
-                                  <a href="#">
-                                    Series
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href="#">
-                                    Series
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href="#">
-                                    Series
-                                  </a>
-                                </li>
-                              </ul>
-                            </div>
-                            <!-- //SELECTBOX -->
-                          </div>
-                        </div>
-                      </div>
-                      <!-- //divide -->
-                      <!-- divide -->
-                      <div class="ddp-divide2">
-                        <div class="ddp-list-label">굵기</div>
-                        <div class="ddp-list-sub2">
-                          <div class="ddp-divide2">
-                            <div class="ddp-list-label">굵기 기준</div>
-                            <!-- SELECTBOX -->
-                            <div class="ddp-type-selectbox">
-                              <span class="ddp-txt-selectbox">없음</span>
-                              <ul class="ddp-list-selectbox ddp-selectdown">
-                                <li>
-                                  <a href="#">
-                                    Series
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href="#">
-                                    Series
-                                  </a>
-                                </li>
-                                <li>
-                                  <a href="#">
-                                    Series
-                                  </a>
-                                </li>
-                              </ul>
-                            </div>
-                            <!-- //SELECTBOX -->
-                          </div>
-                          <div class="ddp-divide2">
-                            <div class="ddp-wrap-option-multy ddp-clear">
-                              <div class="ddp-col-8">
-                                <span class="ddp-label-txt">굵기 최대값(pt)</span>
-                              </div>
-                              <div class="ddp-col-4">
-                                <input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="">
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- //divide -->
-                    </div>
-                  </div>
-                  <!-- //divide -->
-                </div>
-                <!-- //point : link -->
+                              <!--</div>-->
+                            <!--</div>-->
+                            <!--&lt;!&ndash; //color select -&ndash;&gt;-->
+                          <!--</div>-->
+                          <!--<div class="ddp-divide2">-->
+                            <!--<div class="ddp-list-label">투명도</div>-->
+                            <!--&lt;!&ndash; SELECTBOX &ndash;&gt;-->
+                            <!--<div class="ddp-type-selectbox">-->
+                              <!--<span class="ddp-txt-selectbox">사용하지 않음</span>-->
+                              <!--<ul class="ddp-list-selectbox ddp-selectdown">-->
+                                <!--<li>-->
+                                  <!--<a href="#">-->
+                                    <!--Series-->
+                                  <!--</a>-->
+                                <!--</li>-->
+                                <!--<li>-->
+                                  <!--<a href="#">-->
+                                    <!--Series-->
+                                  <!--</a>-->
+                                <!--</li>-->
+                                <!--<li>-->
+                                  <!--<a href="#">-->
+                                    <!--Series-->
+                                  <!--</a>-->
+                                <!--</li>-->
+                              <!--</ul>-->
+                            <!--</div>-->
+                            <!--&lt;!&ndash; //SELECTBOX &ndash;&gt;-->
+                          <!--</div>-->
+                        <!--</div>-->
+                      <!--</div>-->
+                      <!--&lt;!&ndash; //divide &ndash;&gt;-->
+                      <!--&lt;!&ndash; divide &ndash;&gt;-->
+                      <!--<div class="ddp-divide2">-->
+                        <!--<div class="ddp-list-label">굵기</div>-->
+                        <!--<div class="ddp-list-sub2">-->
+                          <!--<div class="ddp-divide2">-->
+                            <!--<div class="ddp-list-label">굵기 기준</div>-->
+                            <!--&lt;!&ndash; SELECTBOX &ndash;&gt;-->
+                            <!--<div class="ddp-type-selectbox">-->
+                              <!--<span class="ddp-txt-selectbox">없음</span>-->
+                              <!--<ul class="ddp-list-selectbox ddp-selectdown">-->
+                                <!--<li>-->
+                                  <!--<a href="#">-->
+                                    <!--Series-->
+                                  <!--</a>-->
+                                <!--</li>-->
+                                <!--<li>-->
+                                  <!--<a href="#">-->
+                                    <!--Series-->
+                                  <!--</a>-->
+                                <!--</li>-->
+                                <!--<li>-->
+                                  <!--<a href="#">-->
+                                    <!--Series-->
+                                  <!--</a>-->
+                                <!--</li>-->
+                              <!--</ul>-->
+                            <!--</div>-->
+                            <!--&lt;!&ndash; //SELECTBOX &ndash;&gt;-->
+                          <!--</div>-->
+                          <!--<div class="ddp-divide2">-->
+                            <!--<div class="ddp-wrap-option-multy ddp-clear">-->
+                              <!--<div class="ddp-col-8">-->
+                                <!--<span class="ddp-label-txt">굵기 최대값(pt)</span>-->
+                              <!--</div>-->
+                              <!--<div class="ddp-col-4">-->
+                                <!--<input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="">-->
+                              <!--</div>-->
+                            <!--</div>-->
+                          <!--</div>-->
+                        <!--</div>-->
+                      <!--</div>-->
+                      <!--&lt;!&ndash; //divide &ndash;&gt;-->
+                    <!--</div>-->
+                  <!--</div>-->
+                  <!--&lt;!&ndash; //divide &ndash;&gt;-->
+                <!--</div>-->
+                <!-- //symbol : link -->
 
                 <!-- heatmap : blur, coverage -->
-                <div class="ddp-wrap-divide">
+                <div *ngIf="'heatmap' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
                   <!-- heatmap : blur -->
                   <div class="ddp-divide2">
                     <div class="ddp-wrap-option-multy ddp-clear">
@@ -731,7 +674,7 @@
                 <!-- heatmap : blur, coverage -->
 
                 <!-- hexagon : coverage -->
-                <div class="ddp-wrap-divide">
+                <div *ngIf="'tile' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
                   <div class="ddp-divide2">
                     <div class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-8">
@@ -771,42 +714,29 @@
                 <!-- hexagon : coverage -->
 
                 <!-- line : stroke -->
-                <div class="ddp-wrap-divide">
+                <div *ngIf="'line' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
                   <div class="ddp-divide2">
-                    <div class="ddp-list-label">굵기</div>
+                    <div class="ddp-list-label">{{'msg.page.layer.map.stroke' | translate}}</div>
                     <div class="ddp-list-sub2">
                       <div class="ddp-divide2">
-                        <div class="ddp-list-label">굵기 기준</div>
+                        <div class="ddp-list-label">{{'msg.page.layer.map.stroke.by' | translate}}</div>
                         <!-- SELECTBOX -->
-                        <div class="ddp-type-selectbox">
-                          <span class="ddp-txt-selectbox">없음</span>
-                          <ul class="ddp-list-selectbox ddp-selectdown">
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                Series
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
+                        <component-select
+                          [array]="byList"
+                          [defaultIndex]="findStrokeByIndex()"
+                          [viewKey]="'name'"
+                          (onSelected)="changeStrokeBy($event)"
+                        ></component-select>
                         <!-- //SELECTBOX -->
                       </div>
                       <div class="ddp-divide2">
                         <div class="ddp-wrap-option-multy ddp-clear">
                           <div class="ddp-col-8">
-                            <span class="ddp-label-txt">굵기 최대값(pt)</span>
+                            <span class="ddp-label-txt">{{'msg.page.layer.map.stroke.max.width' | translate}} (pt)</span>
                           </div>
                           <div class="ddp-col-4">
-                            <input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="">
+                            <input type="text" class="ddp-input-typebasic ddp-txt-right" [(ngModel)]="uiOption.layers[index].thickness.maxValue"
+                                   (keyup.enter)="changeThickMaxValue(uiOption.layers[index].thickness.maxValue)" placeholder="">
                           </div>
                         </div>
                       </div>
@@ -816,7 +746,7 @@
                 <!-- //line : stroke -->
 
                 <!-- line : line type -->
-                <div class="ddp-wrap-divide">
+                <div *ngIf="'line' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
                   <!-- divide -->
                   <div class="ddp-divide2 ">
                     <div class="ddp-wrap-option-multy ddp-clear">

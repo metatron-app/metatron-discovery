@@ -17,7 +17,7 @@
  */
 
 import { MapOutline } from './ui-outline';
-import { MapSymbolType } from '../../define/map/map-common';
+import { MapBy, MapSymbolType } from '../../define/map/map-common';
 import { UILayers } from './ui-layers';
 
 export interface UISymbolLayer extends UILayers {
@@ -41,7 +41,7 @@ export interface UISymbolLayer extends UILayers {
 export interface MapLayerSize {
 
   // Size specification criteria
-  by?: string;
+  by?: MapBy;
 
   // Column Name
   column?: string;

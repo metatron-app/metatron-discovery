@@ -15,11 +15,18 @@ import { Component, ElementRef, Injector, Input } from '@angular/core';
 import { BaseOptionComponent } from '../base-option.component';
 import { Pivot } from '../../../domain/workbook/configurations/pivot';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
-import { MapLayerType, MapSymbolType } from '../../../common/component/chart/option/define/map/map-common';
+import {
+  MapBy,
+  MapLayerType,
+  MapSymbolType,
+  MapThickness
+} from '../../../common/component/chart/option/define/map/map-common';
 import * as _ from 'lodash';
-import { UIOption } from '../../../common/component/chart/option/ui-option';
 import { SymbolType } from '../../../common/component/chart/option/define/common';
 import { UISymbolLayer } from '../../../common/component/chart/option/ui-option/map/ui-symbol-layer';
+import { MapOutline } from '../../../common/component/chart/option/ui-option/map/ui-outline';
+import { UIPolygonLayer } from '../../../common/component/chart/option/ui-option/map/ui-polygon-layer';
+import { UILineLayer } from '../../../common/component/chart/option/ui-option/map/ui-line-layer';
 
 @Component({
   selector: 'map-layer-option',
@@ -56,10 +63,39 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
                                {name : this.translateService.instant('msg.page.layer.map.point.plain'), value : MapSymbolType.PLAIN},
                                {name : this.translateService.instant('msg.page.layer.map.point.people'), value : MapSymbolType.USER}];
 
+  // color - transparency
+  public transparencyList = [{name : this.translateService.instant('msg.page.layer.map.color.transparency.none'), value : 0},
+                             {name : '20%', value : 20}, {name : '40%', value : 40}, {name : '60%', value : 60},
+                             {name : '80%', value : 80}, {name : '100%', value : 100}];
+
+  // outline - thickness
+  public thicknessList = [{value : MapThickness.THIN}, {value : MapThickness.NORMAL}, {value : MapThickness.THICK}];
+
+
+  // line - storke by, symbol - size by
+  public byList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE},
+                   {name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE}];
+
+  // all layers - color by
+  public colorByList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE},
+                        {name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION},
+                        {name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE}];
+
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
     super(elementRef, injector);
+  }
+
+  /**
+   * all layers - change layer name
+   */
+  public changeLayerName(name : string) {
+
+    this.uiOption.layers[this.index].name = name;
+
+    // apply layer ui option
+    this.applyLayers();
   }
 
   /**
@@ -86,7 +122,142 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.applyLayers();
   }
 
+  /**
+   * all layers - change transparency
+   * @param {number} transparency
+   */
+  public changeTransparency(data: Object) {
 
+    this.uiOption.layers[this.index].color.transparency = data['value'];
+
+    // apply layer ui option
+    this.applyLayers();
+  }
+
+  /**
+   * symbol layer - toggle view raw data
+   * @param {boolean} viewRawData
+   */
+  public toggleViewRawData(viewRawData: boolean) {
+
+    this.uiOption.layers[this.index].viewRawData = viewRawData;
+
+    // apply layer ui option
+    this.applyLayers();
+  }
+
+  /**
+   * symbol, polygon layer - toggle outline
+   * @param {MapOutline} outline
+   */
+  public toggleOutline(outline: MapOutline) {
+
+    if (outline) {
+      outline = null;
+    // TODO need color guide
+    } else outline = <any>{color : '#000000', thickness : MapThickness.NORMAL};
+
+    if (MapLayerType.SYMBOL === this.uiOption.layers[this.index].type) {
+      (<UISymbolLayer>this.uiOption.layers[this.index]).outline = outline;
+
+    } else if (MapLayerType.POLYGON === this.uiOption.layers[this.index].type) {
+      (<UIPolygonLayer>this.uiOption.layers[this.index]).outline = outline;
+    }
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol, polygon layer - change thickness
+   * @param {MapThickness} thickness
+   */
+  public changeThick(thickness: MapThickness) {
+
+    if (MapLayerType.SYMBOL === this.uiOption.layers[this.index].type) {
+      (<UISymbolLayer>this.uiOption.layers[this.index]).outline.thickness = thickness;
+
+    } else if (MapLayerType.POLYGON === this.uiOption.layers[this.index].type) {
+      (<UIPolygonLayer>this.uiOption.layers[this.index]).outline.thickness = thickness;
+    }
+
+    this.applyLayers();
+  }
+
+  /**
+   * all layers - return default transparency index
+   * @returns {number}
+   */
+  public findTransparencyIndex() {
+    return _.findIndex(this.transparencyList, {value : this.uiOption.layers[this.index].color.transparency});
+  }
+
+  /**
+   * line layer - return default stroke by index
+   * @returns {number}
+   */
+  public findStrokeByIndex() {
+    return _.findIndex(this.byList, {value : (<UILineLayer>this.uiOption.layers[this.index]).thickness.by});
+  }
+
+  /**
+   * symbol layer - return default size by index
+   * @returns {number}
+   */
+  public findSymbolSizeByIndex() {
+    return _.findIndex(this.byList, {value : (<UISymbolLayer>this.uiOption.layers[this.index]).size.by});
+  }
+
+  /**
+   * all layers - return default color by index
+   * @returns {number}
+   */
+  public findColorByIndex() {
+    return _.findIndex(this.colorByList, {value : this.uiOption.layers[this.index].color.by});
+  }
+
+  /**
+   * all layers - set color by
+   * @param {Object} data
+   */
+  public changeColorBy(data: Object) {
+
+    this.uiOption.layers[this.index].color.by = data['value'];
+
+    this.applyLayers();
+  }
+
+  /**
+   * line layer - stroke by
+   * @param {Object} data
+   */
+  public changeStrokeBy(data: Object) {
+
+    (<UILineLayer>this.uiOption.layers[this.index]).thickness.by = data['value'];
+
+    this.applyLayers();
+  }
+
+  /**
+   * line layer - stroke maxValue
+   * @param {number} maxValue
+   */
+  public changeThickMaxValue(maxValue: number) {
+
+    (<UILineLayer>this.uiOption.layers[this.index]).thickness.maxValue = maxValue;
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol layer - change size by
+   * @param {Object} data
+   */
+  public changeSizeBy(data: Object) {
+
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = data['value'];
+
+    this.applyLayers();
+  }
 
   /**
    * apply layer ui option

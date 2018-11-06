@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { MapLayerType } from '../../define/map/map-common';
+import { MapBy, MapLayerType } from '../../define/map/map-common';
 
 /**
  * map chart layer
@@ -41,7 +41,7 @@ export interface UILayers {
 interface SymbolColor {
 
   // Color specification criteria
-  by?: string;
+  by?: MapBy;
 
   // Column Name
   column?: string;
