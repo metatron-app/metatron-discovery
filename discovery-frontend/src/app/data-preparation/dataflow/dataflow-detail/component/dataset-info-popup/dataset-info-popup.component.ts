@@ -321,8 +321,13 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     let colCnt = '0';
 
     if( this.selectedDataSet && this.selectedDataSet.gridResponse && this.selectedDataSet.gridResponse.colCnt ) {
-      if(true==Number.isInteger(this.selectedDataSet.gridResponse.colCnt)) {
+      if(Number.isInteger(this.selectedDataSet.gridResponse.colCnt)) {
         colCnt = new Intl.NumberFormat().format(this.selectedDataSet.gridResponse.colCnt);
+        if (colCnt === '0' || colCnt === '1') {
+          colCnt = colCnt + ' column';
+        } else {
+          colCnt = colCnt + ' columns';
+        }
       }
     }
     return colCnt;
@@ -338,14 +343,18 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       } else {
         rows = new Intl.NumberFormat().format(this.selectedDataSet.totalLines);
         this.clearExistingInterval();
+        if (rows === '0' || rows === '1') {
+          rows = rows + ` row`;
+        } else {
+          rows = rows + ` rows`;
+        }
       }
     }
     return rows;
   }
 
   public get getHost() {
-    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB ) {
-      //return 'host from '+this.selectedDataSet['dcId'];
+    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB && !isNullOrUndefined(this.selectedDataSet.connectionInfo['hostname'])) {
       return this.selectedDataSet.connectionInfo['hostname'];
     } else {
       return null;
@@ -353,8 +362,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
   }
 
   public get getPort() {
-    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB ) {
-      //return 'port from '+this.selectedDataSet['dcId'];
+    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB && !isNullOrUndefined(this.selectedDataSet.connectionInfo['port'])) {
       return this.selectedDataSet.connectionInfo['port'];
     } else {
       return null;
@@ -898,7 +906,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       if (importType === ImportType.FILE) {
         return `${importType} (${this.getDatasetType(importType,fileName)})`;
       } else {
-        return `${importType}`;
+        return `${importType === ImportType.HIVE ? 'Staging DB' : importType}`;
       }
     }
 

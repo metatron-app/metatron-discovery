@@ -170,15 +170,13 @@
         {{'msg.dp.th.summary' | translate}}
       </dt>
       <dd *ngIf="selectedDataSet">
-        {{getRows}} {{'msg.comm.detail.rows' | translate}} <br>
-        <!--<span *ngIf="temp.gridData && temp.dsType.toString() === 'WRANGLED'">{{temp.gridResponse.colCnt}} {{'msg.comm.detail.columns' | translate}}</span>-->
-        <span *ngIf="selectedDataSet">{{getColCnt}} {{'msg.comm.detail.columns' | translate}}</span>
+        {{getRows}} / {{getColCnt}}
       </dd>
     </dl>
     <!-- //detail -->
 
     <!-- detail host [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='DB'">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='DB' && getHost !== null">
       <dt>
         {{'msg.comm.th.host' | translate}}
       </dt>
@@ -188,7 +186,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail port [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='DB'">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='DB' && getPort !== null">
       <dt>
         {{'msg.comm.th.port' | translate}}
       </dt>
@@ -208,7 +206,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail table/sql [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='DB'">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString() !=='FILE'">
       <dt>
         {{'msg.lineage.ui.list.search.table' | translate}}/{{'msg.lineage.ui.list.search.sql' | translate}}
       </dt>
@@ -225,7 +223,7 @@
         {{'msg.comm.th.used' | translate}}
       </dt>
       <dd *ngIf="selectedDataSet.dataflows">
-        <span class="ddp-data-num" (click)="showDataflows($event);">{{selectedDataSet.dataflows.length}}</span> {{'msg.dp.ui.flows' | translate}}
+        <span class="ddp-data-num" (click)="showDataflows($event);">{{selectedDataSet.dataflows.length}}</span> {{selectedDataSet.dataflows.length === 1 ? 'dataflow' : 'msg.dp.ui.flows' | translate}}
         <!-- popup -->
 
         <div class="ddp-wrap-popup2 ddp-types2" *ngIf="isDataflowsShow" (clickOutside)="isDataflowsShow = false;">

@@ -340,6 +340,11 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         rows = '(counting)';
       } else {
         rows = new Intl.NumberFormat().format(this.dataset.totalLines);
+        if (rows === '0' || rows === '1') {
+          rows = rows + ' row';
+        } else {
+          rows = rows + ' rows';
+        }
         clearInterval(this.interval);
       }
     }
@@ -425,7 +430,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     this.datasetInformationList = [];
     if (dataset.dsType === DsType.WRANGLED) {
       this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : dataset.dsType },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.wrangledDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` }
+        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` }
       ]
     }  else if (dataset.importType === ImportType.FILE) {
       this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} (${this.getDatasetType(dataset.importType, dataset.filename)})`},
@@ -437,23 +442,22 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       }
 
       this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.importedDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}`})
+        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}`})
 
     } else if (dataset.importType === 'HIVE') {
       this.datasetInformationList = [
-        { name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'StagingDB' : 'DB'}` },
-        { name : this.translateService.instant('msg.dp.th.table'), value : `${this.getTableOrSql}` },
+        { name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'Staging DB' : 'DB'}` },
+        { name : `${this.translateService.instant('msg.lineage.ui.list.search.table')}/${this.translateService.instant('msg.lineage.ui.list.search.sql')}`, value : `${this.getTableOrSql}` },
         { name : this.translateService.instant('msg.comm.detail.size') , value : this.getTotalBytes },
-        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.importedDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` }
+        { name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` }
       ];
     } else {
-      this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'StagingDB' : 'DB'}` });
+      this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'Staging DB' : 'DB'}` });
       if(this.getHost) this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.host'), value : this.getHost });
       if(this.getPort) this.datasetInformationList.push({ name : this.translateService.instant('msg.comm.th.port'), value : this.getPort });
       if(this.getDatabase) this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.database'), value : this.getDatabase });
       this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.table')+'/'+this.translateService.instant('msg.lineage.ui.list.search.sql'), value : `${dataset['rsType']===RsType.TABLE ? dataset.tableName : dataset.queryStmt}` });
-      this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.importedDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` });
-
+      this.datasetInformationList.push({ name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} / ${this.importedDatasetColumn } ${this.importedDatasetColumn === '1' || this.importedDatasetColumn === '0' ? 'column': 'columns'}` });
     }
   }
 
