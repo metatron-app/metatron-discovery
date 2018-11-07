@@ -384,10 +384,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       return null;
     }
 
-    if( this.selectedDataSet['rsType'] && this.selectedDataSet['rsType']===RsType.TABLE ) {
-      return this.selectedDataSet['tableName'];
-    } else {
+    if(this.getHost === null && this.getPort === null) {
       return this.selectedDataSet['queryStmt'];
+    } else {
+      return this.selectedDataSet['tableName'];
     }
   }
 
