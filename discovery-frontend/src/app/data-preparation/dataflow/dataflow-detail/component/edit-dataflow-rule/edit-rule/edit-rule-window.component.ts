@@ -184,7 +184,7 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
       }).join(', ');
     }
 
-    let resultRuleString : string = `window value: [${validFormulaList}]`;
+    let resultRuleString : string = `window value: ${validFormulaList}`;
 
     if (groupStr !== '') {
       resultRuleString += ` group: ${groupStr}`;
