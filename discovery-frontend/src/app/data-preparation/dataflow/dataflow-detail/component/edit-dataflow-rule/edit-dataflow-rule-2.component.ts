@@ -812,16 +812,16 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   public changeWrangledDataset(dataset : Dataset) {
     this.loadingShow();
 
-    let dataflows = this.selectedDataSet['_embedded'].dataflows ? this.selectedDataSet['_embedded'].dataflows : null;
+    let dataflows = this.selectedDataSet.dataflows ? this.selectedDataSet.dataflows : null;
 
     delete this.selectedDataSet;
     this.selectedDataSet = dataset;
 
-    if (!this.selectedDataSet['_embedded']) {
-      this.selectedDataSet['_embedded'] = {};
-    }
-    if (!this.selectedDataSet['_embedded'].dataflows && null != dataflows) {
-      this.selectedDataSet['_embedded'].dataflows = dataflows;
+    // if (!this.selectedDataSet['_embedded']) {
+    //   this.selectedDataSet['_embedded'] = {};
+    // }
+    if (!this.selectedDataSet.dataflows && null != dataflows) {
+      this.selectedDataSet.dataflows = dataflows;
     }
 
     this._setEditRuleInfo({op:'INITIAL', ruleIdx: null, count: 100, offset: 0}).then((data) => {
