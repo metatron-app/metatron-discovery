@@ -841,6 +841,11 @@ public class JdbcConnectionService {
 
       queryResultSet = getJdbcQueryResult(rs, extractColumnName);
       // queryResultSet.setTotalRows(totalRows);
+    } catch (SQLException e) {
+      LOGGER.error("Fail to query for select : SQLState({}), ErrorCode({}), Message : {}"
+              , e.getSQLState(), e.getErrorCode(), e.getMessage());
+      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PREVIEW_TABLE_SQL_ERROR,
+              "Fail to query : " + e.getSQLState() + ", "  + e.getErrorCode() + ", " + e.getMessage());
     } catch (Exception e) {
       LOGGER.error("Fail to query for select :  {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
