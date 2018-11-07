@@ -1015,11 +1015,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       this.getColumnList();
 
       // 그리드 셀렉트 효과
-      this.gridSchemaComponent.rowSelection(0);
-      const gridCanvas = $('.ddp-pop-wrapList .grid-canvas').children().eq(0);
-      gridCanvas.addClass('active')
-      gridCanvas.children().addClass('active');
-      gridCanvas.children().addClass('selected');
+      this.gridSchemaComponent.selectRowActivate(0);
 
     }
   }

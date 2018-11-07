@@ -341,6 +341,20 @@ export class GridComponent implements AfterViewInit, OnDestroy {
   } // function - columnSelection
 
   /**
+   * row 선택 효과
+   * @param {number | string} column
+   * @param scope
+   */
+  public selectRowActivate(column: number | string, scope: any = null,): void {
+
+    const fnScope: any = scope === null ? this : scope;
+
+    const selectedRows: any[] = [];
+    selectedRows.push(column);
+    fnScope.grid.setSelectedRows(selectedRows);
+  } // function - selectRowActivate
+
+  /**
    * 컬럼 선택 해제
    * @param {number | string} column
    * @param scope

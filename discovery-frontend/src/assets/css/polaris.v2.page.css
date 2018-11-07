@@ -4256,7 +4256,7 @@ ul.ddp-list-selectbox.ddp-color-select li a:hover {background-color:#f6f6f7;}
 .ddp-pop-preview.ddp-type-scheme.ddp-full .ddp-ui-preview-contents {top:0;}
 .ddp-pop-preview.ddp-type-scheme.ddp-full .ddp-ui-preview-contents {border:none;}
 .ddp-pop-preview.ddp-type-scheme .ddp-wrap-grid {position:absolute; top:44px; left:0; right:0; bottom:0;}
-.ddp-pop-preview.ddp-type-scheme .ddp-nodata {position:absolute; top:44px ;left:0; right:0 ;bottom:0; padding:35px 45px; color:#b7bac1; font-size:13px;}
+.ddp-pop-preview.ddp-type-scheme .ddp-nodata {position:absolute; top:44px ;left:0; right:0 ;bottom:0; padding:20px 20px; color:#b7bac1; font-size:13px;}
 .ddp-pop-preview.ddp-type-scheme .ddp-type-top-option {position:absolute; top:0; left:600px; right:0; bottom:0; padding:34px 0 0 0; box-sizing:border-box;}
 .ddp-type-scheme.ddp-column-detail .ddp-metadata .ddp-wrap-list {width:50%;}
 .ddp-type-scheme.ddp-column-detail .ddp-metadata .ddp-wrap-detail {margin-left:-50%; padding-left:50%;}
