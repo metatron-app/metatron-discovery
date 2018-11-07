@@ -310,7 +310,8 @@ public class Util {
   static final String FMTSTR_RENAME_TO    = "Rename %s to %s";                // col, to
   static final String FMTSTR_NEST         = "Convert %s into %s";             // col, into
   static final String FMTSTR_UNNEST       = "Create a new column from %s";    // col
-  static final String FMTSTR_SETFORMAT    = "Reformat %s to %s";              // col, format
+  static final String FMTSTR_SETTYPE      = "set type %s to %s";              // col, type
+  static final String FMTSTR_SETFORMAT    = "set format %s to %s";            // col, format
   static final String FMTSTR_DERIVE       = "Create %s from %s";              // as, value
   static final String FMTSTR_COUNTPATTERN = "Count occurrences of %s in %s";  // value, col
 
@@ -353,6 +354,10 @@ public class Util {
       case "unnest":
         shortRuleString = String.format(FMTSTR_UNNEST, mapRule.get("col"));
         break;
+      case "settype":
+        col = ((Map) mapRule.get("col")).get("value");
+        shortRuleString = String.format(FMTSTR_SETTYPE, shortenColumnList(col), mapRule.get("type"));
+        break;
       case "setformat":
         col = ((Map) mapRule.get("col")).get("value");
         shortRuleString = String.format(FMTSTR_SETFORMAT, shortenColumnList(col), mapRule.get("format"));
@@ -370,17 +375,6 @@ public class Util {
 
     return shortRuleString;
 
-//      case "setformat":
-//        let fomatStr: string;
-//        if ("string" === typeof rule.col.value) {
-//        fomatStr = "${column} type"
-//      } else if (rule.col.value.length === 2) {
-//        fomatStr = "${column} types";
-//      } else {
-//        fomatStr = column;
-//      }
-//      shortRuleString = "Set ${fomatStr} format to ${ rule.format }";
-//      break;
 //      case "settype":
 //
 //        let columnStr: string;
