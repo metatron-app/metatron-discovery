@@ -587,11 +587,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this._isExecAddRule = true;
 
-    // When no command is selected
-    if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
-      return;
-    }
-
+    // // When no command is selected
+    // if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
+    //   return;
+    // }
+    //
     let rule: any = {};
     if (this.editorUseFlag === false) {
 
