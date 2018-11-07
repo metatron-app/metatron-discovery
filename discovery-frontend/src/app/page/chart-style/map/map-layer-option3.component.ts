@@ -192,9 +192,14 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-   // 선반데이터
-   @Input('pivot')
+   // Pivot
    public pivot: Pivot;
+   @Input('pivot')
+   set setPivot(pivot: Pivot) {
+     this.pivot = pivot;
+
+     // pivot change here!
+   }
 
    @Input('resultData')
    public resultData: Object;
