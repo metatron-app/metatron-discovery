@@ -83,14 +83,11 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - API
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  public init(fields : Field[], selectedFields:Field[], ruleString?:any) {
+  public init(fields : Field[], selectedFields:Field[], data? : {ruleString:string, jsonRuleString : any}) {
     this.fields = fields;
     this.selectedFields = selectedFields;
-    if( !isNullOrUndefined( ruleString ) ) {
-      if (typeof ruleString === 'string') {
-        ruleString = ruleString.replace( /,\s*/g, ',' );  // 각 속성별 값을 얻기 위해서 미리 Comma 사이의 공백을 제거함
-      }
-      this.parsingRuleString(ruleString);
+    if( !isNullOrUndefined( data ) ) {
+      this.parsingRuleString(data);
     }
 
     this.beforeShowComp();

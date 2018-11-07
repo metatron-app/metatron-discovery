@@ -145,7 +145,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail 사이즈 [DB,FILE] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString()==='IMPORTED' && selectedDataSet.importType.toString() !=='DB'">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString()==='IMPORTED' && selectedDataSet.importType && selectedDataSet.importType.toString() !=='DB'">
       <dt>
         {{'msg.comm.detail.size' | translate}}
       </dt>

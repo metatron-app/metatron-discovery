@@ -69,8 +69,6 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   public static readonly ID_PROPERTY: string = '_idProperty_';     // 아이디
 
-  @Output() private selectedHeaderMenuEvent = new EventEmitter();
-
   @Output() private selectedHeaderEvent = new EventEmitter();           // 헤더 선택시 알림
 
   @Output() private selectedEvent = new EventEmitter();                 // 로우 선택시 알림
@@ -82,8 +80,6 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   @Output() private onHeaderRowCellRendered = new EventEmitter();
 
   public totalRowCnt: number = 0;
-
-  public ruleIndex: number;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -151,6 +147,8 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
    * @param {header[]} headers
    * @param {ScrollLoadingGridModel} gridModel
    * @param {Option} option
+   * @param {number} ruleIdx
+   * @param {number} totalRowCnt
    */
   public create(headers: header[], gridModel: ScrollLoadingGridModel, option: Option = null, ruleIdx: number, totalRowCnt: number) {
 
@@ -310,43 +308,35 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   /**
    *
    * 컬럼 선택
-   * @param {number|string} column
+   * @param {string} id -- UUID
    * @param {boolean|string} isSelectOrToggle
    * @param {string} type 컬럼 타입
    * @param {{ isShiftKeyPressed?: boolean, isCtrlKeyPressed?: boolean, batchCount:number }} opts 부가정보
    */
-  public selectColumn(column: number | string, isSelectOrToggle: boolean | string, type?: string,
+  public selectColumn(id: string, isSelectOrToggle: boolean | string, type?: string,
                       opts?: { isShiftKeyPressed?: boolean, isCtrlKeyPressed?: boolean, batchCount?:number }): void {
-
-    let columnId = '';
-    let columnIdx = 0;
 
     (opts) || (opts = {});
 
-    if ('string' === typeof column) {
-      columnId = column;
-      columnIdx = this._grid.getColumnIndex(columnId);
-    } else {
-      columnIdx = column;
-      columnId = this._grid.getColumns()[columnIdx].id;
-    }
+    // get column index with column id
+    let columnIdx = this._grid.getColumnIndex(id);
 
     let isSelect = false;
     if ('string' === typeof isSelectOrToggle && 'TOGGLE' === isSelectOrToggle) {
-      isSelect = (0 === this._selectColumnIds.filter(item => item === columnId).length);
+      isSelect = (0 === this._selectColumnIds.filter(item => item === id).length);
     } else {
       isSelect = <boolean>isSelectOrToggle;
     }
 
     // 선택 컬럼 목록 변경
-    this._selectColumnIds = this._selectColumnIds.filter(item => item !== columnId);
-    (isSelect) && (this._selectColumnIds.push(columnId));
+    this._selectColumnIds = this._selectColumnIds.filter(item => item !== id);
+    (isSelect) && (this._selectColumnIds.push(id));
 
     // 이벤트 발생
     (this._grid.getColumns()[columnIdx]) && (this._grid.getColumns()[columnIdx]['select'] = isSelect);
 
     let selectedColumnData = {
-      id: columnId,
+      id: id,
       isSelect: isSelect,
       selectColumnIds: this._selectColumnIds,
       shiftKey: opts.isShiftKeyPressed,
@@ -383,28 +373,28 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   // noinspection JSUnusedGlobalSymbols
   /**
    * 컬럼 선택
-   * @param {number | string} column
+   * @param {string} id
    */
-  public columnSelection(column: number | string): void {
-    this.selectColumn(column, true);
+  public columnSelection(id: string): void {
+    this.selectColumn(id, true);
   } // function - columnSelection
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * 컬럼 선택 해제
-   * @param {number | string} column
+   * @param {string} id
    */
-  public columnUnSelection(column: number | string): void {
-    this.selectColumn(column, false);
+  public columnUnSelection( id: string): void {
+    this.selectColumn(id, false);
   } // function - columnUnSelection
 
   // noinspection JSUnusedGlobalSymbols
   /**
    * 컬럼 선택 변경
-   * @param {number | string} column
+   * @param {string} id
    */
-  public columnSelectionToggle(column: number | string): void {
-    this.selectColumn(column, 'TOGGLE');
+  public columnSelectionToggle(id: string): void {
+    this.selectColumn(id, 'TOGGLE');
   } // function - columnSelectionToggle
 
   // noinspection JSUnusedGlobalSymbols
@@ -719,7 +709,7 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
         this._columnResized = true;
         //Check if column width has changed
         if (column.width != column.previousWidth) {
-          this.onColumnResize.emit({ idx: i, name: column.id, width: column.width });
+          this.onColumnResize.emit({ idx: i, field : column.field,name: column.name, uuid : column.id, width: column.width });
           setTimeout(() => {
             this._columnResized = false;
           }, 300);
