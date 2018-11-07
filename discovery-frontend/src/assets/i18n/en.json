@@ -1905,6 +1905,10 @@
   "msg.storage.ui.format.unit.milli-second": "Milli-Second(ms)",
   "msg.storage.ui.format.unit.second": "Second(s)",
   "msg.storage.ui.engine.name": "Engine name",
+  "msg.storage.ui.ingestion.step-1": "Transfer data",
+  "msg.storage.ui.ingestion.step-2": "Ingesting druid",
+  "msg.storage.ui.ingestion.step-3": "Check status",
+  "msg.storage.ui.ingestion.step-4": "Success",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",
