@@ -86,6 +86,8 @@
                   <em class="ddp-icon-type-calen" *ngIf="field.type === 'TIMESTAMP'"></em>
                   <em class="ddp-icon-type-sharp" *ngIf="field.type === 'LONG' || field.type === 'INTEGER' || field.type === 'DOUBLE' || field.type === 'CALCULATED'"></em>
                   <em class="ddp-icon-type-tf" *ngIf="field.type === 'BOOLEAN'"></em>
+                  <em class="ddp-icon-type-array" *ngIf="field.type === 'ARRAY'"></em>
+                  <em class="ddp-icon-type-map" *ngIf="field.type === 'MAP'"></em>
                   {{field.name}}
                   <em class="ddp-icon-plus"></em>
                 </a>

@@ -723,7 +723,7 @@
   "msg.dp.alert.out.of.range": "Value out of range",
   "msg.dp.alert.please.sel.ds": "Please select dataset",
   "msg.dp.alert.redo.fail": "REDO failed",
-  "msg.dp.alert.rename.rule" : "Only numbers, alphabet and _ can be included. Note that numbers and '_' can't be the first letter of the new column name.",
+  "msg.dp.alert.rename.rule" : "You can not use special characters except _ for column names",
   "msg.dp.alert.right.joinkey.error" : "Right dataset does not contain a join column ({{rightJoinKey}}).",
   "msg.dp.alert.rstype.no.table" : "RsType is not TABLE",
   "msg.dp.alert.rule.create.fail": "Failed to create rule",
@@ -823,6 +823,7 @@
   "mgs.dp.alert.check.new.val" : "Check new value",
   "msg.dp.alert.check.ignore.char" : "Check ignore between characters",
   "msg.dp.alert.check.insert.expression" : "Please enter the expression",
+  "msp.dp.alert.col.empty" : "Column name must not be empty",
 
   "msg.dp.ui.no.snapshot.history" : "No snapshot create history",
   "msg.dp.ui.snapshot.cancel.confirm" : "Sure to cancel snapshot creation?",

@@ -93,19 +93,19 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
     // col
     if (0 === this.selectedFields.length) {
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
-      return;
+      return undefined;
     }
 
     // pattern
     let clonedPattern = this.pattern;
     if (isUndefined(clonedPattern) || '' === clonedPattern || clonedPattern === '//' || clonedPattern === '\'\'') {
       Alert.warning(this.translateService.instant('msg.dp.alert.insert.pattern'));
-      return;
+      return undefined;
     }
     const patternResult:[boolean, string] = StringUtil.checkSingleQuote(clonedPattern, { isWrapQuote: !StringUtil.checkRegExp(clonedPattern) });
     if (!patternResult[0]) {
       Alert.warning(this.translateService.instant('msg.dp.alert.pattern.error'));
-      return;
+      return undefined;
     }
     clonedPattern = patternResult[1];
 
@@ -115,7 +115,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       let withVal = StringUtil.checkSingleQuote(clonedNewValue, { isPairQuote: true, isWrapQuote: true });
       if (withVal[0] === false) {
         Alert.warning(this.translateService.instant('mgs.dp.alert.check.new.val'));
-        return
+        return undefined;
       } else {
         clonedNewValue = withVal[1];
       }
@@ -123,14 +123,21 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       clonedNewValue = '\'\'';
     }
 
-    let ruleString = `replace col: ${this.selectedFields.map( item => item.name ).join(', ')} with: ${clonedNewValue} on: ${clonedPattern} global: ${this.isGlobal} ignoreCase: ${this.isIgnoreCase}`;
+    const columnsStr: string = this.selectedFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
+
+    let ruleString = `replace col: ${columnsStr} with: ${clonedNewValue} on: ${clonedPattern} global: ${this.isGlobal} ignoreCase: ${this.isIgnoreCase}`;
 
     // Ignore between characters
     if (this.ignore && '' !== this.ignore.trim() && '\'\'' !== this.ignore.trim()) {
       const checkIgnore = StringUtil.checkSingleQuote(this.ignore.trim(), { isWrapQuote: true });
       if (checkIgnore[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.check.ignore.char'));
-        return
+        return undefined;
       } else {
         ruleString += ' quote: ' + checkIgnore[1];
       }
@@ -142,7 +149,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       let check = StringUtil.checkSingleQuote(clonedCondition, { isPairQuote: true });
       if (check[0] === false) {
         Alert.warning(this.translateService.instant('msg.dp.alert.check.condition'));
-        return;
+        return undefined;
       } else {
         ruleString += ' row: ' + check[1];
       }
@@ -207,40 +214,29 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
 
   /**
    * Returns rule string
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+    this.newValue = data.jsonRuleString.with.escapedValue;
+
+    this.pattern = data.jsonRuleString.on.escapedValue;
+
+    this.isGlobal = Boolean(data.jsonRuleString.global);
+
+    this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
+
+    if (data.jsonRuleString.quote) {
+      this.ignore = data.jsonRuleString.quote.escapedValue;
     }
 
-    // TODO : quotation marks
-    let withVal = ruleString.split('with: ')[1];
-    this.newValue = withVal.split(' on')[0];
-    if (this.newValue.startsWith('\'') && this.newValue.endsWith('\'')) {
-      this.newValue = this.newValue.substring(1, this.newValue.length - 1);
+    if (data.jsonRuleString.row) {
+      this.condition = data.ruleString.split('row: ')[1];
     }
-    // this.newValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'with', ruleString ));
-
-    let onVal = ruleString.split('on: ')[1];
-    this.pattern = onVal.split(' global')[0];
-    if (this.pattern.startsWith('\'') && this.pattern.endsWith('\'')) {
-      this.pattern = this.pattern.substring(1, this.pattern.length - 1);
-    }
-    // this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
-
-    this.isGlobal = Boolean( this.getAttrValueInRuleString( 'global', ruleString ) );
-
-    this.isIgnoreCase = Boolean( this.getAttrValueInRuleString( 'ignoreCase', ruleString ) );
-
-    this.ignore = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'quote', ruleString ));
-
-    // condition has white space - removeQuotation doesn't work
-    this.condition = ruleString.split('row: ')[1];
-    // this.condition = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'row', ruleString ));
 
   } // function - _parsingRuleString
 

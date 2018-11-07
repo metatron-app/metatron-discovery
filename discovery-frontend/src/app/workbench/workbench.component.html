@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-wrap-naviarea ddp-naviarea2 ddp-clear" *ngIf="mainViewShow == true">
+<div class="page-workbench ddp-wrap-naviarea ddp-naviarea2 ddp-clear" *ngIf="mainViewShow == true">
 
   <div class="ddp-ui-navidata ddp-type">
 
@@ -99,7 +99,7 @@
   </div>
 </div>
 <em class="ddp-bg-back"></em>
-<div class="ddp-layout-contents2 ddp-wrap-workbench page-workbench">
+<div class="page-workbench ddp-layout-contents2 ddp-wrap-workbench">
   <!-- lnb --->
   <!-- 닫힐때 ddp-close 추가 -->
   <div class="ddp-ui-benchlnb" [ngClass]="{'ddp-close':!isLeftMenuOpen || isQueryEditorFull===true}">
@@ -445,8 +445,8 @@
                        [ngStyle]="{'display': 'SUCCESS' === visibleResultTab.resultStatus ? '':'none'}" style="padding:0px;">
                     <div grid-component #main style="width:100%; height: 100%;"></div>
                   </div>
-                  <div class="ddp-box-grid"
-                       [ngStyle]="{'display': 'SUCCESS' !== visibleResultTab.resultStatus ? '':'none'}">
+                  <div [ngStyle]="{'display': 'SUCCESS' !== visibleResultTab.resultStatus ? '':'none'}"
+                       class="ddp-box-grid" style="overflow-y:auto;" >
                     <div class="ddp-text-result" style="color:red; ">
                       {{visibleResultTab.message}}
                     </div>

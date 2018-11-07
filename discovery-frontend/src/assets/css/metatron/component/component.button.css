@@ -1,0 +1,44 @@
+@charset "utf-8";
+
+/***************************************************************************
+	line button
+*************************************************************************/
+a.ddp-btn-line {display:inline-block; padding:6px 10px; min-width:85px; border-radius:2px; border:1px solid #d0d1d7; color:#90969f; font-size:13px; text-align:center; box-sizing:border-box;}
+a.ddp-btn-line:hover {border:1px solid #b7b9c1; color:#4b515b;}
+a.ddp-btn-line.ddp-disabled {border:1px solid #e7e7ea; color:#d0d1d8; cursor: no-drop;}
+a.ddp-btn-line.ddp-full {width:100%; box-sizing:border-box;}
+a.ddp-btn-line > [class*="ddp-icon"] {margin-right:5px;}
+a.ddp-btn-line em.ddp-icon-go {display:inline-block; width:13px; height:11px;  margin-right:5px; background:url(../../../images/icon_selection.png) no-repeat; background-position:-28px -43px;}
+a.ddp-btn-line em.ddp-view {display:inline-block; width:7px; height:4px; margin-left:5px;background:url(../../../images/icon_select.png) no-repeat; background-position:-8px top; vertical-align:middle;}
+
+a.ddp-btn-line em.ddp-icon-refresh {display:inline-block; width:14px; height:13px; margin-right:10px; background:url(../../../images/btn_refresh.png) no-repeat; background-position:-15px -34px;}
+a.ddp-btn-line:hover em.ddp-icon-refresh {background-position:-30px -34px;}
+a.ddp-btn-line em.ddp-icon-delete {background-position:-24px -21px;}
+a.ddp-btn-line:hover em.ddp-icon-delete {background-position:left -21px;}
+
+a.ddp-btn-line-s {display:inline-block; padding:5px 15px; border:1px solid #d0d1d8; border-radius:2px; font-size:14px; color:#90969f; text-align:center; box-sizing:border-box; vertical-align: middle;}
+a.ddp-btn-line-s:hover { border:1px solid #b7b9c2; color:#4b515b;}
+a.ddp-btn-line-s.ddp-disabled,
+a.ddp-btn-line-s.ddp-disabled:hover {border:1px solid #e7e7ea; color:#d0d1d8; cursor: no-drop;}
+
+/***************************************************************************
+	solid button
+*************************************************************************/
+a.ddp-btn-solid {display:inline-block; padding:7px 13px 6px 13px; min-width:85px; border-radius:2px; border:1px solid #90969f; background-color:#90969f; color:#fff; text-align:center; box-sizing:border-box; vertical-align: middle;}
+a.ddp-btn-solid:hover {border:1px solid #4b515b; background-color:#4b515b;}
+a.ddp-btn-solid.ddp-disabled,
+a.ddp-btn-solid.ddp-disabled:hover {border:1px solid #d0d1d8; background-color:#d0d1d8; cursor:no-drop;}
+a.ddp-btn-solid.ddp-full {width:100%; box-sizing:border-box;}
+a.ddp-btn-solid.ddp-bg-black {border:1px solid #4b515b;background-color:#4b515b;}
+a.ddp-btn-solid.ddp-bg-black:hover {border:1px solid #35393f;background-color:#35393f;}
+
+/**************************************************************
+    box button
+**************************************************************/
+.ddp-list-buttons {display:inline-block; border-radius:2px; overflow:hidden;}
+.ddp-list-buttons li {position:relative; float:left; width:112px; padding:8px 0; color:#4c515a; font-size:12px; text-align:center; border-left:1px solid #fff; background-color:#e7e7ea; cursor:pointer; box-sizing:border-box;}
+.ddp-list-buttons li.ddp-selected:before {position:relative; top:-2px; display:inline-block; margin-right:4px; width:14px; height:10px; background:url(../../../images/icon_select2.png) no-repeat; vertical-align: middle; content:'';}
+.ddp-list-buttons li:hover {display:inline-block; background-color:#dbdce1;}
+.ddp-list-buttons li.ddp-selected {color:#fff; background-color:#4c515a;}
+.ddp-list-buttons li.ddp-disabled { opacity:0.5; cursor:no-drop;}
+.ddp-list-buttons li.ddp-disabled:hover {cursor:no-drop; background:#e7e7ea;}
