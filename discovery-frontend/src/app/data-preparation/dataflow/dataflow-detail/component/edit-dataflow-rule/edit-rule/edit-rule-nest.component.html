@@ -13,14 +13,18 @@
   ~  * limitations under the License.
   ~  */
   -->
-
 <div class="ddp-box-part" *ngIf="isShow">
   <div class="ddp-box-title">
-    {{'msg.lineage.ui.list.search.column' | translate}}<em class="ddp-icon-essential"></em>
+    {{'msg.lineage.ui.list.search.column' | translate}}
+    <em class="ddp-icon-essential"></em>
   </div>
   <!-- select box -->
-  <edit-rule-field-combo [isMulti]="true" [fields]="fields" [selected]="selectedFields" [tabIndex]="2"
-                         (onChange)="changeFields($event)" ></edit-rule-field-combo>
+  <edit-rule-field-combo [isMulti]="true"
+                         [fields]="fields"
+                         [selected]="selectedFields"
+                         [tabIndex]="2"
+                         (onChange)="changeFields($event)">
+  </edit-rule-field-combo>
   <!-- //select box -->
 </div>
 <!--//part-->
@@ -31,11 +35,10 @@
     {{'msg.comm.th.type' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <!-- select box -->
-  <!-- 클릭시 ddp-selected 추가 -->
-  <component-select
+  <prep-select-box
     [array]="nestList"
     (onSelected)="selectItem($event)" [defaultIndex]="defaultIndex">
-  </component-select>
+  </prep-select-box>
   <!-- //select box -->
 </div>
 <!--//part-->
@@ -46,7 +49,9 @@
     {{'msg.dp.th.new-column-name' | translate}}<em class="ddp-icon-essential"></em>
   </div>
   <div class="ddp-wrap-datainput">
-    <input #newColName type="text" class="ddp-input-typebasic" tabindex="4" placeholder="{{'msg.dp.th.new-column-name.ph' | translate}}" [(ngModel)]="inputValue">
-    <!-- ddp-selected 추가시 display:block; -->
+    <input #newColName tabindex="4"
+           class="ddp-input-typebasic"
+           [(ngModel)]="inputValue"
+           placeholder="{{'msg.dp.th.new-column-name.ph' | translate}}">
   </div>
 </div>
