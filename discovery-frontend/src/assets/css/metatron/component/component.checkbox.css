@@ -151,11 +151,9 @@
 
 .ddp-checkbox-slide input[type=checkbox]:checked + label span.ddp-slide {left: 20px;}
 
-
 .ddp-checkbox-slide.ddp-middle input[type=checkbox]:checked + label {background-color:#b7bcdb;}
 .ddp-checkbox-slide.ddp-middle input[type=checkbox] + label span.ddp-slide {display:inline-block; width:11px; height:11px; left:9px; background:url(../../../images/icon_switch2.png) no-repeat; }
 .ddp-checkbox-slide.ddp-middle label:after {display:inline-block; top:-5px; content:'ON'; color:#9c9c9c; font-size:11px;}
-
 
 .ddp-checkbox-slide.ddp-slide-text {position:relative;}
 .ddp-checkbox-slide.ddp-slide-text .ddp-txt-slide {display:inline-block; position:relative; top:1px; color:#9c9c9c; font-size:11px; vertical-align:middle;}
