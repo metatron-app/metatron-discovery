@@ -784,7 +784,22 @@ export class DatasourceService extends AbstractService {
   public synchronizeDatasourceFields(datasourceId: string): Promise<any> {
     return this.patch(this.API_URL + `datasources/${datasourceId}/fields/sync`, null);
   }
-  
+
+  /**
+   * 데이터소스 적재 로그 조회
+   * @param {string} datasourceId
+   * @param {string} historyId
+   * @param {string} offset
+   * @returns {Promise<any>}
+   */
+  public getDatasourceIngestionLog(datasourceId: string, historyId: string, offset?: string): Promise<any> {
+    if (offset) {
+      return this.get(this.API_URL + `datasources/${datasourceId}/histories/${historyId}/log?offset=${offset}`);
+    } else {
+      return this.get(this.API_URL + `datasources/${datasourceId}/histories/${historyId}/log`);
+    }
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
