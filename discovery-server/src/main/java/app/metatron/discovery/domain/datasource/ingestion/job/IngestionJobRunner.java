@@ -31,7 +31,7 @@ import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.engine.EngineQueryService;
 import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
-import app.metatron.discovery.domain.engine.model.SegmentMetaData;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
 import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_COMMON_ERROR;
@@ -143,7 +143,7 @@ public class IngestionJobRunner {
       history.setProgress(ENGINE_REGISTER_DATASOURCE);
       historyRepository.saveAndFlush(history);
 
-      SegmentMetaData segmentMetaData = checkDataSource(dataSource.getEngineName());
+      SegmentMetaDataResponse segmentMetaData = checkDataSource(dataSource.getEngineName());
       if (segmentMetaData == null) {
         throw new DataSourceIngestionException(INGESTION_ENGINE_REGISTRATION_ERROR, "An error occurred while registering the data source");
       }
@@ -235,9 +235,9 @@ public class IngestionJobRunner {
 
   }
 
-  public SegmentMetaData checkDataSource(String engineName) {
+  public SegmentMetaDataResponse checkDataSource(String engineName) {
 
-    SegmentMetaData segmentMetaData = null;
+    SegmentMetaDataResponse segmentMetaData = null;
     int checkCount = 0;
 
     do {

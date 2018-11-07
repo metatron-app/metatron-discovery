@@ -85,7 +85,7 @@ import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.engine.EngineLoadService;
 import app.metatron.discovery.domain.engine.EngineQueryService;
-import app.metatron.discovery.domain.engine.model.SegmentMetaData;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
 import app.metatron.discovery.domain.workbench.WorkbenchProperties;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
@@ -567,7 +567,7 @@ public class DataSourceController {
   }
 
   private List<Field> getCandidateFieldsFromEngine(String engineName) {
-    SegmentMetaData segmentMetaData = engineQueryService.segmentMetadata(engineName);
+    SegmentMetaDataResponse segmentMetaData = engineQueryService.segmentMetadata(engineName);
 
     if(segmentMetaData == null || segmentMetaData.getColumns() == null) {
       return new ArrayList<>();
@@ -575,7 +575,7 @@ public class DataSourceController {
       return segmentMetaData.getColumns().entrySet().stream()
           .filter(entry -> ((entry.getKey().equals("__time") || entry.getKey().equals("count")) == false))
           .map(entry -> {
-            SegmentMetaData.ColumnInfo value = entry.getValue();
+            SegmentMetaDataResponse.ColumnInfo value = entry.getValue();
 
             Field field = new Field();
             field.setName(entry.getKey());
@@ -630,7 +630,7 @@ public class DataSourceController {
 
     Map<String, Object> resultMap = Maps.newLinkedHashMap();
 
-    SegmentMetaData segmentMetaData = engineQueryService.segmentMetadata(engineName);
+    SegmentMetaDataResponse segmentMetaData = engineQueryService.segmentMetadata(engineName);
     List<Field> convertedField = segmentMetaData.getConvertedField(null);
     segmentMetaData.setFields(convertedField);
 

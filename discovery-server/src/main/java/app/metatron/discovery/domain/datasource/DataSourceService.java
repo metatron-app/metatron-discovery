@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
-import app.metatron.discovery.domain.engine.model.SegmentMetaData;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.util.PolarisUtils;
 
@@ -62,7 +62,7 @@ public class DataSourceService {
    */
   public DataSource importEngineDataSource(String engineName, DataSource reqDataSource) {
 
-    SegmentMetaData segmentMetaData = queryService.segmentMetadata(engineName);
+    SegmentMetaDataResponse segmentMetaData = queryService.segmentMetadata(engineName);
 
     DataSource dataSource = new DataSource();
     dataSource.setName(StringUtils.isEmpty(reqDataSource.getName()) ? engineName : reqDataSource.getName());
