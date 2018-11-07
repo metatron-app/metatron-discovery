@@ -8566,3 +8566,64 @@ ul.ddp-list-tab-type2 li a:hover + .ddp-ui-tooltip-info {display:block; width:50
 .ddp-workflow-detail .ddp-wrap-result .ddp-wrap-tab2 .ddp-btn-size-full:hover {background-position-x:-16px;}
 .ddp-workflow-detail .ddp-wrap-result.ddp-full .ddp-wrap-tab2 .ddp-btn-size-full  {width:17px; height:17px; background-position:left -44px;}
 .ddp-workflow-detail .ddp-wrap-result.ddp-full .ddp-wrap-tab2 .ddp-btn-size-full:hover {background-position-x:-18px;}
+
+
+/**********************************************************************************
+     데이터셋치환
+**********************************************************************************/
+.ddp-type-dataset .ddp-ui-popup-contents {position:relative;}
+.ddp-type-dataset .ddp-popup-dashboard {position:absolute; top:120px; left:50px; right:50px; bottom:50px; width:auto;}
+.ddp-type-dataset .ddp-wrap-variable {position:absolute; top:43px; left:0; right:0; bottom:0;}
+.ddp-type-dataset  .ddp-wrap-grid {height:100%; padding-bottom:44px; box-sizing:border-box;}
+.ddp-type-dataset .ddp-wrap-viewtable {height:100%;}
+.icon-db-hive-w .st0{fill:#EAEAEA;}
+.icon-db-hive-w .st1{fill:#B5B5B5;}
+.icon-db-hive-w .st2{fill:#F7F7F7;}
+.icon-db-hive-w .st3{fill:#FFFFFF;}
+.icon-db-hive-w .st4{stroke:#000000;stroke-width:0.114;}
+
+.icon-db-mysql-w .st0{fill:#ECECEC;}
+.icon-db-mysql-w .st0{fill:#ECECEC;}
+
+.icon-db-oracle-w .st0{fill:#ECECEC;}
+
+.icon-db-phoenix-w .st0{fill:url(#SVGID_1_);}
+.icon-db-phoenix-w .st1{fill:url(#SVGID_2_);}
+.icon-db-phoenix-w .st2{fill:url(#SVGID_3_);}
+.icon-db-phoenix-w .st3{fill:url(#SVGID_4_);}
+
+.icon-db-post-w .st0{fill:#5A5A5A;}
+.icon-db-post-w .st1{fill:#EBEBEB;}
+
+.icon-db-presto-w .st0{fill:#EBEBEB;}
+.icon-db-presto-w .st1{fill:#B5B5B5;}
+.icon-db-presto-w .st2{fill:#000E0F;}
+.icon-db-tibero-w .st0{fill:#B8B8B8;}
+.icon-db-tibero-w .st1{fill:#EBEBEB;}
+
+.icon-db-hive .st0{fill:#FDEE21;}
+.icon-db-hive .st1{fill:#C8C037;}
+.icon-db-hive .st2{fill:#FCF6A0;}
+.icon-db-hive .st3{fill:#FFFFFF;}
+.icon-db-hive .st4{stroke:#000000;stroke-width:0.114;}
+
+.icon-db-mysql .st0{fill:#2D7397;}
+
+.icon-db-oracle .st0{fill:#EA1B22;}
+
+.icon-db-phoenix .st0{fill:url(#SVGID_1_);}
+.icon-db-phoenix .st1{fill:url(#SVGID_2_);}
+.icon-db-phoenix .st2{fill:url(#SVGID_3_);}
+.icon-db-phoenix .st3{fill:url(#SVGID_4_);}
+
+.icon-db-post .st0{fill:#336791;}
+.icon-db-post .st1{fill:#FFFFFF;}
+.icon-db-post .st2{fill:none;stroke:#FFFFFF;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+
+.icon-db-presto .st0{fill:#669CFE;}
+.icon-db-presto .st1{fill:#3FE7FE;}
+.icon-db-presto .st2{fill:#000E0F;}
+.icon-db-presto .st3{fill:#6A9EFE;}
+
+.icon-db-tibero .st0{fill:#01448D;}
+.icon-db-tibero .st1{fill:#EA1B22;}
