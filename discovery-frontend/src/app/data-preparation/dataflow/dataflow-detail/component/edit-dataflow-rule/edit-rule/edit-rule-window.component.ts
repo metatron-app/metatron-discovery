@@ -18,6 +18,7 @@ import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import {StringUtil} from "../../../../../../common/util/string.util";
 import {isNullOrUndefined} from "util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-window',
@@ -163,7 +164,8 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     // 그룹
     let groupStr: string = '';
     if (this.selectedFields.length !== 0) {
-      groupStr = this.selectedFields.map((item) => {
+      let selFields = _.cloneDeep(this.selectedFields);
+      groupStr = selFields.map((item) => {
         if (-1 !== item.name.indexOf(' ')) {
           item.name = '`' + item.name + '`';
         }
@@ -173,7 +175,8 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
 
     let sortStr: string = '';
     if (this.selectedSortFields.length !== 0) {
-      sortStr = this.selectedSortFields.map((item) => {
+      let selSortFields = _.cloneDeep(this.selectedSortFields);
+      sortStr = selSortFields.map((item) => {
         if (-1 !== item.name.indexOf(' ')) {
           item.name = '`' + item.name + '`';
         }
