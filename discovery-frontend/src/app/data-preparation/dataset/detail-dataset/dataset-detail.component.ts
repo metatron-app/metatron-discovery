@@ -428,12 +428,17 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
         {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.wrangledDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}` }
       ]
     }  else if (dataset.importType === ImportType.FILE) {
-      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} ${this.getDatasetType(dataset.importType, dataset.filename)}`},
+      this.datasetInformationList = [{ name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType} (${this.getDatasetType(dataset.importType, dataset.filename)})`},
         {name : this.translateService.instant('msg.dp.th.file'), value : `${dataset.filename}` },
-        {name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() },
-        {name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
-        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')}`}
-      ]
+      ];
+
+      if (this.getDatasetType(dataset.importType, dataset.filename) === 'EXCEL') {
+        this.datasetInformationList.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetName() })
+      }
+
+      this.datasetInformationList.push({name : this.translateService.instant('msg.comm.detail.size'), value : this.getTotalBytes },
+        {name : this.translateService.instant('msg.dp.th.summary'), value : `${this.getRows()} ${this.translateService.instant('msg.comm.detail.rows')} / ${this.importedDatasetColumn } ${this.translateService.instant('msg.comm.detail.columns')}`})
+
     } else if (dataset.importType === 'HIVE') {
       this.datasetInformationList = [
         { name : this.translateService.instant('msg.comm.th.type') , value : `${dataset.importType === 'HIVE' ? 'StagingDB' : 'DB'}` },
@@ -458,14 +463,11 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
     if (type === ImportType.FILE) {
       let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
       if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
-        result =  '(excel)'
+        result =  'EXCEL'
       } else if (extension.toUpperCase() === 'CSV') {
-        result =  '(csv)'
+        result =  'CSV'
       }
-    } else {
-
     }
-
     return result;
   }
 
