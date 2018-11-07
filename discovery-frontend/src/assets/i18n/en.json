@@ -574,7 +574,7 @@
   "msg.bench.ui.search.column.ph" : "Search column",
   "msg.bench.ui.search.data.ph" : "Search data",
   "msg.bench.th.schema.columns" : "Columns",
-  "msg.bench.th.schema.metadata" : "Metadata",
+  "msg.bench.th.schema.metadata" : "Information",
   "msg.bench.th.schema.data" : "Data",
   "msg.bench.ui.query.tab.title" : "Please enter qeury tab name",
   "msg.bench.ui.back.title" : "You have an unsaved query. Save your work and exit?",
