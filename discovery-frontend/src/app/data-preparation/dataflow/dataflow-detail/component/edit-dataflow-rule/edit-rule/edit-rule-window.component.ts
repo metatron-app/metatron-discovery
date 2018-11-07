@@ -234,9 +234,10 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     }
 
     // Order
-    let orderFields: string[] = typeof data.jsonRuleString.order.value === 'string' ? [data.jsonRuleString.order.value] : data.jsonRuleString.order.value;
-    this.selectedSortFields = orderFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
-
+    if (!isNullOrUndefined(data.jsonRuleString.order)) {
+      let orderFields: string[] = typeof data.jsonRuleString.order.value === 'string' ? [data.jsonRuleString.order.value] : data.jsonRuleString.order.value;
+      this.selectedSortFields = orderFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    }
 
     // Formula
     this.formulaList = [];
