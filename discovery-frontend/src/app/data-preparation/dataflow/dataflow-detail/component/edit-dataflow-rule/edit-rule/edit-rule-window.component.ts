@@ -172,15 +172,14 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     }
 
     let sortStr: string = '';
-    if (this.selectedFields.length !== 0) {
-      groupStr = this.selectedSortFields.map((item) => {
+    if (this.selectedSortFields.length !== 0) {
+      sortStr = this.selectedSortFields.map((item) => {
         if (-1 !== item.name.indexOf(' ')) {
           item.name = '`' + item.name + '`';
         }
         return item.name
       }).join(', ');
     }
-
 
     let resultRuleString : string = `window value: [${validFormulaList}]`;
 
