@@ -8740,6 +8740,11 @@ table tr td .ddp-status-button .ddp-btn-status-status {width:11px; height:11px; 
 .popup-workbench .ddp-ui-preview-contents .ddp-ui-detail + .ddp-ui-detail .ddp-ui-title {padding-top:0px;}
 
 /**************************************************************
+  popup : 05_매니지먼트_00데이터저장소_01생성_01DB2
+**************************************************************/
+.popup-datastore-create .ddp-ui-import-option .ddp-ui-grid .ddp-search-none {padding:20px; font-size:12px; color:#ca4b4b;}
+
+/**************************************************************
   popup : 05_매니지먼트_00데이터저장소_01생성_03StringDb_03
 **************************************************************/
 .popup-datasource .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-label-radio.ddp-mgr0 {margin-right:0;}
@@ -8770,6 +8775,7 @@ table tr td .ddp-status-button .ddp-btn-status-status {width:11px; height:11px; 
 .popup-datasource .ddp-wrap-partition .ddp-ui-buttons {padding-top:8px;}
 .popup-datasource .ddp-wrap-partition .ddp-ui-buttons .ddp-wrap-result {display:inline-block; position:relative; margin-left:5px;}
 .popup-datasource .ddp-wrap-partition .ddp-ui-buttons .ddp-wrap-result .ddp-link-result {display:inline-block; padding:3px;color:#4c515a; font-size:12px; font-style:italic; background:#eeeef0;}
+.popup-datasource .ddp-wrap-partition .ddp-ui-buttons .ddp-wrap-result .ddp-link-result:hover {background-color:#d0d1d9;}
 .popup-datasource .ddp-box-layout4.ddp-result {display:none; position:fixed; min-width:243px; width:auto; max-height:350px; overflow:auto;}
 .popup-datasource .ddp-box-layout4.ddp-result .ddp-data-det {color:#4b515b;}
 .popup-datasource .ddp-box-layout4.ddp-result .ddp-data-det .ddp-data-row {color:#9ba0a8;}

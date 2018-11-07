@@ -120,8 +120,9 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
   // 조회 result message
   public resultTableErrorShowFl: boolean = false;
 
-  // grid data info message
-  public gridInfoMessage: string = this.translateService.instant('msg.storage.ui.dsource.create.preview.no.data');
+  // table error flag
+  public isTableErrorFl: boolean = false;
+  public isQueryErrorFl: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -679,7 +680,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
           // loading hide
           this.loadingHide();
           // set error message
-          this.gridInfoMessage = this.translateService.instant('msg.storage.ui.connection.jdbc.table.error');
+          this.isTableErrorFl = true;
         } else {
           this.commonExceptionHandler(error);
         }
@@ -887,8 +888,8 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     this.selectedTable = '';
     // 테이블 상세정보 초기화
     this.tableDetailData = null;
-    // set grid default info message
-    this.gridInfoMessage = this.translateService.instant('msg.storage.ui.dsource.create.preview.no.data');
+    // set table error flag
+    this.isTableErrorFl = false;
     // 그리드 클리어
     this.tableClearGrid = true;
   }
