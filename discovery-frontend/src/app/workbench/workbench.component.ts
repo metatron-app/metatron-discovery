@@ -2254,8 +2254,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       return;
     }
 
-    this.closeEditorTab(this.selectedTabNum);
-    this.tabLayer = false;
+    const modal = new Modal();
+    modal.name = this.translateService.instant('msg.bench.confirm.delete-editor');
+    modal.btnName = this.translateService.instant('msg.comm.ui.del');
+    modal.afterConfirm = () => {
+      this.closeEditorTab(this.selectedTabNum);
+      this.tabLayer = false;
+    };
+    CommonUtil.confirm(modal);
+
   } // function - tabLayerDelete
 
   /**

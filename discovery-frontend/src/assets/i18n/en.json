@@ -497,6 +497,7 @@
   "msg.bench.alert.execute.query": "Please enter a query to run.",
   "msg.bench.alert.no.selected.query": "No queries selected.",
   "msg.bench.alert.no.result": "There are no results for your selection.",
+  "msg.bench.confirm.delete-editor": "Are you sure you want to delete editor tab?",
   "msg.bench.ui.del": "Delete this workbench",
   "msg.bench.ui.tab-prefix" : "Editor",
   "msg.bench.btn.maximize": "Full page",
