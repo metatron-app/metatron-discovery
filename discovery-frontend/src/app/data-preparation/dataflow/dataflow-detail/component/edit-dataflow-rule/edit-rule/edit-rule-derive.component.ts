@@ -116,9 +116,17 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
         Alert.warning(this.translateService.instant('msg.dp.alert.insert.new.col'));
         return undefined
       }
+
+      let deriveAs : string  = '';
+      if (this.deriveAs.indexOf(' ') === -1) {
+        deriveAs = `'${this.deriveAs}'`;
+      } else {
+        deriveAs = '`' +this.deriveAs + '`';
+      }
+
       return {
         command: 'derive',
-        ruleString: 'derive value: ' + val + ' as: ' + '\'' + this.deriveAs + '\''
+        ruleString: 'derive value: ' + val + ' as: ' + deriveAs
       }
     } else {
       return undefined;
@@ -156,17 +164,20 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
   } // function - afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse rule string
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    // value
-    // this.deriveVal = this.getAttrValueInRuleString( 'value', ruleString );
-    this.deriveVal = ruleString.split('value: ')[1];
-    this.deriveVal = this.deriveVal.split(' as: ')[0];
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    // as
-    this.deriveAs = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'as', ruleString ));
+    // EXPRESSION
+    let val = data.ruleString.split('value: ')[1];
+    this.deriveVal = val.split(' as: ')[0];
+    // this.deriveVal = data.jsonRuleString.value.value;
+
+
+    // NEW COLUMN NAME
+    this.deriveAs = data.jsonRuleString.as;
+
   } // function - parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

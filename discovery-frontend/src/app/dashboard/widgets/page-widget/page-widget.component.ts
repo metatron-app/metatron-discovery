@@ -852,6 +852,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @param {string} brushType
    */
   public changeMouseSelectMode(mode: string, brushType: string) {
+    if( isNullOrUndefined(this.chart) ) {
+      return;
+    }
     if (ChartMouseMode.SINGLE.toString() === mode) {
       this.mouseMode = 'SINGLE';
       this.chart.convertMouseMode(ChartMouseMode.SINGLE);
