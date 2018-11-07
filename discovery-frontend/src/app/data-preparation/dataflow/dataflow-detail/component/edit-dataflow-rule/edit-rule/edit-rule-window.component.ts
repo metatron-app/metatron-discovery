@@ -171,11 +171,6 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
       }).join(', ');
     }
 
-    // sort
-    if (this.selectedSortFields.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.enter.sortby'));
-      return undefined;
-    }
     let sortStr: string = '';
     if (this.selectedFields.length !== 0) {
       groupStr = this.selectedSortFields.map((item) => {
@@ -188,11 +183,14 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
 
 
     let resultRuleString : string = `window value: [${validFormulaList}]`;
-    if (groupStr) {
+
+    if (groupStr !== '') {
       resultRuleString += ` group: ${groupStr}`;
     }
-    resultRuleString += ` order: ${sortStr}`;
 
+    if (sortStr !== '') {
+      resultRuleString += ` order: ${sortStr}`;
+    }
     return {
       command: 'window',
       col: groupStr,
