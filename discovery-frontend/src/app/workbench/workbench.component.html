@@ -445,8 +445,8 @@
                        [ngStyle]="{'display': 'SUCCESS' === visibleResultTab.resultStatus ? '':'none'}" style="padding:0px;">
                     <div grid-component #main style="width:100%; height: 100%;"></div>
                   </div>
-                  <div class="ddp-box-grid"
-                       [ngStyle]="{'display': 'SUCCESS' !== visibleResultTab.resultStatus ? '':'none'}">
+                  <div [ngStyle]="{'display': 'SUCCESS' !== visibleResultTab.resultStatus ? '':'none'}"
+                       class="ddp-box-grid" style="overflow-y:auto;" >
                     <div class="ddp-text-result" style="color:red; ">
                       {{visibleResultTab.message}}
                     </div>

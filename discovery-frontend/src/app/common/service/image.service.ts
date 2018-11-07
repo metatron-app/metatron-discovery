@@ -60,7 +60,7 @@ export class ImageService {
       }
 
       setTimeout( () => {
-        html2canvas($element).then((result) => {
+        html2canvas($element.get(0), { useCORS:true, allowTaint: true, logging: false }).then((result) => {
           const dataUrl = result.toDataURL('image/jpeg');
           const byteString = atob(dataUrl.split(',')[1]);
 
