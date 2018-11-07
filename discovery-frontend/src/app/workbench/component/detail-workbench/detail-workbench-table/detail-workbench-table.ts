@@ -330,6 +330,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
         this.loadingHide();
         this.pageResult = data['page'];
         this.tables = data['tables'];
+        $('.ddp-list-table').scrollTop(0);
       })
       .catch((error) => {
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getTableListReconnectCount <= 5) {
@@ -360,6 +361,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
       this.localPagepage = this.localPagepage - 1;
       this.tables = this.localData.slice(this.localPagepage * this.localPageSize, this.localPagepage * this.localPageSize + this.localPageSize);
     }
+
+    $('.ddp-list-table').scrollTop(0);
   }
 
   // Show/hide Table information popup
