@@ -17,10 +17,7 @@ package app.metatron.discovery.domain.dataprep;
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnDescription;
-import app.metatron.discovery.domain.dataprep.teddy.ColumnType;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
-import app.metatron.discovery.domain.dataprep.teddy.Row;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformRule;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransformRuleStringinfo;
 import app.metatron.discovery.domain.dataprep.transform.PrepTransition;
@@ -28,18 +25,14 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.hibernate.annotations.GenericGenerator;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -187,6 +180,28 @@ public class PrepDataset extends AbstractHistoryEntity {
     @Lob
     @Column(name = "custom")
     private String custom;
+
+    @Transient
+    DataFrame gridResponse;
+
+    @Transient
+    Map<String,Object> connectionInfo;
+
+    public Map<String, Object> getConnectionInfo() {
+        return connectionInfo;
+    }
+
+    public void setConnectionInfo(Map<String, Object> connectionInfo) {
+        this.connectionInfo = connectionInfo;
+    }
+
+    public DataFrame getGridResponse() {
+        return gridResponse;
+    }
+
+    public void setGridResponse(DataFrame gridResponse) {
+        this.gridResponse = gridResponse;
+    }
 
     public String getDsId() {
         return dsId;
@@ -489,13 +504,14 @@ public class PrepDataset extends AbstractHistoryEntity {
         return ruleStringinfos;
     }
 
+    /*
     public DataFrame getGridResponse() throws PrepException {
         DataFrame dataFrame = null;
 
         try {
             String previewPath = getCustomValue("previewPath");
             if(null!=previewPath) {
-                ObjectMapper mapper = new ObjectMapper();
+                ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
                 File theFile = new File(previewPath+File.separator+dsId+".df");
                 if(true==theFile.exists()) {
                     dataFrame = mapper.readValue(theFile, DataFrame.class);
@@ -535,6 +551,7 @@ public class PrepDataset extends AbstractHistoryEntity {
 
         return dataFrame;
     }
+    */
 
     // TODO: think about LOCAL/REMOTE, HDFS, FTP later
     @JsonIgnore

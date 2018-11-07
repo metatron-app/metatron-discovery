@@ -20,6 +20,7 @@ import org.joda.time.DateTime;
 import org.springframework.data.rest.core.config.Projection;
 
 import java.util.List;
+import java.util.Map;
 
 public class PrepDatasetProjections {
 
@@ -27,29 +28,6 @@ public class PrepDatasetProjections {
     public interface DefaultProjection {
 
         String getDsId();
-        String getDsName();
-        String getDsDesc();
-
-        Integer getRefDfCount();
-
-        String getDsType();
-
-        String getImportType();
-        String getCustom();
-        String getCreatorDfId();
-
-        DateTime getCreatedTime();
-        String getCreatedBy();
-        DateTime getModifiedTime();
-        String getModifiedBy();
-
-        // added for pycli
-        String getQueryStmt();
-    }
-
-    @Projection(name = "detail", types = { PrepDataset.class })
-    public interface DetailProjection {
-
         String getDsName();
         String getDsDesc();
         String getDsType();
@@ -79,6 +57,43 @@ public class PrepDatasetProjections {
         List<PrepTransformRuleStringinfo> getRuleStringInfos();
 
         DataFrame getGridResponse();
+        Map<String,Object> getConnectionInfo();
+    }
+
+    @Projection(name = "detail", types = { PrepDataset.class })
+    public interface DetailProjection {
+
+        String getDsId();
+        String getDsName();
+        String getDsDesc();
+        String getDsType();
+        String getImportType();
+        String getFileType();
+        String getDbType();
+        String getFilename();
+        String getFilekey();
+        String getCustom();
+        String getRsType();
+        String getDcId();
+        String getTableName();
+        String getQueryStmt();
+        Long getTotalLines();
+        Long getTotalBytes();
+
+        Integer getRefDfCount();
+        DateTime getCreatedTime();
+        String getCreatedBy();
+        DateTime getModifiedTime();
+        String getModifiedBy();
+
+        String getCreatorDfId();
+        Integer getRuleCurIdx();
+
+        List<PrepDataflow> getDataflows();
+        List<PrepTransformRuleStringinfo> getRuleStringInfos();
+
+        DataFrame getGridResponse();
+        Map<String,Object> getConnectionInfo();
     }
 
     @Projection(name = "listing", types = { PrepDataset.class })

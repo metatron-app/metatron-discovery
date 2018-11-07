@@ -35,8 +35,7 @@
             <!-- //Slide THREE -->
           </div>
           <!-- //slider -->
-          <div [class.ddp-disabled]="!isShow()"
-               class="ddp-list-sub2 ddp-wrap-disabled">
+          <div [ngClass]="{ 'ddp-wrap-disabled ddp-disabled' : !isShow() }" class="ddp-list-sub2">
             <!-- divide -->
             <div class="ddp-divide2">
               <div class="ddp-list-label">{{'msg.page.common.kpi.indocator.target' | translate}}</div>

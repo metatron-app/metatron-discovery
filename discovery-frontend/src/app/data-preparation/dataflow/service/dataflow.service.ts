@@ -79,7 +79,7 @@ export class DataflowService extends AbstractService {
 
   // 데이터셋 상세 조회
   public getDataset(dsId: string): Promise<Dataset> {
-    const url = this.API_URL + 'preparationdatasets/' + dsId;
+    const url = this.API_URL + 'preparationdatasets/' + dsId + '?projection=detail';
     return this.get(url);
   }
 

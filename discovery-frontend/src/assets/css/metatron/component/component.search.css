@@ -1,0 +1,28 @@
+@charset "utf-8";
+
+
+/**********************************************************************************
+	검색
+**********************************************************************************/
+.ddp-form-search {position:relative; width:300px; box-sizing: border-box;}
+.ddp-form-search em.ddp-icon-search {display:inline-block; position:absolute; top:50%; left:0; margin-top:-6px; width:11px; height:11px; background:url(../../../images/icon_search.png) no-repeat;}
+.ddp-form-search input {display:block; padding:6px 22px 6px 22px;  width:100%; border:none; border-bottom:1px solid #d0d1d7; background-color:transparent; font-size:13px; box-sizing:border-box;}
+.ddp-form-search input:focus {border-bottom:1px solid #b7b9c1;}
+.ddp-form-search input::-webkit-input-placeholder {color:#b7b9c2;}
+.ddp-form-search input:-ms-input-placeholder {color:#b7b9c2;}
+.ddp-form-search .ddp-btn-search-close {display:inline-block; padding:5px; position:absolute; top:50%; right:5px; margin-top:-8px; cursor:pointer; font-size:0px !important;}
+.ddp-form-search .ddp-btn-search-close:before {display:inline-block; width:7px; height:7px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:left -38px; content:'';}
+
+.ddp-form-search.ddp-full {width:100%;}
+
+/*??*/
+.ddp-ui-searching .ddp-btn-search-close {display:inline-block; padding:5px; position:absolute; top:50%; right:5px; margin-top:-8px; cursor:pointer; font-size:0px;}
+.ddp-ui-searching .ddp-btn-search-close:before {display:inline-block; width:7px; height:7px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:left -38px; content:'';}
+
+
+
+.ddp-form-search2 {position:relative; padding-right:30px; border:1px solid #d0d1d9;}
+.ddp-form-search2 input {display:block; width:100%; padding:6px 10px 6px 10px; box-sizing:border-box; border:none;}
+.ddp-form-search2 span.ddp-icon-search {display:inline-block; position:absolute; top:50%; right:4px; width:22px; height:22px; margin:-11px 0 0 0; background-color:#f6f6f7; border-radius:2px; vertical-align:middle; cursor:pointer;}
+.ddp-form-search2 span.ddp-icon-search:hover {background-color:#e3e3e8;}
+.ddp-form-search2 span.ddp-icon-search:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-6px 0 0 -6px; width:12px; height:12px; background:url(../../../images/btn_search.png) no-repeat; background-position:left -38px; content:'';}

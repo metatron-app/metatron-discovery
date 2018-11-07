@@ -166,18 +166,22 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   }
 
   public osmLayer = new ol.layer.Tile({
-      source: new ol.source.OSM()
+      source: new ol.source.OSM({
+        crossOrigin: 'anonymous'
+      })
   });
 
   public cartoPositronLayer = new ol.layer.Tile({
       source: new ol.source.XYZ({
-        url:'http://{1-4}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+        url:'http://{1-4}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+        crossOrigin: 'anonymous'
       })
   });
 
   public cartoDarkLayer = new ol.layer.Tile({
       source: new ol.source.XYZ({
-        url:'http://{1-4}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        url:'http://{1-4}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+        crossOrigin: 'anonymous'
       })
   });
 
