@@ -24,6 +24,7 @@ public enum JdbcDataConnectionErrorCodes implements ErrorCodes {
   , CSV_IO_ERROR_CODE("JDC0004")
   , WEBSOCKET_NOT_FOUND_ERROR_CODE("JDC0005")
   , PARTITION_NOT_EXISTED("JDC0006")
+  , PREVIEW_TABLE_SQL_ERROR("error.dataconnection.jdbc.preview.table")
   ;
 
   String errorCode;
