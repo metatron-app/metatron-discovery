@@ -47,6 +47,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   private area: ElementRef;
   private $area: any;
 
+  @ViewChild('legendArea')
+  private legendArea: ElementRef;
+  private $legendArea: any;
+
   public olmap: ol.Map = undefined;
   public mapVaild: boolean = false;
   public mapVaildSecondLayer: boolean = false;
@@ -125,6 +129,9 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
     // Area
     this.$area = $(this.area.nativeElement);
+
+    // Legend Area
+    this.$legendArea = $(this.legendArea.nativeElement);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1527,16 +1534,25 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   public legendRender(): void {
 
     if( !this.uiOption.legend.auto ) {
-      for(let i=0;i<document.getElementsByClassName('ddp-layout-remark').length;i++) {
-        let element = document.getElementsByClassName('ddp-layout-remark')[i] as HTMLElement;
-        element.style.display = "none";
-      }
+      // for(let i=0;i<document.getElementsByClassName('ddp-layout-remark').length;i++) {
+      //   let element = document.getElementsByClassName('ddp-layout-remark')[i] as HTMLElement;
+      //   element.style.display = "none";
+      // }
+
+      this.$legendArea[0].style.display = "none";
       return;
     }
 
-    if(document.getElementsByClassName('ddp-layout-remark').length > 0) {
-      for(let i=0;i<document.getElementsByClassName('ddp-layout-remark').length;i++) {
-        let element = document.getElementsByClassName('ddp-layout-remark')[i] as HTMLElement;
+    if( this.uiOption.legend.showName ) {
+      this.$legendArea[0].style.display = "block";
+    } else {
+      this.$legendArea[0].style.display = "none";
+      return;
+    }
+
+    // if(document.getElementsByClassName('ddp-layout-remark').length > 0) {
+        // let element = document.getElementsByClassName('ddp-layout-remark')[i] as HTMLElement;
+        let element = this.$legendArea[0];
         element.style.display = "block";
 
         if(this.uiOption.legend.pos.toString() === "RIGHT_BOTTOM") {
@@ -1705,8 +1721,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
         element.innerHTML = legendHtmlAll;
 
-      }
-    }
+
+    // }
   }
 
   /**
