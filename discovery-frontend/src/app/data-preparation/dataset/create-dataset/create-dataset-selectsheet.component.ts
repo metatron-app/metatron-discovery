@@ -434,12 +434,20 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @param {Field[]} fields
    */
   private updateGrid(data: any, fields: Field[]) {
-    // headers
-    const headers: header[] = this.getHeaders(fields);
-    // rows
-    const rows: any[] = this.getRows(data);
-    // grid 그리기
-    this.drawGrid(headers, rows);
+
+    if (data.length > 0 && fields.length > 0) {
+      this.clearGrid = false;
+      // headers
+      const headers: header[] = this.getHeaders(fields);
+      // rows
+      const rows: any[] = this.getRows(data);
+      // grid 그리기
+      this.drawGrid(headers, rows);
+    } else {
+      this.clearGrid = true;
+    }
+
+
   }
 
   /**
