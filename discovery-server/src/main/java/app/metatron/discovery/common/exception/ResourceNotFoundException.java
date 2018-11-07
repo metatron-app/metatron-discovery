@@ -31,7 +31,11 @@ public class ResourceNotFoundException extends MetatronException {
     this(resource, null);
   }
 
-  public ResourceNotFoundException(String resource, Throwable cause) {
+  public ResourceNotFoundException(Long resource) {
+    this(resource, null);
+  }
+
+  public ResourceNotFoundException(Object resource, Throwable cause) {
     super(NOT_FOUND_CODE, String.format("Resource(%s) not Found", Preconditions.checkNotNull(resource)), cause);
   }
 

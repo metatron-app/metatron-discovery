@@ -133,6 +133,10 @@ polaris:
         target: overlord
         method: GET
         uri: /druid/indexer/v1/task/{taskId}/status
+      ingestionLog:
+        target: overlord
+        method: GET
+        uri: /druid/indexer/v1/task/{taskId}/log
       ingestionShutdown:
         target: overlord
         method: POST

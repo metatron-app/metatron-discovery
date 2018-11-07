@@ -656,13 +656,13 @@ public class DataSourceController {
   }
 
   /**
-   * 데이터 소스의 적재정보 목록을 가져옵니다.
+   * Get list of ingestion history
    *
    * @param dataSourceId
    * @param pageable
    * @return
    */
-  @RequestMapping(value = "/datasources/{id}/ingestion/histories", method = RequestMethod.GET, produces = "application/json")
+  @RequestMapping(value = "/datasources/{id}/ingestion/histories", method = RequestMethod.GET)
   public ResponseEntity<?> findIngestionHistorys(@PathVariable("id") String dataSourceId, Pageable pageable) {
     if (dataSourceRepository.findOne(dataSourceId) == null) {
       return ResponseEntity.notFound().build();
@@ -671,6 +671,56 @@ public class DataSourceController {
     Page<IngestionHistory> results = ingestionHistoryRepository.findByDataSourceIdOrderByModifiedTimeDesc(dataSourceId, pageable);
 
     return ResponseEntity.ok(pagedResourcesAssembler.toResource(results));
+  }
+
+  /**
+   * Get ingestion history
+   *
+   * @param dataSourceId
+   * @param historyId
+   * @return
+   */
+  @RequestMapping(value = "/datasources/{dataSourceId}/histories/{historyId}", method = RequestMethod.GET)
+  public ResponseEntity<?> findIngestionHistory(@PathVariable("dataSourceId") String dataSourceId,
+                                                @PathVariable("historyId") Long historyId) {
+
+    if (dataSourceRepository.findOne(dataSourceId) == null) {
+      throw new ResourceNotFoundException(dataSourceId);
+    }
+
+    IngestionHistory history = ingestionHistoryRepository.findOne(historyId);
+    if(history == null) {
+      throw new ResourceNotFoundException(historyId);
+    }
+
+    return ResponseEntity.ok(history);
+  }
+
+  /**
+   * Get ingestion log (= engine task log)
+   *
+   * @param dataSourceId
+   * @param historyId
+   * @param offset
+   * @return
+   */
+  @RequestMapping(value = "/datasources/{dataSourceId}/histories/{historyId}/log", method = RequestMethod.GET)
+  public ResponseEntity<?> findIngestionHistoryLog(@PathVariable("dataSourceId") String dataSourceId,
+                                                   @PathVariable("historyId") Long historyId,
+                                                   @RequestParam(value = "offset", required = false) Integer offset) {
+
+    if (dataSourceRepository.findOne(dataSourceId) == null) {
+      throw new ResourceNotFoundException(dataSourceId);
+    }
+
+    IngestionHistory history = ingestionHistoryRepository.findOne(historyId);
+    if(history == null) {
+      throw new ResourceNotFoundException(historyId);
+    }
+
+    String taskId = history.getIngestionId();
+
+    return ResponseEntity.ok(engineIngestionService.getIngestionTaskLog(taskId, offset));
   }
 
   /**

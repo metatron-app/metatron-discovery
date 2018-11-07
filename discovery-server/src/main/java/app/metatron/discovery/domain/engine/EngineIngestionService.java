@@ -14,14 +14,18 @@
 
 package app.metatron.discovery.domain.engine;
 
+import com.google.common.base.Preconditions;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -126,6 +130,16 @@ public class EngineIngestionService {
 
   }
 
+  public EngineTaskLog getIngestionTaskLog(String ingestionId, Integer offset) {
+
+    Preconditions.checkArgument(StringUtils.isNotEmpty(ingestionId), "Ingestion Id required");
+
+    Optional<String> ingestionLog = engineMetaRepository.getIngestionTaskLog(ingestionId, offset);
+
+    return new EngineTaskLog(offset, ingestionLog.orElse("No Contents"));
+
+  }
+
   public Optional<String> doSupervisorCheckResult(String ingestionId) {
 
     Optional<Map> result = engineMetaRepository.getSupervisorIngestionStatus(ingestionId);
@@ -195,6 +209,29 @@ public class EngineIngestionService {
     }
 
     return Optional.ofNullable(ingestionHistory);
+  }
+
+  /**
+   * Response Model for task logs
+   */
+  public static class EngineTaskLog implements Serializable {
+
+    Integer offset;
+
+    String logs;
+
+    public EngineTaskLog(Integer offset, String logs) {
+      this.offset = offset;
+      this.logs = logs;
+    }
+
+    public Integer getOffset() {
+      return offset;
+    }
+
+    public String getLogs() {
+      return logs;
+    }
   }
 
 }
