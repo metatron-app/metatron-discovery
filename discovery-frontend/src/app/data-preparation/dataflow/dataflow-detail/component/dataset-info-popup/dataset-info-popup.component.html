@@ -130,7 +130,7 @@
         {{'msg.comm.th.type' | translate}}
       </dt>
       <dd>
-        {{selectedDataSet.dsType && selectedDataSet.dsType.toString() === 'IMPORTED' ? selectedDataSet.importType : 'Wrangled dataset'}}
+        {{getFileType(selectedDataSet.dsType, selectedDataSet.importType, selectedDataSet.filename)}}
       </dd>
     </dl>
     <!-- //detail -->
@@ -155,7 +155,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail 시트 [FILE] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='FILE'">
+    <dl class="ddp-dl-detail" *ngIf="getDatasetType(selectedDataSet.importType,selectedDataSet.filename) === 'EXCEL'">
       <dt>
         {{'msg.dp.th.sheet' | translate}}
       </dt>

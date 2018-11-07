@@ -875,6 +875,35 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.interval = undefined;
   }
 
+  public getDatasetType(type: ImportType, fileName : string) : string {
+
+    let result = '';
+    if (type === ImportType.FILE) {
+      let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
+      if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
+        result =  'EXCEL'
+      } else if (extension.toUpperCase() === 'CSV') {
+        result =  'CSV'
+      }
+    }
+
+    return result;
+  }
+
+  public getFileType(dsType:DsType, importType: ImportType, fileName : string) : string {
+
+    if (dsType === DsType.WRANGLED) {
+      return 'WRANGLED';
+    } else {
+      if (importType === ImportType.FILE) {
+        return `${importType} (${this.getDatasetType(importType,fileName)})`;
+      } else {
+        return `${importType}`;
+      }
+    }
+
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
