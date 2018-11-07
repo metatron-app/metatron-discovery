@@ -8760,7 +8760,7 @@ table tr td .ddp-status-button .ddp-btn-status-status {width:11px; height:11px; 
 
 
 /**************************************************************
-  Page : 맵뷰
+  Page : 맵
 **************************************************************/
 .ddp-page-mapview .ddp-btn-color-heatmap1 {background:url(../images/img_color_heatmap_type1.png) no-repeat; }
 .ddp-page-mapview .ddp-btn-color-heatmap2 {background:url(../images/img_color_heatmap_type2.png) no-repeat;}
@@ -8769,3 +8769,15 @@ table tr td .ddp-status-button .ddp-btn-status-status {width:11px; height:11px; 
 .ddp-page-mapview .ddp-btn-color-heatmap5 {background:url(../images/img_color_heatmap_type5.png) no-repeat;}
 .ddp-page-mapview .ddp-btn-color-heatmap6 {background:url(../images/img_color_heatmap_type6.png) no-repeat;}
 .ddp-page-mapview .ddp-btn-color-heatmap7 {background:url(../images/img_color_heatmap_type7.png) no-repeat;}
+.ddp-page-mapview .ddp-box-down .ddp-wrap-divide .ddp-divide2 .ddp-wrap-colorby-button.ddp-solid-color {padding-left:0;height:25px;}
+/*.ddp-page-mapview .ddp-box-down .ddp-wrap-divide .ddp-divide2 .ddp-wrap-colorby-button.ddp-solid-color .sp-replacer:before {display:inline-block; position:absolute; top:0; left:0; width:26px; height:25px; background:url(../images/btn_color.png) no-repeat; content:'';}*/
+.ddp-page-mapview .ddp-box-down .ddp-wrap-divide .ddp-divide2 .ddp-wrap-colorby-button.ddp-solid-color .sp-preview,
+.ddp-page-mapview .ddp-box-down .ddp-wrap-divide .ddp-divide2 .ddp-wrap-colorby-button.ddp-solid-color  .sp-replacer{width:100%; height:100%;}
+.ddp-page-mapview .ddp-box-down .ddp-wrap-divide .ddp-divide2 .ddp-wrap-colorby-button.ddp-solid-color .sp-preview:before {display:inline-block; position:absolute; top:0; left:0; width:26px; height:25px; background:url(../images/btn_color.png) no-repeat; content:''; background-color:#fff; border-radius:3px; z-index:1;}
+.ddp-page-mapview .ddp-box-down .ddp-wrap-divide .ddp-divide2 .ddp-wrap-colorby-button.ddp-solid-color .sp-preview-inner {position:absolute; top:0; left:0; right:0; bottom:0;}
+
+
+.ddp-page-mapview .ddp-box-color .ddp-solid-color .sp-replacer.sp-active:before,
+.ddp-page-mapview .ddp-box-color .ddp-solid-color  .sp-replacer.sp-active:after,
+
+.ddp-box-color .ddp-solid-color .sp-replacer.sp-active{border:none;}

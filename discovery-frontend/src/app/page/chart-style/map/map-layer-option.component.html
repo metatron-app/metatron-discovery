@@ -61,7 +61,7 @@
             <!-- 레이어 유형 contents -->
             <div class="ddp-ui-layer-type">
               <div class="ddp-ui-type-contents">
-                <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
+                <div class="ddp-wrap-divide">
                   <!-- symbol layer : point type -->
                   <div *ngIf="'symbol' === uiOption.layers[index].type.toString()" class="ddp-divide2 ">
                     <div class="ddp-list-label">{{'msg.page.layer.map.point' | translate}}</div>
@@ -75,125 +75,71 @@
                                         'ddp-icon-user' : 'USER' === item.value.toString()}"></em> {{item.name}}
                       </li>
                     </ul>
-
                   </div>
                   <!-- //symbol layer : point type -->
 
-                  <!-- symbol, hexagon, line, polygon : color, transparency -->
+                  <!-- symbol, heatmap, hexagon, line, polygon : color, transparency -->
                   <div class="ddp-divide2 ">
                     <div class="ddp-list-label">{{'msg.page.layer.map.color' | translate}}</div>
-                    <div class="ddp-list-sub2">
-                      <div class="ddp-divide2">
-                        <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
-                        <!-- SELECTBOX -->
-                        <component-select
-                          [array]="colorByList"
-                          [defaultIndex]="findColorByIndex()"
-                          [viewKey]="'name'"
-                          (onSelected)="changeColorBy($event)"
-                        ></component-select>
-                        <!-- //SELECTBOX -->
-                      </div>
-                      <div class="ddp-wrap-disabled">
-                        <div class="ddp-divide2">
+                    <div [ngClass]="{'ddp-list-sub2' : 'heatmap' !== uiOption.layers[index].type.toString()}">
+                    <!--<div class="ddp-list-sub2">-->
+                      <div>
+                      <!--<div class="ddp-wrap-disabled">-->
+                        <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString()" class="ddp-divide2">
+                          <div class="ddp-list-label">{{'msg.page.layer.map.color.by' | translate}}</div>
                           <!-- SELECTBOX -->
-                          <div class="ddp-type-selectbox">
-                            <span class="ddp-txt-selectbox">Color by Dimension</span>
-                            <ul class="ddp-list-selectbox ddp-selectdown">
-                              <li>
-                                <a href="#">
-                                  Series
-                                </a>
-                              </li>
-                            </ul>
-                          </div>
+                          <component-select
+                            [array]="colorByList"
+                            [defaultIndex]="findColorByIndex()"
+                            [viewKey]="'name'"
+                            (onSelected)="changeColorBy($event)"
+                          ></component-select>
                           <!-- //SELECTBOX -->
                         </div>
-                        <div class="ddp-divide2">
-                          <script>
-                            $(function(){
-                              $('.ddp-wrap-colorby-button').click(function(){
-                                var $colorbyBtnTop = $(this).offset().top;
-                                $(this).parent().find('.ddp-popup-side').show();
-                                $(this).parent().find('.ddp-popup-side').css('top',$colorbyBtnTop-200);
-                              });
-                              $('.ddp-popup-side .ddp-btn-close').click(function(){
-                                $('.ddp-popup-side').hide();
-                              });
+                        <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by" class="ddp-divide2">
+                          <!-- SELECTBOX -->
+                          <component-select
+                            [array]="colorByList"
+                            [defaultIndex]="findColorByIndex()"
+                            [viewKey]="'name'"
+                            (onSelected)="changeColorBy($event)"
+                          ></component-select>
+                          <!-- //SELECTBOX -->
+                        </div>
 
-                            });
-                          </script>
-                          <div class="ddp-ui-colorby">
+                        <div class="ddp-divide2">
+                          <!-- color by none -->
+                          <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'NONE' === this.uiOption.layers[this.index].color.by" class="ddp-ui-colorby ddp-box-color">
                             <!-- colorby button -->
-                            <div class="ddp-wrap-colorby-button">
+                            <div class="ddp-wrap-colorby-button ddp-solid-color">
+                              <!-- 클릭시 ddp-selected 추가 -->
+                              <color-picker [showAlpha]="true" [color]="'#6344ad'" [showInitial]="true"
+                                            [showInput]="true" [showUserColor]="true" (selected)="changeByNoneColor($event)"></color-picker>
+                            </div>
+                            <!-- //colorby button -->
+                          </div>
+                          <!-- color by none -->
+                          <!-- color by dimension / measure -->
+                          <div *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by)" class="ddp-ui-colorby">
+                            <!-- colorby button -->
+                            <div class="ddp-wrap-colorby-button"  (click)="colorListFlag = !colorListFlag" (clickOutside)="colorListFlag=false">
                               <em class="ddp-icon-colorby"></em>
                               <!-- 클릭시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-series1  ddp-type"></button>
+                              <button *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'DIMENSION' === uiOption.layers[index].color.by" class="ddp-btn-color-series{{findDimensionColorIndex()}} ddp-type"></button>
+                              <button *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'MEASURE' === uiOption.layers[index].color.by" class="ddp-btn-color-type{{findMeasureColorIndex()}} ddp-type"></button>
+                              <button *ngIf="'heatmap' === uiOption.layers[index].type.toString()" class="ddp-btn-color-heatmap{{findHeatmapColorIndex()}}"></button>
                             </div>
                             <!-- //colorby button -->
                             <!-- popup -->
-                            <div class="ddp-popup-side" style="display:none;">
-                              <!-- top -->
-                              <div class="ddp-pop-side-top">
-                                Color Template
-
-                                <a href="#" class="ddp-btn-close"></a>
-
-                              </div>
-                              <!-- //top -->
-                              <!-- contents -->
-                              <div class="ddp-pop-side-contents">
-                                <ul class="ddp-list-series">
-                                  <li>
-                                    <!-- 선택시 ddp-selected 추가 -->
-                                    <button class="ddp-btn-color-series1 ddp-type ddp-selected"></button>
-                                  </li>
-                                  <li>
-                                    <!-- 선택시 ddp-selected 추가 -->
-                                    <button class="ddp-btn-color-series2 ddp-type"></button>
-                                  </li>
-                                  <li>
-                                    <!-- 선택시 ddp-selected 추가 -->
-                                    <button class="ddp-btn-color-series3 ddp-type"></button>
-                                  </li>
-                                  <li>
-                                    <!-- 선택시 ddp-selected 추가 -->
-                                    <button class="ddp-btn-color-series4 ddp-type"></button>
-                                  </li>
-
-                                  <li>
-                                    <!-- 선택시 ddp-selected 추가 -->
-                                    <button class="ddp-btn-color-series5 ddp-type"></button>
-                                  </li>
-                                  <li>
-                                    <!-- 선택시 ddp-selected 추가 -->
-                                    <button class="ddp-btn-color-series6 ddp-type"></button>
-                                  </li>
-                                  <li>
-                                    <!-- 선택시 ddp-selected 추가 -->
-                                    <button class="ddp-btn-color-series7 ddp-type"></button>
-                                  </li>
-                                  <li>
-                                    <!-- 선택시 ddp-selected 추가 -->
-                                    <button class="ddp-btn-color-series8 ddp-type"></button>
-                                  </li><li>
-                                  <!-- 선택시 ddp-selected 추가 -->
-                                  <button class="ddp-btn-color-series9 ddp-type"></button>
-                                </li>
-
-                                </ul>
-
-                              </div>
-                              <!-- //contents -->
-
-                            </div>
+                            <color-template #colorTemplate [layerType]="uiOption.layers[index].type.toString()" [colorType]="uiOption.layers[index].color.by" [show]="colorListFlag"
+                                            [schema]="uiOption.layers[index].color.schema" (notiChangeColor)="changeColor($event)"></color-template>
                             <!-- //popup -->
                           </div>
+                          <!-- //color by dimension / measure -->
                         </div>
                       </div>
 
-
-                      <div class="ddp-wrap-option-slider">
+                      <div *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by)" class="ddp-wrap-option-slider">
                         <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
                         <!-- Slide THREE -->
                         <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
@@ -201,7 +147,6 @@
                           <label><span class="ddp-slide"></span></label>
                         </div>
                         <!-- //Slide THREE -->
-
                       </div>
                       <div class="ddp-divide2">
                         <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
@@ -216,111 +161,8 @@
                       </div>
                     </div>
                   </div>
-                  <!-- //point, hexagon, line, polygon : color, transparency -->
+                  <!-- //point, heatmap, hexagon, line, polygon : color, transparency -->
                 </div>
-
-                <!-- heatmap : color, transparency -->
-                <div *ngIf="'heatmap' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
-                  <!-- divide -->
-                  <div class="ddp-divide2">
-                    <div class="ddp-list-label">색상 </div>
-                    <div class="ddp-ui-colorby">
-                      <!-- colorby button -->
-                      <div class="ddp-wrap-colorby-button">
-                        <em class="ddp-icon-colorby"></em>
-                        <!-- 클릭시 ddp-selected 추가 -->
-                        <button class="ddp-btn-color-heatmap1"></button>
-                      </div>
-                      <!-- //colorby button -->
-                      <!-- popup -->
-                      <div class="ddp-popup-side" style="display:none;">
-                        <!-- top -->
-                        <div class="ddp-pop-side-top">
-                          Color Template
-
-                          <a href="#" class="ddp-btn-close"></a>
-
-                        </div>
-                        <!-- //top -->
-                        <!-- contents -->
-                        <div class="ddp-pop-side-contents">
-                          <ul class="ddp-list-series">
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap1 ddp-selected"></button>
-                            </li>
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap2 "></button>
-                            </li>
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap3 "></button>
-                            </li>
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap4 "></button>
-                            </li>
-
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap5 "></button>
-                            </li>
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap6 "></button>
-                            </li>
-                            <li>
-                              <!-- 선택시 ddp-selected 추가 -->
-                              <button class="ddp-btn-color-heatmap7 "></button>
-                            </li>
-
-                          </ul>
-
-                        </div>
-                        <!-- //contents -->
-
-                      </div>
-                      <!-- //popup -->
-                    </div>
-                  </div>
-                  <!-- //divide -->
-                  <div class="ddp-wrap-option-slider">
-                    <span class="ddp-label-slider">사용자 색상 설정</span>
-                    <!-- Slide THREE -->
-                    <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                      <input type="checkbox" value="None" id="check2" name="check">
-                      <label for="check2"><span class="ddp-slide"></span></label>
-                    </div>
-                    <!-- //Slide THREE -->
-                  </div>
-                  <div class="ddp-divide2">
-                    <div class="ddp-list-label">투명도</div>
-                    <!-- SELECTBOX -->
-                    <div class="ddp-type-selectbox">
-                      <span class="ddp-txt-selectbox">투명도</span>
-                      <ul class="ddp-list-selectbox ddp-selectdown">
-                        <li>
-                          <a href="#">
-                            Series
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#">
-                            Series
-                          </a>
-                        </li>
-                        <li>
-                          <a href="#">
-                            Series
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                    <!-- //SELECTBOX -->
-                  </div>
-                </div>
-                <!-- //heatmap : color, transparency -->
 
                 <!-- symbol : size -->
                 <div *ngIf="'symbol' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
@@ -340,18 +182,14 @@
                         <!-- //SELECTBOX -->
                       </div>
 
-                      <div class="ddp-divide2">
+                      <div *ngIf="'NONE' !== uiOption.layers[index].size.by" class="ddp-divide2">
                         <!-- SELECTBOX -->
-                        <div class="ddp-type-selectbox">
-                          <span class="ddp-txt-selectbox">Column Name</span>
-                          <ul class="ddp-list-selectbox ddp-selectdown">
-                            <li>
-                              <a href="javascript:">
-                                Series
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
+                        <component-select
+                          [array]="byList"
+                          [defaultIndex]="findSymbolSizeByIndex()"
+                          [viewKey]="'name'"
+                          (onSelected)="changeSizeBy($event)"
+                        ></component-select>
                         <!-- //SELECTBOX -->
                       </div>
                     </div>
@@ -377,16 +215,14 @@
 
                     <div *ngIf="uiOption.layers[index].outline" class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-7">
-                        <span class="ddp-label-txt">색상</span>
+                        <span class="ddp-label-txt">{{'msg.page.layer.map.color' | translate}}</span>
                       </div>
                       <div class="ddp-col-5 ddp-txt-right">
-
                         <!-- selectbox -->
-                        <div class="ddp-type-selectbox ddp-color-selectbox2  ">
-
-                          <input type='text' id="custom"  class="ddp-user" value=""/>
+                        <div class="ddp-type-selectbox ddp-color-selectbox2">
+                          <color-picker [showAlpha]="true" [color]="uiOption.layers[index].outline.color" [showInitial]="true"
+                                        [showInput]="true" [showUserColor]="true"></color-picker>
                         </div>
-                        <!-- //selectbox -->
                         <!-- //selectbox -->
                       </div>
                     </div>
@@ -424,175 +260,8 @@
                 </div>
                 <!-- //symbol : view original data -->
 
-                <!-- symbol : link -->
-                <!--<div *ngIf="'symbol' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">-->
-                  <!--&lt;!&ndash; divide &ndash;&gt;-->
-                  <!--<div class="ddp-divide2 ">-->
-                    <!--<div class="ddp-wrap-option-slider">-->
-                      <!--<span class="ddp-label-slider">포인트 연결</span>-->
-                      <!--&lt;!&ndash; Slide THREE &ndash;&gt;-->
-                      <!--<div class="ddp-checkbox-slide ddp-checkbox-automatic2">-->
-                        <!--<input type="checkbox" value="None" id="check2" name="check">-->
-                        <!--<label for="check2"><span class="ddp-slide"></span></label>-->
-                      <!--</div>-->
-                      <!--&lt;!&ndash; //Slide THREE &ndash;&gt;-->
-
-                    <!--</div>-->
-                    <!--<div class="ddp-list-sub2">-->
-                      <!--&lt;!&ndash; divide &ndash;&gt;-->
-                      <!--<div class="ddp-divide2">-->
-                        <!--&lt;!&ndash; 위치 &ndash;&gt;-->
-                        <!--<div class="ddp-ui-point">-->
-
-                          <!--<div class="ddp-point-local ddp-clear">-->
-                            <!--<span class="ddp-label-point ddp-col-4">출발 위치</span>-->
-                            <!--<span class="ddp-box-data ddp-col-8">-->
-                                                                                <!--<em class="ddp-icon-dimension-ab"></em> CityCityCityCityCityCityCityCityCityCityCityCity-->
-                                                                            <!--</span>-->
-                          <!--</div>-->
-                          <!--<div class="ddp-point-local ddp-clear">-->
-                            <!--<span class="ddp-label-point ddp-col-4">도착 위치</span>-->
-                            <!--<span class="ddp-box-data ddp-col-8">-->
-                                                                                <!--<em class="ddp-icon-dimension-ab"></em> Region-->
-                                                                            <!--</span>-->
-                          <!--</div>-->
-                          <!--<a href="javascript:" class="ddp-btn-column-add"> </a>-->
-                        <!--</div>-->
-                        <!--&lt;!&ndash; //위치 &ndash;&gt;-->
-                      <!--</div>-->
-                      <!--&lt;!&ndash; //divide &ndash;&gt;-->
-                      <!--&lt;!&ndash; divide &ndash;&gt;-->
-                      <!--<div class="ddp-divide2">-->
-                        <!--<div class="ddp-list-label">색상</div>-->
-                        <!--<div class="ddp-list-sub2">-->
-                          <!--<div class="ddp-divide2">-->
-                            <!--<div class="ddp-list-label">색상 기준</div>-->
-                            <!--&lt;!&ndash; SELECTBOX &ndash;&gt;-->
-                            <!--<div class="ddp-type-selectbox">-->
-                              <!--<span class="ddp-txt-selectbox">없음</span>-->
-                              <!--<ul class="ddp-list-selectbox ddp-selectdown">-->
-                                <!--<li>-->
-                                  <!--<a href="#">-->
-                                    <!--Series-->
-                                  <!--</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                  <!--<a href="#">-->
-                                    <!--Series-->
-                                  <!--</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                  <!--<a href="#">-->
-                                    <!--Series-->
-                                  <!--</a>-->
-                                <!--</li>-->
-                              <!--</ul>-->
-                            <!--</div>-->
-                            <!--&lt;!&ndash; //SELECTBOX &ndash;&gt;-->
-                          <!--</div>-->
-                          <!--<div class="ddp-divide2">-->
-                            <!--&lt;!&ndash; color select -&ndash;&gt;-->
-                            <!--<div class="ddp-ui-color-select">-->
-                              <!--<div class="ddp-txt-label">-->
-                                <!--&lt;!&ndash; 사용자가 바꾼 color : ddp-user 추가 &ndash;&gt;-->
-                                <!--<div class="ddp-box-color ">-->
-
-                                  <!--<input type='text' id="custom2" class="ddp-user"/>-->
-                                <!--</div>-->
-                                <!--출발-->
-
-                              <!--</div>-->
-                            <!--</div>-->
-                            <!--&lt;!&ndash; //color select -&ndash;&gt;-->
-                            <!--&lt;!&ndash; color select -&ndash;&gt;-->
-                            <!--<div class="ddp-ui-color-select">-->
-                              <!--<div class="ddp-txt-label">-->
-                                <!--&lt;!&ndash; 사용자가 바꾼 color : ddp-user 추가 &ndash;&gt;-->
-                                <!--<div class="ddp-box-color ">-->
-
-                                  <!--<input type='text' id="custom2" class="ddp-user"/>-->
-                                <!--</div>-->
-                                <!--도착-->
-
-                              <!--</div>-->
-                            <!--</div>-->
-                            <!--&lt;!&ndash; //color select -&ndash;&gt;-->
-                          <!--</div>-->
-                          <!--<div class="ddp-divide2">-->
-                            <!--<div class="ddp-list-label">투명도</div>-->
-                            <!--&lt;!&ndash; SELECTBOX &ndash;&gt;-->
-                            <!--<div class="ddp-type-selectbox">-->
-                              <!--<span class="ddp-txt-selectbox">사용하지 않음</span>-->
-                              <!--<ul class="ddp-list-selectbox ddp-selectdown">-->
-                                <!--<li>-->
-                                  <!--<a href="#">-->
-                                    <!--Series-->
-                                  <!--</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                  <!--<a href="#">-->
-                                    <!--Series-->
-                                  <!--</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                  <!--<a href="#">-->
-                                    <!--Series-->
-                                  <!--</a>-->
-                                <!--</li>-->
-                              <!--</ul>-->
-                            <!--</div>-->
-                            <!--&lt;!&ndash; //SELECTBOX &ndash;&gt;-->
-                          <!--</div>-->
-                        <!--</div>-->
-                      <!--</div>-->
-                      <!--&lt;!&ndash; //divide &ndash;&gt;-->
-                      <!--&lt;!&ndash; divide &ndash;&gt;-->
-                      <!--<div class="ddp-divide2">-->
-                        <!--<div class="ddp-list-label">굵기</div>-->
-                        <!--<div class="ddp-list-sub2">-->
-                          <!--<div class="ddp-divide2">-->
-                            <!--<div class="ddp-list-label">굵기 기준</div>-->
-                            <!--&lt;!&ndash; SELECTBOX &ndash;&gt;-->
-                            <!--<div class="ddp-type-selectbox">-->
-                              <!--<span class="ddp-txt-selectbox">없음</span>-->
-                              <!--<ul class="ddp-list-selectbox ddp-selectdown">-->
-                                <!--<li>-->
-                                  <!--<a href="#">-->
-                                    <!--Series-->
-                                  <!--</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                  <!--<a href="#">-->
-                                    <!--Series-->
-                                  <!--</a>-->
-                                <!--</li>-->
-                                <!--<li>-->
-                                  <!--<a href="#">-->
-                                    <!--Series-->
-                                  <!--</a>-->
-                                <!--</li>-->
-                              <!--</ul>-->
-                            <!--</div>-->
-                            <!--&lt;!&ndash; //SELECTBOX &ndash;&gt;-->
-                          <!--</div>-->
-                          <!--<div class="ddp-divide2">-->
-                            <!--<div class="ddp-wrap-option-multy ddp-clear">-->
-                              <!--<div class="ddp-col-8">-->
-                                <!--<span class="ddp-label-txt">굵기 최대값(pt)</span>-->
-                              <!--</div>-->
-                              <!--<div class="ddp-col-4">-->
-                                <!--<input type="text" class="ddp-input-typebasic ddp-txt-right" placeholder="">-->
-                              <!--</div>-->
-                            <!--</div>-->
-                          <!--</div>-->
-                        <!--</div>-->
-                      <!--</div>-->
-                      <!--&lt;!&ndash; //divide &ndash;&gt;-->
-                    <!--</div>-->
-                  <!--</div>-->
-                  <!--&lt;!&ndash; //divide &ndash;&gt;-->
-                <!--</div>-->
-                <!-- //symbol : link -->
+                <!-- TODO symbol : link -->
+                <!-- //TODO symbol : link -->
 
                 <!-- heatmap : blur, coverage -->
                 <div *ngIf="'heatmap' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
@@ -600,11 +269,10 @@
                   <div class="ddp-divide2">
                     <div class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-8">
-                        <span class="ddp-label-txt">흐림효과</span>
+                        <span class="ddp-label-txt">{{'msg.page.layer.map.blur' | translate}}</span>
                       </div>
                       <div class="ddp-col-4">
-                        <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly " placeholder="" value="30%" readonly="readonly">
-
+                        <input type="text" [ngModel]="uiOption.layers[index].blur + '%'" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly">
                       </div>
                     </div>
                     <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
@@ -613,35 +281,27 @@
                       <em class="ddp-bar"></em>
                       <em class="ddp-bar"></em>
                       <em class="ddp-bar"></em>
-
-                      <input type="text" id="rangetype" value="" name="range" />
+                      <range-slider-component [hideFromTo]="false"
+                                              [hideMinMax]="true"
+                                              [keyboard]="false"
+                                              [min]="0"
+                                              [max]="100"
+                                              [from]="uiOption.layers[index].blur"
+                                              [type]="'single'"
+                                              [step]="20"
+                                              (onFinish)="changeBlur({}, $event)">
+                      </range-slider-component>
                     </div>
-                    <script>
-                      $(function () {
-                        $("#rangetype").ionRangeSlider({
-                          hide_from_to: false,
-                          hide_min_max: true,
-                          keyboard: false,
-                          min: 0,
-                          max: 300,
-                          from: 0,
-                          to: 50,
-                          type: 'double',
-                          step: 50
-                        });
-                      });
-                    </script>
                   </div>
                   <!-- //heatmap : blur -->
                   <!-- heatmap : coverage -->
                   <div class="ddp-divide2">
                     <div class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-8">
-                        <span class="ddp-label-txt">변경값</span>
+                        <span class="ddp-label-txt">{{'msg.page.layer.map.coverage' | translate}}</span>
                       </div>
                       <div class="ddp-col-4">
-                        <input type="text" class="ddp-input-typebasic  ddp-txt-right" placeholder="">
-
+                        <input type="text" [ngModel]="uiOption.layers[index].radius + '%'" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly">
                       </div>
                     </div>
                     <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
@@ -650,24 +310,17 @@
                       <em class="ddp-bar"></em>
                       <em class="ddp-bar"></em>
                       <em class="ddp-bar"></em>
-
-                      <input type="text" id="rangetype2" value="" name="range" />
+                      <range-slider-component [hideFromTo]="false"
+                                              [hideMinMax]="true"
+                                              [keyboard]="false"
+                                              [min]="0"
+                                              [max]="100"
+                                              [from]="uiOption.layers[index].radius"
+                                              [type]="'single'"
+                                              [step]="20"
+                                              (onFinish)="changeRadius({}, $event)">
+                      </range-slider-component>
                     </div>
-                    <script>
-                      $(function () {
-                        $("#rangetype, #rangetype2").ionRangeSlider({
-                          hide_from_to: false,
-                          hide_min_max: true,
-                          keyboard: false,
-                          min: 0,
-                          max: 300,
-                          from: 0,
-                          to: 50,
-                          type: 'double',
-                          step: 50
-                        });
-                      });
-                    </script>
                   </div>
                   <!-- //heatmap : coverage -->
                 </div>
@@ -678,11 +331,10 @@
                   <div class="ddp-divide2">
                     <div class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-8">
-                        <span class="ddp-label-txt">적용 범위</span>
+                        <span class="ddp-label-txt">{{'msg.page.layer.map.coverage' | translate}}</span>
                       </div>
                       <div class="ddp-col-4">
-                        <input type="text" class="ddp-input-typebasic  ddp-txt-right" placeholder="" value="20%">
-
+                        <input type="text" [ngModel]="uiOption.layers[index].coverage + '%'" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly">
                       </div>
                     </div>
                     <div class="ddp-ui-slider-type type-per ddp-slider-bg ddp-grid">
@@ -691,24 +343,17 @@
                       <em class="ddp-bar"></em>
                       <em class="ddp-bar"></em>
                       <em class="ddp-bar"></em>
-
-                      <input type="text" id="rangetype3" value="" name="range" />
+                      <range-slider-component [hideFromTo]="false"
+                                              [hideMinMax]="true"
+                                              [keyboard]="false"
+                                              [min]="0"
+                                              [max]="100"
+                                              [from]="uiOption.layers[index].coverage"
+                                              [type]="'single'"
+                                              [step]="20"
+                                              (onFinish)="changeCoverage({}, $event)">
+                      </range-slider-component>
                     </div>
-                    <script>
-                      $(function () {
-                        $("#rangetype3").ionRangeSlider({
-                          hide_from_to: false,
-                          hide_min_max: true,
-                          keyboard: false,
-                          min: 0,
-                          max: 300,
-                          from: 0,
-                          to: 50,
-                          type: 'double',
-                          step: 50
-                        });
-                      });
-                    </script>
                   </div>
                 </div>
                 <!-- hexagon : coverage -->

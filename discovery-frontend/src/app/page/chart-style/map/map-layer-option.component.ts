@@ -11,8 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Component, ElementRef, Injector, Input } from '@angular/core';
-import { BaseOptionComponent } from '../base-option.component';
+import { Component, ElementRef, Injector, Input, ViewChild } from '@angular/core';
 import { Pivot } from '../../../domain/workbook/configurations/pivot';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {
@@ -27,6 +26,10 @@ import { UISymbolLayer } from '../../../common/component/chart/option/ui-option/
 import { MapOutline } from '../../../common/component/chart/option/ui-option/map/ui-outline';
 import { UIPolygonLayer } from '../../../common/component/chart/option/ui-option/map/ui-polygon-layer';
 import { UILineLayer } from '../../../common/component/chart/option/ui-option/map/ui-line-layer';
+import { UIHeatmapLayer } from '../../../common/component/chart/option/ui-option/map/ui-heatmap-layer';
+import { UITileLayer } from '../../../common/component/chart/option/ui-option/map/ui-tile-layer';
+import { BaseOptionComponent } from '../base-option.component';
+import { ColorTemplateComponent } from '../../../common/component/color-picker/color-template.component';
 
 @Component({
   selector: 'map-layer-option',
@@ -49,6 +52,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   // 선반데이터
   @Input('pivot')
   public pivot: Pivot;
+
+  // color template popup
+  @ViewChild('colorTemplate')
+  public colorTemplate: ColorTemplateComponent;
 
   // symbol layer - type list
   public symbolLayerTypes = [{name : this.translateService.instant('msg.page.layer.map.type.point'), value: MapLayerType.SYMBOL},
@@ -81,6 +88,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
                         {name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION},
                         {name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE}];
 
+  // show / hide setting for color picker
+  public colorListFlag: boolean = false;
+
   constructor(protected elementRef: ElementRef,
               protected injector: Injector) {
 
@@ -104,7 +114,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeSymbolLayerType(layerType : MapLayerType) {
 
+    // change layer type
     this.uiOption.layers[this.index].type = layerType;
+
+    // change color type by layer type
+    if (MapLayerType.HEATMAP === layerType) {
+      (<UIHeatmapLayer>this.uiOption.layers[this.index]).color.schema = 'HC1';
+    }
 
     // apply layer ui option
     this.applyLayers();
@@ -154,8 +170,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     if (outline) {
       outline = null;
-    // TODO need color guide
-    } else outline = <any>{color : '#000000', thickness : MapThickness.NORMAL};
+    } else outline = <any>{color : '#4f4f4f', thickness : MapThickness.NORMAL};
 
     if (MapLayerType.SYMBOL === this.uiOption.layers[this.index].type) {
       (<UISymbolLayer>this.uiOption.layers[this.index]).outline = outline;
@@ -223,6 +238,15 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     this.uiOption.layers[this.index].color.by = data['value'];
 
+    // set schema by color type
+    if (MapBy.DIMENSION === data['value']) {
+      this.uiOption.layers[this.index].color.schema = 'SC1';
+    } else if (MapBy.MEASURE === data['value']) {
+      this.uiOption.layers[this.index].color.schema = 'VC1';
+    } else if (MapBy.NONE === data['value']) {
+      this.uiOption.layers[this.index].color.schema = '#6344ad';
+    }
+
     this.applyLayers();
   }
 
@@ -257,6 +281,99 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = data['value'];
 
     this.applyLayers();
+  }
+
+  /**
+   * color by none - change color
+   * @param {string} colorCode
+   */
+  public changeByNoneColor(colorCode: string) {
+
+    this.uiOption.layers[this.index].color.schema = colorCode;
+
+    this.applyLayers();
+  }
+
+  /**
+   * heatmap layer - change blurs
+   * @param obj
+   * @param slider
+   */
+  public changeBlur(obj: any, slider: any) {
+
+    (<UIHeatmapLayer>this.uiOption.layers[this.index]).blur = slider.from;
+
+    this.applyLayers();
+  }
+
+  /**
+   * heatmap layer - change radius
+   * @param obj
+   * @param slider
+   */
+  public changeRadius(obj: any, slider: any) {
+
+    (<UIHeatmapLayer>this.uiOption.layers[this.index]).radius = slider.from;
+
+    this.applyLayers();
+  }
+
+  /**
+   * tile(hexagon) layer - change coverage
+   * @param obj
+   * @param slider
+   */
+  public changeCoverage(obj: any, slider: any) {
+
+    (<UITileLayer>this.uiOption.layers[this.index]).coverage = slider.from;
+
+    this.applyLayers();
+  }
+
+  /**
+   * change color
+   * @param data
+   */
+  public changeColor(data: any) {
+
+    this.uiOption.layers[this.index].color.schema = data.colorNum;
+
+    this.applyLayers();
+  }
+
+  /**
+   * find same color index in color list (heatmap)
+   * @returns {number}
+   */
+  public findHeatmapColorIndex() {
+    if (this.colorTemplate) {
+      return _.find(this.colorTemplate.mapHeatmapColorList, {colorNum : this.uiOption.layers[this.index].color.schema})['index'];
+    }
+    return 1;
+  }
+
+  /**
+   * find same color index in color list (dimension)
+   * @returns {number}
+   */
+  public findDimensionColorIndex() {
+    if (this.colorTemplate) {
+      return _.find(this.colorTemplate.defaultColorList, {colorNum : this.uiOption.layers[this.index].color.schema})['index'];
+    }
+    return 1;
+  }
+
+  public findMeasureColorIndex() {
+    if (this.colorTemplate) {
+      let obj = _.find(this.colorTemplate.measureColorList, {colorNum : this.uiOption.layers[this.index].color.schema});
+
+      if (obj) {
+        return obj['index'];
+      } else {
+        return _.find(this.colorTemplate.measureReverseColorList, {colorNum : this.uiOption.layers[this.index].color.schema})['index'];
+      }
+    }
+    return 1;
   }
 
   /**

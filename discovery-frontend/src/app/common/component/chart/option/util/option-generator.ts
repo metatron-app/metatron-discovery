@@ -2014,7 +2014,7 @@ export namespace OptionGenerator {
             color: {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
-              schema: "#602663",
+              schema: "#6344ad",
               transparency: 80,
               blur: 10,
               radius: 10,
@@ -2026,7 +2026,7 @@ export namespace OptionGenerator {
               "max": 10
             },
             outline: {
-              "color": "#000000",
+              "color": "#4f4f4f",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
             clustering: false,
@@ -2039,7 +2039,7 @@ export namespace OptionGenerator {
             color: {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
-              schema: "#888fb4",
+              schema: "#6344ad",
               transparency: 80,
               blur: 10,
               radius: 10,
@@ -2051,7 +2051,7 @@ export namespace OptionGenerator {
               "max": 10
             },
             outline: {
-              "color": "#000000",
+              "color": "#4f4f4f",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
             clustering: false,
@@ -2064,7 +2064,7 @@ export namespace OptionGenerator {
             color: {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
-              schema: "#bccada",
+              schema: "#6344ad",
               transparency: 80,
               blur: 10,
               radius: 10,
@@ -2076,7 +2076,7 @@ export namespace OptionGenerator {
               "max": 10
             },
             outline: {
-              "color": "#000000",
+              "color": "#4f4f4f",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
             clustering: false,
