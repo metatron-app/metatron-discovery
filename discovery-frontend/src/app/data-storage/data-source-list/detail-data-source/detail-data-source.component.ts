@@ -97,6 +97,9 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   // ingestion process
   public ingestionProcess: any;
 
+  // history id
+  public historyId: string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -124,8 +127,16 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
       this.datasourceId = params['sourceId'];
       // initView
       this._initView();
-      // 현재 데이터소스 상세조회
-      this.getDatasourceDetail(this.datasourceId);
+      // link webSocket
+      this.checkAndConnectWebSocket(true)
+        .then(() => {
+          // 현재 데이터소스 상세조회
+          this.getDatasourceDetail(this.datasourceId);
+          // TODO get historyId
+          // process ingestion
+          this._setProcessIngestion(this.datasourceId);
+        })
+        .catch(error => this.commonExceptionHandler(error));
     });
   }
 
@@ -377,22 +388,15 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   private getDatasourceDetail(sourceId: string, mode: string = 'information'): void {
     // 로딩 시작
     this.loadingShow();
-
-    this.checkAndConnectWebSocket(true)
-      .then(() => {
-        this.datasourceService.getDatasourceDetail(sourceId)
-          .then((datasource) => {
-            // 데이터소스
-            this.datasource = datasource;
-            this.mode = mode;
-            // 메타데이터 정보 조회
-            this._getMetaData(datasource);
-            // process ingestion
-            this._setProcessIngestion(datasource.id);
-          })
-          .catch((error) => this.commonExceptionHandler(error));
+    this.datasourceService.getDatasourceDetail(sourceId)
+      .then((datasource) => {
+        // 데이터소스
+        this.datasource = datasource;
+        this.mode = mode;
+        // 메타데이터 정보 조회
+        this._getMetaData(datasource);
       })
-      .catch(error => this.commonExceptionHandler(error));
+      .catch((error) => this.commonExceptionHandler(error));
   }
 
   /**
@@ -431,6 +435,8 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
           } else if (100 === data.progress) {
             // 데이터 변경
             this.ingestionProcess = data;
+            // TODO ENABLE로 바뀌었다면 status 변경
+
             CommonConstant.stomp.unsubscribe(subscription);     // Socket 응답 해제
           } else {
             // 데이터 변경

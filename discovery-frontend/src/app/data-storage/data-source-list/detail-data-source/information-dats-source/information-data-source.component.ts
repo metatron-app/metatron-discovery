@@ -45,6 +45,7 @@ import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/
 import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
 import { Log } from '../../../../common/domain/modal';
+import { IngestionLogComponent } from './component/ingestion-log/ingestion-log.component';
 
 declare let echarts: any;
 
@@ -70,6 +71,10 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   // 배치 히스토리 페이지
   @ViewChild(BatchHistoryComponent)
   private batchHistoryComponent: BatchHistoryComponent;
+
+  // ingestion detail comp
+  @ViewChild(IngestionLogComponent)
+  private _ingestionLogComp: IngestionLogComponent;
 
   @ViewChild('histogram')
   private histogram: ElementRef;
@@ -109,6 +114,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   @Input()
   public ingestionProcess: any;
+
+  @Input()
+  public historyId: string;
 
   @Output()
   public confirm = new EventEmitter;
@@ -156,42 +164,27 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // Change
   public ngOnChanges(changes: SimpleChanges) {
-    const processChange: SimpleChange = changes.ingestionProcess;
-    if (processChange) {
-      if (!processChange.previousValue && this.datasource && this.datasource.status === Status.ENABLED) {
+    if (changes.ingestionProcess) {
+      // 최초 접근시 status가 ENABLED라면 process hide
+      if (!changes.ingestionProcess.previousValue && this.datasource && this.datasource.status === Status.ENABLED) {
         this.isShowIngestionProcess = false;
-      }
-      // if changed data
-      if (processChange.currentValue) {
+      } else if (changes.ingestionProcess.currentValue) { // if changed data
         // set process status
-        this._setProcessStatus(processChange.currentValue);
+        this._setProcessStatus(changes.ingestionProcess.currentValue);
+        // TODO status가 enable로 바뀌었다면 histogram chart를 다시 그릴지 생각해보기
       }
     }
-
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
+  /**
+   * ingestion details click event
+   */
   public onClickIngestionDetails(): void {
-    const log: Log = new Log;
-    log.title = 'Query log';
-    log.subTitle = [];
-    log.isShowCopy = true;
-
-    this.datasourceService.getBatchHistories(this.datasource.id, null)
-      .then((result) => {
-        log.data = result;
-        // this.datasourceService.getDatasourceIngestionLog(this.datasource.id, result['_embedded'].ingestionHistories[0].ingestionId)
-        //   .then((result) => {
-        //
-        //   })
-        //   .catch();
-        // log 모달 오픈
-
-      })
-      .catch();
+    this._ingestionLogComp.init(this.datasource.id, this.historyId);
   }
 
   /**

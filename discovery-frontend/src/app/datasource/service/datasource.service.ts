@@ -789,10 +789,10 @@ export class DatasourceService extends AbstractService {
    * 데이터소스 적재 로그 조회
    * @param {string} datasourceId
    * @param {string} historyId
-   * @param {string} offset
+   * @param {number} offset
    * @returns {Promise<any>}
    */
-  public getDatasourceIngestionLog(datasourceId: string, historyId: string, offset?: string): Promise<any> {
+  public getDatasourceIngestionLog(datasourceId: string, historyId: string, offset?: number): Promise<any> {
     if (offset) {
       return this.get(this.API_URL + `datasources/${datasourceId}/histories/${historyId}/log?offset=${offset}`);
     } else {
