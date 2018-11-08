@@ -308,6 +308,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public isFocusResultTooltip: boolean = false;
 
+  // 접속한 사용자 OS 여부 (MAC, WINDOW)
+  public isAgentUserMacOs : boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -344,6 +347,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.activatedRoute.params.subscribe((params) => {
       this.workbenchId = params['id'];
     });
+
+
+    // 사용자 운영체제 확인
+    ( navigator.userAgent.replace(/ /g,'').toUpperCase().indexOf("MAC") == -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true );
 
   }
 
@@ -1651,10 +1658,28 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * 워크벤치 에디터 단축키 보기 클릭 이벤트
    */
   public onClickShowShortcutsBtn(): void {
+
     this.shortcutsFl = true;
-    this._questionLayout.nativeElement.style.top
-      = this._questionWrap.nativeElement.getBoundingClientRect().top
-      + window.pageYOffset - document.documentElement.clientTop - 282 + 'px';
+
+    let editorLayoutHeight = $('.CodeMirror.cm-s-default').height();
+    let editorFootLayoutHeight = $('.ddp-wrap-edit-foot').height();
+    let popupLayoutHeight = $('.ddp-box-layout4').height();
+
+    // editor 영역에 따른 위치 변경
+    if( editorLayoutHeight < (popupLayoutHeight + editorFootLayoutHeight + 19 ) ) {
+
+      this._questionLayout.nativeElement.style.top
+        = this._questionWrap.nativeElement.getBoundingClientRect().top
+        + window.pageYOffset - document.documentElement.clientTop + 42 + 'px';
+
+    } else {
+
+      this._questionLayout.nativeElement.style.top
+        = this._questionWrap.nativeElement.getBoundingClientRect().top
+        + window.pageYOffset - document.documentElement.clientTop - 265 + 'px';
+    }
+
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
