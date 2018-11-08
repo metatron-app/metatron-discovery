@@ -19,7 +19,6 @@ import {
 import { DatasetService } from '../service/dataset.service';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-import { Page } from '../../../domain/common/page';
 import { PreparationAlert } from '../../util/preparation-alert.util';
 import { DatasetJdbc, DsType, RsType, ImportType, Field } from '../../../domain/data-preparation/dataset';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
@@ -170,7 +169,7 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
   public prev() {
     this.popupService.notiPopup({
-      name: 'select-datatype',
+      name: 'create-db-select',
       data: null
     });
   }
@@ -196,8 +195,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
    */
   public onChangeDatabase(event,database) {
     this.isDatabaseListShow = false;
+    this.gridComponent.destroy();
+
     event.stopPropagation();
-    // this.selectedDatabase = database.name;
     this.datasetJdbc.databaseName = database.name;
     this.clickable = false;
     this.getTables(database.name);
@@ -216,9 +216,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
     this.loadingShow();
     this.datasetJdbc.queryStmt = 'SELECT * FROM ' + this.datasetJdbc.databaseName + '.' + data.name;
-    // this.datasetJdbc.tableName = this.selectedDatabase + '.' + event.name;
     this.datasetJdbc.tableName = data.name;
-    this.datasetService.getJdbcTableData(this.datasetJdbc.dcId, this.datasetJdbc.databaseName, data.name)
+    let params = {connection : this.datasetJdbc.dataconnection.connection, database : this.datasetJdbc.databaseName, query : this.datasetJdbc.tableName, type : 'TABLE'};
+    this.connectionService.getTableDetailWitoutId(params)
       .then((result) => {
         this.loadingHide();
 
@@ -336,76 +336,96 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
 
   /** 쿼리로 테이블 불러오기 */
   public runJdbcQuery() {
-    if (this.datasetJdbc.queryStmt == '') {
+    if (this.datasetJdbc.queryStmt == null || this.datasetJdbc.queryStmt == '' || this.datasetJdbc.queryStmt == undefined) {
       return;
     }
-    this.loadingShow();
+
+    // console.info('runJdbcQuery', this.datasetJdbc);
+    const param: any = {};
+    param.connection = this.datasetJdbc.dataconnection.connection;
+    param.hostname = this.datasetJdbc.dataconnection.connection.hostname;
+    param.implementor = this.datasetJdbc.dataconnection.connection.implementor;
+    param.username = this.datasetJdbc.dataconnection.connection.username;
+    param.password = this.datasetJdbc.dataconnection.connection.password;
+    param.port = this.datasetJdbc.dataconnection.connection.port;
+    param.query = this.datasetJdbc.queryStmt;
+    param.type = 'QUERY';
+
+    // console.info('param', param);
+
     this.queryErrorMsg = '';
-    this.datasetService.getResultWithJdbcQuery(this.datasetJdbc.dcId,this.datasetJdbc.databaseName,this.datasetJdbc.queryStmt).then((result) => {
-      this.loadingHide();
-      if (result.hasOwnProperty('errorMsg')) {
-        this.showQueryStatus = true;
-        this.isQuerySuccess = false;
-        this.queryErrorMsg = result.errorMsg;
-        this.clickable = false;
-        this.gridComponent.destroy();
-        return;
-      }
-      this.showQueryStatus = true;
-      this.isQuerySuccess = true;
-
-      const headers: header[] = result.fields.map(
-        (field: Field) => {
-          return new SlickGridHeader()
-            .Id(field.name)
-            .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type === 'UNKNOWN' ? field.logicalType : field.type) + '"></em>' + field.name + '</span>')
-            .Field(field.name)
-            .Behavior('select')
-            .Selectable(false)
-            .CssClass('cell-selection')
-            .Width(10 * (field.name.length) + 20)
-            .MinWidth(100)
-            .CannotTriggerInsert(true)
-            .Resizable(true)
-            .Unselectable(true)
-            .Sortable(true)
-            .build();
-        }
-      );
-
-      let rows: any[] = result.data;
-
-      if (result.data.length > 0 && !result.data[0].hasOwnProperty('id')) {
-        rows = rows.map((row: any, idx: number) => {
-          row.id = idx;
-          return row;
-        });
-      }
-
-      setTimeout(() => {
-        this.gridComponent.create(headers, rows, new GridOption()
-          .SyncColumnCellResize(true)
-          .MultiColumnSort(true)
-          .RowHeight(32)
-          .NullCellStyleActivate(true)
-          .build()
-        )},400);
-
-      this.clickable = true;
-      this.loadingHide();
-    }).catch((error) => {
-
-      this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-
+    if(this.gridComponent) {
       this.gridComponent.destroy(); // destroy grid
-      this.showQueryStatus = true;
-      this.isQuerySuccess = false;
-      this.queryErrorMsg = error.details;
-      this.clickable = false;
-      // 쿼리가 실패했다면 error message 를 날리자
-    });
+    }
+
+    // // 테이블 상세 조회
+    this.datasetService.getTableDetailWitoutId(param)
+      .then((result) => {
+        this.loadingHide();
+        // console.info('getTableDetailWitoutId', result);
+          if (result.hasOwnProperty('errorMsg')) {
+            this.showQueryStatus = true;
+            this.isQuerySuccess = false;
+            this.queryErrorMsg = result.errorMsg;
+            this.clickable = false;
+            this.gridComponent.destroy();
+            return;
+          }
+          this.showQueryStatus = true;
+          this.isQuerySuccess = true;
+
+          const headers: header[] = result.fields.map(
+            (field: Field) => {
+              return new SlickGridHeader()
+                .Id(field.name)
+                .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(field.type === 'UNKNOWN' ? field.logicalType : field.type) + '"></em>' + field.name + '</span>')
+                .Field(field.name)
+                .Behavior('select')
+                .Selectable(false)
+                .CssClass('cell-selection')
+                .Width(10 * (field.name.length) + 20)
+                .MinWidth(100)
+                .CannotTriggerInsert(true)
+                .Resizable(true)
+                .Unselectable(true)
+                .Sortable(true)
+                .build();
+            }
+          );
+
+          let rows: any[] = result.data;
+
+          if (result.data.length > 0 && !result.data[0].hasOwnProperty('id')) {
+            rows = rows.map((row: any, idx: number) => {
+              row.id = idx;
+              return row;
+            });
+          }
+
+          setTimeout(() => {
+            this.gridComponent.create(headers, rows, new GridOption()
+              .SyncColumnCellResize(true)
+              .MultiColumnSort(true)
+              .RowHeight(32)
+              .NullCellStyleActivate(true)
+              .build()
+            )},400);
+
+          this.clickable = true;
+
+      })
+      .catch((error) => {
+          let prep_error = this.dataprepExceptionHandler(error);
+          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+
+          this.gridComponent.destroy(); // destroy grid
+          this.showQueryStatus = true;
+          this.isQuerySuccess = false;
+          this.queryErrorMsg = error.details;
+          this.clickable = false;
+        //   // 쿼리가 실패했다면 error message 를 날리자
+        this.loadingHide();
+      });
   }
 
 
@@ -424,7 +444,9 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
     if(this.clickable) {
       this.clickable = !this.clickable;
     }
-    this.datasetJdbc.queryStmt = param;
+    if(param != this.datasetJdbc.queryStmt) {
+      this.datasetJdbc.queryStmt = param;
+    }
   }
 
   /**
@@ -606,40 +628,29 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   private getDatabases() {
     this.loadingShow();
 
-    let page: Page = new Page();
-    this.connectionService.getDatabases(this.datasetJdbc.dcId, page)
+    if (!this.datasetJdbc.dataconnection.connection) {
+      this.datasetJdbc.dcId = this.datasetJdbc.dataconnection.id;
+      this.datasetJdbc.dataconnection = {connection : {
+        hostname: this.datasetJdbc.dataconnection.hostname,
+        implementor: this.datasetJdbc.dataconnection.implementor,
+        password: this.datasetJdbc.dataconnection.password,
+        port: this.datasetJdbc.dataconnection.port,
+        url: this.datasetJdbc.dataconnection.url,
+        username: this.datasetJdbc.dataconnection.username}
+      };
+    }
+
+
+    this.loadingShow();
+    this.connectionService.getDatabasesWithoutId(this.datasetJdbc.dataconnection)
       .then((data) => {
         this.loadingHide();
-
-        this.databaseList = [];
-        this.datasetJdbc.databaseName = '';
-        if(page.size<data.page.totalElements) {
-          page.size = data.page.totalElements;
-
-          this.loadingShow();
-          this.connectionService.getDatabases(this.datasetJdbc.dcId, page)
-            .then((data) => {
-              this.loadingHide();
-              if (data && data.databases) {
-                for (let idx = 0, nMax = data.databases.length; idx < nMax; idx = idx + 1) {
-                  this.databaseList.push({ idx : idx, name : data.databases[idx], selected : false });
-                }
-              }
-              this.showDatabaseList();
-            })
-            .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-            });
-        } else {
-          if (data && data.databases) {
-            for (let idx = 0, nMax = data.databases.length; idx < nMax; idx = idx + 1) {
-              this.databaseList.push({ idx : idx, name : data.databases[idx], selected : false });
-            }
+        if (data && data.databases) {
+          for (let idx = 0, nMax = data.databases.length; idx < nMax; idx = idx + 1) {
+            this.databaseList.push({ idx : idx, name : data.databases[idx], selected : false });
           }
-          this.showDatabaseList();
         }
+        this.showDatabaseList();
       })
       .catch((error) => {
         this.loadingHide();
@@ -647,39 +658,6 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
 
-    /*
-    this.datasetService.getStagingConnectionInfo()
-      .then((data) => {
-        if (data.errorMsg) {
-          Alert.error(data.errorMsg);
-          this.loadingHide();
-        } else {
-          this.datasetService.setConnInfo(data);
-
-          this.datasetService.getStagingSchemas()
-            .then((data) => {
-              this.loadingHide();
-              this.databaseList = [];
-              this.datasetJdbc.databaseName = '';
-              if (data) {
-                for (let idx = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
-                  this.databaseList.push({ idx : idx, name : data[idx], selected : false });
-                }
-              }
-            })
-            .catch((error) => {
-                    this.loadingHide();
-                    let prep_error = this.dataprepExceptionHandler(error);
-                    PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-            });
-        }
-      })
-      .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
-    */
 
   } // function - getDatabases
 
@@ -690,61 +668,26 @@ export class CreateDatasetDbQueryComponent extends AbstractPopupComponent implem
   private getTables(schema:string) {
     this.loadingShow();
 
-    let page: Page = new Page();
-    this.connectionService.getTables(this.datasetJdbc.dcId, schema, page)
+    this.schemaList = [];
+    this.datasetJdbc.tableName = '';
+
+    this.connectionService.getTablesWitoutId({connection : this.datasetJdbc.dataconnection.connection, database : schema})
       .then((data) => {
         this.loadingHide();
-
-        this.schemaList = [];
-        if(page.size<data.page.totalElements) {
-          page.size = data.page.totalElements;
-
-          this.loadingShow();
-          this.connectionService.getTables(this.datasetJdbc.dcId, schema, page)
-            .then((data) => {
-              this.loadingHide();
-              if (data && data.tables) {
-                for (let idx = 0, nMax = data.tables.length; idx < nMax; idx = idx + 1) {
-                  this.schemaList.push({ idx : idx, name : data.tables[idx].name, selected : false });
-                }
-              }
-            })
-            .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-            });
+        if (data && data.tables) {
+          data.tables.forEach((item, index) => {
+            this.schemaList.push({idx : index, name : item, selected : false});
+          });
         } else {
-          if (data && data.tables) {
-            for (let idx = 0, nMax = data.tables.length; idx < nMax; idx = idx + 1) {
-              this.schemaList.push({ idx : idx, name : data.tables[idx].name, selected : false });
-            }
-          }
+          this.schemaList = [];
         }
       })
       .catch((error) => {
+        this.schemaList = [];
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
       });
-
-    /*
-    this.datasetService.getStagingTables(schema)
-      .then((data) => {
-        this.loadingHide();
-        this.schemaList = [];
-        if (data) {
-          for (let idx = 0, nMax = data.length; idx < nMax; idx = idx + 1) {
-            this.schemaList.push({ idx : idx, name : data[idx], selected : false });
-          }
-        }
-      })
-      .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
-    */
 
   } // function - getTables
 

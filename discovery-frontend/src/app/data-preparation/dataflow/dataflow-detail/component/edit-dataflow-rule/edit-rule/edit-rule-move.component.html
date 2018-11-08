@@ -34,20 +34,24 @@
   <div class="ddp-type-multy2 ddp-clear">
     <div class="ddp-col-4">
       <!-- select box -->
-      <!-- 클릭시 ddp-selected 추가 -->
-      <component-select
+      <prep-select-box
+        [isSearchAllowed]="false"
+        [isUpSelect]="true"
         [array]="moveList"
         (onSelected)="selectItem($event)" [defaultIndex]="defaultIndex">
-      </component-select>
+      </prep-select-box>
       <!-- //select box -->
     </div>
     <div class="ddp-col-8">
       <!-- select box -->
-      <component-select
+      <prep-select-box
         [array]="fields"
         [viewKey]="'name'"
-        (onSelected)="changeStandardFields($event)" [defaultIndex]="defaultColIndex">
-      </component-select>
+        (onSelected)="changeStandardFields($event)"
+        [defaultIndex]="defaultColIndex"
+        [isSearchAllowed]="true"
+        [isAllowKeyboardManipulation]="false">
+      </prep-select-box>
       <!-- //select box -->
     </div>
   </div>

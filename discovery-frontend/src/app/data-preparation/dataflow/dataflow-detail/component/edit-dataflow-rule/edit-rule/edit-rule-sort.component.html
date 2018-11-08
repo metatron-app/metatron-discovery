@@ -32,9 +32,9 @@
     {{ 'msg.comm.ui.soring.by' | translate }}<em class="ddp-icon-essential"></em>
   </div>
   <!-- select box -->
-  <component-select
+  <prep-select-box
     [array]="sortList" [viewKey]="'name'"
     (onSelected)="selectItem($event)" [defaultIndex]="defaultIndex">
-  </component-select>
+  </prep-select-box>
   <!-- //select box -->
 </div>

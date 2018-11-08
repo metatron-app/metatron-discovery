@@ -26,7 +26,7 @@
           <label class="ddp-label-type">{{ 'msg.dp.ui.ss-name' | translate }}</label>
           <!-- edit option -->
           <div class="ddp-ui-edit-option">
-            <input type="text" class="ddp-input-typebasic" placeholder="{{ 'msg.dp.ui.ss-name' | translate }}" [(ngModel)]="snapshot.ssName" #snapshotName>
+            <input type="text" class="ddp-input-typebasic" placeholder="{{ 'msg.dp.ui.ss-name' | translate }}" (keyup)="chnageSSUri()" [(ngModel)]="snapshot.ssName" #snapshotName>
           </div>
           <!-- //edit option -->
         </div>
