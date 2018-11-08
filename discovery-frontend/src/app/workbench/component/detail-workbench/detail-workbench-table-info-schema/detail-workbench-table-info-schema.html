@@ -39,8 +39,11 @@
           <div class="ddp-data-char">
             {{column.columnName}}
           </div>
-          <div class="ddp-data-columnname">
+          <div *ngIf="column.columnSize !== undefined" class="ddp-data-columnname">
             {{column.columnType}} ({{column.columnSize}})
+          </div>
+          <div *ngIf="column.columnSize === undefined" class="ddp-data-columnname">
+            {{column.columnType}}
           </div>
           <em class="ddp-btn-more"></em>
         </a>
