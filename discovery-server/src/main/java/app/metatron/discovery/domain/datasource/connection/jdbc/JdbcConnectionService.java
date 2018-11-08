@@ -1774,7 +1774,12 @@ public class JdbcConnectionService {
       partitionNameList.addAll(PolarisUtils.mapWithRangeExpressionToList(partitionNameMap));
     }
     //1. partition info 가져오기
-    List<Map<String, Object>> partitionInfoList = hiveMetaStoreJdbcClient.getPartitionList(connectionRequest.getDatabase(), connectionRequest.getQuery(), partitionNameList);
+    List<Map<String, Object>> partitionInfoList = new ArrayList<>();
+    try{
+      partitionInfoList = hiveMetaStoreJdbcClient.getPartitionList(connectionRequest.getDatabase(), connectionRequest.getQuery(), partitionNameList);
+    } catch (Exception e){
+      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PARTITION_NOT_EXISTED, e.getCause().getMessage());
+    }
 
     //2. partition parameter가 모두 존재하는지 여부
     for(String partitionNameParam : partitionNameList){
@@ -1797,7 +1802,7 @@ public class JdbcConnectionService {
                 "partition (" + partitionNameParam + ") is not exists in " + connectionRequest.getQuery() + ".");
     }
 
-    if(partitionInfoList.isEmpty())
+    if(partitionInfoList == null || partitionInfoList.isEmpty())
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PARTITION_NOT_EXISTED,
               "partition is not exists in " + connectionRequest.getQuery() + ".");
 
