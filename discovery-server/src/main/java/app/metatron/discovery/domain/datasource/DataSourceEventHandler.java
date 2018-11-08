@@ -17,10 +17,7 @@ package app.metatron.discovery.domain.datasource;
 import app.metatron.discovery.domain.context.ContextService;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.*;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
@@ -28,6 +25,7 @@ import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.base.Preconditions;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -40,7 +38,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -115,6 +115,21 @@ public class DataSourceEventHandler {
         Preconditions.checkNotNull(((JdbcIngestionInfo) ingestionInfo).getConnectionPassword(),
                 "Dialog Authentication require connectionPassword.");
       }
+    }
+
+    //partition range to map
+    if(ingestionInfo instanceof HiveIngestionInfo){
+      List<String> partitionNameList = new ArrayList<>();
+      for(Map<String, Object> partitionNameMap : ((HiveIngestionInfo) ingestionInfo).getPartitions()){
+        partitionNameList.addAll(PolarisUtils.mapWithRangeExpressionToList(partitionNameMap));
+      }
+
+      List<Map<String, Object>> partitionMapList = new ArrayList<>();
+      for(String partitionName : partitionNameList){
+        partitionMapList.add(PolarisUtils.partitionStringToMap(partitionName));
+      }
+      ((HiveIngestionInfo) ingestionInfo).setPartitions(partitionMapList);
+      dataSource.setIngestionInfo(ingestionInfo);
     }
 
     /*

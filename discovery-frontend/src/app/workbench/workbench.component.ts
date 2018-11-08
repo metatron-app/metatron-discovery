@@ -54,10 +54,12 @@ import { WorkspaceService } from '../workspace/service/workspace.service';
 import { CodemirrorComponent } from './component/editor-workbench/codemirror.component';
 
 declare let moment: any;
+declare let Split;
 
 @Component({
   selector: 'app-workbench',
-  templateUrl: './workbench.component.html'
+  templateUrl: './workbench.component.html',
+  styles:['.split, .gutter.gutter-horizontal { float: left; } .gutter.gutter-horizontal { cursor: ew-resize; }']
 })
 export class WorkbenchComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -137,6 +139,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   private _resizeTimer: any;
   private _tooltipTimer: any; // Result Tab SQL Tooltip timer
 
+  private _splitVertical: any;
+  private _splitHorizontal: any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -308,6 +312,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public isFocusResultTooltip: boolean = false;
 
+  // 접속한 사용자 OS 여부 (MAC, WINDOW)
+  public isAgentUserMacOs : boolean = false;
+
+  public tableSchemaParams:any;   // table schema search parameter
+  public isOpenTableSchema:boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -345,6 +355,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.workbenchId = params['id'];
     });
 
+
+    // 사용자 운영체제 확인
+    ( navigator.userAgent.replace(/ /g,'').toUpperCase().indexOf("MAC") == -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true );
+
   }
 
   /**
@@ -363,6 +377,14 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this._loadInitData(() => {
         this.onEndedResizing();
         this.webSocketCheck(() => this.loadingHide());
+
+        this._splitVertical = Split(['.sys-workbench-top-panel', '.sys-workbench-bottom-panel'], {
+          direction: 'vertical',
+          onDragEnd : () => {
+            this.onEndedResizing();
+          }
+        });
+        this._activeHorizontalSlider();
       });
     }, 500);
   } // function - ngAfterViewInit
@@ -384,9 +406,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   } // function - webSocketCheck
 
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
+
+    this._splitVertical.destroy();
+    this._splitVertical = undefined;
+    this._deactiveHorizontalSlider();
+
     // this.webSocketCheck(() => {});
     (this._subscription) && (CommonConstant.stomp.unsubscribe(this._subscription));     // Socket 응답 해제
 
@@ -438,6 +463,23 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Open Table Schema
+   * @param data
+   */
+  public openTableSchema(data:{dataconnection: any, selectedTable: string, top: number, websocketId: string}) {
+    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query ddp-tablepop';
+    this.tableSchemaParams = data;
+    this.isOpenTableSchema = true;
+  } // function - openTableSchema
+
+  /**
+   * Close Table Schema
+   */
+  public closeTableSchema() {
+    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
+    this.isOpenTableSchema = false;
+  } // function - closeTableSchema
 
   /**
    * local storage 에 쿼리 저장
@@ -946,6 +988,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public leftMenuOpen() {
     this.isLeftMenuOpen = !this.isLeftMenuOpen;
+
+    this._toggleHorizontalSlider();
+
     // 아이콘 슬라이드 버튼 계산
     this._calculateEditorSlideBtn();
     this._calculateEditorResultSlideBtn();
@@ -1288,9 +1333,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * 에디터 풀 사이즈처리
    */
   public resizeQueryEditor() {
-
     this.isQueryEditorFull = !this.isQueryEditorFull;
-
+    this._toggleHorizontalSlider();
     this.onEndedResizing();
   } // function - resizeQueryEditor
 
@@ -1651,10 +1695,28 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * 워크벤치 에디터 단축키 보기 클릭 이벤트
    */
   public onClickShowShortcutsBtn(): void {
+
     this.shortcutsFl = true;
-    this._questionLayout.nativeElement.style.top
-      = this._questionWrap.nativeElement.getBoundingClientRect().top
-      + window.pageYOffset - document.documentElement.clientTop - 282 + 'px';
+
+    let editorLayoutHeight = $('.CodeMirror.cm-s-default').height();
+    let editorFootLayoutHeight = $('.ddp-wrap-edit-foot').height();
+    let popupLayoutHeight = $('.ddp-box-layout4').height();
+
+    // editor 영역에 따른 위치 변경
+    if( editorLayoutHeight < (popupLayoutHeight + editorFootLayoutHeight + 19 ) ) {
+
+      this._questionLayout.nativeElement.style.top
+        = this._questionWrap.nativeElement.getBoundingClientRect().top
+        + window.pageYOffset - document.documentElement.clientTop + 42 + 'px';
+
+    } else {
+
+      this._questionLayout.nativeElement.style.top
+        = this._questionWrap.nativeElement.getBoundingClientRect().top
+        + window.pageYOffset - document.documentElement.clientTop - 265 + 'px';
+    }
+
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -2254,8 +2316,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       return;
     }
 
-    this.closeEditorTab(this.selectedTabNum);
-    this.tabLayer = false;
+    const modal = new Modal();
+    modal.name = this.translateService.instant('msg.bench.confirm.delete-editor');
+    modal.btnName = this.translateService.instant('msg.comm.ui.del');
+    modal.afterConfirm = () => {
+      this.closeEditorTab(this.selectedTabNum);
+      this.tabLayer = false;
+    };
+    CommonUtil.confirm(modal);
+
   } // function - tabLayerDelete
 
   /**
@@ -2735,6 +2804,52 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   // *****************************************************************
+  // Split Slider 관련
+  // *****************************************************************
+  /**
+   * toggle Horizontal Slider
+   * @private
+   */
+  private _toggleHorizontalSlider() {
+    if( this.isLeftMenuOpen && !this.isQueryEditorFull ) {
+      this._activeHorizontalSlider();
+    } else {
+      this._deactiveHorizontalSlider();
+    }
+  } // function - _toggleHorizontalSlider
+
+  /**
+   * active Horizontal Slider
+   * @private
+   */
+  private _activeHorizontalSlider() {
+    this._splitHorizontal = Split(['.sys-workbench-lnb-panel', '.sys-workbench-content-panel'], {
+      direction: 'horizontal',
+      sizes: [20, 80],
+      elementStyle: (dimension, size, gutterSize) => {
+        return {
+          'width': `${size}%`
+        };
+      },
+      onDragEnd : () => {
+        this.onEndedResizing();
+      }
+    });
+  } // function - _activeHorizontalSlider
+
+  /**
+   * deactive horizontal slider
+   * @private
+   */
+  private _deactiveHorizontalSlider() {
+    if( this._splitHorizontal ) {
+      this._splitHorizontal.destroy();
+      this._splitHorizontal = undefined;
+    }
+  } // function - _deactiveHorizontalSlider
+
+
+  // *****************************************************************
   // Result Tab 관련
   // *****************************************************************
 
@@ -2834,7 +2949,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     const visibleTab: ResultTab = this._getCurrentResultTab();
     return visibleTab && runningTab && runningTab.id === visibleTab.id;
   } // function - _isEqualRunningVisibleTab
-
 
   /**
    * DataConnection Type icon

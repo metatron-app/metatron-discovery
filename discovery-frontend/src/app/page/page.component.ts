@@ -97,6 +97,7 @@ import { CommonUtil } from '../common/util/common.util';
 import { MapChartComponent } from '../common/component/chart/type/map-chart/map-chart.component';
 import {MapFormatOptionComponent} from './chart-style/map/map-format-option.component';
 import { MapTooltipOptionComponent } from './chart-style/map/map-tooltip-option.component';
+import {MapLayerOptionComponent} from "./chart-style/map/map-layer-option.component";
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -212,6 +213,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   @ViewChild('mapTooltipOption')
   private mapTooltipOption: MapTooltipOptionComponent;
+
+  @ViewChild('mapLayerOption1')
+  private mapLayerOption1: MapLayerOptionComponent;
+
+  @ViewChild('mapLayerOption2')
+  private mapLayerOption2: MapLayerOptionComponent;
+
+  @ViewChild('mapLayerOption3')
+  private mapLayerOption3: MapLayerOptionComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -1558,6 +1568,18 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // when map tooltip option is opened
     if (this.mapTooltipOption) {
       this.mapTooltipOption.setPivot = pivot;
+    }
+
+    if( this.mapLayerOption1 ) {
+      this.mapLayerOption1.setPivot = pivot;
+    }
+
+    if( this.mapLayerOption2 ) {
+      this.mapLayerOption2.setPivot = pivot;
+    }
+
+    if( this.mapLayerOption3 ) {
+      this.mapLayerOption3.setPivot = pivot;
     }
 
     // sort 처리

@@ -45,8 +45,6 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   @ViewChild('tableInfo')
   private tableInfo: ElementRef;
 
-  private _differ: any;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -67,7 +65,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   public set setClose(event: any) {
     // schema close 일때만 작동
     if (event && event.name === 'closeSchema') {
-      this.tableSchemaClose();
+      // this.tableSchemaClose();
       delete event.name;
     }
   }
@@ -78,12 +76,14 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   @Output()
   public tableDataEvent: EventEmitter<any> = new EventEmitter();
 
+  @Output()
+  public openTableSchemaEvent:EventEmitter<{dataconnection: any, selectedTable: string, top: number, websocketId: string}> = new EventEmitter();
+
   // List of tables
   public tables: any[] = [];
 
   public selectedTable: string = '';
 
-  public schemaParams: {};
   public tableParams: {};
 
   // For searching
@@ -91,8 +91,6 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   // 테이블 정보 Info Layer
   public selectedTableInfoLayer: boolean = false;
-
-  public selectedTableSchemaLayer: boolean = false;
 
   // totalPage가 1 MEMORY 아닐 경우 PAGE
   public pageMode: string = 'PAGE';
@@ -167,20 +165,6 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   public tableInfoClose($event) {
     document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
     this.selectedTableInfoLayer = false;
-  }
-
-  // close schema info popup
-  public tableSchemaClose() {
-    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
-    this.selectedTableSchemaLayer = false;
-  }
-
-  /**
-   * 스키마 클릭시 insert 이벤트
-   * @param $event
-   */
-  public tableSchemaInsert($event) {
-    this.sqlIntoEditorEvent.emit($event + ',');
   }
 
   // 데이터 베이스 리스트 가져오기
@@ -348,18 +332,14 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     }
     event.stopImmediatePropagation();
     this.selectedTableInfoLayer = false;
-    this.selectedTableSchemaLayer = false;
-    this.selectedTableSchemaLayer = true;
-    // $('.ddp-list-table').find('li:eq('+ index + ')').removeClass('ddp-info-selected');
     this.selectedNum = -1;
-    //const offset: ClientRect = document.getElementById(`info${index}`).getBoundingClientRect();
-    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query ddp-tablepop';
-    this.schemaParams = {
+
+    this.openTableSchemaEvent.emit({
       dataconnection: this.inputParams.dataconnection,
       selectedTable: item,
       top: 250,
       websocketId: WorkbenchService.websocketId
-    };
+    });
   }
 
   // 테이블 선택시.

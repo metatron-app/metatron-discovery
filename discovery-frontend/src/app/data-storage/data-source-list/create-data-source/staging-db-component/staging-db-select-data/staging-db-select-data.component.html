@@ -42,6 +42,7 @@
                 [searchPlaceHolderText]="getDatabaseSearchPlaceHolder"
                 [searchText]="searchTextDatabase"
                 [isEnableInternalPaging]="true"
+                [isFirstOpenItemList]="selectedDatabase === ''"
                 [isSearchOptions]="true">
               </component-paging-search-select>
               <!-- //select box -->
@@ -57,6 +58,7 @@
                 [searchText]="searchTextTable"
                 [isSearchOptions]="true"
                 [isEnableInternalPaging]="true"
+                [isFirstOpenItemList]="selectedDatabase !== '' && selectedTable === ''"
                 [isDisabledOptions]="!isSelectedDatabase()">
               </component-paging-search-select>
               <!-- //select box -->

@@ -139,7 +139,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isError: boolean = false;                // 에러 상태 표시 여부
   public isShowLimitInfo:boolean = false;         // Limit 표시 여부
   public isShowDownloadPopup: boolean = false;    // 다운로드 팝업 표시 여부
-  public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부ddp-list-selectbox
+  public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
 
   // Pivot 내 사용자 정의 컬럼 사용 여부

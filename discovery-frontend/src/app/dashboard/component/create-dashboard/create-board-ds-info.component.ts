@@ -156,7 +156,6 @@ export class CreateBoardDsInfoComponent extends AbstractComponent implements OnI
         direction: 'vertical'
       });
     }, 500);
-
   } // function - ngAfterViewInit
 
   /**

@@ -63,16 +63,4 @@
   [excludeBeforeClick]="true"
   [exclude]="'.ddp-icon-info'">
 </detail-workbench-table-info-desc>
-<detail-workbench-table-info-schema *ngIf="selectedTableSchemaLayer === true"
-                                    [schemaParams]="schemaParams"
-                                    (insertName)="tableSchemaInsert($event)"
-                                    (showLayer)="tableSchemaClose()">
-</detail-workbench-table-info-schema>
-
-<!--<detail-workbench-table-info-schema *ngIf="selectedTableSchemaLayer === true" [dataconnection]="workbench.dataConnection"  [selectedTable]="selectedTable"  [top]="detailWorkbenchTableInfoSchemaTop" (showLayer)="setTableSchemaClose()" ></detail-workbench-table-info-schema>-->
-<!--[dataconnection]="workbench.dataConnection"-->
-<!--[selectedTable]="selectedTable"-->
-<!--[top]="detailWorkbenchTableInfoDescTop"-->
-<!--(clickOutside)="selectedTableSchemaLayer=false" [excludeBeforeClick]="true" [exclude]="'.ddp-icon-info'"-->
-<!--(showLayer)="setTableInfoClose()">-->
 

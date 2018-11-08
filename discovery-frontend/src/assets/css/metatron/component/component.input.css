@@ -14,7 +14,7 @@ input.ddp-input-typebasic:read-only:focus {border:1px solid #d0d1d9;}
 input.ddp-input-typebasic.ddp-full {width:100%;}
 input.ddp-input-typebasic:disabled {background-color:rgba(240,240,240,0.3); cursor: no-drop; opacity:0.5;}
 input.ddp-input-typebasic.ddp-disabled {background-color:rgba(240,240,240,0.3); cursor: no-drop; opacity:0.5;}
-input.ddp-input-typebasic.ddp-inline {display:inline-block; width:inherit; position:relative; /*삭제...*/top:-3px;}
+input.ddp-input-typebasic.ddp-inline {display:inline-block; width:inherit; position:relative; top:-3px;}
 
 input.ddp-input-typebasic.ddp-error {color:#eb5f58;}
 input.ddp-input-typebasic.ddp-font-size {padding-top:10px; font-size:12px;}
