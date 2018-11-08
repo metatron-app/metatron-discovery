@@ -65,22 +65,26 @@ public class MatrixResponse<R, C> implements Serializable {
   @JsonIgnore
   List<C> values;
 
+  @JsonIgnore
+  Integer categoryCount;
+
   public MatrixResponse() {
   }
 
   public MatrixResponse(List<R> rows, List<Column<C>> columns) {
-    this.rows = rows;
-    this.columns = columns;
+    this(rows, columns, null);
   }
 
   public MatrixResponse(List<R> rows, List<Column<C>> columns, List<C> values) {
     this.rows = rows;
+    if(rows != null) this.categoryCount = rows.size();
     this.columns = columns;
     this.values = values;
   }
 
   public MatrixResponse(List<R> rows, Map<String, List<C>> columnMap) {
     this.rows = rows;
+    if(rows != null) this.categoryCount = rows.size();
     columns = Lists.newArrayList();
     for (String key : columnMap.keySet()) {
       columns.add(new Column<>(key, columnMap.get(key)));
@@ -89,6 +93,7 @@ public class MatrixResponse<R, C> implements Serializable {
 
   public MatrixResponse(List<R> rows, Map<String, List<List<C>>> categoryMap, Map<String, List<List<C>>> columnMap) {
     this.rows = rows;
+    if(rows != null) this.categoryCount = rows.size();
 
     this.categories = Lists.newArrayList();
     for (String key : categoryMap.keySet()) {
@@ -460,6 +465,10 @@ public class MatrixResponse<R, C> implements Serializable {
 
   public void setCategories(List<Column<C>> categories) {
     this.categories = categories;
+  }
+
+  public Integer getCategoryCount() {
+    return categoryCount;
   }
 
   public static class Column<C> implements Serializable {

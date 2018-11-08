@@ -254,6 +254,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
                            .build();
       }
     } else {
+
       QueryHistoryTeller.setEngineQueryType(GROUPBY); // for history
       query = GroupByQuery.builder(request.getDataSource())
                           .initVirtualColumns(request.getUserFields())
@@ -265,6 +266,14 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
                           .forward(request.getResultForward())
                           .format(request.getResultFormat())
                           .build();
+
+      if(request.getMetaQuery()) {
+        QueryHistoryTeller.setEngineQueryType(GROUPBYMETA);// for history
+        query = new GroupByMetaQuery(query);
+
+        // force result format to be assigned
+        request.setResultFormat(new ObjectResultFormat(ENGINE));
+      }
     }
     String queryString = GlobalObjectMapper.writeValueAsString(query);
     stopWatch.stop();

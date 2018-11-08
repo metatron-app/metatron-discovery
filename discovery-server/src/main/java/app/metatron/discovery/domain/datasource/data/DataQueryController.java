@@ -19,6 +19,7 @@ import com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
+import app.metatron.discovery.common.MatrixResponse;
 import app.metatron.discovery.common.RawJsonString;
 import app.metatron.discovery.domain.datasource.SimilarityQueryRequest;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
@@ -118,7 +120,22 @@ public class DataQueryController {
       return ResponseEntity.ok(new RawJsonString(result));
     }
 
-    return ResponseEntity.ok(engineQueryService.search(queryRequest));
+    Object result = engineQueryService.search(queryRequest);
+    if(result instanceof MatrixResponse && queryRequest.getResultFormat() instanceof ChartResultFormat) {
+      MatrixResponse response = (MatrixResponse) result;
+      if(queryRequest.getLimits() != null &&
+          response.getCategoryCount() >= queryRequest.getLimits().getLimit()) {
+        queryRequest.setMetaQuery(true);
+        JsonNode totalCount = (JsonNode) engineQueryService.search(queryRequest);
+        response.addInfo("totalCategory", totalCount.get("cardinality").asInt());
+      } else {
+        response.addInfo("totalCategory", response.getCategoryCount());
+      }
+
+      result = response;
+    }
+
+    return ResponseEntity.ok(result);
   }
 
   @RequestMapping(value = "/datasources/query/{queryId}/cancel", method = RequestMethod.POST)

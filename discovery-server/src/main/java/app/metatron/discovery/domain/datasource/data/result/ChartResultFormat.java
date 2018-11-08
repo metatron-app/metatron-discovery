@@ -59,6 +59,7 @@ public class ChartResultFormat extends SearchResultFormat {
   public static final String OPTION_INTERSECION_VALUE = "intersectionValue";
   public static final String OPTION_SHOW_CATEGORY = "showCategory";
   public static final String OPTION_SHOW_PERCENTAGE = "showPercentage";
+  public static final String OPTION_SHOW_TOTAL_CATEGORY = "showTotalCategory";
 
   @NotBlank
   String mode;

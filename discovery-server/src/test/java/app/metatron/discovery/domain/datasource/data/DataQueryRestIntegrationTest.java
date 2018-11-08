@@ -70,7 +70,6 @@ import app.metatron.discovery.domain.workbook.configurations.format.TimeFieldFor
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.GeoShelf;
 import app.metatron.discovery.domain.workbook.configurations.widget.shelf.Shelf;
 
-import static app.metatron.discovery.domain.datasource.data.result.ChartResultFormat.OPTION_INTERSECION_VALUE;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
@@ -1175,7 +1174,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(2);
     limit.setSort(Lists.newArrayList(
         //new Sort("OrderDate", Sort.Direction.ASC)
     ));
@@ -1252,9 +1251,9 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     ChartResultFormat format = new ChartResultFormat("bar");
     format.addOptions("showPercentage", true);
     format.addOptions("showCategory", true);
-    format.addOptions(OPTION_INTERSECION_VALUE, 30.59);
     format.addOptions("addMinMax", true);
     request.setResultFormat(format);
+    //request.setMetaQuery(true);
 
 
     // @formatter:off
