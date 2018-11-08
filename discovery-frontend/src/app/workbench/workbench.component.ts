@@ -371,26 +371,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.onEndedResizing();
         this.webSocketCheck(() => this.loadingHide());
 
-        const $lnbPanel = $( '.sys-workbench-lnb-panel' );
-
         this._splitVertical = Split(['.sys-workbench-top-panel', '.sys-workbench-bottom-panel'], {
           direction: 'vertical',
           onDragEnd : () => {
             this.onEndedResizing();
           }
         });
-        this._splitHorizontal = Split(['.sys-workbench-lnb-panel', '.sys-workbench-content-panel'], {
-          direction: 'horizontal',
-          sizes: [20, 80],
-          elementStyle: (dimension, size, gutterSize) => {
-            return {
-              'width': `${size}%`
-            };
-          },
-          onDragEnd : () => {
-            this.onEndedResizing();
-          }
-        });
+        this._activeHorizontalSlider();
       });
     }, 500);
   } // function - ngAfterViewInit
@@ -416,6 +403,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     this._splitVertical.destroy();
     this._splitVertical = undefined;
+    this._deactiveHorizontalSlider();
 
     // this.webSocketCheck(() => {});
     (this._subscription) && (CommonConstant.stomp.unsubscribe(this._subscription));     // Socket 응답 해제
@@ -993,6 +981,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public leftMenuOpen() {
     this.isLeftMenuOpen = !this.isLeftMenuOpen;
+
+    this._toggleHorizontalSlider();
+
     // 아이콘 슬라이드 버튼 계산
     this._calculateEditorSlideBtn();
     this._calculateEditorResultSlideBtn();
@@ -1335,9 +1326,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    * 에디터 풀 사이즈처리
    */
   public resizeQueryEditor() {
-
     this.isQueryEditorFull = !this.isQueryEditorFull;
-
+    this._toggleHorizontalSlider();
     this.onEndedResizing();
   } // function - resizeQueryEditor
 
@@ -2782,6 +2772,52 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   }
 
   // *****************************************************************
+  // Split Slider 관련
+  // *****************************************************************
+  /**
+   * toggle Horizontal Slider
+   * @private
+   */
+  private _toggleHorizontalSlider() {
+    if( this.isLeftMenuOpen && !this.isQueryEditorFull ) {
+      this._activeHorizontalSlider();
+    } else {
+      this._deactiveHorizontalSlider();
+    }
+  } // function - _toggleHorizontalSlider
+
+  /**
+   * active Horizontal Slider
+   * @private
+   */
+  private _activeHorizontalSlider() {
+    this._splitHorizontal = Split(['.sys-workbench-lnb-panel', '.sys-workbench-content-panel'], {
+      direction: 'horizontal',
+      sizes: [20, 80],
+      elementStyle: (dimension, size, gutterSize) => {
+        return {
+          'width': `${size}%`
+        };
+      },
+      onDragEnd : () => {
+        this.onEndedResizing();
+      }
+    });
+  } // function - _activeHorizontalSlider
+
+  /**
+   * deactive horizontal slider
+   * @private
+   */
+  private _deactiveHorizontalSlider() {
+    if( this._splitHorizontal ) {
+      this._splitHorizontal.destroy();
+      this._splitHorizontal = undefined;
+    }
+  } // function - _deactiveHorizontalSlider
+
+
+  // *****************************************************************
   // Result Tab 관련
   // *****************************************************************
 
@@ -2881,7 +2917,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     const visibleTab: ResultTab = this._getCurrentResultTab();
     return visibleTab && runningTab && runningTab.id === visibleTab.id;
   } // function - _isEqualRunningVisibleTab
-
 
   /**
    * DataConnection Type icon

@@ -103,7 +103,9 @@
   <div class="ddp-layout-table">
     <!-- lnb --->
     <div class="sys-workbench-lnb-panel ddp-ui-benchlnb"
-         [ngClass]="{'ddp-close':!isLeftMenuOpen || isQueryEditorFull===true, 'ddp-fold' : !isOpenTableSchema}"
+         [ngClass]="{
+         'ddp-close':!isLeftMenuOpen || isQueryEditorFull,
+         'ddp-fold' : !isOpenTableSchema && isLeftMenuOpen && !isQueryEditorFull }"
          style="width:20%;">
       <div class="ddp-view-benchlnb" >
         <a href="javascript:" class="ddp-btn-folding" (click)="leftMenuOpen()"></a>
@@ -173,11 +175,13 @@
     <!-- // lnb --->
 
     <!-- 쿼리 contents -->
-    <div id="workbenchQuery" class="sys-workbench-content-panel ddp-ui-query" [ngClass]="{'ddp-full':!isLeftMenuOpen}" >
+    <div id="workbenchQuery" class="sys-workbench-content-panel ddp-ui-query"
+         [ngStyle]="isLeftMenuOpen ? {} : {'padding-left':'20px'}"
+         [ngClass]="{'ddp-full':!isLeftMenuOpen}" >
       <div class="sys-workbench-top-panel" style="height:100%;">
         <!-- query editor -->
         <!-- full size 일때 ddp-full 추가 -->
-        <div class="ddp-box-editer" [ngClass]="{'ddp-full':isQueryEditorFull===true}"
+        <div class="ddp-box-editer" [ngClass]="{'ddp-full':isQueryEditorFull}"
              style="position:relative;top:0; left:0; right:0; bottom:0; height:100%; padding-bottom:0;">
           <!-- tab -->
           <div class="ddp-wrap-tabs-edit" #editorListMax>
