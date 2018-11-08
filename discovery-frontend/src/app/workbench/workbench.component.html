@@ -251,7 +251,7 @@
             </div>
           </div>
           <!-- //tab -->
-          <div class="ddp-wrap-editor">
+          <div class="ddp-wrap-editor" style="overflow-y: auto;">
             <codemirror [config]="config" (keyup)="editorKeyEvent($event)"
                         (textChanged)="editorTextChange($event)"></codemirror>
           </div>
