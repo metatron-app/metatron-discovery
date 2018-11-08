@@ -177,7 +177,7 @@ export class DetailWorkbenchTableInfoSchema extends AbstractWorkbenchComponent i
    * @param {string} param
    */
   public setColumn(param: string) {
-    this.insertName.emit(param);
+    this.insertName.emit(param + ',');
   }
 
 }

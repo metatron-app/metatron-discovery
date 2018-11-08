@@ -5902,7 +5902,8 @@ ul.ddp-list-dbtype li .ddp-label-dbtype.type-tibero:before{width:19px; height:22
 .ddp-ui-dbconnect .ddp-ui-db-type label.ddp-label-type {display:block; padding-bottom:13px; color:#444; font-weight:bold;}
 .ddp-ui-dbconnect .ddp-ui-db-type label.ddp-label-type.ddp-type {font-weight:bold; font-size:13px;}
 .ddp-ui-dbconnect .ddp-ui-db-type .ddp-wrap-edit3.ddp-type {margin-bottom:20px;}
-.ddp-ui-dbconnect .ddp-ui-db-type .ddp-wrap-edit3.ddp-type .ddp-label-type {display:table-cell;}
+.ddp-ui-dbconnect .ddp-ui-db-type .ddp-wrap-edit3.ddp-type
+.ddp-label-type {display:table-cell;}
 
 .ddp-ui-dbconnect .ddp-ui-db-type ul.ddp-list-db-type {float:left; width:100%; border-radius:3px; border:1px solid #ddd; }
 .ddp-ui-dbconnect .ddp-ui-db-type ul.ddp-list-db-type li {float:left; position:relative; width:50%; height:98px; border-right:1px solid #ddd; border-bottom:1px solid #ddd; margin-bottom:-1px; box-sizing:border-box;}
@@ -6175,8 +6176,14 @@ ul.ddp-ui-tab.ddp-type li .ddp-box-layout4.ddp-information a {padding:0px; borde
 	page : 워크벤치 detail
 ************************************************************************************************************/
 .ddp-wrap-workbench {overflow:hidden;}
-.ddp-wrap-workbench .ddp-ui-benchlnb {position:absolute; left:0; top:47px; bottom:0; width:280px; background-color:#35393f; vertical-align: top; z-index:6;}
+.ddp-wrap-workbench .ddp-layout-table {display:table; width:100%; height:100%;}
+.ddp-wrap-workbench .ddp-ui-benchlnb {display:table-cell; position:relative; width:500px;  height:100%; background-color:#35393f; vertical-align: top; z-index:20;}
+.ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold {width:280px;}
+.ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-view-benchlnb {width:100%;}
+.ddp-wrap-workbench .ddp-ui-benchlnb.ddp-fold .ddp-ui-benchtable {display:none;}
+.ddp-wrap-workbench .ddp-ui-benchlnb .ddp-view-benchlnb {position:relative; float:left; height:100%; width:55%;}
 .ddp-ui-benchlnb.ddp-close {width:9px ;}
+.ddp-ui-benchlnb.ddp-close .ddp-view-benchlnb {width:9px;}
 .ddp-ui-benchlnb.ddp-close .ddp-box-benchlnb {display:none;}
 .ddp-ui-benchlnb.ddp-close .ddp-ui-benchtable {display:none;}
 .ddp-box-benchlnb {width:100%; height:100%;}
@@ -6332,7 +6339,7 @@ ul.ddp-list-table li em.ddp-icon-tableinfo.ddp-disabled:hover:before {background
 .ddp-box-layout4 ul.ddp-list-type.ddp-list-popup li.ddp-selected a .ddp-data-name {color:#666eb2;}
 .ddp-box-layout4 .ddp-btn-more {display:inline-block; margin:0 20px 0 20px; color:#4b515b; font-size:12px; text-decoration: underline;}
 .ddp-wrap-workbench {position:absolute; top:101px; left:0; right:0; bottom:0; width:initial; height:initial; }
-.ddp-wrap-workbench .ddp-ui-rnb {position:absolute; right:0; bottom:0; top:47px; width:52px; background-color:#f8f7f9; z-index:20;}
+.ddp-wrap-workbench .ddp-ui-rnb {position:relative; display:table-cell;width:52px; background-color:#f8f7f9; z-index:20;}
 
 ul.ddp-list-rnb li a {display:block; position:relative; width:52px; height:52px;}
 ul.ddp-list-rnb li.ddp-selected a {background-color:#90969f;}
@@ -6464,9 +6471,9 @@ table.ddp-table-simple tr td .ddp-ui-action {height:30px; white-space:normal; ov
 	word-wrap:break-word;}
 .ddp-wrap-table-simple .ddp-table-tbody a.ddp-btn-more {display:inline-block; margin:10px 22px;color:#4b515b; font-size:12px; text-decoration: underline;}
 
-.ddp-ui-query {position:absolute; left:280px; top:48px; bottom:0; right:52px; padding:0 13px 0 12px; box-sizing:border-box; z-index:5;}
-.ddp-ui-query.ddp-tablepop {left:500px}
-.ddp-ui-query.ddp-full {left:13px;}
+.ddp-ui-query {display:table-cell; position:relative; padding:0 13px 11px 2px; z-index:5; vertical-align:top; box-sizing:border-box;}
+/*.ddp-ui-query.ddp-tablepop {left:500px}*/
+/*.ddp-ui-query.ddp-full {left:13px;}*/
 .ddp-box-editer.ddp-full {position:fixed !important; left:26px !important; right:64px !important; bottom:2px !important; top:101px !important; height:auto !important; background-color:#fff; z-index:15;}
 .ddp-box-editer.ddp-full .ddp-box-full {display:none;}
 .ddp-box-editer.ddp-full .ddp-box-reduce {display:block;}
@@ -6755,7 +6762,7 @@ em.ddp-icon-query-search{width:14px; height:14px; background-position:left -188p
 /*****************************************************************
 	워크벤치 테이블리스트팝업
 ***********************************************************************/
-.ddp-ui-benchtable {position:absolute; top:0; left:280px; bottom:0; width:220px;background-color:#2f3339;}
+.ddp-ui-benchtable {float:left; position:relative; width:45%; height:100%; background-color:#2f3339;}
 .ddp-ui-benchtable .ddp-ui-table-name {position:relative; padding:15px 35px 15px 15px; font-size:13px; color:#d0d1d8; font-weight:bold; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; word-wrap:normal; background-color:#35393f;}
 .ddp-ui-benchtable .ddp-ui-table-name a.ddp-btn-close {display:inline-block; position:absolute; top:17px; right:15px; width:11px; height:11px; background:url(../images/btn_close.png) no-repeat; background-position:-12px -58px;}
 .ddp-ui-benchtable .ddp-ui-columnlist .ddp-ui-label {padding:10px 15px 7px 15px; color:#d0d1d8; font-size:12px;}
