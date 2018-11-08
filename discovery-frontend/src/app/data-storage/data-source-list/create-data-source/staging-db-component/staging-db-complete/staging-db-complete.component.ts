@@ -444,12 +444,13 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       const partition = {};
       // loop
       for (let j = 0; j < partitionKeys.length; j++) {
+        // #619 enable empty value
         // is value empty break for loop
-        if (StringUtil.isEmpty(partitionKeys[j].value)) {
-          break;
-        }
-        // add partition
-        partition[partitionKeys[j].name] = partitionKeys[j].value;
+        // if (StringUtil.isEmpty(partitionKeys[j].value)) {
+        //   break;
+        // }
+        // add partition #619 enable empty value
+        partition[partitionKeys[j].name] = (partitionKeys[j].value || '');
       }
       // if exist partition, add in result
       if (Object.keys(partition).length) {

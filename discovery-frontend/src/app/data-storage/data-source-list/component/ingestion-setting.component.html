@@ -257,7 +257,7 @@
                     </tr>
                     </tbody>
                   </table>
-                  <div class="ddp-data-date">2018-01-01</div>
+                  <div class="ddp-data-date">yyyymm=201801/dd=01</div>
                   <div class="ddp-label-table">
                     <span class="ddp-txt-label">
                         {{'msg.storage.ui.partition.info.desc.step-2' | translate}}
@@ -282,12 +282,12 @@
                         dd
                       </th>
                       <td>
-                        01, 02
+                        01
                       </td>
                     </tr>
                     </tbody>
                   </table>
-                  <div class="ddp-data-date">2018-01-01, 2018-01-02, 2018-02-01, 2018-02-02</div>
+                  <div class="ddp-data-date">yyyymm=201801/dd=01, yyyymm=201802/dd=01</div>
                   <div class="ddp-label-table">
                     <span class="ddp-txt-label">
                         {{'msg.storage.ui.partition.info.desc.step-3' | translate}}
@@ -304,7 +304,7 @@
                         yyyymm
                       </th>
                       <td>
-                        201[6-8]01
+                        201[6-8]
                       </td>
                     </tr>
                     <tr>
@@ -312,15 +312,15 @@
                         dd
                       </th>
                       <td>
-                        [01-30]
+                        [01-31]
                       </td>
                     </tr>
                     </tbody>
                   </table>
                   <div class="ddp-data-date">
-                    2016-01-01 ~ 2016-01-31,<br>
-                    2017-01-01 ~ 2017-01-31,<br>
-                    2018-01-01 ~ 2018-01-31
+                    yyyymm=201601/dd=01 ~ yyyymm=201601/dd=31,<br>
+                    yyyymm=201701/dd=01 ~ yyyymm=201701/dd=31,<br>
+                    yyyymm=201801/dd=01 ~ yyyymm=201801/dd=31
                   </div>
                   <div class="ddp-label-table">
                     <span class="ddp-txt-label">
@@ -351,7 +351,7 @@
                     </tr>
                     </tbody>
                   </table>
-                  <div class="ddp-data-date">2017-01-01 ~ 2017-01-31</div>
+                  <div class="ddp-data-date">yyyymm=201701/dd=%</div>
                 </div>
               </div>
               <!-- //popup -->
@@ -371,7 +371,7 @@
                   </div>
                 </li>
               </ul>
-              <div class="ddp- btn-control">
+              <div class="ddp-btn-control">
                 <a href="javascript:" class="ddp-btn-add" (click)="addPartitionKeys()" *ngIf="partitionKeyList.length < 20"></a>
                 <a href="javascript:" class="ddp-btn-delete" (click)="deletePartitionKeys()" *ngIf="partitionKeyList.length > 1"></a>
               </div>
@@ -386,8 +386,8 @@
                 </div>
                 <!-- //message -->
                 <!-- 결과 -->
-                <div class="ddp-wrap-result ">
-                  <a href="javascript:" class="ddp-link-result" *ngIf="partitionValidationResult" (click)="onClickPartitionKeyValidResult()">See result ></a>
+                <div class="ddp-wrap-result" #resultElement>
+                  <a href="javascript:" class="ddp-link-result" *ngIf="partitionValidationResult" (click)="onClickPartitionKeyValidResult()">{{'msg.storage.btn.partition.result' | translate}} ></a>
                 </div>
                 <!-- //결과 -->
               </div>
@@ -396,14 +396,14 @@
           </div >
           <!-- //partition -->
           <!-- result -->
-          <div class="ddp-box-layout4 ddp-result" *ngIf="isShowPartitionValidResult">
+          <div class="ddp-box-layout4 ddp-result" *ngIf="isShowPartitionValidResult" #resultBoxElement>
             <a href="javascript:" class="ddp-btn-close" (click)="isShowPartitionValidResult = false"></a>
             <div class="ddp-data-title">
-              결과
+              {{'msg.storage.ui.partition.result' | translate}}
             </div>
             <div class="ddp-data-det">
               <ng-container *ngFor="let data of partitionValidationResultData">
-               {{data['PART_NAME']}} <span class="ddp-data-row">({{data['NUM_ROWS']}}Row)</span><br>
+               {{data['PART_NAME']}} <span class="ddp-data-row">({{data['NUM_ROWS']}}{{'msg.storage.ui.dsource.create.file.row' | translate}})</span><br>
               </ng-container>
             </div>
           </div>

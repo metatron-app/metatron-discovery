@@ -1914,7 +1914,10 @@
   "msg.storage.ui.partition.info.desc.step-4.blank": "(blank)",
   "msg.storage.ui.partition.valid.success": "Valid Expression",
   "msg.storage.ui.partition.valid.fail": "Invalid Expression",
+  "msg.storage.ui.partition.valid.fail.invalid.key": "Invalid Partition key",
   "msg.storage.ui.partition.valid.no.key": "Partition key is required",
+  "msg.storage.btn.partition.result": "See result",
+  "msg.storage.ui.partition.result": "Result",
   "msg.storage.ui.connection.jdbc.table.error": "Due to internal server constraints, it is impossible to query data in table mode. You can query data in Query mode",
 
   "msg.log.th.status": "Status",

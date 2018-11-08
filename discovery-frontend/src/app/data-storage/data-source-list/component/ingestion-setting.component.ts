@@ -13,7 +13,10 @@
  */
 
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Output } from '@angular/core';
+import {
+  Component, ElementRef, EventEmitter, Injector, Output, Renderer2,
+  ViewChild
+} from '@angular/core';
 import { DatasourceInfo } from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
@@ -50,6 +53,12 @@ export class IngestionSettingComponent extends AbstractComponent {
     { label: this.translateService.instant('msg.storage.th.dsource.scope-all'), value: 'ALL' },
     { label: this.translateService.instant('msg.storage.th.dsource.scope-row'), value: 'ROW' }
   ];
+
+  // element
+  @ViewChild('resultElement')
+  private _resultElement: ElementRef;
+  @ViewChild('resultBoxElement')
+  private _resultBoxElement: ElementRef;
 
   // source create type
   public createType: string;
@@ -174,10 +183,13 @@ export class IngestionSettingComponent extends AbstractComponent {
   @Output()
   public nextStep: EventEmitter<any> = new EventEmitter();
 
+
+
   // constructor
   constructor(private _dataSourceService: DatasourceService,
               private _dataConnectionService: DataconnectionService,
               protected element: ElementRef,
+              protected renderer: Renderer2,
               protected injector: Injector) {
     super(element, injector);
   }
@@ -326,7 +338,11 @@ export class IngestionSettingComponent extends AbstractComponent {
         // set result
         this.partitionValidationResult = false;
         // set result message
-        this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.fail');
+        if (error.code && error.code === 'JDC0006') {
+          this.partitionValidationResultMessage = this.translateService.instant('mmsg.storage.ui.partition.valid.fail.invalid.key');
+        } else {
+          this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.fail');
+        }
         // loading hide
         this.loadingHide();
       });
@@ -337,6 +353,13 @@ export class IngestionSettingComponent extends AbstractComponent {
    */
   public onClickPartitionKeyValidResult(): void {
     this.isShowPartitionValidResult = true;
+    this.safelyDetectChanges();
+    // set style
+    $(this._resultBoxElement.nativeElement).css({
+      display: 'block',
+      top: $(this._resultElement.nativeElement).offset().top - 20,
+      left: $(this._resultElement.nativeElement).offset().left + 80
+    });
   }
 
   /**
@@ -749,12 +772,13 @@ export class IngestionSettingComponent extends AbstractComponent {
       const partition = {};
       // loop
       for (let j = 0; j < partitionKeys.length; j++) {
+        // #619 enable empty value
         // is value empty break for loop
-        if (StringUtil.isEmpty(partitionKeys[j].value)) {
-          break;
-        }
-        // add partition
-        partition[partitionKeys[j].name] = partitionKeys[j].value;
+        // if (StringUtil.isEmpty(partitionKeys[j].value)) {
+        //   break;
+        // }
+        // add partition #619 enable empty value
+        partition[partitionKeys[j].name] = (partitionKeys[j].value || '');
       }
       // if exist partition, add in result
       if (Object.keys(partition).length) {
