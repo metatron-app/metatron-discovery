@@ -372,9 +372,9 @@ export class IngestionSettingComponent extends AbstractComponent {
   }
 
   /**
-   * partition value change event
+   * Init partition validation event
    */
-  public onChangedPartitionValue(): void {
+  public initPartitionValidation(): void {
     // init partitionValidationResult flag
     this.partitionValidationResult = null;
     // init isClickedNext flag
@@ -561,6 +561,9 @@ export class IngestionSettingComponent extends AbstractComponent {
    * add partition in partition list
    */
   public addPartitionKeys(): void {
+    // init validation
+    this.initPartitionValidation();
+    // create keys
     this.partitionKeyList.push(_.cloneDeep(this._sourceData.databaseData.selectedTableDetail.partitionFields));
   }
 
@@ -568,6 +571,9 @@ export class IngestionSettingComponent extends AbstractComponent {
    * delete partition in partition list
    */
   public deletePartitionKeys(): void {
+    // init validation
+    this.initPartitionValidation();
+    // remove keys
     this.partitionKeyList = this.partitionKeyList.slice(0, this.partitionKeyList.length - 1);
   }
 

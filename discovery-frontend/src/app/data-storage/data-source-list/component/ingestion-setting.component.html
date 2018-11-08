@@ -366,7 +366,7 @@
                   <span class="ddp-ui-label" *ngIf="i === 0">{{key.name}}</span>
                   <div class="ddp-data">
                     <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="key.value"
-                           (ngModelChange)="onChangedPartitionValue()"
+                           (ngModelChange)="initPartitionValidation()"
                            [disabled]="!isEnabledPartitionInput(keys, key)">
                   </div>
                 </li>
