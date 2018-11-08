@@ -283,9 +283,16 @@ public class GeoQueryBuilder extends AbstractQueryBuilder {
   }
 
   private void addSpatialFilter(AndOperator andOperator, SpatialFilter spatialFilter) {
+    String columnName = spatialFilter.getColumn();
+    app.metatron.discovery.domain.datasource.Field datasourceField = this.metaFieldMap.get(columnName);
+
     if (spatialFilter instanceof SpatialBboxFilter) {
+      if(datasourceField.getLogicalType() != LogicalType.GEO_POINT) {
+        return;
+      }
+
       SpatialBboxFilter bboxFilter = (SpatialBboxFilter) spatialFilter;
-      andOperator.addFilter(new BBox(spatialFilter.getColumn(), bboxFilter.getLowerCorner(), bboxFilter.getUpperCorner()));
+      andOperator.addFilter(new BBox(datasourceField.getName() + ".coord", bboxFilter.getLowerCorner(), bboxFilter.getUpperCorner()));
     }
   }
 

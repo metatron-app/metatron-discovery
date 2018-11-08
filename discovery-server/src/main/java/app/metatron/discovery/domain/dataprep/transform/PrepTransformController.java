@@ -170,7 +170,7 @@ public class PrepTransformController {
       Integer stageIdx = request.getRuleIdx();
       assert stageIdx == null || stageIdx >= 0 : stageIdx;
 
-      response = transformService.transform(wrangledDsId, request.getOp(), stageIdx, request.getRuleString());
+      response = transformService.transform(wrangledDsId, request.getOp(), stageIdx, request.getRuleString(), false);
     } catch (Exception e) {
       LOGGER.error("transform(): caught an exception: ", e);
       throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);

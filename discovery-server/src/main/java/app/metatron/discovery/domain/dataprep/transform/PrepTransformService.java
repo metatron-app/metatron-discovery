@@ -24,6 +24,7 @@ import app.metatron.discovery.domain.dataprep.rule.ExprFunction;
 import app.metatron.discovery.domain.dataprep.rule.ExprFunctionCategory;
 import app.metatron.discovery.domain.dataprep.teddy.*;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
@@ -304,7 +305,7 @@ public class PrepTransformService {
           String setTypeRule = setTypeRules.get(i);
           try {
             // 주의: response를 갱신하면 안됨. 기존의 create()에 대한 response를 그대로 주어야 함.
-            transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, i, setTypeRule);
+            transform(wrangledDsId, PrepDataset.OP_TYPE.APPEND, i, setTypeRule, false);
           } catch (Exception e) {
             LOGGER.error("create(): caught an exception: this setType rule might be wrong [" + setTypeRule + "]", e);
           }
@@ -482,7 +483,11 @@ public class PrepTransformService {
     List<PrepTransformRule> transformRules = getRulesInOrder(wrangledDsId);
     for (int i = 1; i < transformRules.size(); i++) {
       String ruleString = transformRules.get(i).getRuleString();
-      response = transform(cloneDsId, OP_TYPE.APPEND, i - 1, ruleString);
+      try {
+        response = transform(cloneDsId, OP_TYPE.APPEND, i - 1, ruleString, true);
+      } catch (TeddyException te) {
+        LOGGER.info("clone(): A TeddyException is suppressed: {}", te.getMessage());
+      }
     }
     return response;
   }
@@ -591,7 +596,12 @@ public class PrepTransformService {
 
     for (int i = 1; i < ruleStrings.size(); i++) {
       String ruleString = ruleStrings.get(i);
-      gridResponse = teddyImpl.append(dsId, i - 1, ruleString);
+      try {
+        gridResponse = teddyImpl.append(dsId, i - 1, ruleString, true);
+        updateTransformRules(dsId);
+      } catch (TeddyException te) {
+        LOGGER.info("load_internal(): A TeddyException is suppressed: {}", te.getMessage());
+      }
     }
     adjustStageIdx(dsId, ruleStrings.size() - 1, true);
 
@@ -642,7 +652,7 @@ public class PrepTransformService {
 
   // transform (PUT)
   @Transactional(rollbackFor = Exception.class)
-  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx, String ruleString) throws Exception {
+  public PrepTransformResponse transform(String dsId, OP_TYPE op, Integer stageIdx, String ruleString, boolean forced) throws Exception {
     LOGGER.trace("transform(): start: dsId={} op={} stageIdx={} ruleString={}", dsId, op, stageIdx, ruleString);
 
     if(op==OP_TYPE.APPEND || op==OP_TYPE.UPDATE || op==OP_TYPE.PREVIEW) {
@@ -673,7 +683,7 @@ public class PrepTransformService {
     // rule list는 transform()을 마칠 때에 채움. 모든 op에 대해 동일하기 때문에.
     switch (op) {
       case APPEND:
-        teddyImpl.append(dsId, stageIdx, ruleString);
+        teddyImpl.append(dsId, stageIdx, ruleString, forced);
         if (stageIdx >= origStageIdx) {
           adjustStageIdx(dsId, stageIdx + 1, true);
         } else {
@@ -1274,9 +1284,9 @@ public class PrepTransformService {
       if(prepProperties.isFileSnapshotEnabled()) {
         Map<String,Object> fileUri = Maps.newHashMap();
 
-        String wasDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
-        wasDir = this.snapshotService.escapeSsNameOfUri(wasDir);
-        fileUri.put("was", wasDir);
+        String localDir = this.snapshotService.getSnapshotDir(prepProperties.getLocalBaseDir(), ssName);
+        localDir = this.snapshotService.escapeSsNameOfUri(localDir);
+        fileUri.put("local", localDir);
 
         try {
           String hdfsDir = this.snapshotService.getSnapshotDir(prepProperties.getStagingBaseDir(true), ssName);

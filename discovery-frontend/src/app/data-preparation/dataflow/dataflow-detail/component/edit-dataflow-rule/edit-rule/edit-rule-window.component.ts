@@ -18,6 +18,7 @@ import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import {StringUtil} from "../../../../../../common/util/string.util";
 import {isNullOrUndefined} from "util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-window',
@@ -163,7 +164,8 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     // 그룹
     let groupStr: string = '';
     if (this.selectedFields.length !== 0) {
-      groupStr = this.selectedFields.map((item) => {
+      let selFields = _.cloneDeep(this.selectedFields);
+      groupStr = selFields.map((item) => {
         if (-1 !== item.name.indexOf(' ')) {
           item.name = '`' + item.name + '`';
         }
@@ -171,14 +173,10 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
       }).join(', ');
     }
 
-    // sort
-    if (this.selectedSortFields.length === 0) {
-      Alert.warning(this.translateService.instant('msg.dp.alert.enter.sortby'));
-      return undefined;
-    }
     let sortStr: string = '';
-    if (this.selectedFields.length !== 0) {
-      groupStr = this.selectedSortFields.map((item) => {
+    if (this.selectedSortFields.length !== 0) {
+      let selSortFields = _.cloneDeep(this.selectedSortFields);
+      sortStr = selSortFields.map((item) => {
         if (-1 !== item.name.indexOf(' ')) {
           item.name = '`' + item.name + '`';
         }
@@ -186,13 +184,15 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
       }).join(', ');
     }
 
+    let resultRuleString : string = `window value: ${validFormulaList}`;
 
-    let resultRuleString : string = `window value: [${validFormulaList}]`;
-    if (groupStr) {
+    if (groupStr !== '') {
       resultRuleString += ` group: ${groupStr}`;
     }
-    resultRuleString += ` order: ${sortStr}`;
 
+    if (sortStr !== '') {
+      resultRuleString += ` order: ${sortStr}`;
+    }
     return {
       command: 'window',
       col: groupStr,
@@ -234,9 +234,10 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
     }
 
     // Order
-    let orderFields: string[] = typeof data.jsonRuleString.order.value === 'string' ? [data.jsonRuleString.order.value] : data.jsonRuleString.order.value;
-    this.selectedSortFields = orderFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
-
+    if (!isNullOrUndefined(data.jsonRuleString.order)) {
+      let orderFields: string[] = typeof data.jsonRuleString.order.value === 'string' ? [data.jsonRuleString.order.value] : data.jsonRuleString.order.value;
+      this.selectedSortFields = orderFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    }
 
     // Formula
     this.formulaList = [];
