@@ -301,11 +301,10 @@
             <!-- //foot button -->
             <!-- 클릭시 ddp-selected 추가 -->
             <div class="ddp-wrap-question" [class.ddp-selected]="shortcutsFl" #questionWrap>
-              <a href="javascript:" class="ddp-btn-question" (click)="onClickShowShortcutsBtn()">
+              <a href="javascript:" class="ddp-btn-question" (mouseover)="onClickShowShortcutsBtn()" (mouseout)="shortcutsFl = false" >
               </a>
               <!-- popup -->
               <div class="ddp-box-layout4" #questionLayout>
-                <a href="javascript:" class="ddp-btn-close" (click)="shortcutsFl = false"></a>
                 <div class="ddp-data-title">
                   {{'msg.bench.ui.editor.shortcut.title' | translate}}
                 </div>
@@ -316,13 +315,21 @@
                       <col width="*">
                     </colgroup>
                     <tbody>
-                    <tr>
+                    <tr *ngIf="!isAgentUserMacOs">
                       <th>{{'msg.bench.ui.editor.shortcut.all.select' | translate}}</th>
-                      <td>Ctrl-A (Windows), Cmd-A (MacOS)</td>
+                      <td>Ctrl-A </td>
                     </tr>
-                    <tr>
+                    <tr *ngIf="isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.all.select' | translate}}</th>
+                      <td>Cmd-A </td>
+                    </tr>
+                    <tr *ngIf="!isAgentUserMacOs">
                       <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
-                      <td>Ctrl-D (Windows), Cmd-D (MacOS)</td>
+                      <td>Ctrl-D </td>
+                    </tr>
+                    <tr *ngIf="isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
+                      <td>Cmd-D </td>
                     </tr>
                     <tr>
                       <th>{{'msg.bench.ui.editor.shortcut.all.delete' | translate}}</th>
@@ -334,7 +341,7 @@
                     </tr>
                     <tr>
                       <th>{{'msg.bench.ui.editor.shortcut.outdent' | translate}}</th>
-                      <td>Alt-Tab</td>
+                      <td>Shift-Tab</td>
                     </tr>
                     <tr>
                       <th>{{'msg.bench.ui.editor.shortcut.comment' | translate}}</th>
@@ -344,13 +351,21 @@
                       <th>{{'msg.bench.ui.editor.shortcut.align' | translate}}</th>
                       <td>CTRL + .</td>
                     </tr>
-                    <tr>
+                    <tr *ngIf="!isAgentUserMacOs">
                       <th>{{'msg.bench.ui.editor.shortcut.cancl' | translate}}</th>
-                      <td>Ctrl-Z (Windows), Cmd-Z (MacOS)</td>
+                      <td>Ctrl-Z</td>
                     </tr>
-                    <tr>
+                    <tr *ngIf="isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.cancl' | translate}}</th>
+                      <td>Cmd-Z</td>
+                    </tr>
+                    <tr *ngIf="!isAgentUserMacOs">
                       <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
-                      <td>Ctrl+Spacebar (Windows)<br/>Ctrl+Shift+Spacebar (MacOS)</td>
+                      <td>Ctrl+Spacebar</td>
+                    </tr>
+                    <tr *ngIf="isAgentUserMacOs">
+                      <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
+                      <td>Ctrl+Shift+Spacebar</td>
                     </tr>
                     </tbody>
                   </table>
