@@ -6182,7 +6182,7 @@ ul.ddp-ui-tab.ddp-type li .ddp-box-layout4.ddp-information a {padding:0px; borde
 .ddp-box-benchlnb {width:100%; height:100%;}
 
 .ddp-ui-benchlnb .ddp-btn-folding {position:absolute; top:23px; right:18px; z-index:1;}
-.ddp-ui-benchlnb .ddp-btn-folding:before {display:inline-block; content:''; width:14px; height:12px; background:url(../images/icon_folding2.png) no-repeat; background-position:-14px top;}
+.ddp-ui-benchlnb .ddp-btn-folding:before {display:inline-block; content:''; width:14px; height:12px; background:url(../images/icon_folding2.png) no-repeat; background-position:-15px top;}
 .ddp-ui-benchlnb .ddp-btn-folding:hover:before {background-position:left top;}
 
 .ddp-ui-benchlnb.ddp-close .ddp-btn-folding {display:inline-block; position:absolute; top:0; right:-14px; width:23px; height:91px; background-color:#4b515b;}
@@ -6290,8 +6290,8 @@ ul.ddp-list-table li em.ddp-icon-tableinfo.ddp-disabled:hover:before {background
 .ddp-box-layout4.ddp-layout-info.ddp-info-type .ddp-form-scroll {max-height:476px; overflow:auto;}
 .ddp-box-layout4.ddp-layout-info.ddp-info-type table tr td {word-break:break-all;}
 .ddp-box-layout4 .ddp-label-table {padding:0 15px;  margin-bottom:-4px;max-width:520px; }
-.ddp-box-layout4 .ddp-label-table .ddp-txt-label {position:relative; padding-left:6px; color:#4b515b; font-size:12px;}
-.ddp-box-layout4 .ddp-label-table .ddp-txt-label:before {position:absolute; top:50%; left:0; height:9px; margin-top:-4px; border-left:2px solid #4b515b; content:'';}
+.ddp-box-layout4 .ddp-label-table .ddp-txt-label {display:inline-block; position:relative; padding-left:6px; color:#4b515b; font-size:12px;}
+.ddp-box-layout4 .ddp-label-table .ddp-txt-label:before {position:absolute; top:3px; left:0; height:9px; border-left:2px solid #4b515b; content:'';}
 .ddp-box-layout4.ddp-layout-info.ddp-info-type .ddp-data-title {font-size:14px;}
 
 
@@ -8631,6 +8631,42 @@ ul.ddp-list-tab-type2 li a:hover + .ddp-ui-tooltip-info {display:block; width:50
 
 .icon-db-tibero .st0{fill:#01448D;}
 .icon-db-tibero .st1{fill:#EA1B22;}
+
+/**************************************************************
+  popup : 05_매니지먼트_00데이터저장소_01생성_03StringDb_03
+**************************************************************/
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-label-radio.ddp-mgr0 {margin-right:0;}
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-wrap-hover-info .ddp-icon-info3 {display:inline-block; position:relative; top:-2px; width:11px; height:11px; background:url(../images/icon_que.png) no-repeat; background-position:left -12px; cursor:pointer;}
+.popup-datasource .ddp-wrap-edit2 .ddp-ui-option-sub .ddp-wrap-hover-info .ddp-pop-setting {width:350px;}
+.popup-datasource .ddp-wrap-hover-info .ddp-box-layout4.ddp-pop-setting {display:none;}
+.ddp-wrap-pop-setting {position:absolute; left:100%; top:-30px; padding-left:5px;}
+.popup-datasource .ddp-wrap-hover-info:hover .ddp-box-layout4.ddp-pop-setting {display:block; position:relative; left:0; top:0; margin-left:0; }
+.popup-datasource .ddp-wrap-hover-info .ddp-box-layout4.ddp-pop-setting table.ddp-table-info {table-layout:fixed; width:100%;}
+.popup-datasource .ddp-wrap-hover-info .ddp-box-layout4.ddp-pop-setting .ddp-data-det3 {padding:0 15px 15px 15px; color:#4b515b; font-size:12px;}
+.popup-datasource .ddp-wrap-hover-info .ddp-box-layout4.ddp-pop-setting .ddp-data-det3 .ddp-data-ex {display:block; padding:18px 0 0 0;color:#9ba0a8; font-size:12px; font-weight:bold;}
+.popup-datasource .ddp-wrap-hover-info .ddp-box-layout4.ddp-pop-setting .ddp-data-date {display:inline-block; padding:0 15px; margin:-5px 0 18px 0; color:#727ab6; font-size:12px; font-style:italic;}
+.popup-datasource .ddp-wrap-partition {padding-left:0;}
+.popup-datasource .ddp-ui-partition {padding:14px;background-color:#f6f6f7; overflow:auto;}
+.popup-datasource .ddp-list-partition {padding:0; overflow:initial;}
+.popup-datasource .ddp-list-partition li {}
+.popup-datasource .ddp-list-partition li {padding:0; margin-right:2px; width:149px; vertical-align:top;}
+.popup-datasource .ddp-list-partition li span.ddp-ui-label {font-weight:normal;}
+
+.popup-datasource .ddp-list-partition.ddp-type li .ddp-data {padding:3px 0 0 0;}
+.popup-datasource .ddp-ui-partition .ddp-data-error {display:block; color:#e70000; font-size:12px; font-style:italic;}
+.popup-datasource .ddp-ui-partition .ddp-data-error.ddp-info:before {display:inline-block; width:13px; height:13px; margin-right:3px; ertical-align:middle; background:url(../images/icon_info.png) no-repeat; background-position:-28px top; vertical-align:middle; content:'';}
+.popup-datasource .ddp-ui-partition .ddp-btn-control {padding:6px 0 0 0;}
+.popup-datasource .ddp-ui-partition .ddp-btn-control .ddp-btn-add {display:inline-block; width:11px; height:11px; margin-right:4px; background:url(../images/icon_add.png) no-repeat; background-position:-12px -10px;}
+.popup-datasource .ddp-ui-partition .ddp-btn-control .ddp-btn-add:hover {background-position-x:-24px;}
+.popup-datasource .ddp-ui-partition .ddp-btn-control .ddp-btn-delete {display:inline-block; width:11px; height:12px; background:url(../images/icon_control.png) no-repeat; background-position:-26px -14px;}
+.popup-datasource .ddp-ui-partition .ddp-btn-control .ddp-btn-delete:hover {background-position-x:-50px;}
+.popup-datasource .ddp-wrap-partition .ddp-ui-buttons {padding-top:8px;}
+.popup-datasource .ddp-wrap-partition .ddp-ui-buttons .ddp-wrap-result {display:inline-block; position:relative; margin-left:5px;}
+.popup-datasource .ddp-wrap-partition .ddp-ui-buttons .ddp-wrap-result .ddp-link-result {display:inline-block; padding:3px;color:#4c515a; font-size:12px; font-style:italic; background:#eeeef0;}
+.popup-datasource .ddp-wrap-partition .ddp-ui-buttons .ddp-wrap-result .ddp-link-result:hover {background-color:#d0d1d9;}
+.popup-datasource .ddp-box-layout4.ddp-result {display:none; position:fixed; min-width:243px; width:auto; max-height:350px; overflow:auto;}
+.popup-datasource .ddp-box-layout4.ddp-result .ddp-data-det {color:#4b515b;}
+.popup-datasource .ddp-box-layout4.ddp-result .ddp-data-det .ddp-data-row {color:#9ba0a8;}
 /**************************************************************
   Page : 워크벤치 상세 (lnb)
 **************************************************************/
@@ -8722,4 +8758,3 @@ ul.ddp-list-tab-type2 li a:hover + .ddp-ui-tooltip-info {display:block; width:50
 .popup-workbench table.ddp-table-detail2 tr td .ddp-link-url {color:#69a2f8; font-size:13px;}
 .popup-workbench.ddp-column-detail .ddp-ui-detail {border-top:none;}
 .popup-workbench .ddp-ui-preview-contents .ddp-ui-detail + .ddp-ui-detail .ddp-ui-title {padding-top:0px;}
-

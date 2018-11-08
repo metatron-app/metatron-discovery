@@ -120,6 +120,10 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
   // 조회 result message
   public resultTableErrorShowFl: boolean = false;
 
+  // table error flag
+  public isTableErrorFl: boolean = false;
+  public isQueryErrorFl: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -150,7 +154,7 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
       this.initDataGrid();
     }
     //if not exist database list, set database list
-    this.databaseList.length === 0 && this.setDatabaseList();
+    this.databaseList.length === 0 && this._setDatabaseList();
   }
 
   // Destory
@@ -339,8 +343,8 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     this.selectedDatabase = database;
     // 데이터 초기화
     this.initTableDetail();
-    // 테이블 리스트
-    this.setTableList(database);
+    // set table list
+    this._setTableList(database);
   }
 
   /**
@@ -363,8 +367,8 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     this.initTableDetail();
     // 선택한 테이블 이름
     this.selectedTable = table;
-    // 테이블 상세데이터
-    this.getTableDetail(this.selectedDatabase, table);
+    // set table detail data
+    this._setTableDetail(this.selectedDatabase, table);
   }
 
   /**
@@ -605,80 +609,6 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
   }
 
   /**
-   * 서버에서 데이터베이스 목록 조회
-   */
-  private getDatabaseListFromServer() {
-    // loading show
-    this.loadingShow();
-    // 데이터베이스 리스트 조회
-    this.dataconnectionService.getDatabasesWithoutId(this.getDatabaseParams())
-      .then((result) => {
-        // 데이터베이스 리스트 저장
-        this.databaseList = result['databases'];
-        // loading hide
-        this.loadingHide();
-      })
-      .catch((error) => {
-        this.commonExceptionHandler(error);
-      });
-  }
-
-  /**
-   * 서버에서 테이블 목록 조회
-   * @param {string} databaseName
-   */
-  private getTableListFromServer(databaseName: string) {
-    // loading show
-    this.loadingShow();
-    // resultShowFl
-    this.resultTableErrorShowFl = false;
-    // 테이블 리스트 조회
-    this.dataconnectionService.getTablesWitoutId(this.getTableParams(databaseName))
-      .then((result) => {
-        // 테이블 목록 저장
-        this.tableList = result['tables'] || [];
-        // table이 없다면
-        result['tables'].length === 0 && (this.resultTableErrorShowFl = true);
-        // loading hide
-        this.loadingHide();
-      })
-      .catch((error) => {
-        this.commonExceptionHandler(error);
-      });
-  }
-
-  /**
-   * 서버에서 테이블 상세데이터 조회
-   * @param {string} databaseName
-   * @param {string} tableName
-   */
-  private getTableDetailFromServer(databaseName: string, tableName: string) {
-    // loading show
-    this.loadingShow();
-    // 상세데이터 조회
-    this.dataconnectionService.getTableDetailWitoutId(this.getTableDetailParams(databaseName, tableName))
-      .then((result) => {
-        // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
-        if (this._sourceData.connectionData.selectedDbType.value === 'HIVE') {
-          result['data'] = this._getReplacedDataList(result['data']);
-          result['fields'] = this._getReplacedFieldList(result['fields']);
-        }
-        // 테이블 상세데이터 저장
-        this.tableDetailData = result;
-
-        // 그리드 show
-        this.tableClearGrid = false;
-        // 그리드 업데이트
-        this.updateGrid(result['data'], result['fields'], this.selectedType);
-        // loading hide
-        this.loadingHide();
-      })
-      .catch((error) => {
-        this.commonExceptionHandler(error);
-      });
-  }
-
-  /**
    * 서버에서 쿼리 상세데이터 조회
    * @param {string} databaseName
    * @param {string} queryText
@@ -719,12 +649,42 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
   }
 
   /**
-   * 테이블 상세데이터 조회
+   * Set table detail data
    * @param {string} databaseName
    * @param {string} tableName
+   * @private
    */
-  private getTableDetail(databaseName: string, tableName: string): void {
-    this.getTableDetailFromServer(databaseName, tableName);
+  private _setTableDetail(databaseName: string, tableName: string): void {
+    // loading show
+    this.loadingShow();
+    // get table detail data
+    this.dataconnectionService.getTableDetailWitoutId(this.getTableDetailParams(databaseName, tableName))
+      .then((result) => {
+        // METATRON-1144: 테이블조회시만 테이블 name을 제거하도록 변경
+        if (this._sourceData.connectionData.selectedDbType.value === 'HIVE') {
+          result['data'] = this._getReplacedDataList(result['data']);
+          result['fields'] = this._getReplacedFieldList(result['fields']);
+        }
+        // 테이블 상세데이터 저장
+        this.tableDetailData = result;
+
+        // 그리드 show
+        this.tableClearGrid = false;
+        // 그리드 업데이트
+        this.updateGrid(result['data'], result['fields'], this.selectedType);
+        // loading hide
+        this.loadingHide();
+      })
+      .catch((error) => {
+        if (error.code && error.code === 'error.dataconnection.jdbc.preview.table') {
+          // loading hide
+          this.loadingHide();
+          // set error message
+          this.isTableErrorFl = true;
+        } else {
+          this.commonExceptionHandler(error);
+        }
+      });
   }
 
   /**
@@ -779,18 +739,48 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   /**
-   * 데이터베이스 목록 설정
+   * Set database list
+   * @private
    */
-  private setDatabaseList(): void {
-    this.getDatabaseListFromServer();
+  private _setDatabaseList(): void {
+    // loading show
+    this.loadingShow();
+    // 데이터베이스 리스트 조회
+    this.dataconnectionService.getDatabasesWithoutId(this.getDatabaseParams())
+      .then((result) => {
+        // 데이터베이스 리스트 저장
+        this.databaseList = result['databases'];
+        // loading hide
+        this.loadingHide();
+      })
+      .catch((error) => {
+        this.commonExceptionHandler(error);
+      });
   }
 
   /**
-   * 테이블 리스트 설정
+   * Set table list
    * @param {string} databaseName
+   * @private
    */
-  private setTableList(databaseName: string): void {
-    this.getTableListFromServer(databaseName);
+  private _setTableList(databaseName: string): void {
+    // loading show
+    this.loadingShow();
+    // resultShowFl
+    this.resultTableErrorShowFl = false;
+    // 테이블 리스트 조회
+    this.dataconnectionService.getTablesWitoutId(this.getTableParams(databaseName))
+      .then((result) => {
+        // 테이블 목록 저장
+        this.tableList = result['tables'] || [];
+        // table이 없다면
+        result['tables'].length === 0 && (this.resultTableErrorShowFl = true);
+        // loading hide
+        this.loadingHide();
+      })
+      .catch((error) => {
+        this.commonExceptionHandler(error);
+      });
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -898,6 +888,8 @@ export class DbSelectDataComponent extends AbstractPopupComponent implements OnI
     this.selectedTable = '';
     // 테이블 상세정보 초기화
     this.tableDetailData = null;
+    // set table error flag
+    this.isTableErrorFl = false;
     // 그리드 클리어
     this.tableClearGrid = true;
   }
