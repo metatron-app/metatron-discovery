@@ -15,7 +15,7 @@ ul.jqtree-tree li.jqtree_common ul.jqtree_common[role=group] em.ddp-node-depth:b
   right: 0;
   width: 13px;
   height: 23px;
-  background: url(../images/icon_depth.png) no-repeat;
+  background: url(../../images/icon_depth.png) no-repeat;
   content: '';
 }
 ul.jqtree-tree li.jqtree_common .ddp-wrap-image {display:table-cell; position:relative; width:82px; vertical-align: middle;}

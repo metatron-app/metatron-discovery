@@ -223,8 +223,8 @@ create table oauth_approvals (
   clientId VARCHAR(255),
   scope VARCHAR(255),
   status VARCHAR(10),
-  expiresAt TIMESTAMP,
-  lastModifiedAt TIMESTAMP
+  expiresAt TIMESTAMP default CURRENT_TIMESTAMP,
+  lastModifiedAt TIMESTAMP default CURRENT_TIMESTAMP
 );
 
 drop table if exists ClientDetails;

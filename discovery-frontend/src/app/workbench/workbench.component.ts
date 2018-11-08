@@ -251,6 +251,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   public mainViewShow: boolean = true;
 
+  // 검색바 표시 여부
+  public isSearchLink:boolean = false;
+
   // 데이터 메니저 여부
   public isDataManager: boolean = false;
 
@@ -2472,6 +2475,20 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     this.mainViewShow = true;
     this.mode = '';
   } // function - createDatasourceComplete
+
+  /**
+   * 결과 검색 레이어를 On/Off 한다.
+   * @param {MouseEvent} event
+   */
+  public toggleResultSearchLayer(event:MouseEvent) {
+    event.stopPropagation();
+    const $evtTarget = $( event.target );
+    if( $evtTarget.hasClass( 'ddp-box-searching' ) || 0 < $evtTarget.closest( '.ddp-box-searching' ).length ) {
+      return;
+    }
+    this.isSearchLink = !this.isSearchLink;
+    this.safelyDetectChanges();
+  } // function - toggleSearchLayer
 
   /**
    * 결과 미리보기

@@ -61,7 +61,6 @@
       <div class="left-component rule-left" style="float: left; height: 100%;">
         <div *ngIf="isInitDataLoaded" class="ddp-wrap-flow-grid" style="position:relative; top:0; left:0; right:0; min-height:100%;">
           <edit-rule-grid (selectHeader)="setRuleInfoFromGridHeader($event)"
-                          (selectHeaderMenu)="applyRuleFromGridHeaderMenu($event)"
                           (selectContextMenu)="applyRuleFromContextMenu($event)"></edit-rule-grid>
         </div>
       </div>
@@ -175,7 +174,7 @@
 
                 <!-- startRename -->
                 <edit-rule-rename #editRule *ngIf="'rename' === ruleVO.command"
-                                  (onEvent)="onMultiColumnRenameClick()" ></edit-rule-rename>
+                                  (onEvent)="onMultiColumnRenameClick()"></edit-rule-rename>
                 <!-- // endRename -->
 
                 <!--startSet-->

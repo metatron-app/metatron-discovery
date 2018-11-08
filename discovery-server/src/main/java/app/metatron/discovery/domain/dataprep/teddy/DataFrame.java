@@ -697,6 +697,14 @@ public class DataFrame implements Serializable, Transformable {
           resultType = ColumnType.BOOLEAN;
           assertArgsEq(2, args, func);
           break;
+        case "startswith":
+          resultType = ColumnType.BOOLEAN;
+          assertArgsEq(2, args, func);
+          break;
+        case "endswith":
+          resultType = ColumnType.BOOLEAN;
+          assertArgsEq(2, args, func);
+          break;
         case "timestamptostring":
           resultType = ColumnType.STRING;
           assertArgsEq(2, args, func);
@@ -1326,7 +1334,7 @@ public class DataFrame implements Serializable, Transformable {
 
     for (int rowno = offset; rowno < offset + length; rowno++) {
       try {
-        if (((Expr) condExpr).eval(prevDf.rows.get(rowno)).longValue() == ((keep) ? 1 : 0)) {
+        if (((Expr) condExpr).eval(prevDf.rows.get(rowno)).asLong() == ((keep) ? 1 : 0)) {
           rows.add(prevDf.rows.get(rowno));
         }
       } catch (Exception e) {
@@ -1377,7 +1385,7 @@ public class DataFrame implements Serializable, Transformable {
     if(colName.matches("^\'.+\'"))
         colName = colName.substring(1, colName.length()-1);
 
-    return colName.replaceAll("[\\p{Punct}\\p{IsPunctuation} ]", "_");
+    return colName.replaceAll("[\\p{Punct}\\p{IsPunctuation}]", "_");
   }
 
   private void assertParsable(String colName) {

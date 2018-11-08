@@ -37,7 +37,6 @@ import { SplitPaneModule } from 'ng2-split-pane/lib/ng2-split-pane';
 import { WorkbenchEditorModule } from '../workbench/workbench.editor.module';
 import { DataflowDetailComponent } from './dataflow/dataflow-detail/dataflow-detail.component';
 import { AddDatasetModalComponent } from './dataflow/dataflow-detail/component/add-dataset-modal/add-dataset-modal.component';
-import { EditDataflowRuleComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-dataflow-rule.component';
 import { RuleJoinPopupComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-join-popup/rule-join-popup.component';
 import { RuleUnionPopupComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-union-popup/rule-union-popup.component';
 import { UnionAddDatasetsComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-union-popup/union-add-datasets/union-add-datasets.component';
@@ -122,7 +121,6 @@ const dataPreparationRoutes: Routes = [
     DatasetDetailComponent,
     DataflowDetailComponent,
     AddDatasetModalComponent,
-    EditDataflowRuleComponent,
     RuleJoinPopupComponent,
     RuleUnionPopupComponent,
     UnionAddDatasetsComponent,
