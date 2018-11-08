@@ -197,14 +197,32 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   public tableListSorting( sort: 'ASC' | 'DESC' ) {
 
     const tables = this.tables;
-
     let column = "name";
-    tables.sort(function (first, second) {
-      if (sort === "ASC") return first[column].localeCompare(second[column]);
-      else if (sort === "DESC") return second[column].localeCompare(first[column]);
-    });
 
-    ( sort === "ASC" ?  this.tableSortType = 'DESC' : this.tableSortType = 'ASC' );
+    let tableNames : string[] = [];
+    for (let idx: number = 0; idx < tables.length; idx++) {
+      tableNames.push( tables[idx][column] );
+    }
+
+    tableNames.sort();
+    if (sort === "ASC") {
+      this.tableSortType = 'DESC';
+    } else if (sort === "DESC") {
+      tableNames.reverse();
+      this.tableSortType = 'ASC';
+    }
+
+    let temp : any[] = [];
+    for (let nameIdx: number = 0; nameIdx < tableNames.length; nameIdx++) {
+      for (let idx: number = 0; idx < tables.length; idx++) {
+        if( tableNames[nameIdx] == tables[idx][column] ) {
+          temp.push( tables[idx] );
+        }
+      }
+    }
+
+    this.tables = [];
+    this.tables = temp;
 
   }
 
