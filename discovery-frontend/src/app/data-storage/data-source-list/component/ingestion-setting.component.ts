@@ -306,6 +306,15 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Partition validation click events
    */
   public onClickPartitionKeysValidation(): void {
+    // if multi partition, first partition required
+    if (this._isEnablePartitionKeys(this.partitionKeyList)) {
+      // set result
+      this.partitionValidationResult = false;
+      // set result message
+      this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.no.key');
+      return;
+    }
+
     const partitionParams = this._getPartitionParams(this.partitionKeyList);
     // if not exist params
     if (partitionParams.length === 0) {
@@ -322,7 +331,7 @@ export class IngestionSettingComponent extends AbstractComponent {
       database: this._sourceData.databaseData.selectedDatabase,
       query: this._sourceData.databaseData.selectedTable,
       type: 'TABLE',
-      partitions: this._getPartitionParams(this.partitionKeyList)
+      partitions: partitionParams
     })
       .then((result) => {
         // loading hide
@@ -339,7 +348,7 @@ export class IngestionSettingComponent extends AbstractComponent {
         this.partitionValidationResult = false;
         // set result message
         if (error.code && error.code === 'JDC0006') {
-          this.partitionValidationResultMessage = this.translateService.instant('mmsg.storage.ui.partition.valid.fail.invalid.key');
+          this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.fail.invalid.key');
         } else {
           this.partitionValidationResultMessage = this.translateService.instant('msg.storage.ui.partition.valid.fail');
         }
@@ -786,6 +795,20 @@ export class IngestionSettingComponent extends AbstractComponent {
       }
     }
     return result;
+  }
+
+  /**
+   * Check enable partition keys
+   * @param partitionList
+   * @returns {boolean}
+   * @private
+   */
+  private _isEnablePartitionKeys(partitionList: any): boolean {
+    return _.some(partitionList, (partition) => {
+      return _.some(partition.filter((item, index, array) => {
+        return index !== array.length -1;
+      }), item => StringUtil.isEmpty(item.value));
+    });
   }
 
   /**
