@@ -6,7 +6,7 @@ public class Envelope {
   @JacksonXmlProperty(isAttribute = true, localName = "service")
   String srsDimension = "2";
 
-  @JacksonXmlProperty(isAttribute = true, localName = "version")
+  @JacksonXmlProperty(isAttribute = true, localName = "srsName")
   String srsName = "EPSG:4326";
 
   String lowerCorner;
