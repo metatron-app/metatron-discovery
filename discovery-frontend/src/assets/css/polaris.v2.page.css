@@ -8571,7 +8571,7 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 **************************************************************/
 .ddp-box-widget .ddp-top-control .ddp-ui-buttons em.ddp-icon-widget-info2:before{display:inline-block; position:absolute; top:50%; left:50%; margin:-7px 0 0 -7px; width:13px; height:13px; background:url(../images/icon_widget.png) no-repeat; background-position:left -230px; content:'';}
 .ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2:hover em.ddp-icon-widget-info2:before  {background-position:-14px -230px;}
-.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2 .ddp-box-info.ddp-limitation {display:none;position:absolute; top:100%; right:-15px;padding:6px 10px; width:240px; border-radius:3px;background-color:#7182ba; color:#fff; box-sizing:border-box; z-index:1000;}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2 .ddp-box-info.ddp-limitation {display:none;position:absolute; top:100%; right:-100px;padding:6px 10px; width:240px; border-radius:3px;background-color:#7182ba; color:#fff; box-sizing:border-box; z-index:1000;}
 .ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2:hover .ddp-box-info.ddp-limitation {display:block;}
 
 

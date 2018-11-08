@@ -145,7 +145,11 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
     // limit값이 체크되고 size값이 없는경우 기본값 설정
     if (!this.uiOption.limitCheck) {
-      this.uiOption.size = this.DEFAULT_LIMIT;
+      if (ChartType.SANKEY == this.uiOption.type) {
+        this.uiOption.size = 50;
+      } else {
+        this.uiOption.size = this.DEFAULT_LIMIT;
+      }
     }
 
     // Pivot 설정
@@ -413,7 +417,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public kpiTextTemp: string = "";
 
   // 기본 limit값
-  public DEFAULT_LIMIT: number = 10;
+  public DEFAULT_LIMIT: number = 1000;
 
   // grid position 리스트
   public remarkPositionList: Object[] = [
