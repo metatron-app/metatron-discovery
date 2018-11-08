@@ -33,7 +33,7 @@
           <!-- [point, heatmap, hexagon, line, polygon] -->
           <div class="ddp-type-map-chart">
             <!-- divide -->
-            <div class="ddp-divide2 ">
+            <div *ngIf="'line' !== uiOption.layers[index].type.toString() && 'polygon' !== uiOption.layers[index].type.toString()" class="ddp-divide2 ">
               <div class="ddp-list-label">{{'msg.page.layer.map.type' | translate}}</div>
               <div class="ddp-wrap-tab-type2">
                 <ul class="ddp-list-tab-type2 ddp-clear">
@@ -96,20 +96,20 @@
                           ></component-select>
                           <!-- //SELECTBOX -->
                         </div>
-                        <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by" class="ddp-divide2">
+                        <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by.toString()" class="ddp-divide2">
                           <!-- SELECTBOX -->
                           <component-select
-                            [array]="colorByList"
-                            [defaultIndex]="findColorByIndex()"
-                            [viewKey]="'name'"
-                            (onSelected)="changeColorBy($event)"
+                            [array]="colorColumnList"
+                            [defaultIndex]="findColorColumnIndex()"
+                            [viewKey]="'alias'"
+                            (onSelected)="changeColorColumn($event)"
                           ></component-select>
                           <!-- //SELECTBOX -->
                         </div>
 
                         <div class="ddp-divide2">
                           <!-- color by none -->
-                          <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'NONE' === this.uiOption.layers[this.index].color.by" class="ddp-ui-colorby ddp-box-color">
+                          <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'NONE' === this.uiOption.layers[this.index].color.by.toString()" class="ddp-ui-colorby ddp-box-color">
                             <!-- colorby button -->
                             <div class="ddp-wrap-colorby-button ddp-solid-color">
                               <!-- 클릭시 ddp-selected 추가 -->
@@ -120,18 +120,18 @@
                           </div>
                           <!-- color by none -->
                           <!-- color by dimension / measure -->
-                          <div *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by)" class="ddp-ui-colorby">
+                          <div *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by.toString())" class="ddp-ui-colorby">
                             <!-- colorby button -->
                             <div class="ddp-wrap-colorby-button"  (click)="colorListFlag = !colorListFlag" (clickOutside)="colorListFlag=false">
                               <em class="ddp-icon-colorby"></em>
                               <!-- 클릭시 ddp-selected 추가 -->
-                              <button *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'DIMENSION' === uiOption.layers[index].color.by" class="ddp-btn-color-series{{findDimensionColorIndex()}} ddp-type"></button>
-                              <button *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'MEASURE' === uiOption.layers[index].color.by" class="ddp-btn-color-type{{findMeasureColorIndex()}} ddp-type"></button>
+                              <button *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'DIMENSION' === uiOption.layers[index].color.by.toString()" class="ddp-btn-color-series{{findDimensionColorIndex()}} ddp-type"></button>
+                              <button *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'MEASURE' === uiOption.layers[index].color.by.toString()" class="ddp-btn-color-type{{findMeasureColorIndex()}} ddp-type"></button>
                               <button *ngIf="'heatmap' === uiOption.layers[index].type.toString()" class="ddp-btn-color-heatmap{{findHeatmapColorIndex()}}"></button>
                             </div>
                             <!-- //colorby button -->
                             <!-- popup -->
-                            <color-template #colorTemplate [layerType]="uiOption.layers[index].type.toString()" [colorType]="uiOption.layers[index].color.by" [show]="colorListFlag"
+                            <color-template #colorTemplate [layerType]="uiOption.layers[index].type.toString()" [colorType]="uiOption.layers[index].color.by.toString()" [show]="colorListFlag"
                                             [schema]="uiOption.layers[index].color.schema" (notiChangeColor)="changeColor($event)"></color-template>
                             <!-- //popup -->
                           </div>
@@ -139,7 +139,7 @@
                         </div>
                       </div>
 
-                      <div *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by)" class="ddp-wrap-option-slider">
+                      <div *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by.toString())" class="ddp-wrap-option-slider">
                         <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
                         <!-- Slide THREE -->
                         <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
@@ -148,6 +148,12 @@
                         </div>
                         <!-- //Slide THREE -->
                       </div>
+                      <!-- color by dimension custom color setting -->
+                      <!-- //color by dimension custom color setting -->
+
+                      <!-- color by measure custom color setting -->
+                      <!-- //color by measure custom color setting -->
+
                       <div class="ddp-divide2">
                         <div class="ddp-list-label">{{'msg.page.layer.map.color.transparency' | translate}}</div>
                         <!-- SELECTBOX -->
@@ -182,13 +188,13 @@
                         <!-- //SELECTBOX -->
                       </div>
 
-                      <div *ngIf="'NONE' !== uiOption.layers[index].size.by" class="ddp-divide2">
+                      <div *ngIf="'NONE' !== uiOption.layers[index].size.by.toString()" class="ddp-divide2">
                         <!-- SELECTBOX -->
                         <component-select
-                          [array]="byList"
-                          [defaultIndex]="findSymbolSizeByIndex()"
-                          [viewKey]="'name'"
-                          (onSelected)="changeSizeBy($event)"
+                          [array]="uiOption.fieldMeasureList"
+                          [defaultIndex]="findSymbolSizeColumnIndex()"
+                          [viewKey]="'alias'"
+                          (onSelected)="changeSizeColumn($event)"
                         ></component-select>
                         <!-- //SELECTBOX -->
                       </div>

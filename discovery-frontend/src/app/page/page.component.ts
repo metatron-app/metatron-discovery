@@ -97,6 +97,7 @@ import { CommonUtil } from '../common/util/common.util';
 import { MapChartComponent } from '../common/component/chart/type/map-chart/map-chart.component';
 import {MapFormatOptionComponent} from './chart-style/map/map-format-option.component';
 import { MapTooltipOptionComponent } from './chart-style/map/map-tooltip-option.component';
+import { MapLayerOptionComponent } from './chart-style/map/map-layer-option.component';
 
 const possibleMouseModeObj: any = {
   single: ['bar', 'line', 'grid', 'control', 'scatter', 'heatmap', 'pie', 'wordcloud', 'boxplot', 'combine'],
@@ -212,6 +213,9 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   @ViewChild('mapTooltipOption')
   private mapTooltipOption: MapTooltipOptionComponent;
+
+  @ViewChild('mapLayerOption')
+  private mapLayerOption: MapLayerOptionComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -901,6 +905,13 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     this.isShowDataDetail = true;
   }
 
+  public toggleMapLayer(rnbMenu: string, layerNum: number) {
+
+    this.setDisablePivot(layerNum)
+
+    this.toggleRnb(rnbMenu);
+  }
+
   /**
    * rnb 토글시
    * @param rnbMenu
@@ -1550,6 +1561,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       this.secondaryIndicatorOption.setPivot = pivot;
     }
 
+    // 맵 layer 열려있을때 처리
+    if (this.mapLayerOption) {
+      this.mapLayerOption.setPivot = pivot;
+    }
+
     // 맵 포맷창이 열려있을때 처리
     if (this.mapFormatOption) {
       this.mapFormatOption.setPivot = pivot;
@@ -2152,6 +2168,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @returns {boolean}
    */
   public possibleChartCheck(type: string, chartType: string): boolean {
+
+    // when it's map chart, option is mapLayer
+    if ('map' === chartType && -1 !== type.indexOf('mapLayer')) {
+      return _.indexOf(possibleChartObj[type], chartType) > -1 && (type == 'mapLayer' + this.mapPivot.layerNum);
+    }
 
     return _.indexOf(possibleChartObj[type], chartType) > -1;
   }
@@ -3014,6 +3035,20 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     });
   } // function - updatePivotAliasFromField
 
+  /**
+   * set disable pivots in map chart
+   * @param {number} layerNum
+   */
+  public setDisablePivot(layerNum: number): boolean {
+
+    let pivot: PagePivotComponent = this.getPivotComp();
+
+    // not set disable class
+    if (pivot.layerNum === layerNum) return false;
+
+    // set disable class
+    return true;
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

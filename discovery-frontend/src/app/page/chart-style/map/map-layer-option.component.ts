@@ -30,6 +30,7 @@ import { UIHeatmapLayer } from '../../../common/component/chart/option/ui-option
 import { UITileLayer } from '../../../common/component/chart/option/ui-option/map/ui-tile-layer';
 import { BaseOptionComponent } from '../base-option.component';
 import { ColorTemplateComponent } from '../../../common/component/color-picker/color-template.component';
+import { Field } from '../../../domain/workbook/configurations/field/field';
 
 @Component({
   selector: 'map-layer-option',
@@ -41,21 +42,38 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   @Input('index')
   public index: number;
 
-  public uiOption: UIMapOption;
-
   @Input('uiOption')
   public set setUiOption(uiOption: UIMapOption) {
 
     this.uiOption = uiOption;
   }
 
-  // 선반데이터
   @Input('pivot')
-  public pivot: Pivot;
+  public set setPivot(pivot: Pivot) {
+
+    this.pivot = pivot;
+
+    // TODO set color dimension / measure list
+
+    // when dimension is added, set color by as dimension
+
+    // when measure is added, set color by as measure (first measure -> color by)
+    // when measure is added, set size by as measure (last measure -> size by )
+
+    this.getColorBy();
+    this.getSizeBy();
+  }
 
   // color template popup
   @ViewChild('colorTemplate')
   public colorTemplate: ColorTemplateComponent;
+
+  public uiOption: UIMapOption;
+
+  // pivot data
+  public pivot: Pivot;
+
+  public colorColumnList : Field[] = [];
 
   // symbol layer - type list
   public symbolLayerTypes = [{name : this.translateService.instant('msg.page.layer.map.type.point'), value: MapLayerType.SYMBOL},
@@ -119,7 +137,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     // change color type by layer type
     if (MapLayerType.HEATMAP === layerType) {
-      (<UIHeatmapLayer>this.uiOption.layers[this.index]).color.schema = 'HC1';
+
+      this.uiOption.layers[this.index].color.schema = 'HC1';
+    } else if (MapLayerType.SYMBOL === layerType) {
+
+      this.uiOption.layers[this.index].color.by = MapBy.NONE;
+      this.uiOption.layers[this.index].color.schema = '#6344ad';
+    } else if (MapLayerType.TILE === layerType) {
+
+      this.uiOption.layers[this.index].color.by = MapBy.NONE;
+      this.uiOption.layers[this.index].color.schema = '#6344ad';
     }
 
     // apply layer ui option
@@ -159,7 +186,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.uiOption.layers[this.index].viewRawData = viewRawData;
 
     // apply layer ui option
-    this.applyLayers();
+    this.applyLayers({});
   }
 
   /**
@@ -223,11 +250,27 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
 
   /**
+   * symbol layer - return default size column index
+   * @returns {number}
+   */
+  public findSymbolSizeColumnIndex() {
+    return _.findIndex(this.uiOption.fieldMeasureList, {alias : (<UISymbolLayer>this.uiOption.layers[this.index]).size.column});
+  }
+
+  /**
    * all layers - return default color by index
    * @returns {number}
    */
   public findColorByIndex() {
     return _.findIndex(this.colorByList, {value : this.uiOption.layers[this.index].color.by});
+  }
+
+  /**
+   * return default color column index
+   * @returns {number}
+   */
+  public findColorColumnIndex() {
+    return _.findIndex(this.colorColumnList, {alias : this.uiOption.layers[this.index].color.column});
   }
 
   /**
@@ -246,6 +289,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     } else if (MapBy.NONE === data['value']) {
       this.uiOption.layers[this.index].color.schema = '#6344ad';
     }
+
+    this.applyLayers();
+  }
+
+  /**
+   *
+   * @param {Object} data
+   */
+  public changeColorColumn(data: Object) {
+
+    this.uiOption.layers[this.index].color.column = data['value'];
 
     this.applyLayers();
   }
@@ -279,6 +333,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public changeSizeBy(data: Object) {
 
     (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = data['value'];
+
+    this.applyLayers();
+  }
+
+  /**
+   * symbol layer - change size column
+   * @param {Object} data
+   */
+  public changeSizeColumn(data: Object) {
+
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = data['value'];
 
     this.applyLayers();
   }
@@ -347,7 +412,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public findHeatmapColorIndex() {
     if (this.colorTemplate) {
-      return _.find(this.colorTemplate.mapHeatmapColorList, {colorNum : this.uiOption.layers[this.index].color.schema})['index'];
+      let obj = _.find(this.colorTemplate.mapHeatmapColorList, {colorNum : this.uiOption.layers[this.index].color.schema});
+      if (obj) return obj['index'];
+      return 1;
     }
     return 1;
   }
@@ -358,11 +425,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public findDimensionColorIndex() {
     if (this.colorTemplate) {
-      return _.find(this.colorTemplate.defaultColorList, {colorNum : this.uiOption.layers[this.index].color.schema})['index'];
+      let obj = _.find(this.colorTemplate.defaultColorList, {colorNum : this.uiOption.layers[this.index].color.schema});
+      if (obj) return obj['index'];
+      return 1;
     }
     return 1;
   }
 
+  /**
+   * find same color index in color list (measure)
+   * @returns {any}
+   */
   public findMeasureColorIndex() {
     if (this.colorTemplate) {
       let obj = _.find(this.colorTemplate.measureColorList, {colorNum : this.uiOption.layers[this.index].color.schema});
@@ -377,14 +450,53 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
 
   /**
-   * apply layer ui option
+   * set color by, column by pivot
    */
-  private applyLayers() {
+  public getColorBy() {
+
+    // TODO pivot (aggregations - measure, columns - dimension => wrong) should be fixed
+
+    // should know order of dimension, measure in pivot
+
+    // set dimension, set measure list
+    if (MapBy.DIMENSION === this.uiOption.layers[this.index].color.by) {
+
+      this.colorColumnList = this.uiOption.fielDimensionList;
+    } else if (MapBy.MEASURE === this.uiOption.layers[this.index].color.by) {
+
+      this.colorColumnList = this.uiOption.fieldMeasureList;
+    }
+  }
+
+  /**
+   * set size by, column by pivot
+   */
+  public getSizeBy() {
+
+    // TODO pivot (aggregations - measure, columns - dimension => wrong) should be fixed
+    if (this.pivot.aggregations && this.pivot.aggregations.length >= 2 && MapLayerType.SYMBOL === this.uiOption.layers[this.index].type) {
+
+      // set size by as measure when more than two measures, last measure
+      let sizeBy = this.pivot.aggregations[this.pivot.aggregations.length - 1];
+
+      (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = MapBy.MEASURE;
+      (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = sizeBy.alias;
+
+    } else {
+      (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = MapBy.NONE;
+    }
+  }
+
+  /**
+   * apply layer ui option
+   * @param {Object} drawChartParam - call api or not
+   */
+  private applyLayers(drawChartParam?: Object) {
 
     this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
       layers: this.uiOption.layers
     });
 
-    this.update();
+    this.update(drawChartParam);
   }
 }
