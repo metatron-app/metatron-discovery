@@ -955,24 +955,26 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * @param event
    */
   public changeMouseSelectMode(event) {
-    // 선택한 마우스 모드
-    const mode = $(event.currentTarget).data('mode');
-    // 멀티 선택 모드시 브러쉬 모드
-    const brushType = $(event.currentTarget).data('type');
-    // 툴버튼 그룹
-    const selectGroup = $('div[data-type="select-gruop"]');
-    // 선택 마우스 모드 클래스
-    const selectedTool = $(event.currentTarget).children().first();
-    // 현재 마우스 모드 버튼
-    const currentButton = selectGroup.find('.ddp-btn-tool').first();
-    // 현재 마우스 모드 클래스
-    const currentTool = currentButton.children().first();
-    // 현재 마우스 모드 버튼의 클래스 및 데이터 변경
-    currentButton.data('mode', mode);
-    currentButton.data('type', brushType);
-    currentTool.attr('class', selectedTool[0].className);
-    // 마우스 모드 변경 적용
-    this.chart.convertMouseMode(mode, brushType);
+    if (this.chart.uiOption.type !== ChartType.MAP) {
+      // 선택한 마우스 모드
+      const mode = $(event.currentTarget).data('mode');
+      // 멀티 선택 모드시 브러쉬 모드
+      const brushType = $(event.currentTarget).data('type');
+      // 툴버튼 그룹
+      const selectGroup = $('div[data-type="select-gruop"]');
+      // 선택 마우스 모드 클래스
+      const selectedTool = $(event.currentTarget).children().first();
+      // 현재 마우스 모드 버튼
+      const currentButton = selectGroup.find('.ddp-btn-tool').first();
+      // 현재 마우스 모드 클래스
+      const currentTool = currentButton.children().first();
+      // 현재 마우스 모드 버튼의 클래스 및 데이터 변경
+      currentButton.data('mode', mode);
+      currentButton.data('type', brushType);
+      currentTool.attr('class', selectedTool[0].className);
+      // 마우스 모드 변경 적용
+      this.chart.convertMouseMode(mode, brushType);
+    }
   }
 
   /**

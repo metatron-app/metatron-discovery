@@ -846,18 +846,20 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @param {string} brushType
    */
   public changeMouseSelectMode(mode: string, brushType: string) {
-    if (ChartMouseMode.SINGLE.toString() === mode) {
-      this.mouseMode = 'SINGLE';
-      this.chart.convertMouseMode(ChartMouseMode.SINGLE);
-    } else if (ChartMouseMode.MULTI.toString() === mode) {
-      if (BrushType.RECT.toString() === brushType) {
-        this.mouseMode = 'MULTI_RECT';
-        this.chart.convertMouseMode(ChartMouseMode.MULTI, BrushType.RECT);
-      } else {
-        this.mouseMode = 'MULTI_POLY';
-        this.chart.convertMouseMode(ChartMouseMode.MULTI, BrushType.POLYGON);
+    if (this.chart.uiOption.type !== ChartType.MAP) {
+      if (ChartMouseMode.SINGLE.toString() === mode) {
+        this.mouseMode = 'SINGLE';
+        this.chart.convertMouseMode(ChartMouseMode.SINGLE);
+      } else if (ChartMouseMode.MULTI.toString() === mode) {
+        if (BrushType.RECT.toString() === brushType) {
+          this.mouseMode = 'MULTI_RECT';
+          this.chart.convertMouseMode(ChartMouseMode.MULTI, BrushType.RECT);
+        } else {
+          this.mouseMode = 'MULTI_POLY';
+          this.chart.convertMouseMode(ChartMouseMode.MULTI, BrushType.POLYGON);
+        }
       }
-    }
+    }    
   } // function - changeMouseSelectMode
 
   /**
