@@ -6617,7 +6617,7 @@ table.ddp-table-simple tr td .ddp-ui-time {width:100%; color:#90969f; font-size:
 /*.ddp-ui-tabs ul.ddp-list-tabs li.ddp-selected:after {display:inline-block; position:absolute; bottom:-1px; left:0; right:0; border-bottom:1px solid #fff; content:''; z-index:1;}*/
 .ddp-ui-tabs ul.ddp-list-tabs li.ddp-disabled {opacity:0.5; cursor:no-drop;}
 .ddp-ui-tabs ul.ddp-list-tabs li.ddp-disabled:hover {background:none;}
-.ddp-ui-tabs ul.ddp-list-tabs li:hover .ddp-box-tabs-popup {display:block;}
+/*.ddp-ui-tabs ul.ddp-list-tabs li:hover .ddp-box-tabs-popup {display:block;}*/
 .ddp-ui-tabs ul.ddp-list-tabs li .ddp-box-tabs-popup {display:none; position:absolute; bottom:100%; left:10px; width:300px; max-height:220px;border:1px solid #ddd; border-radius:2px; background-color:#fff; text-align:left; box-sizing:border-box; z-index:20; cursor:default;
 	-moz-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
 	-webkit-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
