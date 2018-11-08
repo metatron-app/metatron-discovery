@@ -17,7 +17,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } fro
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from "util";
+import {isNullOrUndefined, isUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
@@ -206,7 +206,10 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
     this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
 
     // IGNORE BETWEEN CHRACTERS
-    this.ignore = data.jsonRuleString.quote.escapedValue;
+
+    if (!isNullOrUndefined(data.jsonRuleString.quote)) {
+      this.ignore = data.jsonRuleString.quote.escapedValue;
+    }
 
   } // function - _parsingRuleString
 

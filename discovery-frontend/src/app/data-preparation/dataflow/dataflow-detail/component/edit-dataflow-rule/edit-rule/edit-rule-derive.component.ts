@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
-import { isUndefined } from "util";
+import {isNullOrUndefined, isUndefined} from "util";
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
@@ -160,7 +160,10 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
    * @protected
    */
   protected afterShowComp() {
-    this.deriveAs = 'col_1';
+
+    if (this.deriveAs === '' || isNullOrUndefined(this.deriveAs)) {
+      this.deriveAs = 'col_1';
+    }
   } // function - afterShowComp
 
   /**
@@ -177,6 +180,7 @@ export class EditRuleDeriveComponent extends EditRuleComponent implements OnInit
 
     // NEW COLUMN NAME
     this.deriveAs = data.jsonRuleString.as;
+    this.deriveAs = PreparationCommonUtil.removeQuotation(this.deriveAs);
 
   } // function - parsingRuleString
 
