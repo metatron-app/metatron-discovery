@@ -241,6 +241,23 @@ export class DataconnectionService extends AbstractService {
   }
 
   /**
+   * Check partition valid in stagingDB
+   * @param params
+   * @returns {Promise<any>}
+   */
+  public partitionValidationForStagingDB(params: any): Promise<any> {
+    return this.post(this.URL_CONNECTIONS + '/query/hive/partitions/validate', params);
+  }
+
+  /**
+   * Is String mode in stagingDB
+   * @returns {Promise<any>}
+   */
+  public isStrictModeForStagingDB(): Promise<any> {
+    return this.get(this.URL_CONNECTIONS + '/query/hive/strict');
+  }
+
+  /**
    * 메타데이터 내에서 stageDB로 생성시 테이블 목록 조회
    * @param {string} databaseName
    * @returns {Promise<any>}

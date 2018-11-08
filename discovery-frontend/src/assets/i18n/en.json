@@ -1890,6 +1890,25 @@
   "msg.storage.ui.conn.dialog.desc" : "Can not ingest by batch method.",
   "msg.storage.ui.max.row.error": "You can enter up to {{value}}.",
   "msg.storage.ui.user.input": "Direct input",
+  "msg.storage.ui.enable.unix": "Unix time",
+  "msg.storage.ph.time.format": "Enter time format",
+  "msg.storage.ui.format.unit.milli-second": "Milli-Second(ms)",
+  "msg.storage.ui.format.unit.second": "Second(s)",
+  "msg.storage.ui.partition.info.title": "How to specify partitions?",
+  "msg.storage.ui.partition.info.desc": "Partitions can be specified only with specific numbers or expressions, Please refer to examples below for using expressions.",
+  "msg.storage.ui.partition.info.sample": "(ex. if partitioning with 2 values: yyyymm, dd)",
+  "msg.storage.ui.partition.info.desc.step-1": "For specific partition",
+  "msg.storage.ui.partition.info.desc.step-2": "For multiple partitions using comma",
+  "msg.storage.ui.partition.info.desc.step-3": "For specifying a range",
+  "msg.storage.ui.partition.info.desc.step-4": "In case of multiple partitions, blank value counts as a whole range, Note that the first value of the partition cannot be blank",
+  "msg.storage.ui.partition.info.desc.step-4.blank": "(blank)",
+  "msg.storage.ui.partition.valid.success": "Valid Expression",
+  "msg.storage.ui.partition.valid.fail": "Invalid Expression",
+  "msg.storage.ui.partition.valid.fail.invalid.key": "Invalid Partition key",
+  "msg.storage.ui.partition.valid.no.key": "Partition key is required",
+  "msg.storage.btn.partition.result": "See result",
+  "msg.storage.ui.partition.result": "Result",
+  "msg.storage.ui.connection.jdbc.table.error": "Due to internal server constraints, it is impossible to query data in table mode. You can query data in Query mode",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",
@@ -2874,5 +2893,4 @@
   "msg.metadata.ui.enter.tag" : "Enter tag",
   "msg.metadata.th.column.logical.tooltip.title" : "What is logical column name?",
   "msg.metadata.th.column.logical.tooltip.desc" : "The logical column name is the column name that is commonly used by the user in the Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in the Metatron when creating a chart or workbench."
-
 }
