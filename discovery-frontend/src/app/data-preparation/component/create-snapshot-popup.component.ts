@@ -136,7 +136,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.getConfig();
     //this.getHiveDatabase();
 
-    this.changeSsType('FILE');
+
   } // function - init
 
 
@@ -316,8 +316,15 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
       //this.snapshot.location = this.fileLocations[0].value;
       if(0<this.fileLocations.length) {
-        this.snapshot.location = this.fileLocations[0].value;
-        this.snapshot.uri = this.fileUris[0];
+        let idx = this.fileLocations.findIndex((item) => {
+          return item.value.toUpperCase() === 'LOCAL';
+        });
+
+        if (idx === -1) {
+          idx = 0;
+        }
+        this.snapshot.location = this.fileLocations[idx].value;
+        this.snapshot.uri = this.fileUris[idx];
       }
     }
 
@@ -384,7 +391,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
           } else {
             this.isHiveDisable = true;
           }
-
+          this.changeSsType('FILE');
           this.loadingHide();
         })
         .catch((error) => {
@@ -466,7 +473,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     this.fileFormat = [
       { value: 'CSV', label: 'CSV' },
-      { value: 'JSON', label: 'JSON' }
+      // { value: 'JSON', label: 'JSON' }
     ];
 
     this.ssName = '';
