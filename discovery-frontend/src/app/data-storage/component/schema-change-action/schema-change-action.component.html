@@ -67,7 +67,7 @@
             <li *ngFor="let logical of getLogicalTypes()"
                 [ngClass]="{'ddp-selected' : selectedLogicalType.value === logical.value}"
                 (click)="onSelectedLogicalType(logical)">
-              <a href="javascript:">
+              <a href="javascript:" style="padding-left:35px;">
                 <em class="{{logical.icon}}"></em>
                 {{logical.label}}
                 <em class="ddp-icon-check"></em>
