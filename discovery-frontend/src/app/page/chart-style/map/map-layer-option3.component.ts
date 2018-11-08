@@ -1838,7 +1838,7 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
         type: 'single',
         step: 6,
         onChange(data) {
-          scope.changeRadiusn(data.from);
+          scope.changeRadius(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);
