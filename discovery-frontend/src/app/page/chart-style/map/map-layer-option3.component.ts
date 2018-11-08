@@ -834,15 +834,17 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
      }
 
      if(type === 'heatmapRadius') {
-       if(val === 10) {
+       if(val === 4) {
+         resultVal = '0%';
+       } else if(val === 10) {
          resultVal = '20%';
-       } else if(val === 15) {
+       } else if(val === 16) {
          resultVal = '40%';
-       } else if(val === 20) {
+       } else if(val === 22) {
          resultVal = '60%';
-       } else if(val === 25) {
+       } else if(val === 28) {
          resultVal = '80%';
-       } else if(val === 30) {
+       } else if(val === 34) {
          resultVal = '100%';
        }
      }
@@ -1846,13 +1848,13 @@ export class MapLayerOptionComponent3 extends BaseOptionComponent implements OnI
         hide_from_to: false,
         hide_min_max: true,
         keyboard: false,
-        min: 5,
-        max: 10,
-        from: scope.uiOption.layers[0].coverage,
+        min: 4,
+        max: 34,
+        from: scope.uiOption.layers[0].radius,
         type: 'single',
-        step: 1,
+        step: 6,
         onChange(data) {
-          scope.changeResolution(data.from);
+          scope.changeRadius(data.from);
         }
         // onFinish(data) {
           // scope._updateBoundValue(data);
