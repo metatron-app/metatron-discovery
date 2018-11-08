@@ -29,6 +29,8 @@ import { ConfirmModalComponent } from '../../../common/component/modal/confirm/c
 import { LogComponent } from '../../../common/component/modal/log/log.component';
 import { MetadataService } from '../../../meta-data-management/metadata/service/metadata.service';
 import { Metadata } from '../../../domain/meta-data-management/metadata';
+import { CookieConstant } from '../../../common/constant/cookie.constant';
+import { CommonConstant } from '../../../common/constant/common.constant';
 
 @Component({
   selector: 'app-detail-datasource',
@@ -92,6 +94,9 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   // more flag
   public moreFl: boolean = false;
 
+  // ingestion process
+  public ingestionProcess: any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -126,6 +131,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
 
   // Change
   public ngOnChanges() {
+
   }
 
   // Destory
@@ -372,15 +378,21 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     // 로딩 시작
     this.loadingShow();
 
-    this.datasourceService.getDatasourceDetail(sourceId)
-      .then((datasource) => {
-        // 데이터소스
-        this.datasource = datasource;
-        this.mode = mode;
-        // 메타데이터 정보 조회
-        this._getMetaData(datasource);
+    this.checkAndConnectWebSocket(true)
+      .then(() => {
+        this.datasourceService.getDatasourceDetail(sourceId)
+          .then((datasource) => {
+            // 데이터소스
+            this.datasource = datasource;
+            this.mode = mode;
+            // 메타데이터 정보 조회
+            this._getMetaData(datasource);
+            // process ingestion
+            this._setProcessIngestion(datasource.id);
+          })
+          .catch((error) => this.commonExceptionHandler(error));
       })
-      .catch((error) => this.commonExceptionHandler(error));
+      .catch(error => this.commonExceptionHandler(error));
   }
 
   /**
@@ -401,5 +413,49 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
       .catch(error => this.commonExceptionHandler(error));
   }
 
+  /**
+   * Set process ingestion
+   * @param {string} datasourceId
+   * @private
+   */
+  private _setProcessIngestion(datasourceId: string): void {
+    try {
+      const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
+      // 메세지 수신
+      const subscription = CommonConstant.stomp.subscribe(
+        `/topic/datasources/${datasourceId}/progress`, (data: { progress: number, message: string }) => {
+          console.log('test socket', data);
+          if (-1 === data.progress) {
+            // 데이터 변경
+            this.ingestionProcess = data;
+          } else if (100 === data.progress) {
+            // 데이터 변경
+            this.ingestionProcess = data;
+            CommonConstant.stomp.unsubscribe(subscription);     // Socket 응답 해제
+          } else {
+            // 데이터 변경
+            this.ingestionProcess = data;
+          }
+        }, headers);
+
+      // TODO test
+      // this.datasource.status = Status.PREPARING;
+      // this.ingestionProcess = {progress: 1, message: "START_INGESTION_JOB"};
+      // setTimeout(() => {
+      //   this.datasource.status = Status.PREPARING;
+      //   this.ingestionProcess = {progress: 2, message: "ENGINE_INIT_TASK"};
+      //   setTimeout(() => {
+      //     this.datasource.status = Status.PREPARING;
+      //     this.ingestionProcess = {progress: 3, message: "ENGINE_REGISTER_DATASOURCE"};
+      //     setTimeout(() => {
+      //       this.datasource.status = Status.ENABLED;
+      //       this.ingestionProcess = {progress: 3, message: "END_INGESTION_JOB"};
+      //     }, 5000);
+      //   }, 5000);
+      // }, 5000);
+    } catch (e) {
+      console.info(e);
+    }
+  }
 
 }

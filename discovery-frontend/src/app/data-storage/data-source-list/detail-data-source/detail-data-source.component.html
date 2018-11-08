@@ -132,6 +132,7 @@
       <!-- Information -->
       <information-data-source *ngIf="mode === 'information'"
                                (changeDatasource)="changedDatasourceData($event)"
+                               [ingestionProcess]="ingestionProcess"
                                [datasource]="datasource"
                                [(mode)]="mode"
                                (confirm)="confirmModalOpen($event)"
