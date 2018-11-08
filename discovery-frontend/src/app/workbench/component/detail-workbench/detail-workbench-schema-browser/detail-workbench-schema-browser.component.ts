@@ -1016,6 +1016,14 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
 
       // 그리드 셀렉트 효과
       this.gridSchemaComponent.selectRowActivate(0);
+      // 현재 상태를 sort asc 변경
+      this.gridSchemaComponent.setCurrentSortColumns(true);
+
+      for (let index: number = 0; index < headers.length; index++) {
+        // icon default 변경
+        const gridSchemaHeader = $('.ddp-pop-wrapList .slick-header-columns');
+        gridSchemaHeader.find('.slick-sort-indicator').eq(index).removeClass('slick-sort-indicator-asc');
+      }
 
     }
   }
