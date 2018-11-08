@@ -269,7 +269,6 @@ export class DatasourceInfo {
   public schemaData: any;
 
   // 4step
-  public permissionData: any;
   public ingestionData: any;
 
   // 5step 생성정보

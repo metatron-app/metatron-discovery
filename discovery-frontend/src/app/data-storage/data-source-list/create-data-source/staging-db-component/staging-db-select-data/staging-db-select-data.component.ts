@@ -388,13 +388,13 @@ export class StagingDbSelectDataComponent extends AbstractPopupComponent impleme
   }
 
   /**
-   * 데이터가 변경이 일어나고 스키마데이터가 있다면 스키마데이터 삭제
+   * 데이터가 변경이 일어나고 스키마데이터가 있다면 스키마데이터, 적재데이터 삭제
    */
   private deleteSchemaData() {
-    // 데이터 변경이 일어난경우 스키마 삭제
-    if (this.sourceData.hasOwnProperty('schemaData')
-      && this.isChangeData()) {
+    // 데이터 변경이 일어난경우 스키마 데이터와 적재데이터 제거
+    if (this.isChangeData()) {
       delete this.sourceData.schemaData;
+      delete this.sourceData.ingestionData;
     }
   }
 
