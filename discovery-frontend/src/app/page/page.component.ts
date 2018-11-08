@@ -1838,12 +1838,12 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     if (!this.isNewWidget()) {
       // 글로벌 필터 업데이트
       const widget = { configuration: _.cloneDeep(this.originalWidgetConfiguration) };
-      widget.configuration['filters'] = this.widgetConfiguration.filters;
+      widget.configuration.filters = _.cloneDeep( this.widgetConfiguration.filters );
 
       // 스펙 변경
       widget.configuration = DashboardUtil.convertPageWidgetSpecToServer(widget.configuration);
       // 필터 설정
-      for (let filter of widget.configuration['filters']) {
+      for (let filter of widget.configuration.filters) {
         filter = FilterUtil.convertToServerSpecForDashboard(filter);
       }
 

@@ -20,6 +20,19 @@
 
     <!-- 버튼 목록 -->
     <div class="ddp-ui-buttons" >
+
+      <!-- Data Limit Info -->
+      <div class="ddp-box-btn2" *ngIf="isShowLimitInfo">
+        <em class="ddp-icon-widget-info2"></em>
+        <!-- box info -->
+        <div class="ddp-box-info ddp-limitation">
+          <em class="ddp-icon-info"></em>
+          <span [innerHTML]="'msg.page.ui.limit-msg' | translate : { currentCnt : resultData.data.rows.length | numberCommas , maxCnt : resultData.data.info.totalCategory | numberCommas }" ></span>
+        </div>
+        <!-- box info -->
+      </div>
+      <!-- // Data Limit Info -->
+
       <!-- 차트 영역 선택 버튼 -->
       <div class="ddp-box-btn-hover"
            *ngIf="!isGridType() && chartFuncValidator.checkUseMultiSelectionByTypeString( chartType )">

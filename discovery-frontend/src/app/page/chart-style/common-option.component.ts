@@ -1297,14 +1297,14 @@ export class CommonOptionComponent extends BaseOptionComponent {
    * Bar - Limit 변경
    * @param limit
    */
-  // public onLimitChange(limit: number): void {
-  //
-  //   // limit값이 null인경우 limitCheck값 false로 설정
-  //   if (_.isNull(limit)) this.uiOption.limitCheck = false;
-  //
-  //   this.uiOption.size = limit;
-  //   this.update({});
-  // }
+  public onLimitChange(limit: number): void {
+
+    // limit값이 null인경우 limitCheck값 false로 설정
+    if (_.isNull(limit)) this.uiOption.limitCheck = false;
+
+    this.uiOption.size = limit;
+    this.update({});
+  }
 
   /**
    * Grid - 설명추가 버튼클릭시

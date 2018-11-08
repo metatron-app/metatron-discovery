@@ -295,6 +295,10 @@ export class DatasourceService extends AbstractService {
         field['aggregationType'] = 'NONE';
       }
     }
+
+    if( pageConf.chart.limitCheck && 0 < pageConf.chart.size ) {
+      pageConf.limit.limit = pageConf.chart.size;
+    }
     query.limits = _.cloneDeep(pageConf.limit);
 
     // Value Alias & Code Table 설정

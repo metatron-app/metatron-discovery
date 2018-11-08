@@ -137,6 +137,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isInvalidPivot: boolean = false;          // 선반정보를 확인해야 하는 경우
   public isShowNoData: boolean = false;           // No-Data 표시 여부
   public isError: boolean = false;                // 에러 상태 표시 여부
+  public isShowLimitInfo:boolean = false;         // Limit 표시 여부
   public isShowDownloadPopup: boolean = false;    // 다운로드 팝업 표시 여부
   public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부ddp-list-selectbox
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
@@ -1179,8 +1180,11 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
           // 현재 차트가 선택한 필터목록
           selectFilterListList: this._selectFilterList
         }
-
       };
+
+      if( !isNullOrUndefined( data.rows ) && !isNullOrUndefined(data.info) ) {
+        this.isShowLimitInfo = data.rows.length < data.info.totalCategory;
+      }
 
       let optionKeys = Object.keys(this.uiOption);
       if (optionKeys && optionKeys.length === 1) {
