@@ -1157,34 +1157,6 @@ em.ddp-icon-lineage {display:inline-block; width:13px; height:13px; background:u
 em.ddp-icon-listgrid {width:15px; height:11px; background-position:left -14px;}
 em.ddp-icon-lineage {width:15px; height:13px; background-position:left -26px;}
 
-
-/**************************************************************
-	툴팁
-**************************************************************/
-.ddp-icon-question {display:inline-block; width:11px; height:11px; background:url(../images/icon_que.png) no-repeat;}
-.ddp-ui-tooltip {display:inline-block; position:relative; margin-left:2px; cursor:pointer; font-weight:normal;}
-.ddp-ui-tooltip em.ddp-icon-question {display:inline-block; width:11px; height:11px; background:url(../images/icon_que.png) no-repeat;}
-
-.ddp-ui-tooltip-info {display:none; position:absolute;top:-7px; left:17px; min-width:15px; padding:5px; color:#fff; font-size:12px; white-space:nowrap; border-radius:3px;background-color:#4e5255; z-index:1;}
-.ddp-ui-tooltip-info em.ddp-icon-view {display:inline-block; position:absolute; top:8px; left:0px; width:4px; height:8px; margin-left:-4px; background:url(../images/icon_tagview.png) no-repeat;}
-.ddp-ui-tooltip-info em.ddp-icon-view-top {display:inline-block; position:absolute; top:-6px; left:50%; width:4px; height:8px; margin-left:-4px; background:url(../images/icon_tagview.png) no-repeat; transform:rotate(90deg);}
-.ddp-ui-tooltip-info em.ddp-icon-view-down {display:inline-block; position:absolute; bottom:-6px; left:50%; width:4px; height:8px; margin-left:-4px; background:url(../images/icon_tagview.png) no-repeat; transform:rotate(-90deg);}
-.ddp-ui-tooltip-info em.ddp-icon-view-left {display:inline-block; position:absolute; top:50%; left:-4px; width:4px; height:8px; margin-top:-4px; background:url(../images/icon_tagview.png) no-repeat;}
-.ddp-ui-tooltip-info em.ddp-icon-view-right {display:inline-block; position:absolute; top:50%; right:-4px; width:4px; height:8px; margin-top:-4px; background:url(../images/icon_tagview.png) no-repeat; transform:rotate(180deg);}
-.ddp-ui-tooltip.ddp-selected .ddp-ui-tooltip-info {display:block;}
-.ddp-ui-tooltip-info.ddp-down {position:absolute; top:100%; left:inherit; right:-10px; margin-top:6px; font-weight:normal;}
-.ddp-ui-tooltip-info.ddp-down em.ddp-icon-view-top {left:initial; right:15px; }
-
-.ddp-ui-tooltip-info.ddp-top {position:absolute; bottom:100%; top:inherit; left:25px; }
-.ddp-ui-tooltip-info.ddp-top .ddp-icon-view-top {top:100%; transform:rotate(-90deg); margin-top:-2px;}
-.ddp-hover-tooltip {position:relative;}
-.ddp-hover-tooltip:hover .ddp-ui-tooltip-info {display:block; z-index:10;}
-.ddp-hover-tooltip.ddp-selected:hover .ddp-ui-tooltip-info {display:none;}
-
-.ddp-ui-tooltip-info .ddp-tooltip-label {display:block; padding-bottom:7px; font-size:12px; color:#b7b9c2; font-weight:bold;}
-.ddp-ui-tooltip-info .ddp-dl-info + .ddp-dl-info {padding-top:6px;}
-.ddp-ui-tooltip-info .ddp-dl-info dt {font-size:12px; color:#f6f6f7; font-weight:300;}
-.ddp-ui-tooltip-info .ddp-dl-info dd {font-size:12px; color:#f6f6f7;}
 /**************************************************************
     확인버튼
 **************************************************************/
@@ -1591,26 +1563,6 @@ table.ddp-table-list-form tbody tr td em.ddp-data-user {color:#8c97d3;}
 .ddp-view-option input.ddp-data {display:inline-block; width:40px; margin-right:5px; text-align:center;border-bottom:1px solid #d7d8dc;}
 .ddp-view-option.ddp-selected span.ddp-data-value {display:none;}
 .ddp-view-option.ddp-selected input {display:block;}
-
-/**************************************************************
-	상태
-**************************************************************/
-.ddp-ui-status-type {float:left; margin-right:62px;}
-.ddp-ui-status-type .ddp-data-status .ddp-link-detail {color:#90969f; font-size:12px; text-decoration:underline; font-style:italic;}
-.ddp-ui-status-type .ddp-box-status {margin-top:5px;background-color:#f6f6f7;}
-.ddp-box-status {float:left; padding:10px 15px; background-color:#f6f6f7; }
-ol.ddp-list-status li {float:left; width:24px}
-ol.ddp-list-status li .ddp-num {display:inline-block; width:24px; height:24px; padding:3px; border-radius:50%; border:2px solid #c1c3cb; text-align:center; color:#b7b9c3; font-size:13px; font-weight:bold; box-sizing:Border-box; background-color:#fff;}
-ol.ddp-list-status li .ddp-txt-status {display:block; padding:5px 0 0 0; white-space:nowrap; color:#b7b9c2; font-size:12px;}
-ol.ddp-list-status li.ddp-finish .ddp-num {background-color:#4b515b; color:#fff; border-color:#4b515b}
-ol.ddp-list-status li + li {position:relative; padding-left:55px; }
-ol.ddp-list-status li + li:before {display:inline-block; position:absolute; left:1px; top:10px; width:53px; height:3px; background-color:#d0d1d8; content:'';}
-ol.ddp-list-status li.ddp-finish:before {background-color:#4b515b;}
-ol.ddp-list-status li.ddp-ing:before {background:url(../images/bg_status_ing.png) repeat-x;}
-ol.ddp-list-status li.ddp-ing .ddp-num {color:#4b515b; border-color:#4b515b;}
-ol.ddp-list-status li.ddp-ing .ddp-txt-status {color:#4b515b;}
-ol.ddp-list-status li.ddp-fail:before {background-color:#4b515b;}
-ol.ddp-list-status li.ddp-fail .ddp-num {border-color:#dc494f;background-color:#dc494f; color:#fff;}
 
 /**************************************************************
     탭
