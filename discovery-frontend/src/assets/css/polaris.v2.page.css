@@ -6415,7 +6415,7 @@ ul.ddp-list-table li em.ddp-icon-tableinfo.ddp-disabled:hover:before {background
 .ddp-box-layout4 ul.ddp-list-type.ddp-list-popup li.ddp-selected a .ddp-data-name {color:#666eb2;}
 .ddp-box-layout4 .ddp-btn-more {display:inline-block; margin:0 20px 0 20px; color:#4b515b; font-size:12px; text-decoration: underline;}
 .ddp-wrap-workbench {position:absolute; top:101px; left:0; right:0; bottom:0; width:initial; height:initial; }
-.ddp-wrap-workbench .ddp-ui-rnb {position:relative; display:table-cell;width:52px; background-color:#f8f7f9; z-index:20;}
+.ddp-wrap-workbench .ddp-ui-rnb {position:relative; display:table-cell;width:52px; background-color:#f8f7f9; z-index:20; vertical-align:top;}
 
 ul.ddp-list-rnb li a {display:block; position:relative; width:52px; height:52px;}
 ul.ddp-list-rnb li.ddp-selected a {background-color:#90969f;}
