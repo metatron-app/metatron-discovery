@@ -21,13 +21,13 @@
           <div class="ddp-list-sub2" *ngIf="uiOption.showMapLayer">
             <!-- divide -->
             <div class="ddp-divide2">
-              <div class="ddp-list-label">{{'msg.page.common.map.layer.service' | translate}}</div>
+              <div class="ddp-list-label">{{'msg.page.common.map.layer.style' | translate}}</div>
               <!-- SELECTBOX -->
               <div class="ddp-type-selectbox" (click)="mapTypeFlag=!mapTypeFlag;" (clickOutside)="mapTypeFlag=false" [excludeBeforeClick]="true">
-                <span class="ddp-txt-selectbox">{{ uiOption.map.toString() === 'NONE' ? 'none' : uiOption.map }}</span>
+                <span class="ddp-txt-selectbox">{{ uiOption.map.toString() === 'NONE' ? 'None' : uiOption.map }}</span>
                 <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="mapTypeFlag">
                   <!-- <li (click)="changeMapType('NONE')"><a href="#">{{'msg.page.common.map.layer.service.none' | translate}}</a></li> -->
-                  <li (click)="changeMapType('Colored')"><a href="#">Colord</a></li>
+                  <li (click)="changeMapType('Colored')"><a href="#">Colored</a></li>
                   <li (click)="changeMapType('Light')"><a href="#">Light</a></li>
                   <li (click)="changeMapType('Dark')"><a href="#">Dark</a></li>
                 </ul>
