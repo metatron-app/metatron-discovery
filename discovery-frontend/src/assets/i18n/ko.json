@@ -945,7 +945,7 @@
   "msg.dp.th.tbl-name": "테이블 이름",
   "msg.dp.th.tbl-name.ph": "테이블 이름를 입력해 주세요",
   "msg.dp.th.val" : "Value",
-  "msg.dp.ui.add.rule.title": "Add Rule",
+  "msg.dp.ui.add.rule.title": "{{mode}} Rule",
   "msg.dp.ui.after": "After",
   "msg.dp.ui.before": "Before",
   "msg.dp.ui.column.search.description": "컬럼 이름으로 검색해 주세요",

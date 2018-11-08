@@ -384,7 +384,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       this.editorUseLabel = 'switch to editor';
 
       // Reset command when switch to builder
-      this.initRule();
+      // this.initRule();
     } else {
       this.editorUseFlag = true;
       this.editorUseLabel = 'switch to builder';
@@ -544,7 +544,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this.ruleNo = null;
 
     this.ruleVO = new Rule();
-    this.inputRuleCmd = '';
+    // this.inputRuleCmd = '';
 
     // redo, undo를 초기화 한다.
     if (data) this.initRedoUndo(data);
@@ -587,11 +587,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
 
     this._isExecAddRule = true;
 
-    // When no command is selected
-    if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
-      return;
-    }
-
+    // // When no command is selected
+    // if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
+    //   return;
+    // }
+    //
     let rule: any = {};
     if (this.editorUseFlag === false) {
 
@@ -611,7 +611,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       rule['op'] = this.opString;
       rule['ruleIdx'] = this.serverSyncIndex;
 
-    } else {  // editor 사용시
+    } else {  // Using editor
       if (this.inputRuleCmd === '') {
         Alert.warning(this.translateService.instant('msg.dp.alert.editor.warn'));
         return;
@@ -639,6 +639,11 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
     this._editRuleGridComp.unSelectionAll('COL');
 
     try {
+
+      // Set rulestring for builder
+      this.inputRuleCmd = rule.ruleString;
+
+
       this.selectboxFlag = true;
       this.initRule();
       this.opString = 'UPDATE';
@@ -792,10 +797,12 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
   }
 
   /**
-   * Init edit more - When edit mode, select box is disabled
+   * Init edit mode
    */
   public refreshEditMode() {
     this.opString = 'APPEND';
+    this.inputRuleCmd = '';
+    this.editorUseFlag = false;
   }
 
   /**
@@ -1467,9 +1474,17 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
    */
   public jumpToCurrentIndex() {
 
-    // If no command is selected nothing happens
-    if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
+    if (this.inputRuleCmd !== '') {
+      this.inputRuleCmd = ''; // Empty builder rule string
+    } else {
       return;
+    }
+
+    if (!this.editorUseFlag) {
+      // If no command is selected nothing happens
+      if (this.ruleVO.command === '' || isNullOrUndefined(this.ruleVO.command)) {
+        return;
+      }
     }
 
     // Change button
@@ -1917,6 +1932,10 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         this.isUndoRunning = false;
       } else if (!isUndo && this.isRedoRunning) {
         this.isRedoRunning = false;
+      }
+
+      if (this.editorUseFlag) {
+        this.inputRuleCmd = '';
       }
 
     });

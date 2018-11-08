@@ -17,6 +17,7 @@ import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-pivot',
@@ -89,7 +90,9 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined;
     }
-    const columnsStr: string = this.selectedFields.map((item) => {
+
+    let selFields = _.cloneDeep(this.selectedFields);
+    const columnsStr: string = selFields.map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }
@@ -125,7 +128,8 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
       Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
       return undefined;
     }
-    const groupStr: string = this.selectedGroupFields.map((item) => {
+    let selGroupFields = _.cloneDeep(this.selectedGroupFields);
+    const groupStr: string = selGroupFields.map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }
