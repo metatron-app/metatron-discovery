@@ -1280,6 +1280,14 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         colorList.push(range.color);
       }
       colorList = colorList.reverse();
+
+      let heatmapColorList = [];
+      _.each(colorList, (color, idx) => {
+        heatmapColorList.push(color);
+        if ( colorList.length === idx+1 ) { heatmapColorList.push(color); }
+      });
+
+      colorList = heatmapColorList;
     }
 
     // heatmap layer
