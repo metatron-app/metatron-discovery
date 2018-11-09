@@ -11,5 +11,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<div class="ddp-form-calen" (click)="onClickCalendarIcon($event)">
+  <input #date [readOnly]="isReadOnly" type="text" class="ddp-input-typebasic ddp-value" placeholder="{{placeholder}}">
+</div>
 
-<input #date type="text" class="ddp-input-typebasic ddp-value" placeholder="{{placeholder}}">

@@ -38,7 +38,7 @@ import {
 import { saveAs } from 'file-saver';
 import { AbstractWidgetComponent } from '../abstract-widget.component';
 import { PageWidget, PageWidgetConfiguration } from '../../../domain/dashboard/widget/page-widget';
-import {BaseChart, ChartSelectInfo} from '../../../common/component/chart/base-chart';
+import { BaseChart, ChartSelectInfo } from '../../../common/component/chart/base-chart';
 import { UIOption } from '../../../common/component/chart/option/ui-option';
 import { Alert } from '../../../common/util/alert.util';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
@@ -105,6 +105,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // Current Selection Filters
   private _currentSelectionFilters: Filter[] = [];
 
+  // child widget id list
+  private _childWidgetIds:string[] = [];
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -135,7 +138,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public isShowNoData: boolean = false;           // No-Data 표시 여부
   public isError: boolean = false;                // 에러 상태 표시 여부
   public isShowDownloadPopup: boolean = false;    // 다운로드 팝업 표시 여부
-  public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부ddp-list-selectbox
+  public duringDataDown: boolean = false;         // 데이터 다운로드 진행 여부
   public duringImageDown: boolean = false;        // 이미지 다운로드 진행 여부
 
   // Pivot 내 사용자 정의 컬럼 사용 여부
@@ -671,18 +674,21 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       this.processEnd();
       this._isDuringProcess = false;
 
-      switch( this.mouseMode ) {
-        case 'SINGLE' :
-          this.changeMouseSelectMode('single', 'single');
-          break;
-        case 'MULTI_RECT' :
-          this.changeMouseSelectMode('multi', 'rect');
-          break;
-        case 'MULTI_POLY' :
-          this.changeMouseSelectMode('multi', 'polygon');
-          break;
+      if (!this.isGridType()
+        && this.chartFuncValidator.checkUseSelectionByTypeString(this.chartType)
+        && this.chartFuncValidator.checkUseMultiSelectionByTypeString(this.chartType)) {
+        switch (this.mouseMode) {
+          case 'SINGLE' :
+            this.changeMouseSelectMode('single', 'single');
+            break;
+          case 'MULTI_RECT' :
+            this.changeMouseSelectMode('multi', 'rect');
+            break;
+          case 'MULTI_POLY' :
+            this.changeMouseSelectMode('multi', 'polygon');
+            break;
+        }
       }
-
     }
   } // function - updateComplete
 
@@ -846,20 +852,21 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @param {string} brushType
    */
   public changeMouseSelectMode(mode: string, brushType: string) {
-    if (this.chart.uiOption.type !== ChartType.MAP) {
-      if (ChartMouseMode.SINGLE.toString() === mode) {
-        this.mouseMode = 'SINGLE';
-        this.chart.convertMouseMode(ChartMouseMode.SINGLE);
-      } else if (ChartMouseMode.MULTI.toString() === mode) {
-        if (BrushType.RECT.toString() === brushType) {
-          this.mouseMode = 'MULTI_RECT';
-          this.chart.convertMouseMode(ChartMouseMode.MULTI, BrushType.RECT);
-        } else {
-          this.mouseMode = 'MULTI_POLY';
-          this.chart.convertMouseMode(ChartMouseMode.MULTI, BrushType.POLYGON);
-        }
+    if( isNullOrUndefined(this.chart) ) {
+      return;
+    }
+    if (ChartMouseMode.SINGLE.toString() === mode) {
+      this.mouseMode = 'SINGLE';
+      this.chart.convertMouseMode(ChartMouseMode.SINGLE);
+    } else if (ChartMouseMode.MULTI.toString() === mode) {
+      if (BrushType.RECT.toString() === brushType) {
+        this.mouseMode = 'MULTI_RECT';
+        this.chart.convertMouseMode(ChartMouseMode.MULTI, BrushType.RECT);
+      } else {
+        this.mouseMode = 'MULTI_POLY';
+        this.chart.convertMouseMode(ChartMouseMode.MULTI, BrushType.POLYGON);
       }
-    }    
+    }
   } // function - changeMouseSelectMode
 
   /**
@@ -980,6 +987,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             this.parentWidget = widget.dashBoard.widgets.find(item => item.id === parentWidgetId);
             this.isShowHierarchyView = true;
           }
+
+          this._childWidgetIds = this._findChildWidgetIds( this.widget.id, relations );
         }
 
         // RealTime 데이터갱신 설정
@@ -1025,6 +1034,10 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   private _search(globalFilters?: Filter[], selectionFilters?: Filter[]) {
 
+    if( selectionFilters && selectionFilters.some( item => -1 < this._childWidgetIds.indexOf( item['selectedWidgetId'] ) ) ) {
+      return;
+    }
+
     // 프로세스 실행 등록
     this.processStart();
     this._isDuringProcess = true;
@@ -1041,12 +1054,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     // 현재 위젯에서 발생시킨 필터정보 제외처리
-    this._currentSelectionFilters = this.changeExternalFilterList(selectionFilters);
+    const currentSelectionFilters:Filter[] = this.changeExternalFilterList(selectionFilters);
 
     // Hierarchy View 설정
     if (this.parentWidget) {
-      if (selectionFilters) {
-        const idx = selectionFilters.findIndex(item => this.parentWidget.id === item['selectedWidgetId']);
+      if (currentSelectionFilters) {
+        const idx = currentSelectionFilters.findIndex(item => this.parentWidget.id === item['selectedWidgetId']);
         if (-1 < idx) {
           this.isShowHierarchyView = false;
         } else {
@@ -1110,7 +1123,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     // 외부 필터 ( 글로벌 필터 + Selection Filter )
     {
-      let externalFilters = selectionFilters ? globalFilters.concat(selectionFilters) : globalFilters;
+      let externalFilters = currentSelectionFilters ? globalFilters.concat(currentSelectionFilters) : globalFilters;
       externalFilters = DashboardUtil.getAllFiltersDsRelations(this.widget.dashBoard, widgetDataSource.engineName, externalFilters);
       uiCloneQuery.filters = externalFilters.concat(uiCloneQuery.filters);
     }
@@ -1122,19 +1135,19 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     const cloneQuery = this._makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
 
     // Map Chart 의 Multi Datasource 를 적용하기 위한 코드 - S
-    if ( ChartType.MAP === this.widget.configuration.chart.type ) {
+    if (ChartType.MAP === this.widget.configuration.chart.type) {
 
       let geoFieldCnt = 0;
-      for(let column of this.widget.configuration.pivot.columns) {
-        if(column.field.logicalType.toString().substring(0,3) === 'GEO' && column["layerNum"] === 1) {
+      for (let column of this.widget.configuration.pivot.columns) {
+        if (column.field.logicalType.toString().substring(0, 3) === 'GEO' && column['layerNum'] === 1) {
           geoFieldCnt = geoFieldCnt + 1;
         }
       }
 
-      if( geoFieldCnt > 1 ) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
-        cloneQuery.dataSource = _.cloneDeep( this.widget.dashBoard.configuration.dataSource );
+      if (geoFieldCnt > 1) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
+        cloneQuery.dataSource = _.cloneDeep(this.widget.dashBoard.configuration.dataSource);
 
-        for(let layer of cloneQuery.shelf.layers[0]) {
+        for (let layer of cloneQuery.shelf.layers[0]) {
           layer.ref = layer.dataSource;
         }
 
@@ -1151,6 +1164,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       this.chart['setQuery'] = this.query;
     }
 
+    // 유효한 선택 필터 정보 저장
+    this._currentSelectionFilters = currentSelectionFilters;
+
     this.datasourceService.searchQuery(cloneQuery).then((data) => {
 
       this.resultData = {
@@ -1159,7 +1175,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         uiOption: this.uiOption,
         params: {
           widgetId: this.widget.id,
-          externalFilters: (selectionFilters !== undefined && 0 < selectionFilters.length ),
+          externalFilters: (currentSelectionFilters !== undefined && 0 < currentSelectionFilters.length),
           // 현재 차트가 선택한 필터목록
           selectFilterListList: this._selectFilterList
         }
@@ -1178,7 +1194,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         delete this.resultData.params;
       }
 
-      setTimeout( () => {
+      setTimeout(() => {
         // line차트이면서 columns 데이터가 있는경우
         if (this.chartType === 'line' && this.resultData.data.columns && this.resultData.data.columns.length > 0) {
           // 고급분석 예측선 API 호출
@@ -1186,7 +1202,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         } else {
           this.chart.resultData = this.resultData;
         }
-      }, 1000 );
+      }, 1000);
 
       this.isValidWidget = true;
 
@@ -1277,6 +1293,30 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     return parentId;
   } // function - _findParentWidgetId
+
+  /**
+   * 자식 위젯 아이디 탐색
+   * @param {string} widgetId
+   * @param {DashboardPageRelation[]} relations
+   * @return {string}
+   * @private
+   */
+  private _findChildWidgetIds(widgetId: string, relations: DashboardPageRelation[], isCollect:boolean = false): string[] {
+    let childIds:string[] = [];
+
+    relations.forEach(item => {
+      if (item.children ) {
+        if(item.ref === widgetId || isCollect ) {
+          childIds = item.children.map( child => child.ref );
+          childIds = childIds.concat( this._findChildWidgetIds( widgetId, item.children, true ) );
+        } else {
+          childIds = childIds.concat( this._findChildWidgetIds( widgetId, item.children, false ) );
+        }
+      }
+    });
+
+    return childIds;
+  } // function - _findChildWidgetIds
 
   // ----------------------------------------------------
   // 고급분석 예측선 관련

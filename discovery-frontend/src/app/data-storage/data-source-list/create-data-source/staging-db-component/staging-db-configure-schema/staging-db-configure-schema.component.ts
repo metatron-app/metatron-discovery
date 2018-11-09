@@ -821,7 +821,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    */
   private _isErrorTimestamp(column: Field): boolean {
     return column.logicalType === LogicalType.TIMESTAMP
-      && column.format.type === FieldFormatType.DATE_TIME
+      && (column.format && column.format.type === FieldFormatType.DATE_TIME)
       && column.isValidTimeFormat === false;
   }
 
@@ -835,6 +835,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     columnList.forEach((column: Field) => {
       if (column.logicalType === LogicalType.TIMESTAMP && column.format.type === FieldFormatType.DATE_TIME && isUndefined(column.isValidTimeFormat)) {
         column.isValidTimeFormat = false;
+        column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
       if (column.ingestionRule && column.ingestionRule.type === 'replace' && isUndefined(column.isValidReplaceValue)) {
         column.isValidReplaceValue = false;
@@ -859,16 +860,15 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * @param type
    * @param timestampPromise
    */
-  private initTimestampInChangeType(column, type, timestampPromise) {
+  private initTimestampInChangeType(column: Field, type: string, timestampPromise) {
     // 변경된 타입이 타임일 경우
-    if (this.isEqualType('TIMESTAMP', type)) {
-      timestampPromise.push(column);
+    if (type === 'TIMESTAMP') {
+      // init format
+      column.format = new FieldFormat();
       delete column.isValidTimeFormat;
       delete column.isValidReplaceValue;
-    }
-
-    // 컬럼이 타임스탬프로 지정되었던 경우
-    if (this.isTimestampColumn(column)) {
+      timestampPromise.push(column);
+    } else if (this.isTimestampColumn(column)) { // 컬럼이 타임스탬프로 지정되었던 경우
       this.selectedTimestampColumn = null;
     }
   }

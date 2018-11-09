@@ -115,9 +115,8 @@
             <!-- //edit -->
 
             <!-- Time display format -->
-            <div class="ddp-wrap-edit3" *ngIf="column.logicalType.toString() === 'TIMESTAMP'">
-
-              <label class="ddp-ui-label-name">
+            <div class="ddp-wrap-edit3"  *ngIf="column.logicalType.toString() === 'TIMESTAMP'">
+              <div class="ddp-ui-label-name">
                 {{'msg.storage.ui.time.display.format' | translate}}
                 <div class="ddp-wrap-hover-info" (mouseenter)="hoverEvent('time')">
                   <em class="ddp-icon-info3"></em>
@@ -202,14 +201,14 @@
                   </div>
                   <!-- //popup -->
                 </div>
-                <div class="ddp-type-format ddp-fright">
-                  <label class="ddp-label-checkbox" (click)="onClickUnixCode(); $event.preventDefault()">
+                <div class="ddp-type-format ddp-fright" (click)="onClickUnixCode($event)">
+                  <label class="ddp-label-checkbox">
                     <input type="checkbox" [checked]="column.format?.type?.toString() === 'time_unix'">
                     <i class="ddp-icon-checkbox"></i>
                     <span class="ddp-txt-checkbox">{{'msg.storage.ui.enable.unix' | translate}}</span>
                   </label>
                 </div>
-              </label>
+              </div>
 
               <!-- edit format -->
               <div class="ddp-ui-option-in">

@@ -23,7 +23,7 @@
     <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchTableTextInit()"></em>
   </div>
   <!-- //search -->
-  <div class="ddp-ui-tablelist">
+  <div class="ddp-ui-tablelist" style="top: 145px;">
     <ul class="ddp-list-table">
       <li *ngFor="let item of tables; let index = index" (click)="setTableSql(item.name)" [class.ddp-info-selected]="selectedTableInfoLayer && index == selectedNum" >
         <em class="ddp-icon-table"></em>
@@ -63,16 +63,4 @@
   [excludeBeforeClick]="true"
   [exclude]="'.ddp-icon-info'">
 </detail-workbench-table-info-desc>
-<detail-workbench-table-info-schema *ngIf="selectedTableSchemaLayer === true"
-                                    [schemaParams]="schemaParams"
-                                    (insertName)="tableSchemaInsert($event)"
-                                    (showLayer)="tableSchemaClose()">
-</detail-workbench-table-info-schema>
-
-<!--<detail-workbench-table-info-schema *ngIf="selectedTableSchemaLayer === true" [dataconnection]="workbench.dataConnection"  [selectedTable]="selectedTable"  [top]="detailWorkbenchTableInfoSchemaTop" (showLayer)="setTableSchemaClose()" ></detail-workbench-table-info-schema>-->
-<!--[dataconnection]="workbench.dataConnection"-->
-<!--[selectedTable]="selectedTable"-->
-<!--[top]="detailWorkbenchTableInfoDescTop"-->
-<!--(clickOutside)="selectedTableSchemaLayer=false" [excludeBeforeClick]="true" [exclude]="'.ddp-icon-info'"-->
-<!--(showLayer)="setTableInfoClose()">-->
 

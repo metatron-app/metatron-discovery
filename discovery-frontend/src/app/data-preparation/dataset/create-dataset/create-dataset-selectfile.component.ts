@@ -230,7 +230,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
    */
   public fetchUploadStatus(fileKey: string) {
     this.datasetService.checkFileUploadStatus(fileKey).then((result) => {
-      this.loadingHide();
+
       if (result.state === 'done' && result.success) { // Upload finished
         clearInterval(this.interval);
         this.interval = undefined;
@@ -240,6 +240,7 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
         Alert.error(this.translateService.instant('Failed to upload. Please select another file'));
         clearInterval(this.interval);
         this.interval = undefined;
+        this.loadingHide();
         return;
       }
     });

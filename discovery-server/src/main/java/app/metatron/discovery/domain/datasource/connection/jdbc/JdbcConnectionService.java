@@ -14,12 +14,31 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.ConnectionRequest;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.*;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
+import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.*;
+import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
+import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.PolarisUtils;
+import com.facebook.presto.jdbc.PrestoArray;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import com.facebook.presto.jdbc.PrestoArray;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -35,54 +54,13 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
 import org.supercsv.prefs.CsvPreference;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeBetweenExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeCurrentDatetimeExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDateFormatExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDisjunctionExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeEqExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeOrderExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeProjection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
-import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SingleIngestionInfo;
-import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.user.CachedUserService;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
-import app.metatron.discovery.util.AuthUtils;
 
 import static app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection.CURRENT_DATE_FORMAT;
 import static java.util.stream.Collectors.toList;
@@ -863,6 +841,11 @@ public class JdbcConnectionService {
 
       queryResultSet = getJdbcQueryResult(rs, extractColumnName);
       // queryResultSet.setTotalRows(totalRows);
+    } catch (SQLException e) {
+      LOGGER.error("Fail to query for select : SQLState({}), ErrorCode({}), Message : {}"
+              , e.getSQLState(), e.getErrorCode(), e.getMessage());
+      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PREVIEW_TABLE_SQL_ERROR,
+              "Fail to query : " + e.getSQLState() + ", "  + e.getErrorCode() + ", " + e.getMessage());
     } catch (Exception e) {
       LOGGER.error("Fail to query for select :  {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
@@ -879,6 +862,7 @@ public class JdbcConnectionService {
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
+                                                         List<Map<String, Object>> partitionList,
                                                          int limit,
                                                          boolean extractColumnName) {
     if (connection instanceof MySQLConnection
@@ -889,14 +873,6 @@ public class JdbcConnectionService {
       }
     }
 
-    //    String queryString = new SelectQueryBuilder(connection)
-    //        .allProjection()
-    //        .query(schema, type, query)
-    //        .limit(0, limit)
-    //        .build();
-    //
-    //    LOGGER.debug("Query : {} ", queryString);
-
     JdbcQueryResultResponse queryResultSet = null;
 
     if (type == JdbcIngestionInfo.DataType.TABLE) {
@@ -905,6 +881,16 @@ public class JdbcConnectionService {
       String table = query;
       String tableName = (!table.contains(".") && database != null) ? database + "." + table : table;
       nativeCriteria.addTable(tableName, table);
+
+      //add projection for partition
+      if(partitionList != null && !partitionList.isEmpty()){
+
+        for(Map<String, Object> partitionMap : partitionList){
+          for(String keyStr : partitionMap.keySet()){
+            nativeCriteria.add(new NativeEqExp(keyStr, partitionMap.get(keyStr)));
+          }
+        }
+      }
 
       String queryString = nativeCriteria.toSQL();
       LOGGER.debug("selectQueryForIngestion SQL : {} ", queryString);
@@ -922,20 +908,31 @@ public class JdbcConnectionService {
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
+                                                         List<Map<String, Object>> partitionList,
                                                          int limit,
                                                          boolean extractColumnName) {
     return selectQueryForIngestion(connection, getDataSource(connection, true),
-                                   schema, type, query, limit, extractColumnName);
+            schema, type, query, partitionList, limit, extractColumnName);
   }
 
   public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
                                                          String schema,
                                                          JdbcIngestionInfo.DataType type,
                                                          String query,
-                                                         int limit) {
+                                                         int limit,
+                                                         boolean extractColumnName) {
     return selectQueryForIngestion(connection, getDataSource(connection, true),
-                                   schema, type, query, limit, false);
+                                   schema, type, query, null, limit, extractColumnName);
   }
+
+//  public JdbcQueryResultResponse selectQueryForIngestion(JdbcDataConnection connection,
+//                                                         String schema,
+//                                                         JdbcIngestionInfo.DataType type,
+//                                                         String query,
+//                                                         int limit) {
+//    return selectQueryForIngestion(connection, getDataSource(connection, true),
+//                                   schema, type, query, null, limit, false);
+//  }
 
   public JdbcQueryResultResponse ddlQuery(JdbcDataConnection connection,
                                           DataSource dataSource,
@@ -1132,7 +1129,8 @@ public class JdbcConnectionService {
     LOGGER.info("Generated SQL Query: {}", queryString);
 
     // 쿼리 결과 저장
-    String tempFileName = getTempFileName(baseDir, dataSourceName + "_" + System.currentTimeMillis());
+    String tempFileName = getTempFileName(baseDir, EngineProperties.TEMP_CSV_PREFIX + "_"
+            + dataSourceName + "_" + System.currentTimeMillis());
     JdbcCSVWriter jdbcCSVWriter = null;
     try {
       jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempFileName), CsvPreference.STANDARD_PREFERENCE);
@@ -1193,9 +1191,14 @@ public class JdbcConnectionService {
     NativeCriteria nativeCriteria = new NativeCriteria(DataConnection.Implementor.getImplementor(jdbcDataConnection));
     NativeProjection nativeProjection = new NativeProjection();
 
+    String targetFieldName = targetField.getName();
+    if(StringUtils.contains(targetFieldName, ".")){
+      targetFieldName = StringUtils.split(targetFieldName, ".")[1];
+    }
+
     if (metaField.getLogicalType() == LogicalType.TIMESTAMP) {
-      nativeProjection.addAggregateProjection(targetField.getName(), "minTime", NativeProjection.AggregateProjection.MIN);
-      nativeProjection.addAggregateProjection(targetField.getName(), "maxTime", NativeProjection.AggregateProjection.MAX);
+      nativeProjection.addAggregateProjection(targetFieldName, "minTime", NativeProjection.AggregateProjection.MIN);
+      nativeProjection.addAggregateProjection(targetFieldName, "maxTime", NativeProjection.AggregateProjection.MAX);
       nativeCriteria.setProjection(nativeProjection);
       if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
         nativeCriteria.addTable(ingestionInfo.getQuery(), ingestionInfo.getQuery());
@@ -1203,8 +1206,8 @@ public class JdbcConnectionService {
         nativeCriteria.addSubQuery(ingestionInfo.getQuery());
       }
     } else {
-      nativeProjection.addProjection(targetField.getName(), "field");
-      nativeProjection.addAggregateProjection(targetField.getName(), "count", NativeProjection.AggregateProjection.COUNT);
+      nativeProjection.addProjection(targetFieldName, "field");
+      nativeProjection.addAggregateProjection(targetFieldName, "count", NativeProjection.AggregateProjection.COUNT);
       nativeCriteria.setProjection(nativeProjection);
       if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
         nativeCriteria.addTable(ingestionInfo.getQuery(), ingestionInfo.getQuery());
@@ -1213,6 +1216,7 @@ public class JdbcConnectionService {
       }
       nativeCriteria.setOrder((new NativeOrderExp()).add("count", NativeOrderExp.OrderType.DESC));
     }
+    nativeCriteria.setLimit(10000);
 
     String query = nativeCriteria.toSQL();
 
@@ -1678,17 +1682,15 @@ public class JdbcConnectionService {
     JdbcUtils.closeConnection(connection);
   }
 
-  public int writeResultSetToCSV(ResultSet resultSet, String tempCsvFilePath){
+  public int writeResultSetToCSV(ResultSet resultSet, String tempCsvFilePath) throws SQLException{
     JdbcCSVWriter jdbcCSVWriter = null;
     int rowNumber = 0;
     try {
       jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempCsvFilePath), CsvPreference.STANDARD_PREFERENCE);
-      jdbcCSVWriter.write(resultSet);
+      jdbcCSVWriter.write(resultSet, false);
       rowNumber = jdbcCSVWriter.getRowNumber();
-    } catch (SQLException e) {
-      e.printStackTrace();
     } catch (IOException e) {
-      e.printStackTrace();
+      LOGGER.error("writeResultSetToCSV error", e);
     } finally {
       try{
         if(jdbcCSVWriter != null)
@@ -1747,5 +1749,63 @@ public class JdbcConnectionService {
       dataList.add(rowMap);
     }
     return dataList;
+  }
+
+  public List<Map<String, Object>> getPartitionList(HiveMetastoreConnection connection, ConnectionRequest connectionRequest){
+    HiveMetaStoreJdbcClient hiveMetaStoreJdbcClient = new HiveMetaStoreJdbcClient(
+            connection.getMetastoreURL(),
+            connection.getMetastoreUserName(),
+            connection.getMetastorePassword(),
+            connection.getMetastoreDriverName());
+
+    List partitionInfoList = hiveMetaStoreJdbcClient.getPartitionList(connectionRequest.getDatabase(), connectionRequest.getQuery(), null);
+    return partitionInfoList;
+  }
+
+  public List<Map<String, Object>> validatePartition(HiveMetastoreConnection connection, ConnectionRequest connectionRequest){
+    HiveMetaStoreJdbcClient hiveMetaStoreJdbcClient = new HiveMetaStoreJdbcClient(
+            connection.getMetastoreURL(),
+            connection.getMetastoreUserName(),
+            connection.getMetastorePassword(),
+            connection.getMetastoreDriverName());
+
+    List<String> partitionNameList = new ArrayList<>();
+    for(Map<String, Object> partitionNameMap : connectionRequest.getPartitions()){
+      partitionNameList.addAll(PolarisUtils.mapWithRangeExpressionToList(partitionNameMap));
+    }
+    //1. partition info 가져오기
+    List<Map<String, Object>> partitionInfoList = new ArrayList<>();
+    try{
+      partitionInfoList = hiveMetaStoreJdbcClient.getPartitionList(connectionRequest.getDatabase(), connectionRequest.getQuery(), partitionNameList);
+    } catch (Exception e){
+      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PARTITION_NOT_EXISTED, e.getCause().getMessage());
+    }
+
+    //2. partition parameter가 모두 존재하는지 여부
+    for(String partitionNameParam : partitionNameList){
+      //must exist partition exclude asterisk
+      boolean isPartitionExist = false;
+      if(partitionNameParam.contains("{*}")){
+        isPartitionExist = true;
+      } else {
+        for(Map<String, Object> existPartition : partitionInfoList){
+          String existPartName = existPartition.get("PART_NAME").toString();
+          if(partitionNameParam.equals(existPartName)){
+            isPartitionExist = true;
+            break;
+          }
+        }
+      }
+
+      if(!isPartitionExist)
+        throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PARTITION_NOT_EXISTED,
+                "partition (" + partitionNameParam + ") is not exists in " + connectionRequest.getQuery() + ".");
+    }
+
+    if(partitionInfoList == null || partitionInfoList.isEmpty())
+      throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.PARTITION_NOT_EXISTED,
+              "partition is not exists in " + connectionRequest.getQuery() + ".");
+
+    return partitionInfoList;
   }
 }

@@ -23,7 +23,7 @@ import { GridOption } from '../../../../common/component/grid/grid.option';
 import { CommonConstant } from '../../../../common/constant/common.constant';
 import { WorkbenchService } from '../../../service/workbench.service';
 import { ActivatedRoute } from '@angular/router';
-import { Dataconnection } from '../../../../domain/dataconnection/dataconnection';
+import { ConnectionType, Dataconnection } from '../../../../domain/dataconnection/dataconnection';
 import { MetadataService } from '../../../../meta-data-management/metadata/service/metadata.service';
 import * as _ from 'lodash';
 import { isUndefined } from 'util';
@@ -906,7 +906,12 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       // Logical name
       enableMetaData && (row['LogicalName'] = data[idx]['name']);
       // Type
-      row['type'] = data[idx]['columnType'] + '(' + data[idx]['columnSize'] + ')';
+      // column size가 없을 경우 확인
+      if( isUndefined( data[idx]['columnSize'] ) ){
+        row['type'] = data[idx]['columnType'];
+      } else {
+        row['type'] = data[idx]['columnType'] + '(' + data[idx]['columnSize'] + ')';
+      }
       // Desc
       row['description'] = data[idx]['description'];
       rows.push(row);
@@ -1118,6 +1123,15 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       params['tableName'] = tableName.trim();
     }
     return params;
+  }
+
+  /**
+   * DataConnection Type icon
+   * @param connType
+   * @returns {any}
+   */
+  public getConnectionType(connType: string) {
+    return ConnectionType[connType];
   }
 
 }

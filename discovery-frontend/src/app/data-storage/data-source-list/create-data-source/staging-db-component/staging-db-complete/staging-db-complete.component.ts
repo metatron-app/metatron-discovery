@@ -26,6 +26,7 @@ import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../../../common/domain/modal';
+import { CookieConstant } from '../../../../../common/constant/cookie.constant';
 
 /**
  * Creating datasource with StagingDB - complete step
@@ -230,13 +231,26 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
     // create datasource
     this.datasourceService.createDatasource(this._getCreateDatasourceParams())
       .then((result) => {
-        // loading hide
-        this.loadingHide();
         // complete alert
         Alert.success(`'${this.datasourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
-        // close
-        this.step = '';
-        this.stagingComplete.emit(this.step);
+        // 개인 워크스페이스
+        const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+        // 워크스페이스 매핑
+        this.datasourceService.addDatasourceWorkspaces(result.id, [workspace['id']])
+          .then(() => {
+            // loading hide
+            this.loadingHide();
+            // close
+            this.step = '';
+            this.stagingComplete.emit(this.step);
+          })
+          .catch(() => {
+            // loading hide
+            this.loadingHide();
+            // close
+            this.step = '';
+            this.stagingComplete.emit(this.step);
+          });
       })
       .catch((error) => {
         // loading hide
@@ -430,12 +444,13 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       const partition = {};
       // loop
       for (let j = 0; j < partitionKeys.length; j++) {
+        // #619 enable empty value
         // is value empty break for loop
-        if (StringUtil.isEmpty(partitionKeys[j].value)) {
-          break;
-        }
-        // add partition
-        partition[partitionKeys[j].name] = partitionKeys[j].value;
+        // if (StringUtil.isEmpty(partitionKeys[j].value)) {
+        //   break;
+        // }
+        // add partition #619 enable empty value
+        partition[partitionKeys[j].name] = (partitionKeys[j].value || '');
       }
       // if exist partition, add in result
       if (Object.keys(partition).length) {

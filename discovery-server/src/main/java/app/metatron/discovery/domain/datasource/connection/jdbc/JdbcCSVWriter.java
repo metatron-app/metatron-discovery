@@ -133,15 +133,15 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
     final int numberOfColumns = meta.getColumnCount();
     final List<Object> headers = new LinkedList<Object>();
     for( int columnIndex = 1; columnIndex <= numberOfColumns; columnIndex++ ) {
+      String columnLabel = meta.getColumnLabel(columnIndex);
       if(removeSubQueryTableName) {
-        String columnName = meta.getColumnName(columnIndex);
-        if(columnName.indexOf(".") > -1) {
-          headers.add(StringUtils.substringAfterLast(columnName, "."));
+        if(columnLabel.indexOf(".") > -1) {
+          headers.add(StringUtils.substringAfterLast(columnLabel, "."));
         } else {
-          headers.add(columnName);
+          headers.add(columnLabel);
         }
       } else {
-        headers.add(meta.getColumnName(columnIndex));
+        headers.add(columnLabel);
       }
     }
     super.writeRow(headers);
@@ -150,6 +150,7 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
   private void writeContents(ResultSet resultSet) throws SQLException, IOException {
     final int numberOfColumns = resultSet.getMetaData().getColumnCount();
     final List<Object> objects = new LinkedList<Object>();
+    LOGGER.debug("writeContents numberOfColumns : {}", numberOfColumns);
     while( resultSet.next() ) {
       super.incrementRowAndLineNo(); // This will allow the correct row/line numbers to be used in any exceptions
       // thrown before writing occurs
@@ -159,6 +160,7 @@ public class JdbcCSVWriter extends CsvResultSetWriter implements ICsvResultSetWr
       }
       super.writeRow(objects);
     }
+    LOGGER.debug("writeContents write completed");
   }
 
   public String write() {
