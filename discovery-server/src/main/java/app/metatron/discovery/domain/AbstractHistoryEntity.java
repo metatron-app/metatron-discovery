@@ -45,11 +45,11 @@ public abstract class AbstractHistoryEntity {
 
   @Column(name = "version")
   @Version
-  long version;
+  protected long version;
 
   @Column(name = "created_by")
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  String createdBy;
+  protected String createdBy;
 
   @Column(name = "created_time")
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
@@ -62,11 +62,11 @@ public abstract class AbstractHistoryEntity {
       @Field(name = "createdTime.mils", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
   })
   @SortableField(forField = "createdTime.mils")
-  DateTime createdTime;
+  protected DateTime createdTime;
 
   @Column(name = "modified_by")
   @Field(index = Index.YES, analyze = Analyze.NO, store = Store.NO)
-  String modifiedBy;
+  protected String modifiedBy;
 
   @Column(name = "modified_time")
   @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
@@ -79,7 +79,7 @@ public abstract class AbstractHistoryEntity {
       @Field(name = "modifiedTime.mils", index = Index.YES, analyze = Analyze.NO, store = Store.NO),
   })
   @SortableField(forField = "modifiedTime.mils")
-  DateTime modifiedTime;
+  protected DateTime modifiedTime;
 
   public AbstractHistoryEntity() {
     // empty constructor

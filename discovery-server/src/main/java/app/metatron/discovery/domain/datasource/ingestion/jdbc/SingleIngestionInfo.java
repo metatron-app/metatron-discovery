@@ -26,18 +26,11 @@ public class SingleIngestionInfo extends JdbcIngestionInfo implements IngestionI
 
   IngestionScope scope;
 
-  Integer size;
-
   public SingleIngestionInfo() {
   }
 
   public SingleIngestionInfo(IngestionScope scope) {
     this.scope = scope;
-  }
-
-  public SingleIngestionInfo(IngestionScope scope, Integer size) {
-    this.scope = scope;
-    this.size = size;
   }
 
   public IngestionScope getScope() {
@@ -46,14 +39,6 @@ public class SingleIngestionInfo extends JdbcIngestionInfo implements IngestionI
 
   public void setScope(IngestionScope scope) {
     this.scope = scope;
-  }
-
-  public Integer getSize() {
-    return size;
-  }
-
-  public void setSize(Integer size) {
-    this.size = size;
   }
 
   public enum IngestionScope {

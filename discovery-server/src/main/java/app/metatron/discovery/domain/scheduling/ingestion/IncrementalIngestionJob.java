@@ -14,16 +14,13 @@
 
 package app.metatron.discovery.domain.scheduling.ingestion;
 
-import app.metatron.discovery.domain.datasource.DataSource;
-import app.metatron.discovery.domain.datasource.DataSourceRepository;
-import app.metatron.discovery.domain.datasource.DataSourceSummary;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
-import app.metatron.discovery.domain.engine.EngineIngestionService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.quartz.*;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.JobDataMap;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +28,14 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
+
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceRepository;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
+import app.metatron.discovery.domain.datasource.ingestion.job.IngestionJobRunner;
+import app.metatron.discovery.domain.engine.EngineIngestionService;
 
 /**
  * Created by kyungtaak on 2016. 8. 12..
@@ -46,6 +50,9 @@ public class IncrementalIngestionJob extends QuartzJobBean {
 
   @Autowired
   EngineIngestionService engineIngestionService;
+
+  @Autowired
+  IngestionJobRunner jobRunner;
 
   @Autowired
   DataSourceRepository dataSourceRepository;
@@ -68,6 +75,12 @@ public class IncrementalIngestionJob extends QuartzJobBean {
 
     LOGGER.info("## Start incremental ingestion job for datasource({}).", targetDataSourceId);
 
+    List<IngestionHistory> ingestionHistories = ingestionHistoryRepository.findByDataSourceIdAndStatus(targetDataSourceId, IngestionHistory.IngestionStatus.RUNNING);
+    if(CollectionUtils.isNotEmpty(ingestionHistories)) {
+      LOGGER.info("This data source({}) has running ingestion job, skip!", targetDataSourceId);
+      return;
+    }
+
     DataSource dataSource = dataSourceRepository.findByIdIncludeConnection(targetDataSourceId);
     if (dataSource == null) {
       LOGGER.warn("Job({}) - datasource not found", trigger.getKey().getName());
@@ -79,42 +92,7 @@ public class IncrementalIngestionJob extends QuartzJobBean {
       return;
     }
 
-    BatchIngestionInfo.IngestionScope ingestionScope = ((BatchIngestionInfo) dataSource.getIngestionInfo()).getRange();
-
-    //if scope is incremental, need summary information
-    if(ingestionScope == BatchIngestionInfo.IngestionScope.INCREMENTAL){
-      DataSourceSummary summary = dataSource.getSummary();
-      if (summary == null) {
-        LOGGER.warn("Job({}) - summary not found", trigger.getKey().getName());
-        return;
-      }
-
-      DateTime maxTime = summary.getIngestionMaxTime();
-      if (maxTime == null) {
-        LOGGER.warn("Job({}) - ingestion max time not set", trigger.getKey().getName());
-        ingestionHistoryRepository.save(new IngestionHistory(dataSource.getId(),
-                                                             IngestionHistory.IngestionStatus.PASS, "Ingestion max time not set"));
-        return;
-      }
-    }
-
-    try {
-      Optional<IngestionHistory> result = null;
-
-      //branching by ingestion scope
-      if(ingestionScope == BatchIngestionInfo.IngestionScope.INCREMENTAL){
-        result = engineIngestionService.doDBIncrementalToFileIngestion(dataSource);
-      } else {
-        result = engineIngestionService.doDBToFileIngestion(dataSource);
-      }
-      if (result != null && result.isPresent()) {
-        ingestionHistoryRepository.save(result.get());
-      }
-    } catch (Exception e) {
-      ingestionHistoryRepository.save(new IngestionHistory(dataSource.getId(),
-                                                           IngestionHistory.IngestionStatus.FAILED, "JDBC Processing exception : " + e.getMessage()));
-      return;
-    }
+    jobRunner.ingestion(dataSource);
 
     LOGGER.info("## End incremental ingestion job for datasource({}).", targetDataSourceId);
   }

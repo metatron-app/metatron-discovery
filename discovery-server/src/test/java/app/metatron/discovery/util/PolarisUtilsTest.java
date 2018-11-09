@@ -311,6 +311,10 @@ public class PolarisUtilsTest {
   }
 
   @Test
+  public void getHostname() {
+    System.out.println(PolarisUtils.getLocalHostname());
+  }
+
   public void generateList() {
     System.out.println(PolarisUtils.generateList("01", "04"));
     System.out.println(PolarisUtils.generateList("01", "14"));

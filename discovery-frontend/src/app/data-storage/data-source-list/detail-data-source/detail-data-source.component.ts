@@ -13,7 +13,7 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnInit, Output,
+  Component, ElementRef, Injector, OnChanges, OnInit,
   ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
@@ -29,6 +29,8 @@ import { ConfirmModalComponent } from '../../../common/component/modal/confirm/c
 import { LogComponent } from '../../../common/component/modal/log/log.component';
 import { MetadataService } from '../../../meta-data-management/metadata/service/metadata.service';
 import { Metadata } from '../../../domain/meta-data-management/metadata';
+import { CookieConstant } from '../../../common/constant/cookie.constant';
+import { CommonConstant } from '../../../common/constant/common.constant';
 
 @Component({
   selector: 'app-detail-datasource',
@@ -92,6 +94,12 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   // more flag
   public moreFl: boolean = false;
 
+  // ingestion process
+  public ingestionProcess: any;
+
+  // history id
+  public historyId: string;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -119,13 +127,30 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
       this.datasourceId = params['sourceId'];
       // initView
       this._initView();
-      // 현재 데이터소스 상세조회
-      this.getDatasourceDetail(this.datasourceId);
+      // link webSocket
+      this.checkAndConnectWebSocket(true)
+        .then(() => {
+          // 현재 데이터소스 상세조회
+          this.getDatasourceDetail(this.datasourceId);
+          // get historyId
+          this.datasourceService.getBatchHistories(this.datasourceId, null)
+            .then((result) => {
+              // set history id
+              if (result['_embedded'] && result['_embedded'].ingestionHistories) {
+                this.historyId = result['_embedded'].ingestionHistories[0].id;
+              }
+            })
+            .catch(error => this.commonExceptionHandler(error));
+          // process ingestion
+          this._setProcessIngestion(this.datasourceId);
+        })
+        .catch(error => this.commonExceptionHandler(error));
     });
   }
 
   // Change
   public ngOnChanges() {
+
   }
 
   // Destory
@@ -371,7 +396,6 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
   private getDatasourceDetail(sourceId: string, mode: string = 'information'): void {
     // 로딩 시작
     this.loadingShow();
-
     this.datasourceService.getDatasourceDetail(sourceId)
       .then((datasource) => {
         // 데이터소스
@@ -401,5 +425,38 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
       .catch(error => this.commonExceptionHandler(error));
   }
 
+  /**
+   * Set process ingestion
+   * @param {string} datasourceId
+   * @private
+   */
+  private _setProcessIngestion(datasourceId: string): void {
+    try {
+      const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
+      // 메세지 수신
+      const subscription = CommonConstant.stomp.subscribe(
+        `/topic/datasources/${datasourceId}/progress`, (data: { progress: number, message: string, result: any }) => {
+          console.log('process socket', data);
+          if (-1 === data.progress) { // 실패시
+            // 데이터 변경
+            this.ingestionProcess = data;
+            // set status
+            this.datasource.status = Status.FAILED;
+            CommonConstant.stomp.unsubscribe(subscription);
+          } else if (100 === data.progress) { // 성공시
+            // 데이터 변경
+            this.ingestionProcess = data;
+            // set status
+            this.datasource.status = Status.ENABLED;
+            CommonConstant.stomp.unsubscribe(subscription);     // Socket 응답 해제
+          } else { // 적재중
+            // 데이터 변경
+            this.ingestionProcess = data;
+          }
+        }, headers);
+    } catch (e) {
+      console.info(e);
+    }
+  }
 
 }
