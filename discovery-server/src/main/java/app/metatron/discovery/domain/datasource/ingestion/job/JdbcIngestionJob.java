@@ -1,15 +1,5 @@
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.List;
-
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.DataSourceSummary;
@@ -27,11 +17,16 @@ import app.metatron.discovery.spec.druid.ingestion.BatchIndex;
 import app.metatron.discovery.spec.druid.ingestion.Index;
 import app.metatron.discovery.spec.druid.ingestion.IngestionSpec;
 import app.metatron.discovery.spec.druid.ingestion.IngestionSpecBuilder;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_COMMON_ERROR;
-import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_JDBC_FETCH_RESULT_ERROR;
-import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_JDBC_INCREMENTAL_TIME_ERROR;
-import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_JDBC_QUERY_EXECUTION_ERROR;
+import java.io.File;
+import java.util.List;
+
+import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.*;
 import static app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo.IngestionScope.INCREMENTAL;
 
 public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJob {
@@ -63,12 +58,9 @@ public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJ
 
     DataConnection connection = Preconditions.checkNotNull(dataSource.getJdbcConnectionForIngestion(), "Required connection info.");
 
-
     // Select 문을 가지고 CSV 파일로 변환
     List<String> csvFiles = null;
     try {
-      BatchIngestionInfo.IngestionScope ingestionScope = ((BatchIngestionInfo) ingestionInfo).getRange();
-
       if (ingestionInfo instanceof BatchIngestionInfo
           || ((BatchIngestionInfo) ingestionInfo).getRange() == INCREMENTAL) {
 
