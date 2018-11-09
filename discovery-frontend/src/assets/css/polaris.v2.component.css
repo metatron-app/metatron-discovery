@@ -2923,3 +2923,4 @@ em.ddp-icon-dataset3 {background-position:-60px top;}
 .ddp-btn-blue {padding:7px 17px 8px 17px; border-radius:2px; background-color:#6174b3; color:#fff; font-size:13px;}
 .ddp-btn-blue:hover {color:#fff;}
 .ddp-btn-blue .ddp-icon-btn-sync {display:inline-block; margin-right:6px; width:13px; height:12px; background:url(../images/icon_buttons.png) no-repeat; background-position:left -363px;}
+#popup #popup-contents .ddp-ui-tooltip-info {display:block;}
