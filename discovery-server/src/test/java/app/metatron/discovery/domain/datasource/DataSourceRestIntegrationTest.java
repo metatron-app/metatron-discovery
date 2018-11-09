@@ -167,6 +167,25 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_datasource_list.sql")
+  public void findDataSourceIngestionHistories() {
+
+    String dataSourceId = "ds-test-01";
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .contentType(ContentType.JSON)
+    .when()
+      .get("/api/datasources/{id}/ingestion/histories", dataSourceId)
+    .then()
+      .log().all()
+      .statusCode(HttpStatus.SC_OK);
+    // @formatter:on
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
+  @Sql("/sql/test_datasource_list.sql")
   public void findDataSourceIngestionHistory() {
 
     String dataSourceId = "ds-test-01";
