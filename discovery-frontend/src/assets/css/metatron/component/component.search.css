@@ -19,8 +19,6 @@
 .ddp-ui-searching .ddp-btn-search-close {display:inline-block; padding:5px; position:absolute; top:50%; right:5px; margin-top:-8px; cursor:pointer; font-size:0px;}
 .ddp-ui-searching .ddp-btn-search-close:before {display:inline-block; width:7px; height:7px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:left -38px; content:'';}
 
-
-
 .ddp-form-search2 {position:relative; padding-right:30px; border:1px solid #d0d1d9;}
 .ddp-form-search2 input {display:block; width:100%; padding:6px 10px 6px 10px; box-sizing:border-box; border:none;}
 .ddp-form-search2 span.ddp-icon-search {display:inline-block; position:absolute; top:50%; right:4px; width:22px; height:22px; margin:-11px 0 0 0; background-color:#f6f6f7; border-radius:2px; vertical-align:middle; cursor:pointer;}

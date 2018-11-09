@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 public class WorkbenchProperties {
   private Integer maxResultSize = 1000000;
   private Integer defaultResultSize = 1000;
-  private Integer maxFetchSize = 10000;
+  private Integer maxFetchSize = 2000;
   private String tempHdfsPath = "/tmp/hive";
   private String tempCSVPath = "/tmp";
 

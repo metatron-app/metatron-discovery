@@ -20,7 +20,8 @@ import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
-import { isUndefined } from "util";
+import {isNullOrUndefined, isUndefined} from "util";
+import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
 
 @Component({
   selector: 'edit-rule-nest',
@@ -160,8 +161,11 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
    * @protected
    */
   protected afterShowComp() {
-    if (this.selectedFields.length > 0) {
-      this.inputValue = this.selectedFields[0].name + '_1';
+
+    if (this.inputValue === '' || isNullOrUndefined(this.inputValue)) {
+      if (this.selectedFields.length > 0) {
+        this.inputValue = this.selectedFields[0].name + '_1';
+      }
     }
   } // function - _afterShowComp
 
@@ -184,6 +188,7 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
 
     // NEW COLUMN NAME
     this.inputValue = data.jsonRuleString.as;
+    this.inputValue = PreparationCommonUtil.removeQuotation(this.inputValue);
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
