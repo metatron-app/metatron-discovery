@@ -22,8 +22,10 @@
   </div>
   <!-- //top -->
   <!-- cpmtemts -->
-  <div class="ddp-ui-preview-contents ddp-type-preview">
-    {{detailData}}
+  <div class="ddp-ui-preview-contents ddp-type-preview ddp-query" (scroll)="onScrolled($event)">
+    <ng-container *ngFor="let log of detailDatas">
+      {{log}} <br>
+    </ng-container>
   </div>
   <!-- //cpmtemts -->
 </div>

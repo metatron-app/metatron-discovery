@@ -369,7 +369,7 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 .ddp-ui-preview-contents .ddp-type-top-option:before,
 .ddp-ui-preview-contents .ddp-type-top-option:after {display:table; content:'';}
 .ddp-ui-preview-contents .ddp-type-top-option:after {clear:both;}
-.ddp-ui-preview-contents.ddp-query {padding:15px;}
+.ddp-ui-preview-contents.ddp-query {padding:20px;}
 
 .ddp-ui-preview-contents.ddp-preview-group .ddp-col-table {margin-top:-46px; padding:46px 0 0 0; height:100%; box-sizing:Border-box;}
 .ddp-ui-preview-contents.ddp-preview-group .ddp-col-table .ddp-ui-gridbody2 {top:71px;}

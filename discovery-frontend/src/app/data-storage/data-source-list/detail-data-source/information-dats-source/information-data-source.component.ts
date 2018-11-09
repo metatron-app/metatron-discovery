@@ -170,7 +170,10 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
       } else if (changes.ingestionProcess.currentValue) { // if changed data
         // set process status
         this._setProcessStatus(changes.ingestionProcess.currentValue);
-        // TODO status가 enable로 바뀌었다면 histogram chart를 다시 그릴지 생각해보기
+        // if success ingestion
+        if (changes.ingestionProcess.currentValue === 'END_INGESTION_JOB') {
+          this._getFieldStats(this.getFields[this._getFindIndexTimestampField()].name, this.datasource.engineName)
+        }
       }
     }
   }

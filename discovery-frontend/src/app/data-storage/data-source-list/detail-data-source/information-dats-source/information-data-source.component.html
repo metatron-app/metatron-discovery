@@ -70,7 +70,7 @@
                 <div class="ddp-list-status">
                   <!-- Druid 적재 -->
                   <div class="ddp-status"
-                       [class.ddp-finish]="ingestionProcessStatusStep > 2"
+                       [class.ddp-finish]="ingestionProcessStatusStep >= 2"
                        [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 2">
                     <span class="ddp-num">1</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-2' | translate}}</span>
@@ -81,8 +81,8 @@
                   <!-- //Druid 적재 -->
                   <!-- 상태확인 -->
                   <div class="ddp-status"
-                    [class.ddp-finish]="ingestionProcessStatusStep > 3"
-                    [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 3"
+                    [class.ddp-finish]="ingestionProcessStatusStep >= 3"
+                    [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 2"
                     [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 3">
                     <span class="ddp-num">2</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-3' | translate}}</span>
@@ -94,7 +94,7 @@
                   <!-- 완료 -->
                   <div class="ddp-status"
                        [class.ddp-finish]="datasource.status.toString() === 'ENABLED' && ingestionProcessStatusStep === 4"
-                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 4"
+                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 3"
                        [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 4">
                     <span class="ddp-num">3</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-4' | translate}}</span>
@@ -144,7 +144,7 @@
                   <!-- 완료 -->
                   <div class="ddp-status"
                        [class.ddp-finish]="datasource.status.toString() === 'ENABLED' && ingestionProcessStatusStep === 4"
-                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 4"
+                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 3"
                        [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 4">
                     <span class="ddp-num">4</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-4' | translate}}</span>

@@ -26,10 +26,14 @@ export class IngestionLogComponent extends AbstractComponent {
   private _datasourceId: string;
   // historyId
   private _historyId: string;
+  // is get all log
+  private _isGetAllLog: boolean;
+
   // show flag
   public isShow = false;
   // data
-  public detailData: any;
+  public detailDatas: any;
+
 
   // 생성자
   constructor(private _datasourceService: DatasourceService,
@@ -38,9 +42,12 @@ export class IngestionLogComponent extends AbstractComponent {
     super(element, injector);
   }
 
-  @HostListener("window:scroll", [])
-  onScroll(): void {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+  /**
+   * on scrolled event
+   * @param {MouseEvent} event
+   */
+  public onScrolled(event: MouseEvent): void {
+    if (event.target['offsetHeight'] + event.target['scrollTop'] >= event.target['scrollHeight'] && !this._isGetAllLog) {
       // get ingestion result details
       this._getIngestionDetails(this._datasourceId, this._historyId);
     }
@@ -53,6 +60,9 @@ export class IngestionLogComponent extends AbstractComponent {
     this._datasourceId = datasourceId;
     this._historyId = historyId;
     this.isShow = true;
+    this._isGetAllLog = false;
+    // init
+    this.detailDatas = [];
     // get ingestion result details
     this._getIngestionDetails(this._datasourceId, this._historyId, -10000);
   }
@@ -72,11 +82,15 @@ export class IngestionLogComponent extends AbstractComponent {
    * @private
    */
   private _getIngestionDetails(datasourceId: string, historyId: string, offset?: number): void {
+    // check is all log
+    if (!offset && !this._isGetAllLog) {
+      this._isGetAllLog = true;
+    }
     // loading show
     this.loadingShow();
     this._datasourceService.getDatasourceIngestionLog(datasourceId, historyId, offset)
       .then((result) => {
-        this.detailData = result['logs'];
+        this.detailDatas = this.detailDatas.concat(result['logs'].split('\n'));
         // loading hide
         this.loadingHide();
       })
