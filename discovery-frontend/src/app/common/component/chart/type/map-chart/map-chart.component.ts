@@ -21,9 +21,8 @@ import {
   ChartColorList,
   ColorRangeType
 } from '../../option/define/common';
-// import * as ol from '../../../../../../../node_modules/ol';
 import * as ol from 'openlayers';
-import * as h3 from 'h3-js';
+import * as turf from '@turf/turf'
 
 import { OptionGenerator } from '../../../../../common/component/chart/option/util/option-generator';
 import UI = OptionGenerator.UI;
@@ -55,7 +54,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   public mapVaild: boolean = false;
   public mapVaildSecondLayer: boolean = false;
   public mapVaildThirdLayer: boolean = false;
-  public data: Map = new Map();
+
   public mapData = [];
   public mouseX = 0;
   public mouseY = 0;
@@ -346,8 +345,8 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       let rangeList = [];
 
       let featureList = [];
-      for(var i=0;i<uiOption.data[0].features.length;i++) {
-        featureList.push(uiOption.data[0].features[i].properties)
+      for(var i=0;i<data[0].features.length;i++) {
+        featureList.push(data[0].features[i].properties);
       }
 
       let featuresGroup = _.groupBy(featureList, uiOption.layers[0].color.column);
@@ -425,7 +424,6 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             // if(rangeMax === rangeMin) {
               // rangeMin = rangeMax - 1;
             // }
-
             if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&
             feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
               featureColor = range.color;
@@ -1230,11 +1228,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.noData.emit();
       return;
     } else {
-      if(!this.uiOption["data"]) {
-        this.uiOption["data"] = [];
-      }
+      // if(!this.resultData) {
+      //   this.resultData["data"] = [];
+      // }
       this.mapData[0] = this.data[0];
-      this.uiOption["data"][0] = this.data[0];
     }
 
     ////////////////////////////////////////////////////////
@@ -1284,6 +1281,14 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         colorList.push(range.color);
       }
       colorList = colorList.reverse();
+
+      let heatmapColorList = [];
+      _.each(colorList, (color, idx) => {
+        heatmapColorList.push(color);
+        if ( colorList.length === idx+1 ) { heatmapColorList.push(color); }
+      });
+
+      colorList = heatmapColorList;
     }
 
     // heatmap layer
@@ -2562,7 +2567,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         this.datasourceService.searchQuery(secondLayerQuery).then(
           (data) => {
             this.mapData[1] = data[0];
-            this.uiOption["data"][1] = data[0];
+            // this.resultData["data"][1] = data[0];
             this.drawSecondLayer(this.mapData);
           }
         ).catch((reason) => {
@@ -2577,7 +2582,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         this.datasourceService.searchQuery(thirdLayerQuery).then(
           (data) => {
             this.mapData[2] = data[0];
-            this.uiOption["data"][2] = data[0];
+            // this.resultData["data"][2] = data[0];
             this.drawThirdLayer(this.mapData);
           }
         ).catch((reason) => {

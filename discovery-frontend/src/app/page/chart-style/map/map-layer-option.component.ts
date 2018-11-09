@@ -157,9 +157,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     maxValue: 10
   };
 
-  // 색상, 크기 기준이 measuer 일때 필드 리스트
-  public measureList = [];
-
   // range list for view
   public rangesViewList = [];
 
@@ -186,6 +183,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
   public clustering: boolean = false;
   public viewRawData: boolean = false;
   public layerOptions: Object;
+  public measureList = new Array(new Array(), new Array(), new Array());
 
   // 색상의 기준이 되는 행/열 필드 리스트
   public fieldList: string[] = [];
@@ -207,7 +205,23 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    @Input('pivot')
    set setPivot(pivot: Pivot) {
      this.pivot = pivot;
+     this.measureList = new Array(new Array(), new Array(), new Array());
 
+     for(let aggregation of this.pivot.aggregations) {
+       let fieldAlias = aggregation.field["alias"];
+       if(!fieldAlias) fieldAlias = aggregation.name;
+       if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
+
+       if(!aggregation["layerNum"] || aggregation["layerNum"] === 1) {
+         this.measureList[0].push(aggregation.aggregationType + '(' + fieldAlias + ')');
+       } else if(aggregation["layerNum"] === 2) {
+         this.measureList[1].push(aggregation.aggregationType + '(' + fieldAlias + ')');
+       } else if(aggregation["layerNum"] === 3) {
+         this.measureList[2].push(aggregation.aggregationType + '(' + fieldAlias + ')');
+       }
+     }
+
+     // this.changeLayerOption();
      // pivot change here!
    }
 
@@ -785,7 +799,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        coverage: this.coverage,
        thickness: this.thickness,
        pathType: this.pathType
-     },this.uiOption.layers[1],this.uiOption.layers[2]]
+     },this.uiOption.layers[1],this.uiOption.layers[2]];
 
      // when color column is none or empty, set default column
      if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
@@ -801,9 +815,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
          this.uiOption.layers[0].color['column'] = this.uiOption.fieldList[0];
 
          // when it's measure, set default column
-       } else if ('MEASURE' === colorType && this.measureList && this.measureList.length > 0) {
+       } else if ('MEASURE' === colorType && this.uiOption["measureList"] && this.uiOption["measureList"][0].length > 0) {
 
-         this.uiOption.layers[0].color['column'] = this.measureList[0];
+         this.uiOption.layers[0].color['column'] = this.uiOption["measureList"][0][0];
        }
      }
 
@@ -816,9 +830,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        const sizeType = this.uiOption.layers[0].size.by;
 
          // when it's measure, set default column
-       if ('MEASURE' === sizeType && this.measureList && this.measureList.length > 0) {
+       if ('MEASURE' === sizeType && this.uiOption["measureList"] && this.uiOption["measureList"][0].length > 0) {
 
-         this.uiOption.layers[0].size['column'] = this.measureList[0];
+         this.uiOption.layers[0].size['column'] = this.uiOption["measureList"][0][0];
        }
      }
 
@@ -854,15 +868,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      }
 
      if(type === 'heatmapRadius') {
-       if(val === 10) {
+       if(val === 4) {
+         resultVal = '0%';
+       } else if(val === 10) {
          resultVal = '20%';
-       } else if(val === 15) {
+       } else if(val === 16) {
          resultVal = '40%';
-       } else if(val === 20) {
+       } else if(val === 22) {
          resultVal = '60%';
-       } else if(val === 25) {
+       } else if(val === 28) {
          resultVal = '80%';
-       } else if(val === 30) {
+       } else if(val === 34) {
          resultVal = '100%';
        }
      }
@@ -1312,8 +1328,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     let rangeList = [];
 
     let featureList = [];
-    for(var i=0;i<uiOption.data[0].features.length;i++) {
-      featureList.push(uiOption.data[0].features[i].properties)
+
+    for(var i=0;i<this.resultData[0].features.length;i++) {
+      featureList.push(this.resultData[0].features[i].properties)
     }
 
     let featuresGroup = _.groupBy(featureList, uiOption.layers[0].color.column);
@@ -1847,11 +1864,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         hide_from_to: false,
         hide_min_max: true,
         keyboard: false,
-        min: 5,
-        max: 10,
-        from: scope.uiOption.layers[0].coverage,
+        min: 4,
+        max: 34,
+        from: scope.uiOption.layers[0].radius,
         type: 'single',
-        step: 1,
+        step: 6,
         onChange(data) {
           scope.changeResolution(data.from);
         }
