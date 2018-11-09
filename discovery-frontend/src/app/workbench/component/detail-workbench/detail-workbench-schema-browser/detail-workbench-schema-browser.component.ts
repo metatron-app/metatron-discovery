@@ -906,7 +906,12 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       // Logical name
       enableMetaData && (row['LogicalName'] = data[idx]['name']);
       // Type
-      row['type'] = data[idx]['columnType'] + '(' + data[idx]['columnSize'] + ')';
+      // column size가 없을 경우 확인
+      if( isUndefined( data[idx]['columnSize'] ) ){
+        row['type'] = data[idx]['columnType'];
+      } else {
+        row['type'] = data[idx]['columnType'] + '(' + data[idx]['columnSize'] + ')';
+      }
       // Desc
       row['description'] = data[idx]['description'];
       rows.push(row);
