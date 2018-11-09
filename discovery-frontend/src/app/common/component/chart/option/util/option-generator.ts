@@ -2015,22 +2015,28 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#602663",
-              transparency: 80,
-              blur: 10,
-              radius: 10,
-              resolution: 8
+              transparency: 80
             },
             size: {
               "by": "NONE",
+              "column": "NONE"
+            },
+            thickness: {
+              "by": "NONE",
               "column": "NONE",
-              "max": 10
+              "maxValue": 10
             },
             outline: {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
             clustering: false,
-            viewRawData: false
+            viewRawData: false,
+            shape: "HEXAGON",
+            coverage: 8,
+            blur: 10,
+            radius: 10,
+            pathType: "STRAIGHT"
           },
           {
             type: "symbol",
@@ -2040,22 +2046,28 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#888fb4",
-              transparency: 80,
-              blur: 10,
-              radius: 10,
-              resolution: 8
+              transparency: 80
             },
             size: {
               "by": "NONE",
+              "column": "NONE"
+            },
+            thickness: {
+              "by": "NONE",
               "column": "NONE",
-              "max": 10
+              "maxValue": 10
             },
             outline: {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
             clustering: false,
-            viewRawData: false
+            viewRawData: false,
+            shape: "HEXAGON",
+            coverage: 8,
+            blur: 10,
+            radius: 10,
+            pathType: "STRAIGHT"
           },
           {
             type: "symbol",
@@ -2065,22 +2077,28 @@ export namespace OptionGenerator {
               by: "NONE",            // NONE, MEASURE, DIMENSION
               column: "NONE",
               schema: "#bccada",
-              transparency: 80,
-              blur: 10,
-              radius: 10,
-              resolution: 8
+              transparency: 80
             },
             size: {
               "by": "NONE",
+              "column": "NONE"
+            },
+            thickness: {
+              "by": "NONE",
               "column": "NONE",
-              "max": 10
+              "maxValue": 10
             },
             outline: {
               "color": "#000000",
               "thickness": "NONE"              // THIN, NORMAL, THICK
             },
             clustering: false,
-            viewRawData: false
+            viewRawData: false,
+            shape: "HEXAGON",
+            coverage: 8,
+            blur: 10,
+            radius: 10,
+            pathType: "STRAIGHT"
           }
         ],
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),

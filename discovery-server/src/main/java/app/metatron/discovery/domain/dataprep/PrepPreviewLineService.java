@@ -128,19 +128,21 @@ public class PrepPreviewLineService {
 
             String previewPathKey = "previewPath";
             String previewPath = dataset.getCustomValue(previewPathKey);
-            if (null != previewPath) {
-                ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
-                String filepath = previewPath + File.separator + dataset.getDsId() + ".df";
-                File theFile = new File(filepath);
-                if (true == theFile.exists()) {
-                    dataFrame = mapper.readValue(theFile, DataFrame.class);
-                } else {
-                    dataFrame = this.remakePreviewLines(dsId);
-                    // regenerate
-                    // throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, filepath);
-                }
+            if (null == previewPath) {
+                this.remakePreviewLines(dsId);
+                previewPath = dataset.getCustomValue(previewPathKey);
+                assert previewPath != null;
+            }
+
+            ObjectMapper mapper = GlobalObjectMapper.getDefaultMapper();
+            String filepath = previewPath + File.separator + dataset.getDsId() + ".df";
+            File theFile = new File(filepath);
+            if (true == theFile.exists()) {
+                dataFrame = mapper.readValue(theFile, DataFrame.class);
             } else {
-                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PROPERTY_NOT_AVAILABLE, previewPathKey+"==(null)");
+                dataFrame = this.remakePreviewLines(dsId);
+                // regenerate
+                // throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, filepath);
             }
 
             if(dataFrame!=null) {

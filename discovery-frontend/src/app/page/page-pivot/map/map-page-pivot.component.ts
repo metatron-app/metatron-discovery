@@ -110,6 +110,11 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
     */
    public changePivot(eventType?: EventType) {
 
+     this.pivot.columns = this.pivot.columns.map(this.checkAliasMap);
+     this.pivot.rows = this.pivot.rows.map(this.checkAliasMap);
+     this.pivot.aggregations = this.pivot.aggregations.map(this.checkAliasMap);
+
+     //색상,크기 기준이 measuer일때 필드리스트
      let measureList = new Array(new Array(), new Array(), new Array());
 
      for(let aggregation of this.pivot.aggregations) {
@@ -128,6 +133,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
 
      this.uiOption["measureList"] = measureList;
 
+     //선반에 dimension 추가되면 option panel 색상에 자동으로 dimension 선택, 해당 필드 선택
      if(this.pivot.columns.length > this.columnsCnt) {
        let column = this.pivot.columns[this.pivot.columns.length-1];
        let layerNum = column["layerNum"];
@@ -137,7 +143,10 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
          this.uiOption.layers[layerNum-1].color.column = column.name;
          this.uiOption.layers[layerNum-1].color.schema = 'SC1';
        }
+       // this.uiOption.toolTip["displayColumns"].push(column.name);
      }
+
+     //선반에 measure 추가되면 option panel 색상에 자동으로 measure 선택, 해당 필드 선택
 
      if(this.pivot.aggregations.length > this.aggregationsCnt) {
        let aggregation = this.pivot.aggregations[this.pivot.aggregations.length-1];
@@ -158,9 +167,13 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
          } else {
            this.uiOption.layers[layerNum-1].size.by = 'MEASURE';
            this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+
+           this.uiOption.layers[layerNum-1].thickness.by = 'MEASURE';
+           this.uiOption.layers[layerNum-1].thickness.column = aggregation.aggregationType + '(' + fieldAlias + ')';
          }
 
        }
+
      }
 
      // Aggregation type change
@@ -172,6 +185,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
        if(aggregation.fieldAlias) fieldAlias = aggregation.fieldAlias;
        this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
        this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
+       this.uiOption.layers[layerNum-1].thickness.column = aggregation.aggregationType + '(' + fieldAlias + ')';
      }
 
      this.aggregationsCnt = this.pivot.aggregations.length;
@@ -208,9 +222,9 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
       }
      }
 
-     this.uiOption["layerCnt"] = layerNum;
+     this.uiOption["layerCnt"] = this.layerNum;
 
-     // 이벤트
+     // pivot이 변경될때만 실행되도록
      if(pivotChanged) this.changePivot();
    }
 
@@ -224,28 +238,8 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      // 선반에서 필드제거
      let field: AbstractField = shelf.splice(idx, 1)[0];
 
-     // if (shelf[idx]) {
-     // let aggregationType = shelf[idx].aggregationType;
-
-     // aggregationTypeList에서 해당 aggregationType 제거
-     // shelf.forEach((item) => {
-     //   _.remove(item.aggregationTypeList, aggregationType);
-     // })
-     // }
-
      // 필드의 선반정보 제거
      field.field.pivot.splice(field.field.pivot.indexOf(fieldPivot), 1);
-
-     // 필드의 Alias정보 제거
-     // delete field.field.pivotAlias;
-
-     // 해당 선반을 타겟으로 잡기
-     // if (event) {
-     //   let target = $(event.currentTarget.parentElement.parentElement.parentElement.parentElement);
-     //
-     //   // 선반 total width 설정, 애니메이션 여부 설정
-     //   this.onShelveAnimation(target);
-     // }
 
      let layerNum = field["layerNum"]-1;
 
@@ -263,6 +257,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
          this.uiOption.layers[layerNum]["color"].schema = "#bccada";
        }
        this.uiOption.layers[layerNum]["size"].by = "NONE";
+       this.uiOption.layers[layerNum]["thickness"].by = "NONE";
        this.uiOption.layers[layerNum]["color"]["customMode"] = undefined;
      } else {
 
@@ -315,22 +310,35 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
      return count < 1;
    }
 
-  /**
-   * TODO need to update css
-   * set animation in map
-   * @param {JQuery} element
-   */
-  // public onShelveAnimation(element: JQuery) {
-  //
-  //   let shelfElement: JQuery;
-  //
-  //   shelfElement = this.$element.find('#shelfColumn' + this.layerNum);
-  //
-  //   super.onShelveAnimation(shelfElement.find('.ddp-wrap-default'));
-  // }
+    /**
+    * TODO need to update css
+    * set animation in map
+    * @param {JQuery} element
+    */
+    public onShelveAnimation(element: JQuery) {
+
+      let shelfElement: JQuery;
+
+      shelfElement = this.$element.find('#shelfColumn' + this.layerNum);
+
+      super.onShelveAnimation(shelfElement.find('.ddp-wrap-default'));
+    }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+   private checkAliasMap(field: AbstractField) {
 
+     if (['measure', 'calculated'].indexOf(field.type) > -1) {
+       // TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅
+       if (field.type === 'calculated') {
+         console.info('TODO 계산식인경우 field.aggregated 여부에 따라 기본값 세팅');
+       }
+       const aggType = _.isUndefined(field.aggregationType) ? 'SUM' : field.aggregationType;
+       // field.alias = `${aggType}(${field.name})`;
+     }
+
+     // TODO 사용자 정의 alias가 있는 경우 처리
+     return field;
+   }
 }

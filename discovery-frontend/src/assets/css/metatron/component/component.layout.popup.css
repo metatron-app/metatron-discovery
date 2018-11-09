@@ -61,10 +61,5 @@ ul.ddp-list-popup li.ddp-selected > a em.ddp-icon-time5 {background-position:-14
 
 .ddp-types ul.ddp-list-popup li a em.ddp-icon-snapshot {display:inline-block; position:absolute; top:50%; left:12px; margin-top:-6px; width:14px; height:11px; background:url(../../../images/icon_shot.png) no-repeat; background-position:-34px top;}
 
-
-/*.ddp-types ul.ddp-list-popup li a .ddp-label-checkbox i.ddp-icon-checkbox,*/
-/*.ddp-types ul.ddp-list-popup li a .ddp-label-checkbox input[type="checkbox"] {top:8px; left:20px}*/
-
-
-.ddp-type-dropdown {position:relative;} /*??*/
+.ddp-type-dropdown {position:relative;}
 

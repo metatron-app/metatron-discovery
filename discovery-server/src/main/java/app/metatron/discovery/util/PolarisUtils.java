@@ -17,7 +17,9 @@ package app.metatron.discovery.util;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.MetatronException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
@@ -27,7 +29,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.monitorjbl.xlsx.StreamingReader;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -42,6 +43,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -64,6 +66,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.exception.MetatronException;
@@ -1197,5 +1200,252 @@ public class PolarisUtils {
     } catch (UnknownHostException e) {
       return "localhost";
     }
+  public static List<String> mapWithRangeExpressionToList(Map<String, Object> rangeMap){
+
+    List<String> strList = new ArrayList<>();
+    Map<String, List> convertListMap = new LinkedHashMap<>();
+
+    for(String keyStr : rangeMap.keySet()){
+      String partitionStr = rangeMap.get(keyStr).toString();
+
+      List<String> convertedRangeList = new ArrayList<>();
+
+      //1. comma split
+      List<String> commaSeparatedList = commaExpressionToList(partitionStr);
+      for(String commaSeparatedStr : commaSeparatedList){
+
+        //2. [**-**] range generate to list
+        convertedRangeList.addAll(rangeExpressionToList(commaSeparatedStr));
+      }
+
+      convertListMap.put(keyStr, convertedRangeList);
+    }
+
+    //union string with prefix
+    for(String keyStr : convertListMap.keySet()){
+
+      if(strList.isEmpty()){
+        strList = union(keyStr, "", convertListMap.get(keyStr), null, "");
+      } else {
+        strList = union("", keyStr, strList, convertListMap.get(keyStr), "/");
+      }
+    }
+
+    return strList;
+  }
+
+  public static List<String> commaExpressionToList(String commaStr){
+    String comma = ",";
+
+    // has comma expression
+    boolean hasCommaExpression = commaStr.contains(comma);
+    List<String> convertedList = new ArrayList<>();
+    if(hasCommaExpression){
+      convertedList.addAll(
+              Arrays.stream(StringUtils.split(commaStr, comma)).collect(Collectors.toList())
+      );
+    } else {
+      convertedList.add(commaStr);
+    }
+
+    //trim
+    return convertedList.stream().map(StringUtils::trim).collect(Collectors.toList());
+  }
+
+  public static List<String> rangeExpressionToList(String rangeStr){
+
+    List<String> convertedList = new ArrayList<>();
+    // has range Expr..
+    Pattern pattern = Pattern.compile("\\[([a-zA-Z0-9]*)-([a-zA-Z0-9]*)\\]");
+    Matcher matcher = pattern.matcher(rangeStr);
+
+    boolean hasRangeExpression = matcher.find();
+    if(hasRangeExpression){
+      List<String> generatedList = new ArrayList<>();
+      matcher.reset();
+      int lastFrom = 0;
+      int lastTo = 0;
+      while (matcher.find()) {
+        int from = matcher.start();
+        int to = matcher.end();
+
+        if(from != lastTo){
+          List<String> missedStr = new ArrayList<>();
+          missedStr.add(StringUtils.substring(rangeStr, lastTo, from));
+          generatedList = union("", "", generatedList, missedStr, "");
+        }
+
+        String fromStr = matcher.group(1);
+        String toStr = matcher.group(2);
+
+        generatedList = union("", "", generatedList, generateList(fromStr, toStr), "");
+
+        lastFrom = from;
+        lastTo = to;
+      }
+
+      if(lastTo != rangeStr.length()){
+        List<String> remainStr = new ArrayList<>();
+        remainStr.add(StringUtils.substring(rangeStr, lastTo, rangeStr.length()));
+        generatedList = union("", "", generatedList, remainStr, "");
+      }
+      convertedList.addAll(generatedList);
+    } else {
+      //convert blank partition to asterisk for like statement
+      if(StringUtils.isEmpty(rangeStr))
+        convertedList.add("{*}");
+      else
+        convertedList.add(rangeStr);
+    }
+
+    return convertedList;
+  }
+
+  public static List<String> generateList(String from, String to){
+
+    if((isNumeric(from) && !isNumeric(to))
+    || isLowercase(from) && !isLowercase(to)
+    || isUppercase(from) && !isUppercase(to)){
+      throw new BadRequestException("from, to case is not match.");
+    }
+
+    if(from.compareTo(to) > 0){
+      throw new BadRequestException("to should greater than from.");
+    }
+
+    List<String> genList = new ArrayList<>();
+    String nextString = from;
+    int maxCnt = 100;
+    int loopCnt = 0;
+    while(!nextString.equals(to)){
+      if(loopCnt > maxCnt){
+        break;
+      }
+      genList.add(nextString);
+      if(isNumeric(from)){
+        nextString = nextNumeric(nextString);
+      } else if(isLowercase(from)){
+        nextString = nextLowerAlphabet(nextString);
+      } else if(isUppercase(from)){
+        nextString = nextUpperAlphabet(nextString);
+      }
+      loopCnt++;
+    }
+    genList.add(to);
+    return genList;
+  }
+
+  public static String nextUpperAlphabet(String text){
+    return nextString(text, 'A', 'Z', 'A');
+  }
+
+  public static String nextLowerAlphabet(String text){
+    return nextString(text, 'a', 'z', 'a');
+  }
+
+  public static String nextNumeric(String text){
+    return nextString(text, '0', '9', '1');
+  }
+
+  private static boolean isNumeric(String text){
+    return text.matches("^\\d+$");
+  }
+
+  private static boolean isUppercase(String text){
+    return text.matches("^[A-Z]+$");
+  }
+
+  private static boolean isLowercase(String text){
+    return text.matches("^[a-z]+$");
+  }
+
+  public static String nextString(String text, char firstLetter, char lastLetter, char insertLetter){
+    StringBuilder sb = new StringBuilder(text);
+    boolean needShift = true;
+    char[] textCharArr = text.toCharArray();
+    for(int i = textCharArr.length - 1; i >= 0; i--){
+      if(needShift){
+        Character targetChar = textCharArr[i];
+
+        if(targetChar == lastLetter){
+          targetChar = firstLetter;
+          needShift = true;
+        } else {
+          targetChar++;
+          needShift = false;
+        }
+        sb.setCharAt(i, targetChar);
+      }
+    }
+
+    if(needShift){
+      sb.insert(0, insertLetter);
+    }
+
+    return sb.toString();
+  }
+
+  public static List<String> union(String prefix1, String prefix2, List<String> list1, List<String> list2, String delimiter){
+    List<String> unionList = new ArrayList<>();
+
+    if((list1 == null || list1.isEmpty()) && (list2 == null || list2.isEmpty())) {
+
+    } else if(list1 == null || list1.isEmpty()){
+      list2.stream()
+              .forEach(value2 -> {
+                StringBuilder builder = new StringBuilder();
+                if (StringUtils.isNotEmpty(prefix1))
+                  builder.append(prefix1 + "=");
+                builder.append(delimiter);
+                if (StringUtils.isNotEmpty(prefix2))
+                  builder.append(prefix2 + "=");
+                builder.append(value2);
+                unionList.add(builder.toString());
+              });
+    } else if(list2 == null || list2.isEmpty()){
+      list1.stream()
+              .forEach(value1 -> {
+                StringBuilder builder = new StringBuilder();
+                if(StringUtils.isNotEmpty(prefix1))
+                  builder.append(prefix1 + "=");
+                builder.append(value1);
+                builder.append(delimiter);
+                if(StringUtils.isNotEmpty(prefix2))
+                  builder.append(prefix2 + "=");
+                unionList.add(builder.toString());
+              });
+    } else {
+      list1.stream()
+              .forEach(value1 -> {
+                list2.stream()
+                        .forEach(value2 ->{
+                          StringBuilder builder = new StringBuilder();
+                          if(StringUtils.isNotEmpty(prefix1))
+                            builder.append(prefix1 + "=");
+                          builder.append(value1);
+                          builder.append(delimiter);
+                          if(StringUtils.isNotEmpty(prefix2))
+                            builder.append(prefix2 + "=");
+                          builder.append(value2);
+                          unionList.add(builder.toString());
+                        });
+
+              });
+    }
+
+    return unionList;
+  }
+
+  public static Map<String, Object> partitionStringToMap(String partition){
+    Map<String, Object> partitionMap = new LinkedHashMap<>();
+
+    for(String separatedPart : partition.split("/")){
+      String[] separatedPartition = separatedPart.split("=");
+      if(separatedPartition.length > 1){
+        partitionMap.put(separatedPartition[0], separatedPartition[1]);
+      }
+    }
+
+    return partitionMap;
   }
 }

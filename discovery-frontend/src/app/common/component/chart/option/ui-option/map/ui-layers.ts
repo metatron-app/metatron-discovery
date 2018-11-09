@@ -1,6 +1,6 @@
 import { UIOption } from '../../ui-option';
 /**
- * 바차트 화면 UI에 필요한 옵션
+ * 맵차트 화면 UI에 필요한 옵션
  * Version 2.0
  */
 export interface UILayers {
@@ -23,6 +23,18 @@ export interface UILayers {
   datasource?: string;
 
   viewRawData?: boolean;
+
+  blur?: number;
+
+  radius?: number;
+
+  thickness?: Thickness;
+
+  pathType?: string;
+
+  shape?: string;
+
+  coverage?: number;
 }
 
 /**
@@ -38,16 +50,12 @@ interface SymbolColor {
 
   transparency?: number;
 
-  blur?: number;
-
-  radius?: number;
-
   resolution?: number;
 
 }
 
 /**
- * Symbol Color
+ * Symbol Size
  */
 interface SymbolSize {
 
@@ -55,7 +63,18 @@ interface SymbolSize {
 
   column?: string;
 
-  max?: number;
+}
+
+/**
+ * Thickness
+ */
+interface Thickness {
+
+  by?: string;
+
+  column?: string;
+
+  maxValue?: number;
 
 }
 

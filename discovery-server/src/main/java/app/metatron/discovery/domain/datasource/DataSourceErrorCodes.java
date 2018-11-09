@@ -35,6 +35,7 @@ public enum DataSourceErrorCodes implements ErrorCodes {
   INGESTION_ENGINE_TASK_CREATION_ERROR("error.datasource.ingestion.engine.creation.task"), // No ingestion task was created on the engine for an unknown reason.
   INGESTION_ENGINE_TASK_ERROR("error.datasource.ingestion.engine.run.task"), // An error occurred while loading the data source. Please check the engine log.
   INGESTION_ENGINE_REGISTRATION_ERROR("error.datasource.ingestion.engine.registration"); // An error occurred while registering the data source in the engine. Please contact your system administrator.;
+  INVALID_PARTITION_EXPRESSION("DS0008");
 
   String errorCode;
 

@@ -199,6 +199,15 @@ public class EngineProperties {
 
     String keytab;
 
+    boolean strictMode;
+
+    //hive metastore connection info
+    String metastoreHost;
+    String metastorePort;
+    String metastoreSchema;
+    String metastoreUserName;
+    String metastorePassword;
+
     public HiveConnection() {
     }
 
@@ -256,6 +265,54 @@ public class EngineProperties {
 
     public void setKeytab(String keytab) {
       this.keytab = keytab;
+    }
+
+    public boolean isStrictMode() {
+      return strictMode;
+    }
+
+    public void setStrictMode(boolean strictMode) {
+      this.strictMode = strictMode;
+    }
+
+    public String getMetastorePassword() {
+      return metastorePassword;
+    }
+
+    public void setMetastorePassword(String metastorePassword) {
+      this.metastorePassword = metastorePassword;
+    }
+
+    public String getMetastoreHost() {
+      return metastoreHost;
+    }
+
+    public void setMetastoreHost(String metastoreHost) {
+      this.metastoreHost = metastoreHost;
+    }
+
+    public String getMetastorePort() {
+      return metastorePort;
+    }
+
+    public void setMetastorePort(String metastorePort) {
+      this.metastorePort = metastorePort;
+    }
+
+    public String getMetastoreSchema() {
+      return metastoreSchema;
+    }
+
+    public void setMetastoreSchema(String metastoreSchema) {
+      this.metastoreSchema = metastoreSchema;
+    }
+
+    public String getMetastoreUserName() {
+      return metastoreUserName;
+    }
+
+    public void setMetastoreUserName(String metastoreUserName) {
+      this.metastoreUserName = metastoreUserName;
     }
   }
 

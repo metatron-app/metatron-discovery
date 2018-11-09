@@ -140,10 +140,27 @@ public class TeddyImpl {
   }
 
   // APPEND *AFTER* stageIdx
-  public DataFrame append(String dsId, int stageIdx, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
+  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean forced) throws TeddyException {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx + 1);
-    DataFrame newDf = apply(rev.get(stageIdx), ruleString);
+    DataFrame newDf = null;
+    boolean suppressed = false;
+
+    try {
+      newDf = apply(rev.get(stageIdx), ruleString);
+    } catch (TeddyException te) {
+      if (forced == false) {
+        throw te;
+      }
+      suppressed = true;
+    }
+
+    if (suppressed) {
+      newDf = new DataFrame(rev.get(stageIdx));
+      newDf.setRuleString(ruleString);
+      newDf.setValid(false);
+    }
+
     newRev.add(newDf);  // this removes useless revisions
 
     appendNewDfs(newRev, rev, stageIdx + 1);
@@ -155,7 +172,7 @@ public class TeddyImpl {
     return newDf;
   }
 
-  public DataFrame preview(String dsId, int stageIdx, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
+  public DataFrame preview(String dsId, int stageIdx, String ruleString) throws TeddyException {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     return apply(rev.get(stageIdx), ruleString);
   }
@@ -165,9 +182,8 @@ public class TeddyImpl {
     return rev.get(stageIdx); // if null, get curStage
   }
 
-  private DataFrame apply(DataFrame df, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
+  private DataFrame apply(DataFrame df, String ruleString) throws TeddyException {
     List<DataFrame> slaveDfs = new ArrayList<>();
-    DataFrame newDf;
 
     List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
     if (slaveDsIds != null) {
@@ -177,14 +193,7 @@ public class TeddyImpl {
       }
     }
 
-    try {
-      newDf = dataFrameService.applyRule(df, ruleString, slaveDfs);
-    } catch (TeddyException e) {
-      LOGGER.error("apply(): TeddyException occurred from TeddyImpl.applyRule()", e);
-      throw PrepException.fromTeddyException(e);
-    }
-
-    return newDf;
+    return dataFrameService.applyRule(df, ruleString, slaveDfs);
   }
 
   public DataFrame undo(String dsId) {
@@ -220,7 +229,7 @@ public class TeddyImpl {
     addRev(dsId, newRev);
   }
 
-  public void update(String dsId, int stageIdx, String ruleString) throws TransformExecutionFailedException, TransformTimeoutException {    // used in DELETE only
+  public void update(String dsId, int stageIdx, String ruleString) throws TeddyException {    // used in DELETE only
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx);   // apply previous rules until the update target.
 
