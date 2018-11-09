@@ -75,6 +75,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   public isHiveDisable : boolean = false;
   public isAdvancedPrefOpen : boolean = false;
 
+  public fileLocationDefaultIdx : number = 0;
+
   @ViewChild('snapshotName')
   public snapshotName : ElementRef;
 
@@ -325,6 +327,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         }
         this.snapshot.location = this.fileLocations[idx].value;
         this.snapshot.uri = this.fileUris[idx];
+        this.fileLocationDefaultIdx = idx;
       }
     }
 
