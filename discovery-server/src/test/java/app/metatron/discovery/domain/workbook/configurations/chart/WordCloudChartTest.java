@@ -14,58 +14,32 @@
 
 package app.metatron.discovery.domain.workbook.configurations.chart;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+
 /**
- * Created by kyungtaak on 2016. 6. 16..
+ * Word cloud spec. Test
  */
 public class WordCloudChartTest {
 
-  ObjectMapper objectMapper;
-
-  @Before
-  public void setUp() {
-    objectMapper = new ObjectMapper();
-    objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-  }
-
   @Test
-  public void serialize() throws JsonProcessingException {
+  public void de_serialize() throws IOException {
 
     // 색상
     ChartColor color = new ChartColorByDimension("12colors", "field1", null, null);
 
-    WordCloudChart chart = new WordCloudChart(color);
+    WordCloudChart chart = new WordCloudChart(color, 500);
 
-    System.out.println(objectMapper.writeValueAsString(chart));
-  }
+    String chartStr = GlobalObjectMapper.writeValueAsString(chart);
 
-  @Test
-  public void deserialize() throws IOException {
+    System.out.println(chartStr);
 
-    String chartSpec = "{\n" +
-            "  \"type\" : \"wordcloud\",\n" +
-            "  \"color\" : {\n" +
-            "    \"type\" : \"dimension\",\n" +
-            "    \"schema\" : \"12colors\",\n" +
-            "    \"auto\" : true\n" +
-            "  },\n" +
-            "}";
+    Chart deSerialized = GlobalObjectMapper.getDefaultMapper().readValue(chartStr, Chart.class);
 
-    Chart chart = objectMapper.readValue(chartSpec, Chart.class);
-
-    System.out.println("ToString Result - \n" + ToStringBuilder.reflectionToString(chart, ToStringStyle.MULTI_LINE_STYLE));
+    System.out.println("Result : " + deSerialized.toString());
   }
 
 }
