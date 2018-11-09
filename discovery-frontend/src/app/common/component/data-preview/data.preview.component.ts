@@ -193,10 +193,10 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     if (this.source['configuration']) {
       this.isDashboard = true;
       const dashboardInfo: Dashboard = (<Dashboard>this.source);
-      this.datasources = DashboardUtil.getMainDataSources(dashboardInfo);
+      this.datasources = _.cloneDeep(DashboardUtil.getMainDataSources(dashboardInfo));
     } else {
       this.isDashboard = false;
-      this.datasources.push(<Datasource>this.source);
+      this.datasources.push(<Datasource>_.cloneDeep(this.source));
     }
     // 데이터소스 array에 메타데이터가 존재하는경우 merge
     this.datasources.forEach((source) => {
