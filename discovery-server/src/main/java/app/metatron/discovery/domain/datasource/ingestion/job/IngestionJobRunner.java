@@ -14,7 +14,6 @@ import java.util.Map;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.ProgressResponse;
-import app.metatron.discovery.common.exception.ErrorCodes;
 import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.fileloader.FileLoaderFactory;
 import app.metatron.discovery.domain.datasource.DataSource;
@@ -170,23 +169,36 @@ public class IngestionJobRunner {
 
     } catch (DataSourceIngestionException ie) {
       sendTopic(sendTopicUri, new ProgressResponse(-1, FAIL_INGESTION_JOB, ie));
-      handleFailProcess(history, ie.getCode(), ie);
+      //handleFailProcess(history, ie.getCode(), ie);
+      history.setStatus(FAILED);
+      history.setCause(ie.getCode().toString());
+      historyRepository.saveAndFlush(history);
+      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED, null);
+
+      LOGGER.error("Fail to ingestion : {}", history, ie);
+
     } catch (Exception e) {
       sendTopic(sendTopicUri, new ProgressResponse(-1, FAIL_INGESTION_JOB, new MetatronException(INGESTION_COMMON_ERROR, e)));
-      handleFailProcess(history, INGESTION_COMMON_ERROR, e);
+      //handleFailProcess(history, INGESTION_COMMON_ERROR, e);
+      history.setStatus(FAILED);
+      history.setCause(INGESTION_COMMON_ERROR.toString() + ": " + e.getMessage());
+      historyRepository.saveAndFlush(history);
+      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED, null);
+
+      LOGGER.error("Fail to ingestion : {}", history, e);
     }
 
   }
 
-  @Transactional
-  public void handleFailProcess(IngestionHistory history, ErrorCodes code, Throwable t) {
-    history.setStatus(FAILED);
-    history.setCause(code.toString());
-    historyRepository.saveAndFlush(history);
-    dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED, null);
-
-    LOGGER.error("Fail to ingestion : {}", history, t);
-  }
+//  @Transactional
+//  public void handleFailProcess(IngestionHistory history, ErrorCodes code, Throwable t) {
+//    history.setStatus(FAILED);
+//    history.setCause(code.toString());
+//    historyRepository.saveAndFlush(history);
+//    dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED, null);
+//
+//    LOGGER.error("Fail to ingestion : {}", history, t);
+//  }
 
   public IngestionJob getJob(DataSource dataSource, IngestionHistory ingestionHistory) {
     IngestionInfo ingestionInfo = dataSource.getIngestionInfo();
