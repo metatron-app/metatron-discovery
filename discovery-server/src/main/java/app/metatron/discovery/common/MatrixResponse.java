@@ -110,7 +110,7 @@ public class MatrixResponse<R, C> implements Serializable {
 
   public void addInfo(String key, Object value) {
     if (info == null) {
-      info = Maps.newHashMap();
+      info = Maps.newLinkedHashMap();
     }
     info.put(key, value);
   }
@@ -377,7 +377,7 @@ public class MatrixResponse<R, C> implements Serializable {
 
   public void addMinMax() {
     if (info == null) {
-      info = Maps.newHashMap();
+      info = Maps.newLinkedHashMap();
     }
 
     if (values == null) {
