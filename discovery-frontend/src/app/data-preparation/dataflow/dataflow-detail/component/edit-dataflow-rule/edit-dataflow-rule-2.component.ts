@@ -1131,6 +1131,8 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
       val = 'inputValue';
     } else if (command === 'replace' || command === 'setCondition') {
       val = 'condition';
+    } else if (command === 'keep') {
+      val = 'keepRow';
     }
 
     this.extendInputFormulaComponent.open(fields, command, this._editRuleComp.getValue( val ));
@@ -1934,9 +1936,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         this.isRedoRunning = false;
       }
 
-      if (this.editorUseFlag) {
-        this.inputRuleCmd = '';
-      }
+      this.inputRuleCmd = '';
 
     });
 
