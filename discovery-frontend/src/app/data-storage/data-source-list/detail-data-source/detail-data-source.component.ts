@@ -13,7 +13,7 @@
  */
 
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, OnInit, Output,
+  Component, ElementRef, Injector, OnChanges, OnInit,
   ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
@@ -132,7 +132,15 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
         .then(() => {
           // 현재 데이터소스 상세조회
           this.getDatasourceDetail(this.datasourceId);
-          // TODO get historyId
+          // get historyId
+          this.datasourceService.getBatchHistories(this.datasourceId, null)
+            .then((result) => {
+              // set history id
+              if (result['_embedded'] && result['_embedded'].ingestionHistories) {
+                this.historyId = result['_embedded'].ingestionHistories[0].id;
+              }
+            })
+            .catch(error => this.commonExceptionHandler(error));
           // process ingestion
           this._setProcessIngestion(this.datasourceId);
         })
@@ -427,38 +435,25 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
       const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
       // 메세지 수신
       const subscription = CommonConstant.stomp.subscribe(
-        `/topic/datasources/${datasourceId}/progress`, (data: { progress: number, message: string }) => {
-          console.log('test socket', data);
-          if (-1 === data.progress) {
+        `/topic/datasources/${datasourceId}/progress`, (data: { progress: number, message: string, result: any }) => {
+          console.log('process socket', data);
+          if (-1 === data.progress) { // 실패시
             // 데이터 변경
             this.ingestionProcess = data;
-          } else if (100 === data.progress) {
+            // set status
+            this.datasource.status = Status.FAILED;
+            CommonConstant.stomp.unsubscribe(subscription);
+          } else if (100 === data.progress) { // 성공시
             // 데이터 변경
             this.ingestionProcess = data;
-            // TODO ENABLE로 바뀌었다면 status 변경
-
+            // set status
+            this.datasource.status = Status.ENABLED;
             CommonConstant.stomp.unsubscribe(subscription);     // Socket 응답 해제
-          } else {
+          } else { // 적재중
             // 데이터 변경
             this.ingestionProcess = data;
           }
         }, headers);
-
-      // TODO test
-      // this.datasource.status = Status.PREPARING;
-      // this.ingestionProcess = {progress: 1, message: "START_INGESTION_JOB"};
-      // setTimeout(() => {
-      //   this.datasource.status = Status.PREPARING;
-      //   this.ingestionProcess = {progress: 2, message: "ENGINE_INIT_TASK"};
-      //   setTimeout(() => {
-      //     this.datasource.status = Status.PREPARING;
-      //     this.ingestionProcess = {progress: 3, message: "ENGINE_REGISTER_DATASOURCE"};
-      //     setTimeout(() => {
-      //       this.datasource.status = Status.ENABLED;
-      //       this.ingestionProcess = {progress: 3, message: "END_INGESTION_JOB"};
-      //     }, 5000);
-      //   }, 5000);
-      // }, 5000);
     } catch (e) {
       console.info(e);
     }

@@ -76,7 +76,7 @@ export class IngestionLogComponent extends AbstractComponent {
     this.loadingShow();
     this._datasourceService.getDatasourceIngestionLog(datasourceId, historyId, offset)
       .then((result) => {
-        this.detailData = result;
+        this.detailData = result['logs'];
         // loading hide
         this.loadingHide();
       })

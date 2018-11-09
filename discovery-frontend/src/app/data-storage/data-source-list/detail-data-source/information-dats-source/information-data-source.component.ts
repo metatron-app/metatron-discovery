@@ -21,7 +21,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output, SimpleChange, SimpleChanges,
+  Output, SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
@@ -44,7 +44,6 @@ import { StringUtil } from '../../../../common/util/string.util';
 import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/confirm.component";
 import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
-import { Log } from '../../../../common/domain/modal';
 import { IngestionLogComponent } from './component/ingestion-log/ingestion-log.component';
 
 declare let echarts: any;
