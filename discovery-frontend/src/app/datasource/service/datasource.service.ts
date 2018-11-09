@@ -110,6 +110,11 @@ export class DatasourceService extends AbstractService {
    * @returns {Promise<any>}
    */
   public searchQuery(query: SearchQueryRequest): Promise<any> {
+    // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '129.444 38.444', upperCorner: '129.888 38.999', dataSource: 'cei_m1_b'};
+      // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '38.444 129.444', upperCorner: '38.999 129.888', dataSource: 'cei_m1_b'};
+
+    // query.filters.push(params);
+
     return this.post(this.API_URL + 'datasources/query/search', query);
   } // function - searchQuery
 
@@ -394,6 +399,8 @@ export class DatasourceService extends AbstractService {
 
       let geoFieldCnt = 0;
       let layers = [];
+      let layers2 = [];
+      let layers3 = [];
 
       for(let column of query.pivot.columns) {
         if(column && column.field && column.field.logicalType &&
@@ -465,6 +472,11 @@ export class DatasourceService extends AbstractService {
 
           layers.push(layer);
         }
+        //  else if(column["layerNum"] === 2) {
+        //   layers2.push(layer);
+        // } else if(column["layerNum"] === 3) {
+        //   layers3.push(layer);
+        // }
       }
 
       for(let aggregation of query.pivot.aggregations) {
@@ -480,6 +492,11 @@ export class DatasourceService extends AbstractService {
 
           layers.push(layer);
         }
+        //  else if(aggregation["layerNum"] === 2) {
+        //   layers2.push(layer);
+        // } else if(aggregation["layerNum"] === 3) {
+        //   layers3.push(layer);
+        // }
       }
 
 
@@ -784,7 +801,7 @@ export class DatasourceService extends AbstractService {
   public synchronizeDatasourceFields(datasourceId: string): Promise<any> {
     return this.patch(this.API_URL + `datasources/${datasourceId}/fields/sync`, null);
   }
-  
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
