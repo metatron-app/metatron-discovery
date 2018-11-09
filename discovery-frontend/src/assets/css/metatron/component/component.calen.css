@@ -7,7 +7,7 @@
 .ddp-ui-calen .ddp-box-calen.ddp-disabled:before {display:inline-block; content:''; position:absolute; top:0; left:0; right:0; bottom:0; background-color:rgba(240,240,240,0.3);}
 .ddp-ui-calen .ddp-input-typebasic,
 .ddp-ui-calen .ddp-input-typebasic:focus {border:none; padding: 7px 13px 6px 13px}
-.ddp-ui-calen .ddp-input-typebasic.ddp-data-calen {float:left; width:100%; box-sizing:border-box;}
+.ddp-ui-calen .ddp-input-typebasic.ddp-data-calen {float:left; padding:7px 0 7px 13px; width:100%; box-sizing:border-box;}
 .ddp-ui-calen .ddp-input-typebasic.ddp-data-calen:focus,
 .ddp-ui-calen .ddp-input-typebasic.ddp-data-time:focus {border:none;}
 .ddp-ui-calen .ddp-bar {float:left; padding:0 3px; width:4%; color:#4b515b; font-size:14px; text-align:center; line-height:30px; box-sizing:border-box;}
@@ -20,6 +20,7 @@
 .ddp-ui-time {float:left; width:80px; margin-right:3px;}
 
 /* 달력 라이브러리 */
+
 .rd-container {padding:0; border:none; z-index:10000;}
 .rd-date {padding:12px; border:1px solid #ddd; border-radius:2px; background-color:#fff; box-sizing:border-box;
     -moz-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
