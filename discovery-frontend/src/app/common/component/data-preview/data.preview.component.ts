@@ -26,7 +26,10 @@ import {
 } from '@angular/core';
 import { BoardDataSource, Dashboard, JoinMapping, QueryParam } from '../../../domain/dashboard/dashboard';
 import { DatasourceService } from 'app/datasource/service/datasource.service';
-import { Datasource, DataSourceSummary, Field, FieldRole } from '../../../domain/datasource/datasource';
+import {
+  Datasource, DataSourceSummary, Field, FieldFormatType,
+  FieldRole
+} from '../../../domain/datasource/datasource';
 import { SlickGridHeader } from 'app/common/component/grid/grid.header';
 import { header } from '../grid/grid.header';
 import { GridComponent } from '../grid/grid.component';
@@ -201,7 +204,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         // set meta data information
         this._setMetaDataField(field, source);
         //  if current time in fields, hide
-        if (field.role === FieldRole.TIMESTAMP && field.name === 'current_datetime') {
+        if (field.role === FieldRole.TIMESTAMP && field.format &&  field.format.type === FieldFormatType.TEMPORARY_TIME) {
           object.splice(index, 1);
         }
       });

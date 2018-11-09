@@ -281,7 +281,7 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
       format: {
-        type: FieldFormatType.DATE_TIME,
+        type: FieldFormatType.TEMPORARY_TIME,
         format: 'yyyy-MM-dd HH:mm:ss'
       }
     };

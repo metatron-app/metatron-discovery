@@ -431,6 +431,7 @@ export class FieldFormat {
 export enum FieldFormatType {
   DATE_TIME = <any>'time_format',
   UNIX_TIME = <any>'time_unix',
+  TEMPORARY_TIME = <any>'time_temporary',
 }
 
 export enum FieldFormatUnit {

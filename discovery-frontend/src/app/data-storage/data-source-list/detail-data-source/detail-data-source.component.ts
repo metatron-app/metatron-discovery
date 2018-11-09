@@ -17,7 +17,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Datasource, FieldRole, Status } from '../../../domain/datasource/datasource';
+import { Datasource, FieldFormatType, FieldRole, Status } from '../../../domain/datasource/datasource';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import { Alert } from '../../../common/util/alert.util';
 import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
@@ -385,7 +385,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
             // set timestamp column
             this.timestampColumn = field;
             // if column is current time, hide
-            if (field.name === 'current_datetime') {
+            if (field.format &&  field.format.type === FieldFormatType.TEMPORARY_TIME) {
               list.splice(index, 1);
             }
           }
