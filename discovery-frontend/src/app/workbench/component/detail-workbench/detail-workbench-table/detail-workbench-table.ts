@@ -87,7 +87,6 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   // total table length
   public totalTableElements : number = 0;
 
-  public schemaParams: {};
   public tableParams: {};
 
   // For searching
@@ -173,21 +172,6 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
     this.selectedTableInfoLayer = false;
   }
-
-  // close schema info popup
-  public tableSchemaClose() {
-    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
-    this.selectedTableSchemaLayer = false;
-  }
-
-  /**
-   * 스키마 클릭시 insert 이벤트
-   * @param $event
-   */
-  public tableSchemaInsert($event) {
-    this.sqlIntoEditorEvent.emit($event + ',');
-  }
-
 
   /**
    * table 정렬 변경 시
