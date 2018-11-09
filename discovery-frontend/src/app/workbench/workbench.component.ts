@@ -54,10 +54,12 @@ import { WorkspaceService } from '../workspace/service/workspace.service';
 import { CodemirrorComponent } from './component/editor-workbench/codemirror.component';
 
 declare let moment: any;
+declare let Split;
 
 @Component({
   selector: 'app-workbench',
-  templateUrl: './workbench.component.html'
+  templateUrl: './workbench.component.html',
+  styles:['.split, .gutter.gutter-horizontal { float: left; } .gutter.gutter-horizontal { cursor: ew-resize; }']
 })
 export class WorkbenchComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -137,6 +139,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   private _resizeTimer: any;
   private _tooltipTimer: any; // Result Tab SQL Tooltip timer
 
+  private _splitVertical: any;
+  private _splitHorizontal: any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -311,6 +315,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 접속한 사용자 OS 여부 (MAC, WINDOW)
   public isAgentUserMacOs : boolean = false;
 
+  public tableSchemaParams:any;   // table schema search parameter
+  public isOpenTableSchema:boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -370,6 +377,27 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this._loadInitData(() => {
         this.onEndedResizing();
         this.webSocketCheck(() => this.loadingHide());
+
+        const $lnbPanel = $( '.sys-workbench-lnb-panel' );
+
+        this._splitVertical = Split(['.sys-workbench-top-panel', '.sys-workbench-bottom-panel'], {
+          direction: 'vertical',
+          onDragEnd : () => {
+            this.onEndedResizing();
+          }
+        });
+        this._splitHorizontal = Split(['.sys-workbench-lnb-panel', '.sys-workbench-content-panel'], {
+          direction: 'horizontal',
+          sizes: [20, 80],
+          elementStyle: (dimension, size, gutterSize) => {
+            return {
+              'width': `${size}%`
+            };
+          },
+          onDragEnd : () => {
+            this.onEndedResizing();
+          }
+        });
       });
     }, 500);
   } // function - ngAfterViewInit
@@ -391,9 +419,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   } // function - webSocketCheck
 
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
+
+    this._splitVertical.destroy();
+    this._splitVertical = undefined;
+
     // this.webSocketCheck(() => {});
     (this._subscription) && (CommonConstant.stomp.unsubscribe(this._subscription));     // Socket 응답 해제
 
@@ -445,6 +475,23 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Open Table Schema
+   * @param data
+   */
+  public openTableSchema(data:{dataconnection: any, selectedTable: string, top: number, websocketId: string}) {
+    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query ddp-tablepop';
+    this.tableSchemaParams = data;
+    this.isOpenTableSchema = true;
+  } // function - openTableSchema
+
+  /**
+   * Close Table Schema
+   */
+  public closeTableSchema() {
+    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
+    this.isOpenTableSchema = false;
+  } // function - closeTableSchema
 
   /**
    * local storage 에 쿼리 저장
