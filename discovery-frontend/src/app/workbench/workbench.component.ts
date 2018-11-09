@@ -471,6 +471,13 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     document.getElementById(`workbenchQuery`).className = 'ddp-ui-query ddp-tablepop';
     this.tableSchemaParams = data;
     this.isOpenTableSchema = true;
+    if( this._splitHorizontal ) {
+      const leftWidthRatio:number = ( 500 / $(document).width() ) * 100;
+      const currSizes = this._splitHorizontal.getSizes();
+      if( leftWidthRatio > currSizes[0] ) {
+        this._splitHorizontal.setSizes([leftWidthRatio, 100 - leftWidthRatio]);
+      }
+    }
   } // function - openTableSchema
 
   /**
@@ -479,6 +486,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public closeTableSchema() {
     document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
     this.isOpenTableSchema = false;
+    const leftWidthRatio:number = ( $( '.ddp-view-benchlnb' ).width() / $(document).width() ) * 100;
+    this._splitHorizontal.setSizes([leftWidthRatio, 100 - leftWidthRatio]);
   } // function - closeTableSchema
 
   /**
@@ -2827,9 +2836,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       direction: 'horizontal',
       sizes: [20, 80],
       elementStyle: (dimension, size, gutterSize) => {
-        return {
-          'width': `${size}%`
-        };
+        return { 'width': `${size}%` };
       },
       onDragEnd : () => {
         this.onEndedResizing();
