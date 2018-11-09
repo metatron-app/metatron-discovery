@@ -47,6 +47,12 @@ public class ErrorResponse implements Serializable {
     this.details = details;
   }
 
+  public ErrorResponse(MetatronException e) {
+    this.code = e.getCode() == null ? GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE.toString() : e.getCode().toString();
+    this.message = e.getMessage();
+    this.details = e.getCause();
+  }
+
   public static ErrorResponse unknownError(Exception ex) {
     return new ErrorResponse(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, MetatronException.DEFAULT_GLOBAL_MESSAGE, ex.getMessage());
   }
@@ -73,5 +79,14 @@ public class ErrorResponse implements Serializable {
 
   public void setDetails(Object details) {
     this.details = details;
+  }
+
+  @Override
+  public String toString() {
+    return "ErrorResponse{" +
+        "code='" + code + '\'' +
+        ", message='" + message + '\'' +
+        ", details=" + details +
+        '}';
   }
 }

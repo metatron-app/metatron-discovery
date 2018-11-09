@@ -25,6 +25,7 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.KeepAsJsonDeserialzier;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
+import app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress;
 import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
 
 /**
@@ -66,8 +67,15 @@ public class IngestionHistory extends AbstractHistoryEntity implements MetatronD
   @Enumerated(EnumType.STRING)
   IngestionStatus status;
 
+  @Column(name = "ingest_progress")
+  @Enumerated(EnumType.STRING)
+  IngestionProgress progress;
+
   @Column(name = "ingest_cause")
   String cause;
+
+  @Column(name = "ingest_hostname")
+  String hostname;
 
   public IngestionHistory() {
   }
@@ -161,6 +169,14 @@ public class IngestionHistory extends AbstractHistoryEntity implements MetatronD
     this.status = status;
   }
 
+  public IngestionProgress getProgress() {
+    return progress;
+  }
+
+  public void setProgress(IngestionProgress progress) {
+    this.progress = progress;
+  }
+
   public String getCause() {
     return cause;
   }
@@ -177,20 +193,29 @@ public class IngestionHistory extends AbstractHistoryEntity implements MetatronD
     this.duration = duration;
   }
 
+  public String getHostname() {
+    return hostname;
+  }
+
+  public void setHostname(String hostname) {
+    this.hostname = hostname;
+  }
+
   @Override
   public String toString() {
     return "IngestionHistory{" +
-            "id=" + id +
-            ", dataSourceId='" + dataSourceId + '\'' +
-            ", ingestionId='" + ingestionId + '\'' +
-            ", duration=" + duration +
-            ", status=" + status +
-            ", cause='" + cause + '\'' +
-            "} " + super.toString();
+        "dataSourceId='" + dataSourceId + '\'' +
+        ", ingestionId='" + ingestionId + '\'' +
+        ", ingestionMethod=" + ingestionMethod +
+        ", duration=" + duration +
+        ", status=" + status +
+        ", progress=" + progress +
+        ", cause='" + cause + '\'' +
+        "} " + super.toString();
   }
 
   public enum IngestionStatus {
-    SUCCESS, FAILED, RUNNING, PASS;
+    SUCCESS, FAILED, RUNNING, PASS, UNKNOWN;
 
     public static IngestionStatus convertFromEngineStatus(String status) {
       switch (status) {
@@ -201,7 +226,7 @@ public class IngestionHistory extends AbstractHistoryEntity implements MetatronD
         case "RUNNING":
           return RUNNING;
         default:
-          return PASS;
+          return UNKNOWN;
       }
     }
   }

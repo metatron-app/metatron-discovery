@@ -109,13 +109,11 @@ export class DetailWorkbenchTableInfoSchema extends AbstractWorkbenchComponent i
   }
 
   public ngOnChanges(): void {
-    this.page.page === 0;
+    this.page.page = 0;
     this.getTableDetail();
   }
 
   public ngOnDestroy() {
-
-    // Destory
     super.ngOnDestroy();
   }
 

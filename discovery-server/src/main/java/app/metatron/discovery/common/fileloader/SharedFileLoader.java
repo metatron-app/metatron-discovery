@@ -16,6 +16,7 @@ package app.metatron.discovery.common.fileloader;
 
 import com.google.common.collect.Lists;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -35,11 +36,32 @@ public class SharedFileLoader implements FileLoader {
   
   @Override
   public List<String> put(FileLoaderProperties properties, String... paths) {
+    return put(properties, Lists.newArrayList(paths), null, false);
+  }
+
+  @Override
+  public List<String> put(FileLoaderProperties properties, List<String> sourcePaths, List<String> targetNames, boolean checkSrcPath) {
 
     List<String> loadPaths = Lists.newArrayList();
-    for(String path : paths) {
-      Path sourcePath = getPath(path);
-      String remotePathStr = properties.getRemotePath(sourcePath.getFileName().toString());
+    for(int i=0; i<sourcePaths.size(); i++) {
+
+      Path sourcePath = getPath(sourcePaths.get(i));
+
+      if (!sourcePath.toFile().isFile()) {
+        if(checkSrcPath) {
+          throw new RuntimeException("No source file(" + sourcePath.toString() + ")");
+        } else {
+          LOGGER.warn("No source file({}) to copy. This file is passed.", sourcePath.toString());
+          continue;
+        }
+      }
+
+      boolean renameTargetFile = CollectionUtils.isNotEmpty(targetNames)
+          && sourcePaths.size() == targetNames.size();
+
+      String targetFileName = renameTargetFile ? targetNames.get(i) : sourcePath.getFileName().toString();
+
+      String remotePathStr = properties.getRemotePath(targetFileName);
       Path remotePath = getPath(remotePathStr);
 
       if(sourcePath.compareTo(remotePath) != 0) {
@@ -49,8 +71,10 @@ public class SharedFileLoader implements FileLoader {
           LOGGER.error("Fail to copy local files to shared directory({})", remotePathStr);
           throw new RuntimeException("Fail to copy local files to shared directory : " + remotePathStr);
         }
+      } else {
+        LOGGER.debug("The source and remote files have the same path.");
       }
-      LOGGER.error("Successfully copy local files({}) to shared directory({})", path, remotePathStr);
+      LOGGER.debug("Successfully copy local files({}) to shared directory({})", sourcePath, remotePathStr);
       loadPaths.add(remotePathStr);
     }
 

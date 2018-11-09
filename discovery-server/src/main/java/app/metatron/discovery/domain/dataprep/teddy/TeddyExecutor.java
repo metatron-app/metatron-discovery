@@ -277,7 +277,7 @@ public class TeddyExecutor {
     LOGGER.info("createHdfsSnapshot() path={}", file.toString());
 
     DataFrame df = cache.get(masterFullDsId);
-    int totalLines = writeCsv(ssId, df, br, null);
+    int totalLines = writeCsv(ssId, df, br, df.colNames);
 
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
     for (String fullDsId : reverseMap.keySet()) {

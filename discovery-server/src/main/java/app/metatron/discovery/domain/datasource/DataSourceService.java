@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineQueryService;
-import app.metatron.discovery.domain.engine.model.SegmentMetaData;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
 import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
 import app.metatron.discovery.util.PolarisUtils;
 
@@ -40,6 +40,7 @@ import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PR
  * Created by kyungtaak on 2017. 5. 12..
  */
 @Component
+@Transactional
 public class DataSourceService {
 
   private static Logger LOGGER = LoggerFactory.getLogger(DataSourceService.class);
@@ -56,6 +57,35 @@ public class DataSourceService {
   @Autowired
   DruidEngineMetaRepository engineMetaRepository;
 
+  /**
+   * 데이터 소스 엔진 적재시 name 을 기반으로 engin 내 데이터 소스 지정
+   */
+  public DataSource importEngineDataSource(String engineName, DataSource reqDataSource) {
+
+    SegmentMetaDataResponse segmentMetaData = queryService.segmentMetadata(engineName);
+
+    DataSource dataSource = new DataSource();
+    dataSource.setName(StringUtils.isEmpty(reqDataSource.getName()) ? engineName : reqDataSource.getName());
+    dataSource.setDescription(reqDataSource.getDescription());
+    dataSource.setEngineName(engineName);
+    dataSource.setSrcType(DataSource.SourceType.IMPORT);
+    dataSource.setConnType(DataSource.ConnectionType.ENGINE);
+    dataSource.setDsType(DataSource.DataSourceType.MASTER);
+    dataSource.setSegGranularity(reqDataSource.getSegGranularity() == null ? DataSource.GranularityType.DAY : reqDataSource.getSegGranularity());
+    dataSource.setGranularity(reqDataSource.getGranularity() == null ? DataSource.GranularityType.NONE : reqDataSource.getGranularity());
+    dataSource.setStatus(DataSource.Status.ENABLED);
+    dataSource.setFields(segmentMetaData.getConvertedField(reqDataSource.getFields()));
+
+    return dataSourceRepository.saveAndFlush(dataSource);
+  }
+
+  public void setDataSourceStatus(String datasourceId, DataSource.Status status, DataSourceSummary summary) {
+    DataSource dataSource = dataSourceRepository.findOne(datasourceId);
+    dataSource.setStatus(status);
+    dataSource.setSummary(summary);
+  }
+
+  @Transactional(readOnly = true)
   public List<DataSourceTemporary> getMatchedTemporaries(String dataSourceId, List<Filter> filters) {
 
     List<DataSourceTemporary> matchedTempories = Lists.newArrayList();
@@ -102,6 +132,7 @@ public class DataSourceService {
   /**
    * 데이터 소스 엔진 적재시 name 을 기반으로 engin 내 데이터 소스 지정
    */
+  @Transactional(readOnly = true)
   public List<String> findImportAvailableEngineDataSource() {
 
     List<String> engineDataSourceNames = engineMetaRepository.getAllDataSourceNames();
@@ -115,30 +146,9 @@ public class DataSourceService {
   }
 
   /**
-   * 데이터 소스 엔진 적재시 name 을 기반으로 engin 내 데이터 소스 지정
-   */
-  public DataSource importEngineDataSource(String engineName, DataSource reqDataSource) {
-
-    SegmentMetaData segmentMetaData = queryService.segmentMetadata(engineName);
-
-    DataSource dataSource = new DataSource();
-    dataSource.setName(StringUtils.isEmpty(reqDataSource.getName()) ? engineName : reqDataSource.getName());
-    dataSource.setDescription(reqDataSource.getDescription());
-    dataSource.setEngineName(engineName);
-    dataSource.setSrcType(DataSource.SourceType.IMPORT);
-    dataSource.setConnType(DataSource.ConnectionType.ENGINE);
-    dataSource.setDsType(DataSource.DataSourceType.MASTER);
-    dataSource.setSegGranularity(reqDataSource.getSegGranularity() == null ? DataSource.GranularityType.DAY : reqDataSource.getSegGranularity());
-    dataSource.setGranularity(reqDataSource.getGranularity() == null ? DataSource.GranularityType.NONE : reqDataSource.getGranularity());
-    dataSource.setStatus(DataSource.Status.ENABLED);
-    dataSource.setFields(segmentMetaData.getConvertedField(reqDataSource.getFields()));
-
-    return dataSourceRepository.saveAndFlush(dataSource);
-  }
-
-  /**
    * 데이터 소스 엔진 적재시 name 을 기반으로 engine 내 데이터 소스 지정
    */
+  @Transactional(readOnly = true)
   public String convertName(String name) {
 
     String tempName = PolarisUtils.convertDataSourceName(name);

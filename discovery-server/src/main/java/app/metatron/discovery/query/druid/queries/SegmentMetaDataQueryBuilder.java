@@ -82,6 +82,13 @@ public class SegmentMetaDataQueryBuilder extends AbstractQueryBuilder {
     return this;
   }
 
+  public SegmentMetaDataQueryBuilder types(List<AnalysisType> types) {
+
+    analysisTypes = types;
+
+    return this;
+  }
+
   public SegmentMetaDataQueryBuilder types(String... types) {
 
     for (String reqType : types) {

@@ -102,27 +102,27 @@ public class Field implements MetatronDomain<Long> {
   private Long id;
 
   /**
-   * Field 명 (물리명)
+   * Field name on engine
    */
   @Column(name = "field_name")
   @NotBlank
   private String name;
 
   /**
-   * Field 별칭 (논리명)
+   * Field alias
    */
   @Column(name = "field_alias")
   private String alias;
 
   /**
-   * Field 설명
+   * Field description
    */
   @Column(name = "field_desc", length = 1000)
   @Size(max = 900)
   private String description;
 
   /**
-   * 데이터 타입
+   * Physical data type on engine
    */
   @Column(name = "field_type")
   @Enumerated(EnumType.STRING)
@@ -130,7 +130,7 @@ public class Field implements MetatronDomain<Long> {
   private DataType type;
 
   /**
-   * 저장공간과 다른 논리적 데이터 타입
+   * Logical data type
    */
   @Column(name = "field_logical_type")
   @Enumerated(EnumType.STRING)
@@ -144,25 +144,25 @@ public class Field implements MetatronDomain<Long> {
   private FieldRole role;
 
   /**
-   * Partition 대상 필드 인지 여부
+   * Whether partitioned field
    */
   @Column(name = "field_partitioned")
   private Boolean partitioned;
 
   /**
-   * 필수적으로 필터링을 수행해야하는 필드인지 여부
+   * Whether to use as mandatory filter
    */
   @Column(name = "field_filtering")
   private Boolean filtering;
 
   /**
-   * 필수 필터링 순서 지정
+   * Sequence for mandatory filtered field
    */
   @Column(name = "field_filtering_seq")
   private Long filteringSeq;
 
   /**
-   * 필수 필터링 옵션 지정
+   * Option of mandatory filter
    */
   @Column(name = "field_filtering_options", length = 65535, columnDefinition = "TEXT")
   @Basic(fetch = FetchType.LAZY)
@@ -172,20 +172,26 @@ public class Field implements MetatronDomain<Long> {
   private String filteringOptions;
 
   /**
-   * 사전 집계 타입
+   * Type of pre-aggregation
    */
   @Column(name = "pre_aggr_type")
   @Enumerated(EnumType.STRING)
   private MeasureField.AggregationType aggrType = NONE;
 
   /**
-   * 필드 정렬 순서
+   * Whether to exclude what to load to engine
+   */
+  @Column(name = "field_unloaded")
+  private Boolean unloaded;
+
+  /**
+   * Sequence for field alignment
    */
   @Column(name = "seq")
   private Long seq;
 
   /**
-   * 적재 방식 (Discard or Set Default Value)
+   * Ingestion rule (Discard or Set Default Value)
    */
   @Column(name = "field_ingestion_rule", length = 65535, columnDefinition = "TEXT")
   @Basic(fetch = FetchType.LAZY)
@@ -195,7 +201,7 @@ public class Field implements MetatronDomain<Long> {
   private String ingestionRule;
 
   /**
-   * 필드 데이터 형태 </br> (timestamp type인 경우, ISO8601 Date format)
+   * Field data format
    */
   @Column(name = "field_format", length = 65535, columnDefinition = "TEXT")
   @Spec(target = FieldFormat.class)
@@ -208,7 +214,7 @@ public class Field implements MetatronDomain<Long> {
   private Field mapper;
 
   /**
-   * 기존 물리적인 필드를 매핑하여 신규 필드를 구성할 경우 관련 필드 정보
+   * Related field information, When you configure a new field by mapping an existing physical field
    */
   @OneToMany(mappedBy = "mapper")
   @JsonBackReference
@@ -221,7 +227,7 @@ public class Field implements MetatronDomain<Long> {
   private String originalType;
 
   /**
-   * 필드 삭제 여부 처리
+   * deprecated
    */
   @Transient
   @JsonProperty
@@ -548,6 +554,17 @@ public class Field implements MetatronDomain<Long> {
 
   public void setPartitioned(Boolean partitioned) {
     this.partitioned = partitioned;
+  }
+
+  public Boolean getUnloaded() {
+    if(unloaded == null) {
+      return BooleanUtils.isTrue(removed);
+    }
+    return unloaded;
+  }
+
+  public void setUnloaded(Boolean unloaded) {
+    this.unloaded = unloaded;
   }
 
   public Boolean getFiltering() {

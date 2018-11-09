@@ -341,6 +341,42 @@ export class GridComponent implements AfterViewInit, OnDestroy {
   } // function - columnSelection
 
   /**
+   * row 선택 효과
+   * @param {number | string} column
+   * @param scope
+   */
+  public selectRowActivate(column: number | string, scope: any = null,): void {
+
+    const fnScope: any = scope === null ? this : scope;
+
+    const selectedRows: any[] = [];
+    selectedRows.push(column);
+    fnScope.grid.setSelectedRows(selectedRows);
+  } // function - selectRowActivate
+
+
+  /**
+   * 현재의 sort column 상태 변경
+   * @param isAsc - ASC : true, DESC : false
+   * @param scope
+   */
+  public setCurrentSortColumns(isAsc : boolean, scope: any = null,): void {
+
+    const fnScope: any = scope === null ? this : scope;
+    let arr = [];
+    const columnsList = fnScope.grid.getColumns();
+    for (let index: number = 0; index < columnsList.length; index++) {
+      let obj = {
+        columnId : columnsList[index]['id'],
+        sortAsc : isAsc
+      };
+      arr.push(obj);
+    }
+    fnScope.grid.setSortColumns(arr, isAsc);
+
+  } // function - setCurrentSortColumn
+
+  /**
    * 컬럼 선택 해제
    * @param {number | string} column
    * @param scope

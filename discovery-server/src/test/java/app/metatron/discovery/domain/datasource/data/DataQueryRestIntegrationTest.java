@@ -93,7 +93,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(1000);
     limit.setSort(Lists.newArrayList(
         //        new Sort("OrderDate","ASC")
     ));

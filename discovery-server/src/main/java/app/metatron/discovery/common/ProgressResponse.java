@@ -16,6 +16,9 @@ package app.metatron.discovery.common;
 
 import java.io.Serializable;
 
+import app.metatron.discovery.common.exception.ErrorResponse;
+import app.metatron.discovery.common.exception.MetatronException;
+
 public class ProgressResponse implements Serializable {
 
   Integer progress;
@@ -29,10 +32,15 @@ public class ProgressResponse implements Serializable {
     this.message = message;
   }
 
-  public ProgressResponse(Integer progress, String message, Object results) {
+  public ProgressResponse(Integer progress, Enum<?> enumMessage) {
     this.progress = progress;
-    this.message = message;
-    this.results = results;
+    this.message = enumMessage.toString();
+  }
+
+  public ProgressResponse(Integer progress, Enum<?> enumMessage, MetatronException e) {
+    this.progress = progress;
+    this.message = enumMessage.toString();
+    this.results = new ErrorResponse(e);
   }
 
   public Integer getProgress() {
@@ -64,6 +72,7 @@ public class ProgressResponse implements Serializable {
     return "ProgressResponse{" +
         "progress=" + progress +
         ", message='" + message + '\'' +
+        ", results=" + results +
         '}';
   }
 }

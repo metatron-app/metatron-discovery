@@ -14,11 +14,11 @@
 
 package app.metatron.discovery.domain.datasource.ingestion.jdbc;
 
+import java.util.Map;
+
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
-
-import java.util.Map;
 
 /**
  * Created by kyungtaak on 2017. 4. 30..
@@ -59,6 +59,16 @@ public abstract class JdbcIngestionInfo implements IngestionInfo {
    * Tuning Config 지정, 기본값 override
    */
   Map<String, Object> tuningOptions;
+
+  /**
+   * Fetch Size
+   */
+  Integer fetchSize = 200;
+
+  /**
+   * Max Limit
+   */
+  Integer maxLimit = 10000000;
 
   /**
    * JDBC Connection username
@@ -131,6 +141,22 @@ public abstract class JdbcIngestionInfo implements IngestionInfo {
 
   public void setTuningOptions(Map<String, Object> tuningOptions) {
     this.tuningOptions = tuningOptions;
+  }
+
+  public Integer getFetchSize() {
+    return fetchSize;
+  }
+
+  public void setFetchSize(Integer fetchSize) {
+    this.fetchSize = fetchSize;
+  }
+
+  public Integer getMaxLimit() {
+    return maxLimit;
+  }
+
+  public void setMaxLimit(Integer maxLimit) {
+    this.maxLimit = maxLimit;
   }
 
   public String getConnectionUsername() {

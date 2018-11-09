@@ -17,7 +17,13 @@ package app.metatron.discovery.domain.engine.model;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -29,7 +35,7 @@ import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.query.druid.Granularity;
 
-public class SegmentMetaData implements Serializable {
+public class SegmentMetaDataResponse implements Serializable {
 
   /**
    *
@@ -69,9 +75,58 @@ public class SegmentMetaData implements Serializable {
   /**
    *
    */
+  Long lastAccessTime;
+
+  /**
+   *
+   */
   Granularity queryGranularity;
 
-  public SegmentMetaData() {
+  /**
+   *
+   */
+  Granularity segmentGranularity;
+
+
+  public SegmentMetaDataResponse() {
+  }
+
+  @JsonCreator
+  public SegmentMetaDataResponse(@JsonProperty("id") String id,
+                         @JsonProperty("intervals") List<String> intervals,
+                         @JsonProperty("columns") Map<String, ColumnInfo> columns,
+                         @JsonProperty("serializedSize") Long serializedSize,
+                         @JsonProperty("lastAccessTime") Long lastAccessTime,
+                         @JsonProperty("numRows") Long numRows,
+                         @JsonProperty("ingestedNumRows") Long ingestedNumRows,
+                         @JsonProperty("queryGranularity") Granularity queryGranularity,
+                         @JsonProperty("segmentGranularity") Granularity segmentGranularity) {
+
+    this.id = id;
+    this.intervals = intervals;
+    this.columns = columns;
+    this.serializedSize = serializedSize;
+    this.lastAccessTime = lastAccessTime;
+    this.numRows = numRows;
+    this.ingestedNumRows = ingestedNumRows;
+    this.queryGranularity = queryGranularity;
+    this.segmentGranularity = segmentGranularity;
+  }
+
+  public List<DateTime> extractMinMaxTime() {
+    if(CollectionUtils.isEmpty(this.intervals)) {
+      DateTime now = DateTime.now();
+      return Lists.newArrayList(now.minusYears(5), now);
+    }
+
+    Interval firstInterval = Interval.parse(this.intervals.get(0));
+    if(this.intervals.size() == 1) {
+      return Lists.newArrayList(firstInterval.getStart(), firstInterval.getEnd());
+    }
+
+    Interval lastInterval = Interval.parse(this.intervals.get(this.intervals.size()-1));
+
+    return Lists.newArrayList(firstInterval.getStart(), lastInterval.getEnd());
   }
 
   /**
@@ -104,7 +159,7 @@ public class SegmentMetaData implements Serializable {
         } else if("count".equals(key)) {
           continue;
         } else {
-          SegmentMetaData.ColumnInfo info = this.columns.get(key);
+          SegmentMetaDataResponse.ColumnInfo info = this.columns.get(key);
           field = new Field(key, DataType.engineToFieldDataType(info.getType()), seq++);
         }
       }
@@ -181,8 +236,8 @@ public class SegmentMetaData implements Serializable {
     this.queryGranularity = queryGranularity;
   }
 
-  public static SegmentMetaData empty() {
-    SegmentMetaData data = new SegmentMetaData();
+  public static SegmentMetaDataResponse empty() {
+    SegmentMetaDataResponse data = new SegmentMetaDataResponse();
     data.setId("");
     data.setColumns(Maps.newHashMap());
     data.setIntervals(Lists.newArrayList());
@@ -190,6 +245,21 @@ public class SegmentMetaData implements Serializable {
     data.setNumRows(0L);
 
     return data;
+  }
+
+  @Override
+  public String toString() {
+    return "SegmentMetaDataResponse{" +
+        "id='" + id + '\'' +
+        ", intervals=" + intervals +
+        ", columns=" + columns +
+        ", fields=" + fields +
+        ", serializedSize=" + serializedSize +
+        ", numRows=" + numRows +
+        ", ingestedNumRows=" + ingestedNumRows +
+        ", queryGranularity=" + queryGranularity +
+        ", segmentGranularity=" + segmentGranularity +
+        '}';
   }
 
   public static class ColumnInfo implements Serializable {
@@ -202,14 +272,44 @@ public class SegmentMetaData implements Serializable {
     /**
      *
      */
+    Long cardinality;
+
+    /**
+     *
+     */
     Long size;
 
     /**
      *
      */
-    Long cardinality;
+    Long nullCount;
+
+    /**
+     *
+     */
+    Object minValue;
+
+    /**
+     *
+     */
+    Object maxValue;
 
     public ColumnInfo() {
+    }
+
+    @JsonCreator
+    public ColumnInfo(@JsonProperty("type") String type,
+                      @JsonProperty("cardinality") Long cardinality,
+                      @JsonProperty("serializedSize") Long size,
+                      @JsonProperty("nullCount") Long nullCount,
+                      @JsonProperty("minValue") Object minValue,
+                      @JsonProperty("maxValue") Object maxValue) {
+      this.type = type;
+      this.cardinality = cardinality;
+      this.size = size;
+      this.nullCount = nullCount;
+      this.minValue = minValue;
+      this.maxValue = maxValue;
     }
 
     public String getType() {
@@ -220,20 +320,24 @@ public class SegmentMetaData implements Serializable {
       this.type = type;
     }
 
-    public Long getSize() {
-      return size;
-    }
-
-    public void setSize(Long size) {
-      this.size = size;
-    }
-
     public Long getCardinality() {
       return cardinality;
     }
 
     public void setCardinality(Long cardinality) {
       this.cardinality = cardinality;
+    }
+
+    @Override
+    public String toString() {
+      return "ColumnInfo{" +
+          "type='" + type + '\'' +
+          ", cardinality=" + cardinality +
+          ", size=" + size +
+          ", nullCount=" + nullCount +
+          ", minValue=" + minValue +
+          ", maxValue=" + maxValue +
+          '}';
     }
   }
 }
