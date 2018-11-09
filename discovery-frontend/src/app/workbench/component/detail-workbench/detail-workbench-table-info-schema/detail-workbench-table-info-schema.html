@@ -36,14 +36,14 @@
     <ul class="ddp-list-column">
       <li *ngFor="let column of filteredColumns" (click)="setColumn(column.columnName)">
         <a href="javascript:" title="{{column.columnName}}">
-          <div *ngIf="column.columnSize !== undefined" class="ddp-data-char">
+          <div class="ddp-data-char">
+            {{column.columnName}}
+          </div>
+          <div *ngIf="column.columnSize !== undefined" class="ddp-data-columnname">
             {{column.columnType}} ({{column.columnSize}})
           </div>
-          <div *ngIf="column.columnSize === undefined" class="ddp-data-char">
+          <div *ngIf="column.columnSize === undefined" class="ddp-data-columnname">
             {{column.columnType}}
-          </div>
-          <div class="ddp-data-columnname">
-            {{column.columnName}}
           </div>
           <em class="ddp-btn-more"></em>
         </a>

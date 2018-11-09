@@ -148,7 +148,7 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
     }
 
     if (this.returnFormat == null) {
-      this.returnFormat = 'YYYY-MM-DDTHH:mm:ss';
+      this.returnFormat = 'YYYY-MM-DDTHH:mm';
     }
 
     // 시작일 DatePicker 생성
