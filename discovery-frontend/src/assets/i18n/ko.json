@@ -575,7 +575,7 @@
   "msg.bench.ui.search.column.ph" : "컬럼 검색",
   "msg.bench.ui.search.data.ph" : "데이터 검색",
   "msg.bench.th.schema.columns" : "컬럼",
-  "msg.bench.th.schema.metadata" : "메타데이터",
+  "msg.bench.th.schema.metadata" : "인포메이션",
   "msg.bench.th.schema.data" : "데이터",
   "msg.bench.ui.query.tab.title" : "쿼리 탭 이름을 지정해 주세요",
   "msg.bench.ui.back.title" : "저장하지 않은 쿼리가 있습니다. 작업 내용을 저장하고 나가시겠습니까?",

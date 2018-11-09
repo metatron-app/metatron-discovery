@@ -26,7 +26,7 @@
 .page-workbench .ddp-wrap-list-search a.ddp-btn-refresh:hover {background-position:-14px top;}
 .page-workbench .ddp-ui-tablelist {top:175px;}
 .page-workbench .ddp-ui-tablelist .ddp-list-table {padding-top:10px }
-.page-workbench .ddp-tablelist-header {padding:2px 0; height:25px; border-top:1px solid #4b515b; border-bottom:1px solid #4b515b; background-color:rgba(75,81,91,0.3); box-sizing:border-box;}
+.page-workbench .ddp-tablelist-header {padding:2px 0px; height:25px; border-top:1px solid #4b515b; border-bottom:1px solid #4b515b; background-color:rgba(75,81,91,0.3); box-sizing:border-box;}
 .page-workbench .ddp-tablelist-header .ddp-table-num {float:right; padding-right:18px; color:#90969f; font-weight:300;}
 .page-workbench .ddp-tablelist-header .ddp-table-num span.ddp-number {font-weight:normal;}
 .page-workbench .ddp-tablelist-header .ddp-table-title {display:inline-block; padding-left:18px; color:#90969f; font-size:12px; overflow:Hidden; cursor:pointer; box-sizing:border-box;}
