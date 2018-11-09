@@ -2564,7 +2564,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         this.datasourceService.searchQuery(secondLayerQuery).then(
           (data) => {
             this.mapData[1] = data[0];
-            this.resultData["data"][1] = data[0];
+            // this.resultData["data"][1] = data[0];
             this.drawSecondLayer(this.mapData);
           }
         ).catch((reason) => {
@@ -2579,7 +2579,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         this.datasourceService.searchQuery(thirdLayerQuery).then(
           (data) => {
             this.mapData[2] = data[0];
-            this.resultData["data"][2] = data[0];
+            // this.resultData["data"][2] = data[0];
             this.drawThirdLayer(this.mapData);
           }
         ).catch((reason) => {
