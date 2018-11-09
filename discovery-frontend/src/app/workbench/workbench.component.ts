@@ -141,6 +141,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   private _splitVertical: any;
   private _splitHorizontal: any;
+
+  private _workspaceId:string;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -356,8 +358,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
     // 사용자 운영체제 확인
     ( navigator.userAgent.replace(/ /g,'').toUpperCase().indexOf("MAC") == -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true );
-
-  }
+  } // function - ngOnInit
 
   /**
    * 화면 초기화
@@ -1744,6 +1745,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       WorkbenchService.workbenchId = this.workbenchId;
 
       // 퍼미션 조회를 위한 워크스페이스 정보 조회 및 퍼미션 체커 설정
+      this._workspaceId = data.workspace.id;
       this.workspaceService.getWorkSpace(data.workspace.id, 'forDetailView').then((workspace: Workspace) => {
 
         // 퍼미션 체커 정의
@@ -2403,18 +2405,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   } // function - afterCancelQuery
 
-  // 뒤로 돌아가기
+  /**
+   * 워크스페이스로 돌아가기
+   */
   public goBack() {
-    // unload false
-    const cookieWs = this.cookieService.get(CookieConstant.KEY.CURRENT_WORKSPACE);
-    let cookieWorkspace = null;
-    if (cookieWs) {
-      cookieWorkspace = JSON.parse(cookieWs);
-    }
-    if (null !== cookieWorkspace) {
-      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]).then();
-    }
-  }
+    this.router.navigate(['/workspace', this._workspaceId]).then();
+  } // function - goBack
 
   // sql 포맷터
   public setSqlFormatter() {
