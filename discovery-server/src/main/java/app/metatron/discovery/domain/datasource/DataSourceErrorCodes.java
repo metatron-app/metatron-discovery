@@ -24,7 +24,7 @@ public enum DataSourceErrorCodes implements ErrorCodes {
   VOLATILITY_NOT_FOUND_CODE("DS0005"),
   INVALID_TIMEFORMAT_CODE("DS0006"),
   NOT_SUPPORTED_TIMEFORMAT_CODE("DS0007"),
-
+  INVALID_PARTITION_EXPRESSION("DS0008"),
   INGESTION_COMMON_ERROR("error.datasource.ingestion.common"),
   INGESTION_FILE_LOAD_ERROR("error.datasource.ingestion.file.load"), // Failed to load the file into the engine to load the data source. Please contact your system administrator.
   INGESTION_FILE_EXCEL_CONVERSION_ERROR("error.datasource.ingestion.file.excel.conversion"), // Failed to convert Excel file. Please check if the format is supported by metatron.
@@ -35,7 +35,6 @@ public enum DataSourceErrorCodes implements ErrorCodes {
   INGESTION_ENGINE_TASK_CREATION_ERROR("error.datasource.ingestion.engine.creation.task"), // No ingestion task was created on the engine for an unknown reason.
   INGESTION_ENGINE_TASK_ERROR("error.datasource.ingestion.engine.run.task"), // An error occurred while loading the data source. Please check the engine log.
   INGESTION_ENGINE_REGISTRATION_ERROR("error.datasource.ingestion.engine.registration"); // An error occurred while registering the data source in the engine. Please contact your system administrator.;
-  INVALID_PARTITION_EXPRESSION("DS0008");
 
   String errorCode;
 
