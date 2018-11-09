@@ -1,11 +1,16 @@
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
+import com.google.common.collect.Maps;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.ProgressResponse;
@@ -91,7 +96,7 @@ public class IngestionJobRunner {
 
   private Long interval = 5000L;
 
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void ingestion(DataSource dataSource) {
 
     String sendTopicUri = String.format(TOPIC_INGESTION_PROGRESS, dataSource.getId());
@@ -150,9 +155,18 @@ public class IngestionJobRunner {
 
       history.setStatus(SUCCESS);
       historyRepository.saveAndFlush(history);
-      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.ENABLED, new DataSourceSummary(segmentMetaData));
 
-      sendTopic(sendTopicUri, new ProgressResponse(100, END_INGESTION_JOB));
+      DataSourceSummary summary = new DataSourceSummary(segmentMetaData);
+      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.ENABLED, summary);
+
+      Map<String, Object> results = Maps.newLinkedHashMap();
+      results.put("history", history);
+      results.put("summary", summary);
+
+      ProgressResponse successResponse = new ProgressResponse(100, END_INGESTION_JOB);
+      successResponse.setResults(results);
+
+      sendTopic(sendTopicUri, successResponse);
 
     } catch (DataSourceIngestionException ie) {
       sendTopic(sendTopicUri, new ProgressResponse(-1, FAIL_INGESTION_JOB, ie));
