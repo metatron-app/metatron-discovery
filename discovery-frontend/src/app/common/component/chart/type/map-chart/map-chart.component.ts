@@ -54,10 +54,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
   public mapVaild: boolean = false;
   public mapVaildSecondLayer: boolean = false;
   public mapVaildThirdLayer: boolean = false;
-<<<<<<< HEAD
-=======
-  public data: Map = new Map();
->>>>>>> 03ae824905ec4e1a4a767f762368f8dc5fc7359d
+
   public mapData = [];
   public mouseX = 0;
   public mouseY = 0;
@@ -346,21 +343,12 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
 
       // return value
       let rangeList = [];
-<<<<<<< HEAD
 
       let featureList = [];
-      for(var i=0;i<uiOption.data[0].features.length;i++) {
-        featureList.push(uiOption.data[0].features[i].properties)
+      for(var i=0;i<data[0].features.length;i++) {
+        featureList.push(data[0].features[i].properties);
       }
 
-=======
-
-      let featureList = [];
-      for(var i=0;i<uiOption.data[0].features.length;i++) {
-        featureList.push(uiOption.data[0].features[i].properties)
-      }
-
->>>>>>> 03ae824905ec4e1a4a767f762368f8dc5fc7359d
       let featuresGroup = _.groupBy(featureList, uiOption.layers[0].color.column);
 
       for(var i=0;i<Object.keys(featuresGroup).length;i++) {
@@ -432,19 +420,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
             } // else if(rangeMin === null) {
               // rangeMin = rangeMax;
             // }
-<<<<<<< HEAD
 
             // if(rangeMax === rangeMin) {
               // rangeMin = rangeMax - 1;
             // }
-
-=======
-
-            // if(rangeMax === rangeMin) {
-              // rangeMin = rangeMax - 1;
-            // }
-
->>>>>>> 03ae824905ec4e1a4a767f762368f8dc5fc7359d
             if( feature.getProperties()[styleOption.layers[layerNum].color.column] > rangeMin &&
             feature.getProperties()[styleOption.layers[layerNum].color.column] <= rangeMax) {
               featureColor = range.color;
@@ -1249,19 +1228,10 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
       this.noData.emit();
       return;
     } else {
-<<<<<<< HEAD
       // if(!this.resultData) {
       //   this.resultData["data"] = [];
       // }
       this.mapData[0] = this.data[0];
-      // this.resultData["data"][0] = this.data[0];
-=======
-      if(!this.uiOption["data"]) {
-        this.uiOption["data"] = [];
-      }
-      this.mapData[0] = this.data[0];
-      this.uiOption["data"][0] = this.data[0];
->>>>>>> 03ae824905ec4e1a4a767f762368f8dc5fc7359d
     }
 
     ////////////////////////////////////////////////////////
@@ -2597,11 +2567,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         this.datasourceService.searchQuery(secondLayerQuery).then(
           (data) => {
             this.mapData[1] = data[0];
-<<<<<<< HEAD
             // this.resultData["data"][1] = data[0];
-=======
-            this.uiOption["data"][1] = data[0];
->>>>>>> 03ae824905ec4e1a4a767f762368f8dc5fc7359d
             this.drawSecondLayer(this.mapData);
           }
         ).catch((reason) => {
@@ -2616,11 +2582,7 @@ export class MapChartComponent extends BaseChart implements OnInit, OnDestroy, A
         this.datasourceService.searchQuery(thirdLayerQuery).then(
           (data) => {
             this.mapData[2] = data[0];
-<<<<<<< HEAD
             // this.resultData["data"][2] = data[0];
-=======
-            this.uiOption["data"][2] = data[0];
->>>>>>> 03ae824905ec4e1a4a767f762368f8dc5fc7359d
             this.drawThirdLayer(this.mapData);
           }
         ).catch((reason) => {

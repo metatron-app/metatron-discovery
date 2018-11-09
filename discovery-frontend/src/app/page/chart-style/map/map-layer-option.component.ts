@@ -156,12 +156,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     column: "NONE",
     maxValue: 10
   };
-<<<<<<< HEAD
-=======
-
-  // 색상, 크기 기준이 measuer 일때 필드 리스트
-  public measureList = [];
->>>>>>> 03ae824905ec4e1a4a767f762368f8dc5fc7359d
 
   // range list for view
   public rangesViewList = [];
@@ -211,8 +205,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
    @Input('pivot')
    set setPivot(pivot: Pivot) {
      this.pivot = pivot;
+     this.measureList = new Array(new Array(), new Array(), new Array());
 
-<<<<<<< HEAD
      for(let aggregation of this.pivot.aggregations) {
        let fieldAlias = aggregation.field["alias"];
        if(!fieldAlias) fieldAlias = aggregation.name;
@@ -228,8 +222,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
      }
 
      // this.changeLayerOption();
-=======
->>>>>>> 03ae824905ec4e1a4a767f762368f8dc5fc7359d
      // pivot change here!
    }
 
@@ -807,11 +799,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
        coverage: this.coverage,
        thickness: this.thickness,
        pathType: this.pathType
-<<<<<<< HEAD
      },this.uiOption.layers[1],this.uiOption.layers[2]];
-=======
-     },this.uiOption.layers[1],this.uiOption.layers[2]]
->>>>>>> 03ae824905ec4e1a4a767f762368f8dc5fc7359d
 
      // when color column is none or empty, set default column
      if (this.uiOption.layers && this.uiOption.layers.length > 0 &&
@@ -1340,13 +1328,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
     let rangeList = [];
 
     let featureList = [];
-<<<<<<< HEAD
+
     for(var i=0;i<this.resultData[0].features.length;i++) {
       featureList.push(this.resultData[0].features[i].properties)
-=======
-    for(var i=0;i<uiOption.data[0].features.length;i++) {
-      featureList.push(uiOption.data[0].features[i].properties)
->>>>>>> 03ae824905ec4e1a4a767f762368f8dc5fc7359d
     }
 
     let featuresGroup = _.groupBy(featureList, uiOption.layers[0].color.column);
@@ -1880,19 +1864,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent implements OnIn
         hide_from_to: false,
         hide_min_max: true,
         keyboard: false,
-<<<<<<< HEAD
         min: 4,
         max: 34,
         from: scope.uiOption.layers[0].radius,
         type: 'single',
         step: 6,
-=======
-        min: 5,
-        max: 10,
-        from: scope.uiOption.layers[0].coverage,
-        type: 'single',
-        step: 1,
->>>>>>> 03ae824905ec4e1a4a767f762368f8dc5fc7359d
         onChange(data) {
           scope.changeResolution(data.from);
         }
