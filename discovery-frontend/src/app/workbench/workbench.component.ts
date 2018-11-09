@@ -141,6 +141,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   private _splitVertical: any;
   private _splitHorizontal: any;
+
+  private _workspaceId:string;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -342,7 +344,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public ngOnInit() {
     super.ngOnInit();
-    this.useUnloadConfirm = true;
 
     if (this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) === '') {
       this.router.navigate(['/user/login']).then();
@@ -355,11 +356,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.workbenchId = params['id'];
     });
 
-
     // 사용자 운영체제 확인
     ( navigator.userAgent.replace(/ /g,'').toUpperCase().indexOf("MAC") == -1 ? this.isAgentUserMacOs = false : this.isAgentUserMacOs = true );
-
-  }
+  } // function - ngOnInit
 
   /**
    * 화면 초기화
@@ -438,8 +437,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this.workbenchService.updateQueryEditor(queryEditor)
           .then(() => {
             this.loadingHide();
-            // 로컬 스토리지에 저장된 쿼리 제거
-            this.removeLocalStorage(this.selectedEditorId);
+            this.removeLocalStorage(this.selectedEditorId);   // 로컬 스토리지에 저장된 쿼리 제거
           })
           .catch(() => {
             this.loadingHide();
@@ -674,7 +672,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       }
     }
 
-
     // 탭이 하나라도 존재한다면
     if (this.textList.length > 0) {
       // 첫번재 탭을 선택상태로 변경
@@ -778,7 +775,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // show index 가 0이라면 icon flag 재계산
     if (this.editorResultListObj.index === 0) {
       // 변경이 다 일어났을 때
-      this.changeDetect.detectChanges();
+      this.safelyDetectChanges();
       this.editorResultListObj.showBtnFl = this._isEditorResultMaxWidth();
     }
 
@@ -815,7 +812,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         .then(() => {
           // this.loadingHide();
           // 로컬 스토리지에서 쿼리 삭제
-          this.removeLocalStorage(queryEditor.editorId);
+          // this.removeLocalStorage(queryEditor.editorId);
         })
         .catch((error) => {
           // this.loadingHide();
@@ -961,26 +958,36 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     // 쿼리 실행.
     if (event.ctrlKey && event.keyCode === 13) {
       this.setExecuteSql('SELECTED');
+      return;
     }
 
     if (event.ctrlKey && event.keyCode === 81) {
       this.clearSql();
+      return;
     }
 
     if (event.ctrlKey && event.keyCode === 190) {
       this.setSqlFormatter();
+      return;
     }
 
     if (event.altKey && event.keyCode === 13) {
       this.setExecuteSql('ALL');
+      return;
     }
 
     // 현재 저장된 쿼리랑 다를때
-    if (this.textList.length !== 0 && this.getLocalStorageQuery(this.selectedEditorId) !== this.getSelectedTabText()) {
+    const saveQuery:string = this.getLocalStorageQuery(this.selectedEditorId);
+    const currQuery:string = this.getSelectedTabText();
+    if (this.textList.length !== 0 && saveQuery !== currQuery) {
+      if( saveQuery && currQuery
+        && saveQuery.replace( /\s/gi, '' ) !== currQuery.replace( /\s/gi, '' ) ) {
+        this.useUnloadConfirm = true;
+      }
       // 쿼리 저장
-      this.textList[this.selectedTabNum]['query'] = this.getSelectedTabText();
+      this.textList[this.selectedTabNum]['query'] = currQuery;
       // 로컬 스토리지에 쿼리에 저장
-      this.saveLocalStorage(this.getSelectedTabText(), this.textList[this.selectedTabNum]['editorId']);
+      this.saveLocalStorage(currQuery, this.textList[this.selectedTabNum]['editorId']);
     }
   } // function - editorKeyEvent
 
@@ -1171,7 +1178,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             .then(() => {
               // this.loadingBar.hide();
               // 로컬 스토리지에 저장된 쿼리 제거
-              this.removeLocalStorage(this.selectedEditorId);
+              // this.removeLocalStorage(this.selectedEditorId);
 
               // 전체 query data 생성
               let queryStrArr: string[]
@@ -1747,6 +1754,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       WorkbenchService.workbenchId = this.workbenchId;
 
       // 퍼미션 조회를 위한 워크스페이스 정보 조회 및 퍼미션 체커 설정
+      this._workspaceId = data.workspace.id;
       this.workspaceService.getWorkSpace(data.workspace.id, 'forDetailView').then((workspace: Workspace) => {
 
         // 퍼미션 체커 정의
@@ -1877,7 +1885,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       queryPromise.push(this.workbenchService.updateQueryEditor(queryEditor)
         .then(() => {
           // 로컬 스토리지에서 쿼리 삭제
-          this.removeLocalStorage(queryEditor.editorId);
+          // this.removeLocalStorage(queryEditor.editorId);
         })
         .catch((error) => {
           this.loadingHide();
@@ -1972,15 +1980,15 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       });
       // 값 읽고 세팅 하기.
       for (let idx1: number = 0; idx1 < editors.length; idx1 = idx1 + 1) {
-        // 로컬 스토리지에 저장된 쿼리가 있다면
-        const localQuery = this.getLocalStorageQuery(editors[idx1].id);
         this.textList.push({
           name: editors[idx1].name,
-          query: localQuery ? localQuery : editors[idx1].query,
+          query: editors[idx1].query,
           selected: false,
           editorId: editors[idx1].id,
+          index: editors[idx1].index,
           editorMode: false
         });
+        this.saveLocalStorage( editors[idx1].query, editors[idx1].id ); // 로컬 스토리지에 저장
 
         const generalConnection: any = this.getLocalStorageGeneral();
         if (generalConnection !== null) {
@@ -2406,18 +2414,12 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
   } // function - afterCancelQuery
 
-  // 뒤로 돌아가기
+  /**
+   * 워크스페이스로 돌아가기
+   */
   public goBack() {
-    // unload false
-    const cookieWs = this.cookieService.get(CookieConstant.KEY.CURRENT_WORKSPACE);
-    let cookieWorkspace = null;
-    if (cookieWs) {
-      cookieWorkspace = JSON.parse(cookieWs);
-    }
-    if (null !== cookieWorkspace) {
-      this.router.navigate(['/workspace', cookieWorkspace['workspaceId']]).then();
-    }
-  }
+    this.router.navigate(['/workspace', this._workspaceId]).then();
+  } // function - goBack
 
   // sql 포맷터
   public setSqlFormatter() {
