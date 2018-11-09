@@ -3605,28 +3605,28 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     const cloneQuery = this.makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
 
     // Map Chart 의 Multi Datasource 를 적용하기 위한 코드 - S
-    if ( ChartType.MAP === this.widget.configuration.chart.type ) {
-
-      let geoFieldCnt = 0;
-      for(let column of this.widget.configuration.pivot.columns) {
-        if(column.field && column.field.logicalType && column.field.logicalType.toString().substring(0,3) === 'GEO' && column["layerNum"] === 1) {
-          geoFieldCnt = geoFieldCnt + 1;
-        }
-      }
-
-      if( geoFieldCnt > 1 ) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
-        cloneQuery.dataSource = _.cloneDeep( this.widget.dashBoard.configuration.dataSource );
-
-        for(let layer of cloneQuery.shelf.layers[0]) {
-          layer.ref = layer.dataSource;
-        }
-
-      }
-
-      // for(let layer of cloneQuery.shelf.layers[0]) {
-      //   layer.ref = layer.dataSource;
-      // }
-    }
+    // if ( ChartType.MAP === this.widget.configuration.chart.type ) {
+    //
+    //   let geoFieldCnt = 0;
+    //   for(let column of this.widget.configuration.pivot.columns) {
+    //     if(column.field && column.field.logicalType && column.field.logicalType.toString().substring(0,3) === 'GEO' && column["layerNum"] === 1) {
+    //       geoFieldCnt = geoFieldCnt + 1;
+    //     }
+    //   }
+    //
+    //   if( geoFieldCnt > 1 ) { // < ==== multi datasource 가 되어야 하는 조건을 넣어주세요...
+    //     cloneQuery.dataSource = _.cloneDeep( this.widget.dashBoard.configuration.dataSource );
+    //
+    //     for(let layer of cloneQuery.shelf.layers[0]) {
+    //       layer.ref = layer.dataSource;
+    //     }
+    //
+    //   }
+    //
+    //   // for(let layer of cloneQuery.shelf.layers[0]) {
+    //   //   layer.ref = layer.dataSource;
+    //   // }
+    // }
     // Map Chart 의 Multi Datasource 를 적용하기 위한 코드 - E
 
     this.query = cloneQuery;

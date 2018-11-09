@@ -41,6 +41,7 @@ import {FilteringType} from '../../domain/workbook/configurations/field/timestam
 import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
 import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
+import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -392,25 +393,28 @@ export class DatasourceService extends AbstractService {
     if (_.eq(pageConf.chart.type, 'map')) {
       // query.pivot = undefined;
 
+      // current layer
+      let layerNum = (<UIMapOption>pageConf.chart).layerNum;
+
       let geoFieldCnt = 0;
       let layers = [];
 
       for(let column of query.pivot.columns) {
         if(column && column.field && column.field.logicalType &&
-          (column.field.logicalType.toString() === 'GEO_POINT' || column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') && (column["layerNum"] === undefined || column["layerNum"] === 1) ) {
+          (column.field.logicalType.toString() === 'GEO_POINT' || column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') && (layerNum === undefined || layerNum === 1) ) {
           geoFieldCnt = geoFieldCnt +1;
         }
       }
 
       for(let column of query.pivot.columns) {
-        if(column["layerNum"] === undefined || column["layerNum"] === 1) {
+        if(layerNum === undefined || layerNum === 1) {
           let layer = {
             type: column.type,
             name: column.name,
             alias: column.alias,
             ref: null,
             format: null,
-            dataSource: column.field.dataSource
+            // dataSource: column.field.dataSource
           }
 
           //dataSource가 여러개일 경우 첫번째 dataSource만 가져와서 column의 dataSource Name으로 변경
@@ -444,7 +448,7 @@ export class DatasourceService extends AbstractService {
             if(geoFieldCnt > 1) {
               layer.format = {
                 type: "geo_boundary",
-                dataSource: query.pivot.columns[0].field.dataSource,
+                // dataSource: query.pivot.columns[0].field.dataSource,
                 geoColumn: query.pivot.columns[0].field.name,
                 descColumn: query.pivot.columns[0].field.name
               }
@@ -475,13 +479,12 @@ export class DatasourceService extends AbstractService {
             alias: aggregation.alias,
             ref: null,
             aggregationType: aggregation.aggregationType,
-            dataSource: aggregation.field.dataSource
-          }
+            // dataSource: aggregation.field.dataSource
+          };
 
           layers.push(layer);
         }
       }
-
 
       query.shelf = {
         type: 'geo',
@@ -784,7 +787,7 @@ export class DatasourceService extends AbstractService {
   public synchronizeDatasourceFields(datasourceId: string): Promise<any> {
     return this.patch(this.API_URL + `datasources/${datasourceId}/fields/sync`, null);
   }
-  
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

@@ -16,7 +16,7 @@ import { Pivot } from '../../../domain/workbook/configurations/pivot';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {
   MapBy,
-  MapLayerType,
+  MapLayerType, MapLineStyle,
   MapSymbolType,
   MapThickness
 } from '../../../common/component/chart/option/define/map/map-common';
@@ -44,6 +44,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
   @Input('uiOption')
   public set setUiOption(uiOption: UIMapOption) {
+
+    if (MapLayerType.LINE === uiOption.layers[this.index].type) {
+
+      (<UILineLayer>uiOption.layers[this.index]).thickness = {};
+    }
 
     this.uiOption = uiOption;
   }
@@ -105,6 +110,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public colorByList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE},
                         {name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION},
                         {name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE}];
+
+  // line layer - thickness
+  public lineStyleList = [{name : this.translateService.instant('msg.page.layer.map.line.type.solid'), value: MapLineStyle.SOLID},
+                          {name : this.translateService.instant('msg.page.layer.map.line.type.dotted'), value: MapLineStyle.DOTTED},
+                          {name : this.translateService.instant('msg.page.layer.map.line.type.dashed'), value: MapLineStyle.DASHED}];
 
   // show / hide setting for color picker
   public colorListFlag: boolean = false;
@@ -230,7 +240,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * @returns {number}
    */
   public findTransparencyIndex() {
-    return _.findIndex(this.transparencyList, {value : this.uiOption.layers[this.index].color.transparency});
+    if (this.uiOption.layers[this.index].color) {
+      return _.findIndex(this.transparencyList, {value : this.uiOption.layers[this.index].color.transparency});
+    }
   }
 
   /**
@@ -238,7 +250,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * @returns {number}
    */
   public findStrokeByIndex() {
-    return _.findIndex(this.byList, {value : (<UILineLayer>this.uiOption.layers[this.index]).thickness.by});
+    if ((<UILineLayer>this.uiOption.layers[this.index]).thickness) {
+      return _.findIndex(this.byList, {value : (<UILineLayer>this.uiOption.layers[this.index]).thickness.by});
+    }
   }
 
   /**
@@ -485,6 +499,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     } else {
       (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = MapBy.NONE;
     }
+  }
+
+  /**
+   * line layer - change line style
+   */
+  public changeLineStyle(lineStyle: MapLineStyle) {
+
+    (<UILineLayer>this.uiOption.layers[this.index]).lineStyle = lineStyle;
+
+    this.applyLayers();
   }
 
   /**

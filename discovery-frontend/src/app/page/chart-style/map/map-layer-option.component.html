@@ -403,18 +403,14 @@
                     <div class="ddp-wrap-option-multy ddp-clear">
                       <div class="ddp-col-6">
 
-                        <span class="ddp-label-txt">선 유형</span>
+                        <span class="ddp-label-txt">{{'msg.page.layer.map.line.type' | translate}}</span>
                       </div>
                       <div class="ddp-col-6 ddp-txt-right">
                         <ul class="ddp-list-express ddp-tab3 ddp-type">
-                          <li>
-                            <em class="ddp-line-bold1"></em>
-                          </li>
-                          <li>
-                            <em class="ddp-line-dotted "></em>
-                          </li>
-                          <li class="ddp-selected">
-                            <em class="ddp-line-dashed "></em>
+                          <li *ngFor="let item of lineStyleList" (click)="changeLineStyle(item.value)">
+                            <em [ngClass]="{'ddp-line-bold1' : 'SOLID' === item.value,
+                                            'ddp-line-dotted' : 'DOTTED' === item.value,
+                                            'ddp-line-dashed' : 'DASHED' === item.value}"></em>
                           </li>
                         </ul>
                       </div>

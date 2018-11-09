@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { MapBy, MapLinePathType } from '../../define/map/map-common';
+import { MapBy, MapLinePathType, MapLineStyle } from '../../define/map/map-common';
 import { UILayers } from './ui-layers';
 
 /**
@@ -31,6 +31,14 @@ export interface UILineLayer extends UILayers {
 
   // Thickness of line
   thickness?: UIThickness;
+
+  ////////////////////////
+  ///// UI Spec
+  ////////////////////////
+
+  // TODO specs which don't exist in server spec
+  // line style (solid, dashed, dotted)
+  lineStyle?: MapLineStyle;
 }
 
 /**

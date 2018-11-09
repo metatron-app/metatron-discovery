@@ -45,11 +45,4 @@ export interface MapLayerSize {
 
   // Column Name
   column?: string;
-
-  /////////////////
-  // only used in ui
-  /////////////////
-
-  max?: number;
-
 }

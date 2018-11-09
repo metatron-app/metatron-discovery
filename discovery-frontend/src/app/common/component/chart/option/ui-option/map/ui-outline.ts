@@ -24,11 +24,4 @@ export interface MapOutline {
 
   // Thickness outline
   thickness?: MapThickness;
-
-  /////////////////
-  // only used in ui
-  /////////////////
-
-  lineDash?: string;
-
 }

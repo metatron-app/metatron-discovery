@@ -1459,8 +1459,8 @@
             <!-- MapView -->
             <map-common-option #mapCommonOption *ngIf="isChartShow && 'mapCommon' === rnbMenu" [(uiOption)]="uiOption"></map-common-option>
             <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer1' === rnbMenu && !setDisablePivot(1)" [index]="0" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [pivot]="pivot"></map-layer-option>
-            <!--<map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer2' === rnbMenu && uiOption?.layers?.length > 1 && !setDisablePivot(2)" [index]="1" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [pivot]="pivot"></map-layer-option>-->
-            <!--<map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer3' === rnbMenu && uiOption?.layers?.length > 2 && !setDisablePivot(3)" [index]="2" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [pivot]="pivot"></map-layer-option>-->
+            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer2' === rnbMenu && uiOption.layers.length > 1 && !setDisablePivot(2)" [index]="1" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [pivot]="pivot"></map-layer-option>
+            <map-layer-option #mapLayerOption *ngIf="isChartShow && 'mapLayer3' === rnbMenu && uiOption.layers.length > 2 && !setDisablePivot(3)" [index]="2" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)" [pivot]="pivot"></map-layer-option>
             <map-legend-option #mapLegendOption *ngIf="isChartShow && 'mapLegend' === rnbMenu" [(uiOption)]="uiOption" (drawChartParam)="onSetDrawChartParam($event)"></map-legend-option>
             <map-format-option #mapFormatOption *ngIf="isChartShow && 'mapFormat' === rnbMenu" (changeCommon)="onFormatCommonChange($event)" (changeEach)="onFormatEachChange($event)" (drawChartParam)="onSetDrawChartParam($event)"
                                [(pivot)]="pivot" [(uiOption)]="uiOption">

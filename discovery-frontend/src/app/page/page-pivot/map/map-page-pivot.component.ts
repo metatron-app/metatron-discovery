@@ -23,6 +23,7 @@ import * as _ from 'lodash';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 import { UISymbolLayer } from '../../../common/component/chart/option/ui-option/map/ui-symbol-layer';
 import { MapBy } from '../../../common/component/chart/option/define/map/map-common';
+import { UIOption } from '../../../common/component/chart/option/ui-option';
 
 @Component({
   selector: 'map-page-pivot',
@@ -44,6 +45,9 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
   public aggregationsCnt: number = 0;
   public columnsCnt: number = 0;
 
+  @Input('uiOption')
+  public uiOption: UIMapOption;
+
   @Input('pivot')
   set setPivot(pivot: Pivot) {
 
@@ -58,6 +62,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
       for(let column of this.pivot.columns) {
         if(column["layerNum"] > this.layerNum) {
           this.layerNum = column["layerNum"];
+          this.uiOption.layerNum = this.layerNum;
           this.changeLayer(this.layerNum);
         }
       }
@@ -201,6 +206,8 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
         }
       }
      }
+
+     this.uiOption.layerNum = this.layerNum;
 
      this.uiOption["layerCnt"] = layerNum;
 

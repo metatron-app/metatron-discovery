@@ -51,4 +51,8 @@ export interface UIMapOption extends UIOption {
   // TODO specs which don't exist in server spec
   // map style (light, dark, colored)
   style?: string;
+  // TODO specs which don't exist in server spec
+
+  // current layer number
+  layerNum?: number;
 }

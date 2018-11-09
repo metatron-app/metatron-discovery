@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+import { Field } from '../field/field';
+
 export abstract class Shelf {
 
   /**
@@ -20,8 +22,7 @@ export abstract class Shelf {
   public type: string;
 
   // Layers
-  public layers: [any[]];
-
+  public layers: [Field[]];
 }
 
 /**

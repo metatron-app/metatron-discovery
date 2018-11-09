@@ -30,8 +30,10 @@ export interface UILayers {
   ///// UI Spec
   ////////////////////////
 
-  datasource?: string;
+  // datasource?: string;
 
+  // view original
+  // TODO specs which don't exist in server spec
   viewRawData?: boolean;
 }
 
@@ -57,10 +59,4 @@ interface SymbolColor {
 
   // Target color, if line layer case
   target?: string;
-
-  /////////////////////
-  //// UI Spec
-  /////////////////////
-
-  resolution?: number;
 }

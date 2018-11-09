@@ -77,6 +77,15 @@ export enum MapThickness {
 }
 
 /**
+ * line layer - line style
+ */
+export enum MapLineStyle {
+  SOLID = <any>'SOLID',
+  DOTTED = <any>'DOTTED',
+  DASHED = <any>'DASHED'
+}
+
+/**
  * color - heatmap color
  */
 export enum HeatmapColorList {
