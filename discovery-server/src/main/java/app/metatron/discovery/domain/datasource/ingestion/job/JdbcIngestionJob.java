@@ -62,7 +62,7 @@ public class JdbcIngestionJob extends AbstractIngestionJob implements IngestionJ
     List<String> csvFiles = null;
     try {
       if (ingestionInfo instanceof BatchIngestionInfo
-          || ((BatchIngestionInfo) ingestionInfo).getRange() == INCREMENTAL) {
+          && ((BatchIngestionInfo) ingestionInfo).getRange() == INCREMENTAL) {
 
         DataSourceSummary summary = dataSource.getSummary();
         if(summary == null || summary.getIngestionMaxTime() == null) {
