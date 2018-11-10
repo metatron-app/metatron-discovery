@@ -165,7 +165,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
                 if (datasource.status !== Status.ENABLED) {
                   // init progress UI
                   if (result['_embedded'] && result['_embedded'].ingestionHistories.progress) {
-                    this.ingestionProcess = result['_embedded'].ingestionHistories.progress;
+                    this.ingestionProcess = result['_embedded'].ingestionHistories[0].progress;
                   } else if (datasource.srcType === SourceType.FILE || datasource.srcType === SourceType.JDBC) {
                     this.ingestionProcess = {progress: 1, message: 'START_INGESTION_JOB'};
                   } else if (datasource.srcType === SourceType.HIVE) {
