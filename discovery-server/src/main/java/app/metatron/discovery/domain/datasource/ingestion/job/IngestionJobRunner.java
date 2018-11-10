@@ -243,7 +243,6 @@ public class IngestionJobRunner {
     return transactionTemplate.execute(transactionStatus -> {
       IngestionHistory history = historyRepository.findOne(historyId);
       history.setStatus(FAILED, ie);
-      history.setProgress(FAIL_INGESTION_JOB);
 
       dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED, null);
 
