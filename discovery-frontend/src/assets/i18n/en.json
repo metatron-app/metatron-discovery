@@ -1925,8 +1925,7 @@
   "msg.storage.btn.partition.result": "See result",
   "msg.storage.ui.partition.result": "Result",
   "msg.storage.ui.connection.jdbc.table.error": "Due to internal server constraints, it is impossible to query data in table mode. You can query data in Query mode",
-  "msg.storage.ui.history.running.no.data": "There are no running ingestion jobs",
-  "msg.storage.ui.history.failed.no.data": "Ingestion history not found",
+  "msg.storage.ui.ingestion.failed.history": "Ingestion history can not be loaded",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",

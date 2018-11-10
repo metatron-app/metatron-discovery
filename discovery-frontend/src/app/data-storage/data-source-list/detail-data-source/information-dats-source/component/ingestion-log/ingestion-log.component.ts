@@ -64,7 +64,9 @@ export class IngestionLogComponent extends AbstractComponent {
     // init
     this.detailDatas = [];
     // get ingestion result details
-    this._getIngestionDetails(this._datasourceId, this._historyId, -10000);
+    if (historyId) {
+      this._getIngestionDetails(this._datasourceId, this._historyId, -10000);
+    }
   }
 
   /**

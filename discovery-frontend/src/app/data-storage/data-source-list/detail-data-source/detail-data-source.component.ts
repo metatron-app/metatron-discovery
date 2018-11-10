@@ -149,23 +149,12 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
             }
             // get history
             q.push(this._getDatasourceHistory(this.datasourceId, params)
-              .then((result) => {
-                // if not exist history, alert and hide log detail
-                if (!result['_embedded']) {
-                  // status PREPARING
-                  if (datasource.status === Status.PREPARING) {
-                    Alert.warning(this.translateService.instant('msg.storage.ui.history.running.no.data'));
-                  }
-                  // status FAILED
-                  if (datasource.status === Status.FAILED) {
-                    Alert.warning(this.translateService.instant('msg.storage.ui.history.failed.no.data'));
-                  }
-                }
+              .then((history) => {
                 // only status PREPARING, FAILED
                 if (datasource.status !== Status.ENABLED) {
                   // init progress UI
-                  if (result['_embedded'] && result['_embedded'].ingestionHistories.progress) {
-                    this.ingestionProcess = result['_embedded'].ingestionHistories[0].progress;
+                  if (history['_embedded'] && history['_embedded'].ingestionHistories.progress) {
+                    this.ingestionProcess = history['_embedded'].ingestionHistories[0].progress;
                   } else if (datasource.srcType === SourceType.FILE || datasource.srcType === SourceType.JDBC) {
                     this.ingestionProcess = {progress: 1, message: 'START_INGESTION_JOB'};
                   } else if (datasource.srcType === SourceType.HIVE) {
@@ -523,8 +512,9 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
         `/topic/datasources/${datasourceId}/progress`, (data: { progress: number, message: string, results: any }) => {
           console.log('process socket', data);
           if (-1 === data.progress) { // 실패시
-            // set history id
+            // if has history
             if (data.results.history) {
+              // set history id
               this.historyId = data.results.history.id;
             }
             // 데이터 변경
@@ -534,7 +524,9 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
             // disconnect websocket
             CommonConstant.stomp.unsubscribe(this._subscribe);
           } else if (100 === data.progress) { // 성공시
+            // if has history
             if (data.results.history) {
+              // set history id
               this.historyId = data.results.history.id;
             }
             // 데이터 변경

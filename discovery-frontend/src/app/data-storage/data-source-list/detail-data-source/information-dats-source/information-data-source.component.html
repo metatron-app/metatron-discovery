@@ -62,7 +62,7 @@
             <div class="ddp-top-status">
               <span class="ddp-data-status {{getSourceStatusClass(datasource.status)}}">{{datasource.status}} </span>
               <a href="javascript:" class="ddp-link-detail"
-                 *ngIf="historyId && ((datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep >= 2) || datasource.status.toString() === 'FAILED')"
+                 *ngIf="(datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep >= 2) || datasource.status.toString() === 'FAILED'"
                  (click)="onClickIngestionDetails()">{{'msg.comm.detail.details' | translate}}</a>
             </div>
             <!-- box -->

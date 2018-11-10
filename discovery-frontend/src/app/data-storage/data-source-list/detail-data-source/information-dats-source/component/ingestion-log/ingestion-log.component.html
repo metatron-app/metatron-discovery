@@ -26,6 +26,9 @@
     <ng-container *ngFor="let log of detailDatas">
       {{log}} <br>
     </ng-container>
+    <ng-container *ngIf="!historyId">
+      {{'msg.storage.ui.ingestion.failed.history' | translate}}
+    </ng-container>
   </div>
   <!-- //cpmtemts -->
 </div>
