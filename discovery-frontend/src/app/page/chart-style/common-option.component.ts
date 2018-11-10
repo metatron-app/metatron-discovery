@@ -74,6 +74,7 @@ import { UIChartDataLabel } from '../../common/component/chart/option/ui-option/
 import { ColorPickerComponent } from '../../common/component/color-picker/color.picker.component';
 import { ColorPicker } from '../../common/component/color-picker/colorpicker';
 import { BarColor, UIWaterfallChart } from '../../common/component/chart/option/ui-option/ui-waterfall-chart';
+import {isNullOrUndefined} from "util";
 
 @Component({
   selector: 'common-option',
@@ -144,13 +145,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
     this.uiOption = uiOption;
 
     // limit값이 체크되고 size값이 없는경우 기본값 설정
-    if (!this.uiOption.limitCheck) {
-      if (ChartType.SANKEY == this.uiOption.type) {
-        this.uiOption.size = 50;
-      } else {
-        this.uiOption.size = this.DEFAULT_LIMIT;
-      }
-    }
+    this._setLimit( uiOption.limit );
 
     // Pivot 설정
     if( _.isUndefined(this.pivot) ) {
@@ -1298,15 +1293,22 @@ export class CommonOptionComponent extends BaseOptionComponent {
   }
 
   /**
-   * Bar - Limit 변경
+   * Limit 변경
    * @param limit
+   * @param isLimitCheck
    */
-  public onLimitChange(limit: number): void {
+  public onLimitChange(limit: number, isLimitCheck:boolean): void {
+
+    if( !isNullOrUndefined(isLimitCheck) ) {
+      this.uiOption.limitCheck = isLimitCheck;
+    }
+
+    this.safelyDetectChanges();
 
     // limit값이 null인경우 limitCheck값 false로 설정
     if (_.isNull(limit)) this.uiOption.limitCheck = false;
 
-    this.uiOption.size = limit;
+    this._setLimit(limit);
     this.update({});
   }
 
@@ -1566,6 +1568,24 @@ export class CommonOptionComponent extends BaseOptionComponent {
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Limit 설정
+   * @param limit
+   * @private
+   */
+  private _setLimit( limit:number ) {
+    // limit값이 체크되고 size값이 없는경우 기본값 설정
+    if (this.uiOption.limitCheck) {
+      this.uiOption.limit = limit;
+    } else {
+      if (ChartType.SANKEY == this.uiOption.type) {
+        this.uiOption.limit = 50;
+      } else {
+        this.uiOption.limit = this.DEFAULT_LIMIT;
+      }
+    }
+    this.safelyDetectChanges();
+  } // function - limit
 
   /**
    * 차트표시방향에 따라 dataLabel position값 설정

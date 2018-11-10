@@ -296,8 +296,8 @@ export class DatasourceService extends AbstractService {
       }
     }
 
-    if( pageConf.chart.limitCheck && 0 < pageConf.chart.size ) {
-      pageConf.limit.limit = pageConf.chart.size;
+    if( 0 < pageConf.chart.limit ) {
+      pageConf.limit.limit = pageConf.chart.limit;
     }
     query.limits = _.cloneDeep(pageConf.limit);
 
