@@ -374,7 +374,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.loadingBar.hide(); // 초기에 표시되는 문제로 숨김
       this.loadingShow();
       this._loadInitData(() => {
-        this.onEndedResizing();
         this.webSocketCheck(() => this.loadingHide());
 
         this._splitVertical = Split(['.sys-workbench-top-panel', '.sys-workbench-bottom-panel'], {
@@ -383,6 +382,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
             this.onEndedResizing();
           }
         });
+        this.onEndedResizing();
         this._activeHorizontalSlider();
       });
     }, 500);
