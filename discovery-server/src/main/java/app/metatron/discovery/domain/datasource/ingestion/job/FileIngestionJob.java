@@ -61,18 +61,17 @@ public class FileIngestionJob extends AbstractIngestionJob implements IngestionJ
     loadFileName = createDestFileName(dataSource.getEngineName(), this.ingestionInfo.getFormat());
     Path destFilePath = Paths.get(ingestionProperties.getBaseDir(), loadFileName);
 
-    if(this.ingestionInfo.getFormat() instanceof ExcelFileFormat) {
+    if (this.ingestionInfo.getFormat() instanceof ExcelFileFormat) {
 
-      if (this.ingestionInfo.getFormat() instanceof ExcelFileFormat) {
-        boolean removeFirstRow = this.ingestionInfo.getRemoveFirstRow();
+      boolean removeFirstRow = this.ingestionInfo.getRemoveFirstRow();
 
-        ExcelFileFormat excelFileFormat = (ExcelFileFormat) this.ingestionInfo.getFormat();
-        try {
-          PolarisUtils.convertExcelToCSV(excelFileFormat.getSheetIndex(), removeFirstRow, srcFilePath, destFilePath.toString());
-        } catch (Exception e) {
-          LOGGER.error("Error converting the Excel file.", e);
-          throw new DataSourceIngestionException(INGESTION_FILE_EXCEL_CONVERSION_ERROR, "Error converting the Excel file", e);
-        }
+      ExcelFileFormat excelFileFormat = (ExcelFileFormat) this.ingestionInfo.getFormat();
+      try {
+        PolarisUtils.convertExcelToCSV(excelFileFormat.getSheetIndex(), removeFirstRow, srcFilePath, destFilePath.toString());
+        srcFilePath = destFilePath.toString();
+      } catch (Exception e) {
+        LOGGER.error("Error converting the Excel file.", e);
+        throw new DataSourceIngestionException(INGESTION_FILE_EXCEL_CONVERSION_ERROR, "Error converting the Excel file", e);
       }
     }
 
@@ -107,10 +106,10 @@ public class FileIngestionJob extends AbstractIngestionJob implements IngestionJ
     sb.append(dataSourceName).append("_")
       .append(System.currentTimeMillis()).append(".");
 
-    if(fileFormat instanceof CsvFileFormat
+    if (fileFormat instanceof CsvFileFormat
         || fileFormat instanceof ExcelFileFormat) {
       sb.append("csv");
-    } else if(fileFormat instanceof JsonFileFormat) {
+    } else if (fileFormat instanceof JsonFileFormat) {
       sb.append("json");
     } else {
       throw new IllegalArgumentException("Not supported file type.");
