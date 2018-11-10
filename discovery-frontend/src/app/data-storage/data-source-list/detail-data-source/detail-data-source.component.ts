@@ -163,12 +163,15 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
                 }
                 // only status PREPARING, FAILED
                 if (datasource.status !== Status.ENABLED) {
-                  // TODO init progress UI
-                  if (datasource.srcType === SourceType.FILE || datasource.srcType === SourceType.JDBC) {
+                  // init progress UI
+                  if (result['_embedded'] && result['_embedded'].ingestionHistories.progress) {
+                    this.ingestionProcess = result['_embedded'].ingestionHistories.progress;
+                  } else if (datasource.srcType === SourceType.FILE || datasource.srcType === SourceType.JDBC) {
                     this.ingestionProcess = {progress: 1, message: 'START_INGESTION_JOB'};
                   } else if (datasource.srcType === SourceType.HIVE) {
                     this.ingestionProcess = {progress: 1, message: 'ENGINE_INIT_TASK'};
                   }
+
                   // link webSocket
                   this.checkAndConnectWebSocket(true)
                     .then(() => {
@@ -517,12 +520,12 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
       const headers: any = { 'X-AUTH-TOKEN': this.cookieService.get(CookieConstant.KEY.LOGIN_TOKEN) };
       // 메세지 수신
       this._subscribe = CommonConstant.stomp.subscribe(
-        `/topic/datasources/${datasourceId}/progress`, (data: { progress: number, message: string, result: any }) => {
+        `/topic/datasources/${datasourceId}/progress`, (data: { progress: number, message: string, results: any }) => {
           console.log('process socket', data);
           if (-1 === data.progress) { // 실패시
             // set history id
-            if (data.result.history) {
-              this.historyId = data.result.history.id;
+            if (data.results.history) {
+              this.historyId = data.results.history.id;
             }
             // 데이터 변경
             this.ingestionProcess = data;
@@ -531,8 +534,8 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
             // disconnect websocket
             CommonConstant.stomp.unsubscribe(this._subscribe);
           } else if (100 === data.progress) { // 성공시
-            if (data.result.history) {
-              this.historyId = data.result.history.id;
+            if (data.results.history) {
+              this.historyId = data.results.history.id;
             }
             // 데이터 변경
             this.ingestionProcess = data;
