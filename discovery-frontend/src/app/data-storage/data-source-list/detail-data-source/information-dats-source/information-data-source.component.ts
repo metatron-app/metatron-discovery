@@ -94,6 +94,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   // 차트 옵션
   private barOption: any;
 
+  // ingestionProgress
+  private _ingestionProgress: any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -115,6 +118,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   public ingestionProcess: any;
 
   @Input()
+  public isNotShowProgress: boolean;
+
+  @Input()
   public historyId: string;
 
   @Output()
@@ -127,8 +133,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // process step
   public ingestionProcessStatusStep: number = 0;
-  // ingestion process show flag
-  public isShowIngestionProcess: boolean = true;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -166,8 +170,10 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     if (changes.ingestionProcess) {
       // 최초 접근시 status가 ENABLED라면 process hide
       if (!changes.ingestionProcess.previousValue && this.datasource && this.datasource.status === Status.ENABLED) {
-        this.isShowIngestionProcess = false;
+        this.isNotShowProgress = true;
       } else if (changes.ingestionProcess.currentValue) { // if changed data
+        // set _ingestionProgress
+        this._ingestionProgress = changes.ingestionProcess.currentValue;
         // set process status
         this._setProcessStatus(changes.ingestionProcess.currentValue);
         // if success ingestion
@@ -186,7 +192,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * ingestion details click event
    */
   public onClickIngestionDetails(): void {
-    this._ingestionLogComp.init(this.datasource.id, this.historyId);
+    this._ingestionLogComp.init(this.datasource.id, this.historyId, this._ingestionProgress);
   }
 
   /**

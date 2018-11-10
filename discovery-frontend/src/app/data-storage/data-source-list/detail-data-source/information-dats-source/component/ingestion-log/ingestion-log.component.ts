@@ -24,8 +24,7 @@ import { DatasourceService } from '../../../../../../datasource/service/datasour
 export class IngestionLogComponent extends AbstractComponent {
   // datasourceId
   private _datasourceId: string;
-  // historyId
-  private _historyId: string;
+
   // is get all log
   private _isGetAllLog: boolean;
 
@@ -33,6 +32,10 @@ export class IngestionLogComponent extends AbstractComponent {
   public isShow = false;
   // data
   public detailDatas: any;
+  // historyId
+  public historyId: string;
+  // ingestionProgress
+  public ingestionProgress: any;
 
 
   // 생성자
@@ -49,23 +52,26 @@ export class IngestionLogComponent extends AbstractComponent {
   public onScrolled(event: MouseEvent): void {
     if (event.target['offsetHeight'] + event.target['scrollTop'] >= event.target['scrollHeight'] && !this._isGetAllLog) {
       // get ingestion result details
-      this._getIngestionDetails(this._datasourceId, this._historyId);
+      this._getIngestionDetails(this._datasourceId, this.historyId);
     }
   }
 
   /**
    * init
    */
-  public init(datasourceId: string, historyId: string) {
+  public init(datasourceId: string, historyId: string, ingestionProgress?: any) {
+    // init view
+    this._initView();
     this._datasourceId = datasourceId;
-    this._historyId = historyId;
+    this.historyId = historyId;
+    this.ingestionProgress = ingestionProgress;
     this.isShow = true;
+
     this._isGetAllLog = false;
-    // init
-    this.detailDatas = [];
+
     // get ingestion result details
-    if (historyId) {
-      this._getIngestionDetails(this._datasourceId, this._historyId, -10000);
+    if (historyId && ingestionProgress && ingestionProgress.message === 'ENGINE_RUNNING_TASK') {
+      this._getIngestionDetails(this._datasourceId, this.historyId, -10000);
     }
   }
 
@@ -98,5 +104,17 @@ export class IngestionLogComponent extends AbstractComponent {
       })
       .catch(error => this.commonExceptionHandler(error));
   }
+
+  /**
+   * ui init
+   * @private
+   */
+  private _initView(): void {
+    // init
+    this.detailDatas = [];
+    this.historyId = null;
+    this.ingestionProgress = null;
+  }
+
 
 }

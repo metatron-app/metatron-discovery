@@ -66,7 +66,7 @@
                  (click)="onClickIngestionDetails()">{{'msg.comm.detail.details' | translate}}</a>
             </div>
             <!-- box -->
-            <div class="ddp-box-status" *ngIf="datasource.status.toString() === 'FAILED' || datasource.status.toString() === 'PREPARING' || (isShowIngestionProcess && datasource.status.toString() === 'ENABLED')">
+            <div class="ddp-box-status" *ngIf="!isNotShowProgress && (datasource.status.toString() === 'FAILED' || datasource.status.toString() === 'PREPARING' || datasource.status.toString() === 'ENABLED')">
               <!-- stagingDB -->
               <ng-container *ngIf="isHiveType()">
                 <div class="ddp-list-status">
