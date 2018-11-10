@@ -102,7 +102,13 @@ export class IngestionLogComponent extends AbstractComponent {
         // loading hide
         this.loadingHide();
       })
-      .catch(error => this.commonExceptionHandler(error));
+      .catch((error) => {
+        if (error['details']) {
+          this.detailDatas = error['details'].split('\n');
+        }
+        // loading hide
+        this.loadingHide();
+      });
   }
 
   /**
