@@ -87,6 +87,19 @@
 
         <!-- 버튼 목록 -->
         <div class="ddp-ui-buttons" *ngIf="!isMiniHeader" >
+
+          <!-- Data Limit Info -->
+          <div class="ddp-box-btn2" *ngIf="limitInfo.isShow">
+            <em class="ddp-icon-widget-info2"></em>
+            <!-- box info -->
+            <div class="ddp-box-info ddp-limitation">
+              <em class="ddp-icon-info"></em>
+              <span [innerHTML]="'msg.page.ui.limit-msg' | translate : { currentCnt : limitInfo.currentCnt | numberCommas , maxCnt : limitInfo.maxCnt | numberCommas }" ></span>
+            </div>
+            <!-- box info -->
+          </div>
+          <!-- // Data Limit Info -->
+
           <!-- 차트 정보 버튼 -->
           <div class="ddp-box-btn2" *ngIf="isPageWidget">
             <em class="ddp-icon-widget-info"></em>
