@@ -135,7 +135,7 @@ public class IngestionJobRunner {
 
       // Call engine api.
       String taskId = ingestionJob.process();
-      sendTopic(sendTopicUri, new ProgressResponse(70, ENGINE_RUNNING_TASK));
+      sendTopic(sendTopicUri, new ProgressResponse(70, ENGINE_RUNNING_TASK, results));
       history.setIngestionId(taskId);
       history.setProgress(ENGINE_RUNNING_TASK);
       historyRepository.saveAndFlush(history);
