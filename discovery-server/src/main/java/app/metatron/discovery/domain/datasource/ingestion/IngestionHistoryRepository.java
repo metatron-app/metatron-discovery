@@ -36,6 +36,11 @@ public interface IngestionHistoryRepository extends JpaRepository<IngestionHisto
   Page<IngestionHistory> findByDataSourceIdOrderByModifiedTimeDesc(String dataSourceId, Pageable pageable);
 
   @RestResource(exported = false)
+  Page<IngestionHistory> findByDataSourceIdAndStatusOrderByModifiedTimeDesc(String dataSourceId,
+                                                                            IngestionHistory.IngestionStatus status,
+                                                                            Pageable pageable);
+
+  @RestResource(exported = false)
   List<IngestionHistory> findByDataSourceIdAndStatus(String dataSourceId, IngestionHistory.IngestionStatus status);
 
   @RestResource(exported = false)

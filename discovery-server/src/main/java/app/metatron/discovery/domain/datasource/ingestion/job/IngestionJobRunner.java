@@ -14,7 +14,6 @@ import java.util.Map;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.ProgressResponse;
-import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.fileloader.FileLoaderFactory;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
@@ -106,7 +105,12 @@ public class IngestionJobRunner {
     history.setProgress(START_INGESTION_JOB);
     history.setHostname(PolarisUtils.getLocalHostname());
 
+    Map<String, Object> results = Maps.newLinkedHashMap();
+    results.put("history", history);
+
     try {
+
+      Thread.sleep(5000L);
 
       sendTopic(sendTopicUri, new ProgressResponse(0, START_INGESTION_JOB));
 
@@ -156,49 +160,34 @@ public class IngestionJobRunner {
       historyRepository.saveAndFlush(history);
 
       DataSourceSummary summary = new DataSourceSummary(segmentMetaData);
-      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.ENABLED, summary);
-
-      Map<String, Object> results = Maps.newLinkedHashMap();
-      results.put("history", history);
       results.put("summary", summary);
+
+      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.ENABLED, summary);
 
       ProgressResponse successResponse = new ProgressResponse(100, END_INGESTION_JOB);
       successResponse.setResults(results);
 
       sendTopic(sendTopicUri, successResponse);
 
-    } catch (DataSourceIngestionException ie) {
-      sendTopic(sendTopicUri, new ProgressResponse(-1, FAIL_INGESTION_JOB, ie));
-      //handleFailProcess(history, ie.getCode(), ie);
-      history.setStatus(FAILED);
-      history.setCause(ie.getCode().toString());
+    } catch (Exception e) {
+
+      DataSourceIngestionException ie;
+      if (!(e instanceof DataSourceIngestionException)) {
+        ie = new DataSourceIngestionException(INGESTION_COMMON_ERROR, e);
+      } else {
+        ie = (DataSourceIngestionException) e;
+      }
+
+      history.setStatus(FAILED, ie);
       historyRepository.saveAndFlush(history);
       dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED, null);
+
+      sendTopic(sendTopicUri, new ProgressResponse(-1, FAIL_INGESTION_JOB, results));
 
       LOGGER.error("Fail to ingestion : {}", history, ie);
-
-    } catch (Exception e) {
-      sendTopic(sendTopicUri, new ProgressResponse(-1, FAIL_INGESTION_JOB, new MetatronException(INGESTION_COMMON_ERROR, e)));
-      //handleFailProcess(history, INGESTION_COMMON_ERROR, e);
-      history.setStatus(FAILED);
-      history.setCause(INGESTION_COMMON_ERROR.toString() + ": " + e.getMessage());
-      historyRepository.saveAndFlush(history);
-      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED, null);
-
-      LOGGER.error("Fail to ingestion : {}", history, e);
     }
 
   }
-
-//  @Transactional
-//  public void handleFailProcess(IngestionHistory history, ErrorCodes code, Throwable t) {
-//    history.setStatus(FAILED);
-//    history.setCause(code.toString());
-//    historyRepository.saveAndFlush(history);
-//    dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED, null);
-//
-//    LOGGER.error("Fail to ingestion : {}", history, t);
-//  }
 
   public IngestionJob getJob(DataSource dataSource, IngestionHistory ingestionHistory) {
     IngestionInfo ingestionInfo = dataSource.getIngestionInfo();

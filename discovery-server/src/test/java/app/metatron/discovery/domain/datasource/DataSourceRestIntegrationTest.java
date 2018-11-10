@@ -175,8 +175,10 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     given()
       .auth().oauth2(oauth_token)
       .contentType(ContentType.JSON)
+      .param("status", "running")
+      .log().all()
     .when()
-      .get("/api/datasources/{id}/ingestion/histories", dataSourceId)
+      .get("/api/datasources/{id}/histories", dataSourceId)
     .then()
       .log().all()
       .statusCode(HttpStatus.SC_OK);
