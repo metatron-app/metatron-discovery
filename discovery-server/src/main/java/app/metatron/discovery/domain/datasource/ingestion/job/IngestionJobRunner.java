@@ -1,16 +1,23 @@
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
+import com.google.common.collect.Maps;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.ProgressResponse;
-import app.metatron.discovery.common.exception.ErrorCodes;
-import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.fileloader.FileLoaderFactory;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
@@ -57,6 +64,9 @@ public class IngestionJobRunner {
   public static final String TOPIC_INGESTION_PROGRESS = "/topic/datasources/%s/progress";
 
   @Autowired
+  private PlatformTransactionManager platformTransactionManager;
+
+  @Autowired
   private EngineProperties engineProperties;
 
   @Autowired
@@ -89,48 +99,59 @@ public class IngestionJobRunner {
   @Autowired
   private SimpMessageSendingOperations messagingTemplate;
 
+  private TransactionTemplate transactionTemplate;
+
   private Long interval = 5000L;
 
-  @Transactional
+  public IngestionJobRunner() {
+    // Empty Constructor
+  }
+
+  @PostConstruct
+  public void init() {
+    transactionTemplate = new TransactionTemplate(platformTransactionManager);
+  }
+
   public void ingestion(DataSource dataSource) {
 
     String sendTopicUri = String.format(TOPIC_INGESTION_PROGRESS, dataSource.getId());
 
-    IngestionHistory history = new IngestionHistory(dataSource.getId());
-    history.setIngestionInfo(dataSource.getIngestionInfo());
-    history.setStatus(IngestionHistory.IngestionStatus.RUNNING);
-    history.setProgress(START_INGESTION_JOB);
-    history.setHostname(PolarisUtils.getLocalHostname());
+    IngestionHistory history = null;
+    Map<String, Object> results = Maps.newLinkedHashMap();
 
     try {
 
-      sendTopic(sendTopicUri, new ProgressResponse(0, START_INGESTION_JOB));
+      // Temporary Process
+      Thread.sleep(3000L);
+      history = createNewHistory(dataSource.getId(), dataSource.getIngestionInfo());
 
-      historyRepository.saveAndFlush(history);
+      sendTopic(sendTopicUri, new ProgressResponse(0, START_INGESTION_JOB));
+      history = updateHistoryProgress(history.getId(), START_INGESTION_JOB);
 
       IngestionJob ingestionJob = getJob(dataSource, history);
 
       sendTopic(sendTopicUri, new ProgressResponse(20, PREPARATION_HANDLE_LOCAL_FILE));
-      history.setProgress(PREPARATION_HANDLE_LOCAL_FILE);
-      historyRepository.saveAndFlush(history);
+      history = updateHistoryProgress(history.getId(), PREPARATION_HANDLE_LOCAL_FILE);
+
       ingestionJob.preparation();
 
       sendTopic(sendTopicUri, new ProgressResponse(40, PREPARATION_LOAD_FILE_TO_ENGINE));
-      history.setProgress(PREPARATION_LOAD_FILE_TO_ENGINE);
-      historyRepository.saveAndFlush(history);
+      history = updateHistoryProgress(history.getId(), PREPARATION_LOAD_FILE_TO_ENGINE);
+
       ingestionJob.loadToEngine();
 
       sendTopic(sendTopicUri, new ProgressResponse(50, ENGINE_INIT_TASK));
-      history.setProgress(ENGINE_INIT_TASK);
-      historyRepository.saveAndFlush(history);
+      history = updateHistoryProgress(history.getId(), ENGINE_INIT_TASK);
+
       ingestionJob.buildSpec();
 
       // Call engine api.
       String taskId = ingestionJob.process();
-      sendTopic(sendTopicUri, new ProgressResponse(70, ENGINE_RUNNING_TASK));
-      history.setIngestionId(taskId);
-      history.setProgress(ENGINE_RUNNING_TASK);
-      historyRepository.saveAndFlush(history);
+
+      history = updateHistoryProgress(history.getId(), ENGINE_RUNNING_TASK, taskId);
+
+      results.put("history", history);
+      sendTopic(sendTopicUri, new ProgressResponse(70, ENGINE_RUNNING_TASK, results));
 
       // Check ingestion Task.
       IngestionStatusResponse statusResponse = checkIngestion(taskId);
@@ -140,38 +161,93 @@ public class IngestionJobRunner {
 
       // Check registering datasource
       sendTopic(sendTopicUri, new ProgressResponse(90, ENGINE_REGISTER_DATASOURCE));
-      history.setProgress(ENGINE_REGISTER_DATASOURCE);
-      historyRepository.saveAndFlush(history);
+      history = updateHistoryProgress(history.getId(), ENGINE_RUNNING_TASK, taskId);
 
       SegmentMetaDataResponse segmentMetaData = checkDataSource(dataSource.getEngineName());
       if (segmentMetaData == null) {
         throw new DataSourceIngestionException(INGESTION_ENGINE_REGISTRATION_ERROR, "An error occurred while registering the data source");
       }
 
-      history.setStatus(SUCCESS);
-      historyRepository.saveAndFlush(history);
-      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.ENABLED, new DataSourceSummary(segmentMetaData));
+      DataSourceSummary summary = new DataSourceSummary(segmentMetaData);
+      results.put("summary", summary);
+      results.put("history", history);
 
-      sendTopic(sendTopicUri, new ProgressResponse(100, END_INGESTION_JOB));
+      ProgressResponse successResponse = new ProgressResponse(100, END_INGESTION_JOB);
+      successResponse.setResults(results);
 
-    } catch (DataSourceIngestionException ie) {
-      sendTopic(sendTopicUri, new ProgressResponse(-1, FAIL_INGESTION_JOB, ie));
-      handleFailProcess(history, ie.getCode(), ie);
+      sendTopic(sendTopicUri, successResponse);
+      setSuccessProgress(history.getId(), summary);
+
     } catch (Exception e) {
-      sendTopic(sendTopicUri, new ProgressResponse(-1, FAIL_INGESTION_JOB, new MetatronException(INGESTION_COMMON_ERROR, e)));
-      handleFailProcess(history, INGESTION_COMMON_ERROR, e);
+
+      DataSourceIngestionException ie;
+      if (!(e instanceof DataSourceIngestionException)) {
+        ie = new DataSourceIngestionException(INGESTION_COMMON_ERROR, e);
+      } else {
+        ie = (DataSourceIngestionException) e;
+      }
+
+      try {
+        history = setFailProgress(history.getId(), ie);
+      } catch (TransactionException ex) {}
+
+      results.put("history", history);
+      sendTopic(sendTopicUri, new ProgressResponse(-1, FAIL_INGESTION_JOB, results));
+
+      LOGGER.error("Fail to ingestion : {}", history, ie);
     }
 
   }
 
-  @Transactional
-  public void handleFailProcess(IngestionHistory history, ErrorCodes code, Throwable t) {
-    history.setStatus(FAILED);
-    history.setCause(code.toString());
-    historyRepository.saveAndFlush(history);
-    dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED, null);
+  public IngestionHistory createNewHistory(final String datasourceId, final IngestionInfo ingestionInfo) {
+    return transactionTemplate.execute(transactionStatus -> {
+      IngestionHistory history = new IngestionHistory();
+      history.setIngestionInfo(ingestionInfo);
+      history.setDataSourceId(datasourceId);
+      history.setStatus(IngestionHistory.IngestionStatus.RUNNING);
+      history.setHostname(PolarisUtils.getLocalHostname());
+      return historyRepository.saveAndFlush(history);
+    });
+  }
 
-    LOGGER.error("Fail to ingestion : {}", history, t);
+  public IngestionHistory updateHistoryProgress(final Long id, final IngestionProgress progress) {
+    return updateHistoryProgress(id, progress, null);
+  }
+
+  public IngestionHistory updateHistoryProgress(final Long id, final IngestionProgress progress, final String taskId) {
+    return transactionTemplate.execute(transactionStatus -> {
+      IngestionHistory history = historyRepository.findOne(id);
+      history.setProgress(progress);
+
+      if (StringUtils.isNotEmpty(taskId)) {
+        history.setIngestionId(taskId);
+      }
+
+      return historyRepository.save(history);
+    });
+  }
+
+  public IngestionHistory setSuccessProgress(final Long historyId, final DataSourceSummary summary) {
+    return transactionTemplate.execute(transactionStatus -> {
+      IngestionHistory history = historyRepository.findOne(historyId);
+      history.setStatus(SUCCESS);
+      history.setProgress(END_INGESTION_JOB);
+
+      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.ENABLED, summary);
+
+      return historyRepository.save(history);
+    });
+  }
+
+  public IngestionHistory setFailProgress(final Long historyId, final DataSourceIngestionException ie) {
+    return transactionTemplate.execute(transactionStatus -> {
+      IngestionHistory history = historyRepository.findOne(historyId);
+      history.setStatus(FAILED, ie);
+
+      dataSourceService.setDataSourceStatus(history.getDataSourceId(), DataSource.Status.FAILED, null);
+
+      return historyRepository.save(history);
+    });
   }
 
   public IngestionJob getJob(DataSource dataSource, IngestionHistory ingestionHistory) {
@@ -242,6 +318,7 @@ public class IngestionJobRunner {
 
     do {
       if (checkCount == 20) {
+        LOGGER.info("Not Find datasource({}) in 20 times", engineName);
         break;
       }
 
@@ -254,9 +331,13 @@ public class IngestionJobRunner {
         segmentMetaData = queryService.segmentMetadata(engineName);
       } catch (Exception e) {
         LOGGER.debug("{} : Check ingested datasource({}) : {}", checkCount, engineName, e.getMessage());
+        checkCount++;
       }
 
-      checkCount++;
+      if (segmentMetaData != null) {
+        LOGGER.debug("{} : Find datasource({})!!", checkCount, engineName);
+        break;
+      }
 
     } while (true);
 
@@ -281,6 +362,8 @@ public class IngestionJobRunner {
         statusResponse = IngestionStatusResponse.unknownResponse(taskId, e);
       }
 
+      LOGGER.debug("Check Task({}) : {}", taskId, statusResponse);
+
       if (statusResponse.getStatus() == SUCCESS
           || statusResponse.getStatus() == FAILED) {
         break;
@@ -288,6 +371,7 @@ public class IngestionJobRunner {
         // If an unrecognized server error occurs consistently, the failure is handled.
         unknownCount++;
         if (unknownCount == 10) {
+          LOGGER.info("Unknown error occurred over 10 time. It will mark 'fail'.");
           statusResponse.setStatus(FAILED);
           break;
         }

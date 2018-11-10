@@ -22,8 +22,24 @@
   </div>
   <!-- //top -->
   <!-- cpmtemts -->
-  <div class="ddp-ui-preview-contents ddp-type-preview">
-    {{detailData}}
+  <div class="ddp-ui-preview-contents ddp-type-preview ddp-query" (scroll)="onScrolled($event)">
+    <ng-container *ngIf="historyId">
+      <!-- if ENGINE_RUNNING_TASK -->
+      <ng-container *ngFor="let log of detailDatas">
+        {{log}} <br>
+      </ng-container>
+      <!-- //if ENGINE_RUNNING_TASK -->
+      <!-- else -->
+      <ng-container *ngIf="ingestionProgress && ingestionProgress['message'] !== 'ENGINE_RUNNING_TASK'
+      && ingestionProgress['results']">
+        {{ingestionProgress['results'].message}} <br>
+        {{ingestionProgress['results'].details}}
+      </ng-container>
+      <!-- //else -->
+    </ng-container>
+    <ng-container *ngIf="!historyId">
+      {{'msg.storage.ui.ingestion.failed.history' | translate}}
+    </ng-container>
   </div>
   <!-- //cpmtemts -->
 </div>

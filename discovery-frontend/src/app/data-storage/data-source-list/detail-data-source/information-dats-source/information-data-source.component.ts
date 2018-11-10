@@ -94,6 +94,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   // 차트 옵션
   private barOption: any;
 
+  // ingestionProgress
+  private _ingestionProgress: any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -115,6 +118,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   public ingestionProcess: any;
 
   @Input()
+  public isNotShowProgress: boolean;
+
+  @Input()
   public historyId: string;
 
   @Output()
@@ -127,8 +133,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // process step
   public ingestionProcessStatusStep: number = 0;
-  // ingestion process show flag
-  public isShowIngestionProcess: boolean = true;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -166,11 +170,16 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     if (changes.ingestionProcess) {
       // 최초 접근시 status가 ENABLED라면 process hide
       if (!changes.ingestionProcess.previousValue && this.datasource && this.datasource.status === Status.ENABLED) {
-        this.isShowIngestionProcess = false;
+        this.isNotShowProgress = true;
       } else if (changes.ingestionProcess.currentValue) { // if changed data
+        // set _ingestionProgress
+        this._ingestionProgress = changes.ingestionProcess.currentValue;
         // set process status
         this._setProcessStatus(changes.ingestionProcess.currentValue);
-        // TODO status가 enable로 바뀌었다면 histogram chart를 다시 그릴지 생각해보기
+        // if success ingestion
+        if (changes.ingestionProcess.currentValue['message'] === 'END_INGESTION_JOB') {
+          this._getFieldStats(this.getFields[this._getFindIndexTimestampField()].name, this.datasource.engineName)
+        }
       }
     }
   }
@@ -183,7 +192,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * ingestion details click event
    */
   public onClickIngestionDetails(): void {
-    this._ingestionLogComp.init(this.datasource.id, this.historyId);
+    this._ingestionLogComp.init(this.datasource.id, this.historyId, this._ingestionProgress);
   }
 
   /**
@@ -711,18 +720,18 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    */
   private _setProcessStatus(processData: any): void {
     switch (processData.message) {
-      // 데이터 이관
+      // 데이터 준비
       case 'START_INGESTION_JOB':
       case 'PREPARATION_HANDLE_LOCAL_FILE':
       case 'PREPARATION_LOAD_FILE_TO_ENGINE':
         this.ingestionProcessStatusStep = 1;
         break;
-      // 적재
+      // 엔진 적재
       case 'ENGINE_INIT_TASK':
       case 'ENGINE_RUNNING_TASK':
         this.ingestionProcessStatusStep = 2;
         break;
-      // 상태확인
+      // 상태 확인
       case 'ENGINE_REGISTER_DATASOURCE':
         this.ingestionProcessStatusStep = 3;
         break;

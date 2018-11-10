@@ -61,16 +61,18 @@
           <div class="ddp-ui-status-type">
             <div class="ddp-top-status">
               <span class="ddp-data-status {{getSourceStatusClass(datasource.status)}}">{{datasource.status}} </span>
-              <a href="javascript:" class="ddp-link-detail" (click)="onClickIngestionDetails()">{{'msg.comm.detail.details' | translate}}</a>
+              <a href="javascript:" class="ddp-link-detail"
+                 *ngIf="datasource.status.toString() === 'FAILED'"
+                 (click)="onClickIngestionDetails()">{{'msg.comm.detail.details' | translate}}</a>
             </div>
             <!-- box -->
-            <div class="ddp-box-status" *ngIf="datasource.status.toString() === 'FAILED' || datasource.status.toString() === 'PREPARING' || (isShowIngestionProcess && datasource.status.toString() === 'ENABLED')">
+            <div class="ddp-box-status" *ngIf="!isNotShowProgress && (datasource.status.toString() === 'FAILED' || datasource.status.toString() === 'PREPARING' || datasource.status.toString() === 'ENABLED')">
               <!-- stagingDB -->
               <ng-container *ngIf="isHiveType()">
                 <div class="ddp-list-status">
                   <!-- Druid 적재 -->
                   <div class="ddp-status"
-                       [class.ddp-finish]="ingestionProcessStatusStep > 2"
+                       [class.ddp-finish]="ingestionProcessStatusStep >= 2"
                        [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 2">
                     <span class="ddp-num">1</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-2' | translate}}</span>
@@ -81,8 +83,8 @@
                   <!-- //Druid 적재 -->
                   <!-- 상태확인 -->
                   <div class="ddp-status"
-                    [class.ddp-finish]="ingestionProcessStatusStep > 3"
-                    [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 3"
+                    [class.ddp-finish]="ingestionProcessStatusStep >= 3"
+                    [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 2"
                     [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 3">
                     <span class="ddp-num">2</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-3' | translate}}</span>
@@ -94,7 +96,7 @@
                   <!-- 완료 -->
                   <div class="ddp-status"
                        [class.ddp-finish]="datasource.status.toString() === 'ENABLED' && ingestionProcessStatusStep === 4"
-                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 4"
+                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 3"
                        [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 4">
                     <span class="ddp-num">3</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-4' | translate}}</span>
@@ -144,7 +146,7 @@
                   <!-- 완료 -->
                   <div class="ddp-status"
                        [class.ddp-finish]="datasource.status.toString() === 'ENABLED' && ingestionProcessStatusStep === 4"
-                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 4"
+                       [class.ddp-ing]="datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep === 3"
                        [class.ddp-fail]="datasource.status.toString() === 'FAILED' && ingestionProcessStatusStep === 4">
                     <span class="ddp-num">4</span>
                     <span class="ddp-txt-status">{{'msg.storage.ui.ingestion.step-4' | translate}}</span>
@@ -203,30 +205,30 @@
                 <span class="ddp-data-contents ">{{'msg.storage.ui.no.data' | translate}}</span>
               </div>
             </div>
-            <div class="ddp-wrap-link-detail" (clickOutside)="detailFl=false">
-              <a href="javascript:" class="ddp-link-detail" (click)="detailFl = !detailFl">{{'msg.storage.th.detail' | translate}}</a>
-              <!-- layout -->
-              <div class="ddp-box-layout4" style="display:block;" *ngIf="detailFl">
-                <a href="javascript:" class="ddp-btn-close" (click)="detailFl = false"></a>
-                <div class="ddp-wrap-data-detail">
-                  <div class="ddp-ui-top-title">
-                    {{'msg.storage.ui.title.data.detail' | translate}}
-                  </div>
-                  <ul class="ddp-list-data-detail">
-                    <!-- 데이터가 없는경우 -->
-                    <li *ngIf="!getSummary">
-                      {{'msg.storage.ui.no.data' | translate}}
-                    </li>
-                    <!-- //데이터가 없는경우 -->
-                    <li *ngIf="getSummary">
-                      <span class="ddp-data-date">Size</span>
-                      <span class="ddp-data-size">{{getSummary.size}}</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <!-- //layout -->
-            </div>
+            <!--<div class="ddp-wrap-link-detail" (clickOutside)="detailFl=false">-->
+              <!--<a href="javascript:" class="ddp-link-detail" (click)="detailFl = !detailFl">{{'msg.storage.th.detail' | translate}}</a>-->
+              <!--&lt;!&ndash; layout &ndash;&gt;-->
+              <!--<div class="ddp-box-layout4" style="display:block;" *ngIf="detailFl">-->
+                <!--<a href="javascript:" class="ddp-btn-close" (click)="detailFl = false"></a>-->
+                <!--<div class="ddp-wrap-data-detail">-->
+                  <!--<div class="ddp-ui-top-title">-->
+                    <!--{{'msg.storage.ui.title.data.detail' | translate}}-->
+                  <!--</div>-->
+                  <!--<ul class="ddp-list-data-detail">-->
+                    <!--&lt;!&ndash; 데이터가 없는경우 &ndash;&gt;-->
+                    <!--<li *ngIf="!getSummary">-->
+                      <!--{{'msg.storage.ui.no.data' | translate}}-->
+                    <!--</li>-->
+                    <!--&lt;!&ndash; //데이터가 없는경우 &ndash;&gt;-->
+                    <!--<li *ngIf="getSummary">-->
+                      <!--<span class="ddp-data-date">Size</span>-->
+                      <!--<span class="ddp-data-size">{{getSummary.size}}</span>-->
+                    <!--</li>-->
+                  <!--</ul>-->
+                <!--</div>-->
+              <!--</div>-->
+              <!--&lt;!&ndash; //layout &ndash;&gt;-->
+            <!--</div>-->
             <!-- //link detail -->
           </div>
         </td>

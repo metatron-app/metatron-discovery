@@ -17,12 +17,14 @@ package app.metatron.discovery.domain.datasource.ingestion;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.common.KeepAsJsonDeserialzier;
+import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.domain.AbstractHistoryEntity;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.datasource.ingestion.job.IngestionProgress;
@@ -71,7 +73,11 @@ public class IngestionHistory extends AbstractHistoryEntity implements MetatronD
   @Enumerated(EnumType.STRING)
   IngestionProgress progress;
 
-  @Column(name = "ingest_cause")
+  @Column(name = "ingest_error_code")
+  String errorCode;
+
+  @Column(name = "ingest_cause", length = 65535, columnDefinition = "TEXT")
+  @Basic(fetch = FetchType.LAZY)
   String cause;
 
   @Column(name = "ingest_hostname")
@@ -104,6 +110,12 @@ public class IngestionHistory extends AbstractHistoryEntity implements MetatronD
   public void setStatus(IngestionStatus status, String cause) {
     this.status = status;
     this.cause = cause;
+  }
+
+  public void setStatus(IngestionStatus status, MetatronException e) {
+    this.status = status;
+    this.errorCode = e.getCode().toString();
+    this.cause = ExceptionUtils.getRootCauseMessage(e);
   }
 
   public void setStatus(String statusStr) {
@@ -177,6 +189,14 @@ public class IngestionHistory extends AbstractHistoryEntity implements MetatronD
     this.progress = progress;
   }
 
+  public String getErrorCode() {
+    return errorCode;
+  }
+
+  public void setErrorCode(String errorCode) {
+    this.errorCode = errorCode;
+  }
+
   public String getCause() {
     return cause;
   }
@@ -209,6 +229,7 @@ public class IngestionHistory extends AbstractHistoryEntity implements MetatronD
         ", ingestionMethod=" + ingestionMethod +
         ", duration=" + duration +
         ", status=" + status +
+        ", errorCode=" + errorCode +
         ", progress=" + progress +
         ", cause='" + cause + '\'' +
         "} " + super.toString();

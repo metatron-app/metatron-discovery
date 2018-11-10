@@ -65,6 +65,7 @@ import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
@@ -95,6 +96,8 @@ import app.metatron.discovery.util.ExcelProcessor;
 import app.metatron.discovery.util.PolarisUtils;
 import app.metatron.discovery.util.ProjectionUtils;
 
+import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_COMMON_ERROR;
+import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_ENGINE_GET_TASK_LOG_ERROR;
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PREFIX;
 
 /**
@@ -161,10 +164,8 @@ public class DataSourceController {
   /**
    * 저장된 Linked 데이터 소스 정보를 기반으로 임시 데이터 소스를 생성합니다
    *
-   * @param dataSourceId
    * @param filters 지정된 Essential Filter 정보
-   * @param async 비동기 처리 여부
-   * @return
+   * @param async   비동기 처리 여부
    */
   @RequestMapping(value = "/datasources/{dataSourceId}/temporary", method = RequestMethod.POST)
   public ResponseEntity<?> createDataSourceTemporary(@PathVariable("dataSourceId") String dataSourceId,
@@ -184,17 +185,17 @@ public class DataSourceController {
     List<DataSourceTemporary> temporaries = dataSourceService.getMatchedTemporaries(dataSourceId, filters);
 
     String tempoaryId = null;
-    if(CollectionUtils.isNotEmpty(temporaries)) {
+    if (CollectionUtils.isNotEmpty(temporaries)) {
       DataSourceTemporary temporary = temporaries.get(0);
       LOGGER.info("Already created temporary datasource : {}", temporary.getName());
-      if(temporary.getStatus() == DataSourceTemporary.LoadStatus.ENABLE) {
+      if (temporary.getStatus() == DataSourceTemporary.LoadStatus.ENABLE) {
         // Expired Time 재조정 후 정보 리턴
         temporary.setNextExpireTime(DateTime.now().plusSeconds(temporary.getExpired()));
         temporaryRepository.save(temporary);
 
         return ResponseEntity.ok(temporary);
 
-      } else if(temporary.getStatus() == DataSourceTemporary.LoadStatus.PREPARING) {
+      } else if (temporary.getStatus() == DataSourceTemporary.LoadStatus.PREPARING) {
         // 진행상황에 대한 정보를 전달 후 리턴
         Map<String, Object> responseMap = Maps.newHashMap();
         responseMap.put("id", temporary.getId());
@@ -202,7 +203,7 @@ public class DataSourceController {
 
         return ResponseEntity.ok(responseMap);
 
-      } else if(temporary.getStatus() == DataSourceTemporary.LoadStatus.DISABLE) {
+      } else if (temporary.getStatus() == DataSourceTemporary.LoadStatus.DISABLE) {
         // Reload 프로세스
         tempoaryId = temporary.getId();
       }
@@ -213,10 +214,6 @@ public class DataSourceController {
 
   /**
    * 지정된 데이터 소스 정보를 가지고 임시 데이터 소스를 생성합니다. (WorkBench 에서 활용)
-   *
-   * @param dataSourceResource
-   * @param async
-   * @return
    */
   @RequestMapping(value = "/datasources/temporary", method = RequestMethod.POST)
   public ResponseEntity<?> createDataSourceTemporary(@RequestBody Resource<DataSource> dataSourceResource,
@@ -228,26 +225,23 @@ public class DataSourceController {
                                "Required ingestion information.");
 
     String csvBaseDir = workbenchProperties.getTempCSVPath();
-    if(!csvBaseDir.endsWith(File.separator)){
+    if (!csvBaseDir.endsWith(File.separator)) {
       csvBaseDir = csvBaseDir + File.separator;
     }
 
     LocalFileIngestionInfo ingestionInfo = (LocalFileIngestionInfo) dataSource.getIngestionInfo();
     ingestionInfo.setPath(csvBaseDir + ingestionInfo.getPath());
 
-    return handleTemporaryDatasource(dataSource, null,null, async);
+    return handleTemporaryDatasource(dataSource, null, null, async);
   }
 
   /**
    * Link 데이터 소스 정보를 통해 생성된 임시 데이터 소스 목록 조회
-   *
-   * @param dataSourceId
-   * @return
    */
   @RequestMapping(value = "/datasources/{dataSourceId}/temporaries/{temporaryId}/reload", method = RequestMethod.POST)
   public ResponseEntity<?> reloadTemporaryDataSources(@PathVariable("dataSourceId") String dataSourceId,
-                                                    @PathVariable("temporaryId") String temporaryId,
-                                                    @RequestParam(value = "async", required = false) boolean async) {
+                                                      @PathVariable("temporaryId") String temporaryId,
+                                                      @RequestParam(value = "async", required = false) boolean async) {
 
     DataSource dataSource = dataSourceRepository.findOne(dataSourceId);
     if (dataSource == null) {
@@ -268,11 +262,6 @@ public class DataSourceController {
 
   /**
    * 임시 데이터 소스 생성 합니다.
-   *
-   * @param dataSource
-   * @param filters
-   * @param async
-   * @return
    */
   private ResponseEntity<?> handleTemporaryDatasource(DataSource dataSource, String temporaryId, List<Filter> filters, boolean async) {
     // Generate Temporary ID
@@ -287,7 +276,7 @@ public class DataSourceController {
           .build();
 
       // FIXME: 전용 Thread Pool 로 변경하는 것을 검토해보자!
-      ExecutorService service = Executors .newSingleThreadExecutor(factory);
+      ExecutorService service = Executors.newSingleThreadExecutor(factory);
       service.submit(() ->
                          engineLoadService.load(dataSource, filters, async, tempTargetId)
       );
@@ -305,10 +294,6 @@ public class DataSourceController {
 
   /**
    * 데이터 소스의 상세정보를 가져옵니다. 임시 데이터 소스가 존재할 경우
-   *
-   * @param dataSourceId
-   * @param resourceAssembler
-   * @return
    */
   @Transactional(readOnly = true)
   @RequestMapping(value = "/datasources/{dataSourceId}", method = RequestMethod.GET)
@@ -334,9 +319,6 @@ public class DataSourceController {
 
   /**
    * Link 데이터 소스 정보를 통해 생성된 임시 데이터 소스 목록 조회
-   *
-   * @param dataSourceId
-   * @return
    */
   @RequestMapping(value = "/datasources/{dataSourceId}/temporaries", method = RequestMethod.GET)
   public ResponseEntity<?> findTemporaryDataSources(@PathVariable("dataSourceId") String dataSourceId) {
@@ -397,9 +379,9 @@ public class DataSourceController {
     SearchParamValidator.range(searchDateBy, from, to);
 
     // Get Predicate
-//    Predicate searchPredicated = DataSourcePredicate
-//        .searchList(dataSourceType, connectionType, sourceType, statusType,
-//                    published, nameContains, searchDateBy, from, to);
+    //    Predicate searchPredicated = DataSourcePredicate
+    //        .searchList(dataSourceType, connectionType, sourceType, statusType,
+    //                    published, nameContains, searchDateBy, from, to);
 
     // 기본 정렬 조건 셋팅
     if (pageable.getSort() == null || !pageable.getSort().iterator().hasNext()) {
@@ -417,10 +399,6 @@ public class DataSourceController {
 
   /**
    * 데이터 소스내 데이터 질의 수행, NoteBook 모듈내에서 주로 수행
-   *
-   * @param id
-   * @param request
-   * @return
    */
   @RequestMapping(path = "/datasources/{id}/data", method = RequestMethod.POST)
   public @ResponseBody
@@ -433,14 +411,14 @@ public class DataSourceController {
       throw new ResourceNotFoundException(id);
     }
 
-    if(request == null) {
+    if (request == null) {
       request = new SearchQueryRequest();
     }
 
     DefaultDataSource defaultDataSource = new DefaultDataSource(dataSource.getEngineName());
     defaultDataSource.setMetaDataSource(dataSource);
 
-    if(request.getResultFormat() == null) {
+    if (request.getResultFormat() == null) {
       ObjectResultFormat resultFormat = new ObjectResultFormat();
       resultFormat.setRequest(request);
       request.setResultFormat(resultFormat);
@@ -448,10 +426,10 @@ public class DataSourceController {
     request.setDataSource(defaultDataSource);
 
     // 데이터 Limit 처리 최대 백만건까지 확인 가능함
-    if(request.getLimits() == null) {
-      if(limit == null) {
+    if (request.getLimits() == null) {
+      if (limit == null) {
         limit = 1000;
-      } else if(limit > 1000000) {
+      } else if (limit > 1000000) {
         limit = 1000000;
       }
       request.setLimits(new Limit(limit));
@@ -462,12 +440,8 @@ public class DataSourceController {
 
   /**
    * 데이터 소스내 데이터 추가
-   *
-   * @param id
-   * @param ingestionInfo
-   * @return
    */
-  @RequestMapping(path = "/datasources/{id}/data", method = { RequestMethod.PATCH, RequestMethod.PUT })
+  @RequestMapping(path = "/datasources/{id}/data", method = {RequestMethod.PATCH, RequestMethod.PUT})
   public @ResponseBody
   ResponseEntity<?> appendDataSource(
       @PathVariable("id") String id,
@@ -483,7 +457,7 @@ public class DataSourceController {
     dataSource.setIngestionInfo(ingestionInfo);
 
     // 기존 진행중인 적재 작업 ShutDown
-    if(BooleanUtils.isTrue(singleMode)) {
+    if (BooleanUtils.isTrue(singleMode)) {
       engineIngestionService.shutDownIngestionTask(dataSource.getId());
     }
 
@@ -499,13 +473,9 @@ public class DataSourceController {
   }
 
 
-    /**
-     * 데이터 소스내 필드 정보를 수정합니다.
-     *
-     * @param id
-     * @param patches
-     * @return
-     */
+  /**
+   * 데이터 소스내 필드 정보를 수정합니다.
+   */
   @RequestMapping(path = "/datasources/{id}/fields", method = RequestMethod.PATCH)
   public @ResponseBody
   ResponseEntity<?> patchFieldsInDataSource(
@@ -549,8 +519,6 @@ public class DataSourceController {
 
   /**
    * Engine Datasource에는 존재하지만 Metatron Datasource 필드에 존재하지 않는 값을 동기화 하여 추가합니다.
-   * @param id
-   * @return
    */
   @RequestMapping(path = "/datasources/{id}/fields/sync", method = RequestMethod.PATCH)
   public ResponseEntity<?> synchronizeFieldsInDataSource(@PathVariable("id") final String id) {
@@ -569,32 +537,28 @@ public class DataSourceController {
   private List<Field> getCandidateFieldsFromEngine(String engineName) {
     SegmentMetaDataResponse segmentMetaData = engineQueryService.segmentMetadata(engineName);
 
-    if(segmentMetaData == null || segmentMetaData.getColumns() == null) {
+    if (segmentMetaData == null || segmentMetaData.getColumns() == null) {
       return new ArrayList<>();
     } else {
       return segmentMetaData.getColumns().entrySet().stream()
-          .filter(entry -> ((entry.getKey().equals("__time") || entry.getKey().equals("count")) == false))
-          .map(entry -> {
-            SegmentMetaDataResponse.ColumnInfo value = entry.getValue();
+                            .filter(entry -> ((entry.getKey().equals("__time") || entry.getKey().equals("count")) == false))
+                            .map(entry -> {
+                              SegmentMetaDataResponse.ColumnInfo value = entry.getValue();
 
-            Field field = new Field();
-            field.setName(entry.getKey());
-            field.setAlias(entry.getKey());
-            field.setType(value.getType().startsWith("dimension.") ? DataType.STRING : DataType.INTEGER);
-            field.setRole(value.getType().startsWith("dimension.") ? Field.FieldRole.DIMENSION : Field.FieldRole.MEASURE);
+                              Field field = new Field();
+                              field.setName(entry.getKey());
+                              field.setAlias(entry.getKey());
+                              field.setType(value.getType().startsWith("dimension.") ? DataType.STRING : DataType.INTEGER);
+                              field.setRole(value.getType().startsWith("dimension.") ? Field.FieldRole.DIMENSION : Field.FieldRole.MEASURE);
 
-            return field;
-          })
-          .collect(Collectors.toList());
+                              return field;
+                            })
+                            .collect(Collectors.toList());
     }
   }
 
   /**
    * metatron 을 통해서가 아닌 기존에 엔진에 적재된 데이터 소스를 등록 합니다.
-   *
-   * @param engineName
-   * @param dataSource
-   * @return
    */
   @RequestMapping(value = "/datasources/import/{engineSourceName}", method = RequestMethod.POST)
   public ResponseEntity<?> importEngineDataSources(@PathVariable("engineSourceName") String engineName,
@@ -608,8 +572,6 @@ public class DataSourceController {
 
   /**
    * 엔진 내에서 등록되지 않은 데이터 소스 목록 전달
-   *
-   * @return
    */
   @RequestMapping(value = "/datasources/import/datasources", method = RequestMethod.GET)
   public ResponseEntity<?> importAvailableEngineDataSources() {
@@ -619,14 +581,11 @@ public class DataSourceController {
 
   /**
    * 엔진에 적재된 데이터 소스의 스키마 정보를 확인합니다.
-   *
-   * @param engineName
-   * @return
    */
   @RequestMapping(value = "/datasources/import/{engineSourceName}/preview", method = RequestMethod.GET)
   public ResponseEntity<?> findEngineDataSourcesInfo(@PathVariable("engineSourceName") String engineName,
                                                      @RequestParam(value = "withData", required = false) boolean withData,
-                                                     @RequestParam(value = "limit", required = false) Integer limit ) {
+                                                     @RequestParam(value = "limit", required = false) Integer limit) {
 
     Map<String, Object> resultMap = Maps.newLinkedHashMap();
 
@@ -636,8 +595,8 @@ public class DataSourceController {
 
     resultMap.put("meta", segmentMetaData);
 
-    if(withData) {
-      if(limit == null || limit < 0) {
+    if (withData) {
+      if (limit == null || limit < 0) {
         limit = 100;
       }
       SearchQueryRequest queryRequest = new SearchQueryRequest();
@@ -656,29 +615,33 @@ public class DataSourceController {
   }
 
   /**
-   * Get list of ingestion history
-   *
-   * @param dataSourceId
-   * @param pageable
-   * @return
+   * Get list of ingestion history by status
    */
-  @RequestMapping(value = "/datasources/{id}/ingestion/histories", method = RequestMethod.GET)
-  public ResponseEntity<?> findIngestionHistorys(@PathVariable("id") String dataSourceId, Pageable pageable) {
+  @RequestMapping(value = {"/datasources/{id}/ingestion/histories", "/datasources/{id}/histories"},
+      method = RequestMethod.GET)
+  public ResponseEntity<?> findIngestionHistorys(@PathVariable("id") String dataSourceId,
+                                                 @RequestParam(name = "status", required = false) String status,
+                                                 Pageable pageable) {
+
+    IngestionHistory.IngestionStatus ingestionStatus = SearchParamValidator.enumUpperValue(
+        IngestionHistory.IngestionStatus.class, status, "status");
+
     if (dataSourceRepository.findOne(dataSourceId) == null) {
       return ResponseEntity.notFound().build();
     }
 
-    Page<IngestionHistory> results = ingestionHistoryRepository.findByDataSourceIdOrderByModifiedTimeDesc(dataSourceId, pageable);
+    Page<IngestionHistory> results;
+    if (ingestionStatus == null) {
+      results = ingestionHistoryRepository.findByDataSourceIdOrderByModifiedTimeDesc(dataSourceId, pageable);
+    } else {
+      results = ingestionHistoryRepository.findByDataSourceIdAndStatusOrderByModifiedTimeDesc(dataSourceId, ingestionStatus, pageable);
+    }
 
     return ResponseEntity.ok(pagedResourcesAssembler.toResource(results));
   }
 
   /**
    * Get ingestion history
-   *
-   * @param dataSourceId
-   * @param historyId
-   * @return
    */
   @RequestMapping(value = "/datasources/{dataSourceId}/histories/{historyId}", method = RequestMethod.GET)
   public ResponseEntity<?> findIngestionHistory(@PathVariable("dataSourceId") String dataSourceId,
@@ -689,7 +652,7 @@ public class DataSourceController {
     }
 
     IngestionHistory history = ingestionHistoryRepository.findOne(historyId);
-    if(history == null) {
+    if (history == null) {
       throw new ResourceNotFoundException(historyId);
     }
 
@@ -698,11 +661,6 @@ public class DataSourceController {
 
   /**
    * Get ingestion log (= engine task log)
-   *
-   * @param dataSourceId
-   * @param historyId
-   * @param offset
-   * @return
    */
   @RequestMapping(value = "/datasources/{dataSourceId}/histories/{historyId}/log", method = RequestMethod.GET)
   public ResponseEntity<?> findIngestionHistoryLog(@PathVariable("dataSourceId") String dataSourceId,
@@ -714,19 +672,26 @@ public class DataSourceController {
     }
 
     IngestionHistory history = ingestionHistoryRepository.findOne(historyId);
-    if(history == null) {
+    if (history == null) {
       throw new ResourceNotFoundException(historyId);
     }
 
     String taskId = history.getIngestionId();
 
-    return ResponseEntity.ok(engineIngestionService.getIngestionTaskLog(taskId, offset));
+    EngineIngestionService.EngineTaskLog taskLog;
+    try {
+      taskLog = engineIngestionService.getIngestionTaskLog(taskId, offset);
+    } catch (MetatronException e) {
+      throw new DataSourceIngestionException(INGESTION_ENGINE_GET_TASK_LOG_ERROR, "Task log on engine not founded", e);
+    } catch (Exception e) {
+      throw new DataSourceIngestionException(INGESTION_COMMON_ERROR, e);
+    }
+
+    return ResponseEntity.ok(taskLog);
   }
 
   /**
    * Get list fo option for datasource ingestion
-   *
-   * @return
    */
   @RequestMapping(value = "/datasources/ingestion/options", method = RequestMethod.GET)
   public ResponseEntity<?> findIngestionOptions(@RequestParam(value = "type", required = false) String type,
@@ -750,9 +715,6 @@ public class DataSourceController {
 
   /**
    * datetime 포맷 유효성을 체크합니다.
-   *
-   * @param request
-   * @return
    */
   @RequestMapping(value = "/datasources/validation/datetime", method = RequestMethod.POST)
   public ResponseEntity<?> checkDateTimeFormat(@RequestBody TimeFormatCheckRequest request) {
@@ -767,11 +729,6 @@ public class DataSourceController {
 
   /**
    * Cron 표현식의 유효성을 체크합니다
-   *
-   * @param expr
-   * @param timeZone
-   * @param count
-   * @return
    */
   @RequestMapping(value = "/datasources/validation/cron", method = RequestMethod.POST)
   public ResponseEntity<?> checkCronExpression(@RequestParam String expr,
@@ -792,7 +749,7 @@ public class DataSourceController {
 
     List<String> afterTimes = Lists.newArrayList();
     DateTime time = DateTime.now();
-    for(int i = 0; i < count; i++) {
+    for (int i = 0; i < count; i++) {
       time = new DateTime(cronExpression.getNextValidTimeAfter(time.toDate()));
       afterTimes.add(time.withZone(zone).toString());
     }
@@ -830,7 +787,7 @@ public class DataSourceController {
     // 파일명을 통해 확장자 정보 얻기
     String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
 
-    if(StringUtils.isEmpty(extensionType) || !extensionType.matches("xlsx|xls|csv")) {
+    if (StringUtils.isEmpty(extensionType) || !extensionType.matches("xlsx|xls|csv")) {
       throw new BadRequestException("Not supported file type : " + extensionType);
     }
 
@@ -846,7 +803,7 @@ public class DataSourceController {
       File tempFile = new File(tempFilePath);
       file.transferTo(tempFile);
 
-      if("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
+      if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
         responseMap.put("sheets", new ExcelProcessor(tempFile).getSheetNames());
       }
     } catch (IOException e) {
@@ -861,12 +818,13 @@ public class DataSourceController {
    * 업로드한 파일 Sheet 내용 조회
    */
   @RequestMapping(value = "/datasources/file/{fileKey}/data", method = RequestMethod.GET, produces = "application/json")
-  public @ResponseBody ResponseEntity<?> getPreviewFromFile(@PathVariable(value = "fileKey") String fileKey,
-                                   @RequestParam(value = "sheet", required = false) String sheetName,
-                                   @RequestParam(value = "lineSep", required = false, defaultValue = "\n") String lineSep,
-                                   @RequestParam(value = "delimiter", required = false, defaultValue = ",") String delimiter,
-                                   @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
-                                   @RequestParam(value = "firstHeaderRow", required = false, defaultValue = "true") boolean firstHeaderRow) {
+  public @ResponseBody
+  ResponseEntity<?> getPreviewFromFile(@PathVariable(value = "fileKey") String fileKey,
+                                       @RequestParam(value = "sheet", required = false) String sheetName,
+                                       @RequestParam(value = "lineSep", required = false, defaultValue = "\n") String lineSep,
+                                       @RequestParam(value = "delimiter", required = false, defaultValue = ",") String delimiter,
+                                       @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
+                                       @RequestParam(value = "firstHeaderRow", required = false, defaultValue = "true") boolean firstHeaderRow) {
 
     IngestionDataResultResponse resultResponse = null;
 
@@ -881,10 +839,9 @@ public class DataSourceController {
         throw new BadRequestException("Invalid temporary file name.");
       }
 
-      if("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
+      if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
         resultResponse = new ExcelProcessor(tempFile).getSheetData(sheetName, limit, firstHeaderRow);
-      }
-      else if ("csv".equals(extensionType)) {
+      } else if ("csv".equals(extensionType)) {
         resultResponse = new CsvProcessor(tempFile).getData(lineSep, delimiter, limit, firstHeaderRow);
       } else {
         throw new BadRequestException("Invalid temporary file.");
