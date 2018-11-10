@@ -115,7 +115,7 @@ public class IngestionHistory extends AbstractHistoryEntity implements MetatronD
   public void setStatus(IngestionStatus status, MetatronException e) {
     this.status = status;
     this.errorCode = e.getCode().toString();
-    this.cause = ExceptionUtils.getStackTrace(e);
+    this.cause = ExceptionUtils.getRootCauseMessage(e);
   }
 
   public void setStatus(String statusStr) {

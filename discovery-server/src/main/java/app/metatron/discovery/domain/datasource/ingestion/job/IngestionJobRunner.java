@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Map;
@@ -186,7 +187,9 @@ public class IngestionJobRunner {
         ie = (DataSourceIngestionException) e;
       }
 
-      history = setFailProgress(history.getId(), ie);
+      try {
+        history = setFailProgress(history.getId(), ie);
+      } catch (TransactionException ex) {}
 
       results.put("history", history);
       sendTopic(sendTopicUri, new ProgressResponse(-1, FAIL_INGESTION_JOB, results));
