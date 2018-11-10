@@ -169,7 +169,7 @@ public class RestExceptionHandler extends AbstractExceptionHandler {
       HttpStatus resultStatus;
       ErrorCodes code;
       String message;
-      String details = ExceptionUtils.getStackTrace(exception);
+      String details = ExceptionUtils.getRootCauseMessage(exception);
 
       if (exception instanceof MetatronException) {
         ResponseStatus responseStatus = AnnotatedElementUtils

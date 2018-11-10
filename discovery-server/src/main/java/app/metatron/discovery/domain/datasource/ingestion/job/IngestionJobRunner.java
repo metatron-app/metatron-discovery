@@ -115,13 +115,14 @@ public class IngestionJobRunner {
 
     String sendTopicUri = String.format(TOPIC_INGESTION_PROGRESS, dataSource.getId());
 
-    IngestionHistory history = createNewHistory(dataSource.getId(), dataSource.getIngestionInfo());
-
+    IngestionHistory history = null;
     Map<String, Object> results = Maps.newLinkedHashMap();
 
     try {
 
-      Thread.sleep(2000L);
+      // Temporary Process
+      Thread.sleep(3000L);
+      history = createNewHistory(dataSource.getId(), dataSource.getIngestionInfo());
 
       sendTopic(sendTopicUri, new ProgressResponse(0, START_INGESTION_JOB));
       history = updateHistoryProgress(history.getId(), START_INGESTION_JOB);

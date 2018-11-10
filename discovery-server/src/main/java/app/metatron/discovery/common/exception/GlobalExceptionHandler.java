@@ -78,7 +78,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     ResponseStatus responseStatus = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
 
-    String details = ExceptionUtils.getStackTrace(ex);
+    String details = ExceptionUtils.getRootCauseMessage(ex);
 
     if (responseStatus != null) {
       status = responseStatus.code();
