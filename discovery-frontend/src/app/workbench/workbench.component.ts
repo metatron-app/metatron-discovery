@@ -2836,7 +2836,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   private _activeHorizontalSlider() {
     this._splitHorizontal = Split(['.sys-workbench-lnb-panel', '.sys-workbench-content-panel'], {
       direction: 'horizontal',
-      sizes: [20, 80],
+      sizes: [18, 82],
       elementStyle: (dimension, size, gutterSize) => {
         return { 'width': `${size}%` };
       },
