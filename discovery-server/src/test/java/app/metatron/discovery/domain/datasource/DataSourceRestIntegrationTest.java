@@ -188,7 +188,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "ROLE_PERM_SYSTEM_MANAGE_DATASOURCE"})
   @Sql("/sql/test_datasource_list.sql")
-  public void findDataSourceIngestionHistory() {
+  public void findDataSourceIngestionHistoryLog() {
 
     String dataSourceId = "ds-test-01";
     String historyId = "100001";

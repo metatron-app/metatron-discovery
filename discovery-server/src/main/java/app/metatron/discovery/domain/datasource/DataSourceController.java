@@ -65,6 +65,7 @@ import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.common.entity.SearchParamValidator;
 import app.metatron.discovery.common.exception.BadRequestException;
+import app.metatron.discovery.common.exception.MetatronException;
 import app.metatron.discovery.common.exception.ResourceNotFoundException;
 import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
@@ -95,6 +96,8 @@ import app.metatron.discovery.util.ExcelProcessor;
 import app.metatron.discovery.util.PolarisUtils;
 import app.metatron.discovery.util.ProjectionUtils;
 
+import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_COMMON_ERROR;
+import static app.metatron.discovery.domain.datasource.DataSourceErrorCodes.INGESTION_ENGINE_GET_TASK_LOG_ERROR;
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.ID_PREFIX;
 
 /**
@@ -675,7 +678,16 @@ public class DataSourceController {
 
     String taskId = history.getIngestionId();
 
-    return ResponseEntity.ok(engineIngestionService.getIngestionTaskLog(taskId, offset));
+    EngineIngestionService.EngineTaskLog taskLog;
+    try {
+      taskLog = engineIngestionService.getIngestionTaskLog(taskId, offset);
+    } catch (MetatronException e) {
+      throw new DataSourceIngestionException(INGESTION_ENGINE_GET_TASK_LOG_ERROR, "Task log on engine not founded", e);
+    } catch (Exception e) {
+      throw new DataSourceIngestionException(INGESTION_COMMON_ERROR, e);
+    }
+
+    return ResponseEntity.ok(taskLog);
   }
 
   /**

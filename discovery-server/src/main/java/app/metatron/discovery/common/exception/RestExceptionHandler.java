@@ -16,6 +16,7 @@ package app.metatron.discovery.common.exception;
 
 import com.google.common.base.Preconditions;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -167,8 +168,8 @@ public class RestExceptionHandler extends AbstractExceptionHandler {
 
       HttpStatus resultStatus;
       ErrorCodes code;
-      String reason;
       String message;
+      String details = ExceptionUtils.getStackTrace(exception);
 
       if (exception instanceof MetatronException) {
         ResponseStatus responseStatus = AnnotatedElementUtils
@@ -180,26 +181,23 @@ public class RestExceptionHandler extends AbstractExceptionHandler {
 
         if (responseStatus != null) {
           resultStatus = responseStatus.code() == null ? status : responseStatus.code();
-          reason = responseStatus.reason();
         } else {
           resultStatus = status;
-          reason = MetatronException.DEFAULT_GLOBAL_MESSAGE;
         }
 
       } else {
         resultStatus = status;
         code = GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE;
-        reason = MetatronException.DEFAULT_GLOBAL_MESSAGE;
-        message = exception.getMessage();
+        message = MetatronException.DEFAULT_GLOBAL_MESSAGE;
       }
 
       LOGGER.error("[API:{}] {} {}: {}, {}", ((ServletWebRequest) webRequest).getRequest().getRequestURI(),
-                   code == null ? "" : code.getCode(), reason, message);
+                   code == null ? "" : code.getCode(), message, details);
       if(printStackTrace) {
         exception.printStackTrace();
       }
 
-      return response(resultStatus, headers, new ErrorResponse(code, reason, message));
+      return response(resultStatus, headers, new ErrorResponse(code, message, details));
     }
 
     return response(status, headers, null);
