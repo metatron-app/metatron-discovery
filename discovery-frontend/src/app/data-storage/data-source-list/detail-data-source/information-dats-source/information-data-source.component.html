@@ -61,7 +61,9 @@
           <div class="ddp-ui-status-type">
             <div class="ddp-top-status">
               <span class="ddp-data-status {{getSourceStatusClass(datasource.status)}}">{{datasource.status}} </span>
-              <a href="javascript:" class="ddp-link-detail" (click)="onClickIngestionDetails()">{{'msg.comm.detail.details' | translate}}</a>
+              <a href="javascript:" class="ddp-link-detail"
+                 *ngIf="historyId && ((datasource.status.toString() === 'PREPARING' && ingestionProcessStatusStep >= 2) || datasource.status.toString() === 'FAILED')"
+                 (click)="onClickIngestionDetails()">{{'msg.comm.detail.details' | translate}}</a>
             </div>
             <!-- box -->
             <div class="ddp-box-status" *ngIf="datasource.status.toString() === 'FAILED' || datasource.status.toString() === 'PREPARING' || (isShowIngestionProcess && datasource.status.toString() === 'ENABLED')">
@@ -203,30 +205,30 @@
                 <span class="ddp-data-contents ">{{'msg.storage.ui.no.data' | translate}}</span>
               </div>
             </div>
-            <div class="ddp-wrap-link-detail" (clickOutside)="detailFl=false">
-              <a href="javascript:" class="ddp-link-detail" (click)="detailFl = !detailFl">{{'msg.storage.th.detail' | translate}}</a>
-              <!-- layout -->
-              <div class="ddp-box-layout4" style="display:block;" *ngIf="detailFl">
-                <a href="javascript:" class="ddp-btn-close" (click)="detailFl = false"></a>
-                <div class="ddp-wrap-data-detail">
-                  <div class="ddp-ui-top-title">
-                    {{'msg.storage.ui.title.data.detail' | translate}}
-                  </div>
-                  <ul class="ddp-list-data-detail">
-                    <!-- 데이터가 없는경우 -->
-                    <li *ngIf="!getSummary">
-                      {{'msg.storage.ui.no.data' | translate}}
-                    </li>
-                    <!-- //데이터가 없는경우 -->
-                    <li *ngIf="getSummary">
-                      <span class="ddp-data-date">Size</span>
-                      <span class="ddp-data-size">{{getSummary.size}}</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <!-- //layout -->
-            </div>
+            <!--<div class="ddp-wrap-link-detail" (clickOutside)="detailFl=false">-->
+              <!--<a href="javascript:" class="ddp-link-detail" (click)="detailFl = !detailFl">{{'msg.storage.th.detail' | translate}}</a>-->
+              <!--&lt;!&ndash; layout &ndash;&gt;-->
+              <!--<div class="ddp-box-layout4" style="display:block;" *ngIf="detailFl">-->
+                <!--<a href="javascript:" class="ddp-btn-close" (click)="detailFl = false"></a>-->
+                <!--<div class="ddp-wrap-data-detail">-->
+                  <!--<div class="ddp-ui-top-title">-->
+                    <!--{{'msg.storage.ui.title.data.detail' | translate}}-->
+                  <!--</div>-->
+                  <!--<ul class="ddp-list-data-detail">-->
+                    <!--&lt;!&ndash; 데이터가 없는경우 &ndash;&gt;-->
+                    <!--<li *ngIf="!getSummary">-->
+                      <!--{{'msg.storage.ui.no.data' | translate}}-->
+                    <!--</li>-->
+                    <!--&lt;!&ndash; //데이터가 없는경우 &ndash;&gt;-->
+                    <!--<li *ngIf="getSummary">-->
+                      <!--<span class="ddp-data-date">Size</span>-->
+                      <!--<span class="ddp-data-size">{{getSummary.size}}</span>-->
+                    <!--</li>-->
+                  <!--</ul>-->
+                <!--</div>-->
+              <!--</div>-->
+              <!--&lt;!&ndash; //layout &ndash;&gt;-->
+            <!--</div>-->
             <!-- //link detail -->
           </div>
         </td>

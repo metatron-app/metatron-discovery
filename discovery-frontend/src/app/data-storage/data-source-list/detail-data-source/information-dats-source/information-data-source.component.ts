@@ -171,7 +171,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
         // set process status
         this._setProcessStatus(changes.ingestionProcess.currentValue);
         // if success ingestion
-        if (changes.ingestionProcess.currentValue === 'END_INGESTION_JOB') {
+        if (changes.ingestionProcess.currentValue['message'] === 'END_INGESTION_JOB') {
           this._getFieldStats(this.getFields[this._getFindIndexTimestampField()].name, this.datasource.engineName)
         }
       }
@@ -714,18 +714,18 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    */
   private _setProcessStatus(processData: any): void {
     switch (processData.message) {
-      // 데이터 이관
+      // 데이터 준비
       case 'START_INGESTION_JOB':
       case 'PREPARATION_HANDLE_LOCAL_FILE':
       case 'PREPARATION_LOAD_FILE_TO_ENGINE':
         this.ingestionProcessStatusStep = 1;
         break;
-      // 적재
+      // 엔진 적재
       case 'ENGINE_INIT_TASK':
       case 'ENGINE_RUNNING_TASK':
         this.ingestionProcessStatusStep = 2;
         break;
-      // 상태확인
+      // 상태 확인
       case 'ENGINE_REGISTER_DATASOURCE':
         this.ingestionProcessStatusStep = 3;
         break;
