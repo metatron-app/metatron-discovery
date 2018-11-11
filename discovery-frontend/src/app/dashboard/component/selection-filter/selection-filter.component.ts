@@ -14,19 +14,14 @@
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, Injector, Input, OnDestroy, OnInit } from '@angular/core';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { ChartSelectInfo } from '../../../common/component/chart/base-chart';
 import { ChartSelectMode } from '../../../common/component/chart/option/define/common';
 import { Filter } from '../../../domain/workbook/configurations/filter/filter';
 import { EventBroadcaster } from '../../../common/event/event.broadcaster';
 import { TimeUnit } from '../../../domain/workbook/configurations/field/timestamp-field';
-import {
-  InclusionFilter,
-  InclusionSelectorType
-} from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import { TimeListFilter } from '../../../domain/workbook/configurations/filter/time-list-filter';
-import { TimeRangeFilter } from '../../../domain/workbook/configurations/filter/time-range-filter';
+import { InclusionSelectorType } from '../../../domain/workbook/configurations/filter/inclusion-filter';
 
 @Component({
   selector: 'selection-filter',
@@ -52,10 +47,6 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
 
   @Input()
   public showBtnWidget: boolean = false;
-
-  // 변경 이벤트
-  @Output('changed')
-  public onChangedEvent = new EventEmitter();
 
   public scrollFreezing: boolean = false;
 
@@ -119,7 +110,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
       // 차트 선택 정보를 추가함
       this._addChartSelectionInfo(select);
       if (Array.isArray(select.data)) {
-        select.data.forEach((data) => this._addSelectionFilter(this.selectionFilterList, data, select.params.engineName));
+        select.data.forEach((data) => this._addSelectionFilter(this.selectionFilterList, data, select.params));
       }
 
     } else if (select.mode === ChartSelectMode.SUBTRACT) {
@@ -141,7 +132,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
       this.init();
     }
 
-    this.onChangedEvent.emit({ filters: this._getApiFilters(), chartSelectInfo: select });
+    this._broadcastSelection({ filters: this._getApiFilters(), chartSelectInfo: select });
   }
 
   /**
@@ -150,7 +141,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
   public resetFilter(shouldEmit: boolean = true) {
     this.init();
     if (shouldEmit) {
-      this.onChangedEvent.emit(this._getApiFilters());
+      this._broadcastSelection(this._getApiFilters());
     }
   } // function - resetFilter
 
@@ -181,7 +172,7 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
     this._removeFieldInChartSelections(selectionFilter);
 
     if (changeFlag) {
-      this.onChangedEvent.emit(this._getApiFilters());
+      this._broadcastSelection(this._getApiFilters());
     }
   } // function - remove
 
@@ -229,31 +220,40 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
   private _getApiFilters() {
     return this.selectionFilterList.map(item => {
       if ('dimension' === item.type) {
-        const filter = new InclusionFilter(item.field);
-        filter.selector = InclusionSelectorType.MULTI_LIST;
-        filter.valueList = item.valueList;
-        filter.dataSource = item.dataSource;
-        return filter;
+        // for InclusionFilter
+        return {
+          type: 'include',
+          field: item.field,
+          dataSource: item.dataSource,
+          selector: InclusionSelectorType.MULTI_LIST,
+          valueList: item.valueList,
+          selectedWidgetId: item.selectedWidgetId
+        };
       } else if ('measure' === item.type) {
+        // for MeasureFilter
         return item;
       } else {
-        if( item.format.discontinuous ) {
-          return <TimeListFilter>{
+        if (item.format.discontinuous) {
+          // for TimeListFilter
+          return {
             type: 'time_list',
             field: item.field,
-            dataSource : item.dataSource,
+            dataSource: item.dataSource,
             timeUnit: TimeUnit[item.format.unit],
             discontinuous: item.format.discontinuous,
-            valueList: item.valueList
+            valueList: item.valueList,
+            selectedWidgetId: item.selectedWidgetId
           };
         } else {
-          return <TimeRangeFilter>{
+          // for TimeRangeFilter
+          return {
             type: 'time_range',
             field: item.field,
-            dataSource : item.dataSource,
+            dataSource: item.dataSource,
             timeUnit: TimeUnit[item.format.unit],
             discontinuous: item.format.discontinuous,
-            intervals : [ item.minTime + '/' + item.maxTime ]
+            intervals: [item.minTime + '/' + item.maxTime],
+            selectedWidgetId: item.selectedWidgetId
           };
         }
       }
@@ -264,10 +264,11 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
    * Selection 필터 추가
    * @param {SelectionFilter[]} filters
    * @param {SelectionInfoData} selectInfoData
-   * @param {string} engineName
+   * @param {{engineName: string, widgetId: string}} params
    * @private
    */
-  private _addSelectionFilter(filters: SelectionFilter[], selectInfoData: SelectionInfoData, engineName: string) {
+  private _addSelectionFilter(filters: SelectionFilter[], selectInfoData: SelectionInfoData,
+                              params: { engineName: string, widgetId: string }) {
 
     const filter: SelectionFilter = filters.find((filter: SelectionFilter) => filter.field === selectInfoData.name);
 
@@ -280,11 +281,12 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
       this._setTimeRange(filter);
     } else {
       // 필터가 없는 경우
-      const selectionFilter = new SelectionFilter(selectInfoData.name, engineName);
+      const selectionFilter = new SelectionFilter(selectInfoData.name, params.engineName);
       selectionFilter.name = selectInfoData.name;
       selectionFilter.alias = selectInfoData.alias;
       selectionFilter.type = selectInfoData.type;
       selectionFilter.valueList = newValues;
+      selectionFilter.selectedWidgetId = params.widgetId;
       (selectInfoData.format) && (selectionFilter.format = selectInfoData.format);
       this._setTimeRange(selectionFilter);
       filters.push(selectionFilter);
@@ -328,16 +330,16 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
   private _setTimeRange(filter: SelectionFilter) {
     if (this.isTimeRangeFilter(filter)) {
 
-      if( -1 === filter.valueList[0].indexOf( 'Q' ) ) {
+      if (-1 === filter.valueList[0].indexOf('Q')) {
         // 일반 TimeUnit
 
         // 데이터를 정렬 할 수 있는 형태로 변환
         const timeValList = filter.valueList.map(item => {
-          return { timestamp : moment(item).unix(), val : item };
+          return { timestamp: moment(item).unix(), val: item };
         });
 
         // 시간 정렬
-        timeValList.sort((a, b) => a.timestamp - b.timestamp );
+        timeValList.sort((a, b) => a.timestamp - b.timestamp);
 
         filter.minTime = timeValList[0].val;
         filter.maxTime = timeValList[timeValList.length - 1].val;
@@ -346,23 +348,23 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
 
         // 데이터를 정렬 할 수 있는 형태로 변환
         const timeValList = filter.valueList.map(item => {
-          const splitDate:string[] = item.split( /\s|-/ );
-          let strYear:string = '';
-          let strQuarter:string = '';
-          if( -1 < splitDate[0].indexOf( 'Q' ) ) {
+          const splitDate: string[] = item.split(/\s|-/);
+          let strYear: string = '';
+          let strQuarter: string = '';
+          if (-1 < splitDate[0].indexOf('Q')) {
             strYear = splitDate[1];
             strQuarter = splitDate[0];
           } else {
             strYear = splitDate[0];
             strQuarter = splitDate[1];
           }
-          return { orderStr : strYear + '-' + strQuarter, val : item };
+          return { orderStr: strYear + '-' + strQuarter, val: item };
         });
 
         // 시간 정렬
         timeValList.sort((a, b) => {
-          if(a.orderStr < b.orderStr) return -1;
-          if(a.orderStr > b.orderStr) return 1;
+          if (a.orderStr < b.orderStr) return -1;
+          if (a.orderStr > b.orderStr) return 1;
           return 0;
         });
 
@@ -377,6 +379,48 @@ export class SelectionFilterComponent extends AbstractComponent implements OnIni
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method - Chart Selection
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * 선택 정보를 전파한다.
+   * @param data
+   * @private
+   */
+  private _broadcastSelection(data: any) {
+
+    // 셀렉션필터에 의한 변경
+    if (_.isArray(data)) {
+      const selectionFilters: SelectionFilter[] = <SelectionFilter[]>data;
+      // console.info('셀렉션필터에 의한 변경', selectionFilters);
+      // console.info('모든 차트에 필터 추가');
+
+      this.broadCaster.broadcast('SET_SELECTION_FILTER', { filters: selectionFilters });
+
+    } else {
+      // 차트에 의한 변경
+      // console.info('위젯에 의한 변경', data, data.chartSelectInfo.mode);
+      // console.info('위젯 해당 필터들 추가해서 다시 draw 요청');
+
+      const externalFilterData: any = {};
+
+      // 1. widgets에서 본인차트 제외
+      if (data.chartSelectInfo.params && data.chartSelectInfo.params.hasOwnProperty('widgetId')) {
+        externalFilterData.excludeWidgetId = data.chartSelectInfo.params.widgetId;
+      }
+
+      // 2. 선택 필터 데이터 변환
+      externalFilterData.filters = data.filters.map((filter: SelectionFilter) => {
+        filter.valueList = _.uniq(_.flattenDeep(filter.valueList));
+        // detail 차트를 위해 필터 선택을 한 위젯의 아이디를 저장해준다.
+        // if (widgetId && isNullOrUndefined(filter.selectedWidgetId)) {
+        //   filter.selectedWidgetId = widgetId;
+        // }
+        return filter;
+      });
+
+      this.broadCaster.broadcast('SET_SELECTION_FILTER', externalFilterData);
+
+    }
+  } // function - _broadcastSelection
+
   /**
    * 차트의 선택 정보를 저장한다.
    * @param {ChartSelectInfo} newItem

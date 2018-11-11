@@ -37,8 +37,8 @@ export abstract class Filter {
 
   // for UI
   public ui:{
-    // masterDsId?:string;                   // 필드의 마스터 데이터소스 아이디 ( 조인된 데이터소스의 필드의 경우 )
-    // dsId?: string;                        // 필드의 데이터소스 아이디
+    // masterDsId?:string;                // 필드의 마스터 데이터소스 아이디 ( 조인된 데이터소스의 필드의 경우 )
+    // dsId?: string;                     // 필드의 데이터소스 아이디
     filteringSeq?: number,                // 필수/추천 필터의 순서
     filteringOptions?:FilteringOptions,   // 필터링 옵션
     importanceType?: string,              // 중요도 타입 general, recommended, essential, timestamp

@@ -202,60 +202,212 @@
           {{'msg.storage.ui.dsource.create.partition.keys' | translate}}
         </label>
         <div class="ddp-ui-edit-option">
-          <div class="ddp-radio-set">
-            <label class="ddp-label-radio" (change)="onChangePartitionType(partitionTypeList[0])">
-              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[0].value">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{partitionTypeList[0].label}}</span>
-            </label>
-          </div>
-          <div class="ddp-radio-hidden">
-            <label class="ddp-label-radio" (change)="onChangePartitionType(partitionTypeList[1])">
-              <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[1].value" [disabled]="partitionKeyList.length === 0">
-              <i class="ddp-icon-radio"></i>
-              <span class="ddp-txt-radio">{{partitionTypeList[1].label}}</span>
-            </label>
-            <!-- partition -->
-            <div class="ddp-wrap-partition" *ngIf="partitionKeyList.length !== 0">
-              <!--<div class="ddp-ui-partition">-->
-                <!--<ul class="ddp-list-partition ddp-type">-->
-                  <!--<li *ngFor="let partition of partitionKeyList">-->
-                    <!--<span class="ddp-ui-label">{{partition.name}}</span>-->
-                    <!--<div class="ddp-data">-->
-                      <!--<span class="ddp-txt-data">{{partition.value}}</span>-->
+          <label class="ddp-label-radio" (change)="onChangePartitionType(partitionTypeList[0])">
+            <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[0].value" [disabled]="partitionKeyList.length !== 0 && isStrictMode">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{partitionTypeList[0].label}}</span>
+          </label>
 
-                    <!--</div>-->
-                  <!--</li>-->
-                <!--</ul>-->
-              <!--</div>-->
-              <div class="ddp-ui-partition">
-                <ul class="ddp-list-partition" *ngFor="let keys of partitionKeyList; let i = index">
-                  <li *ngFor="let key of keys"
-                      [ngClass]="{'ddp-disabled' : selectedPartitionType.value === 'DISABLE' || !isEnabledPartitionInput(keys, key)}">
-                    <span class="ddp-ui-label" *ngIf="i === 0">{{key.name}}</span>
-                    <input type="text" class="ddp-input-typebasic" [(ngModel)]="key.value">
-                  </li>
-                </ul>
-                <!-- button -->
-                <div class="ddp-btn-control" *ngIf="partitionKeyList.length !== 0">
-                  <!-- 추가 -->
-                  <em class="ddp-icon-control-plus"
-                      (click)="addPartitionKeys()"
-                      *ngIf="partitionKeyList.length < 20">
-                  </em>
-                  <!-- //추가 -->
-                  <!-- 제거 -->
-                  <em class="ddp-icon-control-cut"
-                      (click)="deletePartitionKeys()"
-                      *ngIf="partitionKeyList.length > 1">
-                  </em>
-                  <!-- //제거 -->
+          <label class="ddp-label-radio ddp-mgr0" (change)="onChangePartitionType(partitionTypeList[1])">
+            <input type="radio" [checked]="selectedPartitionType.value === partitionTypeList[1].value" [disabled]="partitionKeyList.length === 0">
+            <i class="ddp-icon-radio"></i>
+            <span class="ddp-txt-radio">{{partitionTypeList[1].label}}</span>
+          </label>
+          <!-- info -->
+          <div class="ddp-wrap-hover-info ddp-type">
+            <em class="ddp-icon-info3"></em>
+            <!-- popup -->
+            <div class="ddp-wrap-pop-setting">
+              <!-- popup -->
+              <div class="ddp-box-layout4 ddp-pop-setting">
+                <div class="ddp-data-title">
+                  {{'msg.storage.ui.partition.info.title' | translate}}
                 </div>
-                <!-- //button -->
+                <div class="ddp-data-det3">
+                  {{'msg.storage.ui.partition.info.desc' | translate}}
+                  <span class="ddp-data-ex">{{'msg.storage.ui.partition.info.sample' | translate}}</span>
+                </div>
+                <div class="ddp-form-scroll">
+                  <div class="ddp-label-table">
+                    <span class="ddp-txt-label">
+                        {{'msg.storage.ui.partition.info.desc.step-1' | translate}}
+                    </span>
+                  </div>
+                  <table class="ddp-table-info">
+                    <colgroup>
+                      <col width="150px">
+                      <col width="">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                      <th>
+                        yyyymm
+                      </th>
+                      <td>
+                        201801
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        dd
+                      </th>
+                      <td>
+                        01
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                  <div class="ddp-data-date">yyyymm=201801/dd=01</div>
+                  <div class="ddp-label-table">
+                    <span class="ddp-txt-label">
+                        {{'msg.storage.ui.partition.info.desc.step-2' | translate}}
+                    </span>
+                  </div>
+                  <table class="ddp-table-info">
+                    <colgroup>
+                      <col width="150px">
+                      <col width="">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                      <th>
+                        yyyymm
+                      </th>
+                      <td>
+                        201801, 201802
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        dd
+                      </th>
+                      <td>
+                        01
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                  <div class="ddp-data-date">yyyymm=201801/dd=01, yyyymm=201802/dd=01</div>
+                  <div class="ddp-label-table">
+                    <span class="ddp-txt-label">
+                        {{'msg.storage.ui.partition.info.desc.step-3' | translate}}
+                    </span>
+                  </div>
+                  <table class="ddp-table-info">
+                    <colgroup>
+                      <col width="150px">
+                      <col width="">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                      <th>
+                        yyyymm
+                      </th>
+                      <td>
+                        201[6-8]
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        dd
+                      </th>
+                      <td>
+                        [01-31]
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                  <div class="ddp-data-date">
+                    yyyymm=201601/dd=01 ~ yyyymm=201601/dd=31,<br>
+                    yyyymm=201701/dd=01 ~ yyyymm=201701/dd=31,<br>
+                    yyyymm=201801/dd=01 ~ yyyymm=201801/dd=31
+                  </div>
+                  <div class="ddp-label-table">
+                    <span class="ddp-txt-label">
+                      {{'msg.storage.ui.partition.info.desc.step-4' | translate}}
+                    </span>
+                  </div>
+                  <table class="ddp-table-info">
+                    <colgroup>
+                      <col width="150px">
+                      <col width="">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                      <th>
+                        yyyymm
+                      </th>
+                      <td>
+                        201701
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>
+                        dd
+                      </th>
+                      <td>
+                        {{'msg.storage.ui.partition.info.desc.step-4.blank' | translate}}
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                  <div class="ddp-data-date">yyyymm=201701/dd=%</div>
+                </div>
               </div>
+              <!-- //popup -->
             </div>
-            <!-- //partition -->
           </div>
+          <!-- //info -->
+          <!-- partition -->
+          <div class="ddp-wrap-partition" *ngIf="partitionKeyList.length !== 0 && selectedPartitionType.value === 'ENABLE'">
+            <div class="ddp-ui-partition">
+              <ul class="ddp-list-partition ddp-type" *ngFor="let keys of partitionKeyList; let i = index">
+                <li *ngFor="let key of keys">
+                  <span class="ddp-ui-label" *ngIf="i === 0">{{key.name}}</span>
+                  <div class="ddp-data">
+                    <input type="text" class="ddp-input-typebasic ddp-full" [(ngModel)]="key.value"
+                           (ngModelChange)="initPartitionValidation()"
+                           [disabled]="!isEnabledPartitionInput(keys, key)">
+                  </div>
+                </li>
+              </ul>
+              <div class="ddp-btn-control">
+                <a href="javascript:" class="ddp-btn-add" (click)="addPartitionKeys()" *ngIf="partitionKeyList.length < 20"></a>
+                <a href="javascript:" class="ddp-btn-delete" (click)="deletePartitionKeys()" *ngIf="partitionKeyList.length > 1"></a>
+              </div>
+              <!-- buttons -->
+              <div class="ddp-ui-buttons ddp-inline" *ngIf="isStrictMode">
+                <a href="javascript:" class="ddp-btn-pop ddp-bg-gray" (click)="onClickPartitionKeysValidation()">{{'msg.storage.btn.test' | translate}}</a>
+                <!-- message -->
+                <div class="ddp-ui-message">
+                  <span class="ddp-data-error2" *ngIf="isClickedNext && partitionValidationResult === null">{{'msg.storage.ui.required' | translate}}</span>
+                  <span class="ddp-data-ok" *ngIf="partitionValidationResult"> <em class="ddp-icon-ok"></em>{{partitionValidationResultMessage}}</span>
+                  <span class="ddp-data-error" *ngIf="partitionValidationResult === false"> <em class="ddp-icon-error"></em>{{partitionValidationResultMessage}}</span>
+                </div>
+                <!-- //message -->
+                <!-- 결과 -->
+                <div class="ddp-wrap-result" #resultElement>
+                  <a href="javascript:" class="ddp-link-result" *ngIf="partitionValidationResult" (click)="onClickPartitionKeyValidResult()">{{'msg.storage.btn.partition.result' | translate}} ></a>
+                </div>
+                <!-- //결과 -->
+              </div>
+              <!-- //buttons -->
+            </div>
+          </div >
+          <!-- //partition -->
+          <!-- result -->
+          <div class="ddp-box-layout4 ddp-result" *ngIf="isShowPartitionValidResult" #resultBoxElement>
+            <a href="javascript:" class="ddp-btn-close" (click)="isShowPartitionValidResult = false"></a>
+            <div class="ddp-data-title">
+              {{'msg.storage.ui.partition.result' | translate}}
+            </div>
+            <div class="ddp-data-det">
+              <ng-container *ngFor="let data of partitionValidationResultData">
+               {{data['PART_NAME']}} <span class="ddp-data-row">({{data['NUM_ROWS']}}{{'msg.storage.ui.dsource.create.file.row' | translate}})</span><br>
+              </ng-container>
+            </div>
+          </div>
+          <!-- //result -->
         </div>
       </div>
       <!-- //Partition (staging) -->

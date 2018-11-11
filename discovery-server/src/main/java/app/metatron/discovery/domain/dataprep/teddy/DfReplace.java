@@ -182,7 +182,7 @@ public class DfReplace extends DataFrame {
             newRow.add(columnName, row.get(colno));
           }
         }
-        this.rows.add(newRow);
+        rows.add(newRow);
       }
     } else { //quote 문자가 있을 경우의 처리(정규식으로 quote를 처리해야 해서 Pattern.compile 사용 불가)
       for (int rowno = offset; rowno < offset + length; cancelCheck(++rowno)) {

@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.common.fileloader;
 
+import com.google.common.collect.Lists;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,10 +62,14 @@ public class FileLoaderFactory {
   }
 
   public List<String> put(String targetHostName, FileLoaderProperties properties, String... paths) {
-    if(properties.getRemoteType() == SSH) {
+    return put(targetHostName, properties, Lists.newArrayList(paths), null, false);
+  }
+
+  public List<String> put(String targetHostName, FileLoaderProperties properties, List<String> sourcePaths, List<String> targetNames, boolean checkSrcFile) {
+    if(properties.getRemoteType() == SSH && StringUtils.isNotEmpty(targetHostName)) {
       properties = properties.targetHostProperties(targetHostName);
     }
-    return getFileLoader(properties.getRemoteType()).put(properties, paths);
+    return getFileLoader(properties.getRemoteType()).put(properties, sourcePaths, targetNames, checkSrcFile);
   }
 
   public List<String> get(FileLoaderProperties properties, String... file) {

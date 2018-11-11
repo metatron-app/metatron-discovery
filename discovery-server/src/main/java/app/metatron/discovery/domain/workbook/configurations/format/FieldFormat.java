@@ -19,9 +19,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
 
-@JsonTypeInfo(use=JsonTypeInfo.Id.NAME,
-    include= JsonTypeInfo.As.EXTERNAL_PROPERTY,
-    property="type",
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+    property = "type",
     defaultImpl = DefaultFormat.class)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = DefaultFormat.class, name = "default"),
@@ -34,7 +34,9 @@ import java.io.Serializable;
     @JsonSubTypes.Type(value = CurrencyFormat.class, name = "currency"),
     @JsonSubTypes.Type(value = PercentFormat.class, name = "percent"),
     @JsonSubTypes.Type(value = ContinuousTimeFormat.class, name = "time_continuous"),
-    @JsonSubTypes.Type(value = CustomTimeFormat.class, name = "time_custom")
+    @JsonSubTypes.Type(value = CustomDateTimeFormat.class, name = "time_format"),
+    @JsonSubTypes.Type(value = UnixTimeFormat.class, name = "time_unix"),
+    @JsonSubTypes.Type(value = TemporaryTimeFormat.class, name = "time_temporary")
 })
 public interface FieldFormat extends Serializable {
 }

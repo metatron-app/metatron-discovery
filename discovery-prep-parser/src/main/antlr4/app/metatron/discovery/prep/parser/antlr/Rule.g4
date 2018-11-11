@@ -52,7 +52,7 @@ WS : [ \t\r\n]+ -> skip ;
 RULE_NAME : ('drop' | 'header' | 'settype' | 'rename' | 'keep' | 'set' | 'derive' | 'replace' | 'countpattern' | 'split' | 'delete' | 'pivot' | 'unpivot' | 'extract' | 'flatten' | 'merge' | 'nest' | 'unnest' | 'join' | 'aggregate' | 'splitrows' | 'move' | 'sort' | 'union' | 'window' | 'setformat');
 ARG_NAME : ('col' | 'row' | 'type' | 'rownum' | 'to' | 'value' | 'as' | 'on' | 'after' | 'before' | 'global' | 'with' | 'ignoreCase' | 'limit' | 'quote' | 'group' | 'groupEvery' | 'into' | 'markLineage' | 'pluck' | 'leftSelectCol' | 'rightSelectCol' | 'condition' | 'joinType' | 'idx' | 'dataset2' | 'order' | 'masterCol' | 'slaveCol' | 'totalCol' | 'partition' | 'rowsBetween' | 'pattern' | 'format');
 BOOLEAN : ('true' | 'false');
-IDENTIFIER : [_$a-zA-Z\u0080-\uFFFF][._$a-zA-Z0-9\[\]\u0080-\uFFFF]* [~]* [_$a-zA-Z\u0080-\uFFFF]*[._$a-zA-Z0-9\[\]\u0080-\uFFFF]* | '"' ~["]+ '"';
+IDENTIFIER : [_$a-zA-Z\u0080-\uFFFF][._$a-zA-Z0-9\[\]\u0080-\uFFFF]* [~]* [_$a-zA-Z\u0080-\uFFFF]*[._$a-zA-Z0-9\[\]\u0080-\uFFFF]* | '`' ~[`]+ '`';
 /*
 IDENTIFIER : [_$a-zA-Z\uAC00-\uD7AF][._$a-zA-Z0-9\[\]\uAC00-\uD7AF]* [~]* [_$a-zA-Z\uAC00-\uD7AF]*[._$a-zA-Z0-9\[\]\uAC00-\uD7AF]* | '"' ~["]+ '"';
 */

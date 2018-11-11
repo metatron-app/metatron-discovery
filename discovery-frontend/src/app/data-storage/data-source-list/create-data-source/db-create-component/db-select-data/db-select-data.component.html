@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datastore-create">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
@@ -74,7 +74,7 @@
                </div>
             </div>
             <!-- button -->
-            <div class="ddp-ui-buttons" *ngIf="isSelectedTypeQuery()">
+            <div class="ddp-ui-buttons" *ngIf="isSelectedTypeQuery()" style="z-index: 10">
               <div class="ddp-ui-message" *ngIf="queryResultFl !== null">
                 <span class="ddp-data-error" *ngIf="queryResultFl === false"><em class="ddp-icon-error"></em>{{'msg.storage.ui.invalid.query' | translate}}</span>
                 <span class="ddp-data-ok" *ngIf="queryResultFl === true"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.query' | translate}}</span>
@@ -131,11 +131,30 @@
       </div>
       <!-- 그리드 영역 -->
       <div class="ddp-ui-grid">
-        <!-- 데이터 없는경우 -->
-        <div class="ddp-ui-empty" *ngIf="tableClearGrid && queryClearGrid">
-         {{'msg.storage.ui.dsource.create.preview.no.data' | translate}}
-        </div>
-        <!-- //데이터 없는경우 -->
+        <ng-container *ngIf="isSelectedTypeTable() && tableClearGrid">
+          <!-- 데이터 없는경우 -->
+          <div class="ddp-ui-empty" *ngIf="!isTableErrorFl">
+            {{'msg.storage.ui.dsource.create.preview.no.data'| translate}}
+          </div>
+          <!-- //데이터 없는경우 -->
+          <!-- 에러가 있는 경우 -->
+          <div class="ddp-search-none" *ngIf="isTableErrorFl">
+            {{'msg.storage.ui.connection.jdbc.table.error' | translate}}
+          </div>
+          <!-- //에러가 있는 경우 -->
+        </ng-container>
+        <ng-container *ngIf="isSelectedTypeQuery() && queryClearGrid">
+          <!-- 데이터 없는경우 -->
+          <div class="ddp-ui-empty" *ngIf="!isQueryErrorFl">
+            {{'msg.storage.ui.dsource.create.preview.no.data'| translate}}
+          </div>
+          <!-- //데이터 없는경우 -->
+          <!-- 에러가 있는 경우 -->
+          <div class="ddp-search-none" *ngIf="isQueryErrorFl">
+            {{'msg.storage.ui.connection.jdbc.table.error' | translate}}
+          </div>
+          <!-- //에러가 있는 경우 -->
+        </ng-container>
         <div #table grid-component [hidden]="tableClearGrid" style="width:100%; height:100%;"></div>
         <div #query grid-component [hidden]="queryClearGrid" style="width:100%; height:100%;"></div>
       </div>

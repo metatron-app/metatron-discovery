@@ -60,6 +60,7 @@ import { MetadataService } from '../meta-data-management/metadata/service/metada
 import { EditFilterDataSourceComponent } from './data-source-list/detail-data-source/edit-filter-data-source.component';
 import { IngestionSettingComponent } from './data-source-list/component/ingestion-setting.component';
 import { AdvancedSettingComponent } from './data-source-list/component/advanced-setting.component';
+import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -116,6 +117,7 @@ const storageRoutes: Routes = [
     BatchHistoryComponent,
     EditFilterDataSourceComponent,
     EditConfigSchemaComponent,
+    IngestionLogComponent,
     // ingestion
     IngestionSettingComponent,
     // ingestion - advanced setting

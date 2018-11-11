@@ -20,7 +20,7 @@
     <groupId>app.metatron.discovery</groupId>
     <artifactId>metatron-discovery</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.5</version>
+    <version>3.0.6</version>
 
     <modules>
         <module>discovery-frontend</module>
@@ -697,33 +697,9 @@
             </dependency>
 
             <dependency>
-                <groupId>com.microsoft.sqlserver</groupId>
-                <artifactId>mssql-jdbc</artifactId>
-                <version>6.1.0.jre8</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.pivotal.greenplum</groupId>
-                <artifactId>greenplum-jdbc</artifactId>
-                <version>1.0</version>
-            </dependency>
-
-            <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>5.1.37</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.tmax</groupId>
-                <artifactId>tibero</artifactId>
-                <version>5.1.1</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.oracle.jdbc</groupId>
-                <artifactId>ojdbc7</artifactId>
-                <version>12.1.0.2</version>
             </dependency>
 
             <dependency>

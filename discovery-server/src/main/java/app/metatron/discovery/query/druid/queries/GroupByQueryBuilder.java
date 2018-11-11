@@ -222,7 +222,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
             String innerFieldName = aliasName + Query.POSTFIX_INNER_FIELD;
 
             TimeFormatFunc timeFormatFunc = new TimeFormatFunc("\"" + fieldName + "\"",
-                                                               datasourceField.getFormat(),
+                                                               datasourceField.getTimeFormat(),
                                                                null,
                                                                null,
                                                                timeFormat.enableSortField() ? timeFormat.getSortFormat() : timeFormat.getFormat(),
@@ -674,7 +674,7 @@ public class GroupByQueryBuilder extends AbstractQueryBuilder {
           partitionExpressions.add("_ = _ - " + intersectionValue);
         }
 
-        if("treemap".equals(chartFormat.getMode())) {
+        if ("treemap".equals(chartFormat.getMode())) {
           this.groupingSet = pivotFormat.toGroupingSet();
           // 피봇 키 필드를 피봇필드로 이동 (Tree 를 구하기 위함)
           PivotResultFormat.Pivot newPivot =

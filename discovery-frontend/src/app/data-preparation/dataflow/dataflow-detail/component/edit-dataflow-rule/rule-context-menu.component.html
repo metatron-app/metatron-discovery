@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-wrap-popup2 ddp-types ddp-type-rulepop" style="display:block;" *ngIf="isShow" [ngStyle]="{'top':top, 'left':left}">
+<div class="ddp-wrap-popup2 ddp-types ddp-type-rulepop" style="display:block;" *ngIf="isShow" [ngStyle]="{'top':contextInfo.top, 'left':contextInfo.left}">
   <ul class="ddp-list-popup" (clickOutside)="isShow = false">
     <li *ngFor="let command of commandList">
       <a href="javascript:" (click)="_selectCommand(command)">

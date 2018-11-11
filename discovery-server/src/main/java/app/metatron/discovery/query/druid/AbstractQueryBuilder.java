@@ -478,7 +478,7 @@ public abstract class AbstractQueryBuilder {
           for (String interval : curIntervals) {
             String[] splitedInterval = StringUtils.split(interval, "/");
             String expr = String.format("(timestamp(%s, format='%s') >= timestamp('%s') && (timestamp(%s, format='%s') <= timestamp('%s')",
-                                        column, datasourceField.getFormat(), splitedInterval[0], column, datasourceField.getFormat(), splitedInterval[1]);
+                                        column, datasourceField.getTimeFormat(), splitedInterval[0], column, datasourceField.getFormat(), splitedInterval[1]);
 
             orFilter.addField(new MathFilter(expr));
           }
@@ -500,7 +500,7 @@ public abstract class AbstractQueryBuilder {
           field = "__time";
         } else {
           DateTimeMillisFunc millisFunc = new DateTimeMillisFunc(reqFilter.getColumn(),
-                                                                 datasourceField.getFormat(),
+                                                                 datasourceField.getTimeFormat(),
                                                                  null, null);
           field = millisFunc.toExpression();
         }
@@ -534,7 +534,7 @@ public abstract class AbstractQueryBuilder {
       intervals.addAll(timeFilter.getEngineIntervals());
     } else {
       String expr = timeFilter.getExpression(columnName, datasourceField);
-      if(StringUtils.isNotEmpty(expr)) {
+      if (StringUtils.isNotEmpty(expr)) {
         filter.addField(new ExprFilter(timeFilter.getExpression(columnName, datasourceField)));
       }
     }

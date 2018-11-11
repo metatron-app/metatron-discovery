@@ -99,4 +99,35 @@ export class PreparationCommonUtil {
     return result
   }
 
+  public static getRuleString(targetStr, regex) {
+
+
+    const gIndex =0;
+    let match;
+    const resultMap ={};
+    let startIndex  = -1;
+    let key = '';
+    while ( match = regex.exec(targetStr)) {
+
+      if( key !== '' && !resultMap[key] ){
+        resultMap[key] = targetStr.substring(startIndex, match['index'] ) ;
+      }
+
+      key = match[gIndex];
+      startIndex = match['index'] + key.length;
+    }
+
+    if( startIndex !== -1 && !resultMap[key]) {
+
+      // let idx = key.indexOf(':');
+      // key = key.substring(0,idx).trim();
+
+      resultMap[key] = targetStr.substring(startIndex );
+    }
+
+    // const resultMap = getRuleString(targetStr, prepRegEx);
+
+    return resultMap;
+  }
+
 }

@@ -140,17 +140,12 @@
                         <em class="{{getFieldTypeIconClass(column.logicalType)}}"></em>
                       </div>
                       <div class="ddp-form-name">
-                        <span class="ddp-data-name">{{column.name}}
+                        <span class="ddp-data-name" title="{{column.name}}">{{column.name}}
                          <em class="ddp-icon-error2" *ngIf="getErrorIcon(column)"></em>
                         </span>
                       </div>
                       <a href="javascript:" class="ddp-btn-box" (click)="onClickRevival(column)" *ngIf="isDeletedColumn(column)">revival</a>
                     </div>
-                    <!-- tooltip -->
-                    <div class="ddp-ui-tooltip-info ddp-left2">
-                      <em class="ddp-icon-view-top"></em>{{column.name}}
-                    </div>
-                    <!-- //tooltip -->
                   </td>
                   <!-- //column data -->
                 </tr>
@@ -174,15 +169,10 @@
                       </div>
                       <div class="ddp-form-name">
                         <!-- 메세지 작업 절대 하면 안됨, 컬럼값-->
-                        <span class="ddp-data-name">Current time</span>
+                        <span class="ddp-data-name" title="Current time">Current time</span>
                         <!--// 메세지 작업 절대 하면 안됨, 컬럼값-->
                       </div>
                     </div>
-                    <!-- tooltip -->
-                    <div class="ddp-ui-tooltip-info ddp-left2">
-                      <em class="ddp-icon-view-top"></em>Current time
-                    </div>
-                    <!-- //tooltip -->
                   </td>
                 </tr>
                 <!-- //current time column -->
@@ -255,7 +245,7 @@
   <!-- buttons -->
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
-    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" [ngClass]="{'ddp-disabled' : !getNextValidation()}" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup  ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 

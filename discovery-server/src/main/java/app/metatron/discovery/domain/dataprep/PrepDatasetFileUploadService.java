@@ -66,7 +66,7 @@ public class PrepDatasetFileUploadService {
 
                 if(true==convert) {
                     String newFilePath = filePath + ".new";
-                    fos = new FileOutputStream(filePath);
+                    fos = new FileOutputStream(newFilePath);
 
                     InputStreamReader isr = new InputStreamReader(bomInputStream, charSet);
                     BufferedReader br = new BufferedReader(isr);

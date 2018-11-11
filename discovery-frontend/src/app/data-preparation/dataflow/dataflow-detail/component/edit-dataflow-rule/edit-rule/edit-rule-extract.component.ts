@@ -17,7 +17,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } fro
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from "util";
+import {isNullOrUndefined, isUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
@@ -120,7 +120,14 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
       return undefined;
     }
 
-    let ruleString = 'extract col: ' + this.selectedFields.map( item => item.name ).join(', ')
+    const columnsStr: string = this.selectedFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
+
+    let ruleString = 'extract col: ' + columnsStr
       + ' on: ' + this.pattern + ' limit : ' + this.limit + ' ignoreCase: ' + this.isIgnoreCase;
 
     // 다음 문자 사이 무시
@@ -145,7 +152,7 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 필드 변경
+   * Change fields
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
@@ -180,24 +187,29 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * Parse rule string
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
+    // COLUMN
+    let arrFields:string[] = [data.jsonRuleString.col];
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+    // NUMBER OF MATCHES
+    this.limit = data.jsonRuleString.limit;
+
+    // PATTERN
+    this.pattern = data.jsonRuleString.on.escapedValue;
+
+    // IGNORE CASE
+    this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
+
+    // IGNORE BETWEEN CHRACTERS
+
+    if (!isNullOrUndefined(data.jsonRuleString.quote)) {
+      this.ignore = data.jsonRuleString.quote.escapedValue;
     }
-
-    this.limit = Number(this.getAttrValueInRuleString( 'limit', ruleString ));
-
-    this.pattern = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'on', ruleString ));
-
-    this.isIgnoreCase = Boolean( this.getAttrValueInRuleString( 'ignoreCase', ruleString ) );
-
-    this.ignore = this.getAttrValueInRuleString( 'quote', ruleString );
 
   } // function - _parsingRuleString
 

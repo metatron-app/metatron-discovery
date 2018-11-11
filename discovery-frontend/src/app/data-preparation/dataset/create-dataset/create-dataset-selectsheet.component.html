@@ -100,7 +100,7 @@
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.cancl' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" [ngClass]="{'ddp-disabled':clearGrid}" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 

@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +44,9 @@ import java.util.UUID;
 public class PrepDatasetController {
 
     private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetController.class);
+
+    @Autowired
+    ProjectionFactory projectionFactory;
 
     @Autowired
     PrepPreviewLineService previewLineService;
@@ -94,6 +99,36 @@ public class PrepDatasetController {
             }
         }
         return limitSize;
+    }
+
+    @RequestMapping(value = "/{dsId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<?> getDataset(
+            @PathVariable("dsId") String dsId,
+            @RequestParam(value="projection", required=false, defaultValue="default") String projection,
+            PersistentEntityResourceAssembler persistentEntityResourceAssembler
+    ) {
+        PrepDataset dataset = null;
+        try {
+            dataset = this.datasetRepository.findOne(dsId);
+            if(dataset!=null) {
+                if(true == projection.equalsIgnoreCase("detail")) {
+                    DataFrame dataFrame = this.previewLineService.getPreviewLines(dsId);
+                    dataset.setGridResponse(dataFrame);
+                }
+
+                Map<String,Object> connectionInfo = this.datasetService.getConnectionInfo(dataset.getDcId());
+                dataset.setConnectionInfo(connectionInfo);
+
+            } else {
+                throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_DATASET, dsId);
+            }
+        } catch (Exception e) {
+            LOGGER.error("getDataset(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, e);
+        }
+
+        return ResponseEntity.status(HttpStatus.SC_OK).body(persistentEntityResourceAssembler.toFullResource(dataset));
     }
 
     @RequestMapping(value = "/{dsId}", method = RequestMethod.DELETE)
@@ -324,6 +359,7 @@ public class PrepDatasetController {
             @RequestParam(value = "sheetindex", required = false, defaultValue = "0") String sheetindex,
             @RequestParam(value = "resultSize", required = false, defaultValue = "2000") String size ) {
         Map<String, Object> response = null;
+        /*
         try {
             PrepDataset dataset = this.datasetRepository.findOne(dsId);
             if(null==dataset) {
@@ -363,6 +399,7 @@ public class PrepDatasetController {
             LOGGER.error("previewFileCheckSheet(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
         }
+        */
         return ResponseEntity.ok(response);
     }
 
@@ -376,7 +413,7 @@ public class PrepDatasetController {
                                                           @RequestParam(value = "hasFields", required = false, defaultValue = "N") String hasFieldsFlag) {
         Map<String, Object> response = null;
         try {
-            response = this.datasetFileService.fileCheckSheet2( fileKey, sheetname, sheetindex, size, delimiterRow, delimiterCol, hasFieldsFlag);
+            response = this.datasetFileService.fileCheckSheet3( fileKey, size, delimiterRow, delimiterCol );
         } catch (Exception e) {
             LOGGER.error("fileCheckSheet(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
@@ -494,5 +531,19 @@ public class PrepDatasetController {
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
         }
         return ResponseEntity.status(HttpStatus.SC_CREATED).body(resumableResult);
+    }
+
+    @RequestMapping(value = "/ready_to_preview/{dsId}", method = RequestMethod.GET, produces = "application/json")
+    public @ResponseBody ResponseEntity<?> ready_to_preview(
+            @PathVariable("dsId") String dsId
+    ) {
+        Map<String, Object> response = null;
+        try {
+            response = this.previewLineService.ready_to_preview(dsId);
+        } catch (Exception e) {
+            LOGGER.error("ready_to_preview(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);
+        }
+        return ResponseEntity.status(HttpStatus.SC_OK).body(response);
     }
 }

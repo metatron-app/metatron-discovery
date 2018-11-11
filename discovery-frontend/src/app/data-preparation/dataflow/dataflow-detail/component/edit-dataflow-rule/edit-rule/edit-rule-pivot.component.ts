@@ -17,6 +17,7 @@ import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-pivot',
@@ -89,7 +90,14 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
       Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
       return undefined;
     }
-    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
+
+    let selFields = _.cloneDeep(this.selectedFields);
+    const columnsStr: string = selFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
 
     // Formula
     if (this.formulaList.length === 0) {
@@ -120,7 +128,13 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
       Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
       return undefined;
     }
-    const groupStr: string = this.selectedGroupFields.map( item => item.name ).join(', ');
+    let selGroupFields = _.cloneDeep(this.selectedGroupFields);
+    const groupStr: string = selGroupFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
 
     return {
       command: 'pivot',
@@ -193,26 +207,28 @@ export class EditRulePivotComponent extends EditRuleComponent implements OnInit,
   protected afterShowComp() {} // function - afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse rule string
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    let fieldsStr:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== fieldsStr ) {
-      const arrFields:string[] = ( -1 < fieldsStr.indexOf( ',' ) ) ? fieldsStr.split(',') : [fieldsStr];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
-    }
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    let strFormulaList:string = this.getAttrValueInRuleString( 'value', ruleString );
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+
+    // GROUP FIELDS
+    let groupFields:string[] = typeof data.jsonRuleString.group.value === 'string' ? [data.jsonRuleString.group.value] : data.jsonRuleString.group.value;
+    this.selectedGroupFields = groupFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+
+    // EXPRESSION
+    let strFormulaList:string = this.getAttrValueInRuleString( 'value', data.ruleString );
     if( '' !== strFormulaList) {
       this.formulaList = strFormulaList.split( ',' ).map( item => item.replace( /'/g, '' ) );
     }
 
-    let groupsStr:string = this.getAttrValueInRuleString( 'group', ruleString );
-    if( '' !== groupsStr ) {
-      const groupFields:string[] = ( -1 < groupsStr.indexOf( ',' ) ) ? groupsStr.split(',') : [groupsStr];
-      this.selectedGroupFields = groupFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
-    }
+
 
   } // function - parsingRuleString
 
