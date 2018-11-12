@@ -63,7 +63,7 @@ public class CommonsCsvTest {
   @Test
   public void test_with_df() {
     String strUri = buildStrUrlFromResourceDir("teddy/sale.csv");
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 30, null, false);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -72,18 +72,27 @@ public class CommonsCsvTest {
   @Test
   public void test_bom() {
     String strUri = buildStrUrlFromResourceDir("teddy/sale_bom16.csv");
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 30, null, false);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
   }
 
   @Test
-  public void test_header() {
+  public void test_bom_and_header() {
     String strUri = buildStrUrlFromResourceDir("teddy/sale_bom16.csv");
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 30, null, false);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 30, null, true);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
+  }
+
+  @Test
+  public void test_unstructured() {
+    String strUri = buildStrUrlFromResourceDir("teddy/unstructured.csv");
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    DataFrame df = new DataFrame();
+    df.setByGrid(result);
+    df.show(50);
   }
 }
