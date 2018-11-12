@@ -13,23 +13,23 @@
  */
 
 import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Dataset, DsType, Field, ImportType, RsType } from '../../../domain/data-preparation/dataset';
-import { GridComponent } from '../../../common/component/grid/grid.component';
-import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
-import { Alert } from '../../../common/util/alert.util';
-import { GridOption } from '../../../common/component/grid/grid.option';
-import { Modal } from '../../../common/domain/modal';
-import { PreparationAlert } from '../../util/preparation-alert.util';
-import { header, SlickGridHeader } from '../../../common/component/grid/grid.header';
-import { DatasetService } from '../service/dataset.service';
-import { DataflowService } from '../../dataflow/service/dataflow.service';
-import { StringUtil } from '../../../common/util/string.util';
+import { AbstractComponent } from '../../common/component/abstract.component';
+import { Dataset, DsType, Field, ImportType, RsType } from '../../domain/data-preparation/dataset';
+import { GridComponent } from '../../common/component/grid/grid.component';
+import { DeleteModalComponent } from '../../common/component/modal/delete/delete.component';
+import { Alert } from '../../common/util/alert.util';
+import { GridOption } from '../../common/component/grid/grid.option';
+import { Modal } from '../../common/domain/modal';
+import { PreparationAlert } from '../util/preparation-alert.util';
+import { header, SlickGridHeader } from '../../common/component/grid/grid.header';
+import { DatasetService } from './service/dataset.service';
+import { DataflowService } from '../dataflow/service/dataflow.service';
+import { StringUtil } from '../../common/util/string.util';
 import { ActivatedRoute } from '@angular/router';
-import { Dataflow } from '../../../domain/data-preparation/dataflow';
-import { CreateSnapshotPopup } from '../../component/create-snapshot-popup.component';
-import { SnapshotLoadingComponent } from '../../component/snapshot-loading.component';
-import { PreparationCommonUtil } from "../../util/preparation-common.util";
+import { Dataflow } from '../../domain/data-preparation/dataflow';
+import { CreateSnapshotPopup } from '../component/create-snapshot-popup.component';
+import { SnapshotLoadingComponent } from '../component/snapshot-loading.component';
+import { PreparationCommonUtil } from "../util/preparation-common.util";
 
 import { isNull, isNullOrUndefined, isUndefined } from "util";
 import * as pixelWidth from 'string-pixel-width';
@@ -88,9 +88,13 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
 
   public datasetId : string ='';
 
-  //public datasetInformationList : DatasetInformation[] ;
-  public datasetInformationList : object[] ;
+  public datasetInformationList : DatasetInformation[] ;
+  // public datasetInformationList : object[] ;
   public interval : any;
+
+  public isSelectDataflowOpen: boolean = false;
+
+  public dfStr : string;
 
   @ViewChild('dsName')
   private dsName: ElementRef;
@@ -400,9 +404,9 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   }
 
   /**
-   * 해당 데이터셋을 이용하여 데이터플로우를 생성 하고 그 데이터플로우로 이동한다.
+   * Create new dataflow and add this dataset into that flow
    */
-  public addToDataflow() {
+  public createNewFlow() {
 
     let today = moment();
     let param = new Dataflow();
@@ -421,6 +425,30 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
     })
   }
+
+  /**
+   * Add this dataset into existing dataflow
+   */
+  public addToExistingFlow() {
+
+    // open popup
+    this.isSelectDataflowOpen = true;
+
+    if (this.dataset.dataflows.length > 0) {
+      this.dfStr = this.dataset.dataflows.map((item) => {
+        return item.dfId
+      }).join(',')
+    }
+
+  }
+
+
+  public closeSelectDataflow(data?) {
+
+    // close popup
+    this.isSelectDataflowOpen = false;
+  }
+
 
   /**
    * 데이터셋 information을 타입별로 정리
