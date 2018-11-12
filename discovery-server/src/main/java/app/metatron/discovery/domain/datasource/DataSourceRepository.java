@@ -93,7 +93,7 @@ public interface DataSourceRepository extends JpaRepository<DataSource, String>,
   @Query("SELECT ds FROM DataSource ds " +
       "WHERE ds.dsType <> 'JOIN' " +
       "AND ds.connType <> 'LINK' " +
-      "AND ds.status <> 'FAILED' " +
+      "AND (ds.status <> 'FAILED' OR ds.status <> 'FAILED')" +
       "AND ds.srcType IS NOT NULL")
   Page<DataSource> findByDataSourceForCheck(Pageable page);
 

@@ -48,6 +48,10 @@ public class MetatronException extends RuntimeException {
   }
 
   public ErrorCodes getCode() {
+    if(code == null) {
+      return GlobalErrorCodes.DEFAULT_GLOBAL_ERROR;
+    }
+
     return code;
   }
 }

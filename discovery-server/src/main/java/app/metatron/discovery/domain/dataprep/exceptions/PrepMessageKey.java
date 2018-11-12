@@ -17,6 +17,9 @@ package app.metatron.discovery.domain.dataprep.exceptions;
 public enum PrepMessageKey {
     MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING(                     "msg.dp.alert.required.property.missing"),
 
+    MSG_DP_ALERT_FILE_NOT_FOUND(                                 "msg.dp.alert.file.not.found"),
+    MSG_DP_ALERT_PROPERTY_NOT_AVAILABLE(                      "msg.dp.alert.property.not.available"),
+    MSG_DP_ALERT_PREVIEWLINES_CRASHED(                  "msg.dp.alert.previewlines.creashed"),
     MSG_DP_ALERT_DATASET_FAILED_AFTERCREATE(                     "msg.dp.alert.dataset.failed.aftercreate"),
     MSG_DP_ALERT_DATASET_UPLOAD_NO_KEY(                          "msg.dp.alert.dataset.upload.no.key"),
     MSG_DP_ALERT_JDBC_CONNECTION_ERROR(                          "msg.dp.alert.jdbc.connection.error"),

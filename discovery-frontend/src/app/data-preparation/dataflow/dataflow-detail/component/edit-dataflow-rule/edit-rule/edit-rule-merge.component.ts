@@ -17,7 +17,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, View
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from "util";
+import {isNullOrUndefined, isUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
@@ -107,7 +107,14 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
       clonedDelimiter = check[1];
     }
 
-    let ruleString = 'merge col: ' + this.selectedFields.map( item => item.name ).join(', ')
+    const columnsStr: string = this.selectedFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
+
+    let ruleString = 'merge col: ' + columnsStr
       + ' with: ' + clonedDelimiter + ' as: ' + newVal;
 
     return { command : 'merge', ruleString: ruleString };
@@ -149,27 +156,31 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
    * @protected
    */
   protected afterShowComp() {
-    if (this.selectedFields.length > 0) {
-      this.newValue = this.selectedFields[0].name + '_1';
+
+    if (this.newValue === '' || isNullOrUndefined(this.newValue)) {
+      if (this.selectedFields.length > 0) {
+        this.newValue = this.selectedFields[0].name + '_1';
+      }
     }
   } // function - _afterShowComp
 
   /**
    * Parse rule string
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-    }
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-    this.newValue = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'as', ruleString ));
+    // NEW COLUMN NAME
+    this.newValue = data.jsonRuleString.as;
+    this.newValue = PreparationCommonUtil.removeQuotation(this.newValue);
 
-    this.delimiter = PreparationCommonUtil.removeQuotation(this.getAttrValueInRuleString( 'with', ruleString ));
-
+    // DELIMITER
+    this.delimiter = data.jsonRuleString.with;
+    this.delimiter = PreparationCommonUtil.removeQuotation(this.delimiter);
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

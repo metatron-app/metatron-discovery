@@ -16,11 +16,16 @@ package app.metatron.discovery.common.exception;
 
 import com.google.common.base.Preconditions;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import java.io.Serializable;
 
 /**
  * API 에러처리를 위한 모델
  */
+@JsonPropertyOrder({ "code", "message", "details" })
 public class ErrorResponse implements Serializable {
   /**
    * 에러 코드
@@ -47,8 +52,14 @@ public class ErrorResponse implements Serializable {
     this.details = details;
   }
 
+  public ErrorResponse(MetatronException e) {
+    this.code = e.getCode() == null ? GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE.toString() : e.getCode().toString();
+    this.message = e.getMessage();
+    this.details = ExceptionUtils.getStackTrace(e);
+  }
+
   public static ErrorResponse unknownError(Exception ex) {
-    return new ErrorResponse(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, MetatronException.DEFAULT_GLOBAL_MESSAGE, ex.getMessage());
+    return new ErrorResponse(GlobalErrorCodes.DEFAULT_GLOBAL_ERROR_CODE, MetatronException.DEFAULT_GLOBAL_MESSAGE, ExceptionUtils.getStackTrace(ex));
   }
 
   public String getCode() {
@@ -73,5 +84,14 @@ public class ErrorResponse implements Serializable {
 
   public void setDetails(Object details) {
     this.details = details;
+  }
+
+  @Override
+  public String toString() {
+    return "ErrorResponse{" +
+        "code='" + code + '\'' +
+        ", message='" + message + '\'' +
+        ", details=" + details +
+        '}';
   }
 }

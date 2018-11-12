@@ -20,14 +20,15 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "polaris.workbench")
 public class WorkbenchProperties {
-  private Integer maxResultSize = 100000;
+  private Integer maxResultSize = 1000000;
   private Integer defaultResultSize = 1000;
-  private Integer maxFetchSize = 10000;
+  private Integer maxFetchSize = 2000;
   private String tempHdfsPath = "/tmp/hive";
   private String tempCSVPath = "/tmp";
 
   public static String TEMP_SCHEMA_PREFIX = "temp_";
   public static String TEMP_TABLE_PREFIX = "wb_";
+  public static String TEMP_CSV_PREFIX = "temp_wb_";
 
   public Integer getMaxResultSize() {
     return maxResultSize;

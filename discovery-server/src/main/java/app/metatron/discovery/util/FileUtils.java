@@ -24,35 +24,39 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Created by james on 2017. 8. 1..
+ *
  */
 public class FileUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
 
-    /**
-     * Delete files.
-     *
-     * @param files
-     */
-    public static void deleteFiles(List<String> files) {
-        for(String file : files) {
-            deleteFile(file);
-        }
+  public static boolean existFile(Path filePath) {
+    if(filePath == null) {
+      return false;
     }
 
-    /**
-     * Delete file.
-     *
-     * @param file
-     */
-    public static void deleteFile(String file) {
-        Path filePath = Paths.get(file);
-        try {
-            Files.deleteIfExists(filePath);
-        } catch (IOException e) {
-            LOGGER.warn("Fail to delete file : {}", file);
-        }
+    return filePath.toFile().exists();
+  }
+
+  /**
+   * Delete files.
+   */
+  public static void deleteFiles(List<String> files) {
+    for (String file : files) {
+      deleteFile(file);
     }
+  }
+
+  /**
+   * Delete file.
+   */
+  public static void deleteFile(String file) {
+    Path filePath = Paths.get(file);
+    try {
+      Files.deleteIfExists(filePath);
+    } catch (IOException e) {
+      LOGGER.warn("Fail to delete file : {}", file);
+    }
+  }
 
 }

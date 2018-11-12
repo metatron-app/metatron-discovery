@@ -137,6 +137,7 @@ public class DruidEngineMetaRepository extends AbstractEngineRepository {
 
     return call(GET_DATASOURCE_LIST, Maps.newHashMap(), List.class)
         .orElse(Lists.newArrayList());
+
   }
 
   public Optional<IngestionStatusResponse> getIngestionStatus(String taskId) {
@@ -145,6 +146,17 @@ public class DruidEngineMetaRepository extends AbstractEngineRepository {
 
     return call(GET_INGESTION_STATUS, param, IngestionStatusResponse.class);
 
+  }
+
+  public Optional<String> getIngestionTaskLog(String taskId, Integer offset) {
+    Map<String, Object> param = Maps.newHashMap();
+    param.put("taskId", taskId);
+
+    if(offset != null) {
+      param.put("offset", offset);
+    }
+
+    return call(GET_INGESTION_LOG, param, String.class);
   }
 
   public Optional<Map> getSupervisorIngestionStatus(String taskId) {

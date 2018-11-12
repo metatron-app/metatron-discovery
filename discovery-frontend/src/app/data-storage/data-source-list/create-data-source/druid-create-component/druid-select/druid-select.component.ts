@@ -24,6 +24,7 @@ import { header, SlickGridHeader } from '../../../../../common/component/grid/gr
 import { GridOption } from '../../../../../common/component/grid/grid.option';
 import * as pixelWidth from 'string-pixel-width';
 import { Alert } from '../../../../../common/util/alert.util';
+import { CookieConstant } from '../../../../../common/constant/cookie.constant';
 
 @Component({
   selector: 'druid-select',
@@ -106,21 +107,40 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
     if (this.doneValidation()) {
       // 로딩 show
       this.loadingShow();
+      // 개인 워크스페이스
+      const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
       // q
       const q = [];
+      // workspace q
+      const workspaceQ  = [];
+      // 선택된 아이템 목록
       this.selectedEngineList.forEach((engineName) => {
-        q.push(this._importEngineDatasource(engineName));
+        q.push(this._importEngineDatasource(engineName).then((result) => {
+          // 생성된 데이터소스 워크스페이스 매핑하기 위한 큐 생성
+          workspaceQ.push(this._linkSourceToWorkspace(result.id, workspace['id']));
+        }));
       });
       // 데이터소스 import
       Promise.all(q)
         .then((result) => {
           // alert
           Alert.success(this.translateService.instant('msg.storage.alert.source.create.success'));
-          // 로딩 hide
-          this.loadingHide();
-          // 닫기
-          this.step = '';
-          this.druidComplete.emit(this.step);
+          // 생성된 데이터소스들 워크스페이스에 매핑
+          Promise.all(workspaceQ)
+            .then(() => {
+              // 로딩 hide
+              this.loadingHide();
+              // 닫기
+              this.step = '';
+              this.druidComplete.emit(this.step);
+            })
+            .catch(() => {
+              // 로딩 hide
+              this.loadingHide();
+              // 닫기
+              this.step = '';
+              this.druidComplete.emit(this.step);
+            });
         })
         .catch((error) => {
           this.commonExceptionHandler(error);
@@ -314,6 +334,25 @@ export class DruidSelectComponent extends AbstractPopupComponent implements OnIn
     return new Promise((resolve, reject) => {
       // 드루이드 데이터소스 import
       this.datasourceService.importDatasource(engineName)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
+  /**
+   * 데이터소스를 워크스페이스에 연결
+   * @param {string} sourceId
+   * @param {string} workspaceId
+   * @returns {Promise<any>}
+   * @private
+   */
+  private _linkSourceToWorkspace(sourceId: string, workspaceId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.datasourceService.addDatasourceWorkspaces(sourceId, [workspaceId])
         .then((result) => {
           resolve(result);
         })

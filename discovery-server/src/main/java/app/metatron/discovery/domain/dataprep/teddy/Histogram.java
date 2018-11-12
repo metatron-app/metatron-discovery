@@ -102,7 +102,7 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null || obj.toString().isEmpty()) {
+      if (obj == null) {
         missing++;
         missingRows.add(rowno);
         continue;
@@ -157,7 +157,7 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null || obj.toString().isEmpty()) {
+      if (obj == null) {
         missing++;
         missingRows.add(rowno);
         continue;
@@ -210,7 +210,7 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null || obj.toString().isEmpty()) {
+      if (obj == null) {
         missing++;
         missingRows.add(rowno);
         continue;
@@ -269,7 +269,7 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null || obj.toString().isEmpty()) {
+      if (obj == null) {
         missing++;
         missingRows.add(rowno);
         continue;
@@ -310,7 +310,7 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null || obj.toString().isEmpty()) {
+      if (obj == null) {
         missing++;
         missingRows.add(rowno);
         continue;
@@ -509,7 +509,7 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null || obj.toString().isEmpty()) {
+      if (obj == null) {
         missing++;
         missingRows.add(rowno);
         continue;
@@ -608,7 +608,7 @@ public class Histogram implements Serializable {
       Object obj = rows.get(rowno).get(colno);
 
       // missing, mismatch 처리
-      if (obj == null || obj.toString().isEmpty()) {
+      if (obj == null) {
         missing++;
         missingRows.add(rowno);
         continue;

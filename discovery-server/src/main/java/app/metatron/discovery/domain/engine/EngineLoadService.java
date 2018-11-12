@@ -14,27 +14,10 @@
 
 package app.metatron.discovery.domain.engine;
 
-import app.metatron.discovery.common.GlobalObjectMapper;
-import app.metatron.discovery.common.ProgressResponse;
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.common.fileloader.FileLoaderFactory;
-import app.metatron.discovery.common.fileloader.FileLoaderProperties;
-import app.metatron.discovery.domain.datasource.*;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
-import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpec;
-import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpecBuilder;
-import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -49,6 +32,30 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.ProgressResponse;
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.common.fileloader.FileLoaderFactory;
+import app.metatron.discovery.common.fileloader.FileLoaderProperties;
+import app.metatron.discovery.domain.datasource.DataSource;
+import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
+import app.metatron.discovery.domain.datasource.DataSourceRepository;
+import app.metatron.discovery.domain.datasource.DataSourceTemporary;
+import app.metatron.discovery.domain.datasource.DataSourceTemporaryRepository;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcConnectionService;
+import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpec;
+import app.metatron.discovery.spec.druid.ingestion.BulkLoadSpecBuilder;
+import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.DataSource.DataSourceType.VOLATILITY;
 import static app.metatron.discovery.domain.datasource.DataSourceTemporary.LoadStatus.ENABLE;
@@ -208,12 +215,12 @@ public class EngineLoadService {
                         dataSource.getFields(), filters, maxRow);
       } catch (Exception e) {
         sendTopic(sendTopicUri, new ProgressResponse(-1, "FAIL_TO_LOAD_LINK_DATASOURCE"));
-        throw new DataSourceIngetionException("Fail to create temporary file : " + e.getMessage());
+        throw new DataSourceIngestionException("Fail to create temporary file : " + e.getMessage());
       }
 
       if (CollectionUtils.isEmpty(tempResultFile)) {
         sendTopic(sendTopicUri, new ProgressResponse(-1, "FAIL_TO_LOAD_LINK_DATASOURCE"));
-        throw new DataSourceIngetionException("Fail to create temporary file ");
+        throw new DataSourceIngestionException("Fail to create temporary file ");
       }
 
       tempFile = tempResultFile.get(0);
@@ -258,17 +265,22 @@ public class EngineLoadService {
     paramMap.put("async", async);
     paramMap.put("temporary", false);
 
+    Map<String, Object> properties = Maps.newHashMap();
+    properties.put("assertLoaded", true);
+    properties.put("waitTimeout", 10000);
+
     BulkLoadSpec spec = new BulkLoadSpecBuilder(dataSource)
         .name(engineName)
         .path(Lists.newArrayList(remoteFile))
         .tuningConfig(info.getTuningOptions())
+        .properties(properties)
         .build();
 
     String specStr = GlobalObjectMapper.writeValueAsString(spec);
 
     LOGGER.info("Start to load to druid, async: {}, Spec: {}", async, specStr);
     Map<String, Object> result = engineRepository.load(specStr, paramMap, Map.class)
-                                                 .orElseThrow(() -> new DataSourceIngetionException("Result empty"));
+                                                 .orElseThrow(() -> new DataSourceIngestionException("Result empty"));
 
     LOGGER.info("Successfully load. Result is ", result);
 
