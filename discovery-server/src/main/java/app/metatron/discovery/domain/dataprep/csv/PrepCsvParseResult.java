@@ -10,7 +10,7 @@ public class PrepCsvParseResult {
 
   public PrepCsvParseResult() {
     grid = new ArrayList();
-    colNames = new ArrayList();
+    colNames = null;
     maxColCnt = 0;
   }
 }
