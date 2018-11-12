@@ -20,7 +20,8 @@ import { EventBroadcaster } from '../../../../../../common/event/event.broadcast
 import { DataflowService } from '../../../../service/dataflow.service';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isNullOrUndefined } from 'util';
-import {PrepSelectBoxComponent} from "../../../../../util/prep-select-box.component";
+import { PrepSelectBoxComponent } from "../../../../../util/prep-select-box.component";
+import { PrepSelectBoxCustomComponent } from '../../../../../util/prep-select-box-custom.component';
 
 @Component({
   selector : 'edit-rule-settype',
@@ -60,6 +61,10 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
 
   @ViewChild(PrepSelectBoxComponent)
   protected prepSelectBoxComponent : PrepSelectBoxComponent;
+
+  @ViewChild(PrepSelectBoxCustomComponent)
+  protected _custom: PrepSelectBoxCustomComponent;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -120,17 +125,24 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Set selected timestamp index in select box
    * @param {string} selectedTimestamp
    */
+  // public setSelectedTimestamp(selectedTimestamp : string) {
+  //   this.isTimestamp = true;
+  //   if ('' === selectedTimestamp) {
+  //     this.defaultTimestampIndex = -1;
+  //   } else if (-1 === this._timestampValueArray().indexOf(selectedTimestamp)) {
+  //     this.selectedTimestamp = 'Custom format';
+  //     this.defaultTimestampIndex = this._timestampValueArray().length - 1;
+  //     this.customTimestamp = selectedTimestamp;
+  //   } else {
+  //     this.defaultTimestampIndex = this._timestampValueArray().indexOf(selectedTimestamp);
+  //   }
+  // }
   public setSelectedTimestamp(selectedTimestamp : string) {
-    this.isTimestamp = true;
-    if ('' === selectedTimestamp) {
-      this.defaultTimestampIndex = -1;
-    } else if (-1 === this._timestampValueArray().indexOf(selectedTimestamp)) {
-      this.selectedTimestamp = 'Custom format';
-      this.defaultTimestampIndex = this._timestampValueArray().length - 1;
-      this.customTimestamp = selectedTimestamp;
-    } else {
-      this.defaultTimestampIndex = this._timestampValueArray().indexOf(selectedTimestamp);
+    let tempnum: number = -1;
+    if(selectedTimestamp !==null && selectedTimestamp !== '' && -1 !== this._timestampValueArray().indexOf(selectedTimestamp)) {
+      tempnum = this._timestampValueArray().indexOf(selectedTimestamp);
     }
+    this._custom.setSelectedItem(this.timestampFormats, selectedTimestamp, tempnum);
   }
 
 
@@ -171,6 +183,9 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       if (!isNullOrUndefined(result)) {
 
         this.makeTimestampList(result);
+        // timestamp --> string (max x)
+        // string --> timestamp (max o)
+        // timestamp --> timestamp (max x)
 
         if (!isNullOrUndefined(this.selectedTimestamp) && '' !== this.selectedTimestamp) {
           this.setSelectedTimestamp(this.selectedTimestamp);
