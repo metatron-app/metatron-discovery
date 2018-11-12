@@ -353,9 +353,11 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     if (this._selectedDate && this._selectedDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
       if (this._selectedDate.startDateStr) {
-        params['from'] = this._selectedDate.startDateStr + '.000Z';
+        params['from'] = this._selectedDate.startDateStr + ':00.000Z';
       }
-      params['to'] = this._selectedDate.endDateStr + '.000Z';
+      if (this._selectedDate.endDateStr) {
+        params['to'] = this._selectedDate.endDateStr + ':59.999Z';
+      }
     }
     return params;
   }

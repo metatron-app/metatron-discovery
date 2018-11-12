@@ -556,9 +556,11 @@ export class DataSourceListComponent extends AbstractComponent implements OnInit
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       params['searchDateBy'] = this.selectedDate.dateType;
       if (this.selectedDate.startDateStr) {
-        params['from'] = this.selectedDate.startDateStr + '.000Z';
+        params['from'] = this.selectedDate.startDateStr + ':00.000Z';
       }
-      params['to'] = this.selectedDate.endDateStr + '.000Z';
+      if (this.selectedDate.endDateStr) {
+        params['to'] = this.selectedDate.endDateStr + ':59.999Z';
+      }
     }
 
     return params;
