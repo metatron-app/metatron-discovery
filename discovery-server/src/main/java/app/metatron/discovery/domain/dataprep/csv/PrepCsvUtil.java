@@ -17,13 +17,15 @@ import org.apache.hadoop.fs.Path;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 public class PrepCsvUtil {
 
-  private static InputStreamReader getReaderAfterDetectingCharset(InputStream is, String strUri) {
+  // public for tests
+  public static InputStreamReader getReaderAfterDetectingCharset(InputStream is, String strUri) {
     InputStreamReader reader;
     String charset = null;
 
@@ -110,7 +112,7 @@ public class PrepCsvUtil {
           throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
         }
 
-        FSDataInputStream his = null;
+        FSDataInputStream his;
         try {
           his = hdfsFs.open(path);
         } catch (IOException e) {
@@ -124,12 +126,12 @@ public class PrepCsvUtil {
       case "file":
         File file = new File(uri);
 
-        FileInputStream fis = null;
+        FileInputStream fis;
         try {
           fis = new FileInputStream(file);
         } catch (FileNotFoundException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_ACCESS_HDFS_PATH, strUri);
+          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_ACCESS_LOCAL_PATH, strUri);
         }
 
         reader = getReaderAfterDetectingCharset(fis, strUri);
@@ -159,6 +161,7 @@ public class PrepCsvUtil {
       }
 
       if (header) {
+        result.colNames = new ArrayList();
         result.colNames.addAll(Arrays.asList(row));
         header = false;
         continue;
