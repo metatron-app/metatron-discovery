@@ -120,6 +120,37 @@ export class DataconnectionService extends AbstractService {
     return this.get(url);
   }
 
+  /**
+   * Get table list
+   * @param dataconnection
+   * @param page
+   * @returns {Promise<any>}
+   */
+  public getTableListInConnectionQuery(dataconnection: any, page: any): Promise<any> {
+    let url: string = this.API_URL + `connections/query/tables`;
+    if (page) {
+      url += '?' + CommonUtil.objectToUrlString(page);
+    }
+    const params:any = {};
+    let connInfo: any = {};
+    connInfo.implementor = dataconnection.implementor;
+    // connection 정보가 USERINFO 일 경우 제외
+    if( connInfo.authenticationType != 'USERINFO' ) {
+      connInfo.username = dataconnection.username;
+      connInfo.password = dataconnection.password;
+    }
+    connInfo.authenticationType = dataconnection.authenticationType;
+    connInfo.hostname = dataconnection.hostname;
+    connInfo.port = dataconnection.port;
+    connInfo.database = dataconnection.database;
+    connInfo.catalog = dataconnection.catalog;
+
+    params.connection = connInfo;
+    params.database = dataconnection.database;
+
+    return this.post(url, params);
+  }
+
   // 커넥션 정보로만 데이터베이스 조회
   public getDatabasesWithoutId(param: any): Promise<any> {
     return this.post(this.API_URL + 'connections/query/databases', param);
