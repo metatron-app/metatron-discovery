@@ -901,7 +901,25 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
                 }
               }
 
+
               this.initChart(); // chart initial
+
+              let wrangeldDsId = '';
+              if (this.cookieService.get('FIND_WRANGLED')) {
+
+                let dsId = this.cookieService.get('FIND_WRANGLED');
+                this.cookieService.delete('FIND_WRANGLED');
+                upstreams.forEach((item)=> {
+                  if (item['upstreamDsId'] === dsId) {
+                    wrangeldDsId = item['dsId'];
+                  }
+                });
+                if (wrangeldDsId !== '') {
+                  this.selectedDataSet.dsId = wrangeldDsId;
+                  this.selectedDataSet.dsType = DsType.WRANGLED;
+                  isOpen = true;
+                }
+              }
 
               if (isOpen) {
                 this.changeChartClickStatus(this.selectedDataSet, true);

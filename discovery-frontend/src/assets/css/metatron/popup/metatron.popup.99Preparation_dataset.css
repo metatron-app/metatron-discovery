@@ -1,0 +1,11 @@
+@charset "utf-8";
+
+/**************************************************************
+  popup :99_데이터프리퍼레이션_01데이터플로우_03데이터셋선택_popup
+**************************************************************/
+.popup-prep-dataset {}
+.popup-prep-dataset .ddp-ui-popup-contents {padding-top:170px;}
+.popup-prep-dataset .ddp-ui-dataset-new .ddp-wrap-viewtable {bottom:33px;}
+.popup-prep-dataset .ddp-type-top-option .ddp-ui-rightoption .ddp-data-total {position:relative; top:6px;}
+.popup-prep-dataset .ddp-ui-popup-contents .ddp-data-dataset {position:absolute; top:104px; left:50px; right:50px; padding:15px 20px; background-color:#f6f6f7; font-size:14px; color:#35393f;}
+.popup-prep-dataset .ddp-ui-popup-contents .ddp-data-dataset .ddp-txt-label {color:#90969f; font-size:14px;}
