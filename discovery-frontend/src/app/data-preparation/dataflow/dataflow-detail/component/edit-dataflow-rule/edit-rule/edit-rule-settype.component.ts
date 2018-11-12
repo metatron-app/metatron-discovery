@@ -125,18 +125,6 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Set selected timestamp index in select box
    * @param {string} selectedTimestamp
    */
-  // public setSelectedTimestamp(selectedTimestamp : string) {
-  //   this.isTimestamp = true;
-  //   if ('' === selectedTimestamp) {
-  //     this.defaultTimestampIndex = -1;
-  //   } else if (-1 === this._timestampValueArray().indexOf(selectedTimestamp)) {
-  //     this.selectedTimestamp = 'Custom format';
-  //     this.defaultTimestampIndex = this._timestampValueArray().length - 1;
-  //     this.customTimestamp = selectedTimestamp;
-  //   } else {
-  //     this.defaultTimestampIndex = this._timestampValueArray().indexOf(selectedTimestamp);
-  //   }
-  // }
   public setSelectedTimestamp(selectedTimestamp : string) {
     let tempnum: number = -1;
     if(selectedTimestamp !==null && selectedTimestamp !== '' && -1 !== this._timestampValueArray().indexOf(selectedTimestamp)) {
@@ -172,7 +160,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
    * Gets timestamp formats from the server
    * @param {string} selectedTimestamp
    */
-  public getTimestampFormats() {
+  private getTimestampFormats() {
 
     let cols = this.selectedFields.map((item) => {
       return item.name
@@ -186,7 +174,6 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
         // timestamp --> string (max x)
         // string --> timestamp (max o)
         // timestamp --> timestamp (max x)
-
         if (!isNullOrUndefined(this.selectedTimestamp) && '' !== this.selectedTimestamp) {
           this.setSelectedTimestamp(this.selectedTimestamp);
         } else if (cols.length > 0) { // 선택된 컬럼이 있다면
@@ -250,7 +237,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
     if (this.isTimestamp && '' !== this.selectedTimestamp) {
       ruleString += ' format: ';
       if ('Custom format' === this.selectedTimestamp) {
-        let check = StringUtil.checkSingleQuote(this.customTimestamp, { isPairQuote: true, isWrapQuote: true });
+        let check:any = StringUtil.checkSingleQuote(this.customTimestamp, { isPairQuote: true, isWrapQuote: true });
         if (check[0] === false) {
           Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
           return undefined;
@@ -259,7 +246,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
         }
         ruleString += this.customTimestamp
       } else {
-        let check = StringUtil.checkSingleQuote(this.selectedTimestamp, { isPairQuote: true, isWrapQuote: true });
+        let check:any = StringUtil.checkSingleQuote(this.selectedTimestamp, { isPairQuote: true, isWrapQuote: true });
         if (check[0] === false) {
           Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));
           return undefined;
