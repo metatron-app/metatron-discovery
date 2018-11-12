@@ -6,6 +6,7 @@ import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -144,34 +145,42 @@ public class PrepCsvUtil {
     // get colNames
     CSVParser parser;
     try {
-      parser = CSVParser.parse(reader, CSVFormat.RFC4180.withDelimiter(delim));
+      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim).withEscape('\\'));
     } catch (IOException e) {
       e.printStackTrace();
       throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV,
                                  String.format("%s (delimiter: %s)", strUri, strDelim));
     }
 
-    for (CSVRecord csvRow : parser) {
-      int colCnt = csvRow.size();
-      result.maxColCnt = Math.max(result.maxColCnt, colCnt);
+    // We stop gathering rows when any exception comes out.
+    // I could do skipping each row that has problem suppressing each exception, but it's not the major case.
+    // So I decided to stop at the first exception and we'll continue by the contents until then.
+    try {
+      for (CSVRecord csvRow : parser) {
+        int colCnt = csvRow.size();
+        result.maxColCnt = Math.max(result.maxColCnt, colCnt);
 
-      String[] row = new String[colCnt];
-      for (int i = 0; i < colCnt; i++) {
-        row[i] = csvRow.get(i);
+        String[] row = new String[colCnt];
+        for (int i = 0; i < colCnt; i++) {
+          row[i] = csvRow.get(i);
+        }
+
+        if (header) {
+          result.colNames = new ArrayList();
+          result.colNames.addAll(Arrays.asList(row));
+          header = false;
+          continue;
+        }
+
+        result.grid.add(row);
+
+        if (result.grid.size() == limitRows) {
+          break;
+        }
       }
-
-      if (header) {
-        result.colNames = new ArrayList();
-        result.colNames.addAll(Arrays.asList(row));
-        header = false;
-        continue;
-      }
-
-      result.grid.add(row);
-
-      if (result.grid.size() == limitRows) {
-        break;
-      }
+    } catch (IllegalStateException e) {
+      e.printStackTrace();
+      // suppressed
     }
 
     return result;
