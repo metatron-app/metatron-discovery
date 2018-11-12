@@ -3,11 +3,8 @@ package app.metatron.discovery.domain.dataprep.csv;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,7 +65,7 @@ public class CommonsCsvTest {
     String strUri = buildStrUrlFromResourceDir("teddy/sale.csv");
     PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 30, null, false);
     DataFrame df = new DataFrame();
-    df.setByGrid(result.grid, null);
+    df.setByGrid(result);
     df.show();
   }
 
@@ -77,7 +74,7 @@ public class CommonsCsvTest {
     String strUri = buildStrUrlFromResourceDir("teddy/sale_bom16.csv");
     PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 30, null, false);
     DataFrame df = new DataFrame();
-    df.setByGrid(result.grid, null);
+    df.setByGrid(result);
     df.show();
   }
 
@@ -86,7 +83,7 @@ public class CommonsCsvTest {
     String strUri = buildStrUrlFromResourceDir("teddy/sale_bom16.csv");
     PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 30, null, false);
     DataFrame df = new DataFrame();
-    df.setByGrid(result.grid, null);
+    df.setByGrid(result);
     df.show();
   }
 }
