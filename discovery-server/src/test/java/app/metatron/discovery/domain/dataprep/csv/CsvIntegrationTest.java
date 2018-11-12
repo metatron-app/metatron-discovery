@@ -118,7 +118,7 @@ public class CsvIntegrationTest extends AbstractRestIntegrationTest {
     LOGGER.debug("maxColCnt={}", result.maxColCnt);
 
     DataFrame df = new DataFrame();
-    df.setByGrid(result.grid, result.colNames);
+    df.setByGrid(result);
     df.show();
   }
 }

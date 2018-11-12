@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrepCsvParseResult {
-  List<String[]> grid;
-  List<String> colNames;
-  int maxColCnt;
+  public List<String[]> grid;
+  public List<String> colNames;
+  public int maxColCnt;
 
   public PrepCsvParseResult() {
     grid = new ArrayList();
     colNames = null;
-    maxColCnt = 0;
+    maxColCnt = -1;
   }
 }
