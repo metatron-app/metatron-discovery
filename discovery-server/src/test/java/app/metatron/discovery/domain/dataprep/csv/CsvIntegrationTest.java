@@ -100,7 +100,7 @@ public class CsvIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   public void test_hdfs() throws JsonProcessingException {
-    PrepCsvParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf(), false);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strHdfsUriCrime, ",", 10000, getHadoopConf());
 
     LOGGER.debug("colNames={}", result.colNames);
     LOGGER.debug("maxColCnt={}", result.maxColCnt);

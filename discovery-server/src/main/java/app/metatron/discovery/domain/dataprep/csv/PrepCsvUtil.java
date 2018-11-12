@@ -176,4 +176,20 @@ public class PrepCsvUtil {
 
     return result;
   }
+
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf) {
+    return parse(strUri, strDelim, limitRows, conf, false);
+  }
+
+  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows) {
+    return parse(strUri, strDelim, limitRows, null);
+  }
+
+  public static PrepCsvParseResult parse(String strUri, String strDelim) {
+    return parse(strUri, strDelim, 10000);
+  }
+
+  public static PrepCsvParseResult parse(String strUri) {
+    return parse(strUri, ",");
+  }
 }
