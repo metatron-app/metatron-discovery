@@ -64,7 +64,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   private _selectedColumns: string[] = [];    // 그리드에서 선택된 컬럼 리스트
   private _savedViewPort: { top: number, left: number };
 
-  private _selectedBarChartRows: string[] = [];
+  // private _selectedBarChartRows: string[] = [];
 
   // Histogram
   private _charts: any = [];
@@ -453,7 +453,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         }
       }
       this._gridComp.rowAllUnSelection();
-      this._selectedBarChartRows = [];
+      this._selectedRows = [];
 
     }
 
@@ -529,6 +529,23 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     if (this._selectedColumns.length > 0) {
       this._gridComp.columnAllUnSelection();
     }
+
+    // 현재 선택되어있는 바 차트 refresh
+    let options_bar;
+    let chartIndex = -1;
+    Object.keys(this._barClickedSeries).forEach((key, index) => {
+      if (this._barClickedSeries[key].length > 0) {
+        chartIndex = index;
+      }
+    });
+    if (chartIndex !== -1) {
+      this._barClickedSeries[chartIndex] = [];
+      // this.unSelectionAll('ROW');
+      options_bar = this._getDefaultBarChartOption(this._getHistogramInfo(chartIndex), chartIndex);
+      this._applyChart(this._barCharts[chartIndex], options_bar)
+    }
+
+
 
     // cell이 선택 했을 때 선택 되어있던 히스토그램 바 refresh.
     // if (event.selected === null) {
@@ -1075,13 +1092,30 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           this._rowClickHandler(this._selectedRows);
           this._clickedSeries[index].push(useParam.name);
         } else {
-          this._getHistogramInfo(index).rownos[useParam.dataIndex].forEach((item) => {
-            this._selectedRows.forEach((data, idx) => {
-              if (data === item) {
-                this._selectedRows.splice(idx, 1);
-              }
-            })
-          });
+          // 이미 선택되어있다면 삭제
+          let minusTarget: any[] = [];
+          let tempRows: any[] = [];
+          try{
+            minusTarget = _.clone(this._getHistogramInfo(index).rownos[useParam.dataIndex]);
+            tempRows = _.clone(this._selectedRows);
+            this._selectedRows = [];
+          }catch (error){
+            minusTarget = [];
+            tempRows = [];
+          }
+
+          for(let i:number =0; i< tempRows.length; i = i +1) {
+            let chk: number = -1;
+            for(let j:number =0; j< minusTarget.length; j = j +1) {if(tempRows[i] === minusTarget[j]) {chk = i;break;}}
+            if(chk == -1) {this._selectedRows.push(tempRows[i]);}
+          }
+          // this._getHistogramInfo(index).rownos[useParam.dataIndex].forEach((item) => {
+          //   this._selectedRows.forEach((data, idx) => {
+          //     if (data === item) {
+          //       this._selectedRows.splice(idx, 1);
+          //     }
+          //   })
+          // });
           this._rowClickHandler(this._selectedRows);
           this._clickedSeries[index].splice(idx, 1);
         }
@@ -1112,7 +1146,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       if (isNull(params)) {
         // 현재 클릭된 시리즈 해제
         this._barClickedSeries[index] = [];
-        this._selectedBarChartRows = [];
+        this._selectedRows = [];
         this.unSelectionAll('ROW');
 
       } else {
@@ -1140,7 +1174,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
             if (this._barClickedSeries[i].length !== 0) {
               this._barClickedSeries[i] = [];
               this.unSelectionAll('ROW');
-              this._selectedBarChartRows = [];
+              this._selectedRows = [];
               options = this._getDefaultBarChartOption(this._getHistogramInfo(i), i);
               this._applyChart(this._barCharts[i], options)
             }
@@ -1156,21 +1190,36 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           // 선택된 rows 도 클릭이 되어야하는 상태 ..
           // this.selectedDataset.gridResponse.colHists[index] 에서
           // params.seriesName + rows 를 찾아와서 rows를 그리드에 선택 되게 한다.
-          this._selectedBarChartRows = _.union(this._selectedBarChartRows, this._getHistogramInfo(index)[params.seriesName + 'Rows']);
-          this._rowClickHandler(this._selectedBarChartRows);
+          this._selectedRows = _.union(this._selectedRows, this._getHistogramInfo(index)[params.seriesName + 'Rows']);
+          this._rowClickHandler(this._selectedRows);
           this._barClickedSeries[index].push(params.seriesName);
 
         } else {
+          let minusTarget: any[] = [];
+          let tempChartRows: any[] = [];
+          try{
+            minusTarget = _.clone(this._getHistogramInfo(index)[params.seriesName + 'Rows']);
+            tempChartRows = _.clone(this._selectedRows);
+            this._selectedRows = [];
+          }catch (error){
+            minusTarget = [];
+            tempChartRows = [];
+          }
+          for(let i:number =0; i< tempChartRows.length; i = i +1) {
+            let chk: number = -1;
+            for(let j:number =0; j< minusTarget.length; j = j +1) {if(tempChartRows[i] === minusTarget[j]) {chk = i;break;}}
+            if(chk == -1) {this._selectedRows.push(tempChartRows[i]);}
+          }
 
           // 이미 선택되어있다면 삭제
-          this._getHistogramInfo(index)[params.seriesName + 'Rows'].forEach((item) => {
-            this._selectedBarChartRows.forEach((data, idx) => {
-              if (data === item) {
-                this._selectedBarChartRows.splice(idx, 1);
-              }
-            })
-          });
-          this._rowClickHandler(this._selectedBarChartRows);
+          // this._getHistogramInfo(index)[params.seriesName + 'Rows'].forEach((item) => {
+          //   this._selectedBarChartRows.forEach((data, idx) => {
+          //     if (data === item) {
+          //       this._selectedBarChartRows.splice(idx, 1);
+          //     }
+          //   })
+          // });
+          this._rowClickHandler(this._selectedRows);
           this._barClickedSeries[index].splice(idx, 1);
         }
       }
