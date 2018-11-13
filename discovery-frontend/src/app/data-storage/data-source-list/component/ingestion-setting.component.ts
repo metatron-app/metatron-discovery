@@ -23,6 +23,7 @@ import { DatasourceService } from '../../../datasource/service/datasource.servic
 import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
 import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
+import { CommonUtil } from '../../../common/util/common.util';
 
 declare let moment: any;
 /**
@@ -306,6 +307,10 @@ export class IngestionSettingComponent extends AbstractComponent {
    * Partition validation click events
    */
   public onClickPartitionKeysValidation(): void {
+    // if open result view, close
+    if (this.isShowPartitionValidResult) {
+      this.isShowPartitionValidResult = false;
+    }
     // if multi partition, first partition required
     if (this._isEnablePartitionKeys(this.partitionKeyList)) {
       // set result
@@ -576,6 +581,15 @@ export class IngestionSettingComponent extends AbstractComponent {
     // remove keys
     this.partitionKeyList = this.partitionKeyList.slice(0, this.partitionKeyList.length - 1);
   }
+
+  /**
+   * convert file size
+   * @param bytes
+   * @returns {any}
+   */
+  public bytesToSize(bytes: number) {
+    return CommonUtil.formatBytes(bytes, 2);
+  };
 
   /**
    * ui init
