@@ -35,7 +35,9 @@ export class IngestionLogComponent extends AbstractComponent {
   // historyId
   public historyId: string;
   // ingestionProgress
-  public ingestionProgress: any;
+  public ingestionProgress: string;
+  // fail status object
+  public failStatusObject: any;
 
 
   // 생성자
@@ -59,18 +61,24 @@ export class IngestionLogComponent extends AbstractComponent {
   /**
    * init
    */
-  public init(datasourceId: string, historyId: string, ingestionProgress?: any) {
+  public init(datasourceId: string, historyId: string, progress?: string, failObject?: any) {
     // init view
     this._initView();
+    // set datasource id
     this._datasourceId = datasourceId;
+    // set history id
     this.historyId = historyId;
-    this.ingestionProgress = ingestionProgress;
+    // progress status step
+    this.ingestionProgress = progress;
+    // set fail object
+    this.failStatusObject = failObject;
+    // show log component
     this.isShow = true;
-
+    // is get all log
     this._isGetAllLog = false;
 
     // get ingestion result details
-    if (historyId && ingestionProgress && ingestionProgress.message === 'ENGINE_RUNNING_TASK') {
+    if (historyId && progress === 'ENGINE_RUNNING_TASK') {
       this._getIngestionDetails(this._datasourceId, this.historyId, -10000);
     }
   }
@@ -120,6 +128,7 @@ export class IngestionLogComponent extends AbstractComponent {
     this.detailDatas = [];
     this.historyId = null;
     this.ingestionProgress = null;
+    this.failStatusObject = null;
   }
 
 

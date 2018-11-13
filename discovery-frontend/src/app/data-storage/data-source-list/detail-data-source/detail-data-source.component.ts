@@ -156,7 +156,13 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
                 if (datasource.status !== Status.ENABLED) {
                   // init progress UI
                   if (history['_embedded'] && history['_embedded'].ingestionHistories[0].progress) {
-                    this.ingestionProcess = {progress: 1, message: history['_embedded'].ingestionHistories[0].progress};
+                    this.ingestionProcess = {
+                      progress: 1,
+                      message: history['_embedded'].ingestionHistories[0].progress,
+                      failResults: {
+                        message: history['_embedded'].ingestionHistories[0].message,
+                        cause: history['_embedded'].ingestionHistories[0].cause
+                      }};
                   } else if (history['_embedded'] && !history['_embedded'].ingestionHistories[0].progress) {
                     this.isNotShowProgress = true;
                   } else if (datasource.srcType === SourceType.FILE || datasource.srcType === SourceType.JDBC) {
@@ -454,8 +460,9 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     return new Promise((resolve, reject) => {
       this.datasourceService.getBatchHistories(datasourceId, params)
         .then((result) => {
-          // set history id
+          // if exist ingestionHistories
           if (result['_embedded'] && result['_embedded'].ingestionHistories) {
+            // set history id
             this.historyId = result['_embedded'].ingestionHistories[0].id;
           }
           resolve(result);
@@ -530,6 +537,11 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
             if (data.results && data.results.history) {
               // set ingestionProcess
               this.ingestionProcess['message'] = data.results.history.progress;
+              // set cause and message
+              this.ingestionProcess['failResults'] = {
+                message: data.results.history.message,
+                cause: data.results.history.cause
+              };
             }
             // disconnect websocket
             CommonConstant.stomp.unsubscribe(this._subscribe);
