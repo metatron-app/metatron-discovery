@@ -20,11 +20,10 @@ import { DeleteModalComponent } from '../../common/component/modal/delete/delete
 import { Modal } from '../../common/domain/modal';
 import { Alert } from '../../common/util/alert.util';
 import { PreparationAlert } from '../util/preparation-alert.util';
-import { Subscription } from 'rxjs/Subscription';
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { isUndefined } from 'util';
 import { DataSnapshotDetailComponent } from './data-snapshot-detail.component';
-import * as $ from "jquery";
+import {PreparationCommonUtil} from "../util/preparation-common.util";
 
 @Component({
   selector: 'app-data-snapshot',
@@ -72,6 +71,8 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   public pageSize : number = 20;
   public pageNum : number = 1;
+
+  public prepCommonUtil = PreparationCommonUtil;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -310,7 +311,6 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     let n = data + '';
     return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
   }
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

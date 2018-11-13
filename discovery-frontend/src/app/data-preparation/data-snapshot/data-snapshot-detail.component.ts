@@ -30,6 +30,7 @@ import { saveAs } from 'file-saver';
 import * as pixelWidth from 'string-pixel-width';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import * as $ from "jquery";
+import {PreparationCommonUtil} from "../util/preparation-common.util";
 
 @Component({
   selector: 'app-data-snapshot-detail',
@@ -85,6 +86,8 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public isShow : boolean = false;
 
   public progressbarWidth = '100%';
+
+  public prepCommonUtil = PreparationCommonUtil;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
