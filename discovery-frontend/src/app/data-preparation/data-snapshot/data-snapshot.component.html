@@ -106,6 +106,9 @@
           {{'msg.comm.menu.manage.prep.flow' | translate}} | {{'msg.comm.menu.manage.prep.set' | translate}}
         </th>
         <th>
+          {{'msg.dp.th.ss-type' | translate}}
+        </th>
+        <th>
           {{'msg.dp.th.status' | translate}}
         </th>
         <th>
@@ -132,6 +135,9 @@
         <td>
           <span *ngIf="item.dsName === ''" class="ddp-data-delete">{{'msg.dp.ui.ds.del.success' | translate}}</span>
           {{item.creatorDfName}} | {{item.dsName}}
+        </td>
+        <td>
+          {{prepCommonUtil.getSnapshotType(item.ssType)}}
         </td>
         <td>
           <span class="ddp-data-state ddp-rejected" *ngIf="item.displayStatus === 'FAIL'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.fail' | translate}}</span>
