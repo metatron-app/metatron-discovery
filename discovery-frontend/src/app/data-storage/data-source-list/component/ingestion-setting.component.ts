@@ -588,7 +588,11 @@ export class IngestionSettingComponent extends AbstractComponent {
    * @returns {any}
    */
   public bytesToSize(bytes: number) {
-    return CommonUtil.formatBytes(bytes, 2);
+    if (bytes === undefined || bytes === null || (typeof bytes !== 'number' && bytes === '')) {
+      return ' bytes';
+    } else {
+      return CommonUtil.formatBytes(bytes, 2);
+    }
   };
 
   /**
