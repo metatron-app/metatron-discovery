@@ -617,22 +617,25 @@ public class PrepDatasetFileService {
                             int[] typeCount = new int[5];
 
                             for(List<ColumnType> types : gussedTypesByRows) {
-                                ColumnType type = types.get(i) != null ? types.get(i) : ColumnType.STRING;
-                                switch (type) {
-                                    case BOOLEAN:
-                                        typeCount[0]++;
-                                        break;
-                                    case LONG:
-                                        typeCount[1]++;
-                                        break;
-                                    case DOUBLE:
-                                        typeCount[2]++;
-                                        break;
-                                    case TIMESTAMP:
-                                        typeCount[3]++;
-                                        break;
-                                    default:
-                                        typeCount[4]++;
+
+                                if (i <types.size() && types.get(i) != null) {
+                                    ColumnType type = types.get(i) != null ? types.get(i) : ColumnType.STRING;
+                                    switch (type) {
+                                        case BOOLEAN:
+                                            typeCount[0]++;
+                                            break;
+                                        case LONG:
+                                            typeCount[1]++;
+                                            break;
+                                        case DOUBLE:
+                                            typeCount[2]++;
+                                            break;
+                                        case TIMESTAMP:
+                                            typeCount[3]++;
+                                            break;
+                                        default:
+                                            typeCount[4]++;
+                                    }
                                 }
                             }
 
