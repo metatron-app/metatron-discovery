@@ -193,7 +193,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * ingestion details click event
    */
   public onClickIngestionDetails(): void {
-    this._ingestionLogComp.init(this.datasource.id, this.historyId, this._ingestionProgress);
+    this._ingestionLogComp.init(this.datasource.id, this.historyId, this._ingestionProgress.message, this._ingestionProgress.failResults);
   }
 
   /**
