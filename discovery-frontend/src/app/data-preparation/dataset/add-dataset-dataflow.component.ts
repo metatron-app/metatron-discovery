@@ -75,7 +75,12 @@ export class AddDatasetDataflowComponent extends AbstractComponent implements On
   public ngOnInit() {
     super.ngOnInit();
 
+    // Since existing dataflow is deleted from list
+    this.page.size = 30;
+
     this.getDataflows();
+
+
   }
 
   public ngOnDestroy() {
