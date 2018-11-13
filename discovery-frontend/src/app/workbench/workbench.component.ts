@@ -2037,6 +2037,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   private createWebSocket(callback?: Function): void {
     this.workbench = this.workbenchTemp;
+    // connection database 정보
+    this.workbench.dataConnection.connectionDatabase = this.workbenchTemp.dataConnection.database;
     this.websocketId = CommonConstant.websocketId;
     try {
       console.info('this.websocketId', this.websocketId);

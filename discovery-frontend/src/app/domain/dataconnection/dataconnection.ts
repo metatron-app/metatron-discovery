@@ -30,6 +30,7 @@ export class Dataconnection extends AbstractHistoryEntity {
   public implementor: ConnectionType;
   public newDataConnection: string;
   public database: string;
+  public connectionDatabase: string;
   public catalog: string;
   public dbname: string;
 

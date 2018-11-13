@@ -142,8 +142,9 @@ export class DataconnectionService extends AbstractService {
     connInfo.authenticationType = dataconnection.authenticationType;
     connInfo.hostname = dataconnection.hostname;
     connInfo.port = dataconnection.port;
-    connInfo.database = dataconnection.database;
+    connInfo.database = dataconnection.connectionDatabase;
     connInfo.catalog = dataconnection.catalog;
+    connInfo.url = dataconnection.url;
 
     params.connection = connInfo;
     params.database = dataconnection.database;
