@@ -45,6 +45,7 @@ import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/
 import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
 import { IngestionLogComponent } from './component/ingestion-log/ingestion-log.component';
+import { CommonUtil } from '../../../../common/util/common.util';
 
 declare let echarts: any;
 
@@ -239,11 +240,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * @returns {any}
    */
   public bytesToSize(bytes: number) {
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    if (bytes == 0) return '0 Byte';
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    const data = bytes / Math.pow(1024, i);
-    return data.toFixed(2) + ' ' + sizes[i];
+    return CommonUtil.formatBytes(bytes, 2);
   };
 
   /**
