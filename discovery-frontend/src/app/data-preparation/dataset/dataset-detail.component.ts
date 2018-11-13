@@ -417,6 +417,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
       this.loadingHide();
       if (result.dfId) {
         this.router.navigate(['/management/datapreparation/dataflow', result.dfId]);
+        this.cookieService.set('FIND_WRANGLED',this.datasetId);
         Alert.success(this.translateService.instant('msg.dp.alert.create-df.success',{value:result.dfName}));
       }
     }).catch((error)=>{
@@ -443,8 +444,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
   }
 
 
-  public closeSelectDataflow(data?) {
-
+  public closeSelectDataflow() {
     // close popup
     this.isSelectDataflowOpen = false;
   }
