@@ -192,7 +192,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
     }).join(', ');
 
     let ruleString = 'setformat col: ' + columnsStr + ' format: ';
-    let val = this.selectedTimestamp === 'Custom format' ?  this.customTimestamp : this.selectedTimestamp;
+    let val: any = this.selectedTimestamp === 'Custom format' ?  this.customTimestamp : this.selectedTimestamp;
     let check = StringUtil.checkSingleQuote(val, { isPairQuote: false, isWrapQuote: true });
     if (check[0] === false) {
       Alert.warning(this.translateService.instant('msg.dp.alert.invalid.timestamp.val'));

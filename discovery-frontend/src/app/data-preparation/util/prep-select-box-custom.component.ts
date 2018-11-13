@@ -148,9 +148,11 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
     if (isSearchTextEmpty) {
       arrayList = arrayList.filter((item) => {
         if (!isNullOrUndefined(this.viewKey)) {
-          return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;
+          // return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;
+          return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) == 0;
         } else {
-          return item.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;
+          // return item.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;
+          return item.toLowerCase().indexOf(this.searchText.toLowerCase()) == 0;
         }
 
       });
@@ -364,9 +366,6 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
     this.customTimestamp = customTimestamp;
     this.defaultIndex = defaultIndex;
 
-    // console.info('# final this.array', this.array);
-    // console.info('# final this.customTimestamp', this.customTimestamp);
-    // console.info('# final this.defaultIndex', this.defaultIndex);
     if (this.array && this.array.hasOwnProperty('length')
       && this.array.length > 0) {
       if (this.defaultIndex > -1) {
@@ -383,6 +382,8 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
     } else{
       this.searchText = this.selectedItem['value'];
     }
+
+    this.toggleSelectList();
   }
 
 }

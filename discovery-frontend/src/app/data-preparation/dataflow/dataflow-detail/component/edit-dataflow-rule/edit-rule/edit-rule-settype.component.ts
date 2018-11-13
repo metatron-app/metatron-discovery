@@ -153,7 +153,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
         this.timestampFormats.push({ value: i, isHover: false, matchValue: result[keyList[0]][i] })
       }
     }
-    this.timestampFormats.push({ value: 'Custom format', isHover: false, matchValue: -1 });
+    // this.timestampFormats.push({ value: 'Custom format', isHover: false, matchValue: -1 });
   }
 
   /**
