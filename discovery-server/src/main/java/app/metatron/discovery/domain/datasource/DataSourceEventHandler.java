@@ -43,7 +43,10 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -51,7 +54,11 @@ import java.util.concurrent.ThreadFactory;
 import app.metatron.discovery.domain.context.ContextService;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
-import app.metatron.discovery.domain.datasource.ingestion.*;
+import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistory;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryRepository;
+import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.RealtimeIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
@@ -61,29 +68,14 @@ import app.metatron.discovery.domain.engine.EngineIngestionService;
 import app.metatron.discovery.domain.workspace.Workspace;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
-import com.google.common.base.Preconditions;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.quartz.*;
-import org.quartz.impl.triggers.CronTriggerImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.core.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.LINK;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.IMPORT;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.JDBC;
 import static app.metatron.discovery.domain.datasource.DataSource.SourceType.NONE;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.ENABLED;
+import static app.metatron.discovery.domain.datasource.DataSource.Status.FAILED;
 import static app.metatron.discovery.domain.datasource.DataSource.Status.PREPARING;
 
 /**
@@ -157,14 +149,14 @@ public class DataSourceEventHandler {
     }
 
     //partition range to map
-    if(ingestionInfo instanceof HiveIngestionInfo){
+    if (ingestionInfo instanceof HiveIngestionInfo) {
       List<String> partitionNameList = new ArrayList<>();
-      for(Map<String, Object> partitionNameMap : ((HiveIngestionInfo) ingestionInfo).getPartitions()){
+      for (Map<String, Object> partitionNameMap : ((HiveIngestionInfo) ingestionInfo).getPartitions()) {
         partitionNameList.addAll(PolarisUtils.mapWithRangeExpressionToList(partitionNameMap));
       }
 
       List<Map<String, Object>> partitionMapList = new ArrayList<>();
-      for(String partitionName : partitionNameList){
+      for (String partitionName : partitionNameList) {
         partitionMapList.add(PolarisUtils.partitionStringToMap(partitionName));
       }
       ((HiveIngestionInfo) ingestionInfo).setPartitions(partitionMapList);
@@ -187,7 +179,23 @@ public class DataSourceEventHandler {
         dataSourceRepository.saveAndFlush(dataSource);
 
         if (dataSource.getIngestionInfo() instanceof RealtimeIngestionInfo) {
-          engineIngestionService.realtimeIngestion(dataSource);
+          Optional<IngestionHistory> ingestionHistory = engineIngestionService.realtimeIngestion(dataSource);
+
+          IngestionHistory resultHistory = null;
+          if (ingestionHistory.isPresent()) {
+            resultHistory = ingestionHistory.get();
+            if (resultHistory.getStatus() != IngestionHistory.IngestionStatus.FAILED) {
+              dataSource.setStatus(ENABLED);
+            } else {
+              dataSource.setStatus(FAILED);
+            }
+          } else {
+            resultHistory = new IngestionHistory(dataSource.getId(),
+                                                 IngestionHistory.IngestionMethod.SUPERVISOR,
+                                                 IngestionHistory.IngestionStatus.FAILED,
+                                                 "Ingestion History not fond");
+          }
+          ingestionHistoryRepository.saveAndFlush(resultHistory);
         } else {
           ThreadFactory factory = new ThreadFactoryBuilder()
               .setNameFormat("ingestion-" + dataSource.getId() + "-%s")

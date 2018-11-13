@@ -163,7 +163,10 @@ public class EngineIngestionService {
     // Ingestion Task 생성
     SupervisorIndex spec = new KafkaRealTimeIndexBuilder()
         .dataSchema(dataSource)
-        .ioConfig(ingestionInfo.getTopic(), ingestionInfo.getConsumerProperties(), ingestionInfo.getTuningOptions())
+        .ioConfig(ingestionInfo.getTopic(),
+                  ingestionInfo.getConsumerProperties(),
+                  ingestionInfo.getTaskOptions(),
+                  ingestionInfo.getTuningOptions())
         .tuningConfig(ingestionInfo.getTuningOptions())
         .build();
 

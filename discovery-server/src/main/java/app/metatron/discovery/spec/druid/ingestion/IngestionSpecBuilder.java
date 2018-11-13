@@ -31,7 +31,6 @@ import app.metatron.discovery.spec.druid.ingestion.io.IoConfig;
 import app.metatron.discovery.spec.druid.ingestion.io.RealTimeIoConfig;
 import app.metatron.discovery.spec.druid.ingestion.tuning.BatchTuningConfig;
 import app.metatron.discovery.spec.druid.ingestion.tuning.HadoopTuningConfig;
-import app.metatron.discovery.spec.druid.ingestion.tuning.RealTimeTuningConfig;
 import app.metatron.discovery.spec.druid.ingestion.tuning.TuningConfig;
 
 /**
@@ -52,12 +51,6 @@ public class IngestionSpecBuilder extends AbstractSpecBuilder {
 
   public IngestionSpecBuilder batchTuningConfig(Map<String, Object> tuningProperties) {
     tuningConfig = new BatchTuningConfig(tuningProperties);
-
-    return this;
-  }
-
-  public IngestionSpecBuilder realTimeTuningConfig(Map<String, Object> tuningProperties) {
-    tuningConfig = new RealTimeTuningConfig(tuningProperties);
 
     return this;
   }

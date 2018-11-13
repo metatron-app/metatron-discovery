@@ -1399,15 +1399,14 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
 
     dataSource.setFields(fields);
 
-    RealtimeIngestionInfo ingestionInfo = new RealtimeIngestionInfo();
-    ingestionInfo.setRollup(false);
-    ingestionInfo.setFormat(new JsonFileFormat());
-    ingestionInfo.setConsumerType(RealtimeIngestionInfo.ConsumerType.KAFKA);
-    ingestionInfo.setTopic("test_topic");
-
     Map<String, Object> consumeProperties = Maps.newHashMap();
     consumeProperties.put("bootstrap.servers", "localhost:9092");
-    ingestionInfo.setConsumerProperties(consumeProperties);
+
+    RealtimeIngestionInfo ingestionInfo = new RealtimeIngestionInfo("test_topic",
+                                                                    consumeProperties,
+                                                                    new JsonFileFormat(),
+                                                                    false,
+                                                                    null, null);
 
     dataSource.setIngestion(GlobalObjectMapper.writeValueAsString(ingestionInfo));
 
