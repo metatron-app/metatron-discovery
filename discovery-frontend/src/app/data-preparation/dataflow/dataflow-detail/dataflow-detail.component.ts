@@ -829,15 +829,17 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
 
   /**
-   * 데이터플로우 조회
+   * Fetch dataflow info
    */
   public getDataflow(isOpen: boolean = false) {
 
     this.loadingShow();
 
+    // Fetch dataflow info
     this.dataflowService.getDataflow(this.dataflow.dfId).then((dataflow) => {
 
       if (dataflow) {
+        // this.dataflow = dataflow 로 대체 가능한지 확인
         this.dataflow = $.extend(this.dataflow, dataflow);
 
         // canvas height resize
@@ -845,7 +847,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
         // canvas height resize
 
 
-        if (this.dataflow.datasets) {
+        if (this.dataflow.datasets) { // if dataflow has datasets
           this.dataSetList = this.dataflow.datasets;
         } else {
           if (this.dataflow['_embedded'] && this.dataflow['_embedded'].datasets) {
@@ -904,6 +906,7 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
 
               this.initChart(); // chart initial
 
+              // set wrangled dataset as selected (from dataset detail)
               let wrangeldDsId = '';
               if (this.cookieService.get('FIND_WRANGLED')) {
 
