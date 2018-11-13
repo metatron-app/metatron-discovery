@@ -91,7 +91,13 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
         Alert.warning(this.translateService.instant('msg.dp.alert.sel.col'));
         return undefined
       }
-      const columnsStr: string = this.selectedFields.map(item => item.name).join(', ');
+
+      const columnsStr: string = this.selectedFields.map((item) => {
+        if (-1 !== item.name.indexOf(' ')) {
+          item.name = '`' + item.name + '`';
+        }
+        return item.name
+      }).join(', ');
 
       // val
       this.inputValue = this.ruleConditionInputComponent.getCondition();
@@ -164,17 +170,24 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
 
   /**
    * parse rule string
-   * @param ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+
+    this.inputValue = data.jsonRuleString.value.escapedValue;
+    this.inputValue = data.ruleString.split('value: ')[1];
+
+    if (data.jsonRuleString.row) {
+      let row = data.ruleString.split('row: ');
+      this.condition = row[1];
+
+      this.inputValue = row[0].split('value: ')[1];
     }
-    let inputVal = ruleString.split('value: ')[1];
-    this.inputValue = inputVal.split('row: ')[0];
-    this.condition = ruleString.split('row: ')[1];
+
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -112,14 +112,14 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
           // }
 
           if (0 < this.fields.length) {
-            let tempFields = this.fields.map((field) => field.name );
+            let tempFields = this.fields.map((field) => field.uuid );
             if (data.selectedColIds.length === 0) {
               this.selectedItemKeys = [];
             } else {
               this.selectedItemKeys = data.selectedColIds.filter((item) => (-1 < tempFields.indexOf(item) ) );
             }
             this.onChange.emit({
-              selectedList: this.fields.filter( item => -1 < this.selectedItemKeys.indexOf( item.name ) )
+              selectedList: this.fields.filter( item => -1 < this.selectedItemKeys.indexOf( item.uuid ) )
             });
           }
         })
@@ -146,7 +146,7 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
     if (selectedChanges && selectedChanges.firstChange ) {
       selectedChanges.currentValue.forEach(item => {
         if( item ) {
-          this.checkItem(item.name, true, true)
+          this.checkItem(item.uuid, true, true)
         }
       });
     }
@@ -195,13 +195,13 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
     }
 
     this.onChange.emit({
-      target:this.fields.find( item => item.name === checkedKey ),
+      target:this.fields.find( item => item.uuid === checkedKey ),
       isSelect:selected,
-      selectedList: this.fields.filter( item => -1 < this.selectedItemKeys.indexOf( item.name ) )
+      selectedList: this.fields.filter( item => -1 < this.selectedItemKeys.indexOf( item.uuid ) )
     });
 
     if (isEvent && this.effectGrid) {
-      this.broadCaster.broadcast('EDIT_RULE_COMBO_SEL', { name: checkedKey, isSelectOrToggle: selected, isMulti : this.isMulti });
+      this.broadCaster.broadcast('EDIT_RULE_COMBO_SEL', { id: checkedKey, isSelectOrToggle: selected, isMulti : this.isMulti });
     }
 
     this.safelyDetectChanges();
@@ -250,8 +250,25 @@ export class EditRuleFieldComboComponent extends AbstractComponent implements On
    * @return {string}
    */
   public selectedItemsNameString(): string {
-    return this.selectedItemKeys.join(',');
+
+    if (!this.isMulti) {
+        return this.getColumnNameByUUID(this.selectedItemKeys[0])
+    } else {
+      return this.selectedItemKeys.map((item) => {
+        return this.getColumnNameByUUID(item)
+      }).join(',')
+    }
+
   } // function - selectedItemsNameString
+
+  public getColumnNameByUUID(uuid: string ) : string {
+
+    let field = this.fields.find((item) => {
+      return item.uuid === uuid;
+    });
+    return field.name
+
+  }
 
   /**
    * 아이템 체크 여부

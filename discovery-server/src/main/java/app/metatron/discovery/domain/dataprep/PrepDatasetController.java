@@ -413,7 +413,7 @@ public class PrepDatasetController {
                                                           @RequestParam(value = "hasFields", required = false, defaultValue = "N") String hasFieldsFlag) {
         Map<String, Object> response = null;
         try {
-            response = this.datasetFileService.fileCheckSheet2( fileKey, sheetname, sheetindex, size, delimiterRow, delimiterCol, hasFieldsFlag);
+            response = this.datasetFileService.fileCheckSheet3( fileKey, size, delimiterRow, delimiterCol );
         } catch (Exception e) {
             LOGGER.error("fileCheckSheet(): caught an exception: ", e);
             throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE,e);

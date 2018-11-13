@@ -68,6 +68,8 @@ export class Dataset extends AbstractHistoryEntity {
   public joinButtonText: string;
   public ruleNo: string;
 
+  // add api modify
+  public connectionInfo: any;
 }
 
 export class Datasets {
@@ -98,6 +100,7 @@ export enum ImportType {
 export class Field {
   public name: string;
   public type: string;
+  public uuid? : string;
   public logicalType? : string;
   public isHover? : boolean;
   public seq? : number;

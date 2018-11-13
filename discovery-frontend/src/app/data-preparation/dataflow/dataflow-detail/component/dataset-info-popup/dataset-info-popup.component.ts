@@ -177,7 +177,6 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'Union', alias: 'Ui'},
       { command: 'setformat', alias: 'Sf'}
     ];
-
     if (!isNullOrUndefined(this.selectedDataSet)) {
       this.setDataset(this.selectedDataSet);
     }
@@ -322,8 +321,13 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     let colCnt = '0';
 
     if( this.selectedDataSet && this.selectedDataSet.gridResponse && this.selectedDataSet.gridResponse.colCnt ) {
-      if(true==Number.isInteger(this.selectedDataSet.gridResponse.colCnt)) {
+      if(Number.isInteger(this.selectedDataSet.gridResponse.colCnt)) {
         colCnt = new Intl.NumberFormat().format(this.selectedDataSet.gridResponse.colCnt);
+        if (colCnt === '0' || colCnt === '1') {
+          colCnt = colCnt + ' column';
+        } else {
+          colCnt = colCnt + ' columns';
+        }
       }
     }
     return colCnt;
@@ -339,23 +343,30 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       } else {
         rows = new Intl.NumberFormat().format(this.selectedDataSet.totalLines);
         this.clearExistingInterval();
+        if (rows === '0' || rows === '1') {
+          rows = rows + ` row`;
+        } else {
+          rows = rows + ` rows`;
+        }
       }
     }
     return rows;
   }
 
   public get getHost() {
-    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB ) {
-      return 'host from '+this.selectedDataSet['dcId'];
+    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB && !isNullOrUndefined(this.selectedDataSet.connectionInfo['hostname'])) {
+      return this.selectedDataSet.connectionInfo['hostname'];
+    } else {
+      return null;
     }
-    return null;
   }
 
   public get getPort() {
-    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB ) {
-      return 'port from '+this.selectedDataSet['dcId'];
+    if( this.selectedDataSet['importType'] && this.selectedDataSet['importType']===ImportType.DB && !isNullOrUndefined(this.selectedDataSet.connectionInfo['port'])) {
+      return this.selectedDataSet.connectionInfo['port'];
+    } else {
+      return null;
     }
-    return null;
   }
 
   public get getDatabase() {
@@ -373,10 +384,10 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       return null;
     }
 
-    if( this.selectedDataSet['rsType'] && this.selectedDataSet['rsType']===RsType.TABLE ) {
-      return this.selectedDataSet['tableName'];
-    } else {
+    if(this.getHost === null && this.getPort === null) {
       return this.selectedDataSet['queryStmt'];
+    } else {
+      return this.selectedDataSet['tableName'];
     }
   }
 
@@ -424,7 +435,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
    * @param {Dataset} selectedDatset
    */
   public getDatasetInfo(selectedDatset : Dataset) {
-    this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: Dataset) => {
+    this.dataflowService.getDataset(selectedDatset.dsId).then((dataset: any) => {
       this.loadingHide();
 
       //this.previewData = dataset; //  preview 를 위한 데이터 저장
@@ -872,6 +883,35 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
     this.interval = undefined;
   }
 
+  public getDatasetType(type: ImportType, fileName : string) : string {
+
+    let result = '';
+    if (type === ImportType.FILE) {
+      let extension = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(fileName)[1];
+      if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
+        result =  'EXCEL'
+      } else if (extension.toUpperCase() === 'CSV') {
+        result =  'CSV'
+      }
+    }
+
+    return result;
+  }
+
+  public getFileType(dsType:DsType, importType: ImportType, fileName : string) : string {
+
+    if (dsType === DsType.WRANGLED) {
+      return 'WRANGLED';
+    } else {
+      if (importType === ImportType.FILE) {
+        return `${importType} (${this.getDatasetType(importType,fileName)})`;
+      } else {
+        return `${importType === ImportType.HIVE ? 'Staging DB' : importType}`;
+      }
+    }
+
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1010,4 +1050,3 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
 
 
 }
-

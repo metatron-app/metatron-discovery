@@ -274,13 +274,15 @@ export class ResourcesViewComponent extends AbstractComponent implements OnInit,
   public getDataTypeString(srcType: SourceType): string {
     switch (srcType) {
       case SourceType.IMPORT:
-        return this.translateService.instant('msg.storage.ui.list.import');
+        return this.translateService.instant('msg.storage.li.druid');
       case SourceType.FILE:
-        return this.translateService.instant('msg.storage.ui.list.file');
+        return this.translateService.instant('msg.storage.li.file');
       case SourceType.JDBC:
-        return this.translateService.instant('msg.storage.ui.list.jdbc');
+        return this.translateService.instant('msg.storage.li.db');
       case SourceType.HIVE:
-        return this.translateService.instant('msg.storage.ui.list.hive');
+        return this.translateService.instant('msg.storage.li.hive');
+      case SourceType.REALTIME:
+        return this.translateService.instant('msg.storage.li.stream');
     }
   }
 

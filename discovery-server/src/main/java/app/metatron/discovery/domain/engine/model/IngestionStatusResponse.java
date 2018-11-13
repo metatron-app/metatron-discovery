@@ -41,7 +41,7 @@ public class IngestionStatusResponse implements Serializable {
     this.id = task;
     this.status = IngestionHistory.IngestionStatus.convertFromEngineStatus((String) statusMap.get("status"));
     this.duration = Long.parseLong(statusMap.get("duration") + "");
-    this.cause = (String) statusMap.get("cause");
+    this.cause = (String) statusMap.get("reason");
   }
 
   public IngestionStatusResponse(String id, IngestionHistory.IngestionStatus status, Long duration, String cause) {
@@ -56,12 +56,21 @@ public class IngestionStatusResponse implements Serializable {
                                        "Fail to check ingestion task(" + taskId + ") on druid");
   }
 
+  public static IngestionStatusResponse unknownResponse(String taskId, Throwable t) {
+    return new IngestionStatusResponse(taskId, IngestionHistory.IngestionStatus.UNKNOWN, 0L,
+                                       "Fail to check ingestion task(" + taskId + ") on druid : " + t.getMessage());
+  }
+
   public String getId() {
     return id;
   }
 
   public IngestionHistory.IngestionStatus getStatus() {
     return status;
+  }
+
+  public void setStatus(IngestionHistory.IngestionStatus status) {
+    this.status = status;
   }
 
   public Long getDuration() {

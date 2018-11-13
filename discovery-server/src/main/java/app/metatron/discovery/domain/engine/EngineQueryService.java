@@ -62,7 +62,7 @@ import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.data.SummaryQueryRequest;
 import app.metatron.discovery.domain.datasource.data.result.GraphResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
-import app.metatron.discovery.domain.engine.model.SegmentMetaData;
+import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
 import app.metatron.discovery.domain.workbook.configurations.Sort;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DefaultDataSource;
@@ -79,6 +79,10 @@ import app.metatron.discovery.query.druid.queries.*;
 
 import static app.metatron.discovery.domain.datasource.DataSource.ConnectionType.ENGINE;
 import static app.metatron.discovery.domain.datasource.DataSourceQueryHistory.EngineQueryType.*;
+import static app.metatron.discovery.query.druid.meta.AnalysisType.CARDINALITY;
+import static app.metatron.discovery.query.druid.meta.AnalysisType.INGESTED_NUMROW;
+import static app.metatron.discovery.query.druid.meta.AnalysisType.QUERYGRANULARITY;
+import static app.metatron.discovery.query.druid.meta.AnalysisType.SERIALIZED_SIZE;
 
 /**
  * Created by kyungtaak on 2016. 8. 25..
@@ -178,7 +182,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       SearchQueryRequest sizeRequest = request.copyOf();
       final List<List<String>> groupingSets = Lists.newArrayList();
       dimFields.forEach(field ->
-        groupingSets.add(Lists.newArrayList(field.getAlias()))
+                            groupingSets.add(Lists.newArrayList(field.getAlias()))
       );
       sizeRequest.setGroupingSets(groupingSets);
       sizeRequest.setResultFormat(new ObjectResultFormat());
@@ -212,7 +216,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
         newRequest.addUserDefinedFields(new ExpressionField("targetField", "'" + originalFieldName + "'", "dimension"));
         newProjection.add(new DimensionField("targetField", "targetField", UserDefinedField.REF_NAME, null));
 
-        if(BooleanUtils.isTrue(graphResultFormat.getUseLinkCount())) {
+        if (BooleanUtils.isTrue(graphResultFormat.getUseLinkCount())) {
           measureField.setAggregationType(MeasureField.AggregationType.COUNT);
         }
         newProjection.add(measureField);
@@ -574,14 +578,19 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
   }
 
 
-  public SegmentMetaData segmentMetadata(String dataSourceName) {
+  public SegmentMetaDataResponse segmentMetadata(String dataSourceName, AnalysisType... types) {
     Preconditions.checkNotNull(dataSourceName, "DataSource name required.");
 
+    List<AnalysisType> analysisTypes;
+
+    if (types == null || types.length == 0) {
+      analysisTypes = Lists.newArrayList(CARDINALITY, INGESTED_NUMROW, SERIALIZED_SIZE, QUERYGRANULARITY);
+    } else {
+      analysisTypes = Lists.newArrayList(types);
+    }
+
     SegmentMetaDataQuery query = new SegmentMetaDataQueryBuilder(new DefaultDataSource(dataSourceName))
-        .types(AnalysisType.CARDINALITY.name(),
-               AnalysisType.INGESTED_NUMROW.name(),
-               AnalysisType.SERIALIZED_SIZE.name(),
-               AnalysisType.QUERYGRANULARITY.name())
+        .types(analysisTypes)
         .merge(true)
         .build();
 
@@ -591,9 +600,9 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     String result = engineRepository.query(queryString, String.class).orElseThrow(
         () -> new ResourceNotFoundException(dataSourceName));
 
-    List<SegmentMetaData> metaData = null;
+    List<SegmentMetaDataResponse> metaData = null;
     try {
-      metaData = GlobalObjectMapper.getDefaultMapper().readValue(result, new TypeReference<List<SegmentMetaData>>() {});
+      metaData = GlobalObjectMapper.getDefaultMapper().readValue(result, new TypeReference<List<SegmentMetaDataResponse>>() {});
     } catch (IOException e) {
       LOGGER.error("Result is not matched : {}", e.getMessage());
       throw new QueryTimeExcetpion("Result is not matched : " + e.getMessage());

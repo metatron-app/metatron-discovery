@@ -133,6 +133,11 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   // 데이터베이스 리스트 show flag
   public databaseListShowFl: boolean = false;
 
+  // tab list, no data
+  public isColumListNoData : boolean = false;
+  public isMetadataListNoData : boolean = false;
+  public isDataListNoData : boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -615,6 +620,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   private _getColumnListForServer(connectionId: string, databaseName: string,  tableName: string,  webSocketId: string, page:Page, columnNamePattern: string = ''): void {
     // 호출 횟수 증가
     this._getColumnListReconnectCount++;
+    // no data 초기화
+    this.isColumListNoData = false;
     // 로딩 show
     this.loadingShow();
     this.connectionService.getColumnList(connectionId, databaseName, tableName, columnNamePattern, webSocketId, page)
@@ -630,6 +637,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         } else {
           // 컬럼 리스트 저장
           this.schemaTableColumnList = [];
+          this.isColumListNoData = true;
           Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
           // 로딩 hide
           this.loadingHide();
@@ -637,8 +645,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       })
       .catch((error) => {
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getColumnListReconnectCount <= 5) {
-           this.webSocketCheck(() => {
-             this._websocketId = WorkbenchService.websocketId;
+          this.webSocketCheck(() => {
+            this._websocketId = WorkbenchService.websocketId;
             this._getColumnListForServer(connectionId, databaseName,  tableName, this._websocketId, page, columnNamePattern);
           });
         } else {
@@ -659,6 +667,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
   private _getMetaDataForServer(connectionId: string, databaseName: string,  tableName: string, webSocketId: string, page:Page): void {
     // 호출 횟수 증가
     this._getMetaDataReconnectCount++;
+    // no data 초기화
+    this.isMetadataListNoData = false;
     // 로딩 show
     this.loadingShow();
     this.connectionService.getTableInfomation(connectionId, databaseName, tableName, webSocketId, page)
@@ -670,12 +680,58 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
 
         // 메타데이터 초기화
         this.schemaTableMetadataList = [];
+
+        let resultData = [];
         for (const key in result) {
           const param = {
             itemKey: key,
             item: result[key]
           };
-          this.schemaTableMetadataList.push(param);
+          resultData.push(param);
+        }
+
+        // 타이틀 부분 추가하여 데이터 가공
+        let tempLabel = '';
+        let tempArr : any[] = [];
+
+        // result Data 생성
+        for (const key in resultData) {
+
+          let tempData = {
+            'label' : '',
+            'data' : tempArr
+          };
+
+          if( resultData[key]['itemKey'].startsWith('#') ){
+
+            if( key != '0' ){
+              tempData.label = tempLabel.split('#')[1];
+              tempData.data = tempArr;
+              this.schemaTableMetadataList.push( tempData );
+
+              tempLabel = '';
+              tempArr = [];
+            }
+
+            // label
+            tempLabel = resultData[key]['itemKey'];
+          } else {
+            // data
+            tempArr.push( resultData[key] );
+          }
+
+          // 마지막 데이터일 경우
+          if( resultData.length-1 == Number( key ) ){
+            tempData.label = tempLabel.split('#')[1];
+            tempData.data = tempArr;
+            this.schemaTableMetadataList.push( tempData );
+          }
+
+        }
+
+        // 데이터가 없을 경우
+        if( this.schemaTableMetadataList.length == 0 ) {
+          this.isMetadataListNoData = true;
         }
 
       })
@@ -737,7 +793,8 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
 
     // 스키마 브라우저에서 사용하는 데이터베이스 변경 - init 시점에서 넣어준 부분을 재반환
     this.workbench.dataConnection.database = this.selectedDatabaseName;
-
+    // no data 초기화
+    this.isDataListNoData = false;
     // 호출 횟수 증가
     this._getSingleQueryReconnectCount++;
     this.workbenchService.getSchemaInfoTableData(this.selectedSchemaTable, this.workbench.dataConnection)
@@ -753,6 +810,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         } else {
           this.schemaTableDataList = [];
           this.schemaTableDataDataList = [];
+          this.isDataListNoData = true;
           // Alert.error(this.translateService.instant('msg.comm.alert.del.fail'));
         }
         // 로딩 hide
@@ -906,7 +964,12 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
       // Logical name
       enableMetaData && (row['LogicalName'] = data[idx]['name']);
       // Type
-      row['type'] = data[idx]['columnType'] + '(' + data[idx]['columnSize'] + ')';
+      // column size가 없을 경우 확인
+      if( isUndefined( data[idx]['columnSize'] ) ){
+        row['type'] = data[idx]['columnType'];
+      } else {
+        row['type'] = data[idx]['columnType'] + '(' + data[idx]['columnSize'] + ')';
+      }
       // Desc
       row['description'] = data[idx]['description'];
       rows.push(row);
@@ -947,6 +1010,26 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     if (this.searchTableText !== '') {
       // 테이블 검색어 초기화
       this.onSearchTableInit();
+    }
+
+    // 테이블 테이터가 있을경우 첫번째 column 탭 호출
+    if( this.schemaTableList.length > 0 ){
+      // 컬럼 선택 및 리스트 조회
+      this.selectedSchemaTable = this.schemaTableList[0].name;
+      this.schemaSelectedTab = 'column';
+      this.getColumnList();
+
+      // 그리드 셀렉트 효과
+      this.gridSchemaComponent.selectRowActivate(0);
+      // 현재 상태를 sort asc 변경
+      this.gridSchemaComponent.setCurrentSortColumns(true);
+
+      for (let index: number = 0; index < headers.length; index++) {
+        // icon default 변경
+        const gridSchemaHeader = $('.ddp-pop-wrapList .slick-header-columns');
+        gridSchemaHeader.find('.slick-sort-indicator').eq(index).removeClass('slick-sort-indicator-asc');
+      }
+
     }
   }
 

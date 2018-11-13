@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.prep.parser.preparation.rule.expr;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface Identifier extends Constant {
@@ -22,7 +23,10 @@ public interface Identifier extends Constant {
     private String value;     // 원래는 final이었으나, set rule에서 각 컬럼별 작업시 해당 컬럼값으로 치환되어야 하는 경우가 생겨서 바꿈 (col$)
 
     public IdentifierExpr(String value) {
-      this.value = value;
+      if(value.matches("`[^`]+`"))
+        this.value= value.substring(1, value.length()-1);
+      else
+        this.value = value;
     }
 
     public String getValue() {
@@ -30,7 +34,10 @@ public interface Identifier extends Constant {
     }
 
     public void setValue (String value) {
-      this.value = value;
+      if(value.matches("`[^`]+`"))
+        this.value= value.substring(1, value.length()-1);
+      else
+        this.value = value;
     }
 
     @Override
@@ -54,7 +61,14 @@ public interface Identifier extends Constant {
     private final List<String> value;
 
     public IdentifierArrayExpr(List<String> value) {
-      this.value = value;
+      this.value = new ArrayList<>();
+
+      for(String string : value) {
+        if(string.matches("`[^`]+`"))
+          this.value.add(string.substring(1, string.length()-1));
+        else
+          this.value.add(string);
+      }
     }
 
     public List<String> getValue() {
