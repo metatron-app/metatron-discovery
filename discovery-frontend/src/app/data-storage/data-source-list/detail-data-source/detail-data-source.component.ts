@@ -160,7 +160,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
                       progress: 1,
                       message: history['_embedded'].ingestionHistories[0].progress,
                       failResults: {
-                        message: history['_embedded'].ingestionHistories[0].message,
+                        message: history['_embedded'].ingestionHistories[0].errorCode,
                         cause: history['_embedded'].ingestionHistories[0].cause
                       }};
                   } else if (history['_embedded'] && !history['_embedded'].ingestionHistories[0].progress) {
@@ -539,7 +539,7 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
               this.ingestionProcess['message'] = data.results.history.progress;
               // set cause and message
               this.ingestionProcess['failResults'] = {
-                message: data.results.history.message,
+                message: data.results.history.errorCode,
                 cause: data.results.history.cause
               };
             }

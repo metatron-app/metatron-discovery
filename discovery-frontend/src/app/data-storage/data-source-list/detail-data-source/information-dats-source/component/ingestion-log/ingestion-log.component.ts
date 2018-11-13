@@ -104,7 +104,7 @@ export class IngestionLogComponent extends AbstractComponent {
     this._datasourceService.getDatasourceIngestionLog(datasourceId, historyId, offset)
       .then((result) => {
         this.detailDatas = this.detailDatas.concat(result['logs'].split('\n'));
-        //
+        // detect changes
         this.safelyDetectChanges();
         // scroll to bottom
         this._scrollElements.nativeElement.scrollTop = this._scrollElements.nativeElement.scrollHeight;

@@ -16,7 +16,7 @@
   <!-- top -->
   <div class="ddp-ui-top">
     <div class="ddp-data-name">
-      ingestion details
+      {{'msg.storage.ui.ingestion.details.title' | translate}}
     </div>
     <em class="ddp-btn-popup-close" (click)="close()"></em>
   </div>
@@ -31,7 +31,7 @@
       <!-- //if ENGINE_RUNNING_TASK -->
       <!-- else -->
       <ng-container *ngIf="ingestionProgress !== 'ENGINE_RUNNING_TASK' && failResultsObject">
-        message : {{failResultsObject.message}} <br>
+        message : {{failResultsObject.errorCode}} <br>
         cause : {{failResultsObject.cause}}
       </ng-container>
       <!-- //else -->
