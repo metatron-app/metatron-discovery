@@ -13,6 +13,7 @@
  */
 
 import { MapBy, MapLayerType } from '../../define/map/map-common';
+import { ColorRange } from '../ui-color';
 
 /**
  * map chart layer
@@ -59,4 +60,15 @@ interface SymbolColor {
 
   // Target color, if line layer case
   target?: string;
+
+  ////////////////////////
+  ///// UI Spec
+  ////////////////////////
+
+  // color by dimension custom color setting
+  mapping?: Object
+
+  // color by measure custom color setting
+  ranges?: ColorRange[];
+
 }

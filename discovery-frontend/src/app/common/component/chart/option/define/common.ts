@@ -915,6 +915,26 @@ export enum TextAlign {
 }
 
 /**
+ * shelf type
+ */
+export enum ShelfType {
+  PIVOT = <any>'pivot',
+  GRAPH = <any>'graph',
+  GEO = <any>'geo'
+}
+
+/**
+ * field format type
+ */
+export enum FormatType {
+  DEFAULT = <any>'default',
+  GEO = <any>'geo',
+  GEO_HASH = <any>'geo_hash',
+  GEO_BOUNDARY = <any>'geo_boundary',
+  GEO_JOIN = <any>'geo_join'
+}
+
+/**
  * 기능 확인기
  */
 export class FunctionValidator {
