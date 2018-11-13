@@ -92,7 +92,14 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
       return undefined
     }
 
-    let ruleString = 'flatten col: ' + this.selectedFields.map( item => item.name ).join(', ');
+    const columnsStr: string = this.selectedFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
+
+    let ruleString = 'flatten col: ' + columnsStr;
 
     return {
       command : 'flatten',
@@ -109,7 +116,6 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
    * @param {{target: Field, isSelect: boolean, selectedList: Field[]}} data
    */
   public changeFields(data:{target?:Field, isSelect?:boolean, selectedList:Field[]}) {
-    console.info( '>>>> changeFields', data.selectedList );
     this.selectedFields = data.selectedList;
   } // function - changeFields
 
@@ -142,16 +148,13 @@ export class EditRuleFlattenComponent extends EditRuleComponent implements OnIni
   } // function - _afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    const strCol:string = this.getAttrValueInRuleString( 'col', ruleString );
-    if( '' !== strCol ) {
-      const arrFields:string[] = ( -1 < strCol.indexOf( ',' ) ) ? strCol.split(',') : [strCol];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) );
-    }
+    let arrFields:string[] = [data.jsonRuleString.col];
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
   } // function - _parsingRuleString
 

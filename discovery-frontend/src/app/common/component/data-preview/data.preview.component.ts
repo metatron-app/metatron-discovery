@@ -486,7 +486,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER' },
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE' },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
       { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
     ];
@@ -620,10 +620,10 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     if (stats.hasOwnProperty('iqr')) {
       const length = stats.iqr.length;
       switch (type) {
-        case 'UPPER':
+        case 'LOWER':
           result = stats.iqr[0];
           break;
-        case 'LOWER':
+        case 'UPPER':
           result = stats.iqr[length - 1];
           break;
       }

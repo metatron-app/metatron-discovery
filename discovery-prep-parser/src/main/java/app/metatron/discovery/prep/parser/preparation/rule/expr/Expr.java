@@ -355,6 +355,58 @@ public interface Expr extends Expression {
         }
 
       }
+      else if (function instanceof BuiltinFunctions.Str.StartsWithFunc) {
+        // substring(expr)
+        assert (args.size() == 2) : args.size();
+
+        try{
+          ExprEval arg0 = args.get(0).eval(bindings);
+          String targetText = arg0.stringValue();
+
+          if(arg0.value() == null)
+            return arg0;
+
+          ExprEval arg1 = args.get(1).eval(bindings);
+          String searchWord = arg1.stringValue();
+
+          return ExprEval.bestEffortOf(targetText.startsWith(searchWord));
+        } catch (StringIndexOutOfBoundsException se) {
+          throw new FunctionInvalidIndexNumberException("ExprEval.eval() startswith: Wrong index param");
+        } catch (NullPointerException ne){
+          throw new FunctionColumnNotFoundException("ExprEval.eval() startswith: No such column name >> " + args.get(0).toString());
+        } catch (ClassCastException ce) {
+          throw new FunctionWorksOnlyOnStringException("ExprEval.eval() startswith: This function works only on string");
+        } catch (Exception e) {
+          throw new FunctionUndefinedException("ExprEval.eval() startswith: Unknown error occur");
+        }
+
+      }
+      else if (function instanceof BuiltinFunctions.Str.EndsWithFunc) {
+        // substring(expr)
+        assert (args.size() == 2) : args.size();
+
+        try{
+          ExprEval arg0 = args.get(0).eval(bindings);
+          String targetText = arg0.stringValue();
+
+          if(arg0.value() == null)
+            return arg0;
+
+          ExprEval arg1 = args.get(1).eval(bindings);
+          String searchWord = arg1.stringValue();
+
+          return ExprEval.bestEffortOf(targetText.endsWith(searchWord));
+        } catch (StringIndexOutOfBoundsException se) {
+          throw new FunctionInvalidIndexNumberException("ExprEval.eval() endswith: Wrong index param");
+        } catch (NullPointerException ne){
+          throw new FunctionColumnNotFoundException("ExprEval.eval() endswith: No such column name >> " + args.get(0).toString());
+        } catch (ClassCastException ce) {
+          throw new FunctionWorksOnlyOnStringException("ExprEval.eval() endswith: This function works only on string");
+        } catch (Exception e) {
+          throw new FunctionUndefinedException("ExprEval.eval() endswith: Unknown error occur");
+        }
+
+      }
       else if (function instanceof BuiltinFunctions.Str.ConcatFunc) {
         // concat(expr)
         assert (args.size() > 0) : args.size();

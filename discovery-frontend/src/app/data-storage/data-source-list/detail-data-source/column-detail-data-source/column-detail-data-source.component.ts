@@ -477,7 +477,7 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', measure: true },
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', measure: true  },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
       { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
     ];
@@ -753,10 +753,10 @@ export class ColumnDetailDataSourceComponent extends AbstractComponent implement
     if (stats.hasOwnProperty('iqr')) {
       const length = stats.iqr.length;
       switch (type) {
-        case 'UPPER':
+        case 'LOWER':
           result = stats.iqr[0];
           break;
-        case 'LOWER':
+        case 'UPPER':
           result = stats.iqr[length - 1];
           break;
       }

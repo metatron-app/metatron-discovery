@@ -75,6 +75,8 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   public isHiveDisable : boolean = false;
   public isAdvancedPrefOpen : boolean = false;
 
+  public fileLocationDefaultIdx : number = 0;
+
   @ViewChild('snapshotName')
   public snapshotName : ElementRef;
 
@@ -136,7 +138,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
     this.getConfig();
     //this.getHiveDatabase();
 
-    this.changeSsType('FILE');
+
   } // function - init
 
 
@@ -234,6 +236,13 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
   } // function - complete
 
   /**
+   * When snapshot Name change, modfiy file type uris
+   * */
+  public chnageSSUri(){
+    if(this.snapshot.uri && this.snapshot.uri.lastIndexOf("/") > 0) this.snapshot.uri = this.snapshot.uri.substring(0,this.snapshot.uri.lastIndexOf("/")+1)  +  this.snapshot.ssName;
+  }
+
+  /**
    * When item is selected from the list
    * @param event
    * @param type
@@ -248,6 +257,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
         if( event.value==this.fileLocations[idx].value ) {
           this.snapshot.location = this.fileLocations[idx].value;
           this.snapshot.uri = this.fileUris[idx];
+          this.chnageSSUri();
           break;
         }
       }
@@ -308,8 +318,16 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
       //this.snapshot.location = this.fileLocations[0].value;
       if(0<this.fileLocations.length) {
-        this.snapshot.location = this.fileLocations[0].value;
-        this.snapshot.uri = this.fileUris[0];
+        let idx = this.fileLocations.findIndex((item) => {
+          return item.value.toUpperCase() === 'LOCAL';
+        });
+
+        if (idx === -1) {
+          idx = 0;
+        }
+        this.snapshot.location = this.fileLocations[idx].value;
+        this.snapshot.uri = this.fileUris[idx];
+        this.fileLocationDefaultIdx = idx;
       }
     }
 
@@ -376,7 +394,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
           } else {
             this.isHiveDisable = true;
           }
-
+          this.changeSsType('FILE');
           this.loadingHide();
         })
         .catch((error) => {
@@ -458,7 +476,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
 
     this.fileFormat = [
       { value: 'CSV', label: 'CSV' },
-      { value: 'JSON', label: 'JSON' }
+      // { value: 'JSON', label: 'JSON' }
     ];
 
     this.ssName = '';

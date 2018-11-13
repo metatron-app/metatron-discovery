@@ -88,9 +88,14 @@ public class DataFrameTest extends TeddyTest {
     df = prepare_sample(df);
     df.show();
 
-    String ruleString = "rename col: speed to: 'speed:new'";
+    String ruleString = "rename col: speed to: 'speed new'";
 
     DataFrame newDf = apply_rule(df, ruleString);
+    newDf.show();
+
+    ruleString = "rename col: `speed new`, name to: 'speed', 'new name'";
+
+    newDf = apply_rule(newDf, ruleString);
     newDf.show();
   }
 

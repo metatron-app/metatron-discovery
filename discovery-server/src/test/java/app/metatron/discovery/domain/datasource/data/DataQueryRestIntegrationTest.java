@@ -93,7 +93,7 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
     // Limit
     Limit limit = new Limit();
-    limit.setLimit(1000000);
+    limit.setLimit(1000);
     limit.setSort(Lists.newArrayList(
         //        new Sort("OrderDate","ASC")
     ));
@@ -1865,7 +1865,8 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
     limit.setLimit(10);
 
     List<Filter> filters = Lists.newArrayList(
-        new InclusionFilter("gu", Arrays.asList("강남구"))
+        new InclusionFilter("gu", Arrays.asList("강남구")),
+        new SpatialBboxFilter(null, "gis", null, "126.8060772 37.4458596", "127.1810908 37.6874771")
         //        new BoundFilter("amt", null, 0, 62510)
     );
 

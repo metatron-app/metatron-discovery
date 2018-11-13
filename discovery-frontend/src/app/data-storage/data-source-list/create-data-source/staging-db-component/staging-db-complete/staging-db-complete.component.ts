@@ -21,11 +21,12 @@ import { DatePipe } from '@angular/common';
 import { CommonUtil } from '../../../../../common/util/common.util';
 import { Alert } from '../../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
-import { DatasourceInfo } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, FieldFormatType } from '../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../../../common/domain/modal';
+import { CookieConstant } from '../../../../../common/constant/cookie.constant';
 
 /**
  * Creating datasource with StagingDB - complete step
@@ -230,13 +231,26 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
     // create datasource
     this.datasourceService.createDatasource(this._getCreateDatasourceParams())
       .then((result) => {
-        // loading hide
-        this.loadingHide();
         // complete alert
         Alert.success(`'${this.datasourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
-        // close
-        this.step = '';
-        this.stagingComplete.emit(this.step);
+        // 개인 워크스페이스
+        const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+        // 워크스페이스 매핑
+        this.datasourceService.addDatasourceWorkspaces(result.id, [workspace['id']])
+          .then(() => {
+            // link datasource detail (#505)
+            this.router.navigate(['/management/storage/datasource', result.id]);
+            // close
+            this.step = '';
+            this.stagingComplete.emit(this.step);
+          })
+          .catch(() => {
+            // link datasource detail (#505)
+            this.router.navigate(['/management/storage/datasource', result.id]);
+            // close
+            this.step = '';
+            this.stagingComplete.emit(this.step);
+          });
       })
       .catch((error) => {
         // loading hide
@@ -266,7 +280,10 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       name: 'current_datetime',
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
-      format: 'yyyy-MM-dd HH:mm:ss',
+      format: {
+        type: FieldFormatType.DATE_TIME,
+        format: 'yyyy-MM-dd HH:mm:ss'
+      }
     };
   }
 
@@ -282,6 +299,17 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
     if (column.removed === false) {
       delete column.removed;
     }
+    // delete used UI
+    delete column.isValidTimeFormat;
+    delete column.isValidReplaceValue;
+    if (column.logicalType !== 'TIMESTAMP' && column.format) {
+      delete column.format;
+    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
+      delete column.format.format;
+    } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.DATE_TIME) {
+      delete column.format.unit;
+    }
+
   }
 
   /**
@@ -416,12 +444,13 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
       const partition = {};
       // loop
       for (let j = 0; j < partitionKeys.length; j++) {
+        // #619 enable empty value
         // is value empty break for loop
-        if (StringUtil.isEmpty(partitionKeys[j].value)) {
-          break;
-        }
-        // add partition
-        partition[partitionKeys[j].name] = partitionKeys[j].value;
+        // if (StringUtil.isEmpty(partitionKeys[j].value)) {
+        //   break;
+        // }
+        // add partition #619 enable empty value
+        partition[partitionKeys[j].name] = (partitionKeys[j].value || '');
       }
       // if exist partition, add in result
       if (Object.keys(partition).length) {

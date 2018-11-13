@@ -189,7 +189,7 @@ export class SchemaChangeActionComponent extends AbstractComponent implements On
       { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN', icon: 'ddp-icon-type-tf' },
       { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER', icon: 'ddp-icon-type-int' },
       { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE', icon: 'ddp-icon-type-float' },
-      { label: this.translateService.instant('msg.storage.ui.list.timestamp'), value: 'TIMESTAMP', icon: 'ddp-icon-type-calen' },
+      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP', icon: 'ddp-icon-type-calen' },
       { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT', icon: 'ddp-icon-type-latitude' },
       { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG', icon: 'ddp-icon-type-longitude' }
     ];

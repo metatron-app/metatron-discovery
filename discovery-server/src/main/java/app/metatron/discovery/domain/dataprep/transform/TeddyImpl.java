@@ -123,22 +123,56 @@ public class TeddyImpl {
     return slaveDsNameMap;
   }
 
+  private void appendNewDfs(Revision newRev, Revision rev, int startIdx) {
+    for (int i = startIdx; i < rev.size(); i++) {
+      DataFrame nextDf;
+      String ruleString = rev.get(i).ruleString;
+
+      try {
+        nextDf = apply(newRev.get(-1), ruleString);   // apply trailing rules of the original revision into the new revision.
+      } catch (Exception e) {
+        nextDf = new DataFrame(newRev.get(-1));
+        nextDf.setRuleString(ruleString);
+        nextDf.setValid(false);
+      }
+      newRev.add(nextDf);
+    }
+  }
+
   // APPEND *AFTER* stageIdx
-  public DataFrame append(String dsId, int stageIdx, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
+  public DataFrame append(String dsId, int stageIdx, String ruleString, boolean forced) throws TeddyException {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx + 1);
-    DataFrame newDf = apply(rev.get(stageIdx), ruleString);
-    newRev.add(newDf);  // this removes useless revisions
-    for (int i = stageIdx + 1; i < rev.size(); i++) {
-      newRev.add(apply(newRev.get(i), rev.get(i).ruleString));    // apply trailing rules of the original revision into the new revision.
+    DataFrame newDf = null;
+    boolean suppressed = false;
+
+    try {
+      newDf = apply(rev.get(stageIdx), ruleString);
+    } catch (TeddyException te) {
+      if (forced == false) {
+        throw te;
+      }
+      suppressed = true;
     }
-    newRev.setCurStageIdx(rev.getCurStageIdx() + 1);
-    newRev.saveSlaveDsNameMap(getSlaveDsNameMapOfRuleString(ruleString));
+
+    if (suppressed) {
+      newDf = new DataFrame(rev.get(stageIdx));
+      newDf.setRuleString(ruleString);
+      newDf.setValid(false);
+    }
+
+    newRev.add(newDf);  // this removes useless revisions
+
+    appendNewDfs(newRev, rev, stageIdx + 1);
+
+    newRev.saveSlaveDsNameMap(getSlaveDsNameMapOfRuleString(ruleString));   // APPEND, UPDATE have a new df
+    newRev.setCurStageIdx(rev.getCurStageIdx() + 1);                        // APPEND's result grid is the new appended df
+
     addRev(dsId, newRev);
     return newDf;
   }
 
-  public DataFrame preview(String dsId, int stageIdx, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
+  public DataFrame preview(String dsId, int stageIdx, String ruleString) throws TeddyException {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     return apply(rev.get(stageIdx), ruleString);
   }
@@ -148,9 +182,8 @@ public class TeddyImpl {
     return rev.get(stageIdx); // if null, get curStage
   }
 
-  private DataFrame apply(DataFrame df, String ruleString) throws PrepException, TransformTimeoutException, TransformExecutionFailedException {
+  private DataFrame apply(DataFrame df, String ruleString) throws TeddyException {
     List<DataFrame> slaveDfs = new ArrayList<>();
-    DataFrame newDf;
 
     List<String> slaveDsIds = DataFrameService.getSlaveDsIds(ruleString);
     if (slaveDsIds != null) {
@@ -160,14 +193,7 @@ public class TeddyImpl {
       }
     }
 
-    try {
-      newDf = dataFrameService.applyRule(df, ruleString, slaveDfs);
-    } catch (TeddyException e) {
-      LOGGER.error("apply(): TeddyException occurred from TeddyImpl.applyRule()", e);
-      throw PrepException.fromTeddyException(e);
-    }
-
-    return newDf;
+    return dataFrameService.applyRule(df, ruleString, slaveDfs);
   }
 
   public DataFrame undo(String dsId) {
@@ -198,13 +224,12 @@ public class TeddyImpl {
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx);   // apply previous rules until the delete target.
 
-    for (int i = stageIdx + 1; i < rev.size(); i++) {
-      newRev.add(apply(newRev.get(-1), rev.get(i).ruleString));    // apply trailing rules of the original revision into the new revision.
-    }
+    appendNewDfs(newRev, rev, stageIdx + 1);
+
     addRev(dsId, newRev);
   }
 
-  public void update(String dsId, int stageIdx, String ruleString) throws TransformExecutionFailedException, TransformTimeoutException {    // used in DELETE only
+  public void update(String dsId, int stageIdx, String ruleString) throws TeddyException {    // used in DELETE only
     Revision rev = getCurRev(dsId);     // rule apply == revision generate, so always use the last one.
     Revision newRev = new Revision(rev, stageIdx);   // apply previous rules until the update target.
 
@@ -212,10 +237,10 @@ public class TeddyImpl {
     DataFrame newDf = apply(rev.get(stageIdx - 1), ruleString);
     newRev.add(newDf);
 
-    for (int i = stageIdx + 1; i < rev.size(); i++) {
-      newRev.add(apply(newRev.get(-1), rev.get(i).ruleString));    // apply trailing rules of the original revision into the new revision.
-    }
-    newRev.saveSlaveDsNameMap(getSlaveDsNameMapOfRuleString(ruleString));
+    appendNewDfs(newRev, rev, stageIdx + 1);
+
+    newRev.saveSlaveDsNameMap(getSlaveDsNameMapOfRuleString(ruleString));   // APPEND, UPDATE have a new df
+
     addRev(dsId, newRev);
   }
 
@@ -310,5 +335,14 @@ public class TeddyImpl {
       ruleStrings.add(df.getRuleString());
     }
     return ruleStrings;
+  }
+
+  public List<Boolean> getValids(String dsId) {
+    List<Boolean> valids = new ArrayList<>();
+    Revision rev = getCurRev(dsId);
+    for (DataFrame df : rev.dfs) {
+      valids.add(df.isValid());
+    }
+    return valids;
   }
 }

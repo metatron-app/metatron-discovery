@@ -108,9 +108,6 @@ public class IngestionSpecBuilder extends AbstractSpecBuilder {
     firehose.setBaseDir(baseDir);
     firehose.setFilter(filter);
 
-    //    RealTimeIoConfig config = new RealTimeIoConfig();
-    //    config.setFirehose(firehose);
-
     BatchIoConfig config = new BatchIoConfig();
     config.setFirehose(firehose);
 

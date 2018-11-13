@@ -240,7 +240,14 @@ export class RuleUnionPopupComponent extends AbstractPopupComponent implements O
       return [false, this.translateService.instant('msg.dp.alert.no.data.union')];
     }
 
-    let ruleStr: string = 'union masterCol: ' + this.resultFields.map(col => col.name).join(',')
+    const columnsStr: string = this.resultFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
+
+    let ruleStr: string = 'union masterCol: ' + columnsStr
       + ' dataset2: ';
 
     // 유니온 가능한 dataset id 만 필요하기 때문에 ...

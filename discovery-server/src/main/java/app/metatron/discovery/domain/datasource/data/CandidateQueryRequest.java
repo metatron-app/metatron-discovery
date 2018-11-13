@@ -179,15 +179,15 @@ public class CandidateQueryRequest extends AbstractQueryRequest implements Query
 
         ObjectNode targetNode = (ObjectNode) node.get(targetField.getName());
 
-        if("user_defined".equals(targetField.getRef())) {
+        if ("user_defined".equals(targetField.getRef())) {
           // FIXME :  중복 코드 해결 할것!
           targetNode = (ObjectNode) node.get(targetField.getColunm());
           targetNode.set("minValue", targetNode.get("minValue"));
           targetNode.set("maxValue", targetNode.get("maxValue"));
 
-        } else if(field.getLogicalType() == LogicalType.TIMESTAMP) {
-          DateTimeFormatter dateTimeFormatter = StringUtils.isNotEmpty(field.getFormat()) ?
-              DateTimeFormat.forPattern(field.getFormat()) :
+        } else if (field.getLogicalType() == LogicalType.TIMESTAMP) {
+          DateTimeFormatter dateTimeFormatter = StringUtils.isNotEmpty(field.getTimeFormat()) ?
+              DateTimeFormat.forPattern(field.getTimeFormat()) :
               DateTimeFormat.fullDateTime();
 
           // 명시적으로 UTC 타입존으로 지정
@@ -214,7 +214,7 @@ public class CandidateQueryRequest extends AbstractQueryRequest implements Query
 
           targetNode.put("minTime", minDateTime.toString());
           targetNode.put("maxTime", maxDateTime.toString());
-        } else if(field.getType() == DataType.FLOAT || field.getType() == DataType.DOUBLE ||
+        } else if (field.getType() == DataType.FLOAT || field.getType() == DataType.DOUBLE ||
             field.getType() == DataType.LONG || field.getType() == DataType.INTEGER) {
 
           targetNode.set("minValue", extractNumberNode(targetNode.get("minValue")));
@@ -245,10 +245,8 @@ public class CandidateQueryRequest extends AbstractQueryRequest implements Query
   /**
    * Extract number type node
    *
-   * case 1. "Sales": { "minValue": 0.0, "maxValue": 22638.0 }
-   * case 2. "Sales": { "minValue": { "Float": 0 }, "maxValue": { "Float": 22638 } }
-   * @param jsonNode
-   * @return
+   * case 1. "Sales": { "minValue": 0.0, "maxValue": 22638.0 } case 2. "Sales": { "minValue": {
+   * "Float": 0 }, "maxValue": { "Float": 22638 } }
    */
   public JsonNode extractNumberNode(JsonNode jsonNode) {
     return jsonNode.isNumber() ? jsonNode : jsonNode.fields().next().getValue();

@@ -15,22 +15,21 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.domain.dataprep.PrepProperties;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
-import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TeddyException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionFailedException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformExecutionInterrupteddException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.TransformTimeoutException;
 import app.metatron.discovery.prep.parser.exceptions.RuleException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
-import app.metatron.discovery.prep.parser.preparation.rule.*;
+import app.metatron.discovery.prep.parser.preparation.rule.Join;
+import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import app.metatron.discovery.prep.parser.preparation.rule.Union;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Constant;
 import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
@@ -125,17 +124,17 @@ public DataFrame applyRule(DataFrame df, String ruleString, List<DataFrame> slav
         }
       }
       catch (ExecutionException e) {
-        String msg = "loadContentsByRule(): transform execution failed";
+        String msg = "applyRule(): transform execution failed";
         LOGGER.error(msg, e);
         throw new TransformExecutionFailedException(msg);
       }
       catch (InterruptedException e) {
-        String msg = "loadContentsByRule(): transform execution interrupted";
+        String msg = "applyRule(): transform execution interrupted";
         LOGGER.error(msg, e);
         throw new TransformExecutionInterrupteddException(msg);
       }
       catch (TimeoutException e) {
-        String msg = String.format("loadContentsByRule(): transform timeout: timeout=%ds", timeout);
+        String msg = String.format("applyRule(): transform timeout: timeout=%ds", timeout);
         LOGGER.error(msg, e);
         throw new TransformTimeoutException(msg);
       }

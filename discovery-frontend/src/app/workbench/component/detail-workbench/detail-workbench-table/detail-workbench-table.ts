@@ -45,8 +45,6 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   @ViewChild('tableInfo')
   private tableInfo: ElementRef;
 
-  private _differ: any;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -67,7 +65,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   public set setClose(event: any) {
     // schema close 일때만 작동
     if (event && event.name === 'closeSchema') {
-      this.tableSchemaClose();
+      // this.tableSchemaClose();
       delete event.name;
     }
   }
@@ -78,12 +76,17 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   @Output()
   public tableDataEvent: EventEmitter<any> = new EventEmitter();
 
+  @Output()
+  public openTableSchemaEvent:EventEmitter<{dataconnection: any, selectedTable: string, top: number, websocketId: string}> = new EventEmitter();
+
   // List of tables
   public tables: any[] = [];
 
   public selectedTable: string = '';
 
-  public schemaParams: {};
+  // total table length
+  public totalTableElements : number = 0;
+
   public tableParams: {};
 
   // For searching
@@ -92,12 +95,10 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   // 테이블 정보 Info Layer
   public selectedTableInfoLayer: boolean = false;
 
-  public selectedTableSchemaLayer: boolean = false;
-
   // totalPage가 1 MEMORY 아닐 경우 PAGE
   public pageMode: string = 'PAGE';
 
-  public localPageSize: number = this.page.size;
+  public localPageSize: number = 30;
 
   public localPagepage: number = 0;
 
@@ -108,6 +109,9 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
 
   // 선택된 row number
   public selectedNum: number = 0;
+
+  // sort type (DEFAULT, ASC, DESC)
+  public tableSortType : string = 'DEFAULT';
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -169,23 +173,51 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     this.selectedTableInfoLayer = false;
   }
 
-  // close schema info popup
-  public tableSchemaClose() {
-    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query';
-    this.selectedTableSchemaLayer = false;
-  }
-
   /**
-   * 스키마 클릭시 insert 이벤트
-   * @param $event
+   * table 정렬 변경 시
+   * @param sort
    */
-  public tableSchemaInsert($event) {
-    this.sqlIntoEditorEvent.emit($event + ',');
+  public tableListSorting( sort: 'ASC' | 'DESC' ) {
+
+    const tables = this.tables;
+    let column = "name";
+
+    let tableNames : string[] = [];
+    for (let idx: number = 0; idx < tables.length; idx++) {
+      tableNames.push( tables[idx][column] );
+    }
+
+    tableNames.sort();
+    if (sort === "ASC") {
+      this.tableSortType = 'DESC';
+    } else if (sort === "DESC") {
+      tableNames.reverse();
+      this.tableSortType = 'ASC';
+    }
+
+    let temp : any[] = [];
+    for (let nameIdx: number = 0; nameIdx < tableNames.length; nameIdx++) {
+      for (let idx: number = 0; idx < tables.length; idx++) {
+        if( tableNames[nameIdx] == tables[idx][column] ) {
+          temp.push( tables[idx] );
+        }
+      }
+    }
+
+    this.tables = [];
+    this.tables = temp;
+
   }
 
   // 데이터 베이스 리스트 가져오기
   public getTables() {
-    this.page.size = 5000;
+
+    // sort 초기화
+    this.tableSortType = 'DEFAULT';
+    // 테이블 갯수 초기화
+    this.totalTableElements = 0;
+
+    this.localPageSize = 5000;
     if (isUndefined(this.inputParams.dataconnection.id)) {
       return;
     }
@@ -202,6 +234,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
       .then((data) => {
         // 호출 횟수 초기화
         this._getTableListReconnectCount = 0;
+        this.localPageSize = 30;
 
         this.loadingHide();
         if (data['page']['totalPages'] === 1) {
@@ -215,6 +248,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
           this.pageResult = data['page'];
           this.tables = this.tables.concat(data['tables']);
         }
+        this.totalTableElements = data.page.totalElements;
         this.tableDataEvent.emit(data['tables']);
         this.safelyDetectChanges();
       })
@@ -255,6 +289,10 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   }
 
   public setPage(param: string) {
+
+    // sorting init
+    this.tableSortType = 'DEFAULT';
+
     if (isUndefined(this.inputParams.dataconnection.id)) {
       return;
     }
@@ -293,6 +331,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
         this.loadingHide();
         this.pageResult = data['page'];
         this.tables = data['tables'];
+        $('.ddp-list-table').scrollTop(0);
       })
       .catch((error) => {
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getTableListReconnectCount <= 5) {
@@ -306,6 +345,10 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   }
 
   public setPageMemory(param: string) {
+
+    // sorting init
+    this.tableSortType = 'DEFAULT';
+
     if (param === 'next') {
       if (this.localPagepage * this.localPageSize + this.localPageSize > this.pageResult.totalElements)
         return;
@@ -319,6 +362,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
       this.localPagepage = this.localPagepage - 1;
       this.tables = this.localData.slice(this.localPagepage * this.localPageSize, this.localPagepage * this.localPageSize + this.localPageSize);
     }
+
+    $('.ddp-list-table').scrollTop(0);
   }
 
   // Show/hide Table information popup
@@ -348,18 +393,14 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     }
     event.stopImmediatePropagation();
     this.selectedTableInfoLayer = false;
-    this.selectedTableSchemaLayer = false;
-    this.selectedTableSchemaLayer = true;
-    // $('.ddp-list-table').find('li:eq('+ index + ')').removeClass('ddp-info-selected');
     this.selectedNum = -1;
-    //const offset: ClientRect = document.getElementById(`info${index}`).getBoundingClientRect();
-    document.getElementById(`workbenchQuery`).className = 'ddp-ui-query ddp-tablepop';
-    this.schemaParams = {
+
+    this.openTableSchemaEvent.emit({
       dataconnection: this.inputParams.dataconnection,
       selectedTable: item,
       top: 250,
       websocketId: WorkbenchService.websocketId
-    };
+    });
   }
 
   // 테이블 선택시.
@@ -424,7 +465,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     if (page) {
       params['sort'] = page.sort;
       params['page'] = page.page;
-      params['size'] = page.size;
+      params['size'] = this.localPageSize;
     }
     if (StringUtil.isNotEmpty(tableName)) {
       params['tableName'] = tableName.trim();

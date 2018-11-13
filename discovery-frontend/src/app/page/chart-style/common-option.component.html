@@ -844,8 +844,7 @@
         <!-- wrap divide -->
         <div class="ddp-wrap-divide ">
           <!--  divide -->
-          <div [class.ddp-disabled]="!uiOption?.icons[0]?.show"
-               class="ddp-divide2 ddp-wrap-disabled">
+          <div [ngClass]="{'ddp-wrap-disabled ddp-disabled' : !uiOption?.icons[0]?.show }" class="ddp-divide2">
             <!-- slider -->
             <div class="ddp-wrap-option-slider">
               <span class="ddp-label-slider">{{'msg.page.common.kpi.icon' | translate}}</span>
@@ -894,8 +893,7 @@
         <!-- //wrap divide -->
         <!-- wrap divide -->
         <div class="ddp-wrap-divide ">
-          <div [class.ddp-disabled]="!uiOption?.annotations[0]?.show"
-               class="ddp-divide2 ddp-wrap-disabled">
+          <div [ngClass]="{'ddp-wrap-disabled ddp-disabled':!uiOption?.annotations[0]?.show}" class="ddp-divide2">
             <!--  divide -->
             <div class="ddp-divide2">
               <!-- slider -->

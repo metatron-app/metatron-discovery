@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-wrap-loading" *ngIf="isShow">
+<div class="ddp-wrap-loading ddp-table" *ngIf="isShow">
 
   <!-- box -->
   <div class="ddp-box-loading ddp-pop" [ngClass]="{'ddp-disabled':snapshotCancel}" *ngIf="inProgress">
@@ -42,20 +42,22 @@
   <!-- //box -->
 
   <!-- Canceled, Created, Failed -->
-  <div class="ddp-box-loading ddp-box-s ddp-pop" *ngIf="isFinishPopupOpen">
-    <div class="ddp-box-in">
-      <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
-      <em class="ddp-icon-{{statusClass}}"></em>
-      <div class="ddp-txt-info">
-        <span class="ddp-txt-{{statusClass}}">{{snapshot.displayStatus}}</span>
-        <span class="ddp-data-date">{{snapshot.ssName}}</span>
+  <div class="ddp-view-loading" *ngIf="isFinishPopupOpen">
+    <div class="ddp-box-loading ddp-box-s ddp-pop" >
+      <div class="ddp-box-in">
+        <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
+        <em class="ddp-icon-{{statusClass}}"></em>
+        <div class="ddp-txt-info">
+          <span class="ddp-txt-{{statusClass}}">{{snapshot.displayStatus}}</span>
+          <span class="ddp-data-date">{{snapshot.ssName}}</span>
+        </div>
+        <!-- button -->
+        <div class="ddp-pop-buttons">
+          <a href="javascript:" class="ddp-btn-line" (click)="close()">{{'msg.comm.btn.close' | translate }}</a>
+          <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="goToSnapshotList()">{{'msg.dp.btn.snapshot-list' | translate}}</a>
+        </div>
+        <!-- //button -->
       </div>
-      <!-- button -->
-      <div class="ddp-pop-buttons">
-        <a href="javascript:" class="ddp-btn-line" (click)="close()">{{'msg.comm.btn.close' | translate }}</a>
-        <a href="javascript:" class="ddp-btn-solid ddp-bg-black" (click)="goToSnapshotList()">{{'msg.dp.btn.snapshot-list' | translate}}</a>
-      </div>
-      <!-- //button -->
     </div>
   </div>
   <!-- // Canceled, Created, Failed -->

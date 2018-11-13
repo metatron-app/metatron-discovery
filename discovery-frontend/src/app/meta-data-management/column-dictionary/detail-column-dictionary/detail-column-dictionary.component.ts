@@ -23,7 +23,7 @@ import { CommonUtil } from '../../../common/util/common.util';
 import { ColumnDictionary } from '../../../domain/meta-data-management/column-dictionary';
 import { ChooseCodeTableComponent } from '../../component/choose-code-table/choose-code-table.component';
 import { CodeTable } from '../../../domain/meta-data-management/code-table';
-import { LogicalType } from '../../../domain/datasource/datasource';
+import { FieldFormatType, LogicalType } from '../../../domain/datasource/datasource';
 import * as _ from 'lodash';
 import { LinkedMetadataComponent } from '../../component/linked-metadata-columns/linked-metadata.component';
 import { LinkedMetaDataColumn } from '../../../domain/meta-data-management/metadata-column';
@@ -252,7 +252,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
    */
   public onChangeTimeFormatMode(): void {
     this.timeFormatEditFl = true;
-    this.reTimeFormat = this.columnDictionary.format;
+    this.reTimeFormat = (this.columnDictionary.format && this.columnDictionary.format.hasOwnProperty('format')) ? this.columnDictionary.format.format : this.columnDictionary.format;
   }
 
   /**
@@ -402,7 +402,10 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     // blur
     // this.descElement.nativeElement.blur();
     // 컬럼 사전 업데이트
-    this._updateColumnDictionary({format: this.reTimeFormat.trim()});
+    this._updateColumnDictionary({format: {
+      format: this.reTimeFormat.trim(),
+      type: FieldFormatType.DATE_TIME
+    }});
   }
 
   /**

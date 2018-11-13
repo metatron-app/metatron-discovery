@@ -159,7 +159,7 @@ public class Util {
     for(Integer delimiterIdx : listDelimiter) {
       String column = line.substring(start,delimiterIdx);
       start = delimiterIdx + delimiterLength;
-      if( column.startsWith(quote) && column.endsWith(quote) ) {
+      if( !column.equals(quote) && column.startsWith(quote) && column.endsWith(quote) ) {
         column = column.substring(quoteLength,column.length()-quoteLength);
       }
       if( column.contains(quote) ) {
@@ -169,7 +169,7 @@ public class Util {
     }
     if(start<lineLength) {
       String column = line.substring(start);
-      if (column.startsWith(quote) && column.endsWith(quote)) {
+      if (!column.equals(quote) && column.startsWith(quote) && column.endsWith(quote)) {
         column = column.substring(quoteLength, column.length() - quoteLength);
       }
       if (column.contains(quote)) {

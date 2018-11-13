@@ -45,7 +45,7 @@ public class PrepRuleVisitorParser implements PrepParser {
 
     // 2018.05.23 "(?i).*(sum|avg|max|min|count|now|month|day|hour|minute|second|millisecond|if|isnull|isnan|length|trim|ltrim|rtrim|upper|lower|substring|math[.]abs|math[.]acos|math[.]asin|math[.]atan|math[.]cbrt|math[.]ceil|math[.]cos|math[.]cosh|math[.]exp|math[.]expm1|math[.]getExponent|math[.]round|math[.]signum|math[.]sin|math[.]sinh|math[.]sqrt|math[.]tan|math[.]tanh|left|right|if|substring|add_time|concat|concat_ws)\\s*$"
     private static final Pattern patternFunctionName = Pattern.compile(
-            "(?i).*(add_time| concat| concat_ws| day| hour| if| ismismatched| isnan| isnull| length| lower| ltrim| math[.]abs| math[.]acos| math[.]asin| math[.]atan| math[.]cbrt| math[.]ceil| math[.]cos| math[.]cosh| math[.]exp| math[.]expm1| math[.]getExponent| math[.]round| math[.]signum| math[.]sin| math[.]sinh| math[.]sqrt| math[.]tan| math[.]tanh| millisecond| minute| month| now| rtrim| second| substring| time_diff| timestamp| trim| upper| year)\\s*$"
+            "(?i).*(contains | startswith | endswith | add_time| concat| concat_ws| day| hour| if| ismismatched| isnan| isnull| length| lower| ltrim| math[.]abs| math[.]acos| math[.]asin| math[.]atan| math[.]cbrt| math[.]ceil| math[.]cos| math[.]cosh| math[.]exp| math[.]expm1| math[.]getExponent| math[.]round| math[.]signum| math[.]sin| math[.]sinh| math[.]sqrt| math[.]tan| math[.]tanh| millisecond| minute| month| now| rtrim| second| substring| time_diff| timestamp| trim| upper| year)\\s*$"
     );
 
     private static final Map<String, Supplier<Function>> functions = Maps.newHashMap();
