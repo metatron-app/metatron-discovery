@@ -424,6 +424,37 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    */
   public searchGrid(isReset: boolean = false) {
     (isReset) && (this.searchText = '');
+
+
+    this._gridComp.getGridCore().scrollRowIntoView(0);
+    this._selectedRows = [];
+    this._rowClickHandler(this._selectedRows);
+
+    // 현재 선택되어있는 바 차트 refresh
+    let options_bar;
+    let chartIndex = -1;
+    Object.keys(this._barClickedSeries).forEach((key, index) => {
+      if (this._barClickedSeries[key].length > 0) {
+        chartIndex = index;
+      }
+    });
+    if (chartIndex !== -1) {
+      this._barClickedSeries[chartIndex] = [];
+      options_bar = this._getDefaultBarChartOption(this._getHistogramInfo(chartIndex), chartIndex);
+      this._applyChart(this._barCharts[chartIndex], options_bar)
+    }
+
+    // 히스토그램 바 refresh.
+    let options;
+    this._apiGridData.colNames.forEach((item, index) => {
+      if (this._clickedSeries[index].length > 0) {
+        this._clickedSeries[index] = [];
+        options = this._getDefaultChartOption(this._getHistogramInfo(index), index);
+        this._applyChart(this._charts[index], options)
+      }
+    });
+
+
     // 그리드  검색
     this._gridComp.search(this.searchText);
   } // function - searchGrid
@@ -706,6 +737,20 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         .appendTo(args.node); //75
     }
   } // function - onHeaderRowCellRendered
+
+
+  /**
+   * Grid 검색 초기화 (Histogram 또는 Bar chart click 한 경우)
+   * @private
+   */
+  private searchProcessReset(): void {
+    // if(searchText)
+    this.searchText = '';
+    try{
+      this._gridComp.getGridCore().scrollRowIntoView(0);
+      this._gridComp.searchProcessReset();
+    }catch (error) {}
+  }
 
   /**
    * Resizing grid outside of this component
@@ -1036,6 +1081,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     let options;
     chart.off('click');
     chart.on('click', (params) => {
+      // 검색 단계인 경우를 대비하여 검색 단계 초기화
+      this.searchProcessReset();
+
       // param이 null 이라면 선택된 bar 초기화 한다.
       if (isNull(params) && this._hoverHistogramIndo.hasOwnProperty('name') === false) {
         if (this._clickedSeries[index].length > 0) {
@@ -1089,8 +1137,48 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         let idx = this._clickedSeries[index].indexOf(useParam.name);
         if (idx === -1) {
           this._selectedRows = _.union(this._selectedRows, this._getHistogramInfo(index).rownos[useParam.dataIndex]);
-          this._rowClickHandler(this._selectedRows);
-          this._clickedSeries[index].push(useParam.name);
+          this._selectedRows.sort(function(a,b){return a-b});
+
+          let minSelect: number = -1;
+          if(this._selectedRows.length > 0) {minSelect = this._selectedRows[0];}
+
+          if(minSelect==-1) {
+            this._rowClickHandler(this._selectedRows);
+            this._clickedSeries[index].push(useParam.name);
+          }else{
+            const pageInfo:any = this._gridComp.getPageInfo();
+            const plusNumber: number = 10 + Math.floor(minSelect/pageInfo.pageSize * 10);
+            minSelect = minSelect + plusNumber;
+            if(pageInfo.lastPage == true || minSelect < pageInfo.length) {
+              this._rowClickHandler(this._selectedRows);
+              this._clickedSeries[index].push(useParam.name);
+            }else{
+              this.loadingShow();
+
+              const pageNum: number = (pageInfo.currentPage + 1) * 100;
+              let pageSize: number = Math.floor((minSelect - pageInfo.length) / pageInfo.pageSize) * pageInfo.pageSize;
+              if(pageSize == 0) pageSize =  pageInfo.pageSize;
+              if(pageSize>pageInfo.totalRowCnt) pageSize = pageInfo.totalRowCnt;
+              let changePageNumber = pageInfo.currentPage + Math.floor(pageSize/pageInfo.pageSize);
+
+
+              this.dataflowService.getSearchCountDataSets(this.dataSetId, pageInfo.ruleIndex, pageNum, pageSize).then((result) => {
+                this.loadingHide();
+                this._gridComp.setExternalData(result, changePageNumber);
+                this._gridComp.resize();
+
+                this._rowClickHandler(this._selectedRows);
+                this._clickedSeries[index].push(useParam.name);
+
+                options = this._getDefaultChartOption(this._getHistogramInfo(index), index);
+                this._applyChart(chart, options)
+              }).catch((error) => {
+                this.loadingHide();
+                console.error(error);
+              });
+              return;
+            }
+          }
         } else {
           // 이미 선택되어있다면 삭제
           let minusTarget: any[] = [];
@@ -1103,19 +1191,12 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
             minusTarget = [];
             tempRows = [];
           }
-
           for(let i:number =0; i< tempRows.length; i = i +1) {
             let chk: number = -1;
             for(let j:number =0; j< minusTarget.length; j = j +1) {if(tempRows[i] === minusTarget[j]) {chk = i;break;}}
             if(chk == -1) {this._selectedRows.push(tempRows[i]);}
           }
-          // this._getHistogramInfo(index).rownos[useParam.dataIndex].forEach((item) => {
-          //   this._selectedRows.forEach((data, idx) => {
-          //     if (data === item) {
-          //       this._selectedRows.splice(idx, 1);
-          //     }
-          //   })
-          // });
+
           this._rowClickHandler(this._selectedRows);
           this._clickedSeries[index].splice(idx, 1);
         }
@@ -1124,6 +1205,8 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       }
     })
   } // function - _histogramClickEvent
+
+
 
   /**
    * Bar chart click event 처리
@@ -1136,6 +1219,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     let options;
     chart.off('click');
     chart.on('click', (params) => {
+
+      // 검색 단계인 경우를 대비하여 검색 단계 초기화
+      this.searchProcessReset();
 
       // 컬럼이 선택되어있다면 초기화
       if (this._selectedColumns.length > 0) {
