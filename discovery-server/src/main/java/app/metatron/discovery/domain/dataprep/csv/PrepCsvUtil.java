@@ -70,7 +70,7 @@ public class PrepCsvUtil {
       return unescaped.charAt(0);
     }
 
-    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_DELIMITER, HADOOP_CONF_DIR);
   }
 
 
