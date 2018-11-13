@@ -38,8 +38,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 @TestExecutionListeners(value = OAuthTestExecutionListener.class, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-public class CsvIntegrationTest extends AbstractRestIntegrationTest {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CsvIntegrationTest.class);
+public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApacheCommonsCsvIntegrationTest.class);
 
   @Autowired(required = false)
   PrepProperties prepProperties;
@@ -62,7 +62,7 @@ public class CsvIntegrationTest extends AbstractRestIntegrationTest {
   }
 
   private String prepareCsvOnHdfs(String localRelPath) {
-    String strLocalUri = CommonsCsvTest.buildStrUrlFromResourceDir("csv/crime.csv");
+    String strLocalUri = ApacheCommonsCsvInputTest.buildStrUrlFromResourceDir("csv/crime.csv");
     String strHdfsUri = String.format("%s/test_output/%s", prepProperties.getStagingBaseDir(true), localRelPath);
     FSDataOutputStream hos;
     FileSystem hdfsFs;

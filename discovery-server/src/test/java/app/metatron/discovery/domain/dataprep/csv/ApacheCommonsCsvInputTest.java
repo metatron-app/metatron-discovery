@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CommonsCsvTest {
+public class ApacheCommonsCsvInputTest {
 
   // utility functions for building URIs, paths
   public static String buildPathToTestOutputDir(String relpath) {
@@ -32,7 +32,7 @@ public class CommonsCsvTest {
     CSVPrinter printer = null;
 
     try {
-      writer = new FileWriter(buildPathToTestOutputDir("CommonsCsvTest.csv"), false);    // append = false
+      writer = new FileWriter(buildPathToTestOutputDir("ApacheCommonsCsvInputTest.csv"), false);    // append = false
     } catch (IOException e) {
       e.printStackTrace();
     }
