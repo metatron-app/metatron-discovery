@@ -1671,7 +1671,21 @@ public class JdbcConnectionService {
       }
     }
 
-    driverManagerDataSource = new DriverManagerDataSource(connUrl, username, password);
+    Properties properties = new Properties();
+    properties.setProperty("user", username);
+    properties.setProperty("password", password);
+
+    //ad native properties
+    if(connection.getProperties() != null){
+      for(String propertyKey : connection.getProperties().keySet()){
+        if(StringUtils.startsWith(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX)){
+          String nativePropertyKey = StringUtils.replaceFirst(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX + ".'", "");
+          properties.setProperty(nativePropertyKey, connection.getProperties().get(propertyKey));
+        }
+      }
+    }
+
+    driverManagerDataSource = new DriverManagerDataSource(connUrl, properties);
     driverManagerDataSource.setDriverClassName(connection.getDriverClass());
 
     LOGGER.debug("Created datasource : {}", connUrl);
