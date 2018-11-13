@@ -22,7 +22,7 @@
   </div>
   <!-- //top -->
   <!-- cpmtemts -->
-  <div class="ddp-ui-preview-contents ddp-type-preview ddp-query" (scroll)="onScrolled($event)">
+  <div class="ddp-ui-preview-contents ddp-type-preview ddp-query" #scrollElf>
     <ng-container *ngIf="historyId">
       <!-- if ENGINE_RUNNING_TASK -->
       <ng-container *ngFor="let log of detailDatas">

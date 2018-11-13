@@ -14,7 +14,7 @@
  */
 
 import { AbstractComponent } from '../../../../../../common/component/abstract.component';
-import { Component, ElementRef, HostListener, Injector } from '@angular/core';
+import { Component, ElementRef, HostListener, Injector, ViewChild } from '@angular/core';
 import { DatasourceService } from '../../../../../../datasource/service/datasource.service';
 
 @Component({
@@ -22,6 +22,10 @@ import { DatasourceService } from '../../../../../../datasource/service/datasour
   templateUrl: './ingestion-log.component.html'
 })
 export class IngestionLogComponent extends AbstractComponent {
+  // scroll elements
+  @ViewChild('scrollElf')
+  private _scrollElements: ElementRef;
+
   // datasourceId
   private _datasourceId: string;
 
@@ -45,17 +49,6 @@ export class IngestionLogComponent extends AbstractComponent {
               protected element: ElementRef,
               protected injector: Injector) {
     super(element, injector);
-  }
-
-  /**
-   * on scrolled event
-   * @param {MouseEvent} event
-   */
-  public onScrolled(event: MouseEvent): void {
-    if (event.target['offsetHeight'] + event.target['scrollTop'] >= event.target['scrollHeight'] && !this._isGetAllLog) {
-      // get ingestion result details
-      this._getIngestionDetails(this._datasourceId, this.historyId);
-    }
   }
 
   /**
@@ -83,7 +76,7 @@ export class IngestionLogComponent extends AbstractComponent {
 
     // get ingestion result details
     if (historyId && progress === 'ENGINE_RUNNING_TASK') {
-      this._getIngestionDetails(this._datasourceId, this.historyId, -10000);
+      this._getIngestionDetails(this._datasourceId, this.historyId);
     }
   }
 
@@ -111,6 +104,10 @@ export class IngestionLogComponent extends AbstractComponent {
     this._datasourceService.getDatasourceIngestionLog(datasourceId, historyId, offset)
       .then((result) => {
         this.detailDatas = this.detailDatas.concat(result['logs'].split('\n'));
+        //
+        this.safelyDetectChanges();
+        // scroll to bottom
+        this._scrollElements.nativeElement.scrollTop = this._scrollElements.nativeElement.scrollHeight;
         // loading hide
         this.loadingHide();
       })
