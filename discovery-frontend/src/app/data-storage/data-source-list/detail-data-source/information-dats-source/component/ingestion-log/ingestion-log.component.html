@@ -16,13 +16,13 @@
   <!-- top -->
   <div class="ddp-ui-top">
     <div class="ddp-data-name">
-      ingestion details
+      {{'msg.storage.ui.ingestion.details.title' | translate}}
     </div>
     <em class="ddp-btn-popup-close" (click)="close()"></em>
   </div>
   <!-- //top -->
   <!-- cpmtemts -->
-  <div class="ddp-ui-preview-contents ddp-type-preview ddp-query" (scroll)="onScrolled($event)">
+  <div class="ddp-ui-preview-contents ddp-type-preview ddp-query" #scrollElf>
     <ng-container *ngIf="historyId">
       <!-- if ENGINE_RUNNING_TASK -->
       <ng-container *ngFor="let log of detailDatas">
@@ -30,10 +30,9 @@
       </ng-container>
       <!-- //if ENGINE_RUNNING_TASK -->
       <!-- else -->
-      <ng-container *ngIf="ingestionProgress && ingestionProgress['message'] !== 'ENGINE_RUNNING_TASK'
-      && ingestionProgress['results']">
-        {{ingestionProgress['results'].message}} <br>
-        {{ingestionProgress['results'].details}}
+      <ng-container *ngIf="ingestionProgress !== 'ENGINE_RUNNING_TASK' && failResultsObject">
+        message : {{failResultsObject.errorCode}} <br>
+        cause : {{failResultsObject.cause}}
       </ng-container>
       <!-- //else -->
     </ng-container>
