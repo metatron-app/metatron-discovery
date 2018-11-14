@@ -162,11 +162,11 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
 
   @Column(name = "ds_granularity")
   @Enumerated(EnumType.STRING)
-  GranularityType granularity = GranularityType.NONE;
+  GranularityType granularity;
 
   @Column(name = "ds_seg_granularity")
   @Enumerated(EnumType.STRING)
-  GranularityType segGranularity = GranularityType.NONE;
+  GranularityType segGranularity;
 
   /**
    * 파티션을 구성하는 필드 명 목록 (,) 구분자 사용
