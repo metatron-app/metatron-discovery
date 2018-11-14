@@ -1671,8 +1671,12 @@ public class PrepTransformService {
           case CANCELED:
               return "THIS_SNAPSHOT_IS_ALREADY_CANCELED";
           case SUCCEEDED:
+              snapshotService.deleteSnapshot(ssId);
+              snapshotService.updateSnapshotStatus(ssId, PrepSnapshot.STATUS.CANCELED);
+              return "OK";
           case FAILED:
-              return "THIS_SNAPSHOT_IS_ALREADY_CREATED_OR_FAILED";
+              snapshotService.updateSnapshotStatus(ssId, PrepSnapshot.STATUS.CANCELED);
+              return "OK";
           case NOT_AVAILABLE:
           default:
               return "UNKNOWN_ERROR";
