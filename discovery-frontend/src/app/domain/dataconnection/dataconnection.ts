@@ -32,7 +32,8 @@ export class Dataconnection extends AbstractHistoryEntity {
   public database: string;
   public catalog: string;
   public dbname: string;
-
+  // properties
+  public properties: any;
 
   public dataSources: any[];
   public workbenches: any[];
