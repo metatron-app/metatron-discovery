@@ -1929,6 +1929,9 @@
   "msg.storage.ui.connection.jdbc.table.error": "서버 내부 제한 조건으로 인해 테이블 모드에서 데이터 조회가 불가능합니다. Query 모드에서 데이터를 조회할 수 있습니다",
   "msg.storage.ui.ingestion.failed.history": "적재 이력을 가져오지 못했습니다",
   "msg.storage.ui.partition.rows": "행",
+  "msg.storage.ui.custom.property": "커스텀 프로퍼티(옵션.)",
+  "msg.storage.ph.custom.property.key": "구성 키를 입력해주세요",
+  "msg.storage.ph.custom.property.value": "구성 값을 입력해주세요",
 
   "msg.log.th.status": "상태",
   "msg.log.ui.search.description" : "잡 이름 또는 어플리케이션 ID로 검색해 주세요",
