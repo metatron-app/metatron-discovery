@@ -555,6 +555,7 @@ public class PrepDatasetFileService {
 
                             Map<String, Object> grid = Maps.newHashMap();
 
+                            grid.put("sheetName", sheetName);
                             grid.put("headers", headers);
                             grid.put("fields", fields);
 
