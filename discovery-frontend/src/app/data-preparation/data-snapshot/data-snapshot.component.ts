@@ -64,6 +64,8 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   /** 상세 조회 할 데이터스냅샷 아이디 */
   public ssId: string;
 
+  public ssType : string;
+
   /** 정렬 */
   public selectedContentSort: Order = new Order();
 
@@ -73,6 +75,14 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   public pageNum : number = 1;
 
   public prepCommonUtil = PreparationCommonUtil;
+
+  public snapshotTypes = [
+    {label:'All', value : null},
+    {label:'Staging DB', value : 'HIVE'},
+    {label : 'Local', value : 'FILE'},
+    {label : 'Database', value : 'JDBC'},
+    {label : 'HDFS', value : 'HDFS'}
+    ];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -99,7 +109,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   public ngOnDestroy() {
     super.ngOnDestroy();
+
     clearInterval(this.interval);
+    this.interval = null;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -110,6 +122,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     if( true===isUndefined(item) || true===isUndefined(item.elapsedTime) ) { return 0; }
     return item.elapsedTime.days;
   }
+
   public getElapsedTime(item) {
     if( true===isUndefined(item) || true===isUndefined(item.elapsedTime)
      || true===isUndefined(item.elapsedTime.hours) || true===isUndefined(item.elapsedTime.minutes) || true===isUndefined(item.elapsedTime.seconds) || true===isUndefined(item.elapsedTime.milliseconds)
@@ -117,10 +130,11 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     return this.padleft(item.elapsedTime.hours) + ':' + this.padleft(item.elapsedTime.minutes) + ':' +this.padleft(item.elapsedTime.seconds) + '.' + this.padleft(item.elapsedTime.milliseconds);
   }
 
-  /** 데이터 스냅샷 목록 조회 */
+  /** Fetch snapshot list */
   public getDatasnapshots() {
     this.loadingShow();
-    this.dataSnapshotService.getDataSnapshotsByStatus(this.searchText, this.searchStatus ,this.page, 'listing')
+
+    this.dataSnapshotService.getDataSnapshotsByStatus({searchText : this.searchText, page :this.page, status : this.searchStatus, projection : 'listing', ssType : this.ssType})
       .then((data) => {
         this.loadingHide();
 
@@ -141,22 +155,13 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
             obj.displayStatus = 'FAIL';
             statusNum+=1;
           }
-          // if( true===isUndefined(obj.finishTime) ) {
-          //   obj.displayStatus = 'PREPARING';
-          // } else {
-          //   statusNum+=1;
-          //   if( false===isUndefined(obj.custom) && "fail_msg"==obj.custom.match("fail_msg") ) {
-          //     obj.displayStatus = 'FAIL';
-          //   } else {
-          //     obj.displayStatus = 'SUCCESS';
-          //   }
-          // }
         });
 
         this.datasnapshots = data['_embedded'].preparationsnapshots;
 
         if (this.datasnapshots.length === 0 || statusNum === this.datasnapshots.length) {
           clearInterval(this.interval);
+          this.interval = null;
         }
         // this.page.page += 1;
       })
@@ -164,6 +169,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
         this.loadingHide();
         let prep_error = this.dataprepExceptionHandler(error);
         PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+
+        clearInterval(this.interval);
+        this.interval = null;
       });
   }
 
@@ -213,7 +221,7 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
       this.datasnapshots.splice(idx,1);
       this.pageResult.totalElements = this.pageResult.totalElements-1
 
-    }).catch((error) => {
+    }).catch(() => {
       Alert.error(this.translateService.instant('msg.dp.alert.del.fail'));
     });
 
@@ -222,12 +230,9 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
   /** 스냅샷 상세 */
   public snapshotDetail(item) {
-    // if(!item.finishTime) {
-    //   return;
-    // }
-    // this.step = 'snapshot-detail';
-    // this.ssId = item.ssId;
     clearInterval(this.interval);
+    this.interval = null;
+
     this.safelyDetectChanges();
     this.dataSnapshotDetailComponent.init(item.ssId);
   }
@@ -276,27 +281,18 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
   /** get snapshot list according to status */
   public changeStatus(status) {
     clearInterval(this.interval);
+    this.interval = null;
+
     this.resetPaging();
     this.searchStatus = status;
     this.pageResult.totalElements = 0;
     this.datasnapshots = [];
     this.initViewPage();
-    // switch(status) {
-    //   case 'all' :
-    //   case 'success' :
-    //     this.initViewPage();
-    //     break;
-    //   case 'fail' :
-    //     this.pageResult.totalElements = 0;
-    //     this.datasnapshots = [];
-    //     break;
-    //   case 'preparing' :
-    //     this.pageResult.totalElements = 0;
-    //     this.datasnapshots = [];
-    //     break;
-    // }
   }
 
+  /**
+   * Reset paging
+   */
   public resetPaging() {
     this.pageNum = 1;
     this.pageSize = 20;
@@ -312,6 +308,24 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     return n.length >= 2 ? n : new Array(2 - n.length + 1).join(z) + n;
   }
 
+
+  /**
+   * Change snapshot type
+   * @param data
+   */
+  public onChangeType(data) {
+
+    this.ssType = data.value;
+
+    clearInterval(this.interval);
+    this.interval = null;
+
+    this.resetPaging();
+    this.pageResult.totalElements = 0;
+    this.datasnapshots = [];
+    this.initViewPage();
+
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -322,8 +336,15 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
     this.interval =  setInterval(() => this.getDatasnapshots(), 3000);
     this.getDatasnapshots();
   }
+
+
+  /**
+   * Get more data
+   */
   public morePages() {
     clearInterval(this.interval);
+    this.interval = null;
+
     this.pageNum += 1;
     this.page.size = this.pageNum * this.pageSize;
     this.initViewPage();
@@ -334,7 +355,6 @@ export class DataSnapshotComponent extends AbstractComponent implements OnInit, 
 
 }
 
-/** 정렬 */
 class Order {
   key: string = 'createdTime';
   sort: string = 'default';
