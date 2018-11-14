@@ -453,14 +453,31 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
+   * Is changed properties
+   * @returns {boolean}
+   * @private
+   */
+  private _isChangedProperties(): boolean {
+    // not exist key in properties, different value
+    // not exist key in origin properties, different value
+    return (_.some(Object.keys(this._originConnectionData.properties), (key) => {
+        if (_.every(this.properties, property => key !== property.key || (key === property.key && this._originConnectionData.properties[key] !== property.value))) {
+          return true;
+        }})
+      || _.some(this.properties, property => !this._originConnectionData.properties[property.key] || property.value !== this._originConnectionData.properties[property.key]))
+  }
+
+  /**
    * Update connection
    * @private
    */
   private _updateConnection(): void {
+    // is changed properties
+    const isChangedProperties = this._isChangedProperties();
     // loading show
     this.loadingShow();
     // update connection
-    this.connectionService.updateConnection(this._connectionId, this._getUpdateParams())
+    this.connectionService.updateConnection(this._connectionId, isChangedProperties ? this._getUpdateAllParams() : this._getUpdateParams(), isChangedProperties)
       .then((result) => {
         // alert
         Alert.success(this.translateService.instant('msg.comm.alert.modify.success'));
@@ -632,7 +649,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * 업데이트시 필요한 파라메터
+   * Get update params in PATCH method
    * @returns {Object}
    * @private
    */
@@ -661,7 +678,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
       if (this.isRequiredCatalog() && this.catalog.trim() !== this._originConnectionData.catalog) {
         params['catalog'] = this.catalog.trim();
       }
-      // if enable URL and diffrent URL
+      // if enable URL and different URL
     } else if (this.url.trim() !== this._originConnectionData.url) {
       params['url'] = this.url.trim();
       // if exist hostname or port in origin connection data
@@ -690,17 +707,44 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
         params['username'] = this.username.trim();
       }
     }
-    // if changed properties
-    // not exist key in properties, different value
-    // not exist key in origin properties, different value
-    if (_.some(Object.keys(this._originConnectionData.properties), (key) => {
-      if (_.every(this.properties, property => key !== property.key || (key === property.key && this._originConnectionData.properties[key] !== property.value))) {
-        return true;
-      }})
-      || _.some(this.properties, property => !this._originConnectionData.properties[property.key] || property.value !== this._originConnectionData.properties[property.key])) {
-      params['properties'] = this._getPropertiesParams(this.properties);
-    }
     return params;
+  }
+
+  /**
+   * Get update params in PUT method
+   * @returns {Object}
+   * @private
+   */
+  private _getUpdateAllParams(): object {
+    const result = {
+      implementor: this.selectedDbType.value,
+      name: this.connectionName.trim(),
+      published: this.published,
+      authenticationType: this.selectedSecurityType.value,
+      properties: this._getPropertiesParams(this.properties)
+    };
+    // if used URL
+    if (this.isEnableUrl) {
+      result['url'] = this.url.trim();
+    } else {
+      result['hostname'] = this.hostname.trim();
+      result['username'] = this.username.trim();
+      result['password'] = this.password.trim();
+      result['port'] = this.port;
+      // if enable database
+      if (this.isRequiredDatabase()) {
+        result['database'] = this.database.trim();
+      }
+      // if enable SID
+      if (this.isRequiredSid()) {
+        result['sid'] = this.sid.trim();
+      }
+      // if enable catalog
+      if (this.isRequiredCatalog()) {
+        result['catalog'] = this.catalog.trim();
+      }
+    }
+    return result;
   }
 
   /**
