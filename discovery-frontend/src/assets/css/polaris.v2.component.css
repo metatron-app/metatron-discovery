@@ -438,6 +438,7 @@ input.ddp-input-typebasic.ddp-focus:focus {color:#4b515b;}
 .ddp-info-inline .ddp-wrap-hover-info .ddp-box-layout4 {display:none; position:absolute; top:-40px; left:20px; width:240px;}
 .ddp-info-inline .ddp-wrap-hover-info .ddp-box-layout4.ddp-bottom {top:inherit; bottom:-30px;}
 .ddp-info-inline .ddp-wrap-hover-info .ddp-box-layout4 .ddp-data-det {padding:18px 20px; color:#90969f; font-weight:normal; font-size:12px; line-height:18px;}
+.ddp-info-inline .ddp-wrap-hover-info .ddp-box-layout4 .ddp-data-title + .ddp-data-det {padding-top:0;}
 .ddp-info-inline .ddp-wrap-hover-info:hover .ddp-box-layout4 {display:block;}
 
 .ddp-edit-setting {margin-top:40px;}
@@ -471,19 +472,6 @@ input.ddp-input-typebasic.ddp-focus:focus {color:#4b515b;}
 .ddp-detail-setting .ddp-fold-link:after {display:inline-block; width:7px; height:4px; margin-left:10px; background:url(../images/icon_select.png) no-repeat; background-position:-16px top; vertical-align:middle; content:'';}
 .ddp-detail-setting.ddp-selected .ddp-fold-link:after {transform:rotate(180deg)}
 .ddp-detail-setting.ddp-selected .ddp-wrap-down {display:block;}
-
-/**************************************************************
-    foling
-**************************************************************/
-.ddp-ui-folding {margin:30px 0 0; }
-.ddp-ui-folding .ddp-fold-label {display:inline-block; margin-bottom:12px;color:#4c515a; font-size:13px; cursor:pointer; text-decoration:underline;}
-.ddp-ui-folding .ddp-icon-view {display:inline-block; position:relative;}
-.ddp-ui-folding .ddp-icon-view:before {display:inline-block; margin-left:5px;width:7px; height:4px; background:url(../images/icon_select.png) no-repeat; background-position:-24px top; content:'';}
-.ddp-ui-folding.ddp-selected .ddp-icon-view:before {transform:rotate(180deg);}
-.ddp-ui-folding .ddp-ui-option-in {padding:11px 27px 0 0;}
-.ddp-ui-folding .ddp-ui-option-in .ddp-type-label {vertical-align:top; position:relative;font-weight:bold; font-size:14px;}
-.ddp-ui-folding .ddp-ui-option-in .ddp-box-option-input input[type="text"],
-.ddp-ui-folding .ddp-ui-option-in .ddp-box-option-input input[type="number"] {padding:7px 5px 6px 5px}
 
 /**************************************************************
     에러 메세지

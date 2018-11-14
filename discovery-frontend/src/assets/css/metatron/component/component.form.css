@@ -1,0 +1,62 @@
+@charset "utf-8";
+
+/**************************************************************
+    인풋 폼
+**************************************************************/
+.ddp-ui-input-form {display:block; text-align:left;}
+.ddp-ui-input-form label.ddp-label-type {display:block; padding-bottom:5px; font-size:13px; color:#444;}
+.ddp-ui-input-form label.ddp-label-type span.ddp-label {display:block;float:left; width:110px;}
+.ddp-ui-input-form label.ddp-label-type span.ddp-info2 {display:block;  font-size:13px; color:#4b515b; font-weight:normal; overflow:hidden;}
+.ddp-ui-input-form label.ddp-label-type span.ddp-info2 .ddp-data-group {display:block; padding-bottom:10px; font-size:13px; color:#4b515b;}
+.ddp-ui-input-form label.ddp-label-type span.ddp-info2 .ddp-data-det {display:block; color:#b7bac1; font-size:12px;}
+.ddp-ui-input-form label.ddp-label-type span.ddp-info2 .ddp-data-group .ddp-icon-user-s2,
+.ddp-ui-input-form label.ddp-label-type span.ddp-info2 .ddp-data-group .ddp-icon-group-s2 {margin-right:5px; opacity:1;}
+
+.ddp-ui-input-form label.ddp-label-type span.ddp-txt-option {display:inline-block; margin-left:6px; color:#9c9c9c; font-size:12px; letter-spacing:-1px;}
+.ddp-ui-input-form label.ddp-label-type span.ddp-txt-option:before {display:inline-block; content:''; position:relative; top:1px; padding-left:10px; height:13px; border-left:1px solid #ddd;}
+.ddp-ui-input-form label.ddp-label-type span.ddp-txt-option:first-of-type:before {padding-left:0; border-left:none;}
+.ddp-ui-input-form label.ddp-label-type .ddp-ui-tooltip:hover .ddp-ui-tooltip-info {display:block;}
+
+.ddp-ui-input-form label.ddp-label-type .ddp-ui-tooltip-info {display:none;}
+.ddp-ui-input-form input.ddp-input-type {display:block; width:100%; padding:10px 0; font-size:16px; border:none; border-bottom:1px solid #ddd;}
+.ddp-ui-input-form .ddp-data-form {position:relative; padding:10px 0; font-size:16px;}
+.ddp-ui-input-form .ddp-data-form .ddp-btn-selection {position:absolute; top:50%; right:0; margin-top:-17px;}
+.ddp-ui-input-form .ddp-data-form input[type="password"] {display:block; width:100%; font-size:16px; border:none;}
+.ddp-ui-input-form.ddp-type-error .ddp-input-check {border-bottom:1px solid #ff2a1b;}
+.ddp-ui-input-form.ddp-type-error .ddp-input-check .ddp-icon-error {display:block;}
+
+[class*="ddp-col"].ddp-apply {position:relative; padding-right:52px;}
+[class*="ddp-col"].ddp-apply .ddp-btn-line-s {position:absolute; top:0; right:0; padding:6px 0 7px 0; font-size:12px; width:48px;}
+
+/**************************************************************
+    메세지
+**************************************************************/
+.ddp-ui-buttons.ddp-inline .ddp-ui-message {display:inline-block; margin-left:10px;}
+.ddp-ui-buttons.ddp-inline .ddp-ui-message .ddp-data-error2 {padding-top:0;}
+.ddp-ui-message span.ddp-data-ok,
+.ddp-ui-message span.ddp-data-error {position:relative; margin-top:10px; padding-left:17px; color:#666eb2; font-size:12px; font-style:italic;}
+.ddp-ui-message span.ddp-data-error2 {display:block; padding:10px 0 0 0; color:#ca4b4b; font-style:italic;}
+.ddp-ui-message span.ddp-data-error {color:#ca4b4b;}
+.ddp-ui-message span.ddp-data-ok em.ddp-icon-ok,
+.ddp-ui-message span.ddp-data-error em.ddp-icon-error {display:inline-block; position:absolute; top:3px; left:0; background:url(../../../images/icon_message.png) no-repeat;}
+.ddp-ui-message span.ddp-data-ok em.ddp-icon-ok {width:11px; height:8px; background-position:left -10px;}
+.ddp-ui-message span.ddp-data-error em.ddp-icon-error {width:9px; height:9px;}
+
+.ddp-ui-message.ddp-type {margin-top:-6px;}
+
+/**************************************************************
+    foling
+**************************************************************/
+.ddp-ui-folding {margin:30px 0 0; }
+.ddp-ui-folding .ddp-fold-label {display:inline-block; margin-bottom:12px;color:#4c515a; font-size:13px; cursor:pointer; text-decoration:underline;}
+.ddp-ui-folding .ddp-icon-view {display:inline-block; position:relative;}
+.ddp-ui-folding .ddp-icon-view:before {display:inline-block; margin-left:5px;width:7px; height:4px; background:url(../../../images/icon_select.png) no-repeat; background-position:-24px top; content:'';}
+.ddp-ui-folding.ddp-selected .ddp-icon-view:before {transform:rotate(180deg);}
+.ddp-ui-folding .ddp-ui-option-in {padding:11px 27px 0 0;}
+.ddp-ui-folding .ddp-ui-option-in .ddp-type-label {vertical-align:top; position:relative;font-weight:bold; font-size:14px;}
+.ddp-ui-folding .ddp-ui-option-in .ddp-box-option-input input[type="text"],
+.ddp-ui-folding .ddp-ui-option-in .ddp-box-option-input input[type="number"] {padding:7px 5px 6px 5px}
+.ddp-ui-folding .ddp-ui-sub-folding {display:none;}
+.ddp-ui-folding.ddp-selected .ddp-ui-sub-folding {display:block;}
+
+
