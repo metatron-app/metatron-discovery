@@ -25,8 +25,8 @@ import { SetWorkspacePublishedComponent } from '../../../component/set-workspace
 import { CommonUtil } from '../../../../common/util/common.util';
 import { MomentDatePipe } from '../../../../common/pipe/moment.date.pipe';
 import { StringUtil } from '../../../../common/util/string.util';
-import * as _ from 'lodash';
 import { Dataconnection } from '../../../../domain/dataconnection/dataconnection';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-update-connection',
@@ -66,6 +66,8 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   public createdTime: any;
   public modifiedTime: any;
 
+  // connection properties
+  public properties: any[] = [];
   // database type list
   public dbTypeList: any[];
   // selected database type
@@ -116,6 +118,8 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   public isShowConnectionNameRequired: boolean;
   // connection valid message
   public nameErrorMsg: string;
+  // advanced settings flag
+  public isShowAdvancedSettings: boolean;
 
   // constructor
   constructor(private popupService: PopupService,
@@ -270,6 +274,21 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
+   * Click add new property
+   */
+  public onClickAddProperty(): void {
+    this.properties.push({key: '', value: '', keyError: false, valueError: false});
+  }
+
+  /**
+   * Click remove property
+   * @param {number} index
+   */
+  public onClickRemoveProperty(index: number): void {
+    this.properties.splice(index, 1);
+  }
+
+  /**
    * Is required database
    * @returns {boolean}
    */
@@ -365,7 +384,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
    * @returns {boolean}
    */
   public doneValidation(): boolean {
-    return this.connectionResultFl && this._connectionNameValidation();
+    return this.connectionResultFl && this._connectionCreateValidation();
   }
 
   /**
@@ -502,10 +521,10 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * Connection name validation
+   * Connection create validation
    * @returns {boolean}
    */
-  private _connectionNameValidation(): boolean {
+  private _connectionCreateValidation(): boolean {
     // if connection name empty
     if (StringUtil.isEmpty(this.connectionName)) {
       this.isShowConnectionNameRequired = true;
@@ -517,6 +536,28 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
       this.isShowConnectionNameRequired = true;
       this.nameErrorMsg = this.translateService.instant('msg.alert.edit.name.len');
       return false;
+    }
+    // if exist properties
+    if (this.properties.length !== 0) {
+      // properties loop
+      _.forEach(this.properties, (property) => {
+        // check key empty
+        if (StringUtil.isEmpty(property.key)) {
+          // set empty message
+          property.keyValidMessage = this.translateService.instant('msg.storage.ui.required');
+          // set error flag
+          property.keyError = true;
+        }
+        // check value empty
+        if (StringUtil.isEmpty(property.value)) {
+          // set empty message
+          property.valueValidMessage = this.translateService.instant('msg.storage.ui.required');
+          // set error flag
+          property.valueError = true;
+        }
+      });
+      // if exist connection properties
+      return !_.some(this.properties, property => property.keyError || property.valueError);
     }
     return true;
   }
@@ -540,6 +581,22 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
         this.loadingHide();
       })
       .catch(error => this.commonExceptionHandler(error));
+  }
+
+  /**
+   * Get properties parameter
+   * @param properties
+   * @returns {any}
+   * @private
+   */
+  private _getPropertiesParams(properties: any): any {
+    // result
+    const result = {};
+    // properties fields
+    properties.forEach((property) => {
+      result[property.key] = property.value;
+    });
+    return result;
   }
 
   /**
@@ -633,6 +690,16 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
         params['username'] = this.username.trim();
       }
     }
+    // if changed properties
+    // not exist key in properties, different value
+    // not exist key in origin properties, different value
+    if (_.some(Object.keys(this._originConnectionData.properties), (key) => {
+      if (_.every(this.properties, property => key !== property.key || (key === property.key && this._originConnectionData.properties[key] !== property.value))) {
+        return true;
+      }})
+      || _.some(this.properties, property => !this._originConnectionData.properties[property.key] || property.value !== this._originConnectionData.properties[property.key])) {
+      params['properties'] = this._getPropertiesParams(this.properties);
+    }
     return params;
   }
 
@@ -705,6 +772,13 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
     // linked workspace number
     if (data.hasOwnProperty('linkedWorkspaces')) {
       this.linkedWorkspaces = data.linkedWorkspaces;
+    }
+    // properties
+    if (data.hasOwnProperty('properties')) {
+      Object.keys(data.properties)
+        .forEach((key) => {
+        this.properties.push({key: key, value: data.properties[key], keyError: false, valueError: false});
+      });
     }
   }
 }

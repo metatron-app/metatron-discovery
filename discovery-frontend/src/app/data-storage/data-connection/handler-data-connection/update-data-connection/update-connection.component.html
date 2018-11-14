@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-datastore-connect">
   <!-- close -->
   <a href="javascript:" class="ddp-btn-close" (click)="cancel()"></a>
   <!-- close -->
@@ -54,6 +54,17 @@
         </div>
         <!-- //button -->
       </div>
+      <!-- name -->
+      <div class="ddp-wrap-edit2" [class.ddp-error]="isShowConnectionNameRequired">
+        <label class="ddp-label-type ddp-bold">{{'msg.storage.th.conn.name' | translate}}</label>
+        <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.dconn.name.ph' | translate}}"
+               [ngModel]="connectionName"
+               (ngModelChange)="connectionName = $event; isShowConnectionNameRequired = false">
+        <!-- error -->
+        <span class="ddp-ui-error">{{nameErrorMsg}}</span>
+        <!-- error -->
+      </div>
+      <!-- //name -->
       <!-- db type -->
       <div class="ddp-wrap-edit2 ">
         <label class="ddp-label-type ddp-bold">{{'msg.storage.ui.db.connection' | translate}}</label>
@@ -199,6 +210,53 @@
                 <span class="ddp-data-ok" *ngIf="connectionResultFl"><em class="ddp-icon-ok"></em>{{'msg.storage.ui.valid.conn' | translate}}</span>
               </div>
             </div>
+            <!-- advanced settings -->
+            <div class="ddp-ui-folding ddp-type" [class.ddp-selected]="isShowAdvancedSettings">
+              <div class="ddp-fold-label" (click)="isShowAdvancedSettings = !isShowAdvancedSettings">
+                {{'msg.dp.btn.advanced.settings' | translate}}
+                <em class="ddp-icon-view"></em>
+              </div>
+              <div class="ddp-ui-sub-folding">
+                <div class="ddp-wrap-edit2 ">
+                  <div class="ddp-label-type ddp-info-inline">{{'msg.storage.ui.custom.property' | translate}}
+                    <div class="ddp-wrap-hover-info ddp-type">
+                      <em class="ddp-icon-info3"></em>
+                      <!-- popup -->
+                      <div class="ddp-box-layout4">
+                        <div class="ddp-data-title">
+                          What is Segment granularity?
+                        </div>
+                        <div class="ddp-data-det">
+                          The granularity to create segments at.
+                        </div>
+                      </div>
+                      <!-- //popup -->
+                    </div>
+                  </div>
+
+                  <div class="ddp-box-code">
+                    <!-- clear -->
+                    <div class="ddp-clear ddp-list-code" *ngFor="let property of properties; let i = index">
+                      <div class="ddp-col-5">
+                        <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.custom.property.key' | translate}}"
+                               [(ngModel)]="property.key" (ngModelChange)="property.keyError = false">
+                        <span class="ddp-data-error" *ngIf="property.keyError"> {{property.keyValidMessage}}</span>
+                      </div>
+                      <div class="ddp-col-7">
+                        <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.custom.property.value' | translate}}"
+                               [(ngModel)]="property.value" (ngModelChange)="property.valueError = false">
+                        <span class="ddp-data-error" *ngIf="property.valueError"> {{property.valueValidMessage}}</span>
+                      </div>
+                      <a href="javascript:" class="ddp-icon-del" (click)="onClickRemoveProperty(i)"></a>
+                    </div>
+                    <!-- //clear -->
+                    <a href="javascript:" class="ddp-btn-add" (click)="onClickAddProperty()"><em class="ddp-icon-plus"></em> {{'msg.comm.btn.add' | translate}}</a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <!-- //advanced settings -->
           </div>
           <!-- //Security -->
         </div>
@@ -226,35 +284,6 @@
         <!-- //edit option -->
       </div>
       <!-- //permission -->
-      <!-- advanced -->
-      <!--<div class="ddp-ui-folding ddp-selected">-->
-      <!--<div class="ddp-fold-label">-->
-      <!--Advanced setting (Opt.)-->
-      <!--<em class="ddp-icon-view"></em>-->
-      <!--</div>-->
-      <!--&lt;!&ndash; option in &ndash;&gt;-->
-      <!--<div class="ddp-ui-option-in">-->
-      <!--<span class="ddp-type-label">Socket timeout</span>-->
-      <!--<div class="ddp-box-option-input ddp-inline">-->
-      <!--<input type="text" value="220">-->
-      <!--<span class="ddp-txt-input">Sec.</span>-->
-      <!--</div>-->
-      <!--</div>-->
-      <!--&lt;!&ndash; //option in &ndash;&gt;-->
-
-      <!--</div>-->
-      <!-- //advanced -->
-      <!-- name -->
-      <div class="ddp-wrap-edit2" [class.ddp-error]="isShowConnectionNameRequired">
-        <label class="ddp-label-type ddp-bold">{{'msg.storage.th.conn.name' | translate}}</label>
-        <input type="text" class="ddp-input-type" placeholder="{{'msg.storage.dconn.name.ph' | translate}}"
-               [ngModel]="connectionName"
-               (ngModelChange)="connectionName = $event; isShowConnectionNameRequired = false">
-        <!-- error -->
-        <span class="ddp-ui-error">{{nameErrorMsg}}</span>
-        <!-- error -->
-      </div>
-      <!-- //name -->
     </div>
     <!-- //dp connection -->
   </div>
