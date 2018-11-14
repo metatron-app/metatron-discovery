@@ -12,36 +12,40 @@
  * limitations under the License.
  */
 
-import {Injectable, Injector} from '@angular/core';
-import {AbstractService} from '../../common/service/abstract.service';
-import {Page} from '../../domain/common/page';
-import {CommonUtil} from '../../common/util/common.util';
-import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
+import { Injectable, Injector } from '@angular/core';
+import { AbstractService } from '../../common/service/abstract.service';
+import { Page } from '../../domain/common/page';
+import { CommonUtil } from '../../common/util/common.util';
+import { SearchQueryRequest } from '../../domain/datasource/data/search-query-request';
 
 import * as _ from 'lodash';
-import {PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
+import { PageWidgetConfiguration } from '../../domain/dashboard/widget/page-widget';
 import {
-  ChartType, ShelveFieldType, GridViewType, LineMode
+  ChartType, FormatType,
+  GridViewType,
+  LineMode,
+  ShelfType,
+  ShelveFieldType
 } from '../../common/component/chart/option/define/common';
-import {Filter} from '../../domain/workbook/configurations/filter/filter';
-import {Shelf, Layer} from '../../domain/workbook/configurations/shelf/shelf';
-import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
-import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
-import {FilterUtil} from '../../dashboard/util/filter.util';
-import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
-import {Dashboard} from '../../domain/dashboard/dashboard';
-import {Field} from '../../domain/datasource/datasource';
-import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
-import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
-import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
-import {WildCardFilter} from '../../domain/workbook/configurations/filter/wild-card-filter';
-import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
-import {TimeFilter} from '../../domain/workbook/configurations/filter/time-filter';
-import {FilteringType} from '../../domain/workbook/configurations/field/timestamp-field';
-import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
-import {isNullOrUndefined} from 'util';
-import {DashboardUtil} from '../../dashboard/util/dashboard.util';
+import { Filter } from '../../domain/workbook/configurations/filter/filter';
+import { UILineChart } from '../../common/component/chart/option/ui-option/ui-line-chart';
+import { UIGridChart } from '../../common/component/chart/option/ui-option/ui-grid-chart';
+import { FilterUtil } from '../../dashboard/util/filter.util';
+import { InclusionFilter } from '../../domain/workbook/configurations/filter/inclusion-filter';
+import { Dashboard } from '../../domain/dashboard/dashboard';
+import { Field, LogicalType } from '../../domain/datasource/datasource';
+import { MeasureInequalityFilter } from '../../domain/workbook/configurations/filter/measure-inequality-filter';
+import { AdvancedFilter } from '../../domain/workbook/configurations/filter/advanced-filter';
+import { MeasurePositionFilter } from '../../domain/workbook/configurations/filter/measure-position-filter';
+import { WildCardFilter } from '../../domain/workbook/configurations/filter/wild-card-filter';
+import { CustomField } from '../../domain/workbook/configurations/field/custom-field';
+import { TimeFilter } from '../../domain/workbook/configurations/filter/time-filter';
+import { FilteringType } from '../../domain/workbook/configurations/field/timestamp-field';
+import { TimeCompareRequest } from '../../domain/datasource/data/time-compare-request';
+import { isNullOrUndefined } from 'util';
+import { DashboardUtil } from '../../dashboard/util/dashboard.util';
 import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
+import { GeoBoundaryFormat, GeoField, GeoHashFormat } from '../../domain/workbook/configurations/field/geo-field';
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -277,7 +281,6 @@ export class DatasourceService extends AbstractService {
     query.dataSource.name = query.dataSource.engineName;
     query.filters = _.cloneDeep(pageConf.filters);
     query.pivot = _.cloneDeep(pageConf.pivot);
-    // query.shelf = _.cloneDeep(pageConf.shelf);
 
     // 파라미터 치환
     const allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
@@ -390,105 +393,101 @@ export class DatasourceService extends AbstractService {
     }
 
     // map 차트일때 shelf
-    if (_.eq(pageConf.chart.type, 'map')) {
-      // query.pivot = undefined;
+    if (_.eq(pageConf.chart.type, ChartType.MAP)) {
+
+      // set shelf
+      query.shelf = _.cloneDeep(pageConf.shelf);
 
       // current layer
-      let layerNum = (<UIMapOption>pageConf.chart).layerNum;
+      let layerNum = (<UIMapOption>pageConf.chart).layerNum ? (<UIMapOption>pageConf.chart).layerNum : 0;
 
-      let geoFieldCnt = 0;
-      let layers = [];
+      let geoFieldCnt: number = 0;
 
-      for(let column of query.pivot.columns) {
-        if(column && column.field && column.field.logicalType &&
-          (column.field.logicalType.toString() === 'GEO_POINT' || column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE') && (layerNum === undefined || layerNum === 1) ) {
-          geoFieldCnt = geoFieldCnt +1;
+      // check multiple geo type
+      for(let column of pageConf.shelf.layers[layerNum]) {
+        if(column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
+          geoFieldCnt++;
         }
       }
 
-      for(let column of query.pivot.columns) {
-        if(layerNum === undefined || layerNum === 1) {
-          let layer = {
-            type: column.type,
-            name: column.name,
-            alias: column.alias,
-            ref: null,
-            format: null,
-            // dataSource: column.field.dataSource
-          }
+      // set current layer values
+      for(let layer of pageConf.shelf.layers[layerNum]) {
+
+        // set alias
+        layer.alias = this._setFieldAlias(layer, dataSourceFields);
+
+        // let layerItem: GeoField = {
+        //   type: layer.type,
+        //   name: layer.name,
+        //   alias: layer.alias,
+        //   ref: null
+        // };
+
+        // when it's measure
+        if ('measure' === layer.type) {
+
+          // add aggregation type
+          layer.aggregationType = layer.aggregationType;
+
+        // when it's dimension
+        } else if ('dimension' === layer.type) {
 
           //dataSource가 여러개일 경우 첫번째 dataSource만 가져와서 column의 dataSource Name으로 변경
-          query.dataSource.engineName = column.field.dataSource;
-          query.dataSource.name = column.field.dataSource;
-          query.dataSource.id = column.field.dsId;
+          query.dataSource.engineName = layer.field.dataSource;
+          query.dataSource.name = layer.field.dataSource;
+          query.dataSource.id = layer.field.dsId;
 
-          if(column.field && column.field.logicalType && column.field.logicalType.toString().indexOf('GEO') > -1) {
-            layer.format = {
-              type : "geo"
+          let precision = layer["precision"];
+
+          // if(precision === undefined) {
+          //   precision = 8;
+          // }
+
+          if (layer.field && layer.field.logicalType) {
+            // default geo format
+            if(layer.field.logicalType.toString().indexOf('GEO') > -1) {
+              layer.format = {
+                type: FormatType.GEO.toString()
+              }
+            }
+
+            // when logicalType => geo point
+            if(layer.field.logicalType === LogicalType.GEO_POINT) {
+
+              // when it has measures
+              if (pageConf.chart.fieldMeasureList && pageConf.chart.fieldMeasureList.length > 0) {
+                layer.format = <GeoHashFormat>{
+                  type: FormatType.GEO_HASH.toString(),
+                  method: "h3",
+                  precision: precision
+                }
+              }
+
+              // when they have multiple geo values
+              if(geoFieldCnt > 1) {
+                layer.format = <GeoBoundaryFormat>{
+                  type: FormatType.GEO_BOUNDARY.toString(),
+                  geoColumn: query.pivot.columns[0].field.name,
+                  descColumn: query.pivot.columns[0].field.name
+                }
+              }
+
+            // when polygon, line type
+            } else if((layer.field.logicalType === LogicalType.GEO_POLYGON || layer.field.logicalType === LogicalType.GEO_LINE)) {
+              // when they have multiple geo values
+              if(geoFieldCnt > 1) {
+                layer.format = {
+                  type: FormatType.GEO_JOIN.toString()
+                }
+              }
             }
           }
-
-          let precision = column["precision"];
-          let viewRawData = column["viewRawData"];
-
-          if(precision === undefined) {
-            precision = 8;
-          }
-
-          if(column.field && column.field.logicalType && column.field.logicalType.toString() === 'GEO_POINT') {
-
-            if(query.pivot.aggregations.length > 0) {
-              layer.format = {
-                type: "geo_hash",
-                method: "h3",
-                precision: precision       // Precision 적용 (1~12)
-              }
-            }
-
-            if(geoFieldCnt > 1) {
-              layer.format = {
-                type: "geo_boundary",
-                // dataSource: query.pivot.columns[0].field.dataSource,
-                geoColumn: query.pivot.columns[0].field.name,
-                descColumn: query.pivot.columns[0].field.name
-              }
-            }
-
-            if(viewRawData) {
-              layer.format = {
-                type : "geo"
-              }
-            }
-          } else if(column.field && column.field.logicalType && (column.field.logicalType.toString() === 'GEO_POLYGON' || column.field.logicalType.toString() === 'GEO_LINE')) {
-            if(geoFieldCnt > 1) {
-              layer.format = {
-                type: "geo_join"
-              }
-            }
-          }
-
-          layers.push(layer);
-        }
-      }
-
-      for(let aggregation of query.pivot.aggregations) {
-        if(aggregation["layerNum"] === undefined || aggregation["layerNum"] === 1) {
-          let layer = {
-            type: aggregation.type,
-            name: aggregation.name,
-            alias: aggregation.alias,
-            ref: null,
-            aggregationType: aggregation.aggregationType,
-            // dataSource: aggregation.field.dataSource
-          };
-
-          layers.push(layer);
         }
       }
 
       query.shelf = {
-        type: 'geo',
-        layers: [layers]
+        type: ShelfType.GEO,
+        layers: [pageConf.shelf.layers[layerNum]]
       };
 
       //map 은 limit 5000개 제한
@@ -496,7 +495,6 @@ export class DatasourceService extends AbstractService {
         limit: 5000,
         sort: null
       }
-
     }
 
     if (!_.isEmpty(resultFormatOptions)) {

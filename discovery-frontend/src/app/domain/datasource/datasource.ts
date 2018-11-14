@@ -365,7 +365,10 @@ export enum LogicalType {
   LNG = <any>'LNG',
   POSTAL_CODE = <any>'POSTAL_CODE',
   PHONE_NUMBER = <any>'PHONE_NUMBER',
-  ETC = <any>'ETC'
+  ETC = <any>'ETC',
+  GEO_POINT = <any>'GEO_POINT',
+  GEO_LINE = <any>'GEO_LINE',
+  GEO_POLYGON = <any>'GEO_POLYGON'
 }
 
 export enum FieldRole {
@@ -380,7 +383,11 @@ export enum FieldRole {
 export enum FieldPivot {
   ROWS = <any>'ROWS',
   COLUMNS = <any>'COLUMNS',
-  AGGREGATIONS = <any>'AGGREGATIONS'
+  AGGREGATIONS = <any>'AGGREGATIONS',
+  // temp, for map chart
+  MAP_LAYER0 = <any>'MAP_LAYER0',
+  MAP_LAYER1 = <any>'MAP_LAYER1',
+  MAP_LAYER2 = <any>'MAP_LAYER2'
 }
 
 /**

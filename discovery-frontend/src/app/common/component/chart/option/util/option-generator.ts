@@ -2000,6 +2000,7 @@ export namespace OptionGenerator {
     export function defaultMapViewChartUIOption(): UIOption {
       return <any>{
         type: ChartType.MAP,
+        layerNum: 0,
         showMapLayer: true,
         map: MapType.OSM,
         style: 'Light',

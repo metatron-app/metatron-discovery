@@ -67,6 +67,7 @@ import { UIScatterChart } from './option/ui-option/ui-scatter-chart';
 import UI = OptionGenerator.UI;
 import {UIChartAxisGrid} from "./option/ui-option/ui-axis";
 import { TooltipOptionConverter } from './option/converter/tooltip-option-converter';
+import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
 
 declare let echarts: any;
 
@@ -88,6 +89,9 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
   // 선반 정보
   protected pivot: Pivot;
+
+  // map shelf
+  protected shelf: Shelf;
 
   // 기존 선반 정보 (병렬 / 중첩에따라서 변경되지않는 선반값)
   protected originPivot: Pivot;
@@ -232,6 +236,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
       this.originalData = _.cloneDeep(result.data);
       this.data = result.data;
       this.pivot = result.config.pivot;
+      this.shelf = result.config.shelf;
 
       // 데이터레이블에서 사용되는 uiData에 설정된 columns 데이터 설정
       this.data.columns = this.setUIData();
@@ -291,6 +296,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
 
     // Set
     this.pivot = result.config.pivot;
+    this.shelf = result.config.shelf;
     this.originPivot = _.cloneDeep(this.pivot);
     this.originalData = _.cloneDeep(result.data);
     this.widgetDrawParam = _.cloneDeep(result.params);
@@ -2242,7 +2248,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * 선반정보를 기반으로 차트를 그릴수 있는지 여부를 체크
    * - 반드시 각 차트에서 Override
    */
-  public isValid(pivot: Pivot): boolean {
+  public isValid(pivot: Pivot, layers?: Field[]): boolean {
     throw new Error("isValid is not Override");
   }
 

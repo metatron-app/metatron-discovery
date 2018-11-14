@@ -14,13 +14,14 @@
 
 import { Component, ElementRef, Injector, Input } from '@angular/core';
 import { Pivot } from '../../../domain/workbook/configurations/pivot';
-import { UIChartDataLabelDisplayType } from '../../../common/component/chart/option/define/common';
+import { ShelfType, UIChartDataLabelDisplayType } from '../../../common/component/chart/option/define/common';
 import * as _ from 'lodash';
 import { FormatOptionConverter } from '../../../common/component/chart/option/converter/format-option-converter';
 import { ChartUtil } from '../../../common/component/chart/option/util/chart-util';
 import { Field } from '../../../domain/workbook/configurations/field/field';
 import { TooltipOptionComponent } from '../tooltip-option.component';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
+import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
 
 @Component({
   selector: 'map-tooltip-option',
@@ -28,14 +29,14 @@ import { UIMapOption } from '../../../common/component/chart/option/ui-option/ma
 })
 export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
-  // selected column list
-  public selectedColumns: Field[] = [];
+  // selected layer item list
+  public selectedLayerItems: Field[] = [];
 
-  // unselected column list
-  public unselectedColumns: Field[] = [];
+  // unselected layer item list
+  public unselectedLayerItems: Field[] = [];
 
-  // origin unselected column list
-  public originUnselectedColumns: Field[] = [];
+  // origin unselected layer item list
+  public originUnselectedLayerItems: Field[] = [];
 
   // search input
   public searchText: string;
@@ -61,15 +62,17 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     this.uiOption = uiOption;
   }
 
-  @Input('pivot')
-  public set setPivot(pivot: Pivot) {
+  public shelf : Shelf;
 
-    if (!pivot || !pivot.columns) return;
+  @Input('shelf')
+  public set setShelf(shelf: Shelf) {
 
-    this.selectedColumns = _.cloneDeep(pivot.columns.concat(pivot.aggregations));
+    if (!shelf || !shelf.layers || !shelf.layers[this.uiOption.layerNum]) return;
+
+    this.selectedLayerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum]);
 
     // sync columns, fields data
-    this.selectedColumns.map((item) => {
+    this.selectedLayerItems.map((item) => {
 
       if(item.field && item.field.logicalType) {
         item['logicalType'] = item.field.logicalType;
@@ -78,29 +81,29 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     });
 
     // if it's not custom field, exclude geo data
-    this.selectedColumns = this.selectedColumns.filter((item) => {
+    this.selectedLayerItems = this.selectedLayerItems.filter((item) => {
       return item['logicalType'] && ('user_expr' == item.type || -1 == item['logicalType'].toString().indexOf('GEO'));
     });
 
     // remove the columns having same name
-    this.selectedColumns = _.uniqBy(this.selectedColumns, 'name');
+    this.selectedLayerItems = _.uniqBy(this.selectedLayerItems, 'name');
 
     if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
 
     // when displayColumns are empty, set displayColumns
     if (!this.uiOption.toolTip.displayColumns || 0 == this.uiOption.toolTip.displayColumns.length) {
 
-      this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedColumns);
+      this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedLayerItems);
       // when displayColumns are not empty, set columns by displayColumns
     } else {
 
-      let originSelectedColumns = _.cloneDeep(this.selectedColumns);
+      let originSelectedColumns = _.cloneDeep(this.selectedLayerItems);
 
-      this.selectedColumns = this.setColumns(this.uiOption.toolTip.displayColumns);
+      this.selectedLayerItems = this.setColumns(this.uiOption.toolTip.displayColumns);
 
-      // set removed columns to unselectedColumns
-      this.unselectedColumns = <any>_.filter(originSelectedColumns, (item) => {
-        if (-1 == _.findIndex(this.selectedColumns, item)) return item;
+      // set removed columns to unselectedLayerItems
+      this.unselectedLayerItems = <any>_.filter(originSelectedColumns, (item) => {
+        if (-1 == _.findIndex(this.selectedLayerItems, item)) return item;
       });
     }
   }
@@ -136,7 +139,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     let field: Field;
     columns.forEach((alias) => {
 
-      field = <any> _.find(this.selectedColumns, (field) => {
+      field = <any> _.find(this.selectedLayerItems, (field) => {
         return _.eq(alias, ChartUtil.getAggregationAlias(field));
       });
 
@@ -204,19 +207,19 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     if (_.isEmpty(_.trim(this.searchText))) {
 
-      this.unselectedColumns = _.cloneDeep(this.originUnselectedColumns);
+      this.unselectedLayerItems = _.cloneDeep(this.originUnselectedLayerItems);
 
-      return this.unselectedColumns;
+      return this.unselectedLayerItems
     }
 
-    this.unselectedColumns = this.unselectedColumns.filter((item) => {
+    this.unselectedLayerItems = this.unselectedLayerItems.filter((item) => {
 
       if (-1 !== item.name.indexOf(_.trim(this.searchText))) {
         return item;
       }
     });
 
-    return this.unselectedColumns;
+    return this.unselectedLayerItems
   }
 
   /**
@@ -228,7 +231,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     this.searchText = '';
 
-    this.unselectedColumns = _.cloneDeep(this.originUnselectedColumns);
+    this.unselectedLayerItems = _.cloneDeep(this.originUnselectedLayerItems);
   }
 
   /**
@@ -237,17 +240,17 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
   public deleteSelectedField(index: number): void {
 
     // delete field
-    const deleteField = this.selectedColumns.splice(index, 1);
+    const deleteField = this.selectedLayerItems.splice(index, 1);
 
     // set unselected field
     if (deleteField && deleteField.length > 0) {
 
-      this.unselectedColumns.push(deleteField[0]);
-      this.originUnselectedColumns = _.cloneDeep(this.unselectedColumns);
+      this.unselectedLayerItems.push(deleteField[0]);
+      this.originUnselectedLayerItems = _.cloneDeep(this.unselectedLayerItems);
     }
 
     // set name list in displaycolumn
-    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedColumns);
+    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedLayerItems);
 
     // set uiOption
     this.apply();
@@ -271,25 +274,25 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     event.stopPropagation();
 
     let alias = ChartUtil.getAggregationAlias(item);
-    const index = _.findIndex(this.selectedColumns, (field) => {
+    const index = _.findIndex(this.selectedLayerItems, (field) => {
       return _.eq(alias, ChartUtil.getAggregationAlias(field));
     });
 
     // if it's duplicate value
     if (-1 !== index) return;
 
-    this.selectedColumns.push(item);
+    this.selectedLayerItems.push(item);
 
-    // remove in unselectedColumns
-    const removeIndex = _.findIndex(this.unselectedColumns, (field) => {
+    // remove in unselectedLayerItems
+    const removeIndex = _.findIndex(this.unselectedLayerItems, (field) => {
       return _.eq(alias, ChartUtil.getAggregationAlias(field));
     });
-    this.unselectedColumns.splice(removeIndex, 1);
-    this.originUnselectedColumns = _.cloneDeep(this.unselectedColumns);
+    this.unselectedLayerItems.splice(removeIndex, 1);
+    this.originUnselectedLayerItems = _.cloneDeep(this.unselectedLayerItems);
 
 
     // set name list in displaycolumn
-    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedColumns);
+    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedLayerItems);
 
     // set uiOption
     this.apply();

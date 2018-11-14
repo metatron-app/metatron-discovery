@@ -65,6 +65,9 @@ import { ConfigureFiltersComponent } from './filters/configure-filters.component
 import { DashboardUtil } from './util/dashboard.util';
 import { WidgetShowType } from '../domain/dashboard/dashboard.globalOptions';
 import { FilterUtil } from './util/filter.util';
+import { ChartType } from '../common/component/chart/option/define/common';
+import { UIMapOption } from '../common/component/chart/option/ui-option/map/ui-map-chart';
+import { Shelf } from '../domain/workbook/configurations/shelf/shelf';
 
 @Component({
   selector: 'app-update-dashboard',
@@ -1308,8 +1311,14 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       // 위젯 사용자 정의 필드 정보 수정
       widget.configuration['customFields'] = customFields;
       // 위젯 피봇 정보 수정
-      widget.configuration['pivot'] = this._syncCustomFieldInWidgetPivot(widget, customFields);
-      widget.configuration['pivot'] = this._syncDatasourceAliasInWidgetPivot(widget, fields);
+      // map chart - add shelf config
+      if (ChartType.MAP === (<PageWidgetConfiguration>widget.configuration).chart.type) {
+        widget.configuration['shelf'] = this._syncCustomFieldInWidgetShelf(widget, customFields);
+        widget.configuration['shelf'] = this._syncDatasourceAliasInWidgetPivot(widget, fields);
+      } else {
+        widget.configuration['pivot'] = this._syncCustomFieldInWidgetPivot(widget, customFields);
+        widget.configuration['pivot'] = this._syncDatasourceAliasInWidgetPivot(widget, fields);
+      }
       if (this.getWidgetComp(widget.id)) {
         this.broadCaster.broadcast('SET_WIDGET_CONFIG', {
           widgetId: widget.id,
@@ -1332,7 +1341,13 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   private _changeFieldAlias(changeField: Field, isReload: boolean = false) {
     DashboardUtil.getPageWidgets(this.dashboard).forEach((widget: Widget) => {
       // 위젯 피봇 정보 수정
-      widget.configuration['pivot'] = this._syncDatasourceAliasInWidgetPivot(widget, [changeField]);
+      // map chart - add shelf config
+      if (ChartType.MAP === (<PageWidgetConfiguration>widget.configuration).chart.type) {
+        widget.configuration['shelf'] = this._syncDatasourceAliasInWidgetPivot(widget, [changeField]);
+      } else {
+        widget.configuration['pivot'] = this._syncDatasourceAliasInWidgetPivot(widget, [changeField]);
+      }
+
       if (this.getWidgetComp(widget.id)) {
         this.broadCaster.broadcast('SET_WIDGET_CONFIG', {
           widgetId: widget.id,
@@ -1344,19 +1359,29 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   } // function - _changeFieldAlias
 
   /**
-   * 위젯 피봇 내 별칭 정보 동기화
+   * 위젯 피봇 / shelf 내 별칭 정보 동기화
    * @param {Widget} widget
    * @param {Field[]} fields
    * @private
    */
   private _syncDatasourceAliasInWidgetPivot(widget: Widget, fields: Field[]) {
-    const pivot: Pivot = widget.configuration['pivot'];
+    let widgetConfig = (<PageWidgetConfiguration>widget.configuration);
+
+    // map chart - add shelf config
+    let mapFl = ChartType.MAP === widgetConfig.chart.type ? true : false;
+
     if (fields) {
       fields.filter(field => field.nameAlias).forEach((field: Field) => {
-        PageComponent.updatePivotAliasFromField(pivot, field);
+
+        // when it's map, set shelf alias
+        if (mapFl) {
+          PageComponent.updateShelfAliasFromField(widgetConfig.shelf, field, (<UIMapOption>widgetConfig.chart).layerNum);
+        } else {
+          PageComponent.updatePivotAliasFromField(widgetConfig.pivot, field);
+        }
       });
     }
-    return pivot;
+    return mapFl ? widgetConfig.shelf : widgetConfig.pivot;
   } // function - _syncDatasourceAliasInWidgetPivot
 
   /**
@@ -1415,6 +1440,57 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     }
     return pivot;
   } // function - _syncCustomFieldInWidgetPivot
+
+  /**
+   * 위젯 shelf 내 커스텀 필드 정보 동기화 (map chart - add shelf config)
+   * @param {Widget} widget
+   * @param {CustomField[]} customFields
+   * @return {Pivot}
+   * @private
+   */
+  private _syncCustomFieldInWidgetShelf(widget: Widget, customFields: CustomField[]): Shelf {
+
+    const layerNum = (<UIMapOption>(<PageWidgetConfiguration>widget.configuration).chart).layerNum;
+    const shelf: Shelf = (<PageWidgetConfiguration>widget.configuration).shelf;
+    if (customFields) {
+      customFields.forEach((field: CustomField) => {
+        if (FieldRole.DIMENSION === field.role) {
+          shelf.layers[layerNum].some(layer => {
+            if (layer.name === field['oriColumnName']) {
+              layer.field = _.merge(layer.field, field);
+              layer['expr'] = field['expr'];
+              layer['name'] = field['name'];
+              return true;
+            }
+          });
+        } else if (FieldRole.MEASURE === field.role) {
+          const customFieldPivotIdxs: number[] = [];
+          shelf.layers[layerNum].forEach((agg, idx: number) => {
+            if (agg.name === field['oriColumnName']) {
+              customFieldPivotIdxs.push(idx);
+            }
+          });
+          if (1 < customFieldPivotIdxs.length) {
+            customFieldPivotIdxs.splice(0, 1);
+            customFieldPivotIdxs.reverse().forEach(idx => {
+              shelf.layers[layerNum].splice(idx, 1);
+            });
+          }
+          shelf.layers[layerNum].forEach(agg => {
+            if (agg.name === field['oriColumnName']) {
+              agg.field = _.merge(agg.field, field);
+              agg['expr'] = field['expr'];
+              agg['name'] = field['name'];
+              agg['aggregated'] = field['aggregated'];
+              agg['aggregationType'] = (field['aggregated']) ? null : 'SUM';
+              return true;
+            }
+          });
+        }
+      });
+    }
+    return shelf;
+  } // function - _syncCustomFieldInWidgetShelf
 
   /**
    * 화면 정보 초기화

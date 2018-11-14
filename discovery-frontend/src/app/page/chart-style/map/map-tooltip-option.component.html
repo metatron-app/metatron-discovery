@@ -52,7 +52,7 @@
           <div class="ddp-data-value" *ngIf="returnMapTooltip('DATA_VALUE')">
 
             <ul class="ddp-list-datavalue">
-              <li *ngFor="let item of selectedColumns; let index = index">
+              <li *ngFor="let item of selectedLayerItems; let index = index">
                 <span class="ddp-data-value">
                  <!--
 
@@ -128,9 +128,9 @@
               <div class="ddp-ui-list-type ddp-types">
                 <ul class="ddp-list-typebasic ddp-list-popup">
                   <!-- empty -->
-                  <li *ngIf="unselectedColumns?.length == 0"><a href="javascript:">{{'msg.page.chart.map.tooltip.search.no.column' | translate}}</a></li>
+                  <li *ngIf="unselectedLayerItems?.length == 0"><a href="javascript:">{{'msg.page.chart.map.tooltip.search.no.column' | translate}}</a></li>
                   <!-- //empty -->
-                  <li *ngFor="let item of unselectedColumns" (click)="addColumn(item)">
+                  <li *ngFor="let item of unselectedLayerItems" (click)="addColumn(item)">
                     <a href="javascript:">
                       <!-- string -->
                       <em class="ddp-icon-dimension-ab" *ngIf="(item?.type !== 'user_expr' && item['logicalType']?.toString() === 'STRING') || item?.type === 'user_expr'"></em>

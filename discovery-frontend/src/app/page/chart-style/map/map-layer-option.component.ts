@@ -31,6 +31,7 @@ import { UITileLayer } from '../../../common/component/chart/option/ui-option/ma
 import { BaseOptionComponent } from '../base-option.component';
 import { ColorTemplateComponent } from '../../../common/component/color-picker/color-template.component';
 import { Field } from '../../../domain/workbook/configurations/field/field';
+import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
 
 @Component({
   selector: 'map-layer-option',
@@ -45,6 +46,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   @Input('uiOption')
   public set setUiOption(uiOption: UIMapOption) {
 
+    // TODO temporary code before setting uiOption in map component
     if (MapLayerType.LINE === uiOption.layers[this.index].type) {
 
       (<UILineLayer>uiOption.layers[this.index]).thickness = {};
@@ -53,20 +55,22 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.uiOption = uiOption;
   }
 
-  @Input('pivot')
-  public set setPivot(pivot: Pivot) {
+  public shelf: Shelf;
 
-    this.pivot = pivot;
+  @Input('shelf')
+  public set setShelf(shelf: Shelf) {
 
-    // TODO set color dimension / measure list
+    this.shelf = shelf;
 
-    // when dimension is added, set color by as dimension
-
-    // when measure is added, set color by as measure (first measure -> color by)
-    // when measure is added, set size by as measure (last measure -> size by )
-
-    this.getColorBy();
-    this.getSizeBy();
+    //   // TODO set color dimension / measure list
+    //
+    //   // when dimension is added, set color by as dimension
+    //
+    //   // when measure is added, set color by as measure (first measure -> color by)
+    //   // when measure is added, set size by as measure (last measure -> size by )
+    //
+    //   this.getColorBy();
+    //   this.getSizeBy();
   }
 
   // color template popup
@@ -74,9 +78,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public colorTemplate: ColorTemplateComponent;
 
   public uiOption: UIMapOption;
-
-  // pivot data
-  public pivot: Pivot;
 
   public colorColumnList : Field[] = [];
 
@@ -236,55 +237,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
 
   /**
-   * all layers - return default transparency index
+   * return default index in list
+   * @param {Object[]} list
+   * @param {string} key
+   * @param value
    * @returns {number}
    */
-  public findTransparencyIndex() {
-    if (this.uiOption.layers[this.index].color) {
-      return _.findIndex(this.transparencyList, {value : this.uiOption.layers[this.index].color.transparency});
-    }
-  }
-
-  /**
-   * line layer - return default stroke by index
-   * @returns {number}
-   */
-  public findStrokeByIndex() {
-    if ((<UILineLayer>this.uiOption.layers[this.index]).thickness) {
-      return _.findIndex(this.byList, {value : (<UILineLayer>this.uiOption.layers[this.index]).thickness.by});
-    }
-  }
-
-  /**
-   * symbol layer - return default size by index
-   * @returns {number}
-   */
-  public findSymbolSizeByIndex() {
-    return _.findIndex(this.byList, {value : (<UISymbolLayer>this.uiOption.layers[this.index]).size.by});
-  }
-
-  /**
-   * symbol layer - return default size column index
-   * @returns {number}
-   */
-  public findSymbolSizeColumnIndex() {
-    return _.findIndex(this.uiOption.fieldMeasureList, {alias : (<UISymbolLayer>this.uiOption.layers[this.index]).size.column});
-  }
-
-  /**
-   * all layers - return default color by index
-   * @returns {number}
-   */
-  public findColorByIndex() {
-    return _.findIndex(this.colorByList, {value : this.uiOption.layers[this.index].color.by});
-  }
-
-  /**
-   * return default color column index
-   * @returns {number}
-   */
-  public findColorColumnIndex() {
-    return _.findIndex(this.colorColumnList, {alias : this.uiOption.layers[this.index].color.column});
+  public findIndex(list: Object[], key: string, value: any) {
+    return _.findIndex(list, {[key] : value});
   }
 
   /**
@@ -421,25 +381,13 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
 
   /**
-   * find same color index in color list (heatmap)
-   * @returns {number}
+   * find same color index in color list (heatmap, dimension)
+   * @param {Object[]} colorList
+   * @returns {any}
    */
-  public findHeatmapColorIndex() {
+  public findColorIndex(colorList: Object[]) {
     if (this.colorTemplate) {
-      let obj = _.find(this.colorTemplate.mapHeatmapColorList, {colorNum : this.uiOption.layers[this.index].color.schema});
-      if (obj) return obj['index'];
-      return 1;
-    }
-    return 1;
-  }
-
-  /**
-   * find same color index in color list (dimension)
-   * @returns {number}
-   */
-  public findDimensionColorIndex() {
-    if (this.colorTemplate) {
-      let obj = _.find(this.colorTemplate.defaultColorList, {colorNum : this.uiOption.layers[this.index].color.schema});
+      let obj = _.find(colorList, {colorNum : this.uiOption.layers[this.index].color.schema});
       if (obj) return obj['index'];
       return 1;
     }
@@ -488,17 +436,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public getSizeBy() {
 
     // TODO pivot (aggregations - measure, columns - dimension => wrong) should be fixed
-    if (this.pivot.aggregations && this.pivot.aggregations.length >= 2 && MapLayerType.SYMBOL === this.uiOption.layers[this.index].type) {
-
-      // set size by as measure when more than two measures, last measure
-      let sizeBy = this.pivot.aggregations[this.pivot.aggregations.length - 1];
-
-      (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = MapBy.MEASURE;
-      (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = sizeBy.alias;
-
-    } else {
-      (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = MapBy.NONE;
-    }
+    // if (this.pivot.aggregations && this.pivot.aggregations.length >= 2 && MapLayerType.SYMBOL === this.uiOption.layers[this.index].type) {
+    //
+    //   // set size by as measure when more than two measures, last measure
+    //   let sizeBy = this.pivot.aggregations[this.pivot.aggregations.length - 1];
+    //
+    //   (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = MapBy.MEASURE;
+    //   (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = sizeBy.alias;
+    //
+    // } else {
+    //   (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = MapBy.NONE;
+    // }
   }
 
   /**
@@ -507,6 +455,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public changeLineStyle(lineStyle: MapLineStyle) {
 
     (<UILineLayer>this.uiOption.layers[this.index]).lineStyle = lineStyle;
+
+    this.applyLayers();
+  }
+
+  /**
+   * toggle custom color setting
+   */
+  public toggleCustomColor() {
+
+    this.uiOption.layers[this.index].color.mapping
 
     this.applyLayers();
   }

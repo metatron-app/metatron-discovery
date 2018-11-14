@@ -49,6 +49,7 @@ import { MapLegendOptionComponent } from './chart-style/map/map-legend-option.co
 import { MapFormatOptionComponent } from './chart-style/map/map-format-option.component';
 import { MapTooltipOptionComponent } from './chart-style/map/map-tooltip-option.component';
 import { MapCommonOptionComponent } from './chart-style/map/map-common-option.component';
+import { PivotContextComponent } from './page-pivot/pivot-context.component';
 
 @NgModule({
   imports: [
@@ -84,7 +85,8 @@ import { MapCommonOptionComponent } from './chart-style/map/map-common-option.co
     MapLayerOptionComponent,
     MapLegendOptionComponent,
     MapTooltipOptionComponent,
-    MapFormatOptionComponent
+    MapFormatOptionComponent,
+    PivotContextComponent,
   ],
   providers: [
     DatasourceService,

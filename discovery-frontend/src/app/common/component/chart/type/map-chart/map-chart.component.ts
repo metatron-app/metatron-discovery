@@ -38,6 +38,8 @@ import * as _ from 'lodash';
 import {BaseOption} from '../../option/base-option';
 import {FormatOptionConverter} from '../../option/converter/format-option-converter';
 import {UILineLayer} from '../../option/ui-option/map/ui-line-layer';
+import { Field } from '../../../../../domain/workbook/configurations/field/field';
+import { Shelf } from '../../../../../domain/workbook/configurations/shelf/shelf';
 
 @Component({
   selector: 'map-chart',
@@ -178,9 +180,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    * Pivot Valid Check
    * @param pivot
    */
-  public isValid(pivot: Pivot): boolean {
-    // return true;
-    return (pivot !== undefined) && ((pivot.columns.length > 0) || (pivot.rows.length > 0) || (pivot.aggregations.length > 0));
+  public isValid(pivot: Pivot, layers?: Field[]): boolean {
+    let valid: boolean = false;
+
+    for (let layer of layers) {
+      if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
+        valid = true;
+      }
+    }
+
+    return valid;
   }
 
   /**
@@ -193,7 +202,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Valid Check
     ////////////////////////////////////////////////////////
 
-    if( !this.isValid(this.pivot) ) {
+    if( !this.isValid(this.pivot, this.shelf.layers[(<UIMapOption>this.uiOption).layerNum]) ) {
       // No Data 이벤트 발생
       this.data.show = false;
       this.noData.emit();
@@ -403,7 +412,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Feature info
     ////////////////////////////////////////////////////////
 
-    let field = this.pivot.columns[0];
+    let field = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum][0];
     let geomType = field.field.logicalType.toString();
 
     ////////////////////////////////////////////////////////
