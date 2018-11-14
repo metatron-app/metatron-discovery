@@ -23,5 +23,6 @@ public interface PrepParser {
         List<String> suggest_conditional_expression(String ruleString);
         List<SuggestToken> suggest_all_rules(String ruleString);
         List<SuggestToken> suggest_aggr_rules(String ruleString);
+        List<SuggestToken> suggest_window_rules(String ruleString);
 }
 
