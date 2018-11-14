@@ -228,14 +228,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Soruce
     let source = new ol.source.Vector();
 
-    // Creation map object
-    this.createMap();
+    // Is map creation
+    let isMapCreation: boolean = this.createMap();
 
     // Creation feature
     this.createFeature(source);
 
     // Creation layer
-    this.createLayer(source);
+    this.createLayer(source, isMapCreation);
 
     // Chart resize
     this.olmap.updateSize();
@@ -309,24 +309,39 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   /**
    * Map chart creation
    */
-  private createMap(): void {
+  private createMap(): boolean {
+
+    ////////////////////////////////////////////////////////
+    // Set attribution
+    ////////////////////////////////////////////////////////
+
+    this.osmLayer.getSource().setAttributions(this.attribution());
+    this.cartoPositronLayer.getSource().setAttributions(this.attribution());
+    this.cartoDarkLayer.getSource().setAttributions(this.attribution());
+
+    ////////////////////////////////////////////////////////
+    // Map creation
+    ////////////////////////////////////////////////////////
+
+    // Is map creation
+    if( this.olmap ) {
+      return false;
+    }
 
     // Street layer
     let layer = this.cartoPositronLayer;
 
     // Map object initialize
-    if( !this.olmap ) {
-      this.olmap = new ol.Map({
-        view: new ol.View({
-          center: [126, 37],
-          zoom: 6,
-          projection: 'EPSG:4326',
-          maxZoom: 20
-        }),
-        layers: [layer],
-        target: this.$area[0]
-      });
-    }
+    this.olmap = new ol.Map({
+      view: new ol.View({
+        center: [126, 37],
+        zoom: 6,
+        projection: 'EPSG:4326',
+        maxZoom: 20
+      }),
+      layers: [layer],
+      target: this.$area[0]
+    });
 
     for(let i=0;i<document.getElementsByClassName('ol-attribution').length;i++) {
       let element = document.getElementsByClassName('ol-attribution')[i] as HTMLElement;
@@ -340,20 +355,15 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Zoom slider
     const zoomslider = new ol.control.ZoomSlider();
     this.olmap.addControl(zoomslider);
+
+    // Is map creation
+    return true;
   }
 
   /**
    * Creation map layer
    */
-  private createLayer(source): void {
-
-    ////////////////////////////////////////////////////////
-    // Set attribution
-    ////////////////////////////////////////////////////////
-
-    this.osmLayer.getSource().setAttributions(this.attribution());
-    this.cartoPositronLayer.getSource().setAttributions(this.attribution());
-    this.cartoDarkLayer.getSource().setAttributions(this.attribution());
+  private createLayer(source: any, isMapCreation: boolean): void {
 
     ////////////////////////////////////////////////////////
     // Create layer
@@ -377,12 +387,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             style: this.mapStyleFunction(0, this.data)
             //opacity: this.getUiMapOption().layers[0].color.transparency / 100
           });
+        }
 
-          // Set source
-          this.symbolLayer.setSource(source);
+        // Set source
+        this.symbolLayer.setSource(source);
 
+        // Init
+        if( isMapCreation ) {
           // Add layer
           this.olmap.addLayer(this.symbolLayer);
+        }
+        else {
+          // Set style
+          this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data));
         }
       }
       ////////////////////////////////////////////////////////
@@ -399,8 +416,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       }
     }
 
-    // Fit
-    this.olmap.getView().fit(source.getExtent());
+    // Init
+    if( isMapCreation ) {
+      // Map data place fit
+      this.olmap.getView().fit(source.getExtent());
+    }
   }
 
   /**
