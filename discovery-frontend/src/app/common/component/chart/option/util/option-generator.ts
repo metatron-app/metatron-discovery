@@ -2031,63 +2031,88 @@ export namespace OptionGenerator {
             },
             clustering: false,
             viewRawData: false
-          },
-          {
-            type: "symbol",
-            name: "Layer2",
-            symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
-            color: {
-              by: "NONE",            // NONE, MEASURE, DIMENSION
-              column: "NONE",
-              schema: "#6344ad",
-              transparency: 80,
-              blur: 10,
-              radius: 10,
-              resolution: 8
-            },
-            size: {
-              "by": "NONE",
-              "column": "NONE",
-              "max": 10
-            },
-            outline: {
-              "color": "#4f4f4f",
-              "thickness": "NONE"              // THIN, NORMAL, THICK
-            },
-            clustering: false,
-            viewRawData: false
-          },
-          {
-            type: "symbol",
-            name: "Layer3",
-            symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
-            color: {
-              by: "NONE",            // NONE, MEASURE, DIMENSION
-              column: "NONE",
-              schema: "#6344ad",
-              transparency: 80,
-              blur: 10,
-              radius: 10,
-              resolution: 8
-            },
-            size: {
-              "by": "NONE",
-              "column": "NONE",
-              "max": 10
-            },
-            outline: {
-              "color": "#4f4f4f",
-              "thickness": "NONE"              // THIN, NORMAL, THICK
-            },
-            clustering: false,
-            viewRawData: false
           }
+          // ,{
+          //   type: "symbol",
+          //   name: "Layer2",
+          //   symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
+          //   color: {
+          //     by: "NONE",            // NONE, MEASURE, DIMENSION
+          //     column: "NONE",
+          //     schema: "#6344ad",
+          //     transparency: 80,
+          //     blur: 10,
+          //     radius: 10,
+          //     resolution: 8
+          //   },
+          //   size: {
+          //     "by": "NONE",
+          //     "column": "NONE",
+          //     "max": 10
+          //   },
+          //   outline: {
+          //     "color": "#4f4f4f",
+          //     "thickness": "NONE"              // THIN, NORMAL, THICK
+          //   },
+          //   clustering: false,
+          //   viewRawData: false
+          // }
+          // ,{
+          //   type: "symbol",
+          //   name: "Layer3",
+          //   symbol: "CIRCLE",             // CIRCLE, SQUARE, TRIANGLE, PIN, PLAIN, USER
+          //   color: {
+          //     by: "NONE",            // NONE, MEASURE, DIMENSION
+          //     column: "NONE",
+          //     schema: "#6344ad",
+          //     transparency: 80,
+          //     blur: 10,
+          //     radius: 10,
+          //     resolution: 8
+          //   },
+          //   size: {
+          //     "by": "NONE",
+          //     "column": "NONE",
+          //     "max": 10
+          //   },
+          //   outline: {
+          //     "color": "#4f4f4f",
+          //     "thickness": "NONE"              // THIN, NORMAL, THICK
+          //   },
+          //   clustering: false,
+          //   viewRawData: false
+          // }
         ],
         valueFormat: UI.Format.custom(true, null, String(UIFormatType.NUMBER), String(UIFormatCurrencyType.KRW), 2, true),
         legend: {
           pos: UIPosition.RIGHT_BOTTOM,
           showName: true,
           auto: true
+        },
+        toolTip: {
+          displayColumns: [],
+          displayTypes: [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "LAYER_NAME",
+            "LOCATION_INFO",
+            "DATA_VALUE"
+          ]
         }
       };
     }

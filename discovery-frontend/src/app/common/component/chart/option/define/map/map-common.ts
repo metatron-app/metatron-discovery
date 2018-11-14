@@ -97,3 +97,8 @@ export enum HeatmapColorList {
   HC6 = <any>['#000000', '#300000', '#5e0100', '#9a3e01', '#bf7300', '#d7a30d', '#edd726', '#f9f53d', '#feffa9'],
   HC7 = <any>['#000000', '#09172e', '#0e2249', '#163363', '#25487f', '#2c6097', '#2391bc', '#1bb5d1', '#0af4f8']
 }
+
+export enum MapGeometryType {
+  POINT = <any>'Point',
+  LINE = <any>'LineString'
+}
