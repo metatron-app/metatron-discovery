@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.BatchSize;
@@ -284,7 +285,7 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
   public void preUpdate() {
 
     String modifiedUsername = AuthUtils.getAuthUserName();
-    if("unknown".equals(modifiedUsername)) {
+    if ("unknown".equals(modifiedUsername)) {
       // Considered to be processed by the system, skip update history info.
       return;
     }
@@ -307,6 +308,16 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
     }
 
     this.dashBoards.add(dashBoard);
+  }
+
+  public void excludeUnloadedField() {
+    if (CollectionUtils.isEmpty(this.fields)) {
+      return;
+    }
+
+    fields = fields.stream()
+                   .filter(field -> BooleanUtils.isNotTrue(field.getUnloaded()))
+                   .collect(Collectors.toList());
   }
 
   @JsonIgnore

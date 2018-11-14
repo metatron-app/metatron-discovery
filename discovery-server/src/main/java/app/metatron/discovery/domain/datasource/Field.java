@@ -226,13 +226,6 @@ public class Field implements MetatronDomain<Long> {
   @Transient
   private String originalType;
 
-  /**
-   * deprecated
-   */
-  @Transient
-  @JsonProperty
-  private Boolean removed;
-
   public Field() {
     // Empty Constructor
   }
@@ -557,9 +550,6 @@ public class Field implements MetatronDomain<Long> {
   }
 
   public Boolean getUnloaded() {
-    if(unloaded == null) {
-      return BooleanUtils.isTrue(removed);
-    }
     return unloaded;
   }
 
@@ -630,14 +620,6 @@ public class Field implements MetatronDomain<Long> {
 
   public void setOriginalType(String originalType) {
     this.originalType = originalType;
-  }
-
-  public Boolean getRemoved() {
-    return removed;
-  }
-
-  public void setRemoved(Boolean removed) {
-    this.removed = removed;
   }
 
   @Override
