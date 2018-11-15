@@ -183,9 +183,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   public isValid(pivot: Pivot, layers?: Field[]): boolean {
     let valid: boolean = false;
 
-    for (let layer of layers) {
-      if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
-        valid = true;
+    if (layers) {
+      for (let layer of layers) {
+        if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
+          valid = true;
+        }
       }
     }
 

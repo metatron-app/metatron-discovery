@@ -139,16 +139,18 @@
                         </div>
                       </div>
 
-                      <div *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by.toString())" class="ddp-wrap-option-slider">
-                        <span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>
-                        <!-- Slide THREE -->
-                        <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                          <input type="checkbox" [checked]="uiOption.layers[index].color['settingUseFl']"
-                          (click)="toggleCustomColor()">
-                          <label><span class="ddp-slide"></span></label>
-                        </div>
-                        <!-- //Slide THREE -->
-                      </div>
+                      <!-- on/off custom color setting -->
+                      <!--<div *ngIf="'heatmap' === uiOption.layers[index].type.toString() || ('heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by.toString())" class="ddp-wrap-option-slider">-->
+                        <!--<span class="ddp-label-slider">{{'msg.page.chart.color.series.color.setting' | translate}}</span>-->
+                        <!--&lt;!&ndash; Slide THREE &ndash;&gt;-->
+                        <!--<div class="ddp-checkbox-slide ddp-checkbox-automatic2">-->
+                          <!--<input type="checkbox" [checked]="uiOption.layers[index].color['settingUseFl']"-->
+                          <!--(click)="toggleCustomColor()">-->
+                          <!--<label><span class="ddp-slide"></span></label>-->
+                        <!--</div>-->
+                        <!--&lt;!&ndash; //Slide THREE &ndash;&gt;-->
+                      <!--</div>-->
+                      <!-- //on/off custom color setting -->
 
                       <!-- color by dimension custom color setting -->
                       <!-- //color by dimension custom color setting -->

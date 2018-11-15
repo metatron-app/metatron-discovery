@@ -76,20 +76,26 @@
                           [style.display]="isContainSearchText(fieldSearchText, field.name) ? 'block' : 'none'"
                           [attr.data-name]="field.name" [attr.data-source]="'dimension'"
                           [class.ddp-selected]="fieldDetailLayer == field && showFieldIconsFl">
-                        <!-- 네트워크 차트가 아닐때 -->
-                        <em *ngIf="'network' !== selectChart"
+                        <!-- not map, network chart -->
+                        <em *ngIf="'network' !== selectChart && 'map' !== selectChart"
                             [class.ddp-icon-columns]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'ROWS'"
                             [class.ddp-icon-rows]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'COLUMNS'"
                             [class.ddp-icon-cross]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'AGGREGATIONS'"
                             class="type-apply"></em>
-                        <!-- //네트워크 차트가 아닐때 -->
-                        <!-- 네트워크 차트일때 -->
+                        <!-- //not map, network chart -->
+                        <!-- network chart -->
                         <em *ngIf="'network' === selectChart"
                             [class.icon-source]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'ROWS'"
                             [class.icon-target]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'COLUMNS'"
                             [class.icon-link]="field.pivot && field.pivot.length > 0 && field.pivot[0] == 'AGGREGATIONS'"
                             class="ddp-icon-network"></em>
-                        <!-- //네트워크 차트일때 -->
+                        <!-- //network chart -->
+                        <!-- map chart -->
+                        <em *ngIf="'map' === selectChart"
+                            [class.ddp-icon-mapview1]="field.pivot && field.pivot.length > 0 && 'MAP_LAYER0' === field.pivot[0]?.toString()"
+                            [class.ddp-icon-mapview2]="field.pivot && field.pivot.length > 0 && 'MAP_LAYER1' === field.pivot[0]?.toString()"
+                            [class.ddp-icon-mapview3]="field.pivot && field.pivot.length > 0 && 'MAP_LAYER2' === field.pivot[0]?.toString()"></em>
+                        <!-- //map chart -->
                         <!-- 문자열 -->
                         <em class="ddp-icon-dimension-ab"
                             *ngIf="field.logicalType?.toString() === 'STRING' || field.type === 'user_expr'"></em>
@@ -841,7 +847,7 @@
 
                   </div>
                 </div>
-                <!-- //layout 5 -->
+                <!-- //layout 6 -->
 
                 <!-- layout 5 -->
                 <div class="ddp-ui-cahrt-layout ddp-box-layout2" *ngIf="isShowGuide && this.guideLayout['layout5'].indexOf(selectChart) > -1">

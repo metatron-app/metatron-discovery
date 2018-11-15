@@ -55,6 +55,7 @@ import { Format } from '../../domain/workbook/configurations/format';
 import { Filter } from '../../domain/workbook/configurations/filter/filter';
 import { UIOption } from '../../common/component/chart/option/ui-option';
 import { Modal } from '../../common/domain/modal';
+import { PivotContextComponent } from './pivot-context.component';
 
 @Component({
   selector: 'page-pivot',
@@ -66,9 +67,6 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   private $editFieldLayer: JQuery;
 
-  @ViewChild('editFieldLayer')
-  private editFieldLayerDirective: ClickOutsideDirective;
-
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -76,6 +74,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
   // aggregation
   protected aggTypeList: any[];
+
+  @ViewChild('editFieldLayer')
+  protected editFieldLayerDirective: ClickOutsideDirective;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -992,6 +993,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       case 'onSetGranularity':
         let value = data.value;
         this.onSetGranularity(value.discontinuous, value.unit, value.byUnit);
+        break;
+      case 'outside':
+        this.editingField = data.value;
         break;
     }
   }

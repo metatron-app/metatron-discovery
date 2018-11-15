@@ -14,7 +14,7 @@
 
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { Field as AbstractField } from '../../domain/workbook/configurations/field/field';
+import { Field, Field as AbstractField } from '../../domain/workbook/configurations/field/field';
 import { BIType, FieldRole } from '../../domain/datasource/datasource';
 import { Alert } from '../../common/util/alert.util';
 import * as _ from 'lodash';
@@ -28,6 +28,8 @@ import { UIChartColorByValue, UIOption } from '../../common/component/chart/opti
 import { ByTimeUnit, GranularityType, TimeUnit } from '../../domain/workbook/configurations/field/timestamp-field';
 import { Pivot } from '../../domain/workbook/configurations/pivot';
 import { PageWidget } from '../../domain/dashboard/widget/page-widget';
+import { Shelf } from '../../domain/workbook/configurations/shelf/shelf';
+import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
 
 @Component({
   selector: 'pivot-context',
@@ -54,6 +56,9 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
 
   @Input('pivot')
   public pivot: Pivot;
+
+  @Input('shelf')
+  public shelf: Shelf;
 
   // combine 차트의 현재 선택된 editing 필드의 agg index
   @Input('combineAggIndex')
@@ -161,8 +166,11 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
       return;
     }
 
+    // return pivot or shelf by chart type
+    let list = this.returnPivotShelf();
+
     // 중복체크
-    let duppIndex: number = _.findIndex(_.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations), (item) => {
+    let duppIndex: number = _.findIndex(list, (item) => {
       return item.pivotAlias == this.editingFieldAlias || item.fieldAlias == this.editingFieldAlias;
     });
     if (duppIndex == -1) {
@@ -242,8 +250,12 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
   protected onChangeOrder(direction: string) {
 
     this.editingField.direction = DIRECTION[direction];
+
+    // return pivot or shelf by chart type
+    let list = this.returnPivotShelf();
+
     // 기존의 마지막 Sort를 제거한다.
-    _.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations).forEach((item) => {
+    list.forEach((item) => {
       delete item.lastDirection;
     });
     this.editingField.lastDirection = true;
@@ -476,8 +488,11 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
    * when click outside of context menu
    */
   public clickOutside() {
-    this.editingField=null;
+    this.editingField = null;
     this.fix2DepthContext = false;
+
+    // when it's null, two way binding doesn't work
+    this.changePivotContext.emit({type: 'outside', value: this.editingField});
   }
 
   /**
@@ -568,5 +583,22 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
         this.editingField.options = this.editingField.options + ',' + key + optionData;
       }
     }
+  }
+
+  /**
+   * return pivot or shelf by chart type
+   * @returns {any[]}
+   */
+  private returnPivotShelf(): Field[] {
+
+    let list = [];
+
+    if (ChartType.MAP === this.uiOption.type) {
+      list = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
+    } else {
+      list = _.concat(this.pivot.columns, this.pivot.rows, this.pivot.aggregations);
+    }
+
+    return list;
   }
 }

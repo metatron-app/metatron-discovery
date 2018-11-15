@@ -3856,15 +3856,17 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   private makeSearchQueryParam(cloneQuery): SearchQueryRequest {
 
     // 선반 데이터 설정
-    for (let field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
-      delete field['field'];
-      delete field['currentPivot'];
-      delete field['granularity'];
-      delete field['segGranularity'];
+    if (cloneQuery.pivot) {
+      for (let field of _.concat(cloneQuery.pivot.columns, cloneQuery.pivot.rows, cloneQuery.pivot.aggregations)) {
+        delete field['field'];
+        delete field['currentPivot'];
+        delete field['granularity'];
+        delete field['segGranularity'];
+      }
     }
 
     // map - set shelf layers
-    if (cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
+    if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
       for (let layer of cloneQuery.shelf.layers[0]) {
         delete layer['field'];
         delete layer['currentPivot'];

@@ -89,7 +89,7 @@
 </div>
 
 <!-- context menu -->
-<pivot-context [widget]="widget" [editingField]="editingField" (editingFieldChange)="this.editingField = $event" [filterFiledList]="filterFiledList" [chartType]="chartType" [pivot]="pivot"
+<pivot-context #editFieldLayer [widget]="widget" [uiOption]="uiOption" [(editingField)]="editingField" [filterFiledList]="filterFiledList" [chartType]="chartType" [shelf]="shelf" [pivot]="pivot"
                [aggTypeList]="aggTypeList" [combineAggIndex]="combineAggIndex"
                (changePivotContext)="subscribeFromPivotContext($event)"></pivot-context>
 <!-- //context menu -->

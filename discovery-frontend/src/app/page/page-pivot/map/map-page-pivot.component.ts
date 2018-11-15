@@ -237,6 +237,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
       shelf[idx] = field;
       // 선반의 dimension / measure값의 중복된값 제거, measure aggtype 설정
+      // TODO map shelf
       // if (!this.distinctPivotItems(field, idx, shelf, targetContainer)) {
       if (true) {
 
@@ -265,6 +266,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       }
 
       // 차트별 선반 조건에 따른 차원 / 측정값 제한설정
+      // TODO map shelf
       // this.chartShelveLimit(this.chartType, targetContainer, shelf);
       //
       // // 선반 정보 변경시 (선반피봇팅 조건 이미 설정하였으므로 true)
@@ -275,7 +277,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     }
 
     // template 에서 생성한 경우 추가된 선반필드는 적용이 되지 않음 그래서 처리
-    // this.editFieldLayerDirective.exclude = '.ddp-icon-layer';
+    this.editFieldLayerDirective.exclude = '.ddp-icon-layer';
   }
 
    /**
