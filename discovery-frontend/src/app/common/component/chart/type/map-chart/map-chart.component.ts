@@ -30,15 +30,15 @@ import UI = OptionGenerator.UI;
 import {
   ChartColorList,
   ChartType,
-  ColorRangeType, UIPosition,
+  ColorRangeType, ShelveFieldType, UIPosition,
 } from '../../option/define/common';
 import {UISymbolLayer} from '../../option/ui-option/map/ui-symbol-layer';
-import {UILayers, UIOption} from '../../option/ui-option';
+import { UIChartColorByDimension, UILayers, UIOption } from '../../option/ui-option';
 import * as _ from 'lodash';
 import {BaseOption} from '../../option/base-option';
 import {FormatOptionConverter} from '../../option/converter/format-option-converter';
 import {UILineLayer} from '../../option/ui-option/map/ui-line-layer';
-import { Field } from '../../../../../domain/workbook/configurations/field/field';
+import { Field as AbstractField, Field } from '../../../../../domain/workbook/configurations/field/field';
 import { Shelf } from '../../../../../domain/workbook/configurations/shelf/shelf';
 
 @Component({
@@ -302,6 +302,79 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    * - 필요시 각 차트에서 Override
    */
   protected selection(): void {
+  }
+
+  /**
+   * 차트가 그려진 후 UI에 필요한 옵션 설정 - 차원값 리스트
+   *
+   * @param shelve
+   */
+  protected setDimensionList(): UIOption {
+
+    let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
+
+    let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum]);
+
+    // 선반값에서 해당 타입에 해당하는값만 name string값으로 리턴
+    const getShelveReturnString = ((shelve: any, typeList: ShelveFieldType[]): string[] => {
+      const resultList: string[] = [];
+      shelve.map((item) => {
+        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
+          resultList.push(item.name);
+        }
+      });
+      return resultList;
+    });
+
+    // 색상지정 기준 필드리스트 설정, 기본 필드 설정
+    this.uiOption.fieldList = getShelveReturnString(shelve, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+
+    if (this.uiOption.color) {
+      // targetField 설정
+      const targetField = (<UIChartColorByDimension>this.uiOption.color).targetField;
+
+      // targetField가 있을때
+      if (!_.isEmpty(targetField)) {
+        if (this.uiOption.fieldList.indexOf(targetField) < 0) (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+
+        // targetField가 없을때
+      } else {
+
+        // 마지막 필드를 타겟필드로 잡기
+        (<UIChartColorByDimension>this.uiOption.color).targetField = _.last(this.uiOption.fieldList);
+      }
+    }
+
+    return this.uiOption;
+  }
+
+  /**
+   * 차트가 그려진 후 UI에 필요한 옵션 설정 - 측정값 리스트
+   *
+   * @param shelve
+   */
+  protected setMeasureList(): UIOption {
+
+    let layerNum = (<UIMapOption>this.uiOption).layerNum ? (<UIMapOption>this.uiOption).layerNum : 0;
+
+    let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum]);
+
+    // 선반값에서 해당 타입에 해당하는값만 field값으로 리턴
+    const getShelveReturnField = ((originList: AbstractField[], shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
+      const resultList: AbstractField[] = [];
+      shelve.map((item) => {
+        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
+          resultList.push(item);
+        }
+      });
+      return resultList;
+    });
+    // 색상지정 기준 필드리스트 설정(measure list)
+    this.uiOption.fieldMeasureList = getShelveReturnField(this.uiOption.fieldMeasureList, shelve, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
+    // 색상지정 기준 필드리스트 설정(dimension list)
+    this.uiOption.fielDimensionList = getShelveReturnField(this.uiOption.fielDimensionList, shelve, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+
+    return this.uiOption;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

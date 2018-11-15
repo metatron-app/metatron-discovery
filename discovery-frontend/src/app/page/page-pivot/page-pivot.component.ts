@@ -73,7 +73,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   protected aggregationType = AggregationType;
 
   // aggregation
-  protected aggTypeList: any[];
+  public aggTypeList: any[];
 
   @ViewChild('editFieldLayer')
   protected editFieldLayerDirective: ClickOutsideDirective;

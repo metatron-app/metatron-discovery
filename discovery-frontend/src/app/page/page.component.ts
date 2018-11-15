@@ -3169,7 +3169,11 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
   private settingDragAndDrop() {
-    const acceptsContainer = ['column', 'row', 'aggregation', 'column-guide', 'row-guide', 'aggregation-guide'];
+
+    // TODO
+
+    const acceptsContainer = ['column', 'row', 'aggregation', 'column-guide', 'row-guide', 'aggregation-guide', 'layer0', 'layer1', 'layer2', 'layer-guide'];
+    // const acceptsContainer = ['column', 'row', 'aggregation', 'column-guide', 'row-guide', 'aggregation-guide', 'layer-guide'];
 
     // 드래그 옵션
     function copy(el) {

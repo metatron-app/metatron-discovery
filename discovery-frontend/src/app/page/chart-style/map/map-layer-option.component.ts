@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 import { Component, ElementRef, Injector, Input, ViewChild } from '@angular/core';
-import { Pivot } from '../../../domain/workbook/configurations/pivot';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 import {
   MapBy,
-  MapLayerType, MapLineStyle,
+  MapLayerType,
+  MapLineStyle,
   MapSymbolType,
   MapThickness
 } from '../../../common/component/chart/option/define/map/map-common';
@@ -55,31 +55,19 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     this.uiOption = uiOption;
   }
 
-  public shelf: Shelf;
-
   @Input('shelf')
   public set setShelf(shelf: Shelf) {
 
     this.shelf = shelf;
-
-    //   // TODO set color dimension / measure list
-    //
-    //   // when dimension is added, set color by as dimension
-    //
-    //   // when measure is added, set color by as measure (first measure -> color by)
-    //   // when measure is added, set size by as measure (last measure -> size by )
-    //
-    //   this.getColorBy();
-    //   this.getSizeBy();
   }
 
   // color template popup
   @ViewChild('colorTemplate')
   public colorTemplate: ColorTemplateComponent;
 
-  public uiOption: UIMapOption;
+  public shelf: Shelf;
 
-  public colorColumnList : Field[] = [];
+  public uiOption: UIMapOption;
 
   // symbol layer - type list
   public symbolLayerTypes = [{name : this.translateService.instant('msg.page.layer.map.type.point'), value: MapLayerType.SYMBOL},
@@ -178,7 +166,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
   /**
    * all layers - change transparency
-   * @param {number} transparency
+   * @param {Object} data
    */
   public changeTransparency(data: Object) {
 
@@ -258,17 +246,30 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     // set schema by color type
     if (MapBy.DIMENSION === data['value']) {
       this.uiOption.layers[this.index].color.schema = 'SC1';
+
+      // only set column when dimension column exsists
+      if (this.uiOption.fielDimensionList && this.uiOption.fielDimensionList.length > 0) {
+        this.uiOption.layers[this.index].color.column = this.uiOption.fielDimensionList[0]['alias'];
+      } else this.uiOption.layers[this.index].color.column = '';
+
     } else if (MapBy.MEASURE === data['value']) {
       this.uiOption.layers[this.index].color.schema = 'VC1';
+
+      // only set column when measure column exsists
+      if (this.uiOption.fieldMeasureList && this.uiOption.fieldMeasureList.length > 0) {
+        this.uiOption.layers[this.index].color.column = this.uiOption.fieldMeasureList[0]['alias'];
+      } else this.uiOption.layers[this.index].color.column = '';
+
     } else if (MapBy.NONE === data['value']) {
       this.uiOption.layers[this.index].color.schema = '#6344ad';
+      this.uiOption.layers[this.index].color.column = '';
     }
 
     this.applyLayers();
   }
 
   /**
-   *
+   * all layers - change color column (color by dimension, measure)
    * @param {Object} data
    */
   public changeColorColumn(data: Object) {
@@ -307,6 +308,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public changeSizeBy(data: Object) {
 
     (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = data['value'];
+
+    // set column when size by is measure
+    if (MapBy.MEASURE === data['value']) {
+      (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = this.uiOption.fieldMeasureList[0]['alias'];
+    }
 
     this.applyLayers();
   }
@@ -412,44 +418,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
 
   /**
-   * set color by, column by pivot
-   */
-  public getColorBy() {
-
-    // TODO pivot (aggregations - measure, columns - dimension => wrong) should be fixed
-
-    // should know order of dimension, measure in pivot
-
-    // set dimension, set measure list
-    if (MapBy.DIMENSION === this.uiOption.layers[this.index].color.by) {
-
-      this.colorColumnList = this.uiOption.fielDimensionList;
-    } else if (MapBy.MEASURE === this.uiOption.layers[this.index].color.by) {
-
-      this.colorColumnList = this.uiOption.fieldMeasureList;
-    }
-  }
-
-  /**
-   * set size by, column by pivot
-   */
-  public getSizeBy() {
-
-    // TODO pivot (aggregations - measure, columns - dimension => wrong) should be fixed
-    // if (this.pivot.aggregations && this.pivot.aggregations.length >= 2 && MapLayerType.SYMBOL === this.uiOption.layers[this.index].type) {
-    //
-    //   // set size by as measure when more than two measures, last measure
-    //   let sizeBy = this.pivot.aggregations[this.pivot.aggregations.length - 1];
-    //
-    //   (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = MapBy.MEASURE;
-    //   (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = sizeBy.alias;
-    //
-    // } else {
-    //   (<UISymbolLayer>this.uiOption.layers[this.index]).size.by = MapBy.NONE;
-    // }
-  }
-
-  /**
    * line layer - change line style
    */
   public changeLineStyle(lineStyle: MapLineStyle) {
@@ -463,10 +431,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * toggle custom color setting
    */
   public toggleCustomColor() {
-
-    this.uiOption.layers[this.index].color.mapping
-
-    this.applyLayers();
   }
 
   /**

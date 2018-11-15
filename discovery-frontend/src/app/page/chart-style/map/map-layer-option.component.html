@@ -96,16 +96,30 @@
                           ></component-select>
                           <!-- //SELECTBOX -->
                         </div>
-                        <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'NONE' !== this.uiOption.layers[this.index].color.by.toString()" class="ddp-divide2">
+                        <!-- color by dimension column -->
+                        <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'DIMENSION' === this.uiOption.layers[this.index].color.by.toString()" class="ddp-divide2">
                           <!-- SELECTBOX -->
                           <component-select
-                            [array]="colorColumnList"
-                            [defaultIndex]="findIndex(colorColumnList, 'alias', uiOption.layers[index].color.column)"
+                            [array]="uiOption.fielDimensionList"
+                            [defaultIndex]="findIndex(uiOption.fielDimensionList, 'alias', uiOption.layers[index].color.column)"
                             [viewKey]="'alias'"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
                           <!-- //SELECTBOX -->
                         </div>
+                        <!-- //color by dimension column -->
+                        <!-- color by measure column -->
+                        <div *ngIf="'heatmap' !== uiOption.layers[index].type.toString() && 'MEASURE' === this.uiOption.layers[this.index].color.by.toString()" class="ddp-divide2">
+                          <!-- SELECTBOX -->
+                          <component-select
+                            [array]="uiOption.fieldMeasureList"
+                            [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'alias', uiOption.layers[index].color.column)"
+                            [viewKey]="'alias'"
+                            (onSelected)="changeColorColumn($event)"
+                          ></component-select>
+                          <!-- //SELECTBOX -->
+                        </div>
+                        <!-- //color by measure column -->
 
                         <div class="ddp-divide2">
                           <!-- color by none -->
