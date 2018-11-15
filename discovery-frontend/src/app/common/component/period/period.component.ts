@@ -55,6 +55,9 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
   // 선택 타입
   public selectedType = PeriodType.ALL;
 
+  @Input()
+  public containerClass:string = '';
+
   // title (default값은 time)
   @Input()
   public title: string = 'Time';
@@ -106,7 +109,6 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
 
   // 변경 이벤트
   @Output() public changeDate = new EventEmitter();
-
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor

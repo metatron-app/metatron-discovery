@@ -1451,6 +1451,10 @@
   "msg.board.ui.tryagain_ds" : "데이터소스를 갱신한 후에 다시 시도해 주세요",
   "msg.board.ui.sync_interval" : "데이터 동기화 주기",
   "msg.board.ui.card.view" : "카드뷰",
+  "msg.board.ui.view-chart-data" : "차트 데이터",
+  "msg.board.ui.aggregated-data" : "집계 데이터",
+  "msg.board.ui.original-data" : "원본 데이터",
+  "msg.board.ui.download-data" : "데이터 다운로드",
 
   "msg.storage.btn.create.dsource": "새로운 데이터소스 생성",
   "msg.storage.ui.dsource.search.description": "데이터소스 이름으로 검색해 주세요",

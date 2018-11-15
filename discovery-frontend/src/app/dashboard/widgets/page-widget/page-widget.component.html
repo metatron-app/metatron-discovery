@@ -450,7 +450,7 @@
       <!-- top -->
       <div class="ddp-ui-top">
         <div class="ddp-data-name">
-          View chart data
+          {{ 'msg.board.ui.view-chart-data' | translate }}
         </div>
         <em (click)="hidePreviewDownData()" class="ddp-btn-popup-close"></em>
       </div>
@@ -462,10 +462,10 @@
         <div class="ddp-type-top-option">
           <ul class="ddp-ui-tab ddp-type">
             <li [class.ddp-selected]="!isOriginDown">
-              <a (click)="drawDataGrid()" href="javascript:">Aggregated data</a>
+              <a (click)="drawDataGrid()" href="javascript:">{{ 'msg.board.ui.aggregated-data' | translate }}</a>
             </li>
             <li [class.ddp-selected]="isOriginDown">
-              <a (click)="drawDataGrid(true)" href="javascript:">Original data</a>
+              <a (click)="drawDataGrid(true)" href="javascript:">{{ 'msg.board.ui.original-data' | translate }}</a>
             </li>
           </ul>
           <!-- right -->
@@ -473,13 +473,12 @@
             <!-- 클릭시 ddp-selected 추가 : 팝업 show 됨 -->
             <div (click)="showDownloadLayer($event)" class="ddp-box-btn2 ddp-box-selected ddp-selected">
               <a href="javascript:" class="ddp-link-txt">
-                <em class="ddp-icon-widget-gridsave"></em>
-                Download
+                <em class="ddp-icon-widget-gridsave"></em> Download
               </a>
               <!-- 툴팁 -->
               <div class="ddp-ui-tooltip-info">
                 <em class="ddp-icon-view-down"></em>
-                차트 데이터 저장
+                {{ 'msg.board.ui.download-data' | translate }}
               </div>
               <!-- //툴팁 -->
             </div>

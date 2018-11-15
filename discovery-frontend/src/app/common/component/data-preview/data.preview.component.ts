@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../abstract-popup.component';
+import {AbstractPopupComponent} from '../abstract-popup.component';
 import {
   Component,
   ElementRef,
@@ -24,23 +24,26 @@ import {
   ViewChildren,
   ChangeDetectorRef
 } from '@angular/core';
-import { BoardDataSource, Dashboard, JoinMapping, QueryParam } from '../../../domain/dashboard/dashboard';
-import { DatasourceService } from 'app/datasource/service/datasource.service';
-import { Datasource, DataSourceSummary, Field } from '../../../domain/datasource/datasource';
-import { SlickGridHeader } from 'app/common/component/grid/grid.header';
-import { header } from '../grid/grid.header';
-import { GridComponent } from '../grid/grid.component';
-import { GridOption } from '../grid/grid.option';
-import { Alert } from '../../util/alert.util';
-import { Stats } from '../../../domain/datasource/stats';
-import { Covariance } from '../../../domain/datasource/covariance';
+import {BoardDataSource, Dashboard, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
+import {DatasourceService} from 'app/datasource/service/datasource.service';
+import {Datasource, DataSourceSummary, Field} from '../../../domain/datasource/datasource';
+import {SlickGridHeader} from 'app/common/component/grid/grid.header';
+import {header} from '../grid/grid.header';
+import {GridComponent} from '../grid/grid.component';
+import {GridOption} from '../grid/grid.option';
+import {Alert} from '../../util/alert.util';
+import {Stats} from '../../../domain/datasource/stats';
+import {Covariance} from '../../../domain/datasource/covariance';
 import * as _ from 'lodash';
-import { DataconnectionService } from '../../../dataconnection/service/dataconnection.service';
-import { CommonUtil } from '../../util/common.util';
-import { DataDownloadComponent } from '../data-download/data.download.component';
-import { MetadataColumn } from '../../../domain/meta-data-management/metadata-column';
-import { DashboardUtil } from '../../../dashboard/util/dashboard.util';
-import { ConnectionType, Dataconnection } from '../../../domain/dataconnection/dataconnection';
+import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
+import {CommonUtil} from '../../util/common.util';
+import {DataDownloadComponent} from '../data-download/data.download.component';
+import {MetadataColumn} from '../../../domain/meta-data-management/metadata-column';
+import {DashboardUtil} from '../../../dashboard/util/dashboard.util';
+import {ConnectionType, Dataconnection} from '../../../domain/dataconnection/dataconnection';
+import {PeriodData} from "../../value/period.data.value";
+import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
+import {Filter} from "../../../domain/workbook/configurations/filter/filter";
 
 declare let echarts: any;
 
@@ -80,7 +83,9 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   private barOption: any;
   private scatterOption: any;
 
-  private _zIndex:string;
+  private _zIndex: string;
+
+  private _filters: Filter[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -157,6 +162,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
   public commonUtil = CommonUtil;
 
+  public haveTimestamp: boolean = false;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -180,8 +187,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     super.ngOnInit();
 
     // z-index 강제 설정
-    this._zIndex = $('.ddp-wrap-tab-popup').css( 'z-index' );
-    $('.ddp-wrap-tab-popup').css( 'z-index', '127' );
+    this._zIndex = $('.ddp-wrap-tab-popup').css('z-index');
+    $('.ddp-wrap-tab-popup').css('z-index', '127');
 
     // ui init
     this.initView();
@@ -211,7 +218,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   public ngOnDestroy() {
     super.ngOnDestroy();
     // z-index 설정 해제
-    $('.ddp-wrap-tab-popup').css( 'z-index', this._zIndex );
+    $('.ddp-wrap-tab-popup').css('z-index', this._zIndex);
   }
 
   /**
@@ -312,7 +319,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
           boardDs = boardDs.dataSources.find(item => DashboardUtil.isSameDataSource(item, source));
         }
 
-        params.dataSource = _.cloneDeep( boardDs );
+        params.dataSource = _.cloneDeep(boardDs);
         params.dataSource.name = boardDs.engineName;
         const joins = boardDs.joins;
         if (joins && joins.length > 0) {
@@ -330,9 +337,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         params.dataSource.type = 'default';
       }
 
+      if (this._filters && 0 < this._filters.length) {
+        params.filters = this._filters;
+      }
+
       this.loadingShow();
       this.datasourceService.getDatasourceQuery(params).then((data) => {
-        (data && 0 < data.length) && (res(data));
+        res(data);
         this.loadingHide();
       }).catch((err) => {
         console.error(err);
@@ -354,9 +365,9 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       = ((fields) ? fields : this.columns)
       .filter((item: Field) => {
         // role
-        let isValidRole: boolean = ( FieldRoleType.ALL === this.selectedFieldRole )
+        let isValidRole: boolean = (FieldRoleType.ALL === this.selectedFieldRole)
           ? true
-          : ( item.role.toString() === 'TIMESTAMP' ? this.selectedFieldRole.toString() === 'DIMENSION' : item.role.toString() === this.selectedFieldRole.toString());
+          : (item.role.toString() === 'TIMESTAMP' ? this.selectedFieldRole.toString() === 'DIMENSION' : item.role.toString() === this.selectedFieldRole.toString());
         // type
         let isValidType: boolean = ('all' === this.selectedLogicalType.value) ? true : (item.logicalType === this.selectedLogicalType.value);
         return (isValidRole && isValidType);
@@ -384,8 +395,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     if (rows && 0 < headers.length) {
       if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
         rows = rows.map((row: any, idx: number) => {
-          Object.keys( row ).forEach( key => {
-            row[ key.substr( key.indexOf( '.' ) + 1, key.length ) ] = row[key];
+          Object.keys(row).forEach(key => {
+            row[key.substr(key.indexOf('.') + 1, key.length)] = row[key];
           });
           row.id = idx;
           return row;
@@ -393,7 +404,6 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       }
 
       (this.rowNum > rows.length) && (this.rowNum = rows.length);
-
 
       // dom 이 모두 로드되었을때 작동
       this.changeDetect.detectChanges();
@@ -481,14 +491,14 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   // ui init
   private initView() {
     this.logicalTypes = [
-      { label: this.translateService.instant('msg.comm.ui.list.all'), value: 'all' },
-      { label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING' },
-      { label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN' },
-      { label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER' },
-      { label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE' },
-      { label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP' },
-      { label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT' },
-      { label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG' }
+      {label: this.translateService.instant('msg.comm.ui.list.all'), value: 'all'},
+      {label: this.translateService.instant('msg.storage.ui.list.string'), value: 'STRING'},
+      {label: this.translateService.instant('msg.storage.ui.list.boolean'), value: 'BOOLEAN'},
+      {label: this.translateService.instant('msg.storage.ui.list.integer'), value: 'INTEGER'},
+      {label: this.translateService.instant('msg.storage.ui.list.double'), value: 'DOUBLE'},
+      {label: this.translateService.instant('msg.storage.ui.list.date'), value: 'TIMESTAMP'},
+      {label: this.translateService.instant('msg.storage.ui.list.lnt'), value: 'LNT'},
+      {label: this.translateService.instant('msg.storage.ui.list.lng'), value: 'LNG'}
     ];
     this.selectedLogicalType = this.logicalTypes[0];
 
@@ -522,14 +532,14 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         {
           type: 'value',
           splitNumber: 3,
-          splitLine: { show: false },
+          splitLine: {show: false},
         }
       ],
       series: [
         {
           type: 'bar',
           barWidth: '70%',
-          itemStyle: { normal: { color: '#c1cef1' }, emphasis: { color: '#666eb2' } },
+          itemStyle: {normal: {color: '#c1cef1'}, emphasis: {color: '#666eb2'}},
           data: []
         }
       ]
@@ -718,7 +728,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       return item.value;
     }));
 
-    return { minValue: min, maxValue: max };
+    return {minValue: min, maxValue: max};
   }
 
 
@@ -938,7 +948,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   private _setMetaDataField(field: Field, source: Datasource): void {
     // 메타데이터가 존재한다면
     if (this.isExistMetaData(source)) {
-      const fieldMetaData: MetadataColumn = _.find(source.uiMetaData.columns, { 'physicalName': field.name });
+      const fieldMetaData: MetadataColumn = _.find(source.uiMetaData.columns, {'physicalName': field.name});
       // logical name
       field['logicalName'] = fieldMetaData.name;
       // code table
@@ -963,6 +973,35 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 조회 날짜 변경
+   */
+  public onChangeDate(data: PeriodData) {
+
+    if( 'ALL' === data.type ) {
+      this._filters = [];
+    } else {
+      const timestampField: Field = this.columns.filter(item => item.role === 'TIMESTAMP')[0];
+      const timeRange: TimeRangeFilter = new TimeRangeFilter(timestampField);
+      timeRange.intervals = [
+        data.startDateStr.replace(/T/gi, ' ') + ':00'
+        + '/'
+        + data.endDateStr.replace(/T/gi, ' ') + ':00'
+      ];
+      this._filters = [timeRange];
+    }
+
+    // Query Data
+    this.queryData(this.mainDatasource).then(data => {
+      this.gridData = data;
+      this.updateGrid(data, this.columns);
+    }).catch((error) => {
+      console.log(error);
+    });
+
+  } // function - onChangeDate
+
   /**
    * 데이터소스 선택
    * @param {Datasource} dataSource
@@ -995,7 +1034,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
           this.roles[item.role] = 1;
         }
       });
-      Object.keys(tempColType).forEach(key => this.colTypes.push({ type: key, cnt: tempColType[key] }));
+      Object.keys(tempColType).forEach(key => this.colTypes.push({type: key, cnt: tempColType[key]}));
 
       const boardDs: BoardDataSource = (<Dashboard>this.source).configuration.dataSource;
       if ('multi' === boardDs.type) {
@@ -1006,7 +1045,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
           this.joinDataSources = this.joinDataSources.concat(
             (<Dashboard>this.source).dataSources.filter(item => {
               return masterBoardDs.joins.some((joinItem: JoinMapping) => {
-                return ( joinItem.join && joinItem.join.id === item.id ) || (joinItem.id === item.id);
+                return (joinItem.join && joinItem.join.id === item.id) || (joinItem.id === item.id);
               });
             })
           );
@@ -1019,6 +1058,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       this.joinDataSources = this.datasources;
       this.columns = this.mainDatasource.fields;
     }
+
+    this.haveTimestamp = (0 < this.columns.filter(item => item.role === 'TIMESTAMP').length);
 
     // 마스터 소스 타입
     this.connType = this.mainDatasource.hasOwnProperty('connType') ? this.mainDatasource.connType.toString() : 'ENGINE';
@@ -1035,22 +1076,24 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       // Query Data
       this.queryData(this.mainDatasource)
         .then(data => {
-          this.gridData = data;
+          if( data && 0 < data.length ) {
+            this.gridData = data;
 
-          // single tab 이 아닌경우에만 그리드
-          if (!this.singleTab) {
-            this.updateGrid(data, this.columns);
-          } else {
-            // gird data를 name으로 검색
-            const data = [];
-            this.gridData.forEach((item) => {
-              if (item.hasOwnProperty(field.name) && item[field.name]) {
-                data.push(item[field.name]);
-              }
-            });
-            this.selectedColumnData = data;
-            // 필드 선택
-            this.onSelectedField(field, this.mainDatasource);
+            // single tab 이 아닌경우에만 그리드
+            if (!this.singleTab) {
+              this.updateGrid(data, this.columns);
+            } else {
+              // gird data를 name으로 검색
+              const data = [];
+              this.gridData.forEach((item) => {
+                if (item.hasOwnProperty(field.name) && item[field.name]) {
+                  data.push(item[field.name]);
+                }
+              });
+              this.selectedColumnData = data;
+              // 필드 선택
+              this.onSelectedField(field, this.mainDatasource);
+            }
           }
         })
         .catch((error) => {
@@ -1069,7 +1112,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       list = list.sort((a, b) => {
         return a.count > b.count ? -1 : a.count < b.count ? 1 : 0;
       }).slice(0, 9);
-      list.push({ value: '기타' });
+      list.push({value: '기타'});
     }
     return list;
   }
@@ -1099,7 +1142,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public createMetaDataHeader(args: any): void {
     // TODO 추후 그리드 자체에서 생성하도록 변경하기
-    $('<div class="slick-data">(' + (_.find(this.columns, { 'name': args.column.id }).logicalName || '') + ')</div>')
+    $('<div class="slick-data">(' + (_.find(this.columns, {'name': args.column.id}).logicalName || '') + ')</div>')
       .appendTo(args.node);
   }
 
@@ -1131,7 +1174,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @param typeList
    * @returns {string}
    */
-  public getColumnTypeLabel(type:string, typeList: any): string {
+  public getColumnTypeLabel(type: string, typeList: any): string {
     return typeList[_.findIndex(typeList, item => item['value'] === type)].label;
   }
 
@@ -1210,7 +1253,6 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     return result;
   }
 
-
   /**
    * 조회 줄 수를 변경한다.
    * @param {KeyboardEvent} event
@@ -1283,6 +1325,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    * @param {MouseEvent} event
    */
   public downloadData(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
     this._dataDownComp.openGridDown(event, this.gridComponent);
     // this.gridComponent.csvDownload(this.source.name);
   } // function - downloadData
