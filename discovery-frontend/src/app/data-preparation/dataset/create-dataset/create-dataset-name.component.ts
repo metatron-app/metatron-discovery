@@ -267,20 +267,15 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
           this.datasetFile.sheetname = item.name;
           this.datasetFile.name = this.names[index];
           this.datasetFile.desc = this.descriptions[index];
-          promise.push(this.datasetService.createDataset(this._getFileParams(this.datasetFile)))
+          promise.push(this._createDatasetWithSheets(this._getFileParams(this.datasetFile)))
         });
 
         if (promise.length > 0) {
-          Promise.all(promise)
-            .then((result) => {
-              console.info('rest',result);
-              this.successAction();
-              this.loadingHide();
-            })
-            .catch(() => {
-              this.flag = false;
-              this.loadingHide();
-            })
+          Promise.all(promise).then((result) => {
+            this._returnToList();
+          }).catch((error) => {
+            this._returnToList();
+          })
         }
       }
 
@@ -374,11 +369,11 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
    * Success action after API call
    * @param result
    */
-  public successAction(result?) {
+  public successAction(result) {
     this.flag = false;
 
     Alert.success(this.translateService.instant('msg.dp.alert.create-ds.success',
-      {value: result ? result.dsName : ''}));
+      {value: result.dsName }));
 
     if (this.datasetService.dataflowId) {
 
@@ -544,20 +539,29 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     this.datasetService.createDataset(params).then((result) => {
 
-      if (!this.isMultiSheet) {
-        this.loadingHide();
-        this.successAction(result);
-      }
+      this.loadingHide();
+      this.successAction(result);
 
     }).catch((error) => {
 
-      if (this.isMultiSheet) {
-        let idx = this.names.indexOf(params['dsName']);
-        this.names.splice(idx,1);
-      } else {
-        this.loadingHide();
-        this.errorAction(error);
-      }
+      this.loadingHide();
+      this.errorAction(error);
+    })
+  }
+
+
+  // temporary
+  private _createDatasetWithSheets(params : object) {
+
+    return new Promise ((resolve, reject) => {
+      this.datasetService.createDataset(params).then((result) => {
+        Alert.success(this.translateService.instant('msg.dp.alert.create-ds.success',
+          {value: result.dsName }));
+        resolve()
+      }).catch((error) => {
+        reject(error);
+        Alert.error('Failed to create dataset');
+      })
     })
   }
 
@@ -616,6 +620,19 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     }
 
   }
+
+  /**
+   * Returns dataset list and refreshes the list
+   * @private
+   */
+  private _returnToList() {
+    this.loadingHide();
+    this.popupService.notiPopup({
+      name: 'complete-dataset-create',
+      data: null
+    });
+  }
+
 
 
 

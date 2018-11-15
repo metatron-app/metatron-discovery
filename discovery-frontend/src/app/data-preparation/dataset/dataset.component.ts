@@ -195,20 +195,29 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
   public confirmDelete(event : Event, dataset : Dataset) {
 
     event.stopPropagation();
-    this.dataflowService.getDataset(dataset.dsId).then(() => {
+    this.selectedDeletedsId = dataset.dsId;
 
-      const modal = new Modal();
-      modal.name = this.translateService.instant('msg.comm.ui.del.description');
-      modal.description = this.translateService.instant('msg.dp.alert.ds.del.description');
-      modal.btnName = this.translateService.instant('msg.comm.btn.modal.done');
+    const modal = new Modal();
+    modal.name = this.translateService.instant('msg.comm.ui.del.description');
+    modal.description = this.translateService.instant('msg.dp.alert.ds.del.description');
+    modal.btnName = this.translateService.instant('msg.comm.btn.modal.done');
 
-      this.selectedDeletedsId = dataset.dsId;
-      this.deleteModalComponent.init(modal);
+    this.deleteModalComponent.init(modal);
 
-    }).catch(() => {
-      Alert.warning(this.translateService.instant('msg.dp.alert.df.del.fail'));
-      return;
-    })
+    // No idea why this API is called here
+    // this.dataflowService.getDataset(dataset.dsId).then(() => {
+    //
+    //   const modal = new Modal();
+    //   modal.name = this.translateService.instant('msg.comm.ui.del.description');
+    //   modal.description = this.translateService.instant('msg.dp.alert.ds.del.description');
+    //   modal.btnName = this.translateService.instant('msg.comm.btn.modal.done');
+    //
+    //
+    //
+    // }).catch(() => {
+    //   Alert.warning(this.translateService.instant('msg.dp.alert.df.del.fail'));
+    //   return;
+    // })
 
   }
 

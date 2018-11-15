@@ -281,10 +281,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       return;
     }
 
-    if (this.clearGrid) {
-      return;
-    }
-
     this.typeEmitter.emit('FILE');
     this.popupService.notiPopup({
       name: 'create-dataset-name',
@@ -511,16 +507,20 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     let result: boolean = true;
 
-    // csv or only one sheet
-    if (this.datasetFile.sheets.length < 2) {
-      result = false;
-    } else { // excel and more than one sheet
-      let idx = this.datasetFile.selectedSheets.findIndex((obj) => {
-        return obj.selected
-      });
+    if (this.datasetFile.sheets.length < 2) { // csv or excel with one sheet
 
-      if (idx > -1) {
-        result = false;
+      result = this.clearGrid;
+
+    } else {
+
+      // check if selected
+      let arr = this.datasetFile.selectedSheets.filter((obj) => {
+        return obj.selected
+      })
+
+      // check if grid is valid among selected sheet
+      if (arr.length > 0 ) {
+        result = arr.findIndex(item => !item.valid) > -1
       }
     }
 
@@ -568,11 +568,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     if (data.length > 0 && fields.length > 0) {
       this.clearGrid = false;
-      // headers
       const headers: header[] = this._getHeaders(fields);
-      // rows
       const rows: any[] = this._getRows(data);
-      // grid 그리기
       this._drawGrid(headers, rows);
     } else {
       this.clearGrid = true;
@@ -624,6 +621,13 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       if (result.grids.length > 0) {
         this.clearGrid = false;
         this.gridInfo = result.grids;
+
+        if (this.datasetFile.selectedSheets.length > 0) { // When excel
+          this.gridInfo.forEach((item,index) => {
+            this.datasetFile.selectedSheets[index]['valid'] = item.data.length > 0 && item.fields.length > 0;
+          });
+        }
+
         this._updateGrid(this.gridInfo[this.defaultSheetIndex].data , this.gridInfo[this.defaultSheetIndex].fields);
       } else {
         this.gridInfo = [];
