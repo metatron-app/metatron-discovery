@@ -1930,6 +1930,7 @@
   "msg.storage.ui.custom.property": "Custom property(Opt.)",
   "msg.storage.ph.custom.property.key": "Please enter a configuration key",
   "msg.storage.ph.custom.property.value": "Please enter a configuration value",
+  "msg.storage.ui.custom.property.duplicated": "duplicated",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",

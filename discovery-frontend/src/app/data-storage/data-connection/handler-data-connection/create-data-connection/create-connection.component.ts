@@ -430,21 +430,31 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
 
     // if exist properties
     if (this.properties.length !== 0) {
+      // keyStrings
+      const keyStrings = [];
       // properties loop
-      _.forEach(this.properties, (property) => {
-        // check key empty
-        if (StringUtil.isEmpty(property.key)) {
-          // set empty message
-          property.keyValidMessage = this.translateService.instant('msg.storage.ui.required');
-          // set error flag
-          property.keyError = true;
-        }
+      this.properties.forEach((property) => {
         // check value empty
         if (StringUtil.isEmpty(property.value)) {
           // set empty message
           property.valueValidMessage = this.translateService.instant('msg.storage.ui.required');
           // set error flag
           property.valueError = true;
+        }
+        // check key empty
+        if (StringUtil.isEmpty(property.key)) {
+          // set empty message
+          property.keyValidMessage = this.translateService.instant('msg.storage.ui.required');
+          // set error flag
+          property.keyError = true;
+        } else if (-1 !== keyStrings.findIndex(key => key === property.key.trim())) { // find key in keyStrings array
+          // set duplicate message
+          property.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.duplicated');
+          // set error flag
+          property.keyError = true;
+        } else {
+          // push key in keyStrings array
+          keyStrings.push(property.key.trim());
         }
       });
       // if exist connection properties
@@ -489,7 +499,7 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
     const result = {};
     // properties fields
     properties.forEach((property) => {
-      result[property.key] = property.value;
+      result[property.key.trim()] = property.value.trim();
     });
     return result;
   }

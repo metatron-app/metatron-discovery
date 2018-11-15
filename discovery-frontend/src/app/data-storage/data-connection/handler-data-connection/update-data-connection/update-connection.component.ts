@@ -184,22 +184,6 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * Change database type
-   * @param type
-   */
-  public onChangeDbType(type: any): void {
-    // only works if the selected database type is different
-    if (type !== this.selectedDbType) {
-      // change database type
-      this.selectedDbType = type;
-      // init connection flag
-      this.initConnectionFlag();
-      // init connection result flag
-      this.initConnectionResultFlag();
-    }
-  }
-
-  /**
    * Change security type
    * @param type
    */
@@ -460,10 +444,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   private _isChangedProperties(): boolean {
     // not exist key in properties, different value
     // not exist key in origin properties, different value
-    return (_.some(Object.keys(this._originConnectionData.properties), (key) => {
-        if (_.every(this.properties, property => key !== property.key || (key === property.key && this._originConnectionData.properties[key] !== property.value))) {
-          return true;
-        }})
+    return (_.some(Object.keys(this._originConnectionData.properties), key => _.every(this.properties, property => key !== property.key || (key === property.key && this._originConnectionData.properties[key] !== property.value)))
       || _.some(this.properties, property => !this._originConnectionData.properties[property.key] || property.value !== this._originConnectionData.properties[property.key]))
   }
 
@@ -556,15 +537,10 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
     }
     // if exist properties
     if (this.properties.length !== 0) {
+      // keyStrings
+      const keyStrings = [];
       // properties loop
-      _.forEach(this.properties, (property) => {
-        // check key empty
-        if (StringUtil.isEmpty(property.key)) {
-          // set empty message
-          property.keyValidMessage = this.translateService.instant('msg.storage.ui.required');
-          // set error flag
-          property.keyError = true;
-        }
+      this.properties.forEach((property) => {
         // check value empty
         if (StringUtil.isEmpty(property.value)) {
           // set empty message
@@ -572,7 +548,23 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
           // set error flag
           property.valueError = true;
         }
+        // check key empty
+        if (StringUtil.isEmpty(property.key)) {
+          // set empty message
+          property.keyValidMessage = this.translateService.instant('msg.storage.ui.required');
+          // set error flag
+          property.keyError = true;
+        } else if (-1 !== keyStrings.findIndex(key => key === property.key.trim())) { // find key in keyStrings array
+          // set duplicate message
+          property.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.duplicated');
+          // set error flag
+          property.keyError = true;
+        } else {
+          // push key in keyStrings array
+          keyStrings.push(property.key.trim());
+        }
       });
+
       // if exist connection properties
       return !_.some(this.properties, property => property.keyError || property.valueError);
     }
@@ -611,7 +603,7 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
     const result = {};
     // properties fields
     properties.forEach((property) => {
-      result[property.key] = property.value;
+      result[property.key.trim()] = property.value.trim();
     });
     return result;
   }
