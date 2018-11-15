@@ -115,7 +115,11 @@ public class PrepHdfsService {
                 hdfsFilePath = uploadPath + File.separator + fileKey;
                 Path pathLocalFile = new Path(localFilePath);
                 Path pathStagingBase = new Path(hdfsFilePath);
-                fs.copyFromLocalFile(true,true,pathLocalFile,pathStagingBase);
+                if(false==fs.exists(pathStagingBase)) {
+                    fs.copyFromLocalFile(true, true, pathLocalFile, pathStagingBase);
+                } else {
+                    LOGGER.debug(hdfsFilePath + " is already exist. did not copy");
+                }
             }
         }
         return hdfsFilePath;

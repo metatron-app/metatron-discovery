@@ -1116,6 +1116,12 @@ public class PrepDatasetFileService {
             String excelFileName = this.getPathLocal_new(fileKey);
             csvFileName = this.getPathLocal_new(newFileKey);
 
+            File csvFile = new File(csvFileName);
+            if(csvFile.exists()) {
+                LOGGER.debug(csvFileName +" is already exist");
+                return csvFileName;
+            }
+
             /*
             File theFile = new File(excelFileName);
             Workbook wb = null;
