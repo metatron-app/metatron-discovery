@@ -996,7 +996,7 @@
   "msg.dp.ui.fail": "실패",
   "msg.dp.ui.file.drop" :"or drop file here",
   "msg.dp.ui.file.import" : "Import",
-  "msg.dp.ui.file.upload.description" : "xls, xlsx, txt 및 csv 형식은 허용됩니다.",
+  "msg.dp.ui.file.upload.description" : "Excel, CSV 형식의 파일이 허용됩니다.",
   "msg.dp.ui.flows": "데이터플로우",
   "msg.dp.ui.grid.view": "그리드 뷰",
   "msg.dp.ui.imported" : "IMPORTED",
