@@ -320,6 +320,21 @@ public class DataSource extends AbstractHistoryEntity implements MetatronDomain<
                    .collect(Collectors.toList());
   }
 
+  /**
+   * Used in Projection
+   *
+   * @return
+   */
+  public List<Field> findUnloadedField() {
+    if (CollectionUtils.isEmpty(this.fields)) {
+      return Lists.newArrayList();
+    }
+
+    return fields.stream()
+                   .filter(field -> BooleanUtils.isNotTrue(field.getUnloaded()))
+                   .collect(Collectors.toList());
+  }
+
   @JsonIgnore
   public boolean existTimestampField() {
 
