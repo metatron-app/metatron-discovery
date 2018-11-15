@@ -206,10 +206,9 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * @returns {any[]}
    */
   public getTimeTypeColumns() {
-    const columnList = this.fields.filter((column) => {
+    return this.fields.filter((column) => {
       return column.logicalType === 'TIMESTAMP' && !this.isDeletedColumn(column);
     });
-    return columnList;
   }
 
   /**
@@ -217,10 +216,9 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * @returns {any[]}
    */
   public getNotDeletedColumns() {
-    const columnList = this.fields.filter((column) => {
-      return column.removed === false;
+    return this.fields.filter((column) => {
+      return column.unloaded === false;
     });
-    return columnList;
   }
 
   /**
@@ -321,7 +319,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    */
   public onSelectedColumn(column) {
     // 삭제된 상태라면 선택 x
-    if (column.removed) {
+    if (column.unloaded) {
       return;
     }
     // 컬럼 선택
@@ -359,7 +357,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    */
   public onClickRevival(column) {
     // 삭제상태 해제
-    column.removed = false;
+    column.unloaded = false;
     // init timestamp
     if (this.selectedTimestampType === 'CURRENT' && column.logicalType === 'TIMESTAMP') {
       this.initTimestampColumn();
@@ -428,7 +426,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * @returns {boolean}
    */
   public isDeletedColumn(column): boolean {
-    return column.removed === true;
+    return column.unloaded === true;
   }
 
   /**
@@ -440,7 +438,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
     // 현재 선택된 컬럼이고 삭제상태가 아닌경우
     return (!isUndefined(this.selectedColumn)
       && this.selectedColumn.name === column.name
-      && !column.removed);
+      && !column.unloaded);
   }
 
 
@@ -657,7 +655,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
   private onDeleteAction(columnList: any[]) {
     columnList.forEach((column) => {
       // 삭제 플래그
-      column.removed = true;
+      column.unloaded = true;
       // 타임스탬프에 대한 처리
       // 현재 컬럼이 타임스탬프로 지정된 컬럼이였다면
       if (this.isTimestampColumn(column)) {
@@ -745,7 +743,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    */
   private _getEnabledColumnList() {
     return this.getColumnList().filter((column) => {
-      return column.removed === false;
+      return column.unloaded === false;
     });
   }
 
@@ -930,7 +928,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    */
   private initFields(fields: any[]) {
     fields.forEach((column) => {
-      column['removed'] = false;
+      column['unloaded'] = false;
     });
     // init timestamp
     this.initTimestampFormat(this.getTimeTypeColumns());

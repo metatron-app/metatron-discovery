@@ -1106,13 +1106,13 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
 
     Field field1 = new Field("sd", DataType.STRING, DIMENSION, 2L);
-    field1.setRemoved(true);
+    field1.setUnloaded(true);
     fields.add(field1);
 
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
 
     Field field2 = new Field("m2", DataType.DOUBLE, MEASURE, 4L);
-    field2.setRemoved(true);
+    field2.setUnloaded(true);
     fields.add(field2);
 
     dataSource.setFields(fields);
@@ -1180,7 +1180,7 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     fields.add(new Field("d", DataType.STRING, DIMENSION, 1L));
 
     Field field1 = new Field("sd", DataType.STRING, DIMENSION, 2L);
-    field1.setRemoved(true);
+    field1.setUnloaded(true);
     fields.add(field1);
 
     fields.add(new Field("m1", DataType.DOUBLE, MEASURE, 3L));
