@@ -59,6 +59,8 @@ public class PrepException extends MetatronException {
     static public PrepException create(ErrorCodes code, Exception e) {
         if (e instanceof PrepException) {
             return (PrepException) e;
+        } else if(e instanceof  TeddyException) {
+            return PrepException.fromTeddyException((TeddyException) e);
         } else {
             if (e.getMessage()!=null && e.getMessage().contains("jdbc:hive2")) {
                 StackTraceElement[] stackTraceElements = e.getStackTrace();
