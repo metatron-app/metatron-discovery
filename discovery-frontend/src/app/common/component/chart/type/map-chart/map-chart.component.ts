@@ -21,7 +21,7 @@ import { UIMapOption } from '../../option/ui-option/map/ui-map-chart';
 import {
   MapBy, MapGeometryType,
   MapLayerType,
-  MapLineStyle,
+  MapLineStyle, MapSymbolType, MapThickness,
   MapType,
 } from '../../option/define/map/map-common';
 import {ColorRange} from '../../option/ui-option/ui-color';
@@ -395,13 +395,24 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         this.symbolLayer.setSource(source);
 
         // Init
-        if( isMapCreation ) {
+        if( isMapCreation && this.getUiMapOption().showMapLayer ) {
           // Add layer
           this.olmap.addLayer(this.symbolLayer);
         }
         else {
-          // Set style
-          this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data));
+          if( this.getUiMapOption().showMapLayer ) {
+            // Add layer
+            if( this.olmap.getLayers().getLength() == 1 ) {
+              this.olmap.addLayer(this.symbolLayer);
+            }
+
+            // Set style
+            this.symbolLayer.setStyle(this.mapStyleFunction(0, this.data));
+          }
+          else {
+            // Remove layer
+            this.olmap.removeLayer(this.symbolLayer);
+          }
         }
       }
       ////////////////////////////////////////////////////////
@@ -657,11 +668,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
 
       let outlineWidth = 0.00000001;
-      if(outlineType === 'THIN')  {
+      if( _.eq(outlineType, MapThickness.THIN) )  {
         outlineWidth = 1;
-      } else if(outlineType === 'NORMAL') {
+      }
+      else if( _.eq(outlineType, MapThickness.NORMAL) ) {
         outlineWidth = 2;
-      } else if(outlineType === 'THICK') {
+      }
+      else if( _.eq(outlineType, MapThickness.THICK) ) {
         outlineWidth = 3;
       }
 
@@ -715,7 +728,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
       if( _.eq(layerType, MapLayerType.SYMBOL) ) {
         switch (symbolType) {
-          case 'CIRCLE' :
+          case MapSymbolType.CIRCLE :
             style = new ol.style.Style({
               image: new ol.style.Circle({
                 radius: featureSize,
@@ -733,7 +746,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
               })
             });
             break;
-          case 'SQUARE' :
+          case MapSymbolType.SQUARE :
             style = new ol.style.Style({
               image: new ol.style.RegularShape({
                 fill: new ol.style.Fill({color: featureColor}),
@@ -751,7 +764,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
               })
             });
             break;
-          case 'TRIANGLE' :
+          case MapSymbolType.TRIANGLE :
             style = new ol.style.Style({
               image: new ol.style.RegularShape({
                 fill: new ol.style.Fill({color: featureColor}),
@@ -770,7 +783,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
               })
             });
             break;
-          case 'PIN' :
+          case MapSymbolType.PIN :
             style = new ol.style.Style({
               image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
                 color: featureColor,
@@ -787,7 +800,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
               })
             });
             break;
-          case 'PLANE' :
+          case MapSymbolType.PLAIN :
             style = new ol.style.Style({
               image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
                 color: featureColor,
@@ -804,7 +817,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
               })
             });
             break;
-          case 'USER' :
+          case MapSymbolType.USER :
             style = new ol.style.Style({
               image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
                 color: featureColor,
@@ -869,8 +882,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   /**
    * return lincense
    */
-  private attribution(): string {
-    return '© OpenStreetMap contributer';
+  private attribution(): any {
+
+    if( this.getUiMapOption() ) {
+      return [new ol.Attribution({
+        html: this.getUiMapOption().licenseNotation
+      })];
+    }
+    else {
+      return "© OpenStreetMap contributors";
+    }
   }
 
   /**
