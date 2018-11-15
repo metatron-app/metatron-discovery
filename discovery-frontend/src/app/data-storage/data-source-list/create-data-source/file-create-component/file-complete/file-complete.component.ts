@@ -284,9 +284,9 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
   private _deleteColumnProperty(column: any): void {
     delete column.biType;
     delete column.replaceFl;
-    // if removed property is false, delete removed property
-    if (column.removed === false) {
-      delete column.removed;
+    // if unloaded property is false, delete unloaded property
+    if (column.unloaded === false) {
+      delete column.unloaded;
     }
     // delete used UI
     delete column.isValidTimeFormat;
