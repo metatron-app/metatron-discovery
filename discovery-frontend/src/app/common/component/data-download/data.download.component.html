@@ -17,10 +17,10 @@
   <div class="ddp-data-title">
     {{ 'msg.board.download.title' | translate }}
     <span > </span>
-    <span *ngIf="preview" class="ddp-data">
+    <span *ngIf="isWidgetMode && isOriginDown && preview" class="ddp-data">
       {{ commonUtil.numberWithCommas( preview.totalCount ) }} {{'msg.storage.ui.dsource.preview.rows' | translate}} /
       {{ commonUtil.formatBytes( preview.estimatedSize, 1 ) }} </span>
-    <span *ngIf="!preview" class="ddp-data">{{ 'msg.board.download.calc-size' | translate }}</span>
+    <span *ngIf="isWidgetMode && isOriginDown && !preview" class="ddp-data">{{ 'msg.board.download.calc-size' | translate }}</span>
   </div>
 
   <div class="ddp-wrap-data-detail">

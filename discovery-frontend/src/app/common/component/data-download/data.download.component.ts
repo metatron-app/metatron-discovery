@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { AbstractPopupComponent } from '../abstract-popup.component';
+import {AbstractPopupComponent} from '../abstract-popup.component';
 import {
   Component,
   ElementRef,
@@ -23,24 +23,22 @@ import {
   OnInit, Output,
   SimpleChanges
 } from '@angular/core';
-import { WidgetService } from '../../../dashboard/service/widget.service';
-import { saveAs } from 'file-saver';
-import { GridComponent } from '../grid/grid.component';
-import { CommonUtil } from '../../util/common.util';
-import { Alert } from '../../util/alert.util';
+import {WidgetService} from '../../../dashboard/service/widget.service';
+import {saveAs} from 'file-saver';
+import {GridComponent} from '../grid/grid.component';
+import {CommonUtil} from '../../util/common.util';
+import {Alert} from '../../util/alert.util';
 
 @Component({
   selector: 'data-download',
   templateUrl: './data.download.component.html',
-  host: { '(document:click)': 'onClickHost($event)' }
+  host: {'(document:click)': 'onClickHost($event)'}
 })
 export class DataDownloadComponent extends AbstractPopupComponent implements OnInit, OnChanges, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Private Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  // 위젯 데이터 다운로드 모드
-  private _isWidgetMode: boolean = false;
 
   // 다운로드 대상 아이디
   private _downloadId: string = '';
@@ -55,24 +53,27 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  // 위젯 데이터 다운로드 모드
+  public isWidgetMode: boolean = false;
+
   public isShow: boolean = false;
 
   public downloadType: string = 'ALL';
   public downloadRow: number = 0;
-  public preview:PreviewResult;
+  public preview: PreviewResult;
 
   public commonUtil = CommonUtil;
 
-  @Output( 'close' )
-  public closeEvent:EventEmitter<any> = new EventEmitter<any>();
+  @Output('close')
+  public closeEvent: EventEmitter<any> = new EventEmitter<any>();
 
-  @Output( 'startDownload' )
-  public startDownEvent:EventEmitter<any> = new EventEmitter();
+  @Output('startDownload')
+  public startDownEvent: EventEmitter<any> = new EventEmitter();
 
-  @Output( 'endDownload')
-  public endDownEvent:EventEmitter<any> = new EventEmitter();
+  @Output('endDownload')
+  public endDownEvent: EventEmitter<any> = new EventEmitter();
 
-  public isOriginDown:boolean = true;
+  public isOriginDown: boolean = true;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -132,19 +133,24 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * 위젯 데이터 다운로드 팝업 오픈
    * @param {MouseEvent} event
    * @param {string} widgetId
+   * @param {boolean} isOriginDown
    */
-  public openWidgetDown(event: MouseEvent, widgetId: string, isOriginDown:boolean) {
+  public openWidgetDown(event: MouseEvent, widgetId: string, isOriginDown: boolean = true) {
     this._openComponent('RIGHT');
     this._downloadId = widgetId;
-    this._isWidgetMode = true;
+    this.isWidgetMode = true;
+    this.isOriginDown = isOriginDown;
+    this.preview = undefined;
 
-    this.widgetService.previewWidget(widgetId, isOriginDown).then(result => {
-      this.preview = result;
-      this.safelyDetectChanges();
-    }).catch( (err) => {
-      this.preview = null;
-      this.commonExceptionHandler(err);
-    });
+    if( isOriginDown ) {
+      this.widgetService.previewWidget(widgetId, isOriginDown, true).then(result => {
+        this.preview = result;
+        this.safelyDetectChanges();
+      }).catch((err) => {
+        this.preview = null;
+        this.commonExceptionHandler(err);
+      });
+    }
   } // function - openWidgetDown
 
   /**
@@ -155,7 +161,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
   public openGridDown(event: MouseEvent, gridComp: GridComponent) {
     this._openComponent('RIGHT');
     this._gridComp = gridComp;
-    this._isWidgetMode = false;
+    this.isWidgetMode = false;
   } // function - openGridDown
 
   /**
@@ -171,7 +177,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    */
   public downloadCSV() {
     this.close();
-    if (this._isWidgetMode) {
+    if (this.isWidgetMode) {
       this.startDownEvent.emit();
       this.widgetService.downloadWidget(this._downloadId, this.isOriginDown, 1000000, 'CSV').subscribe(
         result => {
@@ -193,7 +199,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    */
   public downloadExcel() {
     this.close();
-    if (this._isWidgetMode) {
+    if (this.isWidgetMode) {
       this.startDownEvent.emit();
       this.widgetService.downloadWidget(this._downloadId, this.isOriginDown, 1000000, 'EXCEL').subscribe(
         result => {
@@ -222,7 +228,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * @param {string} position
    * @private
    */
-  private _openComponent(position:string) {
+  private _openComponent(position: string) {
     this.downloadType = 'ALL';
     this.downloadRow = 0;
     this.isShow = true;
@@ -234,13 +240,13 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     const lnbmoreTop: number = $target.offset().top;
     switch (position) {
       case 'RIGHT' :
-        this.$element.find('.ddp-box-layout4.ddp-download').css({ 'left': lnbmoreLeft - 340, 'top': lnbmoreTop + 20 });
+        this.$element.find('.ddp-box-layout4.ddp-download').css({'left': lnbmoreLeft - 340, 'top': lnbmoreTop + 20});
         break;
       case 'CENTER' :
-        this.$element.find('.ddp-box-layout4.ddp-download').css({ 'left': lnbmoreLeft - 170, 'top': lnbmoreTop + 20 });
+        this.$element.find('.ddp-box-layout4.ddp-download').css({'left': lnbmoreLeft - 170, 'top': lnbmoreTop + 20});
         break;
       case 'LEFT' :
-        this.$element.find('.ddp-box-layout4.ddp-download').css({ 'left': lnbmoreLeft, 'top': lnbmoreTop + 20 });
+        this.$element.find('.ddp-box-layout4.ddp-download').css({'left': lnbmoreLeft, 'top': lnbmoreTop + 20});
         break;
       default :
     }
@@ -250,6 +256,6 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
 
 class PreviewResult {
   public estimatedSize: number;
-  public totalCount:number;
+  public totalCount: number;
 }
 

@@ -67,6 +67,10 @@ import {DashboardUtil} from '../../util/dashboard.util';
 import {isNullOrUndefined} from 'util';
 import {Datasource, Field} from '../../../domain/datasource/datasource';
 import {CommonUtil} from '../../../common/util/common.util';
+import {GridComponent} from "../../../common/component/grid/grid.component";
+import {header, SlickGridHeader} from "../../../common/component/grid/grid.header";
+import {GridOption} from "../../../common/component/grid/grid.option";
+import {Pivot} from "../../../domain/workbook/configurations/pivot";
 
 declare let $;
 
@@ -88,7 +92,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   private gridChart: GridChartComponent;
 
   @ViewChild('dataGrid')
-  private _dataGridChart: GridChartComponent;
+  private _dataGridComp: GridComponent;
 
   @ViewChild(DataDownloadComponent)
   private _dataDownComp: DataDownloadComponent;
@@ -119,8 +123,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   // 그리드에서 사용하는 옵션 ({}을 넣게되면 차트를 그릴때 uiOption값이 없는데도 차트를 그리다가 오류가 발생하므로 제거하였음 by juhee)
   protected gridUiOption: UIOption;
-
-  protected dataGridUiOption: UIOption = {};  // 데이터 그리드
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables
@@ -164,6 +166,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   // is Origin data down
   public isOriginDown: boolean = false;
+  public srchText:string;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -199,7 +202,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public ngOnInit() {
     super.ngOnInit();
-    this.dataGridUiOption = OptionGenerator.initUiOption({type: ChartType.GRID});
   }
 
   /**
@@ -671,14 +673,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   } // function - gridUiOptionUpdatedHandler
 
   /**
-   * 데이터 그리드 옵션 변경
-   * @param uiOption
-   */
-  public dataGridUiOptionUpdatedHandler(uiOption) {
-    this.dataGridUiOption = _.extend({}, this.dataGridUiOption, uiOption);
-  } // function - dataGridUiOptionUpdatedHandler
-
-  /**
    * 차트 표시 완료 이벤트
    */
   public updateComplete() {
@@ -944,7 +938,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     this.safelyDetectChanges(); // 변경 적용
     setTimeout(() => {
       this.drawDataGrid();    // 그리드 표시
-    }, 500 );
+    }, 500);
 
   } // function - showPreviewDownData
 
@@ -975,39 +969,94 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   public drawDataGrid(isOriginal: boolean = false) {
 
     this.loadingShow();
-    const cloneQuery = _.cloneDeep(this.query);
-    cloneQuery.resultFormat['mode'] = 'grid';
-    if (isOriginal) {
-      cloneQuery.resultFormat['options'] = {addMinMax: true, isOriginal: true};
-      if (cloneQuery.pivot.aggregations) {
-        cloneQuery.pivot.aggregations.forEach(item => item.aggregationType = 'NONE');
-      }
-    }
     this.isOriginDown = isOriginal;
+    this.widgetService.previewWidget(this.widget.id, isOriginal, false).then(result => {
 
-    this.datasourceService.searchQuery(cloneQuery).then((data) => {
-      (isNullOrUndefined(data.info)) && (data.info = {});
+      let fields = [];
+      const clonePivot: Pivot = _.cloneDeep(this.widgetConfiguration.pivot);
+      (clonePivot.rows) && (fields = fields.concat(clonePivot.rows));
+      (clonePivot.columns) && (fields = fields.concat(clonePivot.columns));
+      (clonePivot.aggregations) && (fields = fields.concat(clonePivot.aggregations));
+      // 헤더정보 생성
+      const headers: header[]
+        = fields.map((field: Field) => {
+        const logicalType:string = field['field'] ? field['field'].logicalType.toString() : '';
+        let headerName: string = field.name;
+        if( field['aggregationType'] ) {
+          if( !isOriginal ) {
+            headerName = field.alias ? field.alias : field['aggregationType'] + '(' + field.name + ')';
+          }
+        } else if( field.alias ) {
+          headerName = field.alias;
+        }
 
-      this.dataGridUiOption = OptionGenerator.initUiOption({type: ChartType.GRID});
-      const dataGridResultData = {
-        data,
-        config: cloneQuery,
-        uiOption: this.dataGridUiOption
-      };
+        return new SlickGridHeader()
+          .Id(headerName)
+          .Name('<span style="padding-left:20px;"><em class="' + this.getFieldTypeIconClass(logicalType) + '"></em>' + headerName + '</span>')
+          .Field(headerName)
+          .Behavior('select')
+          .Selectable(false)
+          .CssClass('cell-selection')
+          .Width(10 * (headerName.length) + 20)
+          .MinWidth(100)
+          .CannotTriggerInsert(true)
+          .Resizable(true)
+          .Unselectable(true)
+          .Sortable(true)
+          .build();
+      });
 
-      setTimeout(() => {
-        this._dataGridChart.resultData = dataGridResultData;
-        // 변경 적용
-        this.safelyDetectChanges();
+      let rows: any[] = result;
+      // row and headers가 있을 경우에만 그리드 생성
+      if (rows && 0 < headers.length) {
+        if (rows.length > 0 && !rows[0].hasOwnProperty('id')) {
+          rows = rows.map((row: any, idx: number) => {
+            Object.keys(row).forEach(key => {
+              row[key.substr(key.indexOf('.') + 1, key.length)] = row[key];
+            });
+            row.id = idx;
+            return row;
+          });
+        }
+
+        // dom 이 모두 로드되었을때 작동
+        this.changeDetect.detectChanges();
+
+        this._dataGridComp.create(headers, rows, new GridOption()
+          .SyncColumnCellResize(true)
+          .RowHeight(32)
+          .build());
+        // search
+        this._dataGridComp.search(this.srchText);
+
         this.loadingHide();
-      }, 1000);
-    }).catch((error) => {
+      }
+    }).catch((err) => {
+      console.error( err );
       this.loadingHide();
       // 변경 적용
       this.safelyDetectChanges();
     });
 
   } // function - drawDataGrid
+
+  /**
+   * 그리드 검색
+   * @param event
+   */
+  public searchKeyUp(event:KeyboardEvent) {
+    if( 13 === event.keyCode ) {
+      this._dataGridComp.search(this.srchText);
+    }
+  } // function - searchKeyUp
+
+  /**
+   * 검색 클리어
+   */
+  public clearSearch() {
+    this.srchText = '';
+    this._dataGridComp.search(this.srchText);
+  } // function - clearSearch
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
