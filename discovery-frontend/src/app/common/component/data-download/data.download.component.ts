@@ -72,6 +72,8 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
   @Output( 'endDownload')
   public endDownEvent:EventEmitter<any> = new EventEmitter();
 
+  public isOriginDown:boolean = true;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -131,12 +133,12 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * @param {MouseEvent} event
    * @param {string} widgetId
    */
-  public openWidgetDown(event: MouseEvent, widgetId: string) {
+  public openWidgetDown(event: MouseEvent, widgetId: string, isOriginDown:boolean) {
     this._openComponent('RIGHT');
     this._downloadId = widgetId;
     this._isWidgetMode = true;
 
-    this.widgetService.previewWidget(widgetId, true).then(result => {
+    this.widgetService.previewWidget(widgetId, isOriginDown).then(result => {
       this.preview = result;
       this.safelyDetectChanges();
     }).catch( (err) => {
@@ -171,7 +173,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     this.close();
     if (this._isWidgetMode) {
       this.startDownEvent.emit();
-      this.widgetService.downloadWidget(this._downloadId, true, 1000000, 'CSV').subscribe(
+      this.widgetService.downloadWidget(this._downloadId, this.isOriginDown, 1000000, 'CSV').subscribe(
         result => {
           // 파일 저장
           saveAs(result, 'data.csv');
@@ -193,7 +195,7 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     this.close();
     if (this._isWidgetMode) {
       this.startDownEvent.emit();
-      this.widgetService.downloadWidget(this._downloadId, true, 1000000, 'EXCEL').subscribe(
+      this.widgetService.downloadWidget(this._downloadId, this.isOriginDown, 1000000, 'EXCEL').subscribe(
         result => {
           // 파일 저장
           saveAs(result, 'data.xlsx');
