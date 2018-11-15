@@ -1446,6 +1446,8 @@
   "msg.board.alert.fail.load.datasource" : "데이터소스 목록을 불러오는데 실패하였습니다",
   "msg.board.alert.fail.ingestion" : "임시 데이터소스 생성에 실패하였습니다",
   "msg.board.alert.fail.load.essential" : "필수필터 목록을 불러오는데 실패하였습니다",
+  "msg.board.alert.can-not-edit-missing-datasource" : "데이터소스가 삭제된 위젯은 수정할 수 없습니다.",
+  "msg.board.alert.can-not-copy-missing-datasource" : "데이터소스가 삭제된 위젯은 복사할 수 없습니다.",
   "msg.board.ui.ingestion.time" : "Ingestion은 최대 5분 정도 소요될 수 있습니다",
   "msg.board.ui.tryagain" : "재시도",
   "msg.board.ui.missing_datasource" : "Datasource is missing",

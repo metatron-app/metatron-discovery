@@ -1446,6 +1446,8 @@
   "msg.board.alert.fail.load.datasource" : "Failed to load datasource list.",
   "msg.board.alert.fail.ingestion" : "Temporary datasource creation failed.",
   "msg.board.alert.fail.load.essential" : "Failed to load mandatory filter list.",
+  "msg.board.alert.can-not-edit-missing-datasource" : "You can not modify a widget whose data source has been deleted.",
+  "msg.board.alert.can-not-copy-missing-datasource" : "You can not copy a widget whose data source has been deleted.",
   "msg.board.ui.ingestion.time" : "Ingestion might be taken maximum 5 minutes.",
   "msg.board.ui.tryagain" : "Try again",
   "msg.board.ui.missing_datasource" : "Datasource is missing",

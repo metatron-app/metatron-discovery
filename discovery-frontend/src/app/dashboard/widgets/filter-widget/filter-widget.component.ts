@@ -204,7 +204,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
         this._candidate( filter );
       } else {
         this.processStart();
-        this.isValidWidget = false;
+        this.isError = true;
         this.processEnd();
       }
     }
@@ -230,7 +230,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * @param {FilterWidgetConfiguration} objConfig
    */
   public setConfiguration(objConfig: FilterWidgetConfiguration) {
-    if( this.isValidWidget ) {
+    if( this.isError ) {
       this.widget.configuration = objConfig;
       this._candidate( this.getFilter() );
     }
@@ -432,7 +432,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * @private
    */
   private _initialContainer() {
-    this.isValidWidget = true;
+    this.isError = false;
     // 콤보박스 관련된 필터 뷰 설정
     this.safelyDetectChanges();
     if (!this.isEditMode) {
@@ -559,7 +559,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
 
         this.processEnd();
       }).catch((error) => {
-        this.isValidWidget = false;
+        this.isError = true;
 
         this.commonExceptionHandler(error);
         // 목록 비움

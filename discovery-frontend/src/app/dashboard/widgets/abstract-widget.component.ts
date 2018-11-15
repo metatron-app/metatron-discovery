@@ -18,6 +18,7 @@ import { Widget } from '../../domain/dashboard/widget/widget';
 import { EventBroadcaster } from '../../common/event/event.broadcaster';
 import { LayoutMode } from '../../domain/dashboard/dashboard';
 import * as $ from "jquery";
+import {Alert} from "../../common/util/alert.util";
 
 export abstract class AbstractWidgetComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -34,7 +35,8 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
   public isEditMode: boolean = false;
   public isViewMode: boolean = false;
   public isAuthMgmtViewMode: boolean = false;
-  public isValidWidget:boolean = false;
+  public isError: boolean = false;                // 에러 상태 표시 여부
+  public isMissingDataSource:boolean = false;
 
   public isVisibleScrollbar: boolean = false;   // 스크롤바 표시 여부 체크
 
@@ -93,17 +95,19 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
    * 위젯 수정
    */
   public editWidget() {
-    if( this.isValidWidget ) {
-      // workbook.component 로 이벤트 전달 -> 워크북에서 대시보드 편집 화면으로 이동시킴
-      this.broadCaster.broadcast(
-        'MOVE_EDIT_WIDGET',
-        {
-          cmd: 'MODIFY',
-          id: this.widget.id,
-          type: this.widget.type.toUpperCase()
-        }
-      );
+    if( this.isMissingDataSource ) {
+      Alert.warning( this.translateService.instant('msg.board.alert.can-not-edit-missing-datasource') );
+      return;
     }
+    // workbook.component 로 이벤트 전달 -> 워크북에서 대시보드 편집 화면으로 이동시킴
+    this.broadCaster.broadcast(
+      'MOVE_EDIT_WIDGET',
+      {
+        cmd: 'MODIFY',
+        id: this.widget.id,
+        type: this.widget.type.toUpperCase()
+      }
+    );
   } // function - editWidget
 
   /**
