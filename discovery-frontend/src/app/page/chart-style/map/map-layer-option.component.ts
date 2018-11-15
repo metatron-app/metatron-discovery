@@ -272,9 +272,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * all layers - change color column (color by dimension, measure)
    * @param {Object} data
    */
-  public changeColorColumn(data: Object) {
+  public changeColorColumn(data: Field) {
 
-    this.uiOption.layers[this.index].color.column = data['value'];
+    this.uiOption.layers[this.index].color.column = data.alias;
 
     this.applyLayers();
   }
@@ -311,7 +311,12 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
     // set column when size by is measure
     if (MapBy.MEASURE === data['value']) {
-      (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = this.uiOption.fieldMeasureList[0]['alias'];
+
+      if (this.uiOption.fieldMeasureList && this.uiOption.fieldMeasureList.length > 0) {
+        (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = this.uiOption.fieldMeasureList[0]['alias'];
+      } else {
+        (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = '';
+      }
     }
 
     this.applyLayers();
@@ -321,9 +326,9 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    * symbol layer - change size column
    * @param {Object} data
    */
-  public changeSizeColumn(data: Object) {
+  public changeSizeColumn(data: Field) {
 
-    (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = data['value'];
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = data.alias;
 
     this.applyLayers();
   }
@@ -425,12 +430,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     (<UILineLayer>this.uiOption.layers[this.index]).lineStyle = lineStyle;
 
     this.applyLayers();
-  }
-
-  /**
-   * toggle custom color setting
-   */
-  public toggleCustomColor() {
   }
 
   /**

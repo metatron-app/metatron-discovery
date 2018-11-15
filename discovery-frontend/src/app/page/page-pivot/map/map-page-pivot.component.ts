@@ -70,9 +70,24 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
   public shelf: Shelf;
 
+  @Input('pivot')
+  set setPivot(pivot: Pivot) {
+
+    this.pivot = pivot;
+  }
+
   // layer에 따라서 해당 index에 설정하기
   @Input('shelf')
   set setShelf(shelf: Shelf) {
+
+    // convert shelf from pivot
+    if (0 === shelf.layers[this.uiOption.layerNum].length) {
+      _.forEach(this.pivot, (value, key) => {
+        this.pivot[key].map((item) => {
+          shelf.layers[this.uiOption.layerNum].push(item);
+        });
+      });
+    }
 
     this.shelf = shelf;
 
