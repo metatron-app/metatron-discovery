@@ -2419,7 +2419,6 @@
   "msg.page.common.map.layer.map.style.dark": "Dark",
   "msg.page.common.map.layer.map.style.colored": "Colored",
   "msg.page.common.map.layer.service.none": "None",
-  "msg.page.common.map.layer.style": "Map Style",
   "msg.page.common.map.layer.license": "Service License",
   "msg.page.layer.map": "Layer Setting",
   "msg.page.layer.map.name": "Layer Name",
