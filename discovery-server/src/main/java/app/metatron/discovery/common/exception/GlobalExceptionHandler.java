@@ -14,7 +14,6 @@
 
 package app.metatron.discovery.common.exception;
 
-import app.metatron.discovery.common.CommonLocalVariable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -38,6 +37,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.io.IOException;
 
+import app.metatron.discovery.common.CommonLocalVariable;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 
@@ -78,12 +78,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     ResponseStatus responseStatus = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
 
+    String details = ExceptionUtils.getRootCauseMessage(ex);
+
     if (responseStatus != null) {
       status = responseStatus.code();
-      response = new ErrorResponse(ex.getCode(), responseStatus.reason(), ex.getMessage());
+      response = new ErrorResponse(ex.getCode(), ex.getMessage(), details);
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
-      response = new ErrorResponse(ex.getCode(), MetatronException.DEFAULT_GLOBAL_MESSAGE, ex.getMessage());
+      response = new ErrorResponse(ex.getCode(), MetatronException.DEFAULT_GLOBAL_MESSAGE, details);
     }
 
     LOGGER.error("[API:{}] {} {}: {}, {}", ((ServletWebRequest) request).getRequest().getRequestURI(),

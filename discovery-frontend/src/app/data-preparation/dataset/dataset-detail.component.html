@@ -133,7 +133,10 @@
       <div class="ddp-ui-datadetail">
         <label class="ddp-label-detail">
           {{'msg.comm.th.used' | translate}}
-          <a href="javascript:" class="ddp-btn-line" (click)="addToDataflow()" *ngIf="dataset.importType"><em class="ddp-icon-add"></em>{{'msg.dp.btn.add-to-dataflow' | translate}}</a>
+          <div class="ddp-fright">
+            <a href="javascript:" class="ddp-btn-line" (click)="addToExistingFlow()"><em class="ddp-icon-add"></em>{{'msg.dp.ui.add.existing.dataflow' | translate}}</a>
+            <a href="javascript:" class="ddp-btn-selection ddp-gray" (click)="createNewFlow()" *ngIf="dataset.importType"><em class="ddp-icon-view"></em>{{'Create dataflow with this dataset' | translate}}</a>
+          </div>
         </label>
         <div class="ddp-data-none" *ngIf="dataset.dataflows && dataset.dataflows.length === 0">{{'msg.dp.ui.no-use' | translate }}</div>
         <ul class="ddp-list-detail ddp-cursor" *ngIf="dataset.dataflows && dataset.dataflows.length > 0">
@@ -154,7 +157,7 @@
             <!-- //data -->
             <!-- 플로우 설명 이름 -->
             <div class="ddp-wrap-detailname">
-              <span class="ddp-data-detailname">{{item.dfName}}</span> <span class="ddp-data-summary">- {{item.dfName}}</span>
+              <span class="ddp-data-detailname">{{item.dfName}}</span> <span class="ddp-data-summary" *ngIf="item.dfDesc">- {{item.dfDesc}}</span>
             </div>
             <!-- //플로우 설명 이름 -->
           </li>
@@ -168,3 +171,9 @@
 <app-delete-modal (deleteConfirm)="deleteDataset()"></app-delete-modal>
 <create-snapshot-popup (snapshotCreateFinishEvent)="snapshotCreateFinish($event)"></create-snapshot-popup>
 <snapshot-loading></snapshot-loading>
+<app-add-dataset-dataflow *ngIf="isSelectDataflowOpen"
+                          (close)="closeSelectDataflow($event)"
+                          [datasetName]="dataset.dsName"
+                          [datasetId]="dataset.dsId"
+                          [dfStr]="dfStr">
+</app-add-dataset-dataflow>

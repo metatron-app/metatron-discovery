@@ -183,7 +183,7 @@ export class Field {
   isValidReplaceValue?: boolean;
   replaceValidMessage?: string;
   timeFormatValidMessage?: string;
-  removed?: boolean;
+  unloaded?: boolean;
 
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디
@@ -269,7 +269,6 @@ export class DatasourceInfo {
   public schemaData: any;
 
   // 4step
-  public permissionData: any;
   public ingestionData: any;
 
   // 5step 생성정보

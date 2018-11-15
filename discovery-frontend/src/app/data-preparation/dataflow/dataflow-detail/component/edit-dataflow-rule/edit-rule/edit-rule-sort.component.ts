@@ -97,7 +97,12 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
       return invalidResult
     }
 
-    const columnsStr: string = this.selectedFields.map( item => item.name ).join(', ');
+    const columnsStr: string = this.selectedFields.map((item) => {
+      if (-1 !== item.name.indexOf(' ')) {
+        item.name = '`' + item.name + '`';
+      }
+      return item.name
+    }).join(', ');
 
     let rule =  {
       command: 'sort',
@@ -152,17 +157,17 @@ export class EditRuleSortComponent extends EditRuleComponent implements OnInit, 
   } // function - afterShowComp
 
   /**
-   * rule string 을 분석한다.
-   * @param ruleString
+   * parse ruleString
+   * @param data ({ruleString : string, jsonRuleString : any})
    */
-  protected parsingRuleString(ruleString:string) {
-    let fieldsStr:string = this.getAttrValueInRuleString( 'order', ruleString );
-    if( '' !== fieldsStr ) {
-      const arrFields:string[] = ( -1 < fieldsStr.indexOf( ',' ) ) ? fieldsStr.split(',') : [fieldsStr];
-      this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
-    }
+  protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
-    this.sortBy = this.getAttrValueInRuleString( 'type', ruleString );
+    // COLUMN
+    let arrFields:string[] = typeof data.jsonRuleString.order.value === 'string' ? [data.jsonRuleString.order.value] : data.jsonRuleString.order.value;
+    this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
+
+    // SORT BY
+    this.sortBy = data.jsonRuleString.type;
     this.defaultIndex = this.sortBy ? 1 : 0;
 
   } // function - parsingRuleString

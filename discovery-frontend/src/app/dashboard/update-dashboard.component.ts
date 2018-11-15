@@ -28,43 +28,43 @@ import {
   SimpleChanges,
   SimpleChange
 } from '@angular/core';
-import { Workbook } from '../domain/workbook/workbook';
+import {Workbook} from '../domain/workbook/workbook';
 import {
   BoardConfiguration,
   BoardDataSource,
   Dashboard,
   LayoutMode
 } from '../domain/dashboard/dashboard';
-import { ConnectionType, Datasource, Field, FieldRole, TempDsStatus } from '../domain/datasource/datasource';
-import { TextWidget } from '../domain/dashboard/widget/text-widget';
-import { PageWidget, PageWidgetConfiguration } from 'app/domain/dashboard/widget/page-widget';
-import { Widget } from '../domain/dashboard/widget/widget';
-import { PopupService } from '../common/service/popup.service';
-import { SubscribeArg } from '../common/domain/subscribe-arg';
-import { Alert } from '../common/util/alert.util';
-import { DashboardService } from './service/dashboard.service';
-import { CustomField } from '../domain/workbook/configurations/field/custom-field';
-import { Filter } from '../domain/workbook/configurations/filter/filter';
-import { WidgetService } from './service/widget.service';
-import { ImageService } from '../common/service/image.service';
-import { DashboardLayoutComponent } from './component/dashboard-layout/dashboard.layout.component';
-import { Modal } from '../common/domain/modal';
-import { FilterWidget, FilterWidgetConfiguration } from '../domain/dashboard/widget/filter-widget';
-import { DatasourceService } from '../datasource/service/datasource.service';
-import { isNullOrUndefined } from 'util';
-import { Pivot } from '../domain/workbook/configurations/pivot';
-import { CommonUtil } from '../common/util/common.util';
-import { PageRelationComponent } from './component/update-dashboard/page-relation.component';
-import { EventBroadcaster } from '../common/event/event.broadcaster';
-import { TextWidgetPanelComponent } from './component/update-dashboard/text-widget-panel.component';
-import { DatasourcePanelComponent } from './component/update-dashboard/datasource-panel.component';
-import { PageComponent } from '../page/page.component';
-import { ActivatedRoute } from '@angular/router';
-import { DashboardPageRelation, DashboardWidgetRelation } from 'app/domain/dashboard/widget/page-widget.relation';
-import { ConfigureFiltersComponent } from './filters/configure-filters.component';
-import { DashboardUtil } from './util/dashboard.util';
-import { WidgetShowType } from '../domain/dashboard/dashboard.globalOptions';
-import { FilterUtil } from './util/filter.util';
+import {ConnectionType, Datasource, Field, FieldRole, TempDsStatus} from '../domain/datasource/datasource';
+import {TextWidget} from '../domain/dashboard/widget/text-widget';
+import {PageWidget, PageWidgetConfiguration} from 'app/domain/dashboard/widget/page-widget';
+import {Widget} from '../domain/dashboard/widget/widget';
+import {PopupService} from '../common/service/popup.service';
+import {SubscribeArg} from '../common/domain/subscribe-arg';
+import {Alert} from '../common/util/alert.util';
+import {DashboardService} from './service/dashboard.service';
+import {CustomField} from '../domain/workbook/configurations/field/custom-field';
+import {Filter} from '../domain/workbook/configurations/filter/filter';
+import {WidgetService} from './service/widget.service';
+import {ImageService} from '../common/service/image.service';
+import {DashboardLayoutComponent} from './component/dashboard-layout/dashboard.layout.component';
+import {Modal} from '../common/domain/modal';
+import {FilterWidget, FilterWidgetConfiguration} from '../domain/dashboard/widget/filter-widget';
+import {DatasourceService} from '../datasource/service/datasource.service';
+import {isNullOrUndefined} from 'util';
+import {Pivot} from '../domain/workbook/configurations/pivot';
+import {CommonUtil} from '../common/util/common.util';
+import {PageRelationComponent} from './component/update-dashboard/page-relation.component';
+import {EventBroadcaster} from '../common/event/event.broadcaster';
+import {TextWidgetPanelComponent} from './component/update-dashboard/text-widget-panel.component';
+import {DatasourcePanelComponent} from './component/update-dashboard/datasource-panel.component';
+import {PageComponent} from '../page/page.component';
+import {ActivatedRoute} from '@angular/router';
+import {DashboardPageRelation, DashboardWidgetRelation} from 'app/domain/dashboard/widget/page-widget.relation';
+import {ConfigureFiltersComponent} from './filters/configure-filters.component';
+import {DashboardUtil} from './util/dashboard.util';
+import {WidgetShowType} from '../domain/dashboard/dashboard.globalOptions';
+import {FilterUtil} from './util/filter.util';
 import { ChartType } from '../common/component/chart/option/define/common';
 import { UIMapOption } from '../common/component/chart/option/ui-option/map/ui-map-chart';
 import { Shelf } from '../domain/workbook/configurations/shelf/shelf';
@@ -468,7 +468,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       const modal = new Modal();
       modal.name = this.translateService.instant('msg.comm.ui.del.description');
       modal.btnName = this.translateService.instant('msg.comm.btn.del');
-      modal.data = { type: 'removeTextWidget' };
+      modal.data = {type: 'removeTextWidget'};
       modal.afterConfirm = () => {
         this.deleteWidgetIds.push(event.widget.id);  // 삭제 위젯 등록
         this.removeWidget(event.widget.id);          // 대시보드상의 위젯 제거
@@ -588,7 +588,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     modal.name = this.translateService.instant('msg.board.alert.title.change');
     modal.description = this.translateService.instant('msg.board.alert.desc.move');
     modal.btnName = this.translateService.instant('msg.comm.btn.mov');
-    modal.data = { type: 'changeDashboard' };
+    modal.data = {type: 'changeDashboard'};
     modal.afterConfirm = () => {
       if (dashboardItem) {
         this.selectedDashboard.emit(dashboardItem);
@@ -634,10 +634,10 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     // 위젯 등록/수정
     DashboardUtil.getWidgets(this.dashboard).forEach((result: Widget) => {
 
-      if( -1 === this.deleteWidgetIds.indexOf( result.id ) ) {
-        const param = { configuration: _.cloneDeep(result.configuration), name: result.name };
+      if (-1 === this.deleteWidgetIds.indexOf(result.id)) {
+        const param = {configuration: _.cloneDeep(result.configuration), name: result.name};
         if ('page' === result.type) {
-          if( -1 < this._removeDsEngineNames.indexOf( param.configuration['dataSource']['engineName'] ) ) {
+          if (-1 < this._removeDsEngineNames.indexOf(param.configuration['dataSource']['engineName'])) {
             this.hierarchy.del(result.id);
             this.dashboard.configuration.relations = this.hierarchy.get().map(node => node.toPageRelation());
             this.deleteWidgetIds.push(result.id);     // 삭제 위젯 등록
@@ -654,8 +654,8 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
             promises.push(() => this.widgetService.updateWidget(result.id, param));   // update widget
           }
         } else if ('filter' === result.type) {
-          if( -1 < this._removeDsEngineNames.indexOf( param.configuration['filter']['dataSource'] ) ) {
-            this.deleteWidgetIds.push( result.id );
+          if (-1 < this._removeDsEngineNames.indexOf(param.configuration['filter']['dataSource'])) {
+            this.deleteWidgetIds.push(result.id);
             this.removeWidgetComponent(result.id);    // 대시보드상의 위젯 제거
           } else {
             param.configuration['filter'] = FilterUtil.convertToServerSpecForDashboard(param.configuration['filter']);
@@ -705,7 +705,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     modal.name = this.translateService.instant('msg.board.alert.title.change');
     modal.description = this.translateService.instant('msg.board.alert.desc.exit');
     modal.btnName = this.translateService.instant('msg.comm.btn.exit');
-    modal.data = { type: 'dismiss' };
+    modal.data = {type: 'dismiss'};
     modal.afterConfirm = () => {
       // 대시보드 변경취소
       this.changeMode.emit('VIEW');
@@ -846,7 +846,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       const modal = new Modal();
       modal.name = this.translateService.instant('msg.comm.ui.del.description');
       modal.btnName = this.translateService.instant('msg.comm.btn.del');
-      modal.data = { type: 'removePageWidget' };
+      modal.data = {type: 'removePageWidget'};
       modal.afterConfirm = () => {
         // 연관관계 정보 삭제 및 relation 정보 갱신
         this.hierarchy.del(widgetId);
@@ -1034,17 +1034,17 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     }
 
     this.dashboardService.updateDashboard(
-      this.dashboard.id, { configuration: DashboardUtil.getBoardConfiguration(this.dashboard) }
+      this.dashboard.id, {configuration: DashboardUtil.getBoardConfiguration(this.dashboard)}
     ).then((result) => {
       if (result.hasOwnProperty('configuration')) {
-        result = DashboardUtil.convertSpecToUI( result );
+        result = DashboardUtil.convertSpecToUI(result);
         this.dashboard = DashboardUtil.updateBoardConfiguration(this.dashboard, result.configuration);
         this.dashboard.updateId = CommonUtil.getUUID();
-        this.broadCaster.broadcast('SET_CUSTOM_FIELDS', { customFields: customFields });
+        this.broadCaster.broadcast('SET_CUSTOM_FIELDS', {customFields: customFields});
         if (isEdit) {
-          Alert.success(this.translateService.instant('msg.board.custom.ui.update', { name: customField.name }));
+          Alert.success(this.translateService.instant('msg.board.custom.ui.update', {name: customField.name}));
         } else {
-          Alert.success(this.translateService.instant('msg.board.custom.ui.create', { name: customField.name }));
+          Alert.success(this.translateService.instant('msg.board.custom.ui.create', {name: customField.name}));
         }
         this.hideBoardLoading();
       }
@@ -1067,23 +1067,23 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       widgets.forEach((widget: Widget) => {
         //  차트인 의 컬럼이 사용중일경우
         if (widget.configuration && widget.configuration.hasOwnProperty('pivot') && widget.configuration['pivot'].hasOwnProperty('columns')) {
-          const idx = _.findIndex(widget.configuration['pivot']['columns'], { name: field.name });
+          const idx = _.findIndex(widget.configuration['pivot']['columns'], {name: field.name});
           if (idx > -1) useChartList.push(widget.name);
         }
         //
         if (widget.configuration && widget.configuration.hasOwnProperty('pivot') && widget.configuration['pivot'].hasOwnProperty('aggregations')) {
-          const idx = _.findIndex(widget.configuration['pivot']['aggregations'], { name: field.name });
+          const idx = _.findIndex(widget.configuration['pivot']['aggregations'], {name: field.name});
           if (idx > -1) useChartList.push(widget.name);
         }
         if (widget.configuration && widget.configuration.hasOwnProperty('pivot') && widget.configuration['pivot'].hasOwnProperty('rows')) {
-          const idx = _.findIndex(widget.configuration['pivot']['rows'], { name: field.name });
+          const idx = _.findIndex(widget.configuration['pivot']['rows'], {name: field.name});
           if (idx > -1) useChartList.push(widget.name);
         }
       });
     }
 
     // 차트필터에서 사용중인지 체크
-    let idx = _.findIndex(this.chartFilters, { field: field.name });
+    let idx = _.findIndex(this.chartFilters, {field: field.name});
     if (idx > -1) useFilterList.push(this.chartFilters[idx].type + '_' + this.chartFilters[idx].field);
     // 글로벌필터에서 사용중인지 체크
     const boardFilter: Filter = DashboardUtil.getBoardFilter(this.dashboard, field);
@@ -1104,7 +1104,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       modal.name = this.translateService.instant('msg.board.ui.not.delete.custom');
       modal.description = description;
       modal.isShowCancel = false;
-      modal.data = { type: 'deleteCustomField' };
+      modal.data = {type: 'deleteCustomField'};
       CommonUtil.confirm(modal);
       return;
     }
@@ -1112,7 +1112,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     // 사용중인 곳이 없다면 바로 삭제
     const customFields = DashboardUtil.getCustomFields(this.dashboard);
 
-    idx = _.findIndex(customFields, { name: field.name });
+    idx = _.findIndex(customFields, {name: field.name});
 
     if (idx > -1) {
       customFields.splice(idx, 1);
@@ -1123,7 +1123,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       this.safelyDetectChanges();
 
       // 페이지 위젯내 커스텀 필드 재설정
-      this.broadCaster.broadcast('SET_CUSTOM_FIELDS', { customFields: customFields });
+      this.broadCaster.broadcast('SET_CUSTOM_FIELDS', {customFields: customFields});
 
       this.hideBoardLoading();
     }
@@ -1153,7 +1153,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       this._configFilterComp.close();
       this.hideBoardLoading();
       if (isSetPanel) {
-        this.popupService.notiFilter({ name: 'change-filter', data: filter });
+        this.popupService.notiFilter({name: 'change-filter', data: filter});
       }
       this.safelyDetectChanges();
     });
@@ -1202,7 +1202,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       if (widget) {
 
         // 위젯에서 필터제거
-        _.remove(widget.configuration.filters, { field: filter.field });
+        _.remove(widget.configuration.filters, {field: filter.field});
 
         // 차트 필터에서 필터제거
         const removeIdx: number
@@ -1211,7 +1211,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
         // 위젯 필터 재설정
         this._syncFilterWidget();
-        this.popupService.notiFilter({ name: 'remove-filter', data: filter });
+        this.popupService.notiFilter({name: 'remove-filter', data: filter});
       }
     } else {
 
@@ -1230,7 +1230,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
 
     // 위젯 필터 재설정
     this._syncFilterWidget();
-    this.popupService.notiFilter({ name: 'remove-filter', data: filter });
+    this.popupService.notiFilter({name: 'remove-filter', data: filter});
   } // function - deleteFilter
 
   // noinspection JSMethodCanBeStatic
@@ -1251,7 +1251,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     const modal = new Modal();
     modal.name = this.translateService.instant('msg.board.filter.alert.change.global');
     modal.description = this.translateService.instant('msg.board.filter.alert.change.global.des');
-    modal.data = { filter, type: 'changeFilter' };
+    modal.data = {filter, type: 'changeFilter'};
     CommonUtil.confirm(modal);
   } // function - openChangeFilterConfirm
 
@@ -1285,12 +1285,12 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
     // 위젯에서 필터 제거
     DashboardUtil.getPageWidgets(this.dashboard).forEach((widget: PageWidget) => {
       if (widget.configuration.filters && widget.configuration.filters.length > 0) {
-        _.remove(widget.configuration.filters, { field: targetFilter.field });
+        _.remove(widget.configuration.filters, {field: targetFilter.field});
       }
     });
 
     // 차트필터에서 필터 제거
-    _.remove(this.chartFilters, { field: targetFilter.field });
+    _.remove(this.chartFilters, {field: targetFilter.field});
 
     delete targetFilter.ui.widgetId;
   } // function - _changeChartFilterToGlobalFilter
@@ -1304,7 +1304,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    */
   private _syncWidgetsAndFilters(customFields: CustomField[], fields: Field[], changeWidgetId: string) {
 
-    customFields = CommonUtil.objectToArray( customFields );
+    customFields = CommonUtil.objectToArray(customFields);
 
     // 사용자 정의 필드를 위젯에 셋팅
     DashboardUtil.getPageWidgets(this.dashboard).forEach((widget: Widget) => {
@@ -1327,7 +1327,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       }
     });
     this._organizeAllFilters(true).then(() => {
-      this._syncFilterWidget( changeWidgetId );
+      this._syncFilterWidget(changeWidgetId);
     });
 
   } // function - _syncWidgetsAndFilters
@@ -1509,17 +1509,17 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       const mainDsList: Datasource[] = DashboardUtil.getMainDataSources(boardInfo);
 
       if (0 < mainDsList.length) {
-        const linkedDsList:Datasource[] = mainDsList.filter( item => item.connType === ConnectionType.LINK );
+        const linkedDsList: Datasource[] = mainDsList.filter(item => item.connType === ConnectionType.LINK);
 
-        if ( linkedDsList && 0 < linkedDsList.length ) {
+        if (linkedDsList && 0 < linkedDsList.length) {
           // Multi Datasource Dashboard
           this.showBoardLoading();
 
           const promises = [];
 
-          linkedDsList.forEach( dsInfo => {
-            promises.push( new Promise<any>((res, rej) => {
-              const boardDsInfo:BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(boardInfo,dsInfo);
+          linkedDsList.forEach(dsInfo => {
+            promises.push(new Promise<any>((res, rej) => {
+              const boardDsInfo: BoardDataSource = DashboardUtil.getBoardDataSourceFromDataSource(boardInfo, dsInfo);
               this.datasourceService.getDatasourceDetail(boardDsInfo['temporaryId']).then((ds: Datasource) => {
                 boardDsInfo.metaDataSource = ds;
                 res();
@@ -1622,7 +1622,7 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
   private _callUpdateDashboardService(imageUrl) {
 
     // params
-    const param: any = { configuration: DashboardUtil.getBoardConfiguration(this.dashboard) };
+    const param: any = {configuration: DashboardUtil.getBoardConfiguration(this.dashboard)};
     param.imageUrl = imageUrl;
 
     this.showBoardLoading();
@@ -1665,18 +1665,18 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
    * @param {string} excludeWidgetId
    * @private
    */
-  private _syncFilterWidget( excludeWidgetId?:string ) {
+  private _syncFilterWidget(excludeWidgetId?: string) {
 
-    const boardFilters:Filter[] = DashboardUtil.getBoardFilters(this.dashboard);
+    const boardFilters: Filter[] = DashboardUtil.getBoardFilters(this.dashboard);
     // Compares the filter widget with the filter information and deletes it for widgets that do not have filter information.
     this.getWidgetComps().forEach((widgetComp) => {
       if (widgetComp.isFilterWidget) {
-        const filterWidget:FilterWidget = <FilterWidget>widgetComp.getWidget();
-        const filter = boardFilters.find( item => DashboardUtil.isSameFilterAndWidget( this.dashboard, item, filterWidget ) );
+        const filterWidget: FilterWidget = <FilterWidget>widgetComp.getWidget();
+        const filter = boardFilters.find(item => DashboardUtil.isSameFilterAndWidget(this.dashboard, item, filterWidget));
 
-        if ( filter ) {
+        if (filter) {
           filterWidget.configuration.filter = filter;
-          this.dashboard = DashboardUtil.updateWidget( this.dashboard, filterWidget );
+          this.dashboard = DashboardUtil.updateWidget(this.dashboard, filterWidget);
           this.broadCaster.broadcast('SET_WIDGET_CONFIG', {
             widgetId: filterWidget.id,
             config: filterWidget.configuration
@@ -1687,9 +1687,9 @@ export class UpdateDashboardComponent extends DashboardLayoutComponent implement
       }
     });
 
-    const boardCastData = { filters: boardFilters };
-    ( excludeWidgetId ) && ( boardCastData['excludeWidgetId'] = excludeWidgetId );
-    this.broadCaster.broadcast('SET_GLOBAL_FILTER', boardCastData );
+    const boardCastData = {filters: boardFilters};
+    (excludeWidgetId) && (boardCastData['excludeWidgetId'] = excludeWidgetId);
+    this.broadCaster.broadcast('SET_GLOBAL_FILTER', boardCastData);
 
   } // function - syncFilterWidget
 

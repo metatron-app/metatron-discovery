@@ -130,7 +130,7 @@
         {{'msg.comm.th.type' | translate}}
       </dt>
       <dd>
-        {{selectedDataSet.dsType && selectedDataSet.dsType.toString() === 'IMPORTED' ? selectedDataSet.importType : 'Wrangled dataset'}}
+        {{getFileType(selectedDataSet.dsType, selectedDataSet.importType, selectedDataSet.filename)}}
       </dd>
     </dl>
     <!-- //detail -->
@@ -145,7 +145,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail 사이즈 [DB,FILE] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString()==='IMPORTED' && selectedDataSet.importType.toString() !=='DB'">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.dsType && selectedDataSet.dsType.toString()==='IMPORTED' && selectedDataSet.importType && selectedDataSet.importType.toString() !=='DB'">
       <dt>
         {{'msg.comm.detail.size' | translate}}
       </dt>
@@ -155,7 +155,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail 시트 [FILE] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='FILE'">
+    <dl class="ddp-dl-detail" *ngIf="getDatasetType(selectedDataSet.importType,selectedDataSet.filename) === 'EXCEL'">
       <dt>
         {{'msg.dp.th.sheet' | translate}}
       </dt>
@@ -170,15 +170,13 @@
         {{'msg.dp.th.summary' | translate}}
       </dt>
       <dd *ngIf="selectedDataSet">
-        {{getRows}} {{'msg.comm.detail.rows' | translate}} <br>
-        <!--<span *ngIf="temp.gridData && temp.dsType.toString() === 'WRANGLED'">{{temp.gridResponse.colCnt}} {{'msg.comm.detail.columns' | translate}}</span>-->
-        <span *ngIf="selectedDataSet">{{getColCnt}} {{'msg.comm.detail.columns' | translate}}</span>
+        {{getRows}} / {{getColCnt}}
       </dd>
     </dl>
     <!-- //detail -->
 
     <!-- detail host [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='DB'">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='DB' && getHost !== null">
       <dt>
         {{'msg.comm.th.host' | translate}}
       </dt>
@@ -188,7 +186,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail port [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='DB'">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='DB' && getPort !== null">
       <dt>
         {{'msg.comm.th.port' | translate}}
       </dt>
@@ -208,7 +206,7 @@
     </dl>
     <!-- //detail -->
     <!-- detail table/sql [DB] -->
-    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString()==='DB'">
+    <dl class="ddp-dl-detail" *ngIf="selectedDataSet.importType && selectedDataSet.importType.toString() !=='FILE'">
       <dt>
         {{'msg.lineage.ui.list.search.table' | translate}}/{{'msg.lineage.ui.list.search.sql' | translate}}
       </dt>
@@ -224,13 +222,13 @@
       <dt>
         {{'msg.comm.th.used' | translate}}
       </dt>
-      <dd *ngIf="selectedDataSet['_embedded'] && selectedDataSet['_embedded'].dataflows">
-        <span class="ddp-data-num" (click)="showDataflows($event);">{{selectedDataSet['_embedded'].dataflows.length}}</span> {{'msg.dp.ui.flows' | translate}}
+      <dd *ngIf="selectedDataSet.dataflows">
+        <span class="ddp-data-num" (click)="showDataflows($event);">{{selectedDataSet.dataflows.length}}</span> {{selectedDataSet.dataflows.length === 1 ? 'dataflow' : 'msg.dp.ui.flows' | translate}}
         <!-- popup -->
 
         <div class="ddp-wrap-popup2 ddp-types2" *ngIf="isDataflowsShow" (clickOutside)="isDataflowsShow = false;">
           <ul class="ddp-list-popup">
-            <li *ngFor="let dataflow of selectedDataSet['_embedded'].dataflows" (click)="changeDataflow.emit(dataflow.dfId);isDataflowsShow=false;">
+            <li *ngFor="let dataflow of selectedDataSet.dataflows" (click)="changeDataflow.emit(dataflow.dfId);isDataflowsShow=false;">
               <a href="javascript:">
                 <em class="ddp-icon-flow"></em>
                 {{dataflow.dfName}}
@@ -258,7 +256,7 @@
             <span class="ddp-data-type">
               <em class="ddp-ui-round">{{rule.alias}}</em>
             </span>
-            <div class="ddp-ui-code">{{rule.simplifiedRule !=='' ? rule.simplifiedRule : rule.ruleString}}</div>
+            <div class="ddp-ui-code" [ngClass]="{'ddp-error': !rule.valid}">{{rule.simplifiedRule !=='' ? rule.simplifiedRule : rule.ruleString}}</div>
           </li>
         </ul>
         <div class="ddp-ui-empty" *ngIf="ruleList && 0 === ruleList.length">

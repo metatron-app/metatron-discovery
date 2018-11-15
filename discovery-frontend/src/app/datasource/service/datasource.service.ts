@@ -12,40 +12,36 @@
  * limitations under the License.
  */
 
-import { Injectable, Injector } from '@angular/core';
-import { AbstractService } from '../../common/service/abstract.service';
-import { Page } from '../../domain/common/page';
-import { CommonUtil } from '../../common/util/common.util';
-import { SearchQueryRequest } from '../../domain/datasource/data/search-query-request';
+import {Injectable, Injector} from '@angular/core';
+import {AbstractService} from '../../common/service/abstract.service';
+import {Page} from '../../domain/common/page';
+import {CommonUtil} from '../../common/util/common.util';
+import {SearchQueryRequest} from '../../domain/datasource/data/search-query-request';
 
 import * as _ from 'lodash';
-import { PageWidgetConfiguration } from '../../domain/dashboard/widget/page-widget';
+import {PageWidgetConfiguration} from '../../domain/dashboard/widget/page-widget';
 import {
-  ChartType, FormatType,
-  GridViewType,
-  LineMode,
-  ShelfType,
-  ShelveFieldType
+  ChartType, ShelveFieldType, GridViewType, LineMode, ShelfType, FormatType
 } from '../../common/component/chart/option/define/common';
-import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { UILineChart } from '../../common/component/chart/option/ui-option/ui-line-chart';
-import { UIGridChart } from '../../common/component/chart/option/ui-option/ui-grid-chart';
-import { FilterUtil } from '../../dashboard/util/filter.util';
-import { InclusionFilter } from '../../domain/workbook/configurations/filter/inclusion-filter';
-import { Dashboard } from '../../domain/dashboard/dashboard';
+import {Filter} from '../../domain/workbook/configurations/filter/filter';
+import {UILineChart} from '../../common/component/chart/option/ui-option/ui-line-chart';
+import {UIGridChart} from '../../common/component/chart/option/ui-option/ui-grid-chart';
+import {FilterUtil} from '../../dashboard/util/filter.util';
+import {InclusionFilter} from '../../domain/workbook/configurations/filter/inclusion-filter';
+import {Dashboard} from '../../domain/dashboard/dashboard';
 import { Field, LogicalType } from '../../domain/datasource/datasource';
-import { MeasureInequalityFilter } from '../../domain/workbook/configurations/filter/measure-inequality-filter';
-import { AdvancedFilter } from '../../domain/workbook/configurations/filter/advanced-filter';
-import { MeasurePositionFilter } from '../../domain/workbook/configurations/filter/measure-position-filter';
-import { WildCardFilter } from '../../domain/workbook/configurations/filter/wild-card-filter';
-import { CustomField } from '../../domain/workbook/configurations/field/custom-field';
-import { TimeFilter } from '../../domain/workbook/configurations/filter/time-filter';
-import { FilteringType } from '../../domain/workbook/configurations/field/timestamp-field';
-import { TimeCompareRequest } from '../../domain/datasource/data/time-compare-request';
-import { isNullOrUndefined } from 'util';
-import { DashboardUtil } from '../../dashboard/util/dashboard.util';
+import {MeasureInequalityFilter} from '../../domain/workbook/configurations/filter/measure-inequality-filter';
+import {AdvancedFilter} from '../../domain/workbook/configurations/filter/advanced-filter';
+import {MeasurePositionFilter} from '../../domain/workbook/configurations/filter/measure-position-filter';
+import {WildCardFilter} from '../../domain/workbook/configurations/filter/wild-card-filter';
+import {CustomField} from '../../domain/workbook/configurations/field/custom-field';
+import {TimeFilter} from '../../domain/workbook/configurations/filter/time-filter';
+import {FilteringType} from '../../domain/workbook/configurations/field/timestamp-field';
+import {TimeCompareRequest} from '../../domain/datasource/data/time-compare-request';
+import {isNullOrUndefined} from 'util';
+import {DashboardUtil} from '../../dashboard/util/dashboard.util';
+import { GeoBoundaryFormat, GeoHashFormat } from '../../domain/workbook/configurations/field/geo-field';
 import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
-import { GeoBoundaryFormat, GeoField, GeoHashFormat } from '../../domain/workbook/configurations/field/geo-field';
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -115,6 +111,11 @@ export class DatasourceService extends AbstractService {
    * @returns {Promise<any>}
    */
   public searchQuery(query: SearchQueryRequest): Promise<any> {
+    // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '129.444 38.444', upperCorner: '129.888 38.999', dataSource: 'cei_m1_b'};
+      // let params: any = {type:'spatial_bbox', field:'cell_point', lowerCorner: '38.444 129.444', upperCorner: '38.999 129.888', dataSource: 'cei_m1_b'};
+
+    // query.filters.push(params);
+
     return this.post(this.API_URL + 'datasources/query/search', query);
   } // function - searchQuery
 
@@ -281,6 +282,7 @@ export class DatasourceService extends AbstractService {
     query.dataSource.name = query.dataSource.engineName;
     query.filters = _.cloneDeep(pageConf.filters);
     query.pivot = _.cloneDeep(pageConf.pivot);
+    // query.shelf = _.cloneDeep(pageConf.shelf);
 
     // 파라미터 치환
     const allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
@@ -784,6 +786,21 @@ export class DatasourceService extends AbstractService {
 
   public synchronizeDatasourceFields(datasourceId: string): Promise<any> {
     return this.patch(this.API_URL + `datasources/${datasourceId}/fields/sync`, null);
+  }
+
+  /**
+   * 데이터소스 적재 로그 조회
+   * @param {string} datasourceId
+   * @param {string} historyId
+   * @param {number} offset
+   * @returns {Promise<any>}
+   */
+  public getDatasourceIngestionLog(datasourceId: string, historyId: string, offset?: number): Promise<any> {
+    if (offset) {
+      return this.get(this.API_URL + `datasources/${datasourceId}/histories/${historyId}/log?offset=${offset}`);
+    } else {
+      return this.get(this.API_URL + `datasources/${datasourceId}/histories/${historyId}/log`);
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -83,6 +83,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   // Change Detect
   public changeDetect: ChangeDetectorRef;
+
+  public defaultSheetIndex : number = 0;
+
+  public gridInfo : any;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -231,11 +235,21 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   // excel 시 sheet 아이디 세팅
   public setDataSetSheetIndex(event,sheetname, idx) {
     event.stopPropagation();
+
     this.isChanged = false;
+    this.defaultSheetIndex = idx;
     this.datasetFile.sheetname = sheetname;
     this.datasetFile.sheetIndex = idx;
-    this.getDataFile();
+
+    // this.getDataFile();
+
+    if (!isNullOrUndefined(this.gridInfo) && this.gridInfo[this.defaultSheetIndex]) {
+      this.updateGrid(this.gridInfo[this.defaultSheetIndex].data, this.gridInfo[this.defaultSheetIndex].fields);
+    } else {
+      this.clearGrid = true;
+    }
   }
+
 
   /**
    * Move to next step
@@ -247,6 +261,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     if(isUndefined(this.datasetFile.delimiter) || this.datasetFile.delimiter === '' ){
       this.columnDelimiter = '';
       Alert.warning(this.translateService.instant('msg.dp.alert.col.delim.required'));
+      return;
+    }
+
+    if (this.clearGrid) {
       return;
     }
 
@@ -314,6 +332,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     }
 
     if(this.isChanged) { // when uploaded file is changed
+      this.defaultSheetIndex = 0;
       const response: any = this.uploadResult.response;
       this.datasetFile.filename = response.filename;
       this.datasetFile.filepath = response.filepath;
@@ -415,12 +434,20 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @param {Field[]} fields
    */
   private updateGrid(data: any, fields: Field[]) {
-    // headers
-    const headers: header[] = this.getHeaders(fields);
-    // rows
-    const rows: any[] = this.getRows(data);
-    // grid 그리기
-    this.drawGrid(headers, rows);
+
+    if (data.length > 0 && fields.length > 0) {
+      this.clearGrid = false;
+      // headers
+      const headers: header[] = this.getHeaders(fields);
+      // rows
+      const rows: any[] = this.getRows(data);
+      // grid 그리기
+      this.drawGrid(headers, rows);
+    } else {
+      this.clearGrid = true;
+    }
+
+
   }
 
   /**
@@ -462,13 +489,16 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   private getGridInformation(param) {
 
     this.datasetService.getFileGridInfo(param).then((result) => {
-      if (result.data && result.data.length > 0 && result.fields && result.fields.length > 0) {
+      if (result.grids.length > 0) {
         this.clearGrid = false;
-        this.updateGrid(result.data , result.fields);
+        this.gridInfo = result.grids;
+        this.datasetFile.sheetname = this.gridInfo[this.defaultSheetIndex].sheetName;
+        this.updateGrid(this.gridInfo[this.defaultSheetIndex].data , this.gridInfo[this.defaultSheetIndex].fields);
       } else {
+        this.gridInfo = [];
         this.clearGrid = true;
-        this.loadingHide();
       }
+      this.loadingHide();
     }).catch((error) => {
       this.clearGrid = true;
       this.loadingHide();

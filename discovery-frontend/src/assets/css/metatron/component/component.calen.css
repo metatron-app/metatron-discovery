@@ -1,0 +1,47 @@
+@charset "utf-8";
+
+/***************************************************************************
+	달력
+*************************************************************************/
+.ddp-ui-calen .ddp-box-calen {position:relative; float:left; width:48%; border-radius:2px; border:1px solid #d0d1d9; background-color:#fff; box-sizing:border-box;}
+.ddp-ui-calen .ddp-box-calen.ddp-disabled:before {display:inline-block; content:''; position:absolute; top:0; left:0; right:0; bottom:0; background-color:rgba(240,240,240,0.3);}
+.ddp-ui-calen .ddp-input-typebasic,
+.ddp-ui-calen .ddp-input-typebasic:focus {border:none; padding: 7px 13px 6px 13px}
+.ddp-ui-calen .ddp-input-typebasic.ddp-data-calen {float:left; padding:7px 0 7px 13px; width:100%; box-sizing:border-box;}
+.ddp-ui-calen .ddp-input-typebasic.ddp-data-calen:focus,
+.ddp-ui-calen .ddp-input-typebasic.ddp-data-time:focus {border:none;}
+.ddp-ui-calen .ddp-bar {float:left; padding:0 3px; width:4%; color:#4b515b; font-size:14px; text-align:center; line-height:30px; box-sizing:border-box;}
+
+.ddp-ui-calen.ddp-type {width:inherit;}
+.ddp-ui-calen.ddp-type .ddp-box-calen {width:inherit;}
+.ddp-ui-calen.ddp-type .ddp-input-typebasic.ddp-data-calen {width:auto; padding-right:13px; text-align:center;}
+.ddp-ui-calen.ddp-inline {display:inline-block; margin-left:10px;}
+
+.ddp-ui-time {float:left; width:80px; margin-right:3px;}
+
+/* 달력 라이브러리 */
+
+.rd-container {padding:0; border:none; z-index:10000;}
+.rd-date {padding:12px; border:1px solid #ddd; border-radius:2px; background-color:#fff; box-sizing:border-box;
+    -moz-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
+    -webkit-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
+    box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */}
+.rd-back,
+.rd-next {position:relative; z-index:1;}
+.rd-month-label {position:relative; top:-2px; margin-bottom:4px;}
+.rd-back:before,
+.rd-next:before {content:''; display:inline-block; width:8px; height:13px;background:url(../../../images/data_arrow.png) no-repeat; }
+.rd-next:before {transform:rotate(180deg);}
+table.rd-days th,
+table.rd-days td {padding:2px 4px; font-size:13px; color:#4b515b}
+table.rd-days td.rd-day-prev-month,
+table.rd-days td.rd-day-next-month {color:#b7b9c2;}
+table.rd-days td.rd-day-selected {background-color:#4c515a; color:#fff;}
+.rd-time {margin-top:0;}
+.rd-time-option {font-size:11px;}
+.rd-time-option:hover {background-color:#f5f5f6; color:#4b515b;}
+.rd-time-list {border:1px solid #ddd; border-radius:2px; background-color:#fff;
+    -moz-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
+    -webkit-box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */
+    box-shadow: 0 1px 3px rgba(84,97,104,.3); /* drop shadow */}
+.rd-time-list {z-index:10;}

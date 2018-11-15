@@ -14,17 +14,20 @@
 
 package app.metatron.discovery.domain.engine;
 
-import app.metatron.discovery.common.fileloader.FileLoaderProperties;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
-import java.util.Map;
+
+import app.metatron.discovery.common.fileloader.FileLoaderProperties;
 
 @Component
 @ConfigurationProperties(prefix="polaris.engine")
@@ -39,6 +42,7 @@ public class EngineProperties {
   public final static String CANCEL_QUERY = "cancelQuery";
   public final static String INGESTION_DATASOUCE = "ingestion";
   public final static String GET_INGESTION_STATUS = "ingestionStatus";
+  public final static String GET_INGESTION_LOG = "ingestionLog";
   public final static String SHUTDOWN_INGESTION = "ingestionShutdown";
   public final static String SUPERVISOR_INGESTION = "supervisor";
   public final static String GET_SUPERVISOR_STATUS = "supervisorStatus";
@@ -195,6 +199,15 @@ public class EngineProperties {
 
     String keytab;
 
+    boolean strictMode;
+
+    //hive metastore connection info
+    String metastoreHost;
+    String metastorePort;
+    String metastoreSchema;
+    String metastoreUserName;
+    String metastorePassword;
+
     public HiveConnection() {
     }
 
@@ -252,6 +265,54 @@ public class EngineProperties {
 
     public void setKeytab(String keytab) {
       this.keytab = keytab;
+    }
+
+    public boolean isStrictMode() {
+      return strictMode;
+    }
+
+    public void setStrictMode(boolean strictMode) {
+      this.strictMode = strictMode;
+    }
+
+    public String getMetastorePassword() {
+      return metastorePassword;
+    }
+
+    public void setMetastorePassword(String metastorePassword) {
+      this.metastorePassword = metastorePassword;
+    }
+
+    public String getMetastoreHost() {
+      return metastoreHost;
+    }
+
+    public void setMetastoreHost(String metastoreHost) {
+      this.metastoreHost = metastoreHost;
+    }
+
+    public String getMetastorePort() {
+      return metastorePort;
+    }
+
+    public void setMetastorePort(String metastorePort) {
+      this.metastorePort = metastorePort;
+    }
+
+    public String getMetastoreSchema() {
+      return metastoreSchema;
+    }
+
+    public void setMetastoreSchema(String metastoreSchema) {
+      this.metastoreSchema = metastoreSchema;
+    }
+
+    public String getMetastoreUserName() {
+      return metastoreUserName;
+    }
+
+    public void setMetastoreUserName(String metastoreUserName) {
+      this.metastoreUserName = metastoreUserName;
     }
   }
 

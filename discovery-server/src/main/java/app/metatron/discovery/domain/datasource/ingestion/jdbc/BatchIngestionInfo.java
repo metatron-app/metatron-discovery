@@ -35,11 +35,6 @@ public class BatchIngestionInfo extends JdbcIngestionInfo implements IngestionIn
    */
   BatchPeriod period;
 
-  /**
-   * 최대 Fetch Size
-   */
-  Integer size;
-
   public BatchIngestionInfo() {
   }
 
@@ -47,10 +42,9 @@ public class BatchIngestionInfo extends JdbcIngestionInfo implements IngestionIn
     this.range = range;
   }
 
-  public BatchIngestionInfo(IngestionScope range, BatchPeriod period, Integer size) {
+  public BatchIngestionInfo(IngestionScope range, BatchPeriod period) {
     this.range = range;
     this.period = period;
-    this.size = size;
   }
 
   public IngestionScope getRange() {
@@ -67,14 +61,6 @@ public class BatchIngestionInfo extends JdbcIngestionInfo implements IngestionIn
 
   public void setPeriod(BatchPeriod period) {
     this.period = period;
-  }
-
-  public Integer getSize() {
-    return size;
-  }
-
-  public void setSize(Integer size) {
-    this.size = size;
   }
 
   public enum IngestionScope {

@@ -24,7 +24,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.EXTERNAL_PROPERTY, property="type")
 @JsonSubTypes({
     @JsonSubTypes.Type(value = CsvStreamParser.class, name = "csv.stream"),
-    @JsonSubTypes.Type(value = StringParser.class, name = "string")
+    @JsonSubTypes.Type(value = StringParser.class, name = "string"),
+    @JsonSubTypes.Type(value = OrcParser.class, name = "orc"),
+    @JsonSubTypes.Type(value = ParquetParser.class, name = "parquet"),
 })
 public interface Parser {
 }

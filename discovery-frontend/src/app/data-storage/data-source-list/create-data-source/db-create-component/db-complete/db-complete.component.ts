@@ -32,6 +32,7 @@ import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { ConfirmModalComponent } from '../../../../../common/component/modal/confirm/confirm.component';
 import { Modal } from '../../../../../common/domain/modal';
+import { CookieConstant } from '../../../../../common/constant/cookie.constant';
 
 /**
  * Creating datasource with Database - complete step
@@ -283,13 +284,26 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
     // create datasource
     this.datasourceService.createDatasource(this._getCreateDatasourceParams())
       .then((result) => {
-        // loading hide
-        this.loadingHide();
         // complete alert
         Alert.success(`'${this.datasourceName.trim()}' ` + this.translateService.instant('msg.storage.alert.source.create.success'));
-        // close
-        this.step = '';
-        this.dbComplete.emit(this.step);
+        // 개인 워크스페이스
+        const workspace = JSON.parse(this.cookieService.get(CookieConstant.KEY.MY_WORKSPACE));
+        // 워크스페이스 매핑
+        this.datasourceService.addDatasourceWorkspaces(result.id, [workspace['id']])
+          .then(() => {
+            // link datasource detail (#505)
+            this.router.navigate(['/management/storage/datasource', result.id]);
+            // close
+            this.step = '';
+            this.dbComplete.emit(this.step);
+          })
+          .catch(() => {
+            // link datasource detail (#505)
+            this.router.navigate(['/management/storage/datasource', result.id]);
+            // close
+            this.step = '';
+            this.dbComplete.emit(this.step);
+          });
       })
       .catch((error) => {
         // loading hide
@@ -334,9 +348,9 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   private _deleteColumnProperty(column: any): void {
     delete column.biType;
     delete column.replaceFl;
-    // if removed property is false, delete removed property
-    if (column.removed === false) {
-      delete column.removed;
+    // if unloaded property is false, delete unloaded property
+    if (column.unloaded === false) {
+      delete column.unloaded;
     }
     // delete used UI
     delete column.isValidTimeFormat;

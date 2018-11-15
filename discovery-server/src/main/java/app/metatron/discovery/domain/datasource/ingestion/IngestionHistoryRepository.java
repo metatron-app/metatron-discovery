@@ -33,10 +33,12 @@ import java.util.List;
 public interface IngestionHistoryRepository extends JpaRepository<IngestionHistory, Long> {
 
   @RestResource(exported = false)
-  IngestionHistory findByDataSourceId(String dataSourceId);
+  Page<IngestionHistory> findByDataSourceIdOrderByModifiedTimeDesc(String dataSourceId, Pageable pageable);
 
   @RestResource(exported = false)
-  Page<IngestionHistory> findByDataSourceIdOrderByModifiedTimeDesc(String dataSourceId, Pageable pageable);
+  Page<IngestionHistory> findByDataSourceIdAndStatusOrderByModifiedTimeDesc(String dataSourceId,
+                                                                            IngestionHistory.IngestionStatus status,
+                                                                            Pageable pageable);
 
   @RestResource(exported = false)
   List<IngestionHistory> findByDataSourceIdAndStatus(String dataSourceId, IngestionHistory.IngestionStatus status);
