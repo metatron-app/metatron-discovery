@@ -573,12 +573,11 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
           });
         }
       }
-    })
-      .catch((error) => {
-        clearInterval(this.interval);
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
+    }).catch((error) => {
+      clearInterval(this.interval);
+      let prep_error = this.dataprepExceptionHandler(error);
+      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+    });
 
   } // function - getPreviewData
 

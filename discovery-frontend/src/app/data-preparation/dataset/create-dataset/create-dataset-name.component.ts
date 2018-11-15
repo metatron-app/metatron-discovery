@@ -17,7 +17,7 @@ import { Component, ElementRef, Injector, Input, OnDestroy, OnInit, ViewChild } 
 import { DatasetFile, DatasetHive, DatasetJdbc } from '../../../domain/data-preparation/dataset';
 import { PopupService } from '../../../common/service/popup.service';
 import { DatasetService } from '../service/dataset.service';
-import { isUndefined } from 'util';
+import {isNullOrUndefined, isUndefined} from 'util';
 import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
 import { PreparationAlert } from '../../util/preparation-alert.util';
@@ -40,10 +40,10 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   | Public Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  @Input() // Input from parent component if type is hive
+  @Input() // Input from parent component if type is STAGING
   public datasetHive: DatasetHive;
 
-  @Input() // Input from parent component if type is hive
+  @Input() // Input from parent component if type is DB
   public datasetJdbc: DatasetJdbc;
 
   @Input() // Input from parent component if type if file
@@ -75,6 +75,18 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
   @ViewChild('nameElement')
   public nameElement : ElementRef;
+
+  public datasetInfo : DatasetInfo[] = [];
+  public fileExtension: string;
+
+
+  // TODO : multisheet (separated from single but need to combine it not DRY at all)
+  public isMultiSheet: boolean = false;
+  public sheetInfos: any;
+  public names : string [] = [];
+  public descriptions : string [] = [];
+  public nameErrors: string[] = [];
+  public descriptionErrors: string[] = [];
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -96,17 +108,16 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   // Init
   public ngOnInit() {
 
-    // Init
     super.ngOnInit();
 
     this._setDefaultDatasetName(this.type);
+    this._setDatasetInfo();
 
   }
 
-  // Destory
+  // Destroy
   public ngOnDestroy() {
 
-    // Destory
     super.ngOnDestroy();
   }
 
@@ -114,92 +125,172 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  /** Complete */
+  public isBtnDisabled() : boolean {
+
+    let result: boolean = false;
+
+    if (!this.isMultiSheet) {
+      result = (this.showNameError || this.showDescError)
+    } else {
+      let name = this.nameErrors.findIndex((item) => {
+        return item !== ''
+      });
+
+      if (name === -1) {
+        let desc = this.descriptionErrors.findIndex((item) => {
+          return item !== ''
+        });
+
+        if (desc !== -1) {
+          result = true;
+        }
+      } else {
+        result = true;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Create dataset
+   * When done button is clicked
+   */
   public complete() {
+
 
     if (this.flag === false) {
 
-      // Validation - name is mandatory
-      if (isUndefined(this.name) || this.name.trim() ==='' || this.name.length < 1) {
-        this.showNameError = true;
-        this.nameErrorDesc = this.translateService.instant('msg.dp.alert.name.error');
-        return;
-      }
+      if (!this.isMultiSheet) { // CSV, Staging DB, JDBC, Excel(one sheet)
 
-      // 이름 validation
-      if (this.name.length > 50) {
-        this.showNameError = true;
-        this.nameErrorDesc = this.translateService.instant('msg.dp.alert.name.error.description');
-        return true;
-      }
+        // TODO : refactoring mandatory (names, descriptions, errors etc : NOT DRY AT ALL)
 
-      // 설명 validation
-      if (!StringUtil.isEmpty(this.description) && this.description.length > 150) {
-        this.showDescError = true;
-        this.nameDescErrorDesc = this.translateService.instant('msg.dp.alert.description.error.description');
-        return true;
-      }
-      // 서버에 보낼 이름 설명 앞뒤 공백 제거
-      switch(this.type) {
-        case 'FILE':
+        // Validation - name is mandatory
+        if (isUndefined(this.name) || this.name.trim() ==='' || this.name.length < 1) {
+          this.showNameError = true;
+          this.nameErrorDesc = this.translateService.instant('msg.dp.alert.name.error');
+          return;
+        } else {
+
+          // Name length validation
+          if (this.name.length > 50) {
+            this.showNameError = true;
+            this.nameErrorDesc = this.translateService.instant('msg.dp.alert.name.error.description');
+            return;
+          }
+
           this.datasetFile.name = this.name.trim();
-          break;
-        case 'STAGING':
           this.datasetHive.dsName = this.name.trim();
-          break;
-        case 'DB':
           this.datasetJdbc.dsName = this.name.trim();
-          break;
-      }
-      if (!isUndefined(this.description) && this.description.trim() !== '') {
-        switch(this.type) {
-          case 'FILE':
-            this.datasetFile.desc = this.description.trim();
-            break;
-          case 'STAGING':
-            this.datasetHive.dsDesc = this.description.trim()
-            break;
-          case 'DB':
-            this.datasetJdbc.dsDesc = this.description.trim()
-            break;
+        }
+
+        // Description validation
+        if (!StringUtil.isEmpty(this.description) && this.description.length > 150) {
+          this.showDescError = true;
+          this.nameDescErrorDesc = this.translateService.instant('msg.dp.alert.description.error.description');
+          return;
+        } else {
+
+          if (!isNullOrUndefined(this.description)) {
+            const desc = this.description.trim();
+            this.datasetFile.desc = desc;
+            this.datasetHive.dsDesc = desc;
+            this.datasetJdbc.dsDesc = desc;
+          }
+
+        }
+
+        this.loadingShow();
+        this.flag = true;
+
+
+        let params = {};
+        if(this.type === 'STAGING')  {
+
+          params = this._getHiveParams(this.datasetHive);
+
+        } else if (this.type === 'FILE') {
+
+          params = this._getFileParams(this.datasetFile);
+
+        } else if(this.type === 'DB')  {
+
+          params = this._getJdbcParams(this.datasetJdbc);
+
+        }
+
+        // Call save API
+        this._createDataset(params);
+
+      } else { // Excel - more than one sheet
+
+
+        // Validation check
+        this.sheetInfos.forEach((item,index) => {
+
+          if (isUndefined(this.names[index]) || this.names[index].trim() ==='' || this.names[index].length < 1) {
+            this.showNameError = true;
+            this.nameErrors[index] = this.translateService.instant('msg.dp.alert.name.error');
+          } else {
+            // Name length validation
+            if (this.names[index].length > 50) {
+              this.showNameError = true;
+              this.nameErrors[index] = this.translateService.instant('msg.dp.alert.name.error.description');
+            }
+          }
+
+          // Description validation
+          if (!StringUtil.isEmpty(this.description) && this.description.length > 150) {
+            this.showDescError = true;
+            this.descriptionErrors[index] = this.translateService.instant('msg.dp.alert.description.error.description');
+            return;
+          }
+
+          this.datasetFile.sheetname = item.name;
+          this.datasetFile.name = this.names[index];
+          this.datasetFile.desc = this.descriptions[index];
+        });
+
+        // If validation fails return
+        if (this.showNameError || this.showDescError) {
+          return;
+        }
+
+
+        // validation passed
+        this.loadingShow();
+        this.flag = true;
+        const promise = [];
+
+        // TODO : change promise to something else
+        // using promise for calling multiple APIs at once
+        this.sheetInfos.forEach((item,index) => {
+          this.datasetFile.sheetname = item.name;
+          this.datasetFile.name = this.names[index];
+          this.datasetFile.desc = this.descriptions[index];
+          promise.push(this.datasetService.createDataset(this._getFileParams(this.datasetFile)))
+        });
+
+        if (promise.length > 0) {
+          Promise.all(promise)
+            .then((result) => {
+              console.info('rest',result);
+              this.successAction();
+              this.loadingHide();
+            })
+            .catch(() => {
+              this.flag = false;
+              this.loadingHide();
+            })
         }
       }
 
-      this.loadingShow();
-      this.flag = true;
-      // 데이터 저장 서비스호출
-      if(this.type === 'STAGING')  {
-        this.datasetService.createDatasetHive(this.datasetHive).then((result) => {
-          this.loadingHide();
-          this.successAction(result);
-
-        }).catch((error) => {
-          this.loadingHide();
-          this.errorAction(error);
-        });
-      } else if (this.type === 'FILE') {
-        this.datasetService.createDataset(this.datasetFile,this.datasetFile.delimiter).then((result) => {
-          this.loadingHide();
-          this.successAction(result);
-
-        }).catch((error) => {
-          this.loadingHide();
-          this.errorAction(error);
-        });
-      } else if(this.type === 'DB')  {
-        this.datasetService.createDatasetJdbc(this.datasetJdbc).then((result) => {
-          this.loadingHide();
-          this.successAction(result);
-
-        }).catch((error) => {
-          this.loadingHide();
-          this.errorAction(error);
-        });
-      }
     }
   }
 
-  /** go to previous step */
+
+  /**
+   * go to previous step
+   */
   public prev() {
 
     if (this.type === 'FILE') {
@@ -219,7 +310,10 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       });
     }
   }
-  /** close popup */
+
+  /**
+   * Close create dataset popup
+   */
   public close() {
     super.close();
 
@@ -234,30 +328,63 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     });
   }
 
-  /** show/hide error msg */
-  public hideNameError() {
-    if (isUndefined(this.name) || this.name.length > 0 || this.name.length < 50) {
+  /**
+   * Show/hide name error msg
+   * @param {number} index? - need it when multi sheet
+   */
+  public hideNameError(index? : number) {
+
+    if (!isNullOrUndefined(index)) {
+
       this.showNameError = false;
-      this.nameErrorDesc = '';
+      this.nameErrors[index] = '';
+      this.safelyDetectChanges();
 
+    } else {
+      if (isUndefined(this.name) || this.name.length > 0 || this.name.length < 50) {
+        this.showNameError = false;
+        this.nameErrorDesc = '';
+      }
     }
+
   }
 
-  /** show/hide error msg */
-  public hideDescError() {
-    if (isUndefined(this.description) || this.description.length < 150) {
-      this.showDescError = false;
-      this.nameDescErrorDesc = '';
+  /**
+   * Show/hide desc error msg
+   * @param {number} index? - need it when multi sheet
+   */
+  public hideDescError(index? : number) {
+    if (index) {
+      if (isUndefined(this.descriptions[index]) || this.descriptions[index].length < 150) {
+        this.showDescError = false;
+        this.descriptionErrors[index] = '';
+        this.safelyDetectChanges();
+      }
+    } else {
+      if (isUndefined(this.description) || this.description.length < 150) {
+        this.showDescError = false;
+        this.nameDescErrorDesc = '';
+      }
     }
+
   }
 
-  public successAction(result) {
+
+  /**
+   * Success action after API call
+   * @param result
+   */
+  public successAction(result?) {
     this.flag = false;
-    Alert.success(this.translateService.instant('msg.dp.alert.create-ds.success',{value:result.dsName}));
+
+    Alert.success(this.translateService.instant('msg.dp.alert.create-ds.success',
+      {value: result ? result.dsName : ''}));
 
     if (this.datasetService.dataflowId) {
-      sessionStorage.setItem('DATASET_ID', result.dsId);
+
+      result && sessionStorage.setItem('DATASET_ID', result.dsId);
       this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
+
     }
 
     this.close();
@@ -268,6 +395,10 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
   }
 
+  /**
+   * Error action after API call
+   * @param error
+   */
   public errorAction(error) {
     this.flag = false;
 
@@ -275,6 +406,21 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
     let prep_error = this.dataprepExceptionHandler(error);
     PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
   }
+
+
+  /**
+   * Returns sheet name separated with commas
+   * @returns {string}
+   */
+  public getSheetNames() {
+    let arr = [];
+    this.sheetInfos.forEach((item) => {
+      arr.push(item.name);
+    });
+
+    return arr.join(', ');
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -283,7 +429,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   | Private Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 데이터셋 이름의 default값을 넣는다.
+   * Set default names for names of datasets
    * @param {string} type
    * @private
    */
@@ -291,12 +437,31 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
     if ('FILE' === type) {
       let file = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(this.datasetFile.filename);
-      let extension = file[1];
-      let fileName = file[0].split('.' + extension)[0];
+      this.fileExtension = file[1];
+      let fileName = file[0].split('.' + this.fileExtension)[0];
 
-      if(extension.toUpperCase() === 'XLSX' || extension.toUpperCase() === 'XLS') {
-        this.name = `${fileName} - ${this.datasetFile.sheetname} (EXCEL)`;
-      } else if(extension.toUpperCase() === 'CSV') {
+      if(this.fileExtension.toUpperCase() === 'XLSX' || this.fileExtension.toUpperCase() === 'XLS') {
+
+        let selectedSheets = this.datasetFile.selectedSheets.filter((item) => {
+          if (item.selected) {
+
+            this.names.push(`${fileName} - ${item.name} (EXCEL)`);
+            this.descriptions.push('');
+            this.nameErrors.push('');
+            this.descriptionErrors.push('');
+            return item;
+          }
+
+        });
+
+        this.sheetInfos = selectedSheets;
+        if (selectedSheets.length > 1) {
+          this.isMultiSheet = true;
+        } else {
+          this.name = `${fileName} - ${this.datasetFile.sheetname} (EXCEL)`;
+        }
+
+      } else if(this.fileExtension.toUpperCase() === 'CSV') {
         this.name = `${fileName} (CSV)`;
       }
     } else if ('DB' === type) {
@@ -308,10 +473,155 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
         this.name = this.datasetJdbc.tableName;
       }
     } else if ('STAGING' === type) {
-      this.name = `${this.datasetHive.tableName} (STAGING)`;
+
+      if ('' !== this.datasetHive.tableName) {
+        this.name = `${this.datasetHive.tableName} (STAGING)`;
+      }
+
     }
 
-    setTimeout(() => { this.nameElement.nativeElement.select(); });
+    this.nameElement && setTimeout(() => { this.nameElement.nativeElement.select(); });
   } // function - _setDefaultDatasetName
 
+
+  /**
+   * Returns parameter needed for creating staging dataset
+   * @param hive
+   * @returns {Object}
+   * @private
+   */
+  private _getHiveParams(hive): object {
+    if (hive.databaseName) {
+      this.datasetHive.custom = JSON.stringify({"databaseName": hive.databaseName});
+    }
+    return this.datasetHive
+  }
+
+
+  /**
+   * Returns parameter needed for creating file dataset
+   * @param file
+   * @returns {Object}
+   * @private
+   */
+  private _getFileParams(file) : object {
+
+    const params: any = {};
+    params.filename = file.filename;
+    params.filekey = file.filekey;
+    params.dsName = file.name;
+    params.dsDesc = file.desc;
+    params.dsType = 'IMPORTED';
+    params.importType = 'FILE';
+    params.fileType = 'LOCAL';
+
+    let filename = file.filename.toLowerCase();
+    if (filename.endsWith("xls") || filename.endsWith("xlsx")) {
+      params.custom = `{"filePath":"${file.filepath}", "fileType":"EXCEL", "sheet":"${file.sheetname}"}`;
+    } else if (filename.endsWith("csv")) {
+      params.custom = `{"filePath":"${file.filepath}", "fileType":"DSV", "delimiter":"${file.delimiter}"}`;
+    }
+    return params
+  }
+
+  /**
+   * Returns parameter needed for creating jdbc dataset
+   * @param jdbc
+   * @returns {Object}
+   * @private
+   */
+  private _getJdbcParams(jdbc) : object {
+    this.datasetJdbc.custom = JSON.stringify({"databaseName":jdbc.databaseName});
+    return this.datasetJdbc
+  }
+
+  /**
+   * Create dataset (call API)
+   * @param {Object} params
+   * @private
+   */
+  private _createDataset(params : object) {
+
+    this.datasetService.createDataset(params).then((result) => {
+
+      if (!this.isMultiSheet) {
+        this.loadingHide();
+        this.successAction(result);
+      }
+
+    }).catch((error) => {
+
+      if (this.isMultiSheet) {
+        let idx = this.names.indexOf(params['dsName']);
+        this.names.splice(idx,1);
+      } else {
+        this.loadingHide();
+        this.errorAction(error);
+      }
+    })
+  }
+
+  private _setDatasetInfo() {
+
+    if ('FILE' === this.type) {
+
+      this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFile.filename});
+
+      if ('XLSX' === this.fileExtension.toUpperCase() || 'XLS' === this.fileExtension.toUpperCase()) {
+        console.info('this.datasetFile. ', this.datasetFile);
+        if (this.datasetFile.sheets.length === 1) {
+          this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.sheets[0]});
+        } else if (this.datasetFile.sheets.length > 1) {
+          this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetNames()});
+        }
+      }
+
+    } else if ('DB' === this.type || 'STAGING' === this.type) {
+
+      let ds = 'DB' === this.type ? this.datasetJdbc : this.datasetHive;
+
+      if ('DB' !== this.type) {
+        this.datasetInfo.push({name : this.translateService.instant('msg.comm.th.type'), value : 'Staging DB'});
+
+        if ('' !== ds.databaseName && '' !== ds.tableName) {
+          this.datasetInfo.push(
+            {name : this.translateService.instant('msg.dp.th.database'), value : ds.databaseName},
+            {name : this.translateService.instant('msg.dp.th.ss.table'), value : ds.tableName}
+          );
+        }
+
+      } else {
+
+        this.datasetInfo.push({name : this.translateService.instant('msg.comm.th.type'), value : ds.dataconnection['connection'].implementor});
+
+        ds.databaseName && this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.database'), value : ds.databaseName});
+        ds.tableName && this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.ss.table'), value : ds.tableName});
+
+        if (ds.dataconnection['connection'].hostname && ds.dataconnection['connection'].port) {
+          this.datasetInfo.push(
+            {name : this.translateService.instant('msg.comm.th.host'), value : ds.dataconnection['connection'].hostname},
+            {name : this.translateService.instant('msg.comm.th.port'), value : ds.dataconnection['connection'].port}
+          );
+        } else {
+          this.datasetInfo.push(
+            {name : this.translateService.instant('msg.nbook.th.url'), value : ds.dataconnection['connection'].url}
+          );
+        }
+      }
+
+      if (ds.databaseName === '' && ds.tableName === '') {
+        this.datasetInfo.push({name : this.translateService.instant('msg.dp.btn.query'), value : ds.queryStmt});
+      }
+
+    }
+
+  }
+
+
+
+}
+
+class DatasetInfo {
+  name : string;
+  value : any;
 }

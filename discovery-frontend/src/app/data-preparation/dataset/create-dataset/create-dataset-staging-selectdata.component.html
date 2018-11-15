@@ -63,7 +63,7 @@
               </div>
             </div>
             <!-- button -->
-            <div class="ddp-ui-buttons" *ngIf="tableOrQuery !== 'table'">
+            <div class="ddp-ui-buttons" style="z-index: 10" *ngIf="tableOrQuery !== 'table'">
               <div class="ddp-ui-message" *ngIf="showQueryStatus">
                 <span class="ddp-data-error" *ngIf="isQuerySuccess === false"><em class="ddp-icon-error"></em> {{ 'msg.dp.ui.invalid.conn' | translate }}</span>
                 <span class="ddp-data-ok" *ngIf="isQuerySuccess === true"><em class="ddp-icon-ok"></em> {{'msg.dp.ui.valid.conn' | translate}}</span>

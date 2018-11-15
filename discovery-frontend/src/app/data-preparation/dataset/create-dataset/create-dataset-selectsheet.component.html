@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-type-contents ddp-resize2 ddp-type2 popup-prep-fileupload">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
@@ -50,8 +50,19 @@
 
           <!-- sheet list -->
           <div class="ddp-ui-sheet-list">
-            <ul class="ddp-list-sheet"  *ngFor="let item of datasetFile.selectedSheets; let idx = index">
-              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetname}" (click)="setDataSetSheetIndex($event,item.name, idx)">
+            <div class="ddp-select-all">
+              <label class="ddp-label-checkbox" (click)="checkAll($event)" [ngClass]="{'ddp-checkboxtype' : partialChecked()}">
+                <input type="checkbox" [checked]="isCheckAll">
+                <i class="ddp-icon-checkbox"></i>
+                <span class="ddp-txt-checkbox">{{getTotal()}}</span>
+              </label>
+            </div>
+            <ul class="ddp-list-sheet" *ngFor="let item of datasetFile.selectedSheets; let idx = index">
+              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetname}" (click)="selectSheet($event, item.name, idx)">
+                <label class="ddp-label-checkbox" (click)="check($event, item);">
+                  <input type="checkbox" [checked]="item.selected">
+                   <i class="ddp-icon-checkbox"></i>
+                </label>
                 <span class="ddp-txt-checkbox">{{item.name}}</span>
               </li>
             </ul>
@@ -100,7 +111,7 @@
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.cancl' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" [ngClass]="{'ddp-disabled':clearGrid}" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
+    <a href="javascript:" [ngClass]="{'ddp-disabled': (isDisable())}" class="ddp-btn-type-popup ddp-bg-black" (click)="next()">{{'msg.comm.btn.next' | translate}}</a>
   </div>
   <!-- //buttons -->
 

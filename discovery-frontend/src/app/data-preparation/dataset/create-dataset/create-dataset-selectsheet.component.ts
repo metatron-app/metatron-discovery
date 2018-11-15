@@ -87,6 +87,8 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   public defaultSheetIndex : number = 0;
 
   public gridInfo : any;
+
+  public isCheckAll: boolean = false;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -129,6 +131,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
         this.loadingHide();
       } else{
+        this.isCheckAll = false;
         this.uploader.uploadAll();
       }
     };
@@ -187,7 +190,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     let fileType : string = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec( this.datasetFile.filename )[1];
 
-
     if (fileType === 'csv' || fileType === 'txt') {
       this.isCSV = true;
       this.getDataFile();
@@ -199,14 +201,16 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         this.columnDelimiter = this.datasetFile.delimiter;
       }
 
-      if(0 === this.datasetFile.selectedSheets.length) { // 벌써 선택된 sheet가 있다면 converting 필요 없다
+      if (0 === this.datasetFile.selectedSheets.length) { // 벌써 선택된 sheet가 있다면 converting 필요 없다
         this.convertSheet();
       }
+
+      this._isAllChecked();
+
       this.getDataFile();
     }
 
   }
-
 
   public ngOnDestroy() {
     super.ngOnDestroy();
@@ -215,36 +219,45 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
-  // Convert array to object
+  /**
+   * Converts array .sheets(array) -> .selectedSheets(object)
+   */
   public convertSheet() {
     // 초기화
     this.datasetFile.selectedSheets = [];
 
     // 배열로 받아온 데이터를 오브젝트로 변환한다
     this.datasetFile.sheets.filter((item) => {
-      let temp = {
-        name :'',
+
+      this.datasetFile.selectedSheets.push({
+        name : item,
         selected : false // 처음엔 selected 된 것이 없기 떄문에
-      };
-      temp.name = item;
-      this.datasetFile.selectedSheets.push(temp);
+      });
     });
   }
 
 
-  // excel 시 sheet 아이디 세팅
-  public setDataSetSheetIndex(event,sheetname, idx) {
+  /**
+   * Select sheet and show grid
+   * @param event
+   * @param sheetName
+   * @param idx
+   */
+  public selectSheet(event: Event, sheetName: string, idx: number) {
+
+    // stop event bubbling
     event.stopPropagation();
+    event.preventDefault();
 
     this.isChanged = false;
     this.defaultSheetIndex = idx;
-    this.datasetFile.sheetname = sheetname;
+    this.datasetFile.sheetname = sheetName;
     this.datasetFile.sheetIndex = idx;
 
-    // this.getDataFile();
 
+    // if grid info is valid show grid else clear grid
     if (!isNullOrUndefined(this.gridInfo) && this.gridInfo[this.defaultSheetIndex]) {
-      this.updateGrid(this.gridInfo[this.defaultSheetIndex].data, this.gridInfo[this.defaultSheetIndex].fields);
+      this._updateGrid(this.gridInfo[this.defaultSheetIndex].data, this.gridInfo[this.defaultSheetIndex].fields);
     } else {
       this.clearGrid = true;
     }
@@ -255,6 +268,10 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * Move to next step
    */
   public next() {
+
+    if (this.isDisable()) {
+      return;
+    }
 
     this.datasetFile.delimiter = this.columnDelimiter;
 
@@ -288,7 +305,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     this.isChanged = true;
     this.loadingShow();
-    this.getGridInformation(this.getParamForGrid());
+    this._getGridInformation(this._getParamForGrid());
 
   }
 
@@ -303,6 +320,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       data: null
     });
   }
+
 
   /**
    * Close
@@ -348,11 +366,15 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
     this.loadingShow();
 
-    this.getGridInformation(this.getParamForGrid());
+    this._getGridInformation(this._getParamForGrid());
   }
 
 
-  public getGridStyle() {
+  /**
+   * Returns grid css
+   * @returns {any}
+   */
+  public getGridStyle() : any {
     if( this.datasetFile.sheetname && ''!==this.datasetFile.sheetname) {
       return null;
     }
@@ -396,15 +418,124 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   }
 
 
+  /**
+   * Returns total of selected sheet
+   * @returns {string}
+   */
+  public getTotal(): string {
+    let result = '';
+    let num = this.datasetFile.selectedSheets.filter((obj) => {
+      return obj.selected
+    }).length;
+    if (num === 0 || num === 1){
+      result = num + ' selection';
+    } else {
+      result = num + ' selections';
+    }
+    return result
+  }
+
+
+  /**
+   * When one check box is clicked
+   * @param event
+   * @param item
+   */
+  public check(event, item) {
+
+    // stop event bubbling
+    event.stopPropagation();
+    event.preventDefault();
+
+    item.selected = !item.selected;
+
+    this.safelyDetectChanges();
+
+    this._isAllChecked();
+
+  }
+
+  /**
+   * When check all button is clicked
+   * @param event
+   */
+  public checkAll(event) {
+
+    // stop event bubbling
+    event.stopPropagation();
+    event.preventDefault();
+
+    this.isCheckAll = !this.isCheckAll;
+
+    this.datasetFile.selectedSheets = this.datasetFile.selectedSheets.map((obj) => {
+      obj.selected = this.isCheckAll; //  obj.selected = true or false
+      return obj;
+    });
+
+  }
+
+  /**
+   * Check if at least one is checked
+   * return {boolean} returns true if at least one is checked
+   */
+  public partialChecked(): boolean {
+
+    const isCheckAll = this.datasetFile.selectedSheets.every((item) => {
+      return item.selected;
+    });
+
+    if (isCheckAll) {
+      return false;
+    }
+
+    const unChecked = this.datasetFile.selectedSheets.every((item) => {
+      return item.selected === false;
+    });
+
+    if (unChecked) {
+      return false;
+    }
+
+    this.isCheckAll = false;
+
+    return true;
+
+  } // function - partialChecked
+
+
+  /**
+   * Check if done btn should be disabled or not
+   * @returns {boolean}
+   */
+  public isDisable(): boolean {
+
+    let result: boolean = true;
+
+    // csv or only one sheet
+    if (this.datasetFile.sheets.length < 2) {
+      result = false;
+    } else { // excel and more than one sheet
+      let idx = this.datasetFile.selectedSheets.findIndex((obj) => {
+        return obj.selected
+      });
+
+      if (idx > -1) {
+        result = false;
+      }
+    }
+
+    return result;
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   /**
-   * 헤더정보 얻기
+   * Returns header information for grid
    * @param {Field[]} fields
    * @returns {header[]}
    */
-  private getHeaders(fields: Field[]) {
+  private _getHeaders(fields: Field[]) {
     return fields.map(
       (field: Field) => {
 
@@ -429,20 +560,20 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   }
 
   /**
-   * grid 정보 업데이트
+   * Grid update
    * @param data
    * @param {Field[]} fields
    */
-  private updateGrid(data: any, fields: Field[]) {
+  private _updateGrid(data: any, fields: Field[]) {
 
     if (data.length > 0 && fields.length > 0) {
       this.clearGrid = false;
       // headers
-      const headers: header[] = this.getHeaders(fields);
+      const headers: header[] = this._getHeaders(fields);
       // rows
-      const rows: any[] = this.getRows(data);
+      const rows: any[] = this._getRows(data);
       // grid 그리기
-      this.drawGrid(headers, rows);
+      this._drawGrid(headers, rows);
     } else {
       this.clearGrid = true;
     }
@@ -455,7 +586,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @param {any[]} headers
    * @param {any[]} rows
    */
-  private drawGrid(headers: any[], rows: any[]) {
+  private _drawGrid(headers: any[], rows: any[]) {
     this.changeDetect.detectChanges();
     this.gridComponent.create(headers, rows, new GridOption()
       .SyncColumnCellResize(true)
@@ -471,7 +602,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
    * @param data
    * @returns {any[]}
    */
-  private getRows(data: any) {
+  private _getRows(data: any) {
     let rows: any[] = data;
     if (data.length > 0 && !data[0].hasOwnProperty('id')) {
       rows = rows.map((row: any, idx: number) => {
@@ -485,26 +616,33 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   /**
    * Get grid information
+   * @param param {any}
    */
-  private getGridInformation(param) {
+  private _getGridInformation(param : any) {
 
     this.datasetService.getFileGridInfo(param).then((result) => {
       if (result.grids.length > 0) {
         this.clearGrid = false;
         this.gridInfo = result.grids;
-        this.updateGrid(this.gridInfo[this.defaultSheetIndex].data , this.gridInfo[this.defaultSheetIndex].fields);
+        this._updateGrid(this.gridInfo[this.defaultSheetIndex].data , this.gridInfo[this.defaultSheetIndex].fields);
       } else {
         this.gridInfo = [];
         this.clearGrid = true;
       }
       this.loadingHide();
     }).catch((error) => {
+      console.info(error);
       this.clearGrid = true;
       this.loadingHide();
     });
   }
 
-  private getParamForGrid() {
+  /**
+   * Returns parameter required for grid fetching API
+   * @returns result {fileKey: string, sheetname: string, delimiter: string, fileType: string}
+   * @private
+   */
+  private _getParamForGrid() {
     return {
       fileKey : this.datasetFile.filekey,
       sheetname : this.datasetFile.sheetname,
@@ -513,13 +651,25 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     };
   }
 
+  /**
+   * Change isCheckAll to true if all boxes are checked
+   * @private
+   */
+  private _isAllChecked() {
+    const num = this.datasetFile.selectedSheets.filter((data) => {
+      return data.selected;
+    }).length;
+
+    this.isCheckAll = this.datasetFile.selectedSheets.length === num;
+  }
+
 
   /**
    * Go to next stage with enter key
    * @param event Event
    */
   @HostListener('document:keydown.enter', ['$event'])
-  private onEnterKeydownHandler(event: KeyboardEvent) {
+  private _onEnterKeydownHandler(event: KeyboardEvent) {
     if(event.keyCode === 13 ) {
       this.next();
     }

@@ -1174,6 +1174,7 @@
   "msg.dp.btn.advanced.editor" : "Advanced editor",
   "msg.dp.btn.make.copy" : "Make a copy",
   "msg.dp.ui.no.preview" : "No preview",
+  "msg.dp.th.sheet.name" : "sheet name",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",

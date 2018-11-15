@@ -12,7 +12,7 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-type-contents ddp-resize2 ddp-type2">
+<div class="ddp-type-contents ddp-resize2 ddp-type2" [ngClass]="{'popup-prep-create-complete':isMultiSheet}">
   <!-- 닫기 버튼 -->
   <a href="javascript:" class="ddp-btn-close" (click)="close()"></a>
   <!-- //닫기 버튼 -->
@@ -25,7 +25,7 @@
     </div>
   </div>
   <!-- contents in  -->
-  <div class="ddp-type-contents-in">
+  <div class="ddp-type-contents-in" *ngIf="!isMultiSheet">
     <div class="ddp-box-popupcontents2">
 
       <!-- edit -->
@@ -38,96 +38,14 @@
           </colgroup>
 
           <tbody>
-
-          <tr *ngIf="type === 'STAGING' && datasetHive.databaseName">
-            <th>
-              {{'msg.dp.th.database' | translate}}
-            </th>
-            <td>
-              {{datasetHive.databaseName}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'STAGING' && datasetHive.tableName">
-            <th>
-              {{'msg.lineage.ui.list.search.table' | translate}}
-            </th>
-            <td>
-              {{datasetHive.tableName}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'STAGING' && datasetHive.databaseName === '' && datasetHive.tableName === '' ">
-            <th>
-              {{'msg.dp.btn.query' | translate}}
-            </th>
-            <td>
-              {{datasetHive.queryStmt}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'FILE' && datasetFile.filename">
-            <th>
-              {{'msg.dp.ui.list.file' | translate}}
-            </th>
-            <td>
-              {{datasetFile.filename}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'FILE' && datasetFile.sheets.length > 1">
-            <th>
-              {{'msg.dp.th.sheet' | translate}}
-            </th>
-            <td>
-              {{datasetFile.sheets[datasetFile.sheetIndex]}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.implementor">
-            <th>
-              Type
-            </th>
-            <td>
-              {{datasetJdbc.dataconnection.implementor}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.hostname">
-            <th>
-              Host
-            </th>
-            <td>
-              {{datasetJdbc.dataconnection.hostname}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.port">
-            <th>
-              Port
-            </th>
-            <td>
-              {{datasetJdbc.dataconnection.port}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.dataconnection.sid">
-            <th>
-              SID
-            </th>
-            <td>
-              {{datasetJdbc.dataconnection.sid}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.databaseName">
-            <th>
-              Database / Table
-            </th>
-            <td>
-              {{datasetJdbc.databaseName}} / {{datasetJdbc.tableName}}
-            </td>
-          </tr>
-          <tr *ngIf="type === 'DB' && datasetJdbc.queryStmt">
-            <th>
-              Query
-            </th>
-            <td>
-              {{datasetJdbc.queryStmt}}
-            </td>
-          </tr>
-
+            <tr *ngFor="let ds of datasetInfo">
+              <th>
+                {{ds.name}}
+              </th>
+              <td>
+                {{ds.value}}
+              </td>
+            </tr>
           </tbody>
         </table>
 
@@ -137,7 +55,7 @@
       <!-- edit -->
       <div class="ddp-wrap-edit2" [ngClass]="{'ddp-error':showNameError}">
         <label class="ddp-label-type">{{'msg.comm.ui.name' | translate}}</label>
-        <input type="text" #nameElement class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}" (keydown)="showNameError? hideNameError() :null" [(ngModel)]="name" maxlength="50" (keyup)="$event.keyCode == 13 ? complete() : null;">
+        <input #nameElement class="ddp-input-type" placeholder="{{'msg.comm.ui.create.name' | translate}}" (keydown)="showNameError? hideNameError() :null" [(ngModel)]="name" maxlength="50" (keyup)="$event.keyCode == 13 ? complete() : null;">
         <span class="ddp-ui-error">{{nameErrorDesc}}</span>
       </div>
       <!-- //edit -->
@@ -145,19 +63,91 @@
       <!-- edit -->
       <div class="ddp-wrap-edit2" [ngClass]="{'ddp-error':showDescError}">
         <label class="ddp-label-type">{{'msg.comm.ui.description' | translate}}</label>
-        <input type="text" class="ddp-input-type" placeholder="{{'msg.comm.ui.create.desc' | translate}}" (keydown)="showDescError ? hideDescError(): null" [(ngModel)]="description" maxlength="150" (keyup)="$event.keyCode == 13 ? complete() : null;">
+        <input class="ddp-input-type" placeholder="{{'msg.comm.ui.create.desc' | translate}}" (keydown)="showDescError ? hideDescError(): null" [(ngModel)]="description" maxlength="150" (keyup)="$event.keyCode == 13 ? complete() : null;">
         <span class="ddp-ui-error">{{nameDescErrorDesc}}</span>
       </div>
       <!-- //edit -->
     </div>
 
   </div>
+
+  <div class="ddp-type-contents-in ddp-sheet-resize" *ngIf="isMultiSheet">
+    <div class="ddp-wrap-complete ">
+      <!-- boxtype -->
+      <div class="ddp-wrap-boxtype">
+
+        <table class="ddp-wrap-boxdata">
+          <colgroup>
+            <col width="120px">
+            <col width="*">
+          </colgroup>
+
+          <tbody>
+            <tr *ngFor="let ds of datasetInfo">
+              <th>
+                {{ds.name}}
+              </th>
+              <td>
+                {{ds.value}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- //boxtype -->
+      <div class="ddp-wrap-sheet-list">
+        <div class="ddp-ui-sheet-list">
+          <table class="ddp-table-sheet">
+            <colgroup>
+              <col width="200px">
+              <col width="280px">
+              <col width="*">
+            </colgroup>
+            <thead>
+            <tr>
+              <th>{{'msg.dp.th.sheet.name' | translate}}</th>
+              <th>{{'msg.comm.ui.name' | translate}}</th>
+              <th>{{'msg.comm.ui.description' | translate}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let sheet of sheetInfos; let index = index">
+              <td title="{{sheet.name}}">{{sheet.name}}</td>
+              <td>
+                <div class="ddp-sheet-form">
+                  <input class="ddp-input-typebasic"
+                         placeholder="{{'msg.comm.ui.create.name' | translate}}"
+                         [(ngModel)]="names[index]" maxlength="50"
+                         (keyup)="nameErrors[index] !== ''? hideNameError(index) :null">
+                  <span class="ddp-data-error" *ngIf="nameErrors[index] !== ''"> {{nameErrors[index]}}</span>
+                </div>
+              </td>
+              <td>
+                <div class="ddp-textarea-resize">
+                  <div class="ddp-sheet-form">
+                    <textarea  placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                               [(ngModel)]="descriptions[index]" maxlength="150"
+                               (keydown)="descriptionErrors[index] !== ''? hideDescError(index) :null">
+                    </textarea>
+                    <span class="ddp-data-error" *ngIf="descriptionErrors[index] !== ''"> {{descriptionErrors[index]}}</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
   <!-- //contents in  -->
   <!-- buttons -->
   <div class="ddp-ui-buttons">
     <a href="javascript:" class="ddp-btn-type-popup" (click)="prev()">{{'msg.comm.btn.previous' | translate}}</a>
     <!-- disabled 시 ddp-disabled 추가 -->
-    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="complete()">{{'msg.comm.btn.done' | translate}}</a>
+    <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="complete()" [ngClass]="{'ddp-disabled': isBtnDisabled() }">{{'msg.comm.btn.done' | translate}}</a>
   </div>
   <!-- //buttons -->
 

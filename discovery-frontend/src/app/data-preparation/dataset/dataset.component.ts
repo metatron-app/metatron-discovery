@@ -108,37 +108,6 @@ export class DatasetComponent extends AbstractComponent implements OnInit {
    | Public Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
 
-  public checkHdfs() {
-    this.loadingShow();
-
-    this.datasetService.checkHdfs()
-      .then((data) => {
-          this.loadingHide();
-          console.log(data);
-      })
-      .catch((error) => {
-          this.loadingHide();
-          let prep_error = this.dataprepExceptionHandler(error);
-          PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
-  }
-
-  /*
-  public checkStagingConnection() {
-    this.loadingShow();
-
-    this.datasetService.checkStagingConnection()
-      .then((data) => {
-          this.loadingHide();
-      })
-      .catch((error) => {
-              this.loadingHide();
-              let prep_error = this.dataprepExceptionHandler(error);
-              PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-      });
-  }
-  */
-
   /** 데이터셋 리스트 조회 */
   public getDatasets(sortByRefCount : boolean = false) {
 

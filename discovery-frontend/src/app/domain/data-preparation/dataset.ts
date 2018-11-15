@@ -130,6 +130,8 @@ export class DatasetHive extends Dataset {
   public rsType: RsType;
   public dsName: string;
   public dsDesc: string;
+
+  public dataconnection?: any;
 }
 
 export class DatasetJdbc extends Dataset {
