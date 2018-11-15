@@ -49,7 +49,7 @@ public class PrepTransformRule {
     @Column(columnDefinition = "TEXT", name = "custom")
     private String custom;
 
-    public  PrepTransformRule() {}
+    public PrepTransformRule() {}
 
     public PrepTransformRule(PrepDataset dataset, Integer ruleNo, String ruleString) throws CannotSerializeIntoJsonException {
         this.dataset = dataset;

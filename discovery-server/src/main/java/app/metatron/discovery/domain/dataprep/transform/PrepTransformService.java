@@ -658,6 +658,10 @@ public class PrepTransformService {
 
     if(op==OP_TYPE.APPEND || op==OP_TYPE.UPDATE || op==OP_TYPE.PREVIEW) {
       confirmRuleStringForException(ruleString);
+
+      // Check in advance, or a severe inconsistency between stages and rules can happen,
+      // when these functions fail at that time, after all works done for the stages successfully.
+      Util.getShortRuleString(Util.getJsonRuleString(ruleString));
     }
 
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));

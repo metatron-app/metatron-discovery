@@ -36,6 +36,7 @@ import org.apache.hadoop.fs.Path;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
@@ -303,6 +304,15 @@ public class Util {
     return nodeToString(node);
   }
 
+//  private static String getColumnCountStr(Object node) {
+//    assert node instanceof Integer : node;
+//
+//    int count = ((Integer) node).intValue();
+//    assert count >= 1 : count;
+//
+//    return count + " columns";
+//  }
+
   static final String FMTSTR_CREATE       = "create with: %s";                // with
   static final String FMTSTR_HEADER       = "Convert row %d to header";       // rownum
   static final String FMTSTR_KEEP         = "Keep rows where %s";             // row
@@ -314,9 +324,13 @@ public class Util {
   static final String FMTSTR_SETFORMAT    = "set format %s to %s";            // col, format
   static final String FMTSTR_DERIVE       = "Create %s from %s";              // as, value
   static final String FMTSTR_COUNTPATTERN = "Count occurrences of %s in %s";  // value, col
+  static final String FMTSTR_DELETE       = "Delete rows where %s";           // row
+  static final String FMTSTR_SET          = "Set %s to %s";                   // col, value
+  static final String FMTSTR_SPLIT        = "Split %s into %d columns on %s"; // col, limit, value
 
   public static String getShortRuleString(String jsonRuleString) {
     Map<String, Object> mapRule = null;
+    Object col, to, on, val;
 
     try {
       mapRule = (Map<String, Object>) GlobalObjectMapper.getDefaultMapper().readValue(jsonRuleString, Map.class);
@@ -339,8 +353,8 @@ public class Util {
         shortRuleString = String.format(FMTSTR_KEEP, nodeToString(mapRule.get("row")));
         break;
       case "rename":
-        Object col = ((Map) mapRule.get("col")).get("value");
-        Object to = ((Map) mapRule.get("to")).get("value");
+        col = ((Map) mapRule.get("col")).get("value");
+        to = ((Map) mapRule.get("to")).get("value");
         if (col instanceof List && ((List<Object>) col).size() >= 3) {
           shortRuleString = String.format(FMTSTR_RENAME, shortenColumnList(col));
         } else {
@@ -367,7 +381,22 @@ public class Util {
         break;
       case "countpattern":
         col = ((Map) mapRule.get("col")).get("value");
-        shortRuleString = String.format(FMTSTR_COUNTPATTERN, nodeToString(mapRule.get("value")), shortenColumnList(col));
+        on = ((Map) mapRule.get("on")).get("value");
+        shortRuleString = String.format(FMTSTR_COUNTPATTERN, nodeToString(on), shortenColumnList(col));
+        break;
+      // TODO: below not tested
+      case "delete":
+        shortRuleString = String.format(FMTSTR_DELETE, nodeToString(mapRule.get("row")));
+        break;
+      case "set":
+        col = ((Map) mapRule.get("col")).get("value");
+        val = mapRule.get("value");
+        shortRuleString = String.format(FMTSTR_SET, shortenColumnList(col), nodeToString(val));
+        break;
+      case "split":
+        on = ((Map) mapRule.get("on")).get("value");
+        int newColCnt = ((Integer) (mapRule.get("limit"))).intValue() + 1;  // split N times, becomes N + 1 columns
+        shortRuleString = String.format(FMTSTR_SPLIT, mapRule.get("col"), newColCnt, nodeToString(on));
         break;
       default:
         shortRuleString = ruleCommand + " unknown";
@@ -375,28 +404,6 @@ public class Util {
 
     return shortRuleString;
 
-//      case "settype":
-//
-//        let columnStr: string;
-//        if ("string" === typeof rule.col.value) {
-//        columnStr = "${column} type"
-//      } else if (rule.col.value.length === 2) {
-//        columnStr = "${column} types";
-//      } else {
-//        columnStr = column;
-//      }
-//
-//      shortRuleString = "Change ${columnStr} to ${ rule.type }";
-//
-//      break;
-//      case "delete":
-//        const deleteCondition = ruleString.split("row: ");
-//        shortRuleString = "Delete rows where ${deleteCondition[1]}";
-//      break;
-//      case "set":
-//        let rowString = ruleString.split("value: ");
-//        shortRuleString = "Set ${column} to ${rowString[1]}";
-//      break;
 //      case "split":
 //        shortRuleString = "Split ${rule.col} into ${rule.limit + 1 > 1 ? rule.limit + 1 + " columns" : rule.limit + 1 + " column"} on ${rule.on.value}";
 //      break;
