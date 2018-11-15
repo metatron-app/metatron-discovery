@@ -66,7 +66,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
 
   // aggregation
   @Input('aggTypeList')
-  protected aggTypeList: any[];
+  public aggTypeList: any[];
 
   @Output()
   public editingFieldChange: EventEmitter<AbstractField> = new EventEmitter();

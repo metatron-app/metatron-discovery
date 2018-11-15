@@ -698,8 +698,8 @@
           </map-page-pivot>
           <!-- //선반 -->
           <div class="ddp-ui-chart-contents"
-            [ngClass]="{'ddp-map-chart' : 'map' == selectChart, 'ddp-shelf1' : 'map' == selectChart && 0 == uiOption.layerNum,
-            'ddp-shelf2' : 'map' == selectChart && 1 == uiOption.layerNum, 'ddp-shelf3' : 'map' == selectChart && 2 == uiOption.layerNum}">
+            [ngClass]="{'ddp-map-chart' : 'map' == selectChart, 'ddp-shelf1' : 'map' == selectChart && 0 == uiOption['layerNum'],
+            'ddp-shelf2' : 'map' == selectChart && 1 == uiOption['layerNum'], 'ddp-shelf3' : 'map' == selectChart && 2 == uiOption['layerNum']}">
             <div class="ddp-wrap-chart-layout">
               <!-- 차트 기본 선택 화면 -->
               <div class="ddp-ui-chart-basic" *ngIf="selectChart==''">

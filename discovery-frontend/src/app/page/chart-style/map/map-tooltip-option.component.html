@@ -33,6 +33,14 @@
             </label>
           </div>
           <div class="ddp-part-check-b">
+            <label class="ddp-label-checkbox ">
+              <input type="checkbox" [ngModel]="returnMapTooltip('LOCATION_INFO')"
+                     (click)="toggleDisplayType('LOCATION_INFO', 18)">
+              <i class="ddp-icon-checkbox"></i>
+              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.map.geo.info' | translate}}</span>
+            </label>
+          </div>
+          <div class="ddp-part-check-b">
             <label class="ddp-label-checkbox">
               <input type="checkbox" [ngModel]="returnMapTooltip('DATA_VALUE')"
                      (click)="toggleDisplayType('DATA_VALUE', 19)">
@@ -155,14 +163,6 @@
             </div>
           </div>
           <!-- //데이터 값 -->
-          <div class="ddp-part-check-b">
-            <label class="ddp-label-checkbox ">
-              <input type="checkbox" [ngModel]="returnMapTooltip('LOCATION_INFO')"
-                     (click)="toggleDisplayType('LOCATION_INFO', 18)">
-              <i class="ddp-icon-checkbox"></i>
-              <span class="ddp-txt-checkbox">{{'msg.page.chart.datalabel.map.geo.info' | translate}}</span>
-            </label>
-          </div>
         </div>
       </div>
       <!-- //divide -->
