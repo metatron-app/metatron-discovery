@@ -21,11 +21,11 @@
 
     </div>
     <!-- data delete -->
-    <div class="ddp-data-delete" *ngIf="column.removed">
+    <div class="ddp-data-delete" *ngIf="column.unloaded">
       <span class="ddp-txt">{{'msg.storage.ui.del.column' | translate}}</span>
     </div>
     <!-- //data delete -->
-    <div class="ddp-wrap-set-contents" *ngIf="!column.removed">
+    <div class="ddp-wrap-set-contents" *ngIf="!column.unloaded">
       <!-- value -->
       <div class="ddp-wrap-value-det">
         <div class="ddp-top-set">
