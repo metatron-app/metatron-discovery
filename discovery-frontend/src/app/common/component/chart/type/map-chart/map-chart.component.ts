@@ -12,7 +12,14 @@
  * limitations under the License.
  */
 
-import { AfterViewInit, Component, ElementRef, Injector, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  ViewChild,
+} from '@angular/core';
 import { BaseChart } from '../../base-chart';
 import { Pivot } from '../../../../../domain/workbook/configurations/pivot';
 import * as ol from 'openlayers';
@@ -180,11 +187,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    * Pivot Valid Check
    * @param pivot
    */
-  public isValid(pivot: Pivot, layers?: Field[]): boolean {
-    let valid: boolean = false;
+  public isValid(pivot: Pivot, shelf: Shelf): boolean {
 
-    if (layers) {
-      for (let layer of layers) {
+    let valid: boolean = false;
+    let layers: Field[] = shelf.layers[this.getUiMapOption().layerNum];
+
+    if (shelf.layers) {
+      for (let layer of layers ) {
         if (layer.field && layer.field.logicalType && -1 !== layer.field.logicalType.toString().indexOf('GEO')) {
           valid = true;
         }
@@ -204,7 +213,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Valid Check
     ////////////////////////////////////////////////////////
 
-    if( !this.isValid(this.pivot, this.shelf.layers[(<UIMapOption>this.uiOption).layerNum]) ) {
+    if( !this.isValid(this.pivot, this.shelf) ) {
       // No Data 이벤트 발생
       this.data.show = false;
       this.noData.emit();
@@ -302,6 +311,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    * - 필요시 각 차트에서 Override
    */
   protected selection(): void {
+  }
+
+  /**
+   * 차트 Resize
+   *
+   * @param event
+   */
+  @HostListener('window:resize', ['$event'])
+  protected onResize(event) {
+    if( this.olmap ) {
+      this.olmap.updateSize();
+    }
   }
 
   /**
@@ -764,7 +785,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
 
       let featureSize = 5;
-      if( _.eq(layerType, MapLayerType.SYMBOL) && featureSizeType === 'MEASURE') {
+      if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
         featureSize = parseInt(feature.get((<UISymbolLayer>styleOption.layers[layerNum]).size.column)) / (styleData.valueRange[(<UISymbolLayer>styleOption.layers[layerNum]).size.column].maxValue / 30);
         if(featureSize < 2) {
           featureSize = 2;
@@ -772,7 +793,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       }
 
       let lineThickness = 2;
-      if( _.eq(layerType, MapLayerType.SYMBOL) && featureSizeType === 'MEASURE') {
+      if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
         lineThickness = parseInt(feature.get((<UISymbolLayer>styleOption.layers[layerNum]).size.column)) / (styleData.valueRange[(<UISymbolLayer>styleOption.layers[layerNum]).size.column].maxValue / lineMaxVal);
         if(lineThickness < 1) {
           lineThickness = 1;
@@ -1166,6 +1187,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Layer name
       legendInfo.name = layer.name;
 
+      // Color data
+      legendInfo.color = [];
+
       ////////////////////////////////////////////////////////
       // Color by dimension
       ////////////////////////////////////////////////////////
@@ -1173,9 +1197,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
         // Layer type
         legendInfo.type = layer.type;
-
-        // Color data
-        legendInfo.color = [];
 
         if( layer.color.ranges ) {
           _.each(layer.color.ranges, (range) => {
@@ -1186,7 +1207,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
           });
         }
         else {
-          if( layer.color.column !== 'NONE') {
+          if( _.eq(layer.color.column, MapBy.NONE) ) {
             const ranges = this.setDimensionColorRange(layer, this.data[num], ChartColorList[layer.color.schema], []);
             _.each(ranges, (range) => {
               let colorInfo: any = {};
@@ -1229,7 +1250,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             if( index == 0 ) {
               colorInfo.column = ' ＞ ' + FormatOptionConverter.getFormatValue(minVal, this.getUiMapOption().valueFormat);
             }
-            else if( index ==layer.color.ranges.length - 1 ) {
+            else if( index == layer.color.ranges.length - 1 ) {
               colorInfo.column = ' ≤ ' + FormatOptionConverter.getFormatValue(maxVal, this.getUiMapOption().valueFormat);
             }
             else {
@@ -1255,7 +1276,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
               if( index == 0 ) {
                 colorInfo.column = ' ＞ ' + FormatOptionConverter.getFormatValue(minVal, this.getUiMapOption().valueFormat);
               }
-              else if( index ==layer.color.ranges.length - 1 ) {
+              else if( index == ranges.length - 1 ) {
                 colorInfo.column = ' ≤ ' + FormatOptionConverter.getFormatValue(maxVal, this.getUiMapOption().valueFormat);
               }
               else {

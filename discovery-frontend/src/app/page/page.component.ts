@@ -3685,7 +3685,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     // chart pivot valid
     if ('map' !== this.selectChart && false === this.chart.isValid(this.pivot) ||
-       ('map' === this.selectChart && false === this.chart.isValid(new Pivot(), this.shelf.layers[(<UIMapOption>this.uiOption).layerNum]))) {
+       ('map' === this.selectChart && false === this.chart.isValid(new Pivot(), this.shelf))) {
       this.isChartShow = false;
       this.isError = true;
       return;

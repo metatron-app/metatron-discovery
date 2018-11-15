@@ -37,7 +37,7 @@
 
 <!-- Tooltip -->
 <div #tooltip id="popup">
-  <div *ngIf="tooltipInfo.enable" class="ddp-ui-tooltip-info ddp-map-tooltip" style="width:257px;">
+  <div *ngIf="tooltipInfo.enable" class="ddp-ui-tooltip-info ddp-map-tooltip" style="width:257px; display:block; position:absolute; top:0; left:0; z-index:10;">
     <span class="ddp-txt-tooltip">
       <span class="ddp-label">
         <em [attr.class]="'ddp-icon-mapview' + tooltipInfo.num + '-w'"></em>

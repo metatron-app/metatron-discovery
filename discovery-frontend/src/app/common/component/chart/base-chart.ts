@@ -2248,7 +2248,7 @@ export abstract class BaseChart extends AbstractComponent implements OnInit, OnD
    * 선반정보를 기반으로 차트를 그릴수 있는지 여부를 체크
    * - 반드시 각 차트에서 Override
    */
-  public isValid(pivot: Pivot, layers?: Field[]): boolean {
+  public isValid(pivot: Pivot, shelf?: Shelf): boolean {
     throw new Error("isValid is not Override");
   }
 

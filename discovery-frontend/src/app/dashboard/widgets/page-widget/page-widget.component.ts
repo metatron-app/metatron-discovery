@@ -1022,7 +1022,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     } // end if - dashboard.configuration
 
     this.safelyDetectChanges();
-    this.isInvalidPivot = !this.chart.isValid(this.widgetConfiguration.pivot);
+    this.isInvalidPivot = !this.chart.isValid(this.widgetConfiguration.pivot, this.widgetConfiguration.shelf);
 
   } // function - _setWidget
 
