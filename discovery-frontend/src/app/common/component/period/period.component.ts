@@ -278,7 +278,8 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
       endDate : this._endDate,
       type: this.selectedType.toString(),
       startDateStr: startDateStr,
-      endDateStr: endDateStr
+      endDateStr: endDateStr,
+      timezone: new Date().getTimezoneOffset() / 60
     };
 
     if (this.dateType || this.usedCustomDateType) {

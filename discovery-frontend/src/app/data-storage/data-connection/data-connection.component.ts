@@ -25,6 +25,8 @@ import { PeriodComponent } from '../../common/component/period/period.component'
 import { MomentDatePipe } from '../../common/pipe/moment.date.pipe';
 import { StringUtil } from '../../common/util/string.util';
 
+declare let moment: any;
+
 @Component({
   selector: 'app-data-connection',
   templateUrl: './data-connection.component.html',
@@ -408,13 +410,16 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       params['searchDateBy'] = this.selectedDate.dateType;
       if (this.selectedDate.startDateStr) {
-        params['from'] = this.selectedDate.startDateStr + ':00.000Z';
+        params['from'] = this.selectedDate.timezone < 0
+          ? (moment(this.selectedDate.startDateStr).subtract(-this.selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z')
+          : (moment(this.selectedDate.startDateStr).add(this.selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z');
       }
       if (this.selectedDate.endDateStr) {
-        params['to'] = this.selectedDate.endDateStr + ':59.999Z';
+        params['to'] = this.selectedDate.timezone < 0
+          ? (moment(this.selectedDate.endDateStr).subtract(-this.selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z')
+          : (moment(this.selectedDate.endDateStr).add(this.selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z');
       }
     }
-
     return params;
   }
 }
@@ -429,4 +434,5 @@ class Date {
   endDateStr : string;
   startDateStr : string;
   type: string;
+  timezone: number;
 }

@@ -24,6 +24,8 @@ import { Alert } from '../../common/util/alert.util';
 import * as _ from 'lodash';
 import { CreateCodeTableComponent } from './create-code-table/create-code-table.component';
 
+declare let moment: any;
+
 @Component({
   selector: 'app-code-table',
   templateUrl: './code-table.component.html'
@@ -353,10 +355,14 @@ export class CodeTableComponent extends AbstractComponent implements OnInit, OnD
     if (this._selectedDate && this._selectedDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
       if (this._selectedDate.startDateStr) {
-        params['from'] = this._selectedDate.startDateStr + ':00.000Z';
+        params['from'] = this._selectedDate.timezone < 0
+          ? (moment(this._selectedDate.startDateStr).subtract(-this._selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z')
+          : (moment(this._selectedDate.startDateStr).add(this._selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z');
       }
       if (this._selectedDate.endDateStr) {
-        params['to'] = this._selectedDate.endDateStr + ':59.999Z';
+        params['to'] = this._selectedDate.timezone < 0
+          ? (moment(this._selectedDate.endDateStr).subtract(-this._selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z')
+          : (moment(this._selectedDate.endDateStr).add(this._selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z');
       }
     }
     return params;
@@ -373,4 +379,5 @@ class Date {
   endDateStr: string;
   startDateStr: string;
   type: string;
+  timezone: number;
 }
