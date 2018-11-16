@@ -599,11 +599,11 @@ public class PrepTransformService {
       String ruleString = ruleStrings.get(i);
       try {
         gridResponse = teddyImpl.append(dsId, i - 1, ruleString, true);
-        updateTransformRules(dsId);
       } catch (TeddyException te) {
         LOGGER.info("load_internal(): A TeddyException is suppressed: {}", te.getMessage());
       }
     }
+    updateTransformRules(dsId);
     adjustStageIdx(dsId, ruleStrings.size() - 1, true);
 
     LOGGER.trace("load_internal(): end (applied rules)");
@@ -1132,6 +1132,7 @@ public class PrepTransformService {
     return response;
   }
 
+  @Transactional(rollbackFor = Exception.class)
   public PrepTransformResponse fetch(String dsId, Integer stageIdx) throws Exception {
     if (teddyImpl.revisionSetCache.containsKey(dsId) == false) {
       load_internal(dsId);

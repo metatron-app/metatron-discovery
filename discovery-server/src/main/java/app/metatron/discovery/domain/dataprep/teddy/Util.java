@@ -304,33 +304,41 @@ public class Util {
     return nodeToString(node);
   }
 
-//  private static String getColumnCountStr(Object node) {
-//    assert node instanceof Integer : node;
-//
-//    int count = ((Integer) node).intValue();
-//    assert count >= 1 : count;
-//
-//    return count + " columns";
-//  }
+  private static String combineCountAndUnit(int count, String unit) {
+    assert count > 0 : unit;
+
+    if (count == 1) {
+      return String.format("%d %s", count, unit);
+    }
+    return String.format("%d %ss", count, unit);
+  }
 
   static final String FMTSTR_CREATE       = "create with: %s";                // with
   static final String FMTSTR_HEADER       = "Convert row %d to header";       // rownum
   static final String FMTSTR_KEEP         = "Keep rows where %s";             // row
-  static final String FMTSTR_RENAME       = "Rename %s";                      // col
-  static final String FMTSTR_RENAME_TO    = "Rename %s to %s";                // col, to
+  static final String FMTSTR_RENAME       = "Rename %s to %s";                // col, to
+  static final String FMTSTR_RENAMES      = "Rename %s";                      // col
   static final String FMTSTR_NEST         = "Convert %s into %s";             // col, into
   static final String FMTSTR_UNNEST       = "Create a new column from %s";    // col
   static final String FMTSTR_SETTYPE      = "set type %s to %s";              // col, type
   static final String FMTSTR_SETFORMAT    = "set format %s to %s";            // col, format
   static final String FMTSTR_DERIVE       = "Create %s from %s";              // as, value
-  static final String FMTSTR_COUNTPATTERN = "Count occurrences of %s in %s";  // value, col
   static final String FMTSTR_DELETE       = "Delete rows where %s";           // row
   static final String FMTSTR_SET          = "Set %s to %s";                   // col, value
-  static final String FMTSTR_SPLIT        = "Split %s into %d columns on %s"; // col, limit, value
+  static final String FMTSTR_SPLIT        = "Split %s into %s on %s";         // col, limit, on
+  static final String FMTSTR_EXTRACT      = "Extract %s %s from %s";          // on, limit, col
+  static final String FMTSTR_FLATTEN      = "Convert arrays in %s to rows";   // col
+  static final String FMTSTR_COUNTPATTERN = "Count occurrences of %s in %s";  // value, col
+  static final String FMTSTR_SORT         = "Sort rows by %s %s";             // order, type
+  static final String FMTSTR_REPLACE      = "Replace %s from %s with %s";     // on, col, with
+  static final String FMTSTR_REPLACES     = "Replace %s";                     // col
+
 
   public static String getShortRuleString(String jsonRuleString) {
     Map<String, Object> mapRule = null;
-    Object col, to, on, val;
+    Object col, to, on, val, order, type, with;
+    int limit;
+    String strCount;
 
     try {
       mapRule = (Map<String, Object>) GlobalObjectMapper.getDefaultMapper().readValue(jsonRuleString, Map.class);
@@ -355,10 +363,11 @@ public class Util {
       case "rename":
         col = ((Map) mapRule.get("col")).get("value");
         to = ((Map) mapRule.get("to")).get("value");
+
         if (col instanceof List && ((List<Object>) col).size() >= 3) {
-          shortRuleString = String.format(FMTSTR_RENAME, shortenColumnList(col));
+          shortRuleString = String.format(FMTSTR_RENAMES, shortenColumnList(col));
         } else {
-          shortRuleString = String.format(FMTSTR_RENAME_TO, nodeToString(col), nodeToString(to));
+          shortRuleString = String.format(FMTSTR_RENAME, nodeToString(col), nodeToString(to));
         }
         break;
       case "nest":
@@ -379,12 +388,6 @@ public class Util {
       case "derive":
         shortRuleString = String.format(FMTSTR_DERIVE, mapRule.get("as"), nodeToString(mapRule.get("value")));
         break;
-      case "countpattern":
-        col = ((Map) mapRule.get("col")).get("value");
-        on = ((Map) mapRule.get("on")).get("value");
-        shortRuleString = String.format(FMTSTR_COUNTPATTERN, nodeToString(on), shortenColumnList(col));
-        break;
-      // TODO: below not tested
       case "delete":
         shortRuleString = String.format(FMTSTR_DELETE, nodeToString(mapRule.get("row")));
         break;
@@ -395,45 +398,53 @@ public class Util {
         break;
       case "split":
         on = ((Map) mapRule.get("on")).get("value");
-        int newColCnt = ((Integer) (mapRule.get("limit"))).intValue() + 1;  // split N times, becomes N + 1 columns
-        shortRuleString = String.format(FMTSTR_SPLIT, mapRule.get("col"), newColCnt, nodeToString(on));
+        limit = ((Integer) (mapRule.get("limit"))).intValue();
+        strCount = combineCountAndUnit(limit + 1, "column");      // split N times, produces N + 1 columns
+        shortRuleString = String.format(FMTSTR_SPLIT, mapRule.get("col"), strCount, nodeToString(on));
         break;
+      case "extract":
+        on = ((Map) mapRule.get("on")).get("value");
+        limit = ((Integer) (mapRule.get("limit"))).intValue();
+        strCount = combineCountAndUnit(limit, "time");            // extract N times, produces just N columns
+        shortRuleString = String.format(FMTSTR_EXTRACT, nodeToString(on), strCount, mapRule.get("col"));
+        break;
+      case "flatten":
+        shortRuleString = String.format(FMTSTR_FLATTEN, mapRule.get("col"));
+        break;
+      case "countpattern":
+        col = ((Map) mapRule.get("col")).get("value");
+        on = ((Map) mapRule.get("on")).get("value");
+        shortRuleString = String.format(FMTSTR_COUNTPATTERN, nodeToString(on), shortenColumnList(col));
+        break;
+      case "sort":
+        order = ((Map) mapRule.get("order")).get("value");
+        String sortType = "ASC";
+        type = mapRule.get("type");
+        if (type != null) {
+          if ((((Map) type).get("escapedValue")).toString().equalsIgnoreCase("DESC")) {
+            sortType = "DESC";
+          }
+        }
+        shortRuleString = String.format(FMTSTR_SORT, nodeToString(order), sortType);
+        break;
+      case "replace":
+        on = ((Map) mapRule.get("on")).get("value");
+        col = ((Map) mapRule.get("col")).get("value");
+        with = ((Map) mapRule.get("with")).get("value");
+
+        if (col instanceof List && ((List<Object>) col).size() >= 3) {
+          shortRuleString = String.format(FMTSTR_REPLACES, shortenColumnList(col));
+        } else {
+          shortRuleString = String.format(FMTSTR_REPLACE, nodeToString(on), shortenColumnList(col), nodeToString(with));
+        }
+        break;
+
       default:
         shortRuleString = ruleCommand + " unknown";
     }
 
     return shortRuleString;
 
-//      case "split":
-//        shortRuleString = "Split ${rule.col} into ${rule.limit + 1 > 1 ? rule.limit + 1 + " columns" : rule.limit + 1 + " column"} on ${rule.on.value}";
-//      break;
-//      case "extract":
-//        shortRuleString = "Extract ${rule.on.value} ${rule.limit > 1 ? rule.limit + " times" : rule.limit + " time"} from ${rule.col}";
-//      break;
-//      case "flatten":
-//        shortRuleString = "Convert arrays in ${rule.col} to rows";
-//      break;
-//      case "countpattern":
-//        shortRuleString = "Count occurrences of ${rule.on.value} in ${column}";
-//      break;
-//      case "sort":
-//        if ("string" === typeof rule.order.value) {
-//        shortRuleString = "Sort row by ${rule.type && rule.type["escapedValue"] === "desc" ? "-" + rule.order.value : rule.order.value}";
-//        break;
-//      } else {
-//        shortRuleString = "Sort rows by ${rule.type && rule.type["escapedValue"] === "desc" ? "-" + rule.order.value.toString() : rule.order.value.toString()}";
-//        break;
-//      }
-//      case "replace":
-//        shortRuleString = "Replace ${rule.on.value} from ";
-//      if ("string" === typeof rule.col.value) {
-//        shortRuleString += "${rule.col.value} with ${rule.with["value"]}";
-//      } else if (rule.col.value.length === 2) {
-//        shortRuleString += "${rule.col.value.join(", ")} with ${rule.with["value"]}";
-//      } else {
-//        shortRuleString += column;
-//      }
-//      break;
 //      case "merge":
 //        shortRuleString = "Concatenate ${column} separated by ${rule.with}";
 //      break;
