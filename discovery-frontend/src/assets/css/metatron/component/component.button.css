@@ -101,6 +101,29 @@ a.ddp-btn-type-popup2.ddp-bg-black.ddp-disabled:hover {background-color:#d0d1d8;
 .ddp-btn-selection.ddp-line .ddp-icon-clone {display:inline-block; width:13px; height:13px; margin-right:5px; background:url(../../../images/icon_clone.png) no-repeat; vertical-align:middle;}
 .ddp-btn-selection.ddp-line:hover .ddp-icon-view {background-position:-42px -43px;}
 
+.ddp-btn-bg .ddp-icon-add {display:inline-block; width:13px; height:13px; margin-right:5px; background:url(../../../images/icon_add.png) no-repeat; background-position:left -22px; vertical-align:middle;}
+.ddp-btn-bg .ddp-icon-editor {display:inline-block; width:14px; height:11px; margin-right:5px; background:url(../../../images/icon_editor.png) no-repeat; vertical-align:middle;}
+
+
+/***************************************************************************
+	bt button
+*************************************************************************/
+.ddp-btn-bg {padding:9px 12px; border-radius:2px; background-color:#e7e7ea; color:#4b515b; }
+.ddp-btn-bg:hover {background-color:#d0d1d8;}
+.ddp-btn-bg.ddp-disabled,
+.ddp-btn-bg.ddp-disabled:hover {background-color:#e7e7ea; opacity:0.3; cursor:no-drop;}
+.ddp-btn-bg .ddp-icon-option {display:inline-block;  width:15px; height:15px; margin-right:5px;  background:url(../../../images/icon_option.png) no-repeat; background-position:-16px top; vertical-align:middle;}
+.ddp-btn-bg .ddp-icon-link-down {background-position:-14px -230px;}
+.ddp-btn-bg .ddp-icon-spin-loading {display:none; margin-right:6px;}
+.ddp-btn-bg.ddp-load .ddp-icon-spin-loading {display:inline-block;}
+.ddp-btn-bg.ddp-load .ddp-icon-link-down {display:none;}
+
+/***************************************************************************
+	 link button
+*************************************************************************/
+.ddp-btn-link:hover em.ddp-icon-link-edit2 {background-position-x:-52px;}
+.ddp-btn-link:hover em.ddp-icon-link-down {background-position-x:-14px;}
+
 /***************************************************************************
 	line button
 *************************************************************************/
