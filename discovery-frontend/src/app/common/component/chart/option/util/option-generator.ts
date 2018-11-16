@@ -2026,10 +2026,7 @@ export namespace OptionGenerator {
               "column": "NONE",
               "max": 10
             },
-            outline: {
-              "color": "#4f4f4f",
-              "thickness": "NONE"              // THIN, NORMAL, THICK
-            },
+            outline: null,
             clustering: false,
             viewRawData: false
           }

@@ -24,12 +24,12 @@
     <div *ngFor="let layer of legendInfo.layer; let index = index" class="ddp-ui-layer">
         <span class="ddp-label">{{layer.name}}</span>
         <span class="ddp-data">{{layer.type}}</span>
-        <!--<ul class="ddp-list-remark" *ngFor="let field of uiOption.fieldList">-->
-            <!--<li>-->
-                <!--<em class="ddp-bg-remark-r" style="background-color:#602663"></em>-->
-                <!--{{field}}-->
-            <!--</li>-->
-        <!--</ul>-->
+        <ul class="ddp-list-remark" *ngFor="let field of layer.color">
+            <li>
+                <em class="ddp-bg-remark-r" [style.background-color]="field.color"></em>
+                {{field.column}}
+            </li>
+        </ul>
     </div>
   </div>
   <!-- //Legend -->
@@ -57,7 +57,7 @@
               <th></th>
               <td>{{tooltipInfo.coords[tooltipInfo.coords.length - 1]}}</td>
             </tr>
-             <tr *ngFor="let field of tooltipInfo.fields; let index = index">
+            <tr *ngFor="let field of tooltipInfo.fields; let index = index">
               <th style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">{{field.name}}</th>
               <td style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">{{field.value}}</td>
             </tr>

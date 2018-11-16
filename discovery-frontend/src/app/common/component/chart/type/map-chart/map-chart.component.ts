@@ -129,12 +129,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     enable: true,
     position: String(UIPosition.RIGHT_BOTTOM),
     layer: [
-      // type: MapLayerType.SYMBOL,
-      // num: 1,
-      // name: 'Layer 1',
-      // title: 'Geo info',
-      // coords: [],
-      // fields: []
+        // {
+        //   name: 'Layer 1',
+        //   type: MapLayerType.SYMBOL,
+        //   color: [{
+        //     color: '#FFFFFF',
+        //     column: 'gis'
+        //   }]
+        // }
     ]
   };
 
@@ -555,7 +557,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let feature = new ol.Feature();
       feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
 
-      if(geomType === "GEO_POINT") {
+      if( _.eq(geomType, "GEO_POINT") ) {
         let featureCenter = feature.getGeometry().getCoordinates();
 
         if(featureCenter.length === 1) {
@@ -682,8 +684,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       if( _.eq(layerType, MapLayerType.SYMBOL) ) {
         let styleLayer: UISymbolLayer = <UISymbolLayer> styleOption.layers[layerNum];
         symbolType = styleLayer.symbol;
-        outlineType = styleLayer.outline.thickness;
-        outlineColor = styleLayer.outline.color;
+        outlineType = styleLayer.outline ? styleLayer.outline.thickness : null;
+        outlineColor = styleLayer.outline ? styleLayer.outline.color : null;
         featureSizeType = styleLayer.size.by;
       }
 
@@ -1060,7 +1062,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     this.tooltipInfo.geometryType = feature.getGeometry().getType();
 
     ////////////////////////////////////////////////////////
-    // Coordinates
+    // Coordinates (Geo Info)
     ////////////////////////////////////////////////////////
 
     let coords = [0,0];
@@ -1089,8 +1091,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     }
 
     ////////////////////////////////////////////////////////
-    // Field info
+    // Field info (Data Value)
     ////////////////////////////////////////////////////////
+
+    this.tooltipInfo.fields = [];
 
     // Properties (DATA_VALUE)
     if(this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[19] !== null) {
@@ -1122,6 +1126,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             field.name = aggregationKey.key;
             field.value = tooltipVal;
           }
+          this.tooltipInfo.fields.push(field);
         }
       });
     }
@@ -1328,12 +1333,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         // Layer type
         legendInfo.type = layer.type+ ' Color';
 
-        _.each(this.getUiMapOption().fielDimensionList, (field, index) => {
-          let colorInfo: any = {};
-          colorInfo.color = layer.color.schema;
-          colorInfo.column = field.alias;
-          legendInfo.color.push(colorInfo);
+        let colorInfo: any = {};
+        colorInfo.color = layer.color.schema;
+        _.each(this.shelf.layers[this.getUiMapOption().layerNum], (field) => {
+          if( _.eq(field.field.logicalType.toString(), "GEO_POINT") ) {
+            colorInfo.column = field.alias;
+            return false;
+          }
         });
+        legendInfo.color.push(colorInfo);
+
       }
       ////////////////////////////////////////////////////////
       // Error
