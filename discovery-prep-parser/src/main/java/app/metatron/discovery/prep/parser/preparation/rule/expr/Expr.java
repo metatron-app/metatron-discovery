@@ -186,12 +186,12 @@ public interface Expr extends Expression {
         assert (args.size() == 2) : args.size();
         try {
           ExprEval exprEval = args.get(0).eval(bindings);
-          String colType = args.get(1).eval(bindings).stringValue().replace("'", "");
+          String colType = args.get(1).eval(bindings).stringValue().replace("'", "").toUpperCase();
 
           if(exprEval.value() == null)
             return ExprEval.of(false);
           else
-            return exprEval.type().toString().equals(colType) ? ExprEval.of(false) : ExprEval.of(true);
+            return exprEval.type().toString().toUpperCase().equals(colType) ? ExprEval.of(false) : ExprEval.of(true);
         } catch (NullPointerException ne){
           throw new FunctionColumnNotFoundException("isnull(): No such column name >> " + args.get(0).toString());
         }

@@ -291,15 +291,15 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
         // 워크스페이스 매핑
         this.datasourceService.addDatasourceWorkspaces(result.id, [workspace['id']])
           .then(() => {
-            // loading hide
-            this.loadingHide();
+            // link datasource detail (#505)
+            this.router.navigate(['/management/storage/datasource', result.id]);
             // close
             this.step = '';
             this.dbComplete.emit(this.step);
           })
           .catch(() => {
-            // loading hide
-            this.loadingHide();
+            // link datasource detail (#505)
+            this.router.navigate(['/management/storage/datasource', result.id]);
             // close
             this.step = '';
             this.dbComplete.emit(this.step);
@@ -348,9 +348,9 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
   private _deleteColumnProperty(column: any): void {
     delete column.biType;
     delete column.replaceFl;
-    // if removed property is false, delete removed property
-    if (column.removed === false) {
-      delete column.removed;
+    // if unloaded property is false, delete unloaded property
+    if (column.unloaded === false) {
+      delete column.unloaded;
     }
     // delete used UI
     delete column.isValidTimeFormat;

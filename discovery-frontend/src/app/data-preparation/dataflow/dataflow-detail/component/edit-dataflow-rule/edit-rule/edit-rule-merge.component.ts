@@ -17,7 +17,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit, View
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { isUndefined } from "util";
+import {isNullOrUndefined, isUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
 
@@ -156,8 +156,11 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
    * @protected
    */
   protected afterShowComp() {
-    if (this.selectedFields.length > 0) {
-      this.newValue = this.selectedFields[0].name + '_1';
+
+    if (this.newValue === '' || isNullOrUndefined(this.newValue)) {
+      if (this.selectedFields.length > 0) {
+        this.newValue = this.selectedFields[0].name + '_1';
+      }
     }
   } // function - _afterShowComp
 
@@ -173,10 +176,11 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
 
     // NEW COLUMN NAME
     this.newValue = data.jsonRuleString.as;
+    this.newValue = PreparationCommonUtil.removeQuotation(this.newValue);
 
     // DELIMITER
     this.delimiter = data.jsonRuleString.with;
-
+    this.delimiter = PreparationCommonUtil.removeQuotation(this.delimiter);
   } // function - _parsingRuleString
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

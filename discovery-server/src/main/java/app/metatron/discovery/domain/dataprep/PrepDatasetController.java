@@ -421,6 +421,7 @@ public class PrepDatasetController {
         return ResponseEntity.ok(response);
     }
 
+    /*
     @RequestMapping(value = "/upload", method = RequestMethod.POST, produces = "application/json")
     public @ResponseBody ResponseEntity<?> uploadExcelfile(@RequestParam("file") MultipartFile file) {
         Map<String, Object> response = null;
@@ -432,6 +433,7 @@ public class PrepDatasetController {
         }
         return ResponseEntity.status(HttpStatus.SC_CREATED).body(response);
     }
+    */
 
     @RequestMapping(value = "/upload_async", method = RequestMethod.POST, produces = "application/json")
     public @ResponseBody ResponseEntity<?> upload_async(@RequestParam("file") MultipartFile file) {

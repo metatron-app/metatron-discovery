@@ -38,7 +38,6 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionHistoryReposi
 import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.EngineIngestionService;
-import app.metatron.discovery.domain.engine.model.IngestionStatusResponse;
 
 import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.FAILED;
 import static app.metatron.discovery.domain.datasource.ingestion.IngestionHistory.IngestionStatus.RUNNING;
@@ -77,6 +76,9 @@ public class DataSourceIngestionCheckJob extends QuartzJobBean {
     List<IngestionHistory> histories = ingestionHistoryRepository.findByStatus(IngestionHistory.IngestionStatus.RUNNING);
     if (CollectionUtils.isNotEmpty(histories)) {
       for (IngestionHistory history : histories) {
+        if (history.getIngestionMethod() != IngestionHistory.IngestionMethod.SUPERVISOR) {
+          continue;
+        }
         LOGGER.debug("Check '{} : {}' Job...", history.getDataSourceId(), history.getIngestionId());
         try {
           setIngestionResult(history);
@@ -94,55 +96,33 @@ public class DataSourceIngestionCheckJob extends QuartzJobBean {
   @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_UNCOMMITTED)
   public void setIngestionResult(IngestionHistory history) {
 
-    // TODO: 상태 체크하는 로직을 별도 서비스로 모두 이관 필요
-    if (history.getIngestionMethod() == IngestionHistory.IngestionMethod.SUPERVISOR) {
-      Optional<Map> result;
-      try {
-        result = engineMetaRepository.getSupervisorIngestionStatus(history.getIngestionId());
-      } catch (Exception e) {
-        LOGGER.error("Fail to check supervisor({}) : {}", history.getIngestionId(), e.getCause());
-        doFailedProcess(history, 0L, e.getMessage());
-        return;
-      }
-
-      if (!result.isPresent()) {
-        doFailedProcess(history, 0L, null);
-        return;
-      }
-
-      // 일단 RealTime만 적용해야하기 때문에 상태처리는 이정도로 보류
-      Map resultMap = result.get();
-      if (resultMap.containsKey("id")) {
-        history.setStatus(RUNNING);
-        history.setDuration(0L);
-        ingestionHistoryRepository.save(history);
-        LOGGER.info("Saved ingestion({}) status : {}", history.getIngestionId(), RUNNING);
-        return;
-      } else {
-        doFailedProcess(history, 0L, "Supervisor not found.");
-        return;
-      }
-    } else {
-
-      IngestionStatusResponse statusResponse = null;
-      try {
-        statusResponse = ingestionService.doCheckResult(history.getIngestionId());
-      } catch (Exception e) {
-        LOGGER.warn("Keep task({}) status cause by engine error : {}", history.getIngestionId(), e.getMessage());
-        return;
-      }
-
-      switch (statusResponse.getStatus()) {
-        case SUCCESS:
-          doSuccessProcess(history, statusResponse.getDuration());
-          return;
-        case FAILED:
-          doFailedProcess(history, statusResponse.getDuration(), "Fail to process ingestion task(" + history.getIngestionId() + "). Check the task log.");
-          return;
-        default:
-          LOGGER.info("Keep task({}) status : {}", history.getIngestionId(), statusResponse.getStatus());
-      }
+    Optional<Map> result;
+    try {
+      result = engineMetaRepository.getSupervisorIngestionStatus(history.getIngestionId());
+    } catch (Exception e) {
+      LOGGER.error("Fail to check supervisor({}) : {}", history.getIngestionId(), e.getCause());
+      doFailedProcess(history, 0L, e.getMessage());
+      return;
     }
+
+    if (!result.isPresent()) {
+      doFailedProcess(history, 0L, null);
+      return;
+    }
+
+    // 일단 RealTime만 적용해야하기 때문에 상태처리는 이정도로 보류
+    Map resultMap = result.get();
+    if (resultMap.containsKey("id")) {
+      history.setStatus(RUNNING);
+      history.setDuration(0L);
+      ingestionHistoryRepository.save(history);
+      LOGGER.info("Saved ingestion({}) status : {}", history.getIngestionId(), RUNNING);
+      return;
+    } else {
+      doFailedProcess(history, 0L, "Supervisor not found.");
+      return;
+    }
+
   }
 
   @Transactional

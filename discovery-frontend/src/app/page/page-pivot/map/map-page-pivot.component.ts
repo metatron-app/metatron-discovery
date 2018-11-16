@@ -164,7 +164,7 @@ export class MapPagePivotComponent extends PagePivotComponent implements OnInit,
            this.uiOption.layers[layerNum-1].color.column = aggregation.aggregationType + '(' + fieldAlias + ')';
            this.uiOption.layers[layerNum-1].color.schema = 'VC1';
 
-         } else {
+         } else if(this.pivot.aggregations.length > 1){
            this.uiOption.layers[layerNum-1].size.by = 'MEASURE';
            this.uiOption.layers[layerNum-1].size.column = aggregation.aggregationType + '(' + fieldAlias + ')';
 

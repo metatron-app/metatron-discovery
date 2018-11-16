@@ -45,6 +45,8 @@ import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -1172,6 +1174,14 @@ public class PolarisUtils {
     }
 
     return outputFile.getAbsolutePath();
+  }
+
+  public static String getLocalHostname() {
+    try {
+      return InetAddress.getLocalHost().getHostName();
+    } catch (UnknownHostException e) {
+      return "localhost";
+    }
   }
 
   public static List<String> mapWithRangeExpressionToList(Map<String, Object> rangeMap){

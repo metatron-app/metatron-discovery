@@ -138,7 +138,7 @@
                           <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                             <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                             <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
-                            <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                            <li (click)="changeColorType('MEASURE')" *ngIf="measureList && measureList[1] && measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                           </ul>
                         </div>
                         <!-- //part -->
@@ -151,11 +151,11 @@
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
                         </div>
-                        <div class="ddp-list-part ddp-divide" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.layers[1].color.by.toString() === 'MEASURE'">
+                        <div class="ddp-list-part ddp-divide" *ngIf="measureList && measureList[1] && uiOption.layers[1].color.by.toString() === 'MEASURE'">
                           <!-- SELECTBOX -->
                           <component-select
-                            [array]="uiOption.measureList[1]"
-                            [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].color['column'])"
+                            [array]="measureList[1]"
+                            [defaultIndex]="measureList[1] && measureList[1].indexOf(uiOption.layers[1].color['column'])"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
                         </div>
@@ -389,17 +389,17 @@
                                   <span class="ddp-txt-selectbox">{{ uiOption.layers[1].size.by.toString() === 'NONE' ? translateService.instant('msg.space.ui.none') : uiOption.layers[1].size.by }}</span>
                                   <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="sizeTypeFlag">
                                       <li (click)="changeSizeType('NONE')"><a href="#">{{'msg.page.layer.map.size.by.none' | translate}}</a></li>
-                                      <li (click)="changeSizeType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.measureList[1].length > 0"><a href="#">{{'msg.page.layer.map.size.by.measure' | translate}}</a></li>
+                                      <li (click)="changeSizeType('MEASURE')" *ngIf="measureList && measureList[1] && measureList[1].length > 0"><a href="#">{{'msg.page.layer.map.size.by.measure' | translate}}</a></li>
                                   </ul>
                               </div>
                               <!-- //SELECTBOX -->
 
                               <!-- part -->
-                              <div class="ddp-list-part ddp-divide" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.layers[1].size.by.toString() === 'MEASURE'">
+                              <div class="ddp-list-part ddp-divide" *ngIf="measureList && measureList[1] && uiOption.layers[1].size.by.toString() === 'MEASURE'">
                                 <!-- SELECTBOX -->
                                 <component-select
-                                  [array]="uiOption.measureList[1]"
-                                  [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].size['column'])"
+                                  [array]="measureList[1]"
+                                  [defaultIndex]="measureList[1] && measureList[1].indexOf(uiOption.layers[1].size['column'])"
                                   (onSelected)="changeSizeColumn($event)"
                                 ></component-select>
                               </div>
@@ -494,7 +494,7 @@
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                               <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                               <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
-                              <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                              <li (click)="changeColorType('MEASURE')" *ngIf="measureList && measureList[1] && measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                             </ul>
                           </div>
                         </div>
@@ -506,11 +506,11 @@
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
                         </div>
-                        <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.layers[1].color.by.toString() === 'MEASURE'">
+                        <div class="ddp-divide2" *ngIf="measureList && measureList[1] && uiOption.layers[1].color.by.toString() === 'MEASURE'">
                           <!-- SELECTBOX -->
                           <component-select
-                            [array]="uiOption.measureList[1]"
-                            [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].color['column'])"
+                            [array]="measureList[1]"
+                            [defaultIndex]="measureList[1] && measureList[1].indexOf(uiOption.layers[1].color['column'])"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
                         </div>
@@ -731,17 +731,17 @@
                                 <span class="ddp-txt-selectbox">{{ uiOption.layers[1].thickness.by.toString() === 'NONE' ? translateService.instant('msg.space.ui.none') : uiOption.layers[1].thickness.by }}</span>
                                 <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="thicknessTypeFlag">
                                     <li (click)="changeThicknessType('NONE')"><a href="#">{{'msg.page.layer.map.stroke.none' | translate}}</a></li>
-                                    <li (click)="changeThicknessType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.measureList[1].length > 0"><a href="#">{{'msg.page.layer.map.stroke.measure' | translate}}</a></li>
+                                    <li (click)="changeThicknessType('MEASURE')" *ngIf="measureList && measureList[1] && measureList[1].length > 0"><a href="#">{{'msg.page.layer.map.stroke.measure' | translate}}</a></li>
                                 </ul>
                             </div>
                             <!-- //SELECTBOX -->
                         </div>
                         <!-- part -->
-                        <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.layers[1].thickness.by.toString() === 'MEASURE'">
+                        <div class="ddp-divide2" *ngIf="measureList && measureList[1] && uiOption.layers[1].thickness.by.toString() === 'MEASURE'">
                           <!-- SELECTBOX -->
                           <component-select
-                            [array]="uiOption.measureList[1]"
-                            [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].thickness['column'])"
+                            [array]="measureList[1]"
+                            [defaultIndex]="measureList[1] && measureList[1].indexOf(uiOption.layers[1].thickness['column'])"
                             (onSelected)="changeThicknessColumn($event)"
                           ></component-select>
                         </div>
@@ -804,7 +804,7 @@
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                               <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
                               <li (click)="changeColorType('DIMENSION')"><a href="javascript:">{{'msg.page.li.color.dimension' | translate}}</a></li>
-                              <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                              <li (click)="changeColorType('MEASURE')" *ngIf="measureList && measureList[1] && measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                             </ul>
                           </div>
                         </div>
@@ -816,11 +816,11 @@
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
                         </div>
-                        <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.layers[1].color.by.toString() === 'MEASURE'">
+                        <div class="ddp-divide2" *ngIf="measureList && measureList[1] && uiOption.layers[1].color.by.toString() === 'MEASURE'">
                           <!-- SELECTBOX -->
                           <component-select
-                            [array]="uiOption.measureList[1]"
-                            [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].color['column'])"
+                            [array]="measureList[1]"
+                            [defaultIndex]="measureList[1] && measureList[1].indexOf(uiOption.layers[1].color['column'])"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
                         </div>
@@ -1092,15 +1092,15 @@
                             <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[1].color.by.toString() === 'NONE' ? translateService.instant('msg.space.ui.none') : uiOption.layers[1].color.by) }}</span>
                             <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                               <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
-                              <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                              <li (click)="changeColorType('MEASURE')" *ngIf="measureList && measureList[1] && measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                             </ul>
                           </div>
                         </div>
-                      <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.layers[1].color.by.toString() === 'MEASURE'">
+                      <div class="ddp-divide2" *ngIf="measureList && measureList[1] && uiOption.layers[1].color.by.toString() === 'MEASURE'">
                         <!-- SELECTBOX -->
                         <component-select
-                          [array]="uiOption.measureList[1]"
-                          [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].color['column'])"
+                          [array]="measureList[1]"
+                          [defaultIndex]="measureList[1] && measureList[1].indexOf(uiOption.layers[1].color['column'])"
                           (onSelected)="changeColorColumn($event)"
                         ></component-select>
                       </div>
@@ -1320,7 +1320,7 @@
                             <span class="ddp-label-txt">{{'msg.page.layer.map.coverage' | translate}}</span>
                         </div>
                         <div class="ddp-col-4">
-                            <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly" placeholder="" [value]="translateNumber('hexagonRadius', uiOption.layers[0].coverage)">
+                            <input type="text" class="ddp-input-typebasic ddp-txt-right ddp-readonly" readonly="readonly" placeholder="" [value]="translateNumber('heatmapRadius', uiOption.layers[0].radius)">
                         </div>
                     </div>
 
@@ -1366,15 +1366,15 @@
                               <span class="ddp-txt-selectbox">{{ capitalize(uiOption.layers[1].color.by.toString() === 'NONE' ? translateService.instant('msg.space.ui.none') : uiOption.layers[1].color.by) }}</span>
                               <ul class="ddp-list-selectbox ddp-selectdown" style="display: block" *ngIf="colorTypeFlag">
                                 <li (click)="changeColorType('NONE')"><a href="javascript:">{{'msg.space.ui.none' | translate}}</a></li>
-                                <li (click)="changeColorType('MEASURE')" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
+                                <li (click)="changeColorType('MEASURE')" *ngIf="measureList && measureList[1] && measureList[1].length > 0"><a href="javascript:">{{'msg.page.li.color.measure' | translate}}</a></li>
                               </ul>
                             </div>
                           </div>
-                          <div class="ddp-divide2" *ngIf="uiOption.measureList && uiOption.measureList[1] && uiOption.layers[1].color.by.toString() === 'MEASURE'">
+                          <div class="ddp-divide2" *ngIf="measureList && measureList[1] && uiOption.layers[1].color.by.toString() === 'MEASURE'">
                             <!-- SELECTBOX -->
                             <component-select
-                              [array]="uiOption.measureList[1]"
-                              [defaultIndex]="uiOption.measureList[1] && uiOption.measureList[1].indexOf(uiOption.layers[1].color['column'])"
+                              [array]="measureList[1]"
+                              [defaultIndex]="measureList[1] && measureList[1].indexOf(uiOption.layers[1].color['column'])"
                               (onSelected)="changeColorColumn($event)"
                             ></component-select>
                           </div>

@@ -23,6 +23,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +75,11 @@ public class SshUtils {
 
   public static void copyLocalToRemoteFileByScp(List<String> srcFileNames, String targetDir, String hostName, int port,
                                                 String username, String password) {
+    copyLocalToRemoteFileByScp(srcFileNames, null, targetDir, hostName, port, username, password, false);
+  }
+
+  public static void copyLocalToRemoteFileByScp(List<String> srcPaths, List<String> targetFileNames, String targetDir, String hostName, int port,
+                                                String username, String password, boolean checkSrcPath) {
 
     FileInputStream fis = null;
     Session session = null;
@@ -81,18 +87,29 @@ public class SshUtils {
 
       session = getSSHSession(hostName, username, password, port);
 
-      for (String fileName : srcFileNames) {
+      boolean renameTargetFile = CollectionUtils.isNotEmpty(targetFileNames)
+          && srcPaths.size() == targetFileNames.size();
 
-        File targetFile = new File(fileName);
-        if (!targetFile.isFile()) {
-          LOGGER.warn("Copy Passed. Target file ({}) not found.", fileName);
-          continue;
+      for(int i=0; i<srcPaths.size(); i++) {
+
+        String srcPath = srcPaths.get(i);
+
+        File srcFile = new File(srcPath);
+        if (!srcFile.isFile()) {
+          if(checkSrcPath) {
+            throw new RuntimeException("No source file(" + srcPath + ") to copy via SSH.");
+          } else {
+            LOGGER.warn("No source file({}) to copy via SSH. This file is passed.", srcPath);
+            continue;
+          }
         }
+
+        String targetFileName = renameTargetFile ? targetFileNames.get(i) : srcFile.getName();
 
         StringBuilder commandBuilder = new StringBuilder();
         commandBuilder.append("scp ");
         commandBuilder.append("-P ").append(port).append(" ");
-        commandBuilder.append("-t ").append(targetDir).append("/").append(targetFile.getName());
+        commandBuilder.append("-t ").append(targetDir).append("/").append(targetFileName);
 
         Channel channel = session.openChannel("exec");
         ((ChannelExec) channel).setCommand(commandBuilder.toString());
@@ -110,7 +127,7 @@ public class SshUtils {
 
         // send "C0644 filesize filename", where filename should not include '/'
         commandBuilder = new StringBuilder();
-        commandBuilder.append("C0644 ").append(targetFile.length()).append(" ").append(targetFile.getName()).append("\n");
+        commandBuilder.append("C0644 ").append(srcFile.length()).append(" ").append(targetFileName).append("\n");
         out.write(commandBuilder.toString().getBytes());
         out.flush();
 
@@ -120,7 +137,7 @@ public class SshUtils {
         }
 
         // send a content of lfile
-        fis = new FileInputStream(targetFile);
+        fis = new FileInputStream(srcFile);
         byte[] buf = new byte[1024];
         while (true) {
           int len = fis.read(buf, 0, buf.length);
@@ -142,12 +159,12 @@ public class SshUtils {
 
         channel.disconnect();
 
-        LOGGER.debug("Successfully copy file to {} : {}", hostName, fileName);
+        LOGGER.debug("Successfully copy file {} to {}:{}/{}", srcPath, hostName, targetDir, targetFileName);
       }
 
     } catch (Exception e) {
-      LOGGER.error("Fail to copy file : {}", e.getMessage());
-      throw new RuntimeException("Fail to copy file : " + e.getMessage());
+      LOGGER.error("Fail to copy file bia SSH : {}", e.getMessage());
+      throw new RuntimeException("Fail to copy file bia SSH : " + e.getMessage());
     } finally {
       if (session != null) {
         session.disconnect();

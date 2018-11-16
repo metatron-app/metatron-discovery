@@ -18,32 +18,13 @@ package app.metatron.discovery.spec.druid.ingestion.parser;
 
 public class StringParser implements Parser {
 
-  String type;
-
   ParseSpec parseSpec;
-
-  String typeString; // FIXME: 추후 ORC 타입으로 분리할것
 
   public StringParser() {
   }
 
-  public StringParser(String type, ParseSpec parseSpec) {
-    this.type = type;
+  public StringParser(ParseSpec parseSpec) {
     this.parseSpec = parseSpec;
-  }
-
-  public StringParser(String type, ParseSpec parseSpec, String typeString) {
-    this.type = type;
-    this.parseSpec = parseSpec;
-    this.typeString = typeString;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
   }
 
   public ParseSpec getParseSpec() {
@@ -52,14 +33,6 @@ public class StringParser implements Parser {
 
   public void setParseSpec(ParseSpec parseSpec) {
     this.parseSpec = parseSpec;
-  }
-
-  public String getTypeString() {
-    return typeString;
-  }
-
-  public void setTypeString(String typeString) {
-    this.typeString = typeString;
   }
 
 }

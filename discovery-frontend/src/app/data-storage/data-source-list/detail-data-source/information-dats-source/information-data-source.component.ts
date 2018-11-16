@@ -21,7 +21,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Output,
+  Output, SimpleChanges,
   ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../common/component/abstract-popup.component';
@@ -44,6 +44,8 @@ import { StringUtil } from '../../../../common/util/string.util';
 import {ConfirmModalComponent} from "../../../../common/component/modal/confirm/confirm.component";
 import {Modal} from "../../../../common/domain/modal";
 import {Alert} from "../../../../common/util/alert.util";
+import { IngestionLogComponent } from './component/ingestion-log/ingestion-log.component';
+import { CommonUtil } from '../../../../common/util/common.util';
 
 declare let echarts: any;
 
@@ -70,6 +72,10 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @ViewChild(BatchHistoryComponent)
   private batchHistoryComponent: BatchHistoryComponent;
 
+  // ingestion detail comp
+  @ViewChild(IngestionLogComponent)
+  private _ingestionLogComp: IngestionLogComponent;
+
   @ViewChild('histogram')
   private histogram: ElementRef;
 
@@ -89,6 +95,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   // 차트 옵션
   private barOption: any;
 
+  // ingestionProgress
+  private _ingestionProgress: any;
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -106,6 +115,15 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   @Input()
   public datasource: Datasource;
 
+  @Input()
+  public ingestionProcess: any;
+
+  @Input()
+  public isNotShowProgress: boolean;
+
+  @Input()
+  public historyId: string;
+
   @Output()
   public confirm = new EventEmitter;
 
@@ -113,6 +131,9 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   public detailFl: boolean = false;
   // advanced setting show flag
   public isShowAdvancedSetting: boolean = false;
+
+  // process step
+  public ingestionProcessStatusStep: number = 0;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -141,14 +162,39 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
 
   // Destory
   public ngOnDestroy() {
-
     // Destory
     super.ngOnDestroy();
+  }
+
+  // Change
+  public ngOnChanges(changes: SimpleChanges) {
+    if (changes.ingestionProcess) {
+      // 최초 접근시 status가 ENABLED라면 process hide
+      if (!changes.ingestionProcess.previousValue && this.datasource && this.datasource.status === Status.ENABLED) {
+        this.isNotShowProgress = true;
+      } else if (changes.ingestionProcess.currentValue) { // if changed data
+        // set _ingestionProgress
+        this._ingestionProgress = changes.ingestionProcess.currentValue;
+        // set process status
+        this._setProcessStatus(changes.ingestionProcess.currentValue);
+        // if success ingestion
+        if (changes.ingestionProcess.currentValue['message'] === 'END_INGESTION_JOB') {
+          this._getFieldStats(this.getFields[this._getFindIndexTimestampField()].name, this.datasource.engineName)
+        }
+      }
+    }
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * ingestion details click event
+   */
+  public onClickIngestionDetails(): void {
+    this._ingestionLogComp.init(this.datasource.id, this.historyId, this._ingestionProgress.message, this._ingestionProgress.failResults);
+  }
 
   /**
    * 확인모달 오픈 요청
@@ -194,11 +240,7 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    * @returns {any}
    */
   public bytesToSize(bytes: number) {
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    if (bytes == 0) return '0 Byte';
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    const data = bytes / Math.pow(1024, i);
-    return data.toFixed(2) + ' ' + sizes[i];
+    return CommonUtil.formatBytes(bytes, 2);
   };
 
   /**
@@ -429,39 +471,19 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
   }
 
   /**
-   * 데이터 소스 status
+   * 데이터 소스 status class
    * @returns {string}
    */
-  public getSourceStatus(datasource: Datasource): string {
-    const status = datasource.status;
+  public getSourceStatusClass(status: Status): string {
     switch (status) {
       case Status.ENABLED:
-        return 'Enabled';
+        return 'ddp-enabled';
       case Status.PREPARING:
-        return'Preparing';
+        return'ddp-preparing';
       case Status.DISABLED:
-        return 'Disabled';
+        return 'ddp-disabled';
       case Status.FAILED:
-        return 'Failed';
-    }
-  }
-
-  /**
-   * 데이터 소스 status description
-   * @param {Datasource} datasource
-   * @returns {string}
-   */
-  public getSourceStatusDesc(datasource: Datasource): string {
-    const status = datasource.status;
-    switch (status) {
-      case Status.ENABLED:
-        return this.translateService.instant('msg.storage.ui.available.engine');
-      case Status.PREPARING:
-        return this.translateService.instant('msg.storage.ui.source.preparing');
-      case Status.FAILED:
-        return this.translateService.instant('msg.storage.ui.source.fail');
-      default:
-        return this.translateService.instant('msg.storage.ui.unavailable.engine');
+        return 'ddp-fail';
     }
   }
 
@@ -499,22 +521,6 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
    */
   public isDisabled(): boolean {
     return this.getStatus === Status.DISABLED;
-  }
-
-  /**
-   * source failed
-   * @returns {boolean}
-   */
-  public isFailed(): boolean {
-    return this.getStatus === Status.FAILED;
-  }
-
-  /**
-   * source preparing
-   * @returns {boolean}
-   */
-  public isPreParing(): boolean {
-    return this.getStatus === Status.PREPARING;
   }
 
   /**
@@ -704,9 +710,37 @@ export class InformationDataSourceComponent extends AbstractPopupComponent imple
     return this.datasource.fields;
   }
 
-  /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  | Private Method - init
-  |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+  /**
+   * Set process status
+   * @param {any} processData
+   * @private
+   */
+  private _setProcessStatus(processData: any): void {
+    switch (processData.message) {
+      // 데이터 준비
+      case 'START_INGESTION_JOB':
+      case 'PREPARATION_HANDLE_LOCAL_FILE':
+      case 'PREPARATION_LOAD_FILE_TO_ENGINE':
+        this.ingestionProcessStatusStep = 1;
+        break;
+      // 엔진 적재
+      case 'ENGINE_INIT_TASK':
+      case 'ENGINE_RUNNING_TASK':
+        this.ingestionProcessStatusStep = 2;
+        break;
+      // 상태 확인
+      case 'ENGINE_REGISTER_DATASOURCE':
+        this.ingestionProcessStatusStep = 3;
+        break;
+      // 완료
+      case 'END_INGESTION_JOB':
+        this.ingestionProcessStatusStep = 4;
+        break;
+      // 실패
+      case 'FAIL_INGESTION_JOB':
+        break;
+    }
+  }
 
   /**
    * ui init

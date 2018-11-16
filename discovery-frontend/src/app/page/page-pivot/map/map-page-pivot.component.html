@@ -7,9 +7,11 @@
     <div class="ddp-ui-drag-slide">
       <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev" style="display: none;"><em class="ddp-icon-prev"></em></a>
       <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next" style="display: none"><em class="ddp-icon-next"></em></a>
+      <!--
       <div class="ddp-slide-control">
           <a href="javascript:" class="ddp-btn-plus" (click)="changeLayer(2)" *ngIf="layerNum === 1"></a>
       </div>
+      -->
       <div class="ddp-ui-drag-slide-in">
 
         <div class="ddp-wrap-default" [dragula]="'dragbag'" [dragulaModel]="pivot.columns" [attr.data-container]="'column'">
