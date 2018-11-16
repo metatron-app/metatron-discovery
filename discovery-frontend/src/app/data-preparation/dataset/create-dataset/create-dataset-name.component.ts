@@ -470,7 +470,9 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
           this.name = `${fileName} - ${this.datasetFile.sheetname} (EXCEL)`;
         }
 
-      } else if(this.fileExtension.toUpperCase() === 'CSV') {
+      } else if (this.fileExtension.toUpperCase() === 'JSON') {
+        this.name = `${fileName} (JSON)`;
+      } else {
         this.name = `${fileName} (CSV)`;
       }
     } else if ('DB' === type) {

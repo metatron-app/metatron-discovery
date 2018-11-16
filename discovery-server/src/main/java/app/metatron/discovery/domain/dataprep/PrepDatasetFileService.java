@@ -555,6 +555,7 @@ public class PrepDatasetFileService {
 
                             Map<String, Object> grid = Maps.newHashMap();
 
+                            grid.put("sheetName", sheetName);
                             grid.put("headers", headers);
                             grid.put("fields", fields);
 
@@ -568,7 +569,11 @@ public class PrepDatasetFileService {
                         }
                     }
 
-                } else if ( "csv".equals(extensionType) ) {
+                } else if ( "csv".equals(extensionType) ||
+                        "json".equals(extensionType) ||
+                        "txt".equals(extensionType) ||
+                        true // 기타 확장자는 csv로 간주
+                    ) {
                     boolean hasFields;
                     int totalRows = 0;
 
@@ -617,22 +622,25 @@ public class PrepDatasetFileService {
                             int[] typeCount = new int[5];
 
                             for(List<ColumnType> types : gussedTypesByRows) {
-                                ColumnType type = types.get(i) != null ? types.get(i) : ColumnType.STRING;
-                                switch (type) {
-                                    case BOOLEAN:
-                                        typeCount[0]++;
-                                        break;
-                                    case LONG:
-                                        typeCount[1]++;
-                                        break;
-                                    case DOUBLE:
-                                        typeCount[2]++;
-                                        break;
-                                    case TIMESTAMP:
-                                        typeCount[3]++;
-                                        break;
-                                    default:
-                                        typeCount[4]++;
+
+                                if (i <types.size() && types.get(i) != null) {
+                                    ColumnType type = types.get(i) != null ? types.get(i) : ColumnType.STRING;
+                                    switch (type) {
+                                        case BOOLEAN:
+                                            typeCount[0]++;
+                                            break;
+                                        case LONG:
+                                            typeCount[1]++;
+                                            break;
+                                        case DOUBLE:
+                                            typeCount[2]++;
+                                            break;
+                                        case TIMESTAMP:
+                                            typeCount[3]++;
+                                            break;
+                                        default:
+                                            typeCount[4]++;
+                                    }
                                 }
                             }
 
@@ -782,7 +790,13 @@ public class PrepDatasetFileService {
 
                 List<Map<String, String>> resultSet = Lists.newArrayList();
 
-                if ("csv".equals(extensionType)) {
+                if("json".equals(extensionType)) {
+                    // 현재 FILE이면 무조건 csv로 치환됨
+                } else if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
+                    // 현재 FILE이면 무조건 csv로 치환됨
+                } else if ("csv".equals(extensionType)
+                        || true // 기타 확장자는 모두 csv로 간주
+                        ) {
                     BufferedReader br = null;
                     String line;
                     String[] csv_fields = null;
@@ -883,10 +897,6 @@ public class PrepDatasetFileService {
                         }
                         dataFrame.rows.add(row);
                     }
-                } else if("json".equals(extensionType)) {
-                    // 현재 FILE이면 무조건 csv로 치환됨
-                } else if ("xlsx".equals(extensionType) || "xls".equals(extensionType)) {
-                    // 현재 FILE이면 무조건 csv로 치환됨
                 }
 
                 dataset.setTotalBytes(totalBytes);
@@ -905,9 +915,6 @@ public class PrepDatasetFileService {
 
         String fileName = file.getOriginalFilename();
         String extensionType = FilenameUtils.getExtension(fileName).toLowerCase();
-        if(extensionType!=null && extensionType.isEmpty()) {
-            extensionType = "none";
-        }
 
         FileOutputStream fos=null;
         try {
@@ -916,7 +923,8 @@ public class PrepDatasetFileService {
 
             int i=0;
             while(i<5) {
-                tempFileName = UUID.randomUUID().toString() + "." + extensionType;
+                tempFileName = UUID.randomUUID().toString();
+                if(0<extensionType.length()) { tempFileName = tempFileName + "." + extensionType; }
                 tempFilePath = this.getPathLocal_new(tempFileName);
 
                 File newFile = new File(tempFilePath);
@@ -1006,7 +1014,8 @@ public class PrepDatasetFileService {
                 responseMap.put("success", false);
                 responseMap.put("message", "making UUID was failed. try again");
             } else {
-                if(extensionType.equals("csv")) {
+                // BOM 처리는 CSV 유틸로 넘어갈 것임
+                if(extensionType.equals("csv") || extensionType.equals("txt")) {
                     ByteOrderMark byteOrderMark = ByteOrderMark.UTF_8;
                     Charset charSet = Charset.defaultCharset();
                     BOMInputStream bomInputStream = new BOMInputStream(file.getInputStream(),

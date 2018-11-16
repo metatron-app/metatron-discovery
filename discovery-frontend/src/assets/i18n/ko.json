@@ -996,7 +996,7 @@
   "msg.dp.ui.fail": "실패",
   "msg.dp.ui.file.drop" :"or drop file here",
   "msg.dp.ui.file.import" : "Import",
-  "msg.dp.ui.file.upload.description" : "xls, xlsx, txt 및 csv 형식은 허용됩니다.",
+  "msg.dp.ui.file.upload.description" : "Excel, CSV 형식의 파일이 허용됩니다.",
   "msg.dp.ui.flows": "데이터플로우",
   "msg.dp.ui.grid.view": "그리드 뷰",
   "msg.dp.ui.imported" : "IMPORTED",
@@ -1174,6 +1174,8 @@
   "msg.dp.btn.advanced.editor" : "고급 편집기",
   "msg.dp.btn.make.copy" : "데이터셋 복사",
   "msg.dp.ui.no.preview" : "미리보기 없음",
+  "msg.dp.ui.sel.dataflow.dataset" : "데이터셋을 추가할 데이터플로우를 선택하세요",
+  "msg.dp.ui.add.existing.dataflow" : "기존 데이터플로우에 추가",
   "msg.dp.th.sheet.name" : "시트 이름",
 
   "msg.board.create.add-ds" : "데이터소스 추가",
@@ -1929,6 +1931,7 @@
   "msg.storage.ui.partition.result": "결과",
   "msg.storage.ui.connection.jdbc.table.error": "서버 내부 제한 조건으로 인해 테이블 모드에서 데이터 조회가 불가능합니다. Query 모드에서 데이터를 조회할 수 있습니다",
   "msg.storage.ui.ingestion.failed.history": "적재 이력을 가져오지 못했습니다",
+  "msg.storage.ui.ingestion.details.title": "적재 상세",
   "msg.storage.ui.partition.rows": "행",
 
   "msg.log.th.status": "상태",

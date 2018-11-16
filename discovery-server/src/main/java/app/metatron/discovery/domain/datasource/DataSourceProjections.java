@@ -157,6 +157,61 @@ public class DataSourceProjections extends BaseProjections {
 
     DataSourceSummary getSummary();
 
+    @Value("#{target.findUnloadedField()}")
+    List<Field> getFields();
+
+    @Value("#{target.getIngestionInfo()}")
+    IngestionInfo getIngestion();
+
+    DataConnection getConnection();
+
+    Integer getLinkedWorkspaces();
+
+    Boolean getPublished();
+
+    String getGranularity();
+
+    String getSegGranularity();
+
+    DataSource.Status getStatus();
+
+    DataSource.SourceType getSrcType();
+
+    DataSourceTemporary getTemporary();
+
+    @Value("#{@contextService.getContexts(target)}")
+    Map<String, Object> getContexts();
+
+    @Value("#{@cachedUserService.findUserProfile(target.createdBy)}")
+    UserProfile getCreatedBy();
+
+    @Value("#{@cachedUserService.findUserProfile(target.modifiedBy)}")
+    UserProfile getModifiedBy();
+
+    DateTime getCreatedTime();
+
+    DateTime getModifiedTime();
+
+    Boolean getFieldsMatched();
+  }
+
+  @Projection(types = DataSource.class, name = "forAllFieldDetailView")
+  public interface ForDetailIncludeAllFieldProjection {
+
+    String getId();
+
+    String getName();
+
+    String getEngineName();
+
+    String getDescription();
+
+    DataSource.DataSourceType getDsType();
+
+    DataSource.ConnectionType getConnType();
+
+    DataSourceSummary getSummary();
+
     List<Field> getFields();
 
     @Value("#{target.getIngestionInfo()}")

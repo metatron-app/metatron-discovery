@@ -187,11 +187,15 @@ public class DfWindow extends DataFrame {
                 case "rolling_avg":
                     if(func.getArgs().size()!=3)
                         throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
+                    if(!prevDf.getColTypeByColName(func.getArgs().get(0).toString()).equals(ColumnType.LONG) && !prevDf.getColTypeByColName(func.getArgs().get(0).toString()).equals(ColumnType.DOUBLE))
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): This function works with numeric values only: " + func.getName());
                     newColType = ColumnType.DOUBLE;
                     break;
                 case "rolling_sum":
                     if(func.getArgs().size()!=3)
                         throw new WrongWindowFunctionExpressionException("DfWindow.gather(): Invalid window function args: " + func.getName());
+                    if(!prevDf.getColTypeByColName(func.getArgs().get(0).toString()).equals(ColumnType.LONG) && !prevDf.getColTypeByColName(func.getArgs().get(0).toString()).equals(ColumnType.DOUBLE))
+                        throw new WrongWindowFunctionExpressionException("DfWindow.gather(): This function works with numeric values only: " + func.getName());
                     newColType = prevDf.getColTypeByColName(func.getArgs().get(0).toString());
                     break;
                 case "lag":
@@ -322,44 +326,20 @@ public class DfWindow extends DataFrame {
                                 targetColName = func.getArgs().get(0).toString();
                                 start = i - func.getArgs().get(1).eval(row).asInt();
 
-                                if (this.getColTypeByColName(targetColName) == ColumnType.LONG) {
-                                    Long value = 0L;
-                                    if (start >= 0 && partitionNumber.get(start) == partitionIndex) {
-                                        value = (long) rows.get(start).get(targetColName);
-                                    } else {
-                                        value = null;
-                                    }
-                                    newRow.add(getColName(j), value);
+                                if (start >= 0 && partitionNumber.get(start) == partitionIndex) {
+                                    newRow.add(getColName(j), rows.get(start).get(targetColName));
                                 } else {
-                                    Double value = 0D;
-                                    if (start >= 0 && partitionNumber.get(start) == partitionIndex) {
-                                        value = value + (double) rows.get(start).get(targetColName);
-                                    } else {
-                                        value = null;
-                                    }
-                                    newRow.add(getColName(j), value);
+                                    newRow.add(getColName(j), null);
                                 }
                                 break;
                             case "lead":
                                 targetColName = func.getArgs().get(0).toString();
                                 start = i + func.getArgs().get(1).eval(row).asInt();
 
-                                if (this.getColTypeByColName(targetColName) == ColumnType.LONG) {
-                                    Long value = 0L;
-                                    if (start >= 0 && start < rows.size() && partitionNumber.get(start) == partitionIndex) {
-                                        value = (long) rows.get(start).get(targetColName);
-                                    } else {
-                                        value = null;
-                                    }
-                                    newRow.add(getColName(j), value);
+                                if (start >= 0 && start < rows.size() && partitionNumber.get(start) == partitionIndex) {
+                                    newRow.add(getColName(j), rows.get(start).get(targetColName));
                                 } else {
-                                    Double value = 0D;
-                                    if (start >= 0 && start < rows.size() && partitionNumber.get(start) == partitionIndex) {
-                                        value = value + (double) rows.get(start).get(targetColName);
-                                    } else {
-                                        value = null;
-                                    }
-                                    newRow.add(getColName(j), value);
+                                    newRow.add(getColName(j), null);
                                 }
                                 break;
                             default:

@@ -37,7 +37,7 @@ export class DataflowService extends AbstractService {
   }
 
   // 데이터 플로우 목록 조회
-  public getDataflows(searchText: string, page: Page, projection: string = 'forListView'): Promise<Dataflows> {
+  public getDataflows(searchText: string, page: Page, projection: string): Promise<Dataflows> {
     let url = this.API_URL + `preparationdataflows/search/findByDfNameContaining?dfName=${encodeURIComponent(searchText)}&project=${projection}`;
 
     url += '&' + CommonUtil.objectToUrlString(page);
