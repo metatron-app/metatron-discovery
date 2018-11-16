@@ -621,7 +621,6 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       if (result.grids && result.grids.length > 0) {
         this.clearGrid = false;
         this.gridInfo = result.grids;
-        this.datasetFile.sheetname = this.gridInfo[this.defaultSheetIndex].sheetName;
 
         if (this.datasetFile.selectedSheets.length > 0) { // When excel
           this.gridInfo.forEach((item,index) => {
