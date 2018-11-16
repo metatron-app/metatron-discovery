@@ -51,10 +51,12 @@ public class PrepTransformRule {
 
     public PrepTransformRule() {}
 
-    public PrepTransformRule(PrepDataset dataset, Integer ruleNo, String ruleString) throws CannotSerializeIntoJsonException {
+    public PrepTransformRule(PrepDataset dataset, Integer ruleNo, String ruleString, String jsonRuleString, String shortRuleString) {
         this.dataset = dataset;
         this.ruleNo = ruleNo;
-        setRuleString(ruleString);
+        this.ruleString = ruleString;
+        this.jsonRuleString = jsonRuleString;
+        this.shortRuleString = shortRuleString;
     }
 
     public Integer getRuleNo() {
@@ -77,13 +79,6 @@ public class PrepTransformRule {
         return ruleString;
     }
 
-    public void setRuleString(String ruleString) throws CannotSerializeIntoJsonException {
-        this.ruleString = ruleString;
-
-        setJsonRuleString(Util.getJsonRuleString(ruleString));
-        setShortRuleString(Util.getShortRuleString(getJsonRuleString()));
-    }
-
     public boolean isValid() {
         return isValid;
     }
@@ -92,24 +87,27 @@ public class PrepTransformRule {
         isValid = valid;
     }
 
-    public String getJsonRuleString() throws CannotSerializeIntoJsonException {
-        if (jsonRuleString == null) {
-            setJsonRuleString(Util.getJsonRuleString(ruleString));
-        }
+    public String getJsonRuleString() {
+        assert jsonRuleString != null;      // if you called prepareTransformRules, it must not be null!
         return jsonRuleString;
     }
 
+    public String getShortRuleString() {
+        assert shortRuleString != null;     // if you called prepareTransformRules, it must not be null!
+        return shortRuleString;
+    }
+
+    // used only for swapping
+    public void setRuleString(String ruleString) {
+        this.ruleString = ruleString;
+    }
+
+    // used only for swapping or backward compatability
     public void setJsonRuleString(String jsonRuleString) {
         this.jsonRuleString = jsonRuleString;
     }
 
-    public String getShortRuleString() throws CannotSerializeIntoJsonException {
-        if (shortRuleString == null) {
-            setShortRuleString(Util.getShortRuleString(getJsonRuleString()));
-        }
-        return shortRuleString;
-    }
-
+    // used only for swapping or backward compatability
     public void setShortRuleString(String shortRuleString) {
         this.shortRuleString = shortRuleString;
     }
@@ -121,6 +119,7 @@ public class PrepTransformRule {
     public void setCustom(String custom) {
         this.custom = custom;
     }
+
 }
 
 

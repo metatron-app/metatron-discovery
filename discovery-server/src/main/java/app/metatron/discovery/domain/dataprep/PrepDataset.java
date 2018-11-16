@@ -489,9 +489,13 @@ public class PrepDataset extends AbstractHistoryEntity {
         return dataflowCount;
     }
 
+    // WARNING: You should call prepareTransformRules() before call this. Or you'll get NULL jsonRuleStrings or shortRuleStrings.
     public List<PrepTransformRuleStringinfo> getRuleStringInfos() throws CannotSerializeIntoJsonException {
-        List<PrepTransformRuleStringinfo> ruleStringinfos = Lists.newArrayList();
+        List<PrepTransformRuleStringinfo> ruleStringinfos = null;
+
         if(this.transformRules!=null && 0<this.transformRules.size()) {
+            ruleStringinfos = Lists.newArrayList();
+
             for (PrepTransformRule transformRule : this.transformRules) {
                 PrepTransformRuleStringinfo ruleStringinfo = new PrepTransformRuleStringinfo();
                 ruleStringinfo.setRuleString(transformRule.getRuleString());
