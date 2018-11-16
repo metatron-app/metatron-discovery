@@ -107,6 +107,11 @@ public class PrepTransformRuleService {
         return String.format("%s(%s)", name, nodeToString(map.get("args")));
       }
 
+      Object val = map.get("value");
+      if (val instanceof List) {
+        return Strings.join((List) val, ", ");
+      }
+
       return map.get("value").toString();
     }
 
@@ -185,31 +190,32 @@ public class PrepTransformRuleService {
     return String.format("%d %ss", count, unit);
   }
 
-
-  private final String FMTSTR_CREATE       = "create with %s";                   // with
-  private final String FMTSTR_HEADER       = "Convert row %d to header";         // rownum
-  private final String FMTSTR_KEEP         = "Keep rows where %s";               // row
-  private final String FMTSTR_RENAME       = "Rename %s to %s";                  // col, to
-  private final String FMTSTR_RENAMES      = "Rename %s";                        // col
-  private final String FMTSTR_NEST         = "Convert %s into %s";               // col, into
-  private final String FMTSTR_UNNEST       = "Create a new column from %s";      // col
-  private final String FMTSTR_SETTYPE      = "set type %s to %s";                // col, type
-  private final String FMTSTR_SETFORMAT    = "set format %s to %s";              // col, format
-  private final String FMTSTR_DERIVE       = "Create %s from %s";                // as, value
-  private final String FMTSTR_DELETE       = "Delete rows where %s";             // row
-  private final String FMTSTR_SET          = "Set %s to %s";                     // col, value
-  private final String FMTSTR_SPLIT        = "Split %s into %s on %s";           // col, limit, on
-  private final String FMTSTR_EXTRACT      = "Extract %s %s from %s";            // on, limit, col
-  private final String FMTSTR_FLATTEN      = "Convert arrays in %s to rows";     // col
-  private final String FMTSTR_COUNTPATTERN = "Count occurrences of %s in %s";    // value, col
-  private final String FMTSTR_SORT         = "Sort rows by %s %s";               // order, type
-  private final String FMTSTR_REPLACE      = "Replace %s from %s with %s";       // on, col, with
-  private final String FMTSTR_REPLACES     = "Replace %s";                       // col
-  private final String FMTSTR_MERGE        = "Concatenate %s separated by %s";   // col, with
-  private final String FMTSTR_AGGREGATE    = "Aggregate with %s grouped by %s";  // value, group
-  private final String FMTSTR_MOVE         = "Move %s %s";                       // col, before/after
-  private final String FMTSTR_JOIN_UNION   = "%s with %s";                       // command, strDsNames
-
+  private final String FMTSTR_CREATE       = "create with %s";                        // with
+  private final String FMTSTR_HEADER       = "Convert row %d to header";              // rownum
+  private final String FMTSTR_KEEP         = "Keep rows where %s";                    // row
+  private final String FMTSTR_RENAME       = "Rename %s to %s";                       // col, to
+  private final String FMTSTR_RENAMES      = "Rename %s";                             // col
+  private final String FMTSTR_NEST         = "Convert %s into %s";                    // col, into
+  private final String FMTSTR_UNNEST       = "Create a new column from %s";           // col
+  private final String FMTSTR_SETTYPE      = "set type %s to %s";                     // col, type
+  private final String FMTSTR_SETFORMAT    = "set format %s to %s";                   // col, format
+  private final String FMTSTR_DERIVE       = "Create %s from %s";                     // as, value
+  private final String FMTSTR_DELETE       = "Delete rows where %s";                  // row
+  private final String FMTSTR_SET          = "Set %s to %s";                          // col, value
+  private final String FMTSTR_SPLIT        = "Split %s into %s on %s";                // col, limit, on
+  private final String FMTSTR_EXTRACT      = "Extract %s %s from %s";                 // on, limit, col
+  private final String FMTSTR_FLATTEN      = "Convert arrays in %s to rows";          // col
+  private final String FMTSTR_COUNTPATTERN = "Count occurrences of %s in %s";         // value, col
+  private final String FMTSTR_SORT         = "Sort rows by %s %s";                    // order, type
+  private final String FMTSTR_REPLACE      = "Replace %s from %s with %s";            // on, col, with
+  private final String FMTSTR_REPLACES     = "Replace %s";                            // col
+  private final String FMTSTR_MERGE        = "Concatenate %s separated by %s";        // col, with
+  private final String FMTSTR_AGGREGATE    = "Aggregate with %s grouped by %s";       // value, group
+  private final String FMTSTR_MOVE         = "Move %s %s";                            // col, before/after
+  private final String FMTSTR_JOIN_UNION   = "%s with %s";                            // command, strDsNames
+  private final String FMTSTR_PIVOT        = "Pivot %s and compute %s grouped by %s"; // col, value, group
+  private final String FMTSTR_UNPIVOT      = "Convert %s into rows";                  // col
+  private final String FMTSTR_DROP         = "Drop %s";                               // col
 
   public String shortenRuleString(String jsonRuleString) {
     Map<String, Object> mapRule = null;
@@ -246,12 +252,12 @@ public class PrepTransformRuleService {
         if (col instanceof List && ((List<Object>) col).size() >= 3) {
           shortRuleString = String.format(FMTSTR_RENAMES, shortenColumnList(col));
         } else {
-          shortRuleString = String.format(FMTSTR_RENAME, nodeToString(col), nodeToString(to));
+          shortRuleString = String.format(FMTSTR_RENAME, shortenColumnList(col), nodeToString(to));
         }
         break;
       case "nest":
         col = ((Map) mapRule.get("col")).get("value");
-        shortRuleString = String.format(FMTSTR_NEST, nodeToString(col), mapRule.get("into"));
+        shortRuleString = String.format(FMTSTR_NEST, shortenColumnList(col), mapRule.get("into"));
         break;
       case "unnest":
         shortRuleString = String.format(FMTSTR_UNNEST, mapRule.get("col"));
@@ -319,12 +325,11 @@ public class PrepTransformRuleService {
         break;
       case "merge":
         col = ((Map) mapRule.get("col")).get("value");
-        shortRuleString = String.format(FMTSTR_MERGE, nodeToString(col), mapRule.get("with"));
+        shortRuleString = String.format(FMTSTR_MERGE, shortenColumnList(col), mapRule.get("with"));
         break;
       case "aggregate":
-        val = mapRule.get("value");
         group = ((Map) mapRule.get("group")).get("value");
-        shortRuleString = String.format(FMTSTR_AGGREGATE, nodeToString(val), shortenColumnList(group));
+        shortRuleString = String.format(FMTSTR_AGGREGATE, nodeToString(mapRule.get("value")), shortenColumnList(group));
         break;
       case "move":
         col = ((Map) mapRule.get("col")).get("value");
@@ -338,56 +343,25 @@ public class PrepTransformRuleService {
         String strDsNames = shortenDatasetList(mapRule.get("dataset2"));
         shortRuleString = String.format(FMTSTR_JOIN_UNION, ruleCommand, strDsNames);
         break;
+      case "pivot":
+        col = ((Map) mapRule.get("col")).get("value");
+        group = ((Map) mapRule.get("group")).get("value");
+        shortRuleString = String.format(FMTSTR_PIVOT, shortenColumnList(col), nodeToString(mapRule.get("value")), shortenColumnList(group));
+        break;
+      case "unpivot":
+        col = ((Map) mapRule.get("col")).get("value");
+        shortRuleString = String.format(FMTSTR_UNPIVOT, shortenColumnList(col));
+        break;
+      case "drop":
+        col = ((Map) mapRule.get("col")).get("value");
+        shortRuleString = String.format(FMTSTR_DROP, shortenColumnList(col));
+        break;
 
       default:
-        shortRuleString = ruleCommand + " unknown";
+        shortRuleString = "Unknown rule command: " + ruleCommand;
     }
 
     LOGGER.debug("shortRuleString: {}", shortRuleString);
     return shortRuleString;
-
-//      break;
-//      case "derive":
-//        let deriveCondition = ruleString.split("value: ");
-//        deriveCondition = deriveCondition[1].split(" as: ");
-//        shortRuleString = "Create ${rule.as} from ${deriveCondition[0]}";
-//      break;
-//      case "pivot":
-//        let formula = "";
-//        if (rule.value.escapedValue) {
-//          formula = rule.value.escapedValue
-//        } else {
-//          let list = [];
-//          rule.value.value.forEach((item) => {
-//                  list.push(item.substring(1, item.length - 1));
-//          });
-//          formula = list.toString();
-//        }
-//        shortRuleString = "Pivot ${column} and compute ${formula} grouped by";
-//
-//      if ("string" === typeof rule.group.value || rule.group.value.length === 2) {
-//        shortRuleString += " ${rule.group.value}";
-//      } else {
-//        shortRuleString += " ${rule.group.value.length} columns";
-//      }
-//      break;
-//      case "unpivot":
-//        shortRuleString = "Convert ";
-//        if ("string" === typeof rule.col.value) {
-//        shortRuleString += "${rule.col.value} into row";
-//      } else if (rule.col.value.length > 1) {
-//        shortRuleString += "${column} into rows";
-//      }
-//      break;
-//      case "drop":
-//        shortRuleString = "Drop ${column}";
-//      break;
-//      default:
-//        shortRuleString = "";
-//        break;
-//
-//    }
-//
-//    return jsonRuleString;
   }
 }
