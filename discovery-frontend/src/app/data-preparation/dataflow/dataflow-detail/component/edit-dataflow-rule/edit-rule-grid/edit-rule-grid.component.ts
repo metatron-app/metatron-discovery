@@ -1154,24 +1154,16 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
               this._clickedSeries[index].push(useParam.name);
             }else{
               this.loadingShow();
-
-              const pageNum: number = (pageInfo.currentPage + 1) * 100;
-              let pageSize: number = Math.floor((minSelect - pageInfo.length) / pageInfo.pageSize) * pageInfo.pageSize;
-              if(pageSize == 0) pageSize =  pageInfo.pageSize;
-              if(pageSize>pageInfo.totalRowCnt) pageSize = pageInfo.totalRowCnt;
-              let changePageNumber = pageInfo.currentPage + Math.floor(pageSize/pageInfo.pageSize);
-
-
-              this.dataflowService.getSearchCountDataSets(this.dataSetId, pageInfo.ruleIndex, pageNum, pageSize).then((result) => {
+              const moreParam: any = this._getExternalMoreDataParam(pageInfo, minSelect);
+              this.dataflowService.getSearchCountDataSets(this.dataSetId, pageInfo.ruleIndex, moreParam.offset, moreParam.count).then((result) => {
                 this.loadingHide();
-                this._gridComp.setExternalData(result, changePageNumber);
+                this._gridComp.setExternalData(result, moreParam.changePageNumber);
                 this._gridComp.resize();
 
                 this._rowClickHandler(this._selectedRows);
                 this._clickedSeries[index].push(useParam.name);
-
                 options = this._getDefaultChartOption(this._getHistogramInfo(index), index);
-                this._applyChart(chart, options)
+                this._applyChart(chart, options);
               }).catch((error) => {
                 this.loadingHide();
                 console.error(error);
@@ -1205,6 +1197,36 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       }
     })
   } // function - _histogramClickEvent
+
+
+  /**
+   * Bar chart / Histogram click : get moreData service Parameter
+   * @param pageInfo
+   * @param minSelect
+   * @private
+   */
+  private _getExternalMoreDataParam(pageInfo:any, minSelect: number): any {
+
+    const result: any = {};
+
+    const offset: number = (pageInfo.currentPage + 1) * 100;
+    let count: number;
+    if(minSelect % pageInfo.pageSize == 0) {
+      count = minSelect;
+    }else{
+      count = (Math.floor(minSelect / pageInfo.pageSize) + 1) * pageInfo.pageSize;
+    }
+    count = count - offset;
+    if(count == 0) count =  pageInfo.pageSize;
+    if(offset + count > pageInfo.totalRowCnt) count = pageInfo.totalRowCnt - offset;
+    const changePageNumber = pageInfo.currentPage + Math.floor(count/pageInfo.pageSize);
+
+    result.offset = offset;
+    result.count = count;
+    result.changePageNumber = changePageNumber;
+
+    return result;
+  }
 
 
 
@@ -1268,6 +1290,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         });
 
 
+
         // 현재 선택된 시리즈가 이미 선택되어있는지 확인한다.
         let idx = this._barClickedSeries[index].indexOf(params.seriesName);
         if (idx === -1) {
@@ -1277,9 +1300,41 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           // this.selectedDataset.gridResponse.colHists[index] 에서
           // params.seriesName + rows 를 찾아와서 rows를 그리드에 선택 되게 한다.
           this._selectedRows = _.union(this._selectedRows, this._getHistogramInfo(index)[params.seriesName + 'Rows']);
-          this._rowClickHandler(this._selectedRows);
-          this._barClickedSeries[index].push(params.seriesName);
+          this._selectedRows.sort(function(a,b){return a-b});
 
+          let minSelect: number = -1;
+          if(this._selectedRows.length > 0) {minSelect = this._selectedRows[0];}
+
+          if(minSelect==-1) {
+            this._rowClickHandler(this._selectedRows);
+            this._barClickedSeries[index].push(params.seriesName);
+          }else{
+            const pageInfo:any = this._gridComp.getPageInfo();
+            const plusNumber: number = 10 + Math.floor(minSelect/pageInfo.pageSize * 10);
+            minSelect = minSelect + plusNumber;
+
+            if(pageInfo.lastPage == true || minSelect < pageInfo.length) {
+              this._rowClickHandler(this._selectedRows);
+              this._barClickedSeries[index].push(params.seriesName);
+            }else{
+              this.loadingShow();
+              const moreParam: any = this._getExternalMoreDataParam(pageInfo, minSelect);
+              this.dataflowService.getSearchCountDataSets(this.dataSetId, pageInfo.ruleIndex, moreParam.offset, moreParam.count).then((result) => {
+                this.loadingHide();
+                this._gridComp.setExternalData(result, moreParam.changePageNumber);
+                this._gridComp.resize();
+
+                this._rowClickHandler(this._selectedRows);
+                this._barClickedSeries[index].push(params.seriesName);
+                options = this._getDefaultBarChartOption(histogramInfo, index);
+                this._applyChart(chart, options);
+              }).catch((error) => {
+                this.loadingHide();
+                console.error(error);
+              });
+              return;
+            }
+          }
         } else {
           let minusTarget: any[] = [];
           let tempChartRows: any[] = [];
@@ -1297,14 +1352,6 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
             if(chk == -1) {this._selectedRows.push(tempChartRows[i]);}
           }
 
-          // 이미 선택되어있다면 삭제
-          // this._getHistogramInfo(index)[params.seriesName + 'Rows'].forEach((item) => {
-          //   this._selectedBarChartRows.forEach((data, idx) => {
-          //     if (data === item) {
-          //       this._selectedBarChartRows.splice(idx, 1);
-          //     }
-          //   })
-          // });
           this._rowClickHandler(this._selectedRows);
           this._barClickedSeries[index].splice(idx, 1);
         }
