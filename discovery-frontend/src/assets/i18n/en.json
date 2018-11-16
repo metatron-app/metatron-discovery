@@ -528,6 +528,8 @@
   "msg.bench.alert.query.del.fail": "Failed to delete query",
   "msg.bench.th.wb.name": "Workbench name",
   "msg.bench.ui.search": "search",
+  "msg.bench.ui.execute.full": "Execute full",
+  "msg.bench.ui.execute.partial": "Execute partial",
   "msg.bench.ui.column.list": "Column List",
   "msg.bench.ui.add.variable": "Add new variable",
   "msg.bench.ui.global.variable": "Global variable",

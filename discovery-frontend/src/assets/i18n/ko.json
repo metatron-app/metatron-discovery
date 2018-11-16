@@ -528,6 +528,8 @@
   "msg.bench.alert.query.del.fail": "쿼리 삭제 실패",
   "msg.bench.th.wb.name": "워크벤치 이름",
   "msg.bench.ui.search": "검색",
+  "msg.bench.ui.execute.full": "전체 실행",
+  "msg.bench.ui.execute.partial": "부분 실행",
   "msg.bench.ui.column.list": "컬럼 리스트",
   "msg.bench.ui.add.variable": "새 변수 추가",
   "msg.bench.ui.global.variable": "글로벌 변수",
