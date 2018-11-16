@@ -21,7 +21,7 @@ import {
   MapThickness
 } from '../../../common/component/chart/option/define/map/map-common';
 import * as _ from 'lodash';
-import { SymbolType } from '../../../common/component/chart/option/define/common';
+import { ShelveFieldType, SymbolType } from '../../../common/component/chart/option/define/common';
 import { UISymbolLayer } from '../../../common/component/chart/option/ui-option/map/ui-symbol-layer';
 import { MapOutline } from '../../../common/component/chart/option/ui-option/map/ui-outline';
 import { UIPolygonLayer } from '../../../common/component/chart/option/ui-option/map/ui-polygon-layer';
@@ -30,7 +30,7 @@ import { UIHeatmapLayer } from '../../../common/component/chart/option/ui-option
 import { UITileLayer } from '../../../common/component/chart/option/ui-option/map/ui-tile-layer';
 import { BaseOptionComponent } from '../base-option.component';
 import { ColorTemplateComponent } from '../../../common/component/color-picker/color-template.component';
-import { Field } from '../../../domain/workbook/configurations/field/field';
+import { Field as AbstractField, Field } from '../../../domain/workbook/configurations/field/field';
 import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
 
 @Component({
@@ -47,16 +47,19 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public set setUiOption(uiOption: UIMapOption) {
 
     // TODO temporary code before setting uiOption in map component
-    if (MapLayerType.LINE === uiOption.layers[this.index].type) {
-
-      (<UILineLayer>uiOption.layers[this.index]).thickness = {};
-    }
+    // if (MapLayerType.LINE === uiOption.layers[this.index].type) {
+    //
+    //   (<UILineLayer>uiOption.layers[this.index]).thickness = {};
+    // }
 
     this.uiOption = uiOption;
   }
 
   @Input('shelf')
   public set setShelf(shelf: Shelf) {
+
+    // set by type list by dimension, measure count
+    this.setByType(shelf);
 
     this.shelf = shelf;
   }
@@ -92,13 +95,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
 
   // line - storke by, symbol - size by
-  public byList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE},
-                   {name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE}];
+  public byList = [];
 
   // all layers - color by
-  public colorByList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE},
-                        {name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION},
-                        {name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE}];
+  public colorByList = [];
 
   // line layer - thickness
   public lineStyleList = [{name : this.translateService.instant('msg.page.layer.map.line.type.solid'), value: MapLineStyle.SOLID},
@@ -443,5 +443,42 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
     });
 
     this.update(drawChartParam);
+  }
+
+  /**
+   * set by type list by dimension, measure count
+   * @param {Shelf} shelf
+   */
+  private setByType(shelf: Shelf) {
+
+    const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
+      const resultList: AbstractField[] = [];
+      shelve.map((item) => {
+        if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
+          resultList.push(item);
+        }
+      });
+      return resultList;
+    });
+
+    let measureList = getShelveReturnField(shelf.layers[this.uiOption.layerNum], [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
+
+    let dimensionList = getShelveReturnField(shelf.layers[this.uiOption.layerNum], [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+
+    // init list
+    this.byList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}]
+    this.colorByList = [{name : this.translateService.instant('msg.page.layer.map.stroke.none'), value : MapBy.NONE}];
+
+    // when measure exists, set measure type
+    if (measureList.length > 0) {
+      this.byList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
+      this.colorByList.push({name : this.translateService.instant('msg.page.layer.map.stroke.measure'), value : MapBy.MEASURE});
+
+    }
+
+    // when dimension exists, set dimension type
+    if (dimensionList.length > 0) {
+      this.colorByList.push({name : this.translateService.instant('msg.page.li.color.dimension'), value : MapBy.DIMENSION});
+    }
   }
 }

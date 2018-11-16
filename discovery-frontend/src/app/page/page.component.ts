@@ -415,8 +415,17 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       // // 차트별 선반위치 변경
       // this.pagePivot.onChangePivotPosition(chartType);
+
+      // convert pivot to shelf or shelf to pivot
+      if ('map' === chartType) {
+        this.shelf = this.convertPivotToShelf(this.shelf);
+      } else {
+        this.pivot = this.convertShelfToPivot(this.pivot);
+      }
+
       // 차트별 선반위치 변경
       this.changeDetect.detectChanges();
+
       this.getPivotComp().onChangePivotPosition(chartType);
 
       // 변경된 선반위치로 추천가능한 차트리스트 설정
@@ -2322,6 +2331,19 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
       let currentMapLayer = this.shelf.layers[layerNum];
 
+      let diffDataSourceFl: boolean = false;
+      // prevent another datasource is set in same shelf
+      currentMapLayer.forEach((item) => {
+
+        if (item.field.dataSource != targetField.dataSource) {
+          diffDataSourceFl = true;
+          return;
+        }
+      });
+
+      // TODO map shelf (need alert message)
+      if (diffDataSourceFl) return;
+
       let fieldPivot: FieldPivot;
 
       if ('MAP_LAYER' + layerNum === FieldPivot.MAP_LAYER0.toString()) {
@@ -3170,10 +3192,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
   private settingDragAndDrop() {
 
-    // TODO
-
     const acceptsContainer = ['column', 'row', 'aggregation', 'column-guide', 'row-guide', 'aggregation-guide', 'layer0', 'layer1', 'layer2', 'layer-guide'];
-    // const acceptsContainer = ['column', 'row', 'aggregation', 'column-guide', 'row-guide', 'aggregation-guide', 'layer-guide'];
 
     // 드래그 옵션
     function copy(el) {
@@ -3410,6 +3429,28 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
                 field.pivot.push(FieldPivot.AGGREGATIONS);
               }
             });
+
+          if (undefined !== this.widgetConfiguration.chart['layerNum'] && this.widgetConfiguration.chart['layerNum'] >= 0) {
+
+            // set map chart layers pivot
+            let fieldPivot : FieldPivot;
+            if (0 === this.widgetConfiguration.chart['layerNum']) {
+              fieldPivot = FieldPivot.MAP_LAYER0;
+            } else if (1 === this.widgetConfiguration.chart['layerNum']) {
+              fieldPivot = FieldPivot.MAP_LAYER1;
+            } else if (2 === this.widgetConfiguration.chart['layerNum']) {
+              fieldPivot = FieldPivot.MAP_LAYER2;
+            }
+
+            this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']]
+              .forEach((abstractField) => {
+                if (String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                  abstractField.field = field;
+                  field.pivot = field.pivot ? field.pivot : [];
+                  field.pivot.push(fieldPivot);
+                }
+              });
+          }
         });
     }
 
@@ -4000,4 +4041,67 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     }
   } // function - _setChartFilter
 
+  /**
+   * convert shelf to pivot (when convert map to other charts)
+   */
+  private convertShelfToPivot(pivot: Pivot) {
+
+    // when shelf layers exists, pivot is null, convert shelf to pivot
+    if (this.shelf.layers[0] && this.shelf.layers[0].length > 0) {
+
+      // init pivot
+      pivot = new Pivot();
+
+      _.each(this.shelf.layers, (layer) => {
+        _.each(layer, (item) => {
+
+          // convert pivot type(agg, column, row) to shelf type (MAP_LAYER0 ..)
+          if (item.field && item.field.pivot) {
+            item.field.pivot = _.map(item.field.pivot, (pivotItem) => {
+              pivotItem = FieldPivot.AGGREGATIONS;
+              return pivotItem;
+            });
+          }
+
+          pivot.aggregations.push(item);
+        });
+      });
+    }
+
+    // init shelf
+    this.shelf = new Shelf();
+
+    return pivot;
+  }
+
+  /**
+   * convert pivot to shelf (when convert other charts to map)
+   */
+  private convertPivotToShelf(shelf: Shelf): Shelf {
+
+    // when shelf is empty, convert shelf from pivot
+    if (0 === shelf.layers[(<UIMapOption>this.uiOption).layerNum].length) {
+
+      // convert shelf from pivot
+      _.forEach(_.cloneDeep(this.pivot), (value, key) => {
+        this.pivot[key].map((item) => {
+
+          // convert pivot type(agg, column, row) to shelf type (MAP_LAYER0 ..)
+          if (item.field && item.field.pivot) {
+            item.field.pivot = _.map(item.field.pivot, (pivotItem) => {
+              pivotItem = FieldPivot.MAP_LAYER0;
+              return pivotItem;
+            });
+          }
+
+          shelf.layers[0].push(item);
+        });
+      });
+    }
+
+    // init pivot
+    this.pivot = new Pivot();
+
+    return shelf;
+  }
 }

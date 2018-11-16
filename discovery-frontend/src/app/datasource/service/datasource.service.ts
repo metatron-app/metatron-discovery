@@ -282,10 +282,21 @@ export class DatasourceService extends AbstractService {
     query.dataSource.name = query.dataSource.engineName;
     query.filters = _.cloneDeep(pageConf.filters);
     query.pivot = _.cloneDeep(pageConf.pivot);
-    // query.shelf = _.cloneDeep(pageConf.shelf);
+
+    let allPivotFields = [];
 
     // 파라미터 치환
-    const allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
+
+    // set alias list by pivot or shelf list
+    if (_.eq(pageConf.chart.type, ChartType.MAP)) {
+
+      query.shelf = _.cloneDeep(pageConf.shelf);
+
+      allPivotFields = _.concat(query.shelf.layers[(<UIMapOption>pageConf.chart).layerNum]);
+    } else {
+      allPivotFields = _.concat(query.pivot.columns, query.pivot.rows, query.pivot.aggregations);
+    }
+
     for (let field of allPivotFields) {
 
       // Alias 설정
@@ -397,26 +408,20 @@ export class DatasourceService extends AbstractService {
     // map 차트일때 shelf
     if (_.eq(pageConf.chart.type, ChartType.MAP)) {
 
-      // set shelf
-      query.shelf = _.cloneDeep(pageConf.shelf);
-
       // current layer
       let layerNum = (<UIMapOption>pageConf.chart).layerNum ? (<UIMapOption>pageConf.chart).layerNum : 0;
 
       let geoFieldCnt: number = 0;
 
       // check multiple geo type
-      for(let column of pageConf.shelf.layers[layerNum]) {
+      for(let column of query.shelf.layers[layerNum]) {
         if(column && column.field && column.field.logicalType && (-1 !== column.field.logicalType.toString().indexOf('GEO'))) {
           geoFieldCnt++;
         }
       }
 
       // set current layer values
-      for(let layer of pageConf.shelf.layers[layerNum]) {
-
-        // set alias
-        layer.alias = this._setFieldAlias(layer, dataSourceFields);
+      for(let layer of query.shelf.layers[layerNum]) {
 
         // let layerItem: GeoField = {
         //   type: layer.type,
@@ -434,6 +439,7 @@ export class DatasourceService extends AbstractService {
         // when it's dimension
         } else if ('dimension' === layer.type) {
 
+          // TODO
           //dataSource가 여러개일 경우 첫번째 dataSource만 가져와서 column의 dataSource Name으로 변경
           query.dataSource.engineName = layer.field.dataSource;
           query.dataSource.name = layer.field.dataSource;
@@ -489,7 +495,7 @@ export class DatasourceService extends AbstractService {
 
       query.shelf = {
         type: ShelfType.GEO,
-        layers: [pageConf.shelf.layers[layerNum]]
+        layers: [query.shelf.layers[layerNum]]
       };
 
       //map 은 limit 5000개 제한

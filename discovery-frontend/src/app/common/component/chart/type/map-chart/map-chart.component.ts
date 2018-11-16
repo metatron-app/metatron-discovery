@@ -191,6 +191,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    */
   public isValid(pivot: Pivot, shelf: Shelf): boolean {
 
+    if (!shelf) return false;
+
     let valid: boolean = false;
     let layers: Field[] = shelf.layers[this.getUiMapOption().layerNum];
 
@@ -383,7 +385,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let shelve: any = !this.shelf ? [] : _.cloneDeep(this.shelf.layers[layerNum]);
 
     // 선반값에서 해당 타입에 해당하는값만 field값으로 리턴
-    const getShelveReturnField = ((originList: AbstractField[], shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
+    const getShelveReturnField = ((shelve: any, typeList: ShelveFieldType[]): AbstractField[] => {
       const resultList: AbstractField[] = [];
       shelve.map((item) => {
         if ((_.eq(item.type, typeList[0]) || _.eq(item.type, typeList[1])) && (item.field && item.field.logicalType && -1 == item.field.logicalType.indexOf('GEO')) ) {
@@ -393,9 +395,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       return resultList;
     });
     // 색상지정 기준 필드리스트 설정(measure list)
-    this.uiOption.fieldMeasureList = getShelveReturnField(this.uiOption.fieldMeasureList, shelve, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
+    this.uiOption.fieldMeasureList = getShelveReturnField(shelve, [ShelveFieldType.MEASURE, ShelveFieldType.CALCULATED]);
     // 색상지정 기준 필드리스트 설정(dimension list)
-    this.uiOption.fielDimensionList = getShelveReturnField(this.uiOption.fielDimensionList, shelve, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
+    this.uiOption.fielDimensionList = getShelveReturnField(shelve, [ShelveFieldType.DIMENSION, ShelveFieldType.TIMESTAMP]);
 
     return this.uiOption;
   }

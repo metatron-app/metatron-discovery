@@ -74,9 +74,9 @@
           </div>
           <!-- //Pivot -->
           <!-- Guide -->
-          <div *ngIf="isGuide('columns')" class="dragIgnore ddp-wrap-example">
-            <div [attr.class]="getGuideText('columns', false)">
-              {{getGuideText('columns')}}
+          <div *ngIf="isGuide()" class="dragIgnore ddp-wrap-example">
+            <div class="ddp-box-dimension">
+              {{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }} (geo type)
             </div>
           </div>
           <!-- //Guide -->

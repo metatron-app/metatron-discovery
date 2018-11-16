@@ -55,7 +55,7 @@ import { Format } from '../../domain/workbook/configurations/format';
 import { Filter } from '../../domain/workbook/configurations/filter/filter';
 import { UIOption } from '../../common/component/chart/option/ui-option';
 import { Modal } from '../../common/domain/modal';
-import { PivotContextComponent } from './pivot-context.component';
+import { Shelf } from '../../domain/workbook/configurations/shelf/shelf';
 
 @Component({
   selector: 'page-pivot',
@@ -176,6 +176,9 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     console.info(this.filterFiledList);
   }
+
+  @Input('shelf')
+  public shelf: Shelf;
 
   @Input('pivot')
   set setPivot(pivot: Pivot) {
@@ -537,8 +540,12 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
       this.dragField = field;
 
       shelf[idx] = field;
+
+      // 모든선반설정
+      const shelves = this.pivot.rows.concat(this.pivot.columns.concat(this.pivot.aggregations));
+
       // 선반의 dimension / measure값의 중복된값 제거, measure aggtype 설정
-      if (!this.distinctPivotItems(field, idx, shelf, targetContainer)) {
+      if (!this.distinctPivotItems(shelves, field, idx, shelf, targetContainer)) {
 
         // distinctPivotItem에서 설정된 타입 targetField에 설정
         targetField.format = shelf[idx].format;
@@ -1291,6 +1298,25 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     // TODO 사용자 정의 alias가 있는 경우 처리
     return field;
   }
+
+  /**
+   * 각 선반에서 같은 아이템이 있는지 체크
+   */
+  protected checkDuplicatedField(pivotList: AbstractField[], field: any): any {
+
+    const duplicateList = [];
+
+    // 해당 필드가 속한 중복리스트 설정
+    pivotList.forEach((item) => {
+
+      if (item.name === field.name) {
+
+        duplicateList.push(item);
+      }
+    });
+
+    return duplicateList;
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -1358,13 +1384,10 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
   /**
    * 선반의 dimension / measure값의 중복된값 제거
    */
-  private distinctPivotItems(field: any, idx: number, shelf: AbstractField[], targetContainer: string): boolean {
+  protected distinctPivotItems(shelves: AbstractField[], field: any, idx: number, shelf: AbstractField[], targetContainer: string): boolean {
 
     // pivot item들이 제거됐는지 여부 (default: 제거 안됨)
     let removedPivotItemFl: boolean = false;
-
-    // 모든선반설정
-    const shelves = this.pivot.rows.concat(this.pivot.columns.concat(this.pivot.aggregations));
 
     // 중복리스트
     const duplicateList = [];
@@ -1540,7 +1563,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @param idx   필드 index
    * @param targetContainer 현재 선택된 선반
    */
-  private deleteDuplicatedField(field: any, idx: number, targetContainer: string): boolean {
+  protected deleteDuplicatedField(field: any, idx: number, targetContainer: string): boolean {
 
     // 선반의 종류에 따라서설정
     switch (targetContainer) {
@@ -1575,25 +1598,6 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
     }
 
     return false;
-  }
-
-  /**
-   * 각 선반에서 같은 아이템이 있는지 체크
-   */
-  private checkDuplicatedField(pivotList: AbstractField[], field: any): any {
-
-    const duplicateList = [];
-
-    // 해당 필드가 속한 중복리스트 설정
-    pivotList.forEach((item) => {
-
-      if (item.name === field.name) {
-
-        duplicateList.push(item);
-      }
-    });
-
-    return duplicateList;
   }
 
   /**
