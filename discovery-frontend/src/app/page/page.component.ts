@@ -2366,16 +2366,30 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         }
       }
 
-      // add to shelf
-      if (!isAlreadyPivot) {
+      // dimension
+      if (isDimension) {
+        // add to shelf
+        if (!isAlreadyPivot) {
 
-        // push pivotField to layers
-        this.shelf.layers[layerNum].push(pivotFiled);
-        this.mapPivot.convertField(targetField, 'layer' + layerNum);
+          // push pivotField to layers
+          this.shelf.layers[layerNum].push(pivotFiled);
+          this.mapPivot.convertField(targetField, 'layer' + layerNum);
 
-      // remove
+          // remove
+        } else {
+          this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+        }
+      // measure
       } else {
-        this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+        // 사용자 필드이면서 aggregated가 true인 이미 선반에 올라간 컬럼인경우 제거
+        if ('user_expr' == targetField.type && targetField.aggregated && isAlreadyPivot) {
+
+          this.mapPivot.removeField(null, alreadyFieldPivot, alreadyPivot, alreadyIndex);
+        // push pivotField to layers
+        } else {
+          this.shelf.layers[layerNum].push(pivotFiled);
+          this.mapPivot.convertField(targetField, 'layer' + layerNum);
+        }
       }
       return;
     }
@@ -3186,6 +3200,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // set disable class
     return true;
   }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/

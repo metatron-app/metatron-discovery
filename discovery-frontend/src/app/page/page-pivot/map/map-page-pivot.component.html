@@ -19,9 +19,9 @@
     <em class="ddp-icon-mapview{{index + 1}}"></em>
     <!-- drag slide -->
     <div class="ddp-ui-drag-slide">
-      <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev" style="display: none;"><em class="ddp-icon-prev"></em></a>
-      <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next" style="display: none"><em class="ddp-icon-next"></em></a>
+      <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev"><em class="ddp-icon-prev"></em></a>
       <div class="ddp-slide-control">
+        <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next"><em class="ddp-icon-next"></em></a>
         <a href="javascript:" class="ddp-btn-plus" (click)="addLayer()"></a>
         <a href="javascript:" class="ddp-btn-minus" (click)="removeLayer()"></a>
       </div>
@@ -74,9 +74,19 @@
           </div>
           <!-- //Pivot -->
           <!-- Guide -->
-          <div *ngIf="isGuide()" class="dragIgnore ddp-wrap-example">
-            <div class="ddp-box-dimension">
-              {{'msg.page.pivot.layout.condition.dimension.over.desc' | translate: { value : '1' } }} (geo type)
+          <!--*ngIf="isGuide()"-->
+          <div class="dragIgnore ddp-wrap-example">
+            <!--<div [attr.class]="getGuideClass()">-->
+              <!--{{getGuideText('rows')}}-->
+            <!--</div>-->
+            <div *ngIf="getMapGuideText('geo')" class="ddp-box-dimension">
+              1 or more geo dimension
+            </div>
+            <div *ngIf="getMapGuideText()" class="ddp-box-dimension">
+              1 or more dimension
+            </div>
+            <div *ngIf="getMapGuideText()" class="ddp-box-measure">
+              1 or more measure
             </div>
           </div>
           <!-- //Guide -->

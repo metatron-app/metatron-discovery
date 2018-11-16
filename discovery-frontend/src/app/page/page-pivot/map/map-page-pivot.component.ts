@@ -183,8 +183,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
       // 선반의 dimension / measure값의 중복된값 제거, measure aggtype 설정
       // TODO map shelf
-      // if (!this.distinctPivotItems(shelves, field, idx, shelf, targetContainer)) {
-      if (true) {
+      if (!this.distinctPivotItems(shelves, field, idx, shelf, targetContainer)) {
 
         // distinctPivotItem에서 설정된 타입 targetField에 설정
         targetField.format = shelf[idx].format;
@@ -379,6 +378,52 @@ export class MapPagePivotComponent extends PagePivotComponent {
    */
   public changeShelf(eventType?: EventType) {
     this.changeShelfEvent.emit({ shelf: this.shelf, eventType: eventType });
+  }
+
+  /**
+   * return class by shelf condition
+   */
+  // public getGuideText(): string {
+  //
+  //
+  //
+  //   return '';
+  // }
+
+  /**
+   * set shelf guide
+   * @param {string} type
+   * @returns {boolean}
+   */
+  public getMapGuideText(type?: string): boolean {
+
+    if (!this.shelf.layers) return;
+
+    let layers = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
+
+    let returnValue: boolean;
+
+    if ('geo' === type) {
+      returnValue = true;
+
+      // hide when there is geo dimension
+      layers.forEach((item) => {
+        if (-1 !== item.field.logicalType.toString().indexOf('GEO')) {
+          return returnValue = false;
+        }
+      });
+    } else {
+      returnValue = false;
+
+      // show when there is geo dimension
+      layers.forEach((item) => {
+        if (-1 !== item.field.logicalType.toString().indexOf('GEO')) {
+          return returnValue = true;
+        }
+      });
+    }
+
+    return returnValue;
   }
 
   /**
