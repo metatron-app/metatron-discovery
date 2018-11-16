@@ -272,9 +272,23 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
 
         if (promise.length > 0) {
           Promise.all(promise).then((result) => {
-            this._returnToList();
+            if (this.datasetService.dataflowId) {
+              // dont have dataset id
+              sessionStorage.setItem('DATASET_ID', ' ');
+              this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
+            } else {
+              this._returnToList();
+            }
+
           }).catch((error) => {
-            this._returnToList();
+            if (this.datasetService.dataflowId) {
+              // dont have dataset id
+              sessionStorage.setItem('DATASET_ID', ' ');
+              this.router.navigate(['/management/datapreparation/dataflow/' + this.datasetService.dataflowId]);
+            } else {
+              this._returnToList();
+            }
+
           })
         }
       }

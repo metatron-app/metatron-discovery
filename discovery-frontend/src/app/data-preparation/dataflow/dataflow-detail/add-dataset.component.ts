@@ -439,12 +439,10 @@ export class AddDatasetComponent extends AbstractComponent implements OnInit, On
 
         if (sessionStorage.getItem('DATASET_ID')) {
           this.selectedDatasetId = sessionStorage.getItem('DATASET_ID');
-          this.datasets.filter((item) => {
-            if (item.dsId === this.selectedDatasetId) {
-              item.selected = true;
-              this.selectedDatasets.push(item);
-            }
-          });
+
+          let dsIdx = this.datasets.map((item) => item.dsId).indexOf(this.selectedDatasetId);
+          this.datasets[dsIdx === -1 ? 0 : dsIdx].selected = true;
+          this.selectedDatasets.push(this.datasets[dsIdx === -1 ? 0 : dsIdx]);
           sessionStorage.removeItem('DATASET_ID');
           this.datasetService.dataflowId = undefined;
         }

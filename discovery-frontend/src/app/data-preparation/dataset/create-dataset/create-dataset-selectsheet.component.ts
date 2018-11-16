@@ -618,7 +618,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   private _getGridInformation(param : any) {
 
     this.datasetService.getFileGridInfo(param).then((result) => {
-      if (result.grids.length > 0) {
+      if (result.grids && result.grids.length > 0) {
         this.clearGrid = false;
         this.gridInfo = result.grids;
 
