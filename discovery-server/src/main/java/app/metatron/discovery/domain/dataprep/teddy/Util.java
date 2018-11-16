@@ -313,31 +313,52 @@ public class Util {
     return String.format("%d %ss", count, unit);
   }
 
-  static final String FMTSTR_CREATE       = "create with: %s";                // with
-  static final String FMTSTR_HEADER       = "Convert row %d to header";       // rownum
-  static final String FMTSTR_KEEP         = "Keep rows where %s";             // row
-  static final String FMTSTR_RENAME       = "Rename %s to %s";                // col, to
-  static final String FMTSTR_RENAMES      = "Rename %s";                      // col
-  static final String FMTSTR_NEST         = "Convert %s into %s";             // col, into
-  static final String FMTSTR_UNNEST       = "Create a new column from %s";    // col
-  static final String FMTSTR_SETTYPE      = "set type %s to %s";              // col, type
-  static final String FMTSTR_SETFORMAT    = "set format %s to %s";            // col, format
-  static final String FMTSTR_DERIVE       = "Create %s from %s";              // as, value
-  static final String FMTSTR_DELETE       = "Delete rows where %s";           // row
-  static final String FMTSTR_SET          = "Set %s to %s";                   // col, value
-  static final String FMTSTR_SPLIT        = "Split %s into %s on %s";         // col, limit, on
-  static final String FMTSTR_EXTRACT      = "Extract %s %s from %s";          // on, limit, col
-  static final String FMTSTR_FLATTEN      = "Convert arrays in %s to rows";   // col
-  static final String FMTSTR_COUNTPATTERN = "Count occurrences of %s in %s";  // value, col
-  static final String FMTSTR_SORT         = "Sort rows by %s %s";             // order, type
-  static final String FMTSTR_REPLACE      = "Replace %s from %s with %s";     // on, col, with
-  static final String FMTSTR_REPLACES     = "Replace %s";                     // col
+//  private static String getDsNameList(Object dataset2) {
+//    if (dataset2 instanceof List) {
+//      List<Object> dsIds = (List<Object>) dataset2;
+//      if (dsIds.size() >= 3) {
+//        return dsIds.size() + " columns";
+//      }
+//    }
+//
+//    return nodeToString(node);
+//  }
+
+  static final String FMTSTR_CREATE       = "create with: %s";                  // with
+  static final String FMTSTR_HEADER       = "Convert row %d to header";         // rownum
+  static final String FMTSTR_KEEP         = "Keep rows where %s";               // row
+  static final String FMTSTR_RENAME       = "Rename %s to %s";                  // col, to
+  static final String FMTSTR_RENAMES      = "Rename %s";                        // col
+  static final String FMTSTR_NEST         = "Convert %s into %s";               // col, into
+  static final String FMTSTR_UNNEST       = "Create a new column from %s";      // col
+  static final String FMTSTR_SETTYPE      = "set type %s to %s";                // col, type
+  static final String FMTSTR_SETFORMAT    = "set format %s to %s";              // col, format
+  static final String FMTSTR_DERIVE       = "Create %s from %s";                // as, value
+  static final String FMTSTR_DELETE       = "Delete rows where %s";             // row
+  static final String FMTSTR_SET          = "Set %s to %s";                     // col, value
+  static final String FMTSTR_SPLIT        = "Split %s into %s on %s";           // col, limit, on
+  static final String FMTSTR_EXTRACT      = "Extract %s %s from %s";            // on, limit, col
+  static final String FMTSTR_FLATTEN      = "Convert arrays in %s to rows";     // col
+  static final String FMTSTR_COUNTPATTERN = "Count occurrences of %s in %s";    // value, col
+  static final String FMTSTR_SORT         = "Sort rows by %s %s";               // order, type
+  static final String FMTSTR_REPLACE      = "Replace %s from %s with %s";       // on, col, with
+  static final String FMTSTR_REPLACES     = "Replace %s";                       // col
+  static final String FMTSTR_MERGE        = "Concatenate %s separated by %s";   // col, with
+  static final String FMTSTR_AGGREGATE    = "Aggregate with %s grouped by %s";  // value, group
+  static final String FMTSTR_MOVE         = "Move %s %s";                       // col, before/after
+  static final String FMTSTR_JOIN_UNION   = "%s with %s";                       // command, strDsNames
+
+//      case "move":
+//        shortRuleString = "Move ${column}";
+//      shortRuleString += "${rule.before ? " before " + rule.before : " after " + rule.after }";
+//      break;
 
 
   public static String getShortRuleString(String jsonRuleString) {
     Map<String, Object> mapRule = null;
-    Object col, to, on, val, order, type, with;
+    Object col, to, on, val, order, type, with, group;
     int limit;
+    String before, after;
     String strCount;
 
     try {
@@ -438,6 +459,27 @@ public class Util {
           shortRuleString = String.format(FMTSTR_REPLACE, nodeToString(on), shortenColumnList(col), nodeToString(with));
         }
         break;
+      case "merge":
+        col = ((Map) mapRule.get("col")).get("value");
+        shortRuleString = String.format(FMTSTR_MERGE, nodeToString(col), mapRule.get("with"));
+        break;
+      case "aggregate":
+        val = mapRule.get("value");
+        group = ((Map) mapRule.get("group")).get("value");
+        shortRuleString = String.format(FMTSTR_AGGREGATE, nodeToString(val), shortenColumnList(group));
+        break;
+      case "move":
+        col = ((Map) mapRule.get("col")).get("value");
+        before = (String) mapRule.get("before");
+        after = (String) mapRule.get("after");
+        String strTo = (before != null) ? "before " + before : "after " + after;
+        shortRuleString = String.format(FMTSTR_MOVE, shortenColumnList(col), strTo);
+        break;
+//      case "Union":
+//      case "Join":
+//        String strDsNames = getDsNameList(((Map) mapRule.get("dataset2")).get("value"));
+//        shortRuleString = String.format(FMTSTR_JOIN_UNION, ruleCommand, strDsNames);
+//        break;
 
       default:
         shortRuleString = ruleCommand + " unknown";
