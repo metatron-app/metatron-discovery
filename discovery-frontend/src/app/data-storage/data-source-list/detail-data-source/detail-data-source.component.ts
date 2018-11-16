@@ -12,25 +12,22 @@
  * limitations under the License.
  */
 
-import {
-  Component, ElementRef, Injector, OnChanges, OnInit,
-  ViewChild
-} from '@angular/core';
-import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Datasource, SourceType, Status } from '../../../domain/datasource/datasource';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { Alert } from '../../../common/util/alert.util';
-import { DeleteModalComponent } from '../../../common/component/modal/delete/delete.component';
-import { Log, Modal } from '../../../common/domain/modal';
-import { CommonUtil } from '../../../common/util/common.util';
-import { MomentDatePipe } from '../../../common/pipe/moment.date.pipe';
-import { ActivatedRoute } from '@angular/router';
-import { ConfirmModalComponent } from '../../../common/component/modal/confirm/confirm.component';
-import { LogComponent } from '../../../common/component/modal/log/log.component';
-import { MetadataService } from '../../../meta-data-management/metadata/service/metadata.service';
-import { Metadata } from '../../../domain/meta-data-management/metadata';
-import { CookieConstant } from '../../../common/constant/cookie.constant';
-import { CommonConstant } from '../../../common/constant/common.constant';
+import {Component, ElementRef, Injector, OnChanges, OnInit, ViewChild} from '@angular/core';
+import {AbstractComponent} from '../../../common/component/abstract.component';
+import {Datasource, SourceType, Status} from '../../../domain/datasource/datasource';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {Alert} from '../../../common/util/alert.util';
+import {DeleteModalComponent} from '../../../common/component/modal/delete/delete.component';
+import {Log, Modal} from '../../../common/domain/modal';
+import {CommonUtil} from '../../../common/util/common.util';
+import {MomentDatePipe} from '../../../common/pipe/moment.date.pipe';
+import {ActivatedRoute} from '@angular/router';
+import {ConfirmModalComponent} from '../../../common/component/modal/confirm/confirm.component';
+import {LogComponent} from '../../../common/component/modal/log/log.component';
+import {MetadataService} from '../../../meta-data-management/metadata/service/metadata.service';
+import {Metadata} from '../../../domain/meta-data-management/metadata';
+import {CookieConstant} from '../../../common/constant/cookie.constant';
+import {CommonConstant} from '../../../common/constant/common.constant';
 
 @Component({
   selector: 'app-detail-datasource',
@@ -156,7 +153,13 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
                 if (datasource.status !== Status.ENABLED) {
                   // init progress UI
                   if (history['_embedded'] && history['_embedded'].ingestionHistories[0].progress) {
-                    this.ingestionProcess = {progress: 1, message: history['_embedded'].ingestionHistories[0].progress};
+                    this.ingestionProcess = {
+                      progress: 1,
+                      message: history['_embedded'].ingestionHistories[0].progress,
+                      failResults: {
+                        errorCode: history['_embedded'].ingestionHistories[0].errorCode,
+                        cause: history['_embedded'].ingestionHistories[0].cause
+                      }};
                   } else if (history['_embedded'] && !history['_embedded'].ingestionHistories[0].progress) {
                     this.isNotShowProgress = true;
                   } else if (datasource.srcType === SourceType.FILE || datasource.srcType === SourceType.JDBC) {
@@ -454,8 +457,9 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
     return new Promise((resolve, reject) => {
       this.datasourceService.getBatchHistories(datasourceId, params)
         .then((result) => {
-          // set history id
+          // if exist ingestionHistories
           if (result['_embedded'] && result['_embedded'].ingestionHistories) {
+            // set history id
             this.historyId = result['_embedded'].ingestionHistories[0].id;
           }
           resolve(result);
@@ -530,6 +534,11 @@ export class DetailDataSourceComponent extends AbstractComponent implements OnIn
             if (data.results && data.results.history) {
               // set ingestionProcess
               this.ingestionProcess['message'] = data.results.history.progress;
+              // set cause and message
+              this.ingestionProcess['failResults'] = {
+                errorCode: data.results.history.errorCode,
+                cause: data.results.history.cause
+              };
             }
             // disconnect websocket
             CommonConstant.stomp.unsubscribe(this._subscribe);

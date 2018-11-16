@@ -1,0 +1,117 @@
+<div class="ddp-layout-popuptype popup-prep-dataset">
+  <em class="ddp-bg-popup"></em>
+  <div class="ddp-ui-popup">
+    <!-- title -->
+    <div class="ddp-ui-popup-title">
+      <span class="ddp-txt-title-name">{{'msg.dp.ui.sel.dataflow.dataset' | translate }}</span>
+      <div class="ddp-ui-pop-buttons">
+        <a href="javascript:" class="ddp-btn-pop" (click)="close()">{{'msg.comm.btn.cancl' | translate}}</a>
+        <a href="javascript:" class="ddp-btn-pop ddp-bg-black" [ngClass]="{'ddp-disabled': selectedDataflowId === ''}" (click)="apply()">{{'msg.comm.btn.done2' | translate}}</a>
+      </div>
+      <!-- det -->
+    </div>
+    <!-- //title -->
+
+    <div class="ddp-ui-popup-contents">
+      <div class="ddp-data-dataset">
+        <span class="ddp-txt-label">Dataset:</span> {{datasetName}}
+      </div>
+      <div class="ddp-ui-dataset-new">
+
+        <div class="ddp-type-top-option ddp-clear">
+          <!-- 검색 -->
+          <div class="ddp-form-search ddp-fleft">
+            <em class="ddp-icon-search"></em>
+            <input placeholder="{{'msg.page.ui.search.ph' | translate }}" [(ngModel)]="searchText" (keypress)="searchDataflow($event);">
+            <em class="ddp-btn-search-close" *ngIf="searchText" (click)="refreshSearch()"></em>
+          </div>
+          <!-- //검색 -->
+          <div class="ddp-ui-rightoption">
+            <span class="ddp-data-total ddp-only" *ngIf="getDataflowLength() > 1" [innerHTML]="'msg.spaces.spaces.ui.num.lists' | translate: {value: getDataflowLength()}"></span>
+            <span class="ddp-data-total ddp-only" *ngIf="getDataflowLength() === 0 || getDataflowLength() === 1" [innerHTML]="'msg.spaces.spaces.ui.num.lists' | translate: {value: getDataflowLength()}"></span>
+          </div>
+        </div>
+
+        <div class="ddp-wrap-viewtable ddp-type">
+          <!-- 테이블 -->
+          <div class="ddp-box-viewtable">
+            <!-- gridhead -->
+            <div class="ddp-ui-gridhead">
+              <table class="ddp-table-form ddp-table-type2">
+                <colgroup>
+                  <col width="*">
+                  <col width="20%">
+                  <col width="23%">
+                </colgroup>
+                <thead>
+                <tr>
+                  <th (click)="changeOrder('dfName')">
+                    Name
+                    <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'dfName' || selectedContentSort.sort === 'default'"></em>
+                    <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'dfName' && selectedContentSort.sort === 'asc'"></em>
+                    <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'dfName' && selectedContentSort.sort === 'desc'"></em>
+                  </th>
+                  <th>
+                    {{'msg.comm.menu.manage.prep.set' | translate}}
+                  </th>
+                  <th (click)="changeOrder('modifiedTime')">
+                    {{'msg.comm.ui.list.last' | translate}}
+                    <em class="ddp-icon-array-default2" *ngIf="selectedContentSort.key !== 'modifiedTime' || selectedContentSort.sort === 'default'"></em>
+                    <em class="ddp-icon-array-asc2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'asc'"></em>
+                    <em class="ddp-icon-array-des2" *ngIf="selectedContentSort.key === 'modifiedTime' && selectedContentSort.sort === 'desc'"></em>
+                  </th>
+                </tr>
+                </thead>
+
+              </table>
+            </div>
+            <!--// gridhead -->
+
+            <!-- gridbody -->
+            <div class="ddp-ui-gridbody">
+              <table class="ddp-table-form ddp-table-type2 ddp-table-select">
+                <colgroup>
+                  <col width="*">
+                  <col width="20%">
+                  <col width="23%">
+                </colgroup>
+                <tbody>
+                <tr *ngFor="let item of dataflows" (click)="selectDataflow(item)" [ngClass]="{'ddp-selected': selectedDataflowId === item.dfId}">
+
+                  <td>
+                    <div class=" ddp-txt-long">
+                      {{item.dfName}}
+                      <span class="ddp-txt-colortype" *ngIf="item.dfDesc" title="{{item.dfDesc}}">- {{item.dfDesc}}</span>
+                      <em class="ddp-icon-global"></em>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="ddp-wrap-detaildata">
+                      <span class="ddp-data-num"><em class="ddp-icon-dbdata-s"></em>{{item.importedDsCount}}</span>
+                      <span class="ddp-data-num"><em class="ddp-icon-imported-s"></em>{{item.wrangledDsCount}}</span>
+                    </div>
+                  </td>
+                  <td>
+                    {{item.createdTime | mdate:'YYYY-MM-DD HH:mm'}} <em class="ddp-icon-by">{{'msg.dp.ui.by' | translate}}</em>{{item.createdBy}}
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+
+            </div>
+            <!--// gridbody -->
+
+          </div>
+          <!-- //테이블 -->
+          <!-- 더보기 -->
+          <div class="ddp-box-add-link" *ngIf="page.page < pageResult.totalPages" (click)="getDataflows();">
+            <span class="ddp-link-type">{{'msg.comm.ui.more' | translate}} <em class="ddp-icon-view"></em></span>
+          </div>
+          <!-- //더보기 -->
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

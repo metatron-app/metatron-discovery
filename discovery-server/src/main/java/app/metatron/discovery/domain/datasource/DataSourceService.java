@@ -17,6 +17,7 @@ package app.metatron.discovery.domain.datasource;
 import com.google.common.collect.Lists;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,13 +115,13 @@ public class DataSourceService {
         Filter originalFilter = originalFilters.get(i);
         Filter reqFilter = filters.get(i);
 
-        if(!originalFilter.compare(reqFilter)) {
+        if (!originalFilter.compare(reqFilter)) {
           compareResult = false;
           break;
         }
       }
 
-      if(compareResult) {
+      if (compareResult) {
         matchedTempories.add(temporary);
       }
 
@@ -168,7 +169,7 @@ public class DataSourceService {
    * 데이터 소스 상세 조회 (임시 데이터 소스도 함께 조회 가능)
    */
   @Transactional(readOnly = true)
-  public DataSource findDataSourceIncludeTemporary(String dataSourceId) {
+  public DataSource findDataSourceIncludeTemporary(String dataSourceId, Boolean includeUnloadedField) {
 
     DataSource dataSource;
     if (dataSourceId.indexOf(ID_PREFIX) == 0) {
@@ -195,6 +196,10 @@ public class DataSourceService {
       }
     }
 
+    if (BooleanUtils.isNotTrue(includeUnloadedField)) {
+      dataSource.excludeUnloadedField();
+    }
+
     return dataSource;
   }
 
@@ -202,7 +207,7 @@ public class DataSourceService {
    * 데이터 소스 다건 상세 조회 (임시 데이터 소스도 함께 조회 가능)
    */
   @Transactional(readOnly = true)
-  public List<DataSource> findMultipleDataSourceIncludeTemporary(List<String> dataSourceIds) {
+  public List<DataSource> findMultipleDataSourceIncludeTemporary(List<String> dataSourceIds, Boolean includeUnloadedField) {
 
     List<String> temporaryIds = dataSourceIds.stream()
                                              .filter(s -> s.indexOf(ID_PREFIX) == 0)
@@ -214,7 +219,7 @@ public class DataSourceService {
     List<DataSource> dataSources = dataSourceRepository.findByDataSourceMultipleIds(multipleIds);
 
     for (String temporaryId : temporaryIds) {
-      dataSources.add(findDataSourceIncludeTemporary(temporaryId));
+      dataSources.add(findDataSourceIncludeTemporary(temporaryId, includeUnloadedField));
     }
 
     return dataSources;

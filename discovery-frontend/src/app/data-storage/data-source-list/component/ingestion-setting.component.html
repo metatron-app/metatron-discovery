@@ -403,7 +403,7 @@
             </div>
             <div class="ddp-data-det">
               <ng-container *ngFor="let data of partitionValidationResultData">
-               {{data['PART_NAME']}} <span class="ddp-data-row">({{data['NUM_ROWS']}}{{'msg.storage.ui.dsource.create.file.row' | translate}})</span><br>
+               {{data['PART_NAME']}} <span class="ddp-data-row">({{data['NUM_ROWS'] || ''}} {{'msg.storage.ui.partition.rows' | translate}} / {{bytesToSize(data['TOTAL_SIZE'])}})</span><br>
               </ng-container>
             </div>
           </div>

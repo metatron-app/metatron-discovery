@@ -1261,6 +1261,7 @@ a.ddp-btn-popup-close:hover {background-position:left -17px;}
 .ddp-btn-selection.ddp-line .ddp-icon-view {background-position:-28px -43px;}
 .ddp-btn-selection.ddp-line:hover .ddp-icon-view {background-position:-42px -43px;}
 .ddp-btn-selection .ddp-icon-view {display:inline-block; width:13px; height:11px; margin-right:5px; background:url(../images/icon_selection.png) no-repeat; background-position:-14px -43px; vertical-align: middle;}
+.ddp-btn-selection.ddp-gray .ddp-icon-view {background-position:-28px -43px;}
 .ddp-btn-selection .ddp-icon-create {display:inline-block; position:relative; top:-1px; width:9px; height:9px; margin-right:5px; background:url(../images/btn_minus_plus.png) no-repeat; background-position:-20px -2px; vertical-align:middle;}
 
 .ddp-btn-selection .ddp-icon-close {display:inline-block; width:9px; height:9px; margin-right:5px; background:url(../images/btn_sclose.png) no-repeat; background-position:0 -121px;}

@@ -154,8 +154,8 @@ public class AbstractSpecBuilder {
       throw new IllegalArgumentException("Required file format.");
     }
 
-    boolean hadoopIngestion = ingestionInfo instanceof HdfsIngestionInfo;
-    String type = hadoopIngestion ? "hadoopyString" : "string";
+    boolean hadoopIngestion = ( ingestionInfo instanceof HdfsIngestionInfo )
+                                || ( ingestionInfo instanceof HiveIngestionInfo );
 
     Parser parser = null;
 
