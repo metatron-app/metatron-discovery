@@ -42,9 +42,15 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
   @Output()
   public sqlIntoEditorEvent: EventEmitter<string> = new EventEmitter();
 
+  @Output()
+  public historyCloseEvent: EventEmitter<string> = new EventEmitter();
+
   public histories: any[] = [];
 
   public searchText: string = '';
+
+  // 검색 영역 활성화
+  public isSearchText : boolean = false;
 
   // get filteredHistories() {
   //   // if(_.isEmpty(this.histories)) {
@@ -153,6 +159,10 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
 
   public setTableSql(item) {
     this.sqlIntoEditorEvent.emit('\n' + item + ';');
+  }
+
+  public historyClose() {
+    this.historyCloseEvent.emit();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -483,130 +483,140 @@
           <div class="ddp-wrap-editor">
             <codemirror [config]="config" (keyup)="editorKeyEvent($event)"
                         (textChanged)="editorTextChange($event)"></codemirror>
+
+            <!-- history popup -->
+            <detail-workbench-history *ngIf="isQueryHistoryMenuShow" [editorId]="selectedEditorId"
+                                      (sqlIntoEditorEvent)="sqlIntoEditorEvent($event)" (historyCloseEvent)="isQueryHistoryMenuShow = false"></detail-workbench-history>
+            <!-- //history popup -->
+
+            <!-- shortcut popup -->
+            <div class="ddp-box-layout4 ddp-shortcuts" *ngIf="shortcutsFl">
+              <a href="javascript:" class="ddp-btn-close" (click)="shortcutsFl = false;"></a>
+              <div class="ddp-data-title">
+                {{'msg.bench.ui.editor.shortcut.title' | translate}}
+              </div>
+              <div class="ddp-wrap-data-detail ddp-padt0">
+                <table class="ddp-table-pop">
+                  <colgroup>
+                    <col width="136px">
+                    <col width="*">
+                  </colgroup>
+                  <tbody>
+                  <tr *ngIf="!isAgentUserMacOs">
+                    <th>{{'msg.bench.ui.editor.shortcut.all.select' | translate}}</th>
+                    <td>Ctrl-A </td>
+                  </tr>
+                  <tr *ngIf="isAgentUserMacOs">
+                    <th>{{'msg.bench.ui.editor.shortcut.all.select' | translate}}</th>
+                    <td>Cmd-A </td>
+                  </tr>
+                  <tr *ngIf="!isAgentUserMacOs">
+                    <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
+                    <td>Ctrl-D </td>
+                  </tr>
+                  <tr *ngIf="isAgentUserMacOs">
+                    <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
+                    <td>Cmd-D </td>
+                  </tr>
+                  <tr>
+                    <th>{{'msg.bench.ui.editor.shortcut.all.delete' | translate}}</th>
+                    <td>CTRL + Q</td>
+                  </tr>
+                  <tr>
+                    <th>{{'msg.bench.ui.editor.shortcut.indent' | translate}}</th>
+                    <td> Tab</td>
+                  </tr>
+                  <tr>
+                    <th>{{'msg.bench.ui.editor.shortcut.outdent' | translate}}</th>
+                    <td>Shift-Tab</td>
+                  </tr>
+                  <tr>
+                    <th>{{'msg.bench.ui.editor.shortcut.comment' | translate}}</th>
+                    <td>CTRL + /</td>
+                  </tr>
+                  <tr>
+                    <th>{{'msg.bench.ui.editor.shortcut.align' | translate}}</th>
+                    <td>CTRL + .</td>
+                  </tr>
+                  <tr *ngIf="!isAgentUserMacOs">
+                    <th>{{'msg.bench.ui.editor.shortcut.cancl' | translate}}</th>
+                    <td>Ctrl-Z</td>
+                  </tr>
+                  <tr *ngIf="isAgentUserMacOs">
+                    <th>{{'msg.bench.ui.editor.shortcut.cancl' | translate}}</th>
+                    <td>Cmd-Z</td>
+                  </tr>
+                  <tr *ngIf="!isAgentUserMacOs">
+                    <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
+                    <td>Ctrl+Spacebar</td>
+                  </tr>
+                  <tr *ngIf="isAgentUserMacOs">
+                    <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
+                    <td>Ctrl+Shift+Spacebar</td>
+                  </tr>
+                  </tbody>
+                </table>
+            </div>
+            <!-- //shortcut popup -->
           </div>
 
-          <div class="ddp-wrap-edit-foot">
-            <!-- row 수 -->
-            <!--<div class="ddp-data-rows">-->
-              <!--<em class="ddp-icon-row"></em>-->
-              <!--<div class="ddp-data-input">-->
-                <!--<input type="number" input-mask="number"-->
-                       <!--[(ngModel)]="queryResultNumber"-->
-                       <!--(keyup.esc)="queryResultNumber = 1000; setExecuteSql('ALL')"-->
-                       <!--(keyup.enter)="setExecuteSql('ALL')">-->
-                <!--<a href="javascript:" class="ddp-btn-check2" (click)="setExecuteSql('ALL')"></a>-->
-              <!--</div>-->
-            <!--</div>-->
-            <!-- //row 수 -->
-            <!-- SQL BEAUTIFIER -->
-            <a href="javascript:" class="ddp-btn-beautifier" (click)="setSqlFormatter()">
-              <div class="ddp-ui-tooltip-info">
-                <em class="ddp-icon-view-down"></em>
-                SQL BEAUTIFIER
-              </div>
-            </a>
-            <!-- //SQL BEAUTIFIER -->
-            <!-- foot button -->
-            <div class="ddp-ui-edit-foot">
-              <a href="javascript:" class="ddp-btn-play" (click)="setExecuteSql('ALL')" >
-                <div class="ddp-ui-tooltip-info">
-                  <em class="ddp-icon-view-down"></em>
-                  ALL SQL EXECUTE
-                </div>
-              </a>
-              <a href="javascript:" class="ddp-btn-stop" (click)="setExecuteSql('SELECTED')" >
-                <div class="ddp-ui-tooltip-info">
-                  <em class="ddp-icon-view-down"></em>
-                  SELECTED  SQL EXECUTE
-                </div>
-              </a>
-              <a href="javascript:" class="ddp-btn-delete" (click)="clearSql()" title="">
-                <div class="ddp-ui-tooltip-info">
+          <div class="ddp-wrap-foot-button">
+
+            <!-- link button -->
+            <div class="ddp-link-button">
+              <a href="javascript:" class="ddp-link-query" (click)="setExecuteSql('ALL')"><em class="ddp-icon-query-full"></em>Execute full</a>
+              <a href="javascript:" class="ddp-link-query" (click)="setExecuteSql('SELECTED')"><em class="ddp-icon-query-partial"></em>Execute partial</a>
+            </div>
+            <!-- //link button -->
+
+            <div class="ddp-icon-button">
+              <!-- clear sql -->
+              <div class="ddp-btn-query">
+                <a href="javascript:" class="ddp-icon-query-clear" (click)="clearSql()" title=""></a>
+                <div class="ddp-ui-tooltip-info ddp-top">
                   <em class="ddp-icon-view-down"></em>
                   CLEAR SQL
                 </div>
-              </a>
-            </div>
-            <!-- //foot button -->
-            <!-- 클릭시 ddp-selected 추가 -->
-            <div class="ddp-wrap-question" [class.ddp-selected]="shortcutsFl" #questionWrap>
-              <a href="javascript:" class="ddp-btn-question" (mouseover)="onClickShowShortcutsBtn()" (mouseout)="shortcutsFl = false" >
-              </a>
-              <!-- popup -->
-              <div class="ddp-box-layout4" #questionLayout>
-                <div class="ddp-data-title">
-                  {{'msg.bench.ui.editor.shortcut.title' | translate}}
+              </div>
+              <!-- //clear sql -->
+              <!-- SQL BEAUTIFIER -->
+              <div class="ddp-btn-query">
+                <a href="javascript:" class="ddp-icon-query-beautifier" (click)="setSqlFormatter()"></a>
+                  <div class="ddp-ui-tooltip-info ddp-top">
+                    <em class="ddp-icon-view-down"></em>
+                    SQL BEAUTIFIER
+                  </div>
+              </div>
+              <!-- //SQL BEAUTIFIER -->
+              <!-- query history -->
+              <div class="ddp-btn-query">
+                <!-- 클릭시 ddp-selected 추가 -->
+                <a href="javascript:" class="ddp-icon-query-history" [ngClass]="{'ddp-selected':isQueryHistoryMenuShow}" (click)="openQueryHistoryMenu()"></a>
+                <div class="ddp-ui-tooltip-info ddp-top" >
+                  <em class="ddp-icon-view-top"></em>
+                  History
                 </div>
-                <div class="ddp-wrap-data-detail ddp-padt0">
-                  <table class="ddp-table-pop">
-                    <colgroup>
-                      <col width="136px">
-                      <col width="*">
-                    </colgroup>
-                    <tbody>
-                    <tr *ngIf="!isAgentUserMacOs">
-                      <th>{{'msg.bench.ui.editor.shortcut.all.select' | translate}}</th>
-                      <td>Ctrl-A </td>
-                    </tr>
-                    <tr *ngIf="isAgentUserMacOs">
-                      <th>{{'msg.bench.ui.editor.shortcut.all.select' | translate}}</th>
-                      <td>Cmd-A </td>
-                    </tr>
-                    <tr *ngIf="!isAgentUserMacOs">
-                      <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
-                      <td>Ctrl-D </td>
-                    </tr>
-                    <tr *ngIf="isAgentUserMacOs">
-                      <th>{{'msg.bench.ui.editor.shortcut.row.delete' | translate}}</th>
-                      <td>Cmd-D </td>
-                    </tr>
-                    <tr>
-                      <th>{{'msg.bench.ui.editor.shortcut.all.delete' | translate}}</th>
-                      <td>CTRL + Q</td>
-                    </tr>
-                    <tr>
-                      <th>{{'msg.bench.ui.editor.shortcut.indent' | translate}}</th>
-                      <td> Tab</td>
-                    </tr>
-                    <tr>
-                      <th>{{'msg.bench.ui.editor.shortcut.outdent' | translate}}</th>
-                      <td>Shift-Tab</td>
-                    </tr>
-                    <tr>
-                      <th>{{'msg.bench.ui.editor.shortcut.comment' | translate}}</th>
-                      <td>CTRL + /</td>
-                    </tr>
-                    <tr>
-                      <th>{{'msg.bench.ui.editor.shortcut.align' | translate}}</th>
-                      <td>CTRL + .</td>
-                    </tr>
-                    <tr *ngIf="!isAgentUserMacOs">
-                      <th>{{'msg.bench.ui.editor.shortcut.cancl' | translate}}</th>
-                      <td>Ctrl-Z</td>
-                    </tr>
-                    <tr *ngIf="isAgentUserMacOs">
-                      <th>{{'msg.bench.ui.editor.shortcut.cancl' | translate}}</th>
-                      <td>Cmd-Z</td>
-                    </tr>
-                    <tr *ngIf="!isAgentUserMacOs">
-                      <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
-                      <td>Ctrl+Spacebar</td>
-                    </tr>
-                    <tr *ngIf="isAgentUserMacOs">
-                      <th>{{'msg.bench.ui.editor.shortcut.auto.completion' | translate}}</th>
-                      <td>Ctrl+Shift+Spacebar</td>
-                    </tr>
-                    </tbody>
-                  </table>
+              </div>
+              <!-- //query history -->
+
+              <!-- Shortcuts -->
+              <div class="ddp-btn-query">
+                <!-- 클릭시 ddp-selected 추가 -->
+                <a href="javascript:" class="ddp-icon-query-shortcuts" [ngClass]="{'ddp-selected':shortcutsFl}" (click)="openShowShortcutsMenu()"></a>
+                <div class="ddp-ui-tooltip-info ddp-top" >
+                  <em class="ddp-icon-view-down"></em>
+                  Shortcuts
                 </div>
-                <!-- //popup -->
 
               </div>
+              <!-- //Shortcuts -->
             </div>
-            <!-- //question -->
           </div>
-          <!-- //foot button -->
+
         </div>
+        <!-- //foot button -->
+
+       </div>
       </div>
       <div class="sys-workbench-bottom-panel" style="height:100%;">
         <!-- query result -->
@@ -862,11 +872,6 @@
             <em class="ddp-icon-globalvar"></em>
           </a>
         </li>
-        <li [ngClass]="{'ddp-selected':isQueryHistoryMenuShow}">
-          <a href="javascript:" (click)="openQueryHistoryMenu()">
-            <em class="ddp-icon-history"></em>
-          </a>
-        </li>
         <li [ngClass]="{'ddp-selected':isNavigationMenuShow}">
           <a href="javascript:" (click)="openNavigationMenu()">
             <em class="ddp-icon-navimenu"></em>
@@ -878,10 +883,6 @@
         <!-- rnb contents variable -->
         <detail-workbench-variable *ngIf="isGlobalVariableMenuShow" [workbench]="workbench"
                                    (addVariableEvent)="addEditorVariable($event)"></detail-workbench-variable>
-        <!-- //rnb contents -->
-        <!-- rnb contents history -->
-        <detail-workbench-history *ngIf="isQueryHistoryMenuShow" [editorId]="selectedEditorId"
-                                  (sqlIntoEditorEvent)="sqlIntoEditorEvent($event)"></detail-workbench-history>
         <!-- //rnb contents -->
         <!-- rnb contents navigation-->
         <detail-workbench-navigation *ngIf="isNavigationMenuShow"

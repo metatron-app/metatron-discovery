@@ -124,12 +124,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   @ViewChild('editorResultListMax')
   private _editorResultListMax: ElementRef;
 
-  @ViewChild('questionLayout')
-  private _questionLayout: ElementRef;
-
-  @ViewChild('questionWrap')
-  private _questionWrap: ElementRef;
-
   // request reconnect count
   private _executeSqlReconnectCnt: number = 0;
   private _checkQueryStatusReconnectCnt: number = 0;
@@ -1067,17 +1061,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public openGlobalVariableMenu() {
     this.isGlobalVariableMenuShow = !this.isGlobalVariableMenuShow;
-    this.isQueryHistoryMenuShow = false;
-    this.isNavigationMenuShow = false;
-    // this.isWorkbenchOptionShow = false;
-  }
-
-  /**
-   * 우측 패널 구성 - 두번째 : 쿼리 히스토리 리스트
-   */
-  public openQueryHistoryMenu() {
-    this.isQueryHistoryMenuShow = !this.isQueryHistoryMenuShow;
-    this.isGlobalVariableMenuShow = false;
     this.isNavigationMenuShow = false;
     // this.isWorkbenchOptionShow = false;
   }
@@ -1088,7 +1071,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public openNavigationMenu() {
     this.isNavigationMenuShow = !this.isNavigationMenuShow;
     this.isGlobalVariableMenuShow = false;
-    this.isQueryHistoryMenuShow = false;
   }
 
   /**
@@ -1096,6 +1078,24 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public showOption() {
     this.isWorkbenchOptionShow = !this.isWorkbenchOptionShow;
+  }
+
+  /**
+   * 팝업 구성 - 쿼리 히스토리 리스트
+   */
+  public openQueryHistoryMenu() {
+    this.isQueryHistoryMenuShow = !this.isQueryHistoryMenuShow;
+    this.shortcutsFl = false;
+  }
+
+  /**
+   * 팝업 구성 -  워크벤치 에디터 단축키 보기 팝업
+   */
+  public openShowShortcutsMenu(): void {
+
+    this.shortcutsFl = !this.shortcutsFl;
+    this.isQueryHistoryMenuShow = false;
+
   }
 
   /**
@@ -1705,34 +1705,6 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       && listObj.index < listObj.list.length - 1) {
       listObj.index++;
     }
-  }
-
-  /**
-   * 워크벤치 에디터 단축키 보기 클릭 이벤트
-   */
-  public onClickShowShortcutsBtn(): void {
-
-    this.shortcutsFl = true;
-
-    let editorLayoutHeight = $('.CodeMirror.cm-s-default').height();
-    let editorFootLayoutHeight = $('.ddp-wrap-edit-foot').height();
-    let popupLayoutHeight = $('.ddp-box-layout4').height();
-
-    // editor 영역에 따른 위치 변경
-    if( editorLayoutHeight < (popupLayoutHeight + editorFootLayoutHeight + 19 ) ) {
-
-      this._questionLayout.nativeElement.style.top
-        = this._questionWrap.nativeElement.getBoundingClientRect().top
-        + window.pageYOffset - document.documentElement.clientTop + 42 + 'px';
-
-    } else {
-
-      this._questionLayout.nativeElement.style.top
-        = this._questionWrap.nativeElement.getBoundingClientRect().top
-        + window.pageYOffset - document.documentElement.clientTop - 265 + 'px';
-    }
-
-
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
