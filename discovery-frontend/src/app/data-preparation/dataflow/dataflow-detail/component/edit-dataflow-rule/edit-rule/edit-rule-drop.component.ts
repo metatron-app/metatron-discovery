@@ -16,6 +16,7 @@ import { AfterViewInit, Component, ElementRef, Injector, OnDestroy, OnInit } fro
 import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-drop',
@@ -90,7 +91,7 @@ export class EditRuleDropComponent extends EditRuleComponent implements OnInit, 
       return undefined
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }

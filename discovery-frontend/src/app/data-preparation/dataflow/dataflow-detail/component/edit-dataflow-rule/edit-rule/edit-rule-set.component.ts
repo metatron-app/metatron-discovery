@@ -20,9 +20,9 @@ import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { EditRuleComponent } from './edit-rule.component';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
-import * as _ from 'lodash';
 import {isNullOrUndefined, isUndefined} from 'util';
 import { StringUtil } from '../../../../../../common/util/string.util';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-set',
@@ -92,7 +92,7 @@ export class EditRuleSetComponent extends EditRuleComponent implements OnInit, A
         return undefined
       }
 
-      const columnsStr: string = this.selectedFields.map((item) => {
+      const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
         if (-1 !== item.name.indexOf(' ')) {
           item.name = '`' + item.name + '`';
         }
