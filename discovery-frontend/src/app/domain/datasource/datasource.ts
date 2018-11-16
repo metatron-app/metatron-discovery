@@ -183,7 +183,7 @@ export class Field {
   isValidReplaceValue?: boolean;
   replaceValidMessage?: string;
   timeFormatValidMessage?: string;
-  removed?: boolean;
+  unloaded?: boolean;
 
   // [UI] for Alias
   dsId?:string;                   // 데이터소스 아이디

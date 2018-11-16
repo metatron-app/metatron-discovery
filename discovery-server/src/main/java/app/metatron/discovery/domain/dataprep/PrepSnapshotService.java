@@ -156,6 +156,80 @@ public class PrepSnapshotService {
         }
     }
 
+    private void deleteFile(File deleteFolder) {
+        if(deleteFolder.exists()){
+            File[] deleteFolderList = deleteFolder.listFiles();
+
+            for(File file : deleteFolderList) {
+                if(file.isFile()) {
+                    file.delete();
+                }else {
+                    deleteFile(file);
+                }
+            }
+
+            deleteFolder.delete();
+        }
+    }
+
+    public void deleteSnapshot(String ssId) throws PrepException {
+        PrepSnapshot snapshot = this.snapshotRepository.findOne(ssId);
+        if(snapshot!=null) {
+            try {
+                PrepSnapshot.SS_TYPE ss_type = snapshot.getSsTypeEnum();
+                if( PrepSnapshot.SS_TYPE.FILE==ss_type ) {
+                    PrepSnapshot.FORMAT format = snapshot.getFormatEnum();
+                    if (PrepSnapshot.FORMAT.CSV == format) {
+                        String dirPath = snapshot.getUri();
+                        if(dirPath!=null) {
+                            File dirSnapshot = new File(dirPath);
+                            if (dirSnapshot.exists()) {
+                                deleteFile(dirSnapshot);
+                            } else {
+                                LOGGER.info("deleteSnapshot(): the file does not exists");
+                            }
+                        } else {
+                            LOGGER.info("deleteSnapshot(): the file does not exists");
+                        }
+                    } else if (PrepSnapshot.FORMAT.JSON == format) {
+                        LOGGER.error("deleteSnapshot(): file not supported: JSON");
+                        throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREP_FILE_TYPE_NOT_SUPPORTED);
+                    }
+                } else if( PrepSnapshot.SS_TYPE.HDFS==ss_type ) {
+                    Configuration conf = this.hdfsService.getConf();
+                    FileSystem fs = FileSystem.get(conf);
+                    String dirPath = snapshot.getUri();
+                    if(dirPath!=null) {
+                        dirPath = dirPath.substring(0, dirPath.lastIndexOf("/"));
+                        Path thePath = new Path(dirPath);
+
+                        if (!fs.exists(thePath)) {
+                            LOGGER.info("deleteSnapshot(): the file does not exists");
+                        }
+
+                        fs.delete(thePath, true);
+                        fs.close();
+                    } else {
+                        fs.close();
+                        LOGGER.info("deleteSnapshot(): the file does not exists");
+                    }
+                } else if( PrepSnapshot.SS_TYPE.JDBC==ss_type ) {
+                    LOGGER.error("deleteSnapshot(): file not supported: JDBC");
+                    throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_PREP_FILE_TYPE_NOT_SUPPORTED);
+                } else if( PrepSnapshot.SS_TYPE.HIVE==ss_type ) {
+                    String dbName = snapshot.getDbName();
+                    String tblName = snapshot.getTblName();
+                    String sql = "DROP TABLE IF EXISTS "+dbName+"."+tblName;
+                    this.datasetSparkHiveService.dropHiveSnapshotTable(sql);
+                }
+            } catch (Exception e) {
+                throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, e);
+            }
+        } else {
+            throw PrepException.create(PrepErrorCodes.PREP_TRANSFORM_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_NO_SNAPSHOT, "snapshot["+ssId+"] does not exist");
+        }
+    }
+
     public List<PrepSnapshot> getWorkList(String dsId, String option) {
         List<PrepSnapshot> snapshots = Lists.newArrayList();
 

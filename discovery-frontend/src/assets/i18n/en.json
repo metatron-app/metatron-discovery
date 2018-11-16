@@ -996,7 +996,7 @@
   "msg.dp.ui.fail": "Fail",
   "msg.dp.ui.file.drop" :"or drop file here",
   "msg.dp.ui.file.import" : "Import",
-  "msg.dp.ui.file.upload.description" : "xls, xlsx, txt and csv formats are allowed.",
+  "msg.dp.ui.file.upload.description" : "Excel, CSV files are allowed.",
   "msg.dp.ui.flows": "Dataflows",
   "msg.dp.ui.grid.view": "Grid view",
   "msg.dp.ui.imported" : "IMPORTED",
@@ -1174,6 +1174,8 @@
   "msg.dp.btn.advanced.editor" : "Advanced editor",
   "msg.dp.btn.make.copy" : "Make a copy",
   "msg.dp.ui.no.preview" : "No preview",
+  "msg.dp.ui.sel.dataflow.dataset" : "Select dataflow to add dataset",
+  "msg.dp.ui.add.existing.dataflow" : "Add to existing dataflow",
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
@@ -1926,6 +1928,7 @@
   "msg.storage.ui.partition.result": "Result",
   "msg.storage.ui.connection.jdbc.table.error": "Due to internal server constraints, it is impossible to query data in table mode. You can query data in Query mode",
   "msg.storage.ui.ingestion.failed.history": "Ingestion history can not be loaded",
+  "msg.storage.ui.ingestion.details.title": "Ingestion details",
   "msg.storage.ui.partition.rows": "rows",
 
   "msg.log.th.status": "Status",

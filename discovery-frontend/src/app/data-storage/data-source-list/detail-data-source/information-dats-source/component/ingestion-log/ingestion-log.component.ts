@@ -14,7 +14,7 @@
  */
 
 import { AbstractComponent } from '../../../../../../common/component/abstract.component';
-import { Component, ElementRef, HostListener, Injector } from '@angular/core';
+import { Component, ElementRef, HostListener, Injector, ViewChild } from '@angular/core';
 import { DatasourceService } from '../../../../../../datasource/service/datasource.service';
 
 @Component({
@@ -22,6 +22,10 @@ import { DatasourceService } from '../../../../../../datasource/service/datasour
   templateUrl: './ingestion-log.component.html'
 })
 export class IngestionLogComponent extends AbstractComponent {
+  // scroll elements
+  @ViewChild('scrollElf')
+  private _scrollElements: ElementRef;
+
   // datasourceId
   private _datasourceId: string;
 
@@ -35,7 +39,9 @@ export class IngestionLogComponent extends AbstractComponent {
   // historyId
   public historyId: string;
   // ingestionProgress
-  public ingestionProgress: any;
+  public ingestionProgress: string;
+  // failResults object
+  public failResultsObject: any;
 
 
   // 생성자
@@ -46,32 +52,31 @@ export class IngestionLogComponent extends AbstractComponent {
   }
 
   /**
-   * on scrolled event
-   * @param {MouseEvent} event
-   */
-  public onScrolled(event: MouseEvent): void {
-    if (event.target['offsetHeight'] + event.target['scrollTop'] >= event.target['scrollHeight'] && !this._isGetAllLog) {
-      // get ingestion result details
-      this._getIngestionDetails(this._datasourceId, this.historyId);
-    }
-  }
-
-  /**
    * init
+   * @param {string} datasourceId
+   * @param {string} historyId
+   * @param {string} progress
+   * @param failResults
    */
-  public init(datasourceId: string, historyId: string, ingestionProgress?: any) {
+  public init(datasourceId: string, historyId: string, progress?: string, failResults?: any) {
     // init view
     this._initView();
+    // set datasource id
     this._datasourceId = datasourceId;
+    // set history id
     this.historyId = historyId;
-    this.ingestionProgress = ingestionProgress;
+    // progress status step
+    this.ingestionProgress = progress;
+    // set fail object
+    this.failResultsObject = failResults;
+    // show log component
     this.isShow = true;
-
+    // is get all log
     this._isGetAllLog = false;
 
     // get ingestion result details
-    if (historyId && ingestionProgress && ingestionProgress.message === 'ENGINE_RUNNING_TASK') {
-      this._getIngestionDetails(this._datasourceId, this.historyId, -10000);
+    if (historyId && progress === 'ENGINE_RUNNING_TASK') {
+      this._getIngestionDetails(this._datasourceId, this.historyId);
     }
   }
 
@@ -99,6 +104,10 @@ export class IngestionLogComponent extends AbstractComponent {
     this._datasourceService.getDatasourceIngestionLog(datasourceId, historyId, offset)
       .then((result) => {
         this.detailDatas = this.detailDatas.concat(result['logs'].split('\n'));
+        // detect changes
+        this.safelyDetectChanges();
+        // scroll to bottom
+        this._scrollElements.nativeElement.scrollTop = this._scrollElements.nativeElement.scrollHeight;
         // loading hide
         this.loadingHide();
       })
@@ -120,6 +129,7 @@ export class IngestionLogComponent extends AbstractComponent {
     this.detailDatas = [];
     this.historyId = null;
     this.ingestionProgress = null;
+    this.failResultsObject = null;
   }
 
 
