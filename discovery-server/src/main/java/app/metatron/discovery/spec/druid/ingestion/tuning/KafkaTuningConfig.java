@@ -19,12 +19,16 @@ import org.apache.commons.collections4.MapUtils;
 
 import java.util.Map;
 
+import app.metatron.discovery.spec.druid.ingestion.index.IndexSpec;
+
 /**
  * Created by kyungtaak on 2016. 6. 18..
  */
 public class KafkaTuningConfig implements TuningConfig {
 
   Long maxRowsPerSegment;
+
+  IndexSpec indexSpec;
 
   public KafkaTuningConfig() {
   }
@@ -55,5 +59,15 @@ public class KafkaTuningConfig implements TuningConfig {
 
   public void setMaxRowsPerSegment(Long maxRowsPerSegment) {
     this.maxRowsPerSegment = maxRowsPerSegment;
+  }
+
+  @Override
+  public IndexSpec getIndexSpec() {
+    return indexSpec;
+  }
+
+  @Override
+  public void setIndexSpec(IndexSpec indexSpec) {
+    this.indexSpec = indexSpec;
   }
 }

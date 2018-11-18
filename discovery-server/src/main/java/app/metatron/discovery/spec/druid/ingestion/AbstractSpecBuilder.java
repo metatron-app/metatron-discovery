@@ -14,31 +14,42 @@
 
 package app.metatron.discovery.spec.druid.ingestion;
 
+import com.google.common.collect.Maps;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.ingestion.DiscardRule;
 import app.metatron.discovery.domain.datasource.ingestion.HdfsIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.HiveIngestionInfo;
 import app.metatron.discovery.domain.datasource.ingestion.IngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionRule;
 import app.metatron.discovery.domain.datasource.ingestion.LocalFileIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.ReplaceRule;
 import app.metatron.discovery.domain.datasource.ingestion.file.CsvFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.ExcelFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.FileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.JsonFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.OrcFileFormat;
 import app.metatron.discovery.domain.datasource.ingestion.file.ParquetFileFormat;
+import app.metatron.discovery.domain.datasource.ingestion.rule.EvaluationRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.ReplaceNullRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.ValidationRule;
+import app.metatron.discovery.domain.workbook.configurations.format.FieldFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoFormat;
+import app.metatron.discovery.domain.workbook.configurations.format.GeoPointFormat;
 import app.metatron.discovery.query.druid.aggregations.CountAggregation;
+import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.spec.druid.ingestion.granularity.UniformGranularitySpec;
+import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexStrategy;
+import app.metatron.discovery.spec.druid.ingestion.index.LuceneIndexing;
+import app.metatron.discovery.spec.druid.ingestion.index.SecondaryIndexing;
 import app.metatron.discovery.spec.druid.ingestion.parser.*;
 
 public class AbstractSpecBuilder {
@@ -47,10 +58,38 @@ public class AbstractSpecBuilder {
 
   protected DataSchema dataSchema = new DataSchema();
 
+  protected boolean useGeoIngestion;
+
+  protected Map<String, SecondaryIndexing> secondaryIndexing = Maps.newLinkedHashMap();
+
   public void setDataSchema(DataSource dataSource) {
 
     // Set datasource name
     dataSchema.setDataSource(dataSource.getEngineName());
+
+    // Use ingestion rule and field format
+    for (Field field : dataSource.getFields()) {
+      if (field.getIngestionRule() != null) {
+        IngestionRule rule = field.getIngestionRuleObject();
+        if (rule instanceof ValidationRule) {
+          ValidationRule validationRule = (ValidationRule) rule;
+          dataSchema.addValidation(validationRule.toValidation(field.getName()));
+        } else if (rule instanceof EvaluationRule) {
+          EvaluationRule evaluationRule = (EvaluationRule) rule;
+          dataSchema.addEvaluation(evaluationRule.toEvaluation(field.getName()));
+        }
+      }
+
+      FieldFormat fieldFormat = field.getFormatObject();
+      if (fieldFormat != null) {
+        if (fieldFormat instanceof GeoFormat) {
+          useGeoIngestion = true;
+          GeoFormat geoFormat = (GeoFormat) fieldFormat;
+          makeSecondaryIndexing(field.getName(), geoFormat);
+          addGeoFieldToMatric(field.getName(), geoFormat);
+        }
+      }
+    }
 
     // Set Interval Options
     List<String> intervals = null;
@@ -65,13 +104,19 @@ public class AbstractSpecBuilder {
         intervals == null ? null : intervals.toArray(new String[intervals.size()]));
 
     // Set Roll up
-    granularitySpec.setRollup(dataSource.getIngestionInfo().getRollup());
+    if (useGeoIngestion) {
+      granularitySpec.setRollup(false);
+    } else {
+      granularitySpec.setRollup(dataSource.getIngestionInfo().getRollup());
+    }
 
     dataSchema.setGranularitySpec(granularitySpec);
 
-    // Set measure field
-    // 1. default pre-Aggreation
-    dataSchema.addMetrics(new CountAggregation("count"));
+    if (!useGeoIngestion) {
+      // Set measure field
+      // 1. default pre-Aggreation
+      dataSchema.addMetrics(new CountAggregation("count"));
+    }
 
     // 2. set measure from datasource
     List<Field> measureFields = dataSource.getFieldByRole(Field.FieldRole.MEASURE);
@@ -80,27 +125,29 @@ public class AbstractSpecBuilder {
       if (BooleanUtils.isTrue(field.getUnloaded())) {
         continue;
       }
-      dataSchema.addMetrics(field.getAggregation());
+      dataSchema.addMetrics(field.getAggregation(useGeoIngestion));
     }
 
     dataSchema.setParser(makeParser(dataSource));
 
-    for (Field field : dataSource.getFields()) {
-      if (field.getIngestionRule() == null) {
-        continue;
-      }
+  }
 
-      IngestionRule rule = field.getIngestionRuleObject();
+  private void makeSecondaryIndexing(String name, GeoFormat geoFormat) {
+    if (geoFormat instanceof GeoPointFormat
+        || ((GeoPointFormat) geoFormat).getDataType() == GeoPointFormat.GeoDataType.STRUCT) {
+      GeoPointFormat geoPointFormat = (GeoPointFormat) geoFormat;
+      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", geoPointFormat.getOriginalSrsName())));
+    } else {
+      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", "WKT", geoFormat.getMaxLevels())));
+    }
+  }
 
-      if (rule instanceof DiscardRule) {
-        dataSchema.addValidation(Validation.discardNullValidation(field.getName()));
-      } else if (rule instanceof ReplaceRule) {
-        ReplaceRule replaceRule = (ReplaceRule) rule;
-        if (replaceRule.getValue() == null) {
-          continue;
-        }
-        dataSchema.addEvaluation(Evaluation.nullToDefaultValueEvaluation(field.getName(), replaceRule.getValue()));
-      }
+  private void addGeoFieldToMatric(String name, GeoFormat geoFormat) {
+    if (geoFormat instanceof GeoPointFormat
+        || ((GeoPointFormat) geoFormat).getDataType() == GeoPointFormat.GeoDataType.STRUCT) {
+      dataSchema.addMetrics(new RelayAggregation(name, "struct(lat:double,lon:double)"));
+    } else {
+      dataSchema.addMetrics(new RelayAggregation(name, "string"));
     }
   }
 
@@ -125,8 +172,8 @@ public class AbstractSpecBuilder {
     if (timeField.getIngestionRule() != null) {
       IngestionRule rule = timeField.getIngestionRuleObject();
 
-      if (rule instanceof ReplaceRule) {
-        ReplaceRule replaceRule = (ReplaceRule) rule;
+      if (rule instanceof ReplaceNullRule) {
+        ReplaceNullRule replaceRule = (ReplaceNullRule) rule;
         try {
           DateTime dateTime = DateTimeFormat.forPattern(timeField.getTimeFormat()).parseDateTime((String) replaceRule.getValue());
           timestampSpec.setMissingValue(dateTime);
@@ -143,7 +190,7 @@ public class AbstractSpecBuilder {
     List<Field> dimensionfields = dataSource.getFieldByRole(Field.FieldRole.DIMENSION);
     List<String> dimenstionNames = dimensionfields.stream()
                                                   // 삭제된 필드는 추가 하지 않음
-                                                  .filter(field -> BooleanUtils.isNotTrue(field.getUnloaded()))
+                                                  .filter(field -> BooleanUtils.isNotTrue(field.getUnloaded()) && !field.isGeoType())
                                                   .map((field) -> field.getName())
                                                   .collect(Collectors.toList());
     DimensionsSpec dimensionsSpec = new DimensionsSpec(dimenstionNames);
@@ -154,14 +201,15 @@ public class AbstractSpecBuilder {
       throw new IllegalArgumentException("Required file format.");
     }
 
-    boolean hadoopIngestion = ( ingestionInfo instanceof HdfsIngestionInfo )
-                                || ( ingestionInfo instanceof HiveIngestionInfo );
+    boolean hadoopIngestion = (ingestionInfo instanceof HdfsIngestionInfo)
+        || (ingestionInfo instanceof HiveIngestionInfo);
 
     Parser parser = null;
 
-    if (fileFormat instanceof CsvFileFormat) {
+    if (fileFormat instanceof CsvFileFormat || fileFormat instanceof ExcelFileFormat) {
       // get Columns
       List<String> columns = dataSource.getFields().stream()
+                                       .filter(field -> BooleanUtils.isNotTrue(field.getDerived()))
                                        .map((field) -> field.getName())
                                        .collect(Collectors.toList());
 
@@ -225,19 +273,6 @@ public class AbstractSpecBuilder {
       parseSpec.setFlattenSpec(jsonFileFormat.getFlattenRules());
 
       parser = new StringParser(parseSpec);
-
-    } else if (fileFormat instanceof ExcelFileFormat) {
-      // Csv 타입 지정으로 처리
-      List<String> columns = dataSource.getFields().stream()
-                                       .map((field) -> field.getName())
-                                       .collect(Collectors.toList());
-
-      CsvStreamParser csvStreamParser = new CsvStreamParser();
-      csvStreamParser.setTimestampSpec(timestampSpec);
-      csvStreamParser.setDimensionsSpec(dimensionsSpec);
-      csvStreamParser.setColumns(columns);
-
-      parser = csvStreamParser;
 
     } else if (fileFormat instanceof OrcFileFormat) {
       TimeAndDimsParseSpec parseSpec = new TimeAndDimsParseSpec();

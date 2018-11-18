@@ -52,7 +52,7 @@ import app.metatron.discovery.common.entity.Spec;
 import app.metatron.discovery.domain.CollectionPatch;
 import app.metatron.discovery.domain.MetatronDomain;
 import app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection;
-import app.metatron.discovery.domain.datasource.ingestion.IngestionRule;
+import app.metatron.discovery.domain.datasource.ingestion.rule.IngestionRule;
 import app.metatron.discovery.domain.workbook.configurations.field.MeasureField;
 import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
 import app.metatron.discovery.domain.workbook.configurations.filter.TimeFilter;
@@ -68,6 +68,7 @@ import app.metatron.discovery.query.druid.aggregations.GenericMaxAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericMinAggregation;
 import app.metatron.discovery.query.druid.aggregations.GenericSumAggregation;
 import app.metatron.discovery.query.druid.aggregations.RangeAggregation;
+import app.metatron.discovery.query.druid.aggregations.RelayAggregation;
 import app.metatron.discovery.query.druid.aggregations.VarianceAggregation;
 import app.metatron.discovery.spec.druid.ingestion.parser.TimestampSpec;
 import app.metatron.discovery.util.TimeUnits;
@@ -185,6 +186,12 @@ public class Field implements MetatronDomain<Long> {
   private Boolean unloaded;
 
   /**
+   * Whether to derived field (not physical field)
+   */
+  @Column(name = "field_derived")
+  private Boolean derived;
+
+  /**
    * Sequence for field alignment
    */
   @Column(name = "seq")
@@ -286,7 +293,11 @@ public class Field implements MetatronDomain<Long> {
    * Ingestion spec. 처리시 확인 할 것
    */
   @JsonIgnore
-  public Aggregation getAggregation() {
+  public Aggregation getAggregation(boolean isRelay) {
+
+    if(isRelay) {
+      return new RelayAggregation(name,type.toEngineType());
+    }
 
     if (aggrType == null) {
       return new GenericSumAggregation(name, name, "double");
@@ -311,6 +322,14 @@ public class Field implements MetatronDomain<Long> {
       default:
         return new GenericSumAggregation(name, name, "double");
     }
+  }
+
+  @JsonIgnore
+  public boolean isGeoType() {
+    LogicalType logicalType = getLogicalType();
+    return logicalType == LogicalType.GEO_POINT
+        || logicalType == LogicalType.GEO_LINE
+        || logicalType == LogicalType.GEO_POLYGON;
   }
 
   public void setColumnType(JdbcDataConnection connection, String columnType) {
@@ -604,6 +623,14 @@ public class Field implements MetatronDomain<Long> {
 
   public void setMappedField(Set<Field> mappedField) {
     this.mappedField = mappedField;
+  }
+
+  public Boolean getDerived() {
+    return derived;
+  }
+
+  public void setDerived(Boolean derived) {
+    this.derived = derived;
   }
 
   public String getOriginalName() {

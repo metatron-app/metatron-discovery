@@ -79,6 +79,31 @@ public enum DataType {
     }
   }
 
+  public String toEngineType() {
+    switch (this) {
+      case TEXT:
+      case STRING:
+        return "string";
+      case NUMBER:
+        return "number";
+      case INTEGER:
+        return "integer";
+      case LONG:
+        return "long";
+      case FLOAT:
+        return "float";
+      case DOUBLE:
+        return "double";
+      case TIMESTAMP:
+      case BOOLEAN:
+      case MAP:
+      case STRUCT:
+      case ARRAY:
+      default:
+        return "string";
+    }
+  }
+
   public Field.FieldRole toRole() {
     switch (this) {
       case TEXT:
