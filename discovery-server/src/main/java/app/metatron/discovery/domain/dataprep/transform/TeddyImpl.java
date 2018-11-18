@@ -16,6 +16,7 @@ package app.metatron.discovery.domain.dataprep.transform;
 
 import app.metatron.discovery.domain.dataprep.PrepHdfsService;
 import app.metatron.discovery.domain.dataprep.PrepProperties;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
@@ -33,6 +34,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -246,7 +249,9 @@ public class TeddyImpl {
 
   public DataFrame loadFileDataset(String dsId, String targetUrl, String delimiter, String dsName) {
     DataFrame df = new DataFrame(dsName);   // join, union등에서 dataset 이름을 제공하기위해 dsName 추가
-    df.setByGrid(Util.loadGridLocalCsv( targetUrl, delimiter, prepProperties.getSamplingLimitRows(), this.hdfsService.getConf(), null ), null);
+//    df.setByGrid(Util.loadGridLocalCsv( targetUrl, delimiter, prepProperties.getSamplingLimitRows(), this.hdfsService.getConf(), null ), null);
+    String strUri = targetUrl.startsWith("hdfs") ? targetUrl : "file://" + targetUrl;
+    df.setByGrid(PrepCsvUtil.parse(strUri, delimiter, prepProperties.getSamplingLimitRows(), hdfsService.getConf()));
 
     return createStage0(dsId, df);
   }

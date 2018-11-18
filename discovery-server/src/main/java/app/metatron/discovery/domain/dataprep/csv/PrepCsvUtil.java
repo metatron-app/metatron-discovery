@@ -14,6 +14,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URI;
@@ -24,6 +26,7 @@ import java.util.Arrays;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 public class PrepCsvUtil {
+  private static Logger LOGGER = LoggerFactory.getLogger(PrepCsvUtil.class);
 
   // public for tests
   public static InputStreamReader getReaderAfterDetectingCharset(InputStream is, String strUri) {
@@ -87,9 +90,12 @@ public class PrepCsvUtil {
    */
   public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf, boolean header) {
     PrepCsvParseResult result = new PrepCsvParseResult();
-    char delim = getUnescapedDelimiter(strDelim);
     Reader reader;
     URI uri;
+
+    LOGGER.debug("parse(): strUri={} strDelim={} conf={}", strUri, strDelim, conf);
+
+    char delim = getUnescapedDelimiter(strDelim);
 
     try {
       uri = new URI(strUri);
