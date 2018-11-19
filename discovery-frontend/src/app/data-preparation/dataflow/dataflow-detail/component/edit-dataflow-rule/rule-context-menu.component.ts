@@ -176,7 +176,24 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
           {label : 'Before ..', value : 'before', command : 'move'},
           {label : 'After ..', value : 'after', command : 'move'}
         ]
+      },
+      {label : 'Clean', value: 'clean', iconClass: 'ddp-icon-drop-clean' , command: 'clean', disabled : this.originalSelectedColIds.length > 1,
+        children : [
+          {label : 'Mismatch', value : 'mismatch', command : 'mismatch'
+            , children : [
+              {label : 'Delete rows', value : 'ismismatch', command : 'clean'},
+              {label : 'Replace with custom value', value : 'after', command : 'move'}
+              ]
+          },
+          {label : 'Missing', value : 'last', command : 'move'
+            , children : [
+              {label : 'Delete rows', value : 'ismissing', command : 'clean'},
+              {label : 'Fill with custom value', value : 'after', command : 'move'}
+              ]
+          },
+        ]
       }
+
     ];
     this.isShow = true;
   }
@@ -311,6 +328,43 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               break;
             case 'flatten':
               rule['ruleString'] = 'flatten col: ' + selCol;
+              break;
+          }
+          break;
+        case 'clean':
+          rule['ruleString'] = `delete row: `;
+          let res = [];
+          switch(command.value) {
+
+            case 'ismismatch':
+              //  ismismatched(columnName,'column type with single quote surrounded')
+              columnNames.forEach((item) => {
+                if (item.indexOf(' ') > -1) {
+                  res.push('ismismatched(' + '`' + item + '`' + `,'${this.contextInfo.columnType}')`);
+                } else {
+                  res.push(`ismismatched(${item},'${this.contextInfo.columnType}')`)
+                }
+
+              });
+
+              rule['ruleString'] += res.join(' || ');
+
+              break;
+            case 'ismissing':
+
+              // delete row: isnull(c) || isnull(`space col`)
+              columnNames.forEach((item) => {
+
+                if (item.indexOf(' ') > -1) {
+                  res.push('isnull(' + '`' + item + '`' + ')');
+                } else {
+                  res.push(`isnull(${item})`)
+                }
+
+              });
+
+              rule['ruleString'] += res.join(' || ');
+
               break;
           }
           break;

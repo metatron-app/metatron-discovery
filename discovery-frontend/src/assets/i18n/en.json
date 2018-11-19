@@ -825,6 +825,7 @@
   "msg.dp.alert.check.ignore.char" : "Check ignore between characters",
   "msg.dp.alert.check.insert.expression" : "Please enter the expression",
   "msp.dp.alert.col.empty" : "Column name must not be empty",
+  "msg.dp.alert.teddy.parse.failed.by.delete.expression" : "Please check delete expression",
 
   "msg.dp.ui.no.snapshot.history" : "No snapshot create history",
   "msg.dp.ui.snapshot.cancel.confirm" : "Sure to cancel snapshot creation?",
