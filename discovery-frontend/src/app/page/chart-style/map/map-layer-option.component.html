@@ -124,7 +124,7 @@
                             <!-- colorby button -->
                             <div class="ddp-wrap-colorby-button ddp-solid-color">
                               <!-- 클릭시 ddp-selected 추가 -->
-                              <color-picker [showAlpha]="true" [color]="'#6344ad'" [showInitial]="true"
+                              <color-picker [showAlpha]="true" [color]="uiOption.layers[index].color.schema" [showInitial]="true"
                                             [showInput]="true" [showUserColor]="true" (selected)="changeByNoneColor($event)"></color-picker>
                             </div>
                             <!-- //colorby button -->

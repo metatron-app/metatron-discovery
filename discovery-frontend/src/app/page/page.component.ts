@@ -1147,10 +1147,15 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
    * 개별포맷 변경 핸들러
    * @param pivot
    */
-  public onFormatEachChange(pivot: Pivot): void {
+  public onFormatEachChange(pivot: any): void {
 
-    // 포맷변경
-    this.pivot = pivot;
+    if (_.eq(this.selectChart, ChartType.MAP)) {
+
+      this.shelf = pivot;
+    } else {
+      // 포맷변경
+      this.pivot = pivot;
+    }
     delete this.widgetConfiguration.format;
   }
 
@@ -3666,7 +3671,6 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
             this.networkChart.draw();
           } else if (this.chart.uiOption.type === ChartType.MAP) {
-            this.mapChart.draw();
           } else {
             if (this.chart && this.chart.chart) this.chart.chart.resize();
           }
