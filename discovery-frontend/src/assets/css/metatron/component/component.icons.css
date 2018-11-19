@@ -110,11 +110,6 @@ span.ddp-data-lang-python:before  {display:inline-block; content:''; margin-righ
 span.ddp-data-lang-r:before {width:16px; height:13px; background-position:left -14px;}
 span.ddp-data-lang-python:before {width:13px; height:13px;}
 
-em.ddp-icon-upload,
-em.ddp-icon-download {display:inline-block; background:url(../../../images/icon_control.png) no-repeat;}
-em.ddp-icon-upload {width:11px; height:12px; background-position:left -244px;}
-em.ddp-icon-download {width:13px; height:13px; background-position:left -230px;}
-
 em.ddp-icon-window {display:inline-block; width:12px; height:10px; background:url(../../../images/icon_window.png) no-repeat; vertical-align: middle;}
 em.ddp-icon-lock-s,
 em.ddp-icon-lock-s2 {display:inline-block; width:6px; height:8px; background:url(../../../images/icon_lock.png) no-repeat; background-position:left -14px;}
@@ -285,6 +280,344 @@ em.ddp-icon-result-users {width:14px; height:12px; margin-right:5px; background-
 em.ddp-icon-result-data {width:12px; height:14px; margin-right:5px; background-position:-63px top;}
 em.ddp-icon-result-workbook {width:17px; height:14px; margin-right:5px; background-position:left -29px;}
 
+
+em.ddp-icon-btnchart,
+em.ddp-icon-btnchart-w,
+em.ddp-icon-btntext,
+em.ddp-icon-btntext-w,
+em.ddp-icon-btnfilter,
+em.ddp-icon-btnvariable,
+em.ddp-icon-spacelist,
+em.ddp-icon-btnplus,
+em.ddp-icon-dismiss,
+em.ddp-icon-btndone,
+em.ddp-icon-btnsave,
+em.ddp-icon-btnclose,
+em.ddp-icon-btnfav,
+em.ddp-icon-btnworkspace ,
+em.ddp-icon-btnadd,
+em.ddp-icon-chart-new,
+em.ddp-icon-filter-new,
+em.ddp-icon-parameter-new,
+em.ddp-icon-text-new,
+em.ddp-icon-btn-edit,
+em.ddp-icon-btn-edit2,
+em.ddp-icon-btn-done{display:inline-block; margin-right:8px; background:url(../../../images/icon_buttons.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-btnchart {width:17px; height:14px; background-position:left -101px;}
+em.ddp-icon-btnchart-w {width:17px; height:14px; background-position:-18px -101px;}
+em.ddp-icon-btntext {width:11px; height:13px; background-position:left -119px;}
+em.ddp-icon-btntext-w {width:11px; height:13px; background-position:-12px -119px;}
+
+em.ddp-icon-btnfilter {width:16px; height:13px; background-position:left -133px;}
+
+em.ddp-icon-btnvariable {width:17px; height:15px; background-position:left -147px;}
+em.ddp-icon-spacelist {width:14px; height:15px; background-position:left -73px;}
+
+em.ddp-icon-btnplus {position:relative; top:-1px; width:11px; height:11px; background-position:left -89px;}
+em.ddp-icon-dismiss {width:12px; height:12px; background-position:left -173px;}
+em.ddp-icon-btndone {width:15px; height:9px; background-position:left -163px;}
+em.ddp-icon-btnsave {width:15px; height:9px; background-position:left -163px;}
+em.ddp-icon-btnclose {width:11px; height:11px; background-position:left -186px;}
+
+em.ddp-icon-btnfav {width:12px; height:11px; background-position:left -227px;}
+em.ddp-icon-btnworkspace {width:10px; height:12px; background-position:left -239px;}
+
+em.ddp-icon-btnadd {width:10px; height:10px; background-position:left -252px;}
+em.ddp-icon-chart-new {width:22px; height:17px; background-position:-23px -277px;}
+em.ddp-icon-filter-new {width:21px; height:14px; background-position:left -295px;}
+em.ddp-icon-parameter-new {width:21px; height:15px; background-position:left -310px;}
+em.ddp-icon-btn-edit {width:13px; height:13px; background-position:left -339px;}
+em.ddp-icon-btn-edit2 {width:13px; height:13px; background-position:-14px -339px;}
+em.ddp-icon-text-new {width:19px; height:13px; background-position:left -326px;}
+em.ddp-icon-btn-done {width:15px; height:9px; background-position:left -353px;}
+
+em.ddp-icon-btnoption {display:inline-block; width:14px; height:14px; margin-right:8px; background:url(../../../images/icon_option.png) no-repeat; background-position:-30px -16px; vertical-align:middle;}
+
+em.ddp-icon-chart2,
+em.ddp-icon-chart3,
+em.ddp-icon-chart-s {display:inline-block; width:19px; height:15px; background:url(../../../images/icon_chart.png) no-repeat; background-position:left -12px; vertical-align: middle;}
+em.ddp-icon-chart3 {width:17px; height:14px; background-position:left -28px;}
+em.ddp-icon-chart-s {width:10px; height:8px; background-position:left -43px;}
+
+em.ddp-icon-chart-w {display:inline-block; width:13px; height:11px; margin-right:5px; background:url(../../../images/icon_widget.png) no-repeat; background-position:-28px -106px;}
+
+em.ddp-icon-dashboard2,
+em.ddp-icon-dashboard3  {display:inline-block; width:19px; height:15px; background:url(../../../images/icon_dashboard.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-dashboard3 {width:17px; height:14px; background-position:left -16px;}
+em.ddp-icon-notebook {display:inline-block; width:12px; height:14px; position:absolute; top:50%; margin-top:-7px; background:url(../../../images/icon_gnb.png) no-repeat; background-position:left -29px;}
+
+
+em.ddp-link-add {display:inline-block; width:13px; height:13px; margin-right:10px; background:url(../../../images/icon_linkadd.png) no-repeat; vertical-align:middle;}
+
+em.ddp-icon-eyes2,
+em.ddp-icon-eyes2-none,
+em.ddp-icon-eyes2-on {display:inline-block; width:16px; height:11px; background:url(../../../images/icon_eyes.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-eyes2 {background-position:-17px 0;}
+em.ddp-icon-eyes2-none {background-position:left -24px;}
+em.ddp-icon-eyes2-on {background-position:-17px top;}
+em.ddp-icon-sclose {padding:4px; cursor:pointer;}
+em.ddp-icon-sclose:before {display:inline-block; content:''; width:8px; height:8px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:left -77px; cursor:pointer;}
+
+em.ddp-icon-sclose2 {display:inline-block; content:''; width:8px; height:8px; background:url(../../../images/btn_sclose.png) no-repeat; background-position:left -94px; cursor:pointer;}
+em.ddp-icon-sclose2:hover {background-position:-9px -94px;}
+
+.ddp-icon-edit-s,
+.ddp-icon-del-s {display:inline-block; padding:4px; cursor:pointer;}
+.ddp-icon-edit-s:before,
+.ddp-icon-del-s:before {display:inline-block; content:''; background:url(../../../images/icon_edit2.png) no-repeat; cursor:pointer;}
+.ddp-icon-edit-s:before {width:10px; height:10px;}
+.ddp-icon-del-s:before {width:9px; height:9px; position:relative; top:-1px; background-position:0 -11px;}
+.ddp-icon-edit-s:hover:before {background-position:-11px top;}
+.ddp-icon-del-s:hover:before {background-position:-10px -11px;}
+
+
+
+
+
+em.ddp-icon-link-edit {width:12px; height:12px; background-position:-26px -97px;}
+em.ddp-icon-link-edit2 {width:12px; height:12px; background-position:-39px -97px;}
+em.ddp-icon-link-down {width:13px; height:13px; background-position:left -230px;}
+
+em.ddp-icon-link-add {display:inline-block; width:9px; height:9px; margin-right:5px; background:url(../../../images/icon_add.png) no-repeat; background-position:-20px top; vertical-align: middle;}
+
+
+em.ddp-icon-link-plus {display:inline-block; position:relative; width:9px; height:9px; background:url(../../../images/btn_minus_plus.png) no-repeat; background-position:left -2px; vertical-align: middle; cursor: pointer;}
+em.ddp-icon-link-plus.ddp-disabled:hover {background-position:left -2px;}
+em.ddp-icon-link-plus.ddp-disabled:before {display:inline-block; content:''; position:absolute; top:0; left:0; right:0; bottom:0; background-color:rgba(255,255,255,0.5); cursor: no-drop;}
+
+
+/* icon_control.png */
+em.ddp-icon-link-approve,
+em.ddp-icon-link-check,
+em.ddp-icon-link-cut,
+em.ddp-icon-link-cut2,
+em.ddp-icon-link-edit,
+em.ddp-icon-link-edit2,
+em.ddp-icon-link-down {display:inline-block; margin-right:5px; background:url(../../../images/icon_control.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-link-approve {width:11px; height:11px; background-position:left -119px;}
+em.ddp-icon-link-check {width:11px; height:8px; background-position:left -110px;}
+em.ddp-icon-link-cut {position:relative; top:-1px; width:12px; height:13px; background-position:-13px -14px;}
+em.ddp-icon-link-cut2 {position:relative; top:-1px; width:11px; height:12px; background-position:-62px -14px;}
+em.ddp-icon-link-cut2.ddp-disabled,
+em.ddp-icon-link-cut2.ddp-disabled:hover {background-position:-26px -14px; opacity:0.5; cursor:no-drop;}
+
+em.ddp-icon-upload,
+em.ddp-icon-download {display:inline-block; background:url(../../../images/icon_control.png) no-repeat;}
+em.ddp-icon-upload {width:11px; height:12px; background-position:left -244px;}
+em.ddp-icon-download {width:13px; height:13px; background-position:left -230px;}
+
+em.ddp-icon-control-copy,
+em.ddp-icon-control-copy-s,
+em.ddp-icon-control-cut,
+em.ddp-icon-control-plus,
+em.ddp-icon-control-cut-s,
+em.ddp-icon-control-info,
+em.ddp-icon-control-fav,
+em.ddp-icon-control-filter,
+em.ddp-icon-control-user,
+em.ddp-icon-control-parameter,
+em.ddp-icon-control-calculat,
+em.ddp-icon-control-dimension,
+em.ddp-icon-control-edit2,
+em.ddp-icon-control-check,
+em.ddp-icon-control-more,
+em.ddp-icon-control-close,
+em.ddp-icon-control-user.ddp-type,
+em.ddp-icon-control-parameter.ddp-type,
+em.ddp-icon-control-calculat.ddp-type,
+em.ddp-icon-control-filter.ddp-type,
+em.ddp-icon-control-link,
+em.ddp-icon-control-insert,
+em.ddp-icon-control-more2 {display:inline-block; padding:3px; cursor:pointer; vertical-align: middle;}
+em.ddp-icon-control-copy:before,
+em.ddp-icon-control-copy-s:before,
+em.ddp-icon-control-cut:before,
+em.ddp-icon-control-plus:before,
+em.ddp-icon-control-cut-s:before,
+em.ddp-icon-control-info:before,
+em.ddp-icon-control-fav:before,
+em.ddp-icon-control-filter:before,
+em.ddp-icon-control-user:before,
+em.ddp-icon-control-parameter:before,
+em.ddp-icon-control-calculat:before,
+em.ddp-icon-control-dimension:before,
+em.ddp-icon-control-edit2:before,
+em.ddp-icon-control-check:before,
+em.ddp-icon-control-more:before,
+em.ddp-icon-control-close:before,
+em.ddp-icon-control-user.ddp-type:before,
+em.ddp-icon-control-parameter.ddp-type:before,
+em.ddp-icon-control-calculat.ddp-type:before,
+em.ddp-icon-control-filter.ddp-type:before,
+em.ddp-icon-control-link:before,
+em.ddp-icon-control-insert:before,
+em.ddp-icon-control-more2:before {display:inline-block; content:''; background:url(../../../images/icon_control.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-control-link {padding-top:4px;}
+em.ddp-icon-control-link:before {width:14px; height:8px; background-position:left -257px; opacity:0.6}
+em.ddp-icon-control-link:hover:before {opacity:1;}
+.ddp-icon-control-cut-s.ddp-type:before  {background-position:-50px -14px;}
+.ddp-icon-control-cut-s.ddp-type:hover:before  {background-position:-38px -14px;}
+
+em.ddp-icon-control-copy:before {width:13px; height:13px;}
+em.ddp-icon-control-cut:before {width:12px; height:13px; background-position:left -14px;}
+em.ddp-icon-control-plus:before {width:11px; height:11px; background-position:left -218px;}
+em.ddp-icon-control-info:before {width:13px; height:13px; background-position:left -28px;}
+em.ddp-icon-control-fav:before {width:12px; height:12px; background-position:left -42px;}
+em.ddp-icon-control-copy:hover:before {background-position:-14px 0;}
+em.ddp-icon-control-cut:hover:before {background-position:-13px -14px;}
+em.ddp-icon-control-info:hover:before {background-position:-14px -28px;}
+em.ddp-icon-control-fav:hover:before {background-position:-13px -42px;}
+em.ddp-icon-control-plus:hover:before {background-position:-12px -218px;}
+em.ddp-icon-control-fav.ddp-selected:before {background-position:-26px -42px;}
+em.ddp-icon-control-user:before {width:9px; height:9px; background-position:left -55px;}
+em.ddp-icon-control-filter:before {width:12px; height:9px; background-position:left -65px;}
+em.ddp-icon-control-parameter:before {width:11px; height:9px; background-position:left -87px;}
+em.ddp-icon-control-calculat:before {width:11px; height:11px; background-position:left -75px;}
+em.ddp-icon-control-dimension:before {width:12px; height:12px; background-position:left -98px;}
+em.ddp-icon-control-more:before {display:inline-block; width:2px; height:9px; background-position:left -164px;}
+em.ddp-icon-control-close:before {display:inline-block; width:8px; height:8px; background-position:left -174px;}
+em.ddp-icon-control-copy-s:before {width:10px; height:10px; background-position:left -183px;}
+em.ddp-icon-control-cut-s:before {width:10px; height:10px; background-position:left -194px;}
+em.ddp-icon-control-insert:before {width:10px; height:11px; background-position:left -266px;}
+em.ddp-icon-control-insert:hover:before {background-position-x:-11px;}
+
+em.ddp-icon-control-more2 {width:16px; height:17px; box-sizing:border-box;}
+em.ddp-icon-control-more2:before {position:absolute; top:50%; left:50%; width:2px; height:10px; margin:-5px 0 0 -1px; background-position:left -278px;}
+em.ddp-icon-control-more2:hover:before {background-position-x:-3px;}
+
+em.ddp-icon-control-copy-s:hover:before {background-position:-11px -183px;}
+em.ddp-icon-control-cut-s:hover:before  {background-position:-11px -194px;}
+em.ddp-icon-control-close:hover:before {background-position:-9px -174px;}
+em.ddp-icon-control-user:hover:before,
+em.ddp-icon-control-user.ddp-selected:before {background-position:-10px -55px;}
+em.ddp-icon-control-filter:hover:before,
+em.ddp-icon-control-filter.ddp-selected:before {background-position:-13px -65px;}
+em.ddp-icon-control-parameter:hover:before,
+em.ddp-icon-control-parameter.ddp-selected:before {background-position:-12px -87px;}
+
+em.ddp-icon-control-calculat:hover:before,
+em.ddp-icon-control-calculat.ddp-selected:before {background-position:-12px -75px;}
+
+em.ddp-icon-control-dimension:hover:before,
+em.ddp-icon-control-dimension.ddp-selected:before {background-position:-13px -98px;}
+em.ddp-icon-control-user.ddp-type:before {background-position:-10px -55px;}
+em.ddp-icon-control-parameter.ddp-type:before {background-position:-12px -87px;}
+em.ddp-icon-control-calculat.ddp-type:before {background-position:-12px -75px;}
+
+em.ddp-icon-control-user.ddp-type:hover:before {background-position:0 -55px;}
+em.ddp-icon-control-parameter.ddp-type:hover:before {background-position:0 -87px;}
+em.ddp-icon-control-calculat.ddp-type:hover:before {background-position:0 -75px;}
+
+em.ddp-icon-control-filter.ddp-type:before {background-position:-13px -65px;}
+em.ddp-icon-control-more:hover:before {background-position:-3px -164px;}
+em.ddp-icon-control-filter.ddp-type:hover:before,
+em.ddp-icon-control-filter.ddp-type.ddp-selected:before {background-position:left -65px;}
+
+em.ddp-icon-control-edit2:before {width:12px; height:12px; background-position:left -97px;}
+em.ddp-icon-control-edit2:hover:before {background-position:-13px -97px;}
+
+em.ddp-icon-control-check:before {width:11px; height:8px; background-position:left -110px;}
+em.ddp-icon-control-check:hover:before {background-position:-12px -110px;}
+
+em.ddp-icon-control-edit {display:inline-block; padding:4px; cursor:pointer;}
+
+em.ddp-icon-control-edit:before {display:inline-block; content:''; position:relative; top:1px; width:10px; height:10px; background:url(../../../images/icon_edit2.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-control-edit:hover:before {background-position:-11px top;}
+
+
+
+
+em.ddp-icon-global,
+em.ddp-icon-global-s {display:inline-block; width:17px; height:17px; background:url(../../../images/icon_global.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-global-s {width:13px; height:13px; background-position:left -18px;}
+
+em.ddp-icon-source,
+em.ddp-icon-source2,
+em.ddp-icon-source-w,
+a.ddp-icon-source3 {display:inline-block; width:12px; height:15px; margin-right:5px; background:url(../../../images/icon_source.png) no-repeat;vertical-align: middle;}
+em.ddp-icon-source-w {background-position:-13px top;}
+a.ddp-icon-source3 {width:16px; height:18px; background-position:left -16px;}
+a.ddp-icon-source3:hover {background-position:-17px -16px;}
+
+
+
+a.ddp-icon-board-monitoring:before,
+a.ddp-icon-board-edit:before {display:inline-block; content:''; margin-right:6px; background:url(../../../images/btn_boardoption.png) no-repeat; vertical-align: middle;}
+a.ddp-icon-board-monitoring:before {width:17px; height:18px;}
+a.ddp-icon-board-monitoring:hover:before {background-position:-18px top;}
+a.ddp-icon-board-edit:before {width:20px; height:19px; background-position:0 -19px;}
+a.ddp-icon-board-edit:hover:before {background-position:-21px -19px;}
+
+
+.ddp-icon-drop-monitoring,
+.ddp-icon-drop-editmodify,
+.ddp-icon-drop-editdel3,
+.ddp-icon-drop-dashboard,
+.ddp-icon-drop-global,
+.ddp-icon-drop-global2,
+.ddp-icon-drop-refresh,
+.ddp-icon-drop-member,
+.ddp-icon-drop-set,
+.ddp-icon-drop-schema,
+.ddp-icon-drop-change,
+.ddp-icon-drop-sort,
+.ddp-icon-drop-move,
+.ddp-icon-drop-generate,
+.ddp-icon-drop-detail,
+.ddp-icon-drop-re,
+.ddp-icon-drop-clean {display:inline-block; position:absolute; top:50%; left:13px; margin-top:-7px; width:13px; height:12px; background:url(../../../images/icon_drop.png) no-repeat;}
+.ddp-icon-drop-re {width:13px; height:12px; background-position:-205px top;}
+.ddp-icon-drop-monitoring {width:13px; height:12px;}
+.ddp-icon-drop-editmodify {width:12px; height:12px; background-position:-14px top;}
+.ddp-icon-drop-editdel3 {width:11px; height:12px; margin-top:-6px; background-position:-27px top;}
+.ddp-icon-drop-dashboard {width:13px; height:13px; background-position:-39px top;}
+.ddp-icon-drop-global {width:13px; height:13px; background-position:-53px top;}
+.ddp-icon-drop-refresh {width:14px; height:13px; background-position:-67px top;}
+.ddp-icon-drop-member {width:14px; height:12px; background-position:-82px top;}
+.ddp-icon-drop-set {width:13px; height:13px; background-position:-97px top;}
+.ddp-icon-drop-global2 {width:13px; height:13px; background-position:-111px top;}
+.ddp-icon-drop-schema {width:11px; height:11px; margin-top:-6px; background-position:-125px top;}
+.ddp-icon-drop-change {width:11px; height:12px; margin-top:-6px; background-position:-137px top;}
+.ddp-icon-drop-sort  {width:13px; height:13px; margin-top:-7px; background-position:-150px top;}
+.ddp-icon-drop-move {width:13px; height:13px; margin-top:-7px; background-position:-164px top;}
+.ddp-icon-drop-generate  {width:13px; height:13px; margin-top:-7px; background-position:-178px top;}
+.ddp-icon-drop-detail  {width:12px; height:13px; margin-top:-7px; background-position:-192px top;}
+.ddp-icon-drop-clean {width:15px; height:13px; margin-top:-7px; background-position:-237px top;}
+
+a.ddp-icon-more {position:relative; display:inline-block; padding:8px 4px; cursor:pointer; font-size:0px;}
+
+a.ddp-icon-more:before {display:inline-block; content:''; width:15px; height:3px; background:url(../../../images/icon_more.png) no-repeat; transform:rotate(90deg);}
+a.ddp-icon-more:hover:before {background-position:0 -4px;}
+
+
+em.ddp-icon-searchview2  {display:inline-block; content:''; width:14px; height:14px; background:url(../../../images/icon_searchview.png) no-repeat; vertical-align: middle; background-position:-15px 0;}
+em.ddp-icon-searchview {padding:4px; cursor:pointer;}
+em.ddp-icon-searchview:before {display:inline-block; content:''; width:14px; height:14px; background:url(../../../images/icon_searchview.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-searchview:hover:before {background-position:-15px 0;}
+
+
+em.ddp-icon-editdel,
+em.ddp-icon-editdel2 {display:inline-block; padding:4px; cursor:pointer;}
+em.ddp-icon-editdel:before,
+em.ddp-icon-editdel2:before {display:inline-block; width:11px; height:12px; background:url(../../../images/icon_edit.png) no-repeat; background-position:left -50px; vertical-align: middle; content:'';}
+
+em.ddp-icon-editdel:hover:before{background-position:-12px -50px;}
+em.ddp-icon-editdel2:before {background-position:-24px -50px;}
+em.ddp-icon-editdel2:hover:before {background-position:-36px -50px;}
+
+em.ddp-icon-editsearch {padding:4px; cursor:pointer;}
+em.ddp-icon-editsearch:before {display:inline-block; content:''; width:11px; height:11px; background:url(../../../images/icon_search.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-editsearch:hover:before {background-position:-12px 0;}
+
+em.ddp-icon-editadd {padding:4px; cursor:pointer;}
+em.ddp-icon-editadd:before {display:inline-block; content:''; width:9px; height:9px; background:url(../../../images/icon_add.png) no-repeat; vertical-align: middle;}
+em.ddp-icon-editadd:hover:before {background-position:-10px 0;}
+
+em.ddp-icon-grid,
+em.ddp-icon-listgrid,
+em.ddp-icon-lineage {display:inline-block; width:13px; height:13px; background:url(../../../images/icon_grid.png) no-repeat;}
+em.ddp-icon-listgrid {width:15px; height:11px; background-position:left -14px;}
+em.ddp-icon-lineage {width:15px; height:13px; background-position:left -26px;}
 
 
 /**************************************************************

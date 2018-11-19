@@ -151,9 +151,9 @@
       <!-- Contents -->
       <div class="ddp-ui-tab-contents">
 
-        <div *ngIf="isShowDataGrid && haveTimestamp" class="ddp-wrap-grid-option ddp-top-option ddp-clear">
+        <div *ngIf="isShowDataGrid && timestampField" class="ddp-wrap-grid-option ddp-top-option ddp-clear">
           <component-period
-            [title]="'Date'"
+            [title]="timestampField.alias ? timestampField.alias : timestampField.name"
             [roundSecond]="true"
             [containerClass]="'ddp-fleft'"
             (changeDate)="onChangeDate($event)"
@@ -257,10 +257,11 @@
         <!-- // Content Top Menu -->
 
         <!-- 그리드 -->
-        <div [style.display]="isShowDataGrid ? 'block' : 'none'" class="ddp-ui-grid2 ddp-type"
+        <div grid-component #main
+             [style.display]="isShowDataGrid ? 'block' : 'none'"
              [class.meta-grid]="isEnableSecondHeader()"
-             grid-component
-             #main (onHeaderRowCellRendered)="createMetaDataHeader($event)"></div>
+             (onHeaderRowCellRendered)="createMetaDataHeader($event)"
+             class="ddp-ui-grid2 ddp-type" ></div>
         <!-- //그리드 -->
         <!-- Column Detail -->
         <div [style.display]="isShowDataGrid ? 'none' : 'block'"

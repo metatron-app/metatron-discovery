@@ -3163,8 +3163,9 @@ ul.ddp-list-chart-img li.ddp-selected a em.ddp-s-graph-gauge {background-positio
 /**********************************************************************************
 	차트 (레이아웃)
 **********************************************************************************/
-.ddp-wrap-chart-layout {width:100%; height:100%; padding:0 30px; box-sizing:border-box;}
-.ddp-ui-cahrt-layout {position:relative; width:100%; height:100%;}
+.ddp-wrap-chart-layout {width:100%; height:100%; padding:0 30px;box-sizing:border-box;}
+.ddp-ui-cahrt-layout {position:relative; height:100%;}
+.ddp-wrap-chart-layout [class*="ddp-box-layout"] {margin:0 -30px;}
 
 .ddp-box-layout3 .ddp-ui-layout-left {position:absolute; top:0; bottom:0; left:0; width:25%; border-right:1px solid #e7e7ea; box-sizing:border-box;}
 .ddp-box-layout3 .ddp-ui-layout-bottom {position:absolute; left:0; right:0; bottom:0; height:30%; border-top:1px solid #e7e7ea; box-sizing:border-box;}
@@ -5534,7 +5535,7 @@ ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-data-history .ddp-data-success {
 .ddp-ui-union-table {display:inline-block;  white-space:nowrap;}
 .ddp-ui-union-table table.ddp-table-union:first-of-type tr th,
 .ddp-ui-union-table table.ddp-table-union:first-of-type tr td {padding-left:23px;}
-table.ddp-table-union {display:inline-block; margin-left:-3px; white-space:nowrap; vertical-align: top;}
+table.ddp-table-union {display:inline-block; width:auto; margin-left:-3px; white-space:nowrap; vertical-align: top;}
 table.ddp-table-union tr th {position:relative; padding:0 5px 5px 12px; text-align:left;}
 table.ddp-table-union tr th:first-of-type {padding-left:23px;}
 table.ddp-table-union tr th .ddp-wrap-top {padding:0 77px 0 0; width:234px; font-size:0px; box-sizing:border-box;}
@@ -6416,8 +6417,8 @@ em.ddp-icon-navimenu {display:inline-block; position:absolute; top:50%; left:50%
 em.ddp-icon-globalvar {margin:-8px 0 0 -10px; width:20px; height:16px;}
 em.ddp-icon-history {margin:-10px 0 0 -10px; width:20px; height:20px;background-position:left -17px;}
 em.ddp-icon-navimenu {margin:-8px 0 0 -8px; width:16px; height:16px; background-position:left -38px;}
-
-.ddp-ui-rnb-contents {position:absolute; right:52px; bottom:0; top:0; width:505px; border-right:1px solid #e7e7ea;  background-color:#f7f7f8;}
+.ddp-wrap-rnb-contents {height:100%;}
+.ddp-ui-rnb-contents {position:absolute; right:52px; bottom:0; top:0; width:505px; height:100%; border-right:1px solid #e7e7ea;  background-color:#f7f7f8;}
 .ddp-ui-rnb-contents.ddp-type {width:316px;}
 .ddp-ui-rnb-contents:before {display:inline-block; content:''; position:absolute; left:-5px; top:0; bottom:0; width:5px; background:url(../images/bg_shadow2.png) repeat-y;}
 
@@ -8375,18 +8376,6 @@ em.ddp-icon-mapview3-w:before {background-position-x:0;}
 .ddp-table-info tr td {color:#fff; font-size:13px; }
 .ddp-table-info tr + tr th,
 .ddp-table-info tr + tr td {padding-top:6px;}
-.ddp-wrap-remark {position:absolute; top:20px; right:0; bottom:20px; box-sizing:border-box;}
-.ddp-layout-remark {width:200px; max-height:100%; background-color:#fff; border:1px solid #e7e7ea; border-radius:2px; overflow:auto; box-sizing:border-box;}
-.ddp-layout-remark .ddp-ui-layer {padding:24px 20px;}
-.ddp-layout-remark .ddp-ui-layer + .ddp-ui-layer {border-top:1px solid #ededee;}
-.ddp-layout-remark .ddp-ui-layer .ddp-label {display:block; padding-bottom:16px; color:#4a515c; font-size:14px; font-weight:bold;}
-.ddp-layout-remark .ddp-ui-layer .ddp-data {display:block; padding-bottom:12px;color:#90969f; font-size:12px;}
-.ddp-layout-remark .ddp-ui-layer .ddp-list-remark li {color:#4a515c; font-size:12px; vertical-align:middle;}
-.ddp-layout-remark .ddp-ui-layer .ddp-list-remark li em.ddp-bg-remark-r,
-.ddp-layout-remark .ddp-ui-layer .ddp-list-remark li em.ddp-bg-remark {display:inline-block; width:14px; height:14px; margin-right:6px;  vertical-align:middle;}
-.ddp-layout-remark .ddp-ui-layer .ddp-list-remark li em.ddp-bg-remark-r {border-radius:50%;}
-.ddp-layout-remark .ddp-ui-layer .ddp-list-remark li + li {padding-top:14px;}
-
 .ddp-list-datavalue > li {position:relative; padding:5px 28px 5px 10px; background-color:#eeeef0; color:#4a525c; font-size:13px; cursor:pointer;}
 .ddp-list-datavalue > li + li {margin-top:2px;}
 .ddp-list-datavalue li em[class*="ddp-icon-dimension-"],

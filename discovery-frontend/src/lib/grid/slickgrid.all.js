@@ -3790,7 +3790,8 @@ if (typeof Slick === "undefined") {
             var rowCss = "slick-row" +
                 (dataLoading ? " loading" : "") +
                 (row === activeRow ? " active" : "") +
-                (row % 2 == 1 ? " odd" : " even");
+                (row % 2 == 1 ? " odd" : " even") +
+                (row === dataLength - 1 ? " last" : "" ); // #20181119-02 : 마지막 줄 클래스 추가
 
             if (!d) {
                 rowCss += " " + options.addNewRowCssClass;

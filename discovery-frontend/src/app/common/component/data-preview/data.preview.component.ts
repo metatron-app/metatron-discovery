@@ -14,6 +14,7 @@
 
 import {AbstractPopupComponent} from '../abstract-popup.component';
 import {
+  ChangeDetectorRef,
   Component,
   ElementRef,
   Injector,
@@ -21,8 +22,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
-  ViewChildren,
-  ChangeDetectorRef
+  ViewChildren
 } from '@angular/core';
 import {BoardDataSource, Dashboard, JoinMapping, QueryParam} from '../../../domain/dashboard/dashboard';
 import {DatasourceService} from 'app/datasource/service/datasource.service';
@@ -44,6 +44,7 @@ import {ConnectionType, Dataconnection} from '../../../domain/dataconnection/dat
 import {PeriodData} from "../../value/period.data.value";
 import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
 import {Filter} from "../../../domain/workbook/configurations/filter/filter";
+import {DIRECTION, Sort} from "../../../domain/workbook/configurations/sort";
 
 declare let echarts: any;
 
@@ -162,7 +163,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
   public commonUtil = CommonUtil;
 
-  public haveTimestamp: boolean = false;
+  public timestampField: Field;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -313,6 +314,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       params.limits.limit = (this.rowNum < 1 || 0 === this.rowNum) ? 100 : this.rowNum;
       if (this.isDashboard) {
         // 대시보드인 경우
+
+        if( this.timestampField ) {
+          const sortInfo:Sort = new Sort();
+          sortInfo.field = this.timestampField.name;
+          sortInfo.direction = DIRECTION.DESC;
+          params.limits.sort.push( sortInfo );
+        }
 
         let boardDs: BoardDataSource = (<Dashboard>this.source).configuration.dataSource;
         if ('multi' === boardDs.type) {
@@ -1059,7 +1067,8 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       this.columns = this.mainDatasource.fields;
     }
 
-    this.haveTimestamp = (0 < this.columns.filter(item => item.role === 'TIMESTAMP').length);
+    // 타임스탬프 필드 설정
+    this.timestampField = this.columns.find(item => item.role === 'TIMESTAMP');
 
     // 마스터 소스 타입
     this.connType = this.mainDatasource.hasOwnProperty('connType') ? this.mainDatasource.connType.toString() : 'ENGINE';

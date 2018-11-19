@@ -50,11 +50,24 @@
 .popup-prep-fileupload .ddp-wrap-sheet .ddp-select-all {padding:10px 14px; background-color:#f6f6f7;}
 .popup-prep-fileupload .ddp-view-sheet .ddp-wrap-grid .ddp-box-loading.ddp-cancel  {margin-top:10px;}
 
+/**************************************************************
+  popup : 99_데이터프리퍼레이션_03데이터스냅샷_01상세_success_popup
+**************************************************************/
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail {}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-title {padding:25px 10px 0 10px; height:83px; background-color:#fff; }
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-title span {display:block; font-size:16px; font-weight:bold;color:#35393f; line-height:22px; letter-spacing:-1px; box-sizing:border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 라인수 */
+    -webkit-box-orient: vertical;
+    word-wrap:break-word;}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-contents-scroll {position:absolute; top:83px; left:0; right:0; bottom:70px; overflow-y:auto;}
 
-
-
-
-
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-contents-scroll  .ddp-view-detail {padding-top:0;}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-buttons {position:absolute; bottom:0; left:0; right:0; padding:20px;  background-color:#fff;}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-buttons a.ddp-btn-pop {width:100%;}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-box-info dl.ddp-dl-detail2 {padding-bottom:20px;}
 
 
 
