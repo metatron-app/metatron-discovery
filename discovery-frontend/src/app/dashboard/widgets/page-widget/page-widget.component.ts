@@ -1248,6 +1248,16 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       delete field['segGranularity'];
     }
 
+    // map - set shelf layers
+    if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
+      for (let layer of cloneQuery.shelf.layers[0]) {
+        delete layer['field'];
+        delete layer['currentPivot'];
+        delete layer['granularity'];
+        delete layer['segGranularity'];
+      }
+    }
+
     // 필터 설정
     for (let filter of cloneQuery.filters) {
       filter = FilterUtil.convertToServerSpec(filter);

@@ -242,7 +242,7 @@
                         <!-- selectbox -->
                         <div class="ddp-type-selectbox ddp-color-selectbox2">
                           <color-picker [showAlpha]="true" [color]="uiOption.layers[index].outline.color" [showInitial]="true"
-                                        [showInput]="true" [showUserColor]="true"></color-picker>
+                                        [showInput]="true" [showUserColor]="true" (selected)="changeOutlineColor($event)"></color-picker>
                         </div>
                         <!-- //selectbox -->
                       </div>

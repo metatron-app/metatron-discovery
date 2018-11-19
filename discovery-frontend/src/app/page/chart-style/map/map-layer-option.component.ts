@@ -430,6 +430,17 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
 
   /**
+   * symbol, polygon layer - change outline
+   * @param {string} colorCode
+   */
+  public changeOutlineColor(colorCode: string) {
+
+    (<UISymbolLayer>this.uiOption.layers[this.index]).outline.color = colorCode;
+
+    this.applyLayers();
+  }
+
+  /**
    * apply layer ui option
    * @param {Object} drawChartParam - call api or not
    */

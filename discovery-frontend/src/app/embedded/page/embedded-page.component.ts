@@ -14,8 +14,14 @@
 
 import * as _ from 'lodash';
 import {
-  ChangeDetectionStrategy, Component, ElementRef, HostListener, Injector, OnDestroy,
-  OnInit, ViewChild
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  HostListener,
+  Injector,
+  OnDestroy,
+  OnInit,
+  ViewChild
 } from '@angular/core';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import { ActivatedRoute } from '@angular/router';
@@ -28,7 +34,6 @@ import { NetworkChartComponent } from '../../common/component/chart/type/network
 import { OptionGenerator } from '../../common/component/chart/option/util/option-generator';
 import { SearchQueryRequest } from '../../domain/datasource/data/search-query-request';
 import { Filter } from '../../domain/workbook/configurations/filter/filter';
-import { Alert } from '../../common/util/alert.util';
 import { FilterUtil } from '../../dashboard/util/filter.util';
 import { PageWidget, PageWidgetConfiguration } from '../../domain/dashboard/widget/page-widget';
 import { UIOption } from '../../common/component/chart/option/ui-option';
@@ -37,6 +42,7 @@ import { AnalysisPredictionService } from '../../page/component/analysis/service
 import { WidgetService } from '../../dashboard/service/widget.service';
 import { DashboardUtil } from '../../dashboard/util/dashboard.util';
 import { CommonUtil } from '../../common/util/common.util';
+import { MapChartComponent } from '../../common/component/chart/type/map-chart/map-chart.component';
 
 @Component({
   selector: 'app-embedded-page',
@@ -149,6 +155,8 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
             //(<GridChartComponent>this.chart).grid.arrange();
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
             (<NetworkChartComponent>this.chart).draw();
+          } else if (this.chart.uiOption.type === ChartType.MAP) {
+            (<MapChartComponent>this.chart).resize();
           } else {
             if (this.chart && this.chart.chart) this.chart.chart.resize();
           }
@@ -306,7 +314,7 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
       }, null, true
     );
 
-    if (query.pivot.columns.length + query.pivot.rows.length + query.pivot.aggregations.length === 0) {
+    if (ChartType.MAP !== this.widgetConfiguration.chart.type && query.pivot.columns.length + query.pivot.rows.length + query.pivot.aggregations.length === 0) {
       return;
     }
 
@@ -378,6 +386,16 @@ export class EmbeddedPageComponent extends AbstractComponent implements OnInit, 
       delete field['currentPivot'];
       delete field['granularity'];
       delete field['segGranularity'];
+    }
+
+    // map - set shelf layers
+    if (cloneQuery.shelf && cloneQuery.shelf.layers && cloneQuery.shelf.layers.length > 0) {
+      for (let layer of cloneQuery.shelf.layers[0]) {
+        delete layer['field'];
+        delete layer['currentPivot'];
+        delete layer['granularity'];
+        delete layer['segGranularity'];
+      }
     }
 
     // 필터 설정
