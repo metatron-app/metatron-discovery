@@ -276,6 +276,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     return <UIMapOption>this.uiOption;
   }
 
+  public resize(): void {
+    this.onResize(null);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Method
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -604,68 +608,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       } else {
         return 'rgba(255,255,255,1)';
       }
-    }
-
-    function setColorRange(uiOption, data, colorList: any, colorAlterList = []): ColorRange[] {
-
-      // return value
-      let rangeList = [];
-
-      let rowsListLength = data.features.length;
-
-      let gridRowsListLength = data.features.length;
-
-
-      // colAlterList가 있는경우 해당 리스트로 설정, 없을시에는 colorList 설정
-      let colorListLength = colorAlterList.length > 0 ? colorAlterList.length - 1 : colorList.length - 1;
-
-      // less than 0, set minValue
-      const minValue = data.valueRange[uiOption.layers[layerNum].color.column].minValue >= 0 ? 0 : _.cloneDeep(data.valueRange[uiOption.layers[0].color.column].minValue);
-
-      // 차이값 설정 (최대값, 최소값은 값을 그대로 표현해주므로 length보다 2개 작은값으로 빼주어야함)
-      const addValue = (data.valueRange[uiOption.layers[layerNum].color.column].maxValue - minValue) / colorListLength;
-
-      let maxValue = _.cloneDeep(data.valueRange[uiOption.layers[layerNum].color.column].maxValue);
-
-      let shape;
-      // if ((<UIScatterChart>uiOption).pointShape) {
-      //   shape = (<UIScatterChart>uiOption).pointShape.toString().toLowerCase();
-      // }
-
-      // set decimal value
-      const formatValue = ((value) => {
-        return parseFloat((Number(value) * (Math.pow(10, uiOption.valueFormat.decimal)) / Math.pow(10, uiOption.valueFormat.decimal)).toFixed(uiOption.valueFormat.decimal));
-      });
-
-      // decimal min value
-      let formatMinValue = formatValue(data.valueRange[uiOption.layers[layerNum].color.column].minValue);
-      // decimal max value
-      let formatMaxValue = formatValue(data.valueRange[uiOption.layers[layerNum].color.column].maxValue);
-
-      // set ranges
-      for (let index = colorListLength; index >= 0; index--) {
-
-        let color = colorList[index];
-
-        // set the biggest value in min(gt)
-        // if (index === 0) {
-        //
-        //   rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, formatMaxValue, null, formatMaxValue, null, shape));
-        //
-        // } else {
-        // if it's the last value, set null in min(gt)
-        let min = 0 == index ? null : formatValue(maxValue - addValue);
-
-        // if value if lower than minValue, set it as minValue
-        if (min < data.valueRange.minValue && min < 0) min = _.cloneDeep(formatMinValue);
-
-        rangeList.push(UI.Range.colorRange(ColorRangeType.SECTION, color, min, formatValue(maxValue), min, formatValue(maxValue), shape));
-
-        maxValue = min;
-        // }
-      }
-
-      return rangeList;
     }
 
     return function (feature, resolution) {

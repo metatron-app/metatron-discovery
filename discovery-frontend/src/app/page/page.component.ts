@@ -3671,6 +3671,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
             this.networkChart.draw();
           } else if (this.chart.uiOption.type === ChartType.MAP) {
+            this.mapChart.resize();
           } else {
             if (this.chart && this.chart.chart) this.chart.chart.resize();
           }
