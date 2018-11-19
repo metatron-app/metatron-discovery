@@ -349,17 +349,30 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       rule['ruleVO']['command'] = rule['ruleVO']['name'];
       rule['ruleVO']['ruleNo'] = rule['ruleNo'];
 
-      const idx = commandNames.indexOf(rule['ruleVO'].name);
+      if (rule['ruleVO'].command === 'join') {
+        rule['ruleVO'].command = 'Join'
+      } else if (rule['ruleVO'].command === 'union') {
+        rule['ruleVO'].command = 'Union'
+      }
+
+      const idx = commandNames.indexOf(rule['ruleVO'].command);
       if (idx > -1) {
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
         rule['desc'] = this.commandList[idx].desc;
+        rule['desc'] = this.commandList[idx].desc;
+
+        if (rule.shortRuleString) {
+          rule['simplifiedRule'] = rule.shortRuleString;
+        } else {
+          rule['simplifiedRule'] = rule.ruleString;
+        }
       } else {
+        rule['simplifiedRule'] = rule.ruleString;
         rule['command'] = 'Create';
         rule['alias'] = 'Cr';
-        rule['simplifiedRule'] = rule.ruleString;
+        rule['desc'] = '';
       }
-      // rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
       this.ruleList.push(rule);
     });
   }
@@ -433,8 +446,11 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       })
       .catch((error) => {
         this.loadingHide();
-        let prep_error = this.dataprepExceptionHandler(error);
-        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        // let prep_error = this.dataprepExceptionHandler(error);
+        // PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+        Alert.error(error.details);
+
+
       });
   } // end of method getGridData
 
