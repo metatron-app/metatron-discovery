@@ -1,6 +1,11 @@
 @charset "utf-8";
 
 /***************************************************************************
+	button
+*************************************************************************/
+.ddp-btn-selection.ddp-gray em.ddp-icon-add2 {display:inline-block; position:relative; width:13px; height:13px; margin-right:5px; background:url(../../../images/icon_add.png) no-repeat; background-positioN:left -22px; vertical-align: middle;}
+
+/***************************************************************************
 	line button
 *************************************************************************/
 a.ddp-btn-line {display:inline-block; padding:6px 10px; min-width:85px; border-radius:2px; border:1px solid #d0d1d7; color:#90969f; font-size:13px; text-align:center; box-sizing:border-box;}
