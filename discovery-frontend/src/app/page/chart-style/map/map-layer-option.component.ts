@@ -80,10 +80,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   // symbol layer - symbol list
   public symbolLayerSymbols = [{name : this.translateService.instant('msg.page.layer.map.point.circle'), value : MapSymbolType.CIRCLE},
                                {name : this.translateService.instant('msg.page.layer.map.point.square'), value : MapSymbolType.SQUARE},
-                               {name : this.translateService.instant('msg.page.layer.map.point.triangle'), value : MapSymbolType.TRIANGLE},
-                               {name : this.translateService.instant('msg.page.layer.map.point.pin'), value : MapSymbolType.PIN},
-                               {name : this.translateService.instant('msg.page.layer.map.point.plain'), value : MapSymbolType.PLAIN},
-                               {name : this.translateService.instant('msg.page.layer.map.point.people'), value : MapSymbolType.USER}];
+                               {name : this.translateService.instant('msg.page.layer.map.point.triangle'), value : MapSymbolType.TRIANGLE}];
 
   // color - transparency
   public transparencyList = [{name : this.translateService.instant('msg.page.layer.map.color.transparency.none'), value : 0},

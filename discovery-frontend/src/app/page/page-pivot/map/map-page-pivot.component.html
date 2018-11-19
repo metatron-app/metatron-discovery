@@ -22,8 +22,9 @@
       <a (mouseover)="mouseOverPrev($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-prev"><em class="ddp-icon-prev"></em></a>
       <div class="ddp-slide-control">
         <a (mouseover)="mouseOverNext($event)" (mouseout)="animationPause = true" href="javascript:" class="ddp-btn-next"><em class="ddp-icon-next"></em></a>
-        <a href="javascript:" class="ddp-btn-plus" (click)="addLayer()"></a>
-        <a href="javascript:" class="ddp-btn-minus" (click)="removeLayer()"></a>
+        <!-- TODO plus, minus button-->
+        <!--<a href="javascript:" class="ddp-btn-plus" (click)="addLayer()"></a>-->
+        <!--<a href="javascript:" class="ddp-btn-minus" (click)="removeLayer()"></a>-->
       </div>
       <div class="ddp-ui-drag-slide-in">
 
@@ -35,13 +36,6 @@
             </div>
           </div>
           <!-- //box shelf -->
-          <!-- 예시 -->
-          <div class="dragIgnore ddp-wrap-example" *ngIf="chartType != '' && unavailableShelfs.indexOf('column') > -1">
-            <div class="ddp-box-unavailable">
-              {{'msg.page.ui.unavailable.shelf' | translate}}
-            </div>
-          </div>
-          <!-- //예시 -->
           <!-- Pivot -->
           <div class="ddp-ui-default" *ngFor="let field of item; let i = index" [ngStyle]="{display: finishAnimation ? 'block' : 'none'}">
             <a href="javascript:" unselectable="on"
@@ -52,23 +46,23 @@
               <span class="ddp-type-value" *ngIf="field.type && 'timestamp' === field.type">{{getGranularityName(field)}}</span>
               <!-- //timestamp type -->
               <!-- aggregation type -->
-              <span class="ddp-type-value" *ngIf="field.name != field.pivotAlias && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
+              <span class="ddp-type-value" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && 'measure' == field.type && ((field.aggregationType && 'user_expr' !== field.subType) || (!field.aggregated && 'user_expr' == field.subType))">{{field.aggregationType}}</span>
               <!-- //aggregation type -->
               <!-- geo-point type -->
-              <em class="ddp-icon-point-w ddp-icon-map-view-w" *ngIf="field.field.logicalType && 'GEO_POINT' == field.field.logicalType"></em>
+              <em class="ddp-icon-point-w ddp-icon-map-view-w" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && field.field.logicalType && 'GEO_POINT' == field.field.logicalType"></em>
               <!-- //geo-point type -->
               <!-- geo-line type -->
-              <em class="ddp-icon-line-w ddp-icon-map-view-w" *ngIf="field.field.logicalType && 'GEO_LINE' == field.field.logicalType"></em>
+              <em class="ddp-icon-line-w ddp-icon-map-view-w" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && field.field.logicalType && 'GEO_LINE' == field.field.logicalType"></em>
               <!-- //geo-line type -->
               <!-- geo-polygon type -->
-              <em class="ddp-icon-polygon-w ddp-icon-map-view-w" *ngIf="field.field.logicalType && 'GEO_POLYGON' == field.field.logicalType"></em>
+              <em class="ddp-icon-polygon-w ddp-icon-map-view-w" *ngIf="(!field.pivotAlias || field.name == field.pivotAlias) && field.field.logicalType && 'GEO_POLYGON' == field.field.logicalType"></em>
               <!-- //geo-polygon type -->
               <span class="ddp-data">{{getDisplayPivotName(field)}}</span>
               <div class="ddp-ui-icons">
                 <em class="ddp-icon-control-calculat" *ngIf="field.subType == 'user_expr' && field.type == 'measure'"></em>
                 <em class="ddp-icon-control-user" *ngIf="field.subType == 'user_expr' && field.type == 'dimension'"></em>
                 <span class="ddp-icon-layer" [class.ddp-selected]="editingField == field" (click)="openFieldSetting($event, field)"><em></em></span>
-                <span class="ddp-icon-close" (click)="removeField($event, 'COLUMNS', item, i)"><em></em></span>
+                <span class="ddp-icon-close" (click)="removeField($event, 'MAP_LAYER0', item, i)"><em></em></span>
               </div>
             </a>
           </div>

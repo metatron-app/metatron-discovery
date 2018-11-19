@@ -32,30 +32,30 @@
           <!-- //divide -->
           <!-- [point, heatmap, hexagon, line, polygon] -->
           <div class="ddp-type-map-chart">
-            <!-- divide -->
-            <div *ngIf="'line' !== uiOption.layers[index].type.toString() && 'polygon' !== uiOption.layers[index].type.toString()" class="ddp-divide2 ">
-              <div class="ddp-list-label">{{'msg.page.layer.map.type' | translate}}</div>
-              <div class="ddp-wrap-tab-type2">
-                <ul class="ddp-list-tab-type2 ddp-clear">
-                  <li *ngFor="let item of symbolLayerTypes" [ngClass]="{'ddp-selected' : item.value == uiOption.layers[index].type}"
-                      (click)="changeSymbolLayerType(item.value)">
-                    <a href="javascript:">
-                      <em [ngClass]="{'ddp-icon-map-sign' : 'symbol' === item.value.toString(),
-                                      'ddp-icon-map-heatmap': 'heatmap' === item.value.toString(),
-                                      'ddp-icon-map-tile': 'tile' === item.value.toString()}"></em>
-                    </a>
-                    <!-- tooltip -->
-                    <div class="ddp-ui-tooltip-info">
-                      <em class="ddp-icon-view-top"></em>
-                      <span *ngIf="'symbol' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.point' | translate}}</span>
-                      <span *ngIf="'heatmap' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.heatmap' | translate}}</span>
-                      <span *ngIf="'tile' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.tile' | translate}}</span>
-                    </div>
-                    <!-- //tooltip -->
-                  </li>
-                </ul>
-              </div>
-            </div>
+            <!-- TODO layer type divide -->
+            <!--<div *ngIf="'line' !== uiOption.layers[index].type.toString() && 'polygon' !== uiOption.layers[index].type.toString()" class="ddp-divide2 ">-->
+              <!--<div class="ddp-list-label">{{'msg.page.layer.map.type' | translate}}</div>-->
+              <!--<div class="ddp-wrap-tab-type2">-->
+                <!--<ul class="ddp-list-tab-type2 ddp-clear">-->
+                  <!--<li *ngFor="let item of symbolLayerTypes" [ngClass]="{'ddp-selected' : item.value == uiOption.layers[index].type}"-->
+                      <!--(click)="changeSymbolLayerType(item.value)">-->
+                    <!--<a href="javascript:">-->
+                      <!--<em [ngClass]="{'ddp-icon-map-sign' : 'symbol' === item.value.toString(),-->
+                                      <!--'ddp-icon-map-heatmap': 'heatmap' === item.value.toString(),-->
+                                      <!--'ddp-icon-map-tile': 'tile' === item.value.toString()}"></em>-->
+                    <!--</a>-->
+                    <!--&lt;!&ndash; tooltip &ndash;&gt;-->
+                    <!--<div class="ddp-ui-tooltip-info">-->
+                      <!--<em class="ddp-icon-view-top"></em>-->
+                      <!--<span *ngIf="'symbol' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.point' | translate}}</span>-->
+                      <!--<span *ngIf="'heatmap' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.heatmap' | translate}}</span>-->
+                      <!--<span *ngIf="'tile' === item.value.toString()" class="ddp-txt-tooltip">{{'msg.page.layer.map.type.tile' | translate}}</span>-->
+                    <!--</div>-->
+                    <!--&lt;!&ndash; //tooltip &ndash;&gt;-->
+                  <!--</li>-->
+                <!--</ul>-->
+              <!--</div>-->
+            <!--</div>-->
             <!-- //divide -->
 
             <!-- 레이어 유형 contents -->
@@ -69,10 +69,7 @@
                       <li *ngFor="let item of symbolLayerSymbols" [ngClass]="{'ddp-selected' : uiOption.layers[index].symbol === item.value}" (click)="changeSymbolType(item.value)">
                         <em [ngClass]="{'ddp-icon-circle' : 'CIRCLE' === item.value.toString(),
                                         'ddp-icon-square' : 'SQUARE' === item.value.toString(),
-                                        'ddp-icon-triangle' : 'TRIANGLE' === item.value.toString(),
-                                        'ddp-icon-pin' : 'PIN' === item.value.toString(),
-                                        'ddp-icon-fly' : 'PLAIN' === item.value.toString(),
-                                        'ddp-icon-user' : 'USER' === item.value.toString()}"></em> {{item.name}}
+                                        'ddp-icon-triangle' : 'TRIANGLE' === item.value.toString()}"></em> {{item.name}}
                       </li>
                     </ul>
                   </div>
@@ -273,15 +270,15 @@
                 <!-- //symbol, polygon : outline -->
 
                 <!-- symbol : view original data -->
-                <div *ngIf="'symbol' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">
-                  <div class="ddp-part-check-b ">
-                    <label class="ddp-label-checkbox ddp-position">
-                      <input type="checkbox" [ngModel]="uiOption.layers[index].viewRawData" (click)="toggleViewRawData(!uiOption.layers[index].viewRawData)">
-                      <i class="ddp-icon-checkbox"></i>
-                      <span class="ddp-txt-checkbox">{{'msg.page.layer.map.view' | translate}}</span>
-                    </label>
-                  </div>
-                </div>
+                <!--<div *ngIf="'symbol' === uiOption.layers[index].type.toString()" class="ddp-wrap-divide">-->
+                  <!--<div class="ddp-part-check-b ">-->
+                    <!--<label class="ddp-label-checkbox ddp-position">-->
+                      <!--<input type="checkbox" [ngModel]="uiOption.layers[index].viewRawData" (click)="toggleViewRawData(!uiOption.layers[index].viewRawData)">-->
+                      <!--<i class="ddp-icon-checkbox"></i>-->
+                      <!--<span class="ddp-txt-checkbox">{{'msg.page.layer.map.view' | translate}}</span>-->
+                    <!--</label>-->
+                  <!--</div>-->
+                <!--</div>-->
                 <!-- //symbol : view original data -->
 
                 <!-- TODO symbol : link -->
