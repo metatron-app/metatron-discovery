@@ -200,6 +200,52 @@ public class DataQueryRestIntegrationTest extends AbstractRestIntegrationTest {
 
   @Test
   @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
+  public void searchQuerySelectForSales() throws JsonProcessingException {
+
+    DataSource dataSource1 = new DefaultDataSource("sales");
+
+    // Limit
+    Limit limit = new Limit();
+    limit.setLimit(1000);
+    limit.setSort(Lists.newArrayList(
+        new Sort("OrderDate","DESC")
+    ));
+
+    List<Filter> filters = Lists.newArrayList(
+        //        new IntervalFilter("OrderDate", "2011-01-04T00:00:00.000", "2012-05-19T00:00:00.000"),
+        //        new LikeFilter("Category", "T_chnology")
+    );
+
+        List<Field> projections = Lists.newArrayList(
+                new TimestampField("OrderDate"),
+                new DimensionField("City"),
+                new DimensionField("Sub-Category"),
+                new DimensionField("Category"),
+                new MeasureField("Sales", MeasureField.AggregationType.NONE)
+        );
+
+
+    SearchQueryRequest request = new SearchQueryRequest(dataSource1, filters, projections, limit);
+
+    System.out.println(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request));
+
+    // @formatter:off
+    given()
+      .auth().oauth2(oauth_token)
+      .body(GlobalObjectMapper.getDefaultMapper().writeValueAsString(request))
+      .contentType(ContentType.JSON)
+      .log().all()
+    .when()
+      .post("/api/datasources/query/search")
+    .then()
+      .statusCode(HttpStatus.SC_OK)
+      .log().all();
+    // @formatter:on
+
+  }
+
+  @Test
+  @OAuthRequest(username = "polaris", value = {"ROLE_SYSTEM_USER", "PERM_SYSTEM_WRITE_DATASOURCE"})
   public void searchQueryForSalesForDownload() throws JsonProcessingException {
 
     DataSource dataSource1 = new DefaultDataSource("sales");
