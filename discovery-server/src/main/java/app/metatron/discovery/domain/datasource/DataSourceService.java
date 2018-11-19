@@ -252,11 +252,11 @@ public class DataSourceService {
 
     return dataSources;
   }
-  
+
   public List<DataSourceListCriterion> getDataSourceListCriterion(){
 
     List<DataSourceListCriterion> criteria = new ArrayList<>();
-    
+
     //Status
     criteria.add(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.STATUS,
             DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.status"));
@@ -313,7 +313,7 @@ public class DataSourceService {
 //    descriptionCriterion.addFilter(new DataSourceListFilter(DataSourceListCriterion.CriterionKey.CONTAINS_TEXT,
 //            "containsText", "", "msg.storage.ui.criterion.contains-text"));
 //    criteria.add(descriptionCriterion);
-    
+
     return criteria;
   }
 
