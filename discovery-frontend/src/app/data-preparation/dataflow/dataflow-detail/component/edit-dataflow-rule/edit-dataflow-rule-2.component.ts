@@ -1691,7 +1691,7 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
           }
         }
       } else {
-        rule['simplifiedRule'] = rule.ruleString;
+        rule['simplifiedRule'] = rule.shortRuleString ? rule.shortRuleString : rule.ruleString;
         rule['command'] = 'Create';
         rule['alias'] = 'Cr';
         rule['desc'] = '';

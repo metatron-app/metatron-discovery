@@ -175,6 +175,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       { command: 'sort', alias: 'So'},
       { command: 'move', alias: 'Mv'},
       { command: 'Union', alias: 'Ui'},
+      { command: 'window', alias: 'Wn'},
       { command: 'setformat', alias: 'Sf'}
     ];
     if (!isNullOrUndefined(this.selectedDataSet)) {
@@ -548,7 +549,7 @@ export class DatasetInfoPopupComponent extends AbstractComponent implements OnIn
       } else {
         rule['command'] = 'Create';
         rule['alias'] = 'Cr';
-        rule['simplifiedRule'] = rule.ruleString;
+        rule['simplifiedRule'] = rule.shortRuleString ? rule.shortRuleString : rule.ruleString;
       }
 
       this.ruleList.push(rule);

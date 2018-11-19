@@ -162,6 +162,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
       { command: 'sort', alias: 'So', desc: this.translateService.instant('msg.dp.li.so.description'), isHover:false },
       { command: 'move', alias: 'Mv', desc: this.translateService.instant('msg.dp.li.mv.description'), isHover:false },
       { command: 'Union', alias: 'Ui', desc: this.translateService.instant('msg.dp.li.ui.description'), isHover:false },
+      { command: 'window', alias: 'Wn', desc: this.translateService.instant('msg.dp.li.ui.description'), isHover:false },
       { command: 'setformat', alias: 'Sf', desc: 'set timestamp type .... ', isHover:false }
 
     ];
@@ -368,7 +369,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
           rule['simplifiedRule'] = rule.ruleString;
         }
       } else {
-        rule['simplifiedRule'] = rule.ruleString;
+        rule['simplifiedRule'] = rule.shortRuleString ? rule.shortRuleString : rule.ruleString;
         rule['command'] = 'Create';
         rule['alias'] = 'Cr';
         rule['desc'] = '';
