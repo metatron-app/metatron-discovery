@@ -706,12 +706,17 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
       if (StringUtil.isEmpty(this.widget.name)) {
         this.widget.name = 'New Chart';
       }
-      const param = _.extend(
-        {},
-        this.widget,
-        {
-          pivot: this.pivot
-        });
+
+      let param;
+
+      // map - set shelf layers
+      if( _.eq(this.selectChart, ChartType.MAP) ) {
+
+        param = _.extend({}, this.widget, {shelf: this.shelf});
+
+      } else {
+        param = _.extend({}, this.widget, {pivot: this.pivot});
+      }
 
       // 서버에 저장될필요 없는 파라미터 제거
       param.configuration = DashboardUtil.convertPageWidgetSpecToServer(param.configuration);

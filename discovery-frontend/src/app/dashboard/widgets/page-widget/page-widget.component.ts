@@ -65,7 +65,7 @@ import { DataDownloadComponent } from '../../../common/component/data-download/d
 import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
 import { DashboardUtil } from '../../util/dashboard.util';
 import { isNullOrUndefined } from 'util';
-import { Datasource, Field } from '../../../domain/datasource/datasource';
+import { Datasource, Field, FieldPivot } from '../../../domain/datasource/datasource';
 import { CommonUtil } from '../../../common/util/common.util';
 
 declare let $;
@@ -977,6 +977,18 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
                 abstractField.field = field;
               }
             });
+
+          // map - set shelf layers
+          if (undefined !== this.widgetConfiguration.chart['layerNum'] && this.widgetConfiguration.chart['layerNum'] >= 0) {
+
+            this.widgetConfiguration.shelf.layers[this.widgetConfiguration.chart['layerNum']]
+              .forEach((abstractField) => {
+                if (isNullOrUndefined(abstractField.field)
+                  && String(field.biType) == abstractField.type.toUpperCase() && field.name == abstractField.name) {
+                  abstractField.field = field;
+                }
+              });
+          }
         });
 
         // Hierarchy 설정
@@ -1100,7 +1112,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     );
 
     // 선반 정보가 없을 경우 반환
-    if (query.pivot.columns.length + query.pivot.rows.length + query.pivot.aggregations.length === 0) {
+    if (ChartType.MAP !== this.widgetConfiguration.chart.type && query.pivot.columns.length + query.pivot.rows.length + query.pivot.aggregations.length === 0) {
       this.updateComplete();
       return;
     }
