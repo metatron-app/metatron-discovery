@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import app.metatron.discovery.common.datasource.DataType;
 import app.metatron.discovery.domain.datasource.DataSource;
 import app.metatron.discovery.domain.datasource.DataSourceIngestionException;
 import app.metatron.discovery.domain.datasource.Field;
@@ -85,8 +86,8 @@ public class AbstractSpecBuilder {
         if (fieldFormat instanceof GeoFormat) {
           useGeoIngestion = true;
           GeoFormat geoFormat = (GeoFormat) fieldFormat;
-          makeSecondaryIndexing(field.getName(), geoFormat);
-          addGeoFieldToMatric(field.getName(), geoFormat);
+          makeSecondaryIndexing(field.getName(), field.getType(), geoFormat);
+          addGeoFieldToMatric(field.getName(), field.getType(), geoFormat);
         }
       }
     }
@@ -132,19 +133,17 @@ public class AbstractSpecBuilder {
 
   }
 
-  private void makeSecondaryIndexing(String name, GeoFormat geoFormat) {
-    if (geoFormat instanceof GeoPointFormat
-        || ((GeoPointFormat) geoFormat).getDataType() == GeoPointFormat.GeoDataType.STRUCT) {
-      GeoPointFormat geoPointFormat = (GeoPointFormat) geoFormat;
-      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", geoPointFormat.getOriginalSrsName())));
+  private void makeSecondaryIndexing(String name, DataType originalType, GeoFormat geoFormat) {
+    String originalSrsName = geoFormat.notDefaultSrsName();
+    if (geoFormat instanceof GeoPointFormat || (originalType == DataType.STRUCT)) {
+      secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.LatLonStrategy("coord", "lat", "lon", originalSrsName)));
     } else {
       secondaryIndexing.put(name, new LuceneIndexing(new LuceneIndexStrategy.ShapeStrategy("shape", "WKT", geoFormat.getMaxLevels())));
     }
   }
 
-  private void addGeoFieldToMatric(String name, GeoFormat geoFormat) {
-    if (geoFormat instanceof GeoPointFormat
-        || ((GeoPointFormat) geoFormat).getDataType() == GeoPointFormat.GeoDataType.STRUCT) {
+  private void addGeoFieldToMatric(String name, DataType originalType, GeoFormat geoFormat) {
+    if (geoFormat instanceof GeoPointFormat || (originalType == DataType.STRUCT)) {
       dataSchema.addMetrics(new RelayAggregation(name, "struct(lat:double,lon:double)"));
     } else {
       dataSchema.addMetrics(new RelayAggregation(name, "string"));
