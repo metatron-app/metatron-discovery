@@ -49,6 +49,8 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long>,
 
   List<GroupMember> findByMemberId(String memberId);
 
+  List<GroupMember> findByGroupId(String groupId);
+
   Page<GroupMember> findByGroup(Group group, Pageable pageable);
 
 }

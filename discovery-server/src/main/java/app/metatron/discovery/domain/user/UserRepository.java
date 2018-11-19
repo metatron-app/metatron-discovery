@@ -90,4 +90,7 @@ public interface UserRepository extends JpaRepository<User, String>, QueryDslPre
   @Query("SELECT count(user) FROM User user WHERE user.email = :email AND user.status <> 'DELETED'")
   Long countByEmail(@Param("email") String email);
 
+  @RestResource(exported = false)
+  @Query("SELECT user FROM User user WHERE user.username IN (:usernames)")
+  List<User> findByUsernames(@Param("usernames") List<String> usernames);
 }
