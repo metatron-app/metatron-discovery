@@ -67,6 +67,7 @@ import { DashboardUtil } from '../../util/dashboard.util';
 import { isNullOrUndefined } from 'util';
 import { Datasource, Field, FieldPivot } from '../../../domain/datasource/datasource';
 import { CommonUtil } from '../../../common/util/common.util';
+import {MapChartComponent} from '../../../common/component/chart/type/map-chart/map-chart.component';
 
 declare let $;
 
@@ -405,10 +406,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             const lineChart: LineChartComponent = this.chart['lineChart'];
             barChart.chart.resize();
             lineChart.chart.resize();
-          } else if (this.chart.uiOption.type === ChartType.LABEL || this.chart.uiOption.type === ChartType.MAP) {
+          } else if (this.chart.uiOption.type === ChartType.LABEL) {
 
           } else if (this.chart.uiOption.type === ChartType.NETWORK) {
             (<NetworkChartComponent>this.chart).draw();
+          } else if (this.chart.uiOption.type === ChartType.MAP) {
+            (<MapChartComponent>this.chart).resize();
           } else {
             try {
               if (this.chart && this.chart.chart) this.chart.chart.resize();
