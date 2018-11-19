@@ -161,6 +161,9 @@ export class Field {
   // format: FieldFormat;
   format: any;
 
+  // is create field
+  derived: boolean;
+
   // description
   description: string;
 
@@ -364,7 +367,11 @@ export enum LogicalType {
   LNG = <any>'LNG',
   POSTAL_CODE = <any>'POSTAL_CODE',
   PHONE_NUMBER = <any>'PHONE_NUMBER',
-  ETC = <any>'ETC'
+  ETC = <any>'ETC',
+  GEO_POINT = <any>'GEO_POINT',
+  GEO_LINE = <any>'GEO_LINE',
+  GEO_POLYGON = <any>'GEO_POLYGON',
+  USER_DEFINED = <any>'user_defined',
 }
 
 export enum FieldRole {

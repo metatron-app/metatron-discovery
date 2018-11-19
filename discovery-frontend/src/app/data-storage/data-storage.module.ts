@@ -61,6 +61,7 @@ import { EditFilterDataSourceComponent } from './data-source-list/detail-data-so
 import { IngestionSettingComponent } from './data-source-list/component/ingestion-setting.component';
 import { AdvancedSettingComponent } from './data-source-list/component/advanced-setting.component';
 import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
+import { AddColumnComponent } from './data-source-list/component/add-column.component';
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -122,6 +123,8 @@ const storageRoutes: Routes = [
     IngestionSettingComponent,
     // ingestion - advanced setting
     AdvancedSettingComponent,
+    // configuration - add column
+    AddColumnComponent,
 
     // data connection
     DataConnectionComponent,
