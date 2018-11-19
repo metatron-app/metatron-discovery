@@ -269,6 +269,7 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       name: 'current_datetime',
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
+      derived: true,
       format: {
         type: FieldFormatType.DATE_TIME,
         format: 'yyyy-MM-dd HH:mm:ss'

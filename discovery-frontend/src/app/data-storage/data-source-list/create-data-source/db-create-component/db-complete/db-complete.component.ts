@@ -333,6 +333,7 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       name: 'current_datetime',
       type: 'TIMESTAMP',
       role: 'TIMESTAMP',
+      derived: true,
       format: {
         type: FieldFormatType.DATE_TIME,
         format: 'yyyy-MM-dd HH:mm:ss'
