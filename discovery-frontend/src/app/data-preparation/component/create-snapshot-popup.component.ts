@@ -147,6 +147,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
    */
   public close() {
     super.close();
+    this.isAdvancedPrefOpen = false;
     this.snapshotCloseEvent.emit();
     this.isShow = false;
 
@@ -223,6 +224,7 @@ export class CreateSnapshotPopup extends AbstractPopupComponent implements OnIni
           // Alert.success(result.ssName + this.translateService.instant('msg.dp.alert.success.create.ss'));
           this.snapshotCreateFinishEvent.emit(result.ssId);
           this.isShow = false;
+          this.isAdvancedPrefOpen = false;
         }
 
       })

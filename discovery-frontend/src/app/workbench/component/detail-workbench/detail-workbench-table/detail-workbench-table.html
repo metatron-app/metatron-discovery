@@ -53,15 +53,15 @@
 
   <div class="ddp-ui-tablelist">
     <ul class="ddp-list-table">
-      <li *ngFor="let item of tables; let index = index" (click)="setTableSql(item.name)" [class.ddp-info-selected]="selectedTableInfoLayer && index == selectedNum" >
+      <li *ngFor="let item of tables; let index = index" (click)="setTableSql(item)" [class.ddp-info-selected]="selectedTableInfoLayer && index == selectedNum" >
         <em class="ddp-icon-table"></em>
-        <span class="ddp-data-tablename" title="{{item.name}}">{{item.name}}</span>
+        <span class="ddp-data-tablename" title="{{item}}">{{item}}</span>
         <!-- 버튼 -->
         <div class="ddp-ui-buttons">
           <!-- 클릭시 ddp-selected 추가 -->
-          <!--<em class="ddp-icon-info" [ngClass]="{'ddp-disabled':disable}" id="info{{index}}" (click)="showTableInfo(item.name, index)"></em>-->
+          <!--<em class="ddp-icon-info" [ngClass]="{'ddp-disabled':disable}" id="info{{index}}" (click)="showTableInfo(item, index)"></em>-->
           <!-- 클릭시 ddp-selected 추가 -->
-          <em class="ddp-icon-tableinfo" [ngClass]="{'ddp-disabled':disable}" id="tableInfo{{index}}" (click)="showTableSchemaInfo(item.name, index)"></em>
+          <em class="ddp-icon-tableinfo" [ngClass]="{'ddp-disabled':disable}" id="tableInfo{{index}}" (click)="showTableSchemaInfo(item, index)"></em>
         </div>
         <!-- //버튼 -->
       </li>
