@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.datasource;
 
+import app.metatron.discovery.domain.context.ContextDomainRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,8 +25,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
-
-import app.metatron.discovery.domain.context.ContextDomainRepository;
 
 /**
  * DataSourceRepository
@@ -135,4 +134,7 @@ public interface DataSourceRepository extends JpaRepository<DataSource, String>,
   @RestResource(exported = false)
   List<DataSource> findByIdIn(List<String> ids);
 
+  @RestResource(exported = false)
+  @Query("SELECT DISTINCT ds.createdBy FROM DataSource ds where ds.createdBy IS NOT NULL")
+  List<String> findDistinctCreatedBy();
 }
