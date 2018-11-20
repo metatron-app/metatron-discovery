@@ -77,7 +77,8 @@ declare let $;
 @Component({
   selector: 'page-widget',
   templateUrl: 'page-widget.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styles:[ '.ddp-pop-preview { position: fixed; width: 700px; height: 500px; top: 50%; left: 50%; margin-left: -350px; margin-top: -250px;}' ]
 })
 export class PageWidgetComponent extends AbstractWidgetComponent implements OnInit, OnDestroy {
 

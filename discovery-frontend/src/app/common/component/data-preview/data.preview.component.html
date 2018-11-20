@@ -154,10 +154,13 @@
         <div *ngIf="isShowDataGrid && timestampField" class="ddp-wrap-grid-option ddp-top-option ddp-clear">
           <component-period
             [title]="timestampField.alias ? timestampField.alias : timestampField.name"
+            [useDefaultAllRange]="true"
+            [startDateDefault]="mainDsSummary.ingestionMinTime ? mainDsSummary.ingestionMinTime : undefined"
+            [endDateDefault]="mainDsSummary.ingestionMaxTime ? mainDsSummary.ingestionMaxTime : undefined"
             [roundSecond]="true"
             [containerClass]="'ddp-fleft'"
-            (changeDate)="onChangeDate($event)"
-          ></component-period>
+            (changeDate)="onChangeDate($event)" >
+          </component-period>
         </div>
 
         <!-- Content Top Menu -->

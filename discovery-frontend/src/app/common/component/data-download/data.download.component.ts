@@ -142,9 +142,11 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
     this.isOriginDown = isOriginDown;
     this.preview = undefined;
 
-    if( isOriginDown ) {
+    if (isOriginDown) {
       this.widgetService.previewWidget(widgetId, isOriginDown, true).then(result => {
-        this.preview = result;
+        if (result) {
+          this.preview = new PreviewResult(result.estimatedSize, result.totalCount);
+        }
         this.safelyDetectChanges();
       }).catch((err) => {
         this.preview = null;
@@ -157,11 +159,14 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
    * 그리드 컴포넌트 다운로드 팝업 오픈
    * @param {MouseEvent} event
    * @param {GridComponent} gridComp
+   * @param {PreviewResult} preview
    */
-  public openGridDown(event: MouseEvent, gridComp: GridComponent) {
+  public openGridDown(event: MouseEvent, gridComp: GridComponent, preview?:PreviewResult ) {
     this._openComponent('RIGHT');
-    this._gridComp = gridComp;
+    ( preview ) && ( this.preview = preview );
     this.isWidgetMode = false;
+    this.isOriginDown = true;
+    this._gridComp = gridComp;
   } // function - openGridDown
 
   /**
@@ -254,8 +259,13 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
 
 }
 
-class PreviewResult {
-  public estimatedSize: number;
-  public totalCount: number;
+export class PreviewResult {
+  public size: number;
+  public count: number;
+
+  constructor(size: number, count: number) {
+    this.size = size;
+    this.count = count;
+  }
 }
 

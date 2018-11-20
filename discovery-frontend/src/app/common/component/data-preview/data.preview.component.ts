@@ -37,7 +37,7 @@ import {Covariance} from '../../../domain/datasource/covariance';
 import * as _ from 'lodash';
 import {DataconnectionService} from '../../../dataconnection/service/dataconnection.service';
 import {CommonUtil} from '../../util/common.util';
-import {DataDownloadComponent} from '../data-download/data.download.component';
+import {DataDownloadComponent, PreviewResult} from '../data-download/data.download.component';
 import {MetadataColumn} from '../../../domain/meta-data-management/metadata-column';
 import {DashboardUtil} from '../../../dashboard/util/dashboard.util';
 import {ConnectionType, Dataconnection} from '../../../domain/dataconnection/dataconnection';
@@ -146,8 +146,6 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
   // Covariance 조회 결과
   public covarianceData: any = {};
-  // Covariance search data
-  public covarianceSearch: any = {};
 
   // 통계 조회 결과
   public statsData: any = {};
@@ -315,11 +313,11 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       if (this.isDashboard) {
         // 대시보드인 경우
 
-        if( this.timestampField ) {
-          const sortInfo:Sort = new Sort();
+        if (this.timestampField) {
+          const sortInfo: Sort = new Sort();
           sortInfo.field = this.timestampField.name;
           sortInfo.direction = DIRECTION.DESC;
-          params.limits.sort.push( sortInfo );
+          params.limits.sort.push(sortInfo);
         }
 
         let boardDs: BoardDataSource = (<Dashboard>this.source).configuration.dataSource;
@@ -411,7 +409,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
         });
       }
 
-      (this.rowNum > rows.length) && (this.rowNum = rows.length);
+      this.rowNum = rows.length;
 
       // dom 이 모두 로드되었을때 작동
       this.changeDetect.detectChanges();
@@ -453,7 +451,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
     const params = source.ingestion && connection
       ? this._getConnectionParams(source.ingestion, connection)
       : {};
-    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE ? true : false)
+    this.connectionService.getTableDetailWitoutId(params, connection.implementor === ConnectionType.HIVE)
       .then((data) => {
         this.gridData = data['data'];
         this.updateGrid(this.gridData, this.columns);
@@ -726,7 +724,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   /**
    * min max값 얻기
    * @param {any[]} array
-   * @returns {{minValue: any; maxValue: any}}
+   * @returns {{minValue: any, maxValue: any}}
    */
   private getMinMaxValue(array: any[]) {
     const min = Math.min.apply(null, array.map((item) => {
@@ -987,7 +985,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public onChangeDate(data: PeriodData) {
 
-    if( 'ALL' === data.type ) {
+    if ('ALL' === data.type) {
       this._filters = [];
     } else {
       const timestampField: Field = this.columns.filter(item => item.role === 'TIMESTAMP')[0];
@@ -1075,7 +1073,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
 
     // singleTab
     const field = this.singleTab ? this.field : this.columns[0];
-    this.isShowDataGrid = this.singleTab ? false : true;
+    this.isShowDataGrid = !this.singleTab;
 
     // linked인 경우
     if (this.connType === 'LINK') {
@@ -1085,7 +1083,7 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
       // Query Data
       this.queryData(this.mainDatasource)
         .then(data => {
-          if( data && 0 < data.length ) {
+          if (data && 0 < data.length) {
             this.gridData = data;
 
             // single tab 이 아닌경우에만 그리드
@@ -1269,6 +1267,9 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   public changeRowNum(event: KeyboardEvent) {
     if (13 === event.keyCode) {
       this.rowNum = event.target['value'];
+      if (this.mainDsSummary && this.rowNum > this.mainDsSummary.count) {
+        this.rowNum = this.mainDsSummary.count;
+      }
       // Query Data
       this.queryData(this.mainDatasource).then(data => {
         this.gridData = data;
@@ -1336,7 +1337,11 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
   public downloadData(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    this._dataDownComp.openGridDown(event, this.gridComponent);
+    let preview:PreviewResult;
+    if (this.mainDsSummary) {
+      preview = new PreviewResult( this.mainDsSummary.size, this.mainDsSummary.count );
+    }
+    this._dataDownComp.openGridDown(event, this.gridComponent, preview);
     // this.gridComponent.csvDownload(this.source.name);
   } // function - downloadData
 

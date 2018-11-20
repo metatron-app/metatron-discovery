@@ -73,6 +73,9 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
   @Input()
   public isShowButtons: boolean = true;
 
+  @Input()
+  public useDefaultAllRange:boolean = false; // default 값을 All Range 로 사용함
+
   // 우선순위 1
   @Input()
   public startDateDefault: any;
@@ -208,15 +211,23 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
    * 모든 날짜 선택 버튼
    */
   public setAll() {
-    this._startPickerInput.nativeElement.value = '';
-    this._endPickerInput.nativeElement.value = '';
+    if( this.useDefaultAllRange ) {
+      const startDate = moment(this.startDateDefault);
+      const endDate = moment(this.endDateDefault);
 
-    this._startDate = null;
-    this._endDate = null;
+      this._startPicker.selectDate(startDate.toDate());
+      this._endPicker.selectDate(endDate.toDate());
+    } else {
+      this._startPickerInput.nativeElement.value = '';
+      this._endPickerInput.nativeElement.value = '';
 
-    // 전체 기간을 선택할 수 있도록 데이터 갱신
-    this._startPicker.selectDate(null);
-    this._endPicker.selectDate(null);
+      this._startDate = null;
+      this._endDate = null;
+
+      // 전체 기간을 선택할 수 있도록 데이터 갱신
+      this._startPicker.selectDate(null);
+      this._endPicker.selectDate(null);
+    }
 
     this.selectedType = PeriodType.ALL;
 
@@ -310,6 +321,12 @@ export class PeriodComponent extends AbstractComponent implements OnInit {
         // 선택한 종료날짜가 시간날짜보다 크면 종료 날짜로 셋팅
         this._startPicker.selectDate(this._endDate);
       }
+    }
+
+    if( this.useDefaultAllRange
+      && moment(this.startDateDefault).isSame( this._startDate )
+      && moment(this.endDateDefault).isSame( this._endDate ) ) {
+      this.selectedType = PeriodType.ALL;
     }
 
     // 버튼이 없는 경우 날짜 변경되면 이벤트 발생
