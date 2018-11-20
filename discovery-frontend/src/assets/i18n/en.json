@@ -697,7 +697,14 @@
   "msg.dp.alert.unsupported.uri.scheme": "Unsupported URI scheme",
   "msg.dp.alert.malformed.delimiter": "Wrong delimiter. Cannot change into a single character.",
   "msg.dp.alert.cannot.get.hdfs.file.system": "Cannot get HDFS file system. Check the admin configuration.",
+  "msg.dp.alert.cannot.read.from.hdfs.path": "Cannot read from HDFS path.",
+  "msg.dp.alert.cannot.write.to.hdfs.path": "Cannot write to HDFS path",
+  "msg.dp.alert.cannot.read.from.local.path": "Cannot read from local path.",
+  "msg.dp.alert.cannot.write.to.local.path": "Cannot write to local path.",
+  "msg.dp.alert.failed.to.read.csv": "IOException while opening a CSV file.",
   "msg.dp.alert.failed.to.parse.csv": "IOException while parsing a CSV file.",
+  "msg.dp.alert.failed.to.write.csv": "IOException while writing a CSV file.",
+  "msg.dp.alert.failed.to.close.csv": "IOException while closing a CSV file.",
   "msg.dp.alert.unsupported.charset": "Unsupported encoding character set.",
   "msg.dp.alert.unknown.bom": "Unsupported byte-order mark (BOM)",
   "msg.dp.alert.has.no.creator.dataflow" : "Cannot find the creator of the dataflow",
@@ -2917,4 +2924,9 @@
   "msg.metadata.ui.enter.tag" : "Enter tag",
   "msg.metadata.th.column.logical.tooltip.title" : "What is logical column name?",
   "msg.metadata.th.column.logical.tooltip.desc" : "The logical column name is the column name that is commonly used by the user in the Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in the Metatron when creating a chart or workbench."
+
+
+//  MSG_DP_ALERT_CANNOT_ACCESS_LOCAL_PATH(                       "msg.dp.alert.cannot.access.local.path"),
+//  MSG_DP_ALERT_FAILED_TO_PARSE_CSV(                            "msg.dp.alert.failed.to.parse.csv"),
+//  MSG_DP_ALERT_FAILED_TO_READ_CSV(                             "msg.dp.alert.failed.to.read.csv"),
 }

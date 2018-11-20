@@ -15,11 +15,15 @@
 package app.metatron.discovery.domain.dataprep.teddy;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.exception.ErrorCodes;
 import app.metatron.discovery.domain.dataprep.PrepSnapshot;
 import app.metatron.discovery.domain.dataprep.PrepSnapshot.COMPRESSION;
 import app.metatron.discovery.domain.dataprep.PrepSnapshot.FORMAT;
 import app.metatron.discovery.domain.dataprep.PrepSnapshotService;
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvUtil;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.jdbc.JdbcDataPrepService;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.IllegalColumnNameForHiveException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.JdbcQueryFailedException;
@@ -31,6 +35,7 @@ import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -206,33 +211,62 @@ public class TeddyExecutor {
 
     updateAsWriting(ssId);
 
-    String ssDir = (String) snapshotInfo.get("fileUri");
-    if(null==ssDir) {
-      String localBaseDir = (String) snapshotInfo.get("localBaseDir");
-      String ssName = (String) snapshotInfo.get("ssName");
-      ssDir = this.snapshotService.getSnapshotDir(localBaseDir, ssName);
-    }
-    ssDir = this.snapshotService.escapeSsNameOfUri(ssDir);
-    Files.createDirectories(Paths.get(ssDir));
+//    String ssDir = (String) snapshotInfo.get("fileUri");
+//    if(null==ssDir) {
+//      String localBaseDir = (String) snapshotInfo.get("localBaseDir");
+//      String ssName = (String) snapshotInfo.get("ssName");
+//      ssDir = this.snapshotService.getSnapshotDir(localBaseDir, ssName);
+//    }
+//    ssDir = this.snapshotService.escapeSsNameOfUri(ssDir);
+//    Files.createDirectories(Paths.get(ssDir));
 
     DataFrame df = cache.get(masterFullDsId);
-    String filePath = Paths.get(ssDir, "part-00000-" + masterTeddyDsId + ".csv").toString();
-    BufferedWriter br = new BufferedWriter(new FileWriter(filePath));
-    int totalLines = writeCsv(ssId, df, br, df.colNames);
+//    String filePath = Paths.get(ssDir, "part-00000-" + masterTeddyDsId + ".csv").toString();
+//    BufferedWriter br = new BufferedWriter(new FileWriter(filePath));
+//    int totalLines = writeCsv(ssId, df, br, df.colNames);
+
+    String fullPath = snapshotInfo.get("fileUri") + "/part-00000-" + masterTeddyDsId + ".csv";
+    String strUri = "file://" + fullPath;
+    CSVPrinter printer = PrepCsvUtil.getPrinter(strUri, conf);
+    String errmsg = null;
+
+    try {
+      for (int rowno = 0; rowno < df.rows.size(); cancelCheck(ssId, ++rowno)) {
+        Row row = df.rows.get(rowno);
+        for (int colno = 0; colno < df.getColCnt(); ++colno) {
+          printer.print(row.get(colno));
+        }
+        printer.println();
+      }
+    } catch (IOException e) {
+      errmsg = e.getMessage();
+    }
+
+    try {
+      printer.close(true);
+    } catch (IOException e) {
+      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_CLOSE_CSV, e.getMessage());
+    }
+
+    if (errmsg != null) {
+      throw PrepException.create(PrepErrorCodes.PREP_TEDDY_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV, errmsg);
+    }
 
     // master를 비롯해서, 스냅샷 생성을 위해 새로 만들어진 모든 full dataset을 제거
     for (String fullDsId : reverseMap.keySet()) {
       cache.remove(fullDsId);
     }
 
-    ssDir = this.snapshotService.unescapeSsNameOfUri(ssDir);
-    updateSnapshot("uri", ssDir, ssId);   // 필드명은 uri지만, local full path가 들어간다.
+//    ssDir = this.snapshotService.unescapeSsNameOfUri(ssDir);
+//    updateSnapshot("uri", ssDir, ssId);   // 필드명은 uri지만, local full path가 들어간다.
 
-    LOGGER.info("createFileSnapshot() finished: totalLines={}", totalLines);
+    updateSnapshot("uri", fullPath, ssId);   // 필드명은 uri지만, local full path가 들어간다.
+
+    LOGGER.info("createFileSnapshot() finished: totalLines={}", df.rows.size());
 
     DateTime finishTime = DateTime.now(DateTimeZone.UTC);
     updateSnapshot("finishTime", finishTime.toString(), ssId);
-    updateSnapshot("totalLines", String.valueOf(totalLines), ssId);
+    updateSnapshot("totalLines", String.valueOf(df.rows.size()), ssId);
     updateAsSucceeded(ssId);
 
     return new AsyncResult<>("Success");
