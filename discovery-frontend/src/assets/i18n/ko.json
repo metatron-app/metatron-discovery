@@ -1469,6 +1469,7 @@
   "msg.board.ui.tryagain_ds" : "데이터소스를 갱신한 후에 다시 시도해 주세요",
   "msg.board.ui.sync_interval" : "데이터 동기화 주기",
   "msg.board.ui.card.view" : "카드뷰",
+  "msg.board.error.missing-datasource" : "데이터소스 정보가 없습니다.",
 
   "msg.storage.btn.create.dsource": "새로운 데이터소스 생성",
   "msg.storage.ui.dsource.search.description": "데이터소스 이름으로 검색해 주세요",

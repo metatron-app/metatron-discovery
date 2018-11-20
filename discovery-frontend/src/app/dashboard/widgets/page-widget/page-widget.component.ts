@@ -35,38 +35,38 @@ import {
   LegendConvertType,
   SPEC_VERSION
 } from '../../../common/component/chart/option/define/common';
-import { saveAs } from 'file-saver';
-import { AbstractWidgetComponent } from '../abstract-widget.component';
-import { PageWidget, PageWidgetConfiguration } from '../../../domain/dashboard/widget/page-widget';
-import { BaseChart, ChartSelectInfo } from '../../../common/component/chart/base-chart';
-import { UIOption } from '../../../common/component/chart/option/ui-option';
-import { Alert } from '../../../common/util/alert.util';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { SearchQueryRequest } from '../../../domain/datasource/data/search-query-request';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
-import { ImageService } from '../../../common/service/image.service';
-import { WidgetService } from '../../service/widget.service';
-import { AnalysisPredictionService } from '../../../page/component/analysis/service/analysis.prediction.service';
-import { Widget } from '../../../domain/dashboard/widget/widget';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { FilterUtil } from '../../util/filter.util';
-import { NetworkChartComponent } from '../../../common/component/chart/type/network-chart/network-chart.component';
-import { DashboardPageRelation } from '../../../domain/dashboard/widget/page-widget.relation';
-import { BoardConfiguration, LayoutMode } from '../../../domain/dashboard/dashboard';
-import { GridChartComponent } from '../../../common/component/chart/type/grid-chart/grid-chart.component';
-import { BarChartComponent } from '../../../common/component/chart/type/bar-chart/bar-chart.component';
-import { LineChartComponent } from '../../../common/component/chart/type/line-chart/line-chart.component';
-import { OptionGenerator } from '../../../common/component/chart/option/util/option-generator';
+import {saveAs} from 'file-saver';
+import {AbstractWidgetComponent} from '../abstract-widget.component';
+import {PageWidget, PageWidgetConfiguration} from '../../../domain/dashboard/widget/page-widget';
+import {BaseChart, ChartSelectInfo} from '../../../common/component/chart/base-chart';
+import {UIOption} from '../../../common/component/chart/option/ui-option';
+import {Alert} from '../../../common/util/alert.util';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {SearchQueryRequest} from '../../../domain/datasource/data/search-query-request';
+import {Filter} from '../../../domain/workbook/configurations/filter/filter';
+import {ImageService} from '../../../common/service/image.service';
+import {WidgetService} from '../../service/widget.service';
+import {AnalysisPredictionService} from '../../../page/component/analysis/service/analysis.prediction.service';
+import {Widget} from '../../../domain/dashboard/widget/widget';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
+import {FilterUtil} from '../../util/filter.util';
+import {NetworkChartComponent} from '../../../common/component/chart/type/network-chart/network-chart.component';
+import {DashboardPageRelation} from '../../../domain/dashboard/widget/page-widget.relation';
+import {BoardConfiguration, LayoutMode} from '../../../domain/dashboard/dashboard';
+import {GridChartComponent} from '../../../common/component/chart/type/grid-chart/grid-chart.component';
+import {BarChartComponent} from '../../../common/component/chart/type/bar-chart/bar-chart.component';
+import {LineChartComponent} from '../../../common/component/chart/type/line-chart/line-chart.component';
+import {OptionGenerator} from '../../../common/component/chart/option/util/option-generator';
 import {
   BoardSyncOptions, BoardWidgetOptions,
   WidgetShowType
 } from '../../../domain/dashboard/dashboard.globalOptions';
-import { DataDownloadComponent } from '../../../common/component/data-download/data.download.component';
-import { CustomField } from '../../../domain/workbook/configurations/field/custom-field';
-import { DashboardUtil } from '../../util/dashboard.util';
-import { isNullOrUndefined } from 'util';
-import { Datasource, Field } from '../../../domain/datasource/datasource';
-import { CommonUtil } from '../../../common/util/common.util';
+import {DataDownloadComponent} from '../../../common/component/data-download/data.download.component';
+import {CustomField} from '../../../domain/workbook/configurations/field/custom-field';
+import {DashboardUtil} from '../../util/dashboard.util';
+import {isNullOrUndefined} from 'util';
+import {Datasource, Field} from '../../../domain/datasource/datasource';
+import {CommonUtil} from '../../../common/util/common.util';
 
 declare let $;
 
@@ -106,7 +106,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   private _currentSelectionFilters: Filter[] = [];
 
   // child widget id list
-  private _childWidgetIds:string[] = [];
+  private _childWidgetIds: string[] = [];
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Variables
@@ -148,6 +148,9 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
   // 데이터 조회 쿼리
   public query: SearchQueryRequest;
+
+  // 에러 정보
+  public errorInfo: { show?: boolean, code?: string, details?: string };
 
   get uiOption(): UIOption {
     return this.widgetConfiguration.chart;
@@ -355,7 +358,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       if (legend) {
         legend.auto = ('boolean' === typeof mode) ? mode : !legend.auto;
         legend.convertType = LegendConvertType.SHOW;
-        this.uiOption = <UIOption>_.extend({}, this.uiOption, { legend });
+        this.uiOption = <UIOption>_.extend({}, this.uiOption, {legend});
         // 변경 적용
         this.safelyDetectChanges();
       }
@@ -371,7 +374,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       const chartZooms = _.cloneDeep(this.uiOption.chartZooms);
       if (chartZooms) {
         chartZooms.map((zoom) => (zoom.auto = ('boolean' === typeof mode) ? mode : !zoom.auto));
-        this.uiOption = <UIOption>_.extend({}, this.uiOption, { chartZooms });
+        this.uiOption = <UIOption>_.extend({}, this.uiOption, {chartZooms});
         // 변경 적용
         this.safelyDetectChanges();
       }
@@ -493,7 +496,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       // 현재 위젯에서 발생시킨 필터정보 변경
       this.changeSelectFilterList(data);
 
-      this.broadCaster.broadcast('CHART_SELECTION_FILTER', { select: data });
+      this.broadCaster.broadcast('CHART_SELECTION_FILTER', {select: data});
     }
   } // function - chartSelectInfo
 
@@ -704,14 +707,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   } // function - showNoData
 
   /**
-   * 에러 표시
-   */
-  public showError() {
-    this.isError = true;
-    this.updateComplete();
-  } // function - showError
-
-  /**
    * 위젯 이름 표시 여부
    * @return {boolean}
    */
@@ -741,7 +736,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public copyWidgetIdToClipboard() {
     if (this.widget) {
-      const option = { text: () => this.widget.id };
+      const option = {text: () => this.widget.id};
       new Clipboard(this.elementRef.nativeElement, option);
     }
   } // function - copyWidgetIdToClipboard
@@ -811,7 +806,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public toggleWidgetSize() {
     this.isMaximize = !this.isMaximize;
-    this.broadCaster.broadcast('TOGGLE_SIZE', { widgetId: this.widget.id });
+    this.broadCaster.broadcast('TOGGLE_SIZE', {widgetId: this.widget.id});
   } // function - toggleWidgetSize
 
   /**
@@ -855,7 +850,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @param {string} brushType
    */
   public changeMouseSelectMode(mode: string, brushType: string) {
-    if( isNullOrUndefined(this.chart) ) {
+    if (isNullOrUndefined(this.chart)) {
       return;
     }
     if (ChartMouseMode.SINGLE.toString() === mode) {
@@ -919,7 +914,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     let $target: JQuery = $(event.target);
     const btnLeft: number = $target.offset().left;
     const btnTop: number = $target.offset().top;
-    this.$element.find('.ddp-box-btn2 .ddp-box-layout4').css({ 'left': btnLeft - 150, 'top': btnTop + 25 });
+    this.$element.find('.ddp-box-btn2 .ddp-box-layout4').css({'left': btnLeft - 150, 'top': btnTop + 25});
   } // function - showInfoLayer
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -949,7 +944,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         this.processStart();
         this._isDuringProcess = true;
         this.isMissingDataSource = true;
-        this.showError();
+        this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
       } else {
         // If the widget has a data source
 
@@ -991,7 +986,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             this.isShowHierarchyView = true;
           }
 
-          this._childWidgetIds = this._findChildWidgetIds( this.widget.id, relations );
+          this._childWidgetIds = this._findChildWidgetIds(this.widget.id, relations);
         }
 
         // RealTime 데이터갱신 설정
@@ -1037,13 +1032,14 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   private _search(globalFilters?: Filter[], selectionFilters?: Filter[]) {
 
-    if( selectionFilters && selectionFilters.some( item => -1 < this._childWidgetIds.indexOf( item['selectedWidgetId'] ) ) ) {
+    if (selectionFilters && selectionFilters.some(item => -1 < this._childWidgetIds.indexOf(item['selectedWidgetId']))) {
       return;
     }
 
     // 프로세스 실행 등록
     this.processStart();
     this._isDuringProcess = true;
+    this.errorInfo = undefined;
 
     if (!this.chart) {
       this.updateComplete();
@@ -1057,7 +1053,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     // 현재 위젯에서 발생시킨 필터정보 제외처리
-    const currentSelectionFilters:Filter[] = this.changeExternalFilterList(selectionFilters);
+    const currentSelectionFilters: Filter[] = this.changeExternalFilterList(selectionFilters);
 
     // Hierarchy View 설정
     if (this.parentWidget) {
@@ -1115,7 +1111,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
 
     if (isNullOrUndefined(widgetDataSource)) {
       this.isMissingDataSource = true;
-      this.showError();
+      this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
       return;
     }
 
@@ -1211,9 +1207,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
       this.safelyDetectChanges();
 
     }).catch((error) => {
-      console.error(error);
       // 프로세스 종료 등록 및 No Data 표시
-      this.showError();
+      this._showError(error);
       // 변경 적용
       this.safelyDetectChanges();
     });
@@ -1302,22 +1297,34 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    * @return {string}
    * @private
    */
-  private _findChildWidgetIds(widgetId: string, relations: DashboardPageRelation[], isCollect:boolean = false): string[] {
-    let childIds:string[] = [];
+  private _findChildWidgetIds(widgetId: string, relations: DashboardPageRelation[], isCollect: boolean = false): string[] {
+    let childIds: string[] = [];
 
     relations.forEach(item => {
-      if (item.children ) {
-        if(item.ref === widgetId || isCollect ) {
-          childIds = item.children.map( child => child.ref );
-          childIds = childIds.concat( this._findChildWidgetIds( widgetId, item.children, true ) );
+      if (item.children) {
+        if (item.ref === widgetId || isCollect) {
+          childIds = item.children.map(child => child.ref);
+          childIds = childIds.concat(this._findChildWidgetIds(widgetId, item.children, true));
         } else {
-          childIds = childIds.concat( this._findChildWidgetIds( widgetId, item.children, false ) );
+          childIds = childIds.concat(this._findChildWidgetIds(widgetId, item.children, false));
         }
       }
     });
 
     return childIds;
   } // function - _findChildWidgetIds
+
+  /**
+   * 에러 표시
+   * @param {{show:boolean, code:string, details:string}}error
+   */
+  private _showError(error: { show?: boolean, code?: string, details?: string }) {
+    (isNullOrUndefined(error)) && (error = {});
+    error.show = false;
+    this.errorInfo = error;
+    this.isError = true;
+    this.updateComplete();
+  } // function - _showError
 
   // ----------------------------------------------------
   // 고급분석 예측선 관련
@@ -1349,8 +1356,8 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         .then(() => {
           if (this.isAnalysisPredictionEnabled()) {
             this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData)
-              .catch(() => {
-                this.showError();
+              .catch((error) => {
+                this._showError(error);
               });
           } else {
             this.predictionLineDisabled();
