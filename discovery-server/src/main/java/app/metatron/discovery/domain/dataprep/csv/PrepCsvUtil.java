@@ -3,15 +3,14 @@ package app.metatron.discovery.domain.dataprep.csv;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.csv.QuoteMode;
+import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
+import org.apache.commons.csv.*;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
@@ -29,7 +28,7 @@ public class PrepCsvUtil {
   private static Logger LOGGER = LoggerFactory.getLogger(PrepCsvUtil.class);
 
   // public for tests
-  public static InputStreamReader getReaderAfterDetectingCharset(InputStream is, String strUri) {
+  public static InputStreamReader getReaderAfterDetectingCharset(InputStream is, String strUri) {   // strUri is only for debugging
     InputStreamReader reader;
     String charset = null;
 
@@ -93,7 +92,7 @@ public class PrepCsvUtil {
     Reader reader;
     URI uri;
 
-    LOGGER.debug("parse(): strUri={} strDelim={} conf={}", strUri, strDelim, conf);
+    LOGGER.debug("PrepCsvUtil.parse(): strUri={} strDelim={} conf={}", strUri, strDelim, conf);
 
     char delim = getUnescapedDelimiter(strDelim);
 
@@ -124,7 +123,7 @@ public class PrepCsvUtil {
           his = hdfsFs.open(path);
         } catch (IOException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_ACCESS_HDFS_PATH, strUri);
+          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_HDFS_PATH, strUri);
         }
 
         reader = getReaderAfterDetectingCharset(his, strUri);
@@ -138,7 +137,7 @@ public class PrepCsvUtil {
           fis = new FileInputStream(file);
         } catch (FileNotFoundException e) {
           e.printStackTrace();
-          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_ACCESS_LOCAL_PATH, strUri);
+          throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
         }
 
         reader = getReaderAfterDetectingCharset(fis, strUri);
@@ -206,5 +205,94 @@ public class PrepCsvUtil {
 
   public static PrepCsvParseResult parse(String strUri) {
     return parse(strUri, ",");
+  }
+
+
+  // public for tests
+  public static OutputStreamWriter getWriter(OutputStream os) {
+    OutputStreamWriter writer;
+    String charset = "UTF-8";
+
+    try {
+      writer = new OutputStreamWriter(os, charset);
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_CHARSET, charset);
+    }
+
+    return writer;
+  }
+
+  /**
+   * @param strUri      URI as String (to be java.net.URI)
+   * @param conf        Hadoop configuration which is mandatory when the url's protocol is hdfs
+   *
+   *  header will be false for table-type snapshots.
+   */
+  public static CSVPrinter getPrinter(String strUri, Configuration conf) {
+    Writer writer;
+    URI uri;
+
+    LOGGER.debug("PrepCsvUtil.getPrinter(): strUri={} conf={}", strUri, conf);
+
+    try {
+      uri = new URI(strUri);
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strUri);
+    }
+
+    switch (uri.getScheme()) {
+      case "hdfs":
+        if (conf == null) {
+          throw PrepException.create(PrepErrorCodes.PREP_INVALID_CONFIG_CODE, PrepMessageKey.MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING, HADOOP_CONF_DIR);
+        }
+        Path path = new Path(uri);
+
+        FileSystem hdfsFs;
+        try {
+          hdfsFs = FileSystem.get(conf);
+        } catch (IOException e) {
+          e.printStackTrace();
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_GET_HDFS_FILE_SYSTEM, strUri);
+        }
+
+        FSDataOutputStream hos;
+        try {
+          hos = hdfsFs.create(path);
+        } catch (IOException e) {
+          e.printStackTrace();
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH, strUri);
+        }
+
+        writer = getWriter(hos);
+        break;
+
+      case "file":
+        File file = new File(uri);
+
+        FileOutputStream fos;
+        try {
+          fos = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+          e.printStackTrace();
+          throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strUri);
+        }
+
+        writer = getWriter(fos);
+        break;
+
+      default:
+        throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_UNSUPPORTED_URI_SCHEME, strUri);
+    }
+
+    CSVPrinter printer;
+    try {
+      printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL_NON_NULL).withEscape('\\'));
+    } catch (IOException e) {
+      throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV, strUri);
+    }
+
+    return printer;
   }
 }

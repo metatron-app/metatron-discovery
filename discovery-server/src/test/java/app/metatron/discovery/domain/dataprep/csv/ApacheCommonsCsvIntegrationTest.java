@@ -67,13 +67,27 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
     FSDataOutputStream hos;
     FileSystem hdfsFs;
     URI uri;
+    File file;
+    FileInputStream fis;
+    InputStreamReader reader;
 
     try {
       uri = new URI(strLocalUri);
-      File file = new File(uri);
-      FileInputStream fis = new FileInputStream(file);
-      InputStreamReader reader = PrepCsvUtil.getReaderAfterDetectingCharset(fis, strLocalUri);
+      file = new File(uri);
+      fis = new FileInputStream(file);
+      reader = PrepCsvUtil.getReaderAfterDetectingCharset(fis, strLocalUri);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, strLocalUri);
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strHdfsUri);
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_READ_FROM_LOCAL_PATH, strHdfsUri);
+    }
 
+    try {
       uri = new URI(strHdfsUri);
       Path path = new Path(uri);
       hdfsFs = FileSystem.get(getHadoopConf());
@@ -84,15 +98,12 @@ public class ApacheCommonsCsvIntegrationTest extends AbstractRestIntegrationTest
       fis.close();
       hos.close();
       reader.close();
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_NOT_FOUND, strLocalUri);
     } catch (URISyntaxException e) {
       e.printStackTrace();
       throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_MALFORMED_URI_SYNTAX, strHdfsUri);
     } catch (IOException e) {
       e.printStackTrace();
-      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_ACCESS_HDFS_PATH, strHdfsUri);
+      throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_CANNOT_WRITE_TO_HDFS_PATH, strHdfsUri);
     }
 
     return strHdfsUri;
