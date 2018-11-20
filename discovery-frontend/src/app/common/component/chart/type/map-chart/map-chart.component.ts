@@ -47,6 +47,7 @@ import {FormatOptionConverter} from '../../option/converter/format-option-conver
 import {UILineLayer} from '../../option/ui-option/map/ui-line-layer';
 import { Field as AbstractField, Field } from '../../../../../domain/workbook/configurations/field/field';
 import { Shelf } from '../../../../../domain/workbook/configurations/shelf/shelf';
+import {LogicalType} from '../../../../../domain/datasource/datasource';
 
 @Component({
   selector: 'map-chart',
@@ -229,6 +230,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       this.data[0].features = this.data[0].features.splice(0, 10);
     }
     // this.data[0].features = [this.data[0].features[0]];
+
+    ////////////////////////////////////////////////////////
+    // Check option (spec)
+    ////////////////////////////////////////////////////////
+
+    this.checkOption();
 
     ////////////////////////////////////////////////////////
     // Creation map & layer
@@ -531,11 +538,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       }
     }
 
-    // Init
-    if( isMapCreation ) {
-      // Map data place fit
-      this.olmap.getView().fit(source.getExtent());
-    }
+    // // Init
+    // if( isMapCreation ) {
+    //   // Map data place fit
+    //   this.olmap.getView().fit(source.getExtent());
+    // }
+
+    // Map data place fit
+    this.olmap.getView().fit(source.getExtent());
   }
 
   /**
@@ -547,7 +557,14 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Feature info
     ////////////////////////////////////////////////////////
 
-    let field = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum][0];
+    // Get GIS Field
+    let field = null;
+      _.each(this.shelf.layers[this.getUiMapOption().layerNum], (fieldTemp) => {
+      if( fieldTemp.field.logicalType.toString().indexOf('GEO') != -1 ) {
+        field = fieldTemp;
+        return false;
+      }
+    });
     let geomType = field.field.logicalType.toString();
 
     ////////////////////////////////////////////////////////
@@ -563,7 +580,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let feature = new ol.Feature();
       feature = (new ol.format.GeoJSON()).readFeature(this.data[0].features[i]);
 
-      if( _.eq(geomType, "GEO_POINT") ) {
+      if( _.eq(geomType, LogicalType.GEO_POINT) ) {
         let featureCenter = feature.getGeometry().getCoordinates();
 
         if(featureCenter.length === 1) {
@@ -1289,7 +1306,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         let colorInfo: any = {};
         colorInfo.color = layer.color.schema;
         _.each(this.shelf.layers[this.getUiMapOption().layerNum], (field) => {
-          if( _.eq(field.field.logicalType.toString(), "GEO_POINT") ) {
+          if( _.eq(field.field.logicalType, LogicalType.GEO_POINT) ) {
             colorInfo.column = field.alias;
             return false;
           }
@@ -1387,5 +1404,20 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     }
 
     return rangeList;
+  }
+
+  /**
+   * Check UI Option (Spec)
+   */
+  private checkOption(): void {
+
+    ////////////////////////////////////////////////////////
+    // Add pivot(shelf) check
+    ////////////////////////////////////////////////////////
+
+    // let option: UIMapOption = this.getUiMapOption();
+    // let layer: UILayers = option.layers[option.layerNum];
+    //
+    // if( layer.color.by)
   }
 }
