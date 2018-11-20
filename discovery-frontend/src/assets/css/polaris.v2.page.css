@@ -2921,7 +2921,7 @@ em.ddp-icon-cross.type-apply:before {background-position:-12px -20px;}
 .ddp-ui-drag-slide .ddp-ui-default span.ddp-type-value {display:inline-block; padding-right:7px; margin-right:7px; border-right:1px solid rgba(255,255,255,0.5); color:rgba(255,255,255,0.8);}
 
 .ddp-wrap-shelf.ddp-mapview .ddp-ui-drag-slide-in {overflow:hidden;}
-.ddp-wrap-shelf.ddp-mapview .ddp-ui-drag-slide {overflow:hidden;}
+.ddp-wrap-shelf.ddp-mapview .ddp-ui-drag-slide {padding:0 40px 0 0;overflow:hidden;}
 .ddp-ui-shelf.ddp-add-self:before {display:inline-block; position:absolute;top:3px; left:6px; bottom:3px; right:6px; border-radius:3px; border:1px solid #d0d1d7; content:'';}
 
 .ddp-ui-drag-slide .ddp-slide-control {position:absolute; top:0; right:10px; bottom:0;background-color:#fff; z-index:5;}

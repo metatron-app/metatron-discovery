@@ -462,8 +462,10 @@ export class DatasourceService extends AbstractService {
             // when logicalType => geo point
             if(layer.field.logicalType === LogicalType.GEO_POINT) {
 
+              let measureList = _.filter(_.cloneDeep(pageConf.shelf.layers[layerNum]), (item) => {if (item.type === 'measure') return item});
+
               // when it has measures
-              if (pageConf.chart.fieldMeasureList && pageConf.chart.fieldMeasureList.length > 0) {
+              if (measureList && measureList.length > 0) {
                 layer.format = <GeoHashFormat>{
                   type: FormatType.GEO_HASH.toString(),
                   method: "h3",
@@ -831,13 +833,14 @@ export class DatasourceService extends AbstractService {
     // Alias 처리
     if (ShelveFieldType.MEASURE.toString() === field.type) {    // measure 일때
 
-      if (field['alias'] && field['alias'] !== field.name) {
-        field['alias'] = field['alias'];
-      } else {
+      // fix set alias without aggregation type
+      // if (field['alias'] && field['alias'] !== field.name) {
+      //   field['alias'] = field['alias'];
+      // } else {
         // aggregation type과 함께 alias 설정
         const alias: string = field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
         field['alias'] = field.aggregationType ? field.aggregationType + `(${alias})` : `${alias}`;
-      }
+      // }
 
     } else if (ShelveFieldType.TIMESTAMP.toString() === field.type) {   // timestamp 일때
 
