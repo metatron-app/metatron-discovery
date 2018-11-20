@@ -1294,10 +1294,10 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
   /**
    * Limit 변경
-   * @param limit
-   * @param isLimitCheck
+   * @param {number} limit
+   * @param {boolean} isLimitCheck
    */
-  public onLimitChange(limit: number, isLimitCheck:boolean): void {
+  public onLimitChange(limit: number, isLimitCheck?:boolean): void {
 
     if( !isNullOrUndefined(isLimitCheck) ) {
       this.uiOption.limitCheck = isLimitCheck;
