@@ -51,6 +51,9 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long>,
 
   List<GroupMember> findByGroupId(String groupId);
 
+  @Query("SELECT DISTINCT gm FROM GroupMember gm LEFT JOIN gm.group gr WHERE gr.id IN (:groupIds)")
+  List<GroupMember> findByGroupIds(@Param("groupIds") List<String> groupIds);
+
   Page<GroupMember> findByGroup(Group group, Pageable pageable);
 
 }

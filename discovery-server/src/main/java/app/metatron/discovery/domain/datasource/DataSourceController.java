@@ -877,30 +877,35 @@ public class DataSourceController {
     LOGGER.debug("Parameter (connectionType) : {}", connectionTypes);
 
     // Validate status
-    if(statuses != null){
+    List<DataSource.Status> statusEnumList = null;
+    if(statuses != null && !statuses.isEmpty()){
+      statusEnumList = new ArrayList<>();
       for(String statusStr : statuses){
-        SearchParamValidator.enumUpperValue(DataSource.Status.class, statusStr, "status");
+        statusEnumList.add(SearchParamValidator.enumUpperValue(DataSource.Status.class, statusStr, "status"));
       }
     }
 
     // Validate DataSourceType
+    List<DataSource.DataSourceType> dataSourceTypeEnumList = null;
     if(dataSourceTypes != null){
       for(String dataSourceTypeStr : dataSourceTypes){
-        SearchParamValidator.enumUpperValue(DataSource.DataSourceType.class, dataSourceTypeStr, "dataSourceType");
+        dataSourceTypeEnumList.add(SearchParamValidator.enumUpperValue(DataSource.DataSourceType.class, dataSourceTypeStr, "dataSourceType"));
       }
     }
 
     // Validate ConnectionType
+    List<DataSource.ConnectionType> connectionTypeEnumList = null;
     if(connectionTypes != null){
       for(String connectionTypeStr : connectionTypes){
-        SearchParamValidator.enumUpperValue(DataSource.ConnectionType.class, connectionTypeStr, "connectionType");
+        connectionTypeEnumList.add(SearchParamValidator.enumUpperValue(DataSource.ConnectionType.class, connectionTypeStr, "connectionType"));
       }
     }
 
     // Validate SourceType
+    List<DataSource.SourceType> sourceTypeEnumList = null;
     if(sourceTypes != null){
       for(String sourceTypeStr : sourceTypes){
-        SearchParamValidator.enumUpperValue(DataSource.SourceType.class, sourceTypeStr, "sourceType");
+        sourceTypeEnumList.add(SearchParamValidator.enumUpperValue(DataSource.SourceType.class, sourceTypeStr, "sourceType"));
       }
     }
 
@@ -917,8 +922,8 @@ public class DataSourceController {
     }
 
     Page<DataSource> dataSources = dataSourceService.findDataSourceListByFilter(
-            statuses, workspaces, createdBys, userGroups, createdTimeFrom, createdTimeTo, modifiedTimeFrom,
-            modifiedTimeTo, containsText, dataSourceTypes, sourceTypes, connectionTypes, pageable
+            statusEnumList, workspaces, createdBys, userGroups, createdTimeFrom, createdTimeTo, modifiedTimeFrom,
+            modifiedTimeTo, containsText, dataSourceTypeEnumList, sourceTypeEnumList, connectionTypeEnumList, pageable
     );
 
     return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(dataSources, resourceAssembler));

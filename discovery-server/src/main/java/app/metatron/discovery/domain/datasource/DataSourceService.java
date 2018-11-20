@@ -30,6 +30,7 @@ import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.collect.Lists;
+import com.querydsl.core.types.Predicate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -306,12 +307,12 @@ public class DataSourceService {
     criteria.add(moreCriterion);
 
     //description
-    DataSourceListCriterion descriptionCriterion
-            = new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.CONTAINS_TEXT,
-            DataSourceListCriterion.CriterionType.TEXT, "msg.storage.ui.criterion.contains-text");
-    descriptionCriterion.addFilter(new DataSourceListFilter(DataSourceListCriterion.CriterionKey.CONTAINS_TEXT,
-            "containsText", "", "msg.storage.ui.criterion.contains-text"));
-    criteria.add(descriptionCriterion);
+//    DataSourceListCriterion descriptionCriterion
+//            = new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.CONTAINS_TEXT,
+//            DataSourceListCriterion.CriterionType.TEXT, "msg.storage.ui.criterion.contains-text");
+//    descriptionCriterion.addFilter(new DataSourceListFilter(DataSourceListCriterion.CriterionKey.CONTAINS_TEXT,
+//            "containsText", "", "msg.storage.ui.criterion.contains-text"));
+//    criteria.add(descriptionCriterion);
     
     return criteria;
   }
@@ -450,7 +451,7 @@ public class DataSourceService {
   }
 
   public Page<DataSource> findDataSourceListByFilter(
-          List<String> statuses,
+          List<DataSource.Status> statuses,
           List<String> workspaces,
           List<String> createdBys,
           List<String> userGroups,
@@ -459,25 +460,30 @@ public class DataSourceService {
           DateTime modifiedTimeFrom,
           DateTime modifiedTimeTo,
           String containsText,
-          List<String> dataSourceTypes,
-          List<String> sourceTypes,
-          List<String> connectionTypes,
+          List<DataSource.DataSourceType> dataSourceTypes,
+          List<DataSource.SourceType> sourceTypes,
+          List<DataSource.ConnectionType> connectionTypes,
           Pageable pageable){
 
-    //Status
-//    Predicate searchPredicated = DataSourcePredicate.
+    //add userGroups member to createdBy
+    List<GroupMember> groupMembers = groupMemberRepository.findByGroupIds(userGroups);
+    if(groupMembers != null && !groupMembers.isEmpty()){
+      if(createdBys == null)
+        createdBys = new ArrayList<>();
+
+      for(GroupMember groupMember : groupMembers){
+        createdBys.add(groupMember.getMemberId());
+      }
+    }
 
     // Get Predicate
-//        Predicate searchPredicated = DataSourcePredicate
-//            .searchList(dataSourceType, connectionType, sourceType, statusType,
-//                        published, nameContains, searchDateBy, from, to);
+    Predicate searchPredicated = DataSourcePredicate.searchList(statuses, workspaces, createdBys, createdTimeFrom,
+            createdTimeTo, modifiedTimeFrom, modifiedTimeTo, containsText, dataSourceTypes, sourceTypes, connectionTypes);
 
     // Find by predicated
-    // Page<DataSource> dataSources = dataSourceRepository.findAll(searchPredicated, pageable);
-//    Page<DataSource> dataSources = dataSourceRepository.findDataSources(dataSourceType, connectionType, sourceType, statusType,
-//            published, nameContains, linkedMetadata, searchDateBy, from, to, pageable);
+    Page<DataSource> dataSources = dataSourceRepository.findAll(searchPredicated, pageable);
 
-    return null;
+    return dataSources;
   }
 
 }
