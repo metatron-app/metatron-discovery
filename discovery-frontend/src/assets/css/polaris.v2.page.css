@@ -5549,7 +5549,7 @@ ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-data-history .ddp-data-success {
 .ddp-ui-union-table {display:inline-block;  white-space:nowrap;}
 .ddp-ui-union-table table.ddp-table-union:first-of-type tr th,
 .ddp-ui-union-table table.ddp-table-union:first-of-type tr td {padding-left:23px;}
-table.ddp-table-union {display:inline-block; margin-left:-3px; white-space:nowrap; vertical-align: top;}
+table.ddp-table-union {width:auto; display:inline-block; margin-left:-3px; white-space:nowrap; vertical-align: top;}
 table.ddp-table-union tr th {position:relative; padding:0 5px 5px 12px; text-align:left;}
 table.ddp-table-union tr th:first-of-type {padding-left:23px;}
 table.ddp-table-union tr th .ddp-wrap-top {padding:0 77px 0 0; width:234px; font-size:0px; box-sizing:border-box;}

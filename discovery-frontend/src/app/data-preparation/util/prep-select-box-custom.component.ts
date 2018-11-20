@@ -51,32 +51,6 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
   // 기본 선택 인덱스
   public defaultIndex = -1;
 
-  // @Input('array')
-  // set setArray(array: any) {
-  //   this.array = array;
-  //   if (this.array != null && this.array.length > 0) {
-  //     if (typeof this.array[0] === 'string') {
-  //       this.isStringArray = true;
-  //     }
-  //   }
-  //   // 선택된 아이템 제거
-  //   // this.selectedItem = null;
-  // }
-
-  // 서버와 통신 후 인덱스를 지정해야 하는 경우
-  // @Input('defaultIndex')
-  // set setDefaultIndex(index: number) {
-  //   if(index == -100) return;
-  //   this.defaultIndex = index;
-  //   // console.info('defaultIndex >>> ', this.defaultIndex);
-  //   // console.info('defaultIndex >>> customTimestamp', this.customTimestamp);
-  // }
-
-  // @Input('customTimestamp')
-  // set setCustomTimestamp(value: string) {
-  //   this.customTimestamp =  value;
-  // }
-
 
   // 화면에 표시하기 위한 모델의 키
   @Input() public viewKey: string;
@@ -148,10 +122,8 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
     if (isSearchTextEmpty) {
       arrayList = arrayList.filter((item) => {
         if (!isNullOrUndefined(this.viewKey)) {
-          // return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;
           return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) == 0;
         } else {
-          // return item.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;
           return item.toLowerCase().indexOf(this.searchText.toLowerCase()) == 0;
         }
 
@@ -184,14 +156,16 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
       }
     }
 
-    //Close select box when a command list or other select box is clicked
+    // Close select box when a command list or other select box is clicked
     this.subscriptions.push(
-      this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean }) => {
-        if( data.id === 'commandList' ) {
-          this.isShowSelectList = data.isShow;
-        } else if( data.id !== this._FIELD_COMBO_ID && data.id !== 'toggleList') {
+      this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean, detail : string }) => {
+        if(data.hasOwnProperty('detail') && data.detail == this._FIELD_COMBO_ID){
+          // return;
+        }else{
           this.isShowSelectList = false;
+          $('#selecterUl').css('display','none');
         }
+
       })
     );
 
@@ -217,15 +191,15 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
   public onSelect(item: any) {
 
     this.selectedItem = item;
-
-    this.isShowSelectList = false;  // close select box
-
+    // this.isShowSelectList = false;  // close select box
     this.safelyDetectChanges();
 
     if(this.selectedItem == null || this.selectedItem == undefined) {this.searchText = ''} else{this.searchText = this.selectedItem['value'];}
     item.value = this.searchText;
     this.onSelected.emit(item);     // emit event
+    setTimeout(() => this._searchTextElement.nativeElement.focus(), 50);
   }
+
 
   /**
    * Click inside component
@@ -234,9 +208,10 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
   public onClickHost(event) {
     // 현재 element 내부에서 생긴 이벤트가 아닌경우 hide 처리
     if (!this.elementRef.nativeElement.contains(event.target)) {
+      this._searchTextElement.nativeElement.blur();
       // 팝업창 닫기
       this.isShowSelectList = false;
-      // !this.isWritable ? this.searchText = '' : null;
+      $('#selecterUl').css('display','none');
     }
   }
 
@@ -244,15 +219,13 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    * Select box open and close
    */
   public toggleSelectList() {
-
     if (this.isSearchAllowed) {
       this.isShowSelectList = true;
-      setTimeout(() => this._searchTextElement.nativeElement.focus());
+      setTimeout(() => this._searchTextElement.nativeElement.focus(), 50);
     } else {
       this.isShowSelectList = !this.isShowSelectList;
     }
     this.showHidePatternLayer(this.isShowSelectList);
-
   }
 
   /**
@@ -260,7 +233,13 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    * @param {boolean} isShow
    */
   public showHidePatternLayer(isShow:boolean) {
-    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'toggleList', isShow : isShow } );
+    if(isShow) {
+      $('#selecterUl').css('display','block');
+      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'toggleList', isShow : isShow, detail: this._FIELD_COMBO_ID} );
+    }else {
+      $('#selecterUl').css('display','none');
+      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'toggleList', isShow : isShow, detail: this._FIELD_COMBO_ID} );
+    }
   } // function - showHidePatternLayer
 
 
@@ -316,7 +295,7 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
           this.onSelected.emit(item);
         }
         // Emitting event telling not to apply rule !
-        this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'enterKey', isShow : false } );
+        // this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: this._FIELD_COMBO_ID, isShow : false } );
         break;
     }
   }
@@ -362,6 +341,8 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    * 선택된 아이템 설정하기
    */
   public setSelectedItem(arr: any[], customTimestamp: string, defaultIndex: number) {
+
+    // console.info('setSelectedItem', customTimestamp);
     this.array = arr;
     this.customTimestamp = customTimestamp;
     this.defaultIndex = defaultIndex;
@@ -383,7 +364,8 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
       this.searchText = this.selectedItem['value'];
     }
 
-    this.toggleSelectList();
+    this.isShowSelectList= false;
+    $('#selecterUl').css('display','none');
   }
 
 }

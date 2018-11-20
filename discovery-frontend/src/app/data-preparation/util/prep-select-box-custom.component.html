@@ -20,11 +20,10 @@
          [(ngModel)]="searchText"
          placeholder="Search"
          class="ddp-input-selectbox" *ngIf="isSearchAllowed" (keyup)="changeSearchText($event)">
-  <!--<span class="ddp-txt-selectbox">{{selectedItem == null ? unselectedMessage :  isStringArray ? selectedItem : selectedItem[viewKey] }}</span>-->
   <span class="ddp-txt-selectbox" *ngIf="searchText == null || searchText == ''">{{unselectedMessage}}</span>
   <span class="ddp-txt-selectbox" *ngIf="searchText !== null && searchText !== ''">{{searchText}}</span>
-  <ul id="selecterUl" [ngClass]="{'ddp-selectdown': isUpSelect == false, 'ddp-pass' : isOptionToLeft, 'ddp-pass2' : !isOptionToLeft }"
-      class="ddp-list-selectbox"
+  <ul id="selecterUl"
+      class="ddp-list-selectbox" style="display: none"
       #sourceFieldCombo>
     <li *ngFor="let item of filteredList"
         (mouseover)="hoverSourceItem($event)"
