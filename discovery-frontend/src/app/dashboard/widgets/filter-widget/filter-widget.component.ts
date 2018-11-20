@@ -230,7 +230,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * @param {FilterWidgetConfiguration} objConfig
    */
   public setConfiguration(objConfig: FilterWidgetConfiguration) {
-    if( this.isError ) {
+    if( !this.isError ) {
       this.widget.configuration = objConfig;
       this._candidate( this.getFilter() );
     }
