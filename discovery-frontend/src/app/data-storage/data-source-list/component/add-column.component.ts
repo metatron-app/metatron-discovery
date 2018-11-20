@@ -42,16 +42,12 @@ export class AddColumnComponent extends AbstractComponent {
   public latitudeColumnList: any = [];
   // selected latitude column
   public selectedLatitudeColumn: any;
-  // latitude column list show flag
-  public isLatitudeListShow: boolean = false;
   // latitude column valid error
   public latitudeColumnValid: boolean;
   // longitude column list
   public longitudeColumnList: any = [];
   // selected longitude column
   public selectedLongitudeColumn: any;
-  // longitude column list show flag
-  public isLongitudeListShow: boolean = false;
   // longitude column valid error
   public longitudeColumnValid: boolean;
 
@@ -100,14 +96,26 @@ export class AddColumnComponent extends AbstractComponent {
    */
   public init(columnList: any): void {
     // set column list
-    this.longitudeColumnList = this.latitudeColumnList = this._columnList = _.filter(columnList, column => !column.unloaded);
-    // if unloaded selected Longitude Column
-    if (this.selectedLongitudeColumn && this.selectedLongitudeColumn.unloaded) {
-      this.selectedLongitudeColumn = null;
+    this.longitudeColumnList = this.latitudeColumnList = this._columnList = _.filter(columnList, column => !column.unloaded && !column.derived);
+    // if exist longitude column
+    if (this.selectedLongitudeColumn) {
+      // set latitude column list
+      this.latitudeColumnList = this._columnList.filter(column => column.name !== this.selectedLongitudeColumn.name);
+      // if unloaded column
+      if (this.selectedLongitudeColumn.unloaded) {
+        // init selected longitude column
+        this.selectedLongitudeColumn = null;
+      }
     }
-    // if unloaded selected Latitude Column
-    if (this.selectedLatitudeColumn && this.selectedLatitudeColumn.unloaded) {
-      this.selectedLatitudeColumn = null;
+    // if exist latitude column
+    if (this.selectedLatitudeColumn) {
+      // set longitude column list
+      this.longitudeColumnList = this._columnList.filter(column => column.name !== this.selectedLatitudeColumn.name);
+      // if unloaded column
+      if (this.selectedLatitudeColumn.unloaded) {
+        // init selected latitude column
+        this.selectedLatitudeColumn = null;
+      }
     }
   }
 

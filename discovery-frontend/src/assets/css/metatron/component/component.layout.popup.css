@@ -26,6 +26,7 @@
 .ddp-wrap-popup2.ddp-types ul.ddp-list-popup.ddp-type li a {padding-left:14px;}
 
 .ddp-wrap-popup2.ddp-types ul.ddp-list-popup li a span.ddp-data-name {color:#b7b9c2;}
+.ddp-wrap-popup2.ddp-types ul.ddp-list-popup li span.ddp-noresult {display:block; padding:5px 10px; color:#b7b9c2; cursor:default; font-size:13px;}
 
 /* layout popup 아이콘 */
 .ddp-wrap-popup2.ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-type-"] {display:inline-block;}

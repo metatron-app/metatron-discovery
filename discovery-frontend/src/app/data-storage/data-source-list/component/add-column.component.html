@@ -62,20 +62,12 @@
         <!-- latitude column -->
         <div class="ddp-col-6 ddp-form-error">
           <!-- select box -->
-          <div class="ddp-type-selectbox ddp-type-search-select" [class.ddp-selected]="isLatitudeListShow"
-               (click)="isLatitudeListShow = !isLatitudeListShow" (clickOutside)="isLatitudeListShow = false">
-            <span class="ddp-txt-selectbox">{{selectedLatitudeColumn ? selectedLatitudeColumn.name : ('msg.storage.ui.latitude.column' | translate)}}</span>
-            <ul class="ddp-list-selectbox ddp-selectdown">
-              <li *ngIf="latitudeColumnList.length === 0">
-                <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
-              </li>
-              <li *ngFor="let column of latitudeColumnList">
-                <a href="javascript:" (click)="onChangeSelectedLatitudeColumn(column)">
-                  {{column.name}}
-                </a>
-              </li>
-            </ul>
-          </div>
+          <column-select-box
+            [columnList]="latitudeColumnList"
+            [selectedColumn]="selectedLatitudeColumn"
+            [placeholder]="'msg.storage.ui.latitude.column' | translate"
+            [searchPlaceHolder]="'msg.storage.ui.longitude.column' | translate"
+            (onSelected)="onChangeSelectedLatitudeColumn($event)"></column-select-box>
           <!-- //select box -->
           <span class="ddp-data-error" *ngIf="latitudeColumnValid === false"> {{'msg.storage.ui.required' | translate}}</span>
         </div>
@@ -83,20 +75,12 @@
         <!-- longitude column -->
         <div class="ddp-col-6 ddp-form-error">
           <!-- select box -->
-          <div class="ddp-type-selectbox ddp-type-search-select" [class.ddp-selected]="isLongitudeListShow"
-               (click)="isLongitudeListShow = !isLongitudeListShow" (clickOutside)="isLongitudeListShow = false">
-            <span class="ddp-txt-selectbox">{{selectedLongitudeColumn ? selectedLongitudeColumn.name : ('msg.storage.ui.longitude.column' | translate)}}</span>
-            <ul class="ddp-list-selectbox ddp-selectdown">
-              <li *ngIf="longitudeColumnList.length === 0">
-                <span class="ddp-noresult">{{'msg.comm.ui.no.rslt' | translate}}</span>
-              </li>
-              <li *ngFor="let column of longitudeColumnList">
-                <a href="javascript:" (click)="onChangeSelectedLongitudeColumn(column)">
-                  {{column.name}}
-                </a>
-              </li>
-            </ul>
-          </div>
+          <column-select-box
+            [columnList]="longitudeColumnList"
+            [selectedColumn]="selectedLongitudeColumn"
+            [placeholder]="'msg.storage.ui.longitude.column' | translate"
+            [searchPlaceHolder]="'msg.storage.ui.longitude.column' | translate"
+            (onSelected)="onChangeSelectedLongitudeColumn($event)"></column-select-box>
           <!-- //select box -->
           <span class="ddp-data-error" *ngIf="longitudeColumnValid === false"> {{'msg.storage.ui.required' | translate}}</span>
         </div>

@@ -161,8 +161,8 @@ export class Field {
   // format: FieldFormat;
   format: any;
 
-  // is create field
-  derived: boolean;
+  // is create field (optional)
+  derived?: boolean;
 
   // description
   description: string;

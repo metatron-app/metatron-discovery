@@ -62,6 +62,7 @@ import { IngestionSettingComponent } from './data-source-list/component/ingestio
 import { AdvancedSettingComponent } from './data-source-list/component/advanced-setting.component';
 import { IngestionLogComponent } from './data-source-list/detail-data-source/information-dats-source/component/ingestion-log/ingestion-log.component';
 import { AddColumnComponent } from './data-source-list/component/add-column.component';
+import { ColumnSelectBoxComponent } from './data-source-list/component/column-select-box.component';
 
 const storageRoutes: Routes = [
   { path: '', component: DataSourceListComponent, canActivate: [DatasourceManagementGuard], canDeactivate:[CanDeactivateGuard] },
@@ -125,6 +126,8 @@ const storageRoutes: Routes = [
     AdvancedSettingComponent,
     // configuration - add column
     AddColumnComponent,
+    // column select box
+    ColumnSelectBoxComponent,
 
     // data connection
     DataConnectionComponent,
