@@ -21,6 +21,7 @@ import { DataflowService } from '../../../../service/dataflow.service';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isNullOrUndefined } from 'util';
 import {PrepSelectBoxComponent} from "../../../../../util/prep-select-box.component";
+import * as _ from 'lodash';
 
 @Component({
   selector : 'edit-rule-settype',
@@ -229,7 +230,7 @@ export class EditRuleSettypeComponent extends EditRuleComponent implements OnIni
       return undefined;
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }

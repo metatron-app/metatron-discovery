@@ -1043,6 +1043,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       dataconnection: this.workbench.dataConnection,
       webSocketId: this.websocketId
     };
+
+    // user 정보 체크
+    this.setUserInfoTableParam();
+
     // 보고있는 schemalayer hide
     this.closeEvent = { name: 'closeSchema' };
   } // function - setInitDatabase
@@ -1057,6 +1061,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       dataconnection: this.workbench.dataConnection,
       webSocketId: this.websocketId
     };
+
+    // user 정보 체크
+    this.setUserInfoTableParam();
+
     this.saveLocalStorageGeneralSchema();
     // 보고있는 schemalayer hide
     this.closeEvent = { name: 'closeSchema' };
@@ -2029,6 +2037,8 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   private createWebSocket(callback?: Function): void {
     this.workbench = this.workbenchTemp;
+    // connection database 정보
+    this.workbench.dataConnection.connectionDatabase = this.workbenchTemp.dataConnection.database;
     this.websocketId = CommonConstant.websocketId;
     try {
       console.info('this.websocketId', this.websocketId);
@@ -2966,6 +2976,22 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
    */
   public getConnectionType(connType: string) {
     return DataConnectionType[connType];
+  }
+
+  /**
+   * tableParam 사용자 정보 체크
+   */
+  private setUserInfoTableParam() {
+    const selectedSecurityType = [
+        { label: this.translateService.instant('msg.storage.li.connect.always'), value: 'MANUAL' },
+        { label: this.translateService.instant('msg.storage.li.connect.account'), value: 'USERINFO' },
+        { label: this.translateService.instant('msg.storage.li.connect.id'), value: 'DIALOG' }
+      ].find(type => type.value === this.workbench.dataConnection.authenticationType) || {
+        label: this.translateService.instant('msg.storage.li.connect.always'),
+        value: 'MANUAL'
+      };
+    this.tableParam.dataconnection.username = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginId : this.workbench.dataConnection.username;
+    this.tableParam.dataconnection.password = selectedSecurityType.value === 'DIALOG' ? this.webSocketLoginPw : this.workbench.dataConnection.password;
   }
 
 }

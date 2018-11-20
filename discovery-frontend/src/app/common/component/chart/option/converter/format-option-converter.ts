@@ -755,14 +755,12 @@ export class FormatOptionConverter {
       }
       if( uiData['seriesValue'] && -1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_VALUE) ){
 
-        let seriesValue = '';
-
         let splitData = _.split(uiData.name, CHART_STRING_DELIMITER);
         let name = -1 !== uiData.name.indexOf(CHART_STRING_DELIMITER) ? splitData[splitData.length - 1] : uiData.name;
 
         const value = typeof uiData['seriesValue'][params.dataIndex] === 'undefined' ? uiData['seriesValue'] : uiData['seriesValue'][params.dataIndex];
 
-        seriesValue = FormatOptionConverter.getTooltipValue(name, pivot.aggregations, format, value);
+        let seriesValue = FormatOptionConverter.getTooltipValue(name, pivot.aggregations, format, value);
 
         // series percent가 있는경우
         if (-1 !== uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.SERIES_PERCENT)) {

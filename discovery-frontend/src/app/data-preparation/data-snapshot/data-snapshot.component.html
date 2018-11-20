@@ -34,6 +34,26 @@
     <!-- option -->
     <div class="ddp-wrap-option">
       <div class="ddp-ui-option ddp-clear">
+
+
+        <div class="ddp-wrap-edit">
+          <label class="ddp-label-type">{{'msg.dp.th.ss-type' | translate}}</label>
+          <!-- edit option -->
+          <div class="ddp-ui-edit-option">
+            <!-- selectbox -->
+            <!-- 선택시 : ddp-selected 추가 -->
+            <component-select
+              [array]="snapshotTypes"
+              [viewKey]="'label'"
+              (onSelected)="onChangeType($event)">
+            </component-select>
+            <!-- //selectbox -->
+          </div>
+          <!-- //edit option -->
+        </div>
+
+
+
         <div class="ddp-wrap-edit">
           <label class="ddp-label-type">{{'msg.dp.th.status' | translate}}</label>
           <!-- edit option -->
@@ -106,6 +126,9 @@
           {{'msg.comm.menu.manage.prep.flow' | translate}} | {{'msg.comm.menu.manage.prep.set' | translate}}
         </th>
         <th>
+          {{'msg.dp.th.ss-type' | translate}}
+        </th>
+        <th>
           {{'msg.dp.th.status' | translate}}
         </th>
         <th>
@@ -132,6 +155,9 @@
         <td>
           <span *ngIf="item.dsName === ''" class="ddp-data-delete">{{'msg.dp.ui.ds.del.success' | translate}}</span>
           {{item.creatorDfName}} | {{item.dsName}}
+        </td>
+        <td>
+          {{prepCommonUtil.getSnapshotType(item.ssType)}}
         </td>
         <td>
           <span class="ddp-data-state ddp-rejected" *ngIf="item.displayStatus === 'FAIL'"><em class="ddp-icon-state"></em>{{'msg.dp.ui.fail' | translate}}</span>

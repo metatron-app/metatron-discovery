@@ -2987,8 +2987,20 @@ if (typeof Slick === "undefined") {
             }
         }
 
+        var sortingEnabled = true;    // #20181119-01 - delay sort click
         function setupColumnSort() {
             $headers.click(function (e) {
+
+              // #20181119-01 - delay sort click - Start
+              if (!sortingEnabled) {
+                return;
+              }
+
+              setTimeout(function(){ sortingEnabled = true; }, 300 );
+
+              sortingEnabled = false;
+              // #20181119-01 - delay sort click - End
+
                 // temporary workaround for a bug in jQuery 1.7.1 (http://bugs.jquery.com/ticket/11328)
                 e.metaKey = e.metaKey || e.ctrlKey;
 
