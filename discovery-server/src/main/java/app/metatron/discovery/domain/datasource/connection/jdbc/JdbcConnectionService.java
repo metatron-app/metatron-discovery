@@ -24,7 +24,10 @@ import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCrit
 import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.*;
 import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
 import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.*;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
 import app.metatron.discovery.domain.engine.EngineProperties;
 import app.metatron.discovery.domain.user.CachedUserService;
 import app.metatron.discovery.domain.user.User;
@@ -39,13 +42,12 @@ import com.facebook.presto.jdbc.PrestoArray;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import com.facebook.presto.jdbc.PrestoArray;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.joda.time.DateTime;
+import org.postgresql.jdbc.PgArray;
+import org.postgresql.util.PGobject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,53 +59,13 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
 import org.supercsv.prefs.CsvPreference;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeBetweenExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeCurrentDatetimeExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDateFormatExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDisjunctionExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeEqExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeOrderExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeProjection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
-import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
-import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.user.CachedUserService;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
-import app.metatron.discovery.util.AuthUtils;
 
 import static app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection.CURRENT_DATE_FORMAT;
 import static java.util.stream.Collectors.toList;
@@ -1780,6 +1742,8 @@ public class JdbcConnectionService {
 //          rowMap.put(fieldName, timestamp.timestampValue().toString());
 //        } else
         if (rs.getObject(i) instanceof Timestamp) {
+          rowMap.put(fieldName, rs.getObject(i).toString());
+        } else if (rs.getObject(i) instanceof PgArray || rs.getObject(i) instanceof PGobject) {
           rowMap.put(fieldName, rs.getObject(i).toString());
         } else if (rs.getObject(i) instanceof PrestoArray) {
           rowMap.put(fieldName, ((PrestoArray) rs.getObject(i)).getArray());

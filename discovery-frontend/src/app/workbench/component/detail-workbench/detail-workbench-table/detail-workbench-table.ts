@@ -180,11 +180,10 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
   public tableListSorting( sort: 'ASC' | 'DESC' ) {
 
     const tables = this.tables;
-    let column = "name";
 
     let tableNames : string[] = [];
     for (let idx: number = 0; idx < tables.length; idx++) {
-      tableNames.push( tables[idx][column] );
+      tableNames.push( tables[idx] );
     }
 
     tableNames.sort();
@@ -195,17 +194,8 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
       this.tableSortType = 'ASC';
     }
 
-    let temp : any[] = [];
-    for (let nameIdx: number = 0; nameIdx < tableNames.length; nameIdx++) {
-      for (let idx: number = 0; idx < tables.length; idx++) {
-        if( tableNames[nameIdx] == tables[idx][column] ) {
-          temp.push( tables[idx] );
-        }
-      }
-    }
-
     this.tables = [];
-    this.tables = temp;
+    this.tables = tableNames;
 
   }
 
@@ -230,7 +220,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
     this._getTableListReconnectCount++;
 
     this.loadingShow();
-    this.dataconnectionService.getTableListInConnection(this.inputParams.dataconnection.id, this.inputParams.dataconnection.database, this._getParameterForTable(WorkbenchService.websocketId, this.page, this.searchText))
+    this.dataconnectionService.getTableListInConnectionQuery(this.inputParams.dataconnection, this._getParameterForTable(WorkbenchService.websocketId, this.page, this.searchText))
       .then((data) => {
         // 호출 횟수 초기화
         this._getTableListReconnectCount = 0;
@@ -309,7 +299,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
       this.page.page = this.page.page - 1;
     }
     // set table list
-    this._setTableList(this.inputParams.dataconnection.id, this.inputParams.dataconnection.database);
+    this._setTableList(this.inputParams.dataconnection);
   }
 
   /**
@@ -318,12 +308,12 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
    * @param {string} databaseName
    * @private
    */
-  private _setTableList(connectionId: string, databaseName: string): void {
+  private _setTableList(dataconnection: any): void {
     // 호출 횟수 증가
     this._getTableListReconnectCount++;
 
     this.loadingShow();
-    this.dataconnectionService.getTableListInConnection(connectionId, databaseName, this._getParameterForTable(WorkbenchService.websocketId, this.page, this.searchText))
+    this.dataconnectionService.getTableListInConnectionQuery(dataconnection, this._getParameterForTable(WorkbenchService.websocketId, this.page, this.searchText))
       .then((data) => {
         // 호출 횟수 초기화
         this._getTableListReconnectCount = 0;
@@ -336,7 +326,7 @@ export class DetailWorkbenchTable extends AbstractWorkbenchComponent implements 
       .catch((error) => {
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getTableListReconnectCount <= 5) {
           this.webSocketCheck(() => {
-            this._setTableList(connectionId, databaseName);
+            this._setTableList(dataconnection);
           });
         } else {
           this.commonExceptionHandler(error);
