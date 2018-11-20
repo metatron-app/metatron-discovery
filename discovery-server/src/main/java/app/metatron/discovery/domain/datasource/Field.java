@@ -186,16 +186,26 @@ public class Field implements MetatronDomain<Long> {
   private Boolean unloaded;
 
   /**
+   * Sequence for field alignment
+   */
+  @Column(name = "seq")
+  private Long seq;
+
+  /**
    * Whether to derived field (not physical field)
    */
   @Column(name = "field_derived")
   private Boolean derived;
 
   /**
-   * Sequence for field alignment
+   * Derivation rule
    */
-  @Column(name = "seq")
-  private Long seq;
+  @Column(name = "field_derivation_rule", length = 65535, columnDefinition = "TEXT")
+  @Basic(fetch = FetchType.LAZY)
+  @Spec(target = IngestionRule.class)
+  @JsonRawValue
+  @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
+  private String derivationRule;
 
   /**
    * Ingestion rule (Discard or Set Default Value)
@@ -523,6 +533,19 @@ public class Field implements MetatronDomain<Long> {
 
   public void setAlias(String alias) {
     this.alias = alias;
+  }
+
+  @JsonIgnore
+  public IngestionRule getDerivationRuleObject() {
+    return GlobalObjectMapper.readValue(derivationRule, IngestionRule.class);
+  }
+
+  public String getDerivationRule() {
+    return derivationRule;
+  }
+
+  public void setDerivationRule(String derivationRule) {
+    this.derivationRule = derivationRule;
   }
 
   public String getIngestionRule() {

@@ -70,15 +70,13 @@ public class AbstractSpecBuilder {
 
     // Use ingestion rule and field format
     for (Field field : dataSource.getFields()) {
+
+      if (field.getDerivationRule() != null) {
+        addRule(field.getName(), field.getDerivationRuleObject());
+      }
+
       if (field.getIngestionRule() != null) {
-        IngestionRule rule = field.getIngestionRuleObject();
-        if (rule instanceof ValidationRule) {
-          ValidationRule validationRule = (ValidationRule) rule;
-          dataSchema.addValidation(validationRule.toValidation(field.getName()));
-        } else if (rule instanceof EvaluationRule) {
-          EvaluationRule evaluationRule = (EvaluationRule) rule;
-          dataSchema.addEvaluation(evaluationRule.toEvaluation(field.getName()));
-        }
+        addRule(field.getName(), field.getIngestionRuleObject());
       }
 
       FieldFormat fieldFormat = field.getFormatObject();
@@ -131,6 +129,16 @@ public class AbstractSpecBuilder {
 
     dataSchema.setParser(makeParser(dataSource));
 
+  }
+
+  private void addRule(String name, IngestionRule rule) {
+    if (rule instanceof ValidationRule) {
+      ValidationRule validationRule = (ValidationRule) rule;
+      dataSchema.addValidation(validationRule.toValidation(name));
+    } else if (rule instanceof EvaluationRule) {
+      EvaluationRule evaluationRule = (EvaluationRule) rule;
+      dataSchema.addEvaluation(evaluationRule.toEvaluation(name));
+    }
   }
 
   private void makeSecondaryIndexing(String name, DataType originalType, GeoFormat geoFormat) {

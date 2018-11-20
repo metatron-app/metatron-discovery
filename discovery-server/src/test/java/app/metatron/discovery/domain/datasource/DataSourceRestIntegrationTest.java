@@ -1289,7 +1289,8 @@ public class DataSourceRestIntegrationTest extends AbstractRestIntegrationTest {
     Field locationField = new Field("location", DataType.STRUCT, DIMENSION, 4L);
     locationField.setLogicalType(LogicalType.GEO_POINT);
     locationField.setDerived(true);
-    locationField.setIngestionRule(GlobalObjectMapper.writeValueAsString(new GeoPointRule(null, latField.getName(), lonField.getName())));
+    locationField.setDerivationRule(GlobalObjectMapper.writeValueAsString(new GeoPointRule(null, latField.getName(), lonField.getName())));
+    locationField.setIngestionRule(GlobalObjectMapper.writeValueAsString(new DiscardNullRule()));
     locationField.setFormat(GlobalObjectMapper.writeValueAsString(new GeoPointFormat(GeoFormat.DEFAULT_SRSNAME, null)));
     fields.add(locationField);
 
