@@ -14,7 +14,7 @@
 
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import {
-  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output
+  Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, ViewChild
 } from '@angular/core';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { isUndefined } from 'util';
@@ -25,6 +25,7 @@ import {
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
+import { AddColumnComponent } from '../../../component/add-column.component';
 
 @Component({
   selector: 'staging-db-configure-schema',
@@ -46,6 +47,10 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
 
   // 선택된 컬럼리스트
   private checkedColumnList: any[];
+
+  // add column component
+  @ViewChild(AddColumnComponent)
+  private _addColumnComponent: AddColumnComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -92,6 +97,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
   // show flag
   public typeShowFl: boolean = false;
   public timestampShowFl: boolean = false;
+  public addColumnShowFl: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -197,7 +203,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * 체크표시된 컬럼 리스트
    * @returns {any[]}
    */
-  public get getCheckedColumns() {
+  public getCheckedColumns() {
     return this.checkedColumnList;
   }
 
@@ -379,6 +385,26 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
     this.timestampShowFl = !this.timestampShowFl;
   }
 
+  /**
+   * Add column button click event
+   */
+  public onClickAddColumn(): void {
+    this.addColumnShowFl = !this.addColumnShowFl;
+    if (this.addColumnShowFl) {
+      this._addColumnComponent.init(this.fields);
+    }
+  }
+
+  /**
+   * Closed add column modal
+   * @param data
+   */
+  public onClosedAddColumn(data: any): void {
+    if (data) {
+      this.fields.unshift(data);
+    }
+    this.addColumnShowFl = false;
+  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - validation
@@ -746,9 +772,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    * @private
    */
   private _getEnabledColumnList() {
-    return this.getColumnList().filter((column) => {
-      return column.unloaded === false;
-    });
+    return this.getColumnList().filter(column => !column.unloaded);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -26,6 +26,7 @@ import { isUndefined } from 'util';
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
+import { AddColumnComponent } from '../../../component/add-column.component';
 
 
 @Component({
@@ -47,6 +48,10 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
 
   // 선택된 컬럼리스트
   private checkedColumnList: any[];
+
+  // add column component
+  @ViewChild(AddColumnComponent)
+  private _addColumnComponent: AddColumnComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -91,6 +96,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
   // show flag
   public typeShowFl: boolean = false;
   public timestampShowFl: boolean = false;
+  public addColumnShowFl: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -197,7 +203,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * 체크표시된 컬럼 리스트
    * @returns {any[]}
    */
-  public get getCheckedColumns() {
+  public getCheckedColumns() {
     return this.checkedColumnList;
   }
 
@@ -373,6 +379,27 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
       return;
     }
     this.timestampShowFl = !this.timestampShowFl;
+  }
+
+  /**
+   * Add column button click event
+   */
+  public onClickAddColumn(): void {
+    this.addColumnShowFl = !this.addColumnShowFl;
+    if (this.addColumnShowFl) {
+      this._addColumnComponent.init(this.fields);
+    }
+  }
+
+  /**
+   * Closed add column modal
+   * @param data
+   */
+  public onClosedAddColumn(data: any): void {
+    if (data) {
+      this.fields.unshift(data);
+    }
+    this.addColumnShowFl = false;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -742,9 +769,7 @@ export class FileConfigureSchemaComponent extends AbstractPopupComponent impleme
    * @private
    */
   private _getEnabledColumnList() {
-    return this.getColumnList().filter((column) => {
-      return column.unloaded === false;
-    });
+    return this.getColumnList().filter(column => !column.unloaded);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
