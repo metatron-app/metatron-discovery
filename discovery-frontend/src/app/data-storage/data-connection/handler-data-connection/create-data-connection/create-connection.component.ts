@@ -337,6 +337,14 @@ export class CreateConnectionComponent extends AbstractPopupComponent implements
       property.keyError = true;
       return;
     }
+    // check special characters (enable .dot)
+    if (property.key.trim().match(/[\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi)) {
+      // set duplicate message
+      property.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.special.char.disable');
+      // set error flag
+      property.keyError = true;
+      return;
+    }
     // check duplicate
     if (this.properties.filter(item => item.key.trim() === property.key.trim()).length > 1) {
       // set duplicate message
