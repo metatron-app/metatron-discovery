@@ -69,6 +69,9 @@ export interface UIOption {
   xAxis?: UIChartAxis;
 
   yAxis?: UIChartAxis;
+  
+  // Secondary Axis
+  secondaryAxis?: UIChartAxis;
 
   subAxis?: UIChartAxis;
 

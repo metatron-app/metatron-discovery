@@ -15,7 +15,7 @@
 <div class="ddp-ui-chart-side ddp-show">
 
   <div class="ddp-ui-side-title">
-    {{'msg.page.ui.yaxis.title' | translate}}
+    {{'msg.page.ui.secondary.axis.title' | translate}}
   </div>
   <div class="ddp-wrap-downmenu">
     <!-- box down -->
@@ -28,7 +28,7 @@
             <span class="ddp-label-slider">{{'msg.page.chart.axis.show.axis.title' | translate}}</span>
             <!-- Slide THREE -->
             <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-              <input type="checkbox" (click)="showAxisName('column', !uiOption.yAxis.showName)" [ngModel]="uiOption.yAxis.showName">
+              <input type="checkbox" (click)="showAxisName('column', !uiOption.secondaryAxis.showName)" [ngModel]="uiOption.secondaryAxis.showName">
               <label><span class="ddp-slide"></span></label>
             </div>
             <!-- //Slide THREE -->
@@ -36,17 +36,13 @@
           <!-- //slider -->
 
           <input type="text" class="ddp-input-typebasic" placeholder="{{'msg.page.ui.y-axis.title.ph' | translate}}"
-                 [(ngModel)]="nameUiOption.yAxis.customName" (keyup.enter)="axisName('column', 1, $event)" [disabled]="!uiOption.yAxis.showName">
+                 [(ngModel)]="nameUiOption.secondaryAxis.customName" (keyup.enter)="axisName('column', 1, $event)" [disabled]="!uiOption.secondaryAxis.showName">
         </div>
       </div>
 
-      <!-- 축이 category타입일때에만 show -->
-      <axis-category-option *ngIf="!isSecondaryAxis && 'category' == uiOption.yAxis?.label?.type.toString()" [axis]="uiOption.yAxis" [firstFl]="!possibleChartCheck('yAxisTitle', uiOption.type)" (changeCategoryAxis)="changeYAxisValue($event)"></axis-category-option>
-      <!-- //축이 category타입일때에만 show -->
-
-      <!-- 축이 value타입일때에만 show -->
-      <axis-value-option *ngIf="!isSecondaryAxis && 'value' == uiOption.yAxis?.label?.type.toString()" [axis]="uiOption.yAxis" [uiOption]="uiOption" (changeValueAxis)="changeYAxisValue($event)" (changeBaseline)="changeBaseline($event)"></axis-value-option>
-      <!-- //축이 value타입일때에만 show -->
+      <!-- Secondary Axis show -->
+      <axis-value-option *ngIf="isSecondaryAxis" [axis]="uiOption.secondaryAxis" [uiOption]="uiOption" (changeValueAxis)="changeSecondaryAxisValue($event)" (changeBaseline)="changeSecondaryAxisBaseline($event)"></axis-value-option>
+      <!-- //Secondary Axis show -->
     </div>
     <!-- //box down -->
   </div>

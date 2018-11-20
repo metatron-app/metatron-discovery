@@ -2223,6 +2223,7 @@
   "msg.page.ui.number.format.title" : "숫자 포멧",
   "msg.page.ui.yaxis.title" : "Y축 설정",
   "msg.page.ui.xaxis.title" : "X축 설정",
+  "msg.page.ui.secondary.axis.title" : "Y 보조축 설정",
   "msg.page.ui.data.label.title" : "데이터 레이블 설정",
   "msg.page.ui.data.tooltip.title" : "툴팁 레이블 설정",
   "msg.page.ui.data.color.title" : "색상 설정",

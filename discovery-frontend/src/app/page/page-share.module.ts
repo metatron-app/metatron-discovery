@@ -49,6 +49,7 @@ import {MapLegendOptionComponent} from "./chart-style/map/map-legend-option.comp
 import {MapFormatOptionComponent} from "./chart-style/map/map-format-option.component";
 import {MapTooltipOptionComponent} from "./chart-style/map/map-tooltip-option.component";
 import {MapCommonOptionComponent} from "./chart-style/map/map-common-option.component";
+import {SecondaryAxisOptionComponent} from './chart-style/secondary-axis-option.component';
 
 @NgModule({
   imports: [
@@ -70,6 +71,7 @@ import {MapCommonOptionComponent} from "./chart-style/map/map-common-option.comp
     LegendOptionComponent,
     XAxisOptionComponent,
     YAxisOptionComponent,
+    SecondaryAxisOptionComponent,
     AxisValueOptionComponent,
     AxisCategoryOptionComponent,
     DataLabelOptionComponent,

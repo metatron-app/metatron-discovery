@@ -2219,6 +2219,7 @@
   "msg.page.ui.number.format.title" : "Number Format",
   "msg.page.ui.yaxis.title" : "Y Axis Setting",
   "msg.page.ui.xaxis.title" : "X Axis Setting",
+  "msg.page.ui.secondary.axis.title" : "Y Secondary Axis Setting",
   "msg.page.ui.data.label.title" : "Data Label Setting",
   "msg.page.ui.data.tooltip.title" : "ToolTip Label Setting",
   "msg.page.ui.data.color.title" : "Color Setting",
