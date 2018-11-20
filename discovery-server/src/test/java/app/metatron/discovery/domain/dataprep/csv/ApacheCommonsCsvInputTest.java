@@ -17,7 +17,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_with_df() {
     String strUri = buildStrUrlFromResourceDir("csv/sale.csv");
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -26,7 +26,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_bom() {
     String strUri = buildStrUrlFromResourceDir("csv/sale_bom16.csv");
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -45,7 +45,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_unstructured() {
     String strUri = buildStrUrlFromResourceDir("csv/unstructured.csv");
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show(50);
@@ -54,7 +54,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_multi_line() {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line.csv");
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -65,7 +65,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_multi_line_escape() {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_bs_escape.csv");
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -77,7 +77,7 @@ public class ApacheCommonsCsvInputTest {
   @Test
   public void test_unmatched_quotes() {
     String strUri = buildStrUrlFromResourceDir("csv/unmatched_quotes.csv");
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();

@@ -150,7 +150,7 @@ public class PrepCsvUtil {
     // get colNames
     CSVParser parser;
     try {
-      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim).withEscape('\\'));
+      parser = CSVParser.parse(reader, CSVFormat.DEFAULT.withDelimiter(delim));  // \", "" both become " by default
     } catch (IOException e) {
       e.printStackTrace();
       throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_PARSE_CSV,
@@ -194,19 +194,6 @@ public class PrepCsvUtil {
   public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows, Configuration conf) {
     return parse(strUri, strDelim, limitRows, conf, false);
   }
-
-  public static PrepCsvParseResult parse(String strUri, String strDelim, int limitRows) {
-    return parse(strUri, strDelim, limitRows, null);
-  }
-
-  public static PrepCsvParseResult parse(String strUri, String strDelim) {
-    return parse(strUri, strDelim, 10000);
-  }
-
-  public static PrepCsvParseResult parse(String strUri) {
-    return parse(strUri, ",");
-  }
-
 
   // public for tests
   public static OutputStreamWriter getWriter(OutputStream os) {
@@ -288,7 +275,7 @@ public class PrepCsvUtil {
 
     CSVPrinter printer;
     try {
-      printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL_NON_NULL).withEscape('\\'));
+      printer = new CSVPrinter(writer, CSVFormat.RFC4180.withQuoteMode(QuoteMode.ALL_NON_NULL));
     } catch (IOException e) {
       throw PrepException.create(PrepErrorCodes.PREP_SNAPSHOT_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FAILED_TO_WRITE_CSV, strUri);
     }

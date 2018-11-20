@@ -196,7 +196,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/minimal_quote_mode_and_quote_escaped.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -211,7 +211,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/sale.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -226,7 +226,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -241,7 +241,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_bs_escape.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -256,7 +256,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/multi_line_with_unmatched_bs_escape.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
@@ -271,7 +271,7 @@ public class ApacheCommonsCsvOutputTest {
     String strUri = buildStrUrlFromResourceDir("csv/unstructured.csv");
     cat(strUri, null);
 
-    PrepCsvParseResult result = PrepCsvUtil.parse(strUri);
+    PrepCsvParseResult result = PrepCsvUtil.parse(strUri, ",", 10000, null);
     DataFrame df = new DataFrame();
     df.setByGrid(result);
     df.show();
