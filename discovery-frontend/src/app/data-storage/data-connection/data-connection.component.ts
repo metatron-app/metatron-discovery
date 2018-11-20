@@ -410,14 +410,10 @@ export class DataConnectionComponent extends AbstractComponent implements OnInit
     if (this.selectedDate && this.selectedDate.type !== 'ALL') {
       params['searchDateBy'] = this.selectedDate.dateType;
       if (this.selectedDate.startDateStr) {
-        params['from'] = this.selectedDate.timezone < 0
-          ? (moment(this.selectedDate.startDateStr).subtract(-this.selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z')
-          : (moment(this.selectedDate.startDateStr).add(this.selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z');
+        params['from'] = moment(this.selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
       if (this.selectedDate.endDateStr) {
-        params['to'] = this.selectedDate.timezone < 0
-          ? (moment(this.selectedDate.endDateStr).subtract(-this.selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z')
-          : (moment(this.selectedDate.endDateStr).add(this.selectedDate.timezone, 'hours').format('YYYY-MM-DDTHH:mm:ss.sss') + 'Z');
+        params['to'] = moment(this.selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
     }
     return params;
@@ -434,5 +430,4 @@ class Date {
   endDateStr : string;
   startDateStr : string;
   type: string;
-  timezone: number;
 }
