@@ -80,7 +80,7 @@ export class ColumnSelectBoxComponent extends AbstractComponent implements OnCha
     // if change origin list
     if (changes._originList) {
       // if first init
-      if (!changes._originList.previousValue) {
+      if (changes._originList.firstChange) {
         this.columnList = this._originList;
       } else if (changes._originList.previousValue && changes._originList.currentValue) {
         this.columnList = this._originList;
@@ -88,6 +88,10 @@ export class ColumnSelectBoxComponent extends AbstractComponent implements OnCha
         if (this.selectedColumn && !this._originList.some(column => column.name === this.selectedColumn.name)) {
           this.selectedColumn = null;
         }
+      }
+      // if not empty search keyword, init keyword
+      if (StringUtil.isNotEmpty(this.searchKeyword)) {
+        this.searchKeyword = '';
       }
     }
   }
@@ -120,7 +124,7 @@ export class ColumnSelectBoxComponent extends AbstractComponent implements OnCha
    */
   public onSearchColumn(): void {
     // set column list
-    this.columnList = StringUtil.isEmpty(this.searchKeyword) ? this._originList : this._originList.filter(item => item.name.includes(this.searchKeyword.trim()));
+    this.columnList = StringUtil.isEmpty(this.searchKeyword) ? this._originList : this._originList.filter(item => item.name.toLowerCase().includes(this.searchKeyword.toLowerCase().trim()));
   }
 
   /**

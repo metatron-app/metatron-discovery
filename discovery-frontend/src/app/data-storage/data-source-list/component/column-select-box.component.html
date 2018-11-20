@@ -12,7 +12,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<div class="ddp-type-selectbox ddp-type-search-select" [class.ddp-selected]="isListShow"
+<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" [class.ddp-type-search-select]="!selectedColumn"
      (click)="isListShow = !isListShow">
   <!-- 선택시 자동 input display:block; -->
   <!-- search -->

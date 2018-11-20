@@ -1953,6 +1953,7 @@
   "msg.storage.ui.latitude.column": "Latitude column",
   "msg.storage.ui.longitude.column": "Longitude column",
   "msg.storage.ui.method": "Method",
+  "msg.storage.ui.geo.coordinate": "Geo coordienates",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",

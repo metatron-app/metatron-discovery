@@ -330,6 +330,8 @@ export class AddColumnComponent extends AbstractComponent {
         type: this.selectedMethodType.value.toLowerCase(),
         originalSrsName: 'EPSG:4326'
       };
+      column.ingestionRule['latField'] = this.selectedLatitudeColumn.name;
+      column.ingestionRule['lonField'] = this.selectedLongitudeColumn.name;
     }
     return column;
   }

@@ -14,7 +14,7 @@
 
 import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit,
-  Output
+  Output, ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import {
@@ -26,6 +26,7 @@ import { DatasourceService } from '../../../../../datasource/service/datasource.
 import * as _ from 'lodash';
 import { StringUtil } from '../../../../../common/util/string.util';
 import { Alert } from '../../../../../common/util/alert.util';
+import { AddColumnComponent } from '../../../component/add-column.component';
 
 @Component({
   selector: 'db-configure-schema',
@@ -47,6 +48,10 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
 
   // 선택된 컬럼리스트
   private checkedColumnList: any[];
+
+  // add column component
+  @ViewChild(AddColumnComponent)
+  private _addColumnComponent: AddColumnComponent;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
@@ -93,6 +98,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
   // show flag
   public typeShowFl: boolean = false;
   public timestampShowFl: boolean = false;
+  public addColumnShowFl: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
@@ -377,6 +383,27 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
       return;
     }
     this.timestampShowFl = !this.timestampShowFl;
+  }
+
+  /**
+   * Add column button click event
+   */
+  public onClickAddColumn(): void {
+    this.addColumnShowFl = !this.addColumnShowFl;
+    if (this.addColumnShowFl) {
+      this._addColumnComponent.init(this.fields);
+    }
+  }
+
+  /**
+   * Closed add column modal
+   * @param data
+   */
+  public onClosedAddColumn(data: any): void {
+    if (data) {
+      this.fields.unshift(data);
+    }
+    this.addColumnShowFl = false;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -752,9 +779,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    * @private
    */
   private _getEnabledColumnList() {
-    return this.getColumnList().filter((column) => {
-      return column.unloaded === false;
-    });
+    return this.getColumnList().filter(column => !column.unloaded);
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
