@@ -395,6 +395,12 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
    */
   public resize(isImmediate: boolean = false) {
     if (this.chart) {
+
+      if( this._timer ) {
+        clearTimeout( this._timer );
+        this._timer = null;
+      }
+
       // 변경 적용
       this.safelyDetectChanges();
       this._timer = setTimeout(

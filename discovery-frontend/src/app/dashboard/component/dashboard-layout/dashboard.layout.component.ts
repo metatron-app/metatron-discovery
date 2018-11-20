@@ -267,7 +267,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
   private _updateLayoutFinished() {
     if (!this._isCompleteLayoutLoad) {
       this._isCompleteLayoutLoad = true;
-      this.updateLayoutSize();
+      // this.updateLayoutSize();
       this.onLayoutInitialised();
     }
     this.hideBoardLoading();
@@ -800,7 +800,7 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
       const layoutWidgets: LayoutWidgetInfo[] = DashboardUtil.getLayoutWidgetInfos(dashboard);
       const globalOpts: BoardGlobalOptions = dashboard.configuration.options;
       const globalOptsLayout: BoardLayoutOptions = globalOpts.layout;
-      let isInitialisedLayout: boolean = false;
+      // let isInitialisedLayout: boolean = false;
 
       if (!this._layoutObj) {
 
@@ -839,7 +839,8 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
         // 레이아웃 변경에 대한 이벤트 처리
         this._layoutObj.on('stateChanged', () => {
-          if (this._layoutObj && isInitialisedLayout) {
+          // if (this._layoutObj && isInitialisedLayout && this._isCompleteLayoutLoad ) {
+          if (this._layoutObj && this._isCompleteLayoutLoad ) {
             this.broadCaster.broadcast('RESIZE_WIDGET');            // 위젯 리사이즈 호출
             objLayout.content = this._layoutObj.toConfig().content;   // 변경 사항 저장
           }
@@ -847,10 +848,10 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
 
         // 레이아웃 초기 생성에 대한 이벤트 처리
         this._layoutObj.on('initialised', () => {
-          isInitialisedLayout = true;
-          if (0 === layoutWidgets.length) {
-            this._updateLayoutFinished();
-          }
+          // isInitialisedLayout = true;
+          // if (0 === layoutWidgets.length) {
+          //   this._updateLayoutFinished();
+          // }
 
           this._invalidLayoutWidgets.forEach(item => {
             const tempData = this._layoutObj.root.getItemsById(item);
