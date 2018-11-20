@@ -30,7 +30,8 @@
           <a href="javascript:" class="ddp-btn-delete" *ngIf="searchText" (click)="searchText ='';getSearch()"></a>
         </div>
       </div>
-      <a href="javascript:" class="ddp-icon-del" (click)="deleteAll()"></a>
+      <!--<a href="javascript:" class="ddp-icon-del" (click)="deleteAll()"></a>-->
+      <a href="javascript:" class="ddp-icon-del" (click)="historyDelete()"></a>
       <a href="javascript:" class="ddp-btn-close2" (click)="historyClose()"></a>
       <!-- //search -->
     </div>
@@ -38,21 +39,29 @@
   </div>
 
   <ul class="ddp-list-history">
-    <li *ngFor="let item of histories; let idx = index" (click)="setTableSql(item.query)">
+    <li *ngFor="let item of histories; let idx = index" (click)="setTableSql(item)">
       <a href="javascript:">
         <div class="ddp-ui-history-data">
-          <span class="ddp-data-ms">482ms</span>
+          <span class="ddp-data-ms">{{item.queryTimeTakenFormatted}}</span>
           <em class="ddp-icon-status-success" *ngIf="item.queryResultStatus === 'SUCCESS'"></em>
           <em class="ddp-icon-status-fail" *ngIf="item.queryResultStatus === 'FAIL'"></em>
 
-          <em class="ddp-icon-return"></em>
+          <em class="ddp-icon-return" *ngIf="item.queryResultStatus === 'SUCCESS'"></em>
+          <em class="ddp-icon-view" *ngIf="item.queryResultStatus === 'FAIL'"></em>
         </div>
         <div class="ddp-data-history">
           <div class="ddp-data-edit" title="{{item.query}}"> {{item.query}} </div>
-          <div class="ddp-data-time" title="{{item.queryStartTime | mdate:'MM-DD HH:mm'}} {{item.queryFinishTime | mdate:'MM-DD HH:mm'}} by {{item.createdBy.fullName}}">
-            {{item.queryStartTime | mdate:'MM-DD HH:mm'}} {{item.queryFinishTime | mdate:'MM-DD HH:mm'}} by {{item.createdBy.fullName}}
+          <div class="ddp-data-time" title="{{item.queryStartTime | mdate:'YYYY-MM-DD HH:mm:ss'}} / {{item.queryTimeTakenFormatted}} / {{item.createdBy.fullName}}">
+            {{item.queryStartTime | mdate:'YYYY-MM-DD HH:mm:ss'}} / {{item.queryTimeTakenFormatted}} / {{item.createdBy.fullName}}
           </div>
 
+        </div>
+      </a>
+    </li>
+    <li *ngIf="histories.length === 0">
+      <a href="javascript:">
+        <div class="ddp-data-history">
+          No list
         </div>
       </a>
     </li>

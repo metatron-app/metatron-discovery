@@ -42,6 +42,18 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
   @Output()
   public sqlIntoEditorEvent: EventEmitter<string> = new EventEmitter();
 
+  // query fail popup
+  @Output()
+  public sqlQueryPopupEvent: EventEmitter<string> = new EventEmitter();
+
+  // history delete popup
+  @Input()
+  public deleteHistory: boolean = false;
+
+  @Output()
+  public queryHistoryDeleteEvent: EventEmitter<string> = new EventEmitter();
+
+  // history popup close
   @Output()
   public historyCloseEvent: EventEmitter<string> = new EventEmitter();
 
@@ -98,8 +110,14 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
   }
 
   public ngOnChanges(): void {
-    this.page.page = 0;
-    this.getQueryHistories();
+
+    if( this.deleteHistory ){
+      this.deleteAll();
+    } else {
+      this.page.page = 0;
+      this.getQueryHistories();
+    }
+
   }
 
   public ngOnDestroy() {
@@ -131,6 +149,26 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
           this.pageResult = data['page'];
           if (!isUndefined(data['_embedded'])) {
             this.histories = this.histories.concat(data['_embedded'].queryhistories);
+
+            // ms 변환 상위 2단계 까지만 표현
+            for (let idx = 0; idx < this.histories.length; idx++) {
+              let queryTime : number = this.histories[idx]['queryTimeTaken'];
+
+              let milliseconds = Math.floor((queryTime % 1000) / 100);
+              let seconds = Math.floor((queryTime / 1000) % 60);
+              let minutes = Math.floor((queryTime / (1000 * 60)) % 60);
+              let hours = Math.floor((queryTime / (1000 * 60 * 60)) % 24);
+              if( hours >= 1 ) {
+                this.histories[idx]['queryTimeTakenFormatted'] = hours + 'h ' + minutes + 'm';
+              } else if( minutes >= 1 && hours < 1 ) {
+                this.histories[idx]['queryTimeTakenFormatted'] = minutes + 'm ' + seconds + 's';
+              } else if( seconds >= 1 && minutes < 1 ) {
+                this.histories[idx]['queryTimeTakenFormatted'] = seconds + 's ' + milliseconds + 'ms';
+              } else if( milliseconds >= 1 && seconds < 1  ) {
+                this.histories[idx]['queryTimeTakenFormatted'] = queryTime + 'ms';
+              }
+            }
+
             this.page.page += 1;
           }
         })
@@ -150,6 +188,7 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
       .then((result) => {
         this.page.page = 0;
         this.getQueryHistories();
+
       })
       .catch((error) => {
         // Alert.error(this.translateService.instant('msg.bench.alert.query.del.fail'));
@@ -158,11 +197,22 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
   }
 
   public setTableSql(item) {
-    this.sqlIntoEditorEvent.emit('\n' + item + ';');
+
+    if( item.queryResultStatus == 'SUCCESS' ){
+      // 성공일 경우 에디터에 삽입
+      this.sqlIntoEditorEvent.emit('\n' + item.query + ';');
+    } else {
+      // 실패일 경우 팝업 호출
+      this.sqlQueryPopupEvent.emit(item);
+    }
   }
 
   public historyClose() {
     this.historyCloseEvent.emit();
+  }
+
+  public historyDelete() {
+    this.queryHistoryDeleteEvent.emit();
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

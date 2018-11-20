@@ -397,7 +397,7 @@
       </div>
       <detail-workbench-table-info-schema *ngIf="isOpenTableSchema"
                                           [schemaParams]="tableSchemaParams"
-                                          (insertName)="sqlIntoEditorEvent($event)"
+                                          (insertName)="columnIntoEditorEvent($event)"
                                           (showLayer)="closeTableSchema()">
       </detail-workbench-table-info-schema>
     </div>
@@ -480,17 +480,21 @@
             </div>
           </div>
           <!-- //tab -->
+
           <div class="ddp-wrap-editor">
             <codemirror [config]="config" (keyup)="editorKeyEvent($event)"
                         (textChanged)="editorTextChange($event)"></codemirror>
 
             <!-- history popup -->
-            <detail-workbench-history *ngIf="isQueryHistoryMenuShow" [editorId]="selectedEditorId"
-                                      (sqlIntoEditorEvent)="sqlIntoEditorEvent($event)" (historyCloseEvent)="isQueryHistoryMenuShow = false"></detail-workbench-history>
+            <detail-workbench-history *ngIf="isQueryHistoryMenuShow" [editorId]="selectedEditorId" [(deleteHistory)]="isQueryHistoryDelete"
+                                      (sqlIntoEditorEvent)="sqlIntoEditorEvent($event)"
+                                      (sqlQueryPopupEvent)="sqlQueryPopupEvent($event)"
+                                      (queryHistoryDeleteEvent)="isQueryHistoryDeletePopup = true"
+                                      (historyCloseEvent)="isQueryHistoryMenuShow = false" (click)="isFootAreaPopupCheck = true"></detail-workbench-history>
             <!-- //history popup -->
 
             <!-- shortcut popup -->
-            <div class="ddp-box-layout4 ddp-shortcuts" *ngIf="shortcutsFl">
+            <div class="ddp-box-layout4 ddp-shortcuts" *ngIf="shortcutsFl" (click)="isFootAreaPopupCheck = true">
               <a href="javascript:" class="ddp-btn-close" (click)="shortcutsFl = false;"></a>
               <div class="ddp-data-title">
                 {{'msg.bench.ui.editor.shortcut.title' | translate}}
@@ -560,6 +564,9 @@
             <!-- //shortcut popup -->
           </div>
 
+          </div>
+
+          <!-- foot button -->
           <div class="ddp-wrap-foot-button">
 
             <!-- link button -->
@@ -569,7 +576,7 @@
             </div>
             <!-- //link button -->
 
-            <div class="ddp-icon-button">
+            <div class="ddp-icon-button"  (clickOutside)="checkFooterPopup()">
               <!-- clear sql -->
               <div class="ddp-btn-query">
                 <a href="javascript:" class="ddp-icon-query-clear" (click)="clearSql()" title=""></a>
@@ -582,10 +589,10 @@
               <!-- SQL BEAUTIFIER -->
               <div class="ddp-btn-query">
                 <a href="javascript:" class="ddp-icon-query-beautifier" (click)="setSqlFormatter()"></a>
-                  <div class="ddp-ui-tooltip-info ddp-top">
-                    <em class="ddp-icon-view-down"></em>
-                    SQL BEAUTIFIER
-                  </div>
+                <div class="ddp-ui-tooltip-info ddp-top">
+                  <em class="ddp-icon-view-down"></em>
+                  SQL BEAUTIFIER
+                </div>
               </div>
               <!-- //SQL BEAUTIFIER -->
               <!-- query history -->
@@ -612,9 +619,7 @@
               <!-- //Shortcuts -->
             </div>
           </div>
-
-        </div>
-        <!-- //foot button -->
+          <!-- //foot button -->
 
        </div>
       </div>
@@ -941,3 +946,40 @@
 <!-- schema browser -->
 <detail-workbench-schema-browser></detail-workbench-schema-browser>
 <!-- //schema browser -->
+
+<!-- history 쿼리 팝업 -->
+<div class="ddp-pop-preview ddp-type" *ngIf="isQueryHistoryLogPopup">
+  <!-- top -->
+  <div class="ddp-ui-top">
+    <div class="ddp-data-name">
+      Query log
+    </div>
+    <em class="ddp-btn-popup-close" (click)="isFootAreaPopupCheck = true; isQueryHistoryLogPopup = false"></em>
+  </div>
+  <!-- //top -->
+  <!-- cpmtemts -->
+  <div class="ddp-ui-preview-contents ddp-type-preview ddp-query">
+    {{queryHistoryItem.queryLog}}
+  </div>
+  <!-- //cpmtemts -->
+</div>
+<!-- //history 쿼리 팝업 -->
+
+<!-- history 삭제 팝업 -->
+<div class="ddp-wrap-layout-popup" *ngIf="isQueryHistoryDeletePopup">
+  <div class="ddp-box-popup ddp-box-popup-type2">
+    <a href="javascript:" class="ddp-btn-close" (click)="isFootAreaPopupCheck = true; isQueryHistoryDeletePopup = false"></a>
+    <!-- title -->
+    <div class="ddp-pop-title">{{'msg.bench.confirm.delete-query-history' | translate}}</div>
+    <!-- //title -->
+
+    <!-- button -->
+    <div class="ddp-ui-buttons">
+      <a href="javascript:" class="ddp-btn-type-popup" (click)="isFootAreaPopupCheck = true; isQueryHistoryDeletePopup = false">{{'msg.comm.btn.cancl' | translate}}</a>
+      <!-- disabled 시 ddp-disabled 추가 -->
+      <a href="javascript:" class="ddp-btn-type-popup ddp-bg-black" (click)="isFootAreaPopupCheck = true; deleteQueryHistory();">{{'msg.comm.btn.del' | translate}}</a>
+    </div>
+    <!-- //button -->
+  </div>
+</div>
+<!-- // history 삭제 팝업 -->

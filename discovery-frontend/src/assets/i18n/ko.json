@@ -498,6 +498,7 @@
   "msg.bench.alert.no.selected.query": "선택된 쿼리가 없습니다",
   "msg.bench.alert.no.result":"선택하신 결과 데이터가 없습니다",
   "msg.bench.confirm.delete-editor": "에디터 탭을 삭제하시겠습니까?",
+  "msg.bench.confirm.delete-query-history": "쿼리 히스토리를 전부 삭제하시겠습니까?",
   "msg.bench.ui.del": "워크벤치 삭제",
   "msg.bench.ui.tab-prefix" : "에디터",
   "msg.bench.btn.maximize" : "전체 보기",
