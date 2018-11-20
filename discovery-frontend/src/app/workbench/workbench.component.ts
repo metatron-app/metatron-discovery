@@ -1218,13 +1218,16 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         }
       })
       .catch((error) => {
+        this.isExecutingQuery = false;
+        this.loadingBar.hide();
         if (!isUndefined(error.details) && this._executeSqlReconnectCnt <= 5) {
-          // Alert.error(error.details);
           this.webSocketCheck(() => {
-            this.setExecuteSql(param)
+            this.setExecuteSql(param);
           });
         } else {
-          Alert.error(error);
+          // count 초기화
+          this._executeSqlReconnectCnt = 0;
+          Alert.error(error.message);
         }
       });
 
