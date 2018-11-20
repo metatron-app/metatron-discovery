@@ -30,6 +30,7 @@ import { saveAs } from 'file-saver';
 import * as pixelWidth from 'string-pixel-width';
 import { AbstractComponent } from '../../common/component/abstract.component';
 import * as $ from "jquery";
+import {PreparationCommonUtil} from "../util/preparation-common.util";
 
 @Component({
   selector: 'app-data-snapshot-detail',
@@ -85,6 +86,10 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public isShow : boolean = false;
 
   public progressbarWidth = '100%';
+
+  public prepCommonUtil = PreparationCommonUtil;
+
+  public flag: boolean = false; // Restrict api calling again and again
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -119,6 +124,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   public ngOnDestroy() {
     super.ngOnDestroy();
     clearInterval(this.interval);
+    this.interval = undefined;
     $('body').removeClass('body-hidden');
   }
 
@@ -174,6 +180,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   // 데이터 스냅샷 디테일 페이지 팝업 닫기
   public close() {
     clearInterval(this.interval);
+    this.interval = undefined;
     this.isShow = false;
     $('body').removeClass('body-hidden');
     this.snapshotDetailCloseEvent.emit();
@@ -273,64 +280,74 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   }
 
   private getSnapshot(isInitial?) {
+
     if (isInitial) {
+
+      this.flag = false;
       this.loadingShow();
     }
 
-    this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : DataSnapshot) => {
-      this.selectedDataSnapshot = snapshot;
 
-      this.loadingHide();
-      if (this.selectedDataSnapshot.totalLines === -1) {
-        this.selectedDataSnapshot.totalLines = null;
-      } else {
-        clearInterval(this.interval);
-      }
+    if (!this.flag) {
+      this.flag = true;
+      this.datasnapshotservice.getDataSnapshot(this.ssId).then((snapshot : DataSnapshot) => {
+        this.selectedDataSnapshot = snapshot;
+        this.flag = false;
 
-      //let linageInfo = JSON.parse( this.selectedDataSnapshot["lineageInfo"] );
-      let linageInfo = this.selectedDataSnapshot["jsonLineageInfo"];
-      if( linageInfo.dsId ) {
-        this.dsId = linageInfo.dsId;
-      }
-      if( linageInfo.dfId ) {
-        this.dfId = linageInfo.dfId;
-      }
-
-      this._setRuleList(linageInfo['ruleStringinfos']);
-
-      // % 계산
-      this.missing = this.selectedDataSnapshot.missingLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
-      this.valid = this.selectedDataSnapshot.validLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines)  * 100 + '%';
-      this.mismatched = this.selectedDataSnapshot.mismatchedLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
-
-      if ( ['SUCCEEDED'].indexOf(this.selectedDataSnapshot.status) >= 0){
-        this.selectedDataSnapshot.displayStatus = 'SUCCESS';
-        this.getGridData();
-
-      } else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(this.selectedDataSnapshot.status) >= 0) {
-        this.selectedDataSnapshot.displayStatus = 'PREPARING';
-
-        if(isUndefined(this.selectedDataSnapshot.ruleCntDone) || isNull(this.selectedDataSnapshot.ruleCntDone)) this.selectedDataSnapshot.ruleCntDone = 0;
-        if(isUndefined(this.selectedDataSnapshot.ruleCntTotal) || isNull(this.selectedDataSnapshot.ruleCntTotal)) this.selectedDataSnapshot.ruleCntTotal = 0;
-        if (this.selectedDataSnapshot.ruleCntTotal > 0 && this.selectedDataSnapshot.ruleCntDone < this.selectedDataSnapshot.ruleCntTotal){
-          this.progressbarWidth = Math.ceil(this.selectedDataSnapshot.ruleCntDone * 100  / (this.selectedDataSnapshot.ruleCntTotal + 1)) + "%";
+        this.loadingHide();
+        if (this.selectedDataSnapshot.totalLines === -1) {
+          this.selectedDataSnapshot.totalLines = null;
         } else {
-          this.progressbarWidth = '100%';
+          clearInterval(this.interval);
+          this.interval = undefined;
         }
-        this.interval =  setInterval(() => this.getSnapshot(), 1000);
 
-      } else  { //'FAILED','CANCELED','NOT_AVAILABLE'
-        this.selectedDataSnapshot.displayStatus = 'FAIL';
-        if(false===isUndefined(this.selectedDataSnapshot.custom) && "fail_msg"==this.selectedDataSnapshot.custom.match("fail_msg")) {
-          this.selectedDataSnapshot.custom = JSON.parse(this.selectedDataSnapshot.custom.replace(/\n/g, '<br>').replace(/'/g, '"'));
+        //let linageInfo = JSON.parse( this.selectedDataSnapshot["lineageInfo"] );
+        let linageInfo = this.selectedDataSnapshot["jsonLineageInfo"];
+        if( linageInfo.dsId ) {
+          this.dsId = linageInfo.dsId;
         }
-      }
+        if( linageInfo.dfId ) {
+          this.dfId = linageInfo.dfId;
+        }
 
-    }).catch((error) => {
-      this.loadingHide();
-      let prep_error = this.dataprepExceptionHandler(error);
-      PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
-    });
+        this._setRuleList(linageInfo['ruleStringinfos']);
+
+        // % 계산
+        this.missing = this.selectedDataSnapshot.missingLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
+        this.valid = this.selectedDataSnapshot.validLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines)  * 100 + '%';
+        this.mismatched = this.selectedDataSnapshot.mismatchedLines / (this.selectedDataSnapshot.validLines + this.selectedDataSnapshot.mismatchedLines + this.selectedDataSnapshot.missingLines) * 100 + '%';
+
+        if ( ['SUCCEEDED'].indexOf(this.selectedDataSnapshot.status) >= 0){
+          this.selectedDataSnapshot.displayStatus = 'SUCCESS';
+          this.getGridData();
+
+        } else if ( ['INITIALIZING','RUNNING','WRITING','TABLE_CREATING','CANCELING'].indexOf(this.selectedDataSnapshot.status) >= 0) {
+          this.selectedDataSnapshot.displayStatus = 'PREPARING';
+
+          if(isUndefined(this.selectedDataSnapshot.ruleCntDone) || isNull(this.selectedDataSnapshot.ruleCntDone)) this.selectedDataSnapshot.ruleCntDone = 0;
+          if(isUndefined(this.selectedDataSnapshot.ruleCntTotal) || isNull(this.selectedDataSnapshot.ruleCntTotal)) this.selectedDataSnapshot.ruleCntTotal = 0;
+          if (this.selectedDataSnapshot.ruleCntTotal > 0 && this.selectedDataSnapshot.ruleCntDone < this.selectedDataSnapshot.ruleCntTotal){
+            this.progressbarWidth = Math.ceil(this.selectedDataSnapshot.ruleCntDone * 100  / (this.selectedDataSnapshot.ruleCntTotal + 1)) + "%";
+          } else {
+            this.progressbarWidth = '100%';
+          }
+          this.interval =  setInterval(() => this.getSnapshot(), 1000);
+
+        } else  { //'FAILED','CANCELED','NOT_AVAILABLE'
+          this.selectedDataSnapshot.displayStatus = 'FAIL';
+          if(false===isUndefined(this.selectedDataSnapshot.custom) && "fail_msg"==this.selectedDataSnapshot.custom.match("fail_msg")) {
+            this.selectedDataSnapshot.custom = JSON.parse(this.selectedDataSnapshot.custom.replace(/\n/g, '<br>').replace(/'/g, '"'));
+          }
+        }
+
+      }).catch((error) => {
+        this.loadingHide();
+        let prep_error = this.dataprepExceptionHandler(error);
+        PreparationAlert.output(prep_error, this.translateService.instant(prep_error.message));
+      });
+    }
+
   } // end of method getSnapshot
 
   /**
@@ -537,6 +554,7 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
   }
   public cancelClick(param:boolean){
     clearInterval(this.interval);
+    this.interval = undefined;
     let elm = $('.ddp-wrap-progress');
     if (param) {
       if(this.selectedDataSnapshot.ruleCntDone == this.selectedDataSnapshot.ruleCntTotal) {

@@ -130,7 +130,6 @@ export class PreparationCommonUtil {
     return resultMap;
   }
 
-
   /**
    * Simplify Rule List
    * @param rule
@@ -330,4 +329,25 @@ export class PreparationCommonUtil {
       return undefined;
     }
   }
+
+
+  /**
+   * Returns user friendly snapshot type name
+   * FILE -> Local, JDBC -> Database, HIVE -> Staging DB HDFS-> HDFS
+   * @param {string} sstype
+   * @returns {string}
+   */
+  public static getSnapshotType(sstype: string) : string {
+
+    let result = sstype;
+    if (sstype === 'FILE') {
+      result = 'Local';
+    } else if (sstype === 'HIVE') {
+      result = 'Staging DB';
+    } else if (sstype === 'JDBC') {
+      result = 'Database';
+    }
+    return result
+  }
+
 }

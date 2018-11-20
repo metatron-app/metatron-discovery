@@ -20,7 +20,8 @@ import { StringUtil } from '../../../../../../common/util/string.util';
 import {isNullOrUndefined, isUndefined} from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
-
+import * as _ from 'lodash';
+ 
 @Component({
   selector : 'edit-rule-merge',
   templateUrl : './edit-rule-merge.component.html'
@@ -107,7 +108,7 @@ export class EditRuleMergeComponent extends EditRuleComponent implements OnInit,
       clonedDelimiter = check[1];
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }

@@ -306,7 +306,8 @@ export class RuleListComponent extends AbstractComponent implements OnInit, OnDe
    * @returns {boolean}
    */
   public checkIfIntervalExists() {
-    return !isNullOrUndefined(this.interval)
+    // return !isNullOrUndefined(this.interval)
+    return false;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
