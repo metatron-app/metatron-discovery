@@ -12,12 +12,14 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<div class="ddp-type-selectbox" [class.ddp-selected]="isListShow" [class.ddp-type-search-select]="!selectedColumn"
+<div class="ddp-type-selectbox ddp-search-type" [class.ddp-selected]="isListShow" [class.ddp-type-search-select]="!selectedColumn"
      (click)="isListShow = !isListShow">
-  <!-- 선택시 자동 input display:block; -->
   <!-- search -->
-  <input type="text" class="ddp-input-selectbox" placeholder="{{searchPlaceHolder}}"
-         [(ngModel)]="searchKeyword" (ngModelChange)="onSearchColumn($event)" (keyup.esc)="initSearchKeyword()" (click)="$event.stopImmediatePropagation()">
+  <div class="ddp-input-search">
+    <!-- 선택시 자동 input display:block; -->
+    <input type="text" class="ddp-input-selectbox" placeholder="{{searchPlaceHolder}}"
+           [(ngModel)]="searchKeyword" (ngModelChange)="onSearchColumn($event)" (keyup.esc)="initSearchKeyword()" (click)="$event.stopImmediatePropagation()">
+  </div>
   <!-- search// -->
   <span class="ddp-txt-selectbox">{{selectedColumn ? selectedColumn.name : placeHolder}}</span>
   <div class="ddp-wrap-popup2 ddp-types">

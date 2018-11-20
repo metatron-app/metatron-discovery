@@ -29,6 +29,9 @@
 .ddp-type-selectbox.ddp-type-search-select.ddp-result span.ddp-txt-selectbox {color:#4b515b; padding-left:0px;}
 .ddp-type-selectbox.ddp-type-search-select.ddp-result span.ddp-txt-selectbox:before {display:none;}
 
+.ddp-type-selectbox.ddp-search-type .ddp-input-search {position:absolute; top:0; left:0; right:0; bottom:0;}
+.ddp-type-selectbox.ddp-search-type.ddp-selected .ddp-input-search:before {display:inline-block; position:absolute; top:50%; left:10px; width:11px; height:11px; margin-top:-6px; background:url(../../../images/icon_search.png) no-repeat; background-position:-24px top; content:''; z-index:5;}
+.ddp-type-selectbox.ddp-search-type.ddp-selected .ddp-input-search input {padding-left:30px}
 /**************************************************************
 	drop search
 **************************************************************/
