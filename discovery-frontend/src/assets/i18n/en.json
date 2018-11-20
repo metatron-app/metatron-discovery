@@ -2929,9 +2929,4 @@
   "msg.metadata.ui.enter.tag" : "Enter tag",
   "msg.metadata.th.column.logical.tooltip.title" : "What is logical column name?",
   "msg.metadata.th.column.logical.tooltip.desc" : "The logical column name is the column name that is commonly used by the user in the Metatron. It is specified as a logical name when creating business terms or index for users. Logical column names are used in the Metatron when creating a chart or workbench."
-
-
-//  MSG_DP_ALERT_CANNOT_ACCESS_LOCAL_PATH(                       "msg.dp.alert.cannot.access.local.path"),
-//  MSG_DP_ALERT_FAILED_TO_PARSE_CSV(                            "msg.dp.alert.failed.to.parse.csv"),
-//  MSG_DP_ALERT_FAILED_TO_READ_CSV(                             "msg.dp.alert.failed.to.read.csv"),
 }
