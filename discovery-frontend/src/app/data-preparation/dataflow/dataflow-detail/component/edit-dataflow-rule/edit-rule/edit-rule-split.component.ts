@@ -192,16 +192,22 @@ export class EditRuleSplitComponent extends EditRuleComponent implements OnInit,
   protected parsingRuleString(data: {ruleString : string, jsonRuleString : any}) {
 
     // COLUMN
-    let arrFields:string[] = typeof data.jsonRuleString.col.value === 'string' ? [data.jsonRuleString.col.value] : data.jsonRuleString.col.value;
+    let arrFields:string[] = typeof data.jsonRuleString.col === 'string' ? [data.jsonRuleString.col] : data.jsonRuleString.col;
     this.selectedFields = arrFields.map( item => this.fields.find( orgItem => orgItem.name === item ) ).filter(field => !!field);
 
-    this.pattern = data.jsonRuleString.on.escapedValue;
+    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
+      this.pattern = data.jsonRuleString.on.value;
+    }  else {
+      this.pattern = data.jsonRuleString.on.escapedValue;
+    }
 
     this.limit = Number(data.jsonRuleString.limit);
 
     this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);
 
-    this.ignore = data.jsonRuleString.quote.escapedValue;
+    if (data.jsonRuleString.quote) {
+      this.ignore = data.jsonRuleString.quote.escapedValue;
+    }
 
   } // function - _parsingRuleString
 

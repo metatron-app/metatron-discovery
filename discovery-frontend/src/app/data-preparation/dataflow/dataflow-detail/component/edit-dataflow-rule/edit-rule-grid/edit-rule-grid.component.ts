@@ -64,7 +64,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
   private _selectedColumns: string[] = [];    // 그리드에서 선택된 컬럼 리스트
   private _savedViewPort: { top: number, left: number };
 
-  private _selectedBarChartRows: string[] = [];
+  // private _selectedBarChartRows: string[] = [];
 
   // Histogram
   private _charts: any = [];
@@ -424,6 +424,37 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
    */
   public searchGrid(isReset: boolean = false) {
     (isReset) && (this.searchText = '');
+
+
+    this._gridComp.getGridCore().scrollRowIntoView(0);
+    this._selectedRows = [];
+    this._rowClickHandler(this._selectedRows);
+
+    // 현재 선택되어있는 바 차트 refresh
+    let options_bar;
+    let chartIndex = -1;
+    Object.keys(this._barClickedSeries).forEach((key, index) => {
+      if (this._barClickedSeries[key].length > 0) {
+        chartIndex = index;
+      }
+    });
+    if (chartIndex !== -1) {
+      this._barClickedSeries[chartIndex] = [];
+      options_bar = this._getDefaultBarChartOption(this._getHistogramInfo(chartIndex), chartIndex);
+      this._applyChart(this._barCharts[chartIndex], options_bar)
+    }
+
+    // 히스토그램 바 refresh.
+    let options;
+    this._apiGridData.colNames.forEach((item, index) => {
+      if (this._clickedSeries[index].length > 0) {
+        this._clickedSeries[index] = [];
+        options = this._getDefaultChartOption(this._getHistogramInfo(index), index);
+        this._applyChart(this._charts[index], options)
+      }
+    });
+
+
     // 그리드  검색
     this._gridComp.search(this.searchText);
   } // function - searchGrid
@@ -453,7 +484,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         }
       }
       this._gridComp.rowAllUnSelection();
-      this._selectedBarChartRows = [];
+      this._selectedRows = [];
 
     }
 
@@ -529,6 +560,23 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     if (this._selectedColumns.length > 0) {
       this._gridComp.columnAllUnSelection();
     }
+
+    // 현재 선택되어있는 바 차트 refresh
+    let options_bar;
+    let chartIndex = -1;
+    Object.keys(this._barClickedSeries).forEach((key, index) => {
+      if (this._barClickedSeries[key].length > 0) {
+        chartIndex = index;
+      }
+    });
+    if (chartIndex !== -1) {
+      this._barClickedSeries[chartIndex] = [];
+      // this.unSelectionAll('ROW');
+      options_bar = this._getDefaultBarChartOption(this._getHistogramInfo(chartIndex), chartIndex);
+      this._applyChart(this._barCharts[chartIndex], options_bar)
+    }
+
+
 
     // cell이 선택 했을 때 선택 되어있던 히스토그램 바 refresh.
     // if (event.selected === null) {
@@ -689,6 +737,20 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         .appendTo(args.node); //75
     }
   } // function - onHeaderRowCellRendered
+
+
+  /**
+   * Grid 검색 초기화 (Histogram 또는 Bar chart click 한 경우)
+   * @private
+   */
+  private searchProcessReset(): void {
+    // if(searchText)
+    this.searchText = '';
+    try{
+      this._gridComp.getGridCore().scrollRowIntoView(0);
+      this._gridComp.searchProcessReset();
+    }catch (error) {}
+  }
 
   /**
    * Resizing grid outside of this component
@@ -1019,6 +1081,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     let options;
     chart.off('click');
     chart.on('click', (params) => {
+      // 검색 단계인 경우를 대비하여 검색 단계 초기화
+      this.searchProcessReset();
+
       // param이 null 이라면 선택된 bar 초기화 한다.
       if (isNull(params) && this._hoverHistogramIndo.hasOwnProperty('name') === false) {
         if (this._clickedSeries[index].length > 0) {
@@ -1072,16 +1137,58 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
         let idx = this._clickedSeries[index].indexOf(useParam.name);
         if (idx === -1) {
           this._selectedRows = _.union(this._selectedRows, this._getHistogramInfo(index).rownos[useParam.dataIndex]);
-          this._rowClickHandler(this._selectedRows);
-          this._clickedSeries[index].push(useParam.name);
+          this._selectedRows.sort(function(a,b){return a-b});
+
+          let minSelect: number = -1;
+          if(this._selectedRows.length > 0) {minSelect = this._selectedRows[0];}
+
+          if(minSelect==-1) {
+            this._rowClickHandler(this._selectedRows);
+            this._clickedSeries[index].push(useParam.name);
+          }else{
+            const pageInfo:any = this._gridComp.getPageInfo();
+            const plusNumber: number = 10 + Math.floor(minSelect/pageInfo.pageSize * 10);
+            minSelect = minSelect + plusNumber;
+            if(pageInfo.lastPage == true || minSelect < pageInfo.length) {
+              this._rowClickHandler(this._selectedRows);
+              this._clickedSeries[index].push(useParam.name);
+            }else{
+              this.loadingShow();
+              const moreParam: any = this._getExternalMoreDataParam(pageInfo, minSelect);
+              this.dataflowService.getSearchCountDataSets(this.dataSetId, pageInfo.ruleIndex, moreParam.offset, moreParam.count).then((result) => {
+                this.loadingHide();
+                this._gridComp.setExternalData(result, moreParam.changePageNumber);
+                this._gridComp.resize();
+
+                this._rowClickHandler(this._selectedRows);
+                this._clickedSeries[index].push(useParam.name);
+                options = this._getDefaultChartOption(this._getHistogramInfo(index), index);
+                this._applyChart(chart, options);
+              }).catch((error) => {
+                this.loadingHide();
+                console.error(error);
+              });
+              return;
+            }
+          }
         } else {
-          this._getHistogramInfo(index).rownos[useParam.dataIndex].forEach((item) => {
-            this._selectedRows.forEach((data, idx) => {
-              if (data === item) {
-                this._selectedRows.splice(idx, 1);
-              }
-            })
-          });
+          // 이미 선택되어있다면 삭제
+          let minusTarget: any[] = [];
+          let tempRows: any[] = [];
+          try{
+            minusTarget = _.clone(this._getHistogramInfo(index).rownos[useParam.dataIndex]);
+            tempRows = _.clone(this._selectedRows);
+            this._selectedRows = [];
+          }catch (error){
+            minusTarget = [];
+            tempRows = [];
+          }
+          for(let i:number =0; i< tempRows.length; i = i +1) {
+            let chk: number = -1;
+            for(let j:number =0; j< minusTarget.length; j = j +1) {if(tempRows[i] === minusTarget[j]) {chk = i;break;}}
+            if(chk == -1) {this._selectedRows.push(tempRows[i]);}
+          }
+
           this._rowClickHandler(this._selectedRows);
           this._clickedSeries[index].splice(idx, 1);
         }
@@ -1090,6 +1197,38 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       }
     })
   } // function - _histogramClickEvent
+
+
+  /**
+   * Bar chart / Histogram click : get moreData service Parameter
+   * @param pageInfo
+   * @param minSelect
+   * @private
+   */
+  private _getExternalMoreDataParam(pageInfo:any, minSelect: number): any {
+
+    const result: any = {};
+
+    const offset: number = (pageInfo.currentPage + 1) * 100;
+    let count: number;
+    if(minSelect % pageInfo.pageSize == 0) {
+      count = minSelect;
+    }else{
+      count = (Math.floor(minSelect / pageInfo.pageSize) + 1) * pageInfo.pageSize;
+    }
+    count = count - offset;
+    if(count == 0) count =  pageInfo.pageSize;
+    if(offset + count > pageInfo.totalRowCnt) count = pageInfo.totalRowCnt - offset;
+    const changePageNumber = pageInfo.currentPage + Math.floor(count/pageInfo.pageSize);
+
+    result.offset = offset;
+    result.count = count;
+    result.changePageNumber = changePageNumber;
+
+    return result;
+  }
+
+
 
   /**
    * Bar chart click event 처리
@@ -1103,6 +1242,9 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
     chart.off('click');
     chart.on('click', (params) => {
 
+      // 검색 단계인 경우를 대비하여 검색 단계 초기화
+      this.searchProcessReset();
+
       // 컬럼이 선택되어있다면 초기화
       if (this._selectedColumns.length > 0) {
         this.unSelectionAll('COL');
@@ -1112,7 +1254,7 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
       if (isNull(params)) {
         // 현재 클릭된 시리즈 해제
         this._barClickedSeries[index] = [];
-        this._selectedBarChartRows = [];
+        this._selectedRows = [];
         this.unSelectionAll('ROW');
 
       } else {
@@ -1140,12 +1282,13 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
             if (this._barClickedSeries[i].length !== 0) {
               this._barClickedSeries[i] = [];
               this.unSelectionAll('ROW');
-              this._selectedBarChartRows = [];
+              this._selectedRows = [];
               options = this._getDefaultBarChartOption(this._getHistogramInfo(i), i);
               this._applyChart(this._barCharts[i], options)
             }
           }
         });
+
 
 
         // 현재 선택된 시리즈가 이미 선택되어있는지 확인한다.
@@ -1156,21 +1299,60 @@ export class EditRuleGridComponent extends AbstractComponent implements OnInit, 
           // 선택된 rows 도 클릭이 되어야하는 상태 ..
           // this.selectedDataset.gridResponse.colHists[index] 에서
           // params.seriesName + rows 를 찾아와서 rows를 그리드에 선택 되게 한다.
-          this._selectedBarChartRows = _.union(this._selectedBarChartRows, this._getHistogramInfo(index)[params.seriesName + 'Rows']);
-          this._rowClickHandler(this._selectedBarChartRows);
-          this._barClickedSeries[index].push(params.seriesName);
+          this._selectedRows = _.union(this._selectedRows, this._getHistogramInfo(index)[params.seriesName + 'Rows']);
+          this._selectedRows.sort(function(a,b){return a-b});
 
+          let minSelect: number = -1;
+          if(this._selectedRows.length > 0) {minSelect = this._selectedRows[0];}
+
+          if(minSelect==-1) {
+            this._rowClickHandler(this._selectedRows);
+            this._barClickedSeries[index].push(params.seriesName);
+          }else{
+            const pageInfo:any = this._gridComp.getPageInfo();
+            const plusNumber: number = 10 + Math.floor(minSelect/pageInfo.pageSize * 10);
+            minSelect = minSelect + plusNumber;
+
+            if(pageInfo.lastPage == true || minSelect < pageInfo.length) {
+              this._rowClickHandler(this._selectedRows);
+              this._barClickedSeries[index].push(params.seriesName);
+            }else{
+              this.loadingShow();
+              const moreParam: any = this._getExternalMoreDataParam(pageInfo, minSelect);
+              this.dataflowService.getSearchCountDataSets(this.dataSetId, pageInfo.ruleIndex, moreParam.offset, moreParam.count).then((result) => {
+                this.loadingHide();
+                this._gridComp.setExternalData(result, moreParam.changePageNumber);
+                this._gridComp.resize();
+
+                this._rowClickHandler(this._selectedRows);
+                this._barClickedSeries[index].push(params.seriesName);
+                options = this._getDefaultBarChartOption(histogramInfo, index);
+                this._applyChart(chart, options);
+              }).catch((error) => {
+                this.loadingHide();
+                console.error(error);
+              });
+              return;
+            }
+          }
         } else {
+          let minusTarget: any[] = [];
+          let tempChartRows: any[] = [];
+          try{
+            minusTarget = _.clone(this._getHistogramInfo(index)[params.seriesName + 'Rows']);
+            tempChartRows = _.clone(this._selectedRows);
+            this._selectedRows = [];
+          }catch (error){
+            minusTarget = [];
+            tempChartRows = [];
+          }
+          for(let i:number =0; i< tempChartRows.length; i = i +1) {
+            let chk: number = -1;
+            for(let j:number =0; j< minusTarget.length; j = j +1) {if(tempChartRows[i] === minusTarget[j]) {chk = i;break;}}
+            if(chk == -1) {this._selectedRows.push(tempChartRows[i]);}
+          }
 
-          // 이미 선택되어있다면 삭제
-          this._getHistogramInfo(index)[params.seriesName + 'Rows'].forEach((item) => {
-            this._selectedBarChartRows.forEach((data, idx) => {
-              if (data === item) {
-                this._selectedBarChartRows.splice(idx, 1);
-              }
-            })
-          });
-          this._rowClickHandler(this._selectedBarChartRows);
+          this._rowClickHandler(this._selectedRows);
           this._barClickedSeries[index].splice(idx, 1);
         }
       }
