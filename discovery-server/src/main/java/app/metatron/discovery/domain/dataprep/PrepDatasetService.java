@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
@@ -103,13 +106,16 @@ public class PrepDatasetService {
 
             dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, filekey, "0", this.filePreviewSize);
 
-            dataset.setFileType(PrepDataset.FILE_TYPE.LOCAL);
-            if( false==dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://") ) {
-                String localFilePath = dataset.getCustomValue("filePath");
-                String hdfsFilePath = this.hdfsService.moveLocalToHdfs(localFilePath, filekey);
-                if (null!=hdfsFilePath) {
-                    dataset.putCustomValue("filePath", hdfsFilePath);
-                    dataset.setFileType(PrepDataset.FILE_TYPE.HDFS);
+            if(dataset.getFileTypeEnum() == PrepDataset.FILE_TYPE.HDFS) {
+                if (false == dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://")) {
+                    String localFilePath = dataset.getCustomValue("filePath");
+                    String hdfsFilePath = this.hdfsService.moveLocalToHdfs(localFilePath, filekey);
+                    if (null != hdfsFilePath) {
+                        dataset.putCustomValue("filePath", hdfsFilePath);
+                        dataset.setFileType(PrepDataset.FILE_TYPE.HDFS);
+                    } else {
+                        throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, hdfsFilePath);
+                    }
                 }
             }
         }

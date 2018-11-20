@@ -19,7 +19,7 @@ import {
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../common/component/abstract-popup.component';
 import { PopupService } from '../../../common/service/popup.service';
-import { DatasetFile } from '../../../domain/data-preparation/dataset';
+import { DatasetFile, FileType } from '../../../domain/data-preparation/dataset';
 import { Alert } from '../../../common/util/alert.util';
 import { DatasetService } from '../service/dataset.service';
 import { FileLikeObject, FileUploader } from 'ng2-file-upload';
@@ -402,6 +402,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
 
   public setUploadLcationList(){
     this.uploadLocationList = [{ name:'Local', value:'Local' }, { name: 'HDFS', value: 'HDFS'}];
+    this.datasetFile.fileType = FileType.LOCAL;
   }
 
   public onChangeUploadLocation($event: any) {
@@ -409,6 +410,16 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.uploadLocation = $event['value'];
 
       this.uploader.setOptions({ additionalParameter: { dest: `${this.uploadLocation}`}});
+
+      switch(this.uploadLocation ) {
+        case 'HDFS':
+          this.datasetFile.fileType = FileType.HDFS;
+          break;
+        case 'LOCAL':
+        default:
+          this.datasetFile.fileType = FileType.LOCAL;
+          break;
+      }
     }
   }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

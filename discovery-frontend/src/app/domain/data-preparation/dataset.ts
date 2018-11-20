@@ -97,6 +97,11 @@ export enum ImportType {
   HIVE = <any>'HIVE'
 }
 
+export enum FileType {
+  LOCAL = <any>'LOCAL',
+  HDFS = <any>'HDFS'
+}
+
 export class Field {
   public name: string;
   public type: string;
@@ -109,6 +114,7 @@ export class Field {
 
 // add KJ
 export class DatasetFile extends Dataset {
+  public fileType: FileType;
   public filename: string;
   public filepath: string;
   public filekey: string;
