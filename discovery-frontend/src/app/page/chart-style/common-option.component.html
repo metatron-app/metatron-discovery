@@ -1013,7 +1013,9 @@
               <div class="ddp-col-7">
                 <!-- input number -->
                 <div class="ddp-input-number" [ngClass]="{'ddp-disabled' : !uiOption.limitCheck}">
-                  <input (keyup.enter)="onLimitChange(uiOption.limit)" [readonly]="!uiOption.limitCheck" [(ngModel)]="uiOption.limit" type="number" input-mask="number">
+                  <input (keyup.enter)="onLimitChange(uiOption.limit)" [readonly]="!uiOption.limitCheck" [(ngModel)]="uiOption.limit"
+                         placeholder="{{limitPlaceHolder}}"
+                         type="number" input-mask="number">
                   <div class="ddp-input-number-nav">
                     <div (click)="onLimitChange(uiOption.limit - 1)" class="ddp-input-number-button ddp-input-number-down"></div>
                     <div (click)="onLimitChange(uiOption.limit + 1)" class="ddp-input-number-button ddp-input-number-up"></div>

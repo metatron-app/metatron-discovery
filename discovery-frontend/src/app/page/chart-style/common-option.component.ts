@@ -137,6 +137,8 @@ export class CommonOptionComponent extends BaseOptionComponent {
   public pivot: Pivot;
   public pivotTemp: Pivot;
 
+  public limitPlaceHolder:number;
+
   // 차트정보
   @Input('uiOption')
   public set setUiOption(uiOption: UIOption) {
@@ -146,6 +148,11 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
     // limit값이 체크되고 size값이 없는경우 기본값 설정
     this._setLimit( uiOption.limit );
+    if (ChartType.SANKEY == this.uiOption.type) {
+      this.limitPlaceHolder = 50;
+    } else {
+      this.limitPlaceHolder = this.DEFAULT_LIMIT;
+    }
 
     // Pivot 설정
     if( _.isUndefined(this.pivot) ) {
@@ -1576,16 +1583,20 @@ export class CommonOptionComponent extends BaseOptionComponent {
   private _setLimit( limit:number ) {
     // limit값이 체크되고 size값이 없는경우 기본값 설정
     if (this.uiOption.limitCheck) {
-      this.uiOption.limit = limit;
-    } else {
-      if (ChartType.SANKEY == this.uiOption.type) {
-        this.uiOption.limit = 50;
+      if( limit ) {
+        this.uiOption.limit = limit;
       } else {
-        this.uiOption.limit = this.DEFAULT_LIMIT;
+        if (ChartType.SANKEY == this.uiOption.type) {
+          this.uiOption.limit = 50;
+        } else {
+          this.uiOption.limit = this.DEFAULT_LIMIT;
+        }
       }
+    } else {
+      this.uiOption.limit = undefined;
     }
     this.safelyDetectChanges();
-  } // function - limit
+  } // function - _setLimit
 
   /**
    * 차트표시방향에 따라 dataLabel position값 설정
