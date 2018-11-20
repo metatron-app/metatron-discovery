@@ -18,8 +18,7 @@ import { Field } from '../../../../../../domain/data-preparation/dataset';
 import { Alert } from '../../../../../../common/util/alert.util';
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { StringUtil } from '../../../../../../common/util/string.util';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
-
+import * as _ from 'lodash';
 @Component({
   selector : 'edit-rule-unnest',
   templateUrl : './edit-rule-unnest.component.html'
@@ -105,7 +104,7 @@ export class EditRuleUnnestComponent extends EditRuleComponent implements OnInit
       clonedSelVal = check[1];
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }
