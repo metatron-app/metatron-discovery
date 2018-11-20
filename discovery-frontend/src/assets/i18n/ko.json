@@ -424,7 +424,7 @@
   "msg.login.reset.passwd.title" : "비밀번호 재설정하기",
   "msg.login.reset.passwd.description" : "최초 사용자 신청시 등록한 이메일 주소를 입력해 주세요",
   "msg.login.reset.passwd.description2" : "해당 이메일로 임시 비밀번호가 발송됩니다",
-  "msg.login.reset.passwd.btn.confirm" : "확인 이메일 보내기",
+  "msg.login.reset.passwd.btn.confirm" : "Send email",
   "msg.login.join.cmplt.description" : "승인 요청 내역이 성공적으로 발송되었습니다. 시스템 관리자의 확인 후",
   "msg.login.join.cmplt.description2" : "입력하신 이메일을 통해 승인 여부를 알려드리겠습니다",
   "msg.login.alert.reset.passwd.email.not.found" : "등록되지 않은 이메일 주소입니다",
