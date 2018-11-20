@@ -73,6 +73,9 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   // 파일 업로드
   public uploader: FileUploader;
 
+  public uploadLocation: string = 'Local';
+  public uploadLocationList: any;
+
   // 파일 업로드 결과
   public uploadResult;
 
@@ -129,6 +132,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
         Alert.error(this.translateService.instant('msg.dp.alert.file.format.wrong'));
         this.loadingHide();
       } else{
+        this.uploader.setOptions({ additionalParameter: { dest: `${this.uploadLocation}`}});
         this.uploader.uploadAll();
       }
     };
@@ -205,6 +209,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
       this.getDataFile();
     }
 
+    this.setUploadLcationList();
   }
 
 
@@ -395,7 +400,17 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
     });
   }
 
+  public setUploadLcationList(){
+    this.uploadLocationList = [{ name:'Local', value:'Local' }, { name: 'HDFS', value: 'HDFS'}];
+  }
 
+  public onChangeUploadLocation($event: any) {
+    if($event.hasOwnProperty('name') && $event.hasOwnProperty('value')) {
+      this.uploadLocation = $event['value'];
+
+      this.uploader.setOptions({ additionalParameter: { dest: `${this.uploadLocation}`}});
+    }
+  }
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
