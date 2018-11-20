@@ -20,6 +20,15 @@ export enum MapType {
 }
 
 /**
+ * map layer style
+ */
+export enum MapLayerStyle {
+  COLORED = <any>'Colored',
+  LIGHT = <any>'Light',
+  DARK = <any>'Dark'
+}
+
+/**
  * map layer type
  */
 export enum MapLayerType {

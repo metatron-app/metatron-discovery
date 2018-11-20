@@ -26,7 +26,7 @@ import * as ol from 'openlayers';
 import * as h3 from 'h3-js';
 import { UIMapOption } from '../../option/ui-option/map/ui-map-chart';
 import {
-  MapBy, MapGeometryType,
+  MapBy, MapGeometryType, MapLayerStyle,
   MapLayerType,
   MapLineStyle, MapSymbolType, MapThickness,
   MapType,
@@ -432,16 +432,35 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     this.cartoDarkLayer.getSource().setAttributions(this.attribution());
 
     ////////////////////////////////////////////////////////
+    // Map style
+    ////////////////////////////////////////////////////////
+
+    // Light (Default)
+    let layer = this.cartoPositronLayer;
+
+    // Colored
+    if( _.eq(this.getUiMapOption().style, MapLayerStyle.COLORED) ) {
+      layer = this.osmLayer;
+    }
+    // Dark
+    else if( _.eq(this.getUiMapOption().style, MapLayerStyle.DARK) ) {
+      layer = this.cartoDarkLayer;
+    }
+
+    ////////////////////////////////////////////////////////
     // Map creation
     ////////////////////////////////////////////////////////
 
     // Is map creation
     if( this.olmap ) {
+
+      // // Change map style
+      // this.olmap.removeLayer(this.cartoPositronLayer);
+      // this.olmap.removeLayer(this.cartoPositronLayer);
+      // this.olmap.removeLayer(this.cartoPositronLayer);
+      // this.olmap.addLayer(this.cartoPositronLayer);
       return false;
     }
-
-    // Street layer
-    let layer = this.cartoPositronLayer;
 
     // Map object initialize
     this.olmap = new ol.Map({
@@ -692,6 +711,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         } else {
           const ranges = scope.setColorRange(styleOption, styleData, ChartColorList[styleLayer.color['schema']], layerNum);
 
+          // set decimal value
+          const formatValue = ((value) => {
+            return parseFloat((Number(value) * (Math.pow(10, styleOption.valueFormat.decimal)) / Math.pow(10, styleOption.valueFormat.decimal)).toFixed(styleOption.valueFormat.decimal));
+          });
+
           for(let range of ranges) {
             let rangeMax = range.fixMax;
             let rangeMin = range.fixMin;
@@ -706,8 +730,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
               rangeMin = rangeMax - 1;
             }
 
-            if( feature.getProperties()[styleLayer.color.column] > rangeMin &&
-              feature.getProperties()[styleLayer.color.column] <= rangeMax) {
+            let value = formatValue(feature.getProperties()[styleLayer.color.column]);
+
+            if( value > rangeMin && value <= rangeMax) {
               featureColor = range.color;
             }
           }
@@ -1410,6 +1435,11 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    */
   private checkOption(): void {
 
+    // Option panel change cancle
+    if( !this.drawByType ) {
+      return;
+    }
+
     ////////////////////////////////////////////////////////
     // Add pivot(shelf) check
     ////////////////////////////////////////////////////////
@@ -1456,7 +1486,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ///////////////////////////
       // Color by Measure
       ///////////////////////////
-      else if( _.eq(layer.color.by, MapBy.NONE) && isMeasure ) {
+      else if( !_.eq(layer.color.by, MapBy.DIMENSION) && isMeasure ) {
         layer.color.by = MapBy.MEASURE;
         layer.color.schema = 'VC1';
         layer.color.column = this.uiOption.fieldMeasureList[0]['alias'];
@@ -1464,7 +1494,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ///////////////////////////
       // Color by Dimension
       ///////////////////////////
-      else if( _.eq(layer.color.by, MapBy.NONE) && isDimension ) {
+      else if( isDimension ) {
         layer.color.by = MapBy.DIMENSION;
         layer.color.schema = 'SC1';
         layer.color.column = this.uiOption.fielDimensionList[0]['alias'];
@@ -1483,7 +1513,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ///////////////////////////
       // Color by Measure
       ///////////////////////////
-      else if( _.eq(symbolLayer.size.by, MapBy.NONE) && isMeasure ) {
+      else if( isMeasure ) {
         symbolLayer.size.by = MapBy.MEASURE;
         symbolLayer.size.column = this.uiOption.fieldMeasureList[0]['alias'];
       }
