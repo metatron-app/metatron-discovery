@@ -109,6 +109,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     })
   });
 
+  // Feature layer
+  public featureLayer = undefined;
+
   // Symbol layer
   public symbolLayer = undefined;
 
@@ -120,7 +123,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     enable: false,
     geometryType: String(MapGeometryType.POINT),
     num: 1,
-    name: 'Layer 1',
+    name: null,
     title: 'Geo info',
     coords: [],
     fields: []
@@ -454,11 +457,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Is map creation
     if( this.olmap ) {
 
-      // // Change map style
-      // this.olmap.removeLayer(this.cartoPositronLayer);
-      // this.olmap.removeLayer(this.cartoPositronLayer);
-      // this.olmap.removeLayer(this.cartoPositronLayer);
-      // this.olmap.addLayer(this.cartoPositronLayer);
+      // // // Change map style
+      this.olmap.removeLayer(this.osmLayer);
+      this.olmap.removeLayer(this.cartoDarkLayer);
+      this.olmap.removeLayer(this.cartoPositronLayer);
+      this.olmap.removeLayer(this.featureLayer);
+      this.olmap.addLayer(layer);
+      if( this.getUiMapOption().showMapLayer ) {
+        this.olmap.addLayer(this.featureLayer);
+      }
+
       return false;
     }
 
@@ -522,6 +530,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
         // Set source
         this.symbolLayer.setSource(source);
+        this.featureLayer = this.symbolLayer;
 
         // Init
         if( isMapCreation && this.getUiMapOption().showMapLayer ) {
@@ -558,14 +567,10 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       }
     }
 
-    // // Init
-    // if( isMapCreation ) {
-    //   // Map data place fit
-    //   this.olmap.getView().fit(source.getExtent());
-    // }
-
     // Map data place fit
-    this.olmap.getView().fit(source.getExtent());
+    if( isMapCreation || this.drawByType ) {
+      this.olmap.getView().fit(source.getExtent());
+    }
   }
 
   /**
@@ -1047,6 +1052,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Layer name
     if(this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[17] !== null) {
       this.tooltipInfo.name = this.getUiMapOption().layers[this.tooltipInfo.num-1].name;
+    }
+    else {
+      this.tooltipInfo.name = null;
     }
 
     ////////////////////////////////////////////////////////
