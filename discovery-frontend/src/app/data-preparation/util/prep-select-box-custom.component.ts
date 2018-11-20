@@ -148,8 +148,10 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
     if (isSearchTextEmpty) {
       arrayList = arrayList.filter((item) => {
         if (!isNullOrUndefined(this.viewKey)) {
+          // return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;
           return item[this.viewKey].toLowerCase().indexOf(this.searchText.toLowerCase()) == 0;
         } else {
+          // return item.toLowerCase().indexOf(this.searchText.toLowerCase()) > -1;
           return item.toLowerCase().indexOf(this.searchText.toLowerCase()) == 0;
         }
 
@@ -182,16 +184,14 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
       }
     }
 
-    // Close select box when a command list or other select box is clicked
+    //Close select box when a command list or other select box is clicked
     this.subscriptions.push(
-      this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean, detail : string }) => {
-        if(data.hasOwnProperty('detail') && data.detail == this._FIELD_COMBO_ID){
-          // return;
-        }else{
+      this.broadCaster.on<any>('EDIT_RULE_SHOW_HIDE_LAYER').subscribe((data: { id : string, isShow : boolean }) => {
+        if( data.id === 'commandList' ) {
+          this.isShowSelectList = data.isShow;
+        } else if( data.id !== this._FIELD_COMBO_ID && data.id !== 'toggleList') {
           this.isShowSelectList = false;
-          $('#selecterUl').css('display','none');
         }
-
       })
     );
 
@@ -217,16 +217,15 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
   public onSelect(item: any) {
 
     this.selectedItem = item;
-    // this.isShowSelectList = false;  // close select box
+
+    this.isShowSelectList = false;  // close select box
+
     this.safelyDetectChanges();
 
     if(this.selectedItem == null || this.selectedItem == undefined) {this.searchText = ''} else{this.searchText = this.selectedItem['value'];}
     item.value = this.searchText;
     this.onSelected.emit(item);     // emit event
-
-    setTimeout(() => this._searchTextElement.nativeElement.focus(), 500);
   }
-
 
   /**
    * Click inside component
@@ -237,7 +236,7 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
     if (!this.elementRef.nativeElement.contains(event.target)) {
       // 팝업창 닫기
       this.isShowSelectList = false;
-      $('#selecterUl').css('display','none');
+      // !this.isWritable ? this.searchText = '' : null;
     }
   }
 
@@ -245,6 +244,7 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    * Select box open and close
    */
   public toggleSelectList() {
+
     if (this.isSearchAllowed) {
       this.isShowSelectList = true;
       setTimeout(() => this._searchTextElement.nativeElement.focus());
@@ -252,6 +252,7 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
       this.isShowSelectList = !this.isShowSelectList;
     }
     this.showHidePatternLayer(this.isShowSelectList);
+
   }
 
   /**
@@ -259,13 +260,7 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    * @param {boolean} isShow
    */
   public showHidePatternLayer(isShow:boolean) {
-    if(isShow) {
-      $('#selecterUl').css('display','block');
-      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'toggleList', isShow : isShow, detail: this._FIELD_COMBO_ID} );
-    }else {
-      $('#selecterUl').css('display','none');
-      this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'toggleList', isShow : isShow, detail: this._FIELD_COMBO_ID} );
-    }
+    this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'toggleList', isShow : isShow } );
   } // function - showHidePatternLayer
 
 
@@ -321,7 +316,7 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
           this.onSelected.emit(item);
         }
         // Emitting event telling not to apply rule !
-        // this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: this._FIELD_COMBO_ID, isShow : false } );
+        this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: 'enterKey', isShow : false } );
         break;
     }
   }
@@ -367,8 +362,6 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
    * 선택된 아이템 설정하기
    */
   public setSelectedItem(arr: any[], customTimestamp: string, defaultIndex: number) {
-
-    // console.info('setSelectedItem', customTimestamp);
     this.array = arr;
     this.customTimestamp = customTimestamp;
     this.defaultIndex = defaultIndex;
@@ -390,8 +383,7 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
       this.searchText = this.selectedItem['value'];
     }
 
-    this.isShowSelectList= false;
-    $('#selecterUl').css('display','none');
+    this.toggleSelectList();
   }
 
 }
