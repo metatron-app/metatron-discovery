@@ -200,7 +200,11 @@ export class EditRuleExtractComponent extends EditRuleComponent implements OnIni
     this.limit = data.jsonRuleString.limit;
 
     // PATTERN
-    this.pattern = data.jsonRuleString.on.escapedValue;
+    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
+      this.pattern = data.jsonRuleString.on.value;
+    }  else {
+      this.pattern = data.jsonRuleString.on.escapedValue;
+    }
 
     // IGNORE CASE
     this.isIgnoreCase = Boolean(data.jsonRuleString.ignoreCase);

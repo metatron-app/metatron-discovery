@@ -17,10 +17,8 @@ package app.metatron.discovery.domain.dataprep;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.data.rest.core.annotation.RestResource;
 
 import java.util.List;
 
@@ -28,11 +26,15 @@ import java.util.List;
         excerptProjection = PrepSnapshotProjections.DefaultProjection.class)
 public interface PrepSnapshotRepository extends JpaRepository<PrepSnapshot, String> {
 
+    /*
     @RestResource(path = "query")
     @Query("select ss from PrepSnapshot ss where ss.ssId= :q")  // fake!!
     Page<PrepSnapshot> searchByQuery(@Param("q") String query, Pageable pageable);
+    */
 
     Page<PrepSnapshot> findBySsNameContaining(@Param("ssName") String ssName, Pageable pageable);
+    Page<PrepSnapshot> findBySsNameContainingAndSsTypeIn(@Param("ssName") String ssName, @Param("ssTypes") List<PrepSnapshot.SS_TYPE> ssTypeList, Pageable pageable);
     Page<PrepSnapshot> findBySsNameContainingAndStatusIn(@Param("ssName") String ssName, @Param("statuses") List<PrepSnapshot.STATUS> statusList, Pageable pageable);
+    Page<PrepSnapshot> findBySsNameContainingAndStatusInAndSsTypeIn(@Param("ssName") String ssName, @Param("statuses") List<PrepSnapshot.STATUS> statusList, @Param("ssTypes") List<PrepSnapshot.SS_TYPE> ssTypes, Pageable pageable);
 
 }
