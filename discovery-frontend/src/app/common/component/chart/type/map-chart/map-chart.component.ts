@@ -48,6 +48,7 @@ import {UILineLayer} from '../../option/ui-option/map/ui-line-layer';
 import { Field as AbstractField, Field } from '../../../../../domain/workbook/configurations/field/field';
 import { Shelf } from '../../../../../domain/workbook/configurations/shelf/shelf';
 import {LogicalType} from '../../../../../domain/datasource/datasource';
+import {GeoField} from '../../../../../domain/workbook/configurations/field/geo-field';
 
 @Component({
   selector: 'map-chart',
@@ -965,8 +966,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
    */
   private createTooltip(): void {
 
-    let element = document.getElementById('popup');
-
     ////////////////////////////////////////////////////////
     // Create tooltip layer
     ////////////////////////////////////////////////////////
@@ -1407,7 +1406,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   }
 
   /**
-   * Check UI Option (Spec)
+   * Check UI Option (Spec) => Shelf add & remove
    */
   private checkOption(): void {
 
@@ -1415,9 +1414,91 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Add pivot(shelf) check
     ////////////////////////////////////////////////////////
 
-    // let option: UIMapOption = this.getUiMapOption();
-    // let layer: UILayers = option.layers[option.layerNum];
-    //
-    // if( layer.color.by)
+    let option: UIMapOption = this.getUiMapOption();
+    let layer: UILayers = option.layers[option.layerNum];
+    let shelf :GeoField[] =  this.shelf.layers[option.layerNum];
+
+    ////////////////////////////////////////////////////////
+    // Symbol
+    ////////////////////////////////////////////////////////
+    if( _.eq(layer.type, MapLayerType.SYMBOL) ) {
+
+      // Symbol layer
+      let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+
+      // Find field
+      let isNone: boolean = true;
+      let isDimension: boolean = false;
+      let isMeasure: boolean = false;
+      _.each(shelf, (field) => {
+        if( field.field.logicalType.toString().indexOf('GEO') == -1 ) {
+          isNone = false;
+        }
+        if( _.eq(field.type, ShelveFieldType.DIMENSION) ) {
+          isDimension = true;
+        }
+        if( _.eq(field.type, ShelveFieldType.MEASURE) ) {
+          isMeasure = true;
+        }
+      });
+
+      ////////////////////////////////////////////////////////
+      // Color
+      ////////////////////////////////////////////////////////
+
+      ///////////////////////////
+      // Color by None
+      ///////////////////////////
+      if( isNone ) {
+        layer.color.by = MapBy.NONE;
+        layer.color.schema = '#6344ad';
+      }
+      ///////////////////////////
+      // Color by Measure
+      ///////////////////////////
+      else if( _.eq(layer.color.by, MapBy.NONE) && isMeasure ) {
+        layer.color.by = MapBy.MEASURE;
+        layer.color.schema = 'VC1';
+        layer.color.column = this.uiOption.fieldMeasureList[0]['alias'];
+      }
+      ///////////////////////////
+      // Color by Dimension
+      ///////////////////////////
+      else if( _.eq(layer.color.by, MapBy.NONE) && isDimension ) {
+        layer.color.by = MapBy.DIMENSION;
+        layer.color.schema = 'SC1';
+        layer.color.column = this.uiOption.fielDimensionList[0]['alias'];
+      }
+
+      ////////////////////////////////////////////////////////
+      // Size
+      ////////////////////////////////////////////////////////
+
+      ///////////////////////////
+      // Size by None
+      ///////////////////////////
+      if( isNone ) {
+        symbolLayer.size.by = MapBy.NONE;
+      }
+      ///////////////////////////
+      // Color by Measure
+      ///////////////////////////
+      else if( _.eq(symbolLayer.size.by, MapBy.NONE) && isMeasure ) {
+        symbolLayer.size.by = MapBy.MEASURE;
+        symbolLayer.size.column = this.uiOption.fieldMeasureList[0]['alias'];
+      }
+    }
+    ////////////////////////////////////////////////////////
+    // Line
+    ////////////////////////////////////////////////////////
+    else if( _.eq(layer.type, MapLayerType.LINE) ) {
+
+    }
+    ////////////////////////////////////////////////////////
+    // Polygon
+    ////////////////////////////////////////////////////////
+    else if( _.eq(layer.type, MapLayerType.POLYGON) ) {
+
+    }
   }
 }
