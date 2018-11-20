@@ -66,6 +66,9 @@
         <!-- //요약 -->
         <!-- grid -->
         <div class="ddp-wrap-grid">
+          <div class="ddp-ui-empty" *ngIf="!selectedDataSnapshot.gridData">
+            {{'msg.dp.ui.no.preview' | translate}}
+          </div>
           <div *ngIf="selectedDataSnapshot.displayStatus==='SUCCESS'" class="ddp-box-gridarea" grid-component style="width:100%; height: 100%;"> suc </div>
           <!--<div *ngIf="selectedDataSnapshot.status==='FAIL'" class="ddp-box-gridarea" style="width:100%; height: 100%;">-->
           <!--<p [innerHTML]="selectedDataSnapshot.custom.fail_msg">-->
@@ -154,13 +157,13 @@
       <!-- //title -->
       <div class="ddp-ui-rule-flow">
         <ul class="ddp-list-rule2">
-          <li *ngFor="let rule of ruleList">
+          <li *ngFor="let rule of ruleList; let idx = index">
             <span class="ddp-data-type">
               <em class="ddp-ui-round">{{rule.alias}}</em>
               {{rule.name}}
             </span>
-            <div class="ddp-ui-code">
-              {{rule.ruleString}}
+            <div class="ddp-ui-code"  title="{{idx !== 0 ? rule.ruleString : null}}">
+              {{rule['simplifiedRule']}}
             </div>
         </ul>
       </div>
