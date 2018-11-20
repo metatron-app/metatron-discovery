@@ -17,7 +17,7 @@ import { isUndefined } from 'util';
 import { AbstractComponent } from '../../../common/component/abstract.component';
 import { DatasourceService } from '../../../datasource/service/datasource.service';
 import {
-  Field, FieldFormat, FieldFormatType, FieldFormatUnit, FieldRole,
+  Field, FieldFormat, FieldFormatType, FieldFormatUnit, FieldRole, IngestionRuleType,
   LogicalType
 } from '../../../domain/datasource/datasource';
 import { StringUtil } from '../../../common/util/string.util';
@@ -206,6 +206,9 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
         case 'TEXT':
         case 'DIMENSION':
         case 'STRING':
+        case 'GEO_POINT':
+        case 'GEO_LINE':
+        case 'GEO_POLYGON':
           result = '';
           break;
         case 'INT':
@@ -221,9 +224,6 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
         case 'LATITUDE':
         case 'LNG':
         case 'LONGITUDE':
-        case 'GEO_POINT':
-        case 'GEO_LINE':
-        case 'GEO_POLYGON':
           result = '0.0';
           break;
         default:
@@ -295,7 +295,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     // 타입이 다를때만 작동
     if (this.column.logicalType !== type.value) {
       // null 타입 변경
-      this.column.ingestionRule.type = 'default';
+      this.column.ingestionRule.type = IngestionRuleType.DEFAULT;
       // 플래그 제거
       delete this.column.isValidReplaceValue;
       delete this.column.isValidTimeFormat;
@@ -329,7 +329,7 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
     const types = this.getRoleFilter();
     this.column.logicalType = types[0].value;
     // null 타입 변경
-    this.column.ingestionRule.type = 'default';
+    this.column.ingestionRule.type = IngestionRuleType.DEFAULT;
     // 플래그 제거
     delete this.column.isValidReplaceValue;
     delete this.column.isValidTimeFormat;
@@ -339,9 +339,9 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
 
   /**
    * Null 값에 대한 처리 변경
-   * @param {string} type
+   * @param {IngestionRuleType} type
    */
-  public onChangeNullType(type: string) {
+  public onChangeNullType(type: IngestionRuleType) {
     // 이미 선택되어 있는 타입과 다르다면
     if (this.column.ingestionRule.type !== type) {
       // ingestion type 변경
@@ -488,6 +488,9 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
         case 'TEXT':
         case 'DIMENSION':
         case 'STRING':
+        case 'GEO_POINT':
+        case 'GEO_LINE':
+        case 'GEO_POLYGON':
           this.column.isValidReplaceValue = true;
           break;
         case 'TIMESTAMP':
@@ -614,12 +617,10 @@ export class SchemaDetailComponent extends AbstractComponent implements OnInit {
 
     // ingestionRule
     if (!this.column['ingestionRule']) {
-      const ingestionRule = {
-        type: 'default',
+      this.column['ingestionRule'] = {
+        type: IngestionRuleType.DEFAULT,
         value: ''
       };
-
-      this.column['ingestionRule'] = ingestionRule;
     }
   }
 

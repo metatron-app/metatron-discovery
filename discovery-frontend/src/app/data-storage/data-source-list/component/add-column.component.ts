@@ -17,7 +17,7 @@ import { Component, ElementRef, EventEmitter, Injector, Input, Output } from '@a
 import { StringUtil } from '../../../common/util/string.util';
 import * as _ from 'lodash';
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { FieldRole, LogicalType } from '../../../domain/datasource/datasource';
+import { FieldRole, IngestionRuleType, LogicalType } from '../../../domain/datasource/datasource';
 
 @Component({
   selector: 'add-column-component',
@@ -314,15 +314,17 @@ export class AddColumnComponent extends AbstractComponent {
       name: this.columnName.trim(),
       derived: true,
       role: FieldRole.DIMENSION,
-      ingestionRule : {
+      ingestionRule: {
+        type: IngestionRuleType.DEFAULT
+      },
+      derivationRule: {
         type: this.selectedMethodType.value.toLowerCase()
       }
     };
     // if method type Expression
     if (this.selectedMethodType.value === LogicalType.USER_DEFINED) {
       column['logicalType'] = LogicalType.STRING;
-      column.ingestionRule['expr'] = this.expression.trim();
-      column.ingestionRule['type'] = LogicalType.USER_DEFINED;
+      column.derivationRule['expr'] = this.expression.trim();
     } else { // if method type not Expression
       column['logicalType'] = this.selectedMethodType.value;
       // add format
@@ -330,8 +332,8 @@ export class AddColumnComponent extends AbstractComponent {
         type: this.selectedMethodType.value.toLowerCase(),
         originalSrsName: 'EPSG:4326'
       };
-      column.ingestionRule['latField'] = this.selectedLatitudeColumn.name;
-      column.ingestionRule['lonField'] = this.selectedLongitudeColumn.name;
+      column.derivationRule['latField'] = this.selectedLatitudeColumn.name;
+      column.derivationRule['lonField'] = this.selectedLongitudeColumn.name;
     }
     return column;
   }

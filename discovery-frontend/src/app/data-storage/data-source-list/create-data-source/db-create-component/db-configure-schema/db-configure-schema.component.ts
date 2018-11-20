@@ -18,7 +18,7 @@ import {
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
 import {
-  DatasourceInfo, Field, FieldFormat, FieldFormatType,
+  DatasourceInfo, Field, FieldFormat, FieldFormatType, IngestionRuleType,
   LogicalType
 } from '../../../../../domain/datasource/datasource';
 import { isUndefined } from 'util';
@@ -841,7 +841,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private _isErrorIngestionRule(column: Field): boolean {
     return column.ingestionRule
-    && column.ingestionRule.type === 'replace'
+    && column.ingestionRule.type === IngestionRuleType.REPLACE
     && column.isValidReplaceValue === false;
   }
 
@@ -869,7 +869,7 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
         column.isValidTimeFormat = false;
         column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
-      if (column.ingestionRule && column.ingestionRule.type === 'replace' && isUndefined(column.isValidReplaceValue)) {
+      if (column.ingestionRule && column.ingestionRule.type === IngestionRuleType.REPLACE && isUndefined(column.isValidReplaceValue)) {
         column.isValidReplaceValue = false;
         column.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
@@ -911,8 +911,8 @@ export class DbConfigureSchemaComponent extends AbstractPopupComponent implement
    */
   private initIngestionRuleInChangeType(column) {
     // ingestionRule이 있다면
-    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace') {
-      column.ingestionRule.type = 'default';
+    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === IngestionRuleType.REPLACE) {
+      column.ingestionRule.type = IngestionRuleType.DEFAULT;
     }
   }
 

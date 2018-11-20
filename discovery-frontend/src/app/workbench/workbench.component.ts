@@ -42,7 +42,10 @@ import { LoadingComponent } from '../common/component/loading/loading.component'
 import { DatasourceService } from '../datasource/service/datasource.service';
 import { PageWidget } from '../domain/dashboard/widget/page-widget';
 import { Dashboard, BoardDataSource, BoardConfiguration } from '../domain/dashboard/dashboard';
-import { BIType, ConnectionType, Datasource, Field, LogicalType } from '../domain/datasource/datasource';
+import {
+  BIType, ConnectionType, Datasource, Field, IngestionRuleType,
+  LogicalType
+} from '../domain/datasource/datasource';
 import { Workbook } from '../domain/workbook/workbook';
 import { DataconnectionService } from '../dataconnection/service/dataconnection.service';
 import { CommonUtil } from '../common/util/common.util';
@@ -2597,13 +2600,11 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
       // ingestion rule 이 존재시
       if (item['ingestionRule']) {
-        const type = item.ingestionRule.type;
-
-        switch (type) {
-          case 'default':
+        switch (item.ingestionRule.type) {
+          case IngestionRuleType.DEFAULT:
             delete item['ingestionRule'];
             break;
-          case 'discard':
+          case IngestionRuleType.DISCARD:
             delete item.ingestionRule.value;
         }
       }

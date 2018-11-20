@@ -23,7 +23,7 @@ import {
   Output, ViewChild
 } from '@angular/core';
 import { AbstractPopupComponent } from '../../../../../common/component/abstract-popup.component';
-import { DatasourceInfo, FieldFormatType } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, FieldFormatType, IngestionRuleType } from '../../../../../domain/datasource/datasource';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { DataconnectionService } from '../../../../../dataconnection/service/dataconnection.service';
 import { Alert } from '../../../../../common/util/alert.util';
@@ -377,9 +377,9 @@ export class DbCompleteComponent extends AbstractPopupComponent implements OnIni
       // ingestion type
       const type = column.ingestionRule.type;
       // if type is default
-      if (type === 'default') {
+      if (type === IngestionRuleType.DEFAULT) {
         delete column.ingestionRule;
-      } else if (type === 'discard') {
+      } else if (type === IngestionRuleType.DISCARD) {
         delete column.ingestionRule.value;
       }
     }

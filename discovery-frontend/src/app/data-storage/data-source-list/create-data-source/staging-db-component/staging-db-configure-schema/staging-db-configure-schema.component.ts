@@ -19,7 +19,7 @@ import {
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { isUndefined } from 'util';
 import {
-  DatasourceInfo, Field, FieldFormat, FieldFormatType,
+  DatasourceInfo, Field, FieldFormat, FieldFormatType, IngestionRuleType,
   LogicalType
 } from '../../../../../domain/datasource/datasource';
 import * as _ from 'lodash';
@@ -831,7 +831,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    */
   private _isErrorIngestionRule(column: Field): boolean {
     return column.ingestionRule
-      && column.ingestionRule.type === 'replace'
+      && column.ingestionRule.type === IngestionRuleType.REPLACE
       && column.isValidReplaceValue === false;
   }
 
@@ -859,7 +859,7 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
         column.isValidTimeFormat = false;
         column.timeFormatValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
-      if (column.ingestionRule && column.ingestionRule.type === 'replace' && isUndefined(column.isValidReplaceValue)) {
+      if (column.ingestionRule && column.ingestionRule.type === IngestionRuleType.REPLACE && isUndefined(column.isValidReplaceValue)) {
         column.isValidReplaceValue = false;
         column.replaceValidMessage = this.translateService.instant('msg.storage.ui.schema.valid.desc');
       }
@@ -901,8 +901,8 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    */
   private initIngestionRuleInChangeType(column) {
     // ingestionRule이 있다면
-    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === 'replace') {
-      column.ingestionRule.type = 'default';
+    if (column.hasOwnProperty('ingestionRule') && column.ingestionRule.type === IngestionRuleType.REPLACE) {
+      column.ingestionRule.type = IngestionRuleType.DEFAULT;
     }
   }
 

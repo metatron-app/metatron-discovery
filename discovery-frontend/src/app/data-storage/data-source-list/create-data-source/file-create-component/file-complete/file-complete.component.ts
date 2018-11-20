@@ -17,7 +17,7 @@ import {
   Component, ElementRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output,
   ViewChild
 } from '@angular/core';
-import { DatasourceInfo, FieldFormatType } from '../../../../../domain/datasource/datasource';
+import { DatasourceInfo, FieldFormatType, IngestionRuleType } from '../../../../../domain/datasource/datasource';
 import { Alert } from '../../../../../common/util/alert.util';
 import { DatasourceService } from '../../../../../datasource/service/datasource.service';
 import { CommonUtil } from '../../../../../common/util/common.util';
@@ -313,9 +313,9 @@ export class FileCompleteComponent extends AbstractPopupComponent implements OnI
       // ingestion type
       const type = column.ingestionRule.type;
       // if type is default
-      if (type === 'default') {
+      if (type === IngestionRuleType.DEFAULT) {
         delete column.ingestionRule;
-      } else if (type === 'discard') {
+      } else if (type === IngestionRuleType.DISCARD) {
         delete column.ingestionRule.value;
       }
     }

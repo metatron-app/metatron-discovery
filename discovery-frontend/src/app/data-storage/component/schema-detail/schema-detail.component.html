@@ -118,7 +118,7 @@
             </div>
             <!-- //type -->
             <!-- geo -->
-            <div class="ddp-wrap-edit3" *ngIf="column.derived && column.ingestionRule.type !== 'user_defined'"
+            <div class="ddp-wrap-edit3" *ngIf="column.derived && column.derivationRule.type !== 'user_defined'"
                  (click)="isGeoCoordinateListShow = !isGeoCoordinateListShow" (clickOutside)="isGeoCoordinateListShow = false">
               <label class="ddp-ui-label-name">
                 {{'msg.storage.ui.geo.coordinate' | translate}}
@@ -275,13 +275,13 @@
                   <li>
                     <div class="ddp-form-checktype">
                       <label class="ddp-label-radio" (change)="onChangeNullType('replace')">
-                        <input type="radio" [checked]="column.ingestionRule.type === 'replace'">
+                        <input type="radio" [checked]="column.ingestionRule.type.toString() === 'replace'">
                         <i class="ddp-icon-radio"></i>
                         <span class="ddp-txt-radio">{{'msg.storage.ui.replace.with' | translate}}</span>
                       </label>
                       <!-- input type -->
                       <div class="ddp-type-input">
-                        <div class="ddp-input-apply" [class.ddp-disabled]="column.ingestionRule.type !== 'replace'">
+                        <div class="ddp-input-apply" [class.ddp-disabled]="column.ingestionRule.type.toString() !== 'replace'">
                           <input type="text" class="ddp-input-txt" placeholder="{{getDefaultValue(column.logicalType)}}"
                                  [(ngModel)]="column['ingestionRule'].value"
                                  (ngModelChange)="initReplaceValid(column)">
@@ -292,21 +292,21 @@
                       <!-- //input type -->
                     </div>
                     <!-- error -->
-                    <div class="ddp-ui-error" *ngIf="column.ingestionRule.type === 'replace' && column.isValidReplaceValue === false">
+                    <div class="ddp-ui-error" *ngIf="column.ingestionRule.type.toString() === 'replace' && column.isValidReplaceValue === false">
                       <em class="ddp-icon-error"></em>{{column.replaceValidMessage}}
                     </div>
                     <!-- //error -->
                   </li>
                   <li>
                     <label class="ddp-label-radio" (change)="onChangeNullType('discard')">
-                      <input type="radio" [checked]="column.ingestionRule.type === 'discard'">
+                      <input type="radio" [checked]="column.ingestionRule.type.toString() === 'discard'">
                       <i class="ddp-icon-radio"></i>
                       <span class="ddp-txt-radio">{{'msg.storage.btn.discard' | translate}}</span>
                     </label>
                   </li>
                   <li>
                     <label class="ddp-label-radio" (change)="onChangeNullType('default')">
-                      <input type="radio" [checked]="column.ingestionRule.type === 'default'">
+                      <input type="radio" [checked]="column.ingestionRule.type.toString() === 'default'">
                       <i class="ddp-icon-radio"></i>
                       <span class="ddp-txt-radio">{{'msg.storage.btn.no.apply' | translate}}</span>
                     </label>

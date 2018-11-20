@@ -14,15 +14,18 @@
  */
 
 import { AbstractComponent } from '../../../common/component/abstract.component';
-import { Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import {
+  Component, ElementRef, EventEmitter, Injector, Input, OnChanges, Output,
+  SimpleChanges
+} from '@angular/core';
 import { StringUtil } from '../../../common/util/string.util';
 
 @Component({
   selector: 'column-select-box',
-  templateUrl: './column-select-box.component.html',
+  templateUrl: 'column-select-box.component.html',
   host: {
     '(document:click)': 'onClickHost($event)',
-  }
+  },
 })
 export class ColumnSelectBoxComponent extends AbstractComponent implements OnChanges {
 

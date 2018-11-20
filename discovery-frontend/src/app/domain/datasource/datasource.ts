@@ -156,6 +156,9 @@ export class Field {
   // IngestionRule
   ingestionRule: IngestionRule;
 
+  // derivationRule
+  derivationRule?: DerivationRule;
+
   // format
   // TODO 추후 FieldFormat으로 변환
   // format: FieldFormat;
@@ -284,10 +287,21 @@ export class DatasourceInfo {
 export class IngestionRule {
 
   // type
-  public type: string;
+  public type: IngestionRuleType;
 
   // value
   public value: string;
+}
+
+export class DerivationRule {
+  // type
+  public type: string;
+  // latField
+  public latField: string;
+  // lonField
+  public lonField: string;
+  // expr
+  public expr: string;
 }
 
 // batch history 조회
@@ -442,4 +456,11 @@ export enum FieldFormatType {
 export enum FieldFormatUnit {
   SECOND = <any>'second',
   MILLISECOND = <any>'millisecond'
+}
+
+export enum IngestionRuleType {
+  DISCARD = <any>'discard',
+  REPLACE = <any>'replace',
+  // only used in UI
+  DEFAULT = <any>'default'
 }

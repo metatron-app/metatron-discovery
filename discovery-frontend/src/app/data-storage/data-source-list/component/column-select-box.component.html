@@ -18,7 +18,7 @@
   <div class="ddp-input-search">
     <!-- 선택시 자동 input display:block; -->
     <input type="text" class="ddp-input-selectbox" placeholder="{{searchPlaceHolder}}"
-           [(ngModel)]="searchKeyword" (ngModelChange)="onSearchColumn($event)" (keyup.esc)="initSearchKeyword()" (click)="$event.stopImmediatePropagation()">
+           [(ngModel)]="searchKeyword" (ngModelChange)="onSearchColumn()" (keyup.esc)="initSearchKeyword()" (click)="$event.stopImmediatePropagation()">
   </div>
   <!-- search// -->
   <span class="ddp-txt-selectbox">{{selectedColumn ? selectedColumn.name : placeHolder}}</span>
