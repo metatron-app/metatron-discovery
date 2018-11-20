@@ -13,7 +13,7 @@
 .ddp-wrap-popup2.ddp-types2 {max-height:220px; overflow-y:auto;}
 .ddp-wrap-popup2.ddp-types2 ul li a {padding-right:14px;}
 .ddp-wrap-popup2 span.ddp-txt-label {display:block; margin:10px 0 0 0; padding:6px 14px 7px 14px; color:#b7b9c2; font-size:12px; font-weight:700; cursor:default;}
-
+.ddp-wrap-popup2 span.ddp-txt-label2 {display:block; padding:10px 13px 4px 13px;color:#b7b9c2; font-size:12px; font-weight:bold;}
 .ddp-wrap-popup2.ddp-multy {padding:10px 0;}
 .ddp-wrap-popup2.ddp-multy .ddp-list-popup {padding:0;}
 
@@ -26,11 +26,12 @@
 .ddp-wrap-popup2.ddp-types ul.ddp-list-popup.ddp-type li a {padding-left:14px;}
 
 .ddp-wrap-popup2.ddp-types ul.ddp-list-popup li a span.ddp-data-name {color:#b7b9c2;}
-
+.ddp-wrap-popup2.ddp-types ul.ddp-list-popup li span.ddp-noresult {display:block; padding:5px 10px; color:#b7b9c2; cursor:default; font-size:13px;}
 /* layout popup 아이콘 */
 .ddp-wrap-popup2.ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-type-"] {display:inline-block;}
 .ddp-wrap-popup2.ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-measure-"],
 .ddp-wrap-popup2.ddp-types ul.ddp-list-popup li a em[class*="ddp-icon-dimension-"] {position:absolute; top:50%; left:10px; margin-top:-6px;}
+.ddp-wrap-popup2.ddp-types ul.ddp-list-popup li.ddp-txt-list a {padding-left:14px;}
 
 ul.ddp-list-popup li.ddp-selected > a em.ddp-icon-check {display:block;}
 ul.ddp-list-popup li.ddp-selected > a em.ddp-icon-type-ab {background-position-x:-70px;}

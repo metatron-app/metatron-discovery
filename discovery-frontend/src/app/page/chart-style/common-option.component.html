@@ -60,18 +60,6 @@
             </ul>
           </div>
           <!-- //divide -->
-          <!-- divide -->
-          <div class="ddp-divide2">
-            <ul class="ddp-list-express ddp-type2">
-              <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'VERTICAL'}" (click)="gridLayout('VERTICAL');">
-                <em class="ddp-icon-column-view"></em> {{'msg.page.btn.vertically' | translate}}
-              </li>
-              <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'HORIZONTAL'}" (click)="gridLayout('HORIZONTAL');">
-                <em class="ddp-icon-horizontal-view"></em> {{'msg.page.btn.horizontally' | translate}}
-              </li>
-            </ul>
-          </div>
-          <!-- //divide -->
         </div>
 
         <!-- wrap divide -->
@@ -93,6 +81,20 @@
                 <!-- //Slide THREE -->
               </div>
               <!-- //slider -->
+
+              <!-- divide - select horizontal/vertical -->
+              <div class="ddp-divide2">
+                <ul class="ddp-list-express ddp-type2">
+                  <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'VERTICAL'}" (click)="gridLayout('VERTICAL');">
+                    <em class="ddp-icon-column-view"></em> {{'msg.page.btn.vertically' | translate}}
+                  </li>
+                  <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'HORIZONTAL'}" (click)="gridLayout('HORIZONTAL');">
+                    <em class="ddp-icon-horizontal-view"></em> {{'msg.page.btn.horizontally' | translate}}
+                  </li>
+                </ul>
+              </div>
+              <!-- // divide - select horizontal/vertical -->
+
               <!-- multy -->
               <div class="ddp-wrap-option-multy ddp-clear">
                 <div class="ddp-col-6">
