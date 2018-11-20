@@ -73,7 +73,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   // 파일 업로드
   public uploader: FileUploader;
 
-  public uploadLocation: string = 'Local';
+  public uploadLocation: string = 'LOCAL';
   public uploadLocationList: any;
 
   // 파일 업로드 결과
@@ -401,7 +401,7 @@ export class CreateDatasetSelectsheetComponent extends AbstractPopupComponent im
   }
 
   public setUploadLcationList(){
-    this.uploadLocationList = [{ name:'Local', value:'Local' }, { name: 'HDFS', value: 'HDFS'}];
+    this.uploadLocationList = [{ name:'Local', value:'LOCAL' }, { name: 'HDFS', value: 'HDFS'}];
     this.datasetFile.fileType = FileType.LOCAL;
   }
 
