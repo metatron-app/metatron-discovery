@@ -24,18 +24,7 @@
       <div class="ddp-box-down">
         <div class="ddp-wrap-divide">
           <div class="ddp-divide2">
-            <!-- slider -->
-            <div class="ddp-wrap-option-slider">
-              <span class="ddp-label-slider">{{'msg.page.common.map.layer' | translate}}</span>
-              <!-- Slide THREE -->
-              <div class="ddp-checkbox-slide ddp-checkbox-automatic2">
-                <input type="checkbox" [ngModel]="uiOption.showMapLayer" (click)="toggleShowMapLayer(!uiOption.showMapLayer)" name="check">
-                <label><span class="ddp-slide"></span></label>
-              </div>
-              <!-- //Slide THREE -->
-            </div>
-            <!-- //slider -->
-            <div *ngIf="uiOption.showMapLayer" class="ddp-list-sub2">
+            <div class="ddp-list-sub2">
               <!-- divide -->
               <!--<div class="ddp-divide2">-->
                 <!--<div class="ddp-list-label">{{'msg.page.common.map.layer.service' | translate}}</div>-->

@@ -96,15 +96,4 @@ export class MapCommonOptionComponent extends BaseOptionComponent {
     return _.findIndex(this.mapStyleList, {value : this.uiOption.style});
   }
 
-  /**
-   * toggle show map layer
-   */
-  public toggleShowMapLayer(showMapLayer: boolean) {
-
-    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
-      showMapLayer: showMapLayer
-    });
-
-    this.update();
-  }
 }
