@@ -30,7 +30,6 @@ import app.metatron.discovery.domain.workspace.WorkspaceService;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
 import com.google.common.collect.Lists;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -252,11 +251,11 @@ public class DataSourceService {
 
     return dataSources;
   }
-
+  
   public List<DataSourceListCriterion> getDataSourceListCriterion(){
 
     List<DataSourceListCriterion> criteria = new ArrayList<>();
-
+    
     //Status
     criteria.add(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.STATUS,
             DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.status"));
