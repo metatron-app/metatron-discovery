@@ -263,11 +263,11 @@ public class DataSourceService {
 
     //Publish
     criteria.add(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.PUBLISH,
-            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.publish"));
+            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.publish", true));
 
     //Creator
     criteria.add(new DataSourceListCriterion(DataSourceListCriterion.CriterionKey.CREATOR,
-            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.creator"));
+            DataSourceListCriterion.CriterionType.CHECKBOX, "msg.storage.ui.criterion.creator", true));
 
     //CreatedTime
     DataSourceListCriterion createdTimeCriterion
@@ -354,6 +354,8 @@ public class DataSourceService {
         }
         break;
       case PUBLISH:
+        //allow search
+        criterion.setSearchable(true);
         //my private workspace
         Workspace myWorkspace = workspaceRepository.findPrivateWorkspaceByOwnerId(AuthUtils.getAuthUserName());
         criterion.addFilter(new DataSourceListFilter(criterionKey, "workspace",
@@ -368,6 +370,8 @@ public class DataSourceService {
         }
         break;
       case CREATOR:
+        //allow search
+        criterion.setSearchable(true);
         String userName = AuthUtils.getAuthUserName();
         User user = userRepository.findByUsername(userName);
 

@@ -17,6 +17,7 @@ public class DataSourceListCriterion {
   String criterionName;
   List<DataSourceListCriterion> subCriteria;
   List<DataSourceListFilter> filters;
+  Boolean searchable;
 
   public DataSourceListCriterion(){
   }
@@ -25,6 +26,13 @@ public class DataSourceListCriterion {
     this.criterionKey = criterionKey;
     this.criterionType = criterionType;
     this.criterionName = criterionName;
+  }
+
+  public DataSourceListCriterion(CriterionKey criterionKey, CriterionType criterionType, String criterionName, Boolean searchable){
+    this.criterionKey = criterionKey;
+    this.criterionType = criterionType;
+    this.criterionName = criterionName;
+    this.searchable = searchable;
   }
 
   public void addFilter(DataSourceListFilter dataSourceFilter){
@@ -79,6 +87,14 @@ public class DataSourceListCriterion {
 
   public void setFilters(List<DataSourceListFilter> filters) {
     this.filters = filters;
+  }
+
+  public Boolean getSearchable() {
+    return searchable;
+  }
+
+  public void setSearchable(Boolean searchable) {
+    this.searchable = searchable;
   }
 
   enum CriterionKey{
