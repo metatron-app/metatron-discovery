@@ -58,7 +58,7 @@
 .ddp-type-search {position:relative; padding:0 20px 0 23px;}
 .ddp-type-search:before {display:Inline-block; position:absolute; top:50%; left:0; width:14px; height:14px; margin-top:-7px; background:url(../../../images/icon_search.png) no-repeat; background-position:-15px -12px; content:'';}
 .ddp-type-search .ddp-btn-delete {display:inline-block; position:absolute; top:50%; right:0; margin-top:-8px; width:15px; height:15px; background:url(../../../images/btn_close.png) no-repeat; background-position:left -132px;}
-.ddp-type-search input {display:block; width:100%; padding:6px 0; border:none; background:none; font-size:13px;}
+.ddp-type-search input {display:block; width:100%; padding:5px 0; border:none; background:none; font-size:13px;}
 /**************************************************************
   hover search
 **************************************************************/
