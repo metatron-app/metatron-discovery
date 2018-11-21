@@ -329,16 +329,10 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeSizeColumn(data: Field) {
 
-    // (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = data.alias;
-    // (<UISymbolLayer>this.uiOption.layers[this.index]).size.name = data.name;
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = data.alias;
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.name = data.name;
 
-    // this.applyLayers();
-
-    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
-      layers: this.uiOption.layers
-    });
-
-    this.update();
+    this.applyLayers();
   }
 
   /**

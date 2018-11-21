@@ -1973,7 +1973,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
 
     let option: UIMapOption = this.getUiMapOption();
     let layer: UILayers = option.layers[option.layerNum];
-    let shelf :GeoField[] =  this.shelf.layers[option.layerNum];
+    let shelf :GeoField[] = _.cloneDeep(this.shelf.layers[option.layerNum]);
 
     // ////////////////////////////////////////////////////////
     // // Alias
