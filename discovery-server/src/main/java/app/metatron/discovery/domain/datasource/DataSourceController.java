@@ -844,7 +844,9 @@ public class DataSourceController {
   }
 
   @RequestMapping(value = "/datasources/filter", method = RequestMethod.POST)
-  public @ResponseBody ResponseEntity<?> filterDataSources(@RequestBody DataSourceFilterRequest request, Pageable pageable) {
+  public @ResponseBody ResponseEntity<?> filterDataSources(@RequestBody DataSourceFilterRequest request,
+                                                           Pageable pageable,
+                                                           PersistentEntityResourceAssembler resourceAssembler) {
 
     List<String> statuses = request == null ? null : request.getStatus();
     List<String> workspaces = request == null ? null : request.getWorkspace();
@@ -871,6 +873,7 @@ public class DataSourceController {
     LOGGER.debug("Parameter (modifiedTimeFrom) : {}", modifiedTimeFrom);
     LOGGER.debug("Parameter (modifiedTimeTo) : {}", modifiedTimeTo);
     LOGGER.debug("Parameter (containsText) : {}", containsText);
+
 
     // Validate status
     List<DataSource.Status> statusEnumList = null;
@@ -922,8 +925,7 @@ public class DataSourceController {
             modifiedTimeTo, containsText, dataSourceTypeEnumList, sourceTypeEnumList, connectionTypeEnumList, pageable
     );
 
-
-    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(dataSources));
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(dataSources, resourceAssembler));
   }
 
   @RequestMapping(value = "/datasources/criteria", method = RequestMethod.GET)
