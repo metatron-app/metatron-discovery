@@ -1955,6 +1955,11 @@
   "msg.storage.ui.ingestion.failed.history": "Ingestion history can not be loaded",
   "msg.storage.ui.ingestion.details.title": "Ingestion details",
   "msg.storage.ui.partition.rows": "rows",
+  "msg.storage.ui.custom.property": "Custom property(Opt.)",
+  "msg.storage.ph.custom.property.key": "Please enter a configuration key",
+  "msg.storage.ph.custom.property.value": "Please enter a configuration value",
+  "msg.storage.ui.custom.property.duplicated": "duplicated",
+  "msg.storage.ui.custom.property.special.char.disable": "special characters disable",
 
   "msg.log.th.status": "Status",
   "msg.log.ui.search.description" : "Search by job and application",

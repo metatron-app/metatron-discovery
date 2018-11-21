@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 
@@ -270,17 +269,6 @@ public class MySQLConnection extends JdbcDataConnection {
     if(StringUtils.isNotEmpty(MYSQL_DEFAULT_OPTIONS)) {
       builder.append("?");
       builder.append(MYSQL_DEFAULT_OPTIONS);
-    }
-
-    if(this.getConnectTimeout() != null) {
-      if(StringUtils.isNotEmpty(MYSQL_DEFAULT_OPTIONS)){
-        builder.append("&");
-      } else {
-        builder.append("?");
-      }
-      builder.append(MYSQL_CONNECT_TIMEOUT_OPTION + (this.getConnectTimeout() * 1000));
-      builder.append("&");
-      builder.append(MYSQL_SOCKET_TIMEOUT_OPTION + (this.getConnectTimeout() * 1000));
     }
 
     return builder.toString();
