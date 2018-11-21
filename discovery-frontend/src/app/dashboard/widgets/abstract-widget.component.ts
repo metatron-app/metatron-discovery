@@ -19,6 +19,7 @@ import { EventBroadcaster } from '../../common/event/event.broadcaster';
 import { LayoutMode } from '../../domain/dashboard/dashboard';
 import * as $ from "jquery";
 import {Alert} from "../../common/util/alert.util";
+import {isNullOrUndefined} from "util";
 
 export abstract class AbstractWidgetComponent extends AbstractComponent implements OnInit, OnDestroy {
 
@@ -35,10 +36,12 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
   public isEditMode: boolean = false;
   public isViewMode: boolean = false;
   public isAuthMgmtViewMode: boolean = false;
-  public isError: boolean = false;                // 에러 상태 표시 여부
-  public isMissingDataSource:boolean = false;
 
   public isVisibleScrollbar: boolean = false;   // 스크롤바 표시 여부 체크
+
+  public isMissingDataSource:boolean = false;
+  public isError: boolean = false;                // 에러 상태 표시 여부
+  public errorInfo: { show?: boolean, code?: string, details?: string };    // 에러 정보
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Variables - Input & Output
@@ -127,6 +130,25 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Protected Method
    |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+
+  /**
+   * 에러 표시
+   * @param {{show:boolean, code:string, details:string}} error
+   */
+  protected _showError(error: { show?: boolean, code?: string, details?: string }) {
+    (isNullOrUndefined(error)) && (error = {});
+    error.show = false;
+    this.errorInfo = error;
+    this.isError = true;
+  } // function - _showError
+
+  /**
+   * 에러 숨김
+   */
+  protected _hideError() {
+    this.errorInfo = undefined;
+    this.isError = false;
+  } // function - _hideError
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Method

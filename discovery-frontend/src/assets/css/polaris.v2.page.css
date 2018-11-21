@@ -333,6 +333,7 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 	PAGE : 대시보드 그리드 미리보기 팝업
 **********************************************************************************/
 .ddp-pop-preview {position:fixed; left:424px; right:124px; bottom:112px; top:155px;  background-color:#fff; z-index:126;}
+.ddp-pop-preview.ddp-size-m {left:50%; right:inherit; bottom:inherit; top:50%; width:700px; height:500px; margin:-250px 0 0 -350px;}
 .ddp-pop-preview:before {display:inline-block; content:''; position:fixed; left:0; right:0; bottom:0; top:0; background-color:rgba(208,209,216,0.5);}
 .ddp-pop-preview.ddp-pop-database em.ddp-icon-view {display:inline-block; position:absolute; top:66px; left:-8px; width:8px; height:12px; background:url(../images/icon_dataview.png) no-repeat; background-position:left -27px; z-index:3;}
 .ddp-pop-preview .ddp-ui-top {position:relative; height:38px; background-color:#4b515b; border:1px solid #4b515b;}
@@ -1816,6 +1817,8 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-ui-data-none em.ddp-chart-radar {background-position:-854px 0;}
 .ddp-ui-data-none em.ddp-chart-network {background-position:-915px 0;}
 .ddp-ui-data-none em.ddp-chart-sankey {background-position:-976px 0;}
+.ddp-ui-data-none em.ddp-chart-filter {background-position:-1037px 0;}
+.ddp-ui-data-none em.ddp-chart-parameter {background-position:-1098px 0;}
 .ddp-wrap-data-none .ddp-ui-data-none em[class*="ddp-chart-"].ddp-error:before {display:inline-block; width:22px; height:22px; position:absolute; bottom:-7px; right:-7px; content:''; background:url(../images/icon_chart_error.png) no-repeat;}
 .ddp-wrap-data-none .ddp-ui-data-none .ddp-data-name {display:block; padding:15px 0 0; font-size:16px; text-align:center; color:#90969f;}
 .ddp-wrap-data-none .ddp-ui-data-none .ddp-txt-det {display:block; padding-top:18px; color:#b7b9c2; font-size:14px; font-weight:300; text-align:center;}
@@ -1831,7 +1834,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 
 .ddp-ui-data-none em.ddp-img-nodata2 {display:inline-block; width:170px; height:190px; background:url(../images/img_nochart2.png) no-repeat;}
 
-.ddp-div-table {display:table; width:100%; height:100%;}
+.ddp-div-table {position:relative; display:table; width:100%; height:100%; background:#fff; z-index:10;}
 .ddp-div-tablecell {display:table-cell; width:100%; height:100%; vertical-align: middle; text-align:center;}
 .ddp-div-tablecell .ddp-txt-condition {display:block; padding-bottom:35px; text-align:center; color:#d0d1d8; font-size:28px;}
 .ddp-div-tablecell .ddp-txt-condition.ddp-missing {color:#eb5f58;}
@@ -2678,6 +2681,8 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-wrap-chart .ddp-wrap-chart-contents {float:left; margin-left:-288px; margin-right:-318px; padding-left:288px; width:100%;height:100%;vertical-align: top;overflow:hidden; box-sizing:border-box;}
 
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents {position:relative; height:100%; margin-right:317px; overflow:hidden;}
+.ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents.ddp-tooltip {z-index:70; overflow:initial;}
+.ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents.ddp-tooltip .ddp-ui-chart-contents{z-index:10; overflow:initial}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents .ddp-wrap-naviarea {padding-right:430px; margin-left:0px;}
 
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents .ddp-wrap-naviarea .ddp-box-navi.ddp-selected .ddp-wrap-input {width:100%;}
@@ -2686,7 +2691,6 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-wrap-chart .ddp-wrap-chart-contents.ddp-size {margin-right:-53px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents.ddp-size .ddp-view-chart-contents {margin-right:53px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents {position:absolute; top:198px; left:0; right:0; bottom:0; overflow:auto;}
-.ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-tooltip {z-index:10; overflow:initial;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-map-chart.ddp-shelf1 {top:104px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-map-chart.ddp-shelf2 {top:149px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-map-chart.ddp-shelf3 {top:194px;}

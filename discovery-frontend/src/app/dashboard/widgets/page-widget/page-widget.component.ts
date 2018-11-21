@@ -149,9 +149,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
   // 데이터 조회 쿼리
   public query: SearchQueryRequest;
 
-  // 에러 정보
-  public errorInfo: { show?: boolean, code?: string, details?: string };
-
   get uiOption(): UIOption {
     return this.widgetConfiguration.chart;
   }
@@ -945,6 +942,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         this._isDuringProcess = true;
         this.isMissingDataSource = true;
         this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
+        this.updateComplete();
       } else {
         // If the widget has a data source
 
@@ -1039,7 +1037,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     // 프로세스 실행 등록
     this.processStart();
     this._isDuringProcess = true;
-    this.errorInfo = undefined;
 
     if (!this.chart) {
       this.updateComplete();
@@ -1112,6 +1109,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     if (isNullOrUndefined(widgetDataSource)) {
       this.isMissingDataSource = true;
       this._showError({code: 'GB0000', details: this.translateService.instant('msg.board.error.missing-datasource')});
+      this.updateComplete();
       return;
     }
 
@@ -1128,7 +1126,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }
 
     this.isShowNoData = false;
-    this.isError = false;
+    this._hideError();
 
     // 서버 조회용 파라미터 (서버 조회시 필요없는 파라미터 제거)
     const cloneQuery = this._makeSearchQueryParam(_.cloneDeep(uiCloneQuery));
@@ -1209,6 +1207,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     }).catch((error) => {
       // 프로세스 종료 등록 및 No Data 표시
       this._showError(error);
+      this.updateComplete();
       // 변경 적용
       this.safelyDetectChanges();
     });
@@ -1314,18 +1313,6 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
     return childIds;
   } // function - _findChildWidgetIds
 
-  /**
-   * 에러 표시
-   * @param {{show:boolean, code:string, details:string}}error
-   */
-  private _showError(error: { show?: boolean, code?: string, details?: string }) {
-    (isNullOrUndefined(error)) && (error = {});
-    error.show = false;
-    this.errorInfo = error;
-    this.isError = true;
-    this.updateComplete();
-  } // function - _showError
-
   // ----------------------------------------------------
   // 고급분석 예측선 관련
   // ----------------------------------------------------
@@ -1358,6 +1345,7 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
             this.analysisPredictionService.getAnalysisPredictionLineFromDashBoard(this.widgetConfiguration, this.widget, this.chart, this.resultData)
               .catch((error) => {
                 this._showError(error);
+                this.updateComplete();
               });
           } else {
             this.predictionLineDisabled();

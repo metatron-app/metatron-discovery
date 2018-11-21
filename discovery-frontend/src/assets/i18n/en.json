@@ -1471,6 +1471,7 @@
   "msg.board.ui.sync_interval" : "Data sync interval",
   "msg.board.ui.card.view" : "Card view",
   "msg.board.error.missing-datasource" : "Data source information is missing.",
+  "msg.board.error.missing-field" : "Field information is missing.",
 
   "msg.storage.btn.create.dsource": "Create new datasource",
   "msg.storage.ui.dsource.search.description": "Search by name of datasource",

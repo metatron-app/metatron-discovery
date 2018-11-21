@@ -16,41 +16,41 @@ import {
   Component, ElementRef, Injector, Input, OnDestroy, OnInit, SimpleChange, SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { AbstractWidgetComponent } from '../abstract-widget.component';
-import { FilterWidget, FilterWidgetConfiguration } from '../../../domain/dashboard/widget/filter-widget';
-import { Filter } from '../../../domain/workbook/configurations/filter/filter';
+import {ActivatedRoute} from '@angular/router';
+import {AbstractWidgetComponent} from '../abstract-widget.component';
+import {FilterWidget, FilterWidgetConfiguration} from '../../../domain/dashboard/widget/filter-widget';
+import {Filter} from '../../../domain/workbook/configurations/filter/filter';
 import {
   Candidate,
   InclusionFilter, InclusionItemSort,
   InclusionSelectorType, InclusionSortBy
 } from '../../../domain/workbook/configurations/filter/inclusion-filter';
-import { Alert } from '../../../common/util/alert.util';
-import { Dashboard } from '../../../domain/dashboard/dashboard';
-import { Field } from '../../../domain/datasource/datasource';
+import {Alert} from '../../../common/util/alert.util';
+import {Dashboard} from '../../../domain/dashboard/dashboard';
+import {Field} from '../../../domain/datasource/datasource';
 
 import * as _ from 'lodash';
-import { SubscribeArg } from '../../../common/domain/subscribe-arg';
-import { PopupService } from '../../../common/service/popup.service';
-import { FilterMultiSelectComponent } from '../../filters/component/filter-multi-select/filter-multi-select.component';
+import {SubscribeArg} from '../../../common/domain/subscribe-arg';
+import {PopupService} from '../../../common/service/popup.service';
+import {FilterMultiSelectComponent} from '../../filters/component/filter-multi-select/filter-multi-select.component';
 import * as $ from 'jquery';
-import { FilterSelectComponent } from '../../filters/component/filter-select/filter-select.component';
-import { EventBroadcaster } from '../../../common/event/event.broadcaster';
-import { DatasourceService } from '../../../datasource/service/datasource.service';
-import { BoundFilterComponent } from '../../filters/bound-filter/bound-filter.component';
-import { BoundFilter } from '../../../domain/workbook/configurations/filter/bound-filter';
-import { StringUtil } from '../../../common/util/string.util';
-import { DashboardUtil } from '../../util/dashboard.util';
-import { FilterUtil } from '../../util/filter.util';
-import { TimeFilter } from '../../../domain/workbook/configurations/filter/time-filter';
+import {FilterSelectComponent} from '../../filters/component/filter-select/filter-select.component';
+import {EventBroadcaster} from '../../../common/event/event.broadcaster';
+import {DatasourceService} from '../../../datasource/service/datasource.service';
+import {BoundFilterComponent} from '../../filters/bound-filter/bound-filter.component';
+import {BoundFilter} from '../../../domain/workbook/configurations/filter/bound-filter';
+import {StringUtil} from '../../../common/util/string.util';
+import {DashboardUtil} from '../../util/dashboard.util';
+import {FilterUtil} from '../../util/filter.util';
+import {TimeFilter} from '../../../domain/workbook/configurations/filter/time-filter';
 import {TimeRangeFilter} from "../../../domain/workbook/configurations/filter/time-range-filter";
 import {
   TimeRelativeFilter,
   TimeRelativeTense
 } from "../../../domain/workbook/configurations/filter/time-relative-filter";
 import {TimeUnit} from "../../../domain/workbook/configurations/field/timestamp-field";
-import { DIRECTION } from '../../../domain/workbook/configurations/sort';
-import { isNullOrUndefined } from 'util';
+import {DIRECTION} from '../../../domain/workbook/configurations/sort';
+import {isNullOrUndefined} from 'util';
 
 @Component({
   selector: 'filter-widget',
@@ -197,14 +197,21 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
       const filter: Filter = this.getFilter();
 
       this.dashboard = this.widget.dashBoard;
-      this.field = DashboardUtil.getFieldByName( this.widget.dashBoard, filter.dataSource, filter.field, filter.ref );
+      this.field = DashboardUtil.getFieldByName(this.widget.dashBoard, filter.dataSource, filter.field, filter.ref);
 
-      if( this.field ) {
+      this.field = null;
+
+      if (this.field) {
         // 필터 후보값 조회
-        this._candidate( filter );
+        this._candidate(filter);
       } else {
         this.processStart();
-        this.isError = true;
+        this._showError(
+          {
+            code: 'GB0000',
+            details: this.translateService.instant('msg.board.error.missing-field')
+          }
+        );
         this.processEnd();
       }
     }
@@ -230,9 +237,9 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * @param {FilterWidgetConfiguration} objConfig
    */
   public setConfiguration(objConfig: FilterWidgetConfiguration) {
-    if( !this.isError ) {
+    if (!this.isError) {
       this.widget.configuration = objConfig;
-      this._candidate( this.getFilter() );
+      this._candidate(this.getFilter());
     }
   } // function - setConfiguration
 
@@ -424,7 +431,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * @private
    */
   private _broadcastChangeFilter(filter: Filter) {
-    this.broadCaster.broadcast('CHANGE_FILTER_WIDGET', { filter: filter });
+    this.broadCaster.broadcast('CHANGE_FILTER_WIDGET', {filter: filter});
   } // function - _broadcastChangeFilter
 
   /**
@@ -444,11 +451,11 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
       if (isInterval || isIncludeCombo) {
         // 필터 z-index 최상으로 처리
         const $filterWidgetEl = $(this.filterWidget.nativeElement);
-        $filterWidgetEl.closest('.lm_item .lm_stack').css({ 'z-index': 100, 'position': 'relative' });
+        $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': 100, 'position': 'relative'});
         $filterWidgetEl.closest('.lm_content').css('overflow', 'inherit');
       }
     }
-    ( this.isShowTitle ) || ( this._setIsVisibleScrollbar() );  // 스크롤바 표시 여부 설정
+    (this.isShowTitle) || (this._setIsVisibleScrollbar());  // 스크롤바 표시 여부 설정
   } // function - _initialContainer
 
   /**
@@ -459,9 +466,9 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
   private _setContainerZIndex(index: number | string) {
     const $filterWidgetEl = $(this.filterWidget.nativeElement);
     if ('' === index) {
-      $filterWidgetEl.closest('.lm_item .lm_stack').css({ 'z-index': '', 'position': '' });
+      $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': '', 'position': ''});
     } else {
-      $filterWidgetEl.closest('.lm_item .lm_stack').css({ 'z-index': index, 'position': 'relative' });
+      $filterWidgetEl.closest('.lm_item .lm_stack').css({'z-index': index, 'position': 'relative'});
     }
   } // function - _setContainerZIndex
 
@@ -473,6 +480,7 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
 
     // 프로세스 실행 등록
     this.processStart();
+    this._hideError();
 
     if ('include' === filter.type || 'bound' === filter.type) {
 
@@ -559,13 +567,9 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
 
         this.processEnd();
       }).catch((error) => {
-        this.isError = true;
-
-        this.commonExceptionHandler(error);
-        // 목록 비움
-        this.candidateList = [];
-        // 프로세스 종료 등록
-        this.processEnd();
+        this._showError(error);
+        this.candidateList = [];    // 목록 비움
+        this.processEnd();          // 프로세스 종료 등록
       });
 
     } else {
@@ -682,9 +686,9 @@ export class FilterWidgetComponent extends AbstractWidgetComponent implements On
    * 스크롤바 표시 여부를 설정한다.
    */
   private _setIsVisibleScrollbar() {
-    if( this.filterWidget ) {
+    if (this.filterWidget) {
       const $container: JQuery = $(this.filterWidget.nativeElement).find('.ddp-ui-widget-contents');
-      const $contents: JQuery = $container.find( 'ul' );
+      const $contents: JQuery = $container.find('ul');
       this.isVisibleScrollbar = ($container.height() < $contents.height());
       this.safelyDetectChanges();
     }

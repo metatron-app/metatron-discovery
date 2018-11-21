@@ -163,6 +163,13 @@
     <!-- // Timestamp Filter -->
   </div>
 
+  <!-- Error 표시 영역 -->
+  <error-widget [isShow]="isError"
+                [iconClass]="'ddp-chart-filter'"
+                [widgetName]="getWidgetName()"
+                [errorInfo]="errorInfo"></error-widget>
+  <!-- // Error 표시 영역 -->
+
   <!-- 수정 버튼 레이어 -->
   <div *ngIf="isEditMode" class="ddp-hover-edit">
     <div class="ddp-hover-edit-in" >
