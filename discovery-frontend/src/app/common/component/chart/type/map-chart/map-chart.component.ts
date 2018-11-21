@@ -114,6 +114,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   // Feature layer
   public featureLayer = undefined;
 
+  // Cluster layer
+  public clusterLayer = undefined;
+
   // Symbol layer
   public symbolLayer = undefined;
 
@@ -232,8 +235,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     }
 
     // Test!
-    if( this.data[0].features && this.data[0].features.length > 10 ) {
-      this.data[0].features = this.data[0].features.splice(0, 10);
+    if( this.data[0].features && this.data[0].features.length > 1000 ) {
+      this.data[0].features = this.data[0].features.splice(0, 1000);
     }
     // this.data[0].features = [this.data[0].features[0]];
 
@@ -253,17 +256,23 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Show data
     this.data.show = true;
 
-    // Soruce
-    let source = new ol.source.Vector();
-
     // Is map creation
     let isMapCreation: boolean = this.createMap();
+
+    // Soruce
+    let source = new ol.source.Vector();
 
     // Creation feature
     this.createFeature(source);
 
+    // Cluster source
+    let clusterSource = new ol.source.Cluster({
+      distance: 30,
+      source: source
+    });
+
     // Creation layer
-    this.createLayer(source, isMapCreation);
+    this.createLayer(source, clusterSource, isMapCreation);
 
     // Chart resize
     this.olmap.updateSize();
@@ -459,7 +468,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Is map creation
     if( this.olmap ) {
 
-      // // // Change map style
+      // Change map style
       this.olmap.removeLayer(this.osmLayer);
       this.olmap.removeLayer(this.cartoDarkLayer);
       this.olmap.removeLayer(this.cartoPositronLayer);
@@ -468,7 +477,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       if( this.getUiMapOption().showMapLayer ) {
         this.olmap.addLayer(this.featureLayer);
       }
-
       return false;
     }
 
@@ -504,7 +512,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   /**
    * Creation map layer
    */
-  private createLayer(source: any, isMapCreation: boolean): void {
+  private createLayer(source: any, clusterSource: any, isMapCreation: boolean): void {
 
     ////////////////////////////////////////////////////////
     // Create layer
@@ -515,10 +523,47 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let layer: UILayers = this.getUiMapOption().layers[num];
 
       ////////////////////////////////////////////////////////
-      // Symbol(Point, Line, Polygon) layer
+      // Point(Cluster) layer
       ////////////////////////////////////////////////////////
-      if( _.eq(layer.type, MapLayerType.SYMBOL)
-        || _.eq(layer.type, MapLayerType.LINE)
+      if( _.eq(layer.type, MapLayerType.SYMBOL) ) {
+
+        // Create
+        if( !this.clusterLayer ) {
+          this.clusterLayer = new ol.layer.Vector({
+            source: clusterSource,
+            style: this.clusterStyleFunction(0, this.data)
+          });
+        }
+
+        // Set source
+        this.clusterLayer.setSource(clusterSource);
+        this.featureLayer = this.clusterLayer;
+
+        // Init
+        if( isMapCreation && this.getUiMapOption().showMapLayer ) {
+          // Add layer
+          this.olmap.addLayer(this.clusterLayer);
+        }
+        else {
+          if( this.getUiMapOption().showMapLayer ) {
+            // Add layer
+            if( this.olmap.getLayers().getLength() == 1 ) {
+              this.olmap.addLayer(this.clusterLayer);
+            }
+
+            // Set style
+            this.clusterLayer.setStyle(this.clusterStyleFunction(0, this.data));
+          }
+          else {
+            // Remove layer
+            this.olmap.removeLayer(this.clusterLayer);
+          }
+        }
+      }
+      ////////////////////////////////////////////////////////
+      // Line, Polygon layer
+      ////////////////////////////////////////////////////////
+      if( _.eq(layer.type, MapLayerType.LINE)
         || _.eq(layer.type, MapLayerType.POLYGON) ) {
 
         // Create
@@ -526,7 +571,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
           this.symbolLayer = new ol.layer.Vector({
             source: source,
             style: this.mapStyleFunction(0, this.data)
-            //opacity: this.getUiMapOption().layers[0].color.transparency / 100
           });
         }
 
@@ -640,20 +684,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let styleLayer: UILayers = styleOption.layers[layerNum];
     let styleData = data[layerNum];
 
-    function hexToRgbA(hex, alpha): string{
-      var c;
-      if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
-        c= hex.substring(1).split('');
-        if(c.length === 3){
-          c= [c[0], c[0], c[1], c[1], c[2], c[2]];
-        }
-        c= '0x'+c.join('');
-        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')';
-      } else {
-        return 'rgba(255,255,255,1)';
-      }
-    }
-
     return function (feature, resolution) {
 
       ////////////////////////////////////////////////////////
@@ -666,7 +696,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let symbolType = null;
       let outlineType = null;
       let lineDashType = null;
-      let lineMaxVal = null;
+      let lineMaxVal = 1; //styleLayer.size.max;
       let outlineColor = null;
       let featureSizeType = null;
 
@@ -746,7 +776,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         }
 
 
-      } else if( _.eq(featureColorType, MapBy.DIMENSION) ) {
+      }
+      else if( _.eq(featureColorType, MapBy.DIMENSION) ) {
 
         // Get dimension color
         const ranges = scope.setDimensionColorRange(styleLayer, styleData, ChartColorList[styleLayer.color.schema], []);
@@ -756,11 +787,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
             return false;
           }
         });
-      } else if( _.eq(featureColorType, MapBy.NONE) ) {
+      }
+      else if( _.eq(featureColorType, MapBy.NONE) ) {
         featureColor = styleLayer.color.schema;
       }
 
-      featureColor = hexToRgbA(featureColor, styleLayer.color.transparency * 0.01);
+      featureColor = scope.hexToRgbA(featureColor, styleLayer.color.transparency * 0.01);
 
       ////////////////////////////////////////////////////////
       // Outline
@@ -979,6 +1011,456 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   }
 
   /**
+   * Cluster style function
+   */
+  private clusterStyleFunction = (layerNum, data) => {
+
+    let scope: any = this;
+    let styleOption: UIMapOption = this.getUiMapOption();
+    let styleLayer: UILayers = styleOption.layers[layerNum];
+    let styleData = data[layerNum];
+
+    return function (feature, resolution) {
+
+      ////////////////////////////////////////////////////////
+      // Style options
+      ////////////////////////////////////////////////////////
+
+      let symbolLayer: UISymbolLayer = <UISymbolLayer>styleLayer;
+      let layerType = styleLayer.type;
+      let featureColor = styleLayer.color.schema;
+      let featureColorType = styleLayer.color.by;
+      let symbolType = symbolLayer.symbol
+      let outlineType = symbolLayer.outline ? symbolLayer.outline.thickness : null;
+      let outlineColor = symbolLayer.outline ? symbolLayer.outline.color : null;
+      let lineMaxVal = 1; //styleLayer.size.max;
+      let featureSizeType = symbolLayer.size.by;
+      let style = null;
+
+      ////////////////////////////////////////////////////////
+      // Cluster size
+      ////////////////////////////////////////////////////////
+
+      let size: number = 0;
+      if(feature.get('features')) {
+        size = feature.get('features').length;
+      }
+
+      ////////////////////////////////////////////////////////
+      // Point Style
+      ////////////////////////////////////////////////////////
+      if( size <= 1 ) {
+
+        ////////////////////////////////////////////////////////
+        // Color
+        ////////////////////////////////////////////////////////
+
+        if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureColorType, MapBy.MEASURE)) {
+          if(styleLayer.color['ranges']) {
+            for(let range of styleLayer.color['ranges']) {
+              let rangeMax = range.fixMax;
+              let rangeMin = range.fixMin;
+
+              if(rangeMax === null) {
+                rangeMax = rangeMin + 1;
+              } else if(rangeMin === null) {
+                rangeMin = rangeMax;
+              }
+
+              if(rangeMax === rangeMin) {
+                rangeMin = rangeMax - 1;
+              }
+
+              if( feature.getProperties()[styleLayer.color.column] > rangeMin &&
+                feature.getProperties()[styleLayer.color.column] <= rangeMax) {
+                featureColor = range.color;
+              }
+            }
+          } else {
+            const ranges = scope.setColorRange(styleOption, styleData, ChartColorList[styleLayer.color['schema']], layerNum);
+
+            // set decimal value
+            const formatValue = ((value) => {
+              return parseFloat((Number(value) * (Math.pow(10, styleOption.valueFormat.decimal)) / Math.pow(10, styleOption.valueFormat.decimal)).toFixed(styleOption.valueFormat.decimal));
+            });
+
+            for(let range of ranges) {
+              let rangeMax = range.fixMax;
+              let rangeMin = range.fixMin;
+
+              if(rangeMax === null) {
+                rangeMax = rangeMin + 1;
+              } else if(rangeMin === null) {
+                rangeMin = 0;
+              }
+
+              if(rangeMax === rangeMin) {
+                rangeMin = rangeMax - 1;
+              }
+
+              let value = formatValue(feature.getProperties()[styleLayer.color.column]);
+
+              if( value > rangeMin && value <= rangeMax) {
+                featureColor = range.color;
+              }
+            }
+          }
+
+
+        }
+        else if( _.eq(featureColorType, MapBy.DIMENSION) ) {
+
+          // Get dimension color
+          const ranges = scope.setDimensionColorRange(styleLayer, styleData, ChartColorList[styleLayer.color.schema], []);
+          _.each(ranges, (range) => {
+            if( _.eq(feature.getProperties()[styleLayer.color.column], range.column) ) {
+              featureColor = range.color;
+              return false;
+            }
+          });
+        }
+        else if( _.eq(featureColorType, MapBy.NONE) ) {
+          featureColor = styleLayer.color.schema;
+        }
+
+        featureColor = scope.hexToRgbA(featureColor, styleLayer.color.transparency * 0.01);
+
+        ////////////////////////////////////////////////////////
+        // Outline
+        ////////////////////////////////////////////////////////
+
+        let outlineWidth = 0.00000001;
+        if( _.eq(outlineType, MapThickness.THIN) )  {
+          outlineWidth = 1;
+        }
+        else if( _.eq(outlineType, MapThickness.NORMAL) ) {
+          outlineWidth = 2;
+        }
+        else if( _.eq(outlineType, MapThickness.THICK) ) {
+          outlineWidth = 3;
+        }
+
+        ////////////////////////////////////////////////////////
+        // Size
+        ////////////////////////////////////////////////////////
+
+        let featureSize = 5;
+        if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
+          featureSize = parseInt(feature.get((<UISymbolLayer>styleLayer).size.column)) / (styleData.valueRange[(<UISymbolLayer>styleLayer).size.column].maxValue / 30);
+          if(featureSize < 2) {
+            featureSize = 2;
+          }
+        }
+
+        let lineThickness = 2;
+        if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
+          lineThickness = parseInt(feature.get((<UISymbolLayer>styleLayer).size.column)) / (styleData.valueRange[(<UISymbolLayer>styleLayer).size.column].maxValue / lineMaxVal);
+          if(lineThickness < 1) {
+            lineThickness = 1;
+          }
+        }
+
+        ////////////////////////////////////////////////////////
+        // Creation style
+        ////////////////////////////////////////////////////////
+
+        style = new ol.style.Style({
+          image: new ol.style.Circle({
+            radius: 4,
+            fill: new ol.style.Fill({
+              color: featureColor
+            })
+          }),
+          stroke: new ol.style.Stroke({
+            color: featureColor,
+            width: lineThickness
+          }),
+          fill: new ol.style.Fill({
+            color: featureColor
+          })
+        });
+
+        if( _.eq(layerType, MapLayerType.SYMBOL) ) {
+          switch (symbolType) {
+            case MapSymbolType.CIRCLE :
+              style = new ol.style.Style({
+                image: new ol.style.Circle({
+                  radius: featureSize,
+                  fill: new ol.style.Fill({
+                    color: featureColor
+                  }),
+                  stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
+                }),
+                stroke: new ol.style.Stroke({
+                  color: outlineColor,
+                  width: outlineWidth
+                }),
+                fill: new ol.style.Fill({
+                  color: featureColor
+                })
+              });
+              break;
+            case MapSymbolType.SQUARE :
+              style = new ol.style.Style({
+                image: new ol.style.RegularShape({
+                  fill: new ol.style.Fill({color: featureColor}),
+                  points: 4,
+                  radius: featureSize,
+                  angle: Math.PI / 4,
+                  stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
+                }),
+                stroke: new ol.style.Stroke({
+                  color: outlineColor,
+                  width: outlineWidth
+                }),
+                fill: new ol.style.Fill({
+                  color: featureColor
+                })
+              });
+              break;
+            case MapSymbolType.TRIANGLE :
+              style = new ol.style.Style({
+                image: new ol.style.RegularShape({
+                  fill: new ol.style.Fill({color: featureColor}),
+                  points: 3,
+                  radius: featureSize,
+                  rotation: Math.PI / 4,
+                  angle: 0,
+                  stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
+                }),
+                stroke: new ol.style.Stroke({
+                  color: outlineColor,
+                  width: outlineWidth
+                }),
+                fill: new ol.style.Fill({
+                  color: featureColor
+                })
+              });
+              break;
+            case MapSymbolType.PIN :
+              style = new ol.style.Style({
+                image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+                  color: featureColor,
+                  crossOrigin: 'anonymous',
+                  scale: featureSize * 0.1,
+                  src: '../../../../../../assets/images/ic_pin.png'
+                })),
+                stroke: new ol.style.Stroke({
+                  color: outlineColor,
+                  width: outlineWidth
+                }),
+                fill: new ol.style.Fill({
+                  color: featureColor
+                })
+              });
+              break;
+            case MapSymbolType.PLAIN :
+              style = new ol.style.Style({
+                image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+                  color: featureColor,
+                  crossOrigin: 'anonymous',
+                  scale: featureSize * 0.1,
+                  src: '../../../../../../assets/images/ic_map_airport.png'
+                })),
+                stroke: new ol.style.Stroke({
+                  color: outlineColor,
+                  width: outlineWidth
+                }),
+                fill: new ol.style.Fill({
+                  color: featureColor
+                })
+              });
+              break;
+            case MapSymbolType.USER :
+              style = new ol.style.Style({
+                image: new ol.style.Icon(/** @type {module:ol/style/Icon~Options} */ ({
+                  color: featureColor,
+                  crossOrigin: 'anonymous',
+                  scale: featureSize * 0.1,
+                  src: '../../../../../../assets/images/ic_map_human.png'
+                })),
+                stroke: new ol.style.Stroke({
+                  color: outlineColor,
+                  width: outlineWidth
+                }),
+                fill: new ol.style.Fill({
+                  color: featureColor
+                })
+              });
+              break;
+            default :
+              style = new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                  color: outlineColor,
+                  width: outlineWidth
+                }),
+                fill: new ol.style.Fill({
+                  color: featureColor
+                })
+              });
+              break;
+          }
+        }
+      }
+      ////////////////////////////////////////////////////////
+      // Cluster Style
+      ////////////////////////////////////////////////////////
+      else {
+
+        ////////////////////////////////////////////////////////
+        // Color
+        ////////////////////////////////////////////////////////
+
+        if( _.eq(featureColorType, MapBy.MEASURE) ) {
+
+          if(styleData.valueRange) {
+            let colorList = ChartColorList[featureColor];
+            let avgNum = styleData.valueRange[styleLayer.color.column].maxValue / colorList.length;
+
+            let featurePropVal = 0;
+
+            if(feature.getProperties()["features"]) {
+              for(let clusterFeature of feature.getProperties()["features"]) {
+                featurePropVal = featurePropVal + clusterFeature.getProperties()[styleLayer.color.column];
+              }
+              featurePropVal = featurePropVal / feature.getProperties()["features"].length;
+            }
+
+            for(let i=0;i<colorList.length;i++) {
+              if(featurePropVal <= avgNum * (i+1) &&
+                featurePropVal >= avgNum * (i)) {
+                featureColor = colorList[i];
+              }
+            }
+          }
+
+          // if(styleOption.layers[layerNum].color['customMode'] === 'SECTION') {
+          //   for(let range of styleOption.layers[layerNum].color['ranges']) {
+          //     let rangeMax = range.fixMax;
+          //     let rangeMin = range.fixMin;
+          //
+          //     if(rangeMax === null) {
+          //       rangeMax = rangeMin + 1;
+          //     } // else if(rangeMin === null) {
+          //       // rangeMin = 0;
+          //     // }
+          //
+          //     let featurePropVal = 0;
+          //
+          //     for(let clusterFeature of feature.getFeatures()["features"]) {
+          //       featurePropVal = featurePropVal + clusterFeature.getProperties()[styleOption.layers[layerNum].color.column];
+          //     }
+          //     featurePropVal = featurePropVal / feature.getFeatures()["features"].length;
+          //
+          //     if( featurePropVal > rangeMin &&  featurePropVal < rangeMax) {
+          //       featureColor = range.color;
+          //     } else if (rangeMin === null && featurePropVal < rangeMax) {
+          //       featureColor = range.color;
+          //     }
+          //   }
+          // }
+        }
+        else if( _.eq(featureColorType, MapBy.DIMENSION) ) {
+          let colorList = ChartColorList[featureColor];
+          featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+        }
+        else if( _.eq(featureColorType, MapBy.NONE) ) {
+          featureColor = styleLayer.color.schema;
+        }
+
+        featureColor = scope.hexToRgbA(featureColor, styleLayer.color.transparency * 0.01);
+
+
+        ////////////////////////////////////////////////////////
+        // Outline
+        ////////////////////////////////////////////////////////
+
+        let outlineWidth = 0.00000001;
+        if( _.eq(outlineType, MapThickness.THIN) )  {
+          outlineWidth = 1;
+        }
+        else if( _.eq(outlineType, MapThickness.NORMAL) ) {
+          outlineWidth = 2;
+        }
+        else if( _.eq(outlineType, MapThickness.THICK) ) {
+          outlineWidth = 3;
+        }
+
+        ////////////////////////////////////////////////////////
+        // Creation style
+        ////////////////////////////////////////////////////////
+
+        style = new ol.style.Style({
+          image: new ol.style.Circle({
+            radius: size,
+            fill: new ol.style.Fill({
+              color: 'blue'
+            })
+          })
+        });
+
+        switch (symbolType) {
+          case MapSymbolType.CIRCLE :
+            style = new ol.style.Style({
+              image: new ol.style.Circle({
+                radius: 15,
+                fill: new ol.style.Fill({
+                  color: featureColor
+                }),
+                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth})
+              }),
+              text: new ol.style.Text({ // 클러스터링 되는 갯수 라벨링
+                text: size.toString(), // 클러스터링 갯수
+                fill: new ol.style.Fill({
+                  color: '#fff'
+                })
+              })
+            });
+            break;
+          case MapSymbolType.SQUARE :
+            style = new ol.style.Style({
+              image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: featureColor}),
+                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
+                points: 4,
+                radius: 15,
+                angle: Math.PI / 4
+              }),
+              text: new ol.style.Text({
+                text: size.toString(),
+                fill: new ol.style.Fill({
+                  color: '#fff'
+                })
+              })
+            });
+            break;
+          case MapSymbolType.TRIANGLE :
+            style = new ol.style.Style({
+              image: new ol.style.RegularShape({
+                fill: new ol.style.Fill({color: featureColor}),
+                stroke: new ol.style.Stroke({color: outlineColor, width: outlineWidth}),
+                points: 3,
+                radius: 15,
+                rotation: Math.PI / 4,
+                angle: 0
+              }),
+              text: new ol.style.Text({
+                text: size.toString(),
+                fill: new ol.style.Fill({
+                  color: '#fff'
+                })
+              })
+            });
+            break;
+        }
+      }
+
+
+      return style;
+    }
+  }
+
+  /**
    * return lincense
    */
   private attribution(): any {
@@ -1074,6 +1556,13 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     ////////////////////////////////////////////////////////
     // Layer num & name
     ////////////////////////////////////////////////////////
+
+    // Cluster check
+    let features = feature.get('features');
+    if( features.length > 1 ) {
+      return;
+    }
+    feature = features[0];
 
     // Layer num
     this.tooltipInfo.num = feature.get('layerNum');
@@ -1474,7 +1963,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   private checkOption(): void {
 
     // Option panel change cancle
-    if( !this.drawByType ) {
+    if( this.drawByType == null ) {
       return;
     }
 
@@ -1485,6 +1974,77 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let option: UIMapOption = this.getUiMapOption();
     let layer: UILayers = option.layers[option.layerNum];
     let shelf :GeoField[] =  this.shelf.layers[option.layerNum];
+
+    // ////////////////////////////////////////////////////////
+    // // Alias
+    // ////////////////////////////////////////////////////////
+    // _.each(option.layers, (layer) => {
+    //   ////////////////////////////////////////////////////////
+    //   // Symbol
+    //   ////////////////////////////////////////////////////////
+    //   if( _.eq(layer.type, MapLayerType.SYMBOL) ) {
+    //     // Symbol layer
+    //     let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+    //     ///////////////////////////
+    //     // Color
+    //     ///////////////////////////
+    //     if( _.eq(layer.color.by, MapBy.MEASURE) || _.eq(layer.color.by, MapBy.DIMENSION) ) {
+    //       let column: string = layer.color.column;
+    //       _.each(this.shelf.layers, (shelf) => {
+    //         _.each(shelf, (field) => {
+    //           let alias1: string = field['name'];
+    //           let alias2: string = field['fieldAlias'] ? field['fieldAlias'] : "";
+    //           let alias3: string = field['pivotAlias'] ? field['pivotAlias'] : "";
+    //           if( field.aggregationType && field.aggregationType != "" ) {
+    //             alias1 = field.aggregationType +"("+ alias1 +")";
+    //             alias2 = field.aggregationType +"("+ alias2 +")";
+    //           }
+    //           let alias: string = alias3 ? alias3 : alias2 ? alias2: alias1;
+    //
+    //           if( _.eq(column, alias1) || _.eq(column, alias2) || _.eq(column, alias3) ) {
+    //             layer.color.column = alias;
+    //           }
+    //           console.info(field);
+    //         });
+    //       });
+    //     }
+    //     ///////////////////////////
+    //     // Size
+    //     ///////////////////////////
+    //     if( _.eq(symbolLayer.size.by, MapBy.MEASURE) ) {
+    //       let column: string = symbolLayer.size.column;
+    //       _.each(this.shelf.layers, (shelf) => {
+    //         _.each(shelf, (field) => {
+    //           let alias1: string = field['name'];
+    //           let alias2: string = field['fieldAlias'] ? field['fieldAlias'] : "";
+    //           let alias3: string = field['pivotAlias'] ? field['pivotAlias'] : "";
+    //           if( field.aggregationType && field.aggregationType != "" ) {
+    //             alias1 = field.aggregationType +"("+ alias1 +")";
+    //             alias2 = field.aggregationType +"("+ alias2 +")";
+    //           }
+    //           let alias: string = alias3 ? alias3 : alias2 ? alias2: alias1;
+    //
+    //           if( _.eq(column, alias1) || _.eq(column, alias2) || _.eq(column, alias3) ) {
+    //             symbolLayer.size.column = alias;
+    //           }
+    //           console.info(field);
+    //         });
+    //       });
+    //     }
+    //   }
+    //   ////////////////////////////////////////////////////////
+    //   // Line
+    //   ////////////////////////////////////////////////////////
+    //   else if( _.eq(layer.type, MapLayerType.LINE) ) {
+    //
+    //   }
+    //   ////////////////////////////////////////////////////////
+    //   // Polygon
+    //   ////////////////////////////////////////////////////////
+    //   else if( _.eq(layer.type, MapLayerType.POLYGON) ) {
+    //
+    //   }
+    // });
 
     ////////////////////////////////////////////////////////
     // Symbol
@@ -1579,5 +2139,24 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let fields = TooltipOptionConverter.returnTooltipDataValue(shelf);
     this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
 
+  }
+
+  /**
+   * Return alpha color
+   * @param hex
+   * @param alpha
+   */
+  private hexToRgbA(hex, alpha): string {
+    var c;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+      c= hex.substring(1).split('');
+      if(c.length === 3){
+        c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+      }
+      c= '0x'+c.join('');
+      return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')';
+    } else {
+      return 'rgba(255,255,255,1)';
+    }
   }
 }
