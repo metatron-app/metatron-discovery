@@ -39,7 +39,7 @@
   Page : 워크벤치 상세 (contents)
 **************************************************************/
 .page-workbench .ddp-wrap-editor .ddp-box-layout4 .ddp-btn-close {z-index:1;}
-.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts {display:block; position:absolute; top:8px; right:8px; bottom:46px; width:auto; overflow:auto; background-color:#fff; z-index:10;}
+.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts {display:block; position:absolute; top:8px; right:8px; bottom:8px; width:auto; overflow:auto; background-color:#fff; z-index:10;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts * { font-family:'SpoqaHanSans',sans-serif}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts .ddp-table-pop {white-space:nowrap; width:auto;}
 /*.page-workbench .ddp-box-editer .ddp-wrap-edit-foot {bottom:6px; z-index:30;}*/
@@ -83,18 +83,18 @@
 .page-workbench .ddp-icon-button .ddp-btn-query {position:relative;}
 
 
-.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history  {display:block; position:absolute; top:8px; right:8px; bottom:46px; width:350px; overflow:auto; background-color:#fff; z-index:10;}
+.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history  {display:block; position:absolute; top:8px; right:8px; bottom:8px; width:350px; overflow:auto; background-color:#fff; z-index:10;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history * { font-family:'SpoqaHanSans',sans-serif}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4 .ddp-data-title {position:relative;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option {float:right; top:3px; padding-right:0;}
-.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-data-list {float:left; position:relative; top:-3px; color:#b7b9c2; font-size:12px; font-weight:normal;}
+
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search {float:left; margin-left:10px;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search a.ddp-icon-search {display:inline-block; width:12px; height:12px; background:url(../../../images/icon_search.png) no-repeat; background-position:left -27px;}
 
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-btn-close2 {display:inline-block; width:11px; height:11px; margin-left:10px; background:url(../../../images/btn_close.png) no-repeat; background-position:-24px -58px}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-btn-close2:hover {background-position-x:-36px;}
-
-.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-list-history {margin-top:-9px;}
+.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-data-list-num {padding:0 0 3px 15px; color:#b7b9c2; font-size:12px;}
+.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-nodata {padding:0 0 15px 15px; color:#b7b9c3; font-size:12px;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-list-history li {}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-list-history li a{display:block;padding:9px 15px;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-list-history li a:hover {background-color:#f6f6f7;}
@@ -115,9 +115,15 @@
 
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search a.ddp-icon-search:hover {background-position-x:-13px;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-icon-del {display:inline-block; float:left; width:11px; height:12px; margin-left:10px; background:url(../../../images/icon_control.png) no-repeat; background-position:-50px -14px;}
-.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-icon-del:hover {background-position-x:-62px}
-.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search .ddp-type-search {display:none;}
-.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search.ddp-selected .ddp-type-search{display:block; position:absolute; top:9px; left:14px; right:55px; background-color:#fff; }
+.page-workbench .ddp-wrap-editor .ddp-ui-history-option .ddp-icon-del:hover {background-position-x:-62px}
+.page-workbench .ddp-wrap-editor .ddp-ui-history-option .ddp-history-search .ddp-type-search {display:none;}
+.page-workbench .ddp-wrap-editor .ddp-ui-history-option .ddp-history-search.ddp-selected .ddp-type-search {display:block;}
+
+.page-workbench .ddp-wrap-editor .ddp-ui-history-option .ddp-history-search .ddp-type-search { position:absolute; top:9px; left:200px; right:55px; padding:0 50px 0 25px; background-color:#f6f6f7; }
+.page-workbench .ddp-wrap-editor .ddp-ui-history-option .ddp-history-search .ddp-type-search:before {left:7px;}
+.page-workbench .ddp-wrap-editor .ddp-ui-history-option .ddp-history-search .ddp-type-search .ddp-btn-delete {right:28px;}
+.page-workbench .ddp-wrap-editor .ddp-ui-history-option .ddp-history-search .ddp-type-search .ddp-btn-back {display:inline-block; position:absolute; top:0; right:0; width:20px; height:28px; background-color:#b7b9c3;}
+.page-workbench .ddp-wrap-editor .ddp-ui-history-option .ddp-history-search .ddp-type-search .ddp-btn-back:before {display:inline-block; position:absolute; top:50%; left:50%; margin:-6px 0 0 -3px; width:6px; height:11px; background:url(../../../images/icon_list_view.png) no-repeat; background-position:left -37px; content:'';}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-btn-more {display:inline-block; padding:10px 0; color:#4b515b; font-size:12px; text-decoration:underline;}
 
 /**************************************************************

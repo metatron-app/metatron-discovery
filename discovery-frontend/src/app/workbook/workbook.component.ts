@@ -12,37 +12,37 @@
  * limitations under the License.
  */
 
-import { Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {Component, ElementRef, Injector, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as Clipboard from 'clipboard';
-import { AbstractComponent } from '../common/component/abstract.component';
-import { ActivatedRoute } from '@angular/router';
-import { Workbook, WorkbookDetailProjections } from '../domain/workbook/workbook';
-import { WorkbookService } from './service/workbook.service';
-import { PopupService } from '../common/service/popup.service';
-import { DeleteModalComponent } from '../common/component/modal/delete/delete.component';
-import { Modal } from '../common/domain/modal';
-import { Alert } from '../common/util/alert.util';
-import { UserProfile } from '../domain/user/user-profile';
-import { Dashboard, BoardDataSource, PresentationDashboard } from '../domain/dashboard/dashboard';
-import { DragDropConfig, DragDropService, DragDropSortableService, SortableContainer } from 'ng2-dnd';
-import { DashboardService } from '../dashboard/service/dashboard.service';
-import { Comments, Comment } from '../domain/comment/comment';
-import { CookieConstant } from '../common/constant/cookie.constant';
-import { MomentPipe } from '../common/pipe/moment.pipe';
-import { MomentDatePipe } from '../common/pipe/moment.date.pipe';
-import { StringUtil } from '../common/util/string.util';
-import { CommonUtil } from '../common/util/common.util';
-import { WorkspaceService } from '../workspace/service/workspace.service';
-import { PermissionChecker, Workspace } from '../domain/workspace/workspace';
-import { DashboardComponent } from '../dashboard/dashboard.component';
-import { Page, PageResult } from 'app/domain/common/page';
-import { UpdateDashboardComponent } from '../dashboard/update-dashboard.component';
-import { PopupInputNameDescComponent } from './component/popup-input-workbook/popup-input-namedesc.component';
-import { EventBroadcaster } from '../common/event/event.broadcaster';
-import { Datasource } from '../domain/datasource/datasource';
+import {AbstractComponent} from '../common/component/abstract.component';
+import {ActivatedRoute} from '@angular/router';
+import {Workbook, WorkbookDetailProjections} from '../domain/workbook/workbook';
+import {WorkbookService} from './service/workbook.service';
+import {PopupService} from '../common/service/popup.service';
+import {DeleteModalComponent} from '../common/component/modal/delete/delete.component';
+import {Modal} from '../common/domain/modal';
+import {Alert} from '../common/util/alert.util';
+import {UserProfile} from '../domain/user/user-profile';
+import {Dashboard, BoardDataSource, PresentationDashboard} from '../domain/dashboard/dashboard';
+import {DragDropConfig, DragDropService, DragDropSortableService, SortableContainer} from 'ng2-dnd';
+import {DashboardService} from '../dashboard/service/dashboard.service';
+import {Comments, Comment} from '../domain/comment/comment';
+import {CookieConstant} from '../common/constant/cookie.constant';
+import {MomentPipe} from '../common/pipe/moment.pipe';
+import {MomentDatePipe} from '../common/pipe/moment.date.pipe';
+import {StringUtil} from '../common/util/string.util';
+import {CommonUtil} from '../common/util/common.util';
+import {WorkspaceService} from '../workspace/service/workspace.service';
+import {PermissionChecker, Workspace} from '../domain/workspace/workspace';
+import {DashboardComponent} from '../dashboard/dashboard.component';
+import {Page, PageResult} from 'app/domain/common/page';
+import {UpdateDashboardComponent} from '../dashboard/update-dashboard.component';
+import {PopupInputNameDescComponent} from './component/popup-input-workbook/popup-input-namedesc.component';
+import {EventBroadcaster} from '../common/event/event.broadcaster';
+import {Datasource} from '../domain/datasource/datasource';
 
 declare let $;
 
@@ -76,7 +76,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
 
   // 대시보드 컴포넌트
   @ViewChild(DashboardComponent)
-  private dashboardComponent: DashboardComponent;
+  private _boardComp: DashboardComponent;
 
   // 대시보드 편집 컴포넌트
   @ViewChild(UpdateDashboardComponent)
@@ -117,8 +117,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   // 대시보드 리스트
   public dashboards: Dashboard[];
 
-  // 선택된 대시보드
-  public selectedDashboard: Dashboard;
+  public tempLoadBoard:Dashboard;         // 조회용 임시 보드 정보 ( reload를 위한 )
+  public selectedDashboard: Dashboard;    // 선택된 대시보드
 
   // 대시보드 편집 시 시작 커맨드 정보
   public updateDashboardStartupCmd: { cmd: string, id?: string, type?: string };
@@ -254,7 +254,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.workbookId = params['workbookId'];
 
       // Send statistics data
-      this.sendViewActivityStream( this.workbookId, 'WORKBOOK' );
+      this.sendViewActivityStream(this.workbookId, 'WORKBOOK');
 
       this._getWorkbook().then((workbook: Workbook) => {
 
@@ -463,7 +463,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     } else {
       this.isCloseDashboardList = isClose;
     }
-    (this.dashboardComponent) && (this.dashboardComponent.toggleFoldWorkbookDashboardList());
+    (this._boardComp) && (this._boardComp.toggleFoldWorkbookDashboardList());
 
     // 쿠키 저장
     this.cookieService.set(CookieConstant.KEY.WORKBOOK_CLOSE_DASHBOARD_LIST, String(this.isCloseDashboardList), 0, '/');
@@ -513,7 +513,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       ($target.hasClass('ddp-icon-more')) || ($target = $target.find('.ddp-icon-more'));
       const lnbmoreLeft: number = $target.offset().left;
       const lnbmoreTop: number = $target.offset().top;
-      this.$element.find('.ddp-popup-lnbmore').css({ 'left': lnbmoreLeft - 180, 'top': lnbmoreTop + 25 });
+      this.$element.find('.ddp-popup-lnbmore').css({'left': lnbmoreLeft - 180, 'top': lnbmoreTop + 25});
     }
   } // function - toggleWorkbookDetailMenu
 
@@ -576,7 +576,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * @param {any} startupCmd
    */
   public changeMode(mode: string, startupCmd?: { cmd: string, id?: string, type?: string }) {
-    this.updateDashboardStartupCmd = startupCmd ? startupCmd : { cmd: 'NONE' };
+    this.updateDashboardStartupCmd = startupCmd ? startupCmd : {cmd: 'NONE'};
     this.useUnloadConfirm = ('UPDATE' === mode);
     this.mode = mode;
     this.safelyDetectChanges();
@@ -676,7 +676,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     }
 
     this.workbookService.getDashboards(
-      this.workbook.id, { key: 'seq', type: 'asc' }, pageInfo, 'forListView', params
+      this.workbook.id, {key: 'seq', type: 'asc'}, pageInfo, 'forListView', params
     ).then((result) => {
       let tempList = [];
       if (result.hasOwnProperty('_embedded') && result['_embedded'].hasOwnProperty('dashboards')) {
@@ -759,9 +759,9 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public scrollToDashboard(dashboardId: string) {
     const selectedIdx: number = this.dashboards.findIndex(item => item.id === dashboardId);
     if ('LIST' === this.listType) {
-      $('.ddp-ui-board-listview').animate({ scrollTop: selectedIdx * 52 }, 800, 'swing');
+      $('.ddp-ui-board-listview').animate({scrollTop: selectedIdx * 52}, 800, 'swing');
     } else {
-      $('.ddp-ui-board-thumbview').animate({ scrollTop: selectedIdx * 185 }, 800, 'swing');
+      $('.ddp-ui-board-thumbview').animate({scrollTop: selectedIdx * 185}, 800, 'swing');
     }
   } // function - scrollToDashboard
 
@@ -841,7 +841,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    */
   public copyBoardIdToClipboard() {
     if (this.selectedDashboard) {
-      const option = { text: () => this.selectedDashboard.id };
+      const option = {text: () => this.selectedDashboard.id};
       new Clipboard(this.elementRef.nativeElement, option);
     }
   } // function - copyBoardIdToClipboard
@@ -958,23 +958,39 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
    * @param {Dashboard} dashboard
    */
   public loadAndSelectDashboard(dashboard: Dashboard) {
+
+    this.tempLoadBoard = dashboard;
     if (!this.selectedDashboard || this.selectedDashboard.id !== dashboard.id) {
-      this.dashboardComponent.showBoardLoading();
+      this._boardComp.showBoardLoading();
+      this._boardComp.hideError();
       this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
         // save data for selected dashboard
         board.workBook = this.workbook;
         this.selectedDashboard = board;
+        this.tempLoadBoard = undefined;
 
         this.scrollToDashboard(board.id); // scroll to item
 
-        this.dashboardComponent.hideBoardLoading();
+        this._boardComp.hideBoardLoading();
         this.safelyDetectChanges();
+      }).catch(() => {
+        this._boardComp.showError();
       });
     } else {
-      this.dashboardComponent.hideBoardLoading();
+      this._boardComp.hideBoardLoading();
       this.safelyDetectChanges();
     }
   } // function - loadAndSelectDashboard
+
+  /**
+   * 대시보드 이벤트 핸들러
+   * @param {Event} event
+   */
+  public onDashboardEvent(event: { name: string, data?: any }) {
+    if ('RELOAD_BOARD' === event.name) {
+      this.loadAndSelectDashboard( this.tempLoadBoard );
+    }
+  } // function - onDashboardEvent
 
   /**
    * Data Ingestion 완료 이벤트 핸들러
@@ -991,13 +1007,16 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     this.isShowDataIngestion = false;
 
     // 대시보드 업데이트
-    const param: any = { configuration: dashboard.configuration, temporaryId: tempDatasource.id };
+    const param: any = {configuration: dashboard.configuration, temporaryId: tempDatasource.id};
     this.dashboardService.updateDashboard(dashboard.id, param).then(() => {
+      this._boardComp.hideError();
       this.dashboardService.getDashboard(dashboard.id).then((board: Dashboard) => {
         board.workBook = this.workbook;
         this.selectedDashboard = board;
         this.loadingHide(); // 로딩 숨김
         this.changeDetect.detectChanges();    // 변경 갱신
+      }).catch(() => {
+        this._boardComp.showError();
       });
     });
 
@@ -1010,7 +1029,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
     // 데이터 설정
     this.popupService.ptDashboards = _.cloneDeep(this.dashboards);
     let boardInfo: PresentationDashboard = <PresentationDashboard>_.cloneDeep(this.selectedDashboard);
-    boardInfo.selectionFilters = this.dashboardComponent.getSelectedFilters();
+    boardInfo.selectionFilters = this._boardComp.getSelectedFilters();
     this.popupService.ptStartDashboard = boardInfo;
     // 페이지 호출
     this.router.navigate([`/dashboard/presentation/${this.workbook.id}/${this.selectedDashboard.id}`]).then();
@@ -1022,13 +1041,13 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
   public addWidget(type: string) {
     switch (type) {
       case 'NEW_CHART' :
-        this.changeMode('UPDATE', { cmd: 'NEW', type: 'CHART' });
+        this.changeMode('UPDATE', {cmd: 'NEW', type: 'CHART'});
         break;
       case 'NEW_TEXT' :
-        this.changeMode('UPDATE', { cmd: 'NEW', type: 'TEXT' });
+        this.changeMode('UPDATE', {cmd: 'NEW', type: 'TEXT'});
         break;
       case 'NEW_FILTER' :
-        this.changeMode('UPDATE', { cmd: 'NEW', type: 'FILTER' });
+        this.changeMode('UPDATE', {cmd: 'NEW', type: 'FILTER'});
         break;
     }
   } // function - addWidget
@@ -1151,7 +1170,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
       this.workbookService.getWorkbook(this.workbookId).then((result) => {
         // 워크북이 들고있는 전체 데이터 소스 목록
         this.datasources = result.dataSource.map((ds) => {
-          return { id: ds.id, name: ds.name };
+          return {id: ds.id, name: ds.name};
         });
 
         // 최초 아무것도 선택이 안 되어있는 경우는 전체 선택
