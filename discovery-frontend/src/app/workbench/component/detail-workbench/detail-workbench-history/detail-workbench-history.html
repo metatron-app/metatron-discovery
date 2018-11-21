@@ -55,7 +55,6 @@
     <li *ngFor="let item of histories; let idx = index" (click)="setTableSql(item)">
       <a href="javascript:">
         <div class="ddp-ui-history-data">
-          <span class="ddp-data-ms">{{item.queryTimeTakenFormatted}}</span>
           <em class="ddp-icon-status-success" *ngIf="item.queryResultStatus === 'SUCCESS'"></em>
           <em class="ddp-icon-status-fail" *ngIf="item.queryResultStatus === 'FAIL'"></em>
 
