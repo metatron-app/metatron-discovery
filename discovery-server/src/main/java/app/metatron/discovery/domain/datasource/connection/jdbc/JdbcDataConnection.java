@@ -14,12 +14,19 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.KeepAsJsonDeserialzier;
+import app.metatron.discovery.common.entity.JsonMapConverter;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.MappedSuperclass;
+import java.util.Map;
 
 /**
  * Created by kyungtaak on 2016. 6. 16..
@@ -29,12 +36,16 @@ public abstract class JdbcDataConnection extends DataConnection {
 
   public static final String CURRENT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
   public static final String DEFAULT_FORMAT = "DEFAULT_FORMAT";
+  public static final String JDBC_PROPERTY_PREFIX = "native.";
+  public static final String METATRON_PROPERTY_PREFIX = "metatron.";
 
   @Column(name = "dc_database")
   protected String database;
 
-  @JsonIgnore
-  protected Integer connectTimeout;
+  @Column(name = "dc_properties")
+  @JsonRawValue
+  @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
+  private String properties;
 
   public JdbcDataConnection() {
     super();
@@ -121,11 +132,16 @@ public abstract class JdbcDataConnection extends DataConnection {
     this.database = database;
   }
 
-  public Integer getConnectTimeout() {
-    return connectTimeout;
+  public String getProperties() {
+    return properties;
   }
 
-  public void setConnectTimeout(Integer connectTimeout) {
-    this.connectTimeout = connectTimeout;
+  public void setProperties(String properties) {
+    this.properties = properties;
+  }
+
+  @JsonIgnore
+  public Map<String, String> getPropertiesMap(){
+    return GlobalObjectMapper.readValue(this.properties);
   }
 }
