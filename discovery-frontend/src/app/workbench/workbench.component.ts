@@ -384,6 +384,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
         this._splitVertical = Split(['.sys-workbench-top-panel', '.sys-workbench-bottom-panel'], {
           direction: 'vertical',
           onDragEnd : () => {
+            this.isFootAreaPopupCheck = true;
             this.onEndedResizing();
           }
         });

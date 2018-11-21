@@ -46,10 +46,11 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
   @Output()
   public sqlQueryPopupEvent: EventEmitter<string> = new EventEmitter();
 
-  // history delete popup
+  // history 삭제 여부
   @Input()
   public deleteHistory: boolean = false;
 
+  // history delete popup
   @Output()
   public queryHistoryDeleteEvent: EventEmitter<string> = new EventEmitter();
 
@@ -60,6 +61,8 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
   public histories: any[] = [];
 
   public searchText: string = '';
+
+  public completeSearchText: string = '';
 
   // 검색 영역 활성화
   public isSearchText : boolean = false;
@@ -113,6 +116,7 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
 
     if( this.deleteHistory ){
       this.deleteAll();
+      this.completeSearchText = '';
     } else {
       this.page.page = 0;
       this.getQueryHistories();
@@ -141,6 +145,9 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
       if (this.page.page === 0) {
         this.histories = [];
       }
+
+      // 조회 한 검색어 설정
+      this.completeSearchText = this.searchText;
 
       this.loadingShow();
       this.workbenchService.getQueryHistories(this.editorId, this.searchText,'forListView', this.page)
@@ -213,6 +220,32 @@ export class DetailWorkbenchHistory extends AbstractComponent implements OnInit,
 
   public historyDelete() {
     this.queryHistoryDeleteEvent.emit();
+  }
+
+  /**
+   * 검색창 열기
+   */
+  public openSearchArea(){
+
+    this.isSearchText = true;
+    const searchElement = $('.ddp-type-search');
+    searchElement.animate({
+      left:'10px'
+    },200);
+
+  }
+
+  /**
+   * 검색창 닫기
+   */
+  public closeSearchArea(){
+
+    this.isSearchText = false;
+    const searchElement = $('.ddp-type-search');
+    searchElement.animate({
+      left:'200px'
+    },200);
+
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

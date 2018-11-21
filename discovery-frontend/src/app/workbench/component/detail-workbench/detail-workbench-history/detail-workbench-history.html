@@ -18,25 +18,38 @@
 
     <!-- history option -->
     <div class="ddp-ui-history-option">
-      <span class="ddp-data-list"></span>
 
       <!-- search -->
       <!-- 클릭시 ddp-selected 추가 -->
       <div class="ddp-history-search" [ngClass]="{'ddp-selected' : isSearchText}">
-        <a href="javascript:" class="ddp-icon-search" (click)="isSearchText = true"></a>
+        <a href="javascript:" class="ddp-icon-search" (click)="openSearchArea()"></a>
 
         <div class="ddp-type-search">
           <input type="text" placeholder="" [(ngModel)]="searchText" (keyup.esc)="searchText ='';getSearch()" (keyup.Enter)="getSearch()">
           <a href="javascript:" class="ddp-btn-delete" *ngIf="searchText" (click)="searchText ='';getSearch()"></a>
+          <a href="javascript:" class="ddp-btn-back" (click)="closeSearchArea()"></a>
         </div>
       </div>
-      <!--<a href="javascript:" class="ddp-icon-del" (click)="deleteAll()"></a>-->
       <a href="javascript:" class="ddp-icon-del" (click)="historyDelete()"></a>
       <a href="javascript:" class="ddp-btn-close2" (click)="historyClose()"></a>
       <!-- //search -->
     </div>
     <!-- //history option -->
   </div>
+
+  <!-- 검색어 -->
+  <div class="ddp-data-list-num" *ngIf="completeSearchText === ''">
+    {{pageResult.totalElements}} Results
+  </div>
+  <div class="ddp-data-list-num" *ngIf="completeSearchText !== ''">
+    {{pageResult.totalElements}} Results of '{{completeSearchText}}'
+  </div>
+  <!-- //검색어 -->
+  <!-- No data -->
+  <div *ngIf="histories.length === 0" class="ddp-nodata">
+    No list
+  </div>
+  <!-- //No data -->
 
   <ul class="ddp-list-history">
     <li *ngFor="let item of histories; let idx = index" (click)="setTableSql(item)">
@@ -55,13 +68,6 @@
             {{item.queryStartTime | mdate:'YYYY-MM-DD HH:mm:ss'}} / {{item.queryTimeTakenFormatted}} / {{item.createdBy.fullName}}
           </div>
 
-        </div>
-      </a>
-    </li>
-    <li *ngIf="histories.length === 0">
-      <a href="javascript:">
-        <div class="ddp-data-history">
-          No list
         </div>
       </a>
     </li>
