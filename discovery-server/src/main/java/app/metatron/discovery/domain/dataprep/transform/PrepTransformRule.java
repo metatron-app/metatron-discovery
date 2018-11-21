@@ -15,6 +15,8 @@
 package app.metatron.discovery.domain.dataprep.transform;
 
 import app.metatron.discovery.domain.dataprep.PrepDataset;
+import app.metatron.discovery.domain.dataprep.teddy.Util;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 
 import javax.persistence.*;
 
@@ -41,15 +43,20 @@ public class PrepTransformRule {
     @Column(columnDefinition = "TEXT", name = "json_rule_string")
     private String jsonRuleString;
 
+    @Column(columnDefinition = "TEXT", name = "short_rule_string")
+    private String shortRuleString;
+
     @Column(columnDefinition = "TEXT", name = "custom")
     private String custom;
 
-    public  PrepTransformRule() {}
+    public PrepTransformRule() {}
 
-    public PrepTransformRule(PrepDataset dataset, Integer ruleNo, String ruleString) {
+    public PrepTransformRule(PrepDataset dataset, Integer ruleNo, String ruleString, String jsonRuleString, String shortRuleString) {
         this.dataset = dataset;
         this.ruleNo = ruleNo;
         this.ruleString = ruleString;
+        this.jsonRuleString = jsonRuleString;
+        this.shortRuleString = shortRuleString;
     }
 
     public Integer getRuleNo() {
@@ -72,10 +79,6 @@ public class PrepTransformRule {
         return ruleString;
     }
 
-    public void setRuleString(String ruleString) {
-        this.ruleString = ruleString;
-    }
-
     public boolean isValid() {
         return isValid;
     }
@@ -85,11 +88,28 @@ public class PrepTransformRule {
     }
 
     public String getJsonRuleString() {
+        assert jsonRuleString != null;      // if you called prepareTransformRules, it must not be null!
         return jsonRuleString;
     }
 
+    public String getShortRuleString() {
+        assert shortRuleString != null;     // if you called prepareTransformRules, it must not be null!
+        return shortRuleString;
+    }
+
+    // used only for swapping
+    public void setRuleString(String ruleString) {
+        this.ruleString = ruleString;
+    }
+
+    // used only for swapping or backward compatability
     public void setJsonRuleString(String jsonRuleString) {
         this.jsonRuleString = jsonRuleString;
+    }
+
+    // used only for swapping or backward compatability
+    public void setShortRuleString(String shortRuleString) {
+        this.shortRuleString = shortRuleString;
     }
 
     public String getCustom() {
@@ -99,6 +119,7 @@ public class PrepTransformRule {
     public void setCustom(String custom) {
         this.custom = custom;
     }
+
 }
 
 
