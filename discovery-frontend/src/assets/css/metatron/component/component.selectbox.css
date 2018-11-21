@@ -13,9 +13,6 @@
 **************************************************************/
 .ddp-type-selectbox {position:relative; padding:6px 23px 6px 10px; border-radius:2px; border:1px solid #d0d1d9; background-color:#fff; cursor:pointer; box-sizing:border-box;}
 .ddp-type-selectbox input.ddp-input-selectbox {display:none;position:absolute;top:0;left:0;right:60px;bottom:0;width:100%;padding:7px 26px 6px 13px;box-sizing:border-box;border:none;color:#666eb3;font-size:13px;background-color:#fff;z-index:1;}
-.ddp-type-selectbox span.ddp-txt-selectbox {display:block; color:#4a515c; font-size:13px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; word-wrap:normal;}
-.ddp-type-selectbox span.ddp-txt-selectbox span.ddp-type-txt {padding-left:22px; color:#4b515b; font-size:13px; }
-.ddp-type-selectbox span.ddp-txt-selectbox.ddp-result {color:#4b515b;}
 
 /**************************************************************
 	selectbox - 3
@@ -29,9 +26,6 @@
 .ddp-type-selectbox.ddp-type-search-select.ddp-result span.ddp-txt-selectbox {color:#4b515b; padding-left:0px;}
 .ddp-type-selectbox.ddp-type-search-select.ddp-result span.ddp-txt-selectbox:before {display:none;}
 
-.ddp-type-selectbox.ddp-search-type .ddp-input-search {position:absolute; top:0; left:0; right:0; bottom:0;}
-.ddp-type-selectbox.ddp-search-type.ddp-selected .ddp-input-search:before {display:inline-block; position:absolute; top:50%; left:10px; width:11px; height:11px; margin-top:-6px; background:url(../../../images/icon_search.png) no-repeat; background-position:-24px top; content:''; z-index:5;}
-.ddp-type-selectbox.ddp-search-type.ddp-selected .ddp-input-search input {padding-left:30px}
 /**************************************************************
 	drop search
 **************************************************************/
