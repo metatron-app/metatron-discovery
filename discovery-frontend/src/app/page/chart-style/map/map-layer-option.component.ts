@@ -32,6 +32,7 @@ import { BaseOptionComponent } from '../base-option.component';
 import { ColorTemplateComponent } from '../../../common/component/color-picker/color-template.component';
 import { Field as AbstractField, Field } from '../../../domain/workbook/configurations/field/field';
 import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
+import { UIOption } from '../../../common/component/chart/option/ui-option';
 
 @Component({
   selector: 'map-layer-option',
@@ -235,7 +236,11 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       // only set column when dimension column exsists
       if (this.uiOption.fielDimensionList && this.uiOption.fielDimensionList.length > 0) {
         this.uiOption.layers[this.index].color.column = this.uiOption.fielDimensionList[0]['alias'];
-      } else this.uiOption.layers[this.index].color.column = '';
+        this.uiOption.layers[this.index].color.name = this.uiOption.fielDimensionList[0]['name'];
+      } else {
+        this.uiOption.layers[this.index].color.column = '';
+        this.uiOption.layers[this.index].color.name = '';
+      }
 
     } else if (MapBy.MEASURE === data['value']) {
       this.uiOption.layers[this.index].color.schema = 'VC1';
@@ -243,11 +248,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       // only set column when measure column exsists
       if (this.uiOption.fieldMeasureList && this.uiOption.fieldMeasureList.length > 0) {
         this.uiOption.layers[this.index].color.column = this.uiOption.fieldMeasureList[0]['alias'];
-      } else this.uiOption.layers[this.index].color.column = '';
+        this.uiOption.layers[this.index].color.name = this.uiOption.fieldMeasureList[0]['name'];
+      } else {
+        this.uiOption.layers[this.index].color.column = '';
+        this.uiOption.layers[this.index].color.name = '';
+      }
 
     } else if (MapBy.NONE === data['value']) {
       this.uiOption.layers[this.index].color.schema = '#6344ad';
       this.uiOption.layers[this.index].color.column = '';
+      this.uiOption.layers[this.index].color.name = '';
     }
 
     this.applyLayers();
@@ -260,6 +270,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   public changeColorColumn(data: Field) {
 
     this.uiOption.layers[this.index].color.column = data.alias;
+    this.uiOption.layers[this.index].color.name = data.name;
 
     this.applyLayers();
   }
@@ -299,11 +310,14 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
 
       if (this.uiOption.fieldMeasureList && this.uiOption.fieldMeasureList.length > 0) {
         (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = this.uiOption.fieldMeasureList[0]['alias'];
+        (<UISymbolLayer>this.uiOption.layers[this.index]).size.name = this.uiOption.fieldMeasureList[0]['name'];
       } else {
         (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = '';
+        (<UISymbolLayer>this.uiOption.layers[this.index]).size.name = '';
       }
     } else {
       (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = '';
+      (<UISymbolLayer>this.uiOption.layers[this.index]).size.name = '';
     }
 
     this.applyLayers();
@@ -315,9 +329,16 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeSizeColumn(data: Field) {
 
-    (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = data.alias;
+    // (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = data.alias;
+    // (<UISymbolLayer>this.uiOption.layers[this.index]).size.name = data.name;
 
-    this.applyLayers();
+    // this.applyLayers();
+
+    this.uiOption = <UIMapOption>_.extend({}, this.uiOption, {
+      layers: this.uiOption.layers
+    });
+
+    this.update();
   }
 
   /**
