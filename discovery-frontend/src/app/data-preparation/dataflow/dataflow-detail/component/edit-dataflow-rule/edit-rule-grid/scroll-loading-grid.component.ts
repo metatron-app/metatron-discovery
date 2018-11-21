@@ -499,7 +499,6 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   /**
    * Grid horizaltal scroll timer
-   * @param grid
    * @param {viewPortLeftPx} number
    * @private
    */
