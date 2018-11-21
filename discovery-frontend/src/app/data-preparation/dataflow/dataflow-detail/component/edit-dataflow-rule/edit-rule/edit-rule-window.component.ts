@@ -260,7 +260,13 @@ export class EditRuleWindowComponent extends EditRuleComponent implements OnInit
 
     let result = value.name;
     if (value.args.length !== 0) {
-      let list = value.args.map((item) => item.value);
+      let list = value.args.map((item) => {
+        if (item.value.toString().indexOf(' ') !== -1) {
+          return '`' + item.value + '`'
+        } else {
+          return item.value
+        }
+      });
       result += `(${list.join(',')})`;
     } else {
       result += '()';

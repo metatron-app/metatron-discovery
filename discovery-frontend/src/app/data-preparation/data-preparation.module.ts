@@ -40,7 +40,7 @@ import { AddDatasetModalComponent } from './dataflow/dataflow-detail/component/a
 import { RuleJoinPopupComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-join-popup/rule-join-popup.component';
 import { RuleUnionPopupComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-union-popup/rule-union-popup.component';
 import { UnionAddDatasetsComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-union-popup/union-add-datasets/union-add-datasets.component';
-import { DatasetDetailComponent } from './dataset/detail-dataset/dataset-detail.component';
+import { DatasetDetailComponent } from './dataset/dataset-detail.component';
 import { DatasetInfoPopupComponent } from './dataflow/dataflow-detail/component/dataset-info-popup/dataset-info-popup.component';
 import { CreateDatasetNameComponent } from './dataset/create-dataset/create-dataset-name.component';
 import { RuleListComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/rule-list.component';
@@ -86,6 +86,7 @@ import {EditRuleWindowComponent} from "./dataflow/dataflow-detail/component/edit
 import {CheckboxSelectDatasetComponent} from "./component/checkbox-select-dataset.component";
 import {LongUpdatePopupComponent} from "./component/long-update-popup.component";
 import {RadioSelectDatasetComponent} from "./component/radio-select-dataset.component";
+import {AddDatasetDataflowComponent} from "./dataset/add-dataset-dataflow.component";
 
 const dataPreparationRoutes: Routes = [
   { path: '', component: DatasetComponent },
@@ -167,7 +168,8 @@ const dataPreparationRoutes: Routes = [
     PrepSelectBoxComponent,
     RadioSelectDatasetComponent,
     CheckboxSelectDatasetComponent,
-    LongUpdatePopupComponent
+    LongUpdatePopupComponent,
+    AddDatasetDataflowComponent
   ],
   providers: [
     DataPreparationService,

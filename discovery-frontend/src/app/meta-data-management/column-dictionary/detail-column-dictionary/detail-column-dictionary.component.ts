@@ -192,6 +192,14 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     return index === -1 ? this.logicalTypeList[0].label : this.logicalTypeList[index].label;
   }
 
+  /**
+   * 연결된 메타데이터 목록
+   * @returns {LinkedMetaDataColumn[]}
+   */
+  public getLinkedMetaDataColumn(): LinkedMetaDataColumn[] {
+    return this.linkedMetadataList.slice(0,3);
+  }
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Public Method - event
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -523,7 +531,7 @@ export class DetailColumnDictionaryComponent extends AbstractComponent implement
     this._columnDictionaryService.getMetadataInColumnDictionary(this._columnDictionaryId, {sort:'metadataName,asc', size: 15, page: 0})
       .then((result) => {
         // 메타데이터 목록 저장
-        this.linkedMetadataList = result['_embedded'] ? result['_embedded'].metacolumns.slice(0,3) : [];
+        this.linkedMetadataList = result['_embedded'] ? result['_embedded'].metacolumns : [];
         // 목록 수
         this.linkedMetadataTotalCount = result['page'].totalElements;
         // 코드 테이블이 있다면 코드테이블 조회

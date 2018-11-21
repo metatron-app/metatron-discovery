@@ -256,7 +256,9 @@
             <span class="ddp-data-type">
               <em class="ddp-ui-round">{{rule.alias}}</em>
             </span>
-            <div class="ddp-ui-code">{{rule.simplifiedRule !=='' ? rule.simplifiedRule : rule.ruleString}}</div>
+            <div class="ddp-ui-code" [ngClass]="{'ddp-error': !rule.valid}">
+              {{rule.simplifiedRule}}
+            </div>
           </li>
         </ul>
         <div class="ddp-ui-empty" *ngIf="ruleList && 0 === ruleList.length">

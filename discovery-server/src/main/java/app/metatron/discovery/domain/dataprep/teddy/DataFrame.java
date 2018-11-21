@@ -14,6 +14,7 @@
 
 package app.metatron.discovery.domain.dataprep.teddy;
 
+import app.metatron.discovery.domain.dataprep.csv.PrepCsvParseResult;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.teddy.exceptions.*;
 import app.metatron.discovery.domain.dataprep.transform.TimestampTemplate;
@@ -344,7 +345,7 @@ public class DataFrame implements Serializable, Transformable {
     return colCnt;
   }
 
-  public void setByGrid(List<String[]> strGrid, List<String> colNames) {
+  public void setByGrid(List<String[]> strGrid, List<String> colNames, int maxColCnt) {
     if (strGrid == null) {
       LOGGER.warn("setByGrid(): null grid");
       return;
@@ -362,7 +363,9 @@ public class DataFrame implements Serializable, Transformable {
         addColumn(colName, ColumnType.STRING);
       }
     } else {
-      int maxColCnt = getMaxColCnt(strGrid);
+      if (maxColCnt == -1) {
+        maxColCnt = getMaxColCnt(strGrid);
+      }
       for (int colno = 1; colno <= maxColCnt; colno++) {
         addColumn("column" + colno, ColumnType.STRING);
       }
@@ -375,6 +378,14 @@ public class DataFrame implements Serializable, Transformable {
       }
       rows.add(row);
     }
+  }
+
+  public void setByGrid(List<String[]> strGrid, List<String> colNames) {
+    setByGrid(strGrid, colNames, -1);
+  }
+
+  public void setByGrid(PrepCsvParseResult result) {
+    setByGrid(result.grid, result.colNames, result.maxColCnt);
   }
 
   // column 순서가 중요해서 JdbcConnectionService를 그대로 쓰기가 어려움. customize가 필요.

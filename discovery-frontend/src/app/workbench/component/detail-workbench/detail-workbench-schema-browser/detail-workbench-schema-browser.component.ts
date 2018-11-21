@@ -263,7 +263,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     // 로딩 show
     this.loadingShow();
     // 테이블 목록 조회 요청
-    this._getSearchTablesForServer(this.dataConnection.id, this.selectedDatabaseName,  page);
+    this._getSearchTablesForServer(this.dataConnection, this.selectedDatabaseName, page);
   }
 
   /**
@@ -576,12 +576,14 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @param {string} tableName
    * @private
    */
-  private _getSearchTablesForServer(connectionId: string, databaseName: string,  page:Page,  tableName: string = ''): void {
+  private _getSearchTablesForServer( dataConnection, databaseName: string, page:Page,  tableName: string = ''): void {
     // 호출 횟수 증가
     this._getTableListReconnectCount++;
+
+    dataConnection.database = databaseName;
     // 로딩 show
     this.loadingShow();
-    this.connectionService.getTableListInConnection(connectionId, databaseName, this._getParameterForTable(this._websocketId, page, tableName))
+    this.connectionService.getTableListInConnectionQuery(dataConnection, this._getParameterForTable(this._websocketId, page, tableName))
       .then((result) => {
         // 호출 횟수 초기화
         this._getTableListReconnectCount = 0;
@@ -599,7 +601,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
         if (!isUndefined(error.details) && error.code === 'JDC0005' && this._getTableListReconnectCount <= 5) {
           this.webSocketCheck(() => {
             this._websocketId = WorkbenchService.websocketId;
-            this._getSearchTablesForServer(connectionId, databaseName, page, tableName);
+            this._getSearchTablesForServer(dataConnection, databaseName, page, tableName);
           });
         } else {
           this.commonExceptionHandler(error);
@@ -888,12 +890,12 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
    * @private
    */
   private _getTableMetaDataList(tableList: any[]): void {
-    this._metaDataService.getMetadataByConnection(this.dataConnection.id, this.selectedDatabaseName, tableList.map(item => item.name), 'forItemListView')
+    this._metaDataService.getMetadataByConnection(this.dataConnection.id, this.selectedDatabaseName, tableList.map(item => item), 'forItemListView')
       .then((result) => {
         // result가 존재한다면 테이블리스트 merge
         if (result.length > 0) {
           this.schemaTableList = this.schemaTableList.map( (item) => {
-            return _.merge(item, _.find(result.map((column) => {return {table: column.table, metadataName: column.name}}), {'table': item.name}));
+            return _.merge(item, _.find(result.map((column) => {return {table: column.table, metadataName: column.name}}), {'table': item}));
           });
         }
         // 테이블 리스트 그리드 그리기
@@ -1000,7 +1002,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     const rows: any[] = [];
     for (let idx: number = 0; idx < data.length; idx = idx + 1) {
       const row = {};
-      row['name'] = data[idx]['name'];
+      row['name'] = data[idx];
       enableMetaData && (row['metadataName'] = data[idx]['metadataName'] || '');
       rows.push(row);
     }
@@ -1015,7 +1017,7 @@ export class DetailWorkbenchSchemaBrowserComponent extends AbstractWorkbenchComp
     // 테이블 테이터가 있을경우 첫번째 column 탭 호출
     if( this.schemaTableList.length > 0 ){
       // 컬럼 선택 및 리스트 조회
-      this.selectedSchemaTable = this.schemaTableList[0].name;
+      this.selectedSchemaTable = this.schemaTableList[0];
       this.schemaSelectedTab = 'column';
       this.getColumnList();
 
