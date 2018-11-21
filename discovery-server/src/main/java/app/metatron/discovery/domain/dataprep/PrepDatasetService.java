@@ -47,44 +47,6 @@ public class PrepDatasetService {
     @Autowired
     private DataConnectionRepository dataConnectionRepository;
 
-    // not using
-    /*
-    @Autowired
-    PrepDatasetRepository datasetRepository;
-
-    @Autowired
-    DataConnectionRepository dataConnectionRepository;
-
-    public void setTotalLines(String dsId, Integer totalLines) {
-        PrepDataset dataset = this.datasetRepository.findOne(dsId);
-        dataset.setTotalLines(totalLines);
-    }
-
-    public String extendDsName(PrepDataset dataset) {
-        String dsName = dataset.getDsName();
-        if(dataset.getImportTypeEnum().equals(PrepDataset.IMPORT_TYPE.FILE)) {
-            String extensionType = FilenameUtils.getExtension(dataset.getFilename());
-            if(extensionType.equalsIgnoreCase("csv")) {
-                dsName = dsName + " (CSV)";
-            } else if(extensionType.toUpperCase().startsWith("XLS")) {
-                dsName = dsName + " (EXCEL)";
-            } else {
-                dsName = dsName + " ("+extensionType.toLowerCase()+")";
-            }
-        } else {
-            if(dataset.getImportTypeEnum()== PrepDataset.IMPORT_TYPE.HIVE) {
-                dsName = dsName +" (HIVE)";
-            } else {
-                DataConnection dc = dataConnectionRepository.findOne(dataset.getDcId());
-                assert (dc != null);
-
-                dsName = dsName +" ("+dc.getImplementor()+")";
-            }
-        }
-        return dsName;
-    }
-    */
-
     private String filePreviewSize = "2000";
     private String hivePreviewSize = "50";
     private String jdbcPreviewSize = "50";
@@ -132,7 +94,6 @@ public class PrepDatasetService {
         if (filekey != null) {
             if(true==dataset.isEXCEL()) {
                 String csvFileName = this.datasetFilePreviewService.moveExcelToCsv(filekey,sheetName,delimiter);
-                dataset.putCustomValue("fileType", "DSV");
                 dataset.putCustomValue("filePath", csvFileName);
                 int lastIdx = csvFileName.lastIndexOf(File.separator);
                 String newFileKey = csvFileName.substring(lastIdx+1);

@@ -36,7 +36,12 @@ public class PrepDatasetFileUploadService {
         FileInputStream fis = null;
         FileOutputStream fos = null;
         try {
-            if(extensionType.equals("csv")) {
+            if(extensionType.equals("csv")
+                || extensionType.equals("txt") // txt is csv
+                || extensionType.equals("json") // json is not implement
+                || false==("xlsx".equals(extensionType) ||"xls".equals(extensionType)) // excel is not csv
+                || true // the others are csv
+            ) {
                 boolean convert = true;
                 fis = new FileInputStream(filePath);
                 ByteOrderMark byteOrderMark = ByteOrderMark.UTF_8;
@@ -120,6 +125,8 @@ public class PrepDatasetFileUploadService {
                     }
                     */
                 }
+            } else {
+                // not reachable
             }
 
             responseMap.put("success", true);

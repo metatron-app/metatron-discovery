@@ -19,6 +19,7 @@ public class PrepTransformRuleStringinfo {
     boolean isValid;
     Integer ruleNo;
     String jsonRuleString;
+    String shortRuleString;
 
     public String getRuleString() {
         return ruleString;
@@ -50,5 +51,13 @@ public class PrepTransformRuleStringinfo {
 
     public void setJsonRuleString(String jsonRuleString) {
         this.jsonRuleString = jsonRuleString;
+    }
+
+    public String getShortRuleString() {
+        return shortRuleString;
+    }
+
+    public void setShortRuleString(String shortRuleString) {
+        this.shortRuleString = shortRuleString;
     }
 }

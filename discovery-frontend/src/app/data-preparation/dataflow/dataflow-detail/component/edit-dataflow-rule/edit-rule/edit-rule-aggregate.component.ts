@@ -20,6 +20,7 @@ import { StringUtil } from '../../../../../../common/util/string.util';
 import { Filter } from '../../../../../../domain/workbook/configurations/filter/filter';
 import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
 import {RuleConditionInputComponent} from "./rule-condition-input.component";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-aggregate',
@@ -93,7 +94,7 @@ export class EditRuleAggregateComponent extends EditRuleComponent implements OnI
       Alert.warning(this.translateService.instant('msg.dp.alert.enter.groupby'));
       return undefined;
     }
-    const columnsStr: string = this.selectedFields.map((item) => {
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }
