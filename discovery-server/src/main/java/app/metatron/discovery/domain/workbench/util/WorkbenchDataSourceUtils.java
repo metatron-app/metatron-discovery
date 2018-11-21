@@ -115,11 +115,11 @@ public class WorkbenchDataSourceUtils {
     properties.setProperty("password", password);
 
     //ad native properties
-    if(connection.getProperties() != null){
-      for(String propertyKey : connection.getProperties().keySet()){
+    if(connection.getPropertiesMap() != null){
+      for(String propertyKey : connection.getPropertiesMap().keySet()){
         if(StringUtils.startsWith(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX)){
           String nativePropertyKey = StringUtils.replaceFirst(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX, "");
-          properties.setProperty(nativePropertyKey, connection.getProperties().get(propertyKey));
+          properties.setProperty(nativePropertyKey, connection.getPropertiesMap().get(propertyKey));
         }
       }
     }

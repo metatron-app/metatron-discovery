@@ -73,7 +73,8 @@ public class DataConnectionProjections {
 
     DateTime getModifiedTime();
 
-    Map<String, String> getProperties();
+    @Value("#{target.getPropertiesMap()}")
+    Object getProperties();
   }
 
   @Projection(name = "forSimpleListView", types = { DataConnection.class })

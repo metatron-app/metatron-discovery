@@ -14,9 +14,13 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
+import app.metatron.discovery.common.GlobalObjectMapper;
+import app.metatron.discovery.common.KeepAsJsonDeserialzier;
 import app.metatron.discovery.common.entity.JsonMapConverter;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.Column;
@@ -39,8 +43,9 @@ public abstract class JdbcDataConnection extends DataConnection {
   protected String database;
 
   @Column(name = "dc_properties")
-  @Convert(converter = JsonMapConverter.class)
-  private Map<String, String> properties;
+  @JsonRawValue
+  @JsonDeserialize(using = KeepAsJsonDeserialzier.class)
+  private String properties;
 
   public JdbcDataConnection() {
     super();
@@ -127,11 +132,16 @@ public abstract class JdbcDataConnection extends DataConnection {
     this.database = database;
   }
 
-  public Map<String, String> getProperties() {
+  public String getProperties() {
     return properties;
   }
 
-  public void setProperties(Map<String, String> properties) {
+  public void setProperties(String properties) {
     this.properties = properties;
+  }
+
+  @JsonIgnore
+  public Map<String, String> getPropertiesMap(){
+    return GlobalObjectMapper.readValue(this.properties);
   }
 }
