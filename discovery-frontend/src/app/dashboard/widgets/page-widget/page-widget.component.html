@@ -28,7 +28,9 @@
         <!-- box info -->
         <div class="ddp-box-info ddp-limitation">
           <em class="ddp-icon-info"></em>
-          <span [innerHTML]="'msg.page.ui.limit-msg' | translate : { currentCnt : resultData.data.rows.length | numberCommas , maxCnt : resultData.data.info.totalCategory | numberCommas }" ></span>
+          <span class="ddp-total"
+                [innerHTML]="'msg.page.ui.limit-msg-1' | translate : { currentCnt : resultData.data.rows.length | numberCommas , maxCnt : resultData.data.info.totalCategory | numberCommas }" ></span>
+          {{'msg.page.ui.limit-msg-2' | translate}}
         </div>
         <!-- box info -->
       </div>
@@ -143,7 +145,7 @@
         <em class="ddp-icon-widget-edit"></em>
         <!-- 툴팁 -->
         <div class="ddp-ui-tooltip-info">
-          <em class="ddp-icon-view-down"></em> {{  'msg.comm.ui.edit' | translate }}
+          <em class="ddp-icon-view-down"></em> {{ 'msg.comm.ui.edit' | translate }}
         </div>
         <!-- // 툴팁 -->
       </div>

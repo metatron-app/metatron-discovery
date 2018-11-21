@@ -94,7 +94,9 @@
             <!-- box info -->
             <div class="ddp-box-info ddp-limitation">
               <em class="ddp-icon-info"></em>
-              <span [innerHTML]="'msg.page.ui.limit-msg' | translate : { currentCnt : limitInfo.currentCnt | numberCommas , maxCnt : limitInfo.maxCnt | numberCommas }" ></span>
+              <span class="ddp-total"
+                    [innerHTML]="'msg.page.ui.limit-msg-1' | translate : { currentCnt : limitInfo.currentCnt | numberCommas , maxCnt : limitInfo.maxCnt | numberCommas }" ></span>
+              {{'msg.page.ui.limit-msg-2' | translate}}
             </div>
             <!-- box info -->
           </div>
