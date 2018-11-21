@@ -130,7 +130,6 @@ public class JdbcConnectionService {
    * Check JDBC connection.
    */
   public Map<String, Object> checkConnection(JdbcDataConnection connection) {
-    DriverManager.setLoginTimeout(30);
     return checkConnection(connection, getDataSource(connection, true));
   }
 
@@ -734,6 +733,14 @@ public class JdbcConnectionService {
               tableMap.remove(connection.getTableNameColumn());
             });
 
+    //exclude table
+    List<String> excludeTables = connection.getExcludeTables();
+    if(excludeTables != null){
+      tableNames = tableNames.stream()
+              .filter(tableInfoMap -> excludeTables.indexOf(tableInfoMap.get("name").toString()) < 0)
+              .collect(toList());
+    }
+
     Map<String, Object> databaseMap = new LinkedHashMap<>();
     if(StringUtils.isEmpty(tableNamePattern)){
       databaseMap.put("tables", tableNames);
@@ -848,13 +855,15 @@ public class JdbcConnectionService {
     }
 
     Map<String, Object> tableMap = new LinkedHashMap<>();
-    int tableCount = tableInfos.size();
 
-    //    tableMap.put("tables", tableInfos
-    //        .stream()
-    //        .map(info -> info.get("name"))
-    //        .sorted()
-    //        .collect(toList()));
+    List<String> excludeTables = connection.getExcludeTables();
+    if(excludeTables != null){
+      tableInfos = tableInfos.stream()
+              .filter(tableInfoMap -> excludeTables.indexOf(tableInfoMap.get("name")) >= 0)
+              .collect(toList());
+    }
+
+    int tableCount = tableInfos.size();
     tableMap.put("tables", tableInfos);
     tableMap.put("page", createPageInfoMap(tableCount, tableCount, 0));
     return tableMap;
@@ -1578,12 +1587,21 @@ public class JdbcConnectionService {
     List<String> databaseNames = null;
     try {
       databaseNames = jdbcTemplate.query(schemaListQuery, (resultSet, i) -> resultSet.getString(1));
-      databaseCount = databaseNames.size();
     } catch (Exception e) {
       LOGGER.error("Fail to get list of database : {}", e.getMessage());
       throw new JdbcDataConnectionException(JdbcDataConnectionErrorCodes.INVALID_QUERY_ERROR_CODE,
                                             "Fail to get list of database : " + e.getMessage());
     }
+
+    List<String> excludeSchemas = connection.getExcludeSchemas();
+    if(excludeSchemas != null){
+      //filter after query execute for hive
+      databaseNames = databaseNames.stream()
+              .filter(databaseName -> excludeSchemas.indexOf(databaseName) < 0)
+              .collect(toList());
+    }
+
+    databaseCount = databaseNames.size();
 
     databaseMap.put("databases", databaseNames);
     databaseMap.put("page", createPageInfoMap(databaseCount, databaseCount, 0));
@@ -1603,6 +1621,13 @@ public class JdbcConnectionService {
       filteredList = schemaNames.stream()
                                 .filter(schema -> StringUtils.containsIgnoreCase(schema, schemaNamePattern))
                                 .collect(toList());
+    }
+
+    List<String> excludeSchemas = connection.getExcludeSchemas();
+    if(excludeSchemas != null){
+      filteredList = filteredList.stream()
+              .filter(schema -> excludeSchemas.indexOf(schema) < 0)
+              .collect(toList());
     }
 
     schemaMap.put("databases", filteredList);
