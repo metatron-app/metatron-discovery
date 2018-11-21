@@ -975,6 +975,8 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         this.safelyDetectChanges();
       }).catch(() => {
         this._boardComp.showError();
+        this._boardComp.hideBoardLoading();
+        this.safelyDetectChanges();
       });
     } else {
       this._boardComp.hideBoardLoading();
@@ -1017,6 +1019,7 @@ export class WorkbookComponent extends AbstractComponent implements OnInit, OnDe
         this.changeDetect.detectChanges();    // 변경 갱신
       }).catch(() => {
         this._boardComp.showError();
+        this.loadingHide(); // 로딩 숨김
       });
     });
 
