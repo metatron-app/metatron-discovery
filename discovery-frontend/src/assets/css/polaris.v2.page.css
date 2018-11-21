@@ -333,6 +333,7 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 	PAGE : 대시보드 그리드 미리보기 팝업
 **********************************************************************************/
 .ddp-pop-preview {position:fixed; left:424px; right:124px; bottom:112px; top:155px;  background-color:#fff; z-index:126;}
+.ddp-pop-preview.ddp-size-m {left:50%; right:inherit; bottom:inherit; top:50%; width:700px; height:500px; margin:-250px 0 0 -350px;}
 .ddp-pop-preview:before {display:inline-block; content:''; position:fixed; left:0; right:0; bottom:0; top:0; background-color:rgba(208,209,216,0.5);}
 .ddp-pop-preview.ddp-pop-database em.ddp-icon-view {display:inline-block; position:absolute; top:66px; left:-8px; width:8px; height:12px; background:url(../images/icon_dataview.png) no-repeat; background-position:left -27px; z-index:3;}
 .ddp-pop-preview .ddp-ui-top {position:relative; height:38px; background-color:#4b515b; border:1px solid #4b515b;}
@@ -1816,6 +1817,8 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-ui-data-none em.ddp-chart-radar {background-position:-854px 0;}
 .ddp-ui-data-none em.ddp-chart-network {background-position:-915px 0;}
 .ddp-ui-data-none em.ddp-chart-sankey {background-position:-976px 0;}
+.ddp-ui-data-none em.ddp-chart-filter {background-position:-1037px 0;}
+.ddp-ui-data-none em.ddp-chart-parameter {background-position:-1098px 0;}
 .ddp-wrap-data-none .ddp-ui-data-none em[class*="ddp-chart-"].ddp-error:before {display:inline-block; width:22px; height:22px; position:absolute; bottom:-7px; right:-7px; content:''; background:url(../images/icon_chart_error.png) no-repeat;}
 .ddp-wrap-data-none .ddp-ui-data-none .ddp-data-name {display:block; padding:15px 0 0; font-size:16px; text-align:center; color:#90969f;}
 .ddp-wrap-data-none .ddp-ui-data-none .ddp-txt-det {display:block; padding-top:18px; color:#b7b9c2; font-size:14px; font-weight:300; text-align:center;}
@@ -1831,7 +1834,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 
 .ddp-ui-data-none em.ddp-img-nodata2 {display:inline-block; width:170px; height:190px; background:url(../images/img_nochart2.png) no-repeat;}
 
-.ddp-div-table {display:table; width:100%; height:100%;}
+.ddp-div-table {position:relative; display:table; width:100%; height:100%; background:#fff; z-index:10;}
 .ddp-div-tablecell {display:table-cell; width:100%; height:100%; vertical-align: middle; text-align:center;}
 .ddp-div-tablecell .ddp-txt-condition {display:block; padding-bottom:35px; text-align:center; color:#d0d1d8; font-size:28px;}
 .ddp-div-tablecell .ddp-txt-condition.ddp-missing {color:#eb5f58;}
@@ -2678,6 +2681,8 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-wrap-chart .ddp-wrap-chart-contents {float:left; margin-left:-288px; margin-right:-318px; padding-left:288px; width:100%;height:100%;vertical-align: top;overflow:hidden; box-sizing:border-box;}
 
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents {position:relative; height:100%; margin-right:317px; overflow:hidden;}
+.ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents.ddp-tooltip {z-index:70; overflow:initial;}
+.ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents.ddp-tooltip .ddp-ui-chart-contents{z-index:10; overflow:initial}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents .ddp-wrap-naviarea {padding-right:430px; margin-left:0px;}
 
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents .ddp-wrap-naviarea .ddp-box-navi.ddp-selected .ddp-wrap-input {width:100%;}
@@ -2686,7 +2691,6 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-wrap-chart .ddp-wrap-chart-contents.ddp-size {margin-right:-53px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents.ddp-size .ddp-view-chart-contents {margin-right:53px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents {position:absolute; top:198px; left:0; right:0; bottom:0; overflow:auto;}
-.ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-tooltip {z-index:10; overflow:initial;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-map-chart.ddp-shelf1 {top:104px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-map-chart.ddp-shelf2 {top:149px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-map-chart.ddp-shelf3 {top:194px;}
@@ -8378,16 +8382,17 @@ em.ddp-icon-mapview3-w:before {background-position-x:0;}
 .ddp-ui-shelf em.ddp-icon-mapview2:before,
 .ddp-ui-shelf em.ddp-icon-mapview3:before {position:absolute; top:50%; left:50%; margin:-8px 0 0 -9px;}
 
-.ddp-map-tooltip  {display:block; position:absolute; top:0; left:0; max-width:257px; padding:9px; box-sizing:border-box;z-index:10;}
-.ddp-map-tooltip .ddp-table-info {table-layout:fixed; }
-.ddp-map-tooltip .ddp-table-info tr td {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
-.ddp-map-tooltip .ddp-label {display:block; padding-bottom:6px; color:#fff; font-size:16px; font-weight:bold; vertical-align:Middle;}
+.ddp-map-tooltip  {display:block; position:absolute; top:0; left:0; max-width:300px; padding:9px; box-sizing:border-box;z-index:10;}
+.ddp-map-tooltip .ddp-label {display:block; padding-bottom:6px; color:#fff; font-size:14px; font-weight:bold; vertical-align:middle;}
 .ddp-map-tooltip .ddp-label [class*="ddp-icon-mapview"] {margin-right:5px;}
-.ddp-table-info {width:100%;}
-.ddp-table-info tr th {color:#d0d1d8; font-size:13px; font-weight:normal; text-align:left;}
-.ddp-table-info tr td {color:#fff; font-size:13px; }
-.ddp-table-info tr + tr th,
-.ddp-table-info tr + tr td {padding-top:6px;}
+
+
+.ddp-map-tooltip .ddp-data-tooltip + .ddp-data-tooltip{padding:8px 0 0 0;}
+.ddp-map-tooltip .ddp-data-tooltip dt {color:#d0d1d8; font-size:13px; font-weight:normal; text-align:left; white-space:normal;}
+.ddp-map-tooltip .ddp-data-tooltip dd {color:#fff; font-size:13px; white-space:normal;}
+
+
+
 .ddp-list-datavalue > li {position:relative; padding:5px 28px 5px 10px; background-color:#eeeef0; color:#4a525c; font-size:13px; cursor:pointer;}
 .ddp-list-datavalue > li + li {margin-top:2px;}
 .ddp-list-datavalue li em[class*="ddp-icon-dimension-"],
@@ -8536,9 +8541,11 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 /**************************************************************
   Page : 대시보드
 **************************************************************/
-.ddp-box-widget .ddp-top-control .ddp-ui-buttons em.ddp-icon-widget-info2:before{display:inline-block; position:absolute; top:50%; left:50%; margin:-7px 0 0 -7px; width:13px; height:13px; background:url(../images/icon_widget.png) no-repeat; background-position:left -230px; content:'';}
-.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2:hover em.ddp-icon-widget-info2:before  {background-position:-14px -230px;}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons em.ddp-icon-widget-info2:before{display:inline-block; position:absolute; top:50%; left:50%; margin:-7px 0 0 -7px; width:15px; height:14px; background:url(../images/icon_widget.png) no-repeat; background-position:left -244px; content:'';}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2:hover em.ddp-icon-widget-info2:before  {background-position:-16px -244px;}
 .ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2 .ddp-box-info.ddp-limitation {display:none;position:absolute; top:100%; right:-100px;padding:6px 10px; width:240px; border-radius:3px;background-color:#7182ba; color:#fff; box-sizing:border-box; z-index:1000;}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2 .ddp-box-info.ddp-limitation .ddp-total {display:block;padding-bottom:4px;}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2 .ddp-box-info.ddp-limitation .ddp-total strong {display:block;}
 .ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2:hover .ddp-box-info.ddp-limitation {display:block;}
 
 
