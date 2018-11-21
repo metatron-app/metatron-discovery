@@ -546,6 +546,68 @@ public class PrepTransformService {
   }
 
   @Transactional(rollbackFor = Exception.class)
+  public List<String> swap_upstream(PrepDataflow dataflow, String oldDsId, String newDsId, String wrangledDsId) throws Exception {
+    List<String> affectedDsIds = Lists.newArrayList();
+    List<String> dataflowDsIds = Lists.newArrayList();
+
+    if (wrangledDsId != null) {         // if a single (downstream) dataset is specified
+      dataflowDsIds.add(wrangledDsId);
+    } else {                            // else, all datasets in the dataflow become the targets
+      List<PrepDataset> datasets = dataflow.getDatasets();
+      for (PrepDataset dataset : datasets) {
+        dataflowDsIds.add(dataset.getDsId());
+      }
+    }
+
+    // Replace all occurrence of oldDsid in whole rule strings in the targets.
+    for (PrepTransformRule rule : transformRuleRepository.findAll()) {
+      if (dataflowDsIds.contains(rule.getDataset().getDsId()) == false) {
+        continue;
+      }
+
+      String newRuleString = transformRuleService.getCreateRuleString(newDsId);
+      String newJsonRuleString = transformRuleService.jsonizeRuleString(newRuleString);
+      String newShortRuleString = transformRuleService.shortenRuleString(newJsonRuleString);
+
+      rule.setRuleString(newRuleString);
+      rule.setJsonRuleString(newJsonRuleString);
+      rule.setShortRuleString(newShortRuleString);
+
+      // Uncache the affected target so that it can be reloaded
+      teddyImpl.remove(rule.getDataset().getDsId());
+
+      if(false==affectedDsIds.contains(rule.getDataset().getDsId())) {
+        // It must be wrangled dataset, but not chaining wrangled
+        affectedDsIds.add(rule.getDataset().getDsId());
+      }
+    }
+
+    // If a wrangled dataset is specified, rearranging datasets is not necessary.
+    // The UI adds the new dataset in advance (if needed).
+    // And, the UI will not specify a wrangled dataset if the old dataset is the last one, so that it can be removed.
+    if (wrangledDsId != null) {
+      return affectedDsIds;
+    }
+
+    PrepDataset newDataset = datasetRepository.findOne(newDsId);
+
+    List<PrepDataset> datasets = dataflow.getDatasets();
+    for (PrepDataset dataset : datasets) {
+      if (dataset.getDsId().equals(oldDsId)) {
+        datasets.remove(dataset);
+        datasets.add(newDataset);
+        dataflow.setDatasets(datasets);
+        dataflowRepository.save(dataflow);
+        break;
+      }
+    }
+    dataflowRepository.flush();
+
+    return affectedDsIds;
+  }
+
+
+  @Transactional(rollbackFor = Exception.class)
   public void after_swap(List<String> affectedDsIds) throws Exception {
     for(String affectedDsId : affectedDsIds) {
       PrepTransformResponse response = this.fetch(affectedDsId, null);
