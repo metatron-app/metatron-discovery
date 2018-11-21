@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
@@ -21,14 +24,22 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.Map;
-
 
 @Service
 @Transactional
 public class PrepDatasetService {
+    private static Logger LOGGER = LoggerFactory.getLogger(PrepDatasetService.class);
+
     @Autowired
     PrepPreviewLineService previewLineService;
 
@@ -148,5 +159,23 @@ public class PrepDatasetService {
             }
         }
         return connectionInfo;
+    }
+
+    public void afterCreate(PrepDataset dataset) throws PrepException {
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            String oAuthToken = "bearer ";
+            Cookie[] cookies = request.getCookies();
+            for(int i=0; i<cookies.length; i++){
+                if(cookies[i].getName().equals("LOGIN_TOKEN"))
+                    oAuthToken = oAuthToken + cookies[i].getValue();
+            }
+
+            savePreview(dataset, oAuthToken);
+        } catch (Exception e) {
+            LOGGER.error("afterCreate(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_DATASET_FAILED_AFTERCREATE, e.getMessage());
+        }
+
     }
 }

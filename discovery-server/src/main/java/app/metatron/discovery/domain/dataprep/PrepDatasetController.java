@@ -28,8 +28,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.projection.ProjectionFactory;
+import org.springframework.data.rest.webmvc.PersistentEntityResource;
 import org.springframework.data.rest.webmvc.PersistentEntityResourceAssembler;
 import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -99,6 +101,31 @@ public class PrepDatasetController {
             }
         }
         return limitSize;
+    }
+
+    @RequestMapping(value="", method = RequestMethod.POST)
+    public @ResponseBody
+    PersistentEntityResource postDataset(
+            @RequestBody Resource<PrepDataset> datasetResource,
+            PersistentEntityResourceAssembler resourceAssembler
+    ) {
+        PrepDataset dataset = null;
+        PrepDataset savedDataset = null;
+
+        try {
+            dataset = datasetResource.getContent();
+            savedDataset = datasetRepository.save(dataset);
+            LOGGER.debug(savedDataset.toString());
+
+            this.datasetService.afterCreate(savedDataset);
+
+            this.datasetRepository.flush();
+        } catch (Exception e) {
+            LOGGER.error("postDataset(): caught an exception: ", e);
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_DATASET_FAIL_TO_SAVE, e.getMessage());
+        }
+
+        return resourceAssembler.toResource(savedDataset);
     }
 
     @RequestMapping(value = "/{dsId}", method = RequestMethod.GET)
