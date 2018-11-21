@@ -43,6 +43,13 @@ export interface MapLayerSize {
   // Size specification criteria
   by?: MapBy;
 
-  // Column Name
+  // Column Alias (setting alias)
   column?: string;
+
+  ////////////////////////
+  ///// UI Spec
+  ////////////////////////
+
+  // Column Name (setting original name)
+  name?: string;
 }
