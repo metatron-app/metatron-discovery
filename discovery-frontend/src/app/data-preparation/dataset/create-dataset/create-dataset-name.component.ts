@@ -21,6 +21,7 @@ import {isNullOrUndefined, isUndefined} from 'util';
 import { StringUtil } from '../../../common/util/string.util';
 import { Alert } from '../../../common/util/alert.util';
 import { PreparationAlert } from '../../util/preparation-alert.util';
+import {PreparationCommonUtil} from "../../util/preparation-common.util";
 
 @Component({
   selector: 'app-create-dataset-name',
@@ -424,7 +425,7 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   public getSheetNames() {
     let arr = [];
     this.sheetInfos.forEach((item) => {
-      arr.push(item.name);
+      arr.push(item.sheetName);
     });
 
     return arr.join(', ');
@@ -445,16 +446,15 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
   private _setDefaultDatasetName(type : string) : void {
 
     if ('FILE' === type) {
-      let file = new RegExp(/^.*\.(csv|xls|txt|xlsx|json)$/).exec(this.datasetFile.filename);
-      this.fileExtension = file[1];
-      let fileName = file[0].split('.' + this.fileExtension)[0];
 
+      let file = PreparationCommonUtil.getFileNameAndExtension(this.datasetFile.filename);
+      this.fileExtension = file[1];
+      let fileName = file[0];
       if(this.fileExtension.toUpperCase() === 'XLSX' || this.fileExtension.toUpperCase() === 'XLS') {
 
-        let selectedSheets = this.datasetFile.selectedSheets.filter((item) => {
+        let selectedSheets = this.datasetFile.sheetInformation.filter((item) => {
           if (item.selected) {
-
-            this.names.push(`${fileName} - ${item.name} (EXCEL)`);
+            this.names.push(`${fileName} - ${item.sheetName} (EXCEL)`);
             this.descriptions.push('');
             this.nameErrors.push('');
             this.descriptionErrors.push('');
@@ -588,10 +588,9 @@ export class CreateDatasetNameComponent extends AbstractPopupComponent implement
       this.datasetInfo.push({name : this.translateService.instant('msg.dp.ui.list.file'), value : this.datasetFile.filename});
 
       if ('XLSX' === this.fileExtension.toUpperCase() || 'XLS' === this.fileExtension.toUpperCase()) {
-        console.info('this.datasetFile. ', this.datasetFile);
-        if (this.datasetFile.sheets.length === 1) {
-          this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.sheets[0]});
-        } else if (this.datasetFile.sheets.length > 1) {
+        if (this.datasetFile.sheetInformation.length === 1) {
+          this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.datasetFile.sheetInformation[0].sheetName});
+        } else if (this.datasetFile.sheetInformation.length > 1) {
           this.datasetInfo.push({name : this.translateService.instant('msg.dp.th.sheet'), value : this.getSheetNames()});
         }
       }

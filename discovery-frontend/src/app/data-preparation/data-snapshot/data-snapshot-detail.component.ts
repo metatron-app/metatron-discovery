@@ -35,7 +35,7 @@ import * as $ from "jquery";
   selector: 'app-data-snapshot-detail',
   templateUrl: './data-snapshot-detail.component.html',
 })
-export class DataSnapshotDetailComponent extends AbstractComponent implements OnInit, OnDestroy, AfterViewInit {
+export class DataSnapshotDetailComponent extends AbstractComponent implements OnInit, OnDestroy {
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Private Variables
@@ -122,9 +122,6 @@ export class DataSnapshotDetailComponent extends AbstractComponent implements On
     $('body').removeClass('body-hidden');
   }
 
-  public ngAfterViewInit() {
-
-  }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method

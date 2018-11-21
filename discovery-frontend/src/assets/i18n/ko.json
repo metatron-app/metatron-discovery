@@ -1014,7 +1014,7 @@
   "msg.dp.ui.keep.explain.one" : "Check if the value in columnName is bigger than 10",
   "msg.dp.ui.keep.explain.title" : "Retains only rows that satisfy a condition",
   "msg.dp.ui.keep.explain.two" : "Check if value in columnName is null",
-  "msg.dp.ui.list.file": "File",
+  "msg.dp.ui.list.file": "파일",
   "msg.dp.ui.list.staging-db": "Staging DB",
   "msg.dp.ui.list.view": "리스트 뷰",
   "msg.dp.ui.master.ds": "마스터 데이터셋",

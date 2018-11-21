@@ -111,29 +111,29 @@
             </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let sheet of sheetInfos; let index = index">
-              <td title="{{sheet.name}}">{{sheet.name}}</td>
-              <td>
-                <div class="ddp-sheet-form">
-                  <input class="ddp-input-typebasic"
-                         placeholder="{{'msg.comm.ui.create.name' | translate}}"
-                         [(ngModel)]="names[index]" maxlength="50"
-                         (keyup)="nameErrors[index] !== ''? hideNameError(index) :null">
-                  <span class="ddp-data-error" *ngIf="nameErrors[index] !== ''"> {{nameErrors[index]}}</span>
-                </div>
-              </td>
-              <td>
-                <div class="ddp-textarea-resize">
+              <tr *ngFor="let sheet of sheetInfos; let index = index">
+                <td title="{{sheet.sheetName}}">{{sheet.sheetName}}</td>
+                <td>
                   <div class="ddp-sheet-form">
-                    <textarea  placeholder="{{'msg.comm.ui.create.desc' | translate}}"
-                               [(ngModel)]="descriptions[index]" maxlength="150"
-                               (keydown)="descriptionErrors[index] !== ''? hideDescError(index) :null">
-                    </textarea>
-                    <span class="ddp-data-error" *ngIf="descriptionErrors[index] !== ''"> {{descriptionErrors[index]}}</span>
+                    <input class="ddp-input-typebasic"
+                           placeholder="{{'msg.comm.ui.create.name' | translate}}"
+                           [(ngModel)]="names[index]" maxlength="50"
+                           (keyup)="nameErrors[index] !== ''? hideNameError(index) :null">
+                    <span class="ddp-data-error" *ngIf="nameErrors[index] !== ''"> {{nameErrors[index]}}</span>
                   </div>
-                </div>
-              </td>
-            </tr>
+                </td>
+                <td>
+                  <div class="ddp-textarea-resize">
+                    <div class="ddp-sheet-form">
+                      <textarea  placeholder="{{'msg.comm.ui.create.desc' | translate}}"
+                                 [(ngModel)]="descriptions[index]" maxlength="150"
+                                 (keydown)="descriptionErrors[index] !== ''? hideDescError(index) :null">
+                      </textarea>
+                      <span class="ddp-data-error" *ngIf="descriptionErrors[index] !== ''"> {{descriptionErrors[index]}}</span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
             </tbody>
           </table>
 

@@ -46,7 +46,7 @@
       <div class="ddp-wrap-variable">
         <!-- wrap sheet -->
         <!-- ddp-full 추가 -->
-        <div class="ddp-wrap-sheet" [ngClass]="{'ddp-full':datasetFile.sheets.length === 0 || datasetFile.sheets.length === 1}">
+        <div class="ddp-wrap-sheet" [ngClass]="{'ddp-full': isMultiSheet()}">
 
           <!-- sheet list -->
           <div class="ddp-ui-sheet-list">
@@ -57,13 +57,13 @@
                 <span class="ddp-txt-checkbox">{{getTotal()}}</span>
               </label>
             </div>
-            <ul class="ddp-list-sheet" *ngFor="let item of datasetFile.selectedSheets; let idx = index">
-              <li [ngClass]="{'ddp-selected' : item.name === datasetFile.sheetname}" (click)="selectSheet($event, item.name, idx)">
+            <ul class="ddp-list-sheet" *ngFor="let item of datasetFile.sheetInformation; let idx = index">
+              <li [ngClass]="{'ddp-selected' : item.sheetName === datasetFile.sheetname}" (click)="selectSheet($event, item.sheetName, idx)">
                 <label class="ddp-label-checkbox" (click)="check($event, item);">
                   <input type="checkbox" [checked]="item.selected">
                    <i class="ddp-icon-checkbox"></i>
                 </label>
-                <span class="ddp-txt-checkbox">{{item.name}}</span>
+                <span class="ddp-txt-checkbox">{{item.sheetName}}</span>
               </li>
             </ul>
 
@@ -87,7 +87,7 @@
         </div>
         <!-- //wrap sheet -->
       </div>
-      <div class="ddp-wrap-edit-form" *ngIf="!datasetFile.sheets || 0 == datasetFile.sheets.length">
+      <div class="ddp-wrap-edit-form" *ngIf="isCSV">
         <div class="ddp-wrap-edit3 ddp-type">
           <label class="ddp-label-type">{{'msg.dp.th.col.delimiter' | translate}}</label>
           <!-- edit option -->

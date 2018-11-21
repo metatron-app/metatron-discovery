@@ -112,12 +112,11 @@ export class DatasetFile extends Dataset {
   public filename: string;
   public filepath: string;
   public filekey: string;
-  public sheets: string[];
   public sheetname: string;
   public sheetIndex: number;
   public name: string;
   public desc: string;
-  public selectedSheets: any[] = [];
+  public sheetInformation: SheetInfo[] = [];
   public delimiter: string;
   public totalLines: number;
   public totalBytes: number;
@@ -182,4 +181,14 @@ export class Rule {
 
   public isEditMode: boolean;
   public isInsertStep: boolean;
+}
+
+
+export class SheetInfo {
+  public sheetName? : string;
+  public selected : boolean;
+  public fields : any[];
+  public data : any[];
+  public totalRows : number;
+  public valid : boolean;
 }

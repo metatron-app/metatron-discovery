@@ -76,17 +76,13 @@ export class DatasetService extends AbstractService {
 
     if (param.fileType === 'csv' || param.fileType === 'txt') {
 
-      url += '?hasFields=N';
+      url += '?hasFields=N'; // 필요 없다고 했지만 없으면 에러남
 
       if (param.delimiter) {
         url += `&delimiterCol=${encodeURI(param.delimiter)}`;
       }
 
-    } else {
-
-      url += '?sheetname=' + encodeURI(param.sheetname) + '&hasFields=N'
     }
-
 
     return this.get(url);
 

@@ -197,10 +197,6 @@ export class CreateDatasetSelectfileComponent extends AbstractPopupComponent imp
     const response: any = this.uploadResult.response;
     this.datasetFile.filename = response.filename;
     this.datasetFile.filepath = response.filepath;
-    this.datasetFile.sheets = response.sheets;
-    if (response.sheets && response.sheets.length > 0) {
-      this.datasetFile.sheetname = response.sheets[0];
-    }
     this.datasetFile.filekey = response.filekey;
 
     if (!isUndefined(this.datasetFile.filename)) {
