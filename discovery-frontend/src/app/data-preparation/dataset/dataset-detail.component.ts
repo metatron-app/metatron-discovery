@@ -563,7 +563,7 @@ export class DatasetDetailComponent extends AbstractComponent implements OnInit,
           } else {
             if (wrangledDataset.gridResponse) {
               this.dataset.gridResponse = wrangledDataset.gridResponse;
-              this.wrangledDatasetColumn = wrangledDataset.gridResponse.colCnt; // number of columns in wrangled dataSet
+              this.importedDatasetColumn = wrangledDataset.gridResponse.colCnt; // number of columns in wrangled dataSet
               const gridData = this._getGridDataFromGridResponse(wrangledDataset.gridResponse);
               this.fields = gridData.fields;
               this.getDatasetInformationList(this.dataset);
