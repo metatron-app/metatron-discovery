@@ -483,6 +483,7 @@
 
           <div class="ddp-wrap-editor">
             <codemirror [config]="config" (keyup)="editorKeyEvent($event)"
+                        (click)="isFootAreaPopupCheck = true"
                         (textChanged)="editorTextChange($event)"></codemirror>
 
             <!-- history popup -->

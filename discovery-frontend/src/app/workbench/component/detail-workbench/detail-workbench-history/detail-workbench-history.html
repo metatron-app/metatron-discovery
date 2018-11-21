@@ -25,7 +25,7 @@
         <a href="javascript:" class="ddp-icon-search" (click)="openSearchArea()"></a>
 
         <div class="ddp-type-search">
-          <input type="text" placeholder="" [(ngModel)]="searchText" (keyup.esc)="searchText ='';getSearch()" (keyup.Enter)="getSearch()">
+          <input type="text" placeholder="{{'msg.bench.ui.placeholder.search-query-history'|translate}}" [(ngModel)]="searchText" (keyup.esc)="searchText ='';getSearch()" (keyup.Enter)="getSearch()">
           <a href="javascript:" class="ddp-btn-delete" *ngIf="searchText" (click)="searchText ='';getSearch()"></a>
           <a href="javascript:" class="ddp-btn-back" (click)="closeSearchArea()"></a>
         </div>

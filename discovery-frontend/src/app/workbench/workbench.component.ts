@@ -963,6 +963,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public editorKeyEvent(event) {
     // 쿼리 실행.
     if (event.ctrlKey && event.keyCode === 13) {
+      this.checkFooterPopup();
       this.setExecuteSql('SELECTED');
       return;
     }
@@ -978,6 +979,7 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
     }
 
     if (event.altKey && event.keyCode === 13) {
+      this.checkFooterPopup();
       this.setExecuteSql('ALL');
       return;
     }
