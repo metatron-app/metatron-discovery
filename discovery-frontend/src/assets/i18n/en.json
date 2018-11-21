@@ -1474,6 +1474,10 @@
   "msg.board.ui.tryagain_ds" : "Try to update datasource again",
   "msg.board.ui.sync_interval" : "Data sync interval",
   "msg.board.ui.card.view" : "Card view",
+  "msg.board.ui.view-chart-data" : "View chart data",
+  "msg.board.ui.aggregated-data" : "Aggregated data",
+  "msg.board.ui.original-data" : "Original data",
+  "msg.board.ui.download-data" : "Download data",
 
   "msg.storage.btn.create.dsource": "Create new datasource",
   "msg.storage.ui.dsource.search.description": "Search by name of datasource",
