@@ -88,7 +88,9 @@
         <div class="ddp-box-top" style="position:relative; top:0; left:0; right:0; bottom:0;z-index:10;">
           <!-- title -->
           <div class="ddp-box-title">
-            {{'msg.dp.ui.add.rule.title' | translate : {mode : opString !== 'UPDATE' ? 'Add' : 'Edit' } }}
+            <ng-container *ngIf="opString === 'UPDATE'">{{'msg.dp.ui.btn.edit.rule' | translate}}</ng-container>
+            <ng-container *ngIf="opString !== 'UPDATE'">{{'msg.dp.ui.btn.add.rule' | translate}}</ng-container>
+            <!--{{'msg.dp.ui.add.rule.title' | translate : {mode : opString !== 'UPDATE' ? 'Add' : 'Edit' } }}-->
             <a href="javascript:" class="ddp-link-switch" (click)="switchEditor()">{{editorUseLabel}}</a>
           </div>
           <!-- //title -->

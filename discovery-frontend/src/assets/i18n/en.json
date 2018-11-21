@@ -177,7 +177,7 @@
   "msg.comm.usr.name.title.ph" : "Enter Username",
   "msg.comm.usr.fullname.title" : "Full Name",
   "msg.comm.usr.login": "LOGIN",
-  "msg.comm.usr.pw.title": "PASSWORD",
+  "msg.comm.usr.pw.title": "Password",
   "msg.comm.usr.pw.title.ph" : "Enter password",
   "msg.comm.usr.login.remember.id": "Remember me",
   "msg.comm.ui.site.access": "Site Terms of Use",
@@ -851,6 +851,7 @@
   "msg.dp.alert.check.ignore.char" : "Check ignore between characters",
   "msg.dp.alert.check.insert.expression" : "Please enter the expression",
   "msp.dp.alert.col.empty" : "Column name must not be empty",
+  "msg.dp.alert.merge.col.error" : "Please check new column name",
 
   "msg.dp.ui.no.snapshot.history" : "No snapshot create history",
   "msg.dp.ui.snapshot.cancel.confirm" : "Sure to cancel snapshot creation?",
@@ -1208,6 +1209,12 @@
   "msg.dp.ui.no.preview" : "No preview",
   "msg.dp.ui.sel.dataflow.dataset" : "Select dataflow to add dataset",
   "msg.dp.ui.add.existing.dataflow" : "Add to existing dataflow",
+  "msg.dp.ui.btn.add.rule" : "Add rule",
+  "msg.dp.ui.btn.edit.rule" : "Edit rule",
+  "msg.dp.btn.switch.editor" : "Switch to editor",
+  "msg.dp.btn.switch.builder" : "Switch to builder",
+  "msg.dp.btn.create.dataflow.dataset" : "Create dataflow with this dataset",
+
 
   "msg.board.create.add-ds" : "Add datasource",
   "msg.board.create.add-ds.desc" : "Add the data sources you want to visualize and establish relationships",
