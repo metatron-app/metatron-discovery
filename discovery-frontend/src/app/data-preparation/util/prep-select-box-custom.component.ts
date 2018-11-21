@@ -191,13 +191,13 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
   public onSelect(item: any) {
 
     this.selectedItem = item;
-    // this.isShowSelectList = false;  // close select box
     this.safelyDetectChanges();
 
     if(this.selectedItem == null || this.selectedItem == undefined) {this.searchText = ''} else{this.searchText = this.selectedItem['value'];}
     item.value = this.searchText;
     this.onSelected.emit(item);     // emit event
-    setTimeout(() => this._searchTextElement.nativeElement.focus(), 50);
+
+    this.setFocusTimer();
   }
 
 
@@ -221,12 +221,25 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
   public toggleSelectList() {
     if (this.isSearchAllowed) {
       this.isShowSelectList = true;
-      setTimeout(() => this._searchTextElement.nativeElement.focus(), 50);
+      this.setFocusTimer();
     } else {
       this.isShowSelectList = !this.isShowSelectList;
     }
     this.showHidePatternLayer(this.isShowSelectList);
   }
+
+
+  /**
+   * TextInput focus timer
+   */
+  private setFocusTimer(): void {
+    let textlength: number = 0;
+    if(this.searchText !== null && this.searchText !=='') {
+      textlength = this.searchText.length;
+    }
+    setTimeout(() => {this._searchTextElement.nativeElement.focus(); this._searchTextElement.nativeElement.setSelectionRange(textlength,textlength)}, 100);
+  }
+
 
   /**
    * show pattern info tooltip
@@ -293,9 +306,10 @@ export class PrepSelectBoxCustomComponent extends AbstractComponent implements O
           const item: any = {};
           item.value = this.searchText;
           this.onSelected.emit(item);
+          // Emitting event telling not to apply rule !
+          // this.isShowSelectList = false;
+          // this.showHidePatternLayer(this.isShowSelectList);
         }
-        // Emitting event telling not to apply rule !
-        // this.broadCaster.broadcast('EDIT_RULE_SHOW_HIDE_LAYER', { id: this._FIELD_COMBO_ID, isShow : false } );
         break;
     }
   }
