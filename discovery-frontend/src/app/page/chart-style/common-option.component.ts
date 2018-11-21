@@ -75,6 +75,7 @@ import { ColorPickerComponent } from '../../common/component/color-picker/color.
 import { ColorPicker } from '../../common/component/color-picker/colorpicker';
 import { BarColor, UIWaterfallChart } from '../../common/component/chart/option/ui-option/ui-waterfall-chart';
 import {isNullOrUndefined} from "util";
+import {OptionGenerator} from "../../common/component/chart/option/util/option-generator";
 
 @Component({
   selector: 'common-option',
@@ -148,11 +149,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
 
     // limit값이 체크되고 size값이 없는경우 기본값 설정
     this._setLimit( uiOption.limit );
-    if (ChartType.SANKEY == this.uiOption.type) {
-      this.limitPlaceHolder = 50;
-    } else {
-      this.limitPlaceHolder = this.DEFAULT_LIMIT;
-    }
+    this.limitPlaceHolder = OptionGenerator.defaultLimit( this.uiOption.type );
 
     // Pivot 설정
     if( _.isUndefined(this.pivot) ) {
@@ -1583,15 +1580,7 @@ export class CommonOptionComponent extends BaseOptionComponent {
   private _setLimit( limit:number ) {
     // limit값이 체크되고 size값이 없는경우 기본값 설정
     if (this.uiOption.limitCheck) {
-      if( limit ) {
-        this.uiOption.limit = limit;
-      } else {
-        if (ChartType.SANKEY == this.uiOption.type) {
-          this.uiOption.limit = 50;
-        } else {
-          this.uiOption.limit = this.DEFAULT_LIMIT;
-        }
-      }
+      this.uiOption.limit = ( limit ) ? limit : OptionGenerator.defaultLimit( this.uiOption.type );
     } else {
       this.uiOption.limit = undefined;
     }
