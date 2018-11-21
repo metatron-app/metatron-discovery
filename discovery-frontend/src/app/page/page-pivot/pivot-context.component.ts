@@ -201,7 +201,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     this.fix2DepthContext = false;
 
     // 이벤트 발생
-    this.changePivotContext.emit({type: 'changePivot'});
+    this.changePivotContext.emit({type: 'changePivot', value : EventType.PIVOT_ALIAS});
 
     //
     this.editingFieldChange.emit(this.editingField);
@@ -225,7 +225,7 @@ export class PivotContextComponent extends AbstractComponent implements OnInit, 
     this.fix2DepthContext = false;
 
     // 이벤트 발생
-    this.changePivotContext.emit({type: 'changePivot'});
+    this.changePivotContext.emit({type: 'changePivot', value : EventType.PIVOT_ALIAS});
   }
 
   /**

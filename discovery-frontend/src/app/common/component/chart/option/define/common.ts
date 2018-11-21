@@ -499,7 +499,9 @@ export enum EventType {
   // change chart type
   CHART_TYPE = <any>'chartType',
   // filter changed
-  FILTER = <any>'filter'
+  FILTER = <any>'filter',
+  // change pivot alias
+  PIVOT_ALIAS = <any>'pivotAlias'
 }
 
 /**
