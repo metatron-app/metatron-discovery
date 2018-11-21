@@ -84,6 +84,9 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
 
   public totalRowCnt: number = 0;
 
+  private _currentScrollLeft: number = 0; // grid current scrollLeft value
+  private _gridTimer = null;   // grid timer
+
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -495,16 +498,32 @@ export class ScrollLoadingGridComponent implements OnInit, AfterViewInit, OnDest
   } // function - _generateGrid
 
   /**
+   * Grid horizaltal scroll timer
+   * @param grid
+   * @param {viewPortLeftPx} number
+   * @private
+   */
+  private fixGridScroll(viewPortLeftPx: number): void {
+    if(this._gridTimer) {clearTimeout(this._gridTimer);}
+    this._gridTimer = setTimeout(() => {this._currentScrollLeft = viewPortLeftPx;this._grid.invalidate();this._grid.render();}, 400);
+  }
+
+  /**
    * 그리드 이벤트 연결
    * @param grid
    * @param {ScrollLoadingGridModel} gridModel
    * @private
    */
   private _bindEvent(grid, gridModel: ScrollLoadingGridModel) {
+
     // 그리드 스크롤 이벤트 정의
     grid.onViewportChanged.subscribe(() => {
       const viewPort = grid.getViewport();
       gridModel.ensureData(viewPort.top, viewPort.bottom);
+      const viewPortLeftPx: number = viewPort.leftPx;
+      if(this._currentScrollLeft !==  viewPortLeftPx) {
+        this.fixGridScroll(viewPortLeftPx)
+      }
     });
 
     // 로더 이벤트 정의
