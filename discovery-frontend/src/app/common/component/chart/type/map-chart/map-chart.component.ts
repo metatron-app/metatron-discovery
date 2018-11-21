@@ -824,8 +824,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       let featureSize = 5;
       if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
         featureSize = parseInt(feature.get((<UISymbolLayer>styleLayer).size.column)) / (styleData.valueRange[(<UISymbolLayer>styleLayer).size.column].maxValue / 30);
-        if(featureSize < 2) {
-          featureSize = 2;
+        if(featureSize < 5) {
+          featureSize = 5;
         }
       }
 
@@ -1042,14 +1042,17 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
 
       let size: number = 0;
-      if(feature.get('features')) {
-        size = feature.get('features').length;
+      let features = feature.get('features');
+      if(features) {
+        size = features.length;
       }
 
       ////////////////////////////////////////////////////////
       // Point Style
       ////////////////////////////////////////////////////////
       if( size <= 1 ) {
+
+        let feature = features[0];
 
         ////////////////////////////////////////////////////////
         // Color
@@ -1147,8 +1150,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         let featureSize = 5;
         if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
           featureSize = parseInt(feature.get((<UISymbolLayer>styleLayer).size.column)) / (styleData.valueRange[(<UISymbolLayer>styleLayer).size.column].maxValue / 30);
-          if(featureSize < 2) {
-            featureSize = 2;
+          if(featureSize < 5) {
+            featureSize = 5;
           }
         }
 
@@ -1307,67 +1310,68 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
       else {
 
-        ////////////////////////////////////////////////////////
-        // Color
-        ////////////////////////////////////////////////////////
+        // ////////////////////////////////////////////////////////
+        // // Color
+        // ////////////////////////////////////////////////////////
+        //
+        // if( _.eq(featureColorType, MapBy.MEASURE) ) {
+        //
+        //   if(styleData.valueRange) {
+        //     let colorList = ChartColorList[featureColor];
+        //     let avgNum = styleData.valueRange[styleLayer.color.column].maxValue / colorList.length;
+        //
+        //     let featurePropVal = 0;
+        //
+        //     if(feature.getProperties()["features"]) {
+        //       for(let clusterFeature of feature.getProperties()["features"]) {
+        //         featurePropVal = featurePropVal + clusterFeature.getProperties()[styleLayer.color.column];
+        //       }
+        //       featurePropVal = featurePropVal / feature.getProperties()["features"].length;
+        //     }
+        //
+        //     for(let i=0;i<colorList.length;i++) {
+        //       if(featurePropVal <= avgNum * (i+1) &&
+        //         featurePropVal >= avgNum * (i)) {
+        //         featureColor = colorList[i];
+        //       }
+        //     }
+        //   }
+        //
+        //   // if(styleOption.layers[layerNum].color['customMode'] === 'SECTION') {
+        //   //   for(let range of styleOption.layers[layerNum].color['ranges']) {
+        //   //     let rangeMax = range.fixMax;
+        //   //     let rangeMin = range.fixMin;
+        //   //
+        //   //     if(rangeMax === null) {
+        //   //       rangeMax = rangeMin + 1;
+        //   //     } // else if(rangeMin === null) {
+        //   //       // rangeMin = 0;
+        //   //     // }
+        //   //
+        //   //     let featurePropVal = 0;
+        //   //
+        //   //     for(let clusterFeature of feature.getFeatures()["features"]) {
+        //   //       featurePropVal = featurePropVal + clusterFeature.getProperties()[styleOption.layers[layerNum].color.column];
+        //   //     }
+        //   //     featurePropVal = featurePropVal / feature.getFeatures()["features"].length;
+        //   //
+        //   //     if( featurePropVal > rangeMin &&  featurePropVal < rangeMax) {
+        //   //       featureColor = range.color;
+        //   //     } else if (rangeMin === null && featurePropVal < rangeMax) {
+        //   //       featureColor = range.color;
+        //   //     }
+        //   //   }
+        //   // }
+        // }
+        // else if( _.eq(featureColorType, MapBy.DIMENSION) ) {
+        //   let colorList = ChartColorList[featureColor];
+        //   featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
+        // }
+        // else if( _.eq(featureColorType, MapBy.NONE) ) {
+        //   featureColor = styleLayer.color.schema;
+        // }
 
-        if( _.eq(featureColorType, MapBy.MEASURE) ) {
-
-          if(styleData.valueRange) {
-            let colorList = ChartColorList[featureColor];
-            let avgNum = styleData.valueRange[styleLayer.color.column].maxValue / colorList.length;
-
-            let featurePropVal = 0;
-
-            if(feature.getProperties()["features"]) {
-              for(let clusterFeature of feature.getProperties()["features"]) {
-                featurePropVal = featurePropVal + clusterFeature.getProperties()[styleLayer.color.column];
-              }
-              featurePropVal = featurePropVal / feature.getProperties()["features"].length;
-            }
-
-            for(let i=0;i<colorList.length;i++) {
-              if(featurePropVal <= avgNum * (i+1) &&
-                featurePropVal >= avgNum * (i)) {
-                featureColor = colorList[i];
-              }
-            }
-          }
-
-          // if(styleOption.layers[layerNum].color['customMode'] === 'SECTION') {
-          //   for(let range of styleOption.layers[layerNum].color['ranges']) {
-          //     let rangeMax = range.fixMax;
-          //     let rangeMin = range.fixMin;
-          //
-          //     if(rangeMax === null) {
-          //       rangeMax = rangeMin + 1;
-          //     } // else if(rangeMin === null) {
-          //       // rangeMin = 0;
-          //     // }
-          //
-          //     let featurePropVal = 0;
-          //
-          //     for(let clusterFeature of feature.getFeatures()["features"]) {
-          //       featurePropVal = featurePropVal + clusterFeature.getProperties()[styleOption.layers[layerNum].color.column];
-          //     }
-          //     featurePropVal = featurePropVal / feature.getFeatures()["features"].length;
-          //
-          //     if( featurePropVal > rangeMin &&  featurePropVal < rangeMax) {
-          //       featureColor = range.color;
-          //     } else if (rangeMin === null && featurePropVal < rangeMax) {
-          //       featureColor = range.color;
-          //     }
-          //   }
-          // }
-        }
-        else if( _.eq(featureColorType, MapBy.DIMENSION) ) {
-          let colorList = ChartColorList[featureColor];
-          featureColor = colorList[Math.floor(Math.random() * (colorList.length-1)) + 1];
-        }
-        else if( _.eq(featureColorType, MapBy.NONE) ) {
-          featureColor = styleLayer.color.schema;
-        }
-
+        featureColor = _.eq(featureColorType, MapBy.NONE) && styleLayer.color.schema ? styleLayer.color.schema : '#6344ad';
         featureColor = scope.hexToRgbA(featureColor, styleLayer.color.transparency * 0.01);
 
 
