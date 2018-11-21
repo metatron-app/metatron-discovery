@@ -766,7 +766,7 @@
                   <li [class.ddp-recommend]="recommendCharts.indexOf('map') > -1" [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'">
                     <a href="javascript:">
                       <em class="ddp-img-graph-map"></em>
-                      <span class="ddp-txt-name">{{'msg.page.ui.map' | translate}}</span>
+                      <span class="ddp-txt-name">{{'msg.page.ui.map.view' | translate}}</span>
                     </a>
                   </li>
                   <!-- 컨트롤차트 지원중단 -->
@@ -835,12 +835,6 @@
                     <a href="javascript:">
                       <em class="ddp-img-graph-sankey"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.sankey' | translate}}</span>
-                    </a>
-                  </li>
-                  <li [class.ddp-recommend]="recommendCharts.indexOf('map') > -1" [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'">
-                    <a href="javascript:">
-                      <em class="ddp-img-graph-map"></em>
-                      <span class="ddp-txt-name">{{'msg.page.ui.map.view' | translate}}</span>
                     </a>
                   </li>
                 </ul>

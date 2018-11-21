@@ -37,7 +37,7 @@ import UI = OptionGenerator.UI;
 import {
   ChartColorList,
   ChartType,
-  ColorRangeType, ShelveFieldType, UIPosition,
+  ColorRangeType, ShelveFieldType, UIChartDataLabelDisplayType, UIPosition,
 } from '../../option/define/common';
 import {UISymbolLayer} from '../../option/ui-option/map/ui-symbol-layer';
 import { UIChartColorByDimension, UILayers, UIOption } from '../../option/ui-option';
@@ -49,6 +49,8 @@ import { Field as AbstractField, Field } from '../../../../../domain/workbook/co
 import { Shelf } from '../../../../../domain/workbook/configurations/shelf/shelf';
 import {LogicalType} from '../../../../../domain/datasource/datasource';
 import {GeoField} from '../../../../../domain/workbook/configurations/field/geo-field';
+import { TooltipOptionConverter } from '../../option/converter/tooltip-option-converter';
+import { ChartUtil } from '../../option/util/chart-util';
 
 @Component({
   selector: 'map-chart',
@@ -1007,7 +1009,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         element: this.tooltipEl.nativeElement,
         positioning: 'top-center',
         stopEvent: false,
-        offset: [0, -50]
+        offset: [-110, -40]
       });
 
       // Add
@@ -1017,13 +1019,18 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // set tooltip position
     if (this.uiOption.toolTip) {
 
-      let offset = [0, -50];
-      let displayTypeList = _.filter(_.cloneDeep(this.uiOption.toolTip.displayTypes), (item) => {if (!_.isEmpty(item)) return item});
-      let columnList = this.uiOption.toolTip.displayColumns;
+      let offset = [-110, -40];
+      let displayTypeList = _.filter(_.cloneDeep(this.uiOption.toolTip.displayTypes), (item) => {if (!_.isEmpty(item) && item !== UIChartDataLabelDisplayType.DATA_VALUE) return item});
 
-      let addYOffset = 17 * (displayTypeList.length + columnList.length);
+      let columnList = [];
+      // set columnList when data value is checked
+      if (-1 !== this.uiOption.toolTip.displayTypes.indexOf(UIChartDataLabelDisplayType.DATA_VALUE)) {
+        columnList = this.uiOption.toolTip.displayColumns;
+      }
 
-      offset[1] = -(50 + addYOffset);
+      let addYOffset = 20 * (displayTypeList.length + columnList.length);
+
+      offset[1] = -(40 + addYOffset);
 
       this.tooltipLayer.setOffset(offset);
     }
@@ -1103,6 +1110,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     this.tooltipInfo.coords = [];
 
     if(this.getUiMapOption().toolTip.displayTypes != undefined && this.getUiMapOption().toolTip.displayTypes[18] !== null) {
+
       // Line Type
       if (_.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE))) {
         this.tooltipInfo.coords[0] = coords[0];
@@ -1560,5 +1568,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     else if( _.eq(layer.type, MapLayerType.POLYGON) ) {
 
     }
+
+    ////////////////////////////////////////////////////////
+    // Tooltip
+    ////////////////////////////////////////////////////////
+
+    // set display columns from shelf
+    if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
+
+    let fields = TooltipOptionConverter.returnTooltipDataValue(shelf);
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
+
   }
 }

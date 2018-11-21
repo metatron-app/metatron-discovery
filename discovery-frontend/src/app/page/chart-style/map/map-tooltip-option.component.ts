@@ -22,6 +22,7 @@ import { Field } from '../../../domain/workbook/configurations/field/field';
 import { TooltipOptionComponent } from '../tooltip-option.component';
 import { UIMapOption } from '../../../common/component/chart/option/ui-option/map/ui-map-chart';
 import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
+import { TooltipOptionConverter } from '../../../common/component/chart/option/converter/tooltip-option-converter';
 
 @Component({
   selector: 'map-tooltip-option',
@@ -58,6 +59,11 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
       uiOption.toolTip.displayTypes = FormatOptionConverter.setDisplayTypes(uiOption.type);
     }
 
+    // set field list from displayColumn string list
+    if (!uiOption.toolTip.displayColumns) {
+      this.selectedLayerItems = this.setColumns(this.uiOption.toolTip.displayColumns);
+    }
+
     // Set
     this.uiOption = uiOption;
   }
@@ -69,62 +75,15 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     if (!shelf || !shelf.layers || !shelf.layers[this.uiOption.layerNum]) return;
 
-    this.selectedLayerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum]);
+    const selectedLayerItems = _.cloneDeep(shelf.layers[this.uiOption.layerNum]);
 
-    // sync columns, fields data
-    this.selectedLayerItems.map((item) => {
-
-      if(item.field && item.field.logicalType) {
-        item['logicalType'] = item.field.logicalType;
-        item['type'] = item.field.type;
-      }
-    });
-
-    // if it's not custom field, exclude geo data
-    this.selectedLayerItems = this.selectedLayerItems.filter((item) => {
-      return item['logicalType'] && ('user_expr' == item.type || -1 == item['logicalType'].toString().indexOf('GEO'));
-    });
-
-    // remove the columns having same name
-    this.selectedLayerItems = _.uniqBy(this.selectedLayerItems, 'name');
+    // return shelf list except geo dimension
+    this.selectedLayerItems = TooltipOptionConverter.returnTooltipDataValue(selectedLayerItems);
 
     if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
 
-    // when displayColumns are empty, set displayColumns
-    if (!this.uiOption.toolTip.displayColumns || 0 == this.uiOption.toolTip.displayColumns.length) {
-
-      this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedLayerItems);
-      // when displayColumns are not empty, set columns by displayColumns
-    } else {
-
-      let originSelectedColumns = _.cloneDeep(this.selectedLayerItems);
-
-      this.selectedLayerItems = this.setColumns(this.uiOption.toolTip.displayColumns);
-
-      // set removed columns to unselectedLayerItems
-      this.unselectedLayerItems = <any>_.filter(originSelectedColumns, (item) => {
-        if (-1 == _.findIndex(this.selectedLayerItems, item)) return item;
-      });
-    }
-  }
-
-  /**
-   * return pivot name as string array
-   * @param {Field[]} mapPivot
-   * @returns {string[]}
-   */
-  private setDisplayColumns(mapPivot: Field[]): string[] {
-
-    if (!mapPivot || 0 == mapPivot.length) return [];
-
-    let returnList: string[] = [];
-
-    mapPivot.forEach((item) => {
-
-      returnList.push( ChartUtil.getAggregationAlias(item) );
-    });
-
-    return returnList;
+    // set displayColum string list from field list
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(this.selectedLayerItems);
   }
 
   /**
@@ -250,7 +209,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
     }
 
     // set name list in displaycolumn
-    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedLayerItems);
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(this.selectedLayerItems);
 
     // set uiOption
     this.apply();
@@ -292,7 +251,7 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
 
     // set name list in displaycolumn
-    this.uiOption.toolTip.displayColumns = this.setDisplayColumns(this.selectedLayerItems);
+    this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(this.selectedLayerItems);
 
     // set uiOption
     this.apply();

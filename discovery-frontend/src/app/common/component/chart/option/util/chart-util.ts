@@ -13,6 +13,7 @@
  */
 
 import * as _ from 'lodash';
+import { Field } from '../../../../../domain/workbook/configurations/field/field';
 
 export class ChartUtil {
 
@@ -31,5 +32,24 @@ export class ChartUtil {
       fieldName = field.aggregationType ? field.aggregationType + `(${alias})` : `${alias}`;
     }
     return fieldName;
+  }
+
+  /**
+   * return name from fields
+   * @param {Field[]} fields
+   * @returns {string[]}
+   */
+  public static returnNameFromField(fields: Field[]): string[] {
+
+    if (!fields || 0 == fields.length) return [];
+
+    let returnList: string[] = [];
+
+    fields.forEach((item) => {
+
+      returnList.push( ChartUtil.getAggregationAlias(item) );
+    });
+
+    return returnList;
   }
 }

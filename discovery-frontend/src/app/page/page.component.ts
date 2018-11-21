@@ -3554,6 +3554,19 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
 
     }
 
+    /**
+     * return geo logical type list
+     * @param {string} logicalType
+     * @param {Field[]} allPivot
+     * @returns {number}
+     */
+    function getGeoType(logicalType: string, allPivot: AbstractField[]): number {
+
+      return allPivot.filter((item: AbstractField) => {
+        return -1 !== item.field.logicalType.toString().indexOf(logicalType);
+      }).length;
+    }
+
     // const colDimensionCnt = getShelfCnt('col', ['dimension'], this.pivot);
     // const colMeasureCnt = getShelfCnt('col', ['measure'], this.pivot);
     // const colTimestampCnt = getShelfCnt('col', ['timestamp'], this.pivot);
@@ -3565,8 +3578,16 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     // // const aggTimestampCnt = getShelfCnt('agg', ['timestamp'], this.pivot);
 
     let pivotList = [];
-    if (this.pivot) pivotList = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns));
-    else pivotList = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
+    if (this.shelf && this.shelf.layers && undefined !== (<UIMapOption>this.uiOption).layerNum) pivotList = this.shelf.layers[(<UIMapOption>this.uiOption).layerNum];
+    else if (this.pivot) pivotList = this.pivot.aggregations.concat(this.pivot.rows.concat(this.pivot.columns));
+
+    const geoCnt = getGeoType('GEO', pivotList);
+
+    // map chart
+    if (geoCnt > 0) {
+      this.recommendCharts.push('map');
+      return;
+    }
 
     const dimensionCnt = getAllShelfCntByType(['dimension'], pivotList);
     const measureCnt = getAllShelfCntByType(['measure'], pivotList);

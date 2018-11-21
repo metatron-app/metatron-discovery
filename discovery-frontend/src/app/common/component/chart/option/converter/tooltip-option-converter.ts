@@ -1,4 +1,3 @@
-
 /*
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +16,8 @@ import { FormatOptionConverter } from './format-option-converter';
 import { UIChartFormat } from '../ui-option/ui-format';
 import { UIOption } from '../ui-option';
 import * as _ from 'lodash';
-import { ChartType, UIChartDataLabelDisplayType } from '../define/common';
+import { UIChartDataLabelDisplayType } from '../define/common';
+import { GeoField } from '../../../../../domain/workbook/configurations/field/geo-field';
 
 /**
  * 수자 포맷 옵션 컨버터
@@ -125,6 +125,33 @@ export class TooltipOptionConverter {
     }
 
     return uiOption.toolTip.previewList;
+  }
+
+  /**
+   * return data value list (geo)
+   * @param {GeoField[]} layerItems
+   * @returns {GeoField[]}
+   */
+  public static returnTooltipDataValue(layerItems: GeoField[]): GeoField[] {
+
+    // sync columns, fields data
+    layerItems.map((item) => {
+
+      if(item.field && item.field.logicalType) {
+        item['logicalType'] = item.field.logicalType;
+        item['type'] = item.field.type;
+      }
+    });
+
+    // if it's not custom field, exclude geo data
+    layerItems = layerItems.filter((item) => {
+      return item['logicalType'] && ('user_expr' == item.type || -1 == item['logicalType'].toString().indexOf('GEO'));
+    });
+
+    // remove the columns having same name
+    layerItems = _.uniqBy(layerItems, 'name');
+
+    return layerItems;
   }
 
   // /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
