@@ -51,29 +51,13 @@
 .ddp-page-mapview .ddp-form-slider {position:relative; padding-right:70px;}
 .ddp-page-mapview .ddp-form-slider .ddp-input-typebasic {position:absolute; top:50%; right:0; margin-top:-15px;width:60px;}
 
-.ddp-page-mapview .ddp-form-slider .ddp-box-option-input {position:absolute; top:50%; right:0; margin-top:-15px;width:60px; padding-right:18px;}
-
-.ddp-box-option-input.ddp-type .ddp-txt-input {float:right;}
-
 /**************************************************************
    맵 차트 range
 **************************************************************/
+
 .ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range  {margin-top:-10px;}
 .ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range .ddp-data-range {padding-top:0;}
 .ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range .ddp-data-range .ddp-bar {width:6%; float:left; line-height:30px; text-align:center;}
 .ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range .ddp-data-range input {float:left; width:47%;}
-
-
-
-
-
-/**************************************************************
-   맵 차트 tooltip
-**************************************************************/
-.ddp-page-mapview .ddp-map-tooltip .ddp-tooltip-view {display:inline-block; position:absolute; left:90px; bottom:-6px; width:4px; height:8px; background:url(../../../images/icon_tagview.png) no-repeat; transform:rotate(-90deg);}
-
-/* 라이브러리 tooltip */
-.ol-viewport {overflow:inherit !important;}
-
 
 

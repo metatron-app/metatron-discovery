@@ -313,6 +313,7 @@
 .ddp-wrap-popup2.ddp-top {top:-32px;}
 .ddp-wrap-popup2.ddp-top2 {bottom:100%; top:inherit; margin-bottom:5px;}
 .ddp-type-selectbox.ddp-selected {z-index:55; border:1px solid #8f96a0;}
+.ddp-type-selectbox:after {display:inline-block; position:absolute; top:50%; right:9px; width:7px; height:4px; margin-top:-2px; background:url(../images/icon_select.png) no-repeat; content:'';}
 
 
 
@@ -341,6 +342,8 @@
 .ddp-type-selectbox.ddp-nowrap-r ul.ddp-list-selectbox {left:inherit; right:0; min-width:100%; white-space:nowrap;}
 
 
+.ddp-type-selectbox:hover:after,
+.ddp-type-selectbox.ddp-selected:after {background-position:-8px 0;}
 
 .ddp-type-selectbox.ddp-selected ul.ddp-list-selectbox {display:block;}
 .ddp-type-selectbox.ddp-selected .ddp-input-selectbox {display:block;}
