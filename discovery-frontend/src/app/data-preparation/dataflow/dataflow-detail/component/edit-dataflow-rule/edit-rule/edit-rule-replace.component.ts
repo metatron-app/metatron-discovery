@@ -22,8 +22,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
-import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
-
+import * as _ from 'lodash';
 @Component({
   selector : 'edit-rule-replace',
   templateUrl : './edit-rule-replace.component.html'
@@ -123,7 +122,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
       clonedNewValue = '\'\'';
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }
@@ -224,7 +223,11 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
 
     this.newValue = data.jsonRuleString.with.escapedValue;
 
-    this.pattern = data.jsonRuleString.on.escapedValue;
+    if (data.jsonRuleString.on.value.startsWith('/') && data.jsonRuleString.on.value.endsWith('/')) {
+      this.pattern = data.jsonRuleString.on.value;
+    }  else {
+      this.pattern = data.jsonRuleString.on.escapedValue;
+    }
 
     this.isGlobal = Boolean(data.jsonRuleString.global);
 
