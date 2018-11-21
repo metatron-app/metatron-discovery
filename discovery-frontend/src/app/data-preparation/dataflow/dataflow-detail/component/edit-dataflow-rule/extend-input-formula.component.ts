@@ -118,7 +118,7 @@ export class ExtendInputFormulaComponent extends AbstractComponent implements On
     this._fields = _.cloneDeep(fields);
 
     // add $col to field list when command is 'SET'
-    if ('set' === this._command) {
+    if ('set' === this._command || 'setCondition' === this._command) {
       this._fields.unshift({name :'$col', type : 'STRING'});
     }
 

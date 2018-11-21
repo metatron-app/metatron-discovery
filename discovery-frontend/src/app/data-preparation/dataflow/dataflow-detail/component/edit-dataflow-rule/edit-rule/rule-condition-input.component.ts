@@ -151,12 +151,28 @@ export class RuleConditionInputComponent extends AbstractComponent implements On
   public init(data: { fields: Field[], command: string, ruleVO: Rule, pivotFormulaValueList?: any, idx?: number }) {
   } // end of init
 
+
+  /**
+   * Set focus on input
+   */
+  public setFocus() {
+    this._inputFormula.nativeElement.focus();
+  }
+
   /**
    * Returns condition va
    * @returns {string}
    */
   public getCondition(): string {
     return this.formula;
+  }
+
+  /**
+   * When you want to set value to input
+   * @param {string} condition
+   */
+  public setCondition(condition: string) {
+    this.formula = condition;
   }
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

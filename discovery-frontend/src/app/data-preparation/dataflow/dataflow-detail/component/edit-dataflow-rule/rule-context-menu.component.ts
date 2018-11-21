@@ -181,14 +181,14 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
         children : [
           {label : 'Mismatch', value : 'mismatch', command : 'mismatch'
             , children : [
-              {label : 'Delete rows', value : 'ismismatch', command : 'clean'},
-              {label : 'Replace with custom value', value : 'after', command : 'move'}
+              {label : 'Delete rows', value : 'direct-mismatch', command : 'clean'},
+              {label : 'Replace with custom value', value : 'mismatch', command : 'clean'}
               ]
           },
           {label : 'Missing', value : 'last', command : 'move'
             , children : [
-              {label : 'Delete rows', value : 'ismissing', command : 'clean'},
-              {label : 'Fill with custom value', value : 'after', command : 'move'}
+              {label : 'Delete rows', value : 'direct-missing', command : 'clean'},
+              {label : 'Fill with custom value', value : 'missing', command : 'clean'}
               ]
           },
         ]
@@ -336,7 +336,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
           let res = [];
           switch(command.value) {
 
-            case 'ismismatch':
+            case 'direct-mismatch':
               //  ismismatched(columnName,'column type with single quote surrounded')
               columnNames.forEach((item) => {
                 if (item.indexOf(' ') > -1) {
@@ -350,8 +350,7 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               rule['ruleString'] += res.join(' || ');
 
               break;
-            case 'ismissing':
-
+            case 'direct-missing':
               // delete row: isnull(c) || isnull(`space col`)
               columnNames.forEach((item) => {
 
@@ -364,7 +363,13 @@ export class RuleContextMenuComponent extends AbstractComponent implements OnIni
               });
 
               rule['ruleString'] += res.join(' || ');
+              break;
 
+            case 'mismatch':
+              rule['more'] = {contextMenu : true,  command : 'set', col : {value : this.originalSelectedColIds}, condition : `ismismatched(${selCol})`};
+              break;
+            case 'missing':
+              rule['more'] = {contextMenu : true, command : 'set', col : {value : this.originalSelectedColIds}, condition : `ismissing(${selCol})`};
               break;
           }
           break;

@@ -94,6 +94,8 @@ export abstract class EditRuleComponent extends AbstractComponent implements OnI
 
     this.isShow = true;
 
+    this.safelyDetectChanges();
+
     this.afterShowComp();
 
     this.safelyDetectChanges();

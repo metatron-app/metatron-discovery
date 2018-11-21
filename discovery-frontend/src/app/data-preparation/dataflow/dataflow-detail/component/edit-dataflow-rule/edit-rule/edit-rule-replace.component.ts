@@ -23,6 +23,7 @@ import { StringUtil } from '../../../../../../common/util/string.util';
 import { isUndefined } from "util";
 import { EventBroadcaster } from '../../../../../../common/event/event.broadcaster';
 import { PreparationCommonUtil } from '../../../../../util/preparation-common.util';
+import {RuleConditionInputComponent} from "./rule-condition-input.component";
 
 @Component({
   selector : 'edit-rule-replace',
@@ -34,6 +35,9 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
   @ViewChild('patternValue')
   private _patternValue: ElementRef;
+
+  @ViewChild(RuleConditionInputComponent)
+  private ruleConditionInputComponent : RuleConditionInputComponent;
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Protected Variables
   |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
@@ -144,6 +148,7 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
     }
 
     // condition
+    this.condition = this.ruleConditionInputComponent.getCondition();
     let clonedCondition = this.condition;
     if (!isUndefined(clonedCondition) && '' !== clonedCondition.trim() && '\'\'' !== clonedCondition.trim()) {
       let check = StringUtil.checkSingleQuote(clonedCondition, { isPairQuote: true });
@@ -186,7 +191,8 @@ export class EditRuleReplaceComponent extends EditRuleComponent implements OnIni
    * open advanced formula popup
    */
   public openPopupFormulaInput() {
-    this.advancedEditorClickEvent.emit();
+    this.condition = this.ruleConditionInputComponent.getCondition();
+    this.advancedEditorClickEvent.emit({command : 'replace', val : 'condition'});
   } // function - openPopupFormulaInput
 
 
