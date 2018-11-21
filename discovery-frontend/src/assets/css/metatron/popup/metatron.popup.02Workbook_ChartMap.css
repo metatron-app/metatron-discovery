@@ -59,3 +59,11 @@
 .ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range .ddp-data-range {padding-top:0;}
 .ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range .ddp-data-range .ddp-bar {width:6%; float:left; line-height:30px; text-align:center;}
 .ddp-page-mapview .ddp-ui-chart-side .ddp-filter .ddp-wrap-range .ddp-data-range input {float:left; width:47%;}
+
+/**************************************************************
+   맵 차트 tooltip
+**************************************************************/
+.ddp-page-mapview .ddp-map-tooltip .ddp-tooltip-view {display:inline-block; position:absolute; left:90px; bottom:-6px; width:4px; height:8px; background:url(../../../images/icon_tagview.png) no-repeat; transform:rotate(-90deg);}
+
+/* 라이브러리 tooltip */
+.ol-viewport {overflow:inherit !important;}

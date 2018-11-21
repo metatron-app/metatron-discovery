@@ -174,18 +174,6 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
   }
 
   /**
-   * symbol layer - toggle view raw data
-   * @param {boolean} viewRawData
-   */
-  public toggleViewRawData(viewRawData: boolean) {
-
-    this.uiOption.layers[this.index].viewRawData = viewRawData;
-
-    // apply layer ui option
-    this.applyLayers({});
-  }
-
-  /**
    * symbol, polygon layer - toggle outline
    * @param {MapOutline} outline
    */
@@ -314,6 +302,8 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
       } else {
         (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = '';
       }
+    } else {
+      (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = '';
     }
 
     this.applyLayers();

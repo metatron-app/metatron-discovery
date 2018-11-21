@@ -564,6 +564,15 @@
                     </div>
                   </div>
                   <!-- //차트 정보 -->
+                  <!-- 차트 정보 -->
+                  <div class="ddp-ui-chart-info" *ngIf="isShowChartInfo('map')">
+                    <span class="ddp-ui-name">{{'msg.page.ui.map.view' | translate}}</span>
+                    <div class="ddp-data-det">
+                      {{'msg.page.ui.geo.layer' | translate}} : {{'msg.page.ui.geo.dimension.value' | translate}},
+                      {{'msg.page.ui.more-than-one.dimension.value' | translate}}, {{'msg.page.ui.more-than-one.measured.value' | translate}}
+                    </div>
+                  </div>
+                  <!-- //차트 정보 -->
                 </div>
               </div>
 
@@ -650,7 +659,8 @@
                    && (uiOption['type']
                    && (uiOption['type'].toString() != 'gauge' || (uiOption['type'].toString() == 'gauge'
                    && 'measure' == uiOption?.color?.type.toString()))
-                   && uiOption['type'].toString() != 'sankey')"
+                   && uiOption['type'].toString() != 'sankey'
+                   && uiOption['type'].toString() != 'map')"
                    [ngClass]="{'ddp-selected': uiOption.legend.auto}" (click)="showLegend(!uiOption.legend.auto)">
                   <em class="ddp-icon-tool-legend"></em>
                   {{'msg.page.ui.legend' | translate}}
@@ -825,6 +835,12 @@
                     <a href="javascript:">
                       <em class="ddp-img-graph-sankey"></em>
                       <span class="ddp-txt-name">{{'msg.page.ui.sankey' | translate}}</span>
+                    </a>
+                  </li>
+                  <li [class.ddp-recommend]="recommendCharts.indexOf('map') > -1" [class.ddp-selected]="selectChart == 'map'" (click)="selectChart = 'map'">
+                    <a href="javascript:">
+                      <em class="ddp-img-graph-map"></em>
+                      <span class="ddp-txt-name">{{'msg.page.ui.map.view' | translate}}</span>
                     </a>
                   </li>
                 </ul>

@@ -250,6 +250,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
 
     const resizeEvent$ = Observable
       .fromEvent(window, 'resize', () => {
+        this.onShelveAnimation(this.$element.find('.ddp-wrap-default'));
         return document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight;
       })
       .debounceTime(500);
@@ -2034,7 +2035,7 @@ export class PagePivotComponent extends AbstractComponent implements OnInit, OnD
    * @param $currentShelve
    * @returns {number}
    */
-  private getShelveTotalWidth($currentShelve: JQuery): number {
+  protected getShelveTotalWidth($currentShelve: JQuery): number {
 
     // 아이템들의 width 구해서 총 total width 구하기
     let totalExWidth = 0;

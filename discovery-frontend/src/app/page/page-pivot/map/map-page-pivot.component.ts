@@ -30,6 +30,7 @@ import { MeasureField } from '../../../domain/workbook/configurations/field/meas
 import { PagePivotComponent } from '../page-pivot.component';
 import { Shelf } from '../../../domain/workbook/configurations/shelf/shelf';
 import { Field as AbstractField } from '../../../domain/workbook/configurations/field/field';
+import * as $ from "jquery";
 
 @Component({
   selector: 'map-page-pivot',
@@ -182,7 +183,6 @@ export class MapPagePivotComponent extends PagePivotComponent {
       let shelves = this.shelf.layers[this.uiOption.layerNum];
 
       // 선반의 dimension / measure값의 중복된값 제거, measure aggtype 설정
-      // TODO map shelf
       if (!this.distinctPivotItems(shelves, field, idx, shelf, targetContainer)) {
 
         // distinctPivotItem에서 설정된 타입 targetField에 설정
@@ -213,7 +213,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
       this.changePivot(EventType.CHANGE_PIVOT);
 
       // 선반 total width 설정, 애니메이션 여부 설정
-      if (shelfElement) this.onShelveAnimation(shelfElement.find('.ddp-wrap-default'));
+      if (shelfElement) this.onShelveAnimation();
     }
 
     // template 에서 생성한 경우 추가된 선반필드는 적용이 되지 않음 그래서 처리
@@ -294,7 +294,7 @@ export class MapPagePivotComponent extends PagePivotComponent {
     this.changePivot(EventType.CHANGE_PIVOT);
 
     // 선반 total width 설정, 애니메이션 여부 설정
-    if (shelfElement) this.onShelveAnimation(shelfElement.find('.ddp-wrap-default'));
+    if (shelfElement) this.onShelveAnimation();
   }
 
    /**
@@ -424,6 +424,99 @@ export class MapPagePivotComponent extends PagePivotComponent {
     }
 
     return returnValue;
+  }
+
+  /**
+   * 아이템의 길이가 선반 길이보다 긴경우 prev / next 버튼 show설정
+   */
+  public onShelveAnimation() {
+
+    if (!this.changeDetect['destroyed']) {
+      // 선반의 아이템들이 나오게 설정
+      this.changeDetect.detectChanges();
+    }
+
+    let element = this.$element.find('#layer' + this.uiOption.layerNum).find('.ddp-wrap-default');
+
+    let scope = this;
+
+    // 선반의 길이에따라 animation 설정
+    element.each(function () {
+
+      // animation total width 설정
+      let totalWidth = scope.getShelveTotalWidth($(this));
+
+      // total width 설정 (드래그시 아래로 떨어지는걸 방지하기위해서 drag item width인 150을 더해주기)
+      $(this).css('width', totalWidth + 150);
+
+      // prev / next 버튼 show / hide 설정
+      if (totalWidth > $(this).parent('.ddp-ui-drag-slide-in').width()) {
+
+        $(this).parent().parent().addClass('ddp-slide');
+        $(this).css('padding', '0 40px');
+
+      }
+      if (totalWidth <= $(this).parent('.ddp-ui-drag-slide-in').width()) {
+
+        $(this).parent().parent().removeClass('ddp-slide');
+        $(this).css('padding', '0px');
+      }
+    })
+  }
+
+  /**
+   * animation 이전버튼에 마우스 오버시
+   */
+  public mouseOverPrev(event: any) {
+
+    // 애니메이션 동작설정 true
+    this.animationPause = false;
+
+    let scope = this;
+
+    const $wrapDefault = $(event.currentTarget.parentElement.parentElement).find('.ddp-wrap-default');
+
+    // 선반에 animation 설정
+    $wrapDefault.animate({ marginLeft: 0 }, {
+      duration: 1500, step: function () {
+
+        if (scope.animationPause) {
+          $(this).stop();
+        }
+      }
+    });
+  }
+
+  /**
+   * animation 다음버튼에 마우스 오버시
+   */
+  public mouseOverNext(event: any) {
+
+    // 애니메이션 동작설정 true
+    this.animationPause = false;
+
+    let scope = this;
+
+    const $currentShelve = $(event.currentTarget.parentElement.parentElement);
+
+    const $wrapDefault = $(event.currentTarget.parentElement.parentElement).find('.ddp-wrap-default');
+
+    let totalWidth = this.getShelveTotalWidth($currentShelve);
+
+    // animation width 설정
+    let moveWidth = totalWidth - $currentShelve.find('.ddp-ui-drag-slide-in').width();
+
+    // 선반에 animation 설정
+    $wrapDefault.animate({ marginLeft: -moveWidth - 40}, {
+    // $wrapDefault.animate({ marginLeft: -moveWidth - 80 }, {
+      duration: 1500, step: function () {
+
+        if (scope.animationPause) {
+          $(this).stop();
+        }
+      }
+    });
+
   }
 
   /**
