@@ -843,38 +843,34 @@ public class DataSourceController {
     return ResponseEntity.ok(resultResponse);
   }
 
-  @RequestMapping(value = "/datasources/filter", method = RequestMethod.GET)
-  public ResponseEntity<?> filterDataSources(
-          @RequestParam(value = "status", required = false) List<String> statuses,
-          @RequestParam(value = "workspace", required = false) List<String> workspaces,
-          @RequestParam(value = "createdBy", required = false) List<String> createdBys,
-          @RequestParam(value = "userGroup", required = false) List<String> userGroups,
-          @RequestParam(value = "createdTimeFrom", required = false)
-          @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime createdTimeFrom,
-          @RequestParam(value = "createdTimeTo", required = false)
-          @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime createdTimeTo,
-          @RequestParam(value = "modifiedTimeFrom", required = false)
-          @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime modifiedTimeFrom,
-          @RequestParam(value = "modifiedTimeTo", required = false)
-          @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) DateTime modifiedTimeTo,
-          @RequestParam(value = "containsText", required = false) String containsText,
-          @RequestParam(value = "dataSourceType", required = false) List<String> dataSourceTypes,
-          @RequestParam(value = "sourceType", required = false) List<String> sourceTypes,
-          @RequestParam(value = "connectionType", required = false) List<String> connectionTypes,
-          Pageable pageable, PersistentEntityResourceAssembler resourceAssembler) {
+  @RequestMapping(value = "/datasources/filter", method = RequestMethod.POST)
+  public @ResponseBody ResponseEntity<?> filterDataSources(@RequestBody DataSourceFilterRequest request, Pageable pageable) {
+
+    List<String> statuses = request == null ? null : request.getStatus();
+    List<String> workspaces = request == null ? null : request.getWorkspace();
+    List<String> createdBys = request == null ? null : request.getCreatedBy();
+    List<String> userGroups = request == null ? null : request.getUserGroup();
+    List<String> dataSourceTypes = request == null ? null : request.getDataSourceType();
+    List<String> sourceTypes = request == null ? null : request.getSourceType();
+    List<String> connectionTypes = request == null ? null : request.getConnectionType();
+    DateTime createdTimeFrom = request == null ? null : request.getCreatedTimeFrom();
+    DateTime createdTimeTo = request == null ? null : request.getCreatedTimeTo();
+    DateTime modifiedTimeFrom = request == null ? null : request.getModifiedTimeFrom();
+    DateTime modifiedTimeTo = request == null ? null : request.getModifiedTimeTo();
+    String containsText = request == null ? null : request.getContainsText();
 
     LOGGER.debug("Parameter (status) : {}", statuses);
     LOGGER.debug("Parameter (workspace) : {}", workspaces);
     LOGGER.debug("Parameter (createdBy) : {}", createdBys);
     LOGGER.debug("Parameter (userGroup) : {}", userGroups);
+    LOGGER.debug("Parameter (dataSourceType) : {}", dataSourceTypes);
+    LOGGER.debug("Parameter (sourceType) : {}", sourceTypes);
+    LOGGER.debug("Parameter (connectionType) : {}", connectionTypes);
     LOGGER.debug("Parameter (createdTimeFrom) : {}", createdTimeFrom);
     LOGGER.debug("Parameter (createdTimeTo) : {}", createdTimeTo);
     LOGGER.debug("Parameter (modifiedTimeFrom) : {}", modifiedTimeFrom);
     LOGGER.debug("Parameter (modifiedTimeTo) : {}", modifiedTimeTo);
     LOGGER.debug("Parameter (containsText) : {}", containsText);
-    LOGGER.debug("Parameter (dataSourceType) : {}", dataSourceTypes);
-    LOGGER.debug("Parameter (sourceType) : {}", sourceTypes);
-    LOGGER.debug("Parameter (connectionType) : {}", connectionTypes);
 
     // Validate status
     List<DataSource.Status> statusEnumList = null;
@@ -926,7 +922,8 @@ public class DataSourceController {
             modifiedTimeTo, containsText, dataSourceTypeEnumList, sourceTypeEnumList, connectionTypeEnumList, pageable
     );
 
-    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(dataSources, resourceAssembler));
+
+    return ResponseEntity.ok(this.pagedResourcesAssembler.toResource(dataSources));
   }
 
   @RequestMapping(value = "/datasources/criteria", method = RequestMethod.GET)
@@ -977,5 +974,4 @@ public class DataSourceController {
       this.pattern = pattern;
     }
   }
-
 }
