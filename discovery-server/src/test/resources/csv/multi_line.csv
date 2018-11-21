@@ -1,0 +1,12 @@
+Category,itemNo,float,amount,boolean,date,time,log
+Furniture,1,2.5,33,true,12-14-2019,23:00:00,"first log"
+Office Supplies,2.5,3,32,false,11-21-2099,abc,"Multi
+line
+log"
+Technology,abc,2.2,12,,2-19-2010,03:22:22
+and
+"multi
+line
+and
+with
+closing quote"

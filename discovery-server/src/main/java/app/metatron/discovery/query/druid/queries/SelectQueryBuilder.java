@@ -27,6 +27,7 @@ import java.util.Set;
 import app.metatron.discovery.common.datasource.LogicalType;
 import app.metatron.discovery.domain.datasource.data.forward.ResultForward;
 import app.metatron.discovery.domain.workbook.configurations.Limit;
+import app.metatron.discovery.domain.workbook.configurations.Sort;
 import app.metatron.discovery.domain.workbook.configurations.datasource.DataSource;
 import app.metatron.discovery.domain.workbook.configurations.datasource.MappingDataSource;
 import app.metatron.discovery.domain.workbook.configurations.field.DimensionField;
@@ -66,6 +67,8 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
   private PagingSpec pagingSpec = new PagingSpec(100);
 
   private List<String> intervals = Lists.newArrayList();
+
+  private Boolean descending = false;
 
   public SelectQueryBuilder(DataSource dataSource) {
     super(dataSource);
@@ -212,6 +215,16 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
 
     if (reqLimit != null) {
       pagingSpec.setThreshold(reqLimit.getLimit());
+
+      for (Sort sort : reqLimit.getSort()) {
+        if(this.metaFieldMap.containsKey(sort.getField())) {
+          app.metatron.discovery.domain.datasource.Field field = this.metaFieldMap.get(sort.getField());
+          if(field.getRole() == app.metatron.discovery.domain.datasource.Field.FieldRole.TIMESTAMP) {
+            descending = sort.getDirection() == Sort.Direction.DESC ? true : false;
+          } // Ignore any sorting on the rest of the field of timestamp role
+        }
+      }
+
     } else {
       pagingSpec.setThreshold(100);
     }
@@ -259,6 +272,8 @@ public class SelectQueryBuilder extends AbstractQueryBuilder {
     }
 
     selectQuery.setPagingSpec(pagingSpec);
+
+    selectQuery.setDescending(descending);
 
     if (StringUtils.isNotEmpty(queryId)) {
       addQueryId(queryId);

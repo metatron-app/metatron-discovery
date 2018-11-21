@@ -35,6 +35,7 @@ import { CreateSnapshotPopup } from '../../../../component/create-snapshot-popup
 import { RuleListComponent } from './rule-list.component';
 import { DataSnapshotDetailComponent } from '../../../../data-snapshot/data-snapshot-detail.component';
 import { EventBroadcaster } from '../../../../../common/event/event.broadcaster';
+import {PreparationCommonUtil} from "../../../../util/preparation-common.util";
 
 declare let Split;
 
@@ -1678,9 +1679,19 @@ export class EditDataflowRule2Component extends AbstractPopupComponent implement
         rule['command'] = this.commandList[idx].command;
         rule['alias'] = this.commandList[idx].alias;
         rule['desc'] = this.commandList[idx].desc;
-        rule['simplifiedRule'] = this.simplifyRule(rule['ruleVO'], rule.ruleString);
+
+        if (rule.shortRuleString) {
+          rule['simplifiedRule'] = rule.shortRuleString
+        } else {
+          const ruleStr = PreparationCommonUtil.simplifyRule(rule['ruleVO'], this.selectedDataSet.gridResponse.slaveDsNameMap, rule.ruleString)
+          if (!isUndefined(ruleStr)) {
+            rule['simplifiedRule'] = ruleStr;
+          } else {
+            rule['simplifiedRule'] = rule.ruleString;
+          }
+        }
       } else {
-        rule['simplifiedRule'] = rule.ruleString;
+        rule['simplifiedRule'] = rule.shortRuleString ? rule.shortRuleString : rule.ruleString;
         rule['command'] = 'Create';
         rule['alias'] = 'Cr';
         rule['desc'] = '';

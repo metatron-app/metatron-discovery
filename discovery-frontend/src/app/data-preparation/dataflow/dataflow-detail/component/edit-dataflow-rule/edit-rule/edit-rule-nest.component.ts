@@ -22,6 +22,7 @@ import { Alert } from '../../../../../../common/util/alert.util';
 import { RuleConditionInputComponent } from './rule-condition-input.component';
 import {isNullOrUndefined, isUndefined} from "util";
 import {PreparationCommonUtil} from "../../../../../util/preparation-common.util";
+import * as _ from 'lodash';
 
 @Component({
   selector: 'edit-rule-nest',
@@ -115,7 +116,7 @@ export class EditRuleNestComponent extends EditRuleComponent implements OnInit, 
       inputVal = '`' + inputVal + '`';
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }

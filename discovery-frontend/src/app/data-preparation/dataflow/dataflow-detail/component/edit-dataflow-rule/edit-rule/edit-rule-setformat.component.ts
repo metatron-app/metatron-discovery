@@ -22,6 +22,7 @@ import { EventBroadcaster } from '../../../../../../common/event/event.broadcast
 import { DataflowService } from '../../../../service/dataflow.service';
 import { StringUtil } from '../../../../../../common/util/string.util';
 import { isNullOrUndefined } from "util";
+import * as _ from 'lodash';
 
 @Component({
   selector : 'edit-rule-setformat',
@@ -179,7 +180,7 @@ export class EditRuleSetformatComponent extends EditRuleComponent implements OnI
       return undefined;
     }
 
-    const columnsStr: string = this.selectedFields.map((item) => {
+    const columnsStr: string = _.cloneDeep(this.selectedFields).map((item) => {
       if (-1 !== item.name.indexOf(' ')) {
         item.name = '`' + item.name + '`';
       }
