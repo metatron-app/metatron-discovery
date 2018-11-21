@@ -60,7 +60,22 @@
 .popup-datastore-connect .ddp-ui-folding.ddp-type .ddp-list-code .ddp-icon-del {display:inline-block; position:absolute; top:8px; right:5px; width:11px; height:12px; background:url(../../../images/icon_control.png) no-repeat; background-position:-26px -14px;}
 .popup-datastore-connect .ddp-ui-folding.ddp-type .ddp-list-code .ddp-icon-del:hover {background-position-x:-62px}
 
-
+/**************************************************************
+  popup : 05_매니지먼트_00데이터저장소_01생성_02커넥션
+**************************************************************/
+.popup-datastore-schema .ddp-type-top-option .ddp-form-search {width:270px;}
+.popup-datastore-schema .ddp-type-top-option .ddp-ui-rightoption .ddp-form-label2:first-of-type {margin-left:0;}
+.popup-datastore-schema .ddp-type-top-option .ddp-wrap-add-column {float:left; position:relative; margin-left:6px;}
+.popup-datastore-schema .ddp-type-top-option .ddp-wrap-add-column.ddp-selected .ddp-box-column {display:block; z-index:10;}
+.popup-datastore-schema .ddp-type-top-option .ddp-wrap-add-column.ddp-selected .ddp-btn-selection {background-color:#d0d1d8;}
+.popup-datastore-schema .ddp-wrap-add-column .ddp-box-column {display:none; position:absolute; top:100%; right:0; padding:19px 14px 13px 14px; margin-top:5px; width:470px; box-sizing:border-box;}
+.popup-datastore-schema .ddp-wrap-add-column .ddp-box-column .ddp-wrap-edit3 + .ddp-wrap-edit3 {margin-top:12px;}
+.popup-datastore-schema .ddp-wrap-add-column .ddp-box-column .ddp-wrap-edit3 .ddp-ui-label-name {margin-bottom:5px; color:#4b515b;}
+.popup-datastore-schema .ddp-wrap-add-column .ddp-box-column .ddp-option-form + .ddp-option-form {margin-top:6px;}
+.popup-datastore-schema .ddp-wrap-add-column .ddp-box-column .ddp-box-button {padding:5px 0 0 0;}
+.popup-datastore-schema .ddp-wrap-add-column .ddp-box-column .ddp-box-button [class*="ddp-btn-"] {float:Left; margin-right:3px; min-width:auto;}
+.popup-datastore-schema .ddp-wrap-add-column .ddp-box-column .ddp-option-form.ddp-clear {margin-left: -2px;margin-right:-2px;}
+.popup-datastore-schema .ddp-wrap-add-column .ddp-box-column .ddp-option-form.ddp-clear [class*="ddp-col-"]{padding:0 2px;}
 
 
 
