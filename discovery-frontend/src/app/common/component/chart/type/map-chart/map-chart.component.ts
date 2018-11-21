@@ -1979,76 +1979,76 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let layer: UILayers = option.layers[option.layerNum];
     let shelf :GeoField[] = _.cloneDeep(this.shelf.layers[option.layerNum]);
 
-    // ////////////////////////////////////////////////////////
-    // // Alias
-    // ////////////////////////////////////////////////////////
-    // _.each(option.layers, (layer) => {
-    //   ////////////////////////////////////////////////////////
-    //   // Symbol
-    //   ////////////////////////////////////////////////////////
-    //   if( _.eq(layer.type, MapLayerType.SYMBOL) ) {
-    //     // Symbol layer
-    //     let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
-    //     ///////////////////////////
-    //     // Color
-    //     ///////////////////////////
-    //     if( _.eq(layer.color.by, MapBy.MEASURE) || _.eq(layer.color.by, MapBy.DIMENSION) ) {
-    //       let column: string = layer.color.column;
-    //       _.each(this.shelf.layers, (shelf) => {
-    //         _.each(shelf, (field) => {
-    //           let alias1: string = field['name'];
-    //           let alias2: string = field['fieldAlias'] ? field['fieldAlias'] : "";
-    //           let alias3: string = field['pivotAlias'] ? field['pivotAlias'] : "";
-    //           if( field.aggregationType && field.aggregationType != "" ) {
-    //             alias1 = field.aggregationType +"("+ alias1 +")";
-    //             alias2 = field.aggregationType +"("+ alias2 +")";
-    //           }
-    //           let alias: string = alias3 ? alias3 : alias2 ? alias2: alias1;
-    //
-    //           if( _.eq(column, alias1) || _.eq(column, alias2) || _.eq(column, alias3) ) {
-    //             layer.color.column = alias;
-    //           }
-    //           console.info(field);
-    //         });
-    //       });
-    //     }
-    //     ///////////////////////////
-    //     // Size
-    //     ///////////////////////////
-    //     if( _.eq(symbolLayer.size.by, MapBy.MEASURE) ) {
-    //       let column: string = symbolLayer.size.column;
-    //       _.each(this.shelf.layers, (shelf) => {
-    //         _.each(shelf, (field) => {
-    //           let alias1: string = field['name'];
-    //           let alias2: string = field['fieldAlias'] ? field['fieldAlias'] : "";
-    //           let alias3: string = field['pivotAlias'] ? field['pivotAlias'] : "";
-    //           if( field.aggregationType && field.aggregationType != "" ) {
-    //             alias1 = field.aggregationType +"("+ alias1 +")";
-    //             alias2 = field.aggregationType +"("+ alias2 +")";
-    //           }
-    //           let alias: string = alias3 ? alias3 : alias2 ? alias2: alias1;
-    //
-    //           if( _.eq(column, alias1) || _.eq(column, alias2) || _.eq(column, alias3) ) {
-    //             symbolLayer.size.column = alias;
-    //           }
-    //           console.info(field);
-    //         });
-    //       });
-    //     }
-    //   }
-    //   ////////////////////////////////////////////////////////
-    //   // Line
-    //   ////////////////////////////////////////////////////////
-    //   else if( _.eq(layer.type, MapLayerType.LINE) ) {
-    //
-    //   }
-    //   ////////////////////////////////////////////////////////
-    //   // Polygon
-    //   ////////////////////////////////////////////////////////
-    //   else if( _.eq(layer.type, MapLayerType.POLYGON) ) {
-    //
-    //   }
-    // });
+    ////////////////////////////////////////////////////////
+    // Alias
+    ////////////////////////////////////////////////////////
+    _.each(option.layers, (layer) => {
+      ////////////////////////////////////////////////////////
+      // Symbol
+      ////////////////////////////////////////////////////////
+      if( _.eq(layer.type, MapLayerType.SYMBOL) ) {
+        // Symbol layer
+        let symbolLayer: UISymbolLayer = <UISymbolLayer>layer;
+        ///////////////////////////
+        // Color
+        ///////////////////////////
+        if( _.eq(layer.color.by, MapBy.MEASURE) || _.eq(layer.color.by, MapBy.DIMENSION) ) {
+          let column: string = layer.color.column;
+          let name: string = layer.color.name;
+          _.each(this.shelf.layers, (shelf) => {
+            _.each(shelf, (field) => {
+              let alias1: string = field['name'];
+              let alias2: string = field['fieldAlias'] ? field['fieldAlias'] : "";
+              let alias3: string = field['pivotAlias'] ? field['pivotAlias'] : "";
+              if( field.aggregationType && field.aggregationType != "" ) {
+                alias1 = field.aggregationType +"("+ alias1 +")";
+                alias2 = field.aggregationType +"("+ alias2 +")";
+              }
+              let alias: string = alias3 ? alias3 : alias2 ? alias2: alias1;
+
+              if( _.eq(name, field['name']) ) {
+                layer.color.column = alias;
+              }
+            });
+          });
+        }
+        ///////////////////////////
+        // Size
+        ///////////////////////////
+        if( _.eq(symbolLayer.size.by, MapBy.MEASURE) ) {
+          let column: string = symbolLayer.size.column;
+          let name: string = symbolLayer.size.name;
+          _.each(this.shelf.layers, (shelf) => {
+            _.each(shelf, (field) => {
+              let alias1: string = field['name'];
+              let alias2: string = field['fieldAlias'] ? field['fieldAlias'] : "";
+              let alias3: string = field['pivotAlias'] ? field['pivotAlias'] : "";
+              if( field.aggregationType && field.aggregationType != "" ) {
+                alias1 = field.aggregationType +"("+ alias1 +")";
+                alias2 = field.aggregationType +"("+ alias2 +")";
+              }
+              let alias: string = alias3 ? alias3 : alias2 ? alias2: alias1;
+
+              if( _.eq(name, field['name']) ) {
+                symbolLayer.size.column = alias;
+              }
+            });
+          });
+        }
+      }
+      ////////////////////////////////////////////////////////
+      // Line
+      ////////////////////////////////////////////////////////
+      else if( _.eq(layer.type, MapLayerType.LINE) ) {
+
+      }
+      ////////////////////////////////////////////////////////
+      // Polygon
+      ////////////////////////////////////////////////////////
+      else if( _.eq(layer.type, MapLayerType.POLYGON) ) {
+
+      }
+    });
 
     ////////////////////////////////////////////////////////
     // Symbol
@@ -2092,6 +2092,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         layer.color.by = MapBy.MEASURE;
         layer.color.schema = 'VC1';
         layer.color.column = this.uiOption.fieldMeasureList[0]['alias'];
+        layer.color.name = this.uiOption.fieldMeasureList[0]['name'];
       }
       ///////////////////////////
       // Color by Dimension
@@ -2100,6 +2101,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         layer.color.by = MapBy.DIMENSION;
         layer.color.schema = 'SC1';
         layer.color.column = this.uiOption.fielDimensionList[0]['alias'];
+        layer.color.name = this.uiOption.fielDimensionList[0]['name'];
       }
 
       ////////////////////////////////////////////////////////
@@ -2118,6 +2120,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       else if( isMeasure ) {
         symbolLayer.size.by = MapBy.MEASURE;
         symbolLayer.size.column = this.uiOption.fieldMeasureList[0]['alias'];
+        symbolLayer.size.name = this.uiOption.fieldMeasureList[0]['name'];
       }
     }
     ////////////////////////////////////////////////////////
