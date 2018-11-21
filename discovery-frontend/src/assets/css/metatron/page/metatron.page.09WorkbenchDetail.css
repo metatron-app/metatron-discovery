@@ -38,6 +38,7 @@
 /**************************************************************
   Page : 워크벤치 상세 (contents)
 **************************************************************/
+.page-workbench .ddp-wrap-editor .ddp-box-layout4 .ddp-btn-close {z-index:1;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts {display:block; position:absolute; top:8px; right:8px; bottom:46px; width:auto; overflow:auto; background-color:#fff; z-index:10;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts * { font-family:'SpoqaHanSans',sans-serif}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-shortcuts .ddp-table-pop {white-space:nowrap; width:auto;}
@@ -84,9 +85,10 @@
 
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history  {display:block; position:absolute; top:8px; right:8px; bottom:46px; width:350px; overflow:auto; background-color:#fff; z-index:10;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history * { font-family:'SpoqaHanSans',sans-serif}
-.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option {float:right; position:relative; top:3px; padding-right:0;}
+.page-workbench .ddp-wrap-editor .ddp-box-layout4 .ddp-data-title {position:relative;}
+.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option {float:right; top:3px; padding-right:0;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-data-list {float:left; position:relative; top:-3px; color:#b7b9c2; font-size:12px; font-weight:normal;}
-.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search {float:left; margin-left:10px;position:relative;}
+.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search {float:left; margin-left:10px;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search a.ddp-icon-search {display:inline-block; width:12px; height:12px; background:url(../../../images/icon_search.png) no-repeat; background-position:left -27px;}
 
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-btn-close2 {display:inline-block; width:11px; height:11px; margin-left:10px; background:url(../../../images/btn_close.png) no-repeat; background-position:-24px -58px}
@@ -115,7 +117,7 @@
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-icon-del {display:inline-block; float:left; width:11px; height:12px; margin-left:10px; background:url(../../../images/icon_control.png) no-repeat; background-position:-50px -14px;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-icon-del:hover {background-position-x:-62px}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search .ddp-type-search {display:none;}
-.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search.ddp-selected .ddp-type-search{display:block; position:absolute; top:0; left:-248px; right:0; margin-top:-7px; background-color:#fff; }
+.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search.ddp-selected .ddp-type-search{display:block; position:absolute; top:9px; left:14px; right:55px; background-color:#fff; }
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-btn-more {display:inline-block; padding:10px 0; color:#4b515b; font-size:12px; text-decoration:underline;}
 
 /**************************************************************
