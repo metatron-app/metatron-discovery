@@ -77,7 +77,7 @@ public interface UserRepository extends JpaRepository<User, String>, QueryDslPre
    * @return
    */
   @RestResource(exported = false)
-  @Query("SELECT count(user) FROM User user WHERE user.username = :username AND user.status <> 'DELETED'")
+  @Query("SELECT count(user) FROM User user WHERE user.username = :username AND user.status NOT IN ('DELETED', 'REJECTED')")
   Long countByUsername(@Param("username") String username);
 
   /**
@@ -87,7 +87,7 @@ public interface UserRepository extends JpaRepository<User, String>, QueryDslPre
    * @return
    */
   @RestResource(exported = false)
-  @Query("SELECT count(user) FROM User user WHERE user.email = :email AND user.status <> 'DELETED'")
+  @Query("SELECT count(user) FROM User user WHERE user.email = :email AND user.status NOT IN ('DELETED', 'REJECTED')")
   Long countByEmail(@Param("email") String email);
 
 }
