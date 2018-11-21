@@ -117,8 +117,8 @@
   <!-- 대시보드 그릴수 없는 상황 -->
   <div *ngIf="isError" class="ddp-div-table" >
     <div class="ddp-div-tablecell">
-      <span class="ddp-txt-condition ddp-missing">Dashboard can not be loaded</span>
-      <span class="ddp-detail">We can not draw your dashboard for an unknown reason.<br>Please try again</span>
+      <span class="ddp-txt-condition ddp-missing">{{ 'msg.board.unload.title' | translate }}</span>
+      <span class="ddp-detail" [innerHTML]="'msg.board.unload.desc' | translate"></span>
       <a (click)="reloadBoard()" href="javascript:" class="ddp-btn-line"><em class="ddp-icon-refresh"></em> Reload
       </a>
     </div>

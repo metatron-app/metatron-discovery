@@ -1478,6 +1478,8 @@
   "msg.board.ui.aggregated-data" : "Aggregated data",
   "msg.board.ui.original-data" : "Original data",
   "msg.board.ui.download-data" : "Download data",
+  "msg.board.unload.title" : "Dashboard can not be loaded",
+  "msg.board.unload.desc" : "We can not draw your dashboard for an unknown reason.<br>Please try again",
 
   "msg.storage.btn.create.dsource": "Create new datasource",
   "msg.storage.ui.dsource.search.description": "Search by name of datasource",
