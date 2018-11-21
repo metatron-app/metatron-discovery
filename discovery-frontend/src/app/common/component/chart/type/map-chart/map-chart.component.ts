@@ -1005,13 +1005,27 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Create
       this.tooltipLayer = new ol.Overlay({
         element: this.tooltipEl.nativeElement,
-        positioning: 'bottom-center',
+        positioning: 'top-center',
         stopEvent: false,
-        offset: [-50, -100]
+        offset: [0, -50]
       });
 
       // Add
       this.olmap.addOverlay(this.tooltipLayer);
+    }
+
+    // set tooltip position
+    if (this.uiOption.toolTip) {
+
+      let offset = [0, -50];
+      let displayTypeList = _.filter(_.cloneDeep(this.uiOption.toolTip.displayTypes), (item) => {if (!_.isEmpty(item)) return item});
+      let columnList = this.uiOption.toolTip.displayColumns;
+
+      let addYOffset = 17 * (displayTypeList.length + columnList.length);
+
+      offset[1] = -(50 + addYOffset);
+
+      this.tooltipLayer.setOffset(offset);
     }
 
     ////////////////////////////////////////////////////////
@@ -1039,8 +1053,16 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Disable tooltip
       this.tooltipInfo.enable = false;
       this.tooltipLayer.setPosition(undefined);
+
+      // remove z-index for tooltip
+      if (!this.isPage) $(document).find('.ddp-ui-dash-contents').removeClass('ddp-tooltip');
+      else $(document).find('.ddp-view-chart-contents').removeClass('ddp-tooltip');
       return;
     }
+
+    // set z-index for tooltip
+    if (!this.isPage) $(document).find('.ddp-ui-dash-contents').addClass('ddp-tooltip');
+    else $(document).find('.ddp-view-chart-contents').addClass('ddp-tooltip');
 
     ////////////////////////////////////////////////////////
     // Layer num & name
