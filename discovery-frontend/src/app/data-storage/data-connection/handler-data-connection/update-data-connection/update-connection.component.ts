@@ -372,10 +372,10 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * Key validation focus out event
+   * Property key validation
    * @param property
    */
-  public focusOutKeyValidation(property: any): void {
+  public propertyKeyValidation(property: any): void {
     // check empty
     if (StringUtil.isEmpty(property.key)) {
       // set empty message
@@ -402,10 +402,10 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
   }
 
   /**
-   * Value validation focus out event
+   * Property value validation
    * @param property
    */
-  public focusOutValueValidation(property: any): void {
+  public propertyValueValidation(property: any): void {
     // check empty
     if (StringUtil.isEmpty(property.value)) {
       // set empty message
@@ -486,10 +486,14 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
    * @private
    */
   private _isChangedProperties(): boolean {
-    // not exist key in properties, different value
-    // not exist key in origin properties, different value
-    return (_.some(Object.keys(this._originConnectionData.properties), key => _.every(this.properties, property => key !== property.key || (key === property.key && this._originConnectionData.properties[key] !== property.value)))
-      || _.some(this.properties, property => !this._originConnectionData.properties[property.key] || property.value !== this._originConnectionData.properties[property.key]))
+    if (this._originConnectionData.properties) {
+      // not exist key in properties, different value
+      // not exist key in origin properties, different value
+      return _.some(Object.keys(this._originConnectionData.properties), key => _.every(this.properties, property => key !== property.key || (key === property.key && this._originConnectionData.properties[key] !== property.value)))
+        || _.some(this.properties, property => !this._originConnectionData.properties[property.key] || property.value !== this._originConnectionData.properties[property.key]);
+    } else {
+      return this.properties.length > 0;
+    }
   }
 
   /**
@@ -497,12 +501,10 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
    * @private
    */
   private _updateConnection(): void {
-    // is changed properties
-    const isChangedProperties = this._isChangedProperties();
     // loading show
     this.loadingShow();
     // update connection
-    this.connectionService.updateConnection(this._connectionId, isChangedProperties ? this._getUpdateAllParams() : this._getUpdateParams(), isChangedProperties)
+    this.connectionService.updateConnection(this._connectionId, this._getUpdateParams())
       .then((result) => {
         // alert
         Alert.success(this.translateService.instant('msg.comm.alert.modify.success'));
@@ -581,34 +583,13 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
     }
     // if exist properties
     if (this.properties.length !== 0) {
-      // keyStrings
-      // const keyStrings = [];
-      // // properties loop
-      // this.properties.forEach((property) => {
-      //   // check value empty
-      //   if (StringUtil.isEmpty(property.value)) {
-      //     // set empty message
-      //     property.valueValidMessage = this.translateService.instant('msg.storage.ui.required');
-      //     // set error flag
-      //     property.valueError = true;
-      //   }
-      //   // check key empty
-      //   if (StringUtil.isEmpty(property.key)) {
-      //     // set empty message
-      //     property.keyValidMessage = this.translateService.instant('msg.storage.ui.required');
-      //     // set error flag
-      //     property.keyError = true;
-      //   } else if (-1 !== keyStrings.findIndex(key => key === property.key.trim())) { // find key in keyStrings array
-      //     // set duplicate message
-      //     property.keyValidMessage = this.translateService.instant('msg.storage.ui.custom.property.duplicated');
-      //     // set error flag
-      //     property.keyError = true;
-      //   } else {
-      //     // push key in keyStrings array
-      //     keyStrings.push(property.key.trim());
-      //   }
-      // });
-
+      // properties loop
+      this.properties.forEach((property) => {
+        // check key empty
+        this.propertyKeyValidation(property);
+        // check value empty
+        this.propertyValueValidation(property);
+      });
       // if exist connection properties
       return !_.some(this.properties, property => property.keyError || property.valueError);
     }
@@ -743,44 +724,11 @@ export class UpdateConnectionComponent extends AbstractPopupComponent implements
         params['username'] = this.username.trim();
       }
     }
-    return params;
-  }
-
-  /**
-   * Get update params in PUT method
-   * @returns {Object}
-   * @private
-   */
-  private _getUpdateAllParams(): object {
-    const result = {
-      implementor: this.selectedDbType.value,
-      name: this.connectionName.trim(),
-      published: this.published,
-      authenticationType: this.selectedSecurityType.value,
-      properties: this._getPropertiesParams(this.properties)
-    };
-    // if used URL
-    if (this.isEnableUrl) {
-      result['url'] = this.url.trim();
-    } else {
-      result['hostname'] = this.hostname.trim();
-      result['username'] = this.username.trim();
-      result['password'] = this.password.trim();
-      result['port'] = this.port;
-      // if enable database
-      if (this.isRequiredDatabase()) {
-        result['database'] = this.database.trim();
-      }
-      // if enable SID
-      if (this.isRequiredSid()) {
-        result['sid'] = this.sid.trim();
-      }
-      // if enable catalog
-      if (this.isRequiredCatalog()) {
-        result['catalog'] = this.catalog.trim();
-      }
+    // if changed property
+    if (this._isChangedProperties()) {
+      params['properties'] = this._getPropertiesParams(this.properties);
     }
-    return result;
+    return params;
   }
 
   /**

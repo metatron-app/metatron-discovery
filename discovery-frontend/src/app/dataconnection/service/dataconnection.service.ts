@@ -195,8 +195,8 @@ export class DataconnectionService extends AbstractService {
   }
 
   // 커넥션 수정
-  public updateConnection(connectionId: string, param: any, isUsedPutMethod: boolean = false): Promise<any> {
-    return isUsedPutMethod ? this.put(this.API_URL + `connections/${connectionId}`, param) : this.patch(this.API_URL + `connections/${connectionId}`, param);
+  public updateConnection(connectionId: string, param: any): Promise<any> {
+    return this.patch(this.API_URL + `connections/${connectionId}`, param);
   }
 
   // 커넥션에 워크스페이스 추가

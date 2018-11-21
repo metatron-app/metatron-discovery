@@ -238,12 +238,12 @@
                     <div class="ddp-clear ddp-list-code" *ngFor="let property of properties; let i = index">
                       <div class="ddp-col-5">
                         <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.custom.property.key' | translate}}"
-                               [(ngModel)]="property.key" (ngModelChange)="property.keyError = false" (focusout)="focusOutKeyValidation(property)">
+                               [(ngModel)]="property.key" (ngModelChange)="property.keyError = false" (focusout)="propertyKeyValidation(property)">
                         <span class="ddp-data-error" *ngIf="property.keyError"> {{property.keyValidMessage}}</span>
                       </div>
                       <div class="ddp-col-7">
                         <input type="text" class="ddp-input-typebasic ddp-full" placeholder="{{'msg.storage.ph.custom.property.value' | translate}}"
-                               [(ngModel)]="property.value" (ngModelChange)="property.valueError = false" (focusout)="focusOutValueValidation(property)">
+                               [(ngModel)]="property.value" (ngModelChange)="property.valueError = false" (focusout)="propertyValueValidation(property)">
                         <span class="ddp-data-error" *ngIf="property.valueError"> {{property.valueValidMessage}}</span>
                       </div>
                       <a href="javascript:" class="ddp-icon-del" (click)="onClickRemoveProperty(i)"></a>
