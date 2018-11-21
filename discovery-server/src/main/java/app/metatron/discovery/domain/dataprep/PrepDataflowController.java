@@ -367,17 +367,15 @@ public class PrepDataflowController {
         return ResponseEntity.status(HttpStatus.SC_OK).body(dataflow);
     }
 
-    @RequestMapping(value = "/{dfId}/swap_upstream/{oldDsId}/{newDsId}/{wrangledDsId}", method = RequestMethod.POST, produces = "application/json")
+    @RequestMapping(value = "/{dfId}/swap_upstream", method = RequestMethod.POST, produces = "application/json")
     public @ResponseBody ResponseEntity<?> swapUpstream (
             @PathVariable("dfId") String dfId,
-            @PathVariable("oldDsId") String oldDsId,
-            @PathVariable("newDsId") String newDsId,
-            @PathVariable("wrangledDsId") String wrangledDsId
+            @RequestBody PrepSwapRequest swapRequest
     ) {
         PrepDataflow dataflow = dataflowRepository.findOne(dfId);
 
         try {
-            List<String> affectedDsIds = transformService.swap_upstream(dataflow, oldDsId, newDsId, wrangledDsId);
+            List<String> affectedDsIds = transformService.swap_upstream(dataflow, swapRequest);
             transformService.after_swap(affectedDsIds);
         } catch (Exception e) {
             LOGGER.error("swap_upstream(): caught an exception: ", e);

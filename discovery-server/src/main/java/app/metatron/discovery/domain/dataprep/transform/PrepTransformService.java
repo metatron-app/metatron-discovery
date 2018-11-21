@@ -546,7 +546,10 @@ public class PrepTransformService {
   }
 
   @Transactional(rollbackFor = Exception.class)
-  public List<String> swap_upstream(PrepDataflow dataflow, String oldDsId, String newDsId, String wrangledDsId) throws Exception {
+  public List<String> swap_upstream(PrepDataflow dataflow, PrepSwapRequest swapRequest) throws Exception {
+    String oldDsId = swapRequest.getOldDsId();
+    String newDsId = swapRequest.getNewDsId();
+    String wrangledDsId = swapRequest.getWrangledDsId();
     List<String> affectedDsIds = Lists.newArrayList();
     List<String> dataflowDsIds = Lists.newArrayList();
 
