@@ -109,8 +109,14 @@
         <!-- 툴팁 -->
         <div class="ddp-ui-tooltip-info" >
           <em class="ddp-icon-view-down"></em>
+          {{ 'msg.book.widget.header.savetable' | translate }}
+        </div>
+        <!--
+        <div class="ddp-ui-tooltip-info" >
+          <em class="ddp-icon-view-down"></em>
           {{ useCustomField ? ( 'msg.book.widget.header.notsavetable' | translate ) : ( 'msg.book.widget.header.savetable' | translate ) }}
         </div>
+        -->
         <!-- //툴팁 -->
       </div>
       <div *ngIf="!isGridType()" (click)="downloadChartImage()" class="ddp-box-btn2" >
