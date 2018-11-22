@@ -29,7 +29,7 @@
         <div class="ddp-box-info ddp-limitation">
           <em class="ddp-icon-info"></em>
           <span class="ddp-total"
-                [innerHTML]="'msg.page.ui.limit-msg-1' | translate : { currentCnt : resultData.data.rows.length | numberCommas , maxCnt : resultData.data.info.totalCategory | numberCommas }" ></span>
+                [innerHTML]="'msg.page.ui.limit-msg-1' | translate : { currentCnt : resultData.data.columns[0].value.length | numberCommas , maxCnt : resultData.data.info.totalCategory | numberCommas }" ></span>
           {{'msg.page.ui.limit-msg-2' | translate}}
         </div>
         <!-- box info -->

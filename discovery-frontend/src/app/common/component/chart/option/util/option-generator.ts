@@ -172,9 +172,12 @@ export namespace OptionGenerator {
         console.info('스타일 초기화 실패 => ', type);
         break;
     }
+
     // set default limit
-    uiOption.limitCheck = true;
-    uiOption.limit = OptionGenerator.defaultLimit( type );
+    if( type !== ChartType.SANKEY && type !== ChartType.NETWORK && type !== ChartType.GAUGE && type !== ChartType.TREEMAP ) {
+      uiOption.limitCheck = true;
+      uiOption.limit = OptionGenerator.defaultLimit( type );
+    }
 
     console.info('== initUiOption ==');
     console.info(uiOption);

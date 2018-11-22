@@ -3646,8 +3646,8 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
         this.initGridChart();
 
         // Set Limit Info
-        if (!isNullOrUndefined(data.rows) && !isNullOrUndefined(data.info)) {
-          this.isShowLimitInfo = data.rows.length < data.info.totalCategory;
+        if (!isNullOrUndefined(data.columns) && !isNullOrUndefined(data.info)) {
+          this.isShowLimitInfo = data.columns[0].value.length < data.info.totalCategory;
         }
 
         // 라인차트이고 고급분석 예측선 사용하는 경우

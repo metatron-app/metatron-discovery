@@ -998,7 +998,8 @@
       <!-- //[파이] wrap divide -->
 
       <!-- Set Limit -->
-      <div class="ddp-wrap-divide" >
+      <div *ngIf="'network' !== uiOption.type.toString() && 'sankey' !== uiOption.type.toString()
+      && 'gauge' !== uiOption.type.toString() && 'treemap' !== uiOption.type.toString() " class="ddp-wrap-divide" >
         <!-- divide -->
         <div class="ddp-divide2">
           <div class="ddp-wrap-express" >

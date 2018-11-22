@@ -1344,13 +1344,13 @@ export class PageWidgetComponent extends AbstractWidgetComponent implements OnIn
         }
 
         // Set Limit Info
-        if (!isNullOrUndefined(data.rows) && !isNullOrUndefined(data.info)) {
-          this.isShowLimitInfo = data.rows.length < data.info.totalCategory;
+        if (!isNullOrUndefined(data.columns) && !isNullOrUndefined(data.info)) {
+          this.isShowLimitInfo = data.columns[0].value.length < data.info.totalCategory;
           if (this.layoutMode === LayoutMode.EDIT ) {
             this.broadCaster.broadcast('WIDGET_LIMIT_INFO', {
               id: this.widget.id,
               isShow: this.isShowLimitInfo,
-              currentCnt: data.rows.length,
+              currentCnt: data.columns[0].value.length,
               maxCnt: data.info.totalCategory
             });
           }
