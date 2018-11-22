@@ -823,6 +823,58 @@ em.ddp-icon-measure-polygon {width:13px; height:13px; background-position:-14px 
 em.ddp-icon-measure-line {width:10px; height:12px; background-position:-11px -14px;}
 em.ddp-icon-measure-point {width:9px; height:12px; background-position:-10px -27px;}
 
+
+em.ddp-icon-type-calen,
+em.ddp-icon-type-ab,
+em.ddp-icon-type-local,
+em.ddp-icon-type-sharp,
+em.ddp-icon-type-account,
+em.ddp-icon-type-tf,
+em.ddp-icon-type-maplink,
+em.ddp-icon-type-float,
+em.ddp-icon-type-int,
+em.ddp-icon-type-latitude,
+em.ddp-icon-type-longitude,
+em.ddp-icon-type-array,
+em.ddp-icon-type-map,
+em.ddp-icon-type-phone,
+em.ddp-icon-type-email,
+em.ddp-icon-type-gender,
+em.ddp-icon-type-url,
+em.ddp-icon-type-zipcode,
+em.ddp-icon-type-private,
+em.ddp-icon-type-image,
+em.ddp-icon-type-binary,
+em.ddp-icon-type-spatial,
+em.ddp-icon-type-etc,
+em.ddp-icon-type-point,
+em.ddp-icon-type-line,
+em.ddp-icon-type-polygon{display:inline-block; position:absolute; top:50%; left:10px; width:13px; height:9px; margin-top:-5px; background:url(../../../images/icon_valuetype.png) no-repeat; vertical-align:middle;}
+em.ddp-icon-type-local {width:9px; height:12px; margin-top:-6px; background-position:left -10px;}
+em.ddp-icon-type-sharp {width:15px; height:8px; margin-top:-4px; background-position:left -23px;}
+em.ddp-icon-type-account {width:11px; height:12px; margin-top:-6px; background-position:left -32px;}
+em.ddp-icon-type-maplink {width:10px; height:10px; margin-top:-5px; background-position:left -54px;}
+em.ddp-icon-type-tf {width:14px; height:9px; background-position:left -45px;}
+em.ddp-icon-type-float {width:16px; height:8px; background-position:left -96px;}
+em.ddp-icon-type-int {width:8px; height:8px; background-position:left -87px;}
+em.ddp-icon-type-calen {width:11px; height:11px; margin-top:-6px; background-position:left -74px;}
+em.ddp-icon-type-latitude  {width:11px; height:11px; margin-top:-6px; background-position:left -119px;}
+em.ddp-icon-type-longitude {width:11px; height:11px; margin-top:-6px; background-position:left -131px;}
+em.ddp-icon-type-array {width:8px; height:10px; margin-top:-5px; background-position:left -107px;}
+em.ddp-icon-type-map {width:14px; height:10px; margin-top:-5px; background-position:left -143px;}
+em.ddp-icon-type-phone {width:13px; height:13px; margin-top:-7px; background-position:left -154px;}
+em.ddp-icon-type-email {width:12px; height:12px; margin-top:-6px; background-position:left -168px;}
+em.ddp-icon-type-gender {width:11px; height:11px; margin-top:-6px; background-position:left -181px;}
+em.ddp-icon-type-url {width:15px; height:9px; margin-top:-5px; background-position:left -193px;}
+em.ddp-icon-type-zipcode {width:16px; height:7px; margin-top:-4px; background-position:left -203px;}
+em.ddp-icon-type-private {width:11px; height:12px; margin-top:-6px; background-position:left -211px;}
+em.ddp-icon-type-image {width:11px; height:10px; background-position:left -224px;}
+em.ddp-icon-type-binary {width:9px; height:11px; background-position:left -235px;}
+em.ddp-icon-type-spatial {width:11px; height:12px; background-position:left -247px;}
+em.ddp-icon-type-etc {width:14px; height:7px; background-position:left -260px;}
+em.ddp-icon-type-point {width:9px; height:12px; background-position:left -268px;}
+em.ddp-icon-type-line {width:10px; height:12px; background-position:left -281px;}
+em.ddp-icon-type-polygon {width:13px; height:13px; background-position:left -294px;}
 /**************************************************************
 	대시보드, 차트 rnb 메뉴 아이콘
 **************************************************************/
