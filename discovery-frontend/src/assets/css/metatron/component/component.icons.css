@@ -374,9 +374,6 @@ em.ddp-icon-sclose2:hover {background-position:-9px -94px;}
 
 
 
-em.ddp-icon-link-edit {width:12px; height:12px; background-position:-26px -97px;}
-em.ddp-icon-link-edit2 {width:12px; height:12px; background-position:-39px -97px;}
-em.ddp-icon-link-down {width:13px; height:13px; background-position:left -230px;}
 
 em.ddp-icon-link-add {display:inline-block; width:9px; height:9px; margin-right:5px; background:url(../../../images/icon_add.png) no-repeat; background-position:-20px top; vertical-align: middle;}
 
@@ -400,6 +397,10 @@ em.ddp-icon-link-cut {position:relative; top:-1px; width:12px; height:13px; back
 em.ddp-icon-link-cut2 {position:relative; top:-1px; width:11px; height:12px; background-position:-62px -14px;}
 em.ddp-icon-link-cut2.ddp-disabled,
 em.ddp-icon-link-cut2.ddp-disabled:hover {background-position:-26px -14px; opacity:0.5; cursor:no-drop;}
+
+em.ddp-icon-link-edit {width:12px; height:12px; background-position:-26px -97px;}
+em.ddp-icon-link-edit2 {width:12px; height:12px; background-position:-39px -97px;}
+em.ddp-icon-link-down {width:13px; height:13px; background-position:left -230px;}
 
 em.ddp-icon-upload,
 em.ddp-icon-download {display:inline-block; background:url(../../../images/icon_control.png) no-repeat;}

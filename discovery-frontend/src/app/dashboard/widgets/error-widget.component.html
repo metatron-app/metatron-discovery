@@ -2,7 +2,8 @@
 <!-- Error 표시 영역 -->
 <div *ngIf="isShow" class="ddp-view-widget ddp-view-widget-grid">
   <!-- Error Detail -->
-  <div *ngIf="errorInfo && errorInfo.show" (click)="errorInfo.show = false" class="ddp-ui-error-detail" >
+  <div *ngIf="errorInfo && errorInfo.show" (mousedown)="errorInfo.show = false" class="ddp-ui-error-detail" >
+    <a href="javascript:" class="ddp-btn-close"></a>
     <dl>
       <dt>code :</dt>
       <dd>{{errorInfo.code}}</dd>

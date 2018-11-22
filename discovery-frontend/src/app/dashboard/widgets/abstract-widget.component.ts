@@ -136,10 +136,15 @@ export abstract class AbstractWidgetComponent extends AbstractComponent implemen
    * @param {{show:boolean, code:string, details:string}} error
    */
   protected _showError(error: { show?: boolean, code?: string, details?: string }) {
-    (isNullOrUndefined(error)) && (error = {});
-    error.show = false;
-    this.errorInfo = error;
+    if( this.isEditMode ) {
+      this.commonExceptionHandler(error);
+    } else {
+      (isNullOrUndefined(error)) && (error = {});
+      error.show = false;
+      this.errorInfo = error;
+    }
     this.isError = true;
+
   } // function - _showError
 
   /**

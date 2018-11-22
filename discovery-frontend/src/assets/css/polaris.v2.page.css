@@ -1842,6 +1842,7 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-div-tablecell .ddp-btn-line {padding:9px 19px;}
 
 .ddp-view-widget .ddp-ui-error-detail {position:absolute; top:0; left:0; right:0; bottom:0; padding:30px 28px; background-color:#eeeef0; z-index:1; overflow:auto; cursor:default;}
+.ddp-view-widget .ddp-ui-error-detail .ddp-btn-close {display:inline-block; position:absolute; top:20px; right:20px; width:16px; height:16px; background:url(../images/btn_close.png) no-repeat; background-position:left -17px; }
 .ddp-view-widget .ddp-ui-error-detail dl + dl {margin-top:20px;}
 .ddp-view-widget .ddp-ui-error-detail dl dt {color:#6f737a; font-weight:bold; font-size:13px;}
 .ddp-view-widget .ddp-ui-error-detail dl dd {color:#6f737a; font-size:13px; line-height:18px;}
@@ -5868,7 +5869,6 @@ ul.ddp-list-form-join li em.ddp-icon-control-cut {position:absolute; top:5px; ri
 .ddp-wrap-errortxt {position:absolute; top:0; left:0; right:0; bottom:0; text-align: center;}
 .ddp-wrap-errortxt:before {content: ""; display: inline-block; width: 1px; height: 100%; margin-right: 0; vertical-align: middle;}
 .ddp-txt-error {display: inline-block; color:#ca4b4b; font-size:13px;}
-.ddp-txt-error em.ddp-icon-error {display:inline-block; position:relative; top:-1px; width:15px; height:15px; margin-right:6px; background:url(../images/icon_error.png) no-repeat; vertical-align: middle;}
 .ddp-txt-error em.ddp-icon-error-s {margin-right:8px; background-position:-16px 0;}
 .ddp-type-selectbox.ddp-type {position:relative; padding-left:28px; height:28px; box-sizing:border-box;}
 .ddp-type-selectbox.ddp-type ul.ddp-list-selectbox {position:relative; bottom:inherit; box-shadow:none; border:none;}
