@@ -501,7 +501,9 @@ export enum EventType {
   // filter changed
   FILTER = <any>'filter',
   // change pivot alias
-  PIVOT_ALIAS = <any>'pivotAlias'
+  PIVOT_ALIAS = <any>'pivotAlias',
+  // change dashboard alias
+  DASHBOARD_ALIAS = <any>'dashboardAlias'
 }
 
 /**

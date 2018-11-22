@@ -3143,7 +3143,21 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
     delete changeField.pivot;
     this.changeFieldAliasEvent.emit(changeField);
     this.setDatasourceFields(true);
-    this.drawChart();
+    //this.drawChart();
+
+    if( _.eq(this.selectChart, ChartType.MAP) ) {
+      this.onChangeShelf({
+        shelf: this.shelf,
+        eventType: EventType.DASHBOARD_ALIAS
+      });
+    }
+    else {
+      this.onChangeShelf({
+        shelf: this.pivot,
+        eventType: EventType.DASHBOARD_ALIAS
+      });
+    }
+
   } // function - changeDatasourceFieldAlias
 
   /**
