@@ -323,9 +323,11 @@ export class AddColumnComponent extends AbstractComponent {
     };
     // if method type Expression
     if (this.selectedMethodType.value === LogicalType.USER_DEFINED) {
+      column['type'] = LogicalType.STRING;
       column['logicalType'] = LogicalType.STRING;
       column.derivationRule['expr'] = this.expression.trim();
     } else { // if method type not Expression
+      column['type'] = LogicalType.STRUCT;
       column['logicalType'] = this.selectedMethodType.value;
       // add format
       column['format'] = {
