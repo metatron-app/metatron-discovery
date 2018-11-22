@@ -822,20 +822,26 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ////////////////////////////////////////////////////////
 
       let featureSize = 5;
-      if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
-        featureSize = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / 30);
-        if(featureSize < 5) {
-          featureSize = 5;
+      try {
+        if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
+          featureSize = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / 30);
+          if(featureSize < 5) {
+            featureSize = 5;
+          }
         }
       }
+      catch(error) { }
 
       let lineThickness = 2;
-      if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
-        lineThickness = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / lineMaxVal);
-        if(lineThickness < 1) {
-          lineThickness = 1;
+      try {
+        if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
+          lineThickness = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / lineMaxVal);
+          if(lineThickness < 1) {
+            lineThickness = 1;
+          }
         }
       }
+      catch(error) { }
 
       ////////////////////////////////////////////////////////
       // Creation style
@@ -1148,21 +1154,26 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         ////////////////////////////////////////////////////////
 
         let featureSize = 5;
-        if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
-          featureSize = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / 30);
-          if(featureSize < 5) {
-            featureSize = 5;
+        try {
+          if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
+            featureSize = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / 30);
+            if(featureSize < 5) {
+              featureSize = 5;
+            }
           }
         }
+        catch(error) { }
 
         let lineThickness = 2;
-        if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
-          lineThickness = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / lineMaxVal);
-          if(lineThickness < 1) {
-            lineThickness = 1;
+        try {
+          if( _.eq(layerType, MapLayerType.SYMBOL) && _.eq(featureSizeType, MapBy.MEASURE) ) {
+            lineThickness = parseInt(feature.get(scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column))) / (styleData.valueRange[scope.getFieldAlias((<UISymbolLayer>styleLayer).size.column)].maxValue / lineMaxVal);
+            if(lineThickness < 1) {
+              lineThickness = 1;
+            }
           }
         }
-
+        catch(error) { }
 
         ////////////////////////////////////////////////////////
         // Creation style
@@ -2112,7 +2123,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       ///////////////////////////
       // Size by None
       ///////////////////////////
-      if( isNone ) {
+      if( isNone || !isMeasure ) {
         symbolLayer.size.by = MapBy.NONE;
       }
       ///////////////////////////
@@ -2167,23 +2178,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
   }
 
   /**
-   * Get field alias
-   * @param field
-   */
-  private getAlias(field): string {
-
-    let alias1: string = field['name'];
-    let alias2: string = field['fieldAlias'] ? field['fieldAlias'] : "";
-    let alias3: string = field['pivotAlias'] ? field['pivotAlias'] : "";
-    if( field.aggregationType && field.aggregationType != "" ) {
-      alias1 = field.aggregationType +"("+ alias1 +")";
-      alias2 = alias2 ? field.aggregationType +"("+ alias2 +")" : "";
-    }
-    let alias: string = alias3 ? alias3 : alias2 ? alias2: alias1;
-    return alias;
-  }
-
-  /**
    * Get field name to alias
    * @param name
    */
@@ -2193,7 +2187,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     _.each(this.shelf.layers, (shelf) => {
       _.each(shelf, (field) => {
         if( _.eq(name, field['name']) ) {
-          alias = this.getAlias(field);
+          alias = ChartUtil.getAlias(field);
           return false;
         }
       });
