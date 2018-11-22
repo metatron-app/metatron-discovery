@@ -8383,16 +8383,17 @@ em.ddp-icon-mapview3-w:before {background-position-x:0;}
 .ddp-ui-shelf em.ddp-icon-mapview2:before,
 .ddp-ui-shelf em.ddp-icon-mapview3:before {position:absolute; top:50%; left:50%; margin:-8px 0 0 -9px;}
 
-.ddp-map-tooltip  {display:block; position:absolute; top:0; left:0; max-width:257px; padding:9px; box-sizing:border-box;z-index:10;}
-.ddp-map-tooltip .ddp-table-info {table-layout:fixed; }
-.ddp-map-tooltip .ddp-table-info tr td {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
-.ddp-map-tooltip .ddp-label {display:block; padding-bottom:6px; color:#fff; font-size:16px; font-weight:bold; vertical-align:Middle;}
+.ddp-map-tooltip  {display:block; position:absolute; top:0; left:0; max-width:300px; padding:9px; box-sizing:border-box;z-index:10;}
+.ddp-map-tooltip .ddp-label {display:block; padding-bottom:6px; color:#fff; font-size:14px; font-weight:bold; vertical-align:middle;}
 .ddp-map-tooltip .ddp-label [class*="ddp-icon-mapview"] {margin-right:5px;}
-.ddp-table-info {width:100%;}
-.ddp-table-info tr th {color:#d0d1d8; font-size:13px; font-weight:normal; text-align:left;}
-.ddp-table-info tr td {color:#fff; font-size:13px; }
-.ddp-table-info tr + tr th,
-.ddp-table-info tr + tr td {padding-top:6px;}
+
+
+.ddp-map-tooltip .ddp-data-tooltip + .ddp-data-tooltip{padding:8px 0 0 0;}
+.ddp-map-tooltip .ddp-data-tooltip dt {color:#d0d1d8; font-size:13px; font-weight:normal; text-align:left; white-space:normal;}
+.ddp-map-tooltip .ddp-data-tooltip dd {color:#fff; font-size:13px; white-space:normal;}
+
+
+
 .ddp-list-datavalue > li {position:relative; padding:5px 28px 5px 10px; background-color:#eeeef0; color:#4a525c; font-size:13px; cursor:pointer;}
 .ddp-list-datavalue > li + li {margin-top:2px;}
 .ddp-list-datavalue li em[class*="ddp-icon-dimension-"],
@@ -8541,9 +8542,11 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 /**************************************************************
   Page : 대시보드
 **************************************************************/
-.ddp-box-widget .ddp-top-control .ddp-ui-buttons em.ddp-icon-widget-info2:before{display:inline-block; position:absolute; top:50%; left:50%; margin:-7px 0 0 -7px; width:13px; height:13px; background:url(../images/icon_widget.png) no-repeat; background-position:left -230px; content:'';}
-.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2:hover em.ddp-icon-widget-info2:before  {background-position:-14px -230px;}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons em.ddp-icon-widget-info2:before{display:inline-block; position:absolute; top:50%; left:50%; margin:-7px 0 0 -7px; width:15px; height:14px; background:url(../images/icon_widget.png) no-repeat; background-position:left -244px; content:'';}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2:hover em.ddp-icon-widget-info2:before  {background-position:-16px -244px;}
 .ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2 .ddp-box-info.ddp-limitation {display:none;position:absolute; top:100%; right:-100px;padding:6px 10px; width:240px; border-radius:3px;background-color:#7182ba; color:#fff; box-sizing:border-box; z-index:1000;}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2 .ddp-box-info.ddp-limitation .ddp-total {display:block;padding-bottom:4px;}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2 .ddp-box-info.ddp-limitation .ddp-total strong {display:block;}
 .ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2:hover .ddp-box-info.ddp-limitation {display:block;}
 
 

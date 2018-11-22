@@ -442,7 +442,6 @@ ul.ddp-list-popup li a span.ddp-column-type [class*="ddp-icon"],
 .ddp-ui-selected-option.ddp-selected .ddp-types ul.ddp-list-popup li:hover .ddp-wrap-popup2 {display:block;}
 
 
-
 em.ddp-icon-basic-calen,
 em.ddp-icon-basic-ab,
 em.ddp-icon-basic-local,
@@ -479,122 +478,8 @@ table.ddp-table-form tr th .ddp-wrap-hover-info:hover .ddp-box-layout4 {display:
 .ddp-box-layout4 .ddp-data-det > ul {padding:25px 0 0 0;}
 table.ddp-table-form tr td .ddp-wrap-long .ddp-box-tag {position:relative; top:3px; margin-right:13px;}
 
-em.ddp-icon-dimension-ab,
-em.ddp-icon-dimension-local,
-em.ddp-icon-dimension-calen,
-em.ddp-icon-dimension-sharp,
-em.ddp-icon-dimension-float,
-em.ddp-icon-dimension-tf,
-em.ddp-icon-dimension-account,
-em.ddp-icon-dimension-maplink,
-em.ddp-icon-dimension-int,
-em.ddp-icon-dimension-latitude,
-em.ddp-icon-dimension-longitude,
-em.ddp-icon-dimension-array,
-em.ddp-icon-measure-ab,
-em.ddp-icon-measure-local,
-em.ddp-icon-measure-calen,
-em.ddp-icon-measure-sharp,
-em.ddp-icon-measure-float,
-em.ddp-icon-measure-tf,
-em.ddp-icon-measure-account,
-em.ddp-icon-measure-maplink ,
-em.ddp-icon-measure-int,
-em.ddp-icon-measure-latitude,
-em.ddp-icon-measure-longitude,
-em.ddp-icon-measure-array{display:inline-block; background:url(../images/icon_valuetype.png) no-repeat; vertical-align:middle; font-size:0px;}
-
-em.ddp-icon-dimension-ab {width:13px; height:9px; background-position:-28px top;}
-em.ddp-icon-dimension-local {width:9px; height:11px; background-position:-20px -10px;}
-em.ddp-icon-dimension-calen {width:11px; height:11px; background-position:-24px -74px;}
-em.ddp-icon-dimension-sharp {width:15px; height:8px; background-position:-47px -23px;}
-em.ddp-icon-dimension-float {width:16px; height:8px; background-position:-33px -96px;}
-em.ddp-icon-dimension-tf {width:14px; height:8px; background-position:-30px -45px;}
-em.ddp-icon-dimension-account {width:10px; height:12px; background-position:-23px -32px;}
-em.ddp-icon-dimension-maplink {width:10px; height:10px; background-position:-22px -54px;}
-em.ddp-icon-dimension-int  {width:8px; height:8px; background-position:-17px -87px;}
-em.ddp-icon-dimension-latitude {width:11px; height:11px; background-position:-24px -119px;}
-em.ddp-icon-dimension-longitude {width:11px; height:11px; background-position:-24px -131px;}
-em.ddp-icon-dimension-array {width:8px; height:12px; background-position:-18px -106px;}
-
-em.ddp-icon-measure-ab {width:13px; height:9px; background-position:-56px top;}
-em.ddp-icon-measure-local {width:9px; height:11px; background-position:-30px -10px;}
-em.ddp-icon-measure-calen {width:11px; height:11px; background-position:-48px -74px;}
-em.ddp-icon-measure-float {width:16px; height:8px; background-position:-50px -96px;}
-em.ddp-icon-measure-tf {width:14px; height:8px; background-position:-45px -45px;}
-em.ddp-icon-measure-sharp {width:15px; height:8px; background-position:-31px -23px;}
-em.ddp-icon-measure-account {width:10px; height:12px; background-position:-34px -32px;}
-em.ddp-icon-measure-maplink  {width:10px; height:10px; background-position:-33px -54px;}
-em.ddp-icon-measure-int  {width:8px; height:8px; background-position:-26px -87px;}
-em.ddp-icon-measure-latitude  {width:11px; height:11px; background-position:-36px -119px;}
-em.ddp-icon-measure-longitude {width:11px; height:11px; background-position:-36px -131px;}
-em.ddp-icon-measure-array  {width:8px; height:12px;  background-position:-27px -106px;}
-
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-ab,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-ab,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-ab {background-position-x:-14px;}
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-local,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-local,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-local {background-position-x:-10px;}
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-calen,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-calen,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-calen {background-position-x:-12px;}
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-sharp,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-sharp,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-sharp {background-position-x:-16px;}
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-float,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-float ,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-float{background-position-x:-17px;}
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-tf,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-tf ,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-tf{background-position-x:-15px;}
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-account,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-account,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-account {background-position-x:-11px;}
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-maplink,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-maplink,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-maplink {background-position-x:-11px;}
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-int,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-int ,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-int  {background-position-x:-9px;}
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-latitude,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-latitude,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-latitude  {background-position-x:-12px;}
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-longitude,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-longitude,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-longitude {background-position-x:-12px;}
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-dimension-array,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-measure-array,
-ul.ddp-list-filter li.ddp-selected a em.ddp-icon-basic-array {background-position-x:-9px;}
 
 
-em.ddp-icon-map-view {display:inline-block; position:absolute; top:5px; left:0; background:url(../images/icon_valuetype_map.png) no-repeat;}
-em.ddp-icon-map-view-w  {display:inline-block; position:relative;  top:1px; margin-right:5px;background:url(../images/icon_valuetype_map.png) no-repeat; vertical-align:top;}
-em.ddp-icon-polygon-w {width:13px; height:13px; background-position:-28px top;}
-em.ddp-icon-line-w {width:10px; height:12px; background-position:-22px -14px;}
-em.ddp-icon-point-w {width:10px; height:12px; background-position:-20px -27px;}
-
-em.ddp-icon-dimension-polygon,
-em.ddp-icon-dimension-line,
-em.ddp-icon-dimension-point,
-em.ddp-icon-measure-polygon,
-em.ddp-icon-measure-line,
-em.ddp-icon-measure-point{display:inline-block; background:url(../images/icon_valuetype_map.png) no-repeat;}
-em.ddp-icon-dimension-polygon {width:13px; height:13px;}
-em.ddp-icon-dimension-line {width:10px; height:12px; background-position:left -14px;}
-em.ddp-icon-dimension-point {width:9px; height:12px; background-position:left -27px;}
-em.ddp-icon-measure-polygon {width:13px; height:13px; background-position:-14px top;}
-em.ddp-icon-measure-line {width:10px; height:12px; background-position:-11px -14px;}
-em.ddp-icon-measure-point {width:9px; height:12px; background-position:-10px -27px;}
-
-em.ddp-icon-filterSc {display:inline-block; width:9px; height:10px; background:url(../images/icon_filterSc.png) no-repeat;}
-
-ul.ddp-list-popup li a em.ddp-icon-type-calen3,
-ul.ddp-list-popup li a em.ddp-icon-type-text { position:absolute; left:10px; top:50%; margin-top:-6px;}
-em.ddp-icon-type-calen3,
-em.ddp-icon-type-text {display:inline-block; background:url(../images/icon_type.png) no-repeat; }
-em.ddp-icon-type-calen3 {width:11px; height:11px;}
-em.ddp-icon-type-text {width:10px; height:11px;background-position:left -12px;}
 
 /**************************************************************
 	hover selectbox
