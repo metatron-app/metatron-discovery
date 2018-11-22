@@ -104,7 +104,7 @@
                   <!-- //line -->
                   <!-- point -->
                   <em class="ddp-icon-dimension-point ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'GEO_POINT'"></em>
-                    {{item.name}}
+                    {{item.alias}}
                 </span>
                 <em class="ddp-icon-listdelete" (click)="deleteSelectedField(index)"></em>
               </li>
@@ -155,7 +155,7 @@
                       <!-- //line -->
                       <!-- point -->
                       <em class="ddp-icon-dimension-point ddp-icon-map-view" *ngIf="item?.type !== 'user_expr' && item['logicalType']?.toString() === 'GEO_POINT'"></em>
-                      <span class="ddp-txt-name">{{item.name}}</span>
+                      <span class="ddp-txt-name">{{item.alias}}</span>
                     </a>
                   </li>
                 </ul>

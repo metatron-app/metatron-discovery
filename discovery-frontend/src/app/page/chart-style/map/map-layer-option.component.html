@@ -98,7 +98,7 @@
                           <!-- SELECTBOX -->
                           <component-select
                             [array]="uiOption.fielDimensionList"
-                            [defaultIndex]="findIndex(uiOption.fielDimensionList, 'alias', uiOption.layers[index].color.column)"
+                            [defaultIndex]="findIndex(uiOption.fielDimensionList, 'name', uiOption.layers[index].color.column)"
                             [viewKey]="'alias'"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
@@ -110,7 +110,7 @@
                           <!-- SELECTBOX -->
                           <component-select
                             [array]="uiOption.fieldMeasureList"
-                            [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'alias', uiOption.layers[index].color.column)"
+                            [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'name', uiOption.layers[index].color.column)"
                             [viewKey]="'alias'"
                             (onSelected)="changeColorColumn($event)"
                           ></component-select>
@@ -207,7 +207,7 @@
                         <!-- SELECTBOX -->
                         <component-select
                           [array]="uiOption.fieldMeasureList"
-                          [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'alias', uiOption.layers[index].size.column)"
+                          [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'name', uiOption.layers[index].size.column)"
                           [viewKey]="'alias'"
                           (onSelected)="changeSizeColumn($event)"
                         ></component-select>
@@ -399,7 +399,7 @@
                         <!-- SELECTBOX -->
                         <component-select
                           [array]="uiOption.fieldMeasureList"
-                          [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'alias', uiOption.layers[index].thickness.column)"
+                          [defaultIndex]="findIndex(uiOption.fieldMeasureList, 'name', uiOption.layers[index].thickness.column)"
                           [viewKey]="'alias'"
                           (onSelected)="changeStrokeBy($event)"
                         ></component-select>

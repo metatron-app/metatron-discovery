@@ -40,7 +40,7 @@ interface SymbolColor {
   // Color specification criteria
   by?: MapBy;
 
-  // Column Alias (setting alias)
+  // Column Name
   column?: string;
 
   // Color code or schema code
@@ -64,7 +64,4 @@ interface SymbolColor {
 
   // color by measure custom color setting
   ranges?: ColorRange[];
-
-  // Column Name (setting original name)
-  name?: string;
 }
