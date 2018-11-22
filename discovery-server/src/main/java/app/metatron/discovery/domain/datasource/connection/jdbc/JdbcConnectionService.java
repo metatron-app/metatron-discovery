@@ -28,31 +28,50 @@
 
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
+import app.metatron.discovery.common.datasource.DataType;
+import app.metatron.discovery.common.datasource.LogicalType;
+import app.metatron.discovery.common.exception.ResourceNotFoundException;
+import app.metatron.discovery.domain.datasource.Field;
+import app.metatron.discovery.domain.datasource.connection.ConnectionRequest;
+import app.metatron.discovery.domain.datasource.connection.DataConnection;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.*;
+import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
+import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
+import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
+import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.user.CachedUserService;
+import app.metatron.discovery.domain.user.User;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
+import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
+import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
+import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
+import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
+import app.metatron.discovery.util.AuthUtils;
+import app.metatron.discovery.util.PolarisUtils;
+import com.facebook.presto.jdbc.PrestoArray;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import com.facebook.presto.jdbc.PrestoArray;
-
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.Between;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.Limit;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.util.SelectUtils;
 import net.sf.jsqlparser.util.cnfexpression.MultiAndExpression;
 import net.sf.jsqlparser.util.cnfexpression.MultiOrExpression;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -71,55 +90,14 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Component;
 import org.supercsv.prefs.CsvPreference;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
+import java.sql.*;
 import java.sql.Date;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import javax.sql.DataSource;
-
-import app.metatron.discovery.common.datasource.DataType;
-import app.metatron.discovery.common.datasource.LogicalType;
-import app.metatron.discovery.common.exception.ResourceNotFoundException;
-import app.metatron.discovery.domain.datasource.Field;
-import app.metatron.discovery.domain.datasource.connection.ConnectionRequest;
-import app.metatron.discovery.domain.datasource.connection.DataConnection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeCurrentDatetimeExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDateFormatExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeEqExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeOrderExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeProjection;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.utils.VarGenerator;
-import app.metatron.discovery.domain.datasource.data.CandidateQueryRequest;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.BatchIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.JdbcIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.LinkIngestionInfo;
-import app.metatron.discovery.domain.datasource.ingestion.jdbc.SelectQueryBuilder;
-import app.metatron.discovery.domain.engine.EngineProperties;
-import app.metatron.discovery.domain.user.CachedUserService;
-import app.metatron.discovery.domain.user.User;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSource;
-import app.metatron.discovery.domain.workbench.util.WorkbenchDataSourceUtils;
-import app.metatron.discovery.domain.workbook.configurations.filter.Filter;
-import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFilter;
-import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
-import app.metatron.discovery.util.AuthUtils;
-import app.metatron.discovery.util.PolarisUtils;
 
 import static app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection.CURRENT_DATE_FORMAT;
 import static java.util.stream.Collectors.toList;
@@ -1245,128 +1223,12 @@ public class JdbcConnectionService {
     Select select = null;
     PlainSelect selectBody;
     try{
-      if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
-        String database = ingestionInfo.getDatabase();
-        String table = ingestionInfo.getQuery();
-        String tableName = (!table.contains(".") && database != null) ? database + "." + table : table;
-        select = SelectUtils.buildSelectFromTable(new Table(tableName));
-      } else {
-        net.sf.jsqlparser.statement.Statement parsedStmt = CCJSqlParserUtil.parse(ingestionInfo.getQuery());
-        if(!(parsedStmt instanceof Select)){
-          throw new JSQLParserException("query is not select");
-        }
-
-        select = (Select) parsedStmt;
-      }
-
+      select = createSelect(ingestionInfo);
       selectBody = (PlainSelect) select.getSelectBody();
-
-      if (CollectionUtils.isNotEmpty(fields)) {
-        //change projection
-        List<SelectItem> newSelectItems = Lists.newArrayList();
-        for(Field field : fields){
-          //
-          if(field.isNotPhysicalField()) {
-            continue;
-          }
-
-          DataConnection.Implementor implementor = DataConnection.Implementor.getImplementor(realConnection);
-          String columnName;
-          if (Field.COLUMN_NAME_CURRENT_DATETIME.equals(field.getName()) && field.getRole() == Field.FieldRole.TIMESTAMP) {
-            NativeCurrentDatetimeExp nativeCurrentDatetimeExp = new NativeCurrentDatetimeExp(field.getName());
-            columnName = nativeCurrentDatetimeExp.toSQL(implementor);
-          } else if (StringUtils.isEmpty(field.getTimeFormat()) &&
-                  (field.getRole() == Field.FieldRole.TIMESTAMP ||
-                          (field.getRole() == Field.FieldRole.DIMENSION && field.getType() == DataType.TIMESTAMP))) {
-            NativeDateFormatExp nativeDateFormatExp = new NativeDateFormatExp(field.getName(), null);
-            columnName = nativeDateFormatExp.toSQL(implementor);
-            field.setFormat(NativeDateFormatExp.COMMON_DEFAULT_DATEFORMAT);
-          } else {
-            columnName = NativeProjection.getQuotedColumnName(implementor, field.getName());
-          }
-
-          SelectExpressionItem selectExpressionItem = new SelectExpressionItem(new Column(columnName));
-//          selectExpressionItem.setAlias(new Alias(field.getAlias()));
-          newSelectItems.add(selectExpressionItem);
-        }
-        selectBody.setSelectItems(newSelectItems);
-      }
-
-      if (filters != null && !filters.isEmpty()) {
-        List<Expression> andExprList = new ArrayList<>();
-        for (Filter filter : filters) {
-          //Inclusion Filter
-          if (filter instanceof InclusionFilter) {
-            List<String> valueList = ((InclusionFilter) filter).getValueList();
-            if (valueList != null) {
-              List<Expression> inclusionExprList = new ArrayList<>();
-              for (String value : valueList) {
-                EqualsTo equalsTo = new EqualsTo();
-                equalsTo.setLeftExpression(new Column(filter.getColumn()));
-                equalsTo.setRightExpression(new StringValue(value));
-                inclusionExprList.add(equalsTo);
-              }
-              andExprList.add(new MultiOrExpression(inclusionExprList));
-            }
-
-            // Interval Filter
-          } else if (filter instanceof IntervalFilter) {
-            IntervalFilter.SelectorType selectorType = ((IntervalFilter) filter).getSelector();
-
-            //최신 유형일 경우
-            if (selectorType == IntervalFilter.SelectorType.RELATIVE) {
-              DateTime startDateTime = ((IntervalFilter) filter).getRelativeStartDate();
-              DateTime endDateTime = ((IntervalFilter) filter).utcFakeNow();
-
-              DateValue startDateValue = new DateValue("");
-              startDateValue.setValue(new Date(startDateTime.getMillis()));
-
-              DateValue endDateValue = new DateValue("");
-              endDateValue.setValue(new Date(endDateTime.getMillis()));
-
-              Between between = new Between();
-              between.setLeftExpression(new Column(filter.getColumn()));
-              between.setBetweenExpressionStart(startDateValue);
-              between.setBetweenExpressionEnd(endDateValue);
-
-              andExprList.add(between);
-              //기간 지정일 경우
-            } else if (selectorType == IntervalFilter.SelectorType.RANGE) {
-              List<String> intervals = ((IntervalFilter) filter).getEngineIntervals();
-              if (intervals != null && !intervals.isEmpty()) {
-                List<Expression> intervalExprList = new ArrayList<>();
-                for (String interval : intervals) {
-                  DateTime startDateTime = new DateTime(interval.split("/")[0]);
-                  DateTime endDateTime = new DateTime(interval.split("/")[1]);
-
-                  DateValue startDateValue = new DateValue("");
-                  startDateValue.setValue(new Date(startDateTime.getMillis()));
-
-                  DateValue endDateValue = new DateValue("");
-                  endDateValue.setValue(new Date(endDateTime.getMillis()));
-
-                  Between between = new Between();
-                  between.setLeftExpression(new Column(filter.getColumn()));
-                  between.setBetweenExpressionStart(startDateValue);
-                  between.setBetweenExpressionEnd(endDateValue);
-                  intervalExprList.add(between);
-                }
-                andExprList.add(new MultiOrExpression(intervalExprList));
-              }
-            }
-          }
-        }
-
-        selectBody.setWhere(new MultiAndExpression(andExprList));
-      }
-
-      if (limit != null) {
-        Limit limitExpression = new Limit();
-        limitExpression.setRowCount(new LongValue(maxLimit));
-        selectBody.setLimit(limitExpression);
-      }
-
-
+      addFields(selectBody, fields, realConnection);
+      addFilter(selectBody, filters);
+      if(limit != null)
+        addLimit(selectBody, maxLimit);
     } catch (JSQLParserException e){
       e.printStackTrace();
     }
@@ -1405,6 +1267,137 @@ public class JdbcConnectionService {
 
     return tempCsvFiles;
 
+  }
+
+  public Select createSelect(JdbcIngestionInfo ingestionInfo) throws JSQLParserException{
+    Select select;
+    if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
+      String database = ingestionInfo.getDatabase();
+      String table = ingestionInfo.getQuery();
+      String tableName = (!table.contains(".") && database != null) ? database + "." + table : table;
+      select = SelectUtils.buildSelectFromTable(new Table(tableName));
+    } else {
+      net.sf.jsqlparser.statement.Statement parsedStmt = CCJSqlParserUtil.parse(ingestionInfo.getQuery());
+      if(!(parsedStmt instanceof Select)){
+        throw new JSQLParserException("query is not select");
+      }
+
+      select = (Select) parsedStmt;
+    }
+    return select;
+  }
+
+  public PlainSelect addFields(PlainSelect selectBody, List<Field> fields, DataConnection realConnection){
+    if (CollectionUtils.isNotEmpty(fields)) {
+      //change projection
+      List<SelectItem> newSelectItems = Lists.newArrayList();
+      for(Field field : fields){
+        //
+        if(field.isNotPhysicalField()) {
+          continue;
+        }
+
+        DataConnection.Implementor implementor = DataConnection.Implementor.getImplementor(realConnection);
+        String columnName;
+        if (Field.COLUMN_NAME_CURRENT_DATETIME.equals(field.getName()) && field.getRole() == Field.FieldRole.TIMESTAMP) {
+          NativeCurrentDatetimeExp nativeCurrentDatetimeExp = new NativeCurrentDatetimeExp(field.getName());
+          columnName = nativeCurrentDatetimeExp.toSQL(implementor);
+        } else if (StringUtils.isEmpty(field.getTimeFormat()) &&
+                (field.getRole() == Field.FieldRole.TIMESTAMP ||
+                        (field.getRole() == Field.FieldRole.DIMENSION && field.getType() == DataType.TIMESTAMP))) {
+          NativeDateFormatExp nativeDateFormatExp = new NativeDateFormatExp(field.getName(), null);
+          columnName = nativeDateFormatExp.toSQL(implementor);
+          field.setFormat(NativeDateFormatExp.COMMON_DEFAULT_DATEFORMAT);
+        } else {
+          columnName = NativeProjection.getQuotedColumnName(implementor, field.getName());
+        }
+
+        SelectExpressionItem selectExpressionItem = new SelectExpressionItem(new Column(columnName));
+//          selectExpressionItem.setAlias(new Alias(field.getAlias()));
+        newSelectItems.add(selectExpressionItem);
+      }
+      selectBody.setSelectItems(newSelectItems);
+    }
+
+    return selectBody;
+  }
+
+  public PlainSelect addFilter(PlainSelect selectBody, List<Filter> filters){
+    if (filters != null && !filters.isEmpty()) {
+      List<Expression> andExprList = new ArrayList<>();
+      for (Filter filter : filters) {
+        //Inclusion Filter
+        if (filter instanceof InclusionFilter) {
+          List<String> valueList = ((InclusionFilter) filter).getValueList();
+          if (valueList != null) {
+            List<Expression> inclusionExprList = new ArrayList<>();
+            for (String value : valueList) {
+              EqualsTo equalsTo = new EqualsTo();
+              equalsTo.setLeftExpression(new Column(filter.getColumn()));
+              equalsTo.setRightExpression(new StringValue(value));
+              inclusionExprList.add(equalsTo);
+            }
+            andExprList.add(new MultiOrExpression(inclusionExprList));
+          }
+
+          // Interval Filter
+        } else if (filter instanceof IntervalFilter) {
+          IntervalFilter.SelectorType selectorType = ((IntervalFilter) filter).getSelector();
+
+          //최신 유형일 경우
+          if (selectorType == IntervalFilter.SelectorType.RELATIVE) {
+            DateTime startDateTime = ((IntervalFilter) filter).getRelativeStartDate();
+            DateTime endDateTime = ((IntervalFilter) filter).utcFakeNow();
+
+            DateValue startDateValue = new DateValue("");
+            startDateValue.setValue(new Date(startDateTime.getMillis()));
+
+            DateValue endDateValue = new DateValue("");
+            endDateValue.setValue(new Date(endDateTime.getMillis()));
+
+            Between between = new Between();
+            between.setLeftExpression(new Column(filter.getColumn()));
+            between.setBetweenExpressionStart(startDateValue);
+            between.setBetweenExpressionEnd(endDateValue);
+
+            andExprList.add(between);
+            //기간 지정일 경우
+          } else if (selectorType == IntervalFilter.SelectorType.RANGE) {
+            List<String> intervals = ((IntervalFilter) filter).getEngineIntervals();
+            if (intervals != null && !intervals.isEmpty()) {
+              List<Expression> intervalExprList = new ArrayList<>();
+              for (String interval : intervals) {
+                DateTime startDateTime = new DateTime(interval.split("/")[0]);
+                DateTime endDateTime = new DateTime(interval.split("/")[1]);
+
+                DateValue startDateValue = new DateValue("");
+                startDateValue.setValue(new Date(startDateTime.getMillis()));
+
+                DateValue endDateValue = new DateValue("");
+                endDateValue.setValue(new Date(endDateTime.getMillis()));
+
+                Between between = new Between();
+                between.setLeftExpression(new Column(filter.getColumn()));
+                between.setBetweenExpressionStart(startDateValue);
+                between.setBetweenExpressionEnd(endDateValue);
+                intervalExprList.add(between);
+              }
+              andExprList.add(new MultiOrExpression(intervalExprList));
+            }
+          }
+        }
+      }
+
+      selectBody.setWhere(new MultiAndExpression(andExprList));
+    }
+    return selectBody;
+  }
+
+  public PlainSelect addLimit(PlainSelect selectBody, int maxLimit){
+    Limit limitExpression = new Limit();
+    limitExpression.setRowCount(new LongValue(maxLimit));
+    selectBody.setLimit(limitExpression);
+    return selectBody;
   }
 
   public List<Map<String, Object>> selectCandidateQuery(CandidateQueryRequest queryRequest) {
@@ -1516,14 +1509,55 @@ public class JdbcConnectionService {
     List<String> tempCsvFiles = Lists.newArrayList();
 
     // 증분 Query 작성
-    String queryString = new SelectQueryBuilder(realConnection)
-        .projection(fields)
-        .query(batchIngestionInfo)
-        .incremental(timestampField, incrementalTime.toString(CURRENT_DATE_FORMAT))
-        .limit(0, maxLimit)
-        .build();
+//    String queryString = new SelectQueryBuilder(realConnection)
+//        .projection(fields)
+//        .query(batchIngestionInfo)
+//        .incremental(timestampField, incrementalTime.toString(CURRENT_DATE_FORMAT))
+//        .limit(0, maxLimit)
+//        .build();
+//
+//    LOGGER.debug("Generated incremental query : {} ", queryString);
 
-    LOGGER.debug("Generated incremental query : {} ", queryString);
+    Select select = null;
+    PlainSelect selectBody;
+    try{
+
+      select = createSelect(ingestionInfo);
+      selectBody = (PlainSelect) select.getSelectBody();
+      addFields(selectBody, fields, realConnection);
+
+      if (timestampField.getLogicalType() == LogicalType.TIMESTAMP) {
+        GreaterThanEquals greaterThanEquals = new GreaterThanEquals();
+        if (realConnection instanceof HiveConnection) {
+          greaterThanEquals.setLeftExpression(new Column("unix_timestamp(" + timestampField.getName() + ", '" + timestampField.getTimeFormat() + "')"));
+        } else {
+          greaterThanEquals.setLeftExpression(new Column(timestampField.getName()));
+        }
+        String rightExprStr = realConnection.getCharToDateStmt(incrementalTime.toString(CURRENT_DATE_FORMAT), JdbcDataConnection.DEFAULT_FORMAT);
+        greaterThanEquals.setRightExpression(new Column(rightExprStr));
+
+        if(selectBody.getWhere() != null){
+          AndExpression andExpression = new AndExpression(selectBody.getWhere(), greaterThanEquals);
+          selectBody.setWhere(andExpression);
+        } else {
+          selectBody.setWhere(greaterThanEquals);
+        }
+      } else {
+        throw new RuntimeException("Invalid timestamp type.");
+      }
+
+      if (maxLimit > 0) {
+        Limit limitExpression = new Limit();
+        limitExpression.setRowCount(new LongValue(maxLimit));
+        selectBody.setLimit(limitExpression);
+      }
+    } catch (JSQLParserException e){
+      throw new RuntimeException(e.getMessage());
+    }
+
+    String queryString = select.toString();
+
+    LOGGER.debug("Generated incremental query from JPQL : {} ", queryString);
 
     // 쿼리 결과 저장
     String tempFileName = getTempFileName(dataSourceName + "_" + incrementalTime.toString());
@@ -1921,7 +1955,7 @@ public class JdbcConnectionService {
     properties.setProperty("user", username);
     properties.setProperty("password", password);
 
-    //ad native properties
+    //add native properties
     if(connection.getPropertiesMap() != null){
       for(String propertyKey : connection.getPropertiesMap().keySet()){
         if(StringUtils.startsWith(propertyKey, JdbcDataConnection.JDBC_PROPERTY_PREFIX)){
