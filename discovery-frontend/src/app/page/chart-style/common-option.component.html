@@ -197,19 +197,23 @@
           <div class="ddp-divide2">
             <div class="ddp-list-label">{{'msg.page.common.grid.body.style.title' | translate}}</div>
             <div class="ddp-list-sub2">
-              <!-- checkbox -->
-              <div class="ddp-part-check-b">
-                <label class="ddp-label-checkbox ddp-position">
-                  <input type="checkbox" [ngModel]="uiOption?.contentStyle?.showHeader" (click)="showValueColumn(!uiOption?.contentStyle?.showHeader)">
-                  <i class="ddp-icon-checkbox"></i>
-                  <span class="ddp-txt-checkbox">{{'msg.page.th.head.col' | translate}}</span>
-                </label>
+
+              <!-- slider -->
+              <div class="ddp-wrap-option-slider">
+                <span class="ddp-label-slider">{{'msg.page.th.head.col' | translate}}</span>
+                <!-- Slide THREE -->
+                <div [class.ddp-disabled]="uiOption.dataType === 'MASTER'" class="ddp-checkbox-slide ddp-checkbox-automatic2">
+                  <input type="checkbox" value="None" id="ckShowAggr" [checked]="uiOption?.contentStyle?.showHeader"
+                         (click)="showValueColumn(!uiOption?.contentStyle?.showHeader)">
+                  <label for="ckShowAggr"><span class="ddp-slide"></span></label>
+                </div>
+                <!-- //Slide THREE -->
               </div>
-              <!-- //checkbox -->
+              <!-- //slider -->
 
               <!-- divide - select horizontal/vertical -->
-              <div class="ddp-divide2">
-                <ul class="ddp-list-express ddp-type2">
+              <div *ngIf="uiOption?.contentStyle?.showHeader" class="ddp-divide2">
+                <ul [class.ddp-disabled]="uiOption.dataType === 'MASTER'" class="ddp-list-express ddp-type2">
                   <li [ngClass]="{'ddp-selected': uiOption.measureLayout === 'VERTICAL'}" (click)="gridLayout('VERTICAL');">
                     <em class="ddp-icon-column-view"></em> {{'msg.page.btn.vertically' | translate}}
                   </li>
