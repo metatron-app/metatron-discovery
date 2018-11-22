@@ -12,25 +12,23 @@
  * limitations under the License.
  */
 
-package app.metatron.discovery.domain.workbench;
+package app.metatron.discovery.domain.workbench.dto;
 
-import app.metatron.discovery.common.exception.ErrorCodes;
+public class ImportExcelFile extends ImportFile {
+  private String sheetName;
 
-public enum WorkbenchErrorCodes implements ErrorCodes {
+  public String getSheetName() {
+    return sheetName;
+  }
 
-  QUERY_STATUS_ERROR_CODE("WB0001"),
-  DATASOURCE_NOT_EXISTED("WB0002"),
-  CSV_FILE_NOT_FOUND("WB0003"),
-  TABLE_ALREADY_EXISTS("WB0004");
-
-  String errorCode;
-
-  WorkbenchErrorCodes(String errorCode) {
-    this.errorCode = errorCode;
+  public void setSheetName(String sheetName) {
+    this.sheetName = sheetName;
   }
 
   @Override
-  public String getCode() {
-    return errorCode;
+  public String toString() {
+    return "ImportExcelFile{" +
+        "sheetName='" + sheetName + '\'' +
+        '}';
   }
 }

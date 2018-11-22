@@ -52,6 +52,8 @@ import { SYSTEM_PERMISSION } from '../common/permission/permission';
 import { PermissionChecker, Workspace } from '../domain/workspace/workspace';
 import { WorkspaceService } from '../workspace/service/workspace.service';
 import { CodemirrorComponent } from './component/editor-workbench/codemirror.component';
+import {SaveAsHiveTableComponent} from "./component/save-as-hive-table/save-as-hive-table.component";
+import {DetailWorkbenchDatabase} from "./component/detail-workbench/detail-workbench-database/detail-workbench-database";
 
 declare let moment: any;
 declare let Split;
@@ -123,6 +125,18 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   // 에디터 결과 리스트 최대 값
   @ViewChild('editorResultListMax')
   private _editorResultListMax: ElementRef;
+
+  @ViewChild('questionLayout')
+  private _questionLayout: ElementRef;
+
+  @ViewChild('questionWrap')
+  private _questionWrap: ElementRef;
+
+  @ViewChild(SaveAsHiveTableComponent)
+  private saveAsHiveTableComponent: SaveAsHiveTableComponent;
+
+  @ViewChild(DetailWorkbenchDatabase)
+  private detailWorkbenchDatabase: DetailWorkbenchDatabase;
 
   // request reconnect count
   private _executeSqlReconnectCnt: number = 0;
@@ -324,6 +338,9 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
   public isQueryHistoryDelete : boolean = false;
   // 하단 팝업 닫힘 체크
   public isFootAreaPopupCheck : boolean = false;
+
+  public saveAsLayer: boolean = false;
+  public supportSaveAsHiveTable: boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Constructor
@@ -1834,6 +1851,10 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
 
           this.isDataManager = CommonUtil.isValidPermission(SYSTEM_PERMISSION.MANAGE_DATASOURCE);
 
+          if(data.dataConnection.supportSaveAsHiveTable) {
+            this.supportSaveAsHiveTable = data.dataConnection.supportSaveAsHiveTable;
+          }
+
           this.setWorkbenchName();
           this.setWorkbenchDesc();
 
@@ -2871,6 +2892,16 @@ export class WorkbenchComponent extends AbstractComponent implements OnInit, OnD
       this.editor.setModeOptions('text/x-mysql');
     }
   }
+
+  public saveAsHiveTable() {
+    const currentTab: ResultTab = this._getCurrentResultTab();
+    this.saveAsHiveTableComponent.init(this.workbenchId, currentTab.result.csvFilePath, this.websocketId);
+  }
+
+  public saveAsHiveTableSucceed() {
+    this.detailWorkbenchDatabase.getDatabase();
+  }
+
 
   // *****************************************************************
   // Split Slider 관련
