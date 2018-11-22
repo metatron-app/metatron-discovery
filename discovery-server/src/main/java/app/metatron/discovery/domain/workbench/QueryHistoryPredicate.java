@@ -16,7 +16,6 @@ package app.metatron.discovery.domain.workbench;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
-
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 
@@ -41,6 +40,11 @@ public class QueryHistoryPredicate {
     if(StringUtils.isNotEmpty(queryPattern)){
       builder = builder.and(queryHistory.query.containsIgnoreCase(queryPattern));
     }
+
+    //exclude running, cancelled
+    builder = builder.and(queryHistory.queryResultStatus.ne(QueryResult.QueryResultStatus.RUNNING))
+            .and(queryHistory.queryResultStatus.ne(QueryResult.QueryResultStatus.CANCELLED))
+            .and(queryHistory.queryResultStatus.isNotNull());
 
     builder = builder.and(queryHistory.deleted.eq(false));
 
@@ -72,7 +76,11 @@ public class QueryHistoryPredicate {
                       .or(queryHistory.createdBy.containsIgnoreCase(searchKeyword)));
     }
 
-    if(queryResultStatus != null && queryResultStatus != QueryResult.QueryResultStatus.ALL){
+    if(queryResultStatus == null){
+      builder = builder.and(queryHistory.queryResultStatus.ne(QueryResult.QueryResultStatus.RUNNING))
+              .and(queryHistory.queryResultStatus.ne(QueryResult.QueryResultStatus.CANCELLED))
+              .and(queryHistory.queryResultStatus.isNotNull());
+    } else if (queryResultStatus != QueryResult.QueryResultStatus.ALL){
       builder = builder.and(queryHistory.queryResultStatus.eq(queryResultStatus));
     }
 
