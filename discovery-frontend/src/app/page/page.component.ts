@@ -4107,7 +4107,7 @@ export class PageComponent extends AbstractPopupComponent implements OnInit, OnD
   private convertShelfToPivot(pivot: Pivot) {
 
     // when shelf layers exists, pivot is null, convert shelf to pivot
-    if (this.shelf.layers[0] && this.shelf.layers[0].length > 0) {
+    if (this.shelf.layers && this.shelf.layers[0] && this.shelf.layers[0].length > 0) {
 
       // init pivot
       pivot = new Pivot();
