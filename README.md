@@ -17,7 +17,7 @@ Features
 Metatron Discovery is a data discovery web application which supports end-to-end features from data management to analytics.
 
 Metatron provides:
-- Interactive dashboards with 16 types of WSIWYG charts.
+- Interactive dashboards with various types of charts.
 - SQL based data exploration.
 - Connections with advanced analytics tools like [Apache Zeppelin](https://zeppelin.apache.org/).
 - Metadata management.
@@ -35,6 +35,9 @@ Screenshots
 ### Create Charts
 <kbd><img title="Chart" src="https://user-images.githubusercontent.com/6300003/44201180-98bb4e80-a183-11e8-81da-54dd59d14330.png"></kbd><br />
 
+### Map Analysis
+<kbd><img title="Map" src="https://metatron.app/wp-content/uploads/2018/10/map.png"></kbd><br />
+
 ### Use Datasources
 <kbd><img title="Use-Datasource" src="https://user-images.githubusercontent.com/6300003/44200744-51808e00-a182-11e8-8fc6-d30d56b4ab26.png"></kbd><br />
 
@@ -47,12 +50,15 @@ Screenshots
 ### Prepare Origin Data
 <kbd><img title="Data-preparation" src="https://user-images.githubusercontent.com/6300003/44019798-d02e8348-9f1a-11e8-958e-4e95802bd5de.png"></kbd><br />
 
+### Query Monitoring
+<kbd><img title="query-monitoring" src="https://metatron.app/wp-content/uploads/2018/10/screencapture-discovery-metatron-app-app-v2-management-monitoring-statistics-2018-10-29-15_38_15-1.png"><br /></kbd>
+
 Installation
 ----------------------------
 ### Requirements
 - MacOS / Linux (Redhat, CentOS)
 - JDK 1.8
-- Druid customized version for Metatron
+- [Druid customized version for Metatron](https://sktmetatronkrsouthshared.blob.core.windows.net/metatron-public/discovery-dist/druid/druid-0.9.1-metatron-3.0.0-hadoop-2.7.3.tar.gz)
 - Apache Maven 3.3+ for building the project
 
 ### Install the Customized Druid
