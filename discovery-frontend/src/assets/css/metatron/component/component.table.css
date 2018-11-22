@@ -58,11 +58,16 @@ table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global.ddp-en-connection .ddp
 table.ddp-table-form tbody tr td .ddp-txt-long em.ddp-tag-global {position:absolute; top:0; right:0; height:20px; width:60px; padding:2px 2px 3px 2px; color:#666eb2; font-size:11px; text-align:center; border:1px solid #666eb2; border-radius:2px; background:#eff0f7; box-sizing:border-box;}
 
 table.ddp-table-form tbody tr td .ddp-txt-long.ddp-global .ddp-icon-global {display:block;}
+table.ddp-table-form tr td .ddp-wrap-long .ddp-box-tag {position:relative; top:3px; margin-right:13px;}
+
+
 table.ddp-table-form tr td .ddp-txt-search {font-size:14px; color:#666db7;}
 table.ddp-table-form tr td.ddp-data-none {color:#b7b9c3; text-align:center;}
 table.ddp-table-form tr td.ddp-nodata {color:#b7bac1; font-size:13px;}
-table.ddp-table-form tr th .ddp-wrap-hover-info {display:inline-block; position:Relative;}
+table.ddp-table-form tr th .ddp-wrap-hover-info {display:inline-block; margin-left:3px;position:Relative; cursor:pointer;}
 table.ddp-table-form tr th .ddp-wrap-hover-info em.ddp-icon-info3 {display:inline-block; position:relative; top:-1px; width:11px; height:11px; background:url(../../../images/icon_que.png) no-repeat; background-position:left -12px;}
+table.ddp-table-form tr th .ddp-wrap-hover-info .ddp-box-layout4 {display:none; position:absolute; bottom:100%; right:100%; margin:0 -20px 4px 0;}
+table.ddp-table-form tr th .ddp-wrap-hover-info:hover .ddp-box-layout4 {display:block; white-space:normal; z-index:20;}
 
 table.ddp-table-form tbody tr td .ddp-ui-flex {display:inline-block; max-width:100%; white-space:nowrap; text-overflow:ellipsis; overflow:Hidden;}
 table.ddp-table-form tbody tr td .ddp-ui-flex .ddp-icon-info3 {display:inline-block; float:right; margin-left:3px;position:relative; top:2px; width:11px; height:11px; background:url(../../../images/icon_info3.png) no-repeat;}
@@ -222,6 +227,7 @@ table.ddp-table-listview tbody tr td em[class*="ddp-icon-type-"] {position:relat
 .ddp-ui-preview-contents table.ddp-table-form.ddp-table-details tbody tr:nth-child(odd) td.ddp-disabled:hover {background-color:#fafafa !important;}
 table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-icons {float:right;}
 table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-icons .ddp-wrap-hover-info {float:left; padding:5px 0 0 0; font-size:0px;}
+
 table.ddp-table-type2 thead tr th .ddp-th-long .ddp-th-icons [class*="ddp-icon-array"] {top:0;}
 
 /**************************************************************
