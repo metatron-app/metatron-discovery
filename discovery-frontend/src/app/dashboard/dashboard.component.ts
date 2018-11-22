@@ -31,7 +31,7 @@ import { Workbook } from '../domain/workbook/workbook';
 import { Dashboard, PresentationDashboard, LayoutMode, BoardDataSource } from '../domain/dashboard/dashboard';
 import { Widget } from '../domain/dashboard/widget/widget';
 import { ChartSelectInfo } from '../common/component/chart/base-chart';
-import { SelectionFilter, SelectionFilterComponent } from './component/selection-filter/selection-filter.component';
+import { SelectionFilterComponent } from './component/selection-filter/selection-filter.component';
 import { DashboardLayoutComponent } from './component/dashboard-layout/dashboard.layout.component';
 import { Filter } from '../domain/workbook/configurations/filter/filter';
 import { PopupService } from '../common/service/popup.service';
@@ -54,7 +54,8 @@ import { EventBroadcaster } from '../common/event/event.broadcaster';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [ '.ddp-div-table { position: absolute;top: 0;left: 0;right: 0;bottom: 0; }' ]
 })
 export class DashboardComponent extends DashboardLayoutComponent implements OnInit, OnDestroy {
 
@@ -84,6 +85,8 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
 
   public expiredDatasource: Datasource;   // 만료된 데이터소스 정보 ( for Linked Datasource )
   public ingestionStatus: { progress: number, message: string, step?: number };  // 적재 진행 정보
+
+  public isError:boolean = false;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public - Input Variables
@@ -225,6 +228,29 @@ export class DashboardComponent extends DashboardLayoutComponent implements OnIn
       modal.data.afterConfirm.call(this);
     }
   } // function - confirm
+
+  /**
+   * show error screen
+   */
+  public showError() {
+    this.isError = true;
+    this.safelyDetectChanges();
+  } // function - showError
+
+  /**
+   * hide error screen
+   */
+  public hideError() {
+    this.isError = false;
+    this.safelyDetectChanges();
+  } // function - hideError
+
+  /**
+   * request reload board
+   */
+  public reloadBoard() {
+    this.dashboardEvent.emit({ name: 'RELOAD_BOARD' });
+  } // function - reloadBoard
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    | Public Method - Ingestion
