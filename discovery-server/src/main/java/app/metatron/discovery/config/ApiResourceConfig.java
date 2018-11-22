@@ -34,6 +34,7 @@ import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -66,6 +67,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import app.metatron.discovery.MetatronDiscoveryApplication;
 import app.metatron.discovery.common.MetatronProperties;
@@ -173,9 +175,14 @@ public class ApiResourceConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/resource/**").addResourceLocations("classpath:resource/");
-        registry.addResourceHandler("/assets/**").addResourceLocations("classpath:resource/assets/");
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+        registry.addResourceHandler("/resource/**")
+                .addResourceLocations("classpath:resource/")
+                .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePrivate());
+        registry.addResourceHandler("/assets/**")
+                .addResourceLocations("classpath:resource/assets/")
+                .setCacheControl(CacheControl.maxAge(365, TimeUnit.DAYS).cachePrivate());
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
     @Override
