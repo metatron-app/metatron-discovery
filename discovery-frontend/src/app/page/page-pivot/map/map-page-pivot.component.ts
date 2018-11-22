@@ -460,6 +460,9 @@ export class MapPagePivotComponent extends PagePivotComponent {
 
         $(this).parent().parent().removeClass('ddp-slide');
         $(this).css('padding', '0px');
+
+        // ddp-wrap-default margin-left 제거
+        $(this).css('margin-left', '0px');
       }
     })
   }

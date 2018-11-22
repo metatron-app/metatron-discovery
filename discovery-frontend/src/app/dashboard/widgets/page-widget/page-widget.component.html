@@ -13,7 +13,7 @@
   -->
 
 <div (mouseover)="setForceStyle(true)" (mouseout)="setForceStyle(false)"
-     [class.ddp-active]="isShowDownloadPopup" class="ddp-box-widget ddp-box-graph">
+     [class.ddp-active]="isShowDownloadPopup" class="ddp-box-widget ddp-box-graph" [ngClass]="{'ddp-page-mapview' : 'map' === chartType}">
 
   <!-- Top Control -->
   <div class="ddp-top-control ddp-clear" *ngIf="isViewMode && !isShowHierarchyView">

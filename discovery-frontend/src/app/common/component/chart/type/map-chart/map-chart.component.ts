@@ -1502,8 +1502,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       this.tooltipLayer = new ol.Overlay({
         element: this.tooltipEl.nativeElement,
         positioning: 'top-center',
-        stopEvent: false,
-        offset: [-110, -40]
+        stopEvent: false
       });
 
       // Add
@@ -1513,7 +1512,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // set tooltip position
     if (this.uiOption.toolTip) {
 
-      let offset = [-110, -40];
+      // not cluster => [-110, -40]
+      let offset = [-92, -20];
       let displayTypeList = _.filter(_.cloneDeep(this.uiOption.toolTip.displayTypes), (item) => {if (!_.isEmpty(item) && item !== UIChartDataLabelDisplayType.DATA_VALUE) return item});
 
       let columnList = [];
@@ -1522,9 +1522,9 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
         columnList = this.uiOption.toolTip.displayColumns;
       }
 
-      let addYOffset = 20 * (displayTypeList.length + columnList.length);
+      let addYOffset = 37 * (displayTypeList.length)  + 40 * (columnList.length);
 
-      offset[1] = -(40 + addYOffset);
+      offset[1] = -(20 + addYOffset);
 
       this.tooltipLayer.setOffset(offset);
     }
@@ -1668,8 +1668,12 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Apply
     ////////////////////////////////////////////////////////
 
+    // if required values are empty, enable false
+    if (null === this.tooltipInfo.name && 0 === this.tooltipInfo.coords.length && 0 === this.tooltipInfo.fields.length) {
+      this.tooltipInfo.enable = false;
+
     // Enable tooltip
-    this.tooltipInfo.enable = true;
+    } else this.tooltipInfo.enable = true;
 
     if( _.eq(this.tooltipInfo.geometryType, String(MapGeometryType.LINE)) ) {
       let extent = feature.getGeometry().getExtent();
@@ -1728,13 +1732,19 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Color data
       legendInfo.color = [];
 
+      // convert symbol, tile to point, hexagon
+      let layerType = MapLayerType.SYMBOL === layer.type ? 'Point' : MapLayerType.TILE === layer.type ? 'Hexagon' : layer.type.toString();
+
+      // Layer type
+      legendInfo.type = _.startCase(layerType) + ' Color';
+
       ////////////////////////////////////////////////////////
       // Color by dimension
       ////////////////////////////////////////////////////////
       if( _.eq(layer.color.by, MapBy.DIMENSION) ) {
 
-        // Layer type
-        legendInfo.type = _.startCase(String(layer.type));
+        // Layer column
+        legendInfo.column = 'By ' + layer.color.column;
 
         if( layer.color.ranges ) {
           _.each(layer.color.ranges, (range) => {
@@ -1768,9 +1778,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // Color by measure
       ////////////////////////////////////////////////////////
       else if( _.eq(layer.color.by, MapBy.MEASURE) ) {
-
-        // Layer type
-        legendInfo.type = String(layer.type).charAt(0).toUpperCase() + String(layer.type).slice(1) + ' Color';
 
         // Layer column
         legendInfo.column = 'By ' + this.getFieldAlias(this.getFieldAlias(layer.color.column));
@@ -1862,9 +1869,6 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       // None
       ////////////////////////////////////////////////////////
       else if( _.eq(layer.color.by, MapBy.NONE) ) {
-
-        // Layer type
-        legendInfo.type = _.startCase(String(layer.type)) + ' Color';
 
         let colorInfo: any = {};
         colorInfo.color = layer.color.schema;
@@ -2139,9 +2143,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // set display columns from shelf
     if (!this.uiOption.toolTip.displayColumns) this.uiOption.toolTip.displayColumns = [];
 
-    let fields = TooltipOptionConverter.returnTooltipDataValue(shelf);
+    let fields = TooltipOptionConverter.returnTooltipDataValue(_.cloneDeep(this.shelf.layers[this.getUiMapOption().layerNum]));
     this.uiOption.toolTip.displayColumns = ChartUtil.returnNameFromField(fields);
-
   }
 
   /**

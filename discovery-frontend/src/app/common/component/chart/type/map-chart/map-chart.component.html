@@ -13,23 +13,21 @@
   -->
 <div #mapArea style="width: 100%; height: 100%; display: block; position: relative">
   <!-- Legend -->
-  <div #legend
-       *ngIf="legendInfo.enable"
-       class="ddp-layout-remark"
-       style="position:absolute; z-index:3;"
-       [style.top]="legendInfo.position == 'RIGHT_TOP' ? '20px' : ''"
-       [style.right]="legendInfo.position == 'RIGHT_TOP' ? '20px' : '20px'"
-       [style.bottom]="legendInfo.position == 'RIGHT_TOP' ? '' : '20px'"
-       [style.left]="legendInfo.position == 'RIGHT_TOP' ? '' : ''">
-    <div *ngFor="let layer of legendInfo.layer; let index = index" class="ddp-ui-layer">
-        <span class="ddp-label">{{layer.name}}</span>
-        <span class="ddp-data">{{layer.type}}</span>
-        <ul class="ddp-list-remark">
-            <li *ngFor="let field of layer.color">
-                <em class="ddp-bg-remark-r" [style.background-color]="field.color"></em>
-                {{field.column}}
-            </li>
-        </ul>
+  <div *ngIf="legendInfo.enable" #legend class="ddp-wrap-remark"
+       style="position:absolute; z-index:3; right: 20px;">
+    <div class="ddp-layout-remark"style="position:absolute; right:0px;"
+         [style.top]="legendInfo.position == 'RIGHT_TOP' ? '0px' : ''"
+         [style.bottom]="legendInfo.position == 'RIGHT_BOTTOM' ? '0px' : ''">
+      <div *ngFor="let layer of legendInfo.layer; let index = index" class="ddp-ui-layer">
+          <span class="ddp-label">{{layer.name}}</span>
+          <span class="ddp-data">{{layer.type}} <br/> {{layer.column}}</span>
+          <ul class="ddp-list-remark">
+              <li *ngFor="let field of layer.color">
+                  <em class="ddp-bg-remark-r" [style.background-color]="field.color"></em>
+                  {{field.column}}
+              </li>
+          </ul>
+      </div>
     </div>
   </div>
   <!-- //Legend -->
@@ -37,33 +35,24 @@
 
 <!-- Tooltip -->
 <div #tooltip id="popup" style="z-index:100">
-  <div *ngIf="tooltipInfo.enable" class="ddp-ui-tooltip-info ddp-map-tooltip" style="width:257px; display:block; z-index:10;">
+  <div *ngIf="tooltipInfo.enable" class="ddp-ui-tooltip-info ddp-map-tooltip" style="min-width:150px; display:block; z-index:10;">
     <em class="ddp-tooltip-view"></em>
     <span class="ddp-txt-tooltip">
       <span *ngIf="tooltipInfo.name" class="ddp-label">
         <em [attr.class]="'ddp-icon-mapview' + tooltipInfo.num + '-w'"></em>
         {{tooltipInfo.name}}
       </span>
-      <table class="ddp-table-info">
-          <colgroup>
-            <col width="70px">
-            <col width="*">
-          </colgroup>
-          <tbody>
-            <tr *ngIf="tooltipInfo.coords.length > 0">
-              <th>{{tooltipInfo.title}}</th>
-              <td>{{tooltipInfo.coords[0]}}</td>
-            </tr>
-            <tr *ngIf="tooltipInfo.coords.length > 1">
-              <th></th>
-              <td>{{tooltipInfo.coords[tooltipInfo.coords.length - 1]}}</td>
-            </tr>
-            <tr *ngFor="let field of tooltipInfo.fields; let index = index">
-              <th style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">{{field.name}}</th>
-              <td style="white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">{{field.value}}</td>
-            </tr>
-          </tbody>
-      </table>
+      <div *ngIf="tooltipInfo.coords.length > 0" class="ddp-data-tooltip">
+        <div class="ddp-title">{{tooltipInfo.title}}</div>
+        <div class="ddp-det">{{tooltipInfo.coords[0]}}</div>
+      </div>
+      <div *ngIf="tooltipInfo.coords.length > 1" class="ddp-data-tooltip">
+        <div class="ddp-det">{{tooltipInfo.coords[tooltipInfo.coords.length - 1]}}</div>
+      </div>
+      <div *ngFor="let field of tooltipInfo.fields" class="ddp-data-tooltip">
+        <div class="ddp-title">{{field.value}}</div>
+        <div class="ddp-det">{{field.name}}</div>
+      </div>
     </span>
   </div>
 </div>
