@@ -76,6 +76,22 @@ public class CodeTable extends AbstractHistoryEntity implements MetatronDomain<S
   @OneToMany(mappedBy = "codeTable", cascade = {CascadeType.MERGE})
   private List<MetadataColumn> columns;
 
+  @PreRemove
+  private void removeCodeTableFromChilds(){
+
+    dictionaries.forEach(dictionary -> {
+      if(dictionary.getCodeTable().id.equals(this.id)){
+        dictionary.setCodeTable(null);
+      }
+    });
+
+    columns.forEach(metadataColumn -> {
+      if(metadataColumn.getCodeTable().id.equals(this.id)){
+        metadataColumn.setCodeTable(null);
+      }
+    });
+  }
+
   public CodeTable() {
   }
 

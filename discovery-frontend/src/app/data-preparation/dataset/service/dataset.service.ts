@@ -162,7 +162,7 @@ export class DatasetService extends AbstractService {
     params.dsDesc = datasetFile.desc;
     params.dsType = 'IMPORTED';
     params.importType = 'FILE';
-    params.fileType = 'LOCAL';
+    params.fileType = datasetFile.fileType;
     console.info('datasetFile', datasetFile);
     var filename = datasetFile.filename.toLowerCase();
     if( true==filename.endsWith("xls") || true==filename.endsWith("xlsx") ) {

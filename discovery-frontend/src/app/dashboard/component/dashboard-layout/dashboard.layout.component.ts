@@ -946,15 +946,13 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           }
         });
 
-        recommendFilters = _.orderBy(recommendFilters, 'filteringSeq', 'asc');
+        recommendFilters = _.orderBy(recommendFilters, (item) => (item.ui) ? item.ui.filteringSeq : '', 'asc');
         genFilters = genFilters.concat(recommendFilters);
       });
     }
     // 기본 필수/추천 필터 정보 설정 - End
 
-
     // 대시보드 필터 설정 ( 기본 데이터와 저장된 정보와의 병합 ) - Start
-
     if (savedFilters && 0 < savedFilters.length) {
 
       let totalFields: (Field | CustomField)[] = _.cloneDeep(boardConf.fields);
@@ -1330,9 +1328,17 @@ export abstract class DashboardLayoutComponent extends AbstractComponent impleme
           boardInfo = this._convertSpecToUI(boardInfo);
           boardInfo = this._initWidgetsAndLayout(boardInfo, mode);
           resolve(boardInfo);
-        }).catch((error) => reject(error));
+        }).catch(() => {
+          boardInfo = this._convertSpecToUI(boardInfo);
+          boardInfo = this._initWidgetsAndLayout(boardInfo, mode);
+          resolve(boardInfo);
+        });
 
-      }).catch((error) => reject(error));
+      }).catch(() => {
+        boardInfo = this._convertSpecToUI(boardInfo);
+        boardInfo = this._initWidgetsAndLayout(boardInfo, mode);
+        resolve(boardInfo);
+      });
 
     });
 
