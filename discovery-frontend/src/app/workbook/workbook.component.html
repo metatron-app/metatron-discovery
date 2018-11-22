@@ -467,7 +467,8 @@
       </div>
     </div>
     <!-- //board buttons -->
-    <app-dashboard [isManagementUser]="isChangeAuthUser" [dashboard]="selectedDashboard" ></app-dashboard>
+    <app-dashboard [isManagementUser]="isChangeAuthUser" [dashboard]="selectedDashboard"
+                   (dashboardEvent)="onDashboardEvent($event)" ></app-dashboard>
   </div>
 
 </div>
