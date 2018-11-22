@@ -87,7 +87,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     source: new ol.source.OSM({
       attributions: [new ol.Attribution({
         html: this.attribution()
-      })]
+      })],
+      crossOrigin: 'anonymous'
     })
   });
 
@@ -97,7 +98,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       url:'http://{1-4}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
       attributions: [new ol.Attribution({
         html: this.attribution()
-      })]
+      })],
+      crossOrigin: 'anonymous'
     })
   });
 
@@ -107,7 +109,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
       url:'http://{1-4}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
       attributions: [new ol.Attribution({
         html: this.attribution()
-      })]
+      })],
+      crossOrigin: 'anonymous'
     })
   });
 
@@ -260,7 +263,7 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     let isMapCreation: boolean = this.createMap();
 
     // Soruce
-    let source = new ol.source.Vector();
+    let source = new ol.source.Vector({crossOrigin: 'anonymous'});
 
     // Creation feature
     this.createFeature(source);
@@ -268,7 +271,8 @@ export class MapChartComponent extends BaseChart implements AfterViewInit{
     // Cluster source
     let clusterSource = new ol.source.Cluster({
       distance: 30,
-      source: source
+      source: source,
+      crossOrigin: 'anonymous'
     });
 
     // Creation layer
