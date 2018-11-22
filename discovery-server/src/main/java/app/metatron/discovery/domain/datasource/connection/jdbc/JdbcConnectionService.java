@@ -1017,165 +1017,6 @@ public class JdbcConnectionService {
 
   }
 
-//  public List<String> selectQueryToCsv(JdbcDataConnection connection,
-//                                       JdbcIngestionInfo ingestionInfo,
-//                                       String baseDir,
-//                                       String dataSourceName,
-//                                       List<Field> fields,
-//                                       List<Filter> filters,
-//                                       Integer limit) {
-//
-//    int fetchSize = ingestionInfo.getFetchSize();
-//    int maxLimit = limit == null ? ingestionInfo.getMaxLimit() : limit;
-//
-//    // Get JDBC Connection and set database
-//    JdbcDataConnection realConnection = connection == null ? ingestionInfo.getConnection() : connection;
-//    if (connection instanceof MySQLConnection
-//        || connection instanceof HiveConnection
-//        || connection instanceof PrestoConnection) {
-//      if (ingestionInfo.getDatabase() != null) {
-//        realConnection.setDatabase(ingestionInfo.getDatabase());
-//      }
-//    }
-//
-//    DataSource dataSource = getDataSource(Preconditions.checkNotNull(realConnection, "connection info. required."),
-//                                          true);
-//
-//    List<String> tempCsvFiles = Lists.newArrayList();
-//
-//    String queryString;
-//
-//    NativeCriteria nativeCriteria = new NativeCriteria(DataConnection.Implementor.getImplementor(realConnection));
-//    if (ingestionInfo.getDataType() == JdbcIngestionInfo.DataType.TABLE) {
-//      String database = ingestionInfo.getDatabase();
-//      String table = ingestionInfo.getQuery();
-//      String tableName = (!table.contains(".") && database != null) ? database + "." + table : table;
-//      nativeCriteria.addTable(tableName, table);
-//    } else {
-//      nativeCriteria.addSubQuery(ingestionInfo.getQuery());
-//    }
-//
-//    if (fields != null && !fields.isEmpty()) {
-//      NativeProjection nativeProjection = new NativeProjection();
-//
-//      for (Field field : fields) {
-//        String fieldAlias = field.getAlias();
-//        String fieldName;
-//        if (StringUtils.contains(fieldAlias, ".")) {
-//          String[] splicedFieldAlias = StringUtils.split(fieldAlias, ".");
-//          fieldName = splicedFieldAlias[splicedFieldAlias.length - 1];
-//        } else {
-//          fieldName = fieldAlias;
-//        }
-//
-//        if (Field.COLUMN_NAME_CURRENT_DATETIME.equals(field.getName()) && field.getRole() == Field.FieldRole.TIMESTAMP) {
-//          nativeProjection.addProjection(new NativeCurrentDatetimeExp(fieldName));
-//        } else if (StringUtils.isEmpty(field.getTimeFormat()) &&
-//            (field.getRole() == Field.FieldRole.TIMESTAMP ||
-//                (field.getRole() == Field.FieldRole.DIMENSION && field.getType() == DataType.TIMESTAMP))) {
-//          nativeProjection.addProjection(new NativeDateFormatExp(fieldName, null));
-//          field.setFormat(NativeDateFormatExp.COMMON_DEFAULT_DATEFORMAT);
-//        } else {
-//          nativeProjection.addProjection(fieldName, fieldName);
-//        }
-//      }
-//
-//      nativeCriteria.setProjection(nativeProjection);
-//    }
-//
-//    if (filters != null && !filters.isEmpty()) {
-//      for (Filter filter : filters) {
-//        //Inclusion Filter
-//        if (filter instanceof InclusionFilter) {
-//          List<String> valueList = ((InclusionFilter) filter).getValueList();
-//          if (valueList != null) {
-//            NativeDisjunctionExp disjunctionExp = new NativeDisjunctionExp();
-//            for (String value : valueList) {
-//              disjunctionExp.add(new NativeEqExp(filter.getColumn(), value));
-//            }
-//            nativeCriteria.add(disjunctionExp);
-//          }
-//
-//          // Interval Filter
-//        } else if (filter instanceof IntervalFilter) {
-//          IntervalFilter.SelectorType selectorType = ((IntervalFilter) filter).getSelector();
-//
-//          //최신 유형일 경우
-//          if (selectorType == IntervalFilter.SelectorType.RELATIVE) {
-//            DateTime startDateTime = ((IntervalFilter) filter).getRelativeStartDate();
-//            DateTime endDateTime = ((IntervalFilter) filter).utcFakeNow();
-//            nativeCriteria.add(new NativeBetweenExp(filter.getColumn(), startDateTime, endDateTime));
-//            //기간 지정일 경우
-//          } else if (selectorType == IntervalFilter.SelectorType.RANGE) {
-//            List<String> intervals = ((IntervalFilter) filter).getEngineIntervals();
-//            if (intervals != null && !intervals.isEmpty()) {
-//              NativeDisjunctionExp disjunctionExp = new NativeDisjunctionExp();
-//              for (String interval : intervals) {
-//                DateTime startDateTime = new DateTime(interval.split("/")[0]);
-//                DateTime endDateTime = new DateTime(interval.split("/")[1]);
-//                disjunctionExp.add(new NativeBetweenExp(filter.getColumn(), startDateTime, endDateTime));
-//              }
-//              nativeCriteria.add(disjunctionExp);
-//            }
-//          }
-//        }
-//      }
-//    }
-//
-//    if (limit != null) {
-//      nativeCriteria.setLimit(maxLimit);
-//    }
-//
-//    queryString = nativeCriteria.toSQL();
-//
-//    //    if(limit == null) {
-//    //      // 질의 쿼리 작성
-//    //      queryString = new SelectQueryBuilder(realConnection)
-//    //              .projection(fields)
-//    //              .query(ingestionInfo)
-//    //              .build();
-//    //    } else {
-//    //      // 질의 쿼리 작성
-//    //      queryString = new SelectQueryBuilder(realConnection)
-//    //              .projection(fields)
-//    //              .query(ingestionInfo)
-//    //              .limit(0, limit)
-//    //              .build();
-//    //    }
-//
-//    LOGGER.info("Generated SQL Query: {}", queryString);
-//
-//    // 쿼리 결과 저장
-//    String tempFileName = getTempFileName(baseDir, EngineProperties.TEMP_CSV_PREFIX + "_"
-//            + dataSourceName + "_" + System.currentTimeMillis());
-//    JdbcCSVWriter jdbcCSVWriter = null;
-//    try {
-//      jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempFileName), CsvPreference.STANDARD_PREFERENCE);
-//      jdbcCSVWriter.setConnection(realConnection);
-//      jdbcCSVWriter.setDataSource(dataSource);
-//      jdbcCSVWriter.setQuery(queryString);
-//      jdbcCSVWriter.setFileName(tempFileName);
-//      jdbcCSVWriter.setFetchSize(fetchSize);
-//      jdbcCSVWriter.setWithHeader(false);
-//    } catch (IOException e) {
-//    }
-//
-//    String resultFileName = jdbcCSVWriter.write();
-//
-//    // 결과 셋이 없는 경우 처리
-//    File file = new File(resultFileName);
-//    if (!file.exists() && file.length() == 0) {
-//      return null;
-//    }
-//
-//    LOGGER.debug("Created result file : {} ", resultFileName);
-//
-//    tempCsvFiles.add(tempFileName);
-//
-//    return tempCsvFiles;
-//
-//  }
-
   public List<String> selectQueryToCsv(JdbcDataConnection connection,
                                        JdbcIngestionInfo ingestionInfo,
                                        String baseDir,
@@ -1569,8 +1410,14 @@ public class JdbcConnectionService {
     long duplicated = fieldList.stream()
                                .filter(field -> field.getName().equals(fieldName))
                                .count();
-    String uniqueFieldName = duplicated > 0 ? VarGenerator.gen(fieldName) : fieldName;
-    return uniqueFieldName;
+    if(duplicated > 0){
+      if(StringUtils.contains(fieldName, ".")){
+        return StringUtils.split(fieldName, ".")[0] + "." + VarGenerator.gen(fieldName);
+      } else {
+        return VarGenerator.gen(fieldName);
+      }
+    }
+    return fieldName;
   }
 
   public Map<String, Object> searchSchemas(JdbcDataConnection connection, DataSource dataSource,
@@ -1902,11 +1749,17 @@ public class JdbcConnectionService {
     JdbcUtils.closeConnection(connection);
   }
 
-  public int writeResultSetToCSV(ResultSet resultSet, String tempCsvFilePath) throws SQLException{
+  public int writeResultSetToCSV(ResultSet resultSet, String tempCsvFilePath, List<String> headers) throws SQLException{
     JdbcCSVWriter jdbcCSVWriter = null;
     int rowNumber = 0;
     try {
       jdbcCSVWriter = new JdbcCSVWriter(new FileWriter(tempCsvFilePath), CsvPreference.STANDARD_PREFERENCE);
+
+      //write header from list if exist
+      if(headers != null && !headers.isEmpty()){
+        jdbcCSVWriter.setWithHeader(false);
+        jdbcCSVWriter.writeHeaders(headers);
+      }
       jdbcCSVWriter.write(resultSet, false);
       rowNumber = jdbcCSVWriter.getRowNumber();
     } catch (IOException e) {
@@ -1928,28 +1781,26 @@ public class JdbcConnectionService {
     List<Field> fields = Lists.newArrayList();
     for (int i = 1; i <= colNum; i++) {
 
-      String columnName = metaData.getColumnName(i);
       String columnLabel = metaData.getColumnLabel(i);
 
       String fieldName;
+      String tableName;
 
       if(extractColumnName){
-        fieldName = extractColumnName(metaData.getColumnLabel(i));
+        fieldName = extractColumnName(columnLabel);
       } else {
-        fieldName = removeDummyPrefixColumnName(metaData.getColumnLabel(i));
-      }
-
-      //useOldAliasMetadataBehavior=true
-      if(metaData instanceof com.mysql.jdbc.ResultSetMetaData){
-        String tableName = metaData.getTableName(i);
-        fieldName = tableName + "." + fieldName;
+        fieldName = removeDummyPrefixColumnName(columnLabel);
+        //useOldAliasMetadataBehavior=true
+        if(metaData instanceof com.mysql.jdbc.ResultSetMetaData){
+          tableName = metaData.getTableName(i);
+          fieldName = tableName + "." + fieldName;
+        }
       }
 
       String uniqueFieldName = generateUniqueColumnName(fieldName, fields);
 
       Field field = new Field();
-      field.setName(fieldName);
-      field.setAlias(uniqueFieldName);
+      field.setName(uniqueFieldName);
       field.setType(DataType.jdbcToFieldType((metaData.getColumnType(i))));
       field.setRole(field.getType().toRole());
       fields.add(field);

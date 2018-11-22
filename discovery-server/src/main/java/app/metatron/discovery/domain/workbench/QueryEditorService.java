@@ -60,6 +60,7 @@ import java.sql.Statement;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.workbench.WorkbenchErrorCodes.CSV_FILE_NOT_FOUND;
 
@@ -403,15 +404,21 @@ public class QueryEditorService {
     String tempFileName = generateTempCSVFileName(csvBaseDir, queryEditorId, queryIndex);
     LOGGER.debug("writeResultSetToCSV csvBaseDir : {}", csvBaseDir);
     LOGGER.debug("writeResultSetToCSV tempFileName : {}", tempFileName);
-    int rowNumber = jdbcConnectionService.writeResultSetToCSV(resultSet, csvBaseDir + tempFileName);
 
     //2. get field info from resultset
     List<Field> fieldList = jdbcConnectionService.getFieldList(resultSet, false);
 
-    //3. get data list from csv file
+    //3. write csv
+    int rowNumber = jdbcConnectionService.writeResultSetToCSV(
+            resultSet,
+            csvBaseDir + tempFileName,
+            fieldList.stream().map(field -> field.getName()).collect(Collectors.toList()));
+
+
+    //4. get data list from csv file
     List<Map<String, Object>> dataList = readCsv(csvBaseDir + tempFileName, fieldList, 0, pageSize);
 
-    //4. generate Query Result
+    //5. generate Query Result
     QueryResult queryResult = new QueryResult();
     queryResult.setRunQuery(query);
     queryResult.setFields(fieldList);
