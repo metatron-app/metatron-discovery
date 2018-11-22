@@ -12,105 +12,65 @@
   ~ limitations under the License.
   -->
 
-<div class="ddp-ui-rnb-contents">
-  <div class="ddp-ui-title">
+<div class="ddp-box-layout4 ddp-history">
+  <div class="ddp-data-title">
     {{'msg.bench.ui.query.hist'|translate}}
-  </div>
-  <div class="ddp-ui-option">
-    <!-- search -->
-    <div class="ddp-form-search">
-      <em class="ddp-icon-search"></em>
-      <input type="text" placeholder="" [(ngModel)]="searchText" (keyup.esc)="searchText ='';getSearch()" (keyup.Enter)="getSearch()">
-      <em class="ddp-btn-search-close" *ngIf="searchText" (click)="searchText ='';getSearch()"></em>
-    </div>
-    <!-- //search -->
-    <div class="ddp-ui-reset">
-      <a href="javascript:" class="ddp-btn-reset2" (click)="deleteAll()"></a>
-      <div class="ddp-ui-tooltip-info">
-        <em class="ddp-icon-view-top"></em>
-        {{'msg.comm.ui.list.del.all'|translate}}
+
+    <!-- history option -->
+    <div class="ddp-ui-history-option">
+
+      <!-- search -->
+      <!-- 클릭시 ddp-selected 추가 -->
+      <div class="ddp-history-search" [ngClass]="{'ddp-selected' : isSearchText}">
+        <a href="javascript:" class="ddp-icon-search" (click)="openSearchArea()"></a>
+
+        <div class="ddp-type-search">
+          <input type="text" placeholder="{{'msg.bench.ui.placeholder.search-query-history'|translate}}" [(ngModel)]="searchText" (keyup.esc)="searchText ='';getSearch()" (keyup.Enter)="getSearch()">
+          <a href="javascript:" class="ddp-btn-delete" *ngIf="searchText" (click)="searchText ='';getSearch()"></a>
+          <a href="javascript:" class="ddp-btn-back" (click)="closeSearchArea()"></a>
+        </div>
       </div>
+      <a href="javascript:" class="ddp-icon-del" (click)="historyDelete()"></a>
+      <a href="javascript:" class="ddp-btn-close2" (click)="historyClose()"></a>
+      <!-- //search -->
     </div>
-
-
+    <!-- //history option -->
   </div>
 
-  <div class="ddp-wrap-table-simple">
-    <!-- thead -->
-    <div class="ddp-table-thead">
-      <table class="ddp-table-simple">
-        <colgroup>
-          <col width="55px"/>
-          <col width="100px"/>
-          <col width="*"/>
-          <col width="65px"/>
-          <col width="60px"/>
-        </colgroup>
-        <thead>
-        <tr>
-          <th class="ddp-txt-center">
-            {{'msg.comm.th.no'|translate}}
-          </th>
-          <th>
-            {{'msg.comm.th.time'|translate}}
-          </th>
-          <th>
-            {{'msg.comm.th.action'|translate}}
-          </th>
-          <th>
-            {{'msg.comm.th.rspns'|translate}}
-          </th>
-          <th class="ddp-txt-center">
-            {{'msg.comm.th.rslt'|translate}}
-          </th>
-        </tr>
-        </thead>
-
-      </table>
-    </div>
-    <!-- //thead -->
-    <!-- tbody -->
-    <div class="ddp-table-tbody">
-      <table class="ddp-table-simple">
-        <colgroup>
-          <col width="55px"/>
-          <col width="100px"/>
-          <col width="*"/>
-          <col width="65px"/>
-          <col width="60px"/>
-        </colgroup>
-        <tbody>
-        <tr *ngFor="let item of histories; let idx = index" (click)="setTableSql(item.query)">
-          <td class="ddp-txt-center">
-            {{pageResult.totalElements - idx}}
-          </td>
-          <td>
-            <!--{{item.modifiedTime | date 'yyyy.MM.dd hh:mm'}}-->
-            <!--15.12.10<br/>13:54:54-->
-            {{item.queryStartTime | mdate:'MM-DD HH:mm'}}<br/>
-            {{item.queryFinishTime | mdate:'MM-DD HH:mm'}}
-            by {{item.createdBy.fullName}}
-          </td>
-          <td>
-            <div class="ddp-ui-action">
-              {{item.query}}<br/>
-
-            </div>
-          </td>
-          <td>
-            {{item.queryTimeTakenFormatted}}
-          </td>
-          <td class="ddp-txt-center">
-            <em class="ddp-result-fail" *ngIf="item.queryResultStatus === 'FAIL'">Fail</em>
-            <em class="ddp-result-scuccess" *ngIf="item.queryResultStatus === 'SUCCESS'">Success</em>
-          </td>
-        </tr>
-        </tbody>
-      </table>
-      <a *ngIf="page.page < pageResult.totalPages" href="javascript:" class="ddp-btn-more" (click)="getQueryHistories()">+ {{'msg.comm.ui.more'|translate}}</a>
-    </div>
-    <!-- //tbody -->
-
+  <!-- 검색어 -->
+  <div class="ddp-data-list-num" *ngIf="completeSearchText === ''">
+    {{pageResult.totalElements}} Results
   </div>
+  <div class="ddp-data-list-num" *ngIf="completeSearchText !== ''">
+    {{pageResult.totalElements}} Results of '{{completeSearchText}}'
+  </div>
+  <!-- //검색어 -->
+  <!-- No data -->
+  <div *ngIf="histories.length === 0" class="ddp-nodata">
+    No list
+  </div>
+  <!-- //No data -->
+
+  <ul class="ddp-list-history">
+    <li *ngFor="let item of histories; let idx = index" (click)="setTableSql(item)">
+      <a href="javascript:">
+        <div class="ddp-ui-history-data">
+          <em class="ddp-icon-status-success" *ngIf="item.queryResultStatus === 'SUCCESS'"></em>
+          <em class="ddp-icon-status-fail" *ngIf="item.queryResultStatus === 'FAIL'"></em>
+
+          <em class="ddp-icon-return" *ngIf="item.queryResultStatus === 'SUCCESS'"></em>
+          <em class="ddp-icon-view" *ngIf="item.queryResultStatus === 'FAIL'"></em>
+        </div>
+        <div class="ddp-data-history">
+          <div class="ddp-data-edit" title="{{item.query}}"> {{item.query}} </div>
+          <div class="ddp-data-time" title="{{item.queryStartTime | mdate:'YYYY-MM-DD HH:mm:ss'}} / {{item.queryTimeTakenFormatted}} / {{item.createdBy.fullName}}">
+            {{item.queryStartTime | mdate:'YYYY-MM-DD HH:mm:ss'}} / {{item.queryTimeTakenFormatted}} / {{item.createdBy.fullName}}
+          </div>
+
+        </div>
+      </a>
+    </li>
+  </ul>
+  <a *ngIf="page.page < pageResult.totalPages" (click)="getQueryHistories()" href="javascript:" class="ddp-btn-more">+ {{'msg.comm.ui.more'|translate}}</a>
 
 </div>

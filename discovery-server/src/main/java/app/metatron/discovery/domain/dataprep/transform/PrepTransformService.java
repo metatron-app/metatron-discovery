@@ -1920,6 +1920,26 @@ public class PrepTransformService {
             new ExprFunction(ExprFunctionCategory.MATH, "math.tanh", "msg.dp.ui.expression.functiondesc.math.tanh"
                     , "math.tanh(4)", "0.999329299739067")
     );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.WINDOW, "row_number", "msg.dp.ui.expression.functiondesc.window.row_number"
+                    , "row_number()", "window function")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.WINDOW, "rolling_sum", "msg.dp.ui.expression.functiondesc.window.rolling_sum"
+                    , "rolling_sum(target_col, before, after)", "window function")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.WINDOW, "rolling_avg", "msg.dp.ui.expression.functiondesc.window.rolling_avg"
+                    , "rolling_sum(target_col, before, after)", "window function")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.WINDOW, "lag", "msg.dp.ui.expression.functiondesc.window.lag"
+                    , "lag(target_col, before)", "window function")
+    );
+    functionList.add(
+            new ExprFunction(ExprFunctionCategory.WINDOW, "lead", "msg.dp.ui.expression.functiondesc.window.lead"
+                    , "lead(target_col, after)", "window function")
+    );
 
     return functionList;
   }

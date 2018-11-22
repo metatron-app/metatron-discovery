@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -60,6 +74,7 @@ import app.metatron.discovery.domain.datasource.data.DataQueryController;
 import app.metatron.discovery.domain.datasource.data.QueryTimeExcetpion;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
 import app.metatron.discovery.domain.datasource.data.SummaryQueryRequest;
+import app.metatron.discovery.domain.datasource.data.result.ChartResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.GraphResultFormat;
 import app.metatron.discovery.domain.datasource.data.result.ObjectResultFormat;
 import app.metatron.discovery.domain.engine.model.SegmentMetaDataResponse;
@@ -151,17 +166,21 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
     DataSource metaDataSource = request.getDataSource().getMetaDataSource();
     List<Filter> filters = request.getFilters();
 
-    // 필수 필터, 체크 Preview 모드일 경우 필수 필터 체크 안함
+    // Do not check essential filter in Preview mode
     if (BooleanUtils.isFalse(request.getPreview())) {
       checkRequriedFilter(metaDataSource, filters, request.getProjections());
     }
 
-    // GraphResultFormat 타입인 경우, 별도 처리
+    // If necessary, pre-handle the request object in case of ChartResultFormat
+    if(request.getResultFormat() instanceof ChartResultFormat) {
+      ((ChartResultFormat) request.getResultFormat()).preHandling();
+    }
+
+    // If GraphResultFormat, handle it separately.
     if (request.getResultFormat() instanceof GraphResultFormat) {
 
       GraphResultFormat graphResultFormat = (GraphResultFormat) request.getResultFormat();
 
-      // 결과 값
       ObjectNode objectNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
 
       List<app.metatron.discovery.domain.workbook.configurations.field.Field> fields = request.getProjections();
@@ -234,7 +253,6 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
       return request.getResultFormat().makeResult(objectNode);
     }
 
-    // FIXME: Query 쪽 공통화 필요
     stopWatch.start("Query Generation Time");
     Query query;
     if (checkSelectQuery(request.getProjections(), request.getUserFields())) {
@@ -248,6 +266,7 @@ public class EngineQueryService extends AbstractQueryService implements QuerySer
             .forward(request.getResultForward())
             .build();
       } else {
+
         QueryHistoryTeller.setEngineQueryType(SELECT); // for history
         query = SelectQuery.builder(request.getDataSource())
                            .initVirtualColumns(request.getUserFields())

@@ -333,6 +333,7 @@ dl.ddp-dl-detail dd br {display:block; margin-top:5px;}
 	PAGE : 대시보드 그리드 미리보기 팝업
 **********************************************************************************/
 .ddp-pop-preview {position:fixed; left:424px; right:124px; bottom:112px; top:155px;  background-color:#fff; z-index:126;}
+.ddp-pop-preview.ddp-size-m {left:50%; right:inherit; bottom:inherit; top:50%; width:700px; height:500px; margin:-250px 0 0 -350px;}
 .ddp-pop-preview:before {display:inline-block; content:''; position:fixed; left:0; right:0; bottom:0; top:0; background-color:rgba(208,209,216,0.5);}
 .ddp-pop-preview.ddp-pop-database em.ddp-icon-view {display:inline-block; position:absolute; top:66px; left:-8px; width:8px; height:12px; background:url(../images/icon_dataview.png) no-repeat; background-position:left -27px; z-index:3;}
 .ddp-pop-preview .ddp-ui-top {position:relative; height:38px; background-color:#4b515b; border:1px solid #4b515b;}
@@ -570,6 +571,9 @@ ul.ddp-list-order li .ddp-data-name .ddp-chart-img {display:inline-block; float:
 	PAGE : 워크북 대시보드 (CONTENTS)
 ************************************************************************************************************/
 .ddp-ui-dash-contents {position:absolute; top:48px; left:289px; right:0; bottom:0; overflow-x:hidden;}
+
+.ddp-ui-dash-contents.ddp-tooltip {z-index:199 !important; overflow:inherit;}
+.ddp-ui-dash-contents.ddp-tooltip .ddp-ui-widget {z-index:130;}
 .ddp-ui-dash-contents .ddp-loading-part {position:fixed; left:289px; top:102px; right:0; bottom:0; z-index:126;}
 .ddp-ui-dash-contents.ddp-close {left:26px;}
 .ddp-ui-dash-contents.ddp-close .ddp-wrap-naviarea {}
@@ -1813,10 +1817,15 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 .ddp-ui-data-none em.ddp-chart-radar {background-position:-854px 0;}
 .ddp-ui-data-none em.ddp-chart-network {background-position:-915px 0;}
 .ddp-ui-data-none em.ddp-chart-sankey {background-position:-976px 0;}
+.ddp-ui-data-none em.ddp-chart-filter {background-position:-1037px 0;}
+.ddp-ui-data-none em.ddp-chart-parameter {background-position:-1098px 0;}
 .ddp-wrap-data-none .ddp-ui-data-none em[class*="ddp-chart-"].ddp-error:before {display:inline-block; width:22px; height:22px; position:absolute; bottom:-7px; right:-7px; content:''; background:url(../images/icon_chart_error.png) no-repeat;}
 .ddp-wrap-data-none .ddp-ui-data-none .ddp-data-name {display:block; padding:15px 0 0; font-size:16px; text-align:center; color:#90969f;}
 .ddp-wrap-data-none .ddp-ui-data-none .ddp-txt-det {display:block; padding-top:18px; color:#b7b9c2; font-size:14px; font-weight:300; text-align:center;}
 .ddp-wrap-data-none .ddp-ui-data-none .ddp-txt-det em {color:#666eb2;}
+
+.ddp-wrap-data-none .ddp-ui-data-none .ddp-link-error {display:inline-block; margin-top:9px; color:#90969f;}
+.ddp-wrap-data-none .ddp-ui-data-none .ddp-link-error:after {display:inline-block; position:relative; top:-2px; width:13px; height:13px; margin-left:4px; background:url(../images/icon_list_view.png) no-repeat; background-position:left -23px; vertical-align:middle; content:'';}
 .ddp-wrap-data-none .ddp-ui-data-none {display:table-cell; width:100%; height:100%; vertical-align: middle; text-align:center; font-size:18px; color:#d0d1db;}
 
 .ddp-ui-data-none em.ddp-img-nodata {display:inline-block; width:213px; height:179px; background:url(../images/img_nochart.png) no-repeat;}
@@ -1825,16 +1834,21 @@ ul.ddp-list-text li a .ddp-data-info span {display:block; color:#4b515b; font-si
 
 .ddp-ui-data-none em.ddp-img-nodata2 {display:inline-block; width:170px; height:190px; background:url(../images/img_nochart2.png) no-repeat;}
 
-.ddp-div-table {display:table; width:100%; height:100%;}
+.ddp-div-table {position:relative; display:table; width:100%; height:100%; background:#fff; z-index:10;}
 .ddp-div-tablecell {display:table-cell; width:100%; height:100%; vertical-align: middle; text-align:center;}
 .ddp-div-tablecell .ddp-txt-condition {display:block; padding-bottom:35px; text-align:center; color:#d0d1d8; font-size:28px;}
 .ddp-div-tablecell .ddp-txt-condition.ddp-missing {color:#eb5f58;}
 .ddp-div-tablecell .ddp-detail {display:block; padding-bottom:25px; color:#b7b9c2; font-size:14px; line-height:18px;}
 .ddp-div-tablecell .ddp-btn-line {padding:9px 19px;}
 
+.ddp-view-widget .ddp-ui-error-detail {position:absolute; top:0; left:0; right:0; bottom:0; padding:30px 28px; background-color:#eeeef0; z-index:1; overflow:auto; cursor:default;}
+.ddp-view-widget .ddp-ui-error-detail dl + dl {margin-top:20px;}
+.ddp-view-widget .ddp-ui-error-detail dl dt {color:#6f737a; font-weight:bold; font-size:13px;}
+.ddp-view-widget .ddp-ui-error-detail dl dd {color:#6f737a; font-size:13px; line-height:18px;}
+
 /***********************************************************************************************************
 	PAGE : 워크북 대시보드 편집 (SIDE)
-************************************************************************************************************/
+    ************************************************************************************************************/
 .ddp-wrap-editboard .ddp-ui-boardside-menu { display:table-cell; position:relative; width:60px; height:100%; border-left:1px solid #eeeef0; background-color:#f7f7f8; vertical-align: top;}
 
 .ddp-ui-boardside-menu a {display:block; position:relative;width:60px; height:52px; text-align:center;}
@@ -2667,6 +2681,8 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-wrap-chart .ddp-wrap-chart-contents {float:left; margin-left:-288px; margin-right:-318px; padding-left:288px; width:100%;height:100%;vertical-align: top;overflow:hidden; box-sizing:border-box;}
 
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents {position:relative; height:100%; margin-right:317px; overflow:hidden;}
+.ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents.ddp-tooltip {z-index:70; overflow:initial;}
+.ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents.ddp-tooltip .ddp-ui-chart-contents{z-index:10; overflow:initial}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents .ddp-wrap-naviarea {padding-right:430px; margin-left:0px;}
 
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-view-chart-contents .ddp-wrap-naviarea .ddp-box-navi.ddp-selected .ddp-wrap-input {width:100%;}
@@ -2675,7 +2691,6 @@ ul.ddp-ui-tab li.ddp-selected a em.ddp-icon-zepplin {background-position:left -1
 .ddp-wrap-chart .ddp-wrap-chart-contents.ddp-size {margin-right:-53px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents.ddp-size .ddp-view-chart-contents {margin-right:53px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents {position:absolute; top:198px; left:0; right:0; bottom:0; overflow:auto;}
-
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-map-chart.ddp-shelf1 {top:104px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-map-chart.ddp-shelf2 {top:149px;}
 .ddp-wrap-chart .ddp-wrap-chart-contents .ddp-ui-chart-contents.ddp-map-chart.ddp-shelf3 {top:194px;}
@@ -2919,9 +2934,10 @@ em.ddp-icon-cross.type-apply:before {background-position:-12px -20px;}
 .ddp-ui-drag-slide .ddp-ui-default {position:relative; display:inline-block; float:left; padding:0 5px; white-space:nowrap;}
 .ddp-ui-drag-slide .ddp-ui-default span.ddp-data {color:#fff; opacity:0.8;}
 .ddp-ui-drag-slide .ddp-ui-default span.ddp-type-value {display:inline-block; padding-right:7px; margin-right:7px; border-right:1px solid rgba(255,255,255,0.5); color:rgba(255,255,255,0.8);}
-
 .ddp-wrap-shelf.ddp-mapview .ddp-ui-drag-slide-in {overflow:hidden;}
-.ddp-wrap-shelf.ddp-mapview .ddp-ui-drag-slide {overflow:hidden;}
+.ddp-wrap-shelf.ddp-mapview .ddp-ui-drag-slide {padding:0;overflow:hidden;}
+.ddp-wrap-shelf.ddp-mapview .ddp-ui-drag-slide.ddp-slide {padding-left:34px;}
+
 .ddp-ui-shelf.ddp-add-self:before {display:inline-block; position:absolute;top:3px; left:6px; bottom:3px; right:6px; border-radius:3px; border:1px solid #d0d1d7; content:'';}
 
 .ddp-ui-drag-slide .ddp-slide-control {position:absolute; top:0; right:10px; bottom:0;background-color:#fff; z-index:5;}
@@ -5535,6 +5551,7 @@ ul.ddp-list-detail li .ddp-wrap-detailinfo .ddp-data-history .ddp-data-success {
 .ddp-ui-union-table {display:inline-block;  white-space:nowrap;}
 .ddp-ui-union-table table.ddp-table-union:first-of-type tr th,
 .ddp-ui-union-table table.ddp-table-union:first-of-type tr td {padding-left:23px;}
+
 table.ddp-table-union {display:inline-block; width:auto; margin-left:-3px; white-space:nowrap; vertical-align: top;}
 table.ddp-table-union tr th {position:relative; padding:0 5px 5px 12px; text-align:left;}
 table.ddp-table-union tr th:first-of-type {padding-left:23px;}
@@ -6637,7 +6654,7 @@ table.ddp-table-simple tr td .ddp-ui-time {width:100%; color:#90969f; font-size:
 .ddp-ui-tabs ul.ddp-list-tabs li.ddp-edit input.ddp-input-edit {display:block;}
 .ddp-pop-more {position:fixed;}
 
-.ddp-wrap-editor {text-align:left; position:absolute; top:33px; left:0; right:0; bottom:0; background-color:#fff; z-index:10;}
+.ddp-wrap-editor {position:absolute; top:33px; left:0; right:0; bottom:41px; background-color:#fff; text-align:left; z-index:10; }
 .ddp-ui-empty {padding:18px 20px; color:#b7b9c3; font-size:12px;}
 
 .ddp-box-editer a.ddp-btn-beautifier {position:relative; float:left; width:32px; height:32px;  background:rgba(75,81,91,0.05); margin-right:2px;}
@@ -8366,16 +8383,17 @@ em.ddp-icon-mapview3-w:before {background-position-x:0;}
 .ddp-ui-shelf em.ddp-icon-mapview2:before,
 .ddp-ui-shelf em.ddp-icon-mapview3:before {position:absolute; top:50%; left:50%; margin:-8px 0 0 -9px;}
 
-.ddp-map-tooltip  {display:block; position:absolute; top:0; left:0; max-width:257px; padding:9px; box-sizing:border-box;z-index:10;}
-.ddp-map-tooltip .ddp-table-info {table-layout:fixed; }
-.ddp-map-tooltip .ddp-table-info tr td {white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
-.ddp-map-tooltip .ddp-label {display:block; padding-bottom:6px; color:#fff; font-size:16px; font-weight:bold; vertical-align:Middle;}
+.ddp-map-tooltip  {display:block; position:absolute; top:0; left:0; max-width:300px; padding:9px; box-sizing:border-box;z-index:10;}
+.ddp-map-tooltip .ddp-label {display:block; padding-bottom:6px; color:#fff; font-size:14px; font-weight:bold; vertical-align:middle;}
 .ddp-map-tooltip .ddp-label [class*="ddp-icon-mapview"] {margin-right:5px;}
-.ddp-table-info {width:100%;}
-.ddp-table-info tr th {color:#d0d1d8; font-size:13px; font-weight:normal; text-align:left;}
-.ddp-table-info tr td {color:#fff; font-size:13px; }
-.ddp-table-info tr + tr th,
-.ddp-table-info tr + tr td {padding-top:6px;}
+
+
+.ddp-map-tooltip .ddp-data-tooltip + .ddp-data-tooltip{padding:8px 0 0 0;}
+.ddp-map-tooltip .ddp-data-tooltip dt {color:#d0d1d8; font-size:13px; font-weight:normal; text-align:left; white-space:normal;}
+.ddp-map-tooltip .ddp-data-tooltip dd {color:#fff; font-size:13px; white-space:normal;}
+
+
+
 .ddp-list-datavalue > li {position:relative; padding:5px 28px 5px 10px; background-color:#eeeef0; color:#4a525c; font-size:13px; cursor:pointer;}
 .ddp-list-datavalue > li + li {margin-top:2px;}
 .ddp-list-datavalue li em[class*="ddp-icon-dimension-"],
@@ -8524,9 +8542,11 @@ ul.ddp-list-tab-type li a:hover + .ddp-ui-tooltip-info {display:block; top:100%;
 /**************************************************************
   Page : 대시보드
 **************************************************************/
-.ddp-box-widget .ddp-top-control .ddp-ui-buttons em.ddp-icon-widget-info2:before{display:inline-block; position:absolute; top:50%; left:50%; margin:-7px 0 0 -7px; width:13px; height:13px; background:url(../images/icon_widget.png) no-repeat; background-position:left -230px; content:'';}
-.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2:hover em.ddp-icon-widget-info2:before  {background-position:-14px -230px;}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons em.ddp-icon-widget-info2:before{display:inline-block; position:absolute; top:50%; left:50%; margin:-7px 0 0 -7px; width:15px; height:14px; background:url(../images/icon_widget.png) no-repeat; background-position:left -244px; content:'';}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2:hover em.ddp-icon-widget-info2:before  {background-position:-16px -244px;}
 .ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2 .ddp-box-info.ddp-limitation {display:none;position:absolute; top:100%; right:-100px;padding:6px 10px; width:240px; border-radius:3px;background-color:#7182ba; color:#fff; box-sizing:border-box; z-index:1000;}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2 .ddp-box-info.ddp-limitation .ddp-total {display:block;padding-bottom:4px;}
+.ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2 .ddp-box-info.ddp-limitation .ddp-total strong {display:block;}
 .ddp-box-widget .ddp-top-control .ddp-ui-buttons .ddp-box-btn2:hover .ddp-box-info.ddp-limitation {display:block;}
 
 
