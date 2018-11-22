@@ -164,7 +164,14 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
    * 다음 단계로 이동
    */
   public done() {
-    this.doneEvent.emit({old:this.originalDatasetId, new : this.radioSelectDatasetComponent.getSelectedDataset()})
+
+    let param = {oldDsId:this.originalDatasetId, newDsId : this.radioSelectDatasetComponent.getSelectedDataset()};
+    if (this.title === 'Replace dataset') {
+      param['type'] === 'imported';
+    } else if (this.title === 'Change input dataset') {
+      param['type'] === 'wrangled';
+    }
+    this.doneEvent.emit(param);
   } // function - next
 
   public sortEvent(data) {

@@ -983,8 +983,8 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
   public datasetPopupFinishEvent (data) {
 
     this.isSelectDatasetPopupOpen = false;
-    let newDsId = data.new;
-    let oldDsId = data.old;
+    let newDsId = data.newDsId;
+    let oldDsId = data.oldDsId;
     this.datasetSwap(oldDsId, newDsId);
 
   }
@@ -996,7 +996,8 @@ export class DataflowDetailComponent extends AbstractPopupComponent implements O
    */
   public datasetSwap(oldDsId: string, newDsId : string) {
     this.loadingShow();
-    this.dataflowService.datasetSwap(oldDsId, newDsId).then((result) => {
+    let param = {newDsId : newDsId, oldDsId: oldDsId};
+    this.dataflowService.swapDataset(this.dataflow.dfId, param).then((result) => {
       console.info('swapping >>>>>>>>>>>>', result);
       Alert.success('Swap successful');
       // 초기화
