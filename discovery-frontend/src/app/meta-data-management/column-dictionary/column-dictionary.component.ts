@@ -24,6 +24,8 @@ import * as _ from 'lodash';
 import { Alert } from '../../common/util/alert.util';
 import { CreateColumnDictionaryComponent } from './create-column-dictionary/create-column-dictionary.component';
 
+declare let moment: any;
+
 @Component({
   selector: 'app-column-dictionary',
   templateUrl: './column-dictionary.component.html'
@@ -349,9 +351,11 @@ export class ColumnDictionaryComponent extends AbstractComponent implements OnIn
     if (this._selectedDate && this._selectedDate.type !== 'ALL') {
       params['searchDateBy'] = 'CREATED';
       if (this._selectedDate.startDateStr) {
-        params['from'] = this._selectedDate.startDateStr + '.000Z';
+        params['from'] = moment(this._selectedDate.startDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
       }
-      params['to'] = this._selectedDate.endDateStr + '.000Z';
+      if (this._selectedDate.endDateStr) {
+        params['to'] = moment(this._selectedDate.endDateStr).format('YYYY-MM-DDTHH:mm:ss.SSSZ');
+      }
     }
     return params;
   }

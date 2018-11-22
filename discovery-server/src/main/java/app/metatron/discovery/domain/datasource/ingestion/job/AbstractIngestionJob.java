@@ -1,3 +1,45 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
 package app.metatron.discovery.domain.datasource.ingestion.job;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -21,6 +63,7 @@ import app.metatron.discovery.domain.datasource.ingestion.IngestionOptionService
 import app.metatron.discovery.domain.engine.DruidEngineMetaRepository;
 import app.metatron.discovery.domain.engine.DruidEngineRepository;
 import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.geo.GeoService;
 import app.metatron.discovery.spec.druid.ingestion.Index;
 
 public abstract class AbstractIngestionJob {
@@ -38,6 +81,8 @@ public abstract class AbstractIngestionJob {
   protected DruidEngineRepository engineRepository;
 
   protected IngestionOptionService ingestionOptionService;
+
+  protected GeoService geoService;
 
   protected DataSource dataSource;
 
@@ -76,6 +121,10 @@ public abstract class AbstractIngestionJob {
 
   public void setIngestionOptionService(IngestionOptionService ingestionOptionService) {
     this.ingestionOptionService = ingestionOptionService;
+  }
+
+  public void setGeoService(GeoService geoService) {
+    this.geoService = geoService;
   }
 
   protected void setDedicatedWoker() {
@@ -145,5 +194,15 @@ public abstract class AbstractIngestionJob {
     }
 
     return taskId;
+  }
+
+  public void setDataStoreOnGeoserver() {
+    String storeName = dataSource.getEngineName();
+
+    // create datastore
+    geoService.createDataStore(storeName);
+
+    // create feature type
+    geoService.createFeatureType(storeName);
   }
 }

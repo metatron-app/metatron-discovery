@@ -18,7 +18,6 @@
   <div class="ddp-box-setting">
     <div class="ddp-data-top-title">
       {{column.name}}
-
     </div>
     <!-- data delete -->
     <div class="ddp-data-delete" *ngIf="column.unloaded">
@@ -38,9 +37,11 @@
             {{'msg.storage.ui.row' | translate}}
           </div>
         </div>
-
         <!-- list value -->
         <ul class="ddp-list-value">
+          <li class="ddp-data-none" *ngIf="columnData.length === 0">
+            {{(column.derived && column.derivationRule.type !== 'user_defined' ? 'msg.storage.ui.config.no.data' : 'msg.storage.ui.config.extension.no.data') | translate}}
+          </li>
           <li *ngFor="let data of columnData">
             {{data}}
           </li>

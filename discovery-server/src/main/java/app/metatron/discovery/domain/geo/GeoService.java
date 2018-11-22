@@ -1,6 +1,21 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
 package app.metatron.discovery.domain.geo;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,6 +40,8 @@ import javax.annotation.PostConstruct;
 
 import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.datasource.data.SearchQueryRequest;
+import app.metatron.discovery.domain.engine.EngineProperties;
+import app.metatron.discovery.domain.geo.model.GeoDataStore;
 import app.metatron.discovery.domain.geo.query.model.GeoQuery;
 import app.metatron.discovery.domain.geo.query.model.GetFeature;
 import app.metatron.discovery.domain.workbook.configurations.field.Field;
@@ -37,6 +54,12 @@ public class GeoService {
 
   @Autowired
   GeoRepository geoRepository;
+
+  @Autowired
+  GeoServerProperties geoServerProperties;
+
+  @Autowired
+  EngineProperties engineProperties;
 
   ObjectMapper xmlMapper;
 
@@ -101,13 +124,46 @@ public class GeoService {
     return GlobalObjectMapper.writeValueAsString(node);
   }
 
+  public void createDataStore(String name) {
+    String broker = engineProperties.getHostnameByType("broker", true);
+
+    Map<String, Object> requestMap = Maps.newLinkedHashMap();
+    requestMap.put("dataStore", new GeoDataStore(name, 5, -1, broker));
+
+
+    geoRepository.create(geoServerProperties.getRestDataStoreUrl(),
+                         GlobalObjectMapper.writeValueAsString(requestMap));
+
+  }
+
+  public void deleteDataStore(String name) {
+    geoRepository.delete(geoServerProperties.getRestDataStoreUrl(name) + "?recurse=true");
+  }
+
+  public void createFeatureType(String storeName) {
+
+    Map<String, Object> requestMap = Maps.newLinkedHashMap();
+
+    Map<String, Object> featureMap = Maps.newLinkedHashMap();
+    featureMap.put("name", storeName);
+    featureMap.put("nativeName", storeName);
+    featureMap.put("metadata", Maps.newHashMap());
+
+    requestMap.put("featureType", featureMap);
+
+    geoRepository.create(geoServerProperties.getRestFeatureTypeUrl(storeName),
+                         GlobalObjectMapper.writeValueAsString(requestMap));
+
+  }
+
+
   public void customizeResult(JsonNode result, Map<String, String> projectionMapper, List<String> minMaxFields) {
 
     JsonNode features = result.get("features");
 
     // Intermediate variables for processing min / max value by each measure value
     List<List<Double>> forMinMaxValues = Lists.newArrayList();
-    if(CollectionUtils.isNotEmpty(minMaxFields)) {
+    if (CollectionUtils.isNotEmpty(minMaxFields)) {
       minMaxFields.forEach(o -> forMinMaxValues.add(Lists.newArrayList()));
     }
 
@@ -120,7 +176,7 @@ public class GeoService {
         JsonNode value = propertiesNode.get(key);
         String mappedFieldName = projectionMapper.get(key);
         int minMaxIdx = minMaxFields.indexOf(mappedFieldName);
-        if(minMaxIdx != -1) {
+        if (minMaxIdx != -1) {
           forMinMaxValues.get(minMaxIdx).add(value.asDouble(0.0));
         }
         newPropertiesNode.set(mappedFieldName, propertiesNode.get(key));
@@ -132,8 +188,8 @@ public class GeoService {
     ObjectNode minMaxNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
     ((ObjectNode) result).set("valueRange", minMaxNode);
 
-    if(CollectionUtils.isNotEmpty(minMaxFields)) {
-      for(int i=0; i < minMaxFields.size(); i++) {
+    if (CollectionUtils.isNotEmpty(minMaxFields)) {
+      for (int i = 0; i < minMaxFields.size(); i++) {
         ObjectNode minMaxFieldNode = GlobalObjectMapper.getDefaultMapper().createObjectNode();
         addMinMax(forMinMaxValues.get(i), minMaxFieldNode);
         minMaxNode.set(minMaxFields.get(i), minMaxFieldNode);

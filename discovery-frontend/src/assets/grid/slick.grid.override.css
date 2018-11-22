@@ -42,6 +42,7 @@
   background: none;
   background-color: #fff;
   cursor: initial;
+  min-height: 32px;
 }
 
 :host /deep/ .slick-column-name {
@@ -54,6 +55,10 @@
 
 :host /deep/ .slick-row.odd {
     background: #fafafa;
+}
+
+:host /deep/ .slick-row.last {
+  border-bottom: 1px solid #ebebed;
 }
 
 :host /deep/ .slick-cell {

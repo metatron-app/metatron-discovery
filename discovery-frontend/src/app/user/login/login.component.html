@@ -81,10 +81,10 @@
       <div class="ddp-form-login">
         <!-- ID 입력 -->
         <div class="ddp-form-input ddp-ui-input-form" [ngClass]="{'ddp-type-error': loginFailMsg}" style="padding-bottom:0px;">
-          <label class="ddp-label-type">{{'msg.comm.usr.id.title' | translate}}</label>
+          <label class="ddp-label-type">{{'msg.comm.usr.name.title' | translate}}</label>
           <div class="ddp-input-check">
             <span class="ddp-input-type">
-              <input type="text" [(ngModel)]="user.username" placeholder="{{'msg.comm.usr.id.title.ph' | translate}}"
+              <input type="text" [(ngModel)]="user.username" placeholder="{{'msg.comm.usr.name.title.ph' | translate}}"
                      (focus)="loginFailMsg='';" style="border-bottom:none;"/>
             </span>
             <em class="ddp-icon-error" (click)="user.username='';loginFailMsg='';" *ngIf="loginFailMsg"></em>
