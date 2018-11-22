@@ -477,7 +477,9 @@
               </a>
             </div>
             <!-- popup -->
-            <data-download (startDownload)="duringDataDown = true" (endDownload)="duringDataDown = false"></data-download>
+            <data-download
+              [title]="isOriginDown ? ( 'msg.board.download.title-org' | translate ) : ( 'msg.board.download.title-aggr' | translate )"
+              (startDownload)="duringDataDown = true" (endDownload)="duringDataDown = false"></data-download>
             <!-- // popup -->
           </div>
           <!-- //right -->

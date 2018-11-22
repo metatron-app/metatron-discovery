@@ -17,7 +17,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Injector,
+  Injector, Input,
   OnChanges,
   OnDestroy,
   OnInit, Output,
@@ -58,11 +58,16 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
 
   public isShow: boolean = false;
 
+  public isOriginDown: boolean = true;
+
   public downloadType: string = 'ALL';
   public downloadRow: number = 0;
   public preview: PreviewResult;
 
   public commonUtil = CommonUtil;
+
+  @Input()
+  public title:string = '';
 
   @Output('close')
   public closeEvent: EventEmitter<any> = new EventEmitter<any>();
@@ -73,7 +78,6 @@ export class DataDownloadComponent extends AbstractPopupComponent implements OnI
   @Output('endDownload')
   public endDownEvent: EventEmitter<any> = new EventEmitter();
 
-  public isOriginDown: boolean = true;
 
   /*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   | Constructor

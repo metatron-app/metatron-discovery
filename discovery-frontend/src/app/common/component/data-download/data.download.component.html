@@ -15,7 +15,7 @@
 <div *ngIf="isShow" class="ddp-box-layout4 ddp-download" >
   <a (click)="close()" href="javascript:" class="ddp-btn-close"></a>
   <div class="ddp-data-title">
-    {{ 'msg.board.download.title' | translate }}
+    {{ title ? title : 'msg.board.download.title-org' | translate }}
     <span > </span>
     <span *ngIf="isOriginDown && preview" class="ddp-data">
       {{ commonUtil.numberWithCommas( preview.count ) }} {{'msg.storage.ui.dsource.preview.rows' | translate}} /
