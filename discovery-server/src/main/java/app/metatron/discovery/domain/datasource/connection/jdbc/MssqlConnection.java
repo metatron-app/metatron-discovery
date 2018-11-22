@@ -15,7 +15,6 @@
 package app.metatron.discovery.domain.datasource.connection.jdbc;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 
@@ -348,12 +347,6 @@ public class MssqlConnection extends JdbcDataConnection {
       builder.append(";");
       builder.append("database=");
       builder.append(super.getDatabase());
-    }
-
-    if(this.getConnectTimeout() != null) {
-      builder.append(";");
-      builder.append(MSSQL_TIMEOUT_OPTION);
-      builder.append(this.getConnectTimeout());
     }
 
     return builder.toString();

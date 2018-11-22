@@ -26,7 +26,7 @@
 .page-workbench .ddp-wrap-list-search a.ddp-btn-refresh:hover {background-position:-14px top;}
 .page-workbench .ddp-ui-tablelist {top:175px;}
 .page-workbench .ddp-ui-tablelist .ddp-list-table {padding-top:10px }
-.page-workbench .ddp-tablelist-header {padding:2px 0; height:25px; border-top:1px solid #4b515b; border-bottom:1px solid #4b515b; background-color:rgba(75,81,91,0.3); box-sizing:border-box;}
+.page-workbench .ddp-tablelist-header {padding:2px 0px; height:25px; border-top:1px solid #4b515b; border-bottom:1px solid #4b515b; background-color:rgba(75,81,91,0.3); box-sizing:border-box;}
 .page-workbench .ddp-tablelist-header .ddp-table-num {float:right; padding-right:18px; color:#90969f; font-weight:300;}
 .page-workbench .ddp-tablelist-header .ddp-table-num span.ddp-number {font-weight:normal;}
 .page-workbench .ddp-tablelist-header .ddp-table-title {display:inline-block; padding-left:18px; color:#90969f; font-size:12px; overflow:Hidden; cursor:pointer; box-sizing:border-box;}
@@ -65,7 +65,7 @@
 .page-workbench .ddp-icon-button .ddp-icon-query-shortcuts {display:inline-block; background:url(../../../images/icon_query2.png) no-repeat;}
 
 .page-workbench .ddp-link-query .ddp-icon-query-full {width:8px; height:12px;}
-.page-workbench .ddp-link-query:hover .ddp-icon-query-full {background-position-x:-9px;}
+.page-workbench .ddp-link-query:hover .ddp-icon-query-full {backgorund-position-x:-9px;}
 .page-workbench .ddp-link-query .ddp-icon-query-partial {width:13px; height:12px; background-position:left -13px;}
 .page-workbench .ddp-link-query:hover .ddp-icon-query-partial {background-position-x:-14px;}
 .page-workbench .ddp-icon-button .ddp-icon-query-clear {width:18px; height:16px; margin:-8px 0 0 -9px;background-position:left -26px;}
@@ -75,6 +75,7 @@
 .page-workbench .ddp-icon-button .ddp-icon-query-history {width:16px; height:16px;margin:-8px 0 0 -8px; background-position:left -60px;}
 .page-workbench .ddp-icon-button .ddp-icon-query-history:hover,
 .page-workbench .ddp-icon-button .ddp-icon-query-history.ddp-selected {background-position-x:-17px;}
+
 
 .page-workbench .ddp-icon-button .ddp-icon-query-shortcuts {width:16px; height:16px;margin:-8px 0 0 -8px; background-position:left -77px;}
 .page-workbench .ddp-icon-button .ddp-icon-query-shortcuts.ddp-selected,
@@ -109,7 +110,7 @@
 
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-list-history li .ddp-ui-history-data .ddp-icon-status-fail {background-position-x:-14px;}
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-list-history li .ddp-ui-history-data .ddp-icon-return {display:inline-block; width:10px; height:11px; margin-left:8px; background:url(../../../images/icon_control.png) no-repeat; background-position:left -266px;}
-.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-list-history li .ddp-ui-history-data .ddp-icon-view {display:inline-block; width:6px; height:11px; margin-left:9px;  background:url(../../../images/icon_list_view.png) no-repeat; background-position:left -10px;}
+.page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-list-history li .ddp-ui-history-data .ddp-icon-view {display:inline-block; width:6px; height:11px; margin-left:12px;  background:url(../../../images/icon_list_view.png) no-repeat; background-position:left -10px;}
 
 .page-workbench .ddp-wrap-editor .ddp-box-layout4.ddp-history .ddp-ui-history-option .ddp-history-search.ddp-selected {background-color:#fff;}
 
