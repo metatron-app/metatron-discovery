@@ -14,6 +14,9 @@
 
 package app.metatron.discovery.domain.dataprep;
 
+import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
+import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
 import app.metatron.discovery.domain.dataprep.teddy.DataFrame;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.DataConnectionRepository;
@@ -86,35 +89,39 @@ public class PrepDatasetService {
     }
 
     public DataFrame subFileType(PrepDataset dataset) throws Exception {
-        DataFrame dataFrame = null;
-
         String filekey = dataset.getFilekey();
         String sheetName = dataset.getSheetName();
         String delimiter = dataset.getDelimiter();
-        if (filekey != null) {
-            if(true==dataset.isEXCEL()) {
-                String csvFileName = this.datasetFilePreviewService.moveExcelToCsv(filekey,sheetName,delimiter);
-                dataset.putCustomValue("filePath", csvFileName);
-                int lastIdx = csvFileName.lastIndexOf(File.separator);
-                String newFileKey = csvFileName.substring(lastIdx+1);
-                dataset.setFilekey(newFileKey);
-                filekey = newFileKey;
-            }
 
-            dataFrame = this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, filekey, "0", this.filePreviewSize);
+        if (filekey == null) {
+            throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_FILE_KEY_MISSING,
+                    String.format("dsName=%s fileType=%s filePath=%s", dataset.getDsName(),
+                            dataset.getCustomValue("fileType"), dataset.getCustomValue("filePath")));
+        }
 
-            dataset.setFileType(PrepDataset.FILE_TYPE.LOCAL);
-            if( false==dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://") ) {
+        if(true==dataset.isEXCEL()) {
+            String csvFileName = this.datasetFilePreviewService.moveExcelToCsv(filekey,sheetName,delimiter);
+            dataset.putCustomValue("filePath", csvFileName);
+            int lastIdx = csvFileName.lastIndexOf(File.separator);
+            String newFileKey = csvFileName.substring(lastIdx+1);
+            dataset.setFilekey(newFileKey);
+            filekey = newFileKey;
+        }
+
+        if(dataset.getFileTypeEnum() == PrepDataset.FILE_TYPE.HDFS) {
+            if (false == dataset.getCustomValue("filePath").toLowerCase().startsWith("hdfs://")) {
                 String localFilePath = dataset.getCustomValue("filePath");
                 String hdfsFilePath = this.hdfsService.moveLocalToHdfs(localFilePath, filekey);
-                if (null!=hdfsFilePath) {
+                if (null != hdfsFilePath) {
                     dataset.putCustomValue("filePath", hdfsFilePath);
                     dataset.setFileType(PrepDataset.FILE_TYPE.HDFS);
+                } else {
+                    throw PrepException.create(PrepErrorCodes.PREP_DATASET_ERROR_CODE, PrepMessageKey.MSG_DP_ALERT_HADOOP_NOT_CONFIGURED, hdfsFilePath);
                 }
             }
         }
 
-        return dataFrame;
+        return this.datasetFilePreviewService.getPreviewLinesFromFileForDataFrame(dataset, filekey, "0", this.filePreviewSize);
     }
 
     public Map<String,Object> getConnectionInfo(String dcId) {
