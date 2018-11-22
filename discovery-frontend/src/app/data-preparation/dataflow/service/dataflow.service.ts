@@ -386,8 +386,11 @@ export class DataflowService extends AbstractService {
     return this.post(url,{});
   }
 
-  public swapDataset(dfId : string, param?: any): Promise<any> {
-    let url = this.API_URL + `preparationdataflows/${dfId}/swap_upstream`;
+  public swapDataset(param : any): Promise<any> {
+    let url = this.API_URL + `preparationdataflows/${param.dfId}/swap_upstream`;
+
+    delete param.dfId;
+
     return this.post(url, param);
   }
 

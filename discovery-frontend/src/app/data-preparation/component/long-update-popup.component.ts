@@ -167,9 +167,9 @@ export class LongUpdatePopupComponent extends AbstractComponent implements OnIni
 
     let param = {oldDsId:this.originalDatasetId, newDsId : this.radioSelectDatasetComponent.getSelectedDataset()};
     if (this.title === 'Replace dataset') {
-      param['type'] === 'imported';
+      param['type'] = 'imported';
     } else if (this.title === 'Change input dataset') {
-      param['type'] === 'wrangled';
+      param['type'] = 'wrangled';
     }
     this.doneEvent.emit(param);
   } // function - next
