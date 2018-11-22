@@ -663,18 +663,18 @@ public class TeddyExecutor {
         // 아래 방법으로 table을 만들면 quote 문자를 지정하지 못한다.
         // 내용 중간에 comma가 있는 경우 다음 컬럼으로 인식된다.
         // 대신 type이 모두 string이 되는 현상은 없다.
-        //createTable.append(String.format(" ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '%s'", location));
+        createTable.append(String.format(" ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE LOCATION '%s'", location));
 
         // 아래 방법으로 table을 만들면 quote 문자를 지정할 수 있다.
         // 하지만 모든 컬럼이 string이 된다.
-        String quote = "\"";
-        String slash = "\\";
-        createTable.append(" ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde' ");
-        createTable.append("WITH SERDEPROPERTIES (");
-        createTable.append(String.format("%sseparatorChar%s = %s%s,%s, ", quote, quote, quote, slash, quote));        // "separatorChar" = "\,",
-        createTable.append(String.format("%squoteChar%s     = %s%s%s%s", quote, quote, quote, slash, quote, quote));  // "quoteChar"     = "\""
-        createTable.append(")");
-        createTable.append(String.format(" STORED AS TEXTFILE LOCATION '%s'", location));
+//        String quote = "\"";
+//        String slash = "\\";
+//        createTable.append(" ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde' ");
+//        createTable.append("WITH SERDEPROPERTIES (");
+//        createTable.append(String.format("%sseparatorChar%s = %s%s,%s, ", quote, quote, quote, slash, quote));        // "separatorChar" = "\,",
+//        createTable.append(String.format("%squoteChar%s     = %s%s%s%s", quote, quote, quote, slash, quote, quote));  // "quoteChar"     = "\""
+//        createTable.append(")");
+//        createTable.append(String.format(" STORED AS TEXTFILE LOCATION '%s'", location));
         break;
       case ORC:
         createTable.append(String.format(" STORED AS ORC LOCATION '%s' TBLPROPERTIES (\"orc.compress\"=\"%s\")", location, compression.name()));
@@ -773,9 +773,12 @@ public class TeddyExecutor {
     switch (format) {
       case CSV:
         Path file = new Path(dir.toString() + File.separator + "part-00000-" + dsId + ".csv");
-        OutputStream os = fs.create(file);
-        BufferedWriter br = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-        rowCnt[0] = writeCsv(ssId, df, br, null);
+//        OutputStream os = fs.create(file);
+//        BufferedWriter br = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+//        rowCnt[0] = writeCsv(ssId, df, br, null);
+
+        String strUri = dir.toString() + File.separator + "part-00000-" + dsId + ".csv";
+        rowCnt[0] = writeCsv(strUri, df, ssId);
         break;
       case ORC:
         df.lowerColNames();
