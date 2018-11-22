@@ -277,7 +277,7 @@ public class DataQueryController {
                                                             timeUnit.name(),
                                                             null, false,
                                                             Lists.newArrayList(
-                                                                timeUnit.parsedDateTime(dateTime, timeUnit.sortFormat(), null)
+                                                                timeUnit.parsedDateTime(dateTime, timeUnit.format(), null)
                                                             ),
                                                             null);
 
