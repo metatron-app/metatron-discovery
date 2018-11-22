@@ -1388,7 +1388,11 @@ public class JdbcConnectionService {
         }
       }
 
-      selectBody.setWhere(new MultiAndExpression(andExprList));
+      if(selectBody.getWhere() != null){
+        selectBody.setWhere(new AndExpression(selectBody.getWhere(), new MultiAndExpression(andExprList)));
+      } else {
+        selectBody.setWhere(new MultiAndExpression(andExprList));
+      }
     }
     return selectBody;
   }
