@@ -245,7 +245,7 @@
                      [ngModel]="rowNum"
                      (keyup)="changeRowNum($event)"
                      input-mask="number">
-              <strong *ngIf="mainDsSummary">/ {{ commonUtil.numberWithCommas( mainDsSummary.count ) }}</strong> {{'msg.storage.ui.row' | translate}}
+              <strong *ngIf="downloadPreview">/ {{ commonUtil.numberWithCommas( downloadPreview.count ) }}</strong> {{'msg.storage.ui.row' | translate}}
             </div>
           </div>
           <!-- // Grid Rows -->

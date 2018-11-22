@@ -20,7 +20,7 @@
     <span *ngIf="isOriginDown && preview" class="ddp-data">
       {{ commonUtil.numberWithCommas( preview.count ) }} {{'msg.storage.ui.dsource.preview.rows' | translate}} /
       {{ commonUtil.formatBytes( preview.size, 1 ) }} </span>
-    <span *ngIf="isWidgetMode && isOriginDown && !preview" class="ddp-data">{{ 'msg.board.download.calc-size' | translate }}</span>
+    <span *ngIf="'WIDGET' === mode && isOriginDown && !preview" class="ddp-data">{{ 'msg.board.download.calc-size' | translate }}</span>
   </div>
 
   <div class="ddp-wrap-data-detail">
