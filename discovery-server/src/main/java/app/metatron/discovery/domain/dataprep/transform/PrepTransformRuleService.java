@@ -42,7 +42,7 @@ public class PrepTransformRuleService {
 
   public PrepTransformRuleService() { }
 
-  private static final String CREATE_RULE_PREFIX = "create with: ";
+  public static final String CREATE_RULE_PREFIX = "create with: ";
 
   private RuleVisitorParser ruleVisitorParser = null;
 

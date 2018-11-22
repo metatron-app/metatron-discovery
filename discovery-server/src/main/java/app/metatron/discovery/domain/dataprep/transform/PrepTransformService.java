@@ -564,9 +564,15 @@ public class PrepTransformService {
 
     // Replace all occurrence of oldDsid in whole rule strings in the targets.
     for (PrepTransformRule rule : transformRuleRepository.findAll()) {
-      if (dataflowDsIds.contains(rule.getDataset().getDsId()) == false) {
+      if (!dataflowDsIds.contains(rule.getDataset().getDsId())) {
         continue;
       }
+
+      String ruleString = rule.getRuleString();
+      if (!ruleString.contains(oldDsId)) {
+        continue;
+      }
+      assert ruleString.startsWith(transformRuleService.CREATE_RULE_PREFIX) : ruleString;
 
       String newRuleString = transformRuleService.getCreateRuleString(newDsId);
       String newJsonRuleString = transformRuleService.jsonizeRuleString(newRuleString);
@@ -621,7 +627,7 @@ public class PrepTransformService {
 
   private DataFrame load_internal(String dsId) throws Exception {
     PrepDataset dataset = datasetRepository.findRealOne(datasetRepository.findOne(dsId));
-    DataFrame gridResponse = null;
+    DataFrame gridResponse;
 
     LOGGER.trace("load_internal(): start");
 
