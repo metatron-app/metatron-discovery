@@ -11,107 +11,109 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<div class="page-dashboard" >
 
-<!-- 위젯 없음 -->
-<div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length === 0"
-     class="ddp-ui-widget ddp-type">
-  <!-- 로딩 영역 -->
-  <div *ngIf="isShowDashboardLoading" class="ddp-loading-part" style="top:150px;" >
-    <div style="" class="lds-wedges">
-      <div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div></div></div>
-  </div>
-  <!-- // 로딩 영역 -->
-  <div class="ddp-box-data-none">
-    <div class="ddp-wrap-data-none">
-      <div class="ddp-ui-data-none">
-        <em class="ddp-img-nodata2"></em>
-        <span class="ddp-txt-nodata">{{'msg.board.ui.no.widget' | translate}}</span>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- //위젯 없음 -->
-
-<!-- 대시보드 영역 -->
-<div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length > 0">
-
-  <!-- filter -->
-  <selection-filter [showBtnWidget]="isManagementUser" ></selection-filter>
-  <!-- //filter -->
-
-  <!-- dashboard -->
-  <div class="ddp-ui-widget" [ngStyle]="isStandAlone ? {'top': '50px'} : {}">
+  <!-- 위젯 없음 -->
+  <div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length === 0"
+       class="ddp-ui-widget ddp-type">
     <!-- 로딩 영역 -->
     <div *ngIf="isShowDashboardLoading" class="ddp-loading-part" style="top:150px;" >
       <div style="" class="lds-wedges">
         <div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div></div></div>
     </div>
     <!-- // 로딩 영역 -->
-    <!-- Resize 처리를 위해서 Container Style을 설정해줌 -->
-    <div #layoutContainer style="position: absolute;top: 0;left: 0;right: 0;bottom: 0;"></div>
-  </div>
-  <!-- // dashboard -->
-</div>
-<!-- // 대시보드 영역 -->
-
-<!-- 데이터소스 생성 진행 프로그레스 표시 영역 -->
-<!-- 데이터 소스 상태 : Preparing -->
-<div *ngIf="dashboard && datasourceStatus === enumStatus.PREPARING" class="ddp-div-table">
-  <div class="ddp-div-tablecell">
-    <!--<span class="ddp-txt-condition">Preparing datasourece is paused</span>-->
-
-    <!-- 데이터 소스 상태 : Preparing 1. 계산중 -->
-    <div *ngIf="1 === ingestionStatus.step" class="ddp-box-loading">
-      <span class="ddp-data-loading">
-        {{ 'msg.board.filter.ui.waiting' | translate }}
-      </span>
-      <!--<a href="javascript:" class="ddp-btn-pause">Pause</a>-->
-      <!-- bar -->
-      <div class="ddp-type-progressbar">
-        <em class="ddp-data-progressbar"></em>
+    <div class="ddp-box-data-none">
+      <div class="ddp-wrap-data-none">
+        <div class="ddp-ui-data-none">
+          <em class="ddp-img-nodata2"></em>
+          <span class="ddp-txt-nodata">{{'msg.board.ui.no.widget' | translate}}</span>
+        </div>
       </div>
-      <!-- //bar -->
     </div>
-    <!-- //데이터 소스 상태 : Preparing 1. 계산중 -->
+  </div>
+  <!-- //위젯 없음 -->
 
-    <!-- 데이터 소스 상태 : Preparing 3. 진행중 -->
-    <div *ngIf="2 === ingestionStatus.step" class="ddp-box-loading">
-      <span *ngIf="'PROGRESS_GET_DATA_FROM_LINK_DATASOURCE' === ingestionStatus.message" class="ddp-data-loading">
-        {{ 'msg.board.filter.ui.ingestion-step-1' | translate }}
-      </span>
-      <span *ngIf="'PROGRESS_LOAD_TEMP_DATASOURCE' === ingestionStatus.message" class="ddp-data-loading">
-        {{ 'msg.board.filter.ui.ingestion-step-2' | translate }}
-      </span>
+  <!-- 대시보드 영역 -->
+  <div *ngIf="dashboard && datasourceStatus === enumStatus.ENABLE && boardUtil.getLayoutComponents(dashboard).length > 0">
 
-      <!--<a href="javascript:" class="ddp-btn-cancel">Cancel</a>-->
-      <!-- bar -->
-      <div class="ddp-type-progressbar2">
-        <em class="ddp-data-progressbar" [style.right]="(100 - ingestionStatus.progress) + '%'"></em>
+    <!-- filter -->
+    <selection-filter [showBtnWidget]="isManagementUser" ></selection-filter>
+    <!-- //filter -->
+
+    <!-- dashboard -->
+    <div class="ddp-ui-widget" [ngStyle]="isStandAlone ? {'top': '50px'} : {}">
+      <!-- 로딩 영역 -->
+      <div *ngIf="isShowDashboardLoading" class="ddp-loading-part" style="top:150px;" >
+        <div style="" class="lds-wedges">
+          <div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div></div></div>
       </div>
-      <!-- //bar -->
+      <!-- // 로딩 영역 -->
+      <!-- Resize 처리를 위해서 Container Style을 설정해줌 -->
+      <div #layoutContainer style="position: absolute;top: 0;left: 0;right: 0;bottom: 0;"></div>
     </div>
-    <!-- //데이터 소스 상태 : Preparing 3. 진행중  -->
-
-    <!-- condition 데이터 소스 상태 : Preparing 4. 진행중 > 중단 -->
-    <a *ngIf="-1 === ingestionStatus.step" (click)="reIngestion()" href="javascript:" class="ddp-btn-line">
-      <em class="ddp-icon-refresh"></em>{{ 'msg.board.ui.tryagain' | translate }}
-    </a>
-    <!-- //condition 데이터 소스 상태 : Preparing 4. 진행중 > 중단  -->
-
+    <!-- // dashboard -->
   </div>
-</div>
+  <!-- // 대시보드 영역 -->
 
-<!-- 데이터 소스 상태 : Disabled -->
-<div *ngIf="dashboard && datasourceStatus === enumStatus.DISABLE" class="ddp-div-table">
-  <div class="ddp-div-tablecell">
-    <span class="ddp-txt-condition ddp-missing">{{ 'msg.board.ui.missing_datasource' | translate }}</span>
-    <span class="ddp-detail" [innerHTML]="'msg.board.ui.missing_datasource.detail' | translate"></span>
-    <a (click)="reIngestion()" href="javascript:" class="ddp-btn-line">
-      <em class="ddp-icon-refresh"></em>{{ 'msg.board.ui.tryagain_ds' | translate }}
-    </a>
+  <!-- 데이터소스 생성 진행 프로그레스 표시 영역 -->
+  <!-- 데이터 소스 상태 : Preparing -->
+  <div *ngIf="dashboard && datasourceStatus === enumStatus.PREPARING" class="ddp-div-table">
+    <div class="ddp-div-tablecell">
+      <!--<span class="ddp-txt-condition">Preparing datasourece is paused</span>-->
+
+      <!-- 데이터 소스 상태 : Preparing 1. 계산중 -->
+      <div *ngIf="1 === ingestionStatus.step" class="ddp-box-loading">
+        <span class="ddp-data-loading">
+          {{ 'msg.board.filter.ui.waiting' | translate }}
+        </span>
+        <!--<a href="javascript:" class="ddp-btn-pause">Pause</a>-->
+        <!-- bar -->
+        <div class="ddp-type-progressbar">
+          <em class="ddp-data-progressbar"></em>
+        </div>
+        <!-- //bar -->
+      </div>
+      <!-- //데이터 소스 상태 : Preparing 1. 계산중 -->
+
+      <!-- 데이터 소스 상태 : Preparing 3. 진행중 -->
+      <div *ngIf="2 === ingestionStatus.step" class="ddp-box-loading">
+        <span *ngIf="'PROGRESS_GET_DATA_FROM_LINK_DATASOURCE' === ingestionStatus.message" class="ddp-data-loading">
+          {{ 'msg.board.filter.ui.ingestion-step-1' | translate }}
+        </span>
+        <span *ngIf="'PROGRESS_LOAD_TEMP_DATASOURCE' === ingestionStatus.message" class="ddp-data-loading">
+          {{ 'msg.board.filter.ui.ingestion-step-2' | translate }}
+        </span>
+
+        <!--<a href="javascript:" class="ddp-btn-cancel">Cancel</a>-->
+        <!-- bar -->
+        <div class="ddp-type-progressbar2">
+          <em class="ddp-data-progressbar" [style.right]="(100 - ingestionStatus.progress) + '%'"></em>
+        </div>
+        <!-- //bar -->
+      </div>
+      <!-- //데이터 소스 상태 : Preparing 3. 진행중  -->
+
+      <!-- condition 데이터 소스 상태 : Preparing 4. 진행중 > 중단 -->
+      <a *ngIf="-1 === ingestionStatus.step" (click)="reIngestion()" href="javascript:" class="ddp-btn-line">
+        <em class="ddp-icon-refresh"></em>{{ 'msg.board.ui.tryagain' | translate }}
+      </a>
+      <!-- //condition 데이터 소스 상태 : Preparing 4. 진행중 > 중단  -->
+
+    </div>
   </div>
+
+  <!-- 데이터 소스 상태 : Disabled -->
+  <div *ngIf="dashboard && datasourceStatus === enumStatus.DISABLE" class="ddp-div-table">
+    <div class="ddp-div-tablecell">
+      <span class="ddp-txt-condition ddp-missing">{{ 'msg.board.ui.missing_datasource' | translate }}</span>
+      <span class="ddp-detail" [innerHTML]="'msg.board.ui.missing_datasource.detail' | translate"></span>
+      <a (click)="reIngestion()" href="javascript:" class="ddp-btn-line">
+        <em class="ddp-icon-refresh"></em>{{ 'msg.board.ui.tryagain_ds' | translate }}
+      </a>
+    </div>
+  </div>
+  <!-- // 데이터소스 생성 진행 프로그레스 표시 영역 -->
+
+  <app-confirm-modal (confirm)="confirm($event)"></app-confirm-modal>
+
 </div>
-<!-- // 데이터소스 생성 진행 프로그레스 표시 영역 -->
-
-<app-confirm-modal (confirm)="confirm($event)"></app-confirm-modal>
-
