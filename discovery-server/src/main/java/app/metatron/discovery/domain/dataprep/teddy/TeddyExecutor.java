@@ -225,12 +225,28 @@ public class TeddyExecutor {
 //    BufferedWriter br = new BufferedWriter(new FileWriter(filePath));
 //    int totalLines = writeCsv(ssId, df, br, df.colNames);
 
-    String fullPath = snapshotInfo.get("fileUri") + "/part-00000-" + masterTeddyDsId + ".csv";
+    String fileUri = (String) snapshotInfo.get("fileUri");
+    if(fileUri == null) {
+      String localBaseDir = (String) snapshotInfo.get("localBaseDir");
+      String ssName = (String) snapshotInfo.get("ssName");
+      fileUri = this.snapshotService.getSnapshotDir(localBaseDir, ssName);
+      fileUri = this.snapshotService.escapeSsNameOfUri(fileUri);
+      Files.createDirectories(Paths.get(fileUri));
+
+      fileUri = fileUri.replace(" ",  "%20");
+    }
+    String fullPath = fileUri + "/part-00000-" + masterTeddyDsId + ".csv";
     String strUri = "file://" + fullPath;
+
     CSVPrinter printer = PrepCsvUtil.getPrinter(strUri, conf);
     String errmsg = null;
 
     try {
+      for(int colno=0; colno < df.getColCnt(); colno++) {
+        printer.print(df.getColName(colno));
+      }
+      printer.println();
+
       for (int rowno = 0; rowno < df.rows.size(); cancelCheck(ssId, ++rowno)) {
         Row row = df.rows.get(rowno);
         for (int colno = 0; colno < df.getColCnt(); ++colno) {
@@ -260,7 +276,7 @@ public class TeddyExecutor {
 //    ssDir = this.snapshotService.unescapeSsNameOfUri(ssDir);
 //    updateSnapshot("uri", ssDir, ssId);   // 필드명은 uri지만, local full path가 들어간다.
 
-    updateSnapshot("uri", fullPath, ssId);   // 필드명은 uri지만, local full path가 들어간다.
+    updateSnapshot("uri", fileUri, ssId);   // 필드명은 uri지만, local full path가 들어간다.
 
     LOGGER.info("createFileSnapshot() finished: totalLines={}", df.rows.size());
 

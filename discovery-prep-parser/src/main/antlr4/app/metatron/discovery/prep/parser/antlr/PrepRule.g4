@@ -22,6 +22,20 @@ VALUE_ARGUMENT_KEYWD: '@_VALUE_ARGUMENT_@';
 FUNCTION_EXPRESSION_KEYWD: '@_FUNCTION_EXPRESSION_@';
 STRING_KWD: '@_STRING_@';
 
+test_window_expression: (
+                            'count' '(' ')'
+                         | 'sum' '(' COLUMN_NAME_KEYWD ')'
+                         | 'avg' '(' COLUMN_NAME_KEYWD ')'
+                         | 'min' '(' COLUMN_NAME_KEYWD ')'
+                         | 'max' '(' COLUMN_NAME_KEYWD ')'
+                         | 'row_number' '(' ')'
+                         | 'rolling_sum' '(' COLUMN_NAME_KEYWD ',' LONG ',' LONG ')'
+                         | 'rolling_avg' '(' COLUMN_NAME_KEYWD ',' LONG ',' LONG ')'
+                         | 'lag' '(' COLUMN_NAME_KEYWD ',' LONG ')'
+                         | 'lead' '(' COLUMN_NAME_KEYWD ',' LONG ')'
+                         )
+                         ;
+
 test_aggregate_expression: (
                             'count' '(' ')'
                          | 'sum' '(' COLUMN_NAME_KEYWD ')'
