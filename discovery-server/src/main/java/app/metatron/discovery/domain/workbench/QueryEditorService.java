@@ -124,6 +124,7 @@ public class QueryEditorService {
       queryHistory.setQuery(substitutedQuery);
       queryHistory.setDataConnectionId(jdbcDataConnection.getId());
       queryHistory.setDatabaseName(databaseName);
+      queryHistory.setQueryResultStatus(QueryResult.QueryResultStatus.RUNNING);
       queryHistoryRepository.saveAndFlush(queryHistory);
       LOGGER.debug("QueryHistory Created : " + queryHistory.getId());
       Long queryHistoryId = queryHistory.getId();
@@ -142,6 +143,7 @@ public class QueryEditorService {
       audit.setQueryHistoryId(queryHistory.getId());
       audit.setStartTime(DateTime.now());
       audit.setUser(AuthUtils.getAuthUserName());
+      audit.setStatus(Audit.AuditStatus.RUNNING);
       auditRepository.saveAndFlush(audit);
       String auditId = audit.getId();
 
@@ -170,20 +172,13 @@ public class QueryEditorService {
       queryHistory.setDatabaseName(databaseName);
       queryHistory.setQueryLog(queryResult.getMessage());
       queryHistory.setNumRows(queryResult.getNumRows());
+      //cancelled should not update
+      if(queryHistory.getQueryResultStatus() != QueryResult.QueryResultStatus.CANCELLED)
+        queryHistory.setQueryResultStatus(queryResult.getQueryResultStatus());
       queryHistoryRepository.saveAndFlush(queryHistory);
+      LOGGER.debug("QueryHistory Created : " + queryHistory.getId());
 
-//        Audit.AuditStatus auditStatus;
-//        if(queryResult.getQueryResultStatus() == QueryResult.QueryResultStatus.SUCCESS){
-//          auditStatus = Audit.AuditStatus.SUCCESS;
-//        } else {
-//          auditStatus = Audit.AuditStatus.FAIL;
-//        }
-//        Audit audit = auditRepository.getOne(queryResult.getAuditId());
-//        audit.setStatus(auditStatus);
-//        audit.setElapsedTime(queryHistory.getQueryTimeTaken());
-//        audit.setFinishTime(queryResult.getFinishDateTime());
-//        audit.setNumRows(queryResult.getNumRows());
-//        auditRepository.saveAndFlush(audit);
+      queryResult.setQueryHistoryId(queryHistory.getId());
     }
 
     return queryResults;
@@ -292,6 +287,8 @@ public class QueryEditorService {
       //Query 실행 상태 RUNNING로 전환
       dataSourceInfo.setQueryStatus(QueryStatus.RUNNING);
       dataSourceInfo.setCurrentStatement(stmt);
+      dataSourceInfo.setQueryHistoryId(queryHistoryId);
+      dataSourceInfo.setAuditId(auditId);
 
       stmt.setMaxRows(maxResultSize);
 
@@ -350,8 +347,15 @@ public class QueryEditorService {
           }
         }
       }
+    } catch(SQLException e){
+      LOGGER.error("Query Execute SQLException : {}", e);
+      queryResult
+              = createMessageResult("An error occurred during query execution.  \n" +
+              "Please contact your system administrator.  \n" +
+              "(SQLException (" + e.getSQLState() + ") (" + e.getErrorCode() + ") : \n" +
+              e.getMessage() + ")", query, QueryResult.QueryResultStatus.FAIL);
     } catch(Exception e){
-      LOGGER.error("Query Execute Error : {}", e);
+      LOGGER.error("Query Execute Exception : {}", e);
       queryResult = createMessageResult(e.getMessage(), query, QueryResult.QueryResultStatus.FAIL);
     } finally {
       if (logThread != null) {
@@ -440,6 +444,19 @@ public class QueryEditorService {
         while(dataSourceInfo.getQueryList() != null && !dataSourceInfo.getQueryList().isEmpty()){
           dataSourceInfo.getQueryList().remove(0);
         }
+
+        //update status
+        QueryHistory qh = queryHistoryRepository.getOne(dataSourceInfo.getQueryHistoryId());
+        if(qh != null){
+          qh.setQueryResultStatus(QueryResult.QueryResultStatus.CANCELLED);
+          queryHistoryRepository.saveAndFlush(qh);
+        }
+        Audit audit = auditRepository.getOne(dataSourceInfo.getAuditId());
+        if(audit != null){
+          audit.setStatus(Audit.AuditStatus.CANCELLED);
+          auditRepository.saveAndFlush(audit);
+        }
+
         LOGGER.debug("Removed remain query all");
         stmt = dataSourceInfo.getCurrentStatement();
         if(stmt != null)

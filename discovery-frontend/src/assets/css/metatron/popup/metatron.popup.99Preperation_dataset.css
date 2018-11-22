@@ -1,0 +1,84 @@
+@charset "utf-8";
+
+/**************************************************************
+  popup :99_데이터프리퍼레이션_01데이터플로우_03데이터셋선택_popup
+**************************************************************/
+.popup-prep-dataset {}
+.popup-prep-dataset .ddp-ui-popup-contents {padding-top:170px;}
+.popup-prep-dataset .ddp-ui-dataset-new .ddp-wrap-viewtable {bottom:33px;}
+.popup-prep-dataset .ddp-type-top-option .ddp-ui-rightoption .ddp-data-total {position:relative; top:6px;}
+.popup-prep-dataset .ddp-ui-popup-contents .ddp-data-dataset {position:absolute; top:104px; left:50px; right:50px; padding:15px 20px; background-color:#f6f6f7; font-size:14px; color:#35393f;}
+.popup-prep-dataset .ddp-ui-popup-contents .ddp-data-dataset .ddp-txt-label {color:#90969f; font-size:14px;}
+/**************************************************************
+  popup : 99_데이터프리퍼레이션_02데이터셋_01생성완료_popup
+**************************************************************/
+.popup-prep-create-complete {}
+.popup-prep-create-complete .ddp-wrap-complete {width:860px; height:100%; margin:0 auto; text-align:left;}
+.popup-prep-create-complete .ddp-wrap-boxtype {width:100%; height:160px; margin:0; }
+.popup-prep-create-complete .ddp-wrap-sheet-list {height:100%; margin-top:-160px; padding:170px 0 0 0; box-sizing:border-box;}
+.popup-prep-create-complete .ddp-ui-sheet-list {border:1px solid #d6d7dc; height:100%; box-sizing:border-box; overflow:auto;}
+.popup-prep-create-complete table.ddp-table-sheet {width:100%; table-layout:fixed;}
+.popup-prep-create-complete table.ddp-table-sheet tr th {padding:8px 20px 8px 20px; text-align:left; font-weight:normal; color:#90969f; font-size:12px; border-bottom:1px solid #e7e7ea;}
+.popup-prep-create-complete table.ddp-table-sheet tr td {padding:16px 0 16px 20px; text-align:left; color:#4b515b; font-size:13px; vertical-align:top; white-space:nowrap; text-overflow:ellipsis; overflow:Hidden;}
+.popup-prep-create-complete table.ddp-table-sheet tr td .ddp-sheet-form {margin:-8px 0;}
+.popup-prep-create-complete table.ddp-table-sheet tr td input.ddp-input-typebasic {margin:-8px 0 -8px 0;}
+.popup-prep-create-complete table.ddp-table-sheet tr td .ddp-sheet-form input.ddp-input-typebasic {margin:0;}
+.popup-prep-create-complete table.ddp-table-sheet tr td .ddp-sheet-form .ddp-data-error {color: #e70000; font-size:12px; font-style:italic;}
+.popup-prep-create-complete table.ddp-table-sheet tr td .ddp-sheet-form .ddp-data-error:before {display:inline-block; width:13px; height:13px; background:url(../../../images/icon_info.png) no-repeat; background-position:-28px top; vertical-align:middle; content:'';}
+.popup-prep-create-complete table.ddp-table-sheet tr td .ddp-sheet-form .ddp-textarea-resize {margin:0;}
+.popup-prep-create-complete table.ddp-table-sheet tr td .ddp-textarea-resize {margin:-8px 0 -8px 0;}
+.popup-prep-create-complete table.ddp-table-sheet tr th:last-of-type,
+.popup-prep-create-complete table.ddp-table-sheet tr td:last-of-type {padding-right:20px;}
+
+.popup-prep-create-complete table.ddp-table-sheet tr:nth-child(odd) td{background-color:#fafafa;}
+.popup-prep-create-complete table.ddp-table-sheet tr td textarea {display:block; width:100%; padding:5px 10px; border:1px solid #d0d1d9; box-sizing:border-box;}
+
+/**************************************************************
+  popup :99_데이터프리퍼레이션_02데이터셋_02파일업로드1
+**************************************************************/
+.popup-prep-fileupload .ddp-box-file-create .ddp-box-loading.ddp-pop.ddp-progress {background:none; box-shadow:none;}
+
+.popup-prep-fileupload .ddp-box-file-create .ddp-box-loading.ddp-pop .ddp-btn-cancel {color:#b6b9c2;}
+.popup-prep-fileupload .ddp-box-file-create .ddp-box-loading.ddp-pop .ddp-btn-cancel:after {background:url(../../../images/btn_popclose.png) no-repeat; background-position:-22px -101px; content:'';}
+.popup-prep-fileupload .ddp-box-file-create .ddp-box-loading.ddp-cancel {margin-top:10px;}
+.popup-prep-fileupload .ddp-box-file-create .ddp-box-loading.ddp-pop.ddp-disabled {opacity:0.3;}
+.popup-prep-fileupload .ddp-box-file-create .ddp-box-loading.ddp-pop.ddp-disabled:before {background:none; }
+
+/**************************************************************
+  popup : 99_데이터프리퍼레이션_02데이터셋_02파일업로드2_popup
+**************************************************************/
+.popup-prep-fileupload .ddp-wrap-sheet .ddp-select-all {padding:10px 14px; background-color:#f6f6f7;}
+.popup-prep-fileupload .ddp-view-sheet .ddp-wrap-grid .ddp-box-loading.ddp-cancel  {margin-top:10px;}
+
+/**************************************************************
+  popup : 99_데이터프리퍼레이션_03데이터스냅샷_01상세_success_popup
+**************************************************************/
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail {}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-title {padding:25px 10px 0 10px; height:83px; background-color:#fff; }
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-title span {display:block; font-size:16px; font-weight:bold;color:#35393f; line-height:22px; letter-spacing:-1px; box-sizing:border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 라인수 */
+    -webkit-box-orient: vertical;
+    word-wrap:break-word;}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-contents-scroll {position:absolute; top:83px; left:0; right:0; bottom:70px; overflow-y:auto;}
+
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-contents-scroll  .ddp-view-detail {padding-top:0;}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-buttons {position:absolute; bottom:0; left:0; right:0; padding:20px;  background-color:#fff;}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-view-buttons a.ddp-btn-pop {width:100%;}
+.popup-prep-snapshot .ddp-layout-pop-right.ddp-detail .ddp-box-info dl.ddp-dl-detail2 {padding-bottom:20px;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

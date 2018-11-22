@@ -18,10 +18,17 @@ import app.metatron.discovery.common.GlobalObjectMapper;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepErrorCodes;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepException;
 import app.metatron.discovery.domain.dataprep.exceptions.PrepMessageKey;
+import app.metatron.discovery.domain.dataprep.teddy.exceptions.CannotSerializeIntoJsonException;
 import app.metatron.discovery.prep.parser.preparation.RuleVisitorParser;
+import app.metatron.discovery.prep.parser.preparation.rule.Header;
+import app.metatron.discovery.prep.parser.preparation.rule.Keep;
+import app.metatron.discovery.prep.parser.preparation.rule.Rename;
 import app.metatron.discovery.prep.parser.preparation.rule.Rule;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expr;
+import app.metatron.discovery.prep.parser.preparation.rule.expr.Expression;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
+import com.google.common.collect.ObjectArrays;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -29,6 +36,7 @@ import org.apache.hadoop.fs.Path;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
@@ -36,42 +44,6 @@ import java.util.*;
 import static app.metatron.discovery.domain.dataprep.PrepProperties.HADOOP_CONF_DIR;
 
 public class Util {
-  private  static RuleVisitorParser ruleVisitorParser = null;
-
-  // old method. not using except tests
-  public static List<String[]> loadGridLocalCsv(String targetUrl, String delimiter, int limitRowCnt) {
-
-    List<String[]> grid = new ArrayList<>();
-
-    BufferedReader br = null;
-    String line;
-    String quoteSymbol="\"";
-    try {
-      File theFile = new File(targetUrl);
-      br = new BufferedReader(new InputStreamReader(new FileInputStream(theFile)));
-      while ((line = br.readLine()) != null) {
-        String[] strCols = csvLineSplitter(line, delimiter, quoteSymbol);
-        grid.add(strCols);
-        if (grid.size() == limitRowCnt) {
-          break;
-        }
-      }
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      if (br != null) {
-        try {
-          br.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-    }
-    return grid;
-  }
-
   public static List<String[]> loadGridLocalCsv(String targetUrl, String delimiter, int limitRowCnt, Configuration conf, List<String> colNames) {
 
     List<String[]> grid = new ArrayList<>();
@@ -252,53 +224,6 @@ public class Util {
     System.out.println("");
   }
 
-  public static String getJsonRuleString(Rule rule) {
-    String jsonRuleString = null;
-
-    try {
-      jsonRuleString = GlobalObjectMapper.getDefaultMapper().writeValueAsString(rule);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-    }
-
-      return jsonRuleString;
-    }
-
-  public static String parseRuleString(String ruleString) {
-    if (ruleString.startsWith(CREATE_RULE_PREFIX)) {
-      return getCreateJsonRuleString(ruleString);
-    }
-
-    if (ruleVisitorParser == null) {
-      ruleVisitorParser = new RuleVisitorParser();
-    }
-    return getJsonRuleString(ruleVisitorParser.parse(ruleString));
-  }
-
-  private static final String CREATE_RULE_PREFIX = "create with: ";
-
-  public static String getCreateRuleString(String dsId) {
-    return CREATE_RULE_PREFIX + dsId;
-  }
-
-  public static String getUpstreamDsId(String ruleString) {
-    return ruleString.substring(CREATE_RULE_PREFIX.length());
-  }
-
-  public static String getCreateJsonRuleString(String ruleString) {
-    Map<String, Object> map = new HashMap();
-    String jsonRuleString = null;
-
-    map.put("name", "create");
-    map.put("with", ruleString.substring(CREATE_RULE_PREFIX.length()));
-    try {
-      jsonRuleString = GlobalObjectMapper.getDefaultMapper().writeValueAsString(map);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-    }
-
-    return jsonRuleString;
-  }
 
   public static Date jodatToSQLDate(LocalDateTime localDateTime) {
     return new Date(localDateTime.toDateTime().getMillis());

@@ -25,9 +25,9 @@
         <!-- input form -->
         <!-- error 일때 ddp-type-error 추가 -->
         <div class="ddp-ui-input-form" [ngClass]="{'ddp-type-error': joinValidation.username == false}">
-          <label class="ddp-label-type">{{'msg.login.join.id' | translate}} </label>
+          <label class="ddp-label-type">{{'msg.login.join.name' | translate}} </label>
           <div class="ddp-input-check">
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.login.join.id.ph' | translate}}"  (keydown)="joinValidation.usernameMessage? hideError('username') :null" [(ngModel)]="user.username" (blur)="validation('username')">
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.login.join.name.ph' | translate}}"  (keydown)="joinValidation.usernameMessage? hideError('username') :null" [(ngModel)]="user.username" (blur)="validation('username')">
             <em class="ddp-icon-ok" *ngIf="joinValidation.username"></em>
             <em class="ddp-icon-error" *ngIf="joinValidation.username == false"></em>
           </div>
@@ -42,7 +42,7 @@
         <!-- input form -->
         <!-- error 일때 ddp-type-error 추가 -->
         <div class="ddp-ui-input-form">
-          <label class="ddp-label-type">{{'msg.login.join.name' | translate}}
+          <label class="ddp-label-type">{{'msg.login.join.fullname' | translate}}
             <!-- tooltip -->
             <div class="ddp-ui-tooltip">
               <em class="ddp-icon-question"></em>
@@ -54,7 +54,7 @@
             <!-- //tooltip -->
           </label>
           <div class="ddp-input-check">
-            <input type="text" class="ddp-input-type" placeholder="{{'msg.login.join.name.ph' | translate}}" [(ngModel)]="user.fullName" (blur)="validation('fullName')" maxlength="50">
+            <input type="text" class="ddp-input-type" placeholder="{{'msg.login.join.fullname.ph' | translate}}" [(ngModel)]="user.fullName" (blur)="validation('fullName')" maxlength="50">
             <!--<em class="ddp-icon-ok" ></em>-->
             <!--<em class="ddp-icon-error"></em>-->
           </div>

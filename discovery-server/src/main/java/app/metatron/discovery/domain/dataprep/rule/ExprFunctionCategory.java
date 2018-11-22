@@ -5,5 +5,6 @@ public enum ExprFunctionCategory {
     LOGICAL,
     TIMESTAMP,
     AGGREGATION,
-    MATH
+    MATH,
+    WINDOW
 }
