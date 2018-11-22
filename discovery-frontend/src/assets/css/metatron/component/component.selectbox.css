@@ -108,7 +108,6 @@ ul.ddp-list-popup li a em.ddp-icon-view {display:inline-block; position:absolute
 ul.ddp-list-popup li.ddp-sub a em.ddp-icon-view {background:url(../../../images/icon_dataview.png) no-repeat; background-position:left -19px; transform:rotate(0);}
 ul.ddp-list-popup li a em.ddp-icon-check {display:none; position:absolute; top:50%; right:10px; width:11px; height:8px; margin-top:-6px; background:url(../../../images/icon_select2.png) no-repeat; background-position:-15px top;}
 
-
 .ddp-types ul.ddp-list-popup li a em.ddp-icon-add2 {display:inline-block; position:absolute; top:50%; left:12px; margin-top:-7px;  width:13px; height:13px; background:url(../../../images/icon_add.png) no-repeat; background-position:-84px -22px;}
 .ddp-types ul.ddp-list-popup li a em.ddp-icon-clone {display:inline-block; position:absolute; top:50%; left:12px; margin-top:-7px; width:13px; height:13px; background:url(../../../images/icon_clone.png) no-repeat;}
 

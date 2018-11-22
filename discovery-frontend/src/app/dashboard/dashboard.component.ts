@@ -12,7 +12,6 @@
  * limitations under the License.
  */
 
-import * as _ from 'lodash';
 import {
   ApplicationRef,
   ComponentFactoryResolver,
@@ -51,7 +50,6 @@ import { Alert } from '../common/util/alert.util';
 import { WidgetService } from './service/widget.service';
 import { DashboardUtil } from './util/dashboard.util';
 import { EventBroadcaster } from '../common/event/event.broadcaster';
-import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'app-dashboard',
