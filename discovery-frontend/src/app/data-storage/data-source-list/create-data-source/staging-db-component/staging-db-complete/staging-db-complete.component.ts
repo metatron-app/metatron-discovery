@@ -303,8 +303,8 @@ export class StagingDbCompleteComponent extends AbstractPopupComponent implement
     // delete used UI
     delete column.isValidTimeFormat;
     delete column.isValidReplaceValue;
-    // if not new columns
-    if (!column.derived) {
+    // if not GEO types
+    if (column.logicalType.indexOf('GEO_') === -1) {
       if (column.logicalType !== 'TIMESTAMP' && column.format) {
         delete column.format;
       } else if (column.logicalType === 'TIMESTAMP' && column.format.type === FieldFormatType.UNIX_TIME) {
