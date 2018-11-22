@@ -812,8 +812,8 @@ export class FormatOptionConverter {
       case ChartType.LINE:
       case ChartType.COMBINE:
         // when bar, line chart has single series
-        if ((chartType === ChartType.BAR && pivot.aggregations.length <= 1 && pivot.rows.length < 1) ||
-          ((chartType === ChartType.LINE || chartType === ChartType.COMBINE) && pivot.aggregations.length <= 1)) {
+        if (((chartType === ChartType.BAR || chartType === ChartType.LINE) && pivot.aggregations.length <= 1 && pivot.rows.length < 1) ||
+          (chartType === ChartType.COMBINE && pivot.aggregations.length <= 1)) {
           displayTypes[0] = UIChartDataLabelDisplayType.CATEGORY_NAME;
           displayTypes[1] = UIChartDataLabelDisplayType.CATEGORY_VALUE;
           // when bar, line chart has multi series
