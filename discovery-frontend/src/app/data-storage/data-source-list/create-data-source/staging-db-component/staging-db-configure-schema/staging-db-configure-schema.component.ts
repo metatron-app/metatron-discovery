@@ -401,7 +401,25 @@ export class StagingDbConfigureSchemaComponent extends AbstractPopupComponent im
    */
   public onClosedAddColumn(data: any): void {
     if (data) {
+      // data push in fields
       this.fields.unshift(data);
+      // if new column type GEO
+      if (data.logicalType.indexOf('GEO_') !== -1) {
+        const latColumnName = data.derivationRule.latField;
+        const lonColumnName = data.derivationRule.lonField;
+        // temp
+        let temp: string;
+        // set data list
+        this.data.forEach((item) => {
+          // if exist property not empty
+          if (item[latColumnName] || item[lonColumnName]) {
+            temp = item[latColumnName] || '';
+            temp += ',';
+            temp += item[lonColumnName] || '';
+            item[data.name] = temp;
+          }
+        });
+      }
     }
     this.addColumnShowFl = false;
   }
