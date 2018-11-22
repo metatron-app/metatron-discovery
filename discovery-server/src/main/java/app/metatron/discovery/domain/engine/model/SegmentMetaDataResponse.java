@@ -87,6 +87,8 @@ public class SegmentMetaDataResponse implements Serializable {
    */
   Granularity segmentGranularity;
 
+  String errorMessage;
+
 
   public SegmentMetaDataResponse() {
   }
@@ -100,7 +102,8 @@ public class SegmentMetaDataResponse implements Serializable {
                          @JsonProperty("numRows") Long numRows,
                          @JsonProperty("ingestedNumRows") Long ingestedNumRows,
                          @JsonProperty("queryGranularity") Granularity queryGranularity,
-                         @JsonProperty("segmentGranularity") Granularity segmentGranularity) {
+                         @JsonProperty("segmentGranularity") Granularity segmentGranularity,
+                         @JsonProperty("errorMessage") String errorMessage) {
 
     this.id = id;
     this.intervals = intervals;
@@ -111,6 +114,7 @@ public class SegmentMetaDataResponse implements Serializable {
     this.ingestedNumRows = ingestedNumRows;
     this.queryGranularity = queryGranularity;
     this.segmentGranularity = segmentGranularity;
+    this.errorMessage = errorMessage;
   }
 
   public List<DateTime> extractMinMaxTime() {
@@ -162,6 +166,10 @@ public class SegmentMetaDataResponse implements Serializable {
           SegmentMetaDataResponse.ColumnInfo info = this.columns.get(key);
           field = new Field(key, DataType.engineToFieldDataType(info.getType()), seq++);
         }
+      }
+
+      if (this.columns.get(key).getErrorMessage() != null){
+        field.setUnloaded(true);
       }
       convertedFields.add(field);
     }
@@ -236,6 +244,10 @@ public class SegmentMetaDataResponse implements Serializable {
     this.queryGranularity = queryGranularity;
   }
 
+  public String getErrorMessage() { return errorMessage; }
+
+  public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+
   public static SegmentMetaDataResponse empty() {
     SegmentMetaDataResponse data = new SegmentMetaDataResponse();
     data.setId("");
@@ -259,6 +271,7 @@ public class SegmentMetaDataResponse implements Serializable {
         ", ingestedNumRows=" + ingestedNumRows +
         ", queryGranularity=" + queryGranularity +
         ", segmentGranularity=" + segmentGranularity +
+        ", errorMessage=" + errorMessage +
         '}';
   }
 
@@ -294,6 +307,8 @@ public class SegmentMetaDataResponse implements Serializable {
      */
     Object maxValue;
 
+    String errorMessage;
+
     public ColumnInfo() {
     }
 
@@ -303,13 +318,16 @@ public class SegmentMetaDataResponse implements Serializable {
                       @JsonProperty("serializedSize") Long size,
                       @JsonProperty("nullCount") Long nullCount,
                       @JsonProperty("minValue") Object minValue,
-                      @JsonProperty("maxValue") Object maxValue) {
+                      @JsonProperty("maxValue") Object maxValue,
+                      @JsonProperty("errorMessage") String errorMessage
+                      ) {
       this.type = type;
       this.cardinality = cardinality;
       this.size = size;
       this.nullCount = nullCount;
       this.minValue = minValue;
       this.maxValue = maxValue;
+      this.errorMessage = errorMessage;
     }
 
     public String getType() {
@@ -328,6 +346,10 @@ public class SegmentMetaDataResponse implements Serializable {
       this.cardinality = cardinality;
     }
 
+    public String getErrorMessage() { return errorMessage; }
+
+    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+
     @Override
     public String toString() {
       return "ColumnInfo{" +
@@ -337,6 +359,7 @@ public class SegmentMetaDataResponse implements Serializable {
           ", nullCount=" + nullCount +
           ", minValue=" + minValue +
           ", maxValue=" + maxValue +
+          ", errorMessage = " + errorMessage +
           '}';
     }
   }
