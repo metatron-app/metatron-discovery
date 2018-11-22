@@ -1014,10 +1014,13 @@ export class DataPreviewComponent extends AbstractPopupComponent implements OnIn
    */
   public selectDataSource(dataSource: Datasource) {
 
+    // initialize data
     this.mainDatasource = dataSource;
     this.rowNum = 100;
     // seletedfield init
     this.selectedField = null;
+    this.timestampField = null;
+    this.safelyDetectChanges();
 
     // set columns info
     if (this.isDashboard) {
