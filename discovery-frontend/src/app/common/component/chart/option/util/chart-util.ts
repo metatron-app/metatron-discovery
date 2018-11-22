@@ -52,4 +52,21 @@ export class ChartUtil {
 
     return returnList;
   }
+
+  /**
+   * Get field alias
+   * @param field
+   */
+  public static getAlias(field): string {
+
+    let alias1: string = field['name'];
+    let alias2: string = field['fieldAlias'] ? field['fieldAlias'] : "";
+    let alias3: string = field['pivotAlias'] ? field['pivotAlias'] : "";
+    if( field.aggregationType && field.aggregationType != "" ) {
+      alias1 = field.aggregationType +"("+ alias1 +")";
+      alias2 = alias2 ? field.aggregationType +"("+ alias2 +")" : "";
+    }
+    let alias: string = alias3 ? alias3 : alias2 ? alias2: alias1;
+    return alias;
+  }
 }

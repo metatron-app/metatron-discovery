@@ -42,6 +42,7 @@ import {isNullOrUndefined} from 'util';
 import {DashboardUtil} from '../../dashboard/util/dashboard.util';
 import { GeoBoundaryFormat, GeoHashFormat } from '../../domain/workbook/configurations/field/geo-field';
 import { UIMapOption } from '../../common/component/chart/option/ui-option/map/ui-map-chart';
+import { ChartUtil } from '../../common/component/chart/option/util/chart-util';
 
 @Injectable()
 export class DatasourceService extends AbstractService {
@@ -838,8 +839,10 @@ export class DatasourceService extends AbstractService {
       //   field['alias'] = field['alias'];
       // } else {
         // aggregation type과 함께 alias 설정
-        const alias: string = field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
-        field['alias'] = field.aggregationType ? field.aggregationType + `(${alias})` : `${alias}`;
+        // const alias: string = field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
+        // field['alias'] = field.aggregationType ? field.aggregationType + `(${alias})` : `${alias}`;
+
+        field['alias'] = ChartUtil.getAlias(field);
       // }
 
     } else if (ShelveFieldType.TIMESTAMP.toString() === field.type) {   // timestamp 일때
@@ -851,7 +854,8 @@ export class DatasourceService extends AbstractService {
         if (field.format && field.format.unit) field['alias'] = (field.format && field.format.unit ? field.format.unit : 'NONE') + `(${alias})`;
       }
     } else {
-      field['alias'] = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
+      field['alias'] = ChartUtil.getAlias(field);
+      // field['alias'] = field['alias'] ? field['alias'] : field['fieldAlias'] ? field['fieldAlias'] : ( field['logicalName'] ? field['logicalName'] : field['name'] );
     }
 
     return field['alias'];

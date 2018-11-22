@@ -271,4 +271,13 @@ export class MapTooltipOptionComponent extends TooltipOptionComponent {
 
     return false;
   }
+
+  /**
+   * return data value name
+   * @param item
+   * @returns {string}
+   */
+  public returnDataValueName(item) {
+    return ChartUtil.getAlias(item);
+  }
 }

@@ -263,7 +263,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeColorColumn(data: Field) {
 
-    this.uiOption.layers[this.index].color.column = data.alias;
+    this.uiOption.layers[this.index].color.column = data.name;
 
     this.applyLayers();
   }
@@ -319,7 +319,7 @@ export class MapLayerOptionComponent extends BaseOptionComponent {
    */
   public changeSizeColumn(data: Field) {
 
-    (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = data.alias;
+    (<UISymbolLayer>this.uiOption.layers[this.index]).size.column = data.name;
 
     this.applyLayers();
   }
