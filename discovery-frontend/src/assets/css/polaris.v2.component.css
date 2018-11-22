@@ -442,6 +442,34 @@ ul.ddp-list-popup li a span.ddp-column-type [class*="ddp-icon"],
 .ddp-ui-selected-option.ddp-selected .ddp-types ul.ddp-list-popup li:hover .ddp-wrap-popup2 {display:block;}
 
 
+em.ddp-icon-basic-calen,
+em.ddp-icon-basic-ab,
+em.ddp-icon-basic-local,
+em.ddp-icon-basic-sharp,
+em.ddp-icon-basic-account,
+em.ddp-icon-basic-tf,
+em.ddp-icon-basic-maplink,
+em.ddp-icon-basic-float,
+em.ddp-icon-basic-int,
+em.ddp-icon-basic-latitude,
+em.ddp-icon-basic-longitude,
+em.ddp-icon-basic-array ,
+em.ddp-icon-basic-map {display:inline-block; background:url(../images/icon_valuetype.png) no-repeat; vertical-align:middle;}
+
+em.ddp-icon-basic-ab {width:13px; height:9px; background-position:-42px top;}
+em.ddp-icon-basic-calen {width:11px; height:11px; background-position:-36px -74px;}
+em.ddp-icon-basic-local {width:9px; height:12px; background-position:-40px -10px;}
+em.ddp-icon-basic-sharp {width:15px; height:8px; background-position:-63px -23px;}
+em.ddp-icon-basic-account {width:11px; height:12px; background-position:-44px -32px;}
+em.ddp-icon-basic-maplink {width:10px; height:10px; background-position:-44px -54px;}
+em.ddp-icon-basic-tf {width:14px; height:9px; background-position:-59px -45px;}
+em.ddp-icon-basic-float {width:16px; height:8px; background-position:-67px -96px;}
+em.ddp-icon-basic-int {width:8px; height:8px; background-position:-35px -87px;}
+em.ddp-icon-basic-latitude  {width:11px; height:11px; background-position:-48px -119px;}
+em.ddp-icon-basic-longitude {width:11px; height:11px; background-position:-48px -131px;}
+em.ddp-icon-basic-array {width:8px; height:10px; background-position:-36px -107px;}
+em.ddp-icon-basic-map {width:14px; height:10px; background-position:-60px -143px;}
+
 table.ddp-table-form tr th .ddp-wrap-hover-info {cursor:pointer; margin-left:3px;}
 table.ddp-table-form tr th .ddp-wrap-hover-info .ddp-box-layout4 {display:none; position:absolute; bottom:100%; right:100%; margin:0 -20px 4px 0;}
 table.ddp-table-form tr th .ddp-wrap-hover-info:hover .ddp-box-layout4 {display:block; white-space:normal; z-index:20;}
