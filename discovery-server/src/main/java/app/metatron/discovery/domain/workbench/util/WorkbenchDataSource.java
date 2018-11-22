@@ -31,6 +31,8 @@ public class WorkbenchDataSource {
   private QueryStatus queryStatus = QueryStatus.IDLE;
   private String applicationId;
   private Statement currentStatement;
+  private Long queryHistoryId;
+  private String auditId;
 
   /**
    * Instantiates a new Single connection data source info.
@@ -137,6 +139,22 @@ public class WorkbenchDataSource {
 
   public void setQueryList(List<String> queryList) {
     this.queryList = queryList;
+  }
+
+  public Long getQueryHistoryId() {
+    return queryHistoryId;
+  }
+
+  public void setQueryHistoryId(Long queryHistoryId) {
+    this.queryHistoryId = queryHistoryId;
+  }
+
+  public String getAuditId() {
+    return auditId;
+  }
+
+  public void setAuditId(String auditId) {
+    this.auditId = auditId;
   }
 
   /**
