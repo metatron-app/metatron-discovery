@@ -15,11 +15,11 @@
 package app.metatron.discovery.domain.dataprep.exceptions;
 
 public enum PrepMessageKey {
-    MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING(                     "msg.dp.alert.required.property.missing"),
+    MSG_DP_ALERT_REQUIRED_PROPERTY_MISSING(                      "msg.dp.alert.required.property.missing"),
 
     MSG_DP_ALERT_FILE_NOT_FOUND(                                 "msg.dp.alert.file.not.found"),
-    MSG_DP_ALERT_PROPERTY_NOT_AVAILABLE(                      "msg.dp.alert.property.not.available"),
-    MSG_DP_ALERT_PREVIEWLINES_CRASHED(                  "msg.dp.alert.previewlines.creashed"),
+    MSG_DP_ALERT_PROPERTY_NOT_AVAILABLE(                         "msg.dp.alert.property.not.available"),
+    MSG_DP_ALERT_PREVIEWLINES_CRASHED(                           "msg.dp.alert.previewlines.creashed"),
     MSG_DP_ALERT_DATASET_FAILED_AFTERCREATE(                     "msg.dp.alert.dataset.failed.aftercreate"),
     MSG_DP_ALERT_DATASET_UPLOAD_NO_KEY(                          "msg.dp.alert.dataset.upload.no.key"),
     MSG_DP_ALERT_JDBC_CONNECTION_ERROR(                          "msg.dp.alert.jdbc.connection.error"),
@@ -40,6 +40,7 @@ public enum PrepMessageKey {
     MSG_DP_ALERT_STAGING_BASE_DIR_NOT_CONFIGURED(                "msg.dp.alert.staging.base.dir.not.configured"),
     MSG_DP_ALERT_HIVE_NOT_CONFIGURED(                            "msg.dp.alert.hive.not.configured"),
     MSG_DP_ALERT_EXTERNAL_JAR_NOT_CONFIGURED(                    "msg.dp.alert.external.jar.not.configured"),
+    MSG_DP_ALERT_FILE_KEY_MISSING(                               "msg.dp.alert.file.key.missing"),
 
     MSG_DP_ALERT_TEDDY_PARSE_FAILED(                             "msg.dp.alert.teddy.parse.failed"),
     MSG_DP_ALERT_TEDDY_PARSE_FAILED_BY_RULENAME(                 "msg.dp.alert.teddy.parse.failed.by.rulename"),
