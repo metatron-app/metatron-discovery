@@ -3,6 +3,20 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specic language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -20,6 +34,26 @@ import com.google.common.collect.Maps;
 
 import com.facebook.presto.jdbc.PrestoArray;
 
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.DateValue;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.operators.relational.Between;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.Limit;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.util.SelectUtils;
+import net.sf.jsqlparser.util.cnfexpression.MultiAndExpression;
+import net.sf.jsqlparser.util.cnfexpression.MultiOrExpression;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -41,6 +75,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -64,10 +99,8 @@ import app.metatron.discovery.domain.datasource.Field;
 import app.metatron.discovery.domain.datasource.connection.ConnectionRequest;
 import app.metatron.discovery.domain.datasource.connection.DataConnection;
 import app.metatron.discovery.domain.datasource.connection.jdbc.query.NativeCriteria;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeBetweenExp;
 import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeCurrentDatetimeExp;
 import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDateFormatExp;
-import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeDisjunctionExp;
 import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeEqExp;
 import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeOrderExp;
 import app.metatron.discovery.domain.datasource.connection.jdbc.query.expression.NativeProjection;
@@ -87,49 +120,6 @@ import app.metatron.discovery.domain.workbook.configurations.filter.InclusionFil
 import app.metatron.discovery.domain.workbook.configurations.filter.IntervalFilter;
 import app.metatron.discovery.util.AuthUtils;
 import app.metatron.discovery.util.PolarisUtils;
-import com.facebook.presto.jdbc.PrestoArray;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.expression.DateValue;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.operators.relational.Between;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.*;
-import net.sf.jsqlparser.util.SelectUtils;
-import net.sf.jsqlparser.util.cnfexpression.MultiAndExpression;
-import net.sf.jsqlparser.util.cnfexpression.MultiOrExpression;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.UserGroupInformation;
-import org.joda.time.DateTime;
-import org.postgresql.jdbc.PgArray;
-import org.postgresql.util.PGobject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Pageable;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.stereotype.Component;
-import org.supercsv.prefs.CsvPreference;
-
-import javax.sql.DataSource;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.sql.*;
-import java.sql.Date;
-import java.util.*;
-import java.util.stream.Collectors;
 
 import static app.metatron.discovery.domain.datasource.connection.jdbc.JdbcDataConnection.CURRENT_DATE_FORMAT;
 import static java.util.stream.Collectors.toList;
@@ -1271,11 +1261,15 @@ public class JdbcConnectionService {
 
       selectBody = (PlainSelect) select.getSelectBody();
 
-      if (fields != null && !fields.isEmpty()) {
-
+      if (CollectionUtils.isNotEmpty(fields)) {
         //change projection
         List<SelectItem> newSelectItems = Lists.newArrayList();
         for(Field field : fields){
+          //
+          if(field.isNotPhysicalField()) {
+            continue;
+          }
+
           DataConnection.Implementor implementor = DataConnection.Implementor.getImplementor(realConnection);
           String columnName;
           if (Field.COLUMN_NAME_CURRENT_DATETIME.equals(field.getName()) && field.getRole() == Field.FieldRole.TIMESTAMP) {
