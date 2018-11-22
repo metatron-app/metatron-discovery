@@ -57,7 +57,7 @@ public class QueryResult implements Serializable {
   String csvFilePath;
 
   public enum QueryResultStatus {
-    SUCCESS, FAIL, ALL
+    SUCCESS, FAIL, CANCELLED, RUNNING, ALL
   }
 
   public List<Field> getFields() {
