@@ -208,6 +208,43 @@ export class CodemirrorComponent implements AfterViewInit, OnDestroy {
     this.instance.focus();
   }
 
+  /**
+   * insert column
+   * @param text
+   */
+  public insertColumn(text: string): void {
+    if (text === null || text === undefined) {
+      text = '';
+    }
+
+    let temp = text;
+    const line: number = this.instance.doc.getCursor().line;
+    const ch: number = this.instance.doc.getCursor().ch;
+
+    const lines: any[] = this.getLines();
+    let beforeText: string = this.instance.doc.getRange({line: 0, ch: 0}, {line: line, ch: ch});
+    let afterText: string = this.instance.doc.getRange({line: line, ch: ch}, {line: lines.length, ch: 0});
+
+    if (beforeText == '') {
+      if (text.indexOf('\n') > -1) {
+        temp = beforeText + temp.replace('\n', '') + afterText;
+      } else {
+        temp = beforeText + temp + afterText;
+      }
+      this.writeValue(temp);
+      this.instance.setCursor({line: line + 1, ch: ch + text.length});
+    } else {
+      temp = beforeText + temp + afterText;
+      this.writeValue(temp);
+      if (text.indexOf('\n') > -1) {
+        this.instance.setCursor({ line: line + 1, ch: ch + text.length });
+      } else {
+        this.instance.setCursor({line: line, ch: ch + text.length});
+      }
+    }
+    this.instance.focus();
+  }
+
   public replace(text: string) : void {
     const range = this.getSelectedRange();
     const lines:any[] = this.getLines();

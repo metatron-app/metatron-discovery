@@ -81,6 +81,7 @@ import { EditRuleAggregateComponent } from './dataflow/dataflow-detail/component
 import { EditRulePivotComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-pivot.component';
 import { EditRuleSettypeComponent } from './dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-settype.component';
 import { PrepSelectBoxComponent } from './util/prep-select-box.component';
+import { PrepSelectBoxCustomComponent } from './util/prep-select-box-custom.component';
 import { DataflowModelService } from "./dataflow/service/dataflow.model.service";
 import {EditRuleWindowComponent} from "./dataflow/dataflow-detail/component/edit-dataflow-rule/edit-rule/edit-rule-window.component";
 import {CheckboxSelectDatasetComponent} from "./component/checkbox-select-dataset.component";
@@ -166,6 +167,7 @@ const dataPreparationRoutes: Routes = [
     SnapshotLoadingComponent,
     RuleConditionInputComponent,
     PrepSelectBoxComponent,
+    PrepSelectBoxCustomComponent,
     RadioSelectDatasetComponent,
     CheckboxSelectDatasetComponent,
     LongUpdatePopupComponent,
