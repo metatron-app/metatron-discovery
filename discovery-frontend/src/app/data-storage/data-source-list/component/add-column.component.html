@@ -66,7 +66,7 @@
             [columnList]="latitudeColumnList"
             [selectedColumn]="selectedLatitudeColumn"
             [placeholder]="'msg.storage.ui.latitude.column' | translate"
-            [searchPlaceHolder]="'msg.storage.ui.longitude.column' | translate"
+            [searchPlaceHolder]="'msg.storage.ui.latitude.column' | translate"
             (onSelected)="onChangeSelectedLatitudeColumn($event)"></column-select-box>
           <!-- //select box -->
           <span class="ddp-data-error" *ngIf="latitudeColumnValid === false"> {{'msg.storage.ui.required' | translate}}</span>
